@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="CodeGeneration">
+      <UniqueIdentifier>{895e8021-65da-4626-bd16-4e0f79a73c25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CodeGeneration\Header Files">
+      <UniqueIdentifier>{ee55e27d-d21e-4d7c-8e30-0982ba3b42e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CodeGeneration\Source Files">
+      <UniqueIdentifier>{e23dbc24-be51-4a0c-84ec-4abb9f3bff5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Suite">
+      <UniqueIdentifier>{b0ad0b73-c6b7-4b83-a7d5-549506b3729e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Suite\Header Files">
+      <UniqueIdentifier>{51864c49-909a-4edc-959a-a8939f39da38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Suite\Source Files">
+      <UniqueIdentifier>{55f12be0-b1a6-4d07-b78c-c3c1df4283f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Driver">
+      <UniqueIdentifier>{0beb1f88-252e-4a3a-a242-d99512f75b50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Driver\Source Files">
+      <UniqueIdentifier>{8adf9c26-ae48-4786-aef5-1118d63bcac6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\CodeGenerationTest.h">
+      <Filter>CodeGeneration\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CodeGenerationTestSuite.h">
+      <Filter>_Suite\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\CodeGenerationTest.cpp">
+      <Filter>CodeGeneration\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CodeGenerationTestSuite.cpp">
+      <Filter>_Suite\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WinDriver.cpp">
+      <Filter>_Driver\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

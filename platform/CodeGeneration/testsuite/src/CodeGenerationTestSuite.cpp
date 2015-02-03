@@ -1,0 +1,24 @@
+//
+// CodeGenerationTestSuite.cpp
+//
+// $Id: //poco/1.4/CodeGeneration/testsuite/src/CodeGenerationTestSuite.cpp#2 $
+//
+// Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
+// All rights reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+
+#include "CodeGenerationTestSuite.h"
+#include "CodeGenerationTest.h"
+
+
+CppUnit::Test* CodeGenerationTestSuite::suite()
+{
+	CppUnit::TestSuite* pSuite = new CppUnit::TestSuite("CodeGenerationTestSuite");
+
+	pSuite->addTest(CodeGenerationTest::suite());
+
+	return pSuite;
+}

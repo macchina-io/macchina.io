@@ -1,0 +1,34 @@
+#! /bin/sh
+#
+# $Id: //poco/1.4/release/script/mkpdocs#1 $
+#
+# mkpdocs
+#
+# Create documentation for all customers.
+#
+# usage: mkpdocs [-l <perforce-label>]
+#
+
+if [ "$POCO_BASE" = "" ] ; then
+  echo "Error: POCO_BASE not set."
+  exit 1
+fi
+
+label=""
+while [ "$1" != "" ] ; 
+do
+	if [ "$1" = "-l" ] ; then
+		shift
+		label="-l $1"
+		shift
+	fi
+done
+
+customersFile=$POCO_BASE/release/spec/current_customers
+while read spec
+do
+	echo '***'
+	echo '*** Building documentation for '$spec
+	echo '***'
+	mkpdoc $label $spec
+done <$customersFile

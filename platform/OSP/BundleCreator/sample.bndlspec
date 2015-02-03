@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>Sample Bundle</name>
+    <symbolicName>com.appinf.osp.sample</symbolicName>
+    <version>1.0.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2007, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>MyBundleActivator</class>
+      <library>TestBundle</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>200</runLevel>
+  </manifest>
+  <code>
+    bin/.dll,
+    ${osName}/${osArch}/*.so,
+    ${osName}/${osArch}/*.dylib
+  </code>
+  <!-- a comma separated list of files/dirs, e.g.: de, en, info.txt-->
+  <files/>
+</bundlespec>

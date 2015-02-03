@@ -1,0 +1,333 @@
+#! /bin/sh
+#
+# mkinstaller
+#
+# Create a Windows binary POCO release with installer.
+#
+# Usage:
+#    mkinstaller <vs_version> [-l] [-u] [-t <reltag>] [-v version] [-f <compfile>] [-p <platform>] {<component>}
+#
+#    <vs_version>:  Visual Studio tools version ("71" or "80")
+#    -l:            Include license check
+#    -u:            Upload file to release repository.
+#    -t:            Specify release tag.
+#    -v:            Specify POCO Platform version.
+#    -p:            Specify platform ("Win32" or "x64")
+#    -f <compfile>: Component list file
+#    <components>:  Additional components to include
+#
+# Environment:
+#    $POCO_BASE: POCO base directory (e.g., "/cygdrive/p/poco-1.2")
+#
+# Prerequisites:
+#    PocoDoc.exe must be in PATH
+#    makensis.exe must be in PATH
+#
+
+productName="Applied Informatics C++ Libraries and Tools"
+installName="AppliedInformatics"
+
+if [ "$POCO_BASE" = "" ] ; then
+  echo "Error: POCO_BASE not set."
+  exit 1
+fi
+
+include=`dirname $0`
+build=$POCO_BASE/stage/build
+dist=$POCO_BASE/stage/dist
+docConfig=$POCO_BASE/PocoDoc/cfg/mkinstaller.xml
+read version <$POCO_BASE/VERSION
+
+comps="Foundation XML Util Net"
+specfile=""
+vcversion=""
+license=0
+upload=0
+tag=""
+platform=Win32
+
+while [ "$1" != "" ] ; 
+do
+	if [ "$1" = "-f" ] ; then
+		shift
+		specfile=$1
+		shift
+	elif [ "$1" = "-t" ] ; then
+    	shift
+    	tag=$1
+    	shift
+    elif [ "$1" = "-v" ] ; then
+    	shift
+    	version=$1
+    	shift
+	elif [ "$1" = "-l" ] ; then
+	  license=1
+	  shift
+	elif [ "$1" = "-u" ] ; then
+	  upload=1
+	  shift
+	elif [ "$1" = "-p" ] ; then
+	  shift
+	  platform=$1
+	  shift
+	elif [ "$vcversion" = "" ] ; then
+		vcversion=$1
+		shift
+	else
+		comps="$comps $1"
+		shift
+	fi
+done
+
+if [ "$vcversion" = "" ] ; then
+	echo "Error: no VC version specified."
+	exit 1
+fi
+
+if [ "$license" = 1 ] ; then
+  comps="$comps Licensing"
+  export INCLUDE="$INCLUDE;`cygpath -w $POCO_BASE/Licensing/include`"
+fi
+
+if [ "$specfile" != "" ] ; then
+  while read c
+	do
+		comps="$comps $c"
+	done <$specfile
+fi
+
+build=$build/vs$vcversion
+dist=$dist/vs$vcversion
+
+
+#
+# Clean build directory
+#
+echo "Cleaning build directory: $build"
+rm -rf $build
+rm -rf $dist
+mkdir -p $build
+mkdir -p $dist
+
+
+#
+# Copy POCO sources into build directory
+#
+for comp in $comps ;
+do
+  echo "Copying sources: $comp"
+	cpproj $POCO_BASE/$comp $build/$comp
+done
+cp $POCO_BASE/DLLVersion.rc $build
+chmod +rw $build/DLLVersion.rc
+
+#
+# Check License 
+#
+if [ "$license" = 1 ] ; then
+  cp -f $POCO_BASE/dist/Config_License.h $build/Foundation/include/Poco/Config.h
+fi
+
+
+#
+# Make all files writeable
+#
+chmod -R +w $build
+
+
+#
+# Remove testsuites
+#
+find $build -name 'testsuite' -type d -exec rm -rf {} \;
+
+
+#
+# Build sources
+#
+unset TEMP
+unset TMP
+source $include/winbuild.sh
+
+
+#
+# Pack release
+#
+echo "Packing release..."
+mkdir -p $dist/include/Poco
+mkdir -p $dist/lib
+mkdir -p $dist/bin
+mkdir -p $dist/bin/static_mt
+mkdir -p $dist/bin/static_md
+mkdir -p $dist/samples
+chmod -R +rwx $dist
+
+# Copy libs
+echo "Copying libs"
+cp $build/bin/*.dll $dist/bin
+cp $build/bin/*.pdb $dist/bin
+cp $build/lib/*.exp $dist/lib
+cp $build/lib/*.lib $dist/lib
+cp $build/lib/*.pdb $dist/lib
+
+# Copy headers
+echo "Copying headers"
+for comp in $comps ; do 
+  if [ $comp != Licensing ] ; then
+  	if [ -d "$POCO_BASE/$comp/include" ] ; then 
+	  	cp -Rf $POCO_BASE/$comp/include/* $dist/include/
+	  	find $dist/include -type d -exec chmod +rwx {} \;
+	  fi
+	fi
+done
+chmod -R +rw $dist/include
+
+# Copy executables
+echo "Copying executables"
+for comp in $comps ; do 
+	if [ -d "$build/$comp/bin" ] ; then 
+		cp -f $build/$comp/bin/*.exe $dist/bin
+	fi 
+	if [ -d "$build/$comp/bin/static_md" ] ; then 
+		cp -f $build/$comp/bin/static_md/*.exe $dist/bin/static_md
+	fi 
+	if [ -d "$build/$comp/bin/static_mt" ] ; then 
+		cp -f $build/$comp/bin/static_mt/*.exe $dist/bin/static_mt
+	fi 
+done
+
+# Copy OSP bundles
+echo "Copying bundles"
+if [ -d "$build/OSP/bundles" ] ; then
+	cp $build/OSP/bundles/* $build/OSP/samples/bundles
+fi
+
+# Copy samples
+echo "Copying samples"
+for comp in $comps ; do 
+	if [ -d "$build/$comp/samples" ] ; then 
+	  mkdir $dist/samples/$comp
+		cp -Rf $build/$comp/samples/* $dist/samples/$comp
+	fi 
+done
+
+# Fix project files
+echo "Patching sample project files"
+find $dist/samples -name '*.vcproj' -exec sh -c " \
+  mv {} {}.tmp ; \
+  sed 's/\(AdditionalIncludeDirectories=\"\).*\(\"\)/\1.\\\\include;..\\\\..\\\\..\\\\include\2/g' <{}.tmp >{} ; \
+  rm {}.tmp " \;
+
+find $dist/samples -name '*.vcxproj' -exec sh -c " \
+  mv {} {}.tmp ; \
+  sed 's#\(<AdditionalIncludeDirectories>\).*\(</AdditionalIncludeDirectories>\)#\1.\\\\include;..\\\\..\\\\..\\\\include\2#g' <{}.tmp >{} ; \
+  rm {}.tmp " \;
+
+# Copy additional distribution files
+echo "Copying additional sample files"
+for comp in $comps ; do
+  if [ -d "$POCO_BASE/$comp/samples.dist" ] ; then
+    cp -Rf $POCO_BASE/$comp/samples.dist/* $dist/samples/$comp
+    chmod -R +rw $dist/samples/$comp/*
+  fi
+done
+
+# Cleanup samples
+echo "Cleaning up samples"
+if [ "$vcversion" = "71" ] ; then
+  notvs1=vs80
+  notvs2=vs90
+  notvs3=vs100
+  notvs4=vs110
+elif [ "$vcversion" = "80" ] ; then
+  notvs1=vs71
+  notvs2=vs90
+  notvs3=vs100
+  notvs4=vs110
+elif [ "$vcversion" = "90" ] ; then
+  notvs1=vs71
+  notvs2=vs80
+  notvs3=vs100
+  notvs4=vs110
+elif [ "$vcversion" = "100" ] ; then
+  notvs1=vs71
+  notvs2=vs80
+  notvs3=vs90
+  notvs4=vs110
+else
+  notvs1=vs71
+  notvs2=vs80
+  notvs3=vs90
+  notvs4=vs100
+fi
+for comp in $comps ; do
+	if [ -d "$dist/samples/$comp" ] ; then
+	  find $dist/samples/$comp -name 'obj' -print | xargs rm -rf
+    find $dist/samples/$comp -name '*.ncb' -exec rm -f {} \;
+    find $dist/samples/$comp -name 'Makefile' -exec rm -f {} \;
+    find $dist/samples/$comp -name '*.vmsbuild' -exec rm -f {} \;
+    find $dist/samples/$comp -name '*.progen' -exec rm -f {} \;
+    find $dist/samples/$comp -name "*_${notvs1}*" -exec rm -f {} \;
+    find $dist/samples/$comp -name "*_${notvs2}*" -exec rm -f {} \;
+    find $dist/samples/$comp -name "*_${notvs3}*" -exec rm -f {} \;
+    find $dist/samples/$comp -name "*_${notvs4}*" -exec rm -f {} \;
+    find $dist/samples/$comp -name "*_x64_vs${vcversion}*" -exec rm -f {} \;
+    find $dist/samples/$comp -name "*_CE_vs${vcversion}*" -exec rm -f {} \;
+    find $dist/samples/$comp -name '*.suo' -exec rm -f {} \;
+    find $dist/samples/$comp -name '*.ilk' -exec rm -f {} \;
+    find $dist/samples/$comp -name '*.pdb' -exec rm -f {} \;
+    find $dist/samples/$comp -name 'dependencies' -exec rm -f {} \;
+    find $dist/samples/$comp -name '*.vcproj.*.user' -exec rm -f {} \;
+    find $dist/samples/$comp -name '*.vcxproj.user' -exec rm -f {} \;
+	fi
+done
+
+
+#
+# Generate documentation
+#
+echo "Generating documentation"
+
+# Create a PocoDoc configuration file
+docVersion=$version
+if [ $tag ] ; then
+  docVersion="$docVersion-$tag"
+fi
+echo "PocoInclude=`cygpath -w $dist/include`" >$build/PocoDoc.ini
+echo "PocoBuild=`cygpath -w $build`" >>$build/PocoDoc.ini
+echo "PocoBase=`cygpath -w $POCO_BASE`" >>$build/PocoDoc.ini
+echo "PocoDoc.output=`cygpath -w $dist/doc`" >>$build/PocoDoc.ini
+echo "PocoDoc.version=$docVersion" >> $build/PocoDoc.ini
+
+PocoDoc /config=`cygpath -w $docConfig` /config=`cygpath -w $build/PocoDoc.ini`
+
+#
+# Build installer
+#
+echo "Building installer"
+
+# Copy installer files
+cp $POCO_BASE/Installer/* $dist
+chmod +rw $dist/*
+
+mkdir $dist/etc
+cp $dist/*.url $dist/etc
+
+# Run installer
+instfile="$installName-$version"
+tagdef=""
+if [ $tag ] ; then
+  instfile="$instfile-$tag"
+  tagdef="/DPRODUCT_TAG=$tag"
+fi
+instfile="$instfile-vs$vcversion.exe"
+basedir=`pwd`
+cd $dist
+makensis /V1 /DINSTALL_NAME=$installName /DPRODUCT_VERSION=$version /DVS_VERSION=vs$vcversion /DOUTPUT_FILE=$instfile $tagdef PocoInstaller.nsi
+cd $basedir
+
+if [ $upload = 1 ] ; then
+  echo "Uploading installer..."
+  upload $version $dist/$instfile
+fi
+
+echo "Done."

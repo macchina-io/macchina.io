@@ -1,0 +1,29 @@
+#! /bin/sh
+#
+# $Id: //poco/1.4/release/script/upload#1 $
+#
+# upload
+#
+# Upload a file via FTP to the release repository.
+#
+# usage: upload <version> <files>
+#
+
+ftplogin=cis:grab45:gruff
+ftpurl=ftp://bambleweeny/RELEASES/poco
+
+if [ ! $1 ] ; then
+  echo "usage: `basename $0`: <version> <files>"
+  exit 1
+fi
+
+version=$1
+
+shift
+while [ "$1" != "" ] ; 
+do
+  path=$1
+  file=`basename $path`
+  curl -T $path -u $ftplogin --ftp-create-dirs $ftpurl/$version/$file
+  shift
+done

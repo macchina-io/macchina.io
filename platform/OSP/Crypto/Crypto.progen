@@ -1,0 +1,13 @@
+vc.project.guid = F9D6ACA7-8885-452E-BF15-29B3C9AA754F
+vc.project.name = Crypto
+vc.project.target = poco.crypto
+vc.project.type = plugin
+vc.project.pocobase = ..\\..
+vc.project.outdir = .
+vc.project.platforms = Win32, x64, WinCE
+vc.project.configurations = debug_shared, release_shared
+vc.project.prototype = ${vc.project.name}_vs90.vcproj
+vc.project.compiler.include = ..\\..\\Foundation\\include;..\\..\\XML\\include;..\\..\\Util\\include;..\\..\\Crypto\\include;..\\..\\OSP\\include;..\\..\\Zip\\include
+vc.project.postbuild.debug_shared = bundled /osarch=${project.targetArchitecture} /output=../bundles $(ProjectName).bndlspec
+vc.project.postbuild.release_shared = bundle /osarch=${project.targetArchitecture} /output=../bundles $(ProjectName).bndlspec
+vc.solution.create = true

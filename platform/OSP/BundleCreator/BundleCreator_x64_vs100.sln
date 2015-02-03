@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BundleCreator", "BundleCreator_x64_vs100.vcxproj", "{B933DFF0-6DE8-4476-AA6C-8E8501523462}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		debug_shared|x64 = debug_shared|x64
+		release_shared|x64 = release_shared|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B933DFF0-6DE8-4476-AA6C-8E8501523462}.debug_shared|x64.ActiveCfg = debug_shared|x64
+		{B933DFF0-6DE8-4476-AA6C-8E8501523462}.debug_shared|x64.Build.0 = debug_shared|x64
+		{B933DFF0-6DE8-4476-AA6C-8E8501523462}.debug_shared|x64.Deploy.0 = debug_shared|x64
+		{B933DFF0-6DE8-4476-AA6C-8E8501523462}.release_shared|x64.ActiveCfg = release_shared|x64
+		{B933DFF0-6DE8-4476-AA6C-8E8501523462}.release_shared|x64.Build.0 = release_shared|x64
+		{B933DFF0-6DE8-4476-AA6C-8E8501523462}.release_shared|x64.Deploy.0 = release_shared|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

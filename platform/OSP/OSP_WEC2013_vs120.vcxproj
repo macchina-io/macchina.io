@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="debug_shared|SDK_AM335X_SK_WEC2013_V310">
+      <Configuration>debug_shared</Configuration>
+      <Platform>SDK_AM335X_SK_WEC2013_V310</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="release_shared|SDK_AM335X_SK_WEC2013_V310">
+      <Configuration>release_shared</Configuration>
+      <Platform>SDK_AM335X_SK_WEC2013_V310</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>OSP</ProjectName>
+    <ProjectGuid>{1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED}</ProjectGuid>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <EnableRedirectPlatform>true</EnableRedirectPlatform>
+    <RedirectPlatformValue>SDK_AM335X_SK_WEC2013_V310</RedirectPlatformValue>
+    <PlatformToolset>CE800</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release_shared|SDK_AM335X_SK_WEC2013_V310'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>CE800</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug_shared|SDK_AM335X_SK_WEC2013_V310'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>CE800</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
+  <ImportGroup Label="ExtensionSettings"/>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='release_shared|SDK_AM335X_SK_WEC2013_V310'" Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='debug_shared|SDK_AM335X_SK_WEC2013_V310'" Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros"/>
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_shared|SDK_AM335X_SK_WEC2013_V310'">PocoOSPd</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='release_shared|SDK_AM335X_SK_WEC2013_V310'">PocoOSP</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug_shared|SDK_AM335X_SK_WEC2013_V310'">
+    <OutDir>..\bin\$(Platform)\</OutDir>
+    <IntDir>obj\OSP\$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <GenerateManifest>true</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release_shared|SDK_AM335X_SK_WEC2013_V310'">
+    <OutDir>..\bin\$(Platform)\</OutDir>
+    <IntDir>obj\OSP\$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='debug_shared|SDK_AM335X_SK_WEC2013_V310'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\include;..\Foundation\include;..\XML\include;..\Util\include;..\Zip\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;$(ProjectName)_EXPORTS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;OSP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>..\bin\$(Platform)\PocoOSPd.dll</OutputFile>
+      <AdditionalLibraryDirectories>..\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\bin\$(Platform)\PocoOSPd.pdb</ProgramDatabaseFile>
+      <OptimizeReferences/>
+      <EnableCOMDATFolding/>
+      <ImportLibrary>..\lib\$(Platform)\PocoOSPd.lib</ImportLibrary>
+      <SubSystem>WindowsCE</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release_shared|SDK_AM335X_SK_WEC2013_V310'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>.\include;..\Foundation\include;..\XML\include;..\Util\include;..\Zip\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;$(ProjectName)_EXPORTS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;OSP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>..\bin\$(Platform)\PocoOSP.dll</OutputFile>
+      <AdditionalLibraryDirectories>..\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ProgramDatabaseFile/>
+      <OptimizeReferences/>
+      <EnableCOMDATFolding/>
+      <ImportLibrary>..\lib\$(Platform)\PocoOSP.lib</ImportLibrary>
+      <SubSystem>WindowsCE</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Poco\OSP\Auth\AuthService.h"/>
+    <ClInclude Include="include\Poco\OSP\Bundle.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleActivator.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleContext.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleContextFactory.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleDirectory.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleEvent.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleEvents.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleFactory.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleFile.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleInstallerService.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleLoader.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleManifest.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleProperties.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleRepository.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleStorage.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleStreamFactory.h"/>
+    <ClInclude Include="include\Poco\OSP\CodeCache.h"/>
+    <ClInclude Include="include\Poco\OSP\Configuration.h"/>
+    <ClInclude Include="include\Poco\OSP\ExtensionPoint.h"/>
+    <ClInclude Include="include\Poco\OSP\ExtensionPointService.h"/>
+    <ClInclude Include="include\Poco\OSP\LanguageTag.h"/>
+    <ClInclude Include="include\Poco\OSP\OSP.h"/>
+    <ClInclude Include="include\Poco\OSP\OSPException.h"/>
+    <ClInclude Include="include\Poco\OSP\OSPSubsystem.h"/>
+    <ClInclude Include="include\Poco\OSP\Preferences.h"/>
+    <ClInclude Include="include\Poco\OSP\PreferencesEvent.h"/>
+    <ClInclude Include="include\Poco\OSP\PreferencesService.h"/>
+    <ClInclude Include="include\Poco\OSP\Properties.h"/>
+    <ClInclude Include="include\Poco\OSP\QLExpr.h"/>
+    <ClInclude Include="include\Poco\OSP\QLParser.h"/>
+    <ClInclude Include="include\Poco\OSP\QLTokens.h"/>
+    <ClInclude Include="include\Poco\OSP\Service.h"/>
+    <ClInclude Include="include\Poco\OSP\ServiceEvent.h"/>
+    <ClInclude Include="include\Poco\OSP\ServiceFactory.h"/>
+    <ClInclude Include="include\Poco\OSP\ServiceFinder.h"/>
+    <ClInclude Include="include\Poco\OSP\ServiceRef.h"/>
+    <ClInclude Include="include\Poco\OSP\ServiceRegistry.h"/>
+    <ClInclude Include="include\Poco\OSP\SystemEvents.h"/>
+    <ClInclude Include="include\Poco\OSP\Version.h"/>
+    <ClInclude Include="include\Poco\OSP\VersionRange.h"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\AuthService.cpp"/>
+    <ClCompile Include="src\Bundle.cpp"/>
+    <ClCompile Include="src\BundleActivator.cpp"/>
+    <ClCompile Include="src\BundleContext.cpp"/>
+    <ClCompile Include="src\BundleContextFactory.cpp"/>
+    <ClCompile Include="src\BundleDirectory.cpp"/>
+    <ClCompile Include="src\BundleEvent.cpp"/>
+    <ClCompile Include="src\BundleEvents.cpp"/>
+    <ClCompile Include="src\BundleFactory.cpp"/>
+    <ClCompile Include="src\BundleFile.cpp"/>
+    <ClCompile Include="src\BundleInstallerService.cpp"/>
+    <ClCompile Include="src\BundleLoader.cpp"/>
+    <ClCompile Include="src\BundleManifest.cpp"/>
+    <ClCompile Include="src\BundleProperties.cpp"/>
+    <ClCompile Include="src\BundleRepository.cpp"/>
+    <ClCompile Include="src\BundleStorage.cpp"/>
+    <ClCompile Include="src\BundleStreamFactory.cpp"/>
+    <ClCompile Include="src\CodeCache.cpp"/>
+    <ClCompile Include="src\Configuration.cpp"/>
+    <ClCompile Include="src\ExtensionPoint.cpp"/>
+    <ClCompile Include="src\ExtensionPointService.cpp"/>
+    <ClCompile Include="src\LanguageTag.cpp"/>
+    <ClCompile Include="src\OSPException.cpp"/>
+    <ClCompile Include="src\OSPSubsystem.cpp"/>
+    <ClCompile Include="src\Preferences.cpp"/>
+    <ClCompile Include="src\PreferencesEvent.cpp"/>
+    <ClCompile Include="src\PreferencesService.cpp"/>
+    <ClCompile Include="src\Properties.cpp"/>
+    <ClCompile Include="src\QLExpr.cpp"/>
+    <ClCompile Include="src\QLParser.cpp"/>
+    <ClCompile Include="src\QLTokens.cpp"/>
+    <ClCompile Include="src\Service.cpp"/>
+    <ClCompile Include="src\ServiceEvent.cpp"/>
+    <ClCompile Include="src\ServiceFactory.cpp"/>
+    <ClCompile Include="src\ServiceRef.cpp"/>
+    <ClCompile Include="src\ServiceRegistry.cpp"/>
+    <ClCompile Include="src\SystemEvents.cpp"/>
+    <ClCompile Include="src\Version.cpp"/>
+    <ClCompile Include="src\VersionRange.cpp"/>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
+  <ImportGroup Label="ExtensionTargets"/>
+</Project>

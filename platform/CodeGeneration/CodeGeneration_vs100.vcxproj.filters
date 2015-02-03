@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="CodeGeneration">
+      <UniqueIdentifier>{b14bfae3-1daf-43f6-b590-6e8cd0069b4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CodeGeneration\Header Files">
+      <UniqueIdentifier>{dffedff8-29ac-4153-b25f-ec206f913904}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CodeGeneration\Source Files">
+      <UniqueIdentifier>{2a6a7b9c-16a8-40f1-b687-195d4087ffb5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Poco\CodeGeneration\CodeGeneration.h">
+      <Filter>CodeGeneration\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\CodeGeneration\CodeGenerator.h">
+      <Filter>CodeGeneration\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\CodeGeneration\CppGenerator.h">
+      <Filter>CodeGeneration\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\CodeGeneration\GeneratorEngine.h">
+      <Filter>CodeGeneration\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\CodeGeneration\MethodPropertyFilter.h">
+      <Filter>CodeGeneration\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\CodeGeneration\Utility.h">
+      <Filter>CodeGeneration\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\CodeGenerator.cpp">
+      <Filter>CodeGeneration\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CppGenerator.cpp">
+      <Filter>CodeGeneration\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GeneratorEngine.cpp">
+      <Filter>CodeGeneration\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MethodPropertyFilter.cpp">
+      <Filter>CodeGeneration\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utility.cpp">
+      <Filter>CodeGeneration\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

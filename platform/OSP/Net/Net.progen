@@ -1,0 +1,13 @@
+vc.project.guid = DC41FA0C-5A99-4F14-B075-E4D49AB236E0
+vc.project.name = Net
+vc.project.target = poco.net
+vc.project.type = plugin
+vc.project.pocobase = ..\\..
+vc.project.outdir = .
+vc.project.platforms = Win32, x64, WinCE
+vc.project.configurations = debug_shared, release_shared
+vc.project.prototype = ${vc.project.name}_vs90.vcproj
+vc.project.compiler.include = ..\\..\\Foundation\\include;..\\..\\XML\\include;..\\..\\Util\\include;..\\..\\Net\\include;..\\..\\OSP\\include;..\\..\\Zip\\include
+vc.project.postbuild.debug_shared = bundled /osarch=${project.targetArchitecture} /output=../bundles $(ProjectName).bndlspec
+vc.project.postbuild.release_shared = bundle /osarch=${project.targetArchitecture} /output=../bundles $(ProjectName).bndlspec
+vc.solution.create = true

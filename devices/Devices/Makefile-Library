@@ -1,0 +1,47 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io Devices Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = Device DeviceException \
+	Sensor \
+	ISensor \
+	SensorEventDispatcher \
+	SensorRemoteObject \
+	SensorServerHelper \
+	SensorSkeleton \
+	Device \
+	IDevice \
+	DeviceRemoteObject \
+	DeviceServerHelper \
+	DeviceSkeleton \
+	DeviceException \
+	IRotaryEncoder \
+	RotaryEncoder \
+	RotaryEncoderEventDispatcher \
+	RotaryEncoderRemoteObject \
+	RotaryEncoderServerHelper \
+	RotaryEncoderSkeleton \
+	Trigger \
+	ITrigger \
+	TriggerEventDispatcher \
+	TriggerRemoteObject \
+	TriggerServerHelper \
+	TriggerSkeleton \
+	SerialDevice \
+	ISerialDevice \
+	SerialDeviceEventDispatcher \
+	SerialDeviceRemoteObject \
+	SerialDeviceServerHelper \
+	SerialDeviceSkeleton
+
+target         = IoTDevices
+target_version = 1
+target_libs    = PocoRemotingNG PocoOSP PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

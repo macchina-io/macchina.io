@@ -1,0 +1,13 @@
+vc.project.guid = 426A75DD-12D1-42C6-9E5D-0A518BE130C6
+vc.project.name = SQLite
+vc.project.target = poco.data.sqlite
+vc.project.type = plugin
+vc.project.pocobase = ..\\..\\..
+vc.project.outdir = .
+vc.project.platforms = Win32, x64, WinCE
+vc.project.configurations = debug_shared, release_shared
+vc.project.prototype = ${vc.project.name}_vs90.vcproj
+vc.project.compiler.include = ..\\..\\..\\Foundation\\include;..\\..\\..\\XML\\include;..\\..\\..\\Util\\include;..\\..\\..\\Data\\include;..\\..\\..\\Data\\SQLite\\include;..\\..\\..\\OSP\\include;..\\..\\..\\Zip\\include
+vc.project.postbuild.debug_shared = bundled /osarch=${project.targetArchitecture} /output=../../bundles $(ProjectName).bndlspec
+vc.project.postbuild.release_shared = bundle /osarch=${project.targetArchitecture} /output=../../bundles $(ProjectName).bndlspec
+vc.solution.create = true

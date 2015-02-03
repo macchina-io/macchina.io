@@ -1,0 +1,240 @@
+//
+// Wrapper.h
+//
+// $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/Wrapper.h#9 $
+//
+// Library: JSCore
+// Package: JSCore
+// Module:  Wrapper
+//
+// Definition of the Wrapper interface.
+//
+// Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
+// All rights reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+
+#ifndef JS_Core_Wrapper_INCLUDED
+#define JS_Core_Wrapper_INCLUDED
+
+
+#include "Poco/JS/Core/Core.h"
+#include "Poco/SharedPtr.h"
+#include "Poco/AutoPtr.h"
+#include "Poco/Exception.h"
+#include "v8.h"
+
+
+namespace Poco {
+namespace JS {
+namespace Core {
+
+
+namespace Internal {
+
+
+template <class T>
+class DeletePolicy
+{
+public:
+	static void release(T pObject)
+	{
+		delete pObject;
+	}
+};
+
+
+template <class T>
+class NoReleasePolicy
+{
+public:
+	static void release(T pObject)
+	{
+	}
+};
+
+
+} // namespace Internal
+
+
+template <class T, class RP>
+class WeakPersistentWrapper
+	/// Helper for wrapping native types in weak persistent handles.
+	///
+	/// Takes ownership of the native object and makes sure both
+	/// the native object and the wrapping JS object are properly
+	/// destroyed when garbage collected.
+{
+public:
+	WeakPersistentWrapper(v8::Isolate* pIsolate, const v8::Local<v8::Object>& jsObject, T pNative):
+		_pNative(pNative)
+	{
+		_persistent.Reset(pIsolate, jsObject);
+	}
+	
+	~WeakPersistentWrapper()
+	{
+		_persistent.ClearWeak();
+		_persistent.Reset();
+		RP::release(_pNative);
+	}
+	
+	v8::Persistent<v8::Object>& persistent()
+	{
+		return _persistent;
+	}
+	
+	static void destruct(const v8::WeakCallbackData<v8::Object, WeakPersistentWrapper>& data)
+	{
+		data.GetValue().Clear();
+		delete data.GetParameter();
+	}
+	
+private:
+	WeakPersistentWrapper();
+	WeakPersistentWrapper(const WeakPersistentWrapper&);
+	WeakPersistentWrapper& operator = (const WeakPersistentWrapper&);
+
+	v8::Persistent<v8::Object> _persistent;
+	T _pNative;
+};
+
+
+class JSCore_API Wrapper
+	/// Interface for JavaScript V8 Engine Wrapper classes.
+{
+public:
+	Wrapper();
+		/// Creates the Wrapper.
+
+	virtual ~Wrapper();
+		/// Destroys the Wrapper.
+
+	virtual v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate) = 0;
+		/// Creates and returns a V8 ObjectTemplate.
+
+	template <typename T>
+	v8::Local<v8::Object> wrapNative(v8::Isolate* pIsolate, T* pNative)
+	{
+	 	v8::EscapableHandleScope handleScope(pIsolate);
+		v8::Local<v8::ObjectTemplate> wrapperTempl = objectTemplate(pIsolate);
+		v8::Local<v8::Object> wrapper = wrapperTempl->NewInstance();
+		v8::Local<v8::External> ext = v8::External::New(pIsolate, pNative);
+		poco_assert (wrapper->InternalFieldCount() > 0);
+		wrapper->SetInternalField(0, ext);
+		return handleScope.Escape(wrapper);
+	}
+
+	v8::Handle<v8::Object> wrapNative(v8::Isolate* pIsolate)
+	{
+	 	v8::EscapableHandleScope handleScope(pIsolate);
+		v8::Local<v8::ObjectTemplate> wrapperTempl = objectTemplate(pIsolate);
+		v8::Local<v8::Object> wrapper = wrapperTempl->NewInstance();
+		return handleScope.Escape(wrapper);
+	}
+
+	template <typename T>
+	v8::Persistent<v8::Object>& wrapNativePersistent(v8::Isolate* pIsolate, T* pNative)
+	{
+		typedef WeakPersistentWrapper<T*, Internal::DeletePolicy<T*> > WPW;
+		
+		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative), pNative);
+		pWPW->persistent().SetWeak(pWPW, WPW::destruct);
+		pWPW->persistent().MarkIndependent();
+		return pWPW->persistent();
+	}
+
+	template <typename T>
+	v8::Persistent<v8::Object>& wrapNativePersistent(v8::Isolate* pIsolate, Poco::SharedPtr<T> pNative)
+	{
+		typedef WeakPersistentWrapper<Poco::SharedPtr<T>, Internal::NoReleasePolicy<Poco::SharedPtr<T> > > WPW;
+		
+		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative.get()), pNative);
+		pWPW->persistent().SetWeak(pWPW, WPW::destruct);
+		pWPW->persistent().MarkIndependent();
+		return pWPW->persistent();
+	}
+
+	template <typename T>
+	v8::Persistent<v8::Object>& wrapNativePersistent(v8::Isolate* pIsolate, Poco::AutoPtr<T> pNative)
+	{
+		typedef WeakPersistentWrapper<Poco::AutoPtr<T>, Internal::NoReleasePolicy<Poco::AutoPtr<T> > > WPW;
+		
+		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative.get()), pNative);
+		pWPW->persistent().SetWeak(pWPW, WPW::destruct);
+		pWPW->persistent().MarkIndependent();
+		return pWPW->persistent();
+	}
+
+	template <typename T, typename A>
+	static T* unwrapNative(const A& args)
+	{
+		v8::Local<v8::Object> holder = args.Holder();
+		if (holder->InternalFieldCount() > 0)
+		{
+			v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(holder->GetInternalField(0));
+			void* pRaw = wrap->Value();
+			return static_cast<T*>(pRaw);
+		}
+		else return 0;
+	}
+	
+	static std::string toString(v8::Local<v8::Value> value);
+	
+	template <typename T>
+	static void returnString(const T& info, const std::string& value)
+	{
+		info.GetReturnValue().Set(v8::String::NewFromUtf8(
+			info.GetIsolate(), 
+			value.c_str(), 
+			v8::String::kNormalString,
+			static_cast<int>(value.length())));
+	}
+	
+	template <typename T>
+	static void returnException(const T& info, const Poco::Exception& exc)
+	{
+		std::string displayText = exc.displayText();
+		info.GetReturnValue().Set(
+			info.GetIsolate()->ThrowException(
+				v8::Exception::Error(
+					v8::String::NewFromUtf8(
+						info.GetIsolate(), 
+						displayText.c_str(), 
+						v8::String::kNormalString,
+						static_cast<int>(displayText.length())
+					)
+				)
+			)
+		);				
+	}
+
+	template <typename T>
+	static void returnException(const T& info, const std::string& displayText)
+	{
+		info.GetReturnValue().Set(
+			info.GetIsolate()->ThrowException(
+				v8::Exception::Error(
+					v8::String::NewFromUtf8(
+						info.GetIsolate(), 
+						displayText.c_str(), 
+						v8::String::kNormalString,
+						static_cast<int>(displayText.length())
+					)
+				)
+			)
+		);				
+	}
+
+private:
+	Wrapper(const Wrapper&);
+	Wrapper& operator = (const Wrapper&);
+};
+
+
+} } } // namespace Poco::JS::Core
+
+
+#endif // JS_Core_Wrapper_INCLUDED

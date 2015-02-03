@@ -1,0 +1,51 @@
+//
+// JSServerPageFilter.h
+//
+// $Id: //poco/1.4/OSP/JS/src/JSServerPageFilter.h#1 $
+//
+// Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
+// and Contributors.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+
+#ifndef OSP_JS_JSServerPageFilter_INCLUDED
+#define OSP_JS_JSServerPageFilter_INCLUDED
+
+
+#include "JSServletFilter.h"
+
+
+namespace Poco {
+namespace OSP {
+namespace JS {
+
+
+class JSServerPageFilter: public JSServletFilter
+	/// A web filter for executing JavaScript server pages.
+{
+public:
+	JSServerPageFilter(Poco::OSP::BundleContext::Ptr pContext);
+		/// Creates the JSServerPageFilter using the given BundleContext.
+
+protected:
+	void preprocess(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& path, std::istream& resourceStream, std::string& servlet);
+};
+
+
+class JSServerPageFilterFactory: public Poco::OSP::Web::WebFilterFactory
+	/// The factory for JSServerPageFilter.
+{
+public:
+	Poco::OSP::Web::WebFilter* createFilter()
+	{
+		return new JSServerPageFilter(context());
+	}
+};
+
+
+} } } // namespace Poco::OSP::JS
+
+
+#endif // OSP_JS_JSServerPageFilter_INCLUDED

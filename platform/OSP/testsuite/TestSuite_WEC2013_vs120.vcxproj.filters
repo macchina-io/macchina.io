@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Core">
+      <UniqueIdentifier>{5ad9b9cb-58f6-4fd0-b665-e06768b9ccb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Header Files">
+      <UniqueIdentifier>{22e4c792-63cd-42ef-8bbb-48351535f51d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Source Files">
+      <UniqueIdentifier>{18ca7af5-319e-4969-80a6-2518a0791954}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Suite">
+      <UniqueIdentifier>{6d930154-58be-4a83-bb21-1fec3edc0d06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Suite\Header Files">
+      <UniqueIdentifier>{33a00a50-4103-4cff-a27c-9390867a1b68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Suite\Source Files">
+      <UniqueIdentifier>{894232e4-ae8b-4557-8a86-3afb545d45b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Driver">
+      <UniqueIdentifier>{6403a81f-01d1-43de-b995-13b2c89e161f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Driver\Source Files">
+      <UniqueIdentifier>{e2a3880a-1310-4661-bd04-f3fa5d7819aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{166ee5db-1243-436e-b6cc-cdfe9a6187a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Header Files">
+      <UniqueIdentifier>{56e62a5f-da70-4717-b6b3-7db57056e430}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Source Files">
+      <UniqueIdentifier>{cc26ac99-00f5-493a-b04f-79b9789f0ee5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bundle">
+      <UniqueIdentifier>{137713e2-e502-4dd1-9378-3df302e4dd57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bundle\Header Files">
+      <UniqueIdentifier>{ce119d67-73bb-4cc4-a2af-7065665fab7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bundle\Source Files">
+      <UniqueIdentifier>{bd0b7a47-b8ae-43a8-bce7-bc85fa331968}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Service">
+      <UniqueIdentifier>{40c5c5d0-431d-4a6f-b5e1-8b0962c5786a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Service\Header Files">
+      <UniqueIdentifier>{c257f982-d8a3-47f3-b17d-31c6411a2c04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Service\Source Files">
+      <UniqueIdentifier>{751f2245-a877-47cd-8849-a36b32495c0e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\OSPCoreTestSuite.h">
+      <Filter>Core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VersionTest.h">
+      <Filter>Core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OSPTestSuite.h">
+      <Filter>_Suite\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BundleStreamFactoryTest.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OSPUtilTestSuite.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PropertiesTest.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\QLParserTest.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VersionRangeTest.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BundleDirectoryTest.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BundleFileTest.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BundleManifestTest.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BundleRepositoryTest.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BundleTest.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OSPBundleTestSuite.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ServiceRegistryTest.h">
+      <Filter>Service\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ServiceTestSuite.h">
+      <Filter>Service\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\OSPCoreTestSuite.cpp">
+      <Filter>Core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VersionTest.cpp">
+      <Filter>Core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OSPTestSuite.cpp">
+      <Filter>_Suite\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WinCEDriver.cpp">
+      <Filter>_Driver\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleStreamFactoryTest.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OSPUtilTestSuite.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PropertiesTest.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\QLParserTest.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VersionRangeTest.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleDirectoryTest.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleFileTest.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleManifestTest.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleRepositoryTest.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleTest.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OSPBundleTestSuite.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServiceRegistryTest.cpp">
+      <Filter>Service\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServiceTestSuite.cpp">
+      <Filter>Service\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

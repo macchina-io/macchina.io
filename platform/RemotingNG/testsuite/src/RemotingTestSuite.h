@@ -1,0 +1,31 @@
+//
+// RemotingTestSuite.h
+//
+// $Id: //poco/1.4/RemotingNG/testsuite/src/RemotingTestSuite.h#2 $
+//
+// Definition of the RemotingTestSuite class.
+//
+// Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
+// All rights reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+
+#ifndef RemotingTestSuite_INCLUDED
+#define RemotingTestSuite_INCLUDED
+
+
+#ifndef CppUnit_TestSuite_INCLUDED
+#include "CppUnit/TestSuite.h"
+#endif
+
+
+class RemotingTestSuite
+{
+public:
+	static CppUnit::Test* suite();
+};
+
+
+#endif // RemotingTestSuite_INCLUDED

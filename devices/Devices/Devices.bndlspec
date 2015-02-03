@@ -1,0 +1,26 @@
+<bundlespec>
+	<manifest>
+    	<name>macchina.io Sensor and Device Interfaces</name>
+		<symbolicName>io.macchina.devices</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2014-2015, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>IoT::Devices::BundleActivator</class>
+			<library>io.macchina.devices</library>
+		</activator>
+		<lazyStart>false</lazyStart>
+		<runLevel>610</runLevel>
+	</manifest>
+	<code>
+		bin/*.dll,
+		bin/*.pdb,
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+    	../lib/${osName}/${osArch}/libIoTDevices*.1.dylib,
+    	../lib/${osName}/${osArch}/libIoTDevices*.so.1
+	</code>
+	<files>
+		bundle/*
+	</files>
+</bundlespec>

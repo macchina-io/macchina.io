@@ -1,0 +1,606 @@
+OSP Tutorial
+Applied Informatics Open Service Platform
+
+!!! Welcome
+
+Welcome to the OSP tutorial. This tutorial shows you how to create
+an application that uses OSP, and how to create OSP bundles.
+You can find the source code, project files and makefiles for the 
+tutorials in the <[samples]> directory in the OSP source tree.
+
+
+!!! Initializing OSP
+
+The OSP framework can be added to any C++ application using POCO. However,
+correctly initializing the OSP machinery requires some work. To simplify this,
+OSP provides the Poco::OSP::OSPSubsystem class, which can be simply added
+to any application based on the Poco::Util::Application or
+Poco::Util::ServerApplication class.
+
+The <*BundleContainer*> sample shows how an application can use the
+OSP framework, using the Poco::OSP::OSPSubsystem class.
+
+    #include "Poco/Util/Application.h"
+    #include "Poco/Util/Option.h"
+    #include "Poco/Util/OptionSet.h"
+    #include "Poco/Util/HelpFormatter.h"
+    #include "Poco/Util/AbstractConfiguration.h"
+    #include "Poco/OSP/OSPSubsystem.h"
+    #include "Poco/OSP/ServiceRegistry.h"
+    #include <iostream>
+    
+    
+    using Poco::Util::Application;
+    using Poco::Util::Option;
+    using Poco::Util::OptionSet;
+    using Poco::Util::HelpFormatter;
+    using Poco::Util::AbstractConfiguration;
+    using Poco::Util::OptionCallback;
+    using Poco::OSP::OSPSubsystem;
+    using Poco::OSP::ServiceRegistry;
+    
+    
+    class BundleContainerApplication: public Application
+    {
+    public:
+        BundleContainerApplication():
+            _pOSP(new OSPSubsystem),
+            _showHelp(false)
+        {
+            addSubsystem(_pOSP);
+        }
+        
+        ServiceRegistry& serviceRegistry()
+        {
+            return _pOSP->serviceRegistry();
+        }
+    
+    protected:
+        void initialize(Application& self)
+        {
+            loadConfiguration(); // load default configuration files, if present
+            Application::initialize(self);
+        }
+    
+        void defineOptions(OptionSet& options)
+        {
+            Application::defineOptions(options);
+    
+            options.addOption(
+                Option("help", "h", "display help information on command line arguments")
+                    .required(false)
+                    .repeatable(false)
+                    .callback(OptionCallback<BundleContainerApplication>(
+                    	this, &BundleContainerApplication::handleHelp)));
+    
+            options.addOption(
+                Option("config-file", "f", "load configuration data from a file")
+                    .required(false)
+                    .repeatable(true)
+                    .argument("file")
+                    .callback(OptionCallback<BundleContainerApplication>(
+                    	this, &BundleContainerApplication::handleConfig)));
+        }
+        
+        void handleHelp(const std::string& name, const std::string& value)
+        {
+            _showHelp = true;
+            displayHelp();
+            stopOptionsProcessing();
+            _pOSP->cancelInit();
+        }
+    
+        void handleConfig(const std::string& name, const std::string& value)
+        {
+            loadConfiguration(value);
+        }
+    
+        void displayHelp()
+        {
+            HelpFormatter helpFormatter(options());
+            helpFormatter.setCommand(commandName());
+            helpFormatter.setUsage("OPTIONS");
+            helpFormatter.setHeader("A container for Open Service Platform bundles.");
+            helpFormatter.format(std::cout);
+        }
+    
+        int main(const std::vector<std::string>& args)
+        {
+            if (!_showHelp)
+            {
+            }
+            return Application::EXIT_OK;
+        }
+    
+    private:
+        OSPSubsystem* _pOSP;
+        bool _showHelp;
+    };
+    
+    
+    POCO_APP_MAIN(BundleContainerApplication)
+----
+
+The Poco::OSP::OSPSubsystem requires a configuration file telling it where
+bundle files can be found and where the shared libraries of bundles should
+be cached. A sample configuration file (which also contains a configuration
+for the logging framework) is shown below:
+
+    #
+    # OSP Configuration
+    #
+    osp.codeCache        = ${application.dir}codeCache
+    osp.bundleRepository = ${application.configDir}../bundles
+    osp.data             = ${application.configDir}data
+    
+    #
+    # Logging Configuration
+    #
+    logging.loggers.root.channel  = c1
+    logging.loggers.root.level = information 
+    logging.formatters.f1.class = PatternFormatter
+    logging.formatters.f1.pattern = %s: [%p] %t
+    logging.channels.c1.class = ConsoleChannel
+    logging.channels.c1.formatter = f1
+----
+
+When running the BundleContainer to develop and test new bundles, be sure
+to start the BundleContainer executable with the <[/clean]> option, to ensure
+that always the latest version of your bundle is actually loaded.
+
+
+!!! The First Bundle
+
+This first bundle shows how a Bundle Activator is written, and how a bundle can
+subscribe to events from the Service Registry.
+
+All the following bundle does is register itself for the events provided by
+the Service Registry. Whenever an event occurs, it is logged, using the
+bundle's default logger provided by the bundle context.
+
+    #include "Poco/OSP/BundleActivator.h"
+    #include "Poco/OSP/BundleContext.h"
+    #include "Poco/OSP/Bundle.h"
+    #include "Poco/OSP/ServiceRegistry.h"
+    #include "Poco/Delegate.h"
+    #include "Poco/ClassLibrary.h"
+    
+    
+    using Poco::OSP::BundleActivator;
+    using Poco::OSP::BundleContext;
+    using Poco::OSP::Bundle;
+    using Poco::OSP::ServiceEvent;
+    using Poco::Delegate;
+    
+    
+    class ServiceListenerBundleActivator: public BundleActivator
+        /// A very simple bundle that subscribes its
+        /// BundleActivator to ServiceRegistry events
+        /// and prints these events.
+    {
+    public:
+        ServiceListenerBundleActivator()
+        {
+        }
+        
+        ~ServiceListenerBundleActivator()
+        {
+        }
+        
+        void start(BundleContext::Ptr pContext)
+        {
+            // save BundleContext for later use
+            _pContext = pContext;
+            
+            // write a startup message to the log
+            std::string msg("Bundle ");
+            msg.append(pContext->thisBundle()->name());
+            msg.append(" started");
+            pContext->logger().information(msg);
+            
+            // subscribe for ServiceRegistry events
+            pContext->registry().serviceRegistered   
+                += Delegate<ServiceListenerBundleActivator, ServiceEvent>(
+                       this, &ServiceListenerBundleActivator::handleServiceRegistered);
+            pContext->registry().serviceUnregistered 
+                += Delegate<ServiceListenerBundleActivator, ServiceEvent>(
+                       this, &ServiceListenerBundleActivator::handleServiceUnregistered);
+        }
+            
+        void stop(BundleContext::Ptr pContext)
+        {
+            // write a shutdown message to the log
+            std::string msg("Bundle ");
+            msg.append(pContext->thisBundle()->name());
+            msg.append(" stopped");
+            pContext->logger().information(msg);
+            
+            // unsubscribe from ServiceRegistry events
+            pContext->registry().serviceRegistered   
+                -= Delegate<ServiceListenerBundleActivator, ServiceEvent>(
+                       this, &ServiceListenerBundleActivator::handleServiceRegistered);
+            pContext->registry().serviceUnregistered 
+                -= Delegate<ServiceListenerBundleActivator, ServiceEvent>(
+                       this, &ServiceListenerBundleActivator::handleServiceUnregistered);
+        }
+        
+    protected:
+        void handleServiceRegistered(const void* sender, ServiceEvent& event)
+        {
+            std::string msg("Service registered: ");
+            msg.append(event.service()->name());
+            _pContext->logger().information(msg);
+        }
+    
+        void handleServiceUnregistered(const void* sender, ServiceEvent& event)
+        {
+            std::string msg("Service unregistered: ");
+            msg.append(event.service()->name());
+            _pContext->logger().information(msg);
+        }
+        
+    private:
+        BundleContext::Ptr _pContext;
+    };
+    
+    
+    POCO_BEGIN_MANIFEST(BundleActivator)
+        POCO_EXPORT_CLASS(ServiceListenerBundleActivator)
+    POCO_END_MANIFEST
+----
+
+OSP uses the Poco::ClassLoader class to load the bundle activator for a bundle.
+Therefore, the shared library implementing the bundle activator must export a
+class loader manifest (this is <*not*> the same as the bundle manifest), so
+that the class loader can find the <[ServiceListenerBundleActivator]> class.
+This is done with the <[POCO_BEGIN_MANIFEST]>, <[POCO_EXPORT_CLASS]> and
+<[POCO_END_MANIFEST]> macros.
+
+To create a bundle file for this bundle, a bundle specification file is needed
+to invoke the Bundle Creator Tool:
+
+    <bundlespec>
+        <manifest>
+            <name>Service Listener Sample</name>
+            <symbolicName>com.appinf.osp.samples.servicelistener</symbolicName>
+            <version>1.0.0</version>
+            <vendor>Applied Informatics</vendor>
+            <copyright>(c) 2007, Applied Informatics Software Engineering GmbH</copyright>
+            <activator>
+                <class>ServiceListenerBundleActivator</class>
+                <library>ServiceListener</library>
+            </activator>
+            <lazyStart>false</lazyStart>
+            <runLevel>100</runLevel>
+        </manifest>
+        <code>
+            bin/*.dll,
+            bin/*.pdb,
+            bin/${osName}/${osArch}/*.so,
+            bin/${osName}/${osArch}/*.dylib
+        </code>
+    </bundlespec>
+----
+
+
+!!! Registering Services
+
+The next sample shows how a bundle can provide a service.
+Every service should be based on a service interface, which is
+contained in a header file shared by both the bundle providing
+the service, and any bundle consuming the service.
+
+Following is the interface for the <[GreetingService]> that will be
+provided by the bundle:
+
+    // GreetingService.h
+    
+    #include "Poco/OSP/Service.h"
+    #include "Poco/AutoPtr.h"
+    
+    
+    class GreetingService: public Poco::OSP::Service
+        /// This is an example for a very simple
+        /// OSP service.
+        ///
+        /// The service is available under the name
+        /// "com.appinf.osp.samples.GreetingService".
+    {
+    public:
+        typedef Poco::AutoPtr<GreetingService> Ptr;
+    
+        virtual std::string greeting() = 0;
+            /// Return a greeting in the user's language, if the
+            /// language is known, or in English otherwise.
+    };
+----
+
+Next is the source code for the bundle that implements the
+<[GreetingService]> interface:
+
+    #include "GreetingService.h"
+    #include "Poco/OSP/BundleActivator.h"
+    #include "Poco/OSP/BundleContext.h"
+    #include "Poco/OSP/Bundle.h"
+    #include "Poco/OSP/ServiceRegistry.h"
+    #include "Poco/ClassLibrary.h"
+    
+    
+    using Poco::OSP::BundleActivator;
+    using Poco::OSP::BundleContext;
+    using Poco::OSP::Bundle;
+    using Poco::OSP::Properties;
+    using Poco::OSP::ServiceRef;
+    
+    
+    class GreetingServiceImpl: public GreetingService
+    {
+    public:
+        GreetingServiceImpl(BundleContext::Ptr pContext):
+            _pContext(pContext)
+        {
+        }
+        
+        ~GreetingServiceImpl()
+        {
+        }
+        
+        std::string greeting()
+        {
+            // The greeting text is stored in a localized bundle property.
+            // The framework will automatically return the greeting in the
+            // correct language, if it exists, or in English otherwise.
+            
+            return _pContext->thisBundle()->properties().getString("greeting");
+        }
+        
+        const std::type_info& type() const
+        {
+            return typeid(GreetingService);
+        }
+        
+        bool isA(const std::type_info& otherType) const
+        {
+            std::string name(type().name());
+            return name == otherType.name() || Service::isA(otherType);
+        }
+    
+    private:
+        BundleContext::Ptr _pContext;
+    };
+    
+    
+    class GreetingServiceBundleActivator: public BundleActivator
+        /// The BundleActivator for the GreetingService.
+        /// Registers the GreetingService with the Service Registry.
+    {
+    public:
+        GreetingServiceBundleActivator()
+        {
+        }
+        
+        ~GreetingServiceBundleActivator()
+        {
+        }
+        
+        void start(BundleContext::Ptr pContext)
+        {
+            // Create an instance of the GreetingService
+            GreetingService::Ptr pService = new GreetingServiceImpl(pContext);
+            // Register the GreetingService with the ServiceRegistry.
+            _pService = pContext->registry().registerService(
+            	"com.appinf.osp.samples.GreetingService", 
+            	pService, 
+            	Properties());
+        }
+            
+        void stop(BundleContext::Ptr pContext)
+        {
+            // Unregister the GreetingService
+            pContext->registry().unregisterService(_pService);
+        }
+        
+    private:
+        ServiceRef::Ptr _pService;
+    };
+    
+    
+    POCO_BEGIN_MANIFEST(BundleActivator)
+        POCO_EXPORT_CLASS(GreetingServiceBundleActivator)
+    POCO_END_MANIFEST
+----
+
+First, the <[GreetingService interface]> is implemented by the
+<[GreetingServiceImpl]> class. Note that the <[GreetingServiceImpl]>'s
+implementation of <[type()]> returns the type information for the
+<[GreetingService]> class, not the one for itself. This is necessary 
+so that clients, which expect a <[GreetingService]> object, can
+obtain the service object.
+
+The <[GreetingServiceBundleActivator]>'s <[start()]> member function
+creates a new instance of the <[GreetingServiceImpl]> class and
+registers it with the service registry, under the name
+<[com.appinf.osp.samples.GreetingService]>. The <[stop()]> member
+function unregisters the service.
+
+Following is the bundle specification for this bundle:
+
+    <bundlespec>
+        <manifest>
+            <name>Greeting Service Sample</name>
+            <symbolicName>com.appinf.osp.samples.greetingservice</symbolicName>
+            <version>1.0.0</version>
+            <vendor>Applied Informatics</vendor>
+            <copyright>(c) 2007, Applied Informatics Software Engineering GmbH</copyright>
+            <activator>
+                <class>GreetingServiceBundleActivator</class>
+                <library>GreetingService</library>
+            </activator>
+            <lazyStart>false</lazyStart>
+            <runLevel>400</runLevel>
+        </manifest>
+        <code>
+            bin/*.dll,
+            bin/*.pdb,
+            bin/${osName}/${osArch}/*.so,
+            bin/${osName}/${osArch}/*.dylib
+        </code>
+        <files>
+            bundle/*
+        </files>
+    </bundlespec>
+----
+
+The project directory for this sample (<[samples/GreetingService]>) contains
+a directory named <[bundle]> that contains the resource files used by the
+bundle. In this case, this is a file named <[bundle.properties]>, along
+with localized variants for different languages.
+
+
+!!! Invoking Services
+
+The next sample implements a bundle that consumes the <[GreetingService]>
+provided by the previous sample bundle.
+
+    #include "Poco/OSP/BundleActivator.h"
+    #include "Poco/OSP/BundleContext.h"
+    #include "Poco/OSP/ServiceRegistry.h"
+    #include "Poco/ClassLibrary.h"
+    #include "GreetingService.h"
+    
+    
+    using Poco::OSP::BundleActivator;
+    using Poco::OSP::BundleContext;
+    using Poco::OSP::ServiceRef;
+    using Poco::OSP::Service;
+    
+    
+    class GreeterBundleActivator: public BundleActivator
+        /// The GreeterBundleActivator for the Greeter bundle.
+        /// This activator looks up the GreetingService using
+        /// the ServiceRegistry and invokes it.
+    {
+    public:
+        GreeterBundleActivator()
+        {
+        }
+        
+        ~GreeterBundleActivator()
+        {
+        }
+        
+        void start(BundleContext::Ptr pContext)
+        {
+            // Obtain the GreetingService object from the Service Registry.
+            ServiceRef::Ptr pServiceRef = pContext->registry().findByName(
+            	"com.appinf.osp.samples.GreetingService");
+            if (pServiceRef)
+            {
+                // Service is available - let's invoke it
+                GreetingService::Ptr pService = pServiceRef->castedInstance<GreetingService>();
+                std::string greeting = pService->greeting();
+                std::string msg("****** ");
+                msg += greeting;
+                msg += " ******";
+                pContext->logger().information(msg);
+            }
+            else
+            {
+                // The service is not available
+                pContext->logger().error("The GreetingService is not available.");
+            }
+        }
+            
+        void stop(BundleContext::Ptr pContext)
+        {
+        }
+    };
+    
+    
+    POCO_BEGIN_MANIFEST(BundleActivator)
+        POCO_EXPORT_CLASS(GreeterBundleActivator)
+    POCO_END_MANIFEST
+----
+
+The <[GreeterBundleActivator]>'s <[start()]> member function looks up the
+<[GreetingService]> using the service registry. If the service is available,
+it's <[greeting()]> member function is invoked, and the result is written
+to the bundle's logger.
+
+The bundle specification contains a <[dependency]> entry, specifying
+the Greeting Service bundle as required.
+
+    <bundlespec>
+        <manifest>
+            <name>Greeter Sample</name>
+            <symbolicName>com.appinf.osp.samples.greeter</symbolicName>
+            <version>1.0.0</version>
+            <vendor>Applied Informatics</vendor>
+            <copyright>(c) 2007, Applied Informatics Software Engineering GmbH</copyright>
+            <activator>
+                <class>GreeterBundleActivator</class>
+                <library>Greeter</library>
+            </activator>
+            <lazyStart>false</lazyStart>
+            <runLevel>400</runLevel>
+            <dependency>
+                <symbolicName>com.appinf.osp.samples.greetingservice</symbolicName>
+                <version>1.0.0</version>
+            </dependency>
+        </manifest>
+        <code>
+            bin/*.dll,
+            bin/*.pdb,
+            bin/${osName}/${osArch}/*.so,
+            bin/${osName}/${osArch}/*.dylib
+        </code>
+    </bundlespec>
+----
+
+
+!!! Bundle Localization
+
+OSP supports localization for bundle resources. You can test this using the BundleContainer
+sample application.
+
+
+!! Localization on Windows
+
+On Windows, you can change the language used by an OSP application by setting
+the Windows <*Regional and Language Options*>, using the Windows Control Panel
+of the same name.
+
+<%
+<img src="images/OSPLangOpt.png" width="320" height="437" alt="Regional and Language Options Control Panel" border="0">
+%>
+
+Open the control panel, change the language to German or Italian, click the <*Apply*> button and restart
+the BundleContainer application to see the change in the output of the Greeter bundle.
+
+
+!! Localization on Unix Platforms (Linux, Mac OS X)
+
+On Unix platform, you can change the language used by an OSP application by
+setting the <[LANG]> environment variable to an appropriate value before
+starting the OSP application (e.g., BundleContainer).
+
+Example:
+    > export LANG=de-AT
+    > ./BundleContainer
+----
+
+
+!!! Debugging Bundles
+
+Bundles can be debugged like any other shared library, even in the form of Zip-compressed
+bundle files. To ensure that debugging works on Windows platforms, take care that the
+Visual C++ Program Database files for all DLLs contained in a bundle are also part of
+the bundle. Then, simple specify the main OSP executable (e.g., BundleContainer) as
+the command to run when debugging the project.
+
+Be sure to run the BundleContainer with the <[/clean]> option, to ensure that always
+the newest version of your bundle is actually loaded.
+
+<%
+<img src="images/OSPDebugging.png" width="580" height="398" alt="Regional and Language Options Control Panel" border="0">
+%>

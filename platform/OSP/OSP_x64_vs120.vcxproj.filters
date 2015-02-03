@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Core">
+      <UniqueIdentifier>{5dd986fe-89b6-44e3-a42b-4108de2854c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Header Files">
+      <UniqueIdentifier>{03b1774c-fbf3-4227-968e-41647e483173}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Source Files">
+      <UniqueIdentifier>{8890077a-495c-4309-9c8d-051941fa6861}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{5dac0ecf-13be-4260-9774-35a0ac68a1c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Header Files">
+      <UniqueIdentifier>{4e240019-d85b-4380-b815-dc4c5552032a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Source Files">
+      <UniqueIdentifier>{d89c194e-8028-40b2-b64a-57d63340ac63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bundle">
+      <UniqueIdentifier>{de0b7e06-19f5-4f4d-9306-9baec14a1280}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bundle\Header Files">
+      <UniqueIdentifier>{f635f09c-a7e2-441d-a248-b10e921dcfa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bundle\Source Files">
+      <UniqueIdentifier>{8d2bbaa3-bab4-4b51-af90-b1635c007a03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Service">
+      <UniqueIdentifier>{7e04c462-11aa-483b-abda-78d4521c6b9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Service\Header Files">
+      <UniqueIdentifier>{2de9e727-e823-4705-a49c-cfc3c8cb52b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Service\Source Files">
+      <UniqueIdentifier>{bc04186a-76d6-450b-9c2e-c897ee372395}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExtensionPointService">
+      <UniqueIdentifier>{0e3186b9-0d54-420d-8796-96766afc7b54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExtensionPointService\Header Files">
+      <UniqueIdentifier>{da61cb5f-e6af-4054-a7bb-ab31fe1df15d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExtensionPointService\Source Files">
+      <UniqueIdentifier>{e18fb1b3-c144-4c47-9d0a-beb044efbd67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PreferencesService">
+      <UniqueIdentifier>{632cd31b-84d0-4867-abda-742f72afd165}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PreferencesService\Header Files">
+      <UniqueIdentifier>{cc49c744-a45b-4bb5-ae7a-b8661ec5b421}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PreferencesService\Source Files">
+      <UniqueIdentifier>{8bfe06c4-313f-43c3-b18f-daf04c4d9936}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BundleInstallerService">
+      <UniqueIdentifier>{93360de1-c7c4-49a4-979f-74a67eb883e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BundleInstallerService\Header Files">
+      <UniqueIdentifier>{b02f9938-d217-4444-b7d2-4a8f66115e1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BundleInstallerService\Source Files">
+      <UniqueIdentifier>{d52b0f2d-2f2b-4870-9e8a-8b381a009d4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AuthService">
+      <UniqueIdentifier>{7674c1ef-098c-4602-8bc3-501c6da09608}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AuthService\Header Files">
+      <UniqueIdentifier>{6b692159-4528-4f88-95ae-17a14a671e18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AuthService\Source Files">
+      <UniqueIdentifier>{0ba87a44-d63a-4214-807d-823f7d1f469f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Poco\OSP\OSP.h">
+      <Filter>Core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\OSPException.h">
+      <Filter>Core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\SystemEvents.h">
+      <Filter>Core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Version.h">
+      <Filter>Core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleStreamFactory.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\CodeCache.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\LanguageTag.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\OSPSubsystem.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Properties.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\QLExpr.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\QLParser.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\QLTokens.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\VersionRange.h">
+      <Filter>Util\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Bundle.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleActivator.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleContext.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleContextFactory.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleDirectory.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleEvent.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleEvents.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleFactory.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleFile.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleLoader.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleManifest.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleProperties.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleRepository.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleStorage.h">
+      <Filter>Bundle\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Service.h">
+      <Filter>Service\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\ServiceEvent.h">
+      <Filter>Service\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\ServiceFactory.h">
+      <Filter>Service\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\ServiceFinder.h">
+      <Filter>Service\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\ServiceRef.h">
+      <Filter>Service\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\ServiceRegistry.h">
+      <Filter>Service\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\ExtensionPoint.h">
+      <Filter>ExtensionPointService\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\ExtensionPointService.h">
+      <Filter>ExtensionPointService\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Configuration.h">
+      <Filter>PreferencesService\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Preferences.h">
+      <Filter>PreferencesService\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\PreferencesEvent.h">
+      <Filter>PreferencesService\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\PreferencesService.h">
+      <Filter>PreferencesService\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\BundleInstallerService.h">
+      <Filter>BundleInstallerService\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Auth\AuthService.h">
+      <Filter>AuthService\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\OSPException.cpp">
+      <Filter>Core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SystemEvents.cpp">
+      <Filter>Core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Version.cpp">
+      <Filter>Core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleStreamFactory.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CodeCache.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LanguageTag.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OSPSubsystem.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Properties.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\QLExpr.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\QLParser.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\QLTokens.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VersionRange.cpp">
+      <Filter>Util\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Bundle.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleActivator.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleContext.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleContextFactory.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleDirectory.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleEvent.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleEvents.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleFactory.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleFile.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleLoader.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleManifest.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleProperties.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleRepository.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleStorage.cpp">
+      <Filter>Bundle\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Service.cpp">
+      <Filter>Service\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServiceEvent.cpp">
+      <Filter>Service\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServiceFactory.cpp">
+      <Filter>Service\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServiceRef.cpp">
+      <Filter>Service\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServiceRegistry.cpp">
+      <Filter>Service\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ExtensionPoint.cpp">
+      <Filter>ExtensionPointService\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ExtensionPointService.cpp">
+      <Filter>ExtensionPointService\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Configuration.cpp">
+      <Filter>PreferencesService\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Preferences.cpp">
+      <Filter>PreferencesService\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PreferencesEvent.cpp">
+      <Filter>PreferencesService\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PreferencesService.cpp">
+      <Filter>PreferencesService\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleInstallerService.cpp">
+      <Filter>BundleInstallerService\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AuthService.cpp">
+      <Filter>AuthService\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

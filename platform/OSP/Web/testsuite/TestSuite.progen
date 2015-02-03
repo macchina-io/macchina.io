@@ -1,0 +1,9 @@
+vc.project.guid = A7D1DBCB-A00A-47D0-8EEE-167F096425E9
+vc.project.name = TestSuite
+vc.project.target = TestSuite
+vc.project.type = testsuite
+vc.project.pocobase = ..\\..\\..
+vc.project.platforms = Win32, x64, WinCE
+vc.project.configurations = debug_shared, release_shared
+vc.project.prototype = TestSuite_vs90.vcproj
+vc.project.compiler.include = ..\\..\\..\\Foundation\\include;..\\..\\..\\XML\\include;..\\..\\..\\Util\\include;..\\..\\..\\Net\\include;..\\..\\..\\OSP\\include;..\\..\\..\\Zip\\include

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="debug_shared|x64">
+      <Configuration>debug_shared</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="release_shared|x64">
+      <Configuration>release_shared</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>OSP</ProjectName>
+    <ProjectGuid>{1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED}</ProjectGuid>
+    <RootNamespace>OSP</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release_shared|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug_shared|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
+  <ImportGroup Label="ExtensionSettings"/>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='release_shared|x64'" Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='debug_shared|x64'" Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros"/>
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='debug_shared|x64'">..\bin64\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='debug_shared|x64'">obj64\OSP\$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='debug_shared|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='release_shared|x64'">..\bin64\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='release_shared|x64'">obj64\OSP\$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='release_shared|x64'">false</LinkIncremental>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_shared|x64'">PocoOSP64d</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='release_shared|x64'">PocoOSP64</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='debug_shared|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\include;..\Foundation\include;..\XML\include;..\Util\include;..\Zip\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;OSP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader/>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>..\bin64\PocoOSP64d.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>..\bin64\PocoOSP64d.pdb</ProgramDatabaseFile>
+      <AdditionalLibraryDirectories>..\lib64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
+      <ImportLibrary>..\lib64\PocoOSPd.lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release_shared|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>.\include;..\Foundation\include;..\XML\include;..\Util\include;..\Zip\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;OSP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader/>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat/>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>..\bin64\PocoOSP64.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\lib64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>..\lib64\PocoOSP.lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Poco\OSP\OSP.h"/>
+    <ClInclude Include="include\Poco\OSP\OSPException.h"/>
+    <ClInclude Include="include\Poco\OSP\SystemEvents.h"/>
+    <ClInclude Include="include\Poco\OSP\Version.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleStreamFactory.h"/>
+    <ClInclude Include="include\Poco\OSP\CodeCache.h"/>
+    <ClInclude Include="include\Poco\OSP\LanguageTag.h"/>
+    <ClInclude Include="include\Poco\OSP\OSPSubsystem.h"/>
+    <ClInclude Include="include\Poco\OSP\Properties.h"/>
+    <ClInclude Include="include\Poco\OSP\QLExpr.h"/>
+    <ClInclude Include="include\Poco\OSP\QLParser.h"/>
+    <ClInclude Include="include\Poco\OSP\QLTokens.h"/>
+    <ClInclude Include="include\Poco\OSP\VersionRange.h"/>
+    <ClInclude Include="include\Poco\OSP\Bundle.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleActivator.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleContext.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleContextFactory.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleDirectory.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleEvent.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleEvents.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleFactory.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleFile.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleLoader.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleManifest.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleProperties.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleRepository.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleStorage.h"/>
+    <ClInclude Include="include\Poco\OSP\Service.h"/>
+    <ClInclude Include="include\Poco\OSP\ServiceEvent.h"/>
+    <ClInclude Include="include\Poco\OSP\ServiceFactory.h"/>
+    <ClInclude Include="include\Poco\OSP\ServiceFinder.h"/>
+    <ClInclude Include="include\Poco\OSP\ServiceRef.h"/>
+    <ClInclude Include="include\Poco\OSP\ServiceRegistry.h"/>
+    <ClInclude Include="include\Poco\OSP\ExtensionPoint.h"/>
+    <ClInclude Include="include\Poco\OSP\ExtensionPointService.h"/>
+    <ClInclude Include="include\Poco\OSP\Configuration.h"/>
+    <ClInclude Include="include\Poco\OSP\Preferences.h"/>
+    <ClInclude Include="include\Poco\OSP\PreferencesEvent.h"/>
+    <ClInclude Include="include\Poco\OSP\PreferencesService.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleInstallerService.h"/>
+    <ClInclude Include="include\Poco\OSP\Auth\AuthService.h"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\OSPException.cpp"/>
+    <ClCompile Include="src\SystemEvents.cpp"/>
+    <ClCompile Include="src\Version.cpp"/>
+    <ClCompile Include="src\BundleStreamFactory.cpp"/>
+    <ClCompile Include="src\CodeCache.cpp"/>
+    <ClCompile Include="src\LanguageTag.cpp"/>
+    <ClCompile Include="src\OSPSubsystem.cpp"/>
+    <ClCompile Include="src\Properties.cpp"/>
+    <ClCompile Include="src\QLExpr.cpp"/>
+    <ClCompile Include="src\QLParser.cpp"/>
+    <ClCompile Include="src\QLTokens.cpp"/>
+    <ClCompile Include="src\VersionRange.cpp"/>
+    <ClCompile Include="src\Bundle.cpp"/>
+    <ClCompile Include="src\BundleActivator.cpp"/>
+    <ClCompile Include="src\BundleContext.cpp"/>
+    <ClCompile Include="src\BundleContextFactory.cpp"/>
+    <ClCompile Include="src\BundleDirectory.cpp"/>
+    <ClCompile Include="src\BundleEvent.cpp"/>
+    <ClCompile Include="src\BundleEvents.cpp"/>
+    <ClCompile Include="src\BundleFactory.cpp"/>
+    <ClCompile Include="src\BundleFile.cpp"/>
+    <ClCompile Include="src\BundleLoader.cpp"/>
+    <ClCompile Include="src\BundleManifest.cpp"/>
+    <ClCompile Include="src\BundleProperties.cpp"/>
+    <ClCompile Include="src\BundleRepository.cpp"/>
+    <ClCompile Include="src\BundleStorage.cpp"/>
+    <ClCompile Include="src\Service.cpp"/>
+    <ClCompile Include="src\ServiceEvent.cpp"/>
+    <ClCompile Include="src\ServiceFactory.cpp"/>
+    <ClCompile Include="src\ServiceRef.cpp"/>
+    <ClCompile Include="src\ServiceRegistry.cpp"/>
+    <ClCompile Include="src\ExtensionPoint.cpp"/>
+    <ClCompile Include="src\ExtensionPointService.cpp"/>
+    <ClCompile Include="src\Configuration.cpp"/>
+    <ClCompile Include="src\Preferences.cpp"/>
+    <ClCompile Include="src\PreferencesEvent.cpp"/>
+    <ClCompile Include="src\PreferencesService.cpp"/>
+    <ClCompile Include="src\BundleInstallerService.cpp"/>
+    <ClCompile Include="src\AuthService.cpp"/>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
+  <ImportGroup Label="ExtensionTargets"/>
+</Project>

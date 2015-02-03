@@ -1,0 +1,4 @@
+<extensions>
+  <extension point="osp.web.server.filter" mediaType="application/x-javascript-servlet" class="Poco::OSP::JS::JSServletFilterFactory" library="com.appinf.osp.js"/>
+  <extension point="osp.web.server.filter" mediaType="application/x-javascript-serverpage" class="Poco::OSP::JS::JSServerPageFilterFactory" library="com.appinf.osp.js"/>
+</extensions>

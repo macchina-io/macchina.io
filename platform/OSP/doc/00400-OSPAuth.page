@@ -1,0 +1,459 @@
+OSP User Authentication and Authorization
+Applied Informatics Open Service Platform
+
+!!! Introduction
+
+The Open Service Platform provides some basic support for user authentication and authorization,
+based on the Poco::OSP::Auth::AuthService interface. The OSP core library itself does not provide
+an implementation of the <[AuthService]> interface. A very simple implementation of the interface
+is provided by the <*SimpleAuthService*> sample, found in the <[OSP/samples]> directory.
+
+Poco::OSP::Auth::AuthService only defines two methods, <[authenticate()]> and <[authorize()]>.
+The former method is used to authenticate an user based on a user name and credentials/password
+combination. The latter one is used to verify that a given user has a certain permission.
+
+!!! Authentication
+
+Authentication in OSP is based on user name and credentials. In the simplest case, the credentials
+used to authenticate a user consist of a simple password. However, more complex schemes (e.g., based
+on certificates) are theoretically possible. An implementation of the <[AuthService]> normally 
+is based on a database of user names and passwords. The <[authenticate()]> member function of
+a subclass of <[Poco::OSP::Auth::AuthService]> has to verify that the given combination of 
+user name and credentials is a valid one. The <[authenticate()]> member function is defined
+as follows:
+
+    bool authenticate(const std::string& userName, const std::string& credentials) const;
+----
+
+!!! Authorization
+
+Authorization in OSP is based on the concept of permissions. In OSP, a permission is a simple string
+denoting a certain privilege. The <[authorize()]> method of Poco::OSP::Auth::AuthService checks
+whether a user identified by a user name has a certain permission. How user names and permissions
+are associated is up to the actual implementation of <[AuthService]>. The possibilities range from
+a simple configuration file specifying the permissions for each user name to a sophisticated
+authorization concept based on user groups and roles.
+For the most part, OSP does not care about user permissions. For example, the Web bundle allows
+to specify a required permission for accessing a certain path on the server. How the permission
+is named is not of interest to the Web library -- it simply checks that the user (obtained from
+HTTP Basic authentication) has the specified permission.
+
+The <[authorize()]> member function is defined as follows:
+
+    bool authorize(const std::string& userName, const std::string& permission) const;
+----
+
+
+!!! The SimpleAuthService Sample
+
+A very simple implementation of <[AuthService]> can be found found in the 
+<[OSP/samples/SimpleAuthService]> directory.
+
+The <[SimpleAuthService]> only knows two users -- "user" and "admin".
+Any password is valid for "user". The password for "admin"
+can be set (as clear text) in the global configuration file with the
+"adminPassword" property, e.g.:
+
+	adminPassword = s3cr3t
+----
+
+If no password has been set in the global configuration file, a default
+password (stored in the bundle's properties) is used.
+The default password is "admin".
+The "admin" user has all permissions. The set of permissions
+for "user" can be set in the global configuration file,
+using the "userPermissions" property. The permissions are 
+specified as a comma-separated list, e.g.
+
+    userPermissions = somePermission, someOtherPermission
+----
+
+The service is registered under the service name "osp.auth" and 
+can be obtained using the Poco::OSP::ServiceFinder helper class:
+
+    Poco::OSP::Auth::AuthService::Ptr pAuthService = 
+        Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(pContext, "osp.auth");
+----
+
+
+!!! Database and LDAP-based Authentication - The AuthAdminService
+
+Starting with release 2014.1, OSP comes with a new and extended implementation of the 
+<[AuthService]>. The new service is called <[AuthAdminService]> and is defined and
+implemented in the <[com.appinf.osp.auth]> bundle. As its name implies the service
+not only provides the <[authenticate()]> and <[authorize()]> methods known from
+the <[Poco::OSP::Auth::AuthService]>, it also provides methods for managing
+user accounts and permissions. There is also a shell command available for managing
+users, roles and permissions.
+
+The following features are supported:
+  * User and role-based permission grants.
+  * User accounts and permissions are stored in a SQL Database.
+  * LDAP server integration. Users can be authenticated via an LDAP server and
+    permissions and roles can be assigned via LDAP attributes.
+  * In-memory caching of password hashes and permissions.
+  
+User authentication and authorization is based on the concepts of users, roles and 
+permissions. Every user account can be assigned a list of permissions and a list of roles. 
+Every role can be assigned a list of permissions as well. 
+The effective permissions of a user are the permissions directly granted to him, 
+as well as the permissions granted via its assigned roles. 
+
+
+!! Setting up the Authentication/Authorization Database
+
+The <[AuthAdminService]> uses a SQL database for managing users, roles and
+permissions. In order to use the service, a database must be set up and the
+service must be configured to use a specific database. The Data library from
+the POCO C++ Libraries is used for database access, therefore the service
+is independent from the underlying database engine. ODBC, MySQL and SQLite
+can be used. 
+
+Following is the database schema required by the <[AuthAdminService]>:
+
+    CREATE TABLE auth_user
+    (
+        username VARCHAR(64) PRIMARY KEY NOT NULL,
+        password VARCHAR(64) NOT NULL
+    );
+
+    CREATE TABLE auth_role
+    (
+        rolename VARCHAR(64) PRIMARY KEY
+    );
+
+    CREATE TABLE auth_user_roles
+    (
+        username VARCHAR(64) NOT NULL REFERENCES auth_user(username) ON DELETE CASCADE,
+        rolename VARCHAR(64) NOT NULL REFERENCES auth_role(rolename) ON DELETE CASCADE
+    );
+
+    CREATE TABLE auth_user_permissions
+    (
+        username VARCHAR(64) NOT NULL REFERENCES auth_user(username) ON DELETE CASCADE,
+        permission VARCHAR(64) NOT NULL
+    );
+
+    CREATE TABLE auth_role_permissions
+    (
+        rolename VARCHAR(64) NOT NULL REFERENCES auth_role(rolename) ON DELETE CASCADE,
+        permission VARCHAR(64) NOT NULL 
+    );
+
+    CREATE TABLE auth_user_attributes
+    (
+        username VARCHAR(64) NOT NULL REFERENCES auth_user(username) ON DELETE CASCADE,
+        attribute VARCHAR(64) NOT NULL,
+        value VARCHAR(256) NOT NULL
+    );
+----
+
+After setting up the tables, at least one user account must be created.
+Usually, this will be an administrator account with the necessary permissions to
+perform further administrative tasks using the OSP Shell service.
+
+The following statement creates a user named "admin" with password "admin":
+
+    INSERT INTO auth_user VALUES("admin", "3d29e163b9107fcb31077b45b47026e2");
+----
+
+The password is not stored in clear text in the database. Only a salted hash of the
+password is stored. The salted hash of the password is computed by concatenating
+the salt with the password and computing the MD5:
+
+    passwordHash = MD5(salt | password)
+----
+
+The salt can be configured in the bundle.properties file in the <[com.appinf.osp.auth]> 
+bundle and should be unique for each application.
+
+On Linux systems, the has can be computed with the md5sum command:
+
+    $ echo -n "saltpassword" | md5sum
+----
+
+On OS X and BSD systems, the md5 utility can be used:
+
+    $ md5 -s "saltpassword"
+----
+
+The following permissions used by OSP should be granted to the administrator:
+
+  * bundleAdmin: allow access to the <*BundleAdmin*> web application.
+  * authAdmin: allow access to the <[auth]> Shell command.
+
+This can be done with the following SQL statements:
+
+    INSERT INTO auth_user_permissions VALUES("admin", "bundleAdmin");
+    INSERT INTO auth_user_permissions VALUES("admin", "authAdmin");
+----
+
+Instead of granting the permissions directly to the user account, a role
+can be used instead. In this case, the permissions are granted to the role, and
+then the role is assigned to one or more user accounts:
+
+    INSERT INTO auth_role VALUES("systemAdmin");
+    INSERT INTO auth_role_permissions VALUES("systemAdmin", "bundleAdmin");
+    INSERT INTO auth_role_permissions VALUES("systemAdmin", "authAdmin");
+    INSERT INTO auth_user_roles VALUES("admin", "systemAdmin");
+----
+
+After the database tables have been set up, the service must be configured.
+
+
+!! Configuring the AuthAdminService
+
+The <[AuthAdminService]> is configured using the global application configuration
+file. At least the <*auth.db.connector*> and <*auth.db.connectionString*> configuration
+properties must be specified.
+
+The following configuration properties are available:
+
+  * auth.db.connector
+  * auth.db.connectionString
+  * auth.cacheSize
+  * auth.cacheTimeout
+  * auth.ldap.uri
+  * auth.ldap.bindDN
+  * auth.ldap.permissionAttribute
+  * auth.ldap.roleAttribute 
+  
+
+! auth.db.connector
+
+This setting specifies which SQL database backend to use for accessing the database.
+Valid values are "ODBC", "MySQL" and "SQLite".
+The respective POCO Data bundle (poco.data.odbc, poco.data.mysql or poco.data.sqlite) must
+be available as well.
+
+If this setting is not specified, the <[AuthAdminService]> will be disabled.
+
+
+! auth.db.connectionString
+
+This setting specifies the connection string for connecting to the specific database
+instance. For SQLite, this is simply the path of the database file to use.
+For MySQL, the format of this string is:
+
+    user=<username>;password=<password>;db=<database>;compress=true|false;auto-reconnect=true|false
+----
+
+For ODBC, please refer to your system's ODBC documentation for obtaining the connection string.
+
+
+! auth.cacheSize
+
+This setting allows configuring the maximum number of entries in the
+internal permissions cache. This is used to reduce database accesses for
+user authorization and thus speed up operation. Default is 1024. Should
+be at least the number of maximum concurrent users expected on the
+system.
+
+
+! auth.cacheTimeout
+
+This setting allows configuring the timeout of the password cache. The
+password cache is used to reduce database accesses or LDAP lookups (if
+LDAP authentication is enabled). 
+
+
+! auth.ldap.uri
+
+If user authentication via LDAP is enabled, this setting specifies the
+URI of the LDAP server to use. Example: <[ldap://ldap-server.company.com]>
+(unencrypted connection) or <[ldaps://ldap-server.company.com]> (secure
+connection).
+
+
+! auth.ldap.bindDN
+
+If user authentication via LDAP is enabled, this setting specifies the
+distinguished name (DN) to bind to in order to authenticate a user. The
+DN must contain a placeholder (%s), which will be replaced during
+authentication with the actual username. Example:
+
+    uid="%s",cn=users ,dc=orgunit,dc=company,dc=com
+----
+
+! auth.ldap.permissionAttribute
+
+If user authentication via LDAP is enabled, this setting can be used to
+configure the <[AuthAdminService]> to obtain user permissions from the LDAP
+server. For that purpose, the LDAP server must provide permissions using
+the LDAP attribute specified in this setting. If this setting is provided,
+all user permissions in the database will be replaced with the
+permissions provided by the LDAP server upon successful authentication.
+
+
+! auth.ldap.roleAttribute
+
+If user authentication via LDAP is enabled, this setting can be used to
+configure the <[AuthAdminService]> to obtain user role assignments from the
+LDAP server. For that purpose, the LDAP server must provide role names
+using the attribute specified in this setting. If this setting is
+provided, all user role assignments in the database will be replaced
+with the roles provided by the LDAP server upon successful
+authentication.
+
+
+! auth.ldap.extraAttributes
+
+If user authentication via LDAP is enabled, this setting can be used to
+configure the <[AuthAdminService]> to obtain additional user attributes from the
+LDAP server containing application-specific information. The attribute
+names must be comma-separated. Once obtained from the LDAP server, the 
+attributes and their values can be queried using
+the <[getUserAttribute()]> and <[attributesForUser()]> methods.
+
+
+!! Using the AuthAdminService
+
+The <[AuthAdminService]> provides methods for managing users, roles and permissions.
+Please refer to the documentation of the Poco::OSP::Auth::AuthAdminService interface
+for more information.
+
+The <[AuthAdminService]> is registered under the service name "osp.auth" and 
+can be obtained using the Poco::OSP::ServiceFinder helper class:
+
+    Poco::OSP::Auth::AuthAdminService::Ptr pAuthService = 
+        Poco::OSP::ServiceFinder::find<Poco::OSP::Auth::AuthAdminService>(pContext);
+----
+
+
+!! Managing Users, Roles and Permissions
+
+In order to manage users, roles and permissions, the <*auth*> shell command is provided.
+The command is implemented in the <*com.appinf.osp.auth.command*> bundle.
+
+In order to use the <*auth*> command, the user must have the <*authAdmin*> permission.
+
+From within the OSP Shell, enter <[auth]> command without arguments for a help screen.
+
+
+! Creating a User Account
+
+To create a user account, use the <*auth add user*> command and specify the
+user name and its password as arguments. The following command will
+create a user named alice with the password s3cr3t.
+
+    osp> auth add user alice s3cr3t
+----
+
+
+! Granting a Permission to a User
+
+To grant a permission to a user, use the <*auth grant user*> command, giving
+the user name and permission as argument. For example, to grant user
+alice access to the Bundle Administration Utility web application and related
+shell commands:
+
+    osp> auth grant user alice bundleAdmin
+----
+
+
+! Creating a Role
+
+If multiple user accounts should have the same permissions, it makes
+sense to define a role. This is done with the <*auth add role*> command. For
+example, to define a role named <*superUsers*>:
+
+    osp> auth add role superUsers
+----
+
+
+! Granting a Permission to a Role
+
+To grant a permission to a role, use the <*auth grant role*> command, giving
+the role name and permission as argument. For example, to grant role
+<*superUsers*> access to the Bundle Administration Utility web application and related
+shell commands:
+
+    osp> auth grant role superUsers bundleAdmin
+----
+
+
+! Assigning a Role to a User
+
+To assign a role to a user, use the <*auth assign*> command, giving the user
+name and role name as arguments. For example, to assign user <*alice*> the
+role <*superUsers*>:
+
+    osp> auth assign alice superUsers
+----
+
+
+! Removing a Role From a User
+
+To revoke a role from a user, use the <*auth unassign*> command, giving the
+user name and role name as arguments. For example, to remove the role
+<*superUsers*> from user <*alice*>:
+
+    osp> auth unassign alice superUsers
+----
+
+
+! Revoking a Permission
+
+A permission can be revoked from a user or role with the 
+<*auth revoke user*>, or <*auth revoke role*> command, respectively. 
+Specify the user or role name and permission as arguments. Example:
+
+    osp> auth revoke user alice bundleAdmin
+----
+
+
+! Changing a User’s Password
+
+To change a user’s password, use the <*auth passwd*> command, giving the
+user name and new password as arguments. Example:
+
+    osp> auth passwd alice sup3rs3cr3t
+----
+
+
+! Showing Information About Users, Roles and Permissions
+
+To display information about a specific user, role or permission, or to
+list all defined users, roles and permissions, use the <*auth show*>
+command. For example, to show the <*admin*> user:
+
+    osp> auth show user admin
+----
+
+
+!! Using LDAP for User Authentication and Authorization
+
+Optionally, <[AuthAdminService]> can use LDAP for user authentication
+and authorization. LDAP can be used for authentication (validating
+passwords) only, or for both authentication and authorization (obtaining
+a list of permissions and role assignments for an user).
+
+To enable LDAP authentication, the following configuration settings must
+be added to the global application configuration file:
+
+  * auth.ldap.uri
+  * auth.ldap.bindDN
+  
+To enable LDAP authorization, additionally the following configuration
+settings must be added to the global application configuration file:
+
+  * auth.ldap.permissionAttribute
+  * auth.ldap.roleAttribute (optional)
+
+Specifically, for LDAP authorization, the LDAP server must provide the
+attribute specified in the <*auth.ldap.permissionAttribute*> configuration
+setting. This attribute is used to store the permissions for a user.
+Furthermore, in order to provide role assignments as well, the LDAP
+server must provide the attribute specified in the
+<*auth.ldap.roleAttribute*> configuration setting.
+
+If the LDAP server provides permissions and roles, these always replace
+the permissions and roles stored for that user in the database.
+Permissions and roles are obtained from the LDAP server immediately
+after the user account has been successfully validated by performing an
+LDAP bind operation with the user’s credentials.
+
+Permission assignments to roles are always stored in the <[AuthAdminService]> database.
+
+If the LDAP server is unavailable, the <[AuthAdminService]> falls back to the
+configured database.

@@ -1,0 +1,358 @@
+#! /bin/bash
+#
+# mkunixinstaller
+#
+# Create a Unix binary POCO release with installer.
+#
+# Usage:
+#    mkunixinstaller [-l] [-u] [-t <reltag>] [-f <compfile>] {<component>}
+#
+#    -l:            Include license check
+#    -u:            Upload file to release repository.
+#    -t:            Specify release tag.
+#    -f <compfile>: Component list file
+#    -c <config>:   Build using the given configuration
+#    <components>:  Additional components to include
+#
+# Environment:
+#    $POCO_BASE: POCO base directory (e.g., "/cygdrive/p/poco-1.2")
+#
+# Prerequisites:
+#    PocoDoc must be in PATH
+#
+
+
+if [ "$POCO_BASE" = "" ] ; then
+  echo "Error: POCO_BASE not set."
+  exit 1
+fi
+
+make=make
+include=`dirname $0`
+build=$POCO_BASE/stage/build
+dist=$POCO_BASE/stage/dist
+docConfig=$POCO_BASE/PocoDoc/cfg/mkunixinstaller.xml
+read version <$POCO_BASE/PLATFORM_VERSION
+
+osname=`uname -s | tr ' ' '_'`
+osarch=`uname -m | tr ' ' '_'`
+
+if [ -f /etc/lsb-release ] ; then
+	source /etc/lsb-release
+	osrelease=`echo $DISTRIB_RELEASE | tr ' .' '__'`
+	osdist=`echo $DISTRIB_ID | tr ' ' '_'`
+elif [ -x /usr/bin/lsb_release ] ; then
+	osrelease=`lsb_release -r -s | tr ' .' '__'`
+	osdist=`lsb_release -i -s | tr ' ' '_'`
+else
+	osrelease=`uname -r | tr ' .' '__'`
+	osdist=$osname
+fi
+
+echo "Building for platform $osdist $osrelease $osarch."
+
+comps=""
+specfile=""
+license=0
+upload=0
+tag=""
+config=""
+
+while [ "$1" != "" ] ; 
+do
+	if [ "$1" = "-f" ] ; then
+		shift
+		specfile=$1
+		shift
+	elif [ "$1" = "-t" ] ; then
+		shift
+    	tag=$1
+    	shift
+	elif [ "$1" = "-l" ] ; then
+		license=1
+		shift
+	elif [ "$1" = "-u" ] ; then
+		upload=1
+		shift
+	elif [ "$1" = "-c" ] ; then
+		shift
+		config=$1
+		shift
+	else
+		comps="$comps $1"
+		shift
+	fi
+done
+
+if [ "$license" = 1 ] ; then
+	licenseOpt=-l
+	POCO_LICENSING=PocoLicensing
+	export POCO_LICENSING
+fi
+
+if [ "$specfile" != "" ] ; then
+	while read c
+	do
+		comps="$comps $c"
+	done <$specfile
+fi
+
+allcomps="Foundation XML Util Net $comps"
+
+#
+# Clean build directory
+#
+echo "Cleaning build directory: $build"
+rm -rf $build
+rm -rf $dist
+mkdir -p $build
+mkdir -p $dist
+
+
+#
+# Copy POCO sources into build directory
+#
+echo "Copying sources"
+mkrelease $licenseOpt -o $build $version $comps
+
+#
+# Check License 
+#
+if [ "$license" = 1 ] ; then
+	cp -f $POCO_BASE/dist/Config_License.h $build/Foundation/include/Poco/Config.h
+fi
+
+
+#
+# Make all files writeable
+#
+chmod -R +w $build
+
+
+#
+# Build sources
+#
+echo "Compiling..."
+cwd=`pwd`
+cd $build
+if [ "$config" != "" ] ; then
+	configopt="--config=$config"
+else
+	configopt=""
+fi
+echo "Configuring..."
+./configure $configopt --no-tests --no-samples --prefix=$dist/poco
+
+if [ $? != 0 ] ; then
+	echo "Error configuring release. Exiting."
+	exit 1
+fi
+
+echo "Invoking Make..."
+export LD_LIBRARY_PATH=$build/lib/$osname/$osarch:$LD_LIBRARY_PATH
+$make -s -j4
+
+if [ $? != 0 ] ; then
+	echo "Build failed. Exiting."
+	exit 1
+fi
+
+#
+# Copy headers and libs
+#
+echo "Packing release..."
+$make -s install
+cd $cwd
+
+# Remove Licensing 
+rm -rf $build/Licensing
+rm -rf $dist/poco/include/Poco/Licensing
+
+# Copy executables
+echo "Copying executables"
+for comp in $allcomps ; do 
+	if [ -d "$build/$comp/bin" ] ; then 
+		find $build/$comp/bin -type f -perm +x -exec cp {} $dist/poco/bin \;
+	fi 
+done
+# Remove bundles
+rm $dist/poco/bin/*.so $dist/poco/bin/*.dylib
+
+# Copy samples
+echo "Copying samples"
+for comp in $allcomps ; do 
+	if [ -d "$build/$comp/samples" ] ; then 
+		mkdir -p $dist/poco/samples/$comp
+		cp -Rf $build/$comp/samples/* $dist/poco/samples/$comp
+	fi 
+done
+
+# Copy additional distribution files
+echo "Copying additional sample files"
+for comp in $allcomps ; do
+	if [ -d "$POCO_BASE/$comp/samples.distgcc" ] ; then
+		cp -Rf $POCO_BASE/$comp/samples.distgcc/* $dist/poco/samples/$comp
+	fi
+done
+
+# Cleanup samples
+echo "Cleaning up samples"
+for comp in $allcomps ; do
+	if [ -d "$dist/poco/samples/$comp" ] ; then
+		find $dist/poco/samples/$comp -name 'obj' -print | xargs rm -rf
+		find $dist/poco/samples/$comp -name '*.ncb' -exec rm -f {} \;
+		find $dist/poco/samples/$comp -name '*.vmsbuild' -exec rm -f {} \;
+		find $dist/poco/samples/$comp -name '*.progen' -exec rm -f {} \;
+		find $dist/poco/samples/$comp -name "*.sln" -exec rm -f {} \;
+		find $dist/poco/samples/$comp -name "*.vcproj" -exec rm -f {} \;
+		find $dist/poco/samples/$comp -name "*.vcxproj" -exec rm -f {} \;
+		find $dist/poco/samples/$comp -name '*.suo' -exec rm -f {} \;
+		find $dist/poco/samples/$comp -name '*.ilk' -exec rm -f {} \;
+		find $dist/poco/samples/$comp -name '*.pdb' -exec rm -f {} \;
+		find $dist/poco/samples/$comp -name 'dependencies' -exec rm -f {} \;
+		find $dist/poco/samples/$comp -name '*.vcproj.*.user' -exec rm -f {} \;
+		find $dist/poco/samples/$comp -name '*.vcxproj.user' -exec rm -f {} \;
+		find $dist/poco/samples/$comp -name '*.vcxproj.filters' -exec rm -f {} \;
+	fi
+done
+
+# Copy build system
+echo "Copying build system"
+mkdir -p $dist/poco/build/config
+mkdir -p $dist/poco/build/rules
+mkdir -p $dist/poco/build/script
+
+cp $build/build/config/* $dist/poco/build/config
+cp $build/build/rules/* $dist/poco/build/rules
+cp $build/build/script/* $dist/poco/build/script
+
+rm $dist/poco/build/rules/global
+mv $dist/poco/build/rules/sample $dist/poco/build/rules/global
+
+#
+# OSP Postprocessing
+#
+if [ -d "$build/OSP" ] ; then 
+	# copy standard bundles
+	rm -rf $dist/poco/samples/OSP/bundles
+	mkdir $dist/poco/samples/OSP/bundles
+	cp $build/OSP/bundles/*.bndl $dist/poco/samples/OSP/bundles
+	# fix makefiles
+	for mf in $dist/poco/samples/OSP/*/Makefile ; do
+		sed 's/^BUNDLE_TOOL = .*/BUNDLE_TOOL = bundle/' <$mf >${mf}.new
+		rm $mf
+		mv ${mf}.new ${mf}
+	done
+	# fix bndlspecs
+	for bs in $dist/poco/samples/OSP/*/*.bndlspec ; do
+		sed 's#/${osName}/${osArch}/#/#' <$bs >${bs}.new
+		rm $bs
+		mv ${bs}.new ${bs}
+	done
+fi
+
+#
+# Generate documentation
+#
+echo "Generating documentation"
+
+# Create a PocoDoc configuration file
+docVersion=$version
+if [ $tag ] ; then
+	docVersion="$docVersion-$tag"
+fi
+echo "PocoInclude=$dist/poco/include" >$build/PocoDoc.ini
+echo "PocoBuild=$build" >>$build/PocoDoc.ini
+echo "PocoBase=$POCO_BASE" >>$build/PocoDoc.ini
+echo "PocoDoc.output=$dist/poco/doc" >>$build/PocoDoc.ini
+echo "PocoDoc.version=$docVersion" >> $build/PocoDoc.ini
+
+PocoDoc --config=$docConfig --config=$build/PocoDoc.ini
+
+
+#
+# Build installer
+#
+echo "Building installer"
+
+cd $dist
+cd poco
+tar cf ../product.tar *
+cd ..
+
+instfile=`echo appinf-$version | tr '.' '_'`
+product="Applied Informatics C++ Libraries and Tools $version"
+if [ $tag ] ; then
+	instfile="$instfile-$tag"
+	product="$product-$tag"
+fi
+instfile="$instfile-$osdist-$osrelease-$osarch"
+
+mkdir $instfile
+cp product.tar $instfile/product.tar
+cp $POCO_BASE/Installer/install.sh $instfile
+cp $POCO_BASE/Installer/license.txt $instfile
+cp $POCO_BASE/Installer/README $instfile
+echo $product >$instfile/product.txt
+if [ `uname` = "Darwin" ] ; then
+	ldLibraryPath=DYLD_LIBRARY_PATH
+else
+	ldLibraryPath=LD_LIBRARY_PATH
+fi
+cat <<END >$instfile/postinstall.sh
+#! /bin/sh
+#
+# POCO post install script
+#
+instpath=\$1
+mkdir \$instpath/etc
+echo "export POCO_BASE=\$instpath" >\$instpath/etc/poco.env
+echo "export PATH=\\\$PATH:\\\$POCO_BASE/bin" >>\$instpath/etc/poco.env
+echo "export $ldLibraryPath=\\\$$ldLibraryPath:\\\$POCO_BASE/lib" >>\$instpath/etc/poco.env
+echo ""
+echo "**** IMPORTANT NOTE ****"
+echo ""
+echo "The Applied Informatics C++ Libraries and Tools have"
+echo "been installed into '\$instpath'."
+echo ""
+echo "To compile the sample applications located in '\$instpath/samples',"
+echo "you have to set the environment variable POCO_BASE to the"
+echo "path given above before invoking GNU make: "
+echo ""
+echo "> export POCO_BASE=\$instpath"
+echo ""
+echo "You can do that by sourcing the script"
+echo "'\$instpath/etc/poco.env'."
+echo ""
+echo "To build the samples for POCO Foundation:"
+echo ""
+echo "> source \$instpath/etc/poco.env"
+echo "> cd \\\$POCO_BASE/samples/Foundation"
+echo "> $make -s"
+echo ""
+echo "To view the documentation, point your web browser to"
+echo "'\$instpath/doc/index.html'."
+echo ""
+END
+
+if [ "$license" = 1 ] ; then
+	cat <<END >>$instfile/postinstall.sh
+echo "If you have received a license file ('poco.license'),"
+echo "please put this file into your home directory."
+echo ""
+END
+fi
+
+chmod +x $instfile/postinstall.sh
+
+tar cf $instfile.tar $instfile
+gzip $instfile.tar
+
+cd $cwd
+
+if [ $upload = 1 ] ; then
+	echo "Uploading installer..."
+	upload $version $dist/$instfile.tar.gz
+fi
+
+echo "Done."

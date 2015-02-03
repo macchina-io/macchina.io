@@ -1,0 +1,55 @@
+OSP Standard Services
+Applied Informatics Open Service Platform
+
+!!! Extension Point Service
+
+The Extension Point Service allows a bundle to provide "hooks" that make it possible for other 
+bundles to extend its functionality. An example would be a servlet engine implemented in a bundle, 
+with actual servlets implemented in their own bundles. The actual extension mechanism and how it is 
+implemented is entirely defined by a bundle. The extension point service only provides a standardized 
+configuration mechanism for extension points.
+
+The Extension Point Service is registered under the service name <[osp.core.xp]> and
+implemented in the Poco::OSP::ExtensionPointService class.
+
+A bundle that wishes to register an extension point must provide a subclass of 
+Poco::OSP::ExtensionPoint and register an instance of it with the Extension Point Service.
+This is usually done in the bundle's implementation of Poco::OSP::BundleActivator.
+
+A bundle implementing an extension can do so by providing a special configuration file named 
+<[extensions.xml]> in its bundle's root directory. The file has the following format:
+
+  <extensions>
+      <extension point="name">
+          <!-- bundle specific content -->
+      </extension>
+      <!-- optionally more extension elements -->
+  </extensions>
+----
+
+The actual contents of the extension element are defined and interpreted by the 
+Poco::OSP::ExtensionPoint subclass that a bundle defines.
+
+The Poco::OSP::ExtensionPointService registers itself for the <[bundleStarted]> event. 
+Whenever a bundle is started, the service looks for a <[extensions.xml]> file in the bundle. 
+If such a file is present, the file is parsed using the DOM parser, and for every extension element the 
+corresponding Poco::OSP::ExtensionPoint object is invoked.
+
+
+!!! Preferences Service
+
+The Preferences Service provides an easy way for a bundle or service to retrieve and store 
+configuration information. It also gives a bundle read-only access to the global application configuration.
+The Preferences Service is implemented in the Poco::OSP::PreferencesService class.
+
+A bundle accesses and modifies its preferences via the Poco::OSP::Preferences class.
+A bundle accesses the global configuration via the Poco::OSP::Configuration class.
+
+The Preferences Service is registered under the name <[osp.core.preferences]>.
+
+
+!!! Bundle Installer Service
+
+The Bundle Installer Service provides methods to install new bundles into a running OSP-based application,
+and to replace/upgrade existing bundles with new versions. The Bundle Installer Service is implemented
+by the Poco::OSP::BundleInstallerService class and registered under the service name <[osp.core.installer]>.

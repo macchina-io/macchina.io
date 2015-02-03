@@ -1,0 +1,20 @@
+#
+# Makefile-Library
+#
+# $Id: //poco/1.4/OSP/Web/Makefile-Library#2 $
+#
+# Makefile for Poco OSPWeb Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = MediaTypeMapper WebServerDispatcher WebServerRequestHandlerFactory \
+          WebServerExtensionPoint WebSession WebRequestHandlerFactory \
+          WebServerRequestHandler WebSessionManager WebServerService \
+          WebFilter WebFilterFactory WebFilterExtensionPoint
+
+target         = PocoOSPWeb
+target_version = 3
+target_libs    = PocoOSP PocoNet PocoUtil PocoXML PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

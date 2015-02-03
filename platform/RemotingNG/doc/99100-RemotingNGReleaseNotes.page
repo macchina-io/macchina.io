@@ -1,0 +1,133 @@
+Remoting NG Release Notes
+Applied Informatics Remoting NG
+
+!!!Release 2014.1B
+
+!!Summary of Changes
+
+  - Added support for cookies to JSONRPC and SOAP Transport objects.
+  - Make HTTPServerRequest and HTTPServerResponse objects available
+    to server code via Context in JSONRPC and SOAP transports.
+  - RemoteGen: SingletonHolder in client/server helper is now named sh<class> to avoid 
+    name conflicts if multiple source files are combined.
+
+
+!!!Release 2014.1
+
+!!Summary of Changes
+
+  - Minor changes for compatibility with C++11.
+  - TCP transport bugfix: Set up reply stream before closing request to avoid
+    race condition (no reply handler registered) with fast connections.
+  - RemoteGen: Do not use inheritance in generated skeleton classes.
+    This fixes a potential crash when invoking a base class method on a
+    derived class, due to a failing cross cast (the RemoteObject classes for
+    base class and derived classes are not related).
+  - New ServerHelper class template, which is specialized by generated ServerHelper 
+    classes. This allows use of ServerHelper classes in generic code.
+  - ServerHelper and ClientHelper instances are now created using a Poco::SingletonHolder.
+  - Various minor improvements.
+  
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
+!!!Release 2013.2
+
+!!Summary of Changes
+
+  - Added the Poco::RemotingNG::Context class which allows to pass transport-specific
+    information to service methods via a thread-local object.
+  - Added the JSON-RPC transport which implements the 
+    [[http://www.jsonrpc.org/specification JSON-RPC 2.0]] protocol
+  - XSDGen bugfixes: empty import elements now work, unnamed inner simple type declarations 
+    are handled properly and no longer cause an assertion, missing element declarations 
+    no longer cause a crash due to a null pointer.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
+!!!Release 2013.1p1
+
+!!Summary of Changes
+
+  - The SOAP transport now correctly handles SOAP faults sent in MTOM multipart messages.
+  - The TypeDeserializer for Poco::DateTime now also parses the time zone, if present, 
+    and adjusts the resulting DateTime value accordingly.
+  - Fixed a RemoteGen bug where the @header attribute was ignored in case of a renamed
+    method parameter.
+  - Fixed a XSDGen bug where header elements would be duplicated in generated C++ classes
+    if both SOAP 1.1 and 1.2 bindings were present in a WSDL document.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
+!!!Release 2013.1
+
+!!Summary of Changes
+
+  - The Content-Type HTTP header for a MTOM multipart request had compatibility issues
+    with some third party implementations. This is now fixed.
+  - Fixed a crasher with serializing MTOM messages if a Serializer instance was used
+    multiple times.
+  - Fixed a few XSD/WSDL code generation issues, causing incorrect code to be generated
+    for certain XSD/WSDL constructs.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
+!!!Release 2012.1
+
+!!Summary of Changes
+
+  - Remoting NG is the successor to the Remoting framework.
+  - This is the first official release of Remoting NG. While
+    Remoting NG was included starting with release 2011.1 as
+    part of the Universal Plug and Play framework, with release
+    2012.1, Remoting NG completely replaces the older Remoting
+    framework, which will no longer be improved.
+  - Remoting NG features an improved internal architecture, support
+    for remote events, and new transports. Also included is
+    code generation from WSDL documents.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - The transition from Remoting to Remoting NG requires some
+    changes to existing code.
+  - The generated client helper classes now only have a <*find()*>
+    method taking a URI as argument.
+  - The programming interfaces for registering listeners and
+    service objects with the server ORB have changed. The generated
+    server helper classes have a different interface as well.
+  - The attribute syntax for method parameters has changed.
+  - Please refer to the documentation for more information.
+
+

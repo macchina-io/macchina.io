@@ -1,0 +1,93 @@
+#! /bin/sh
+#
+# $Id: //poco/1.4/release/script/mkprel#2 $
+#
+# mkrel
+#
+# Create a release for distribution.
+# This is a wrapper for mkrelease that syncs to the
+# Perforce head revision, reads the current
+# version from $POCO_BASE/PLATFORM_VERSION and requires a release
+# specification (loaded from $POCO_BASE/release/spec/*.release)
+# as argument.
+#
+# usage: mkprel [-l <perforce-label>] [<specfile>]
+#
+
+if [ "$POCO_BASE" = "" ] ; then
+  echo "Error: POCO_BASE not set."
+  exit 1
+fi
+
+cd $POCO_BASE
+
+if [ ! -f PLATFORM_VERSION ] ; then
+  echo "Error: No PLATFORM_VERSION file found."
+  exit 2
+fi
+
+case `uname` in
+  CYGWIN*) cygwin=1
+            ;;
+        *) cygwin=""
+            ;;
+esac
+
+label=""
+spec=""
+sync="yes"
+while [ "$1" != "" ] ; 
+do
+	if [ "$1" = "-l" ] ; then
+		shift
+		label=@$1
+		shift
+	elif [ "$1" = "-N" ] ; then
+		sync="no"
+		shift
+	else
+		spec=$1
+		shift
+	fi
+done
+
+if [ "$spec" != "" ] ; then
+  relspec="-f release/spec/${spec}.release"
+  reltag="-$spec"
+else
+  relspec=""
+  reltag=""
+fi
+
+if [ $cygwin ] ; then
+  export PWD=`cygpath -w $POCO_BASE`
+fi
+
+#
+# Sync files
+#
+if [ $sync = "yes" ] ; then
+	echo "Syncing files..."
+	p4 sync ./...$label
+fi
+
+read version <$POCO_BASE/PLATFORM_VERSION
+release=$version$reltag
+
+#
+# Build release
+#
+echo "Building release $release"
+
+rm -rf releases/poco-$release.*
+$POCO_BASE/release/script/mkrelease $release $relspec
+
+#
+# Copy archive
+#
+echo "Uploading archive..."
+if [ $cygwin ] ; then
+  $POCO_BASE/release/script/upload $version releases/poco-$release.zip
+else
+  $POCO_BASE/release/script/upload $version releases/poco-$release.tar.*
+fi

@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>POCO NetSSL Library (OpenSSL)</name>
+    <symbolicName>poco.net.ssl</symbolicName>
+    <version>1.4.7</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2007-2014, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>NetSSLBundleActivator</class>
+      <library>poco.net.ssl</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>000</runLevel>
+    <dependency>
+      <symbolicName>poco.net</symbolicName>
+      <version>1.4.7</version>
+    </dependency>
+    <dependency>
+      <symbolicName>poco.crypto</symbolicName>
+      <version>1.4.7</version>
+    </dependency>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../${bin}/PocoNetSSL${64}.dll,
+    ../../${bin}/PocoNetSSL${64}d.dll,
+    ../../${bin}/PocoNetSSL${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoNetSSL.so.*,
+    ../../lib/${osName}/${osArch}/libPocoNetSSLd.so.*,
+    ../../lib/${osName}/${osArch}/libPocoNetSSL.*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoNetSSLd.*.dylib
+  </code>
+</bundlespec>

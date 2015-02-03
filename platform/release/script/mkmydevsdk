@@ -1,0 +1,95 @@
+#! /bin/sh
+#
+# $Id: //poco/1.4/release/script/mkmydevsdk#2 $
+#
+# mkmysdk
+#
+# Create a my-devices.net Device SDK release for distribution.
+# This is a wrapper for mkrelease that syncs to the
+# Perforce head revision, reads the current
+# version from $POCO_BASE/MYSDKVERSION and requires a release
+# specification (loaded from $POCO_BASE/release/spec/*.release)
+# as argument.
+#
+# usage: mkrel [<specfile>]
+#
+
+if [ "$POCO_BASE" = "" ] ; then
+  echo "Error: POCO_BASE not set."
+  exit 1
+fi
+
+cd $POCO_BASE
+
+if [ ! -f MYSDKVERSION ] ; then
+  echo "Error: No MYSDKVERSION file found."
+  exit 2
+fi
+
+case `uname` in
+  CYGWIN*) cygwin=1
+            ;;
+        *) cygwin=""
+            ;;
+esac
+
+label=""
+spec="mydevsdk"
+while [ "$1" != "" ] ; 
+do
+	if [ "$1" = "-l" ] ; then
+		shift
+		label=@$1
+		shift
+	else
+		spec=$1
+		shift
+	fi
+done
+
+
+if [ "$spec" != "" ] ; then
+  relspec="-f release/spec/${spec}.release"
+  reltag=""
+else
+  relspec=""
+  reltag=""
+fi
+
+if [ $cygwin ] ; then
+  export PWD=`cygpath -w $POCO_BASE`
+fi
+
+#
+# Sync files
+#
+echo "Syncing files..."
+p4 sync ./...$label
+
+read version <$POCO_BASE/MYSDKVERSION
+release=$version$reltag
+
+#
+# Build release
+#
+echo "Building release $release"
+
+output=$POCO_BASE/releases/my-devices-sdk-$release
+rm -rf ${output}.*
+$POCO_BASE/release/script/mkrelease -o ${output} $version $relspec
+
+#
+# Fix up release
+#
+
+mv $output/README $output/README_POCO
+cp $POCO_BASE/dist/my-devices-sdk/README $output/README
+cp $POCO_BASE/dist/my-devices-sdk/buildsdk.sh $output/buildsdk.sh
+chmod +x $output/buildsdk.sh
+
+#
+# Pack up release
+#
+
+cd $POCO_BASE/releases
+tar cfz ${output}.tar.gz `basename ${output}`

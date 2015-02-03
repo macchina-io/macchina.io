@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Crypto", "Crypto_x64_vs100.vcxproj", "{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		debug_shared|x64 = debug_shared|x64
+		release_shared|x64 = release_shared|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}.debug_shared|x64.ActiveCfg = debug_shared|x64
+		{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}.debug_shared|x64.Build.0 = debug_shared|x64
+		{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}.debug_shared|x64.Deploy.0 = debug_shared|x64
+		{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}.release_shared|x64.ActiveCfg = release_shared|x64
+		{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}.release_shared|x64.Build.0 = release_shared|x64
+		{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}.release_shared|x64.Deploy.0 = release_shared|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

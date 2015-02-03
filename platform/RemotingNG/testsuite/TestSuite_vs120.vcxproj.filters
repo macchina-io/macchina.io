@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Remoting">
+      <UniqueIdentifier>{79451b4e-c7ab-4991-af74-fa4ba0bf0fe4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Remoting\Header Files">
+      <UniqueIdentifier>{c0fe4032-558f-4b6a-b18c-4c487f05ce2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Remoting\Source Files">
+      <UniqueIdentifier>{7043bbd6-2e1c-4214-acef-567a1a2a8b26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Suite">
+      <UniqueIdentifier>{af3436b6-b2e0-4ed6-b25d-1e8601597c51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Suite\Header Files">
+      <UniqueIdentifier>{75605d92-58a6-427e-a52a-9249a2b464c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Suite\Source Files">
+      <UniqueIdentifier>{326bcbbd-4807-4c3a-a08a-683735805103}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Driver">
+      <UniqueIdentifier>{746239b9-ebc4-40b7-b44d-6be6d44e6c18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Driver\Source Files">
+      <UniqueIdentifier>{503324d4-5d43-4d34-a214-f8439cd7eb7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{144c9de4-5ad2-452e-b1d1-aabf0e279f38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated\Header Files">
+      <UniqueIdentifier>{75ca2cc7-5d86-44f6-a78c-86bfda6f3408}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated\Source Files">
+      <UniqueIdentifier>{f275ee67-6130-4a47-a95d-7204d97aecb4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\RemotingTest.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tester.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RemotingTestSuite.h">
+      <Filter>_Suite\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Class1Deserializer.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Class1Serializer.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ITester.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Struct1Deserializer.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Struct1Serializer.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Struct2Deserializer.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Struct2Serializer.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Struct3Deserializer.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Struct3Serializer.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Struct4Deserializer.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Struct4Serializer.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Struct5Deserializer.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Struct5Serializer.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TesterClientHelper.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TesterEventDispatcher.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TesterEventSubscriber.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TesterProxy.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TesterProxyFactory.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TesterRemoteObject.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TesterServerHelper.h">
+      <Filter>Generated\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TesterSkeleton.h">
+      <Filter>Generated\Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\RemotingTest.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tester.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RemotingTestSuite.cpp">
+      <Filter>_Suite\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Driver.cpp">
+      <Filter>_Driver\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ITester.cpp">
+      <Filter>Generated\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TesterClientHelper.cpp">
+      <Filter>Generated\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TesterEventDispatcher.cpp">
+      <Filter>Generated\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TesterEventSubscriber.cpp">
+      <Filter>Generated\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TesterProxy.cpp">
+      <Filter>Generated\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TesterProxyFactory.cpp">
+      <Filter>Generated\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TesterRemoteObject.cpp">
+      <Filter>Generated\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TesterServerHelper.cpp">
+      <Filter>Generated\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TesterSkeleton.cpp">
+      <Filter>Generated\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

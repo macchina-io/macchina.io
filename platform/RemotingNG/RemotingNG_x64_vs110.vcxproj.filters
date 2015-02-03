@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Remoting">
+      <UniqueIdentifier>{f718d867-2596-4d95-9956-9c0dfad9b34b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Remoting\Header Files">
+      <UniqueIdentifier>{19226123-30f2-445f-b280-640089e83f8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Remoting\Source Files">
+      <UniqueIdentifier>{eaa93d00-7c2d-4cd2-8f40-0d3627fc49db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Serialization">
+      <UniqueIdentifier>{5872b984-a554-43e4-9055-c6b6af92f039}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Serialization\Header Files">
+      <UniqueIdentifier>{31db0beb-9135-453d-8367-edc03ceb3735}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Serialization\Source Files">
+      <UniqueIdentifier>{66551ee4-1679-4247-8ab1-4c0de01ad9cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Transport">
+      <UniqueIdentifier>{cc15bf79-86d2-464a-bd36-c19d0fab0e7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Transport\Header Files">
+      <UniqueIdentifier>{e2db2273-7815-4f0e-bdec-295e292bdebd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Transport\Source Files">
+      <UniqueIdentifier>{6c5861e5-a0d7-41c1-8f05-0a9e06720623}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Poco\RemotingNG\AttributedObject.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\EventDispatcher.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\EventSubscriber.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\Identifiable.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\MethodHandler.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\ORB.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\Proxy.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\ProxyFactory.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\ProxyFactoryManager.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\RemoteObject.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\RemotingException.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\RemotingNG.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\ServerHelper.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\Skeleton.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\URIUtility.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\BinaryDeserializer.h">
+      <Filter>Serialization\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\BinarySerializer.h">
+      <Filter>Serialization\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\Deserializer.h">
+      <Filter>Serialization\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\Serializer.h">
+      <Filter>Serialization\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\SerializerBase.h">
+      <Filter>Serialization\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TypeDeserializer.h">
+      <Filter>Serialization\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TypeSerializer.h">
+      <Filter>Serialization\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\Context.h">
+      <Filter>Transport\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\EventListener.h">
+      <Filter>Transport\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\Listener.h">
+      <Filter>Transport\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\ServerTransport.h">
+      <Filter>Transport\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\Transport.h">
+      <Filter>Transport\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TransportFactory.h">
+      <Filter>Transport\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TransportFactoryManager.h">
+      <Filter>Transport\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\AttributedObject.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EventDispatcher.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EventSubscriber.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Identifiable.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MethodHandler.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ORB.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Proxy.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ProxyFactory.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ProxyFactoryManager.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RemoteObject.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RemotingException.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Skeleton.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\URIUtility.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BinaryDeserializer.cpp">
+      <Filter>Serialization\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BinarySerializer.cpp">
+      <Filter>Serialization\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Deserializer.cpp">
+      <Filter>Serialization\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Serializer.cpp">
+      <Filter>Serialization\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SerializerBase.cpp">
+      <Filter>Serialization\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Context.cpp">
+      <Filter>Transport\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EventListener.cpp">
+      <Filter>Transport\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Listener.cpp">
+      <Filter>Transport\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServerTransport.cpp">
+      <Filter>Transport\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Transport.cpp">
+      <Filter>Transport\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TransportFactory.cpp">
+      <Filter>Transport\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TransportFactoryManager.cpp">
+      <Filter>Transport\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

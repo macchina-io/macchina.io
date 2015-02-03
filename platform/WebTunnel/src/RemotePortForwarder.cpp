@@ -1,0 +1,420 @@
+//
+// RemotePortForwarder.cpp
+//
+// $Id: //poco/1.4/WebTunnel/src/RemotePortForwarder.cpp#18 $
+//
+// Library: WebTunnel
+// Package: WebTunnel
+// Module:  RemotePortForwarder
+//
+// Copyright (c) 2013, Applied Informatics Software Engineering GmbH.
+// All rights reserved.
+//
+// SPDX-License-Identifier:	BSL-1.0
+//
+
+
+#include "Poco/WebTunnel/RemotePortForwarder.h"
+#include "Poco/WebTunnel/Protocol.h"
+#include "Poco/Net/NetException.h"
+#include "Poco/Format.h"
+
+
+namespace Poco {
+namespace WebTunnel {
+
+
+RemotePortForwarder::RemotePortForwarder(SocketDispatcher& dispatcher, Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket, const Poco::Net::IPAddress& host, const std::set<Poco::UInt16>& ports, Poco::Timespan remoteTimeout):
+	_dispatcher(dispatcher),
+	_pWebSocket(pWebSocket),
+	_host(host),
+	_ports(ports),
+	_connectTimeout(30, 0),
+	_localTimeout(7200, 0),
+	_remoteTimeout(remoteTimeout),
+	_timeoutCount(0),
+	_logger(Poco::Logger::get("WebTunnel.RemotePortForwarder"))
+{
+	_dispatcher.addSocket(*pWebSocket, new TunnelDemultiplexer(*this), remoteTimeout);
+}
+
+	
+RemotePortForwarder::~RemotePortForwarder()
+{
+	try
+	{
+		if (_pWebSocket)
+		{
+			closeWebSocket(RPF_CLOSE_GRACEFUL, true);
+		}
+	}
+	catch (...)
+	{
+		poco_unexpected();
+	}
+}
+
+
+void RemotePortForwarder::setLocalTimeout(const Poco::Timespan& timeout)
+{
+	_localTimeout = timeout;
+}
+
+
+const Poco::Timespan& RemotePortForwarder::getLocalTimeout() const
+{
+	return _localTimeout;
+}
+
+
+void RemotePortForwarder::setConnectTimeout(const Poco::Timespan& timeout)
+{
+	_connectTimeout = timeout;
+}
+
+
+const Poco::Timespan& RemotePortForwarder::getConnectTimeout() const
+{
+	return _connectTimeout;
+}
+
+
+const Poco::Timespan& RemotePortForwarder::remoteTimeout() const
+{
+	return _remoteTimeout;
+}
+
+
+void RemotePortForwarder::stop()
+{
+	_dispatcher.stop();
+}
+
+
+bool RemotePortForwarder::multiplex(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, Poco::UInt16 channel, Poco::Buffer<char>& buffer)
+{
+	std::size_t hn = Protocol::writeHeader(buffer.begin(), buffer.size(), Protocol::WT_OP_DATA, 0, channel);
+	bool expectMore = true;
+	int n = 0;
+	try
+	{
+		n = socket.receiveBytes(buffer.begin() + hn, static_cast<int>(buffer.size() - hn));
+		if (n <= 0)
+		{
+			if (_logger.debug())
+			{
+				_logger.debug(Poco::format("Closing channel %hu", channel));
+			}
+			removeChannel(channel);
+			n = 0;
+			hn = Protocol::writeHeader(buffer.begin(), buffer.size(), Protocol::WT_OP_CLOSE, 0, channel);
+			expectMore = false;
+		}
+	}
+	catch (Poco::Exception& exc)
+	{	
+		_logger.error(Poco::format("Error reading from locally forwarded socket for channel %hu: %s", channel, exc.displayText()));
+		removeChannel(channel);
+		n = 0;
+		hn = Protocol::writeHeader(buffer.begin(), buffer.size(), Protocol::WT_OP_ERROR, 0, channel, Protocol::WT_ERR_SOCKET);
+		expectMore = false;
+	}
+	try
+	{
+		Poco::FastMutex::ScopedLock lock(_webSocketMutex);
+		_pWebSocket->sendFrame(buffer.begin(), static_cast<int>(n + hn), Poco::Net::WebSocket::FRAME_BINARY);
+	}
+	catch (Poco::Exception& exc)
+	{
+		_logger.error(Poco::format("Error sending WebSocket frame for channel %hu: %s", channel, exc.displayText()));
+		closeWebSocket(RPF_CLOSE_ERROR, false);
+		expectMore = false;
+	}
+	return expectMore;
+}
+
+
+void RemotePortForwarder::multiplexError(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, Poco::UInt16 channel, Poco::Buffer<char>& buffer)
+{
+	_logger.error(Poco::format("Error reading from local socket for channel %hu", channel));
+	removeChannel(channel);
+	std::size_t hn = Protocol::writeHeader(buffer.begin(), buffer.size(), Protocol::WT_OP_ERROR, 0, channel, Protocol::WT_ERR_SOCKET);
+	try
+	{
+		Poco::FastMutex::ScopedLock lock(_webSocketMutex);
+		_pWebSocket->sendFrame(buffer.begin(), static_cast<int>(hn), Poco::Net::WebSocket::FRAME_BINARY);
+	}
+	catch (Poco::Exception& exc)
+	{
+		_logger.error(Poco::format("Error sending WebSocket error frame for channel %hu: %s", channel, exc.displayText()));
+		closeWebSocket(RPF_CLOSE_ERROR, false);
+	}
+}
+
+
+void RemotePortForwarder::multiplexTimeout(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, Poco::UInt16 channel, Poco::Buffer<char>& buffer)
+{
+	_logger.error(Poco::format("Timeout reading from local socket for channel %hu", channel));
+	removeChannel(channel);
+	std::size_t hn = Protocol::writeHeader(buffer.begin(), buffer.size(), Protocol::WT_OP_ERROR, 0, channel, Protocol::WT_ERR_TIMEOUT);
+	try
+	{
+		Poco::FastMutex::ScopedLock lock(_webSocketMutex);
+		_pWebSocket->sendFrame(buffer.begin(), static_cast<int>(hn), Poco::Net::WebSocket::FRAME_BINARY);
+	}
+	catch (Poco::Exception& exc)
+	{
+		_logger.error(Poco::format("Error sending WebSocket error frame for channel %hu: %s", channel, exc.displayText()));
+		closeWebSocket(RPF_CLOSE_ERROR, false);
+	}
+}
+
+
+bool RemotePortForwarder::demultiplex(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, Poco::Buffer<char>& buffer)
+{
+	int wsFlags;
+	int n = 0;
+	try
+	{
+		n = _pWebSocket->receiveFrame(buffer.begin(), static_cast<int>(buffer.size()), wsFlags);
+	}
+	catch (Poco::Exception& exc)
+	{
+		_logger.error(Poco::format("Error receiving WebSocket frame: %s", exc.displayText()));
+		closeWebSocket(RPF_CLOSE_ERROR, false);
+		return false;
+	}
+	if ((wsFlags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_PONG)
+	{
+		_logger.debug("PONG received");
+		_timeoutCount = 0;
+		return false;
+	}
+	if (n > 0 && (wsFlags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_BINARY)
+	{
+		Poco::UInt8 opcode;
+		Poco::UInt8 flags;
+		Poco::UInt16 channel;
+		Poco::UInt16 portOrErrorCode;
+		std::size_t hn = Protocol::readHeader(buffer.begin(), buffer.size(), opcode, flags, channel, &portOrErrorCode);
+		switch (opcode)
+		{
+		case Protocol::WT_OP_DATA:
+			return forwardData(buffer.begin() + hn, static_cast<int>(n - hn), channel);
+			
+		case Protocol::WT_OP_OPEN_REQUEST:
+			return openChannel(channel, portOrErrorCode);
+			
+		case Protocol::WT_OP_CLOSE:
+			removeChannel(channel);
+			return false;
+			
+		case Protocol::WT_OP_ERROR:
+			_logger.error(Poco::format("Status %hu reported by peer. Closing channel %hu", portOrErrorCode, channel));
+			removeChannel(channel);
+			return false;			
+			
+		default:
+			_logger.error(Poco::format("Invalid WebSocket frame received (bad opcode: %hu)", static_cast<Poco::UInt16>(opcode)));
+			sendResponse(channel, Protocol::WT_OP_ERROR, Protocol::WT_ERR_PROTOCOL);
+			return false;
+		}
+	}
+	else if (n <= 0 || (wsFlags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_CLOSE)
+	{
+		_logger.debug("Closing WebSocket");
+		closeWebSocket(RPF_CLOSE_GRACEFUL, false);
+		return false;
+	}
+	else
+	{
+		_logger.debug("Ignoring unsupported frame opcode");
+		return false;
+	}
+}
+
+
+void RemotePortForwarder::demultiplexError(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, Poco::Buffer<char>& buffer)
+{
+	_logger.error("Error reading from WebSocket");
+	closeWebSocket(RPF_CLOSE_ERROR, false);
+}
+
+
+void RemotePortForwarder::demultiplexTimeout(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, Poco::Buffer<char>& buffer)
+{
+	_logger.debug("Timeout reading from WebSocket");
+	if (_timeoutCount == 0)
+	{
+		_timeoutCount = 1;
+		try
+		{
+			_logger.debug("Sending PING");
+			Poco::FastMutex::ScopedLock lock(_webSocketMutex);
+			_pWebSocket->sendFrame(0, 0, Poco::Net::WebSocket::FRAME_FLAG_FIN | Poco::Net::WebSocket::FRAME_OP_PING);
+		}
+		catch (Poco::Exception&)
+		{
+			closeWebSocket(RPF_CLOSE_ERROR, false);
+		}
+	}
+	else
+	{
+		closeWebSocket(RPF_CLOSE_ERROR, false);
+	}
+}
+
+
+bool RemotePortForwarder::forwardData(const char* buffer, int size, Poco::UInt16 channel)
+{
+	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+	ChannelMap::iterator it = _channelMap.find(channel);
+	if (it != _channelMap.end())
+	{
+		Poco::Net::StreamSocket streamSocket = it->second;
+		lock.unlock();
+		try
+		{
+			streamSocket.sendBytes(buffer, size);
+			return true;
+		}
+		catch (Poco::Exception&)
+		{
+			removeChannel(channel);
+			sendResponse(channel, Protocol::WT_OP_ERROR, Protocol::WT_ERR_SOCKET);
+		}
+	}
+	else
+	{
+		_logger.warning(Poco::format("Forwarding request for invalid channel: %hu", channel));
+		lock.unlock();
+		sendResponse(channel, Protocol::WT_OP_ERROR, Protocol::WT_ERR_BAD_CHANNEL);
+	}
+	return false;
+}
+
+
+bool RemotePortForwarder::openChannel(Poco::UInt16 channel, Poco::UInt16 port)
+{
+	if (_ports.find(port) == _ports.end())
+	{
+		_logger.warning(Poco::format("Open channel request for invalid port: %hu (channel %hu)", port, channel));
+
+		sendResponse(channel, Protocol::WT_OP_OPEN_FAULT, Protocol::WT_ERR_NOT_FORWARDED);
+		return false;
+	}
+	
+	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+	ChannelMap::iterator it = _channelMap.find(channel);
+	if (it == _channelMap.end())
+	{
+		if (_logger.debug())
+		{
+			_logger.debug(Poco::format("Opening channel %hu for port %hu", channel, port));
+		}
+		try
+		{
+			Poco::Net::SocketAddress addr(_host, port);
+			Poco::Net::StreamSocket streamSocket;
+			streamSocket.connect(addr, _connectTimeout);
+			_dispatcher.addSocket(streamSocket, new TunnelMultiplexer(*this, channel), _localTimeout);
+			_channelMap[channel] = streamSocket;
+		}
+		catch (Poco::Net::ConnectionRefusedException& exc)
+		{
+			lock.unlock();
+			_logger.error(Poco::format("Failed to open channel %hu for port %hu: %s", channel, port, exc.displayText()));
+			sendResponse(channel, Protocol::WT_OP_OPEN_FAULT, Protocol::WT_ERR_CONN_REFUSED);
+			return false;
+		}
+		catch (Poco::TimeoutException& exc)
+		{
+			lock.unlock();
+			_logger.error(Poco::format("Failed to open channel %hu for port %hu: %s", channel, port, exc.displayText()));
+			sendResponse(channel, Protocol::WT_OP_OPEN_FAULT, Protocol::WT_ERR_TIMEOUT);
+			return false;
+		}
+		catch (Poco::Exception& exc)
+		{
+			lock.unlock();
+			_logger.error(Poco::format("Failed to open channel %hu for port %hu: %s", channel, port, exc.displayText()));
+			sendResponse(channel, Protocol::WT_OP_OPEN_FAULT, Protocol::WT_ERR_SOCKET);
+			return false;
+		}
+		sendResponse(channel, Protocol::WT_OP_OPEN_CONFIRM, 0);
+		return true;
+	}
+	else
+	{
+		_logger.warning(Poco::format("Open request for existing channel %hu (port %hu)", channel, port));
+		lock.unlock();
+		sendResponse(channel, Protocol::WT_OP_OPEN_FAULT, Protocol::WT_ERR_CHANNEL_IN_USE);
+		return false;
+	}
+}
+
+
+void RemotePortForwarder::removeChannel(Poco::UInt16 channel)
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+	ChannelMap::iterator it = _channelMap.find(channel);
+	if (it != _channelMap.end())
+	{
+		_dispatcher.closeSocket(it->second);
+		_channelMap.erase(it);
+	}
+}
+
+
+void RemotePortForwarder::sendResponse(Poco::UInt16 channel, Poco::UInt8 opcode, Poco::UInt16 errorCode)
+{
+	char buffer[6];
+	std::size_t hn = Protocol::writeHeader(buffer, sizeof(buffer), opcode, 0, channel, errorCode);
+	try
+	{
+		Poco::FastMutex::ScopedLock lock(_webSocketMutex);
+		_pWebSocket->sendFrame(buffer, static_cast<int>(hn), Poco::Net::WebSocket::FRAME_BINARY);
+	}
+	catch (Poco::Exception&)
+	{
+		closeWebSocket(RPF_CLOSE_ERROR, false);
+	}
+}
+
+
+void RemotePortForwarder::closeWebSocket(CloseReason reason, bool active)
+{
+	if (_logger.debug())
+	{
+		_logger.debug(Poco::format("Closing WebSocket, reason: %d", static_cast<int>(reason)));
+	}
+	try
+	{
+		if (reason == RPF_CLOSE_GRACEFUL)
+		{
+			try
+			{
+				if (active)
+				{
+					_pWebSocket->shutdown(Poco::Net::WebSocket::WS_NORMAL_CLOSE);
+				}
+			}
+			catch (Poco::Exception&)
+			{
+			}
+		}
+		_dispatcher.reset();
+		_pWebSocket->close();
+		_pWebSocket = 0;
+		_channelMap.clear();
+	}
+	catch (Poco::Exception& exc)
+	{
+		_logger.log(exc);
+	}
+	int eventArg = reason;
+	webSocketClosed(this, eventArg);
+}
+
+
+} } // namespace Poco::WebTunnel

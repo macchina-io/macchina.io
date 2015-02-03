@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="WebServer">
+      <UniqueIdentifier>{55587317-e218-4f91-b483-c08d548a869d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WebServer\Header Files">
+      <UniqueIdentifier>{a3722be4-aa9e-45c4-bce9-ba432f7ca596}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WebServer\Source Files">
+      <UniqueIdentifier>{51cab549-82d2-4ebd-8b04-ed19d1d8107d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Suite">
+      <UniqueIdentifier>{bad5c374-b47f-4b04-93fe-d69986049428}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Suite\Header Files">
+      <UniqueIdentifier>{cf60c790-a25e-47ff-9a6e-e937436cec69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Suite\Source Files">
+      <UniqueIdentifier>{02689127-0cda-4980-b268-05b776eedfb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Driver">
+      <UniqueIdentifier>{c2c2bae7-0e61-4fdc-9f08-3572520143d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Driver\Source Files">
+      <UniqueIdentifier>{bc401ae5-05f7-41e2-800d-e28608cfe045}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\MediaTypeMapperTest.h">
+      <Filter>WebServer\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WebServerDispatcherTest.h">
+      <Filter>WebServer\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WebTestSuite.h">
+      <Filter>_Suite\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\MediaTypeMapperTest.cpp">
+      <Filter>WebServer\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebServerDispatcherTest.cpp">
+      <Filter>WebServer\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebTestSuite.cpp">
+      <Filter>_Suite\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WinDriver.cpp">
+      <Filter>_Driver\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

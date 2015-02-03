@@ -1,0 +1,7 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="${web.path}/css" resource="css" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.directory" path="${web.path}/images" resource="images" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.requesthandler" path="${web.path}" class="BundleListHandlerFactory" library="com.appinf.osp.bundleadmin" allowSpecialization="owner" description="${web.description}" permission="bundleAdmin"/>
+  <extension point="osp.web.server.requesthandler" path="${web.path}/showBundle" class="BundleInfoHandlerFactory" library="com.appinf.osp.bundleadmin" allowSpecialization="owner" hidden="true" permission="bundleAdmin"/>
+  <extension point="osp.web.server.requesthandler" path="${web.path}/installBundle" class="BundleInstallHandlerFactory" library="com.appinf.osp.bundleadmin" allowSpecialization="owner" hidden="true" permission="bundleAdmin"/>
+</extensions>

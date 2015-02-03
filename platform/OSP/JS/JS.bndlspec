@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>OSP JavaScript Integration</name>
+    <symbolicName>com.appinf.osp.js</symbolicName>
+    <version>1.0.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2013-2014, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>Poco::OSP::JS::JSBundleActivator</class>
+      <library>com.appinf.osp.js</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>600</runLevel>
+    <dependency>
+      <symbolicName>poco.net</symbolicName>
+      <version>[1.3.0, 2.0.0)</version>
+    </dependency>
+    <dependency>
+      <symbolicName>osp.web</symbolicName>
+      <version>[1.0.0, 2.0.0)</version>
+    </dependency>
+  </manifest>
+  <files>
+  	bundle/*
+  </files>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../${bin}/PocoJSCore${64}.dll,
+    ../../${bin}/PocoJSCore${64}d.dll,
+    ../../${bin}/PocoJSCore${64}d.pdb,
+    ../../${bin}/PocoJSBridge${64}.dll,
+    ../../${bin}/PocoJSBridge${64}d.dll,
+    ../../${bin}/PocoJSBridge${64}d.pdb,
+    ../../${bin}/PocoJSNet${64}.dll,
+    ../../${bin}/PocoJSNet${64}d.dll,
+    ../../${bin}/PocoJSNet${64}d.pdb,
+    ../../${bin}/PocoJSData${64}.dll,
+    ../../${bin}/PocoJSData${64}d.dll,
+    ../../${bin}/PocoJSData${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoJSCore.so.*,
+    ../../lib/${osName}/${osArch}/libPocoJSCored.so.*,
+    ../../lib/${osName}/${osArch}/libPocoJSCore.*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoJSCored.*.dylib
+    ../../lib/${osName}/${osArch}/libPocoJSBridge.so.*,
+    ../../lib/${osName}/${osArch}/libPocoJSBridged.so.*,
+    ../../lib/${osName}/${osArch}/libPocoJSBridge.*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoJSBridged.*.dylib
+    ../../lib/${osName}/${osArch}/libPocoJSNet.so.*,
+    ../../lib/${osName}/${osArch}/libPocoJSNetd.so.*,
+    ../../lib/${osName}/${osArch}/libPocoJSNet.*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoJSNetd.*.dylib
+    ../../lib/${osName}/${osArch}/libPocoJSData.so.*,
+    ../../lib/${osName}/${osArch}/libPocoJSDatad.so.*,
+    ../../lib/${osName}/${osArch}/libPocoJSData.*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoJSDatad.*.dylib
+    ../../lib/${osName}/${osArch}/libv8.so
+    ../../lib/${osName}/${osArch}/libv8d.so
+    ../../lib/${osName}/${osArch}/libv8.dylib
+    ../../lib/${osName}/${osArch}/libv8d.dylib
+  </code>
+</bundlespec>

@@ -1,0 +1,257 @@
+OSP Bundle Creator
+Applied Informatics Open Service Platform
+
+!!! The Bundle Creator Tool
+
+The Bundle Creator Tool is used to create Zip-compressed bundle files, using a
+bundle specification file as input. While bundles can also be created manually,
+by building a well-defined directory hierarchy and optionally packing it into
+a Zip file with an utility like <*WinZip*>, creating bundle files in a fully
+automated way is far less error prone.
+
+
+!! The Bundle Specification File
+
+To know what to do, the Bundle Creator Tool needs a bundle specification file as
+input. A bundle specification file usually has the extension <[.bndlspec]>, although
+this is not mandatory.
+
+The bundle specification file contains the necessary information to build the 
+bundle's manifest, a list of all shared libraries that become part of the bundle,
+and a list of all resource and data files that become part of the bundle.
+A simple XML file format is used.
+
+Following is an example for a bundle specification file:
+
+  <bundlespec>
+      <manifest>
+          <name>Greeter Sample</name>
+          <symbolicName>com.appinf.osp.samples.greeter</symbolicName>
+          <version>1.0.0</version>
+          <vendor>Applied Informatics</vendor>
+          <copyright>(c) 2007, Applied Informatics Software Engineering GmbH</copyright>
+          <activator>
+              <class>GreeterBundleActivator</class>
+              <library>Greeter</library>
+          </activator>
+          <lazyStart>false</lazyStart>
+          <runLevel>400</runLevel>
+          <dependency>
+              <symbolicName>com.appinf.osp.samples.greetingservice</symbolicName>
+              <version>1.0.0</version>
+          </dependency>
+      </manifest>
+      <code>
+          bin/*.dll,
+          bin/*.pdb,
+          bin/${osName}/${osArch}/*.so,
+          bin/${osName}/${osArch}/*.dylib
+      </code>
+      <files>
+      </files>
+  </bundlespec>
+
+
+!! Bundle Specification Elements
+
+! The bundlespec Element
+
+The <[bundlespec]> element is the XML root element in a bundle specification.
+It is mandatory.
+
+
+! The manifest Element
+
+The <[manifest]> element is used to specify the bundle's manifest data.
+It is mandatory.
+
+
+! The name Element
+
+The <[name]> element specifies the bundle's user-readable name.
+It is mandatory. Instead of a fixed name, the <[name]> element
+can contain a reference to a bundle property (e.g., <[${bundleName}]>).
+This property must be defined in the bundle's <[bundle.properties]>
+file.
+
+
+! The symbolicName Element
+
+The <[symbolicName]> element specifies the bundle's symbolic name.
+Is is mandatory.
+
+
+! The version Element
+
+The <[version]> element specifies the bundle's version.
+Is is mandatory.
+
+
+! The vendor Element
+
+The <[vendor]> element specifies the name of the organization
+providing the bundle.
+It is optional. Instead of a fixed name, the <[vendor]> element
+can contain a reference to a bundle property (e.g., <[${vendorName}]>).
+This property must be defined in the bundle's <[bundle.properties]>
+file.
+
+
+! The copyright Element
+
+The <[copyright]> element specifies the bundle's copyright information.
+It is optional. Instead of a fixed string, the <[copyright]> element
+can contain a reference to a bundle property (e.g., <[${copyrightInfo}]>).
+This property must be defined in the bundle's <[bundle.properties]>
+file.
+
+
+! The activator Element
+
+The <[activator]> element specifies the name of the class implementing
+the bundle's activator in the <[class]> sub element, and optionally the name 
+of the shared library containing the bundle activator in the <[library]>
+subelement. The extension of the shared library (e.g., <[.dll]> or
+<[.so]> must be omitted from the library name.
+The element is optional.
+
+
+! The lazyStart Element
+
+The <[lazyStart]> element specifies whether <*lazy start*> should be
+enabled for the bundle. It is optional. Valid values are <[true]> or
+<[false]>.
+
+
+! The runLevel Element
+
+The <[runLevel]> element specifies the bundle's run level. It is optional.
+
+
+! The dependency Element
+
+The <[dependency]> element specifies the bundles that this bundle requires
+to function. The symbolic name of a required bundle is specified in the
+<[symbolicName]> sub element. The required version of the bundle is
+specified in the <[version]> sub element.
+
+The <[dependency]> element can occur zero or more times.
+
+
+! The extends Element
+
+The optional <[extends]> element makes the bundle an extension bundle and
+specifies the bundle that this bundle extends.
+The symbolic name of the extended bundle must be specified in the element.
+
+The <[extends]> element can occur at most once.
+
+
+! The code Element
+
+The <[code]> element contains a comma-separated list of shared libraries that
+must be part of the bundle. Glob expressions (see Poco::Glob) can be used.
+Also, the properties <[osName]> and <[osArch]> can be used.
+
+Shared libraries that cannot be found are ignored. This allows you to use
+the same bundle specification on different platforms.
+
+This element is optional.
+
+
+! The files Element
+
+The <[files]> element contains a comma-separated list of files that must be
+part of the bundle. Glob expressions (see Poco::Glob) can be used.
+Directories are copied recursively.
+
+This element is optional.
+
+
+!!! Invoking the Bundle Creator Tool
+
+The Bundle Creator Tool takes the file name of the Bundle Specification file
+as argument. Optionally, the <[/output]> (Windows) or <[--output]>/<[-o]> (Unix)
+option can be used to specify the directory where the bundle file should be
+created. For more information, invoke the <[bundle]> command with the
+<[/help]> or <[--help]> option.
+
+
+!! Invoking the Bundle Creator Tool from Visual Studio
+
+It is convenient to invoke the Bundle Creator Tool directly from
+Visual Studio, as part of the bundle's build process.
+To do this, add a command that invokes the Bundle Creator Tool to
+the Post-Build Event of the project, as shown below.
+
+<%
+<img src="images/OSPBundleToolProps.png" width="580" height="398" alt="Bundle Creator and Visual Studio" border="0">
+%>
+
+
+!! Invoking the Bundle Creator Tool from a Makefile
+
+The Bundle Creator tool can be invoked from a Makefile platforms as part of the build process.
+If the GNU Make based build system from the POCO C++ Libraries is used, the Bundle Creator tool invocation
+can be done as a post-build step. A post-build step can be defined by assigning a command to
+the <[postbuild]> Make variable, as shown below.
+
+
+    BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(BINDIR)/bundle
+    
+    include $(POCO_BASE)/build/rules/global
+    
+    objects = Greeter
+    
+    target         = com.appinf.osp.samples.greeter
+    target_version = 1
+    target_libs    = PocoOSP PocoUtil PocoXML PocoFoundation
+    
+    postbuild      = $(BUNDLE_TOOL) -o../bundles Greeter.bndlspec
+    
+    include $(POCO_BASE)/build/rules/dylib
+----
+
+
+!! Bundles and Cross-Compiling for Embedded Linux
+
+When building bundles for a target system with a different processor architecture than the host system
+(cross-compiling), a few things must be taken care of. First, inside a bundle, executable code (shared
+libraries) are stored in a directory with the path <[bin/<osname>/<osarch>]>, where <[<osname>]>
+specified the operating sytem name (in case of an embedded Linux system, this is <[Linux]>), and
+<[<osarch>]> specifies the processor architecture. The processor architecture must match the
+output of the command <[uname -m]> on the target system.
+
+This can be accomplished in two ways. The first is to use a bundle specification file where,
+at the <[code]> element, you explicitely specify the target operating system name and architecture
+using the <[platform]> attribute. Example:
+
+      <code platform="Linux/armv5tejl">
+          bin/Linux/armv5tejl/*.so
+      </code>
+----
+
+Alternatively, you can omit the <[platform]> attribute, and instead specify the target operating
+system name and architecture as command line arguments to the Bundle Creator tool. This is done
+using the <[--osname]> (or <[-n]>), and <[--osarch]> (or <[-a]>) command line arguments.
+
+Note that when cross-compiling an OSP application, you must build the POCO and OSP libraries and
+executables twice -- once for the host system, and once for the target system. When using the
+build system from the POCO C++ Libraries, libraries and executables for both the host and
+the target system(s) can be kept in parallel. To support cross-compiling a bundle, the
+Makefile for building a bundle using the POCO build system must be modified as follows:
+
+    BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/bin/$(POCO_HOST_OSNAME)/$(POCO_HOST_OSARCH)/bundle
+    
+    include $(POCO_BASE)/build/rules/global
+    
+    objects = Greeter
+    
+    target         = com.appinf.osp.samples.greeter
+    target_version = 1
+    target_libs    = PocoOSP PocoUtil PocoXML PocoFoundation
+    
+    postbuild      = $(BUNDLE_TOOL) -o../bundles Greeter.bndlspec -a$(OSARCH)
+    
+    include $(POCO_BASE)/build/rules/dylib
+----

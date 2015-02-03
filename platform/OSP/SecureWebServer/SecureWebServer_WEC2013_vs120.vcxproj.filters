@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{c9ad5892-573d-4fc2-abfd-7b72d6c4a755}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bundle Specification">
+      <UniqueIdentifier>{95416f4e-56b6-4d9a-9018-dc10ae0e5673}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\SecureWebServerBundleActivator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SecureWebServer.bndlspec">
+      <Filter>Bundle Specification</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{135ad15d-eeda-4de7-ad46-b93aac72602e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bundle Specification">
+      <UniqueIdentifier>{fe2dc387-8c72-42e0-b44b-5fd928e89c55}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\WebBundleActivator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="WebBundle.bndlspec">
+      <Filter>Bundle Specification</Filter>
+    </None>
+  </ItemGroup>
+</Project>

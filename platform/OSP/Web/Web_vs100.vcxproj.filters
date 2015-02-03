@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Web">
+      <UniqueIdentifier>{d2d0aa58-5513-4f61-97ca-8c97f831aab6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Web\Header Files">
+      <UniqueIdentifier>{f154c12e-e3fa-48b8-86fc-cb8e1c15debe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Web\Source Files">
+      <UniqueIdentifier>{2503e364-0b81-4551-8dc8-fae65e648ff8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Poco\OSP\Web\MediaTypeMapper.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\poco\osp\web\Web.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Web\WebFilter.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Web\WebFilterExtensionPoint.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Web\WebFilterFactory.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\poco\osp\web\WebRequestHandlerFactory.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\poco\osp\web\WebServerDispatcher.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\poco\osp\web\WebServerExtensionPoint.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Web\WebServerRequestHandler.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Web\WebServerRequestHandlerFactory.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Web\WebServerService.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\poco\osp\web\WebSession.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\poco\osp\web\WebSessionManager.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\poco\osp\web\WebSessionService.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\MediaTypeMapper.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebFilter.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebFilterExtensionPoint.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebFilterFactory.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebRequestHandlerFactory.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebServerDispatcher.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebServerExtensionPoint.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebServerRequestHandler.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebServerRequestHandlerFactory.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebServerService.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebSession.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebSessionManager.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,44 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OSP", "OSP_vs110.vcxproj", "{1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestSuite", "testsuite\TestSuite_vs110.vcxproj", "{1DA6FB07-8B5E-4513-96C6-23BA093B0DB5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED} = {1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestBundle", "testsuite\TestBundle_vs110.vcxproj", "{0955EB03-544B-4BD4-9C10-89CF38078F5F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED} = {1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED}
+		{1DA6FB07-8B5E-4513-96C6-23BA093B0DB5} = {1DA6FB07-8B5E-4513-96C6-23BA093B0DB5}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		debug_shared|Win32 = debug_shared|Win32
+		release_shared|Win32 = release_shared|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED}.debug_shared|Win32.ActiveCfg = debug_shared|Win32
+		{1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED}.debug_shared|Win32.Build.0 = debug_shared|Win32
+		{1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED}.debug_shared|Win32.Deploy.0 = debug_shared|Win32
+		{1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED}.release_shared|Win32.ActiveCfg = release_shared|Win32
+		{1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED}.release_shared|Win32.Build.0 = release_shared|Win32
+		{1E60A7EE-0D78-4925-8CCB-35F6ECBF9AED}.release_shared|Win32.Deploy.0 = release_shared|Win32
+		{1DA6FB07-8B5E-4513-96C6-23BA093B0DB5}.debug_shared|Win32.ActiveCfg = debug_shared|Win32
+		{1DA6FB07-8B5E-4513-96C6-23BA093B0DB5}.debug_shared|Win32.Build.0 = debug_shared|Win32
+		{1DA6FB07-8B5E-4513-96C6-23BA093B0DB5}.debug_shared|Win32.Deploy.0 = debug_shared|Win32
+		{1DA6FB07-8B5E-4513-96C6-23BA093B0DB5}.release_shared|Win32.ActiveCfg = release_shared|Win32
+		{1DA6FB07-8B5E-4513-96C6-23BA093B0DB5}.release_shared|Win32.Build.0 = release_shared|Win32
+		{1DA6FB07-8B5E-4513-96C6-23BA093B0DB5}.release_shared|Win32.Deploy.0 = release_shared|Win32
+		{0955EB03-544B-4BD4-9C10-89CF38078F5F}.debug_shared|Win32.ActiveCfg = debug_shared|Win32
+		{0955EB03-544B-4BD4-9C10-89CF38078F5F}.debug_shared|Win32.Build.0 = debug_shared|Win32
+		{0955EB03-544B-4BD4-9C10-89CF38078F5F}.debug_shared|Win32.Deploy.0 = debug_shared|Win32
+		{0955EB03-544B-4BD4-9C10-89CF38078F5F}.release_shared|Win32.ActiveCfg = release_shared|Win32
+		{0955EB03-544B-4BD4-9C10-89CF38078F5F}.release_shared|Win32.Build.0 = release_shared|Win32
+		{0955EB03-544B-4BD4-9C10-89CF38078F5F}.release_shared|Win32.Deploy.0 = release_shared|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

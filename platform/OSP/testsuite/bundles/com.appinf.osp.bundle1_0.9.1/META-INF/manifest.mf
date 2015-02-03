@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-Name: OSP Sample Bundle 1
+Bundle-SymbolicName: com.appinf.osp.bundle1
+Bundle-Version: 0.9.1
+Bundle-Vendor: Applied Informatics
+Bundle-Copyright: (c) 2007, Applied Informatics Software Engineering GmbH

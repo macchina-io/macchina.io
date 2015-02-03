@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Crypto", "Crypto_WEC2013_vs120.vcxproj", "{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		debug_shared|SDK_AM335X_SK_WEC2013_V310 = debug_shared|SDK_AM335X_SK_WEC2013_V310
+		release_shared|SDK_AM335X_SK_WEC2013_V310 = release_shared|SDK_AM335X_SK_WEC2013_V310
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}.debug_shared|SDK_AM335X_SK_WEC2013_V310.ActiveCfg = debug_shared|SDK_AM335X_SK_WEC2013_V310
+		{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}.debug_shared|SDK_AM335X_SK_WEC2013_V310.Build.0 = debug_shared|SDK_AM335X_SK_WEC2013_V310
+		{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}.debug_shared|SDK_AM335X_SK_WEC2013_V310.Deploy.0 = debug_shared|SDK_AM335X_SK_WEC2013_V310
+		{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}.release_shared|SDK_AM335X_SK_WEC2013_V310.ActiveCfg = release_shared|SDK_AM335X_SK_WEC2013_V310
+		{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}.release_shared|SDK_AM335X_SK_WEC2013_V310.Build.0 = release_shared|SDK_AM335X_SK_WEC2013_V310
+		{F9D6ACA7-8885-452E-BF15-29B3C9AA754F}.release_shared|SDK_AM335X_SK_WEC2013_V310.Deploy.0 = release_shared|SDK_AM335X_SK_WEC2013_V310
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

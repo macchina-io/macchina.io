@@ -1,0 +1,64 @@
+#! /bin/sh
+#
+# $Id: //poco/1.4/release/script/mkinst#6 $
+#
+# mkinst
+#
+# Create a binary release for distribution.
+# This is a wrapper for mkinstaller that syncs to the
+# Perforce head revision, reads the current
+# version from $POCO_BASE/PLATFORM_VERSION and requires a release
+# specification (loaded from $POCO_BASE/release/spec/*.release)
+# as argument.
+#
+# usage: mkinst [<specfile>]
+#
+
+if [ "$POCO_BASE" = "" ] ; then
+  echo "Error: POCO_BASE not set."
+  exit 1
+fi
+
+if [ ! -f PLATFORM_VERSION ] ; then
+  echo "Error: No PLATFORM_VERSION file found."
+  exit 2
+fi
+
+if [ "$1" != "" ] ; then
+  relspec="-f release/spec/$1.release"
+  tag="-$1"
+  reltag="-t $1"
+else
+  relspec=""
+  reltag=""
+  tag=""
+fi
+
+cd $POCO_BASE
+
+read version <$POCO_BASE/PLATFORM_VERSION
+release=$version$tag
+
+#
+# Sync files
+#
+echo "Syncing files..."
+export PWD=`cygpath -w $POCO_BASE`
+#p4 sync ./...
+
+#
+# Build release
+#
+echo "Building release $release"
+
+startdate=`date`
+
+mkinstaller 90 -l -u $reltag -v $version $relspec
+mkinstaller 100 -l -u $reltag -v $version $relspec
+mkinstaller 110 -l -u $reltag -v $version $relspec
+
+enddate=`date`
+
+echo "Completed."
+echo "Build started:  $startdate"
+echo "Build finished: $enddate"

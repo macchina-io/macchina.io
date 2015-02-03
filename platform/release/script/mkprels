@@ -1,0 +1,34 @@
+#! /bin/sh
+#
+# $Id: //poco/1.4/release/script/mkprels#1 $
+#
+# mkrels
+#
+# Create release for distributions for all customers.
+#
+# usage: mkprels [-l <perforce-label>]
+#
+
+if [ "$POCO_BASE" = "" ] ; then
+  echo "Error: POCO_BASE not set."
+  exit 1
+fi
+
+label=""
+while [ "$1" != "" ] ; 
+do
+	if [ "$1" = "-l" ] ; then
+		shift
+		label="-l $1"
+		shift
+	fi
+done
+
+customersFile=$POCO_BASE/release/spec/current_customers
+while read spec
+do
+	echo '***'
+	echo '*** Building release for '$spec
+	echo '***'
+	mkprel $label $spec
+done <$customersFile

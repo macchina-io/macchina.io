@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="App">
+      <UniqueIdentifier>{0b47b538-f80d-40c2-9fc9-4724e8f5c6fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\Header Files">
+      <UniqueIdentifier>{f5e57a34-7d11-4f5c-9d64-98034608cf79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\Source Files">
+      <UniqueIdentifier>{19576176-ccf5-4901-b5ad-1de8c457ffad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generators">
+      <UniqueIdentifier>{bb1fb536-0897-44c7-b65d-1426dbb3e73c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generators\Header Files">
+      <UniqueIdentifier>{beb4f242-b62b-49ec-ba4f-ebea4d3f27fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generators\Source Files">
+      <UniqueIdentifier>{b7e3e02d-344a-4b82-a03d-7432369f6075}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\GenUtility.h">
+      <Filter>App\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AbstractGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BundleActivatorGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ClientHelperGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DeserializerGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EventDispatcherGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EventSubscriberGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ExtensionsGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\InterfaceGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ProxyFactoryGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ProxyGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RemoteObjectGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SerializerGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ServerHelperGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SkeletonGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WSDLGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XSDGenerator.h">
+      <Filter>Generators\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\GenUtility.cpp">
+      <Filter>App\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RemoteGen.cpp">
+      <Filter>App\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AbstractGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BundleActivatorGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ClientHelperGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DeserializerGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EventDispatcherGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EventSubscriberGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ExtensionsGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InterfaceGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ProxyFactoryGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ProxyGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RemoteObjectGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SerializerGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServerHelperGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SkeletonGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WSDLGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\XSDGenerator.cpp">
+      <Filter>Generators\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

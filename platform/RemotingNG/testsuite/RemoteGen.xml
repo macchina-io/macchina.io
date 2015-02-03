@@ -1,0 +1,55 @@
+<AppConfig>
+	<RemoteGen>
+		<files>
+			<include>
+				../../Foundation/include/Poco/Timestamp.h
+				../include/Poco/RemotingNG/RemoteObject.h
+				../include/Poco/RemotingNG/Proxy.h
+				../include/Poco/RemotingNG/Skeleton.h
+				../include/Poco/RemotingNG/EventDispatcher.h
+				../include/Poco/RemotingNG/EventSubscriber.h
+				src/Tester.h
+			</include>
+		</files>
+		<output>
+			<include>src</include>
+			<src>src</src>
+			<includeRoot>src</includeRoot>
+			<flatIncludes>false</flatIncludes>
+			<mode>both</mode>
+			<timestamps>false</timestamps>
+		</output>
+		<compiler id="gcc">
+			<exec>g++</exec>
+			<options>
+				-I../../Foundation/include
+				-I../../RemotingNG/include
+				-E
+				-C
+				-o%.i
+			</options>
+		</compiler>
+		<compiler id="clang">
+			<exec>clang++</exec>
+			<options>
+				-I../../Foundation/include
+				-I../../RemotingNG/include
+				-E
+				-C
+				-xc++
+				-o%.i
+			</options>
+		</compiler>
+		<compiler id="msvc">
+			<exec>cl</exec>
+			<options>
+				/I "..\..\Foundation\include"
+				/I "..\..\RemotingNG\include"
+				/nologo
+				/C
+				/P
+				/TP
+			</options>
+		</compiler>
+	</RemoteGen>
+</AppConfig>

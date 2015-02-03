@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{fe329ff9-b7c0-4877-8408-426fc5608548}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bundle Specification">
+      <UniqueIdentifier>{fa619fe9-e5d6-48fe-bdc7-1224adb07bee}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\SQLiteBundleActivator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SQLite.bndlspec">
+      <Filter>Bundle Specification</Filter>
+    </None>
+  </ItemGroup>
+</Project>

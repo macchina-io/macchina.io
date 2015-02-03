@@ -1,0 +1,313 @@
+OSP Web Server
+Applied Informatics Open Service Platform
+
+!!! Introduction
+
+The Open Service Platform provides a built-in web server that can be extended with static pages and 
+servlet-like request handler objects by any bundle. The web server is implemented in the following three bundles.
+
+
+!! OSP Web Server Foundation
+
+The OSP Web Server Foundation bundle (<[osp.web]>) provides request dispatching and browser session management. It does not
+contain the HTTP server itself. Instead, the actual HTTP and HTTPS servers each come in their own bundles.
+
+
+!! OSP Web Server
+
+The OSP Web Server bundle (<[osp.web.server]>) provides a HTTP server (based on the Poco::Net::HTTPServer class)
+that uses the features provided by the OSP Web Server Foundation bundle to dispatch incoming requests.
+Unless configured otherwise, the OSP Web Server is available on TCP port 22080 (http://localhost:22080/).
+
+
+!! OSP Secure Web Server
+
+The OSP Secure Web Server bundle (<[osp.web.server.secure]>) provides a SSL/TLS-based secure HTTP (HTTPS) server.
+Like the non-secure web server, it uses the OSP Web Server Foundation bundle to do most of the work.
+
+Since both the non-secure and the secure web server use the OSP Web Server Foundation bundle for the
+actual request handling, any web pages and request handlers registered with the Web Server Foundation are
+visible on both web servers.
+
+Unless configured otherwise, the OSP Secure Web Server is available on TCP port 22443 (https://localhost:22443/).
+
+
+!!! Registering Static Web Pages
+
+The OSP Web Server Foundation bundle provides an extension point named <[osp.web.server.directory]>
+that can be used by a bundle to add its own static web pages and other resources (such as images and
+style sheets) to the server. A detailed description of the extension point can be found in the
+documentation for class Poco::OSP::Web::WebServerExtensionPoint.
+
+The <*WebPage*> sample (found in <[OSP/samples/WebPage]>) shows how a bundle can add static web
+pages and resources to the web server. The WebPage sample bundle does not contain any code, it simply
+contains a HTML page (<[html/index.html]>, a style sheet (<[html/css/styles.css]>) and a few images (<[html/images/*]>), 
+as well as an <[extensions.xml]> file.
+The <[extensions.xml]> file contains the extension for the <[osp.web.server.directory]> extension point:
+
+    <extensions>
+        <extension point="osp.web.server.directory" 
+                   path="/sample" 
+                   resource="html" 
+                   allowSpecialization="none"
+                   description="Sample Page"/>
+    </extensions>
+----
+
+The following attributes are supported for static resources:
+  - <[path]>: The URI on the server to which the resource or handler is mapped.
+  - <[description]>: User-readable description of resource or handler.
+  - <[secure]>: If "true", require a secure (HTTPS) connection to access the resource.
+  - <[realm]>: Specify authentication realm (together with permission).
+  - <[permission]>: Specify the necessary access permission for this resource.
+  - <[hidden]>: If "true", path is not included by WebServerDispatcher::listVirtualPaths().
+  - <[resource]>:  Specify a directory within the bundle where the HTML, image and other files are located.
+  - <[index]>: Specify the name of the default document (defaults to "index.html").
+  - <[cache]>: If set to "false", disable caching of this resource.
+  - <[allowSpecialization]>: Control if and how sub directories can be mapped to resources.
+
+The <[path]> attribute specifies the path under which the files provided by the bundle can be accessed on the server.
+The <[resource]> attribute specifies the directory under which the files for the web server can be found in the bundle.
+For example, the bundle resource <[html/index.html]> will be available on the web server under the path <[/sample/index.html]>.
+Using the <[allowSpecialization]> attribute, a bundle can specify whether other bundles can register themselves for
+subdirectories of the directory specified in <[path]>. The following values are supported:
+
+  - <[none]>: it is impossible to map resources or request handlers to subdirectories
+  - <[owner]>: only this bundle can map resources or request handlers to subdirectories
+  - <[all]>: any bundle can map resources or request handlers to subdirectories
+  
+The <[description]> attribute can be used to provide a textual description of the resource to be found at the path.
+The <[path]> and <[description]> attributes can contain references to bundle properties (in the usual form ${property}).
+
+If resource caching has been enabled in the OSP Web configuration (see below), resources will be kept in a cache
+in memory. This can significantly speed up the server, at the cost of increased memory usage. Resource directories
+can be excluded from caching by setting the <[cache]> attribute in the extension point to <[false]>.
+
+
+!!! Registering Request Handlers
+
+Registering a request handler is similar to registering static resources. Instead of a path to a bundle resource, the
+name of a request handler factory class and the name of the library containing it must be specified.
+The extension point <[osp.web.server.requesthandler]> is used for that purpose.
+
+The <*WebInfo*> sample (found in <[OSP/samples/WebInfo]>) shows how a bundle can add both static web
+content, as well as a request handler, to the web server.
+
+The <[extensions.xml]> file contains the extension for both the <[osp.web.server.requesthandler]> and the
+<[osp.web.server.directory]> extension points:
+
+    <extensions>
+        <extension point="osp.web.server.directory" 
+                   path="/info/css" 
+                   resource="css" 
+                   allowSpecialization="none" 
+                   hidden="true"/>
+        <extension point="osp.web.server.directory" 
+                   path="/info/images" 
+                   resource="images" 
+                   allowSpecialization="none" 
+                   hidden="true"/>
+        <extension point="osp.web.server.requesthandler" 
+                   path="/info" 
+                   class="InfoHandlerFactory" 
+                   library="WebInfo" 
+                   allowSpecialization="owner" 
+                   description="OSP Server Information"/>
+    </extensions>
+----
+
+The following attributes are supported for request handlers:
+  - <[path]>: The URI on the server to which the resource or handler is mapped.
+  - <[pattern]>: A regular expression for matching requests to the handler.
+  - <[description]>: User-readable description of resource or handler.
+  - <[secure]>: If "true", require a secure (HTTPS) connection to access the resource.
+  - <[realm]>: Specify authentication realm (together with permission).
+  - <[permission]>: Specify the necessary access permission for this resource.
+  - <[hidden]>: If "true", path is not included by WebServerDispatcher::listVirtualPaths().
+  - <[methods]>: Only allow specific HTTP request methods.
+  - <[class]>: The class name of the request handler factory.
+  - <[library]>: The name of the shared library containing the request handler factory. 
+  
+Instead of the <[resource]> attribute used with the <[osp.web.server.directory]> extension point, the 
+<[osp.web.server.requesthandler]> extension element uses the <[class]> and <[library]> attributes to
+specify the name of the class and library containing the request handler factory.
+Despite containing code, the WebInfo bundle does not contain a bundle activator. The Web Server Foundation
+automatically finds and loads the class containing the request handler factory from the library in the bundle.
+For this to work, the shared library containing the request handler factory must provide a <*named*> manifest.
+The name of the manifest must be <[WebServer]>. This allows the same library to export a default (unnamed) manifest
+declaring the bundle activator, as well as a manifest declaring request handler factories.
+
+The implementation of a request handler and its factory usually looks like the following example:
+
+    #include "Poco/Net/HTTPRequestHandler.h"
+    #include "Poco/Net/HTTPServerRequest.h"
+    #include "Poco/Net/HTTPServerResponse.h"
+    #include "Poco/OSP/Web/WebRequestHandlerFactory.h"
+    #include "Poco/ClassLibrary.h"
+    
+    using Poco::Net::HTTPRequestHandler;
+    using Poco::Net::HTTPServerRequest;
+    using Poco::Net::HTTPServerResponse;
+
+    class MyRequestHandler: public HTTPRequestHandler
+    {
+    public:
+        void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response)
+        {
+            response.setChunkedTransferEncoding(true);
+            std::ostream& ostr = response.send();
+    
+            ostr << "<HTML><HEAD><TITLE>Sample</TITLE>"
+                    "</HEAD><BODY>"
+                    "<H1>Hello, world!</H1>"
+                    "</BODY></HTML>";
+        }
+    };
+     
+    class MyRequestHandlerFactory: public WebRequestHandlerFactory
+    {
+    public:
+        HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request)
+        {
+            return new MyRequestHandler;
+        }
+    };
+    
+    POCO_BEGIN_NAMED_MANIFEST(WebServer, WebRequestHandlerFactory)
+        POCO_EXPORT_CLASS(MyRequestHandlerFactory)
+    POCO_END_MANIFEST
+----
+
+Instead of a path, a regular expression can be used to match requests to request handlers,
+by using the <[pattern]> attribute instead of the <[path]> attribute.
+Note that patterns have a higher priority than virtual paths when searching for a request handler,
+so if a pattern matches a given request path, that will be used, even if a virtual path
+would also match.
+
+It is also possible to restrict the methods a request handler supports via the <[methods]> attribute,
+which should contain a comma-separated list of request methods (e.g., "GET, POST").
+If the given request method is not in the set of supported methods, a 405 Method Not Allowed response will be sent.
+The same pattern (but not virtual path) can be mapped multiple times with a different set of request methods.
+This means that for a given pattern, different request handlers can be used to handle GET and POST requests.
+Note that method names are case sensitive and HTTP uses all-uppercase method names.
+ 
+
+!!! Authentication and Authorization
+
+The OSP Web Server Foundation supports user authentication and authorization based on HTTP Basic Authorization.
+For both extension points, two additional attributes, <[permission]> and <[realm]> can be specified.
+The <[permission]> attribute contains the necessary permission required to access the resource. For more information
+about permissions, please refer to the [[OSPAuth.html OSP Authorization and Authentication]] documentation.
+The optional <[realm]> attribute specifies name of the realm that is sent back to the browser. Detailed information
+about HTTP Basic Authentication can be found in RFC 2617.
+
+When a permission is specified for a resource, the web server requires the browser to send user credentials with
+each request for such a protected resource. The user name/password combination sent by the browser (using HTTP Basic Authentication)
+is first validated using the Poco::OSP::Auth::AuthService. If successful, the server checks, also using the <[AuthService]>,
+whether the user has the necessary permission.
+
+To protect user names and passwords, HTTP Basic authentication works best when used over an encrypted (HTTPS) connection.
+The <[secure]> attribute can be used to specify that a certain resource is only available over an encrypted connection.
+
+
+!!! Response Content Compression
+
+For static content stored in bundles, the OSP Web Server Foundation supports gzip compression.
+If the browser or client indicates that it supports gzip content encoding, by including an appropriate <*Accept-Encoding*> 
+header in the request, and if compression is enabled, the response content will be compressed using gzip.
+
+Compression can be enabled for specific content types in the global application configuration file, using the
+<[osp.web.server.compressResponses]> and <[osp.web.server.compressedMediaTypes]> properties.
+
+For dynamically generated content, compression has to be implemented in the request handler. The easiest way to do this
+is to use the following code fragment to send the response:
+
+    response.setChunkedTransferEncoding(true);
+    bool compressResponse(request.hasToken("Accept-Encoding", "gzip"));
+    if (compressResponse) response.set("Content-Encoding", "gzip");
+    std::ostream& realResponseStream = response.send();
+    Poco::DeflatingOutputStream gzipStream(responseStream, Poco::DeflatingStreamBuf::STREAM_GZIP, 1);
+    std::ostream& responseStream = compressResponse ? gzipStream : realResponseStream;
+----
+
+The [[PageCompilerUserGuide.html POCO C++ Server Page Compiler]] also has support for response content compression.
+
+
+!!! Programmatic Access to The Web Server
+
+The OSP Web Server Foundation bundle provides two services to other bundles, the Poco::OSP::Web::WebServerDispatcher
+and the Poco::OSP::Web::WebSessionManager service.
+
+
+!! The WebServerDispatcher Service
+
+The Poco::OSP::Web::WebServerDispatcher service allows a bundle to add static content or request handlers to the web server
+programmatically. The <[addVirtualPath()]> member function can be used to add either static content or a request handler.
+
+
+!! The WebSessionManager Service
+
+The Poco::OSP::Web::WebSessionManager service provides HTTP session management to request handlers.
+Session management allows a request handler to maintain state information between different requests from the same browser session.
+The state information is maintained using Poco::OSP::Web::WebSession objects, which can store arbitrary name/value pairs. For the value,
+the Poco::Any class is used, which allows to store values of almost any type.
+
+The <*WebSession*> sample (found in <[OSP/samples/WebSession]>) shows how to use the Poco::OSP::Web::WebSessionManager
+and Poco::OSP::Web::WebSession classes.
+
+
+!!! Configuring The Web Server
+
+The web server can be configured by setting the following properties in the global application configuration file:
+
+  - <[osp.web.server.host]>: The hostname or IP address where the (non-secure) server is listening. Defaults to "0.0.0.0" (wildcard address).
+  - <[osp.web.server.port]>: The TCP port where the (non-secure) server is listening. Defaults to 22080.
+  - <[osp.web.server.secureHost]>: The hostname or IP address where the secure (HTTPS) server is listening. Defaults to "0.0.0.0" (wildcard address).
+  - <[osp.web.server.securePort]>: The TCP port where the secure (HTTPS) server is listening. Defaults to 22443.
+  - <[osp.web.server.maxQueued]>: The maximum number of queued requests (see Poco::Net::TCPServerParams). Defaults to 100.
+  - <[osp.web.server.maxThreads]>: The maximum number of threads used by the server (see Poco::Net::TCPServerParams). Defaults to 8.
+  - <[osp.web.server.keepAlive]>: Enable persistent connections (<[true]> or <[false]>). Defaults to <[true]>.
+  - <[osp.web.server.keepAliveTime]>: Maximum time a persistent connection is kept open if no request arrives. Defaults to 10.
+  - <[osp.web.server.maxKeepAlive]>: Maximum number of requests handled on a persistent connection. Defaults to 10.
+  - <[osp.web.authServiceName]>: The name of the OSP authentication/authorization service to use. Defaults to "osp.auth".
+  - <[osp.web.compressResponses]>: Enable (default) or disable response content compression using gzip content encoding. 
+    Specify <[true]> to enable or <[false]> to disable compression.
+  - <[osp.web.compressedMediaTypes]>: A comma-separated list of media types for which compression is enabled. For the subtype,
+    a wildcard (*) can be specified. Defaults to <[text/*]>.
+  - <[osp.web.cacheResources]>: Enable or disable (default) caching of static resources from bundles. This can greatly speed up
+    the server as it keeps all resources in memory. However, depending on the kind of resources served, memory usage may
+    increase significantly. This can be a concern on less powerful embedded devices. Resources can be excluded from
+    caching by setting the <[cache]> attribute in the extension point to <[false]>.
+  - <[osp.web.sessionManager.cookiePersistence]>: Specifies whether session cookies used by the WebSessionManager are persistent
+    (survive closing the browser) or transient (are removed when the browser is closed). Valid values are "persistent" (default)
+    and "transient".
+    
+
+!!! Request Logging
+
+The web server supports logging of HTTP requests. For that purpose, the logger "osp.web.access" is used.
+The log message text is the HTTP request, including method, path and version.
+Additionally, the following log message properties are available for use in formatting:
+
+  - <[username]>: The username sent by the client if HTTP Basic Authentication is used, otherwise "-".
+  - <[status]>: The HTTP response status code (e.g., 200).
+  - <[client]>: The client IP address.
+  - <[size]>: The size of the response, from the response <*Content-Length*> header. If not set, "-".
+  - <[referer]>: The content of the <*Referer*> HTTP request header, or an empty string if not set.
+  - <[useragent]>: The content of the <*User-Agent*> HTTP request header, or an empty string if not set.
+
+This information can be used to enable logging in Common or Extended log format, by using appropriate logger and
+formatter configurations in the application's configuration file. For example, to write the access log to
+the console, use the following configuration:
+
+    logging.loggers.access.name = osp.web.access
+    logging.loggers.access.channel = consoleAccess
+    logging.loggers.access.level = information
+    logging.channels.consoleAccess.class = ConsoleChannel
+    logging.channels.consoleAccess.pattern = %[client] - %[username] [%d/%b/%Y:%H:%M:%S %Z] "%t" %[status] %[size] 
+----
+
+To use Extended log format and include referer and user agent, use the following pattern:
+
+    logging.channels.consoleAccess.pattern = %[client] - %[username] [%d/%b/%Y:%H:%M:%S %Z] "%t" %[status] %[size] "%[referer]" "%[useragent]"
+----

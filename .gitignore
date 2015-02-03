@@ -1,21 +1,116 @@
-# Compiled Object files
+# Compiled #
+############
+*.com
+*.class
+*.dll
+*.dylib
+*.exe
 *.slo
 *.lo
 *.o
-*.obj
-
-# Compiled Dynamic libraries
 *.so
-*.dylib
-*.dll
-
-# Compiled Static libraries
 *.lai
 *.la
 *.a
-*.lib
+*.d
+*.vsp
+*.psess
+*.bndl
 
-# Executables
+# Make #
+########
+config.build
+config.make
+
+# CMake #
+########
+cmake_install.cmake
+cmake_uninstall.cmake
+CMakeFiles
+CMakeCache.txt
+CPackConfig.cmake
+CPackSourceConfig.cmake
+cmake_*
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log*
+*.sqlite
+*.db
+test*.txt
+XML/testsuite/rss.xml
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+*~
+
+# VS generated files #
+######################
+*.obj
 *.exe
-*.out
-*.app
+*.pdb
+*.user
+*.aps
+*.pch
+*.ipch
+*.ncb
+*.suo
+*.sdf
+*.opensdf
+*.tlb
+*.tlh
+*.ilk
+*.lib
+*.exp
+*.idb
+*.rc
+*.res
+*.manifest
+*.tlog
+*.lastbuildstate
+*.unsuccessfulbuild
+release_shared/
+debug_shared/
+release_static/
+debug_static/
+release_static_md/
+debug_static_md/
+release_static_mt/
+debug_static_mt/
+bin/
+bin64/
+lib/
+lib64/
+pocomsg.h
+
+# Eclipse generated files #
+######################
+.project
+.cproject
+.settings
+cmake-build/
+
+# Temporary files #
+###################
+*.bak

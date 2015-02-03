@@ -1,0 +1,19 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io Serial library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
+
+objects = SerialPort SerialDeviceImpl
+
+target         = IoTSerial
+target_version = 1
+target_libs    = IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

@@ -1,0 +1,289 @@
+/*
+ * styles.css
+ *
+ * Style Sheet for OSP Bundle Administration Application.
+ *
+ * Copyright (c) 2007, Applied Informatics
+ *
+ */
+
+body 
+{
+    margin-top: 0; 
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    color: #000000;
+    background-color: #ffffff;
+}
+
+p, h1, h2, h3, h4, h5, h6, ul, ol, li, td, th, form, address, blockquote, strong, b, div, emph, i
+{
+	font-family: "Trebuchet MS", Geneva, Arial, Helvetica, SunSans-Regular, sans-serif; 
+}
+
+p, ul, ol, address, blockquote, h6, form
+{
+	color: black; 
+	font-size: 9pt; 
+	line-height: 12pt; 
+	margin-top: 4px; 
+	margin-bottom: 4px;
+}
+
+h1
+{
+	color: black; 
+	font-size: 18pt; 
+	font-weight: normal; 
+	line-height: 22pt; 
+	margin-top: 12px;
+	margin-right: 0;
+	margin-bottom: 12px;
+}
+
+h1.title
+{
+	font-size: 16pt;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 16px;
+	margin-right: 16px;
+	line-height: 18pt; 
+	background: #0076B8;
+	color: white;
+}
+
+h1.category
+{
+	font-size: 10pt;
+	font-weight: bold;
+	margin-top: 0px;
+	margin-bottom: 8px;
+	margin-left: 16px;
+	margin-right: 16px;
+	line-height: 10pt; 
+	background: #0076B8;
+	color: white;
+}
+
+div.header
+{
+	margin-top: 0;
+	margin-left: 0;
+	margin-right: 0;
+	margin-bottom: 0;
+	background: #0076B8;
+	color: white;
+	padding-top: 8px;
+	padding-bottom: 8px;
+	border-bottom-width: 1px;
+	border-bottom-color: #012F50;
+	border-bottom-style: solid;
+}
+
+div.body
+{
+	margin-top: 16px;
+	margin-left: 16px;
+	margin-right: 16px;
+}
+
+div.nav
+{
+	color: #111;
+	background: #f4f4f4;
+	font-size: 8pt;
+	border-bottom-width: 1px;
+	border-bottom-color: #cccccc;
+	border-bottom-style: solid;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	padding-left: 4px;
+	text-align: left;
+	margin-top: 24px;
+}
+
+pre
+{
+	color: #111; 
+	background: #F4F4F4;
+	font-size: 8pt;
+	border-bottom-width: 1px;
+	border-bottom-color: #CCCCCC;
+	border-bottom-style: solid;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
+h2 
+{
+	color: black; 
+	font-size: 16px; 
+	margin-top: 14px; 
+	margin-bottom: 0; 
+}
+
+h3
+{
+	color: black;
+	font-size: 10pt; 
+	margin-top: 10px;
+	margin-right: 0;
+	margin-bottom: 0px;
+	background: #CCC;
+	border-bottom-width: 1px;
+	border-bottom-color: #AAA;
+	border-bottom-style: solid;
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+h4
+{
+	color: black; 
+	font-size: 10pt; 
+	margin-top: 10px; 
+	margin-bottom: 0; 
+}
+
+li
+{
+    font-size: 9pt;
+    color: #000000;
+    margin-left: 0px;
+    margin-bottom: 2px;
+}
+
+ul
+{
+	padding-left: 0px;
+	margin-left: 2em;
+    list-style-type: disc;
+    list-style-position: outside;
+    list-style-image: url(../images/bullet.gif);
+}
+
+table.list
+{
+	background-color: #0076B8;
+	border-style: none;
+	padding: 0px;
+	font-size: 9pt;
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
+table.list th
+{
+	color: #fff;
+	font-weight: bold;
+	text-align: left;
+	background-color: #0076B8;
+}
+
+table.list td
+{
+	border-style: none;
+	padding: 4px;
+}
+
+table.list tr.even
+{
+	background-color: #f0f0f0;
+}
+
+table.list tr.odd
+{
+	background-color: #e0e0e0;
+}
+
+.servicename
+{
+	font-size: 10pt;
+	font-weight: bold;
+}
+
+.servicepath
+{
+	font-size: 8pt;
+}
+
+strong, b
+{
+    font-weight: bold;
+}
+
+emph, i
+{
+    font-style: italic;
+}
+
+.address
+{
+	line-height: 11pt; 
+	margin-bottom: 4px;
+}
+
+.footer 
+{
+	font-size: 7pt; 
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	text-align: left; 
+	line-height: 9pt; 
+	margin-top: 16px;
+	margin-left: 0;
+	margin-right: 0;
+	margin-bottom: 10px;
+}
+
+a:link 
+{ 
+    color: #069;
+    text-decoration: underline;
+}
+
+a:visited 
+{ 
+    color: #069;
+    text-decoration: underline; 
+}
+
+a:active 
+{ 
+    color: #069;
+    text-decoration: underline;
+}
+
+a:hover 
+{ 
+    color: #069;
+    text-decoration: underline;  
+}
+
+a.footer:link 
+{ 
+    color: #069;
+    text-decoration: underline;
+}
+
+a.footer:visited 
+{ 
+    color: #069;
+    text-decoration: underline; 
+}
+
+a.footer:active 
+{ 
+    color: #069;
+    text-decoration: underline;
+}
+
+a.footer:hover 
+{ 
+    color: #069;
+    text-decoration: underline;  
+}
+

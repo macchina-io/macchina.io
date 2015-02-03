@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>POCO Net Library</name>
+    <symbolicName>poco.net</symbolicName>
+    <version>1.4.7</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2007-2014, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>NetBundleActivator</class>
+      <library>poco.net</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>000</runLevel>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../${bin}/PocoNet${64}.dll,
+    ../../${bin}/PocoNet${64}d.dll,
+    ../../${bin}/PocoNet${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoNet.so.*,
+    ../../lib/${osName}/${osArch}/libPocoNetd.so.*,
+    ../../lib/${osName}/${osArch}/libPocoNet.*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoNetd.*.dylib
+  </code>
+</bundlespec>
