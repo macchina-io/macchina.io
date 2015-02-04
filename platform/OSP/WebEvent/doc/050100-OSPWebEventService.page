@@ -1,0 +1,299 @@
+OSP Web Event Service
+Applied Informatics Open Service Platform
+
+!!! Introduction
+
+The Poco::OSP::WebEvent::WebEventService is a service that allows a web application
+server to notify clients running in a browser, using a RFC 6455
+WebSocket and a subject-based publish-subscribe mechanism.
+
+The way this service works is explained in the following section.
+
+
+!!! The WebEvent Protocol
+
+JavaScript code running in the browser will open a WebSocket connection
+to the OSP web server (using path "/webevent") and send a single-frame 
+text subscription message specifying the subjects to subscribe to. The format 
+of the subscription message is:
+
+    SUBSCRIBE <subjectList> WebEvent/1.0
+----
+
+where <subjectList> is a comma-separated list of subject names not
+containing white space characters.
+
+Subject names use a hierarchical, reverse DNS-style syntax, with the
+parts of the subject delimited by periods. Subject names must not
+contain spaces and their parts should be valid C++ identifiers. 
+However, the latter restriction is not enforced. 
+Subject names are hierarchical. A subscriber to
+a "parent" subject (e.g., "com.appinf.events") will also receive
+all "child" subjects (e.g., "com.appinf.events.someEvent" and 
+"com.appinf.events.someOtherEvent").
+
+A client can unsubscribe from specific events by either sending an
+unsubscribe request or by simply closing the WebSocket. The
+format of the UNSUBSCRIBE message is similar to the SUBSCRIBE message:
+
+    UNSUBSCRIBE <subjectList>|* WebEvent/1.0
+----
+
+where <subjectList> is a comma-separated list of subject names, as
+with the SUBSCRIBE message. Instead of a subject list, a single
+asterisk can be specified, which means unsubscribe from all
+subjects.
+
+After the initial SUBSCRIBE message the client can send additional
+SUBSCRIBE or UNSUBSCRIBE messages, and thus dynamically change its 
+subscriptions without having to re-establish the WebSocket.
+
+Once a client has opened a WebSocket and sent the SUBSCRIBE
+message, the WebSocket connection will be "parked" on the server
+and only used when an event message needs to be sent to the
+client. This allows a very high number of simultaneous subscribers,
+since a single subscriber does not consume much server resources,
+except for the socket and some data overhead.
+Specifically, a specific thread for the WebSocket connection will only be 
+used during the initial connection setup.
+
+Notification messages sent to clients are single-frame text
+messages with the following format:
+
+    NOTIFY <subjectName> WebEvent/1.0\r\n
+    <data>
+----
+
+where <subjectName> is the subjectName specified in the
+call to notify(), and <data> is the given data string, which
+typically should be a valid serialized JSON or XML document in UTF-8 
+encoding, although any valid UTF-8 string can be sent.
+
+A client can also sent notifications to other clients by sending
+a NOTIFY message to the server.
+
+A client can send a NOTIFY message using the special subject
+"system.ping" to the server, and the server will respond with a 
+NOTIFY using the subject "system.pong". This can be used as a heartbeat
+mechanism to verify that the connection to the server is alive.
+Any data sent with the ping message will be sent back with the pong
+message.
+
+
+!!! Using the WebEventService
+
+The WebEventService is implemented in the <*com.appinf.osp.webevent*> bundle
+and registered under the service name "com.appinf.osp.webevent".
+
+
+!! On the Server (C++)
+
+To obtain the service:
+
+    Poco::OSP::WebEvent::WebEventService::Ptr pWebEventService = 
+        Poco::OSP::ServiceFinder::find<Poco::OSP::WebEvent::WebEventService>(pContext);
+----
+
+To send a notification to all subscribers to a given subject, use the
+Poco::OSP::WebEvent::WebEventService::notify() method, specifying the
+subject name and payload. Note that the payload must be an UTF-8 character
+sequence - typically a JSON or XML document.
+
+    pWebEventService->notify("sample.event", "Some event data");
+----
+
+To receive notifications on a specific subject, use the 
+Poco::OSP::WebEvent::subjectNotified() member function, specifying
+the subject name. The function will return a reference to a 
+Poco::BasicEvent object which can be used to register a delegate
+receiving the notification.
+
+    pWebEventService->subjectNotified("sample.event") += Poco::delegate(onEvent);
+----
+
+The delegate function then looks like:
+
+    void onEvent(const Poco::OSP::WebEvent::WebEventService::NotificationEvent& ev)
+    {
+        const std::string& subject = ev.first;
+        const std::string& data = ev.second;
+        // ...
+    }
+----
+
+The Poco::OSP::WebEvent::WebEventService::NotificationEvent type is simply a 
+<[std::pair<std::string, std::string>]>, with the first item containing the
+subject name and the second item containing the data.
+
+
+!! On the Client (JavaScript)
+
+The following JavaScript module (webevent.js) can be used on the client to subscribe to, and receive
+event notifications.
+
+    // webevent.js
+    
+    var WebEvent = 
+    {
+        webSocket: null,
+    
+        available: function()
+            {
+                return "WebSocket" in window;
+            },
+        
+        connect: function()
+            {
+                if (!WebEvent.available()) return false;
+
+                var wss = window.location.protocol == "https:" ? "wss://" : "ws://";
+                WebEvent.webSocket = new WebSocket(wss + window.location.host + "/webevent");    
+            
+                WebEvent.webSocket.onopen = function()      
+                {
+                    if (WebEvent.onConnect) WebEvent.onConnect();
+                }; 
+            
+                WebEvent.webSocket.onmessage = function(evt)      
+                {
+                    var msg = evt.data;
+                    var parsedEvent = WebEvent.parseEvent(msg);
+                    if (parsedEvent.method == "NOTIFY")
+                    {
+                        WebEvent.onNotify(parsedEvent);
+                    }
+                };
+            
+                WebEvent.webSocket.onclose = function()
+                {
+                    if (WebEvent.onDisconnect) WebEvent.onDisconnect();
+                    WebEvent.webSocket = null;
+                };
+            
+                WebEvent.webSocket.onerror = function()
+                {
+                    if (WebEvent.onError) WebEvent.onError();
+                };
+            
+                return true;
+            },
+        
+        disconnect: function()
+            {
+                if (WebEvent.webSocket) 
+                {
+                    WebEvent.webSocket.close();
+                    WebEvent.webSocket = null;
+                }
+            
+            },
+
+        subscribe: function (subject)
+            {
+                if (WebEvent.webSocket)
+                {
+                    var msg = "SUBSCRIBE " + subject + " WebEvent/1.0";
+                    WebEvent.webSocket.send(msg);
+                }
+            },
+      
+        unsubscribe: function (subject)
+            {
+                if (WebEvent.webSocket)
+                {
+                    var msg = "UNSUBSCRIBE " + subject + " WebEvent/1.0";
+                    WebEvent.webSocket.send(msg);
+                }
+            },
+        
+        notify: function (subject, data)
+            {
+                if (WebEvent.webSocket)
+                {
+                    var msg = "NOTIFY " + subject + " WebEvent/1.0\r\n" + data;
+                    WebEvent.webSocket.send(msg);
+                }
+            },
+
+        onConnect: function() {},
+
+        onDisconnect: function() {},
+    
+        onError: function() {},
+    
+        onNotify: function(evt) {},
+    
+        parseEvent: function(msg)
+            {
+                var event = {};
+                var i = 0;
+                var methodStart = i;
+                while (i < msg.length && msg[i] != ' ' && msg[i] != '\r' && msg[i] != '\n') i++;
+                event.method = msg.substring(methodStart, i);
+                while (i < msg.length && msg[i] == ' ') i++;
+                var subjectStart = i;
+                while (i < msg.length && msg[i] != ' ' && msg[i] != '\r' && msg[i] != '\n') i++;
+                event.subject = msg.substring(subjectStart, i);
+                while (i < msg.length && msg[i] == ' ') i++;
+                var versionStart = i;
+                while (i < msg.length && msg[i] != ' ' && msg[i] != '\r' && msg[i] != '\n') i++;
+                event.version = msg.substring(versionStart, i);
+                while (i < msg.length && (msg[i] == '\r' || msg[i] == '\n')) i++;
+                event.data = msg.substring(i);      
+                return event;
+            }
+    };
+----
+
+To subscribe to an event, embed the following JavaScript in a web page:
+
+    <script type="text/javascript" src="webevent.js"></script>
+    <script>
+    if (WebEvent.available())
+    {
+        WebEvent.onNotify = function(evt)
+            {
+               var subject = evt.subject;
+               var data = evt.data;
+               // ...
+            };
+        
+        WebEvent.onConnect = function()
+            {
+                WebEvent.subscribe("sample.event");
+            };
+
+        WebEvent.connect();
+    }
+    </script>
+----
+
+
+!!! Security Considerations
+
+In the current implementation of the WebEventService, there is no way to prevent 
+potentially unauthorized clients from subscribing to events. Therefore, no sensitive
+data should ever be sent using event notifications. The following guidelines should be 
+observed:
+
+  - Do not include "sensitive" data in an event message. The definition of "sensitive" is
+    up to the specific implementation, but it's best to treat any application data
+    as sensitive.
+  - Use cryptographic hashes or tokens to refer to actual data. For example, when notifying
+    a client that a specific data object on the server has been modified, and the client
+    needs to update it's representation of it, send a cryptographic hash identifying the object
+    in the event message. Only authorized clients already in possession of the hash can then
+    associate the event with the object, and the event message is meaningless to everyone else.
+
+
+!!! Configuring the WebEventService
+
+The WebEventService provides a single configuration property to limit the maximum
+number of connected clients in the global application configuration.
+
+
+!! osp.web.event.maxWebSockets
+
+Limit the number of WebSocket connections (and thus connected clients).
+Specify 0 for an unlimited (as far as system resources allow) number of connections.
+Defaults to 0 (unlimited).

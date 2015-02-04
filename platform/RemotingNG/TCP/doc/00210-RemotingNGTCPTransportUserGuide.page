@@ -1,0 +1,206 @@
+Remoting NG TCP Transport User Guide
+Applied Informatics Remoting NG
+
+!!!Introduction
+
+The TCP Transport is a very efficient Transport implementation, based
+on TCP (or SSL/TLS) sockets and a compact, binary message serialization format
+based on Poco::BinaryWriter. To further reduce the amount of data sent over
+the network, the serialized data can optionally be compressed using the
+deflate algorithm.
+This makes the Binary Transport well suited for distributed applications
+built entirely in C++, using Remoting NG, where interoperability with
+other middleware technologies is not required.
+
+
+!!!Basic TCP Transport Usage
+
+!!Server Usage
+
+To use the TCP Transport in a server, the following four steps must
+be performed:
+
+   1. Create an instance of Poco::RemotingNG::TCP::Listener,
+   2. Optionally configure the listener (e.g., to change timeouts, etc.),
+   3. Register the Listener with the ORB, and
+   4. Register the individual objects with the ORB.
+
+Following is an example code fragment for setting up a TCP Transport listener,
+and registering a service object for use with the listener.
+
+    Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener("localhost:9999");
+    std::string listener = Poco::RemotingNG::ORB::instance().registerListener(pListener);
+
+    st::string uri = Sample::TimeServiceServerHelper::registerObject(
+        new Sample::TimeService, 
+        "TheTimeService", 
+        listener
+    );
+----
+
+Please see the Poco::RemotingNG::TCP::Listener class documentation for detailed information
+about how to setup and configure the listener.
+
+
+!!Client Usage
+
+To use the TCP Transport in a client, the following two steps
+must be performed:
+
+  1. Register the Poco::RemotingNG::TCP::TransportFactory with the ORB, and
+  2. Retrieve the interface (proxy) object using the helper class.
+
+Following is an example code fragment for setting up a TCP Transport,
+and registering a service object for use with the transport.
+
+    Poco::RemotingNG::TCP::TransportFactory::registerFactory();
+    Sample::ITimeService::Ptr pTimeService = MyProject::MyClassHelper::find(
+        "remoting.tcp://localhost:9999/tcp/TimeService/TheTimeService");
+    );
+----
+
+The TCP Transport uses the "remoting.tcp" URI scheme for identifying service objects.
+
+
+!Configuring The Client Transport
+
+To configure the client transport (e.g., to enable compression), the TCP Transport object must
+be obtained from the proxy. This is done in two steps. First, the interface
+pointer obtained from the client helper must be casted to a proxy:
+
+    Poco::RemotingNG::Proxy::Ptr pProxy = pTimeService.cast<Poco::RemotingNG::Proxy>();
+----
+
+Second, the Transport object can be obtained from the proxy:
+
+    Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+----
+
+Now that we have access to the Transport object, we can configure it:
+
+    trans.setTimeout(Poco::Timespan(10, 0));
+    trans.enableCompression(true);
+----
+
+Configuration should be done before the first method is invoked over the proxy.
+
+Please see the Poco::RemotingNG::TCP::Transport class documentation for more
+information regarding configuration options.
+
+
+!The ConnectionManager
+
+The socket connections used by the TCP Transport are managed by a
+Poco::RemotingNG::TCP::ConnectionManager instance.
+Unless otherwise specified, by passing a specific ConnectionManager
+instance to the constructor, the Poco::RemotingNG::TCP::TransportFactory
+uses the default ConnectionManager instance (see Poco::RemotingNG::TCP::ConnectionManager::defaultManager()).
+
+A custom ConnectionManager instance must be setup if secure sockets should be used.
+In this case, a ConnectionManager instance must be created with custom
+Poco::RemotingNG::TCP::SocketFactory instance.
+
+The ConnectionManager is also used to change the idle timeout of connections.
+The default idle timeout is one minute. This can be changed with a call
+to Poco::RemotingNG::TCP::ConnectionManager::setIdleTimeout(), passing
+a Poco::Timespan timeout value.
+
+
+!!Performance Considerations
+
+On the server side, the TCP Transport Listener uses a Poco::Net::TCPServer
+for handling incoming requests. Each client application maintains a
+single socket connection to the server, and the socket connection is usually kept
+open for the entire lifetime of the application. The connection is shared
+by all the client's proxy objects connected to the same server. It will be
+created the first time a proxy needs to send a request to the server.
+The underlying frame-based network protocol ensures
+that the connection is shared between all proxies in a fair way. 
+The connection uses an idle timer, so if the connection has not been
+used for a certain time, it will be automatically closed. The next time
+a proxy sends a request to the server, the connection will be re-opened again.
+
+The same client-initiated connection is also used by the server to deliver event messages
+to the client. This allows the server to deliver events even to clients behind
+a NAT router or firewall.
+
+The performance of the TCP Transport is best when no namespaces are 
+used and all remote method parameters are scalar.
+While the TCP Transport will ignore namespaces and element/attribute distinction, 
+it will still be informed of them by de-/serializers which costs time. 
+Also, the generated code will be more compact when namespaces are not used.
+
+
+!!Serialization Pitfalls
+
+Since the binary serialization format does not include type information, some
+care must be taken that only types with the same physical representation
+on both the client and the server are used. This mostly affects types with
+different physical representation on 32-bit and 64-bit systems. Examples
+are types like <[long]> or <[std::size_t]>. Such types should be avoided in remote
+interfaces. Fixed-size integer types, such as Poco::Int32 provide a safer
+alternative. 
+
+
+!!!Using The TCP Transport With SSL/TLS
+
+The TCP Transport normally uses a plain TCP socket connection between the
+client and the server. To make the TCP Transport use a secure
+SSL/TLS socket connection, the following steps must be performed.
+
+
+!!SSL/TLS On The Server Side
+
+On the server side, the listener must be created using a
+Poco::Net::SecureServerSocket.
+
+    Poco::Net::SecureServerSocket serverSocket(10001);
+    Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener("localhost:10001", serverSocket);
+    std::string listener = Poco::RemotingNG::ORB::instance().registerListener(pListener);
+
+    st::string uri = Sample::TimeServiceServerHelper::registerObject(
+        new Sample::TimeService, 
+        "TheTimeService", 
+        listener
+    );
+----
+
+
+!!SSL/TLS On The Client Side
+
+On the client side, a Poco::RemotingNG::TCP::ConnectionManager must be created 
+with a user-supplied socket factory (Poco::RemotingNG::TCP::SocketFactory) that,
+depending on the actual protocol used, creates either a 
+Poco::Net::StreamSocket, or a Poco::Net::SecureStreamSocket.
+A simple implementation is shown below:
+
+    class SecureSocketFactory: public Poco::RemotingNG::TCP::SocketFactory
+    {
+    public:
+        Poco::Net::StreamSocket createSocket(const Poco::URI& uri)
+        {
+            Poco::Net::SocketAddress addr(uri.getHost(), uri.getPort());
+            if (uri.getScheme() == "remoting.tcps")
+                return Poco::Net::SecureStreamSocket(addr);
+            else
+                return Poco::Net::StreamSocket(addr);
+        }
+    };
+----
+
+Our own ConnectionManager instance using the SecureSocketFactory is then
+passed used to register the TransportFactory.
+
+
+    Poco::RemotingNG::TCP::ConnectionManager connMgr(new SecureSocketFactory);    
+    Poco::RemotingNG::TCP::TransportFactory::registerFactory(connMgr);
+----
+
+The proxy using a secure connection can then be obtained by passing
+a "remoting.tcps"-scheme URI to the client helper:
+
+    Sample::ITimeService::Ptr pTimeService = MyProject::MyClassHelper::find(
+        "remoting.tcps://localhost:10001/tcp/TimeService/TheTimeService");
+    );
+----
+

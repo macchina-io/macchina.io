@@ -1,0 +1,12 @@
+vc.project.guid = 4AC37964-11B5-4F8F-A5EC-69C0CD2DCBE7
+vc.project.name = WebEventBundle
+vc.project.target = com.appinf.osp.webevent
+vc.project.type = plugin
+vc.project.pocobase = ..\\..
+vc.project.outdir = .
+vc.project.platforms = Win32, x64, WinCE
+vc.project.configurations = debug_shared, release_shared
+vc.project.prototype = ${vc.project.name}_vs90.vcproj
+vc.project.compiler.include = ..\\..\\Foundation\\include;..\\..\\XML\\include;..\\..\\Util\\include;..\\..\\Net\\include;..\\..\\OSP\\include;..\\..\\OSP\\Web\\include;..\\..\\Zip\\include
+vc.project.postbuild.debug_shared = bundled /osarch=${project.targetArchitecture} /output=../bundles $(ProjectName).bndlspec
+vc.project.postbuild.release_shared = bundle /osarch=${project.targetArchitecture} /output=../bundles $(ProjectName).bndlspec

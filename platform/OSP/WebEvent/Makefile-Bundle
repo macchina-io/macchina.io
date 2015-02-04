@@ -1,0 +1,21 @@
+#
+# Makefile
+#
+# $Id: //poco/1.4/OSP/WebEvent/Makefile-Bundle#1 $
+#
+# Makefile for Poco OSP WebEvent Bundle
+#
+
+BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
+
+include $(POCO_BASE)/build/rules/global
+
+objects = WebEventServiceImpl WebEventRequestHandler WebEventBundleActivator
+
+target         = com.appinf.osp.webevent
+target_version = 1
+target_libs    = PocoOSPWebEvent PocoOSPWeb PocoOSP PocoNet PocoUtil PocoXML PocoFoundation
+
+postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles WebEventBundle.bndlspec
+
+include $(POCO_BASE)/build/rules/dylib

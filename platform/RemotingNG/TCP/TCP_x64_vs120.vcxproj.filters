@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="TCP">
+      <UniqueIdentifier>{4c6beab5-f2d6-4413-b322-ca7a22715278}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TCP\Header Files">
+      <UniqueIdentifier>{51a03610-d2c8-425f-a2e7-b9c5bf99a4d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TCP\Source Files">
+      <UniqueIdentifier>{53c1c9b5-1c49-47a2-b53f-81ee75dd2d26}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\ChannelStream.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\Connection.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\ConnectionManager.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\Frame.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\FrameFactory.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\FrameHandler.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\FrameQueue.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\Listener.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\ServerConnection.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\ServerConnectionFactory.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\ServerTransport.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\SocketFactory.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\TCP.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\Timer.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\Transport.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\TransportFactory.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ChannelStream.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Connection.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ConnectionManager.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Frame.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FrameQueue.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Listener.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServerConnection.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServerConnectionFactory.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServerTransport.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SocketFactory.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Timer.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Transport.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TransportFactory.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

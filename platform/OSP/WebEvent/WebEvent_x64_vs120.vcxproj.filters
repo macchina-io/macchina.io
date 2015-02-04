@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="WebEvent">
+      <UniqueIdentifier>{f7355c37-fe0c-4de9-9b96-5e27975732e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WebEvent\Header Files">
+      <UniqueIdentifier>{10e13d55-3b22-4c6d-8241-e482f8583bb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WebEvent\Source Files">
+      <UniqueIdentifier>{6aa68e8e-5688-4d0b-b389-73ea66ba2ef3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Poco\OSP\WebEvent\WebEvent.h">
+      <Filter>WebEvent\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\WebEvent\WebEventRequestHandler.h">
+      <Filter>WebEvent\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\WebEvent\WebEventService.h">
+      <Filter>WebEvent\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\WebEvent\WebEventServiceImpl.h">
+      <Filter>WebEvent\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\WebEventRequestHandler.cpp">
+      <Filter>WebEvent\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebEventService.cpp">
+      <Filter>WebEvent\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebEventServiceImpl.cpp">
+      <Filter>WebEvent\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

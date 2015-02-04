@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="osp.web.server.requesthandler" path="${path}" class="Poco::OSP::WebEvent::WebEventRequestHandlerFactory" allowSpecialization="none" hidden="true" description="${description}"/>
+</extensions>

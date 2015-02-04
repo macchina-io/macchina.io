@@ -26,7 +26,7 @@ poco: libexecs $(if $(TESTS),tests) $(if $(SAMPLES),samples)
 all: libexecs tests samples
 
 INSTALLDIR = $(DESTDIR)$(POCO_PREFIX)
-COMPONENTS = Foundation XML JSON Util Net Data Data/SQLite Zip Crypto NetSSL_OpenSSL CppParser CodeGeneration JS/V8 JS/Core JS/Data JS/Bridge JS/Net RemotingNG RemotingNG/RemoteGen OSP OSP/BundleCreator OSP/BundleAdmin OSP/Web OSP/Core OSP/Crypto OSP/Data OSP/Data/SQLite OSP/Net OSP/NetSSL_OpenSSL OSP/SecureWebServer OSP/WebServer OSP/JS
+COMPONENTS = Foundation XML JSON Util Net Data Data/SQLite Zip Crypto NetSSL_OpenSSL CppParser CodeGeneration JS/V8 JS/Core JS/Data JS/Bridge JS/Net RemotingNG RemotingNG/RemoteGen RemotingNG/TCP OSP OSP/BundleCreator OSP/BundleAdmin OSP/Web OSP/Core OSP/Crypto OSP/Data OSP/Data/SQLite OSP/Net OSP/NetSSL_OpenSSL OSP/SecureWebServer OSP/WebServer OSP/JS
 
 cppunit:
 	$(MAKE) -C $(POCO_BASE)/CppUnit 
@@ -56,10 +56,10 @@ samples  = Foundation-samples XML-samples JSON-samples Util-samples Net-samples 
 cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-clean NetSSL_OpenSSL-clean Data-clean Data/SQLite-clean Zip-clean PageCompiler-clean PageCompiler/File2Page-clean CppParser-clean
 
 # WebTunnel, JS, Remoting and OSP
-libexecs += WebTunnel-libexec CodeGeneration-libexec JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec RemotingNG-libexec RemotingNG/RemoteGen-libexec OSP-libexec OSP/BundleCreator-libexec OSP/BundleAdmin-libexec OSP/Web-libexec OSP/Core-libexec OSP/Crypto-libexec OSP/Data-libexec OSP/Data/SQLite-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec OSP/SecureWebServer-libexec OSP/WebServer-libexec OSP/JS-libexec
-tests    += CodeGeneration-tests RemotingNG-tests OSP-tests OSP/Web-tests
+libexecs += WebTunnel-libexec CodeGeneration-libexec JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec RemotingNG-libexec RemotingNG/RemoteGen-libexec RemotingNG/TCP-libexec OSP-libexec OSP/BundleCreator-libexec OSP/BundleAdmin-libexec OSP/Web-libexec OSP/Core-libexec OSP/Crypto-libexec OSP/Data-libexec OSP/Data/SQLite-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec OSP/SecureWebServer-libexec OSP/WebServer-libexec OSP/JS-libexec OSP/WebEvent-libexec
+tests    += CodeGeneration-tests RemotingNG-tests RemotingNG/TCP-tests OSP-tests OSP/Web-tests
 samples  += WebTunnel-samples
-cleans   += WebTunnel-clean CodeGeneration-clean JS/V8-clean JS/Core-clean JS/Data-clean JS/Bridge-clean JS/Net-clean RemotingNG-clean RemotingNG/RemoteGen-clean OSP-clean OSP/BundleCreator-clean OSP/BundleAdmin-clean OSP/Web-clean OSP/Core-clean OSP/Crypto-clean OSP/Data-clean OSP/Data/SQLite-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean OSP/SecureWebServer-clean OSP/WebServer-clean OSP/JS-clean
+cleans   += WebTunnel-clean CodeGeneration-clean JS/V8-clean JS/Core-clean JS/Data-clean JS/Bridge-clean JS/Net-clean RemotingNG-clean RemotingNG/RemoteGen-clean RemotingNG/TCP-clean OSP-clean OSP/BundleCreator-clean OSP/BundleAdmin-clean OSP/Web-clean OSP/Core-clean OSP/Crypto-clean OSP/Data-clean OSP/Data/SQLite-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean OSP/SecureWebServer-clean OSP/WebServer-clean OSP/JS-clean OSP/WebEvent-clean
 
 .PHONY: $(libexecs)
 .PHONY: $(tests)
@@ -298,6 +298,16 @@ RemotingNG/RemoteGen-libexec:  RemotingNG-libexec CodeGeneration-libexec Net-lib
 RemotingNG/RemoteGen-clean:  
 	$(MAKE) -C $(POCO_BASE)/RemotingNG/RemoteGen clean
 
+RemotingNG/TCP-libexec:  RemotingNG-libexec Net-libexec Foundation-libexec
+	$(MAKE) -C $(POCO_BASE)/RemotingNG/TCP
+
+RemotingNG/TCP-tests: RemotingNG/TCP-libexec cppunit
+	$(MAKE) -C $(POCO_BASE)/RemotingNG/TCP/testsuite
+
+RemotingNG/TCP-clean: 
+	$(MAKE) -C $(POCO_BASE)/RemotingNG/TCP clean
+	$(MAKE) -C $(POCO_BASE)/RemotingNG/TCP/testsuite clean
+
 OSP-libexec:  Foundation-libexec XML-libexec Util-libexec Zip-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP
 
@@ -383,6 +393,12 @@ OSP/JS-libexec:  Foundation-libexec XML-libexec Util-libexec Net-libexec JS/Core
 
 OSP/JS-clean:  
 	$(MAKE) -C $(POCO_BASE)/OSP/JS clean
+
+OSP/WebEvent-libexec:  Net-libexec OSP-libexec OSP/BundleCreator-libexec OSP/Web-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/WebEvent
+
+OSP/WebEvent-clean:
+	$(MAKE) -C $(POCO_BASE)/OSP/WebEvent clean
 
 clean: cleans CppUnit-clean
 
