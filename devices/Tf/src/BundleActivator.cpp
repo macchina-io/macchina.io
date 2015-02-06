@@ -68,16 +68,16 @@ public:
 				switch (ev.type)
 				{
 				case AmbientLightSensor::DEVICE_IDENTIFIER:
-					createDevice<AmbientLightSensor>(ev.uid);
+					createDevice<AmbientLightSensor>(ev.uid, "luminance");
 					break;
 				case MotionDetector::DEVICE_IDENTIFIER:
-					createDevice<MotionDetector>(ev.uid);
+					createDevice<MotionDetector>(ev.uid, "");
 					break;
 				case RotaryEncoder::DEVICE_IDENTIFIER:
-					createDevice<RotaryEncoder>(ev.uid);
+					createDevice<RotaryEncoder>(ev.uid, "");
 					break;
 				case TemperatureSensor::DEVICE_IDENTIFIER:
-					createDevice<TemperatureSensor>(ev.uid);
+					createDevice<TemperatureSensor>(ev.uid, "temperature");
 					break;
 				default:
 					_pContext->logger().information(Poco::format("Detected unsupported Tinkerforge device: %hu", ev.type));
@@ -93,7 +93,7 @@ public:
 	}
 	
 	template <class D>
-	void createDevice(const std::string& uid)
+	void createDevice(const std::string& uid, const std::string& physicalQuantity)
 	{
 		typedef Poco::RemotingNG::ServerHelper<typename D::SuperType> ServerHelper;
 		
@@ -105,8 +105,12 @@ public:
 		typename ServerHelper::RemoteObjectPtr pDeviceRemoteObject = ServerHelper::createRemoteObject(pDevice, oid);
 		
 		Properties props;
-		props.set("com.iotframework.device", symbolicName);
-		props.set("com.iotframework.tf.uid", uid);
+		props.set("io.macchina.device", symbolicName);
+		props.set("io.macchina.tf.uid", uid);
+		if (!physicalQuantity.empty())
+		{
+			props.set("io.macchina.physicalQuantity", physicalQuantity);
+		}
 		
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pDeviceRemoteObject, props);
 		_devices[uid] = pServiceRef;

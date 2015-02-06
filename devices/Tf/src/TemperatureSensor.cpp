@@ -19,7 +19,7 @@ namespace Tf {
 
 
 TemperatureSensor::TemperatureSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("com.iotframework.tf.temperature", "Tinkerforge Temperature Bricklet")
+	BrickletType("io.macchina.tf.temperature", "Tinkerforge Temperature Bricklet")
 {
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	temperature_create(&_temperature, uid.c_str(), ipcon);

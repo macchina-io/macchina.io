@@ -19,7 +19,7 @@ namespace Tf {
 
 
 RotaryEncoder::RotaryEncoder(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("com.iotframework.tf.rotaryencoder", "Tinkerforge Rotary Encoder Bricklet")
+	BrickletType("io.macchina.tf.rotaryencoder", "Tinkerforge Rotary Encoder Bricklet")
 {
 	addProperty("countChangedPeriod", &RotaryEncoder::getCountChangedPeriod, &RotaryEncoder::setCountChangedPeriod);
 	

@@ -19,7 +19,7 @@ namespace Tf {
 
 
 MotionDetector::MotionDetector(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("com.iotframework.tf.motiondetector", "Tinkerforge Motion Detector Bricklet")
+	BrickletType("io.macchina.tf.motiondetector", "Tinkerforge Motion Detector Bricklet")
 {
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	motion_detector_create(&_motionDetector, uid.c_str(), ipcon);

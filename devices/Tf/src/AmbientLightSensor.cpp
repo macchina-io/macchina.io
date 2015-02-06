@@ -19,7 +19,7 @@ namespace Tf {
 
 
 AmbientLightSensor::AmbientLightSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("com.iotframework.tf.ambientlight", "Tinkerforge Ambient Light Bricklet")
+	BrickletType("io.macchina.tf.ambientlight", "Tinkerforge Ambient Light Bricklet")
 {
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	ambient_light_create(&_ambientLight, uid.c_str(), ipcon);
