@@ -17,6 +17,7 @@
 #include "Poco/JS/Data/RecordSetWrapper.h"
 #include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/Data/MetaColumn.h"
+#include "Poco/Data/RowFormatter.h"
 #include "Poco/Version.h"
 #if POCO_VERSION > 0x01050000
 #include "Poco/Data/Date.h"
@@ -27,6 +28,67 @@
 namespace Poco {
 namespace JS {
 namespace Data {
+
+
+class JSONFormatter: public Poco::Data::RowFormatter
+{
+public:
+	JSONFormatter():
+		_isFirst(true)
+	{
+		setPrefix("[");
+		setPostfix("\n]\n");
+	}
+
+	std::string& formatNames(const NameVecPtr pNames, std::string& formattedNames)
+	{
+		_isFirst = true;
+		_pNames = pNames;
+		formattedNames.clear();
+		return formattedNames;
+	}
+
+	std::string& formatValues(const ValueVec& vals, std::string& formattedValues)
+	{
+		std::ostringstream str;
+		if (_isFirst)
+		{
+			_isFirst = false;
+		}
+		else
+		{
+			str << ",";
+		}
+		str << "\n\t{\n";
+		for (int i = 0; i < vals.size(); i++)
+		{
+			if (i > 0) str << ",";
+			str << "\n\t\t\"" << (*_pNames)[i] << "\": ";
+			if (vals[i].isNumeric())
+			{
+				str << vals[i].convert<std::string>();
+			}
+			else
+			{
+				std::string val = Poco::Dynamic::Var::toString(vals[i]);
+				if (val.empty() || val[0] != '"')
+				{
+					str << '"' << val << '"';
+				}
+				else
+				{
+					str << val;
+				}
+			}
+		}
+		str << "\n\t}";
+		return formattedValues = str.str();
+	}
+
+private:
+	bool _isFirst;
+	NameVecPtr _pNames;
+};
 
 
 RecordSetHolder::RecordSetHolder():
@@ -116,6 +178,7 @@ v8::Handle<v8::ObjectTemplate> RecordSetWrapper::objectTemplate(v8::Isolate* pIs
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "movePrevious"), v8::FunctionTemplate::New(pIsolate, movePrevious));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "fetchNextPage"), v8::FunctionTemplate::New(pIsolate, fetchNextPage));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "close"), v8::FunctionTemplate::New(pIsolate, close));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toJSON"), v8::FunctionTemplate::New(pIsolate, toJSON));
 
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
@@ -473,6 +536,20 @@ void RecordSetWrapper::close(const v8::FunctionCallbackInfo<v8::Value>& args)
 	RecordSetHolder* pRecordSetHolder = Wrapper::unwrapNative<RecordSetHolder>(args);
 	if (!pRecordSetHolder->isOpen()) return;
 	pRecordSetHolder->close();
+}
+
+
+void RecordSetWrapper::toJSON(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::HandleScope scope(args.GetIsolate());
+
+	RecordSetHolder* pRecordSetHolder = Wrapper::unwrapNative<RecordSetHolder>(args);
+	if (!pRecordSetHolder->isOpen()) return;
+
+	pRecordSetHolder->recordSet().setRowFormatter(new JSONFormatter);
+	std::ostringstream ostr;
+	ostr << pRecordSetHolder->recordSet();
+	returnString(args, ostr.str());
 }
 
 

@@ -111,6 +111,7 @@ protected:
 	static void movePrevious(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void fetchNextPage(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void close(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void toJSON(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value>& args, const Poco::DynamicAny& value, Poco::Data::MetaColumn::ColumnDataType typeHint);
 
 	friend class SessionWrapper;
