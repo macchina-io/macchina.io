@@ -1,0 +1,131 @@
+<AppConfig>
+	<PocoDoc>
+		<files>
+			<include>
+				${MacchinaBase}/platform/*/include/Poco/*.h
+				${MacchinaBase}/platform/*/include/Poco/*/*.h
+				${MacchinaBase}/platform/*/include/Poco/*/*/*.h
+				${MacchinaBase}/platform/*/include/Poco/*/*.h
+				${MacchinaBase}/platform/*/*/include/Poco/*/*/*.h
+				${MacchinaBase}/devices/Devices/include/*/*/*.h
+			</include>
+			<exclude>
+				*_*.h,
+				expat*.h,
+				zconf.h,
+				zlib.h,
+			</exclude>
+		</files>
+		<pages>
+			${MacchinaBase}/platform/doc/*.page
+			${MacchinaBase}/platform/*/doc/*.page
+			${MacchinaBase}/platform/*/*/doc/*.page
+			${MacchinaBase}/devices/Devices/doc/*.page
+			${MacchinaBase}/doc/*.page
+		</pages>
+		<resources>
+			${MacchinaBase}/tools/PocoDoc/resources/css
+			${MacchinaBase}/tools/PocoDoc/resources/js
+			${MacchinaBase}/tools/PocoDoc/resources/images
+			${MacchinaBase}/tools/PocoDoc/resources/index.thtml
+			${MacchinaBase}/platform/*/doc/images
+			${MacchinaBase}/devices/Devices/doc/images
+			${MacchinaBase}/doc/images
+		</resources>
+		<compiler>
+			<exec>clang++</exec>
+			<options>
+				-I${MacchinaBase}/platform/Foundation/include
+				-I${MacchinaBase}/platform/XML/include
+				-I${MacchinaBase}/platform/JSON/include
+				-I${MacchinaBase}/platform/Util/include
+				-I${MacchinaBase}/platform/Net/include
+				-I${MacchinaBase}/platform/NetSSL_OpenSSL/include
+				-I${MacchinaBase}/platform/Crypto/include
+				-I${MacchinaBase}/platform/Zip/include
+				-I${MacchinaBase}/platform/Data/include
+				-I${MacchinaBase}/platform/Data/SQLite/include
+				-I${MacchinaBase}/platform/JS/Core/include
+				-I${MacchinaBase}/platform/JS/Data/include
+				-I${MacchinaBase}/platform/JS/Net/include
+				-I${MacchinaBase}/platform/JS/Bridge/include
+				-I${MacchinaBase}/platform/OSP/include
+				-I${MacchinaBase}/platform/OSP/Web/include
+				-I${MacchinaBase}/platform/OSP/WebEvent/include
+				-I${MacchinaBase}/platform/CppParser/include
+				-I${MacchinaBase}/platform/CodeGeneration/include
+				-I${MacchinaBase}/platform/RemotingNG/include
+				-I${MacchinaBase}/platform/RemotingNG/TCP/include
+				-I${MacchinaBase}/platform/WebTunnel/include
+				-I${MacchinaBase}/devices/Devices/include
+				-D_DEBUG
+				-E
+				-C
+				-DPOCO_NO_GCC_API_ATTRIBUTE
+				-xc++
+			</options>
+			<path></path>
+			<usePipe>true</usePipe>
+		</compiler>
+		<language>EN</language>
+		<charset>utf-8</charset>
+		<software>macchina.io</software>
+		<company>Applied Informatics Software Engineering GmbH and Contributors</company>
+		<companyURI>http://macchina.io</companyURI>
+	</PocoDoc>
+	<Translations>
+		<EN>
+			<All_Base_Classes>All Base Classes</All_Base_Classes>
+			<All_Symbols>All Symbols</All_Symbols>
+			<Anonymous>Anonymous</Anonymous>
+			<Constructors>Constructors</Constructors>
+			<Class>Class</Class>
+			<Deprecated>Deprecated</Deprecated>
+			<Description>Description</Description>
+			<Destructor>Destructor</Destructor>
+			<Direct_Base_Classes>Direct Base Classes</Direct_Base_Classes>
+			<Enumerations>Enumerations</Enumerations>
+			<Functions>Functions</Functions>
+			<Header>Header</Header>
+			<iff>if and only if</iff>
+			<Inheritance>Inheritance</Inheritance>
+			<Inherited_Functions>Inherited Functions</Inherited_Functions>
+			<is_deprecated>is deprecated and should no longer be used</is_deprecated>
+			<Known_Derived_Classes>Known Derived Classes</Known_Derived_Classes>
+			<Library>Library</Library>
+			<Member_Functions>Member Functions</Member_Functions>
+			<Member_Summary>Member Summary</Member_Summary>
+			<more>more...</more>
+			<Namespaces>Namespaces</Namespaces>
+			<Namespace>Namespace</Namespace>
+			<Nested_Classes>Nested Classes</Nested_Classes>
+			<Package>Package</Package>
+			<Packages>Packages</Packages>
+			<Package_Index>Package Index</Package_Index>
+			<See_also>See also</See_also>
+			<Struct>Struct</Struct>
+			<Symbol_Index>Symbol Index</Symbol_Index>
+			<This>This</This>
+			<Types>Types</Types>
+			<Variables>Variables</Variables>
+			<TOC>Contents</TOC>
+			<Guides>User Guides and Tutorials</Guides>
+			<AAAIntroduction>POCO C++ Libraries Introduction</AAAIntroduction>
+		</EN>
+	</Translations>
+
+	<logging>
+		<loggers>
+			<root>
+				<channel>console</channel>
+				<level>information</level>
+			</root>
+		</loggers>
+		<channels>
+			<console>
+				<class>ColorConsoleChannel</class>
+				<pattern>%s: [%p] %t</pattern>
+			</console>
+		</channels>
+	</logging>	
+</AppConfig>
