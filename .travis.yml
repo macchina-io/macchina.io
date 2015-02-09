@@ -1,0 +1,25 @@
+language: cpp
+
+cache:
+ - apt
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq -y g++-arm-linux-gnueabi g++-arm-linux-gnueabihf 
+
+env:
+  global: TEST_NAME=""
+
+before_script:
+ - echo ${TEST_NAME}
+
+matrix:
+  include:
+    - env:    TEST_NAME="gcc (make)"
+      compiler: gcc
+      script:
+        - make -s -j2
+
+    - env:    TEST_NAME="arm-linux-gnueabi- (make)"
+      script:
+        - make -s -j2 CROSS_COMPILE=arm-linux-gnueabi- POCO_TARGET_OSARCH=armv7l
