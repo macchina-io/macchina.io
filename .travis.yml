@@ -8,7 +8,11 @@ before_install:
   - sudo apt-get install -qq -y g++-arm-linux-gnueabi g++-arm-linux-gnueabihf 
 
 env:
-  global: TEST_NAME=""
+  global: 
+    - TEST_NAME=""
+    - MACCHINA_BASE=`pwd`
+    - POCO_BASE=$MACCHINA_BASE/platform
+    - PROJECT_BASE=$MACCHINA_BASE
 
 before_script:
  - echo ${TEST_NAME}
@@ -18,14 +22,8 @@ matrix:
     - env:    TEST_NAME="gcc (make)"
       compiler: gcc
       script:
-        - export MACCHINA_BASE=`pwd`
-        - export POCO_BASE=$MACCHINA_BASE/platform
-        - export PROJECT_BASE=$MACCHINA_BASE
         - make -s -j2 
 
     - env:    TEST_NAME="arm-linux-gnueabi- (make)"
       script:
-        - export MACCHINA_BASE=`pwd`
-        - export POCO_BASE=$MACCHINA_BASE/platform
-        - export PROJECT_BASE=$MACCHINA_BASE
         - make -s -j2 CROSS_COMPILE=arm-linux-gnueabi- POCO_TARGET_OSARCH=armv7l 
