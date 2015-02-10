@@ -18,8 +18,8 @@ matrix:
     - env:    TEST_NAME="gcc (make)"
       compiler: gcc
       script:
-        - make -s -j2
+        - make -s -j2 POCO_BASE=`pwd`
 
     - env:    TEST_NAME="arm-linux-gnueabi- (make)"
       script:
-        - make -s -j2 CROSS_COMPILE=arm-linux-gnueabi- POCO_TARGET_OSARCH=armv7l
+        - make -s -j2 CROSS_COMPILE=arm-linux-gnueabi- POCO_TARGET_OSARCH=armv7l POCO_BASE=`pwd`
