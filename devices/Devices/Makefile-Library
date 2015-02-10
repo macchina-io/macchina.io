@@ -38,7 +38,17 @@ objects = Device DeviceException \
 	SerialDeviceEventDispatcher \
 	SerialDeviceRemoteObject \
 	SerialDeviceServerHelper \
-	SerialDeviceSkeleton
+	SerialDeviceSkeleton \
+	IGNSSSensor \
+	GNSSSensorEventDispatcher \
+	GNSSSensorRemoteObject \
+	GNSSSensorServerHelper \
+	GNSSSensorSkeleton \
+	IAccelerometer \
+	AccelerometerEventDispatcher \
+	AccelerometerRemoteObject \
+	AccelerometerServerHelper \
+	AccelerometerSkeleton 
 
 target         = IoTDevices
 target_version = 1
