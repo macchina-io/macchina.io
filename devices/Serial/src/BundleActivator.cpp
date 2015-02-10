@@ -22,6 +22,7 @@
 #include "IoT/Devices/SerialDeviceServerHelper.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
+#include "Poco/NumberFormatter.h"
 #include <map>
 
 
@@ -53,14 +54,15 @@ public:
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::SerialDevice> ServerHelper;
 		
 		Poco::SharedPtr<IoT::Devices::SerialDevice> pDevice = new SerialDeviceImpl(pSerialPort);
-		std::string symbolicName = "SerialDevice";
+		std::string symbolicName = pDevice->getPropertyString("symbolicName");
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
 		oid += uid;
 		typename ServerHelper::RemoteObjectPtr pDeviceRemoteObject = ServerHelper::createRemoteObject(pDevice, oid);
 		
 		Properties props;
-		props.set("com.iotframework.device", symbolicName);
+		props.set("io.macchina.device", oid);
+		props.set("io.macchina.serialport.device", pSerialPort->device());
 		
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pDeviceRemoteObject, props);
 	}
@@ -70,12 +72,31 @@ public:
 		_pContext = pContext;
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
 		
-		std::string device = getStringConfig("serial.device", "");
-		std::string params = getStringConfig("serial.params", "");
-		int speed = getIntConfig("serial.speed", 9600);
+		Poco::Util::AbstractConfiguration::Keys keys;
+		_pPrefs->configuration()->keys("serial.ports", keys);
+		int index = 0;
+		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
+		{
+			std::string baseKey = "serial.ports.";
+			baseKey += *it;
+
+			std::string device = _pPrefs->configuration()->getString(baseKey + ".device", "");
+			std::string params = _pPrefs->configuration()->getString(baseKey + ".params", "8N1");
+			int speed = _pPrefs->configuration()->getInt(baseKey + ".speed", 9600);
 		
-		SerialDeviceImpl::SerialPortPtr pSerialPort = new SerialPort(device, speed, params);
-		createSerialDevice("1", pSerialPort);
+			try
+			{
+				pContext->logger().information(Poco::format("Creating serial port for device '%s'.", device));
+
+				SerialDeviceImpl::SerialPortPtr pSerialPort = new SerialPort(device, speed, params);
+				createSerialDevice(Poco::NumberFormatter::format(index), pSerialPort);
+			}
+			catch (Poco::Exception& exc)
+			{
+				pContext->logger().error(Poco::format("Cannot create serial port for device '%s': %s", device, exc.displayText())); 
+			}
+			index++;
+		}
 	}
 		
 	void stop(BundleContext::Ptr pContext)

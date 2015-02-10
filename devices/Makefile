@@ -10,5 +10,5 @@
 
 clean all:
 	$(MAKE) -C Devices $(MAKECMDGOALS)
-	$(MAKE) -C serial $(MAKECMDGOALS)
+	$(MAKE) -C Serial $(MAKECMDGOALS)
 	$(MAKE) -C Tf $(MAKECMDGOALS)

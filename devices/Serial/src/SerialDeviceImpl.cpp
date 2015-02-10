@@ -23,7 +23,7 @@ namespace Serial {
 
 
 const std::string SerialDeviceImpl::NAME("Serial Port");
-const std::string SerialDeviceImpl::SYMBOLIC_NAME("com.iotframework.serialport");
+const std::string SerialDeviceImpl::SYMBOLIC_NAME("io.macchina.serialport");
 const std::string SerialDeviceImpl::FLOW_NONE("none");
 const std::string SerialDeviceImpl::FLOW_RTSCTS("rtscts");
 
