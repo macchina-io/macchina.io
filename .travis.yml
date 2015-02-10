@@ -24,6 +24,6 @@ matrix:
       script:
         - make -s -j2 
 
-    - env:    TEST_NAME="arm-linux-gnueabi- (make)"
-      script:
-        - make -s -j2 CROSS_COMPILE=arm-linux-gnueabi- POCO_TARGET_OSARCH=armv7l 
+#    - env:    TEST_NAME="arm-linux-gnueabi- (make)"
+#      script:
+#        - make -s -j2 CROSS_COMPILE=arm-linux-gnueabi- POCO_TARGET_OSARCH=armv7l 
