@@ -83,9 +83,9 @@ protected:
 		bool haveLock = createFile();
 		while (!haveLock)
 		{
-			if (++attempts > 30) throw Poco::FileException("Cannot acquire lock for bundle directory", _file.path());
+			if (++attempts > 100) throw Poco::FileException("Cannot acquire lock for bundle directory", _file.path());
 
-			Poco::Thread::sleep(500 + rnd.next(1000));
+			Poco::Thread::sleep(500 + rnd.next(2000));
 			haveLock = createFile();
 		}
 	}
