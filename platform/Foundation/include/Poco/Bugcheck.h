@@ -148,7 +148,7 @@ protected:
 //
 
 
-GCC_DIAG_OFF(unused-local-typedefs) // supress numerous gcc warnings
+//GCC_DIAG_OFF(unused-local-typedefs) // supress numerous gcc warnings
 
 
 template <bool x>
