@@ -34,4 +34,4 @@ Also, the web user interface still needs to be done.
 Contributions
 -------------
 
-We welcome contributions! Please see our [CONTRIBUTING](https://github.com/macchina-io/macchina.io/blob/develop/CONTRIBUTING.md) document to get started.
+We welcome contributions! Specifically we're looking for new sensor and device implementations, as well as additional protocols. Please see our [CONTRIBUTING](https://github.com/macchina-io/macchina.io/blob/develop/CONTRIBUTING.md) document to get started.
