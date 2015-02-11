@@ -16,7 +16,9 @@ objects = \
 	MasterConnection \
 	MasterConnectionImpl \
 	TemperatureSensor \
+	HumiditySensor \
 	AmbientLightSensor \
+	AirPressureSensor \
 	RotaryEncoder \
 	MotionDetector \
 	BundleActivator \

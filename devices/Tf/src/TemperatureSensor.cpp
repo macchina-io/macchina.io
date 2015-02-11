@@ -34,6 +34,9 @@ TemperatureSensor::TemperatureSensor(MasterConnection::Ptr pMasterConn, const st
 	{
 		setIdentity(deviceUID, masterUID, position, hardwareVersion, firmwareVersion, deviceType);
 	}
+	
+	temperature_set_temperature_callback_period(&_temperature, 1000);
+	temperature_register_callback(&_temperature, TEMPERATURE_CALLBACK_TEMPERATURE, reinterpret_cast<void*>(onTemperatureChanged), this);
 }
 
 	
@@ -54,6 +57,34 @@ double TemperatureSensor::value() const
 		return temp/100.0;
 	}
 	else throw Poco::IOException();
+}
+
+
+Poco::Any TemperatureSensor::getValueChangedPeriod(const std::string&) const
+{
+	Poco::UInt32 uperiod;
+	temperature_get_temperature_callback_period(&_temperature, &uperiod);
+	return Poco::Any(static_cast<int>(uperiod));
+}
+
+
+void TemperatureSensor::setValueChangedPeriod(const std::string&, const Poco::Any& value)
+{
+	Poco::UInt32 period = static_cast<Poco::UInt32>(Poco::AnyCast<int>(value));
+	temperature_set_temperature_callback_period(&_temperature, period);
+}
+
+
+void TemperatureSensor::onTemperatureChanged(Poco::Int16 temperature, void* userData)
+{
+	try
+	{
+		TemperatureSensor* pThis = reinterpret_cast<TemperatureSensor*>(userData);
+		pThis->valueChanged(temperature/100.0);
+	}
+	catch (...)
+	{
+	}
 }
 
 

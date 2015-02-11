@@ -26,9 +26,11 @@
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
 #include "AmbientLightSensor.h"
+#include "AirPressureSensor.h"
 #include "MotionDetector.h"
 #include "RotaryEncoder.h"
 #include "TemperatureSensor.h"
+#include "HumiditySensor.h"
 #include <map>
 
 
@@ -78,6 +80,12 @@ public:
 					break;
 				case TemperatureSensor::DEVICE_IDENTIFIER:
 					createDevice<TemperatureSensor>(ev.uid, "temperature");
+					break;
+				case HumiditySensor::DEVICE_IDENTIFIER:
+					createDevice<HumiditySensor>(ev.uid, "humidity");
+					break;
+				case AirPressureSensor::DEVICE_IDENTIFIER:
+					createDevice<AirPressureSensor>(ev.uid, "airPressure");
 					break;
 				default:
 					_pContext->logger().information(Poco::format("Detected unsupported Tinkerforge device: %hu", ev.type));

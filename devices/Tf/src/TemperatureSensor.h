@@ -45,6 +45,12 @@ public:
 	// Sensor
 	double value() const;
 
+protected:
+	Poco::Any getValueChangedPeriod(const std::string&) const;
+	void setValueChangedPeriod(const std::string&, const Poco::Any& value);
+
+	static void onTemperatureChanged(Poco::Int16 temperature, void* userData);
+	
 private:
 	mutable Temperature _temperature;
 };

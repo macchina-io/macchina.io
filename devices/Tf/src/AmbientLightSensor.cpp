@@ -34,6 +34,9 @@ AmbientLightSensor::AmbientLightSensor(MasterConnection::Ptr pMasterConn, const 
 	{
 		setIdentity(deviceUID, masterUID, position, hardwareVersion, firmwareVersion, deviceType);
 	}
+	
+	ambient_light_set_illuminance_callback_period(&_ambientLight, 1000);
+	ambient_light_register_callback(&_ambientLight, AMBIENT_LIGHT_CALLBACK_ILLUMINANCE, reinterpret_cast<void*>(onIlluminanceChanged), this);
 }
 
 	
@@ -54,6 +57,34 @@ double AmbientLightSensor::value() const
 		return illuminance/10.0;
 	}
 	else throw Poco::IOException();
+}
+
+
+Poco::Any AmbientLightSensor::getValueChangedPeriod(const std::string&) const
+{
+	Poco::UInt32 uperiod;
+	ambient_light_get_illuminance_callback_period(&_ambientLight, &uperiod);
+	return Poco::Any(static_cast<int>(uperiod));
+}
+
+
+void AmbientLightSensor::setValueChangedPeriod(const std::string&, const Poco::Any& value)
+{
+	Poco::UInt32 period = static_cast<Poco::UInt32>(Poco::AnyCast<int>(value));
+	ambient_light_set_illuminance_callback_period(&_ambientLight, period);
+}
+
+
+void AmbientLightSensor::onIlluminanceChanged(Poco::UInt16 illuminance, void* userData)
+{
+	try
+	{
+		AmbientLightSensor* pThis = reinterpret_cast<AmbientLightSensor*>(userData);
+		pThis->valueChanged(illuminance/10.0);
+	}
+	catch (...)
+	{
+	}
 }
 
 
