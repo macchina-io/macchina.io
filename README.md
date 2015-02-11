@@ -21,3 +21,17 @@ Build Status
 
 - Travis: [![Travis Build Status](https://travis-ci.org/macchina-io/macchina.io.png?branch=develop)](https://travis-ci.org/macchina-io/macchina.io/)
 
+
+Project Status
+--------------
+
+macchina.io is still in development. The core framework code is done and considered stable
+(it's based on code having seen heavy production use for a few years already). Current work
+focuses on adding additional sensor and device interfaces, as well as a MQTT client.
+Also, the web user interface still needs to be done.
+
+
+Contributions
+-------------
+
+We welcome contributions! Specifically we're looking for new sensor and device implementations, as well as additional protocols. Please see our [CONTRIBUTING](https://github.com/macchina-io/macchina.io/blob/develop/CONTRIBUTING.md) document to get started.
