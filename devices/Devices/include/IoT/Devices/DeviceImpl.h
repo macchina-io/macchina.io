@@ -7,7 +7,7 @@
 // Package: Devices
 // Module:  DeviceImpl
 //
-// Definition of the Device interface.
+// Definition of the DeviceImpl helper class template.
 //
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
