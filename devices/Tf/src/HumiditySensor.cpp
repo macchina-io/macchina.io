@@ -19,8 +19,12 @@ namespace Tf {
 
 
 HumiditySensor::HumiditySensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.humidity", "Tinkerforge Humidity Bricklet")
+	BrickletType("io.macchina.tf.humidity", "Tinkerforge Humidity Bricklet"),
+	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
+	addProperty("valueChangedPeriod", &HumiditySensor::getValueChangedPeriod, &HumiditySensor::setValueChangedPeriod);
+	addProperty("valueChangedDelta", &HumiditySensor::getValueChangedDelta, &HumiditySensor::setValueChangedDelta);
+
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	humidity_create(&_humidity, uid.c_str(), ipcon);
 	
@@ -75,12 +79,25 @@ void HumiditySensor::setValueChangedPeriod(const std::string&, const Poco::Any& 
 }
 
 
+Poco::Any HumiditySensor::getValueChangedDelta(const std::string&) const
+{
+	return Poco::Any(_eventPolicy.getMinimumDelta()/1000.0);
+}
+
+
+void HumiditySensor::setValueChangedDelta(const std::string&, const Poco::Any& value)
+{
+	double delta = Poco::AnyCast<double>(value);
+	_eventPolicy.setMinimumDelta(delta);
+}
+
+
 void HumiditySensor::onHumidityChanged(Poco::UInt16 humidity, void* userData)
 {
 	try
 	{
 		HumiditySensor* pThis = reinterpret_cast<HumiditySensor*>(userData);
-		pThis->valueChanged(humidity/10.0);
+		pThis->_eventPolicy.valueChanged(humidity/10.0);
 	}
 	catch (...)
 	{

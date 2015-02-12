@@ -19,8 +19,12 @@ namespace Tf {
 
 
 TemperatureSensor::TemperatureSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.temperature", "Tinkerforge Temperature Bricklet")
+	BrickletType("io.macchina.tf.temperature", "Tinkerforge Temperature Bricklet"),
+	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
+	addProperty("valueChangedPeriod", &TemperatureSensor::getValueChangedPeriod, &TemperatureSensor::setValueChangedPeriod);
+	addProperty("valueChangedDelta", &TemperatureSensor::getValueChangedDelta, &TemperatureSensor::setValueChangedDelta);
+
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	temperature_create(&_temperature, uid.c_str(), ipcon);
 	
@@ -75,12 +79,25 @@ void TemperatureSensor::setValueChangedPeriod(const std::string&, const Poco::An
 }
 
 
+Poco::Any TemperatureSensor::getValueChangedDelta(const std::string&) const
+{
+	return Poco::Any(_eventPolicy.getMinimumDelta()/1000.0);
+}
+
+
+void TemperatureSensor::setValueChangedDelta(const std::string&, const Poco::Any& value)
+{
+	double delta = Poco::AnyCast<double>(value);
+	_eventPolicy.setMinimumDelta(delta);
+}
+
+
 void TemperatureSensor::onTemperatureChanged(Poco::Int16 temperature, void* userData)
 {
 	try
 	{
 		TemperatureSensor* pThis = reinterpret_cast<TemperatureSensor*>(userData);
-		pThis->valueChanged(temperature/100.0);
+		pThis->_eventPolicy.valueChanged(temperature/100.0);
 	}
 	catch (...)
 	{

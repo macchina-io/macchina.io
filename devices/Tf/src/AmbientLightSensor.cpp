@@ -19,8 +19,12 @@ namespace Tf {
 
 
 AmbientLightSensor::AmbientLightSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.ambientlight", "Tinkerforge Ambient Light Bricklet")
+	BrickletType("io.macchina.tf.ambientlight", "Tinkerforge Ambient Light Bricklet"),
+	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
+	addProperty("valueChangedPeriod", &AmbientLightSensor::getValueChangedPeriod, &AmbientLightSensor::setValueChangedPeriod);
+	addProperty("valueChangedDelta", &AmbientLightSensor::getValueChangedDelta, &AmbientLightSensor::setValueChangedDelta);
+
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	ambient_light_create(&_ambientLight, uid.c_str(), ipcon);
 
@@ -75,12 +79,25 @@ void AmbientLightSensor::setValueChangedPeriod(const std::string&, const Poco::A
 }
 
 
+Poco::Any AmbientLightSensor::getValueChangedDelta(const std::string&) const
+{
+	return Poco::Any(_eventPolicy.getMinimumDelta()/1000.0);
+}
+
+
+void AmbientLightSensor::setValueChangedDelta(const std::string&, const Poco::Any& value)
+{
+	double delta = Poco::AnyCast<double>(value);
+	_eventPolicy.setMinimumDelta(delta);
+}
+
+
 void AmbientLightSensor::onIlluminanceChanged(Poco::UInt16 illuminance, void* userData)
 {
 	try
 	{
 		AmbientLightSensor* pThis = reinterpret_cast<AmbientLightSensor*>(userData);
-		pThis->valueChanged(illuminance/10.0);
+		pThis->_eventPolicy.valueChanged(illuminance/10.0);
 	}
 	catch (...)
 	{

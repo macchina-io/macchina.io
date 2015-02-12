@@ -17,6 +17,7 @@
 #include "IoT/Tf/Tf.h"
 #include "IoT/Devices/Sensor.h"
 #include "IoT/Devices/DeviceImpl.h"
+#include "IoT/Devices/EventModerationPolicy.h"
 #include "IoT/Tf/MasterConnection.h"
 #include "BrickletImpl.h"
 extern "C"
@@ -48,11 +49,14 @@ public:
 protected:
 	Poco::Any getValueChangedPeriod(const std::string&) const;
 	void setValueChangedPeriod(const std::string&, const Poco::Any& value);
+	Poco::Any getValueChangedDelta(const std::string&) const;
+	void setValueChangedDelta(const std::string&, const Poco::Any& value);
 
 	static void onAirPressureChanged(Poco::Int32 airPressure, void* userData);
 	
 private:
 	mutable Barometer _barometer;
+	IoT::Devices::MinimumDeltaModerationPolicy<double> _eventPolicy;
 };
 
 

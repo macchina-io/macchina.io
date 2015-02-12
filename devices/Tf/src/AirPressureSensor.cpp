@@ -19,8 +19,12 @@ namespace Tf {
 
 
 AirPressureSensor::AirPressureSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.barometer", "Tinkerforge Barometer Bricklet")
+	BrickletType("io.macchina.tf.barometer", "Tinkerforge Barometer Bricklet"),
+	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
+	addProperty("valueChangedPeriod", &AirPressureSensor::getValueChangedPeriod, &AirPressureSensor::setValueChangedPeriod);
+	addProperty("valueChangedDelta", &AirPressureSensor::getValueChangedDelta, &AirPressureSensor::setValueChangedDelta);
+
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	barometer_create(&_barometer, uid.c_str(), ipcon);
 	
@@ -75,12 +79,25 @@ void AirPressureSensor::setValueChangedPeriod(const std::string&, const Poco::An
 }
 
 
+Poco::Any AirPressureSensor::getValueChangedDelta(const std::string&) const
+{
+	return Poco::Any(_eventPolicy.getMinimumDelta()/1000.0);
+}
+
+
+void AirPressureSensor::setValueChangedDelta(const std::string&, const Poco::Any& value)
+{
+	double delta = Poco::AnyCast<double>(value);
+	_eventPolicy.setMinimumDelta(delta);
+}
+
+
 void AirPressureSensor::onAirPressureChanged(Poco::Int32 airPressure, void* userData)
 {
 	try
 	{
 		AirPressureSensor* pThis = reinterpret_cast<AirPressureSensor*>(userData);
-		pThis->valueChanged(airPressure/1000.0);
+		pThis->_eventPolicy.valueChanged(airPressure/1000.0);
 	}
 	catch (...)
 	{
