@@ -1,7 +1,7 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/CodeGeneration/testsuite/Makefile#1 $
+# $Id: //poco/1.6/CodeGeneration/testsuite/Makefile#1 $
 #
 # Makefile for Poco CodeGeneration testsuite
 #

@@ -1,7 +1,7 @@
 //
 // QLParser.cpp
 //
-// $Id: //poco/1.4/OSP/src/QLParser.cpp#2 $
+// $Id: //poco/1.6/OSP/src/QLParser.cpp#1 $
 //
 // Library: OSP
 // Package: Util

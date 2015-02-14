@@ -1,7 +1,7 @@
 //
 // ServiceRef.cpp
 //
-// $Id: //poco/1.4/OSP/src/ServiceRef.cpp#2 $
+// $Id: //poco/1.6/OSP/src/ServiceRef.cpp#1 $
 //
 // Library: OSP
 // Package: Service

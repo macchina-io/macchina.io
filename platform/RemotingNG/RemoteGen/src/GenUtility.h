@@ -1,7 +1,7 @@
 //
 // GenUtility.h
 //
-// $Id: //poco/1.4/RemotingNG/RemoteGen/src/GenUtility.h#6 $
+// $Id: //poco/1.6/RemotingNG/RemoteGen/src/GenUtility.h#1 $
 //
 // Definition of the GenUtility class.
 //

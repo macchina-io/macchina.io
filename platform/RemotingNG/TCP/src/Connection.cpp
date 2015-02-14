@@ -1,7 +1,7 @@
 //
 // Connection.cpp
 //
-// $Id: //poco/1.4/RemotingNG/TCP/src/Connection.cpp#10 $
+// $Id: //poco/1.6/RemotingNG/TCP/src/Connection.cpp#1 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP

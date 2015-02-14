@@ -1,7 +1,7 @@
 //
 // PropertiesTest.h
 //
-// $Id: //poco/1.4/OSP/testsuite/src/PropertiesTest.h#2 $
+// $Id: //poco/1.6/OSP/testsuite/src/PropertiesTest.h#1 $
 //
 // Definition of the PropertiesTest class.
 //

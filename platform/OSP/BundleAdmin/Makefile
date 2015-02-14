@@ -1,7 +1,7 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/OSP/BundleAdmin/Makefile#1 $
+# $Id: //poco/1.6/OSP/BundleAdmin/Makefile#1 $
 #
 # Makefile for BundleAdmin
 #

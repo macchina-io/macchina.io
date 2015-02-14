@@ -1,7 +1,7 @@
 //
 // ServiceRegistry.cpp
 //
-// $Id: //poco/1.4/OSP/src/ServiceRegistry.cpp#3 $
+// $Id: //poco/1.6/OSP/src/ServiceRegistry.cpp#1 $
 //
 // Library: OSP
 // Package: Service

@@ -1,7 +1,7 @@
 //
 // ServiceEvent.h
 //
-// $Id: //poco/1.4/OSP/include/Poco/OSP/ServiceEvent.h#2 $
+// $Id: //poco/1.6/OSP/include/Poco/OSP/ServiceEvent.h#1 $
 //
 // Library: OSP
 // Package: Service

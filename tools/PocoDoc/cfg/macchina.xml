@@ -49,6 +49,7 @@
 				-I${MacchinaBase}/platform/JS/Data/include
 				-I${MacchinaBase}/platform/JS/Net/include
 				-I${MacchinaBase}/platform/JS/Bridge/include
+				-I${MacchinaBase}/platform/JS/V8/include
 				-I${MacchinaBase}/platform/OSP/include
 				-I${MacchinaBase}/platform/OSP/Web/include
 				-I${MacchinaBase}/platform/OSP/WebEvent/include

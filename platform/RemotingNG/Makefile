@@ -1,7 +1,7 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/RemotingNG/Makefile#3 $
+# $Id: //poco/1.6/RemotingNG/Makefile#1 $
 #
 # Makefile for Poco Remoting NG
 #

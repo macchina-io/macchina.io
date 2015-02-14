@@ -1,7 +1,29 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2015.1
+
+!!Summary of Changes
+
+  - OSP Web: WebServerDispatcher now consumes left over request data (e.g.,
+    if a POST request with data is sent to a handler only accepting GET. Previously,
+    the next request would fail as leftover data from POST body would spill into
+    next request).
+  - OSP Auth: When authenticating a user via LDAP fails, the user is removed from the local
+    user database, as authentication failure can also mean that the user no longer
+    exists.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2014.1
+
 !!Summary of Changes
 
   - Minor changes for compatibility with C++11.
@@ -26,7 +48,6 @@ Open Service Platform
     (not having a META-INF subdirectory).
   - OSP Core: BundleLoader has a new bundleError event fired when an error occurs
     while resolving or starting a bundle.
-
 
 !!Known Issues
 

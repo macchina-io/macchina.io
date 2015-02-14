@@ -1,7 +1,7 @@
 //
 // MethodPropertyFilter.cpp
 //
-// $Id: //poco/1.4/CodeGeneration/src/MethodPropertyFilter.cpp#2 $
+// $Id: //poco/1.6/CodeGeneration/src/MethodPropertyFilter.cpp#1 $
 //
 // Library: CodeGeneration
 // Package: CodeGeneration

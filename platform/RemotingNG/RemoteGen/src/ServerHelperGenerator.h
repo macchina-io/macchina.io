@@ -1,7 +1,7 @@
 //
 // ServerHelperGenerator.h
 //
-// $Id: //poco/1.4/RemotingNG/RemoteGen/src/ServerHelperGenerator.h#4 $
+// $Id: //poco/1.6/RemotingNG/RemoteGen/src/ServerHelperGenerator.h#1 $
 //
 // Definition of the ServerHelperGenerator class.
 //

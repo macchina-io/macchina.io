@@ -1,7 +1,7 @@
 //
 // URIUtility.h
 //
-// $Id: //poco/1.4/RemotingNG/include/Poco/RemotingNG/URIUtility.h#2 $
+// $Id: //poco/1.6/RemotingNG/include/Poco/RemotingNG/URIUtility.h#1 $
 //
 // Library: RemotingNG
 // Package: RemotingNG

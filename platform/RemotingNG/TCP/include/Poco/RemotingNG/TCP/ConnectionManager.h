@@ -1,7 +1,7 @@
 //
 // ConnectionManager.h
 //
-// $Id: //poco/1.4/RemotingNG/TCP/include/Poco/RemotingNG/TCP/ConnectionManager.h#5 $
+// $Id: //poco/1.6/RemotingNG/TCP/include/Poco/RemotingNG/TCP/ConnectionManager.h#1 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP

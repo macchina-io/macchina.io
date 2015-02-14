@@ -1,7 +1,7 @@
 //
 // Frame.cpp
 //
-// $Id: //poco/1.4/RemotingNG/TCP/src/Frame.cpp#2 $
+// $Id: //poco/1.6/RemotingNG/TCP/src/Frame.cpp#1 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP

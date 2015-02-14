@@ -1,7 +1,7 @@
 //
 // EventDispatcherGenerator.cpp
 //
-// $Id: //poco/1.4/RemotingNG/RemoteGen/src/EventDispatcherGenerator.cpp#12 $
+// $Id: //poco/1.6/RemotingNG/RemoteGen/src/EventDispatcherGenerator.cpp#1 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.

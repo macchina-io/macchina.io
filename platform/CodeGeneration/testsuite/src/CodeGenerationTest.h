@@ -1,7 +1,7 @@
 //
 // CodeGenerationTest.h
 //
-// $Id: //poco/1.4/CodeGeneration/testsuite/src/CodeGenerationTest.h#2 $
+// $Id: //poco/1.6/CodeGeneration/testsuite/src/CodeGenerationTest.h#1 $
 //
 // Definition of the CodeGenerationTest class.
 //

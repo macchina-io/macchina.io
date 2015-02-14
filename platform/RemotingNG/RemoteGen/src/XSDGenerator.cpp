@@ -1,7 +1,7 @@
 //
 // XSDGenerator.cpp
 //
-// $Id: //poco/1.4/RemotingNG/RemoteGen/src/XSDGenerator.cpp#10 $
+// $Id: //poco/1.6/RemotingNG/RemoteGen/src/XSDGenerator.cpp#1 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.

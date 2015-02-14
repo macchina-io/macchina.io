@@ -1,7 +1,7 @@
 //
 // RemotingTestSuite.h
 //
-// $Id: //poco/1.4/RemotingNG/testsuite/src/RemotingTestSuite.h#2 $
+// $Id: //poco/1.6/RemotingNG/testsuite/src/RemotingTestSuite.h#1 $
 //
 // Definition of the RemotingTestSuite class.
 //

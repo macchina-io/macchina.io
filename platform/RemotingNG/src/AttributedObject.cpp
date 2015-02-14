@@ -1,7 +1,7 @@
 //
 // AttributedObject.h
 //
-// $Id: //poco/1.4/RemotingNG/src/AttributedObject.cpp#2 $
+// $Id: //poco/1.6/RemotingNG/src/AttributedObject.cpp#1 $
 //
 // Library: RemotingNG
 // Package: ORB

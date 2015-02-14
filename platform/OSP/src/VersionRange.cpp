@@ -1,7 +1,7 @@
 //
 // VersionRange.cpp
 //
-// $Id: //poco/1.4/OSP/src/VersionRange.cpp#2 $
+// $Id: //poco/1.6/OSP/src/VersionRange.cpp#1 $
 //
 // Library: OSP
 // Package: Util

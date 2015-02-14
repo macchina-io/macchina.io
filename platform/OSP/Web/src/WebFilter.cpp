@@ -1,7 +1,7 @@
 //
 // WebFilter.cpp
 //
-// $Id: //poco/1.4/OSP/Web/src/WebFilter.cpp#2 $
+// $Id: //poco/1.6/OSP/Web/src/WebFilter.cpp#1 $
 //
 // Library: OSP/Web
 // Package: Web

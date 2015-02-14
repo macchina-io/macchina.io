@@ -1,7 +1,7 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/OSP/testsuite/Makefile#2 $
+# $Id: //poco/1.6/OSP/testsuite/Makefile#1 $
 #
 # Makefile for Poco OSPCore testsuite
 #

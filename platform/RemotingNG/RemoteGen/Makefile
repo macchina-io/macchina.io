@@ -1,7 +1,7 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/RemotingNG/RemoteGen/Makefile#1 $
+# $Id: //poco/1.6/RemotingNG/RemoteGen/Makefile#1 $
 #
 # Makefile for RemoteGenNG
 #

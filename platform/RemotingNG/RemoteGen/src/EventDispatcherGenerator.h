@@ -1,7 +1,7 @@
 //
 // EventDispatcherGenerator.h
 //
-// $Id: //poco/1.4/RemotingNG/RemoteGen/src/EventDispatcherGenerator.h#2 $
+// $Id: //poco/1.6/RemotingNG/RemoteGen/src/EventDispatcherGenerator.h#1 $
 //
 // Definition of the EventDispatcherGenerator class.
 //

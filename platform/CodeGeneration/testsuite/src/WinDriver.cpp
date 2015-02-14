@@ -1,7 +1,7 @@
 //
 // WinDriver.cpp
 //
-// $Id: //poco/1.4/CodeGeneration/testsuite/src/WinDriver.cpp#2 $
+// $Id: //poco/1.6/CodeGeneration/testsuite/src/WinDriver.cpp#1 $
 //
 // Windows test driver for Poco CodeGeneration.
 //

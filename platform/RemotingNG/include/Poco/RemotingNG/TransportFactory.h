@@ -1,7 +1,7 @@
 //
 // TransportFactory.h
 //
-// $Id: //poco/1.4/RemotingNG/include/Poco/RemotingNG/TransportFactory.h#2 $
+// $Id: //poco/1.6/RemotingNG/include/Poco/RemotingNG/TransportFactory.h#1 $
 //
 // Library: RemotingNG
 // Package: Transport

@@ -1,7 +1,7 @@
 //
 // WebEventBundleActivator.cpp
 //
-// $Id: //poco/1.4/OSP/WebEvent/src/WebEventBundleActivator.cpp#3 $
+// $Id: //poco/1.6/OSP/WebEvent/src/WebEventBundleActivator.cpp#1 $
 //
 // Copyright (c) 2013, Applied Informatics Software Engineering GmbH.
 // All rights reserved.

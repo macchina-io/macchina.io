@@ -1,7 +1,7 @@
 //
 // BundleCreator.cpp
 //
-// $Id: //poco/1.4/OSP/BundleCreator/src/BundleCreator.cpp#10 $
+// $Id: //poco/1.6/OSP/BundleCreator/src/BundleCreator.cpp#1 $
 //
 // The BundleCreator utility creates a bundle from a bundle specification file.
 //
@@ -31,7 +31,6 @@
 #include "Poco/DirectoryIterator.h"
 #include "Poco/FileStream.h"
 #include "Poco/Thread.h"
-#include "Poco/Random.h"
 #include "ManifestInfo.h"
 #include <iostream>
 #include <cctype>
@@ -78,14 +77,13 @@ public:
 protected:
 	void acquire()
 	{
-		Poco::Random rnd;
 		int attempts = 0;
 		bool haveLock = createFile();
 		while (!haveLock)
 		{
-			if (++attempts > 100) throw Poco::FileException("Cannot acquire lock for bundle directory", _file.path());
+			if (++attempts > 30) throw Poco::FileException("Cannot acquire lock for bundle directory", _file.path());
 
-			Poco::Thread::sleep(500 + rnd.next(2000));
+			Poco::Thread::sleep(1000);
 			haveLock = createFile();
 		}
 	}
@@ -261,7 +259,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics OSP Bundle Creator Utility.\n"
-			"Copyright (c) 2007-2014 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2007-2015 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program builds bundle files for use with the "
 			"Open Service Platform. What goes into a bundle "

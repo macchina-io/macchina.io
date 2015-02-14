@@ -1,7 +1,7 @@
 //
 // WebSessionService.h
 //
-// $Id: //poco/1.4/OSP/Web/include/Poco/OSP/Web/WebSessionService.h#2 $
+// $Id: //poco/1.6/OSP/Web/include/Poco/OSP/Web/WebSessionService.h#1 $
 //
 // Library: OSP/Web
 // Package: Web

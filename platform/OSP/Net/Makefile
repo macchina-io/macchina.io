@@ -1,7 +1,7 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/OSP/Net/Makefile#1 $
+# $Id: //poco/1.6/OSP/Net/Makefile#1 $
 #
 # Makefile for Net Bundle
 #

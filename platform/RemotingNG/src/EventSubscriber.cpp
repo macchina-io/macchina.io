@@ -1,7 +1,7 @@
 //
 // EventSubscriber.cpp
 //
-// $Id: //poco/1.4/RemotingNG/src/EventSubscriber.cpp#2 $
+// $Id: //poco/1.6/RemotingNG/src/EventSubscriber.cpp#1 $
 //
 // Library: RemotingNG
 // Package: ORB

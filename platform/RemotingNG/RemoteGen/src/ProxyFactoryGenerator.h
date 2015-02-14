@@ -1,7 +1,7 @@
 //
 // ProxyFactoryGenerator.h
 //
-// $Id: //poco/1.4/RemotingNG/RemoteGen/src/ProxyFactoryGenerator.h#2 $
+// $Id: //poco/1.6/RemotingNG/RemoteGen/src/ProxyFactoryGenerator.h#1 $
 //
 // Definition of the ProxyFactoryGenerator class.
 //

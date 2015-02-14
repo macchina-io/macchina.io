@@ -1,7 +1,7 @@
 //
 // WSDLGenerator.h
 //
-// $Id: //poco/1.4/RemotingNG/RemoteGen/src/WSDLGenerator.h#7 $
+// $Id: //poco/1.6/RemotingNG/RemoteGen/src/WSDLGenerator.h#1 $
 //
 // Definition of the WSDLGenerator class.
 //

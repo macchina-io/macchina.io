@@ -1,7 +1,7 @@
 //
 // WebServerTestSuite.cpp
 //
-// $Id: //poco/1.4/OSP/Web/testsuite/src/WebTestSuite.cpp#2 $
+// $Id: //poco/1.6/OSP/Web/testsuite/src/WebTestSuite.cpp#1 $
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.

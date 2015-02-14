@@ -1,7 +1,7 @@
 //
 // ProxyGenerator.h
 //
-// $Id: //poco/1.4/RemotingNG/RemoteGen/src/ProxyGenerator.h#3 $
+// $Id: //poco/1.6/RemotingNG/RemoteGen/src/ProxyGenerator.h#1 $
 //
 // Definition of the ProxyGenerator class.
 //

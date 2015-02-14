@@ -1,7 +1,7 @@
 //
 // BinarySerializer.cpp
 //
-// $Id: //poco/1.4/RemotingNG/src/BinarySerializer.cpp#5 $
+// $Id: //poco/1.6/RemotingNG/src/BinarySerializer.cpp#1 $
 //
 // Library: RemotingNG
 // Package: Serialization

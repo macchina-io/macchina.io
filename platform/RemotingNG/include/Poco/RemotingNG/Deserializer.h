@@ -1,7 +1,7 @@
 //
 // Deserializer.h
 //
-// $Id: //poco/1.4/RemotingNG/include/Poco/RemotingNG/Deserializer.h#4 $
+// $Id: //poco/1.6/RemotingNG/include/Poco/RemotingNG/Deserializer.h#1 $
 //
 // Library: RemotingNG
 // Package: Serialization

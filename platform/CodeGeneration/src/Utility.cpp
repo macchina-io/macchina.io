@@ -1,7 +1,7 @@
 //
 // Utility.cpp
 //
-// $Id: //poco/1.4/CodeGeneration/src/Utility.cpp#7 $
+// $Id: //poco/1.6/CodeGeneration/src/Utility.cpp#1 $
 //
 // Library: CodeGeneration
 // Package: CodeGeneration

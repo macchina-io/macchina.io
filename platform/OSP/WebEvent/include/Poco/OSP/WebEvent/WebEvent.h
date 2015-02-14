@@ -1,7 +1,7 @@
 //
 // WebEvent.h
 //
-// $Id: //poco/1.4/OSP/WebEvent/include/Poco/OSP/WebEvent/WebEvent.h#2 $
+// $Id: //poco/1.6/OSP/WebEvent/include/Poco/OSP/WebEvent/WebEvent.h#1 $
 //
 // Library: OSP/WebEvent
 // Package: WebEvent

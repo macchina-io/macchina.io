@@ -1,7 +1,7 @@
 //
 // WebEventService.cpp
 //
-// $Id: //poco/1.4/OSP/WebEvent/src/WebEventService.cpp#2 $
+// $Id: //poco/1.6/OSP/WebEvent/src/WebEventService.cpp#1 $
 //
 // Library: OSP/WebEvent
 // Package: WebEvent

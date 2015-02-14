@@ -1,7 +1,7 @@
 //
 // EventListener.cpp
 //
-// $Id: //poco/1.4/RemotingNG/src/EventListener.cpp#2 $
+// $Id: //poco/1.6/RemotingNG/src/EventListener.cpp#1 $
 //
 // Library: RemotingNG
 // Package: Transport

@@ -1,7 +1,7 @@
 //
 // NetSSLBundleActivator.cpp
 //
-// $Id: //poco/1.4/OSP/NetSSL_OpenSSL/src/NetSSLBundleActivator.cpp#4 $
+// $Id: //poco/1.6/OSP/NetSSL_OpenSSL/src/NetSSLBundleActivator.cpp#1 $
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.

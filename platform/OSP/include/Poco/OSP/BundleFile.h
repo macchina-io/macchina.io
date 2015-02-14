@@ -1,7 +1,7 @@
 //
 // BundleFile.h
 //
-// $Id: //poco/1.4/OSP/include/Poco/OSP/BundleFile.h#3 $
+// $Id: //poco/1.6/OSP/include/Poco/OSP/BundleFile.h#1 $
 //
 // Library: OSP
 // Package: Bundle

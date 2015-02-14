@@ -1,7 +1,7 @@
 //
 // Version.h
 //
-// $Id: //poco/1.4/OSP/include/Poco/OSP/Version.h#2 $
+// $Id: //poco/1.6/OSP/include/Poco/OSP/Version.h#1 $
 //
 // Library: OSP
 // Package: Core

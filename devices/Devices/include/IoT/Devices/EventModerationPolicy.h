@@ -107,6 +107,8 @@ public:
 	
 	MinimumDeltaModerationPolicy& operator = (const MinimumDeltaModerationPolicy& other)
 	{
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
 		if (&other != this)
 		{
 			_pEvent       = other._pEvent;
@@ -118,19 +120,29 @@ public:
 	
 	void setMinimumDelta(T value)
 	{
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
 		_minimumDelta = value;
 	}
 	
 	T getMinimumDelta() const
 	{
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
 		return _minimumDelta;
 	}
 	
 	void valueChanged(T value)
 	{
+		double minimumDelta;
+		{
+			Poco::FastMutex::ScopedLock lock(_mutex);
+			minimumDelta = _minimumDelta;
+		}
+		
 		T diff = value - _value;
 		if (diff < 0) diff = -diff;
-		if (diff >= _minimumDelta)
+		if (diff >= minimumDelta)
 		{
 			_value = value;
 			(*_pEvent)(this, _value);
@@ -141,6 +153,7 @@ private:
 	Event* _pEvent;
 	T _value;
 	T _minimumDelta;
+	mutable Poco::FastMutex _mutex;
 };
 
 
@@ -172,6 +185,8 @@ public:
 	
 	MaximumRateModerationPolicy& operator = (const MaximumRateModerationPolicy& other)
 	{
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
 		if (&other != this)
 		{
 			_pEvent      = other._pEvent;
@@ -209,11 +224,15 @@ public:
 	
 	long getMaximumRate() const
 	{
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
 		return _maximumRate;
 	}
 	
 	void setMaximumRate(long milliseconds)
 	{
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
 		_maximumRate = milliseconds;
 	}
 	
@@ -236,7 +255,7 @@ private:
 	Poco::Clock _lastEvent;
 	Poco::Util::Timer* _pTimer;
 	Poco::Util::TimerTask::Ptr _pTimerTask;
-	Poco::FastMutex _mutex;
+	mutable Poco::FastMutex _mutex;
 };
 
 

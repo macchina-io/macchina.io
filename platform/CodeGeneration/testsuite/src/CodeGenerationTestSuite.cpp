@@ -1,7 +1,7 @@
 //
 // CodeGenerationTestSuite.cpp
 //
-// $Id: //poco/1.4/CodeGeneration/testsuite/src/CodeGenerationTestSuite.cpp#2 $
+// $Id: //poco/1.6/CodeGeneration/testsuite/src/CodeGenerationTestSuite.cpp#1 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.

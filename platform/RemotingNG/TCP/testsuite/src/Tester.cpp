@@ -1,7 +1,7 @@
 //
 // Tester.cpp
 //
-// $Id: //poco/1.4/RemotingNG/TCP/testsuite/src/Tester.cpp#3 $
+// $Id: //poco/1.6/RemotingNG/TCP/testsuite/src/Tester.cpp#1 $
 //
 // Copyright (c) 2009-2011, Applied Informatics Software Engineering GmbH.
 // All rights reserved.

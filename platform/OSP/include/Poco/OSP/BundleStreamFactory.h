@@ -1,7 +1,7 @@
 //
 // BundleStreamFactory.h
 //
-// $Id: //poco/1.4/OSP/include/Poco/OSP/BundleStreamFactory.h#3 $
+// $Id: //poco/1.6/OSP/include/Poco/OSP/BundleStreamFactory.h#1 $
 //
 // Library: OSP
 // Package: Util

@@ -1,7 +1,7 @@
 //
 // BundleManifest.cpp
 //
-// $Id: //poco/1.4/OSP/src/BundleManifest.cpp#2 $
+// $Id: //poco/1.6/OSP/src/BundleManifest.cpp#1 $
 //
 // Library: OSP
 // Package: Bundle
