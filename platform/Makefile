@@ -32,7 +32,7 @@ cppunit:
 	$(MAKE) -C $(POCO_BASE)/CppUnit 
 
 CppUnit-clean:
-	\$(MAKE) -C \$(POCO_BASE)/CppUnit clean
+	$(MAKE) -C $(POCO_BASE)/CppUnit clean
 
 install: libexecs
 	mkdir -p $(INSTALLDIR)/include/Poco
@@ -50,16 +50,26 @@ install: libexecs
 	find $(POCO_BUILD)/lib -name "libPoco*" -type l -exec cp -Rf {} $(INSTALLDIR)/lib \;
 
 # POCO C++ Libraries
-libexecs = Foundation-libexec XML-libexec JSON-libexec Util-libexec Net-libexec Crypto-libexec NetSSL_OpenSSL-libexec Data-libexec Data/SQLite-libexec Zip-libexec PageCompiler-libexec PageCompiler/File2Page-libexec 
-tests    = Foundation-tests XML-tests JSON-tests Util-tests Net-tests Crypto-tests NetSSL_OpenSSL-tests Data-tests Data/SQLite-tests Zip-tests CppParser-tests 
+libexecs = Foundation-libexec XML-libexec JSON-libexec Util-libexec Net-libexec Crypto-libexec NetSSL_OpenSSL-libexec Data-libexec Data/SQLite-libexec Zip-libexec PageCompiler-libexec PageCompiler/File2Page-libexec
+tests    = Foundation-tests XML-tests JSON-tests Util-tests Net-tests Crypto-tests NetSSL_OpenSSL-tests Data-tests Data/SQLite-tests Zip-tests CppParser-tests
 samples  = Foundation-samples XML-samples JSON-samples Util-samples Net-samples Crypto-samples NetSSL_OpenSSL-samples Data-samples Zip-samples PageCompiler-samples
 cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-clean NetSSL_OpenSSL-clean Data-clean Data/SQLite-clean Zip-clean PageCompiler-clean PageCompiler/File2Page-clean CppParser-clean
 
 # WebTunnel, JS, Remoting and OSP
-libexecs += WebTunnel-libexec CodeGeneration-libexec JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec RemotingNG-libexec RemotingNG/RemoteGen-libexec RemotingNG/TCP-libexec OSP-libexec OSP/BundleCreator-libexec OSP/BundleAdmin-libexec OSP/Web-libexec OSP/Core-libexec OSP/Crypto-libexec OSP/Data-libexec OSP/Data/SQLite-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec OSP/SecureWebServer-libexec OSP/WebServer-libexec OSP/JS-libexec OSP/WebEvent-libexec
-tests    += CodeGeneration-tests RemotingNG-tests RemotingNG/TCP-tests OSP-tests OSP/Web-tests
+libexecs += \
+    WebTunnel-libexec \
+    JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec \
+    CodeGeneration-libexec RemotingNG-libexec RemotingNG/RemoteGen-libexec RemotingNG/TCP-libexec \
+    OSP-libexec OSP/BundleCreator-libexec OSP/BundleAdmin-libexec OSP/Web-libexec OSP/Core-libexec OSP/Crypto-libexec OSP/Data-libexec OSP/Data/SQLite-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec OSP/SecureWebServer-libexec OSP/WebServer-libexec OSP/JS-libexec OSP/WebEvent-libexec \
+    Geo-libexec
+tests    += CodeGeneration-tests RemotingNG-tests RemotingNG/TCP-tests OSP-tests OSP/Web-tests Geo-libexec
 samples  += WebTunnel-samples
-cleans   += WebTunnel-clean CodeGeneration-clean JS/V8-clean JS/Core-clean JS/Data-clean JS/Bridge-clean JS/Net-clean RemotingNG-clean RemotingNG/RemoteGen-clean RemotingNG/TCP-clean OSP-clean OSP/BundleCreator-clean OSP/BundleAdmin-clean OSP/Web-clean OSP/Core-clean OSP/Crypto-clean OSP/Data-clean OSP/Data/SQLite-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean OSP/SecureWebServer-clean OSP/WebServer-clean OSP/JS-clean OSP/WebEvent-clean
+cleans   += \
+    WebTunnel-clean \
+    JS/V8-clean JS/Core-clean JS/Data-clean JS/Bridge-clean JS/Net-clean \
+    CodeGeneration-clean RemotingNG-clean RemotingNG/RemoteGen-clean RemotingNG/TCP-clean \
+    OSP-clean OSP/BundleCreator-clean OSP/BundleAdmin-clean OSP/Web-clean OSP/Core-clean OSP/Crypto-clean OSP/Data-clean OSP/Data/SQLite-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean OSP/SecureWebServer-clean OSP/WebServer-clean OSP/JS-clean OSP/WebEvent-clean \
+    Geo-clean
 
 .PHONY: $(libexecs)
 .PHONY: $(tests)
@@ -399,6 +409,16 @@ OSP/WebEvent-libexec:  Net-libexec OSP-libexec OSP/BundleCreator-libexec OSP/Web
 
 OSP/WebEvent-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/WebEvent clean
+
+Geo-libexec:  Foundation-libexec
+	$(MAKE) -C $(POCO_BASE)/Geo
+
+Geo-tests: Geo-libexec cppunit
+	$(MAKE) -C $(POCO_BASE)/Geo/testsuite
+
+Geo-clean:
+	$(MAKE) -C $(POCO_BASE)/Geo clean
+	$(MAKE) -C $(POCO_BASE)/Geo/testsuite clean
 
 clean: cleans CppUnit-clean
 
