@@ -85,6 +85,10 @@ public:
 		/// Returns true if the property with the given name
 		/// exists, or false otherwise.
 
+	virtual double hdop() const;
+		/// Returns the Horizontal Dilution Of Precision (HDOP) in meters,
+		/// or -9999 if no HDOP value is available.
+
 	virtual double heading() const;
 		/// Returns the current heading in degrees [0, 360).
 
@@ -196,6 +200,12 @@ inline bool GNSSSensorRemoteObject::hasFeature(const std::string& name) const
 inline bool GNSSSensorRemoteObject::hasProperty(const std::string& name) const
 {
 	return _pServiceObject->hasProperty(name);
+}
+
+
+inline double GNSSSensorRemoteObject::hdop() const
+{
+	return _pServiceObject->hdop();
 }
 
 

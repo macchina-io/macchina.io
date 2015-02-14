@@ -1,7 +1,7 @@
 //
 // BundleCreator.cpp
 //
-// $Id: //poco/1.6/OSP/BundleCreator/src/BundleCreator.cpp#1 $
+// $Id: //poco/1.6/OSP/BundleCreator/src/BundleCreator.cpp#2 $
 //
 // The BundleCreator utility creates a bundle from a bundle specification file.
 //
@@ -31,6 +31,7 @@
 #include "Poco/DirectoryIterator.h"
 #include "Poco/FileStream.h"
 #include "Poco/Thread.h"
+#include "Poco/Random.h"
 #include "ManifestInfo.h"
 #include <iostream>
 #include <cctype>
@@ -77,13 +78,14 @@ public:
 protected:
 	void acquire()
 	{
+		Poco::Random rnd;
 		int attempts = 0;
 		bool haveLock = createFile();
 		while (!haveLock)
 		{
-			if (++attempts > 30) throw Poco::FileException("Cannot acquire lock for bundle directory", _file.path());
+			if (++attempts > 100) throw Poco::FileException("Cannot acquire lock for bundle directory", _file.path());
 
-			Poco::Thread::sleep(1000);
+			Poco::Thread::sleep(500 + rnd.next(2000));
 			haveLock = createFile();
 		}
 	}

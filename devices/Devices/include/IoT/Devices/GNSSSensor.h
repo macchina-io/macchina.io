@@ -94,6 +94,10 @@ public:
 	virtual double altitude() const = 0;
 		/// Returns the current altitude above sea level in meters.
 		/// Returns -9999 if no altitude is available.
+		
+	virtual double hdop() const = 0;
+		/// Returns the Horizontal Dilution Of Precision (HDOP) in meters,
+		/// or -9999 if no HDOP value is available.
 };
 
 
