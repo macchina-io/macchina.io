@@ -24,6 +24,7 @@
 #include "Poco/JS/Core/Wrapper.h"
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Timespan.h"
+#include "Poco/SharedPtr.h"
 
 
 namespace Poco {
@@ -119,6 +120,29 @@ private:
 };
 
 
+template <class C>
+class RequestPtrHolderImpl: public RequestHolder
+{
+public:
+	RequestPtrHolderImpl(Poco::SharedPtr<C> pRequest):
+		_pRequest(pRequest)
+	{
+	}
+	
+	~RequestPtrHolderImpl()
+	{
+	}
+	
+	Poco::Net::HTTPRequest& request()
+	{
+		return *_pRequest;
+	}
+	
+private:
+	Poco::SharedPtr<C> _pRequest;
+};
+
+
 class JSCore_API HTTPRequestWrapper: public JS::Core::Wrapper
 	/// JavaScript wrapper for Poco::HTTPRequest.
 {
@@ -156,6 +180,8 @@ protected:
 	static void setHeader(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void authenticate(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void send(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void sendBlocking(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void sendAsync(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 

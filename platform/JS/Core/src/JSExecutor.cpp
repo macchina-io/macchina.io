@@ -161,6 +161,12 @@ void JSExecutor::call(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>&
 	v8::Local<v8::Context> context(v8::Local<v8::Context>::New(pIsolate, _scriptContext));
 	v8::Context::Scope contextScope(context);
 
+	callInContext(function, receiver, argc, argv);
+}
+
+
+void JSExecutor::callInContext(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>& receiver, int argc, v8::Handle<v8::Value> argv[])
+{
 	v8::TryCatch tryCatch;
 	function->Call(receiver, argc, argv);
 	if (tryCatch.HasCaught())

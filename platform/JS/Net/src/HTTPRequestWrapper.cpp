@@ -17,13 +17,17 @@
 #include "Poco/JS/Net/HTTPRequestWrapper.h"
 #include "Poco/JS/Net/HTTPResponseWrapper.h"
 #include "Poco/JS/Core/PooledIsolate.h"
+#include "Poco/JS/Core/JSExecutor.h"
 #include "Poco/Net/HTTPClientSession.h"
 #include "Poco/Net/HTTPSessionFactory.h"
 #include "Poco/Net/HTTPResponse.h"
 #include "Poco/Net/HTTPBasicCredentials.h"
+#include "Poco/Util/TimerTask.h"
 #include "Poco/URI.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/StreamCopier.h"
+#include "Poco/ThreadPool.h"
+#include "Poco/Exception.h"
 
 
 namespace Poco {
@@ -91,7 +95,7 @@ v8::Handle<v8::ObjectTemplate> HTTPRequestWrapper::objectTemplate(v8::Isolate* p
 
 void HTTPRequestWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	RequestHolder* pRequestHolder = new RequestHolderImpl();
+	RequestHolder* pRequestHolder = new RequestHolderImpl;
 	
 	if (args.Length() > 0) 
 		pRequestHolder->request().setMethod(toString(args[0]));
@@ -281,6 +285,19 @@ void HTTPRequestWrapper::authenticate(const v8::FunctionCallbackInfo<v8::Value>&
 
 void HTTPRequestWrapper::send(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	if (args.Length() > 0 && args[0]->IsFunction())
+	{
+		sendAsync(args);
+	}
+	else
+	{
+		sendBlocking(args);
+	}
+}
+
+
+void HTTPRequestWrapper::sendBlocking(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
 	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(args);
 	ResponseHolder* pResponseHolder = new ResponseHolderImpl;
 	std::string uriString = pRequestHolder->request().getURI();
@@ -306,6 +323,194 @@ void HTTPRequestWrapper::send(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		delete pResponseHolder;
 		pRequestHolder->request().setURI(uriString);
+		returnException(args, exc);
+	}
+}
+
+
+class AsyncRequestCompletionTask: public Poco::Util::TimerTask
+{
+public:
+	AsyncRequestCompletionTask(v8::Isolate* pIsolate, Poco::JS::Core::JSExecutor::Ptr pExecutor, Poco::SharedPtr<Poco::Net::HTTPResponse> pResponse, const std::string& body, v8::Persistent<v8::Function>& function):
+		_pIsolate(pIsolate),
+		_pExecutor(pExecutor, true),
+		_pResponse(pResponse),
+		_body(body),
+		_function(pIsolate, function)
+	{
+	}
+	
+	~AsyncRequestCompletionTask()
+	{
+		_function.Reset();
+	}
+	
+	void run()
+	{
+		poco_assert (_pIsolate == _pExecutor->isolate());
+		
+		v8::Isolate::Scope isoScope(_pIsolate);
+		v8::HandleScope handleScope(_pIsolate);
+
+		v8::Local<v8::Context> context(v8::Local<v8::Context>::New(_pIsolate, _pExecutor->scriptContext()));
+		v8::Context::Scope contextScope(context);
+
+		ResponseHolder* pResponseHolder = new ResponsePtrHolderImpl<Poco::Net::HTTPResponse>(_pResponse);
+		std::swap(pResponseHolder->content(), _body);
+		HTTPResponseWrapper wrapper;
+		v8::Persistent<v8::Object>& responseObject(wrapper.wrapNativePersistent(_pIsolate, pResponseHolder));
+
+		v8::Local<v8::Object> statusObject = v8::Object::New(_pIsolate);
+		statusObject->Set(v8::String::NewFromUtf8(_pIsolate, "response"), v8::Local<v8::Object>::New(_pIsolate, responseObject));
+		statusObject->Set(v8::String::NewFromUtf8(_pIsolate, "error"), v8::Null(_pIsolate));
+
+		v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(_pIsolate, _function));
+		v8::Local<v8::Value> receiver(v8::Null(_pIsolate));
+		_pExecutor->callInContext(localFunction, receiver, 1, reinterpret_cast<v8::Handle<v8::Value>*>(&statusObject)); 
+	}
+	
+private:
+	v8::Isolate* _pIsolate;
+	Poco::JS::Core::JSExecutor::Ptr _pExecutor;
+	Poco::SharedPtr<Poco::Net::HTTPResponse> _pResponse;
+	std::string _body;
+	v8::Persistent<v8::Function> _function;
+};
+
+
+class AsyncRequestFailedTask: public Poco::Util::TimerTask
+{
+public:
+	AsyncRequestFailedTask(v8::Isolate* pIsolate, Poco::JS::Core::JSExecutor::Ptr pExecutor, Poco::SharedPtr<Poco::Exception> pException, v8::Persistent<v8::Function>& function):
+		_pIsolate(pIsolate),
+		_pExecutor(pExecutor, true),
+		_pException(pException),
+		_function(pIsolate, function)
+	{
+	}
+	
+	~AsyncRequestFailedTask()
+	{
+		_function.Reset();
+	}
+	
+	void run()
+	{
+		poco_assert (_pIsolate == _pExecutor->isolate());
+
+		v8::Isolate::Scope isoScope(_pIsolate);
+		v8::HandleScope handleScope(_pIsolate);
+
+		v8::Local<v8::Context> context(v8::Local<v8::Context>::New(_pIsolate, _pExecutor->scriptContext()));
+		v8::Context::Scope contextScope(context);
+
+		v8::Local<v8::Object> statusObject = v8::Object::New(_pIsolate);
+		statusObject->Set(v8::String::NewFromUtf8(_pIsolate, "response"), v8::Null(_pIsolate));
+		statusObject->Set(v8::String::NewFromUtf8(_pIsolate, "error"), v8::String::NewFromUtf8(_pIsolate, _pException->displayText().c_str()));
+
+		v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(_pIsolate, _function));
+		v8::Local<v8::Value> receiver(v8::Null(_pIsolate));
+		_pExecutor->callInContext(localFunction, receiver, 1, reinterpret_cast<v8::Handle<v8::Value>*>(&statusObject)); 
+	}
+	
+private:
+	v8::Isolate* _pIsolate;
+	Poco::JS::Core::JSExecutor::Ptr _pExecutor;
+	Poco::SharedPtr<Poco::Exception> _pException;
+	v8::Persistent<v8::Function> _function;
+};
+
+
+class AsyncRequest: public Poco::Runnable
+{
+public:
+	AsyncRequest(v8::Isolate* pIsolate, Poco::JS::Core::JSExecutor::Ptr pExecutor, Poco::SharedPtr<Poco::Net::HTTPClientSession> pSession, Poco::SharedPtr<Poco::Net::HTTPRequest> pRequest, const std::string& body, v8::Local<v8::Function>& function):
+		_pIsolate(pIsolate),
+		_pExecutor(pExecutor),
+		_pSession(pSession),
+		_pRequest(pRequest),
+		_body(body),
+		_function(pIsolate, function)
+	{
+	}
+	
+	~AsyncRequest()
+	{
+		_function.Reset();
+	}
+	
+	void run()
+	{
+		Poco::JS::Core::TimedJSExecutor::Ptr pTimedJSExecutor = _pExecutor.cast<Poco::JS::Core::TimedJSExecutor>();
+		try
+		{
+			_pSession->sendRequest(*_pRequest) << _body;
+			Poco::SharedPtr<Poco::Net::HTTPResponse> pResponse = new Poco::Net::HTTPResponse;
+			std::istream& istr = _pSession->receiveResponse(*pResponse);
+			std::string responseBody;
+			Poco::StreamCopier::copyToString(istr, responseBody);
+			if (pTimedJSExecutor)
+			{
+				pTimedJSExecutor->timer().schedule(new AsyncRequestCompletionTask(_pIsolate, _pExecutor, pResponse, responseBody, _function), Poco::Clock());
+			}
+		}
+		catch (Poco::Exception& exc)
+		{
+			if (pTimedJSExecutor)
+			{
+				pTimedJSExecutor->timer().schedule(new AsyncRequestFailedTask(_pIsolate, _pExecutor, exc.clone(), _function), Poco::Clock());
+			}
+		}
+		catch (...)
+		{
+			poco_bugcheck();
+		}
+		delete this;
+	}
+	
+private:
+	v8::Isolate* _pIsolate;
+	Poco::JS::Core::JSExecutor::Ptr _pExecutor;
+	Poco::SharedPtr<Poco::Net::HTTPClientSession> _pSession;
+	Poco::SharedPtr<Poco::Net::HTTPRequest> _pRequest;
+	std::string _body;
+	v8::Persistent<v8::Function> _function;
+};
+
+
+void HTTPRequestWrapper::sendAsync(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::HandleScope handleScope(args.GetIsolate());
+	v8::Local<v8::Function> function = args[0].As<v8::Function>();
+	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(args);
+	std::string uriString = pRequestHolder->request().getURI();
+	try
+	{
+		Poco::URI uri(uriString);
+		pRequestHolder->request().setURI(uri.getPathEtc());
+		Poco::SharedPtr<Poco::Net::HTTPRequest> pRequest = new Poco::Net::HTTPRequest(pRequestHolder->request().getMethod(), uri.getPathEtc(), pRequestHolder->request().getVersion());
+		static_cast<Poco::Net::MessageHeader&>(*pRequest) = pRequestHolder->request();
+		Poco::SharedPtr<Poco::Net::HTTPClientSession> pCS = Poco::Net::HTTPSessionFactory::defaultFactory().createClientSession(uri);
+		if (pRequest->getMethod() == Poco::Net::HTTPRequest::HTTP_PUT || pRequest->getMethod() == Poco::Net::HTTPRequest::HTTP_POST)
+		{
+			pRequest->setContentLength(pRequestHolder->content().length());
+		}
+		pCS->setTimeout(pRequestHolder->getTimeout());
+		
+		Poco::JS::Core::JSExecutor::Ptr pExecutor = Poco::JS::Core::JSExecutor::current();
+		AsyncRequest* pAsyncRequest = new AsyncRequest(args.GetIsolate(), pExecutor, pCS, pRequest, pRequestHolder->content(), function);
+		try
+		{
+			Poco::ThreadPool::defaultPool().start(*pAsyncRequest);
+		}
+		catch (...)
+		{
+			delete pAsyncRequest;
+			throw Poco::RuntimeException("No thread available for async HTTPRequest");
+		}
+	}
+	catch (Poco::Exception& exc)
+	{
 		returnException(args, exc);
 	}
 }

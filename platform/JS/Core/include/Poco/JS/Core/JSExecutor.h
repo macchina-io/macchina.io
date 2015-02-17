@@ -73,19 +73,39 @@ public:
 
 	void call(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>& receiver, int argc, v8::Handle<v8::Value> argv[]);
 		/// Calls a specific function defined in the script, using the given arguments.
+		///
+		/// Sets up a script context scope for the call.
+
+	void callInContext(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>& receiver, int argc, v8::Handle<v8::Value> argv[]);
+		/// Calls a specific function defined in the script, using the given arguments.
+		///
+		/// A script context scope for the call must have been set up by the caller.
 
 	void call(v8::Persistent<v8::Object>& jsObject, const std::string& function, const std::string& args);
 		/// Calls a specific function defined in the given object with the given arguments, which must
 		/// be given as a JSON string.
+		///
+		/// Sets up a script context scope for the call.
 		
 	void call(v8::Persistent<v8::Function>& function);
 		/// Calls a specific function defined in the script, without arguments.
+		///
+		/// Sets up a script context scope for the call.
 
 	void includeScript(const std::string& uri);
 		/// Includes another script.
 		
 	static Ptr current();
 		/// Returns the JSExecutor for the current thread.
+	
+	v8::Isolate* isolate();
+		/// Returns the JSExecutor's Isolate.
+		
+	v8::Persistent<v8::Context>& globalContext();
+		/// Returns the JSExecutor's global context.
+
+	v8::Persistent<v8::Context>& scriptContext();
+		/// Returns the JSExecutor's script context.
 	
 	// Poco::Runnable
 	void run();
@@ -190,6 +210,24 @@ private:
 inline const Poco::URI& JSExecutor::uri() const
 {
 	return _sourceURI;
+}
+
+
+inline v8::Isolate* JSExecutor::isolate()
+{
+	return _pooledIso.isolate();
+}
+
+
+inline v8::Persistent<v8::Context>& JSExecutor::globalContext()
+{
+	return _globalContext;
+}
+
+
+inline v8::Persistent<v8::Context>& JSExecutor::scriptContext()
+{
+	return _scriptContext;
 }
 
 

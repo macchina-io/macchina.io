@@ -23,6 +23,7 @@
 #include "Poco/JS/Core/Core.h"
 #include "Poco/JS/Core/Wrapper.h"
 #include "Poco/Net/HTTPResponse.h"
+#include "Poco/SharedPtr.h"
 
 
 namespace Poco {
@@ -104,6 +105,29 @@ public:
 	
 private:
 	C& _response;
+};
+
+
+template <class C>
+class ResponsePtrHolderImpl: public ResponseHolder
+{
+public:
+	ResponsePtrHolderImpl(Poco::SharedPtr<C> pResponse):
+		_pResponse(pResponse)
+	{
+	}
+	
+	~ResponsePtrHolderImpl()
+	{
+	}
+	
+	Poco::Net::HTTPResponse& response()
+	{
+		return *_pResponse;
+	}
+	
+private:
+	Poco::SharedPtr<C> _pResponse;
 };
 
 
