@@ -60,7 +60,7 @@ libexecs += \
     WebTunnel-libexec \
     JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec \
     CodeGeneration-libexec RemotingNG-libexec RemotingNG/RemoteGen-libexec RemotingNG/TCP-libexec \
-    OSP-libexec OSP/BundleCreator-libexec OSP/BundleAdmin-libexec OSP/Web-libexec OSP/Core-libexec OSP/Crypto-libexec OSP/Data-libexec OSP/Data/SQLite-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec OSP/SecureWebServer-libexec OSP/WebServer-libexec OSP/JS-libexec OSP/WebEvent-libexec \
+    OSP-libexec OSP/BundleCreator-libexec OSP/BundleAdmin-libexec OSP/Web-libexec OSP/Core-libexec OSP/Crypto-libexec OSP/Data-libexec OSP/Data/SQLite-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec OSP/SecureWebServer-libexec OSP/WebServer-libexec OSP/JS-libexec OSP/WebEvent-libexec OSP/SimpleAuth=libexec \
     Geo-libexec
 tests    += CodeGeneration-tests RemotingNG-tests RemotingNG/TCP-tests OSP-tests OSP/Web-tests Geo-libexec
 samples  += WebTunnel-samples
@@ -68,7 +68,7 @@ cleans   += \
     WebTunnel-clean \
     JS/V8-clean JS/Core-clean JS/Data-clean JS/Bridge-clean JS/Net-clean \
     CodeGeneration-clean RemotingNG-clean RemotingNG/RemoteGen-clean RemotingNG/TCP-clean \
-    OSP-clean OSP/BundleCreator-clean OSP/BundleAdmin-clean OSP/Web-clean OSP/Core-clean OSP/Crypto-clean OSP/Data-clean OSP/Data/SQLite-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean OSP/SecureWebServer-clean OSP/WebServer-clean OSP/JS-clean OSP/WebEvent-clean \
+    OSP-clean OSP/BundleCreator-clean OSP/BundleAdmin-clean OSP/Web-clean OSP/Core-clean OSP/Crypto-clean OSP/Data-clean OSP/Data/SQLite-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean OSP/SecureWebServer-clean OSP/WebServer-clean OSP/JS-clean OSP/WebEvent-clean OSP/SimpleAuth-clean \
     Geo-clean
 
 .PHONY: $(libexecs)
@@ -409,6 +409,12 @@ OSP/WebEvent-libexec:  Net-libexec OSP-libexec OSP/BundleCreator-libexec OSP/Web
 
 OSP/WebEvent-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/WebEvent clean
+
+OSP/SimpleAuth-libexec:  OSP-libexec OSP/BundleCreator-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/SimpleAuth
+
+OSP/SimpleAuth-clean:
+	$(MAKE) -C $(POCO_BASE)/OSP/SimpleAuth clean
 
 Geo-libexec:  Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/Geo
