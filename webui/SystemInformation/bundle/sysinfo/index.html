@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html lang="en" ng-app="sysinfoApp">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>macchina.io System Information</title>
+    <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
+    <link rel="stylesheet" href="/macchina/launcher/css/styles.css" type="text/css"/>
+    <link rel="icon" href="/images/favicon.ico">
+    <script type="text/javascript" src="/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/angular/angular.min.js"></script>
+    <script type="text/javascript" src="/macchina/sysinfo/js/app.js"></script>
+    <script type="text/javascript" src="/macchina/sysinfo/js/controllers.js"></script>
+  </head>
+  <body ng-controller="SessionCtrl">
+    <header>
+      <div class="headercontainer">
+        <div class="header">
+          <h1>
+          <a href="/"><img src="/images/macchina_logo_small.png" alt="macchina.io"></a>&nbsp;&gt;&nbsp;System Information
+          </h1>
+        </div>
+      </div>
+    </header>
+    <div class="contentcontainer">
+      <div class="content" ng-controller="TabCtrl">
+        <nav>
+          <div class="usernav">
+            <div class="navigation">
+              <a href="#" ng-click="switchTab('sysinfo')" ng-class="{'navigation-active': isTab('sysinfo')}">System Information</a>
+              &nbsp;|&nbsp;
+              <a href="#" ng-click="switchTab('processes')" ng-class="{'navigation-active': isTab('processes')}">Processes</a>
+              &nbsp;|&nbsp;
+              <a href="#" ng-click="switchTab('memory')" ng-class="{'navigation-active': isTab('memory')}">Memory Usage</a>
+            </div>
+            <div class="username">
+              <img id="userIcon" src="/images/user.png" alt="Account">
+              &nbsp;
+              {{session.username}}
+              &nbsp;
+              <a id="logoutLink" href="#" onclick="document.logout.submit()">Sign out</a>
+           </div>
+           <form method="post" name="logout" action="/">
+             <input type="hidden" name="action" value="logout">
+           </form>
+           <div style="clear: both;"></div>
+         </div>
+        </nav>
+        <div ng-switch="selectedTab" class="groupbox">
+          <div ng-switch-when="sysinfo" ng-controller="SysInfoCtrl">
+            <table class="list" cellspacing="0" cellpadding="0">
+              <tbody>
+                <tr class="even">
+                  <td>System Name</td>
+                  <td>{{sysinfo.nodeName}}</td>
+                </tr>
+                <tr class="odd">
+                  <td>System ID</td>
+                  <td>{{sysinfo.nodeId}}</td>
+                </tr>
+                <tr class="even">
+                  <td>Operating System</td>
+                  <td>{{sysinfo.osName}}</td>
+                </tr>
+                <tr class="odd">
+                  <td>System Version</td>
+                  <td>{{sysinfo.osVersion}}</td>
+                </tr>
+                <tr class="even">
+                  <td>Architecture</td>
+                  <td>{{sysinfo.osArch}}</td>
+                </tr>
+                <tr class="odd">
+                  <td>Processor Cores</td>
+                  <td>{{sysinfo.processorCount}}</td>
+                </tr>
+                <tr class="even">
+                  <td>System Local Date/Time</td>
+                  <td>{{sysinfo.dateTime}}</td>
+                </tr>
+              </tbody>  
+            </table>
+          </div>
+          <div ng-switch-when="processes" ng-controller="ProcessesCtrl">
+            <pre>{{processes.list}}</pre>
+          </div>
+          <div ng-switch-when="memory" ng-controller="MemoryCtrl">
+            <pre>{{memory.stats}}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

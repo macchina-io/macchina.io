@@ -1,0 +1,723 @@
+/*
+ * styles.css
+ *
+ * Style Sheet for macchina.io web application.
+ *
+ * Copyright (c) 2010-2015, Applied Informatics Software Engineering GmbH.
+ *
+ */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video 
+{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section 
+{
+	display: block;
+}
+
+body 
+{
+	line-height: 1;
+}
+
+ol, ul 
+{
+	list-style: none;
+}
+
+blockquote, q 
+{
+	quotes: none;
+}
+
+blockquote:before, blockquote:after, q:before, q:after 
+{
+	content: '';
+	content: none;
+}
+
+table 
+{
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+body 
+{
+	background-color: #cccccc;
+	min-width: 996px;
+	width: 100%;
+	color: #111;
+	background-image: url(../images/gradient.png);
+	background-repeat: repeat-x;
+	background-attachment: fixed;
+}
+
+p, h1, h2, h3, h4, h5, h6, ul, ol, li, td, th, form, address, blockquote, strong, b, div, emph, i
+{
+	font-family: Helvetica, Arial, SunSans-Regular, sans-serif; 
+}
+
+div, p, ul, ol, li, address, blockquote, h6, form, td
+{
+	color: #111; 
+	font-size: 16px; 
+	line-height: 24px; 
+}
+
+p, ul, ol, address, blockquote, h6, td
+{
+	margin-top: 8px; 
+	margin-bottom: 8px;
+}
+
+div.headercontainer
+{
+	width: 100%;
+	height: 48px;
+	border-bottom: 1px solid #012F50;
+	background: #0076B8;
+}
+
+div.header
+{
+	height: 32px;
+	margin-left: 64px;
+	margin-right: 64px;
+	padding-top: 10px;
+	padding-bottom: 2px;
+	color: white;
+}
+
+div.header h1
+{
+	font-size: 20px;
+	line-height: 28px;
+	color: white;
+	margin: 0px;
+	font-weight: normal;
+}
+
+div.footercontainer
+{
+	width: 100%;
+	min-width: 996px;
+	height: 40px;
+	border-top: 1px #bbb solid;
+	position: fixed;
+	width: 100%;
+	height: 40px;
+	left: 0;
+	bottom: 0;
+	background-color: #eee;
+}
+
+div.footer
+{
+	height: 24px;
+	text-align: left;
+	white-space: nowrap;
+	margin-top: 8px;
+	margin-bottom: 8px;
+	margin-left: 12px;
+	margin-right: 120px;
+	font-size: 12px;
+	line-height: 24px;
+	z-index: 100;
+}
+
+div.contentcontainer
+{
+	margin-bottom: 48px;
+}
+
+div.content
+{
+	margin-top: 16px;
+	margin-left: 64px;
+	margin-right: 64px;
+}
+
+div.information
+{
+	margin-top: 20px;
+	margin-bottom: 20px;
+	padding: 8px;
+	border: 1px solid #0076B8;
+	background-color: #EEE;
+}
+
+div.error
+{
+	margin-top: 20px;
+	margin-bottom: 20px;
+	padding: 8px;
+	border: 1px solid #F00;
+	background-color: #FDD;
+}
+
+div.groupbox
+{
+	margin-top: 8px;
+	margin-bottom: 16px;
+	margin-left: 0;
+	margin-right: 0;
+	padding-left: 6px;
+	padding-right: 6px;
+	padding-top: 6px;
+	padding-bottom: 6px;
+	border: 1px solid #CCC;
+	background-color: #F1F1F1;
+	width: auto;
+	font-size: 16px; 
+	line-height: 20px;
+}
+
+pre
+{
+	color: #222; 
+	font-size: 14px;
+	font-family: "Lucida Console", "Monaco", Courier, "Courier New", monospace;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	white-space: pre;
+	overflow: auto;
+	word-wrap: normal;
+}
+
+h1
+{
+	color: #111; 
+	font-size: 24px; 
+	font-weight: normal; 
+	line-height: 32px; 
+	margin-top: 12px;
+	margin-bottom: 12px;
+}
+
+h2 
+{
+	color: #111; 
+	font-size: 20px; 
+	margin-top: 8px; 
+	margin-bottom: 8px;
+	line-height: 24px;
+}
+
+div.groupbox h2 
+{
+	color: #111; 
+	font-size: 18px; 
+	margin-top: 2px; 
+	margin-bottom: 8px;
+	line-height: 24px;
+}
+
+h3
+{
+	color: #111;
+	font-size: 18px; 
+	margin-top: 10px;
+	margin-right: 0;
+	margin-bottom: 0px;
+	background: #CCC;
+	border-bottom-width: 1px;
+	border-bottom-color: #AAA;
+	border-bottom-style: solid;
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+h4
+{
+	color: #111; 
+	font-size: 16px; 
+	margin-top: 10px; 
+	margin-bottom: 0; 
+}
+
+li
+{
+	color: #111;
+	margin-left: 0px;
+	margin-bottom: 2px;
+}
+
+ul
+{
+	padding-left: 0px;
+	margin-left: 2em;
+	list-style-type: disc;
+	list-style-position: outside;
+	list-style-image: url(../images/bullet.gif);
+}
+
+div.usernav
+{
+	width: 100%;
+	height: 28px;
+	margin-top: 0px; 
+	margin-bottom: 18px;
+	margin-left: 0;
+	margin-right: 0;
+}
+
+div.navigation
+{
+	border: 0;
+	padding: 0;
+	margin: 0;
+	float: left;
+	height: 28px;
+}
+
+div.navigation #homeIcon
+{
+	width: 28px;
+	height: 28px;
+	border: 0;
+	vertical-align: middle;
+}
+
+a.navigation-active:link, a.navigation-active:visited, a.navigation-active:active, a.navigation-active:hover
+{
+	color: #222;
+	font-weight: bold;
+	text-decoration: none; 	
+}
+
+.navigation a:link, .navigation a:visited
+{
+	color: #444;
+	text-decoration: none;
+}
+
+.navigation a:active, .navigation a:hover
+{
+	color: #222;
+	text-decoration: underline;
+}
+
+div.username
+{
+	font-size: 12px; 
+	text-align: right; 
+	margin: 0;
+	float: right;
+	font-weight: bold;
+}
+
+div.username #userIcon
+{
+	width: 28px;
+	height: 28px;
+	border: 0;
+	vertical-align: middle;
+}
+
+div.username #logoutLink
+{
+	color: #444;
+	font-weight: normal;
+}
+
+div.listcontainer
+{
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 0;
+	margin-right: 0;
+	border: 0;
+	padding: 0;
+}
+
+div.listheader
+{
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-top: 0px;
+	margin-bottom: 8px;
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	border: 0;
+	width: auto;
+	font-size: 13px; 
+	line-height: 20px;
+}
+
+div.listheader form
+{
+	font-size: 14px; 
+	line-height: 20px;
+}
+
+div.listfooter
+{
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-top: 8px;
+	margin-bottom: 0px;
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	border: 0;
+	width: auto;
+	font-size: 13px; 
+	line-height: 20px;
+}
+
+div.listfooter div
+{
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+table.list
+{
+	background-color: #d8d8d8;
+	border-style: none;
+	padding: 0px;
+	font-size: 14px;
+	margin-top: 0;
+	margin-bottom: 0;
+	border: 0;
+	border-spacing: 0px;
+	margin-left: 0;
+	margin-right: 0;
+}
+
+table.list th
+{
+	color: #fff;
+	font-weight: bold;
+	text-align: left;
+	background-color: #0076B8;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	padding-left: 6px;
+	padding-right: 6px;
+	text-align: left;
+	vertical-align: middle;
+}
+
+table.list td
+{
+	border-style: none;
+	border-width: 0px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	padding-left: 6px;
+	padding-right: 6px;
+	text-align: left;
+	vertical-align: middle;
+}
+
+table.list tr.even
+{
+	background-color: #d0d0d0;
+}
+
+table.list tr.even:hover, table.list tr.odd:hover
+{
+	background-color: #f8f8e8;
+}
+
+table.list tr.odd
+{
+	background-color: #e0e0e0;
+}
+
+table.list tr.intermediateHeader
+{
+	background-color: #c0c0c0;
+}
+
+table.list tr.intermediateHeader th
+{
+	background-color: #c0c0c0;
+	color: #0076B8;
+}
+
+strong, b
+{
+	font-weight: bold;
+}
+
+emph, i
+{
+	font-style: italic;
+}
+
+.address
+{
+	line-height: 14px; 
+	margin-bottom: 4px;
+}
+
+.small
+{
+	font-size: 12px; 
+	text-align: left; 
+	line-height: 16px; 
+	margin-top: 8px;
+	margin-left: 0;
+	margin-right: 0;
+	margin-bottom: 8px;
+}
+
+.footer 
+{
+	font-size: 12px; 
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	text-align: left; 
+	line-height: 9pt; 
+	color: #444;
+}
+
+.sortable
+{
+	cursor: pointer;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+span.clearableInput 
+{
+	position: relative;
+}
+
+span.clearableInput span 
+{
+	position: absolute;
+	display: block;
+	top: 0px;
+	right: 8px;
+	width: 16px;
+	height: 16px;
+	background: url('../images/clearbutton.png');
+	cursor: pointer;
+}
+
+span.clearableInput input 
+{
+	padding-right: 16px;
+}
+
+div.loginBox
+{
+	margin-top: 140px;
+	text-align: center;
+	font-size: 16px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 20px;
+	width: 480px;
+}
+
+div.loginBox td, div.loginBox th
+{
+	padding: 10px;
+}
+
+div.loginBox #notice
+{
+	font-size: 20px;
+	text-align: center;
+	padding-bottom: 40px;
+}
+
+div.loginBox #subnotice
+{
+	font-size: 18px;
+	text-align: center;
+	margin-top: 20px;
+	color: #606060;
+}
+
+div.loginBox #fullNameLabelCell, div.loginBox #usernameLabelCell, div.loginBox #oldPasswordLabelCell, div.loginBox #passwordLabelCell, div.loginBox #verifyLabelCell
+{	
+	font-size: 16px;
+	text-align: right;
+	color: #0076B8;
+}
+
+div.loginBox #fullNameInputCell, div.loginBox #usernameInputCell, div.loginBox #oldPasswordInputCell, div.loginBox #passwordInputCell, div.loginBox #verifyInputCell
+{
+	text-align: left;
+}
+
+div.loginBox #fullNameInput, div.loginBox #usernameInput, div.loginBox #oldPasswordInput, div.loginBox #passwordInput, div.loginBox #verifyInput
+{
+	font-size: 18px;
+	width: 240px;
+	height: 28px;
+	background-color: white;
+	color: #111;
+	border: 1px solid #0076B8;
+	padding-left: 6px;
+	padding-right: 6px;
+}
+
+div.loginBox #loginButtonCell
+{
+	text-align: left;
+}
+
+div.loginBox #loginButton, div.loginBox #resetPasswordButton
+{
+	height: 28px;
+	text-align: center;
+	font-size: 16px;
+	background-color: #0076B8;
+	border: 1px solid #012F50;
+	color: white;
+	cursor: pointer;
+}
+
+div.loginBox #loginButton:hover, div.loginBox #resetPasswordButton:hover
+{
+	background-color: #1086C8;
+	border: 1px solid #113F60;
+}
+
+div.loginBox #loginButton:active, div.loginBox #resetPasswordButton:active
+{
+	background-color: #1086C8;
+	border: 1px solid #113F60;
+}
+
+div.loginBox #resetPassword, div.loginBox #loginLink
+{
+	font-size: 14px;
+}
+
+img.button
+{
+	cursor: pointer;
+}
+
+a:link 
+{ 
+	color: #0076B8;
+	text-decoration: underline;
+}
+
+a:visited 
+{ 
+	color: #0076B8;
+	text-decoration: underline; 
+}
+
+a:active 
+{ 
+	color: #0056B8;
+	text-decoration: underline;
+}
+
+a:hover 
+{ 
+	color: #0056B8;
+	text-decoration: underline;  
+}
+
+.description a:link 
+{ 
+	color: #222;
+	text-decoration: none;
+}
+
+.description a:visited 
+{ 
+	color: #222;
+	text-decoration: none; 
+}
+
+.description a:active 
+{ 
+	color: #000;
+	text-decoration: none;
+}
+
+.description a:hover 
+{ 
+	color: #000;
+	text-decoration: none;  
+}
+
+.nodescription a:link 
+{ 
+	color: #888;
+	text-decoration: none;
+}
+
+.nodescription a:visited 
+{ 
+	color: #888;
+	text-decoration: none; 
+}
+
+.nodescription a:active 
+{ 
+	color: #666;
+	text-decoration: none;
+}
+
+.nodescription a:hover 
+{ 
+	color: #666;
+	text-decoration: none;  
+}
+
+.footer a:link 
+{ 
+	color: #444;
+	text-decoration: underline;
+}
+
+.footer a:visited 
+{ 
+	color: #444;
+	text-decoration: underline; 
+}
+
+footer a:active 
+{ 
+	color: #000;
+	text-decoration: underline;
+}
+
+footer a:hover 
+{ 
+	color: #000;
+	text-decoration: underline;  
+}
+

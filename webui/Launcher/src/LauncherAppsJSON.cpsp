@@ -1,0 +1,33 @@
+<%@ page class="LauncherAppsJSON" 
+         namespace="IoT::Web::Launcher" 
+         session="@websession.id" 
+         createSession="false" 
+         precondition="U::isAuthenticated(session, response)"
+         compressed="true" %>
+<%@ impl include="Poco/OSP/ServiceFinder.h"
+         include="Poco/OSP/Auth/AuthService.h"
+         include="AppRegistry.h"
+         include="Utility.h"
+%>
+<%%
+std::string username = session->getValue<std::string>("username");
+Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth");
+AppRegistry::Ptr pAppRegistry = Poco::OSP::ServiceFinder::find<AppRegistry>(context());
+AppRegistry::AppVec apps;
+pAppRegistry->list(apps);
+%>
+[
+<% for (AppRegistry::AppVec::const_iterator it = apps.begin(); it != apps.end(); ++it) { %>
+  <% if (it->permission.empty() || pAuthService->authorize(username, it->permission)) { %>
+    <%= it != apps.begin() ? "," : "" %>
+  {
+    "id": <%= U::jsonize(it->id) %>,
+    "title": <%= U::jsonize(it->title) %>,
+    "icon": <%= U::jsonize(it->icon) %>,
+    "tooltip": <%= U::jsonize(it->tooltip) %>,
+    "link": <%= U::jsonize(it->path) %>
+  }
+  <% } %>
+<% } %>
+]
+

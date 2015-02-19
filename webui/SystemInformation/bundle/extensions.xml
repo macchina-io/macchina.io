@@ -1,0 +1,4 @@
+<extensions>
+  <extension point="io.macchina.web.launcher" title="System Information" path="/macchina/sysinfo" icon="/macchina/sysinfo/images/appicon.png"/>
+  <extension point="osp.web.server.directory" path="/macchina/sysinfo" resource="sysinfo" allowSpecialization="none" hidden="true"/>
+</extensions>

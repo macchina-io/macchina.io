@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<%@ page class="LoginPage" namespace="IoT::Web::Launcher" session="@websession.id" createSession="false" compressed="true" %>
+
+<%@ impl include="Poco/OSP/ServiceFinder.h" %>
+<%@ impl include="Poco/OSP/PreferencesService.h" %>
+<%@ impl include="Utility.h" %>
+
+<%%
+std::string message;
+if (session)
+{
+    message = session->getValue<std::string>("message", "");
+}
+%>
+
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>macchina.io</title>
+    <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
+    <link rel="icon" href="/images/favicon.ico">
+    <script type="text/javascript" src="/jquery/jquery.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="headercontainer">
+        <div class="header">
+          <h1>
+          <a href="/"><img src="/images/macchina_logo_small.png" alt="macchina.io"></a>
+          </h1>
+        </div>
+      </div>
+    </header>
+    <div class="contentcontainer">
+      <div class="content">
+        <% if (!message.empty()) { %>
+          <div class="error"><%= U::htmlize(message) %></div>
+        <% } %>
+
+        <div class="loginBox">
+          <form method="post" action="/">
+            <table>
+              <tr>
+                <th id="usernameLabelCell">Username:</th>
+                <td id="usernameInputCell"><input id="usernameInput" type="text" name="username"></td>
+              </tr>
+              <tr>
+                <th id="passwordLabelCell">Password:</th>
+                <td id="passwordInputCell"><input id="passwordInput" type="password" name="password"></td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+                <td id="loginButtonCell">
+                  <input id="loginButton" type="submit" name="accept" value="Login">
+                </td>
+              </tr>
+            </table>
+            <input type="hidden" name="action" value="login">
+           </form>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(
+            function()
+            {
+                $('#usernameInput').focus(); 
+            }
+        );
+    </script>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+.appgrid
+{
+}
+
+.appitem
+{
+	width: 192px;
+	height: 128px;
+	float: left;
+	text-align: center;
+	margin: 24px;
+}
+
+.appitem a
+{
+	text-decoration: none;
+}
+
+.appitem img
+{
+	width: 64px;
+	height: 64px;
+	margin: 20px;
+}
+
+.apptitle
+{
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#noAppsFound
+{
+	text-align: center;
+	margin: 48px;
+}
