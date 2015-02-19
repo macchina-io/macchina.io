@@ -12,3 +12,4 @@ clean all:
 	$(MAKE) -C platform $(MAKECMDGOALS)
 	$(MAKE) -C server $(MAKECMDGOALS)
 	$(MAKE) -C devices $(MAKECMDGOALS)
+	$(MAKE) -C webui $(MAKECMDGOALS)
