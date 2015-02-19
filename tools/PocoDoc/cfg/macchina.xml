@@ -8,6 +8,9 @@
 				${MacchinaBase}/platform/*/include/Poco/*/*.h
 				${MacchinaBase}/platform/*/*/include/Poco/*/*/*.h
 				${MacchinaBase}/devices/Devices/include/*/*/*.h
+				${MacchinaBase}/devices/Serial/include/*/*/*.h
+				${MacchinaBase}/devices/GNSS/include/*/*/*.h
+				${MacchinaBase}/devices/GNSS/NMEA/include/*/*/*/*.h
 			</include>
 			<exclude>
 				*_*.h,
@@ -58,7 +61,11 @@
 				-I${MacchinaBase}/platform/RemotingNG/include
 				-I${MacchinaBase}/platform/RemotingNG/TCP/include
 				-I${MacchinaBase}/platform/WebTunnel/include
+				-I${MacchinaBase}/platform/Geo/include
 				-I${MacchinaBase}/devices/Devices/include
+				-I${MacchinaBase}/devices/Serial/include
+				-I${MacchinaBase}/devices/GNSS/include
+				-I${MacchinaBase}/devices/GNSS/NMEA/include
 				-D_DEBUG
 				-E
 				-C

@@ -43,6 +43,7 @@ application/isup
 application/javascript	js
 application/x-javascript-servlet jss
 application/x-javascript-serverpage jssp
+application/json json
 application/mac-binhex40	hqx
 application/mac-compactpro	cpt
 application/macwriteii

@@ -17,6 +17,11 @@
 #include "Poco/JS/Core/SystemWrapper.h"
 #include "Poco/Environment.h"
 #include "Poco/Thread.h"
+#include "Poco/Process.h"
+#include "Poco/Pipe.h"
+#include "Poco/PipeStream.h"
+#include "Poco/StreamCopier.h"
+
 
 namespace Poco {
 namespace JS {
@@ -36,20 +41,52 @@ SystemWrapper::~SystemWrapper()
 v8::Handle<v8::ObjectTemplate> SystemWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
-	v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New();
-	loggerTemplate->SetInternalFieldCount(1);
-	loggerTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osName"), osName);
-	loggerTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osDisplayName"), osDisplayName);
-	loggerTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osArchitecture"), osArchitecture);
-	loggerTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osVersion"), osVersion);
-	loggerTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "nodeName"), nodeName);
-	loggerTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "nodeId"), nodeId);
-	loggerTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "processorCount"), processorCount);
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, has));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "get"), v8::FunctionTemplate::New(pIsolate, get));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "set"), v8::FunctionTemplate::New(pIsolate, set));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "sleep"), v8::FunctionTemplate::New(pIsolate, sleep));
-	return handleScope.Escape(loggerTemplate);
+	v8::Local<v8::ObjectTemplate> systemTemplate = v8::ObjectTemplate::New();
+	systemTemplate->SetInternalFieldCount(1);
+	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osName"), osName);
+	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osDisplayName"), osDisplayName);
+	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osArchitecture"), osArchitecture);
+	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osVersion"), osVersion);
+	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "nodeName"), nodeName);
+	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "nodeId"), nodeId);
+	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "processorCount"), processorCount);
+	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, has));
+	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "get"), v8::FunctionTemplate::New(pIsolate, get));
+	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "set"), v8::FunctionTemplate::New(pIsolate, set));
+	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "sleep"), v8::FunctionTemplate::New(pIsolate, sleep));
+	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "exec"), v8::FunctionTemplate::New(pIsolate, exec));
+	return handleScope.Escape(systemTemplate);
+}
+
+
+void SystemWrapper::exec(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() < 1) return;
+	std::string command = toString(args[0]);
+	std::string output;
+	try
+	{
+#ifdef _WIN32
+		std::string shell("cmd.exe");
+		std::string shellArg("/C");
+#else
+		std::string shell("/bin/sh");
+		std::string shellArg("-c");
+#endif
+		Poco::Pipe outPipe;
+		Poco::Process::Args shellArgs;
+		shellArgs.push_back(shellArg);
+		shellArgs.push_back(command);
+		Poco::ProcessHandle ph(Poco::Process::launch(shell, shellArgs, 0, &outPipe, &outPipe));
+		Poco::PipeInputStream istr(outPipe);
+		Poco::StreamCopier::copyToString(istr, output);
+		ph.wait();
+		returnString(args, output);
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
 }
 
 
