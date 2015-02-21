@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html lang="en" ng-app="devicesApp">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>macchina.io Sensors &amp; Devices</title>
+    <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
+    <link rel="stylesheet" href="/macchina/launcher/css/styles.css" type="text/css"/>
+    <link rel="icon" href="/images/favicon.ico">
+    <script type="text/javascript" src="/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/angular/angular.min.js"></script>
+    <script type="text/javascript" src="/macchina/devices/js/app.js"></script>
+    <script type="text/javascript" src="/macchina/devices/js/controllers.js"></script>
+  </head>
+  <body ng-controller="SessionCtrl">
+    <header>
+      <div class="headercontainer">
+        <div class="header">
+          <h1>
+          <a href="/"><img src="/images/macchina_logo_small.png" alt="macchina.io"></a>&nbsp;&gt;&nbsp;Sensors &amp; Devices
+          </h1>
+        </div>
+      </div>
+    </header>
+    <div class="contentcontainer">
+      <div class="content">
+        <nav>
+          <div class="usernav">
+            <div class="navigation">
+            </div>
+            <div class="username">
+              <img id="userIcon" src="/images/user.png" alt="Account">
+              &nbsp;
+              {{session.username}}
+              &nbsp;
+              <a id="logoutLink" href="#" onclick="document.logout.submit()">Sign out</a>
+           </div>
+           <form method="post" name="logout" action="/">
+             <input type="hidden" name="action" value="logout">
+           </form>
+           <div style="clear: both;"></div>
+         </div>
+        </nav>
+        <div ng-controller="DevicesCtrl" class="groupbox">
+          <table class="list" style="width: 100%">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Symbolic Name</th>
+                <th>ID</th>
+                <th>Physical Quantity</th>
+                <th>State/Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="device in devices" ng-class-even="'even'" ng-class-odd="'odd'">
+                <td>{{device.name}}</td>
+                <td>{{device.symbolicName}}</td>
+                <td>{{device.id}}</td>
+                <td>{{device.physicalQuantity}}</td>
+                <td>{{device.displayValue}}</td>
+              </tr>
+            </tbody>  
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

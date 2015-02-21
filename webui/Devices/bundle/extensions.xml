@@ -1,0 +1,4 @@
+<extensions>
+  <extension point="io.macchina.web.launcher" title="Sensors &amp; Devices" path="/macchina/devices" icon="/macchina/devices/images/appicon.png"/>
+  <extension point="osp.web.server.directory" path="/macchina/devices" resource="webapp" allowSpecialization="none" hidden="true"/>
+</extensions>
