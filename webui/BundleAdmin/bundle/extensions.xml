@@ -1,0 +1,7 @@
+<extensions>
+  <extension point="io.macchina.web.launcher" title="Bundles" path="/macchina/bundles" icon="/macchina/bundles/images/appicon.png"/>
+  <extension point="osp.web.server.requesthandler" path="/macchina/bundles/bundle.json" class="IoT::Web::BundleAdmin::BundleRequestHandlerFactory" library="io.macchina.webui.bundleadmin" allowSpecialization="owner" hidden="true"/>
+  <extension point="osp.web.server.requesthandler" path="/macchina/bundles/list.json" class="IoT::Web::BundleAdmin::BundleListRequestHandlerFactory" library="io.macchina.webui.bundleadmin" allowSpecialization="owner" hidden="true"/>
+  <extension point="osp.web.server.requesthandler" path="/macchina/bundles/actions.json" class="IoT::Web::BundleAdmin::BundleActionsRequestHandlerFactory" library="io.macchina.webui.bundleadmin" allowSpecialization="owner" hidden="true"/>
+  <extension point="osp.web.server.directory" path="/macchina/bundles" resource="webapp" allowSpecialization="owner" hidden="true"/>
+</extensions>

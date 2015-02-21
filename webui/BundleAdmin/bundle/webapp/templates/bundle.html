@@ -1,0 +1,58 @@
+<div class="groupbox">
+  <h1>{{bundle.name}}</h1>
+  <table class="list">
+	<tbody>
+	  <tr class="even">
+		<th>ID</th><td>{{bundle.id}}</td>
+	  </tr>
+	  <tr class="odd">
+		<th>Symbolic Name</th><td>{{bundle.symbolicName}}</td>
+	  </tr>
+	  <tr class="even">
+		<th>Version</th><td>{{bundle.version}}</td>
+	  </tr>
+	  <tr class="odd">
+		<th>State</th><td>{{bundle.state}}</td>
+	  </tr>
+	  <tr class="even">
+		<th>Vendor</th><td>{{bundle.vendor}}</td>
+	  </tr>
+	  <tr class="odd">
+		<th>Copyright</th><td>{{bundle.copyright}}</td>
+	  </tr>
+	  <tr class="even">
+		<th>Run Level</th><td>{{bundle.runlevel}}</td>
+	  </tr>
+	  <tr class="odd">
+		<th>Path</th><td>{{bundle.path}}</td>
+	  </tr>
+	</tbody>  
+  </table>
+  <div style="margin-top: 32px;" ng-show="bundle.requires.length > 0 || bundle.requiredBy.length > 0">
+    <h2>Dependencies</h2>
+    <table class="list">
+      <thead>
+        <tr>
+          <th>Bundle</th>
+          <th>Version</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="intermediateHeader" ng-show="bundle.requires.length > 0">
+          <th colspan="2">Requires</th>
+        </tr>
+        <tr ng-repeat="dep in bundle.requires" ng-class-even="'even'" ng-class-odd="'odd'">
+          <td><a href="#/bundles/{{dep.symbolicName}}">{{dep.symbolicName}}</a></td>
+          <td>{{dep.versions}}</td>
+        </tr>
+        <tr class="intermediateHeader" ng-show="bundle.requiredBy.length > 0">
+          <th colspan="2">Required By</th>
+        </tr>
+        <tr ng-repeat="dep in bundle.requiredBy" ng-class-even="'even'" ng-class-odd="'odd'">
+          <td><a href="#/bundles/{{dep.symbolicName}}">{{dep.symbolicName}}</a></td>
+          <td>{{dep.versions}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

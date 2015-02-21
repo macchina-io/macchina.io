@@ -1,0 +1,22 @@
+<div class="groupbox">
+  <table class="list" style="width: 100%">
+	<thead>
+	  <tr>
+		<th>ID</th>
+		<th>Name</th>
+		<th>Version</th>
+		<th>Symbolic Name</th>
+		<th>State</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr ng-repeat="bundle in bundles" ng-class-even="'even'" ng-class-odd="'odd'">
+		<td>{{bundle.id}}</td>
+		<td><a href="#/bundles/{{bundle.symbolicName}}">{{bundle.name}}</a></td>
+		<td>{{bundle.version}}</td>
+		<td>{{bundle.symbolicName}}</td>
+		<td>{{bundle.state}}</td>
+	  </tr>
+	</tbody>  
+  </table>
+</div>
