@@ -413,7 +413,7 @@ table.list
 	margin-right: 0;
 }
 
-table.list th
+table.list thead th
 {
 	color: #fff;
 	font-weight: bold;
@@ -425,6 +425,19 @@ table.list th
 	padding-right: 6px;
 	text-align: left;
 	vertical-align: middle;
+}
+
+table.list tbody th
+{
+	border-style: none;
+	border-width: 0px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	padding-left: 6px;
+	padding-right: 6px;
+	text-align: left;
+	vertical-align: middle;
+	font-weight: bold;
 }
 
 table.list td

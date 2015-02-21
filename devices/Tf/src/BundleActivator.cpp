@@ -70,22 +70,22 @@ public:
 				switch (ev.type)
 				{
 				case AmbientLightSensor::DEVICE_IDENTIFIER:
-					createDevice<AmbientLightSensor>(ev.uid, "luminance");
+					createDevice<AmbientLightSensor>(ev.uid);
 					break;
 				case MotionDetector::DEVICE_IDENTIFIER:
-					createDevice<MotionDetector>(ev.uid, "");
+					createDevice<MotionDetector>(ev.uid);
 					break;
 				case RotaryEncoder::DEVICE_IDENTIFIER:
-					createDevice<RotaryEncoder>(ev.uid, "");
+					createDevice<RotaryEncoder>(ev.uid);
 					break;
 				case TemperatureSensor::DEVICE_IDENTIFIER:
-					createDevice<TemperatureSensor>(ev.uid, "temperature");
+					createDevice<TemperatureSensor>(ev.uid);
 					break;
 				case HumiditySensor::DEVICE_IDENTIFIER:
-					createDevice<HumiditySensor>(ev.uid, "humidity");
+					createDevice<HumiditySensor>(ev.uid);
 					break;
 				case AirPressureSensor::DEVICE_IDENTIFIER:
-					createDevice<AirPressureSensor>(ev.uid, "airPressure");
+					createDevice<AirPressureSensor>(ev.uid);
 					break;
 				default:
 					_pContext->logger().information(Poco::format("Detected unsupported Tinkerforge device: %hu", ev.type));
@@ -101,12 +101,13 @@ public:
 	}
 	
 	template <class D>
-	void createDevice(const std::string& uid, const std::string& physicalQuantity)
+	void createDevice(const std::string& uid)
 	{
 		typedef Poco::RemotingNG::ServerHelper<typename D::SuperType> ServerHelper;
 		
 		Poco::SharedPtr<D> pDevice = new D(_pMasterConnection, uid);
 		std::string symbolicName = pDevice->getPropertyString("symbolicName");
+		std::string physicalQuantity = pDevice->getPropertyString("physicalQuantity");
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
 		oid += uid;

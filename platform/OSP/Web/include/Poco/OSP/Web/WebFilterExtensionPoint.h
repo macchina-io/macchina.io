@@ -54,6 +54,8 @@ class OSPWeb_API WebFilterExtensionPoint: public ExtensionPoint
 	///                   this media type will be passed to the filter.
 	///    * class: the class name of the request handler factory.
 	///    * library: the name of the shared library containing the request handler factory. 
+	///
+	/// Any additional attributes are passed to the factory's createFilter() method.
 {
 public:
 	WebFilterExtensionPoint(BundleContext::Ptr pContext, WebServerDispatcher* pDispatcher);

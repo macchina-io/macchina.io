@@ -30,9 +30,11 @@ public:
 	typedef BrickletImpl BrickletType;
 	typedef Super        SuperType;
 
-	BrickletImpl(const std::string& symbolicName, const std::string& name):
+	BrickletImpl(const std::string& symbolicName, const std::string& name, const std::string physicalQuantity = "", const std::string& physicalUnit = ""):
 		_symbolicName(symbolicName),
-		_name(name)
+		_name(name),
+		_physicalQuantity(physicalQuantity),
+		_physicalUnit(physicalUnit)
 	{
 		this->addProperty("uid", &BrickletImpl::getUID);
 		this->addProperty("masterUID", &BrickletImpl::getMasterUID);
@@ -42,6 +44,8 @@ public:
 		this->addProperty("deviceIdentifier", &BrickletImpl::getDeviceIdentifier);
 		this->addProperty("symbolicName", &BrickletImpl::getSymbolicName);
 		this->addProperty("name", &BrickletImpl::getName);
+		this->addProperty("physicalQuantity", &BrickletImpl::getPhysicalQuantity);
+		this->addProperty("physicalUnit", &BrickletImpl::getPhysicalUnit);
 	}
 		
 	~BrickletImpl()
@@ -99,6 +103,16 @@ protected:
 		return _symbolicName;
 	}
 	
+	Poco::Any getPhysicalQuantity(const std::string&) const
+	{
+		return _physicalQuantity;
+	}
+	
+	Poco::Any getPhysicalUnit(const std::string&) const
+	{
+		return _physicalUnit;
+	}
+	
 private:
 	Poco::Any _uid;
 	Poco::Any _masterUID;
@@ -108,6 +122,8 @@ private:
 	Poco::Any _deviceIdentifier;
 	Poco::Any _symbolicName;
 	Poco::Any _name;
+	Poco::Any _physicalQuantity;
+	Poco::Any _physicalUnit;
 };
 
 

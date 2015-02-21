@@ -11,10 +11,10 @@
 
 
 #include "JSServletExecutor.h"
-#include "Poco/JS/Net/HTTPRequestWrapper.h"
-#include "Poco/JS/Net/HTTPResponseWrapper.h"
 #include "Poco/JS/Net/HTMLFormWrapper.h"
+#include "Poco/StreamCopier.h"
 #include "v8.h"
+#include <iostream>
 
 
 namespace Poco {
@@ -45,8 +45,8 @@ namespace
 }
 
 
-JSServletExecutor::JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response):
-	JSExecutor(pContext, pBundle, script, scriptURI, 1024*1024),
+JSServletExecutor::JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, Poco::UInt64 memoryLimit, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response):
+	JSExecutor(pContext, pBundle, script, scriptURI, memoryLimit),
 	_pRequest(&request),
 	_pResponse(&response),
 	_pForm(new Poco::Net::HTMLForm(request, request.stream()))
@@ -62,9 +62,18 @@ void JSServletExecutor::reset(Poco::Net::HTTPServerRequest& request, Poco::Net::
 }
 
 
+void JSServletExecutor::scriptCompleted()
+{
+	_pRequestHolder = 0;
+	_pResponseHolder = 0;
+	while (!v8::V8::IdleNotification()) {}
+}
+
+
 void JSServletExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
 {
 	JSExecutor::registerGlobals(global, pIsolate);
+	updateGlobals(global, pIsolate);
 }
 
 
@@ -72,17 +81,24 @@ void JSServletExecutor::updateGlobals(v8::Local<v8::ObjectTemplate>& global, v8:
 {
 	JSExecutor::updateGlobals(global, pIsolate);
 
+	v8::HandleScope handleScope(pIsolate);
+
+	// Note: we manually manage the lifetime of the request and response holders
+	_pRequestHolder = new Poco::JS::Net::RequestRefHolderImpl<Poco::Net::HTTPServerRequest>(*_pRequest);
 	Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
-	v8::Handle<v8::Object> requestObject = httpRequestWrapper.wrapNative(pIsolate, new Poco::JS::Net::RequestRefHolderImpl<Poco::Net::HTTPServerRequest>(*_pRequest));
+	v8::Local<v8::Object> requestObject = httpRequestWrapper.wrapNative(pIsolate, &*_pRequestHolder);
 	global->Set(v8::String::NewFromUtf8(pIsolate, "request"), requestObject);
 
+	_pResponseHolder = new Poco::JS::Net::ResponseRefHolderImpl<Poco::Net::HTTPServerResponse>(*_pResponse);
 	Poco::JS::Net::HTTPResponseWrapper httpResponseWrapper;
-	v8::Handle<v8::Object> responseObject = httpResponseWrapper.wrapNative(pIsolate, new Poco::JS::Net::ResponseRefHolderImpl<Poco::Net::HTTPServerResponse>(*_pResponse));
+	v8::Local<v8::Object> responseObject = httpResponseWrapper.wrapNative(pIsolate, &*_pResponseHolder);
 	global->Set(v8::String::NewFromUtf8(pIsolate, "response"), responseObject);
 
 	Poco::JS::Net::HTMLFormWrapper formWrapper;
-	v8::Handle<v8::Object> formObject = formWrapper.wrapNative(pIsolate, &*_pForm);
+	v8::Local<v8::Object> formObject = formWrapper.wrapNative(pIsolate, &*_pForm);
 	global->Set(v8::String::NewFromUtf8(pIsolate, "form"), formObject);
+	
+	Poco::StreamCopier::copyToString(_pRequest->stream(), _pRequestHolder->content());
 }
 
 

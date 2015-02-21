@@ -51,6 +51,7 @@ protected:
 	void setValueChangedPeriod(const std::string&, const Poco::Any& value);
 	Poco::Any getValueChangedDelta(const std::string&) const;
 	void setValueChangedDelta(const std::string&, const Poco::Any& value);
+	Poco::Any getDisplayValue(const std::string&) const;
 
 	static void onTemperatureChanged(Poco::Int16 temperature, void* userData);
 	

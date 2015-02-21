@@ -12,6 +12,7 @@
 
 #include "TemperatureSensor.h"
 #include "MasterConnectionImpl.h"
+#include "Poco/NumberFormatter.h"
 
 
 namespace IoT {
@@ -19,9 +20,10 @@ namespace Tf {
 
 
 TemperatureSensor::TemperatureSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.temperature", "Tinkerforge Temperature Bricklet"),
+	BrickletType("io.macchina.tf.temperature", "Tinkerforge Temperature Bricklet", "temperature", IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
+	addProperty("displayValue", &TemperatureSensor::getDisplayValue);
 	addProperty("valueChangedPeriod", &TemperatureSensor::getValueChangedPeriod, &TemperatureSensor::setValueChangedPeriod);
 	addProperty("valueChangedDelta", &TemperatureSensor::getValueChangedDelta, &TemperatureSensor::setValueChangedDelta);
 
@@ -52,7 +54,7 @@ TemperatureSensor::~TemperatureSensor()
 
 double TemperatureSensor::value() const
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
+	Poco::Mutex::ScopedLock lock(_mutex);
 
 	Poco::Int16 temp;
 	int rc = temperature_get_temperature(&_temperature, &temp);
@@ -89,6 +91,12 @@ void TemperatureSensor::setValueChangedDelta(const std::string&, const Poco::Any
 {
 	double delta = Poco::AnyCast<double>(value);
 	_eventPolicy.setMinimumDelta(delta);
+}
+
+
+Poco::Any TemperatureSensor::getDisplayValue(const std::string&) const
+{
+	return Poco::NumberFormatter::format(value(), 0, 1);
 }
 
 

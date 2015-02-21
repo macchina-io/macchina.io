@@ -1,7 +1,7 @@
 //
 // SessionJSON.cpp
 //
-// This file has been generated from SessionJSON.cpsp on 2015-02-19 16:37:08.
+// This file has been generated from SessionJSON.cpsp on 2015-02-20 12:17:59.
 //
 
 
@@ -28,7 +28,7 @@ SessionJSON::SessionJSON(Poco::OSP::BundleContext::Ptr pContext):
 void SessionJSON::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
 	response.setChunkedTransferEncoding(true);
-	response.setContentType("text/html");
+	response.setContentType("application/json");
 
 	Poco::OSP::Web::WebSession::Ptr session;
 	{

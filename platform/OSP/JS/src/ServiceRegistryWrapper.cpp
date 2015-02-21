@@ -89,7 +89,7 @@ void ServiceRegistryWrapper::find(const v8::FunctionCallbackInfo<v8::Value>& arg
 			{
 				for (std::vector<Poco::OSP::ServiceRef::Ptr>::iterator it = services.begin(); it != services.end(); ++it)
 				{
-					v8::Persistent<v8::Object> serviceRefObject(args.GetIsolate(), wrapper.wrapNativePersistent(args.GetIsolate(), *it));
+					v8::Persistent<v8::Object>& serviceRefObject(wrapper.wrapNativePersistent(args.GetIsolate(), *it));
 					v8::Local<v8::Object> localServiceRefObject = v8::Local<v8::Object>::New(args.GetIsolate(), serviceRefObject);
 					result->Set(i++, localServiceRefObject);
 				}

@@ -12,6 +12,7 @@
 
 #include "AmbientLightSensor.h"
 #include "MasterConnectionImpl.h"
+#include "Poco/NumberFormatter.h"
 
 
 namespace IoT {
@@ -19,9 +20,10 @@ namespace Tf {
 
 
 AmbientLightSensor::AmbientLightSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.ambientlight", "Tinkerforge Ambient Light Bricklet"),
+	BrickletType("io.macchina.tf.ambientlight", "Tinkerforge Ambient Light Bricklet", "luminance", IoT::Devices::Sensor::PHYSICAL_UNIT_LUX),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
+	addProperty("displayValue", &AmbientLightSensor::getDisplayValue);
 	addProperty("valueChangedPeriod", &AmbientLightSensor::getValueChangedPeriod, &AmbientLightSensor::setValueChangedPeriod);
 	addProperty("valueChangedDelta", &AmbientLightSensor::getValueChangedDelta, &AmbientLightSensor::setValueChangedDelta);
 
@@ -52,7 +54,7 @@ AmbientLightSensor::~AmbientLightSensor()
 
 double AmbientLightSensor::value() const
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
+	Poco::Mutex::ScopedLock lock(_mutex);
 
 	Poco::UInt16 illuminance;
 	int rc = ambient_light_get_illuminance(&_ambientLight, &illuminance);
@@ -89,6 +91,12 @@ void AmbientLightSensor::setValueChangedDelta(const std::string&, const Poco::An
 {
 	double delta = Poco::AnyCast<double>(value);
 	_eventPolicy.setMinimumDelta(delta);
+}
+
+
+Poco::Any AmbientLightSensor::getDisplayValue(const std::string&) const
+{
+	return Poco::NumberFormatter::format(value(), 0, 1);
 }
 
 

@@ -83,6 +83,9 @@ void JSExecutor::setup()
 	v8::Local<v8::ObjectTemplate> globalObject = v8::ObjectTemplate::New(pIsolate);
 	_globalObject.Reset(pIsolate, globalObject);
 	registerGlobals(globalObject, pIsolate);
+
+	v8::Local<v8::Context> scriptContext = v8::Context::New(pIsolate, 0, globalObject);
+	_scriptContext.Reset(pIsolate, scriptContext);
 }
 
 
@@ -115,18 +118,23 @@ void JSExecutor::runImpl()
 	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
 
-	if (_globalContext.IsEmpty())
+	bool mustUpdateGlobals = true;
+	if (_globalObject.IsEmpty())
 	{
 		setup();
+		mustUpdateGlobals = false;
 	}
 
 	v8::Local<v8::Context> globalContext = v8::Local<v8::Context>::New(pIsolate, _globalContext);
 	v8::Context::Scope globalContextScope(globalContext);
+	
 	v8::Local<v8::ObjectTemplate> global(v8::Local<v8::ObjectTemplate>::New(pIsolate, _globalObject));
-	updateGlobals(global, pIsolate);
-	v8::Local<v8::Context> context = v8::Context::New(pIsolate, 0, global);
-	_scriptContext.Reset(pIsolate, context);
-	v8::Context::Scope contextScope(context);
+	if (mustUpdateGlobals)
+	{
+		updateGlobals(global, pIsolate);
+	}
+	v8::Local<v8::Context> scriptContext = v8::Local<v8::Context>::New(pIsolate, _scriptContext);
+	v8::Context::Scope contextScope(scriptContext);
 
 	if (_script.IsEmpty())
 	{
@@ -143,6 +151,8 @@ void JSExecutor::runImpl()
 			reportError(tryCatch);
 		}
 	}
+	
+	scriptCompleted();
 }
 
 
@@ -340,6 +350,11 @@ void JSExecutor::reportError(const ErrorInfo& errorInfo)
 	{
 	}
 	handleError(errorInfo);
+}
+
+
+void JSExecutor::scriptCompleted()
+{
 }
 
 

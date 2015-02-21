@@ -3,6 +3,7 @@
          session="@websession.id" 
          createSession="false" 
          precondition="U::isAuthenticated(session, response)"
+         contentType="application/json"
          compressed="true" %>
 <%@ impl include="Poco/OSP/ServiceFinder.h"
          include="Poco/OSP/Auth/AuthService.h"

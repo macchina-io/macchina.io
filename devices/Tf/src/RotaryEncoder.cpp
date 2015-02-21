@@ -12,6 +12,7 @@
 
 #include "RotaryEncoder.h"
 #include "MasterConnectionImpl.h"
+#include "Poco/NumberFormatter.h"
 
 
 namespace IoT {
@@ -21,6 +22,7 @@ namespace Tf {
 RotaryEncoder::RotaryEncoder(MasterConnection::Ptr pMasterConn, const std::string& uid):
 	BrickletType("io.macchina.tf.rotaryencoder", "Tinkerforge Rotary Encoder Bricklet")
 {
+	addProperty("displayValue", &RotaryEncoder::getDisplayValue);
 	addProperty("countChangedPeriod", &RotaryEncoder::getCountChangedPeriod, &RotaryEncoder::setCountChangedPeriod);
 	
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
@@ -51,7 +53,7 @@ RotaryEncoder::~RotaryEncoder()
 
 Poco::Int32 RotaryEncoder::count() const
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
+	Poco::Mutex::ScopedLock lock(_mutex);
 
 	Poco::Int32 value;
 	int rc = rotary_encoder_get_count(&_rotaryEncoder, false, &value);
@@ -64,7 +66,7 @@ Poco::Int32 RotaryEncoder::count() const
 
 Poco::Int32 RotaryEncoder::reset()
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
+	Poco::Mutex::ScopedLock lock(_mutex);
 
 	Poco::Int32 value;
 	int rc = rotary_encoder_get_count(&_rotaryEncoder, true, &value);
@@ -90,9 +92,15 @@ void RotaryEncoder::setCountChangedPeriod(const std::string&, const Poco::Any& v
 }
 
 
+Poco::Any RotaryEncoder::getDisplayValue(const std::string&) const
+{
+	return Poco::NumberFormatter::format(count());
+}
+
+
 bool RotaryEncoder::buttonState() const
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
+	Poco::Mutex::ScopedLock lock(_mutex);
 
 	bool state;
 	int rc = rotary_encoder_is_pressed(&_rotaryEncoder, &state);

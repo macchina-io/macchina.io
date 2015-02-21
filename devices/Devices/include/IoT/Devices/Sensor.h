@@ -32,6 +32,17 @@ namespace Devices {
 class IoTDevices_API Sensor: public Device
 	/// The base class for analog sensors, such as
 	/// temperature or ambient light sensors.
+	///
+	/// In addition to the methods defined in this interface,
+	/// a Sensor implementation should expose the following
+	/// properties:
+	///   - physicalQuantity (string): The physical quantity that is
+	///     being measured by the sensor, e.g. "temperature".
+	///   - physicalUnit (string): The physical unit the measured value
+	///     is being represented in (e.g. "°C"), UTF-8 encoded.
+	///     See the PHYSICAL_UNIT_* strings for predefined values.
+	///   - displayValue (string, optional): The current value of the sensor,
+	///     formatted as string for display purposes.
 {
 public:
 	Poco::BasicEvent<const double> valueChanged;
@@ -49,6 +60,19 @@ public:
 
 	virtual double value() const = 0;
 		/// Returns the current value measured by the sensor.
+		
+	static std::string PHYSICAL_UNIT_DEGREES_CELSIUS;
+	static std::string PHYSICAL_UNIT_DEGREES_FAHRENHEIT;
+	static std::string PHYSICAL_UNIT_KELVIN;
+	static std::string PHYSICAL_UNIT_METER;
+	static std::string PHYSICAL_UNIT_KILOGRAM;
+	static std::string PHYSICAL_UNIT_SECOND;
+	static std::string PHYSICAL_UNIT_VOLT;
+	static std::string PHYSICAL_UNIT_AMPERE;
+	static std::string PHYSICAL_UNIT_MOL;
+	static std::string PHYSICAL_UNIT_CANDELA;
+	static std::string PHYSICAL_UNIT_LUX;
+	static std::string PHYSICAL_UNIT_MBAR;
 };
 
 

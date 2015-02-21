@@ -1,4 +1,4 @@
-<%@ page class="SessionJSON" namespace="IoT::Web::Launcher" session="@websession.id" createSession="false" compressed="false" %>
+<%@ page class="SessionJSON" namespace="IoT::Web::Launcher" session="@websession.id" createSession="false" contentType="application/json" compressed="false" %>
 {
 <% if (session) { %>
 	"authenticated": <%= session->getValue<std::string>("username", "") != "" ? "true" : "false" %>,

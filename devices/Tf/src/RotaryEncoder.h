@@ -49,6 +49,7 @@ public:
 protected:
 	Poco::Any getCountChangedPeriod(const std::string&) const;
 	void setCountChangedPeriod(const std::string&, const Poco::Any& value);
+	Poco::Any getDisplayValue(const std::string&) const;
 
 	static void onCountChanged(Poco::Int32 count, void* userData);
 	static void onButtonPressed(void* userData);

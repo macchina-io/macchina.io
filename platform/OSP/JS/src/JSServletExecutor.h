@@ -18,6 +18,8 @@
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
 #include "Poco/Net/HTMLForm.h"
+#include "Poco/JS/Net/HTTPRequestWrapper.h"
+#include "Poco/JS/Net/HTTPResponseWrapper.h"
 #include "Poco/SharedPtr.h"	
 
 
@@ -37,7 +39,7 @@ class JSServletExecutor: public JSExecutor
 public:
 	typedef Poco::AutoPtr<JSServletExecutor> Ptr;
 
-	JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
+	JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, Poco::UInt64 memoryLimit, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 		/// Creates the ServletExecutor.
 
 	void reset(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
@@ -47,10 +49,13 @@ protected:
 	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
 	void updateGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
 	void handleError(const ErrorInfo& errorInfo);
+	void scriptCompleted();
 
 private:
 	Poco::Net::HTTPServerRequest* _pRequest;
 	Poco::Net::HTTPServerResponse* _pResponse;
+	Poco::SharedPtr<Poco::JS::Net::RequestHolder> _pRequestHolder;
+	Poco::SharedPtr<Poco::JS::Net::ResponseHolder> _pResponseHolder;
 	Poco::SharedPtr<Poco::Net::HTMLForm> _pForm;
 };
 

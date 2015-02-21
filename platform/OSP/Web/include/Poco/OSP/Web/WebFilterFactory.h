@@ -21,6 +21,7 @@
 
 
 #include "Poco/OSP/Web/Web.h"
+#include "Poco/OSP/Web/WebFilter.h"
 #include "Poco/OSP/BundleContext.h"
 #include <istream>
 
@@ -28,9 +29,6 @@
 namespace Poco {
 namespace OSP {
 namespace Web {
-
-
-class WebFilter;
 
 
 class OSPWeb_API WebFilterFactory
@@ -44,8 +42,8 @@ public:
 	virtual ~WebFilterFactory();
 		/// Destroys the WebFilterFactory.
 
-	virtual WebFilter* createFilter() = 0;
-		/// Creates a WebFilter.
+	virtual WebFilter* createFilter(const WebFilter::Args& args) = 0;
+		/// Creates a WebFilter using the given arguments.
 
 	void init(BundleContext::Ptr pContext);
 		/// Initializes the object with the given BundleContext.

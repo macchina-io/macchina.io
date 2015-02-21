@@ -12,6 +12,7 @@
 
 #include "AirPressureSensor.h"
 #include "MasterConnectionImpl.h"
+#include "Poco/NumberFormatter.h"
 
 
 namespace IoT {
@@ -19,9 +20,10 @@ namespace Tf {
 
 
 AirPressureSensor::AirPressureSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.barometer", "Tinkerforge Barometer Bricklet"),
+	BrickletType("io.macchina.tf.barometer", "Tinkerforge Barometer Bricklet", "AirPressure", IoT::Devices::Sensor::PHYSICAL_UNIT_MBAR),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
+	addProperty("displayValue", &AirPressureSensor::getDisplayValue);
 	addProperty("valueChangedPeriod", &AirPressureSensor::getValueChangedPeriod, &AirPressureSensor::setValueChangedPeriod);
 	addProperty("valueChangedDelta", &AirPressureSensor::getValueChangedDelta, &AirPressureSensor::setValueChangedDelta);
 
@@ -52,7 +54,7 @@ AirPressureSensor::~AirPressureSensor()
 
 double AirPressureSensor::value() const
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
+	Poco::Mutex::ScopedLock lock(_mutex);
 
 	Poco::Int32 airPressure;
 	int rc = barometer_get_air_pressure(&_barometer, &airPressure);
@@ -89,6 +91,12 @@ void AirPressureSensor::setValueChangedDelta(const std::string&, const Poco::Any
 {
 	double delta = Poco::AnyCast<double>(value);
 	_eventPolicy.setMinimumDelta(delta);
+}
+
+
+Poco::Any AirPressureSensor::getDisplayValue(const std::string&) const
+{
+	return Poco::NumberFormatter::format(value(), 0, 2);
 }
 
 

@@ -25,6 +25,7 @@
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
 #include <istream>
+#include <map>
 
 
 namespace Poco {
@@ -37,7 +38,10 @@ class OSPWeb_API WebFilter
 	/// sent to the client. This can be used, e.g., to implement web
 	/// pages containing server-side scripts.
 {
-public:		
+public:	
+	typedef std::map<std::string, std::string> Args;
+		/// Arguments for the WebFilter instance (from extension point).
+	
 	virtual ~WebFilter();
 		/// Destroys the WebFilter.
 

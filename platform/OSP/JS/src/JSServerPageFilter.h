@@ -26,7 +26,7 @@ class JSServerPageFilter: public JSServletFilter
 	/// A web filter for executing JavaScript server pages.
 {
 public:
-	JSServerPageFilter(Poco::OSP::BundleContext::Ptr pContext);
+	JSServerPageFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args);
 		/// Creates the JSServerPageFilter using the given BundleContext.
 
 protected:
@@ -38,9 +38,9 @@ class JSServerPageFilterFactory: public Poco::OSP::Web::WebFilterFactory
 	/// The factory for JSServerPageFilter.
 {
 public:
-	Poco::OSP::Web::WebFilter* createFilter()
+	Poco::OSP::Web::WebFilter* createFilter(const Poco::OSP::Web::WebFilter::Args& args)
 	{
-		return new JSServerPageFilter(context());
+		return new JSServerPageFilter(context(), args);
 	}
 };
 

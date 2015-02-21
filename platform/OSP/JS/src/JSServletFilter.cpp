@@ -11,8 +11,8 @@
 
 
 #include "JSServletFilter.h"
-#include "JSServletExecutor.h"
 #include "Poco/StreamCopier.h"
+#include "Poco/NumberParser.h"
 
 
 namespace Poco {
@@ -43,9 +43,15 @@ namespace
 }
 
 
-JSServletFilter::JSServletFilter(Poco::OSP::BundleContext::Ptr pContext):
-	_pContext(pContext)
+JSServletFilter::JSServletFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args):
+	_pContext(pContext),
+	_memoryLimit(1024*1024)
 {
+	Poco::OSP::Web::WebFilter::Args::const_iterator it = args.find("memoryLimit");
+	if (it != args.end())
+	{
+		_memoryLimit = Poco::NumberParser::parseUnsigned64(it->second);
+	}
 }
 
 
@@ -54,14 +60,20 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 	try
 	{
 		response.setContentType("text/html");
-		std::string servlet;
-		preprocess(request, response, path, resourceStream, servlet);
-		std::string scriptURI("bndl://");
-		scriptURI += pBundle->symbolicName();
-		if (path.empty() || path[0] != '/') scriptURI += "/";
-		scriptURI += path;
-		JSServletExecutor::Ptr pServletExecutor = new JSServletExecutor(_pContext, pBundle, servlet, Poco::URI(scriptURI), request, response);
-		pServletExecutor->run();
+
+		Poco::FastMutex::ScopedLock lock(_mutex);
+		
+		if (!_pServletExecutor)
+		{
+			std::string servlet;
+			preprocess(request, response, path, resourceStream, servlet);
+			std::string scriptURI("bndl://");
+			scriptURI += pBundle->symbolicName();
+			if (path.empty() || path[0] != '/') scriptURI += "/";
+			scriptURI += path;
+			_pServletExecutor = new JSServletExecutor(_pContext, pBundle, servlet, Poco::URI(scriptURI), _memoryLimit, request, response);
+		}
+		_pServletExecutor->run();
 		if (!response.sent())
 		{
 			sendErrorResponse(response, "Script execution failed. See server log for details.");
@@ -80,7 +92,12 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 
 void JSServletFilter::preprocess(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& path, std::istream& resourceStream, std::string& servlet)
 {
+	// The $servlet function is created to prevent the script from
+	// creating global variables. V8 does not seem to garbage collect
+	// global variables, resulting in memory leaks.
+	servlet += "function $servlet() {";
 	Poco::StreamCopier::copyToString(resourceStream, servlet);
+	servlet += "}\n$servlet();";
 }
 
 

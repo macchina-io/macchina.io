@@ -19,6 +19,7 @@
 #include "Poco/OSP/OSPException.h"
 #include "Poco/OSP/ExtensionPointService.h"
 #include "Poco/OSP/BundleEvents.h"
+#include "Poco/DOM/NamedNodeMap.h"
 #include "Poco/StringTokenizer.h"
 #include "Poco/String.h"
 #include "Poco/Delegate.h"
@@ -85,7 +86,14 @@ void WebFilterExtensionPoint::handleFilter(Bundle::ConstPtr pBundle, Poco::XML::
 	std::string library = pExtensionElem->getAttribute(ATTR_LIBRARY);
 	if (library.empty())
 		library = pBundle->symbolicName();
-		
+	
+	WebFilter::Args args;
+	Poco::AutoPtr<Poco::XML::NamedNodeMap> pAttrs = pExtensionElem->attributes();
+	for (unsigned long i = 0; i < pAttrs->length(); i++)
+	{
+		args[pAttrs->item(i)->nodeName()] = pAttrs->item(i)->getNodeValue();
+	}
+
 	std::string libraryPath = _pContext->pathForLibrary(library);
 	if (!_loader.isLibraryLoaded(libraryPath))
 	{
@@ -96,7 +104,7 @@ void WebFilterExtensionPoint::handleFilter(Bundle::ConstPtr pBundle, Poco::XML::
 	FactoryPtr pFactory = _loader.create(className);
 	pFactory->init(_pContext->contextForBundle(pBundle));
 	
-	_pDispatcher->addFilter(mediaType, pFactory);
+	_pDispatcher->addFilter(mediaType, pFactory, args);
 	_bundleFilterMap.insert(BundleFilterMap::value_type(pBundle, mediaType));
 }
 

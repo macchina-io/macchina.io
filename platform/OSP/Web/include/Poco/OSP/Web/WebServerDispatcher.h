@@ -176,7 +176,7 @@ public:
 	Poco::ThreadPool& threadPool();
 		/// Returns the thread pool for use by Poco::Net::HTTPServer.
 
-	void addFilter(const std::string& mediaType, WebFilterFactoryPtr pFilterFactory);
+	void addFilter(const std::string& mediaType, WebFilterFactoryPtr pFilterFactory, const WebFilter::Args& args);
 		/// Adds a filter factory for the given media type.
 		///
 		/// Throws a Poco::ExistsException if a filter already exists for the given mediaType.
@@ -272,7 +272,12 @@ protected:
 		/// Logs the HTTP request.
 		
 private:
-	typedef std::map<std::string, WebFilterFactoryPtr> FilterFactoryMap;
+	struct WebFilterFactoryInfo
+	{
+		WebFilterFactoryPtr pFactory;
+		WebFilter::Args args;
+	};
+	typedef std::map<std::string, WebFilterFactoryInfo> FilterFactoryMap;
 	typedef std::map<std::string, std::string> ResourceCache;
 	
 	BundleContext::Ptr _pContext;

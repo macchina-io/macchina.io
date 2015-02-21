@@ -12,6 +12,7 @@
 
 #include "HumiditySensor.h"
 #include "MasterConnectionImpl.h"
+#include "Poco/NumberFormatter.h"
 
 
 namespace IoT {
@@ -19,9 +20,10 @@ namespace Tf {
 
 
 HumiditySensor::HumiditySensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.humidity", "Tinkerforge Humidity Bricklet"),
+	BrickletType("io.macchina.tf.humidity", "Tinkerforge Humidity Bricklet", "humidity", "%RH"),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
+	addProperty("displayValue", &HumiditySensor::getDisplayValue);
 	addProperty("valueChangedPeriod", &HumiditySensor::getValueChangedPeriod, &HumiditySensor::setValueChangedPeriod);
 	addProperty("valueChangedDelta", &HumiditySensor::getValueChangedDelta, &HumiditySensor::setValueChangedDelta);
 
@@ -52,7 +54,7 @@ HumiditySensor::~HumiditySensor()
 
 double HumiditySensor::value() const
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
+	Poco::Mutex::ScopedLock lock(_mutex);
 
 	Poco::UInt16 humidity;
 	int rc = humidity_get_humidity(&_humidity, &humidity);
@@ -89,6 +91,12 @@ void HumiditySensor::setValueChangedDelta(const std::string&, const Poco::Any& v
 {
 	double delta = Poco::AnyCast<double>(value);
 	_eventPolicy.setMinimumDelta(delta);
+}
+
+
+Poco::Any HumiditySensor::getDisplayValue(const std::string&) const
+{
+	return Poco::NumberFormatter::format(value(), 0, 1);
 }
 
 

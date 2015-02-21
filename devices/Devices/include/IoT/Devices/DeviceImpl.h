@@ -90,7 +90,7 @@ public:
 
 	void setProperty(const std::string& name, const Poco::Any& value)
 	{
-		Poco::FastMutex::ScopedLock lock(_mutex);
+		Poco::Mutex::ScopedLock lock(_mutex);
 
 		typename PropertyMap::const_iterator it = _properties.find(name);
 		if (it != _properties.end())
@@ -105,7 +105,7 @@ public:
 		
 	Poco::Any getProperty(const std::string& name) const
 	{
-		Poco::FastMutex::ScopedLock lock(_mutex);
+		Poco::Mutex::ScopedLock lock(_mutex);
 
 		typename PropertyMap::const_iterator it = _properties.find(name);
 		if (it != _properties.end())
@@ -120,7 +120,7 @@ public:
 		
 	bool hasProperty(const std::string& name) const
 	{
-		Poco::FastMutex::ScopedLock lock(_mutex);
+		Poco::Mutex::ScopedLock lock(_mutex);
 
 		typename PropertyMap::const_iterator it = _properties.find(name);
 		return it != _properties.end();
@@ -128,7 +128,7 @@ public:
 			
 	void setFeature(const std::string& name, bool enable)
 	{
-		Poco::FastMutex::ScopedLock lock(_mutex);
+		Poco::Mutex::ScopedLock lock(_mutex);
 
 		typename FeatureMap::const_iterator it = _features.find(name);
 		if (it != _features.end())
@@ -143,7 +143,7 @@ public:
 	
 	bool getFeature(const std::string& name) const
 	{
-		Poco::FastMutex::ScopedLock lock(_mutex);
+		Poco::Mutex::ScopedLock lock(_mutex);
 
 		typename FeatureMap::const_iterator it = _features.find(name);
 		if (it != _features.end())
@@ -158,7 +158,7 @@ public:
 	
 	bool hasFeature(const std::string& name) const
 	{
-		Poco::FastMutex::ScopedLock lock(_mutex);
+		Poco::Mutex::ScopedLock lock(_mutex);
 
 		typename FeatureMap::const_iterator it = _features.find(name);
 		return it != _features.end();
@@ -206,7 +206,7 @@ protected:
 	
 	FeatureMap  _features;
 	PropertyMap _properties;
-	mutable Poco::FastMutex _mutex;
+	mutable Poco::Mutex _mutex;
 };
 
 

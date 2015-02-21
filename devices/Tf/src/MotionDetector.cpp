@@ -21,6 +21,8 @@ namespace Tf {
 MotionDetector::MotionDetector(MasterConnection::Ptr pMasterConn, const std::string& uid):
 	BrickletType("io.macchina.tf.motiondetector", "Tinkerforge Motion Detector Bricklet")
 {
+	addProperty("displayState", &MotionDetector::getDisplayState);
+
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	motion_detector_create(&_motionDetector, uid.c_str(), ipcon);
 	
@@ -48,7 +50,7 @@ MotionDetector::~MotionDetector()
 
 bool MotionDetector::state() const
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
+	Poco::Mutex::ScopedLock lock(_mutex);
 
 	Poco::UInt8 value;
 	int rc = motion_detector_get_motion_detected(&_motionDetector, &value);
@@ -57,6 +59,12 @@ bool MotionDetector::state() const
 		return value != 0;
 	}
 	else throw Poco::IOException();
+}
+
+
+Poco::Any MotionDetector::getDisplayState(const std::string&) const
+{
+	return std::string(state() ? "triggered" : "not triggered");
 }
 
 

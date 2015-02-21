@@ -126,6 +126,9 @@ protected:
 
 	virtual void handleError(const ErrorInfo& errorInfo);
 		/// Called when the JavaScript terminates with an error.
+		
+	virtual void scriptCompleted();
+		/// Called after the script has completed, while still within the scope.
 
 	static void include(const v8::FunctionCallbackInfo<v8::Value>& args);
 		/// Implements the JavaScript include function to include another script.

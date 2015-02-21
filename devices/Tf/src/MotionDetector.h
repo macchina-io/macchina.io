@@ -45,6 +45,8 @@ public:
 	bool state() const;
 
 protected:
+	Poco::Any getDisplayState(const std::string&) const;
+
 	static void onMotionDetected(void* userData);
 	static void onDetectionCycleEnded(void* userData);
 

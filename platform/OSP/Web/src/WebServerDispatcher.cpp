@@ -239,14 +239,15 @@ void WebServerDispatcher::virtualPathMappings(PathMap& mappings) const
 }
 
 
-void WebServerDispatcher::addFilter(const std::string& mediaType, WebFilterFactoryPtr pFilterFactory)
+void WebServerDispatcher::addFilter(const std::string& mediaType, WebFilterFactoryPtr pFilterFactory, const WebFilter::Args& args)
 {
 	Poco::FastMutex::ScopedLock lock(_filterFactoryMutex);
 	
 	FilterFactoryMap::iterator it = _filterFactoryMap.find(mediaType);
 	if (it == _filterFactoryMap.end())
 	{
-		_filterFactoryMap[mediaType] = pFilterFactory;
+		_filterFactoryMap[mediaType].pFactory = pFilterFactory;
+		_filterFactoryMap[mediaType].args = args;
 	}
 	else throw Poco::ExistsException("WebFilter", mediaType);
 }
@@ -491,9 +492,9 @@ WebServerDispatcher::WebFilterPtr WebServerDispatcher::findFilter(const std::str
 	FilterFactoryMap::iterator it = _filterFactoryMap.find(mediaType);
 	if (it != _filterFactoryMap.end())
 	{
-		WebFilterFactoryPtr pFactory = it->second;
+		WebFilterFactoryInfo factoryInfo = it->second;
 		lock.unlock();
-		pFilter = pFactory->createFilter();
+		pFilter = factoryInfo.pFactory->createFilter(factoryInfo.args);
 	}
 	return pFilter;
 }
