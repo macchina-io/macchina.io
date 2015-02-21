@@ -1,7 +1,7 @@
 //
 // LoginPage.cpp
 //
-// This file has been generated from LoginPage.cpsp on 2015-02-19 16:37:08.
+// This file has been generated from LoginPage.cpsp on 2015-02-21 16:34:20.
 //
 
 
@@ -86,7 +86,7 @@ if (session)
 	responseStream << "      <div class=\"headercontainer\">\n";
 	responseStream << "        <div class=\"header\">\n";
 	responseStream << "          <h1>\n";
-	responseStream << "          <a href=\"/\"><img src=\"/images/macchina_logo_small.png\" alt=\"macchina.io\"></a>\n";
+	responseStream << "          <a href=\"/\"><img src=\"/images/headerlogo.png\" alt=\"macchina.io\"></a>\n";
 	responseStream << "          </h1>\n";
 	responseStream << "        </div>\n";
 	responseStream << "      </div>\n";

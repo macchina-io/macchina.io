@@ -119,6 +119,11 @@ div.header h1
 	font-weight: normal;
 }
 
+div.header h1 img
+{
+	margin-right: 24px;
+}
+
 div.footercontainer
 {
 	width: 100%;
@@ -302,23 +307,48 @@ div.navigation #homeIcon
 	vertical-align: middle;
 }
 
+div.navigation ul
+{
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	text-align: center;
+}
+
+div.navigation ul li
+{
+	display: inline;
+	margin-right: 32px;
+	margin-left: 8px;
+}
+
+div.navigation ul li.backlink
+{
+	display: inline;
+	margin-right: 48px;
+	margin-left: 8px;
+}
+
 a.navigation-active:link, a.navigation-active:visited, a.navigation-active:active, a.navigation-active:hover
 {
 	color: #222;
 	font-weight: bold;
 	text-decoration: none; 	
+	cursor: pointer;
 }
 
 .navigation a:link, .navigation a:visited
 {
 	color: #444;
 	text-decoration: none;
+	cursor: pointer;
 }
 
 .navigation a:active, .navigation a:hover
 {
 	color: #222;
 	text-decoration: underline;
+	cursor: pointer;
 }
 
 div.username

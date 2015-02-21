@@ -17,6 +17,10 @@ bundlesApp.config(['$routeProvider',
         templateUrl: '/macchina/bundles/templates/bundle.html',
         controller: 'BundleDetailCtrl'
       }).
+      when('/install', {
+        templateUrl: '/macchina/bundles/templates/install.html',
+        controller: 'InstallCtrl'
+      }).
       otherwise({
         redirectTo: '/bundles'
       });

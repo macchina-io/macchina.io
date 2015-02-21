@@ -3,8 +3,9 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>macchina.io Bundles</title>
+    <title>macchina.io - Bundles</title>
     <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
     <link rel="icon" href="/images/favicon.ico">
     <script type="text/javascript" src="/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="/angular/angular.min.js"></script>
@@ -18,7 +19,7 @@
       <div class="headercontainer">
         <div class="header">
           <h1>
-          <a href="/"><img src="/images/macchina_logo_small.png" alt="macchina.io"></a>&nbsp;&gt;&nbsp;Bundles
+          <a href="/"><img src="/images/headerlogo.png" alt="macchina.io"></a>Bundles
           </h1>
         </div>
       </div>
@@ -28,28 +29,29 @@
         <nav>
           <div class="usernav">
             <div class="navigation">
-              <span ng-show="!isActive('/bundles')">
-                &lt;&lt; <a href="#/bundles">Bundles</a>
-              </span>
-              <span ng-show="!isActive('/bundles') && allowedBundleActions.start">
-                &nbsp;&nbsp;| &nbsp;&nbsp;
-                <a ng-click="startBundle()">Start</a>
-              </span>
-              <span ng-show="!isActive('/bundles') && allowedBundleActions.stop">
-                &nbsp;&nbsp;| &nbsp;&nbsp;
-                <a ng-click="stopBundle()">Stop</a>
-              </span>
-              <span ng-show="!isActive('/bundles') && allowedBundleActions.resolve">
-                &nbsp;&nbsp;| &nbsp;&nbsp;
-                <a ng-click="resolveBundle()">Resolve</a>
-              </span>
-              <span ng-show="!isActive('/bundles') && allowedBundleActions.uninstall">
-                &nbsp;&nbsp;| &nbsp;&nbsp;
-                <a ng-click="stopBundle()">Uninstall</a>
-              </span>
+              <ul>
+                <li ng-show="isActive('/bundles')">
+                  <i class="fa fa-upload"></i></i> <a href="#/install">Install</a>
+                </li>
+                <li ng-show="!isActive('/bundles')" class="backlink">
+                  <i class="fa fa-chevron-circle-left"></i> <a href="#/bundles">Bundles</a>
+                </li>
+                <li ng-show="!isActive('/bundles') && allowedBundleActions.start">
+                  <i class="fa fa-play"></i> <a ng-click="startBundle()">Start</a>
+                </li>
+                <li ng-show="!isActive('/bundles') && allowedBundleActions.stop">
+                  <i class="fa fa-stop"></i> <a ng-click="stopBundle()">Stop</a>
+                </li>
+                <li ng-show="!isActive('/bundles') && allowedBundleActions.resolve">
+                  <i class="fa fa-check-square"></i> <a ng-click="resolveBundle()">Resolve</a>
+                </li>
+                <li ng-show="!isActive('/bundles') && allowedBundleActions.uninstall">
+                  <i class="fa fa-trash"></i> <a ng-click="uninstallBundle()">Uninstall</a>
+                </li>
+              </ul>
             </div>
             <div class="username">
-              <img id="userIcon" src="/images/user.png" alt="Account">
+              <i class="fa fa-user"></i>
               &nbsp;
               {{session.username}}
               &nbsp;

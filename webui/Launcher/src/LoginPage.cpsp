@@ -27,7 +27,7 @@ if (session)
       <div class="headercontainer">
         <div class="header">
           <h1>
-          <a href="/"><img src="/images/macchina_logo_small.png" alt="macchina.io"></a>
+          <a href="/"><img src="/images/headerlogo.png" alt="macchina.io"></a>
           </h1>
         </div>
       </div>

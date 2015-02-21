@@ -20,7 +20,7 @@ namespace Tf {
 
 
 AmbientLightSensor::AmbientLightSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.ambientlight", "Tinkerforge Ambient Light Bricklet", "luminance", IoT::Devices::Sensor::PHYSICAL_UNIT_LUX),
+	BrickletType("io.macchina.tf.ambientlight", "Tinkerforge Ambient Light Bricklet", "illuminance", IoT::Devices::Sensor::PHYSICAL_UNIT_LUX),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
 	addProperty("displayValue", &AmbientLightSensor::getDisplayValue);

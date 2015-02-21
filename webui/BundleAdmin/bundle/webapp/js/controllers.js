@@ -9,8 +9,7 @@ bundleControllers.controller('PageCtrl', ['$scope', '$location', 'BundleService'
     
     $scope.bundle = null;
 
-    $scope.allowedBundleActions = 
-    {
+    $scope.allowedBundleActions = {
       start: false,
       stop: false,
       resolve: false,
@@ -32,6 +31,19 @@ bundleControllers.controller('PageCtrl', ['$scope', '$location', 'BundleService'
     
     $scope.setBundle = function(bundle) {
       $scope.bundle = bundle;
+      if (bundle)
+      {
+        $scope.setAllowedBundleActions(bundle.state);
+      }
+      else
+      {
+        $scope.allowedBundleActions = {
+          start: false,
+          stop: false,
+          resolve: false,
+          uninstall: false
+        };
+      }
     };
     
     $scope.confirmInformation = function() {
@@ -78,7 +90,10 @@ bundleControllers.controller('PageCtrl', ['$scope', '$location', 'BundleService'
     $scope.uninstallBundle = function() {
       if ($scope.bundle)
       {
-        BundleService.uninstall($scope.bundle, null, null);
+        if (confirm("Uninstall bundle " + $scope.bundle.symbolicName + "?\nThis cannot be undone."))
+        {
+          BundleService.uninstall($scope.bundle, null, null);
+        }
       }
     };  
   }
@@ -86,6 +101,7 @@ bundleControllers.controller('PageCtrl', ['$scope', '$location', 'BundleService'
 
 bundleControllers.controller('BundleListCtrl', ['$scope', '$http',
   function ($scope, $http) {
+    $scope.setBundle(null);
     $scope.bundles = [];
     $http.get('/macchina/bundles/list.json').success(function(data) {
       $scope.bundles = data;
@@ -101,7 +117,6 @@ bundleControllers.controller('BundleDetailCtrl', ['$scope', '$http', '$routePara
         function(data) {
           $scope.bundle = data;
           $scope.setBundle($scope.bundle);
-          $scope.setAllowedBundleActions($scope.bundle.state);
         }
       );
     };
@@ -111,6 +126,12 @@ bundleControllers.controller('BundleDetailCtrl', ['$scope', '$http', '$routePara
         $scope.loadBundle();
       }
     );
+  }
+]);
+
+bundleControllers.controller('InstallCtrl', ['$scope',
+  function($scope, $http) {
+    $scope.setBundle(null);
   }
 ]);
 
