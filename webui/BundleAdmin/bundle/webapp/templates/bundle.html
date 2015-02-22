@@ -1,5 +1,18 @@
 <div class="groupbox">
   <h1>{{bundle.name}}</h1>
+  <div ng-if="enableBundleUpgrade" ng-controller="UpgradeCtrl">
+    <div ng-file-drop ng-file-select ng-model="files" class="drop-box" 
+         drag-over-class="dragover" ng-multiple="false" allow-dir="false"
+         ng-accept="'.bndl'">
+      Drop bundle (.bndl) file or click to upload and upgrade.
+    </div>
+    <div ng-no-file-drop>File drag/drop is not supported for this browser.</div>
+    <div ng-if="status != ''">
+      <img src="/macchina/bundles/images/loading.gif" style="vertical-align: middle" alt="">
+      {{status}}
+    </div>
+  </div>
+
   <table class="list">
 	<tbody>
 	  <tr class="even">

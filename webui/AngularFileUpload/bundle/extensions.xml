@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="/angular-file-upload" resource="angular-file-upload" allowSpecialization="none" hidden="true"/>
+</extensions>

@@ -10,6 +10,8 @@
     <script type="text/javascript" src="/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="/angular/angular.min.js"></script>
     <script type="text/javascript" src="/angular/angular-route.min.js"></script>
+    <script type="text/javascript" src="/angular-file-upload/angular-file-upload-shim.min.js"></script>
+    <script type="text/javascript" src="/angular-file-upload/angular-file-upload.min.js"></script>
     <script type="text/javascript" src="/macchina/bundles/js/app.js"></script>
     <script type="text/javascript" src="/macchina/bundles/js/services.js"></script>
     <script type="text/javascript" src="/macchina/bundles/js/controllers.js"></script>
@@ -45,6 +47,9 @@
                 <li ng-show="!isActive('/bundles') && allowedBundleActions.resolve">
                   <i class="fa fa-check-square"></i> <a ng-click="resolveBundle()">Resolve</a>
                 </li>
+                <li ng-show="!isActive('/bundles') && allowedBundleActions.upgrade">
+                  <i class="fa fa-upload"></i> <a ng-click="upgradeBundle()">Upgrade</a>
+                </li>
                 <li ng-show="!isActive('/bundles') && allowedBundleActions.uninstall">
                   <i class="fa fa-trash"></i> <a ng-click="uninstallBundle()">Uninstall</a>
                 </li>
@@ -63,6 +68,12 @@
            <div style="clear: both;"></div>
          </div>
         </nav>
+        <div class="error" ng-if="error != ''">
+          {{error}}
+        </div>
+        <div class="information" ng-if="information != ''">
+          {{information}}
+        </div>
         <div ng-view></div>
       </div>
     </div>

@@ -277,7 +277,6 @@ ul
 	margin-left: 2em;
 	list-style-type: disc;
 	list-style-position: outside;
-	list-style-image: url(../images/bullet.gif);
 }
 
 div.usernav
@@ -455,6 +454,11 @@ table.list thead th
 	padding-right: 6px;
 	text-align: left;
 	vertical-align: middle;
+}
+
+table.list th.list-sortable
+{
+	cursor: pointer;
 }
 
 table.list tbody th
@@ -666,6 +670,27 @@ div.loginBox #resetPassword, div.loginBox #loginLink
 img.button
 {
 	cursor: pointer;
+}
+
+.drop-box 
+{
+	background: #F8F8F8;
+	border: 5px dashed #DDD;
+	width: 200px;
+	text-align: center;
+	padding-top: 16px;
+	padding-bottom: 16px;
+	padding-left: 8px;
+	padding-right: 8px;
+	margin-left: 8px;
+	margin-right: 8px;
+	margin-top: 24px;
+	margin-bottom: 24px;
+}
+
+.dragover 
+{
+	border: 5px dashed #0076B8;
 }
 
 a:link 
