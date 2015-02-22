@@ -1,0 +1,5 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="/css" resource="css" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.directory" path="/images" resource="images" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.directory" path="/fonts" resource="fonts" allowSpecialization="none" hidden="true"/>
+</extensions>

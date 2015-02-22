@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="/jquery" resource="jquery" allowSpecialization="none" hidden="true"/>
+</extensions>
