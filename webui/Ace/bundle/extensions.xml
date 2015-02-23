@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="/ace" resource="ace" allowSpecialization="none" hidden="true"/>
+</extensions>

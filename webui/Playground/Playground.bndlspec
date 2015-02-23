@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<bundlespec>
+	<manifest>
+		<name>macchina.io JavaScript Playground</name>
+		<symbolicName>io.macchina.webui.playground</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2015, Applied Informatics Software Engineering GmbH</copyright>
+		<lazyStart>false</lazyStart>
+		<activator>
+			<class>IoT::Web::Playground::BundleActivator</class>
+			<library>io.macchina.webui.playground</library>
+		</activator>
+		<lazyStart>false</lazyStart>
+		<runLevel>620</runLevel>
+		<dependency>
+			<symbolicName>osp.web</symbolicName>
+			<version>[1.1.0,2.0.0)</version>
+		</dependency>
+	</manifest>
+	<code>
+		bin/*.dll,
+		bin/*.pdb,
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+	</code>
+	<files>
+		bundle/*
+	</files>
+</bundlespec>

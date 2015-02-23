@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html lang="en" ng-app="playgroundApp">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>macchina.io - Playground</title>
+    <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/macchina/playground/css/styles.css" type="text/css"/>
+    <link rel="icon" href="/images/favicon.ico">
+    <script type="text/javascript" src="/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/angular/angular.js"></script>
+    <script type="text/javascript" src="/macchina/playground/js/app.js"></script>
+    <script type="text/javascript" src="/macchina/playground/js/services.js"></script>
+    <script type="text/javascript" src="/macchina/playground/js/controllers.js"></script>
+    <script type="text/javascript" src="/ace/ace.js"></script>
+  </head>
+  <body ng-controller="SessionCtrl">
+    <header>
+      <div class="headercontainer">
+        <div class="header">
+          <h1>
+          <a href="/"><img src="/images/headerlogo.png" alt="macchina.io"></a>Playground
+          </h1>
+        </div>
+      </div>
+    </header>
+    <div class="contentcontainer">
+      <div class="content" ng-controller="PlaygroundCtrl">
+        <nav>
+          <div class="usernav">
+            <div class="navigation">
+              <ul>
+                <li ng-show="true">
+                  <i class="fa fa-upload"></i> <a ng-click="save()">Save</a>
+                </li>
+                <li ng-show="state == 'resolved'">
+                  <i class="fa fa-play"></i> <a ng-click="run()">Run</a>
+                </li>
+                <li ng-show="state == 'active'">
+                  <i class="fa fa-stop"></i> <a ng-click="stop()">Stop</a>
+                </li>
+              </ul>
+            </div>
+            <div class="username">
+              <i class="fa fa-user"></i>
+              &nbsp;
+              {{session.username}}
+              &nbsp;
+              <a id="logoutLink" href="#" onclick="document.logout.submit()">Sign out</a>
+           </div>
+           <form method="post" name="logout" action="/">
+             <input type="hidden" name="action" value="logout">
+           </form>
+           <div style="clear: both;"></div>
+         </div>
+        </nav>
+        <div class="error" ng-if="error != ''">
+          {{error}}
+        </div>
+        <div class="groupbox">
+          <pre id="editor"></pre>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+

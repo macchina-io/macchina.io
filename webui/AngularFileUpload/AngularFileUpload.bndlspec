@@ -2,7 +2,7 @@
 <bundlespec>
   <manifest>
     <name>Angular File Upload for macchina.io</name>
-    <symbolicName>io.macchina.web.angular-file-upload</symbolicName>
+    <symbolicName>io.macchina.webui.angular-file-upload</symbolicName>
     <version>3.0.7</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2015, Applied Informatics Software Engineering GmbH</copyright>

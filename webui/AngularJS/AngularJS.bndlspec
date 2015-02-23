@@ -2,7 +2,7 @@
 <bundlespec>
   <manifest>
     <name>AngularJS for macchina.io</name>
-    <symbolicName>io.macchina.web.angularjs</symbolicName>
+    <symbolicName>io.macchina.webui.angularjs</symbolicName>
     <version>1.2.16</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2015, Applied Informatics Software Engineering GmbH</copyright>

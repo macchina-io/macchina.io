@@ -2,7 +2,7 @@
 <bundlespec>
   <manifest>
     <name>Common Web Resources for macchina.io</name>
-    <symbolicName>io.macchina.web.common</symbolicName>
+    <symbolicName>io.macchina.webui.common</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2015, Applied Informatics Software Engineering GmbH</copyright>

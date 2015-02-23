@@ -2,7 +2,7 @@
 <bundlespec>
   <manifest>
     <name>macchina.io Sensors and Devices</name>
-    <symbolicName>io.macchina.web.devices</symbolicName>
+    <symbolicName>io.macchina.webui.devices</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2015, Applied Informatics Software Engineering GmbH</copyright>

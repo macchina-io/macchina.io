@@ -29,7 +29,7 @@ bundlesServices.service('BundleService', ['$http',
         else
           onfailure(data.error);
       })
-      .failure(function() {
+      .error(function() {
         onfailure("Server request failed.");
       });
     };

@@ -1,0 +1,19 @@
+body 
+{
+	overflow: hidden;
+}
+
+#editor 
+{
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+#editor *
+{
+	font-family: "Lucida Console", "Monaco", Courier, "Courier New", monospace;
+	font-size: 100%;
+	font: inherit;
+}

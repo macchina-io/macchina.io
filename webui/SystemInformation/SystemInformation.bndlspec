@@ -2,7 +2,7 @@
 <bundlespec>
   <manifest>
     <name>macchina.io System Information</name>
-    <symbolicName>io.macchina.web.systeminformation</symbolicName>
+    <symbolicName>io.macchina.webui.systeminformation</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2015, Applied Informatics Software Engineering GmbH</copyright>
