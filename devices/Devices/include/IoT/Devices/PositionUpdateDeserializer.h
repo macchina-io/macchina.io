@@ -46,9 +46,9 @@ public:
 	static void deserializeImpl(Deserializer& deser, IoT::Devices::PositionUpdate& value)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"heading","magneticVariation","position","speed","timestamp"};
+		static const std::string REMOTING__NAMES[] = {"course","magneticVariation","position","speed","timestamp"};
 		remoting__staticInitEnd(REMOTING__NAMES);
-		TypeDeserializer<double >::deserialize(REMOTING__NAMES[0], true, deser, value.heading);
+		TypeDeserializer<double >::deserialize(REMOTING__NAMES[0], true, deser, value.course);
 		TypeDeserializer<double >::deserialize(REMOTING__NAMES[1], true, deser, value.magneticVariation);
 		TypeDeserializer<IoT::Devices::LatLon >::deserialize(REMOTING__NAMES[2], true, deser, value.position);
 		TypeDeserializer<double >::deserialize(REMOTING__NAMES[3], true, deser, value.speed);

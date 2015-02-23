@@ -45,7 +45,7 @@ struct PositionUpdate
 	/// The information contained in a NMEA 0183 RMC message.
 {
 	LatLon position;           /// position 
-	double heading;            /// heading in degrees [0, 360)
+	double course;             /// course in degrees [0, 360)
 	double speed;              /// speed in nautical knots
 	double magneticVariation;  /// magnetic variation in degrees [0, 360)
 	Poco::Timestamp timestamp; /// timestamp of position update
@@ -80,8 +80,8 @@ public:
 		/// If no position is available, latitude and longitude will both be 0.
 		/// To disambiguate with a real position, also check positionAvailable().
 		
-	virtual double heading() const = 0;
-		/// Returns the current heading in degrees [0, 360).
+	virtual double course() const = 0;
+		/// Returns the current course in degrees [0, 360).
 		
 	virtual double speed() const = 0;
 		/// Returns the current speed in nautical knots.

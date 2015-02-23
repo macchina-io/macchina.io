@@ -41,8 +41,8 @@ AmbientLightSensor::AmbientLightSensor(MasterConnection::Ptr pMasterConn, const 
 		setIdentity(deviceUID, masterUID, position, hardwareVersion, firmwareVersion, deviceType);
 	}
 	
-	ambient_light_set_illuminance_callback_period(&_ambientLight, 1000);
 	ambient_light_register_callback(&_ambientLight, AMBIENT_LIGHT_CALLBACK_ILLUMINANCE, reinterpret_cast<void*>(onIlluminanceChanged), this);
+	ambient_light_set_illuminance_callback_period(&_ambientLight, 1000);
 }
 
 	

@@ -39,6 +39,7 @@ objects = Device DeviceException \
 	SerialDeviceRemoteObject \
 	SerialDeviceServerHelper \
 	SerialDeviceSkeleton \
+	GNSSSensor \
 	IGNSSSensor \
 	GNSSSensorEventDispatcher \
 	GNSSSensorRemoteObject \

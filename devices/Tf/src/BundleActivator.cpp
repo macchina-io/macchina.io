@@ -22,6 +22,7 @@
 #include "IoT/Devices/SensorServerHelper.h"
 #include "IoT/Devices/TriggerServerHelper.h"
 #include "IoT/Devices/RotaryEncoderServerHelper.h"
+#include "IoT/Devices/GNSSSensorServerHelper.h"
 #include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
@@ -31,6 +32,7 @@
 #include "RotaryEncoder.h"
 #include "TemperatureSensor.h"
 #include "HumiditySensor.h"
+#include "GNSSSensor.h"
 #include <map>
 
 
@@ -86,6 +88,9 @@ public:
 					break;
 				case AirPressureSensor::DEVICE_IDENTIFIER:
 					createDevice<AirPressureSensor>(ev.uid);
+					break;
+				case GNSSSensor::DEVICE_IDENTIFIER:
+					createDevice<GNSSSensor>(ev.uid);
 					break;
 				default:
 					_pContext->logger().information(Poco::format("Detected unsupported Tinkerforge device: %hu", ev.type));

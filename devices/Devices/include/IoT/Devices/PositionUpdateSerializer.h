@@ -42,9 +42,9 @@ public:
 	static void serializeImpl(const IoT::Devices::PositionUpdate& value, Serializer& ser)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"heading","magneticVariation","position","speed","timestamp",""};
+		static const std::string REMOTING__NAMES[] = {"course","magneticVariation","position","speed","timestamp",""};
 		remoting__staticInitEnd(REMOTING__NAMES);
-		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.heading, ser);
+		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.course, ser);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[1], value.magneticVariation, ser);
 		TypeSerializer<IoT::Devices::LatLon >::serialize(REMOTING__NAMES[2], value.position, ser);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[3], value.speed, ser);

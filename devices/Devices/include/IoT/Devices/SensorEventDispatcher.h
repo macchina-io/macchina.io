@@ -30,6 +30,17 @@ namespace Devices {
 class SensorEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// The base class for analog sensors, such as
 	/// temperature or ambient light sensors.
+	///
+	/// In addition to the methods defined in this interface,
+	/// a Sensor implementation should expose the following
+	/// properties:
+	///   - physicalQuantity (string): The physical quantity that is
+	///     being measured by the sensor, e.g. "temperature".
+	///   - physicalUnit (string): The physical unit the measured value
+	///     is being represented in (e.g. "°C"), UTF-8 encoded.
+	///     See the PHYSICAL_UNIT_* strings for predefined values.
+	///   - displayValue (string, optional): The current value of the sensor,
+	///     formatted as string for display purposes.
 {
 public:
 	SensorEventDispatcher(SensorRemoteObject* pRemoteObject, const std::string& protocol);

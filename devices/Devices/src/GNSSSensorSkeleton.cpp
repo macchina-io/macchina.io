@@ -775,13 +775,13 @@ public:
 };
 
 
-class GNSSSensorHdopMethodHandler: public Poco::RemotingNG::MethodHandler
+class GNSSSensorCourseMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__transport, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"hdop"};
+		static const std::string REMOTING__NAMES[] = {"course"};
 		remoting__staticInitEnd(REMOTING__NAMES);
 		bool remoting__requestSucceeded = false;
 		try
@@ -789,11 +789,11 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Devices::GNSSSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::GNSSSensorRemoteObject*>(remoting__pRemoteObject.get());
-			double remoting__return = remoting__pCastedRO->hdop();
+			double remoting__return = remoting__pCastedRO->course();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
-			static const std::string REMOTING__REPLY_NAME("hdopReply");
+			static const std::string REMOTING__REPLY_NAME("courseReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			Poco::RemotingNG::TypeSerializer<double >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
@@ -830,13 +830,13 @@ public:
 };
 
 
-class GNSSSensorHeadingMethodHandler: public Poco::RemotingNG::MethodHandler
+class GNSSSensorHdopMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__transport, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"heading"};
+		static const std::string REMOTING__NAMES[] = {"hdop"};
 		remoting__staticInitEnd(REMOTING__NAMES);
 		bool remoting__requestSucceeded = false;
 		try
@@ -844,11 +844,11 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Devices::GNSSSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::GNSSSensorRemoteObject*>(remoting__pRemoteObject.get());
-			double remoting__return = remoting__pCastedRO->heading();
+			double remoting__return = remoting__pCastedRO->hdop();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
-			static const std::string REMOTING__REPLY_NAME("headingReply");
+			static const std::string REMOTING__REPLY_NAME("hdopReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			Poco::RemotingNG::TypeSerializer<double >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
@@ -1110,6 +1110,7 @@ GNSSSensorSkeleton::GNSSSensorSkeleton():
 
 {
 	addMethodHandler("altitude", new IoT::Devices::GNSSSensorAltitudeMethodHandler);
+	addMethodHandler("course", new IoT::Devices::GNSSSensorCourseMethodHandler);
 	addMethodHandler("getFeature", new IoT::Devices::GNSSSensorGetFeatureMethodHandler);
 	addMethodHandler("getPropertyBool", new IoT::Devices::GNSSSensorGetPropertyBoolMethodHandler);
 	addMethodHandler("getPropertyDouble", new IoT::Devices::GNSSSensorGetPropertyDoubleMethodHandler);
@@ -1118,7 +1119,6 @@ GNSSSensorSkeleton::GNSSSensorSkeleton():
 	addMethodHandler("hasFeature", new IoT::Devices::GNSSSensorHasFeatureMethodHandler);
 	addMethodHandler("hasProperty", new IoT::Devices::GNSSSensorHasPropertyMethodHandler);
 	addMethodHandler("hdop", new IoT::Devices::GNSSSensorHdopMethodHandler);
-	addMethodHandler("heading", new IoT::Devices::GNSSSensorHeadingMethodHandler);
 	addMethodHandler("magneticVariation", new IoT::Devices::GNSSSensorMagneticVariationMethodHandler);
 	addMethodHandler("position", new IoT::Devices::GNSSSensorPositionMethodHandler);
 	addMethodHandler("positionAvailable", new IoT::Devices::GNSSSensorPositionAvailableMethodHandler);

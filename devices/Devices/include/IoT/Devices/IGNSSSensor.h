@@ -44,12 +44,12 @@ public:
 		/// Returns the current altitude above sea level in meters.
 		/// Returns -9999 if no altitude is available.
 
+	virtual double course() const = 0;
+		/// Returns the current course in degrees [0, 360).
+
 	virtual double hdop() const = 0;
 		/// Returns the Horizontal Dilution Of Precision (HDOP) in meters,
 		/// or -9999 if no HDOP value is available.
-
-	virtual double heading() const = 0;
-		/// Returns the current heading in degrees [0, 360).
 
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.

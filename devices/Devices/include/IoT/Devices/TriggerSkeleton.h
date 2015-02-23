@@ -30,6 +30,12 @@ namespace Devices {
 class TriggerSkeleton: public Poco::RemotingNG::Skeleton
 	/// The base class for triggers, such as
 	/// push buttons or motion detectors.
+	///
+	/// In addition to the methods defined in this interface,
+	/// a Trigger implementation should expose the following
+	/// properties:
+	///   - displayState (string, optional): The current state of the trigger,
+	///     formatted as string for display purposes.
 {
 public:
 	TriggerSkeleton();

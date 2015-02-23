@@ -41,8 +41,8 @@ TemperatureSensor::TemperatureSensor(MasterConnection::Ptr pMasterConn, const st
 		setIdentity(deviceUID, masterUID, position, hardwareVersion, firmwareVersion, deviceType);
 	}
 	
-	temperature_set_temperature_callback_period(&_temperature, 1000);
 	temperature_register_callback(&_temperature, TEMPERATURE_CALLBACK_TEMPERATURE, reinterpret_cast<void*>(onTemperatureChanged), this);
+	temperature_set_temperature_callback_period(&_temperature, 1000);
 }
 
 	

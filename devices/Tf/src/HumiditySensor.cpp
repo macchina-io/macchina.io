@@ -41,8 +41,8 @@ HumiditySensor::HumiditySensor(MasterConnection::Ptr pMasterConn, const std::str
 		setIdentity(deviceUID, masterUID, position, hardwareVersion, firmwareVersion, deviceType);
 	}
 	
-	humidity_set_humidity_callback_period(&_humidity, 1000);
 	humidity_register_callback(&_humidity, HUMIDITY_CALLBACK_HUMIDITY, reinterpret_cast<void*>(onHumidityChanged), this);
+	humidity_set_humidity_callback_period(&_humidity, 1000);
 }
 
 	

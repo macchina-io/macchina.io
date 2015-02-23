@@ -32,6 +32,12 @@ class DeviceSkeleton: public Poco::RemotingNG::Skeleton
 	///
 	/// This class defines a generic interface for setting
 	/// and querying device properties and features.
+	///
+	/// Every implementation of Device should expose the
+	/// following properties:
+	///   - symbolicName (string): A name in reverse DNS notation
+	///     that identifies the device type (e.g., "io.macchina.serialport").
+	///   - name (string): A human-readable device type (e.g., "Serial Port").
 {
 public:
 	DeviceSkeleton();

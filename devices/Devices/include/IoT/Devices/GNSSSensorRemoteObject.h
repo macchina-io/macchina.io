@@ -45,6 +45,9 @@ public:
 		/// Returns the current altitude above sea level in meters.
 		/// Returns -9999 if no altitude is available.
 
+	virtual double course() const;
+		/// Returns the current course in degrees [0, 360).
+
 	virtual bool getFeature(const std::string& name) const;
 		/// Returns true if the feature with the given name
 		/// is enabled, or false otherwise.
@@ -88,9 +91,6 @@ public:
 	virtual double hdop() const;
 		/// Returns the Horizontal Dilution Of Precision (HDOP) in meters,
 		/// or -9999 if no HDOP value is available.
-
-	virtual double heading() const;
-		/// Returns the current heading in degrees [0, 360).
 
 	virtual double magneticVariation() const;
 		/// Returns the current magnetic variation in degrees [0, 360).
@@ -161,6 +161,12 @@ inline double GNSSSensorRemoteObject::altitude() const
 }
 
 
+inline double GNSSSensorRemoteObject::course() const
+{
+	return _pServiceObject->course();
+}
+
+
 inline bool GNSSSensorRemoteObject::getFeature(const std::string& name) const
 {
 	return _pServiceObject->getFeature(name);
@@ -206,12 +212,6 @@ inline bool GNSSSensorRemoteObject::hasProperty(const std::string& name) const
 inline double GNSSSensorRemoteObject::hdop() const
 {
 	return _pServiceObject->hdop();
-}
-
-
-inline double GNSSSensorRemoteObject::heading() const
-{
-	return _pServiceObject->heading();
 }
 
 

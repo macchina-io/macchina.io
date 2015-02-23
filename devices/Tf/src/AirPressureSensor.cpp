@@ -41,8 +41,8 @@ AirPressureSensor::AirPressureSensor(MasterConnection::Ptr pMasterConn, const st
 		setIdentity(deviceUID, masterUID, position, hardwareVersion, firmwareVersion, deviceType);
 	}
 	
-	barometer_set_air_pressure_callback_period(&_barometer, 1000);
 	barometer_register_callback(&_barometer, BAROMETER_CALLBACK_AIR_PRESSURE, reinterpret_cast<void*>(onAirPressureChanged), this);
+	barometer_set_air_pressure_callback_period(&_barometer, 1000);
 }
 
 	
