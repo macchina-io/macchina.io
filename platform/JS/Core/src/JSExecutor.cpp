@@ -64,6 +64,11 @@ JSExecutor::Ptr JSExecutor::current()
 }
 
 
+void JSExecutor::stop()
+{
+}
+
+
 void JSExecutor::setup()
 {
 	v8::Isolate* pIsolate = _pooledIso.isolate();
@@ -533,16 +538,27 @@ public:
 		_pExecutor(pExecutor, true),
 		_function(pIsolate, function)
 	{
+		_pExecutor->stopped += Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
 	}
 	
 	~CallFunctionTask()
 	{
+		_pExecutor->stopped -= Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
 		_function.Reset();
 	}
 	
 	void run()
 	{
-		_pExecutor->call(_function); 
+		TimedJSExecutor::Ptr pExecutor = _pExecutor;
+		if (pExecutor)
+		{
+			pExecutor->call(_function);
+		} 
+	}
+	
+	void onExecutorStopped()
+	{
+		_pExecutor = 0;
 	}
 	
 private:
@@ -593,6 +609,7 @@ void TimedJSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8:
 void TimedJSExecutor::stop()
 {
 	_timer.cancel(true);
+	stopped(this);
 }
 
 

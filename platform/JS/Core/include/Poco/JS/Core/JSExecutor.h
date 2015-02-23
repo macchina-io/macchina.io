@@ -45,7 +45,10 @@ class JSCore_API JSExecutor: public Poco::Runnable, public Poco::RefCountedObjec
 {
 public:
 	typedef Poco::AutoPtr<JSExecutor> Ptr;
-	
+
+	Poco::BasicEvent<void> stopped;
+		/// Fired when the executor has been stopped.
+
 	enum 
 	{
 		DEFAULT_MEMORY_LIMIT = 1024*1024
@@ -106,6 +109,9 @@ public:
 
 	v8::Persistent<v8::Context>& scriptContext();
 		/// Returns the JSExecutor's script context.
+	
+	virtual void stop();
+		/// Stops the script.
 	
 	// Poco::Runnable
 	void run();

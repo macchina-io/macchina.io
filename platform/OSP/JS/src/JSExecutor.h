@@ -46,6 +46,9 @@ public:
 
 	~JSExecutor();
 		/// Destroys the JSExecutor.
+		
+	Poco::OSP::Bundle::Ptr bundle() const;
+		/// Returns the bundle containing the script.
 	
 protected:
 	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
@@ -81,6 +84,9 @@ public:
 	~TimedJSExecutor();
 		/// Destroys the TimedJSExecutor.
 
+	Poco::OSP::Bundle::Ptr bundle() const;
+		/// Returns the bundle containing the script.
+	
 protected:
 	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
 	void handleError(const ErrorInfo& errorInfo);
@@ -90,6 +96,21 @@ private:
 	Poco::OSP::BundleContext::Ptr _pContext;
 	Poco::OSP::Bundle::Ptr _pBundle;
 };
+
+
+//
+// inlines
+//
+inline Poco::OSP::Bundle::Ptr JSExecutor::bundle() const
+{
+	return _pBundle;
+}
+
+
+inline Poco::OSP::Bundle::Ptr TimedJSExecutor::bundle() const
+{
+	return _pBundle;
+}
 
 
 } } } // namespace Poco::OSP::JS

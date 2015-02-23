@@ -16,7 +16,9 @@
 
 #include "Poco/OSP/ExtensionPoint.h"
 #include "Poco/OSP/BundleContext.h"
+#include "Poco/OSP/BundleEvent.h"
 #include "JSExecutor.h"
+#include "Poco/Mutex.h"
 #include <vector>
 
 
@@ -37,12 +39,19 @@ public:
 	JSExtensionPoint(BundleContext::Ptr pContext);
 		/// Creates the JavaScript extension point.
 	
+	~JSExtensionPoint();
+		/// Destroys the JavaScript extension point.
+	
 	// Poco::OSP::ExtensionPoint
 	void handleExtension(Bundle::ConstPtr pBundle, Poco::XML::Element* pExtensionElem);
+
+protected:
+	void onBundleStopped(const void* pSender, Poco::OSP::BundleEvent& ev);
 
 private:
 	BundleContext::Ptr _pContext;
 	std::vector<TimedJSExecutor::Ptr> _executors;
+	Poco::FastMutex _mutex;
 };
 
 

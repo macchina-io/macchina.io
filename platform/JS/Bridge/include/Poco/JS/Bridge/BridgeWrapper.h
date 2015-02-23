@@ -72,6 +72,9 @@ public:
 		
 	static Ptr find(const std::string& subscriberURI);
 		/// Finds the Holder in the global holder map.
+
+protected:
+	void onExecutorStopped();
 	
 protected:
 	void registerHolder();

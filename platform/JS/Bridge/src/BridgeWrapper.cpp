@@ -28,6 +28,7 @@
 #include "Poco/Util/TimerTask.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/SharedPtr.h"
+#include "Poco/Delegate.h"
 #include <sstream>
 
 
@@ -246,11 +247,15 @@ BridgeHolder::BridgeHolder(v8::Isolate* pIsolate, const std::string& uri):
 	int id = ++_counter;
 	Poco::NumberFormatter::append(_subscriberURI, id);
 	registerHolder();
+	
+	_pExecutor->stopped += Poco::delegate(this, &BridgeHolder::onExecutorStopped);
 }
 
 
 BridgeHolder::~BridgeHolder()
 {
+	_pExecutor->stopped -= Poco::delegate(this, &BridgeHolder::onExecutorStopped);
+
 	unregisterHolder();
 	clear();
 }
@@ -353,6 +358,13 @@ void BridgeHolder::unregisterHolder()
 	Poco::FastMutex::ScopedLock lock(_holderMapMutex);
 	
 	_holderMap.erase(_subscriberURI);
+}
+
+
+void BridgeHolder::onExecutorStopped()
+{
+	disableEvents();
+	_pExecutor = 0;
 }
 
 
