@@ -45,15 +45,15 @@
           <table class="list" style="width: 100%">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Symbolic Name</th>
-                <th>ID</th>
-                <th>Physical Quantity</th>
+                <th ng-click="setOrderBy('name')" class="list-sortable">Name</th>
+                <th ng-click="setOrderBy('symbolicName')" class="list-sortable">Symbolic Name</th>
+                <th ng-click="setOrderBy('id')" class="list-sortable">ID</th>
+                <th ng-click="setOrderBy('physicalQuantity')" class="list-sortable">Physical Quantity</th>
                 <th>State/Value</th>
               </tr>
             </thead>
             <tbody>
-              <tr ng-repeat="device in devices" ng-class-even="'even'" ng-class-odd="'odd'">
+              <tr ng-repeat="device in devices | orderBy:orderBy track by $index" ng-class-even="'even'" ng-class-odd="'odd'">
                 <td>{{device.name}}</td>
                 <td>{{device.symbolicName}}</td>
                 <td>{{device.id}}</td>
