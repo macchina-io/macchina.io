@@ -46,6 +46,8 @@ void JSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isol
 
 	BundleWrapper bundleWrapper;
 	v8::Local<v8::Object> bundleObject = bundleWrapper.wrapNative(pIsolate, const_cast<Poco::OSP::Bundle*>(_pBundle.get()));
+	bundleObject->Set(v8::String::NewFromUtf8(pIsolate, "temporaryDirectory"), v8::String::NewFromUtf8(pIsolate, _pContext->temporaryDirectory().toString().c_str()));
+	bundleObject->Set(v8::String::NewFromUtf8(pIsolate, "persistentDirectory"), v8::String::NewFromUtf8(pIsolate, _pContext->persistentDirectory().toString().c_str()));
 	global->Set(v8::String::NewFromUtf8(pIsolate, "bundle"), bundleObject);
 
 	Poco::JS::Core::ConfigurationWrapper configurationWrapper;
@@ -112,6 +114,8 @@ void TimedJSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8:
 	
 	BundleWrapper bundleWrapper;
 	v8::Local<v8::Object> bundleObject = bundleWrapper.wrapNative(pIsolate, const_cast<Poco::OSP::Bundle*>(_pBundle.get()));
+	bundleObject->Set(v8::String::NewFromUtf8(pIsolate, "temporaryDirectory"), v8::String::NewFromUtf8(pIsolate, _pContext->temporaryDirectory().toString().c_str()));
+	bundleObject->Set(v8::String::NewFromUtf8(pIsolate, "persistentDirectory"), v8::String::NewFromUtf8(pIsolate, _pContext->persistentDirectory().toString().c_str()));
 	global->Set(v8::String::NewFromUtf8(pIsolate, "bundle"), bundleObject);
 
 	Poco::JS::Core::ConfigurationWrapper configurationWrapper;

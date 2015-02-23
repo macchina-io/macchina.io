@@ -62,10 +62,18 @@ void JSServletExecutor::reset(Poco::Net::HTTPServerRequest& request, Poco::Net::
 }
 
 
-void JSServletExecutor::scriptCompleted()
+void JSServletExecutor::run()
 {
+	_pRequestHolder = new Poco::JS::Net::RequestRefHolderImpl<Poco::Net::HTTPServerRequest>(*_pRequest);
+	_pResponseHolder = new Poco::JS::Net::ResponseRefHolderImpl<Poco::Net::HTTPServerResponse>(*_pResponse);
+	JSExecutor::run();
 	_pRequestHolder = 0;
 	_pResponseHolder = 0;
+}
+
+
+void JSServletExecutor::scriptCompleted()
+{
 	while (!v8::V8::IdleNotification()) {}
 }
 
@@ -83,13 +91,10 @@ void JSServletExecutor::updateGlobals(v8::Local<v8::ObjectTemplate>& global, v8:
 
 	v8::HandleScope handleScope(pIsolate);
 
-	// Note: we manually manage the lifetime of the request and response holders
-	_pRequestHolder = new Poco::JS::Net::RequestRefHolderImpl<Poco::Net::HTTPServerRequest>(*_pRequest);
 	Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
 	v8::Local<v8::Object> requestObject = httpRequestWrapper.wrapNative(pIsolate, &*_pRequestHolder);
 	global->Set(v8::String::NewFromUtf8(pIsolate, "request"), requestObject);
 
-	_pResponseHolder = new Poco::JS::Net::ResponseRefHolderImpl<Poco::Net::HTTPServerResponse>(*_pResponse);
 	Poco::JS::Net::HTTPResponseWrapper httpResponseWrapper;
 	v8::Local<v8::Object> responseObject = httpResponseWrapper.wrapNative(pIsolate, &*_pResponseHolder);
 	global->Set(v8::String::NewFromUtf8(pIsolate, "response"), responseObject);

@@ -44,6 +44,9 @@ public:
 
 	void reset(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 		/// Resets the ServletExecutor and sets new request and response objects.
+
+	// JSExecutor
+	void run();
 		
 protected:
 	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
