@@ -1,0 +1,23 @@
+/*
+ * Open Layers
+ */
+div.olControlAttribution, div.olControlScaleLine 
+{
+	font-family: Helvetica, Arial, SunSans-Regular, sans-serif;
+	font-size: 12px;
+	bottom: 4px;
+	right: 4px;
+}
+
+div.olMapViewport
+{
+	position: relative;
+	z-index: 0;
+}
+
+#mapview
+{
+	width: 100%; 
+	height: 600px; 
+	border: 1px solid #0076B8;
+}

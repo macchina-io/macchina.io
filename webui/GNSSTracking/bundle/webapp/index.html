@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html lang="en" ng-app="trackingApp">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>macchina.io - GNSS Tracking</title>
+    <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/macchina/gnss/css/styles.css" type="text/css"/>
+    <link rel="icon" href="/images/favicon.ico">
+    <script type="text/javascript" src="/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/angular/angular.min.js"></script>
+    <script type="text/javascript" src="/macchina/gnss/js/app.js"></script>
+    <script type="text/javascript" src="/macchina/gnss/js/controllers.js"></script>
+    <script type="text/javascript" src="/openlayers/OpenLayers.js"></script>
+  </head>
+  <body ng-controller="SessionCtrl">
+    <header>
+      <div class="headercontainer">
+        <div class="header">
+          <h1>
+          <a href="/"><img src="/images/headerlogo.png" alt="macchina.io"></a>GNSS Tracking
+          </h1>
+        </div>
+      </div>
+    </header>
+    <div class="contentcontainer">
+      <div class="content">
+        <nav>
+          <div class="usernav">
+            <div class="navigation">
+            </div>
+            <div class="username">
+              <i class="fa fa-user"></i>
+              &nbsp;
+              {{session.username}}
+              &nbsp;
+              <a id="logoutLink" href="#" onclick="document.logout.submit()">Sign out</a>
+           </div>
+           <form method="post" name="logout" action="/">
+             <input type="hidden" name="action" value="logout">
+           </form>
+           <div style="clear: both;"></div>
+         </div>
+        </nav>
+        <div ng-controller="TrackingCtrl" class="groupbox">
+          <div ng-if="trackingData.available && trackingData.valid">
+            <table class="list">
+              <tbody>
+                <tr class="even">
+                  <th>Latitude</th>
+                  <td>{{trackingData.position.latitude | number:6}}&deg;</td>
+                </tr>
+                <tr class="odd">
+                  <th>Longitude</th>
+                  <td>{{trackingData.position.longitude | number:6}}&deg;</td>
+                </tr>
+                <tr class="even">
+                  <th>Altitude</th>
+                  <td>{{trackingData.altitude | number:2}}</td>
+                </tr>
+                <tr class="odd">
+                  <th>Course</th>
+                  <td>{{trackingData.course | number:1}}&deg;</td>
+                </tr>
+                <tr class="even">
+                  <th>Speed</th>
+                  <td>{{trackingData.speed*1.852 | number:2}} km/h</td>
+                </tr>
+                <tr class="odd">
+                  <th>Position Accuracy</th>
+                  <td>{{trackingData.hdop | number:2}} m</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div ng-if="!trackingData.available">
+            <p>No GNSS Sensor found.</p>
+          </div>
+          <div ng-if="!trackingData.valid && trackingData.available">
+            <p>No valid tracking data available.</p>
+          </div>
+        </div>
+        <div class="groupbox">
+          <div id="mapview"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

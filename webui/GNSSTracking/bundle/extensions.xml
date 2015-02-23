@@ -1,0 +1,4 @@
+<extensions>
+  <extension point="io.macchina.web.launcher" title="GNSS Tracking" path="/macchina/gnss" icon="/macchina/gnss/images/appicon.png"/>
+  <extension point="osp.web.server.directory" path="/macchina/gnss" resource="webapp" allowSpecialization="none" hidden="true"/>
+</extensions>

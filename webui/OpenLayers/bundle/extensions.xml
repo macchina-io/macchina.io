@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="/openlayers" resource="openlayers" allowSpecialization="none" hidden="true"/>
+</extensions>

@@ -19,3 +19,5 @@ clean all:
 	$(MAKE) -C BundleAdmin $(MAKECMDGOALS)
 	$(MAKE) -C Ace $(MAKECMDGOALS)
 	$(MAKE) -C Playground $(MAKECMDGOALS)
+	$(MAKE) -C OpenLayers $(MAKECMDGOALS)
+	$(MAKE) -C GNSSTracking $(MAKECMDGOALS)
