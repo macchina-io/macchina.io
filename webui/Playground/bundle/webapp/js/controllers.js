@@ -52,6 +52,26 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
         }
       );
     };
+
+    $scope.restart = function() {
+      $scope.clearError();
+      SandboxService.save($scope.editor.getValue(),
+        function(state) {
+          $scope.state = state;
+          SandboxService.restart(
+            function(state) {
+              $scope.state = state;
+            },
+            function(error) {
+              $scope.error = error;
+            }
+          );
+        },
+        function(error) {
+          $scope.error = error;
+        }
+      );
+    };
     
     $scope.stop = function() {
       $scope.clearError();

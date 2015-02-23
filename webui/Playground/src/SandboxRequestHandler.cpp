@@ -88,6 +88,14 @@ void SandboxRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request,
 			{
 				pBundle->stop();
 			}
+			else if (action == "restart")
+			{
+				if (pBundle->state() == Poco::OSP::Bundle::BUNDLE_ACTIVE)
+				{
+					pBundle->stop();
+				}
+				pBundle->start();
+			}
 			else if (action == "load")
 			{
 				Poco::Path scriptPath(pBundle->path());

@@ -59,6 +59,10 @@ playgroundServices.service('SandboxService', ['$http',
     this.run = function(onsuccess, onfailure) {
       this.post("run", onsuccess, onfailure);
     };
+
+    this.restart = function(onsuccess, onfailure) {
+      this.post("restart", onsuccess, onfailure);
+    };
     
     this.stop = function(onsuccess, onfailure) {
       this.post("stop", onsuccess, onfailure);

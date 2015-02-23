@@ -38,6 +38,9 @@
                   <i class="fa fa-play"></i> <a ng-click="run()">Run</a>
                 </li>
                 <li ng-show="state == 'active'">
+                  <i class="fa fa-play-circle-o"></i> <a ng-click="restart()">Restart</a>
+                </li>
+                <li ng-show="state == 'active'">
                   <i class="fa fa-stop"></i> <a ng-click="stop()">Stop</a>
                 </li>
               </ul>
