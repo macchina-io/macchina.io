@@ -6,15 +6,23 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
   function ($scope, $http, SandboxService) {
     $scope.state = "";
     $scope.error = "";
+    $scope.editor = null;
 
-    $("#editor").height($(window).height() - 140);
+	$scope.resizeEditor = function() {
+      var newSize = $(window).height() - 140;
+      if (newSize < 200) newSize = 200;
+      $("#editor").height(newSize);
+      if ($scope.editor) $scope.editor.resize();
+	}
+
+    $scope.resizeEditor();
+
     $scope.editor = ace.edit("editor");
     $scope.editor.setTheme("ace/theme/chrome");
     $scope.editor.getSession().setMode("ace/mode/javascript");
     
     $(window).resize(function() {
-      $("#editor").height($(window).height() - 140);
-      $scope.editor.resize();
+      $scope.resizeEditor();
     });
 
     $scope.clearError = function() {

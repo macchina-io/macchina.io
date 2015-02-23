@@ -50,24 +50,16 @@
                 <tr class="even">
                   <th>Latitude</th>
                   <td>{{trackingData.position.latitude | number:6}}&deg;</td>
-                </tr>
-                <tr class="odd">
                   <th>Longitude</th>
                   <td>{{trackingData.position.longitude | number:6}}&deg;</td>
-                </tr>
-                <tr class="even">
                   <th>Altitude</th>
                   <td>{{trackingData.altitude | number:2}}</td>
                 </tr>
                 <tr class="odd">
                   <th>Course</th>
                   <td>{{trackingData.course | number:1}}&deg;</td>
-                </tr>
-                <tr class="even">
                   <th>Speed</th>
                   <td>{{trackingData.speed*1.852 | number:2}} km/h</td>
-                </tr>
-                <tr class="odd">
                   <th>Position Accuracy</th>
                   <td>{{trackingData.hdop | number:2}} m</td>
                 </tr>
