@@ -16,11 +16,12 @@ Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findB
 AppRegistry::Ptr pAppRegistry = Poco::OSP::ServiceFinder::find<AppRegistry>(context());
 AppRegistry::AppVec apps;
 pAppRegistry->list(apps);
+int i = 0;
 %>
 [
 <% for (AppRegistry::AppVec::const_iterator it = apps.begin(); it != apps.end(); ++it) { %>
   <% if (it->permission.empty() || pAuthService->authorize(username, it->permission)) { %>
-    <%= it != apps.begin() ? "," : "" %>
+    <%= i++ ? "," : "" %>
   {
     "id": <%= U::jsonize(it->id) %>,
     "title": <%= U::jsonize(it->title) %>,
