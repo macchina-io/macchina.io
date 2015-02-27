@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html lang="en" ng-app="mqttApp">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>macchina.io - Sensors &amp; Devices</title>
+    <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
+    <link rel="icon" href="/images/favicon.ico">
+    <script type="text/javascript" src="/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/angular/angular.min.js"></script>
+    <script type="text/javascript" src="/macchina/mqtt/js/app.js"></script>
+    <script type="text/javascript" src="/macchina/mqtt/js/controllers.js"></script>
+  </head>
+  <body ng-controller="SessionCtrl">
+    <header>
+      <div class="headercontainer">
+        <div class="header">
+          <h1>
+          <a href="/"><img src="/images/headerlogo.png" alt="macchina.io"></a>MQTT Clients
+          </h1>
+        </div>
+      </div>
+    </header>
+    <div class="contentcontainer">
+      <div class="content">
+        <nav>
+          <div class="usernav">
+            <div class="navigation">
+            </div>
+            <div class="username">
+              <i class="fa fa-user"></i>
+              &nbsp;
+              {{session.username}}
+              &nbsp;
+              <a id="logoutLink" href="#" onclick="document.logout.submit()">Sign out</a>
+           </div>
+           <form method="post" name="logout" action="/">
+             <input type="hidden" name="action" value="logout">
+           </form>
+           <div style="clear: both;"></div>
+         </div>
+        </nav>
+        <div ng-controller="ClientsCtrl">
+          <div class="groupbox" ng-if="clients.length == 0">
+            No MQTT clients configured.
+          </div>
+          <div class="groupbox" ng-repeat="client in clients">
+            <h1>{{client.id}}
+            <span ng-if="client.connected">&#x2192;</span>
+            <span ng-if="!client.connected">&#x219b;</span>
+            {{client.serverURI}}</h1>
+            <div ng-if="client.subscribedTopics.length == 0">
+              No subscriptions
+            </div>
+            <div ng-if="client.subscribedTopics.length > 0">
+              <h2>Subscriptions</h2>
+              <table class="list" style="width: 100%">
+                <thead>
+                  <tr>
+                    <th>Topic</th>
+                    <th>QoS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="sub in client.subscribedTopics" ng-class-even="'even'" ng-class-odd="'odd'">
+                    <td>{{sub.topic}}</td>
+                    <td>{{sub.qos}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div ng-if="client.statistics.receivedMessages.length > 0" style="margin-top: 20px">
+              <h2>Received Messages</h2>
+              <table class="list" style="width: 100%">
+                <thead>
+                  <tr>
+                    <th>Topic</th>
+                    <th># Messages</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="topic in client.statistics.receivedMessages" ng-class-even="'even'" ng-class-odd="'odd'">
+                    <td>{{topic.topic}}</td>
+                    <td>{{topic.messageCount}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div ng-if="client.statistics.publishedMessages.length > 0" style="margin-top: 20px">
+              <h2>Published Messages</h2>
+              <table class="list" style="width: 100%">
+                <thead>
+                  <tr>
+                    <th>Topic</th>
+                    <th># Messages</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="topic in client.statistics.publishedMessages" ng-class-even="'even'" ng-class-odd="'odd'">
+                    <td>{{topic.topic}}</td>
+                    <td>{{topic.messageCount}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
