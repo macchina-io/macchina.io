@@ -21,3 +21,4 @@ clean all:
 	$(MAKE) -C Playground $(MAKECMDGOALS)
 	$(MAKE) -C OpenLayers $(MAKECMDGOALS)
 	$(MAKE) -C GNSSTracking $(MAKECMDGOALS)
+	$(MAKE) -C MQTT $(MAKECMDGOALS)
