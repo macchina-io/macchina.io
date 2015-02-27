@@ -171,7 +171,7 @@ void MQTTClientImpl::connect()
 	{
 		_receivedMessages.clear();
 		_publishedMessages.clear();
-		_logger.information("Connecting to MQTT server...");
+		_logger.information(Poco::format("Connecting to MQTT server \"%s\"...", _serverURI));
 		connectImpl(_options);
 		_options.cleanSession = false; // Clean session only on first successful connect, not for reconnects
 	}
@@ -186,12 +186,12 @@ void MQTTClientImpl::reconnect()
 	{
 		try
 		{
-			_logger.information("Reconnecting to MQTT server...");
+			_logger.information(Poco::format("Reconnecting to MQTT server \"%s\"...", _serverURI));
 			connectImpl(_options);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.error("Failed to reconnect: " + exc.displayText());
+			_logger.error(Poco::format("Failed to reconnect to \"%s\": %s", _serverURI, exc.displayText()));
 			if (_reconnectDelay < MAXIMUM_RECONNECT_DELAY)
 				_reconnectDelay *= 2;
 			
@@ -252,9 +252,9 @@ void MQTTClientImpl::connectImpl(const ConnectOptions& options)
 	
 	int rc = MQTTClient_connect(_mqttClient, &connectOptions);
 	if (rc != MQTTCLIENT_SUCCESS)
-		throw Poco::IOException("Cannot connect to MQTT server", errorMessage(rc), rc);
+		throw Poco::IOException(Poco::format("Cannot connect to MQTT server \"%s\"", _serverURI), errorMessage(rc), rc);
 		
-	_logger.debug("Connected to MQTT server.");
+	_logger.information(Poco::format("Connected to MQTT server \"%s\".", _serverURI));
 	_reconnectDelay = INITIAL_RECONNECT_DELAY;
 	
 	try
@@ -277,7 +277,7 @@ void MQTTClientImpl::disconnect(int timeout)
 		int rc = MQTTClient_disconnect(_mqttClient, timeout);
 		if (rc != MQTTCLIENT_SUCCESS)
 			throw Poco::IOException("Failed to disconnect from MQTT server", errorMessage(rc), rc);
-		_logger.debug("Disconnected from server");
+		_logger.debug(Poco::format("Disconnected from server \"%s\".", _serverURI));
 		_subscribedTopics.clear();
 	}
 }
