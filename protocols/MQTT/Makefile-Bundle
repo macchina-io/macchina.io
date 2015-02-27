@@ -12,11 +12,11 @@ include $(POCO_BASE)/build/rules/global
 
 INCLUDE += -I$(PROJECT_BASE)/protocols/MQTT/Paho/include
 
-objects = BundleActivator
+objects = MQTTClientImpl BundleActivator
 
 target         = io.macchina.mqtt.client
 target_version = 1
-target_libs    = IoTMQTT PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
+target_libs    = IoTMQTT PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation PahoMQTT
 
 postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles MQTT.bndlspec
 

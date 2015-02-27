@@ -66,6 +66,8 @@ private:
 
 
 MQTTClientImpl::MQTTClientImpl(const std::string& serverURI, const std::string& clientId, Persistence persistence, const std::string& persistencePath, const ConnectOptions& connectOptions):
+	_clientId(clientId),
+	_serverURI(serverURI),
 	_options(connectOptions),
 	_reconnectDelay(INITIAL_RECONNECT_DELAY),
 	_logger(Poco::Logger::get("IoT.MQTTClient"))
@@ -107,12 +109,68 @@ MQTTClientImpl::~MQTTClientImpl()
 }
 
 
+const std::string& MQTTClientImpl::id() const
+{
+	return _clientId;
+}
+
+
+const std::string& MQTTClientImpl::serverURI() const
+{
+	return _serverURI;
+}
+
+
+bool MQTTClientImpl::connected() const
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	return MQTTClient_isConnected(_mqttClient);
+}
+
+
+std::vector<TopicQoS> MQTTClientImpl::subscribedTopics() const
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	std::vector<TopicQoS> result;
+	for (std::map<std::string, int>::const_iterator it = _subscribedTopics.begin(); it != _subscribedTopics.end(); ++it)
+	{
+		result.push_back(TopicQoS(it->first, it->second));
+	}
+	
+	return result;
+}
+
+
+Statistics MQTTClientImpl::statistics() const
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	Statistics stats;
+	
+	for (std::map<std::string, int>::const_iterator it  = _receivedMessages.begin(); it != _receivedMessages.end(); ++it)
+	{
+		stats.receivedMessages.push_back(TopicCount(it->first, it->second));
+	}
+
+	for (std::map<std::string, int>::const_iterator it  = _publishedMessages.begin(); it != _publishedMessages.end(); ++it)
+	{
+		stats.publishedMessages.push_back(TopicCount(it->first, it->second));
+	}
+	
+	return stats;
+}
+
+
 void MQTTClientImpl::connect()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	if (!MQTTClient_isConnected(_mqttClient))
 	{
+		_receivedMessages.clear();
+		_publishedMessages.clear();
 		_logger.information("Connecting to MQTT server...");
 		connectImpl(_options);
 		_options.cleanSession = false; // Clean session only on first successful connect, not for reconnects
@@ -235,6 +293,9 @@ int MQTTClientImpl::publish(const std::string& topic, const std::string& payload
 	int rc = MQTTClient_publish(_mqttClient, topic.c_str(), static_cast<int>(payload.size()), const_cast<char*>(payload.data()), qos, 0, &token);
 	if (rc != MQTTCLIENT_SUCCESS)
 		throw Poco::IOException(Poco::format("Failed to publish message on topic \"%s\"", topic), errorMessage(rc), rc);
+		
+	_publishedMessages[topic]++;
+
 	return token;
 }
 
@@ -249,6 +310,9 @@ int MQTTClientImpl::publishMessage(const std::string& topic, const Message& mess
 	int rc = MQTTClient_publish(_mqttClient, topic.c_str(), static_cast<int>(message.payload.size()), const_cast<char*>(message.payload.data()), message.qos, message.retained, &token);
 	if (rc != MQTTCLIENT_SUCCESS)
 		throw Poco::IOException(Poco::format("Failed to publish message on topic \"%s\"", topic), errorMessage(rc), rc);
+
+	_publishedMessages[topic]++;
+
 	return token;
 }
 
@@ -427,12 +491,24 @@ int MQTTClientImpl::onMessageArrived(void* context, char* topicName, int topicLe
 {
 	MQTTClientImpl* pThis = reinterpret_cast<MQTTClientImpl*>(context);
 	MessageArrivedEvent event;
-	if (topicName && topicLen) event.topic.assign(topicName, static_cast<std::string::size_type>(topicLen));
+	if (topicName)
+	{
+		if (topicLen == 0)
+			event.topic.assign(topicName);
+		else
+			event.topic.assign(topicName, static_cast<std::string::size_type>(topicLen));
+	}
 	if (message->payload && message->payloadlen) event.message.payload.assign(static_cast<char*>(message->payload), static_cast<std::string::size_type>(message->payloadlen));
 	event.message.qos = message->qos;
 	event.message.retained = message->retained;
 	event.dup = message->dup;
 	event.handled = true;
+	
+	{
+		Poco::Mutex::ScopedLock lock(pThis->_mutex);
+		pThis->_receivedMessages[event.topic]++;
+	}
+	
 	try
 	{
 		pThis->messageArrived(pThis, event);

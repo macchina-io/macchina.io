@@ -123,6 +123,7 @@ struct ConnectionLostEvent
 
 //@ serialize
 struct TopicQoS
+	/// A vector of these is given to MQTTClient::subscribeMany.
 {
 	TopicQoS():
 		qos(0)
@@ -143,9 +144,45 @@ struct TopicQoS
 };
 
 
+//@ serialize
+struct TopicCount
+{
+	TopicCount():
+		messageCount(0)
+	{
+	}
+	
+	TopicCount(const std::string& t, int c):
+		topic(t),
+		messageCount(c)
+	{
+	}
+
+	std::string topic;
+		/// The topic name.
+
+	int messageCount;
+		/// The number of messages published or received on this topic.
+};
+
+
+//@ serialize
+struct Statistics
+{
+	std::vector<TopicCount> receivedMessages;
+	std::vector<TopicCount> publishedMessages;
+};
+
+
 //@ remote
 class IoTMQTT_API MQTTClient
 	/// The interface for MQTT clients.
+	///
+	/// Implementations are expected to receive their client ID and
+	/// server URI via an implementation defined configuration mechanism.
+	/// Once configured, a MQTTClient always uses the same client ID and
+	/// connects to the same server. A MQTT client should automatically
+	/// attempt to reconnect if the connection to the server is lost.
 {
 public:	
 	typedef Poco::SharedPtr<MQTTClient> Ptr;
@@ -165,6 +202,22 @@ public:
 		
 	virtual ~MQTTClient();
 		/// Destroys the MQTTClient.
+		
+	virtual const std::string& id() const = 0;
+		/// Returns the configured client ID.
+		
+	virtual const std::string& serverURI() const = 0;
+		/// Returns the configured server URI.
+		
+	virtual bool connected() const = 0;
+		/// Returns true if the client is currently connected to the server.
+		
+	virtual std::vector<TopicQoS> subscribedTopics() const = 0;
+		/// Returns a vector containing all currently subscribed
+		/// topics with their QoS level.
+		
+	virtual Statistics statistics() const = 0;
+		/// Returns statistics about published and received topics and message counts.
 
 	virtual int publish(const std::string& topic, const std::string& payload, int qos) = 0;
 		/// Publishes the given message on the given topic, using the given QoS.

@@ -16,11 +16,10 @@ objects = \
 	MQTTClientEventDispatcher \
 	MQTTClientRemoteObject \
 	MQTTClientServerHelper \
-	MQTTClientSkeleton \
-	MQTTClientImpl
+	MQTTClientSkeleton 
 
 target         = IoTMQTT
 target_version = 1
-target_libs    = PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation PahoMQTT
+target_libs    = PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
 
 include $(POCO_BASE)/build/rules/lib

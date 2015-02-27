@@ -148,6 +148,11 @@ public:
 		/// and the new connection.
 	
 	// MQTTClient
+	const std::string& id() const;
+	const std::string& serverURI() const;
+	bool connected() const;
+	std::vector<TopicQoS> subscribedTopics() const;
+	Statistics statistics() const;
 	int publish(const std::string& topic, const std::string& payload, int qos);
 	int publishMessage(const std::string& topic, const Message& message);
 	void subscribe(const std::string& topic, int qos);
@@ -165,19 +170,24 @@ protected:
 	void reconnect();
 	void connectImpl(const ConnectOptions& options);
 	void resubscribe();
+
 	static std::string errorMessage(int code);
 	static void onConnectionLost(void* context, char* cause);
 	static void onMessageDelivered(void* context, int token);
 	static int onMessageArrived(void* context, char* topicName, int topicLen, MQTTClient_message* message);
 	
 private:
+	std::string _clientId;
+	std::string _serverURI;
 	ConnectOptions _options;
 	long _reconnectDelay;
 	std::map<std::string, int> _subscribedTopics;
+	std::map<std::string, int> _receivedMessages;
+	std::map<std::string, int> _publishedMessages;
 	::MQTTClient _mqttClient;
 	Poco::Util::Timer _timer;
 	Poco::Logger& _logger;
-	Poco::Mutex _mutex;
+	mutable Poco::Mutex _mutex;
 	
 	friend class ReconnectTask;
 };

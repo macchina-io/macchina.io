@@ -47,70 +47,89 @@ public:
 	{
 	}
 	
-	void start(BundleContext::Ptr pContext)
+	void createClient(const std::string& baseConfig)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::MQTT::MQTTClient> ServerHelper;
 
-		_pContext = pContext;
-		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
-		
-		std::string serverURI = getStringConfig("mqtt.client.serverURI", "");
-		std::string clientId = getStringConfig("mqtt.client.id", Poco::Environment::nodeId());
-		std::string persistencePath = getStringConfig("mqtt.client.persistence.path", "");
+		std::string serverURI = getStringConfig(baseConfig + ".serverURI", "");
+		std::string clientId = getStringConfig(baseConfig + ".id", "");
+		std::string persistencePath = getStringConfig(baseConfig + ".persistence.path", "");
 		MQTTClientImpl::Persistence persistence = persistencePath.empty() ? MQTTClientImpl::MQTT_PERSISTENCE_NONE : MQTTClientImpl::MQTT_PERSISTENCE_FILE;
 
 		if (!serverURI.empty())
 		{
 			MQTTClientImpl::ConnectOptions options;
-			options.keepAliveInterval = getIntConfig("mqtt.client.keepAliveInterval", 60);
-			options.retryInterval = getIntConfig("mqtt.client.retryInterval", 30);
-			options.connectTimeout = getIntConfig("mqtt.client.connectTimeout", 20);
-			options.cleanSession = getBoolConfig("mqtt.client.cleanSession", true);
-			options.reliable = getBoolConfig("mqtt.client.reliable", false);
-			options.username = getStringConfig("mqtt.client.username", "");
-			options.password = getStringConfig("mqtt.client.password", "");
-			options.willQoS = getIntConfig("mqtt.client.will.qos", 0);
-			options.mqttVersion = getIntConfig("mqtt.client.mqttVersion", 0);
-			Poco::StringTokenizer tok(getStringConfig("mqtt.client.serverURIs", ""), ";,", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+			options.keepAliveInterval = getIntConfig(baseConfig + ".keepAliveInterval", 60);
+			options.retryInterval = getIntConfig(baseConfig + ".retryInterval", 30);
+			options.connectTimeout = getIntConfig(baseConfig + ".connectTimeout", 20);
+			options.cleanSession = getBoolConfig(baseConfig + ".cleanSession", true);
+			options.reliable = getBoolConfig(baseConfig + ".reliable", false);
+			options.username = getStringConfig(baseConfig + ".username", "");
+			options.password = getStringConfig(baseConfig + ".password", "");
+			options.willQoS = getIntConfig(baseConfig + ".will.qos", 0);
+			options.mqttVersion = getIntConfig(baseConfig + ".mqttVersion", 0);
+			Poco::StringTokenizer tok(getStringConfig(baseConfig + ".serverURIs", ""), ";,", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 			options.serverURIs.assign(tok.begin(), tok.end());
 
-			options.willTopic = getStringConfig("mqtt.client.will.topic", "");
-			options.willMessage = getStringConfig("mqtt.client.will.message", "");
-			options.willRetained = getBoolConfig("mqtt.client.will.retained", false);
+			options.willTopic = getStringConfig(baseConfig + ".will.topic", "");
+			options.willMessage = getStringConfig(baseConfig + ".will.message", "");
+			options.willRetained = getBoolConfig(baseConfig + ".will.retained", false);
 		
-			options.sslTrustStore = getStringConfig("mqtt.client.ssl.trustStore", "");
-			options.sslKeyStore = getStringConfig("mqtt.client.ssl.keystore", "");
-			options.sslPrivateKey = getStringConfig("mqtt.client.ssl.privateKey", "");
-			options.sslPrivateKeyPassword = getStringConfig("mqtt.client.ssl.privateKeyPassword", "");
-			options.sslEnabledCipherSuites = getStringConfig("mqtt.client.ssl.enabledCipherSuites", "");
-			options.sslEnableServerCertAuth = getBoolConfig("mqtt.client.ssl.enableServerCertAuth", "");
+			options.sslTrustStore = getStringConfig(baseConfig + ".ssl.trustStore", "");
+			options.sslKeyStore = getStringConfig(baseConfig + ".ssl.keystore", "");
+			options.sslPrivateKey = getStringConfig(baseConfig + ".ssl.privateKey", "");
+			options.sslPrivateKeyPassword = getStringConfig(baseConfig + ".ssl.privateKeyPassword", "");
+			options.sslEnabledCipherSuites = getStringConfig(baseConfig + ".ssl.enabledCipherSuites", "");
+			options.sslEnableServerCertAuth = getBoolConfig(baseConfig + ".ssl.enableServerCertAuth", "");
 		
-			_pMQTTClient = new MQTTClientImpl(serverURI, clientId, persistence, persistencePath, options);
-			std::string oid("io.macchina.mqtt.client");
-			typename ServerHelper::RemoteObjectPtr pMQTTClientRemoteObject = ServerHelper::createRemoteObject(_pMQTTClient, oid);		
-			_pServiceRef = pContext->registry().registerService(oid, pMQTTClientRemoteObject, Properties());
+			MQTTClientImpl::Ptr pMQTTClient = new MQTTClientImpl(serverURI, clientId, persistence, persistencePath, options);
+			std::string oid(Poco::format("io.macchina.mqtt.client#%z", _clients.size()));
+			typename ServerHelper::RemoteObjectPtr pMQTTClientRemoteObject = ServerHelper::createRemoteObject(pMQTTClient, oid);
+			Poco::OSP::Properties props;
+			props.set("io.macchina.mqtt.id", clientId);	
+			props.set("io.macchina.mqtt.serverURI", serverURI);	
+			Poco::OSP::ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pMQTTClientRemoteObject, props);
+			
+			_clients.push_back(pMQTTClient);
+			_serviceRefs.push_back(pServiceRef);
+		}
+	}
+	
+	void start(BundleContext::Ptr pContext)
+	{
+		_pContext = pContext;
+		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
+		
+		Poco::Util::AbstractConfiguration::Keys keys;
+		_pPrefs->configuration()->keys("mqtt.clients", keys);
+		int index = 0;
+		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
+		{
+			std::string baseKey = "mqtt.clients.";
+			baseKey += *it;
+			createClient(baseKey);
 		}
 	}
 		
 	void stop(BundleContext::Ptr pContext)
 	{
-		if (_pMQTTClient)
+		for (std::vector<Poco::OSP::ServiceRef::Ptr>::iterator it = _serviceRefs.begin(); it != _serviceRefs.end(); ++it)
+		{
+			pContext->registry().unregisterService(*it);
+		}
+		_serviceRefs.clear();
+		for (std::vector<MQTTClientImpl::Ptr>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 		{
 			try
 			{
-				_pMQTTClient->disconnect(200);
+				(*it)->disconnect(200);
 			}
 			catch (Poco::Exception& exc)
 			{
 				pContext->logger().log(exc);
 			}
-			_pMQTTClient = 0;
 		}
-		if (_pServiceRef)
-		{
-			pContext->registry().unregisterService(_pServiceRef);
-			_pServiceRef = 0;
-		}
+		_clients.clear();
 	}
 
 protected:
@@ -147,8 +166,8 @@ protected:
 private:
 	BundleContext::Ptr _pContext;
 	PreferencesService::Ptr _pPrefs;
-	MQTTClientImpl::Ptr _pMQTTClient;
-	Poco::OSP::ServiceRef::Ptr _pServiceRef;
+	std::vector<MQTTClientImpl::Ptr> _clients;
+	std::vector<Poco::OSP::ServiceRef::Ptr> _serviceRefs;
 };
 
 

@@ -31,6 +31,12 @@ namespace MQTT {
 
 class MQTTClientRemoteObject: public IoT::MQTT::IMQTTClient, public Poco::RemotingNG::RemoteObject
 	/// The interface for MQTT clients.
+	///
+	/// Implementations are expected to receive their client ID and
+	/// server URI via an implementation defined configuration mechanism.
+	/// Once configured, a MQTTClient always uses the same client ID and
+	/// connects to the same server. A MQTT client should automatically
+	/// attempt to reconnect if the connection to the server is lost.
 {
 public:
 	typedef Poco::AutoPtr<MQTTClientRemoteObject> Ptr;
@@ -40,6 +46,12 @@ public:
 
 	virtual ~MQTTClientRemoteObject();
 		/// Destroys the MQTTClientRemoteObject.
+
+	virtual bool connected() const;
+		/// Returns true if the client is currently connected to the server.
+
+	const std::string& id() const;
+		/// Returns the configured client ID.
 
 	virtual int publish(const std::string& topic, const std::string& payload, int qos);
 		/// Publishes the given message on the given topic, using the given QoS.
@@ -65,6 +77,12 @@ public:
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
+	const std::string& serverURI() const;
+		/// Returns the configured server URI.
+
+	IoT::MQTT::Statistics statistics() const;
+		/// Returns statistics about published and received topics and message counts.
+
 	virtual void subscribe(const std::string& topic, int qos);
 		/// This function attempts to subscribe the client to a single topic, 
 		/// which may contain wildcards. This call also specifies the Quality of service 
@@ -79,6 +97,10 @@ public:
 		///
 		/// Throws a Poco::IOException if there was a problem registering the
 		/// subscriptions.
+
+	std::vector < IoT::MQTT::TopicQoS > subscribedTopics() const;
+		/// Returns a vector containing all currently subscribed
+		/// topics with their QoS level.
 
 	virtual void unsubscribe(const std::string& topic);
 		/// This function attempts to remove an existing subscription made by the client.
@@ -105,6 +127,18 @@ private:
 };
 
 
+inline bool MQTTClientRemoteObject::connected() const
+{
+	return _pServiceObject->connected();
+}
+
+
+inline const std::string& MQTTClientRemoteObject::id() const
+{
+	return _pServiceObject->id();
+}
+
+
 inline int MQTTClientRemoteObject::publish(const std::string& topic, const std::string& payload, int qos)
 {
 	return _pServiceObject->publish(topic, payload, qos);
@@ -123,6 +157,18 @@ inline const Poco::RemotingNG::Identifiable::TypeId& MQTTClientRemoteObject::rem
 }
 
 
+inline const std::string& MQTTClientRemoteObject::serverURI() const
+{
+	return _pServiceObject->serverURI();
+}
+
+
+inline IoT::MQTT::Statistics MQTTClientRemoteObject::statistics() const
+{
+	return _pServiceObject->statistics();
+}
+
+
 inline void MQTTClientRemoteObject::subscribe(const std::string& topic, int qos)
 {
 	_pServiceObject->subscribe(topic, qos);
@@ -132,6 +178,12 @@ inline void MQTTClientRemoteObject::subscribe(const std::string& topic, int qos)
 inline void MQTTClientRemoteObject::subscribeMany(const std::vector < IoT::MQTT::TopicQoS >& topicsAndQoS)
 {
 	_pServiceObject->subscribeMany(topicsAndQoS);
+}
+
+
+inline std::vector < IoT::MQTT::TopicQoS > MQTTClientRemoteObject::subscribedTopics() const
+{
+	return _pServiceObject->subscribedTopics();
 }
 
 

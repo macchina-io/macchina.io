@@ -32,6 +32,12 @@ namespace MQTT {
 
 class IMQTTClient: public Poco::OSP::Service
 	/// The interface for MQTT clients.
+	///
+	/// Implementations are expected to receive their client ID and
+	/// server URI via an implementation defined configuration mechanism.
+	/// Once configured, a MQTTClient always uses the same client ID and
+	/// connects to the same server. A MQTT client should automatically
+	/// attempt to reconnect if the connection to the server is lost.
 {
 public:
 	typedef Poco::AutoPtr<IMQTTClient> Ptr;
@@ -41,6 +47,12 @@ public:
 
 	virtual ~IMQTTClient();
 		/// Destroys the IMQTTClient.
+
+	virtual bool connected() const = 0;
+		/// Returns true if the client is currently connected to the server.
+
+	virtual const std::string& id() const = 0;
+		/// Returns the configured client ID.
 
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
@@ -73,6 +85,12 @@ public:
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();
 		/// Returns the TypeId of the class.
 
+	virtual const std::string& serverURI() const = 0;
+		/// Returns the configured server URI.
+
+	virtual IoT::MQTT::Statistics statistics() const = 0;
+		/// Returns statistics about published and received topics and message counts.
+
 	virtual void subscribe(const std::string& topic, int qos) = 0;
 		/// This function attempts to subscribe the client to a single topic, 
 		/// which may contain wildcards. This call also specifies the Quality of service 
@@ -87,6 +105,10 @@ public:
 		///
 		/// Throws a Poco::IOException if there was a problem registering the
 		/// subscriptions.
+
+	virtual std::vector < IoT::MQTT::TopicQoS > subscribedTopics() const = 0;
+		/// Returns a vector containing all currently subscribed
+		/// topics with their QoS level.
 
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.

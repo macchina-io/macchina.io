@@ -33,6 +33,12 @@ namespace MQTT {
 
 class MQTTClientServerHelper
 	/// The interface for MQTT clients.
+	///
+	/// Implementations are expected to receive their client ID and
+	/// server URI via an implementation defined configuration mechanism.
+	/// Once configured, a MQTTClient always uses the same client ID and
+	/// connects to the same server. A MQTT client should automatically
+	/// attempt to reconnect if the connection to the server is lost.
 {
 public:
 	typedef IoT::MQTT::MQTTClient Service;

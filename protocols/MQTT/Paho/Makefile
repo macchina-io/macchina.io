@@ -11,7 +11,7 @@ include $(POCO_BASE)/build/rules/global
 SYSLIBS += -lssl -lcrypto
 
 ifeq ($(OSNAME),Darwin)
-CFLAGS += -DUSE_NAMED_SEMAPHORES
+CFLAGS += -DUSE_NAMED_SEMAPHORES -Wno-deprecated-declarations
 endif
 
 CFLAGS += -DOPENSSL
