@@ -31,5 +31,6 @@ OSP/Net
 OSP/NetSSL_OpenSSL
 OSP/SecureWebServer
 OSP/WebServer
+OSP/WebEvent
 OSP/JS
 Geo

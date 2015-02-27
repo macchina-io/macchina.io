@@ -16,7 +16,7 @@ devicesControllers.controller('DevicesCtrl', ['$scope', '$http', '$interval',
       $http.get('/macchina/devices/devices.jss').success(function(data) {
         $scope.devices = data;
       })
-    }, 5000);
+    }, 1000);
   }]);
 
 devicesControllers.controller('SessionCtrl', ['$scope', '$http',

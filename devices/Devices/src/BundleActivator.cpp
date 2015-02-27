@@ -52,7 +52,7 @@ public:
 };
 
 
-} } // namespace IoT::Tf
+} } // namespace IoT::Devices
 
 
 POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)

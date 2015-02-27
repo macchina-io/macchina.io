@@ -1,0 +1,23 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io WebEvent Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = \
+	WebEventNotifier \
+	WebEventNotifierImpl \
+	IWebEventNotifier \
+	WebEventNotifierRemoteObject \
+	WebEventNotifierSkeleton \
+	WebEventNotifierServerHelper 
+	
+target         = IoTWebEvent
+target_version = 1
+target_libs    = PocoRemotingNG PocoOSPWebEvent PocoOSPWeb PocoOSP PocoNet PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

@@ -1,0 +1,23 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io MQTT bundle
+#
+
+BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
+
+include $(POCO_BASE)/build/rules/global
+
+INCLUDE += -I$(PROJECT_BASE)/protocols/MQTT/paho/include
+
+objects = BundleActivator
+
+target         = io.macchina.mqtt.client
+target_version = 1
+target_libs    = IoTMQTT PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
+
+postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles MQTT.bndlspec
+
+include $(POCO_BASE)/build/rules/dylib

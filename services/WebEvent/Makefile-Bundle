@@ -1,0 +1,21 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io WebEvent bundle
+#
+
+BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
+
+include $(POCO_BASE)/build/rules/global
+
+objects = BundleActivator
+
+target         = io.macchina.services.webevent
+target_version = 1
+target_libs    = IoTWebEvent PocoOSPWebEvent PocoOSPWeb PocoOSP PocoRemotingNG PocoUtil PocoXML PocoNet PocoFoundation
+
+postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles WebEvent.bndlspec
+
+include $(POCO_BASE)/build/rules/dylib
