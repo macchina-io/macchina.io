@@ -10,7 +10,7 @@ BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
 
 include $(POCO_BASE)/build/rules/global
 
-INCLUDE += -I$(PROJECT_BASE)/protocols/MQTT/paho/include
+INCLUDE += -I$(PROJECT_BASE)/protocols/MQTT/Paho/include
 
 objects = BundleActivator
 
