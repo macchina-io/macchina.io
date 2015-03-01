@@ -254,10 +254,20 @@ BridgeHolder::BridgeHolder(v8::Isolate* pIsolate, const std::string& uri):
 
 BridgeHolder::~BridgeHolder()
 {
-	_pExecutor->stopped -= Poco::delegate(this, &BridgeHolder::onExecutorStopped);
+	try
+	{
+		if (_pExecutor)
+		{
+			_pExecutor->stopped -= Poco::delegate(this, &BridgeHolder::onExecutorStopped);
+		}
 
-	unregisterHolder();
-	clear();
+		unregisterHolder();
+		clear();
+	}
+	catch (...)
+	{
+		poco_unexpected();
+	}
 }
 
 
@@ -364,6 +374,10 @@ void BridgeHolder::unregisterHolder()
 void BridgeHolder::onExecutorStopped()
 {
 	disableEvents();
+	if (_pExecutor)
+	{
+		_pExecutor->stopped -= Poco::delegate(this, &BridgeHolder::onExecutorStopped);
+	}
 	_pExecutor = 0;
 }
 

@@ -24,6 +24,9 @@
 #include "Poco/SharedPtr.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/Exception.h"
+#include "Poco/Mutex.h"
+#include <map>
+#include <set>
 #include "v8.h"
 
 
@@ -59,8 +62,72 @@ public:
 } // namespace Internal
 
 
+class WeakPersistentWrapperBase
+	/// A common base class for all WeakPersistentWrapper template
+	/// instantiations that defines a virtual destructor.
+{
+public:
+	virtual ~WeakPersistentWrapperBase() = 0;
+};
+
+
+class WeakPersistentWrapperRegistry
+	/// This class maintains references to all active WeakPersistentWrapper instances.
+	///
+	/// The V8 engine won't properly garbage-collect any remaining objects when a script's
+	/// context is disposed. This is not an issue for pure JavaScript objects, as they
+	/// reside in the JavaScript heap, which will eventually be freed when the Isolate 
+	/// is disposed. This is, however, an issue for wrapped, heap-allocated native
+	/// objects. If they're not garbage collected, the destructors of the wrapped
+	/// C++ objects will never be called.
+	///
+	/// Therefore, we register each WeakPersistentWrapper wrapper in a Isolate-specific
+	/// registry. If at the time we dispose of the Isolate any wrappers for that Isolate
+	/// remain in the registry, we can safely delete them, ensuring that all wrapped
+	/// C++ objects are properly deleted.
+{
+public:
+	typedef Poco::SharedPtr<WeakPersistentWrapperRegistry> Ptr;
+
+	WeakPersistentWrapperRegistry();
+		/// Creates a new WeakPersistentWrapperRegistry.
+		
+	~WeakPersistentWrapperRegistry();
+		/// Destroys the WeakPersistentWrapperRegistry and
+		/// deletes any WeakPersistentWrapper instances still registered.
+		
+	void registerWrapper(WeakPersistentWrapperBase* pWrapper);
+		/// Registers a WeakPersistentWrapper instance.
+		
+	void unregisterWrapper(WeakPersistentWrapperBase* pWrapper);
+		/// Unregisters a WeakPersistentWrapper instance.
+		
+	static WeakPersistentWrapperRegistry& forIsolate(v8::Isolate* pIsolate);
+		/// Returns the WeakPersistentWrapperRegistry for the given Isolate.
+		/// If no WeakPersistentWrapperRegistry for that Isolate exists, a new
+		/// one is created, otherwise the existing instance is returned.
+		
+	static void cleanupIsolate(v8::Isolate* pIsolate);
+		/// Destroys the WeakPersistentWrapperRegistry instance for the
+		/// given Isolate, if one exists.
+		
+protected:
+	void cleanup();
+		/// Deletes all registered wrappers.
+
+private:
+	typedef std::set<WeakPersistentWrapperBase*> WrapperSet;
+	typedef std::map<v8::Isolate*, WeakPersistentWrapperRegistry::Ptr> RegistryMap;
+	
+	WrapperSet _wrappers;
+
+	static RegistryMap _registry;
+	static Poco::Mutex _registryMutex;
+};
+
+
 template <class T, class RP>
-class WeakPersistentWrapper
+class WeakPersistentWrapper: public WeakPersistentWrapperBase
 	/// Helper for wrapping native types in weak persistent handles.
 	///
 	/// Takes ownership of the native object and makes sure both
@@ -69,13 +136,18 @@ class WeakPersistentWrapper
 {
 public:
 	WeakPersistentWrapper(v8::Isolate* pIsolate, const v8::Local<v8::Object>& jsObject, T pNative):
+		_pIsolate(pIsolate),
 		_pNative(pNative)
 	{
 		_persistent.Reset(pIsolate, jsObject);
+
+		WeakPersistentWrapperRegistry::forIsolate(_pIsolate).registerWrapper(this);
 	}
 	
 	~WeakPersistentWrapper()
 	{
+		WeakPersistentWrapperRegistry::forIsolate(_pIsolate).unregisterWrapper(this);
+
 		_persistent.ClearWeak();
 		_persistent.Reset();
 		RP::release(_pNative);
@@ -97,6 +169,7 @@ private:
 	WeakPersistentWrapper(const WeakPersistentWrapper&);
 	WeakPersistentWrapper& operator = (const WeakPersistentWrapper&);
 
+	v8::Isolate* _pIsolate;
 	v8::Persistent<v8::Object> _persistent;
 	T _pNative;
 };

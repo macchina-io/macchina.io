@@ -55,6 +55,8 @@ JSExecutor::~JSExecutor()
 	_scriptContext.Reset();
 	_globalContext.Reset();
 	_globalObject.Reset();
+	
+	WeakPersistentWrapperRegistry::cleanupIsolate(_pooledIso.isolate());
 }
 
 
@@ -543,8 +545,18 @@ public:
 	
 	~CallFunctionTask()
 	{
-		_pExecutor->stopped -= Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
-		_function.Reset();
+		try
+		{
+			if (_pExecutor)
+			{
+				_pExecutor->stopped -= Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
+			}
+			_function.Reset();
+		}
+		catch (...)
+		{
+			poco_unexpected();
+		}
 	}
 	
 	void run()
@@ -558,6 +570,10 @@ public:
 	
 	void onExecutorStopped()
 	{
+		if (_pExecutor)
+		{
+			_pExecutor->stopped -= Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
+		}
 		_pExecutor = 0;
 	}
 	
@@ -582,7 +598,8 @@ TimedJSExecutor::~TimedJSExecutor()
 {
 	try
 	{
-		stop();
+		_timer.cancel(true);
+		stopped(this);
 	}
 	catch (...)
 	{
