@@ -54,7 +54,7 @@ void JSExtensionPoint::handleExtension(Bundle::ConstPtr pBundle, Poco::XML::Elem
 	scriptURI += pBundle->symbolicName();
 	if (scriptPath.empty() || scriptPath[0] != '/') scriptURI += "/";
 	scriptURI += scriptPath;
-	TimedJSExecutor::Ptr pExecutor = new TimedJSExecutor(_pContext, pBundle, script, Poco::URI(scriptURI), memoryLimit);
+	TimedJSExecutor::Ptr pExecutor = new TimedJSExecutor(_pContext->contextForBundle(pBundle), pBundle, script, Poco::URI(scriptURI), memoryLimit);
 	{
 		FastMutex::ScopedLock lock(_mutex);
 		_executors.push_back(pExecutor);

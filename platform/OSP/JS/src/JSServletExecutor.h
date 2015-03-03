@@ -15,6 +15,7 @@
 
 
 #include "JSExecutor.h"
+#include "SessionWrapper.h"
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
 #include "Poco/Net/HTMLForm.h"
@@ -59,6 +60,7 @@ private:
 	Poco::Net::HTTPServerResponse* _pResponse;
 	Poco::SharedPtr<Poco::JS::Net::RequestHolder> _pRequestHolder;
 	Poco::SharedPtr<Poco::JS::Net::ResponseHolder> _pResponseHolder;
+	Poco::SharedPtr<SessionHolder> _pSessionHolder;
 	Poco::SharedPtr<Poco::Net::HTMLForm> _pForm;
 };
 

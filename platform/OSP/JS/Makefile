@@ -15,6 +15,7 @@ objects = JSExecutor JSServletExecutor \
 	JSSPage JSSPageReader \
 	JSExtensionPoint \
 	BundleWrapper ServiceRegistryWrapper ServiceRefWrapper \
+	SessionWrapper \
 	JSBundleActivator
 
 target         = com.appinf.osp.js

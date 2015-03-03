@@ -71,7 +71,7 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 			scriptURI += pBundle->symbolicName();
 			if (path.empty() || path[0] != '/') scriptURI += "/";
 			scriptURI += path;
-			_pServletExecutor = new JSServletExecutor(_pContext, pBundle, servlet, Poco::URI(scriptURI), _memoryLimit, request, response);
+			_pServletExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _memoryLimit, request, response);
 		}
 		_pServletExecutor->run();
 		if (!response.sent())

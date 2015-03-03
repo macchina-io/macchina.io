@@ -49,7 +49,10 @@ public:
 		
 	Poco::OSP::Bundle::Ptr bundle() const;
 		/// Returns the bundle containing the script.
-	
+
+	Poco::OSP::BundleContext::Ptr context() const;
+		/// Returns the bundle context.
+
 protected:
 	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
 	void handleError(const ErrorInfo& errorInfo);
@@ -86,6 +89,9 @@ public:
 
 	Poco::OSP::Bundle::Ptr bundle() const;
 		/// Returns the bundle containing the script.
+		
+	Poco::OSP::BundleContext::Ptr context() const;
+		/// Returns the bundle context.
 	
 protected:
 	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
@@ -107,9 +113,21 @@ inline Poco::OSP::Bundle::Ptr JSExecutor::bundle() const
 }
 
 
+inline Poco::OSP::BundleContext::Ptr JSExecutor::context() const
+{
+	return _pContext;
+}
+
+
 inline Poco::OSP::Bundle::Ptr TimedJSExecutor::bundle() const
 {
 	return _pBundle;
+}
+
+
+inline Poco::OSP::BundleContext::Ptr TimedJSExecutor::context() const
+{
+	return _pContext;
 }
 
 

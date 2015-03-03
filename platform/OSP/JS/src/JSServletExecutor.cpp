@@ -12,6 +12,10 @@
 
 #include "JSServletExecutor.h"
 #include "Poco/JS/Net/HTMLFormWrapper.h"
+#include "Poco/OSP/Web/WebSession.h"
+#include "Poco/OSP/Web/WebSessionManager.h"
+#include "Poco/OSP/ServiceRegistry.h"
+#include "Poco/OSP/ServiceFinder.h"
 #include "Poco/StreamCopier.h"
 #include "v8.h"
 #include <iostream>
@@ -66,9 +70,28 @@ void JSServletExecutor::run()
 {
 	_pRequestHolder = new Poco::JS::Net::RequestRefHolderImpl<Poco::Net::HTTPServerRequest>(*_pRequest);
 	_pResponseHolder = new Poco::JS::Net::ResponseRefHolderImpl<Poco::Net::HTTPServerResponse>(*_pResponse);
+	_pSessionHolder = 0;
+
+	Poco::OSP::Web::WebSession::Ptr pSession;
+	std::string sessionId = context()->thisBundle()->properties().getString("websession.id", "");
+	if (!sessionId.empty())
+	{
+		Poco::OSP::ServiceRef::Ptr pWebSessionManagerRef = context()->registry().findByName(Poco::OSP::Web::WebSessionManager::SERVICE_NAME);
+		if (pWebSessionManagerRef)
+		{
+			Poco::OSP::Web::WebSessionManager::Ptr pWebSessionManager = pWebSessionManagerRef->castedInstance<Poco::OSP::Web::WebSessionManager>();
+			pSession = pWebSessionManager->find(sessionId, *_pRequest);
+			if (pSession)
+			{
+				_pSessionHolder = new SessionHolder(context(), pSession);
+			}
+		}
+	}
+
 	JSExecutor::run();
 	_pRequestHolder = 0;
 	_pResponseHolder = 0;
+	_pSessionHolder = 0;
 }
 
 
@@ -98,6 +121,17 @@ void JSServletExecutor::updateGlobals(v8::Local<v8::ObjectTemplate>& global, v8:
 	Poco::JS::Net::HTTPResponseWrapper httpResponseWrapper;
 	v8::Local<v8::Object> responseObject = httpResponseWrapper.wrapNative(pIsolate, &*_pResponseHolder);
 	global->Set(v8::String::NewFromUtf8(pIsolate, "response"), responseObject);
+
+	SessionWrapper sessionWrapper;
+	if (_pSessionHolder)
+	{
+		v8::Local<v8::Object> sessionObject = sessionWrapper.wrapNative(pIsolate, &*_pSessionHolder);
+		global->Set(v8::String::NewFromUtf8(pIsolate, "session"), sessionObject);
+	}
+	else
+	{
+		global->Set(v8::String::NewFromUtf8(pIsolate, "session"), v8::Null(pIsolate));
+	}
 
 	Poco::JS::Net::HTMLFormWrapper formWrapper;
 	v8::Local<v8::Object> formObject = formWrapper.wrapNative(pIsolate, &*_pForm);
