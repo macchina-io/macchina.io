@@ -102,10 +102,10 @@
                 <td><input type="text" name="copyright" ng-model="bundle.copyright" size="32" maxlength="64" placeholder="2015"></td>
               </tr>
                 <td></td>
-                <td>
-                  <button type="button" ng-disabled="exportForm.$invalid" ng-click="export()">Export</button>
-                  &nbsp;
+                <td style="text-align: right">
                   <a href="#" ng-click="hideExport()">Cancel</a>
+                  &nbsp;
+                  <button type="button" ng-disabled="exportForm.$invalid" ng-click="export()">Export</button>
                 </td>
               <tr>
             </table>
