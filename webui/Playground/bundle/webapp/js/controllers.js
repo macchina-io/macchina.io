@@ -7,6 +7,13 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
     $scope.state = "";
     $scope.error = "";
     $scope.editor = null;
+    $scope.bundle = {
+      name: "",
+      symbolicName: "",
+      version: "",
+      vendor: "",
+      copyright: ""
+    };
 
 	$scope.resizeEditor = function() {
       var newSize = $(window).height() - 140;
@@ -28,12 +35,29 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
     $scope.clearError = function() {
       $scope.error = "";
     };
+    
+    $scope.saveIfModified = function(success, error) {
+      if ($scope.editor.getSession().getUndoManager().isClean())
+      {
+      	success($scope.state);
+      }
+      else
+      {
+        SandboxService.save($scope.editor.getValue(), 
+          function(state) {
+             $scope.editor.getSession().getUndoManager().markClean();
+             success(state);	
+          }, 
+          error);
+      }
+    };
   
     $scope.save = function() {
       $scope.clearError();
       SandboxService.save($scope.editor.getValue(),
         function(state) {
           $scope.state = state;
+          $scope.editor.getSession().getUndoManager().markClean();
         },
         function(error) {
           $scope.error = error;
@@ -43,7 +67,7 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
     
     $scope.run = function() {
       $scope.clearError();
-      SandboxService.save($scope.editor.getValue(),
+      $scope.saveIfModified(
         function(state) {
           $scope.state = state;
           SandboxService.run(
@@ -63,7 +87,7 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
 
     $scope.restart = function() {
       $scope.clearError();
-      SandboxService.save($scope.editor.getValue(),
+      $scope.saveIfModified(
         function(state) {
           $scope.state = state;
           SandboxService.restart(
@@ -92,10 +116,50 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
         }
       );
     };
+ 
+     $scope.export = function() {
+      $scope.clearError();
+      $scope.hideExport();
+      $scope.saveIfModified(
+        function(state) {
+          $scope.state = state;
+          setTimeout(function() { 
+              $('#exportForm').submit(); 
+            }, 100);
+        },
+        function(error) {
+          $scope.error = error;
+        }
+      );
+    };
+   
+    $scope.showExport = function() {
+      $('#modalBackground').css("display", "block");
+      $('#exportPopup').css("display", "block");
+      $(document).on('keyup.exportPopup',
+        function(e) {
+          if (e.keyCode == 27) 
+          {
+            $scope.hideExport(); 
+          }
+          else if (e.keyCode == 13 && $scope.exportForm.$valid)
+          {
+            $scope.export();
+          }
+        }
+      );     
+    };
     
-    SandboxService.state(
-      function(state) {
+    $scope.hideExport = function() {
+    	$('#modalBackground').css("display", "none");
+    	$('#exportPopup').css("display", "none");
+    	$(document).unbind('keyup.exportPopup');
+    };
+    
+    SandboxService.info(
+      function(state, bundleInfo) {
         $scope.state = state;
+        $scope.bundle = bundleInfo;
       },
       function(error) {
         $scope.error = error;
@@ -106,12 +170,15 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
       function(script) {
         $scope.editor.setValue(script, -1);
         $scope.editor.focus();
+        $scope.editor.getSession().getUndoManager().reset();
+        $scope.editor.getSession().getUndoManager().markClean();
       },
       function(error) {
         $scope.error = error;
       }
     );
-  }]);
+  }
+]);
 
 playgroundControllers.controller('SessionCtrl', ['$scope', '$http',
   function($scope, $http) {
@@ -122,4 +189,5 @@ playgroundControllers.controller('SessionCtrl', ['$scope', '$http',
         window.location = "/";
       }
     });
-  }]);
+  }
+]);

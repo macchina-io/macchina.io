@@ -399,7 +399,7 @@ div.listheader
 	line-height: 20px;
 }
 
-div.listheader form
+div.listheader 
 {
 	font-size: 14px; 
 	line-height: 20px;

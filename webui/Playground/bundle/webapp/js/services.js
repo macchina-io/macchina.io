@@ -23,7 +23,7 @@ playgroundServices.service('SandboxService', ['$http',
     this.load = function(onsuccess, onfailure) {
       $http({
         method: "GET", 
-        url: "/macchina/playground/load.json"
+        url: "/macchina/playground/load"
       })
       .success(function(data) {
         if (typeof data == "string")
@@ -70,6 +70,22 @@ playgroundServices.service('SandboxService', ['$http',
     
     this.state = function(onsuccess, onfailure) {
       this.post("state", onsuccess, onfailure);
+    };
+
+    this.info = function(onsuccess, onfailure) {
+      $http({
+        method: "GET", 
+        url: "/macchina/playground/info.json"
+      })
+      .success(function(data) {
+        if (data.error == "")
+          onsuccess(data.bundleState, data.bundleInfo);
+        else
+          onfailure(data.error);
+      })
+      .error(function() {
+        onfailure("Server request failed.");
+      });
     };
   }
 ]);

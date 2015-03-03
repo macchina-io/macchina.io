@@ -43,6 +43,9 @@
                 <li ng-show="state == 'active'">
                   <i class="fa fa-stop"></i> <a ng-click="stop()">Stop</a>
                 </li>
+                <li>
+                  <i class="fa fa-cube"></i> <a ng-click="showExport()">Export Bundle</a>
+                </li>
               </ul>
             </div>
             <div class="username">
@@ -63,6 +66,50 @@
         </div>
         <div class="groupbox">
           <pre id="editor"></pre>
+        </div>
+        <div id="modalBackground" class="modalBackground"></div>
+        <div id="exportPopup" class="popupWindow">
+          <h1>Export Bundle</h1>
+          <form id="exportForm" name="exportForm" method="POST" action="/macchina/playground/export" novalidate>
+            <table>
+              <tr class="even">
+                <th><label>Name</label></th>
+                <td>
+                  <input type="text" name="name" ng-model="bundle.name" size="32" maxlength="64" placeholder="My Bundle" required ng-minlength="3">
+                  <span ng-show="exportForm.name.$invalid && !exportForm.name.$pristine"><i class="fa fa-exclamation-triangle"></i></span>
+                </td>
+              </tr>
+              <tr class="odd">
+                <th><label>Symbolic Name</label></th>
+                <td>
+                  <input type="text" name="symbolicName" ng-model="bundle.symbolicName" size="32" maxlength="64" placeholder="com.my-company.my-bundle" required ng-pattern="/^[a-z]+\.([a-zA-Z0-9-]+\.)+[a-zA-Z0-9-]+$/">
+                  <span ng-show="exportForm.symbolicName.$invalid && !exportForm.symbolicName.$pristine"><i class="fa fa-exclamation-triangle"></i></span>
+                </td>
+              </tr>
+              <tr class="even">
+                <th><label>Version</label></th>
+                <td>
+                  <input type="text" name="version" ng-model="bundle.version" size="8" maxlength="8" placeholder="1.0.0" required ng-pattern="/^[0-9]+\.[0-9]+\.[0-9]+$/">
+                  <span ng-show="exportForm.version.$invalid && !exportForm.version.$pristine"><i class="fa fa-exclamation-triangle"></i></span>
+                </td>
+              </tr>
+              <tr class="odd">
+                <th><label>Vendor</label></th>
+                <td><input type="text" name="vendor" ng-model="bundle.vendor" size="32" maxlength="64" placeholder="My Company"></td>
+              </tr>
+              <tr class="even">
+                <th><label>Copyright</label></th>
+                <td><input type="text" name="copyright" ng-model="bundle.copyright" size="32" maxlength="64" placeholder="2015"></td>
+              </tr>
+                <td></td>
+                <td>
+                  <button type="button" ng-disabled="exportForm.$invalid" ng-click="export()">Export</button>
+                  &nbsp;
+                  <a href="#" ng-click="hideExport()">Cancel</a>
+                </td>
+              <tr>
+            </table>
+          </form>
         </div>
       </div>
     </div>

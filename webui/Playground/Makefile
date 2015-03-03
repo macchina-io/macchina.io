@@ -17,7 +17,7 @@ objects =  \
 
 target         = io.macchina.webui.playground
 target_version = 1
-target_libs    = PocoOSPWeb PocoOSP PocoNet PocoUtil PocoJSON PocoXML PocoFoundation
+target_libs    = PocoOSPWeb PocoOSP PocoNet PocoZip PocoUtil PocoJSON PocoXML PocoFoundation
 
 postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -Npng,gif,jpg -o../bundles Playground.bndlspec
 
