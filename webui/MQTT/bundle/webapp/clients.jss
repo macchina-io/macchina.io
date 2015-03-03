@@ -1,4 +1,10 @@
-// TODO: authentication
+if (!session || !session.authenticated)
+{
+	logger.error("No session or session not authenticated.");
+	response.setStatus(401);
+	response.send();
+	return;
+}
 
 var clients = [];
 
