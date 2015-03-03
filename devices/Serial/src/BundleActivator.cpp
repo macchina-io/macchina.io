@@ -23,7 +23,7 @@
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
 #include "Poco/NumberFormatter.h"
-#include <map>
+#include <vector>
 
 
 using Poco::OSP::BundleContext;
@@ -65,6 +65,7 @@ public:
 		props.set("io.macchina.serialport.device", pSerialPort->device());
 		
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pDeviceRemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
 	}
 	
 	void start(BundleContext::Ptr pContext)
@@ -101,6 +102,11 @@ public:
 		
 	void stop(BundleContext::Ptr pContext)
 	{
+		for (std::vector<ServiceRef::Ptr>::iterator it = _serviceRefs.begin(); it != _serviceRefs.end(); ++it)
+		{
+			_pContext->registry().unregisterService(*it);
+		}
+		_serviceRefs.clear();
 		_pPrefs = 0;
 		_pContext = 0;
 	}
@@ -139,6 +145,7 @@ protected:
 private:
 	BundleContext::Ptr _pContext;
 	PreferencesService::Ptr _pPrefs;
+	std::vector<ServiceRef::Ptr> _serviceRefs;
 };
 
 

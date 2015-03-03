@@ -32,26 +32,33 @@ namespace IoT {
 namespace Devices {
 
 
-class IoTDevices_API EventModerationPolicy
+template <typename T>
+class EventModerationPolicy
 	/// An EventModerationPolicy controls the frequency of events
 	/// sent when an evented sensor or state variable changes. Any class or
 	/// class template that fulfills the following criteria can be 
 	/// used as EventModerationPolicy:
 	///    * The class must provide a public member function
 	///      named valueChanged that takes as only argument
-	///      the new value of the state variable (either passed
-	///      by value or by const reference).
+	///      the new value of the state variable (passed
+	///      by const reference).
 	///    * valueChanged() must check whether the criteria
 	///      for firing an event are fulfilled, and in if this is 
 	///      the case, fire the event.
 	///    * Typically, the Poco::BasicEvent instance will be
 	///      passed to the policy object through the constructor.
 {
+public:
+	virtual void valueChanged(const T& newValue) = 0;
+		
+	virtual ~EventModerationPolicy()
+	{
+	}
 };
 
 
 template <typename T>
-class NoModerationPolicy: public EventModerationPolicy
+class NoModerationPolicy: public EventModerationPolicy<T>
 	/// This event moderation policy does no moderation and
 	/// fires an event whenever the event variable's value changes
 	/// (the valueChanged() member function is called).
@@ -80,7 +87,7 @@ private:
 
 
 template <typename T>
-class MinimumDeltaModerationPolicy: public EventModerationPolicy
+class MinimumDeltaModerationPolicy: public EventModerationPolicy<T>
 	/// This event moderation policy will fire an event whenever the
 	/// value of an event variable changes more than the given
 	/// minimum delta since the last time an event was sent.
@@ -132,7 +139,7 @@ public:
 		return _minimumDelta;
 	}
 	
-	void valueChanged(T value)
+	void valueChanged(const T& value)
 	{
 		double minimumDelta;
 		{
@@ -158,7 +165,7 @@ private:
 
 
 template <typename T>
-class MaximumRateModerationPolicy: public EventModerationPolicy
+class MaximumRateModerationPolicy: public EventModerationPolicy<T>
 	/// This event moderation policy will fire an event at most every n milliseconds.
 	/// An external Poco::Util::Timer instance must be supplied.
 {
