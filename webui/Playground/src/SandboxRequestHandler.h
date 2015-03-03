@@ -17,6 +17,7 @@
 #include "Poco/Net/HTTPRequestHandler.h"
 #include "Poco/OSP/Web/WebRequestHandlerFactory.h"
 #include "Poco/OSP/BundleContext.h"
+#include "Poco/Mutex.h"
 
 
 namespace IoT {
@@ -48,6 +49,8 @@ protected:
 
 private:
 	Poco::OSP::BundleContext::Ptr _pContext;
+	
+	static Poco::FastMutex _mutex;
 };
 
 

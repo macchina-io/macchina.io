@@ -41,6 +41,7 @@ namespace Playground {
 const std::string SandboxRequestHandler::SANDBOX_BUNDLE("io.macchina.webui.playground.sandbox");
 const std::string SandboxRequestHandler::SANDBOX_SCRIPT("sandbox.js");
 const std::string SandboxRequestHandler::SANDBOX_PROPERTIES("sandbox.properties");
+Poco::FastMutex SandboxRequestHandler::_mutex;
 
 
 SandboxRequestHandler::SandboxRequestHandler(Poco::OSP::BundleContext::Ptr pContext):
@@ -50,7 +51,9 @@ SandboxRequestHandler::SandboxRequestHandler(Poco::OSP::BundleContext::Ptr pCont
 
 
 void SandboxRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
-{	
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
 	Poco::OSP::Web::WebSession::Ptr pSession;
 	{
 		Poco::OSP::ServiceRef::Ptr pWebSessionManagerRef = context()->registry().findByName(Poco::OSP::Web::WebSessionManager::SERVICE_NAME);
@@ -177,9 +180,9 @@ void SandboxRequestHandler::handleInfo(Poco::OSP::Bundle::Ptr pBundle, Poco::Net
 {
 	std::string name;
 	std::string symbolicName;
-	std::string version;
+	std::string version("1.0.0");
 	std::string vendor;
-	std::string copyright;
+	std::string copyright(Poco::format("(c) %04d", Poco::DateTime().year()));
 	Poco::Path propsPath(pBundle->path());
 	propsPath.makeDirectory();
 	propsPath.setFileName(SANDBOX_PROPERTIES);
@@ -187,11 +190,11 @@ void SandboxRequestHandler::handleInfo(Poco::OSP::Bundle::Ptr pBundle, Poco::Net
 	if (propsFile.exists())
 	{
 		Poco::AutoPtr<Poco::Util::PropertyFileConfiguration> pProps = new Poco::Util::PropertyFileConfiguration(propsPath.toString());
-		name = pProps->getString("name", "");
-		symbolicName = pProps->getString("symbolicName", "");
-		version = pProps->getString("version", "");
-		vendor = pProps->getString("vendor", "");
-		copyright = pProps->getString("copyright", "");
+		name = pProps->getString("name", name);
+		symbolicName = pProps->getString("symbolicName", symbolicName);
+		version = pProps->getString("version", version);
+		vendor = pProps->getString("vendor", vendor);
+		copyright = pProps->getString("copyright", copyright);
 	}
 	response.set("Cache-Control", "no-cache");
 	response.setContentType("application/json");
