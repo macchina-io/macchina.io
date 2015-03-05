@@ -84,7 +84,7 @@ public:
 		
 			MQTTClientImpl::Ptr pMQTTClient = new MQTTClientImpl(serverURI, clientId, persistence, persistencePath, options);
 			std::string oid(Poco::format("io.macchina.mqtt.client#%z", _clients.size()));
-			typename ServerHelper::RemoteObjectPtr pMQTTClientRemoteObject = ServerHelper::createRemoteObject(pMQTTClient, oid);
+			ServerHelper::RemoteObjectPtr pMQTTClientRemoteObject = ServerHelper::createRemoteObject(pMQTTClient, oid);
 			Poco::OSP::Properties props;
 			props.set("io.macchina.mqtt.id", clientId);	
 			props.set("io.macchina.mqtt.serverURI", serverURI);	
@@ -102,7 +102,6 @@ public:
 		
 		Poco::Util::AbstractConfiguration::Keys keys;
 		_pPrefs->configuration()->keys("mqtt.clients", keys);
-		int index = 0;
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "mqtt.clients.";
