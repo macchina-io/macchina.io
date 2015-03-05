@@ -38,7 +38,14 @@ WeakPersistentWrapperRegistry::WeakPersistentWrapperRegistry()
 	
 WeakPersistentWrapperRegistry::~WeakPersistentWrapperRegistry()
 {
-	cleanup();
+	try
+	{
+		cleanup();
+	}
+	catch (...)
+	{
+		poco_unexpected();
+	}
 }
 
 	
@@ -55,7 +62,8 @@ void WeakPersistentWrapperRegistry::registerWrapper(WeakPersistentWrapperBase* p
 	
 void WeakPersistentWrapperRegistry::unregisterWrapper(WeakPersistentWrapperBase* pWrapper)
 {
-	_wrappers.erase(pWrapper);
+	std::size_t n = _wrappers.erase(pWrapper);
+	poco_assert (n == 1);
 }
 
 
@@ -93,7 +101,19 @@ void WeakPersistentWrapperRegistry::cleanupIsolate(v8::Isolate* pIsolate)
 {
 	Poco::Mutex::ScopedLock lock(_registryMutex);
 
-	_registry.erase(pIsolate);
+	// Note: a trivial _registry.erase(pIsolate) will not work here on all platforms.
+	// We need to clean up the registry before it is removed from the map. 
+	// This is because deleting a Wrapper instance in cleanup()
+	// will result in a call to forIsolate(), followed by unregisterWrapper().
+	// Some implementations of erase(pIsolate) remove the registry from the map
+	// first, before destroying it, resulting eventually in a crash (double delete).
+	
+	RegistryMap::iterator it = _registry.find(pIsolate);
+	if (it != _registry.end())
+	{
+		it->second->cleanup();
+		_registry.erase(it);
+	}
 }
 
 
