@@ -47,7 +47,7 @@ public:
 		
 		Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> pWebEventNotifier = new WebEventNotifierImpl(pContext);
 		std::string oid("io.macchina.services.webeventnotifier");
-		typename ServerHelper::RemoteObjectPtr pWebEventNotifierRemoteObject = ServerHelper::createRemoteObject(pWebEventNotifier, oid);		
+		ServerHelper::RemoteObjectPtr pWebEventNotifierRemoteObject = ServerHelper::createRemoteObject(pWebEventNotifier, oid);		
 		ServiceRef::Ptr pServiceRef = pContext->registry().registerService(oid, pWebEventNotifierRemoteObject, Properties());
 	}
 		
