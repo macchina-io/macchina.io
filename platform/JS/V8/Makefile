@@ -48,6 +48,12 @@ ifneq ($(POCO_TARGET_OSARCH),$(POCO_HOST_OSARCH))
 v8targetlibdir = lib.target
 endif
 
+# Reduce linker memory usage on ARM systems
+ifeq ($(V8ARCH), arm)
+LINK += -Xlinker --hash-size=31 -Xlinker --reduce-memory-overhead
+export LINK
+endif
+
 default: v8install
 
 $(V8BASE): archive/$(V8BASE).tar.gz
@@ -62,10 +68,10 @@ v8deps: v8base
 v8libs: v8deps
 
 shared_debug: v8deps
-	$(MAKE) -C $(V8BASE) $(V8ARCH).debug $(V8FLAGS) 
+	-$(MAKE) -C $(V8BASE) $(V8ARCH).debug $(V8FLAGS) 
 
 shared_release: v8deps
-	$(MAKE) -C $(V8BASE) $(V8ARCH).release $(V8FLAGS) 
+	-$(MAKE) -C $(V8BASE) $(V8ARCH).release $(V8FLAGS) 
 	
 all_shared: shared_debug shared_release
 
