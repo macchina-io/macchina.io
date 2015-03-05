@@ -11,7 +11,7 @@ include $(POCO_BASE)/build/rules/global
 V8VERSION = 3.25.28.18
 GYPREVISION = 1831
 V8BASE = v8-$(V8VERSION)
-V8FLAGS = library=shared snapshot=off i18nsupport=off 
+V8FLAGS = library=shared snapshot=off i18nsupport=off werror=no
 
 .PHONY: v8base v8deps v8libs
 
