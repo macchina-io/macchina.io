@@ -481,7 +481,6 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 		v8::Local<v8::Script> scriptObject = v8::Script::Compile(sourceObject, &scriptOrigin);
 		if (scriptObject.IsEmpty() || tryCatch.HasCaught())
 		{
-			v8::Local<v8::Value> exception = tryCatch.Exception();
 			args.GetReturnValue().Set(tryCatch.ReThrow());
 		}
 		else
@@ -489,7 +488,6 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 			v8::Local<v8::Value> result = scriptObject->Run();
 			if (result.IsEmpty() || tryCatch.HasCaught())
 			{
-				v8::Local<v8::Value> exception = tryCatch.Exception();
 				args.GetReturnValue().Set(tryCatch.ReThrow());
 			}
 			else
