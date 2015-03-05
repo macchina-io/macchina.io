@@ -60,8 +60,8 @@ v8deps: v8base
 	cd $(V8BASE)/build && tar xfz ../../archive/gyp-$(GYPREVISION).tar.gz
 	
 v8libs: v8deps
-	$(MAKE) -C $(V8BASE) $(V8ARCH).release $(V8FLAGS) -j4
-	$(MAKE) -C $(V8BASE) $(V8ARCH).debug $(V8FLAGS) -j4
+	$(MAKE) -C $(V8BASE) $(V8ARCH).release $(V8FLAGS) 
+	$(MAKE) -C $(V8BASE) $(V8ARCH).debug $(V8FLAGS) 
 	
 v8install: v8libs
 	cp $(V8BASE)/out/$(V8ARCH).release/$(v8targetlibdir)/libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
