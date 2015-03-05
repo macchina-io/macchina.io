@@ -49,7 +49,7 @@ v8targetlibdir = lib.target
 endif
 
 # Reduce linker memory usage on ARM systems
-ifeq ($(V8ARCH), arm)
+ifeq ($(findstring armv7,$(POCO_HOST_OSARCH)),armv7)
 LINK += -Xlinker --hash-size=31 -Xlinker --reduce-memory-overhead
 export LINK
 endif
