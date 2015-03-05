@@ -60,17 +60,23 @@ v8deps: v8base
 	cd $(V8BASE)/build && tar xfz ../../archive/gyp-$(GYPREVISION).tar.gz
 	
 v8libs: v8deps
-	$(MAKE) -C $(V8BASE) $(V8ARCH).release $(V8FLAGS) 
+
+shared_debug: v8deps
 	$(MAKE) -C $(V8BASE) $(V8ARCH).debug $(V8FLAGS) 
+
+shared_release: v8deps
+	$(MAKE) -C $(V8BASE) $(V8ARCH).release $(V8FLAGS) 
 	
-v8install: v8libs
-	cp $(V8BASE)/out/$(V8ARCH).release/$(v8targetlibdir)/libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
-	cp $(V8BASE)/out/$(V8ARCH).debug/$(v8targetlibdir)/libv8$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8d$(SHAREDLIBLINKEXT)
+all_shared: shared_debug shared_release
+
+v8install: $(DEFAULT_TARGET)
+	if [ -d $(V8BASE)/out/$(V8ARCH).release ] ; then cp $(V8BASE)/out/$(V8ARCH).release/$(v8targetlibdir)/libv8$(SHAREDLIBLINKEXT) $(LIBPATH) ; fi
+	if [ -d $(V8BASE)/out/$(V8ARCH).debug ] ; then cp $(V8BASE)/out/$(V8ARCH).debug/$(v8targetlibdir)/libv8$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8d$(SHAREDLIBLINKEXT) ; fi
 	mkdir -p include
 	cp $(V8BASE)/include/*.h include
 
 clean:
-	$(MAKE) -C $(V8BASE) clean
+	-$(MAKE) -C $(V8BASE) clean
 
 distclean:
 	$(RM) $(V8BASE)
