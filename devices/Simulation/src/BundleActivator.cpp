@@ -54,10 +54,10 @@ public:
 	
 	void createSensor(const SimulatedSensor::Params& params)
 	{
-		typedef Poco::RemotingNG::ServerHelper<typename IoT::Devices::Sensor> ServerHelper;
+		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor> ServerHelper;
 		
 		Poco::SharedPtr<SimulatedSensor> pSensor = new SimulatedSensor(params, *_pTimer);
-		typename ServerHelper::RemoteObjectPtr pSensorRemoteObject = ServerHelper::createRemoteObject(pSensor, params.id);
+		ServerHelper::RemoteObjectPtr pSensorRemoteObject = ServerHelper::createRemoteObject(pSensor, params.id);
 		
 		Properties props;
 		props.set("io.macchina.device", SimulatedSensor::SYMBOLIC_NAME);
