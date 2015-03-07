@@ -43,7 +43,7 @@ class ISerialDevice: public IoT::Devices::IDevice
 	///
 	/// In event mode the class will start a thread that polls
 	/// and reads available data from the serial port, and fires
-	/// the textReceived event whenever something has been read.
+	/// the lineReceived event whenever something has been read.
 	/// Since callback mode uses readLine() to receive entire lines
 	/// (if possible), delimiter characters and timeout can be set
 	/// via the "delimiters" (string) and "timeout" (double) properties.
