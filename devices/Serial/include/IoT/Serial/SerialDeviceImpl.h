@@ -3,7 +3,7 @@
 //
 // $Id$
 //
-// Library: IoT/SerialDevice
+// Library: IoT/Serial
 // Package: Serial
 // Module:  SerialDevice
 //
