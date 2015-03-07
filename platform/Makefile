@@ -392,7 +392,7 @@ OSP/WebServer-libexec:  OSP-libexec OSP/Web-libexec OSP/BundleCreator-libexec
 OSP/WebServer-clean:  
 	$(MAKE) -C $(POCO_BASE)/OSP/WebServer clean
 
-OSP/JS-libexec:  Foundation-libexec XML-libexec Util-libexec Net-libexec JS/Core-libexec JS/Bridge-libexec JS/Net-libexec JS/Data-libexec OSP-libexec OSP/BundleCreator-libexec
+OSP/JS-libexec:  Foundation-libexec XML-libexec Util-libexec Net-libexec JS/Core-libexec JS/Bridge-libexec JS/Net-libexec JS/Data-libexec OSP-libexec OSP/Web-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS
 
 OSP/JS-clean:  

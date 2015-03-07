@@ -1,0 +1,27 @@
+macchina.io Introduction and Overview
+AAAAMacchinaIO
+
+!!!Introduction
+
+macchina.io is an open source software toolkit for quickly building
+embedded applications for the Internet of Things that run on Linux-based
+devices like the Raspberry Pi, Beaglebone, RED Brick or Galileo/Edison.
+It implements a web-enabled, modular and extensible JavaScript
+and C++ runtime environment and provides readily available, easy to use
+building blocks that allow your application to talk to various sensors
+and devices, as well as cloud services.
+
+macchina.io combines the power of JavaScript for rapid application
+development with the power and performance of native C++ code.
+macchina.io is based on the POCO C++ Libraries and the V8 JavaScript
+engine. A unique bridging system and a code generator make it easy to
+consume C++ services from JavaScript, without the need to manually write
+glue code.
+
+
+!!!Overview
+
+macchina.io has been built in a very modular and extensible way. It consists of
+multiple components
+
+[[image:images/macchina_overview.png Figure 1: An overview of macchina.io]]
