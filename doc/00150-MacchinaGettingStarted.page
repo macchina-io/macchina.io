@@ -132,6 +132,16 @@ filesystem layout on the target would be:
 
 All shared libraries should go into the <*lib*> directory, and all bundles go into the
 <*lib/bundles*> directory.
+
+You can use the <*install_runtime*> Makefile target to copy all these files into
+a directory hierarchy like above:
+
+    POCO_CONFIG=Yocto make -s install_runtime INSTALLDIR=/path/to/macchina-install-dir
+----
+
+Then you can simply pack the directory into an archive (e.g., <*.tar.gz*>) file and 
+transfer it to the target.
+
 The configuration file for the macchina.io server, <*macchina.properties*> (located
 in the <*server*> directory) should be copied into the <*etc*> directory on the target.
 The configuration file needs to be modified for the target. Open the  
