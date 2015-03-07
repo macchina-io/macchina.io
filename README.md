@@ -29,7 +29,7 @@ Prerequisites
 
   - GNU Make
   - GNU C++ (g++) on Linux or Clang++ on OS X
-  - OpenSSL headers and libraries on Linux.
+  - OpenSSL headers and libraries on Linux
 
 
 Getting Started
