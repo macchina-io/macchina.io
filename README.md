@@ -24,6 +24,14 @@ Build Status
 - Travis: [![Travis Build Status](https://travis-ci.org/macchina-io/macchina.io.png?branch=develop)](https://travis-ci.org/macchina-io/macchina.io/)
 
 
+Prerequisites
+-------------
+
+  - GNU Make
+  - GNU C++ (g++) on Linux or Clang++ on OS X
+  - OpenSSL headers and libraries on Linux.
+
+
 Getting Started
 ---------------
 
