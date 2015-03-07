@@ -1,6 +1,8 @@
 macchina.io
 ===========
 
+*An open-source toolkit for building embedded IoT applications that connect sensors, devices and cloud services.*
+						
 macchina.io is a new open source software toolkit for quickly building
 embedded applications for the Internet of Things that run on Linux-based
 devices like the Raspberry Pi, Beaglebone or RED brick. macchina.io
@@ -38,16 +40,19 @@ Then, on Linux:
     $ cd server
     $ bin/Linux/x86_64/macchina
   
-on OS X:
+On OS X:
 
     $ export DYLD_LIBRARY_PATH=`pwd`/platform/lib/Darwin/x86_64
     $ cd server
     $ bin/Darwin/x86_64/macchina
   
-Then direct your favorite web browser to http://localhost:22080.
+Then direct your favorite web browser to <http://localhost:22080> and log in with username 'admin' and password 'admin'.
 
-For more detailed instructions, including cross compiling, see
-the [documentation](http://macchina.io/docs/index.html).
+For more detailed instructions, including how to cross-compile for embedded Linux targets, 
+as well as an introduction to writing JavaScript code for macchina.io, see
+the [documentation](http://macchina.io/docs/index.html), specifically
+[Introduction and Overview](http://macchina.io/docs/00100-MacchinaIntroduction.html) and 
+[Getting Started with macchina.io](http://macchina.io/docs/00100-MacchinaIntroduction.html).
 
 
 Project Status
