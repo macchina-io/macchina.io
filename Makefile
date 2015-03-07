@@ -11,7 +11,7 @@
 TARGET ?= sdk
 INSTALLDIR ?= /usr/local/macchina
 
-RUNTIME_LIBS = PocoFoundation PocoXML PocoJSON PocoUtil PocoOSP PocoZip
+RUNTIME_LIBS = PocoFoundation PocoXML PocoJSON PocoUtil PocoZip PocoOSP PocoRemotingNG
 
 MACCHINA_BASE = $(shell pwd)
 POCO_BASE = $(MACCHINA_BASE)/platform
@@ -106,6 +106,7 @@ install_sdk:
 	mkdir -p $(INSTALLDIR)/lib
 	mkdir -p $(INSTALLDIR)/lib/bundles
 	mkdir -p $(INSTALLDIR)/bin	
+	mkdir -p $(INSTALLDIR)/etc
 	$(MAKE) -C platform install INSTALLDIR=$(INSTALLDIR)
 	cp -Rf devices/*/include/* $(INSTALLDIR)/include
 	cp -Rf protocols/*/include/* $(INSTALLDIR)/include
@@ -116,15 +117,22 @@ install_sdk:
 	cp -f $(POCO_BASE)/OSP/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	cp -f $(MACCHINA_BASE)/*/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	rm -f $(INSTALLDIR)/bin/*$(LIBEXT)
+	cp $(MACCHINA_BASE)/server/macchina.properties $(INSTALLDIR)/etc
+	cp $(MACCHINA_BASE)/server/rootcert.pem $(INSTALLDIR)/etc
+	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc	
 
 install_runtime:
 	mkdir -p $(INSTALLDIR)
 	mkdir -p $(INSTALLDIR)/lib
 	mkdir -p $(INSTALLDIR)/lib/bundles
 	mkdir -p $(INSTALLDIR)/bin	
+	mkdir -p $(INSTALLDIR)/etc
 	find $(MACCHINA_BASE)/server/bin/$(OSNAME)/$(OSARCH) -perm -700 -type f -name macchina -exec cp -f {} $(INSTALLDIR)/bin \;
 	for lib in $(RUNTIME_LIBS) ; do \
 		find $(POCO_BASE)/lib/$(OSNAME)/$(OSARCH) -name "lib$$lib$(VLIBEXT)" -type f -exec cp -f {} $(INSTALLDIR)/lib \; ; \
 	done
 	cp -f $(POCO_BASE)/OSP/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	cp -f $(MACCHINA_BASE)/*/bundles/*.bndl $(INSTALLDIR)/lib/bundles
+	cp $(MACCHINA_BASE)/server/macchina.properties $(INSTALLDIR)/etc
+	cp $(MACCHINA_BASE)/server/rootcert.pem $(INSTALLDIR)/etc
+	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc
