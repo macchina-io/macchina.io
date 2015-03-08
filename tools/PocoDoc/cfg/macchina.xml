@@ -1,4 +1,5 @@
 <AppConfig>
+	<MacchinaBase>${system.env.MACCHINA_BASE}</MacchinaBase>
 	<PocoDoc>
 		<files>
 			<include>
@@ -11,6 +12,9 @@
 				${MacchinaBase}/devices/Serial/include/*/*/*.h
 				${MacchinaBase}/devices/GNSS/include/*/*/*.h
 				${MacchinaBase}/devices/GNSS/NMEA/include/*/*/*/*.h
+				${MacchinaBase}/devices/Simulation/include/*/*/*.h
+				${MacchinaBase}/services/WebEvent/include/*/*/*.h
+				${MacchinaBase}/protocols/MQTT/include/*/*/*.h
 			</include>
 			<exclude>
 				*_*.h,
@@ -66,6 +70,9 @@
 				-I${MacchinaBase}/devices/Serial/include
 				-I${MacchinaBase}/devices/GNSS/include
 				-I${MacchinaBase}/devices/GNSS/NMEA/include
+				-I${MacchinaBase}/devices/Simulation/include
+				-I${MacchinaBase}/services/WebEvent/include
+				-I${MacchinaBase}/protocols/MQTT/include
 				-D_DEBUG
 				-E
 				-C
@@ -78,8 +85,9 @@
 		<language>EN</language>
 		<charset>utf-8</charset>
 		<software>macchina.io</software>
-		<company>Applied Informatics Software Engineering GmbH and Contributors</company>
+		<company>Applied Informatics Software Engineering GmbH</company>
 		<companyURI>http://macchina.io</companyURI>
+		<licenseURI>http://creativecommons.org/licenses/by/3.0/</licenseURI>
 	</PocoDoc>
 	<Translations>
 		<EN>
@@ -120,6 +128,7 @@
 			<Guides>User Guides and Tutorials</Guides>
 			<AAAIntroduction>POCO C++ Libraries Introduction</AAAIntroduction>
 			<AAAAMacchinaIO>macchina.io</AAAAMacchinaIO>
+			<License>CC BY 3.0</License>
 		</EN>
 	</Translations>
 

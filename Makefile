@@ -11,6 +11,8 @@
 TARGET ?= sdk
 INSTALLDIR ?= /usr/local/macchina
 
+RUNTIME_LIBS = PocoFoundation PocoXML PocoJSON PocoUtil PocoZip PocoOSP PocoRemotingNG
+
 MACCHINA_BASE = $(shell pwd)
 POCO_BASE = $(MACCHINA_BASE)/platform
 PROJECT_BASE = $(MACCHINA_BASE)
@@ -28,8 +30,10 @@ else
 $(error Invalid TARGET specified: $(TARGET))
 endif
 
-osname=$(shell uname)
-ifeq ($(osname),Darwin)
+POCO_HOST_OSNAME = $(shell uname)
+POCO_HOST_OSARCH ?= $(subst /,-,$(shell uname -m | tr ' ' _))
+
+ifeq ($(POCO_HOST_OSNAME),Darwin)
 VLIBEXT = .*.dylib
 LIBEXT = .dylib
 else
@@ -37,8 +41,38 @@ VLIBEXT = .so.*
 LIBEXT = .so
 endif
 
-RUNTIME_LIBS = PocoFoundation PocoXML PocoJSON PocoUtil PocoOSP PocoZip
+#
+# If POCO_CONFIG is not set, use the OS name as configuration name
+#
+ifndef POCO_CONFIG
+POCO_CONFIG = $(POCO_HOST_OSNAME)
+endif
 
+#
+# Include System Specific Settings
+#
+include $(POCO_BASE)/build/config/$(POCO_CONFIG)
+
+#
+# Determine operating system
+#
+ifndef POCO_TARGET_OSNAME
+OSNAME := $(POCO_HOST_OSNAME)
+else
+OSNAME := $(POCO_TARGET_OSNAME)
+endif
+ifndef POCO_TARGET_OSARCH
+OSARCH := $(subst /,-,$(shell uname -m | tr ' ' _))
+else
+OSARCH := $(POCO_TARGET_OSARCH)
+endif
+
+
+#
+# Make Targets
+#
+
+# All macchina.io
 clean all:
 	$(MAKE) -C platform $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C server $(MAKECMDGOALS) $(MAKEARGS)
@@ -46,6 +80,23 @@ clean all:
 	$(MAKE) -C protocols $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C services $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C webui $(MAKECMDGOALS) $(MAKEARGS)
+
+# Host tools only
+hosttools:
+	$(MAKE) -C platform/Foundation 
+	$(MAKE) -C platform/XML 
+	$(MAKE) -C platform/JSON 
+	$(MAKE) -C platform/Util 
+	$(MAKE) -C platform/Net
+	$(MAKE) -C platform/Zip
+	$(MAKE) -C platform/OSP 
+	$(MAKE) -C platform/OSP/BundleCreator 
+	$(MAKE) -C platform/CppParser 
+	$(MAKE) -C platform/CodeGeneration 
+	$(MAKE) -C platform/RemotingNG
+	$(MAKE) -C platform/RemotingNG/RemoteGen 
+	$(MAKE) -C platform/PageCompiler 
+	$(MAKE) -C platform/PageCompiler/File2Page
 
 install: $(INSTALL_TARGET)
 
@@ -55,25 +106,33 @@ install_sdk:
 	mkdir -p $(INSTALLDIR)/lib
 	mkdir -p $(INSTALLDIR)/lib/bundles
 	mkdir -p $(INSTALLDIR)/bin	
+	mkdir -p $(INSTALLDIR)/etc
 	$(MAKE) -C platform install INSTALLDIR=$(INSTALLDIR)
 	cp -Rf devices/*/include/* $(INSTALLDIR)/include
 	cp -Rf protocols/*/include/* $(INSTALLDIR)/include
 	cp -Rf services/*/include/* $(INSTALLDIR)/include
-	find $(MACCHINA_BASE)/lib -name "libIoT*" -type f -exec cp -f {} $(INSTALLDIR)/lib \;
-	find $(MACCHINA_BASE)/lib -name "libIoT*" -type l -exec cp -Rf {} $(INSTALLDIR)/lib \;
-	find $(MACCHINA_BASE)/server/bin -perm -700 -type f -name 'macchina*' -exec cp -f {} $(INSTALLDIR)/bin \;
+	find $(MACCHINA_BASE)/lib/$(OSNAME)/$(OSARCH) -name "libIoT*" -type f -exec cp -f {} $(INSTALLDIR)/lib \;
+	find $(MACCHINA_BASE)/lib/$(OSNAME)/$(OSARCH) -name "libIoT*" -type l -exec cp -Rf {} $(INSTALLDIR)/lib \;
+	find $(MACCHINA_BASE)/server/bin/$(OSNAME)/$(OSARCH) -perm -700 -type f -name 'macchina*' -exec cp -f {} $(INSTALLDIR)/bin \;
 	cp -f $(POCO_BASE)/OSP/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	cp -f $(MACCHINA_BASE)/*/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	rm -f $(INSTALLDIR)/bin/*$(LIBEXT)
+	cp $(MACCHINA_BASE)/server/macchina.properties $(INSTALLDIR)/etc
+	cp $(MACCHINA_BASE)/server/rootcert.pem $(INSTALLDIR)/etc
+	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc	
 
 install_runtime:
 	mkdir -p $(INSTALLDIR)
 	mkdir -p $(INSTALLDIR)/lib
 	mkdir -p $(INSTALLDIR)/lib/bundles
 	mkdir -p $(INSTALLDIR)/bin	
-	find $(MACCHINA_BASE)/server/bin -perm -700 -type f -name macchina -exec cp -f {} $(INSTALLDIR)/bin \;
+	mkdir -p $(INSTALLDIR)/etc
+	find $(MACCHINA_BASE)/server/bin/$(OSNAME)/$(OSARCH) -perm -700 -type f -name macchina -exec cp -f {} $(INSTALLDIR)/bin \;
 	for lib in $(RUNTIME_LIBS) ; do \
-		find $(POCO_BASE)/lib -name "lib$$lib$(VLIBEXT)" -type f -exec cp -f {} $(INSTALLDIR)/lib \; ; \
+		find $(POCO_BASE)/lib/$(OSNAME)/$(OSARCH) -name "lib$$lib$(VLIBEXT)" -type f -exec cp -f {} $(INSTALLDIR)/lib \; ; \
 	done
 	cp -f $(POCO_BASE)/OSP/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	cp -f $(MACCHINA_BASE)/*/bundles/*.bndl $(INSTALLDIR)/lib/bundles
+	cp $(MACCHINA_BASE)/server/macchina.properties $(INSTALLDIR)/etc
+	cp $(MACCHINA_BASE)/server/rootcert.pem $(INSTALLDIR)/etc
+	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc

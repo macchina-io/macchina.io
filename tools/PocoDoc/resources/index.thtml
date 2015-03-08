@@ -18,6 +18,22 @@
 <iframe src="navigation.html" onload="iFrameResize(this);" scrolling="no"></iframe>
 </div>
 <div id="content">
+<h2>Welcome to macchina.io!</h2>
+<p><a href="http://macchina.io">macchina.io</a> is an open source
+software toolkit for quickly building embedded applications for the
+Internet of Things that run on Linux-based devices like the Raspberry
+Pi, Beaglebone, RED Brick or Galileo/Edison. macchina.io implements a
+web-enabled, modular and extensible JavaScript and C++ runtime
+environment and provides readily available, easy to use building blocks
+that allow your application to talk to various sensors and devices, as
+well as cloud services.
+</p>
+<p>If you're new to macchina.io, please start with the
+<a href="00100-MacchinaIntroduction.html">Introduction and Overview</a>
+and
+<a href="00150-MacchinaGettingStarted.html">Getting Started with macchina.io</a>
+documents.</p>
+
 <h2>User Guides And Tutorials</h2>
 ${PocoDoc.pageIndex}
 
@@ -25,7 +41,8 @@ ${PocoDoc.pageIndex}
 ${PocoDoc.nameSpaceIndex}
 
 <p class="footer">${PocoDoc.software} ${PocoDoc.version}<br />
-Copyright &copy; ${PocoDoc.year}, <a href="${PocoDoc.companyURI}" target="_top">${PocoDoc.company}</a></p>
+Copyright &copy; ${PocoDoc.year}, <a href="${PocoDoc.companyURI}" target="_top">${PocoDoc.company}</a>
+(<a href="${PocoDoc.licenseURI}">CC BY 3.0</a>)</p>
 </div>
 </div>
 </body>

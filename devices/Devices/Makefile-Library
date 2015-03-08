@@ -49,7 +49,12 @@ objects = Device DeviceException \
 	AccelerometerEventDispatcher \
 	AccelerometerRemoteObject \
 	AccelerometerServerHelper \
-	AccelerometerSkeleton 
+	AccelerometerSkeleton \
+	IIO \
+	IOEventDispatcher \
+	IORemoteObject \
+	IOServerHelper \
+	IOSkeleton 
 
 target         = IoTDevices
 target_version = 1
