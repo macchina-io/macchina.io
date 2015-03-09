@@ -304,7 +304,9 @@ void HTTPRequestWrapper::sendBlocking(const v8::FunctionCallbackInfo<v8::Value>&
 	try
 	{
 		Poco::URI uri(uriString);
-		pRequestHolder->request().setURI(uri.getPathEtc());
+		std::string uriPath = uri.getPathEtc();
+		if (uriPath.empty()) uriPath = "/";
+		pRequestHolder->request().setURI(uriPath);
 		Poco::SharedPtr<Poco::Net::HTTPClientSession> pCS = Poco::Net::HTTPSessionFactory::defaultFactory().createClientSession(uri);
 		if (pRequestHolder->request().getMethod() == Poco::Net::HTTPRequest::HTTP_PUT || pRequestHolder->request().getMethod() == Poco::Net::HTTPRequest::HTTP_POST)
 		{
@@ -487,8 +489,10 @@ void HTTPRequestWrapper::sendAsync(const v8::FunctionCallbackInfo<v8::Value>& ar
 	try
 	{
 		Poco::URI uri(uriString);
-		pRequestHolder->request().setURI(uri.getPathEtc());
-		Poco::SharedPtr<Poco::Net::HTTPRequest> pRequest = new Poco::Net::HTTPRequest(pRequestHolder->request().getMethod(), uri.getPathEtc(), pRequestHolder->request().getVersion());
+		std::string uriPath = uri.getPathEtc();
+		if (uriPath.empty()) uriPath = "/";
+		pRequestHolder->request().setURI(uriPath);
+		Poco::SharedPtr<Poco::Net::HTTPRequest> pRequest = new Poco::Net::HTTPRequest(pRequestHolder->request().getMethod(), uriPath, pRequestHolder->request().getVersion());
 		static_cast<Poco::Net::MessageHeader&>(*pRequest) = pRequestHolder->request();
 		Poco::SharedPtr<Poco::Net::HTTPClientSession> pCS = Poco::Net::HTTPSessionFactory::defaultFactory().createClientSession(uri);
 		if (pRequest->getMethod() == Poco::Net::HTTPRequest::HTTP_PUT || pRequest->getMethod() == Poco::Net::HTTPRequest::HTTP_POST)
