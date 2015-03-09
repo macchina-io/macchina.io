@@ -30,7 +30,7 @@ public:
 		/// Creates the JSServerPageFilter using the given BundleContext.
 
 protected:
-	void preprocess(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& path, std::istream& resourceStream, std::string& servlet);
+	void preprocess(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& uri, std::istream& resourceStream, std::string& servlet);
 };
 
 

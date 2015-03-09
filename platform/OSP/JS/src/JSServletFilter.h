@@ -36,7 +36,7 @@ public:
 	void process(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& path, std::istream& resourceStream, Poco::OSP::Bundle::ConstPtr pBundle);
 
 protected:
-	virtual void preprocess(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& path, std::istream& resourceStream, std::string& servlet);
+	virtual void preprocess(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& uri, std::istream& resourceStream, std::string& servlet);
 	Poco::OSP::BundleContext::Ptr context() const;
 	void sendErrorResponse(Poco::Net::HTTPServerResponse& response, const std::string& message); 
 		

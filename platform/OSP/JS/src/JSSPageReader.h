@@ -33,10 +33,10 @@ class JSSPageReader
 	/// containing JSP-style tags for embedding JavaScript code.
 {
 public:
-	JSSPageReader(JSSPage& page, const std::string& path);
+	JSSPageReader(JSSPage& page, const std::string& uri);
 		/// Creates the JSSPageReader, using the given JSSPage.
 
-	JSSPageReader(const JSSPageReader& parent, const std::string& path);
+	JSSPageReader(const JSSPageReader& parent, const std::string& uri);
 		/// Creates the JSSPageReader, using the given JSSPageReader as parent.
 
 	~JSSPageReader();
@@ -63,7 +63,7 @@ protected:
 	static const std::string EXPR_BEGIN;
 	static const std::string EXPR_END;
 
-	void include(const std::string& path);
+	void include(const std::string& uri);
 	void parseAttributes();
 	void nextToken(std::istream& istr, std::string& token);
 	void handleAttribute(const std::string& name, const std::string& value);
@@ -76,7 +76,7 @@ private:
 
 	JSSPage& _page;
 	const JSSPageReader* _pParent;
-	std::string _path;
+	std::string _uri;
 	std::string _attrs;
 	int _line;
 };

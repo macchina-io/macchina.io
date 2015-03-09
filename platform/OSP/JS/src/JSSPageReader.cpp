@@ -12,11 +12,12 @@
 
 #include "JSSPageReader.h"
 #include "JSSPage.h"
-#include "Poco/FileStream.h"
+#include "Poco/URIStreamOpener.h"
 #include "Poco/CountingStream.h"
-#include "Poco/Path.h"
+#include "Poco/URI.h"
 #include "Poco/Exception.h"
 #include "Poco/Ascii.h"
+#include "Poco/SharedPtr.h"
 
 
 namespace Poco {
@@ -30,20 +31,20 @@ const std::string JSSPageReader::EXPR_BEGIN("response.write(");
 const std::string JSSPageReader::EXPR_END(");\n");
 
 
-JSSPageReader::JSSPageReader(JSSPage& page, const std::string& path):
+JSSPageReader::JSSPageReader(JSSPage& page, const std::string& uri):
 	_page(page),
 	_pParent(0),
-	_path(path),
+	_uri(uri),
 	_line(0)
 {
 	_attrs.reserve(4096);
 }
 
 
-JSSPageReader::JSSPageReader(const JSSPageReader& parent, const std::string& path):
+JSSPageReader::JSSPageReader(const JSSPageReader& parent, const std::string& uri):
 	_page(parent._page),
 	_pParent(&parent),
-	_path(path),
+	_uri(uri),
 	_line(0)
 {
 	_attrs.reserve(4096);
@@ -276,30 +277,29 @@ void JSSPageReader::handleAttribute(const std::string& name, const std::string& 
 }
 
 
-void JSSPageReader::include(const std::string& path)
+void JSSPageReader::include(const std::string& uri)
 {
-	Poco::Path currentPath(_path);
-	Poco::Path includePath(path);
-	currentPath.resolve(includePath);
+	Poco::URI includeURI(_uri);
+	includeURI.resolve(uri);
 	
-	_page.handler() << "// begin include " << currentPath.toString() << "\n";
+	_page.handler() << "// begin include " << includeURI.toString() << "\n";
 	
-	Poco::FileInputStream includeStream(currentPath.toString());
-	JSSPageReader includeReader(*this, currentPath.toString());
-	includeReader.parse(includeStream);
+	Poco::SharedPtr<std::istream> pIncludeStream = Poco::URIStreamOpener::defaultOpener().open(includeURI);
+	JSSPageReader includeReader(*this, includeURI.toString());
+	includeReader.parse(*pIncludeStream);
 	
-	_page.handler() << "// end include " << currentPath.toString() << "\n";
+	_page.handler() << "// end include " << includeURI.toString() << "\n";
 }
 
 
 std::string JSSPageReader::where() const
 {
 	std::stringstream result;
-	result << "in file '" << _path << "', line " << _line;
+	result << "in resource '" << _uri << "', line " << _line;
 	const JSSPageReader* pParent = _pParent;
 	while (pParent)
 	{
-		result << "\nincluded from file '"<<  pParent->_path << "', line " << pParent->_line;
+		result << "\nincluded from resource '"<<  pParent->_uri << "', line " << pParent->_line;
 		pParent = pParent->_pParent;
 	}
 	return result.str();

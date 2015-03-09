@@ -26,10 +26,10 @@ JSServerPageFilter::JSServerPageFilter(Poco::OSP::BundleContext::Ptr pContext, c
 }
 
 
-void JSServerPageFilter::preprocess(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& path, std::istream& resourceStream, std::string& servlet)
+void JSServerPageFilter::preprocess(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& uri, std::istream& resourceStream, std::string& servlet)
 {
 	JSSPage page;
-	JSSPageReader pageReader(page, path);
+	JSSPageReader pageReader(page, uri);
 	pageReader.parse(resourceStream);
 	// The $servlet function is created to prevent the script from
 	// creating global variables. V8 does not seem to garbage collect

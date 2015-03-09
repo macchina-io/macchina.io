@@ -65,12 +65,12 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 		
 		if (!_pServletExecutor)
 		{
-			std::string servlet;
-			preprocess(request, response, path, resourceStream, servlet);
 			std::string scriptURI("bndl://");
 			scriptURI += pBundle->symbolicName();
 			if (path.empty() || path[0] != '/') scriptURI += "/";
 			scriptURI += path;
+			std::string servlet;
+			preprocess(request, response, scriptURI, resourceStream, servlet);
 			_pServletExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _memoryLimit, request, response);
 		}
 		_pServletExecutor->run();
@@ -90,7 +90,7 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 }
 
 
-void JSServletFilter::preprocess(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& path, std::istream& resourceStream, std::string& servlet)
+void JSServletFilter::preprocess(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& uri, std::istream& resourceStream, std::string& servlet)
 {
 	// The $servlet function is created to prevent the script from
 	// creating global variables. V8 does not seem to garbage collect
