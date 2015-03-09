@@ -3,7 +3,6 @@ AAAAMacchinaIO
 
 !!!Introduction
 
-
 The macchina.io JavaScript programming environment provides access to various
 global objects and functions, which give scripts access to the features of macchina.io.
 
@@ -14,6 +13,283 @@ script to import a "module", typically containing re-usable code. The module sys
 based on the modules specification from CommonJS.
 
 This document assumes you are already familiar with JavaScript and its concepts.
+
+
+!!!JavaScript Bundles
+
+An important question is how to actually get JavaScript code into macchina.io.
+In general, all JavaScript code executed within macchina.io must be contained
+in bundles. There are different ways to create a bundle and deploy it into
+a macchina.io server. The easiest way is to use the <*Playground*> app in the web 
+user interface. It provides a browser-based editor that allows you to create and
+edit JavaScript scripts, as well as to execute them in macchina.io. This is great
+for trying out things very quickly. The Playground can also be used to create 
+and download a complete bundle containing the script. This bundle can then be deployed
+to a macchina.io based device, either by placing it on the filesystem (in one
+of the directories configured as bundle repositories), or by installing them using
+the web based <*Bundle*> utility.
+
+To learn more about bundles, please refer to the Open Service Platform documentation,
+specifically the [[00100-OSPOverview.html OSP Overview]] and 
+[[00200-OSPBundles.html OSP Bundles]] documents.
+
+In macchina.io, there are two ways that JavaScript code can be executed.
+The first is by placing one or more scripts in a bundle, and by creating one or
+more JavaScript extensions in the bundle. The extension basically tells
+macchina.io which scripts to automatically run when the bundle is started. 
+Every script referenced in a JavaScript extension runs in its own thread. 
+Different scripts can also share code, by placing code in modules and importing 
+them via the <[require()]> function.
+See the following section on modules for more information.
+
+The other way to execute JavaScript is via the web server. Any files served
+by the web server with the extension ".jss" or ".jssp" will be treated as
+JavaScript servlets, or server pages, and executed when requested by a client.
+
+
+!!The JavaScript Extension Point
+
+The JavaScript extension point in macchina.io tells the macchina.io server which
+scripts (contained in the bundle) to automatically execute when the bundle starts.
+Each script is executed in its own thread. Optionally, the extension point can
+also specify a limit to the JavaScript heap, thus preventing the script from using
+too much memory.
+
+By convention, extensions are specified using an XML file named "extensions.xml", located 
+in the root directory of a bundle.
+
+Here's an example what the "extensions.xml" looks like to run a script in a file
+named "main.js", also located in the root directory of the bundle.
+
+    <extensions>
+        <extension point="com.appinf.osp.js" script="main.js"/>
+    </extensions>
+----
+
+The script will run when the bundle is started, and it will be stopped when the bundle
+is stopped.
+
+To set a memory limit for the script, use the <*memoryLimit*> attribute to specify
+the allowed amount of memory in bytes. Example:
+
+    <extensions>
+        <extension point="com.appinf.osp.js" script="main.js" memoryLimit="500000"/>
+    </extensions>
+----
+
+There are actually no special tools required to create a bundle. In the simplest form,
+a bundle is just a directory with specific contents, located in one of the directories
+specified as bundle repositories. Since directories are hard to deploy, such a bundle
+directory is usually stored in a ZIP archive, using the ".bndl" extension. This is
+called a bundle file.
+
+
+!!Creating a JavaScript Bundle From Scratch
+
+Let's now create a bundle from scratch.
+Every bundle needs to contain some meta information that tells macchina.io (or more
+specifically, the underlying Open Service Platform) something about the bundle (e.g.,
+its name, its creator, its dependencies, etc.). This information is contained
+in a text file named "manifest.mf", which must be located in a special directory
+named "META-INF", located in the root of the bundle directory.
+
+The directory hierarchy of a bundle containing a script so basically looks like this:
+
+    / (bundle root directory)
+        META-INF/
+            manifest.mf
+        extensions.xml
+        main.js
+----
+
+The "manifest.mf" file for a simple bundle looks as follows:
+
+    Manifest-Version: 1.0
+    Bundle-Name: My First Bundle
+    Bundle-SymbolicName: com.my-company.my-first-bundle
+    Bundle-Version: 1.0.0
+    Bundle-Vendor: My Company
+    Bundle-Copyright: (c) 2015, My Company
+    Bundle-RunLevel: 900
+    Bundle-LazyStart: false
+----
+
+When creating your own bundle, make sure not to change the values for
+Manifest-Version, Bundle-RunLevel, or Bundle-LazyStart (unless you
+are already familiar enough with OSP to know what you're doing).
+
+By convention, the symbolic name of a bundle (the name used internally)
+is written in reverse domain name notation, to ensure bundle names 
+are unique, even if bundles come from different vendors.
+
+For more detailed information regarding the bundle manifest, please refer
+to the [[00200-OSPBundles.html OSP Bundles]] manual.
+
+We've already shown the content of the "extensions.xml" file for the bundle. 
+Here it is again for reference:
+
+    <extensions>
+        <extension point="com.appinf.osp.js" script="main.js"/>
+    </extensions>
+----
+
+Finally, here is a simple "Hello, world!" script for "main.js":
+
+    logger.information("Hello, world!");
+----
+
+The easiest way to get such a bundle file is to use the Playground's "Export Bundle"
+button. This will download a ".bndl" file. You can use an unzip tool like <*unzip*>
+on Linux or OS X to extract the files contained in the bundle. 
+Use this as a starting point for your own bundles. 
+
+Please make sure that when creating a bundle manually using the <*zip*> tool that
+there is no top-level directory in the Zip file. The "META-INF" directory and 
+"extensions.xml" file must be at the top-level of the Zip archive. Furthermore, the
+name of the bundle file must conform to the convention "<*<symbolic-name>_<version>.bndl*>",
+e.g. "com.my-company.my-first-bundle_1.0.0.bndl".
+
+One way to ensure this is to <[cd]> into the bundle directory, then invoke <*zip*>
+as in the following:
+
+    $ zip -r ../com.my-company.my-first-bundle_1.0.0.bndl *
+----
+
+For creating bundles, macchina.io provides the [[00210-OSPBundleCreator.html Bundle Creator]] 
+(<*bundle*>) tool from the Open Service Platform. While creating bundles manually using 
+<*zip*> is fine for simple bundles, using the <*bundle*> tool makes it easier to create 
+more complex bundle that have dependencies upon other bundle, and which need to collect 
+files from different source directories.
+
+
+!!!JavaScript Servlets and Server Pages
+
+Scripts can also be executed in order to serve web requests. macchina.io uses the 
+[[01000-OSPWeb.html Open Service Platform Web Server]], which gets all content it 
+serves from bundles. To make the web server execute server-side JavaScript, that
+script must be in a file with extension ".jss" or ".jssp", and the file must be
+accessible through the web server. There is an important difference between 
+".jss" and ".jssp" files. The former contain a so-called "JavaScript Servlet", 
+while the latter contain a "JavaScript Server Page". 
+
+
+!!Servlets
+
+A <*JavaScript Servlet*> is a script that will be invoked whenever a client
+requests the respective file from the web server. The script has access
+to global <[request]> and <[response]> objects which are used to process
+the HTTP request and send an appropriate HTTP response. There are also
+<[form]> and <[session]> objects available, which are used for HTML form
+processing, as well as user authentication. These objects are described
+in detail later in this document.
+
+Here's a little sample servlet that generates a "Hello, world!" JSON document:
+
+    var hello = {
+        message: "Hello, world!"
+    };
+
+    response.contentType = 'application/json';
+    response.write(JSON.stringify(hello));
+    response.send();
+----
+
+
+!! Server Pages
+
+A <*JavaScript Server Page*> looks like an ordinary HTML document, except that it
+can have embedded JavaScript code using special directives. Such a server page will
+be compiled into a servlet script when first requested, and then works exactly
+like a servlet.
+
+Here's a simple example for a server page: 
+
+    <%
+        var now = new DateTime();
+    %>
+    <html>
+      <head>
+        <title>DateTime Sample</title>
+      </head>
+      <body>
+        <h1>DateTime Sample</h1>
+        <p><%= now.toString() %></p>
+      </body>
+    </html>
+----
+
+As you can see, the special directive:
+
+    <% <script> %>
+----
+
+is used to enclose JavaScript code. 
+
+The special directive:
+
+    <%= <expression> %>
+----
+
+is used to embed a JavaScript expression. The result
+of evaluating the expression is directly inserted into the resulting document.
+
+
+!!JavaScript Server Page Syntax
+
+The following special tags are supported in a JavaScript server page (JSSP) file.
+
+
+!Hidden Comment
+
+A hidden comment documents the JSSP file, but is not sent to the client.
+
+    <%-- <comment> --%>
+----
+
+
+!Expression
+
+The result of any valid JavaScript expression can be directly inserted into the page,
+provided the result can be written to an output stream. Note that the expression
+must not end with a semicolon.
+
+    <%= <expression> %>
+----
+
+
+!Scriptlet
+
+Arbitrary JavaScript code fragments can be included using the Scriptlet directive.
+
+    <%
+        <statement>
+        ...
+    %>
+----
+
+
+!Include Directive
+
+Another JSSP file or resource can be included into the current file using the Include
+Directive.
+
+    <%@ include page="<uri>" %>
+----
+
+
+!Page Directive
+
+The Page Directive allows the definition of attributes that control
+various aspects of JavaScript servlet code generation.
+
+    <%@ page <attr>="<value>" ... %>
+----
+
+Currently, only the <*contentType*> attribute is supported, which allows setting
+the value of the <*Content-Type*> HTTP response header.
+
+    <%@ page contentType="application/json" %>
+----
 
 
 !!!Modules
@@ -110,6 +386,16 @@ light sensor. We can do this as follows:
 
 Note that <[require()]> will make sure that every module is actually loaded and executed
 at most once, even if it is imported by multiple modules in an import hierarchy.
+
+<[require()]> can be used to import modules from other bundles, or even from the web.
+To import a module from another bundle, use the "bndl://" URI scheme and specify
+the symbolic name of the bundle, as well as the file name (and path) of the module in
+the bundle.
+
+Example:
+
+    var module = require("bndl://com.mycompany.mybundle/mymodule.js");
+----
 
 
 !!!The application Object
@@ -247,6 +533,23 @@ for validity before using their values.
 Sleeps the current thread for the given period, in milliseconds.
 
 
+!!!The uri Object
+
+The global <[uri]> object allows a script to load a string from a URI.
+The URI can refer to a local file, a bundle resource ("bndl://"), 
+a HTTP(S) or FTP server. It provides a single method, <[loadString()]>.
+
+
+!!loadString(uri)
+
+Loads a string from the given URI.
+
+Example:
+
+    var page = uri.loadString("http://macchina.io");
+----
+
+
 !!!Configuration Objects
 
 Configuration objects support the following methods:
@@ -366,8 +669,60 @@ Example:
 ----
 
 
-!!!Timers
+!!!Timeouts and Intervals
 
+macchina.io supports the <[setTimeout()]> and <[setInterval()]> functions known
+from browser-based JavaScript.
+
+!!setTimeout(function, milliseconds)
+
+To execute a function after a given time period, use the <[setTimeout()]> function.
+
+Example:
+
+    setTimeout(
+        function() {
+            logger.information("Timeout!");
+        },
+        2000);
+----
+
+!!setInterval(function, milliseconds)
+
+To execute a function periodically in a specific interval (given in milliseconds),
+use the <[setInterval()]> function.
+
+Example:
+
+    setInterval(
+        function() {
+            logger.information("Timeout!");
+        },
+        2000);
+----
+
+Both <[setTimeout()]> and <[setInterval()]> return a timer object which exposes
+a boolean property named <[cancelled]>, as well as a <[cancel()]> method to cancel
+an active timer.
+
+Example:
+
+    var count = 0;
+    var timer = setInterval(
+        function() {
+            count++;
+            logger.information("Timeout ", count);
+            if (count == 3)
+            {
+                timer.cancel();
+                logger.information("Done");
+            }
+        },
+        2000);
+----
+
+Note: Since JavaScript execution is single threaded per script, timer callback 
+functions will only run when the script is idle and not currently executing any code.
 
 
 !!!DateTime and LocalDateTime Objects
@@ -376,3 +731,888 @@ DateTime and LocalDateTime objects are similar to JavaScript Date objects,
 however they provide a few more capabilities, including better
 support for formatting.
 
+DateTime is UTC-based, while LocalDateTime is based on the system's local time zone.
+
+
+!!Creating DateTime and LocalDateTime Objects
+
+DateTime and LocalDateTime objects can be created by using their respective
+constructor functions, passing a variable number of arguments:
+
+  - No arguments: a DateTime/LocalDateTime object for the current system time
+    is created.
+  - A single string argument: the date and time is parsed from the given 
+    string, which must contain a date and time in one of the standard
+    representations: asctime, HTTP, ISO 8601, various RFC formats or 
+    sortable format (YYYY-MM-DD HH:MM:SS).
+  - Two string arguments: the date and time is parsed from the first string,
+    using the format given in the second string. See the 
+    [[Poco.DateTimeFormatter.html#13611 Poco::DateTimeFormatter]] class for
+    a description of the format string.
+  - A JavaScript Date object: date and time are taken from that object.
+  - A number representing Julian date.
+  - Three to six numbers: year, month, day, and optional hour, minute, second.
+    Second may contain fractional seconds.
+    
+Examples:
+
+	var dt1 = new DateTime("2015-03-09 11:55:33");
+	var dt2 = new DateTime(2015, 3, 9, 11, 55, 33);
+----
+
+
+!!DateTime and LocalDateTime Properties
+
+The following properties are supported by DateTime and LocalDateTime.
+
+
+!year
+
+Returns the year, e.g. 2015.
+
+
+!month
+
+Returns the month, range 1 to 12.
+
+
+!day
+
+Returns the day, range 1 to 31.
+
+
+!hour
+
+Returns the hour, range 0 to 23.
+
+
+!hour12
+
+Returns the hour, range 0 to 12
+
+
+!am and pm
+
+Returns true or false, indicating whether the hour reported by <[hour12]> is AM or PM.
+
+
+!minute
+
+Returns the minute, range 0 to 59.
+
+
+!second
+
+Returns the second, range 0 to 59.
+
+
+!dayOfWeek
+
+Returns the weekday (0 to 6, where 0 = Sunday, 1 = Monday, ..., 6 = Saturday).
+
+
+!dayOfYear
+
+Returns the number of the day in the year. January 1 is 1, February 1 is 32, etc.
+
+
+!julian
+
+Returns the julian day as a number. The fractional part represents the time.
+
+
+!timestamp
+
+Returns the number of microseconds between January 1, 1970 and the date/time 
+in the DateTime/LocalDateTime object.
+
+
+!epoch
+
+Returns the number of seconds between January 1, 1970 and the date/time 
+in the DateTime/LocalDateTime object.
+
+
+!tzd
+
+Supported by LocalDateTime only. Returns the time zone differential, which is
+the number of seconds between UTC and the system's local time.
+
+
+!!DateTime and LocalDateTime Methods
+
+The following methods are supported by DateTime and LocalDateTime.
+
+
+!daysOfMonth([year [, month]])
+
+Returns the number of days in the specified month (1 to 12). If no date or year
+is given, the year and date from the DateTime/LocalDateTime object are used.
+
+
+!isLeapYear([year])
+
+Returns true if the given year (or the year in the DateTime/LocalDateTime object)
+is a leap year, otherwise false.
+
+
+!addSeconds(seconds)
+
+Adds the given number of seconds to the DateTime/LocalDateTime.
+
+
+!addHours(hours)
+
+Adds the given number of hours to the DateTime/LocalDateTime.
+
+
+!addDays(days)
+
+Adds the given number of days to the DateTime/LocalDateTime.
+
+
+!utc()
+
+Supported by LocalDateTime only. Returns a DateTime object corresponding to the
+date/time in UTC.
+
+
+!local()
+
+Supported by DateTime only. Returns a LocalDateTime object corresponding to the
+date/time in the system's timezone.
+
+
+!format([format]) and toString([format])
+
+Convert the DateTime/LocalDateTime to a string, using a format string.
+If no format string is given, uses ISO 8601 format.
+
+See the [[Poco.DateTimeFormatter.html#13611 Poco::DateTimeFormatter]] class for
+a description of the format string.
+
+Instead of format placeholders, the format string can also be one of the following
+fixed strings for standard formats:
+
+  - "sortable": 2015-01-03 12:00:00
+  - "iso8601frac": 2015-01-03T12:00:00.000000+01:00
+  - "iso8601": 2015-01-03T12:00:00+01:00
+  - "asctime": Sat Jan  3 12:00:00 2015
+  - "http": Sat, 03 Jan 2015 12:00:00 +0100
+  - "rfc1036": Saturday, 3 Jan 15 12:00:00 +0100
+  - "rfc1123": Sat, 3 Jan 2015 12:00:00 +0100
+  - "rfc850": Saturday, 3-Jan-15 12:00:00 +0100
+  - "rfc822": Sat, 3 Jan 15 12:00:00 +0100
+
+
+!toDate()
+
+Returns a JavaScript Date object for the stored date/time.
+
+
+!!!HTTPRequest and HTTPResponse Objects
+
+HTTPRequest objects are used to either send a HTTP or HTTPS request to a web server,
+or to obtain information about the HTTP request in a servlet or server page.
+
+To send a HTTP request, create a new HTTPRequest object, using the <[HTTPRequest]>
+constructor function. The constructor takes three optional arguments,
+a request method (e.g., "GET"), a URI (e.g., "http://macchina.io") and the
+HTTP version string (e.g., "HTTP/1.1"). All these values can be set at a later
+time as well, via properties.
+
+HTTP requests can be sent in blocking or asynchronous mode. In blocking mode,
+the script has to wait until the HTTP request completes. In asynchronous mode,
+the HTTP request is sent in a separate thread, and the script is notified
+of the result via a callback function.
+
+Here is an example for a synchronous request:
+
+    var request = new HTTPRequest('GET', 'http://macchina.io');
+    var response = request.send();
+    logger.information(response.status, " ", response.reason);
+    logger.information(response.contentType);
+    logger.information(response.content);
+----
+
+And here's the same example, with the request sent asynchronously:
+
+    var request = new HTTPRequest('GET', 'http://macchina.io');
+    var response = request.send(
+        function (result) {
+            if (result.error)
+            {
+                 logger.error(result.error);
+            }
+            else
+            {
+                logger.information(result.response.status, " ", result.response.reason);
+                logger.information(result.response.contentType);
+                logger.information(result.response.content);
+            }
+        }
+    );
+----
+
+Of course, HTTPRequest can also be used to send POST or PUT requests, as well as
+requests using any other HTTP methods.
+
+Here's a sample how to post some JSON to a Hue base station to control a smart bulb:
+
+    var request = new HTTPRequest('PUT', 'http://192.168.178.151/api/newdeveloper/lights/1/state');
+    request.content = JSON.stringify({on: true, bri: 100, hue: 46920, sat: 255});
+    request.contentType = 'application/json';
+    request.timeout = 10.0;
+    request.send(
+        function(result)
+        {
+            if (result.error)
+            {
+                logger.error(result.error);
+            }
+            else
+            {
+                logger.information(result.response.status, " ", result.response.reason);
+            }
+        }
+    );
+----
+
+
+!!HTTPRequest Properties
+
+HTTPRequest objects support the following properties:
+
+
+!method (r/w)
+
+The request method, e.g. "GET", "POST", etc.
+
+
+!uri (r/w)
+
+The request URI or path, e.g. "/index.html".
+
+
+!version (r/w)
+
+The HTTP version string, usually "HTTP/1.1".
+
+
+!contentType (r/w)
+
+The request content type, e.g. "application/json".
+
+
+!content (r/w)
+
+The request content.
+
+Note: currently only Unicode UTF-8 encoded text content is supported.
+
+
+!timeout (r/w)
+
+The request timeout in seconds.
+
+
+!cookies (ro)
+
+An object containing all cookies sent with the request, with cookie name
+as key and cookie value as string value.
+
+
+!credentials (ro)
+
+If the request has been sent with HTTP Basic Authentication information, returns
+an object with a "username" and a "password" property containing the credentials.
+
+If no valid authentication information has been sent, returns null.
+
+
+!!HTTPRequest Methods
+
+The following methods are supported by HTTPRequest objects:
+
+
+!hasHeader(name)
+
+Returns true if the request has a header with the given name, false otherwise.
+
+
+!getHeader(name [, default])
+
+Returns the value of the request header with the given name, or the given default
+value if the header is not present. If no default is given, returns an empty string
+if the header is not present.
+
+
+!setHeader(name, value)
+
+Sets the request header with the given name to the given value.
+
+
+!authenticate(username, password)
+
+Adds a HTTP Basic Authentication header to the request, using the given credentials.
+
+
+!send([callback])
+
+Sends the request. If a callback function is given, the function will return
+immediately and will not return anything. Success or failure will be reported
+via the callback function. The callback function must accept a single argument,
+which will be an object containing an "error" or a "response" property.
+If the request failed, the "error" property will contain an error message.
+Otherwise, the "response" property will contain a HTTPResponse object.
+Note that even if no "error" property is set, the request may still have
+failed, although on the HTTP level. Check the HTTP response status,
+using the <[result.response.status]> property.
+
+If no callback function is given, the request is sent and the function will block
+until the complete response is received, or an error has occured. If an error occured,
+an exception will be raised. Otherwise, a HTTPResponse object will be returned.
+
+
+!!HTTPResponse Properties
+
+HTTPResponse object support the following properties:
+
+
+!status (r/w)
+
+The HTTP status code, e.g. 200.
+
+
+!reason (r/w)
+
+The HTTP status message, e.g. "OK" (for a 200 status).
+
+
+!version (r/w)
+
+The HTTP version string, e.g. "HTTP/1.1".
+
+
+!contentType
+
+The response body content type, e.g. "text/html".
+
+
+!content
+
+The response content.
+
+Note: currently only Unicode UTF-8 encoded text content is supported.
+
+
+!!HTTPResponse Methods
+
+
+!hasHeader(name)
+
+Returns true if the response has a header with the given name, false otherwise.
+
+
+!getHeader(name [, default])
+
+Returns the value of the response header with the given name, or the given default
+value if the header is not present. If no default is given, returns an empty string
+if the header is not present.
+
+
+!setHeader(name, value)
+
+Sets the response header with the given name to the given value.
+
+
+!setStatus(status)
+
+Sets the response status code, e.g. 200.
+
+
+!write(text) and writeln(text)
+
+Appends text to the response body.
+
+Note: currently only Unicode UTF-8 encoded text content is supported.
+
+<[writeln()]> adds a newline after the text.
+
+
+!writeHTML(text)
+
+Writes text to the response body. All HTML reserved characters will be escaped properly.
+
+
+!htmlize(text)
+
+Returns a copy of text with all HTML reserved characters properly escaped.
+
+
+!send()
+
+Sends the response. Can be used in servlets or server pages on the global
+<[response]> object only.
+
+
+!!!The form Object
+
+The global <[form]> object is available in servlets and server pages. It gives
+convenient access to any HTML form data sent by the browser.
+
+The <[form]> object has two methods, <[hasField()]> and <[getField()]>.
+
+
+!!hasField(name)
+
+Returns true if the form has a field with the given name, false otherwise.
+
+
+!!getField(name [, default])
+
+Returns the value of the form field with the given name. If the field is not
+present, returns the default value. If no default value has been given, returns
+an empty string if the form field does not exist.
+
+
+!!!The session Object
+
+The global <[session]> object is available in servlets and server pages. It gives
+access to the session object for the current request.
+
+Note: Currently there is no way to create a session object from JavaScript.
+In macchina.io, a session object is created when a user logs in to the web
+interface. 
+
+
+!!session Properties
+
+The <[session]> object supports the following read-only properties:
+
+
+!id
+
+The internal ID of the session object.
+
+
+!username
+
+The name of the signed-in user. Only available if a user is signed in and the session
+is authenticated.
+
+
+!authenticated
+
+Returns true if the session is authenticated, otherwise false. 
+A session is authenticated if the user has successfully signed in.
+
+
+!csrfToken
+
+A random string that can be used as a CSRF synchronizer token in forms, to prevent
+CSRF (Cross-Site Request Forgery) attacks.
+
+
+!clientAddress
+
+The IP address and port number of the HTTP client.
+
+
+!!session Methods
+
+!setInt(name, integer)
+
+Adds or updates a an integer property with the given name to the session.
+
+
+!getInt(name [, default])
+
+Returns the integer value of the property with the given name.
+
+
+!setString(name, string)
+
+Adds or updates a string property with the given name to the session.
+
+
+!getString(name [, default])
+
+Returns the string value of the property with the given name.
+
+
+!erase(name)
+
+Erases the property with the given name.
+
+
+!authorize(permission)
+
+Returns true if the currently signed in user has the given permission, by
+checking with the OSP authentication service, using the username from the
+session.
+
+
+!!!The bundle Object
+
+The global <[bundle]> object gives a script (including servlet or server pate)
+access to some properties of its bundle.
+
+
+!!bundle Properties
+
+The <[bundle]> object has the following read-only properties:
+
+
+!temporaryDirectory
+
+The path to the bundle's directory for storing
+temporary data. This directory is cleared whenever the bundle stops.
+
+
+!persistentDirectory
+
+The path to the bundle's directory for storing persistent data.
+
+
+!properties
+
+A Configuration object for accessing the bundle's properties defined in the
+bundles' "bundle.properties" file.
+
+
+!!!The serviceRegistry Object
+
+The global <[serviceRegistry]> object gives access to the OSP Service Registry.
+In macchina.io, all sensors and devices are available as services through
+the service registry.
+
+!!serviceRegistry Methods
+
+The <[serviceRegistry]> object supports the following methods:
+
+
+!find(query)
+
+Looks up the service with the properties specified in the query. 
+Returns an array of ServiceRef objects containing references to
+all services matching the query.
+
+To obtain the actual service object, the <[instance()]> method of
+the corresponding ServiceRef object must be called.
+
+The query language is similar to JavaScript or C++ expressions and supports comparison (==, !=, 
+<, <=, >, >=), regular expression matching (=~) and logical and/or operations 
+(&&, ||). 
+Subexpressions can be grouped with parenthesis. The data types string, integer, float and boolean are 
+supported. The simplified syntax for the query language is given in the following.
+
+  expr          ::= andExpr ["||" andExpr]
+  andExpr       ::= relExpr ["&&" relExpr]
+  relExpr       ::= ["!"] (id [relOp value | "=~" matchExpr]) | subExpr
+  subExpr       ::= "(" expr ")"
+  relOp         ::= "==" | "!=" | "<" | "<=" | ">" | ">="
+  value         ::= numLiteral | boolLiteral | stringLiteral
+  numLiteral    ::= [sign] digit*"."digit*["E"["+" | "-"]digit*]
+  boolLiteral   ::= "true" | "false"
+  stringLiteral ::= '"' char* '"'
+  matchExpr     ::= stringLiteral | regExpr
+  regExpr       ::= delim char+ delim /* valid Perl regular expression,
+                                         enclosed in delim */
+  delim         ::= "/" | "#"
+----
+
+Examples for valid queries are given in the following:
+  * <[name == "com.appinf.osp.sample.service"]> -- a simple string comparison for equality.
+  * <[majorVersion > 1 && minorVersion >= 5]> -- numeric comparisons and logical AND.
+  * <[name =~ "com.appinf.osp.*" && someProperty]> -- simple pattern matching and test for existence of <[someProperty]>.
+  * <[someProperty =~ /[0-9]+/]> -- regular expression matching.
+
+
+!findByName(name)
+
+Looks up the service with the given name. If found, returns a
+ServiceRef object for it, otherwise returns null.
+
+To obtain the actual service object, the <[instance()]> method of
+the corresponding ServiceRef object must be called.
+
+
+!!!ServiceRef Objects
+
+ServiceRef objects have a single method, <[instance()]>, which returns the 
+underlying service object. Note that not all service objects are accessible
+from JavaScript. Only service objects implemented using the Remoting-based
+bridging mechanism are accessible from JavaScript. An attempt to call
+<[instance()]> for a service object not accessible from JavaScript will result
+in an exception.
+
+
+!!!DBSession and RecordSet Objects
+
+DBSession and RecordSet objects provide access to the SQLite database engine that comes with
+macchina.io.
+
+Here's a short example showing the DBSession and RecordSet objects being used
+to periodically log sensor data in a SQLite database.
+
+    var temperatureSensor;
+    var temperatureRefs = serviceRegistry.find('io.macchina.physicalQuantity == "temperature"');
+    if (temperatureRefs.length > 0)
+    {
+        temperatureSensor = temperatureRefs[0].instance();
+    }
+
+    var dbSession = new DBSession('SQLite', bundle.persistentDirectory + 'temperature.db');
+
+    dbSession.execute('CREATE TABLE IF NOT EXISTS temperature ( \
+        timestamp TIMESTAMP, \
+        temperature FLOAT \
+        )');
+
+    setInterval(
+        function() {
+            dbSession.execute(
+                'INSERT INTO temperature VALUES (?, ?)',
+                new Date(),
+                temperatureSensor.value()
+            );
+        },
+        60000);
+----
+
+This sample shows how to create a DBSession object connected to a SQLite database,
+create a table if it does not yet exist, and how to insert rows into the table.
+
+Note: there is a subtle, but important difference in JavaScript between:
+
+    var date = Date();
+----
+
+and:
+
+    var date = new Date();
+----
+
+The first expression will result in a string object ("Mon Mar 09 2015 21:30:50 GMT+0100 (CET)"),
+while the second expression will result in a Date object, as one would expect. 
+When storing Date objects in an SQLite database make sure you're using a Date object 
+and not a "stringified" date. Otherwise extracting dates from the database will 
+produce wrong results, as the JavaScript-produced date string is not supported by 
+SQLite, which internally uses ISO 8601.
+
+Once you have data in a database, you may also want to get it out again. 
+Following sample shows the code for a servlet that returns the last 100
+data samples as a JSON document.
+
+    var dbSession = new DBSession('SQLite', bundle.persistentDirectory + 'temperature.db');
+    dbSession.pageSize = 100;
+
+    var recordSet = dbSession.execute('SELECT timestamp, temperature FROM temperature ORDER BY timestamp DESC');
+    response.contentType = 'application/json';
+    response.write(recordSet.toJSON());
+    response.send();
+----
+
+
+!!Creating a DBSession 
+
+A DBSession object is created by calling the constructor function with two
+arguments. The first argument is the connector name, which for macchina.io always
+is "SQLite". The second argument is the path to the SQLite database file.
+
+
+!!DBSession Properties
+
+DBSession objects have the following properties:
+
+!connector (ro)
+
+The name of the database connector. For macchina.io, only "SQLite" is supported.
+
+
+!connectionString (ro)
+
+The connection string. For macchina.io, this is always the path to the SQLite database
+file.
+
+
+!isConnected (ro)
+
+Returns true if the session is connected to the database. For macchina.io and SQLite,
+this returns true, unless the session has been closed by calling <[close()]>.
+
+
+!isTransaction (ro)
+
+Returns true if a transaction is active, otherwise false.
+
+
+!pageSize (r/w)
+
+The result page size for queries. 
+
+The page size specifies how many rows are transferred at a time when
+delivering a query result. The larger the page size, the more memory
+is required.
+
+Defaults to 256. Setting this to 0
+will result in an unlimited page size, which is not recommended.
+
+
+!!DBSession Methods
+
+The following methods are supported by DBSession objects:
+
+!begin()
+
+Starts a new transaction.
+
+
+!commit()
+
+Commits the current transaction.
+
+
+!rollback()
+
+Rolls back the current transaction.
+
+
+!close()
+
+Closes the session. After the session has been closed, it must no longer
+be used.
+
+
+!execute(statement [, args]...)
+
+Execute a SQL statement. The statement can contain placeholders ('?'), which will
+be replaced by the given arguments using the underlying database's data binding mechanism.
+
+Returns a RecordSet object.
+
+
+!!!RecordSet Objects
+
+RecordSet objects are returned by the <[execute()]> method of DBSession objects.
+A RecordSet contains the result of a SQL query. For non-query statements, the
+record set will be empty.
+
+
+!!RecordSet Properties
+
+RecordSet objects support the following properties:
+
+
+!columnCount (ro)
+
+Returns the number of columns in the query result.
+
+
+!rowCount (ro)
+
+Returns the number of rows in the record set. The number of rows
+in the record set is never larger than the page size configured in the session.
+
+
+!statement (ro)
+
+Returns the statement or query that produced this record set.
+
+
+!!RecordSet Methods
+
+RecordSet objects support the following methods:
+
+
+!getValue(column [, row])
+
+Returns the value stored in the given column, for the given row. If no row is given,
+the current row is used (see moveNext(), etc.).
+
+The column can be specified by name, or by numerical index.
+
+
+!getName(index)
+
+Returns the name of the column with the given column index.
+
+
+!getType(column)
+
+Returns the data type name of the column with the given column name or numerical index.
+
+The following type names can be reported:
+
+  - bool
+  - Int8
+  - Int16
+  - Int32
+  - Int64
+  - UInt8
+  - UInt16
+  - UInt32
+  - UInt64
+  - float
+  - double
+  - string
+  - wstring
+  - DateTime
+  - Date
+  - Time
+  - BLOB
+  - CLOB
+  
+
+!getLength(column)
+
+Returns the length of the column with the given column name or index.
+
+
+!getPrecision(column)
+
+Return the precision of the column with the given column name or index.
+
+
+!moveFirst()
+
+Sets the current row to the first row in the record set.
+Returns true if the record set contains at least one row, false otherwise.
+
+
+!moveLast()
+
+Sets the current row to the last row in the record set.
+Returns true if the record set contains at least one row, false otherwise.
+
+
+!moveNext()
+
+Moves the current row to the next row in the record set.
+Returns true if successful, or false if no more rows are available.
+
+
+!movePrevious()
+
+Moves the current row to the previous row in the record set.
+Returns true if successful, or false if the current row already 
+is the first row.
+
+
+!fetchNextPage()
+
+Fetches the next results page from the database.
+
+
+!close()
+
+Closes the record set. After being closed, the record set must not be used
+anymore.
+
+
+!toJSON()
+
+Converts the rows in the record set into a JSON document containing an array
+of objects, each one representing a row. Column names are used as property names 
+in the objects.
