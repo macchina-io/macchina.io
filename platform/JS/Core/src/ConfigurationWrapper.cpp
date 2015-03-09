@@ -42,6 +42,7 @@ v8::Handle<v8::ObjectTemplate> ConfigurationWrapper::objectTemplate(v8::Isolate*
 	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getDouble"), v8::FunctionTemplate::New(pIsolate, getDouble));
 	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getBool"), v8::FunctionTemplate::New(pIsolate, getBool));
 	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getString"), v8::FunctionTemplate::New(pIsolate, getString));
+	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, has));
 	return handleScope.Escape(configurationTemplate);
 }
 	
@@ -141,6 +142,22 @@ void ConfigurationWrapper::getString(const v8::FunctionCallbackInfo<v8::Value>& 
 	}
 }
 
+
+void ConfigurationWrapper::has(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() < 1) return;
+	v8::HandleScope scope(args.GetIsolate());
+	Poco::Util::AbstractConfiguration* pConfig = Wrapper::unwrapNative<Poco::Util::AbstractConfiguration>(args);
+	std::string key = toString(args[0]);
+	try
+	{
+		args.GetReturnValue().Set(pConfig->has(key));
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
+}
 
 
 } } } // namespace Poco::JS::Core

@@ -67,12 +67,13 @@ void LoggerWrapper::log(const v8::FunctionCallbackInfo<v8::Value>& args)
 		Poco::Logger* pLogger = Wrapper::unwrapNative<Poco::Logger>(args);
 		if (pLogger->is(prio))
 		{
+			std::string text;
 			for (int i = 1; i < args.Length(); i++)
 			{
-				v8::String::Utf8Value value(args[i]);
-				Poco::Message msg(pLogger->name(), std::string(*value), static_cast<Poco::Message::Priority>(prio));
-				pLogger->log(msg);
+				text.append(toString(args[i]));
 			}
+			Poco::Message msg(pLogger->name(), text, static_cast<Poco::Message::Priority>(prio));
+			pLogger->log(msg);
 		}
 	}
 	catch (...)
@@ -90,11 +91,13 @@ void LoggerWrapper::log2(Poco::Message::Priority prio, const v8::FunctionCallbac
 	{
 		if (pLogger->is(prio))
 		{
+			std::string text;
 			for (int i = 0; i < args.Length(); i++)
 			{
-				Poco::Message msg(pLogger->name(), toString(args[i]), static_cast<Poco::Message::Priority>(prio));
-				pLogger->log(msg);
+				text.append(toString(args[i]));
 			}
+			Poco::Message msg(pLogger->name(), text, static_cast<Poco::Message::Priority>(prio));
+			pLogger->log(msg);
 		}
 	}
 	catch (...)

@@ -47,6 +47,7 @@ protected:
 	static void getDouble(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getBool(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getString(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void has(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 

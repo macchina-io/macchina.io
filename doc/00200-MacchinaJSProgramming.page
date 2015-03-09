@@ -1,5 +1,378 @@
 macchina.io JavaScript Programming Guide
 AAAAMacchinaIO
 
-TODO
+!!!Introduction
+
+
+The macchina.io JavaScript programming environment provides access to various
+global objects and functions, which give scripts access to the features of macchina.io.
+
+These are described in the following, along with example code.
+
+Furthermore, macchina.io supports a simple module system for JavaScript that allows a 
+script to import a "module", typically containing re-usable code. The module system is
+based on the modules specification from CommonJS.
+
+This document assumes you are already familiar with JavaScript and its concepts.
+
+
+!!!Modules
+
+macchina.io supports JavaScript modules. This allows a script to import another script,
+with the imported script being encapsulated within a "module" and thus not polluting
+the global namespace. 
+
+A script can import another module using the <[require()]> function, specifying either
+a relative path to the script (i.e., in the same bundle) or a complete URI. This may
+even be used to download scripts from a web server, using a HTTP URI.
+
+For <[require()]> to work, a module must follow certain conventions:
+
+  - A module may define global variables. However, these will not be available
+    outside of the module, and thus not pollute the global scope.
+  - If a module wishes to export an object or function, it has to do so by
+    assigning that object or function to its <[exports]> or <[module.exports]>
+    object. The <[module.exports]> object is the only object available to
+    importers of the module.
+    
+Here's a quick example. Say we want to write a function that looks for a temperature
+sensor, and returns the sensor object, if one if found:
+
+    function findTemperatureSensor()
+    {
+        var temperatureRefs = serviceRegistry.find('io.macchina.physicalQuantity == "temperature"');
+        if (temperatureRefs.length > 0)
+            return temperatureRefs[0].instance();
+        else
+            return null;
+    }
+----
+
+You find that this is a useful function, and you want to use it in different scripts.
+Now you could copy and paste the function into every script where you need it. 
+For obvious reasons, code sharing by copy-and-paste is a bad idea, so you decide to
+make the function reusable in the form of a module.
+
+To create a re-usable module that exports the <*findTemperatureSensor()*> function,
+the code needs to be changed as follows:
+
+    exports.findTemperatureSensor = function() 
+        {
+            var temperatureRefs = serviceRegistry.find('io.macchina.physicalQuantity == "temperature"');
+            if (temperatureRefs.length > 0)
+                return temperatureRefs[0].instance();
+            else
+                return null;
+        };
+----
+
+What we've essentially done is we've added the function to the module's exports object.
+Assuming we've put the above function in a file named "sensors.js", whenever
+we need this function in a script, we can write:
+
+    var sensors = require("sensors.js");
+    var temperatureSensor = sensors.findTemperatureSensor();
+----
+
+Instead of adding properties to the <[exports]> object, we can also export an entire
+object. However, this cannot be done by assigning an object to the <[exports]> object.
+The <[exports]> object is basically just a reference to the <[exports]> property in 
+the global <[module]> object. If we assign an object directly to <[exports]>, 
+the global <[exports]> variable will now reference the object we've assigned. However,
+the <[exports]> property in the <[module]> object will still have its old value. Since
+it is the <[exports]> property in the <[module]> object that counts, this will not work.
+We can, however, directly assign an object to the <[exports]> property of the <[module]>
+object, in order to export an entire object.
+
+Say, we now want to extend our "sensors.js" module to include support for an ambient
+light sensor. We can do this as follows:
+
+    module.exports = {
+        findTemperatureSensor: function() 
+            {
+                var temperatureRefs = serviceRegistry.find('io.macchina.physicalQuantity == "temperature"');
+                if (temperatureRefs.length > 0)
+                    return temperatureRefs[0].instance();
+                else
+                    return null;
+            },
+        
+        findAmbientLightSensor: function()
+            {
+                var ambientLightRefs = serviceRegistry.find('io.macchina.physicalQuantity == "illuminance"');
+                if (ambientLightRefs.length > 0)
+                    return ambientLightRefs[0].instance();
+                else
+                    return null;
+            }  
+    }; 
+----
+
+Note that <[require()]> will make sure that every module is actually loaded and executed
+at most once, even if it is imported by multiple modules in an import hierarchy.
+
+
+!!!The application Object
+
+The global <[application]> object contains read-only properties that allow a script
+to obtain information about the application it's executing in.
+
+The following properties are available:
+
+
+!!name
+
+The name of the application. In macchina.io, this is "macchina".
+
+
+!!startTime
+
+The date and time the application was started, as a DateTime object.
+
+
+!!uptime
+
+The time in seconds the application has been running, with millisecond accuracy.
+Therefore a floating-point number.
+
+
+!!config
+
+The application's configuration, as a Configuration object.
+
+See the description of Configuration objects for more information.
+
+Example:
+
+    var osName = application.config.getString("system.osName");
+----
+
+
+!!logger
+
+Returns the application's logger object. This can be used to write
+log messages. Note that in macchina.io, each bundle also has its own logger object,
+which should be preferred to the application's logger.
+
+    application.logger.information("Hello, world!");
+----
+
+See the description of Logger objects for more information.
+
+
+!!!The system Object
+
+The global <[system]> object contains read-only properties that allow a script
+to obtain information about the environment it's executing in.
+
+The following read-only properties and methods are available:
+
+!!osName
+
+This property contains the name of the operating system,
+typically "Linux" or "Darwin" (OS X).
+
+
+!!osDisplayName
+
+On platforms supported by macchina.io, this is the same as <*osName*>.
+
+
+!!osArchitecture
+
+The CPU architecture, e.g. "x86_64" or "armv7l".
+
+
+!!osVersion
+
+The operating system version, e.g. "3.18.7+".
+
+
+!!nodeName
+
+The computer's configured host name.
+
+
+!!nodeId
+
+The Ethernet address of the first Ethernet adapter in the system, e.g. "3c:07:54:0d:6e:ef".
+Note that for systems with multiple adapters, the order of the adapters may not be
+fixed and thus the node ID may change after a reboot.
+
+
+!!processorCount
+
+The number of CPU cores available on the system.
+
+
+!!has(name)
+
+This function returns true if an environment variable with the given name exists.
+
+
+!!get(name [, default])
+
+Returns the value of the environment variable with the given name.
+If the environment variable does not exist and a default value is given,
+the default value is returned. Otherwise, an exception is thrown.
+
+Example:
+
+    var username = system.get("LOGNAME");
+----
+
+
+!!set(name, value)
+
+Sets the environment variable with the given name to the given value.
+
+
+!!exec(command)
+
+Executes the given shell command using the system's default shell.
+Returns the output of the command.
+
+Example:
+    
+    var files = system.exec('ls');
+----
+
+Note: be careful when passing strings obtained from HTML forms 
+to <[system.exec()]> as command arguments. Always check such strings
+for validity before using their values.
+
+
+!!sleep(milliseconds)
+
+Sleeps the current thread for the given period, in milliseconds.
+
+
+!!!Configuration Objects
+
+Configuration objects support the following methods:
+
+!!getInt(key [, default])
+
+Returns the configuration value for the given key as integer. If a default value is
+specified, the default value is returned if the configuration key has not
+been found. An exception is thrown if the key cannot be found and no default
+value is given, or if the configuration value is not a valid integer.
+
+!!getDouble(key [, default])
+
+Returns the configuration value for the given key as floating-point number. If a default value is
+specified, the default value is returned if the configuration key has not
+been found. An exception is thrown if the key cannot be found and no default
+value is given, or if the configuration value is not a valid floating-point number.
+
+!!getBool(key [, default])
+
+Returns the configuration value for the given key as boolean. If a default value is
+specified, the default value is returned if the configuration key has not
+been found. An exception is thrown if the key cannot be found and no default
+value is given, or if the configuration value is not a boolean (true/false).
+
+!!getString(key [, default])
+
+Returns the configuration value for the given key as string. If a default value is
+specified, the default value is returned if the configuration key has not
+been found. An exception is thrown if the key cannot be found and no default
+value is given.
+
+!!has(key)
+
+Returns <*true*> if the given configuration key exists, otherwise <*false*>.
+
+
+!!!Logger Objects
+
+Logger objects are used to write diagnostic or log messages to a logger.
+A JavaScript Logger object is always connected to a Logger object from
+the POCO C++ Libraries. JavaScript scripts in macchina.io have access
+to two Logger objects. The global application logger, via the 
+<[application.logger]> object, and a bundle-specific logger, via the 
+<[logger]> object.
+
+Example:
+
+    var i = 42;
+    logger.information("The answer to live, the universe and everything: ", i);
+----
+
+The following methods are available:
+
+!!trace(arg [, arg]...)
+
+Writes a trace log message. Trace log messages have the lowest priority.
+All arguments are concatenated into a single log message.
+
+!!debug(arg [, arg]...)
+
+Writes a debug log message.
+All arguments are concatenated into a single log message.
+
+!!information(arg [, arg]...)
+
+Writes an informational log message.
+All arguments are concatenated into a single log message.
+
+!!notice(arg [, arg]...)
+
+Writes a notice log message.
+All arguments are concatenated into a single log message.
+
+!!warning(arg [, arg]...)
+
+Writes a warning log message.
+All arguments are concatenated into a single log message.
+
+!!error(arg [, arg]...)
+
+Writes an error log message.
+All arguments are concatenated into a single log message.
+
+!!critical(arg [, arg]...)
+
+Writes a critial error log message.
+All arguments are concatenated into a single log message.
+
+!!fatal(arg [, arg]...)
+
+Writes a fatal error log message. Fatal log messages have the highest priority.
+All arguments are concatenated into a single log message.
+
+!!log(priority, arg [, arg]...)
+
+Writes a log message with the specified level.
+The level can either be an integer from 1 to 8, where
+1 corresponds to fatal error message and 8 corresponds to a trace message,
+or it can be one of the following strings, representing a priority:
+
+  * fatal
+  * critical
+  * error
+  * warning
+  * notice
+  * information
+  * debug
+  * trace
+
+All remaining arguments are concatenated into a single log message.
+
+Example:
+
+    logger.log(7, "A debug message");
+    logger.log("error", "An error message");
+----
+
+
+!!!Timers
+
+
+
+!!!DateTime and LocalDateTime Objects
+
+DateTime and LocalDateTime objects are similar to JavaScript Date objects,
+however they provide a few more capabilities, including better
+support for formatting.
 
