@@ -13,7 +13,7 @@ GYPREVISION = 1831
 V8BASE = v8-$(V8VERSION)
 V8FLAGS = library=shared snapshot=off i18nsupport=off werror=no $(EXTRA_V8FLAGS)
 
-.PHONY: v8base v8deps v8libs
+.PHONY: v8base v8deps
 
 ifeq ($(OSARCH),x86_64)
 V8ARCH = x64
@@ -73,8 +73,6 @@ v8deps: v8base
 	mkdir -p $(V8BASE)/build
 	cd $(V8BASE)/build && tar xfz ../../archive/gyp-$(GYPREVISION).tar.gz
 	
-v8libs: v8deps v8patch
-
 shared_debug: v8deps 
 	-$(MAKE) -C $(V8BASE) $(V8ARCH).debug $(V8FLAGS) 
 
