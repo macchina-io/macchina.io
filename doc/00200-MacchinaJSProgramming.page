@@ -636,7 +636,7 @@ All arguments are concatenated into a single log message.
 
 !!critical(arg [, arg]...)
 
-Writes a critial error log message.
+Writes a critical error log message.
 All arguments are concatenated into a single log message.
 
 !!fatal(arg [, arg]...)
@@ -1070,7 +1070,7 @@ failed, although on the HTTP level. Check the HTTP response status,
 using the <[result.response.status]> property.
 
 If no callback function is given, the request is sent and the function will block
-until the complete response is received, or an error has occured. If an error occured,
+until the complete response is received, or an error has occurred. If an error occurred,
 an exception will be raised. Otherwise, a HTTPResponse object will be returned.
 
 
@@ -1255,7 +1255,7 @@ session.
 
 !!!The bundle Object
 
-The global <[bundle]> object gives a script (including servlet or server pate)
+The global <[bundle]> object gives a script (including servlet or server page)
 access to some properties of its bundle.
 
 
