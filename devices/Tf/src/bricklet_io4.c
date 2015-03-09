@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_io4.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -237,7 +241,7 @@ void io4_create(IO4 *io4, const char *uid, IPConnection *ipcon) {
 }
 
 void io4_destroy(IO4 *io4) {
-	device_destroy(io4);
+	device_release(io4->p);
 }
 
 int io4_get_response_expected(IO4 *io4, uint8_t function_id, bool *ret_response_expected) {
@@ -612,3 +616,7 @@ int io4_get_identity(IO4 *io4, char ret_uid[8], char ret_connected_uid[8], char 
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

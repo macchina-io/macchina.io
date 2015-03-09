@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_gps.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -350,7 +354,7 @@ void gps_create(GPS *gps, const char *uid, IPConnection *ipcon) {
 }
 
 void gps_destroy(GPS *gps) {
-	device_destroy(gps);
+	device_release(gps->p);
 }
 
 int gps_get_response_expected(GPS *gps, uint8_t function_id, bool *ret_response_expected) {
@@ -778,3 +782,7 @@ int gps_get_identity(GPS *gps, char ret_uid[8], char ret_connected_uid[8], char 
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

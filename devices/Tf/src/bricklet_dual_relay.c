@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_dual_relay.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -133,7 +137,7 @@ void dual_relay_create(DualRelay *dual_relay, const char *uid, IPConnection *ipc
 }
 
 void dual_relay_destroy(DualRelay *dual_relay) {
-	device_destroy(dual_relay);
+	device_release(dual_relay->p);
 }
 
 int dual_relay_get_response_expected(DualRelay *dual_relay, uint8_t function_id, bool *ret_response_expected) {
@@ -300,3 +304,7 @@ int dual_relay_get_identity(DualRelay *dual_relay, char ret_uid[8], char ret_con
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

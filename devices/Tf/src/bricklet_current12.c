@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_current12.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -304,7 +308,7 @@ void current12_create(Current12 *current12, const char *uid, IPConnection *ipcon
 }
 
 void current12_destroy(Current12 *current12) {
-	device_destroy(current12);
+	device_release(current12->p);
 }
 
 int current12_get_response_expected(Current12 *current12, uint8_t function_id, bool *ret_response_expected) {
@@ -677,3 +681,7 @@ int current12_get_identity(Current12 *current12, char ret_uid[8], char ret_conne
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

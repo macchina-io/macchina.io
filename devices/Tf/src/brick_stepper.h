@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICK_STEPPER_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickStepper Stepper Brick
@@ -265,8 +269,6 @@ typedef Device Stepper;
  * {@link stepper_set_all_data_period}. The parameters are: the current velocity,
  * the current position, the remaining steps, the stack voltage, the external
  * voltage and the current consumption of the stepper motor.
- * 
- * .. versionadded:: 1.1.6~(Firmware)
  */
 #define STEPPER_CALLBACK_ALL_DATA 40
 
@@ -286,8 +288,6 @@ typedef Device Stepper;
  * * 4 = Deacceleration
  * * 5 = Direction change to forward
  * * 6 = Direction change to backward
- * 
- * .. versionadded:: 1.1.6~(Firmware)
  */
 #define STEPPER_CALLBACK_NEW_STATE 41
 
@@ -771,8 +771,6 @@ int stepper_get_minimum_voltage(Stepper *stepper, uint16_t *ret_voltage);
  *  Brick may not be able to cope with the load and overheat.
  * 
  * The default value is *false*.
- * 
- * .. versionadded:: 1.1.4~(Firmware)
  */
 int stepper_set_sync_rect(Stepper *stepper, bool sync_rect);
 
@@ -780,8 +778,6 @@ int stepper_set_sync_rect(Stepper *stepper, bool sync_rect);
  * \ingroup BrickStepper
  *
  * Returns *true* if synchronous rectification is enabled, *false* otherwise.
- * 
- * .. versionadded:: 1.1.4~(Firmware)
  */
 int stepper_is_sync_rect(Stepper *stepper, bool *ret_sync_rect);
 
@@ -796,8 +792,6 @@ int stepper_is_sync_rect(Stepper *stepper, bool *ret_sync_rect);
  * 10steps/15s = 1steps/1.5s.
  * 
  * The default value is 1.
- * 
- * .. versionadded:: 1.1.6~(Firmware)
  */
 int stepper_set_time_base(Stepper *stepper, uint32_t time_base);
 
@@ -805,8 +799,6 @@ int stepper_set_time_base(Stepper *stepper, uint32_t time_base);
  * \ingroup BrickStepper
  *
  * Returns the time base as set by {@link stepper_set_time_base}.
- * 
- * .. versionadded:: 1.1.6~(Firmware)
  */
 int stepper_get_time_base(Stepper *stepper, uint32_t *ret_time_base);
 
@@ -818,8 +810,6 @@ int stepper_get_time_base(Stepper *stepper, uint32_t *ret_time_base);
  * voltage and the current consumption of the stepper motor.
  * 
  * There is also a callback for this function, see {@link STEPPER_CALLBACK_ALL_DATA}.
- * 
- * .. versionadded:: 1.1.6~(Firmware)
  */
 int stepper_get_all_data(Stepper *stepper, uint16_t *ret_current_velocity, int32_t *ret_current_position, int32_t *ret_remaining_steps, uint16_t *ret_stack_voltage, uint16_t *ret_external_voltage, uint16_t *ret_current_consumption);
 
@@ -828,8 +818,6 @@ int stepper_get_all_data(Stepper *stepper, uint16_t *ret_current_velocity, int32
  *
  * Sets the period in ms with which the {@link STEPPER_CALLBACK_ALL_DATA} callback is triggered
  * periodically. A value of 0 turns the callback off.
- * 
- * .. versionadded:: 1.1.6~(Firmware)
  */
 int stepper_set_all_data_period(Stepper *stepper, uint32_t period);
 
@@ -837,8 +825,6 @@ int stepper_set_all_data_period(Stepper *stepper, uint32_t period);
  * \ingroup BrickStepper
  *
  * Returns the period as set by {@link stepper_set_all_data_period}.
- * 
- * .. versionadded:: 1.1.6~(Firmware)
  */
 int stepper_get_all_data_period(Stepper *stepper, uint32_t *ret_period);
 
@@ -850,8 +836,6 @@ int stepper_get_all_data_period(Stepper *stepper, uint32_t *ret_period);
  * 
  * This functions sole purpose is to allow automatic flashing of v1.x.y Bricklet
  * plugins.
- * 
- * .. versionadded:: 2.0.0~(Firmware)
  */
 int stepper_get_protocol1_bricklet_name(Stepper *stepper, char port, uint8_t *ret_protocol_version, uint8_t ret_firmware_version[3], char ret_name[40]);
 
@@ -864,8 +848,6 @@ int stepper_get_protocol1_bricklet_name(Stepper *stepper, char port, uint8_t *re
  * The temperature is only proportional to the real temperature and it has an
  * accuracy of +-15%. Practically it is only useful as an indicator for
  * temperature changes.
- * 
- * .. versionadded:: 1.1.4~(Firmware)
  */
 int stepper_get_chip_temperature(Stepper *stepper, int16_t *ret_temperature);
 
@@ -878,8 +860,6 @@ int stepper_get_chip_temperature(Stepper *stepper, int16_t *ret_temperature);
  * After a reset you have to create new device objects,
  * calling functions on the existing ones will result in
  * undefined behavior!
- * 
- * .. versionadded:: 1.1.4~(Firmware)
  */
 int stepper_reset(Stepper *stepper);
 
@@ -892,10 +872,13 @@ int stepper_reset(Stepper *stepper);
  * 
  * The position can be '0'-'8' (stack position).
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Firmware)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int stepper_get_identity(Stepper *stepper, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

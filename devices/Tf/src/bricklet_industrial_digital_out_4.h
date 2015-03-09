@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_INDUSTRIAL_DIGITAL_OUT_4_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletIndustrialDigitalOut4 IndustrialDigitalOut4 Bricklet
@@ -173,9 +177,8 @@ int industrial_digital_out_4_get_api_version(IndustrialDigitalOut4 *industrial_d
 /**
  * \ingroup BrickletIndustrialDigitalOut4
  *
- * Sets the output value with a bitmask. The bitmask
- * is 16 bit long, *true* refers to high and *false* refers to 
- * low.
+ * Sets the output value with a bitmask (16bit). A 1 in the bitmask means high
+ * and a 0 in the bitmask means low.
  * 
  * For example: The value 3 or 0b0011 will turn pins 0-1 high and the other pins
  * low.
@@ -203,7 +206,7 @@ int industrial_digital_out_4_get_value(IndustrialDigitalOut4 *industrial_digital
  * bitmask.
  * 
  * The second parameter is a bitmask with the desired value of the specified
- * pins (*true* means high and *false* means low).
+ * pins. A 1 in the bitmask means high and a 0 in the bitmask means low.
  * 
  * The third parameter indicates the time (in ms) that the pins should hold
  * the value.
@@ -284,8 +287,6 @@ int industrial_digital_out_4_get_available_for_group(IndustrialDigitalOut4 *indu
  * If groups are used, the pins correspond to the element in the group.
  * Element 1 in the group will get pins 0-3, element 2 pins 4-7, element 3
  * pins 8-11 and element 4 pins 12-15.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
  */
 int industrial_digital_out_4_set_selected_values(IndustrialDigitalOut4 *industrial_digital_out_4, uint16_t selection_mask, uint16_t value_mask);
 
@@ -298,10 +299,13 @@ int industrial_digital_out_4_set_selected_values(IndustrialDigitalOut4 *industri
  * 
  * The position can be 'a', 'b', 'c' or 'd'.
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int industrial_digital_out_4_get_identity(IndustrialDigitalOut4 *industrial_digital_out_4, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "brick_master.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -620,6 +624,50 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+	uint8_t sockets;
+	uint16_t port;
+} ATTRIBUTE_PACKED SetEthernetWebsocketConfiguration_;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetEthernetWebsocketConfiguration_;
+
+typedef struct {
+	PacketHeader header;
+	uint8_t sockets;
+	uint16_t port;
+} ATTRIBUTE_PACKED GetEthernetWebsocketConfigurationResponse_;
+
+typedef struct {
+	PacketHeader header;
+	char secret[64];
+} ATTRIBUTE_PACKED SetEthernetAuthenticationSecret_;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetEthernetAuthenticationSecret_;
+
+typedef struct {
+	PacketHeader header;
+	char secret[64];
+} ATTRIBUTE_PACKED GetEthernetAuthenticationSecretResponse_;
+
+typedef struct {
+	PacketHeader header;
+	char secret[64];
+} ATTRIBUTE_PACKED SetWifiAuthenticationSecret_;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetWifiAuthenticationSecret_;
+
+typedef struct {
+	PacketHeader header;
+	char secret[64];
+} ATTRIBUTE_PACKED GetWifiAuthenticationSecretResponse_;
+
+typedef struct {
+	PacketHeader header;
 	char port;
 } ATTRIBUTE_PACKED GetProtocol1BrickletName_;
 
@@ -755,7 +803,7 @@ static void master_callback_wrapper_usb_voltage_reached(DevicePrivate *device_p,
 void master_create(Master *master, const char *uid, IPConnection *ipcon) {
 	DevicePrivate *device_p;
 
-	device_create(master, uid, ipcon->p, 2, 0, 2);
+	device_create(master, uid, ipcon->p, 2, 0, 3);
 
 	device_p = master->p;
 
@@ -829,6 +877,12 @@ void master_create(Master *master, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[MASTER_FUNCTION_GET_ETHERNET_STATUS] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MASTER_FUNCTION_SET_ETHERNET_HOSTNAME] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[MASTER_FUNCTION_SET_ETHERNET_MAC_ADDRESS] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[MASTER_FUNCTION_SET_ETHERNET_WEBSOCKET_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[MASTER_FUNCTION_GET_ETHERNET_WEBSOCKET_CONFIGURATION] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[MASTER_FUNCTION_SET_ETHERNET_AUTHENTICATION_SECRET] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[MASTER_FUNCTION_GET_ETHERNET_AUTHENTICATION_SECRET] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[MASTER_FUNCTION_SET_WIFI_AUTHENTICATION_SECRET] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[MASTER_FUNCTION_GET_WIFI_AUTHENTICATION_SECRET] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MASTER_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MASTER_FUNCTION_GET_CHIP_TEMPERATURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[MASTER_FUNCTION_RESET] = DEVICE_RESPONSE_EXPECTED_FALSE;
@@ -843,7 +897,7 @@ void master_create(Master *master, const char *uid, IPConnection *ipcon) {
 }
 
 void master_destroy(Master *master) {
-	device_destroy(master);
+	device_release(master->p);
 }
 
 int master_get_response_expected(Master *master, uint8_t function_id, bool *ret_response_expected) {
@@ -2384,6 +2438,142 @@ int master_set_ethernet_mac_address(Master *master, uint8_t mac_address[6]) {
 	return ret;
 }
 
+int master_set_ethernet_websocket_configuration(Master *master, uint8_t sockets, uint16_t port) {
+	DevicePrivate *device_p = master->p;
+	SetEthernetWebsocketConfiguration_ request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_ETHERNET_WEBSOCKET_CONFIGURATION, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.sockets = sockets;
+	request.port = leconvert_uint16_to(port);
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+
+	return ret;
+}
+
+int master_get_ethernet_websocket_configuration(Master *master, uint8_t *ret_sockets, uint16_t *ret_port) {
+	DevicePrivate *device_p = master->p;
+	GetEthernetWebsocketConfiguration_ request;
+	GetEthernetWebsocketConfigurationResponse_ response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_ETHERNET_WEBSOCKET_CONFIGURATION, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+	*ret_sockets = response.sockets;
+	*ret_port = leconvert_uint16_from(response.port);
+
+
+
+	return ret;
+}
+
+int master_set_ethernet_authentication_secret(Master *master, const char secret[64]) {
+	DevicePrivate *device_p = master->p;
+	SetEthernetAuthenticationSecret_ request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_ETHERNET_AUTHENTICATION_SECRET, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	strncpy(request.secret, secret, 64);
+
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+
+	return ret;
+}
+
+int master_get_ethernet_authentication_secret(Master *master, char ret_secret[64]) {
+	DevicePrivate *device_p = master->p;
+	GetEthernetAuthenticationSecret_ request;
+	GetEthernetAuthenticationSecretResponse_ response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_ETHERNET_AUTHENTICATION_SECRET, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+	strncpy(ret_secret, response.secret, 64);
+
+
+
+	return ret;
+}
+
+int master_set_wifi_authentication_secret(Master *master, const char secret[64]) {
+	DevicePrivate *device_p = master->p;
+	SetWifiAuthenticationSecret_ request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_SET_WIFI_AUTHENTICATION_SECRET, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	strncpy(request.secret, secret, 64);
+
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+
+	return ret;
+}
+
+int master_get_wifi_authentication_secret(Master *master, char ret_secret[64]) {
+	DevicePrivate *device_p = master->p;
+	GetWifiAuthenticationSecret_ request;
+	GetWifiAuthenticationSecretResponse_ response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), MASTER_FUNCTION_GET_WIFI_AUTHENTICATION_SECRET, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+	strncpy(ret_secret, response.secret, 64);
+
+
+
+	return ret;
+}
+
 int master_get_protocol1_bricklet_name(Master *master, char port, uint8_t *ret_protocol_version, uint8_t ret_firmware_version[3], char ret_name[40]) {
 	DevicePrivate *device_p = master->p;
 	GetProtocol1BrickletName_ request;
@@ -2484,3 +2674,7 @@ int master_get_identity(Master *master, char ret_uid[8], char ret_connected_uid[
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

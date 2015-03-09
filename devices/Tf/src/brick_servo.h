@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICK_SERVO_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickServo Servo Brick
@@ -551,7 +555,7 @@ int servo_get_degree(Servo *servo, uint8_t servo_num, int16_t *ret_min, int16_t 
  * what the correct period is, the default value (19.5ms) will most likely
  * work fine. 
  * 
- * The minimum possible period is 2000µs and the maximum is 65535µs.
+ * The minimum possible period is 1µs and the maximum is 65535µs.
  * 
  * The default value is 19.5ms (19500µs).
  */
@@ -695,8 +699,6 @@ int servo_is_velocity_reached_callback_enabled(Servo *servo, uint8_t *ret_enable
  * 
  * This functions sole purpose is to allow automatic flashing of v1.x.y Bricklet
  * plugins.
- * 
- * .. versionadded:: 2.0.0~(Firmware)
  */
 int servo_get_protocol1_bricklet_name(Servo *servo, char port, uint8_t *ret_protocol_version, uint8_t ret_firmware_version[3], char ret_name[40]);
 
@@ -709,8 +711,6 @@ int servo_get_protocol1_bricklet_name(Servo *servo, char port, uint8_t *ret_prot
  * The temperature is only proportional to the real temperature and it has an
  * accuracy of +-15%. Practically it is only useful as an indicator for
  * temperature changes.
- * 
- * .. versionadded:: 1.1.3~(Firmware)
  */
 int servo_get_chip_temperature(Servo *servo, int16_t *ret_temperature);
 
@@ -723,8 +723,6 @@ int servo_get_chip_temperature(Servo *servo, int16_t *ret_temperature);
  * After a reset you have to create new device objects,
  * calling functions on the existing ones will result in
  * undefined behavior!
- * 
- * .. versionadded:: 1.1.3~(Firmware)
  */
 int servo_reset(Servo *servo);
 
@@ -737,10 +735,13 @@ int servo_reset(Servo *servo);
  * 
  * The position can be '0'-'8' (stack position).
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Firmware)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int servo_get_identity(Servo *servo, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_INDUSTRIAL_QUAD_RELAY_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletIndustrialQuadRelay IndustrialQuadRelay Bricklet
@@ -173,12 +177,11 @@ int industrial_quad_relay_get_api_version(IndustrialQuadRelay *industrial_quad_r
 /**
  * \ingroup BrickletIndustrialQuadRelay
  *
- * Sets the output value with a bitmask. The bitmask
- * is 16 bit long, *true* refers to a closed relay and *false* refers to 
- * an open relay.
+ * Sets the output value with a bitmask (16bit). A 1 in the bitmask means relay
+ * closed and a 0 means relay open.
  * 
- * For example: The value 0b0011 will close the relay of pins 0-1 and open the
- * other pins.
+ * For example: The value 3 or 0b0011 will close the relay of pins 0-1 and open
+ * the other pins.
  * 
  * If no groups are used (see {@link industrial_quad_relay_set_group}), the pins correspond to the
  * markings on the Quad Relay Bricklet.
@@ -203,7 +206,7 @@ int industrial_quad_relay_get_value(IndustrialQuadRelay *industrial_quad_relay, 
  * bitmask.
  * 
  * The second parameter is a bitmask with the desired value of the specified
- * pins (*true* means relay closed and *false* means relay open).
+ * pins. A 1 in the bitmask means relay closed and a 0 means relay open.
  * 
  * The third parameter indicates the time (in ms) that the pins should hold
  * the value.
@@ -284,8 +287,6 @@ int industrial_quad_relay_get_available_for_group(IndustrialQuadRelay *industria
  * If groups are used, the pins correspond to the element in the group.
  * Element 1 in the group will get pins 0-3, element 2 pins 4-7, element 3
  * pins 8-11 and element 4 pins 12-15.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
  */
 int industrial_quad_relay_set_selected_values(IndustrialQuadRelay *industrial_quad_relay, uint16_t selection_mask, uint16_t value_mask);
 
@@ -298,10 +299,13 @@ int industrial_quad_relay_set_selected_values(IndustrialQuadRelay *industrial_qu
  * 
  * The position can be 'a', 'b', 'c' or 'd'.
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int industrial_quad_relay_get_identity(IndustrialQuadRelay *industrial_quad_relay, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

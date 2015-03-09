@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_INDUSTRIAL_DIGITAL_IN_4_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletIndustrialDigitalIn4 IndustrialDigitalIn4 Bricklet
@@ -326,7 +330,8 @@ int industrial_digital_in_4_get_edge_count(IndustrialDigitalIn4 *industrial_digi
 /**
  * \ingroup BrickletIndustrialDigitalIn4
  *
- * Configures the edge counter for the selected pins.
+ * Configures the edge counter for the selected pins. A bitmask of 9 or 0b1001 will
+ * enable the edge counter for pins 0 and 3.
  * 
  * The edge type parameter configures if rising edges, falling edges or
  * both are counted if the pin is configured for input. Possible edge types are:
@@ -336,6 +341,8 @@ int industrial_digital_in_4_get_edge_count(IndustrialDigitalIn4 *industrial_digi
  * * 2 = both
  * 
  * The debounce time is given in ms.
+ * 
+ * Configuring an edge counter resets its value to 0.
  * 
  * If you don't know what any of this means, just leave it at default. The
  * default configuration is very likely OK for you.
@@ -365,10 +372,13 @@ int industrial_digital_in_4_get_edge_count_config(IndustrialDigitalIn4 *industri
  * 
  * The position can be 'a', 'b', 'c' or 'd'.
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int industrial_digital_in_4_get_identity(IndustrialDigitalIn4 *industrial_digital_in_4, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

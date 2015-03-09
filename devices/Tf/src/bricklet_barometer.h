@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_BAROMETER_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletBarometer Barometer Bricklet
@@ -447,8 +451,6 @@ int barometer_get_debounce_period(Barometer *barometer, uint32_t *ret_debounce);
  * used in aviation.
  * 
  * The default value is 1013.25mbar.
- * 
- * .. versionadded:: 1.1.0~(Plugin)
  */
 int barometer_set_reference_air_pressure(Barometer *barometer, int32_t air_pressure);
 
@@ -469,8 +471,6 @@ int barometer_get_chip_temperature(Barometer *barometer, int16_t *ret_temperatur
  * \ingroup BrickletBarometer
  *
  * Returns the reference air pressure as set by {@link barometer_set_reference_air_pressure}.
- * 
- * .. versionadded:: 1.1.0~(Plugin)
  */
 int barometer_get_reference_air_pressure(Barometer *barometer, int32_t *ret_air_pressure);
 
@@ -518,10 +518,13 @@ int barometer_get_averaging(Barometer *barometer, uint8_t *ret_moving_average_pr
  * 
  * The position can be 'a', 'b', 'c' or 'd'.
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int barometer_get_identity(Barometer *barometer, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

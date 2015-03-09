@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_DUAL_BUTTON_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletDualButton DualButton Bricklet
@@ -243,8 +247,6 @@ int dual_button_get_button_state(DualButton *dual_button, uint8_t *ret_button_l,
  * Sets the state of the selected LED (0 or 1). 
  * 
  * The other LED remains untouched.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
  */
 int dual_button_set_selected_led_state(DualButton *dual_button, uint8_t led, uint8_t state);
 
@@ -257,10 +259,13 @@ int dual_button_set_selected_led_state(DualButton *dual_button, uint8_t led, uin
  * 
  * The position can be 'a', 'b', 'c' or 'd'.
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int dual_button_get_identity(DualButton *dual_button, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

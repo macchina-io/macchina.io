@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_hall_effect.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -171,7 +175,7 @@ void hall_effect_create(HallEffect *hall_effect, const char *uid, IPConnection *
 }
 
 void hall_effect_destroy(HallEffect *hall_effect) {
-	device_destroy(hall_effect);
+	device_release(hall_effect->p);
 }
 
 int hall_effect_get_response_expected(HallEffect *hall_effect, uint8_t function_id, bool *ret_response_expected) {
@@ -434,3 +438,7 @@ int hall_effect_get_identity(HallEffect *hall_effect, char ret_uid[8], char ret_
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

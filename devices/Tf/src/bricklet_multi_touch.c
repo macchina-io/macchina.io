@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_multi_touch.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -135,7 +139,7 @@ void multi_touch_create(MultiTouch *multi_touch, const char *uid, IPConnection *
 }
 
 void multi_touch_destroy(MultiTouch *multi_touch) {
-	device_destroy(multi_touch);
+	device_release(multi_touch->p);
 }
 
 int multi_touch_get_response_expected(MultiTouch *multi_touch, uint8_t function_id, bool *ret_response_expected) {
@@ -318,3 +322,7 @@ int multi_touch_get_identity(MultiTouch *multi_touch, char ret_uid[8], char ret_
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICK_IMU_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickIMU IMU Brick
@@ -426,7 +430,7 @@ int imu_get_magnetic_field(IMU *imu, int16_t *ret_x, int16_t *ret_y, int16_t *re
  * \ingroup BrickIMU
  *
  * Returns the calibrated angular velocity from the gyroscope for the 
- * x, y and z axis in °/17.5s (you have to divide by 17.5 to
+ * x, y and z axis in °/14.375s (you have to divide by 14.375 to
  * get the value in °/s).
  * 
  * If you want to get the angular velocity periodically, it is recommended 
@@ -475,12 +479,20 @@ int imu_get_orientation(IMU *imu, int16_t *ret_roll, int16_t *ret_pitch, int16_t
  * 
  * You can go from quaternions to Euler angles with the following formula::
  * 
- *  roll  = atan2(2*y*w - 2*x*z, 1 - 2*y*y - 2*z*z)
- *  pitch = atan2(2*x*w - 2*y*z, 1 - 2*x*x - 2*z*z)
- *  yaw   =  asin(2*x*y + 2*z*w)
+ *  xAngle = atan2(2*y*w - 2*x*z, 1 - 2*y*y - 2*z*z)
+ *  yAngle = atan2(2*x*w - 2*y*z, 1 - 2*x*x - 2*z*z)
+ *  zAngle =  asin(2*x*y + 2*z*w)
  * 
  * This process is not reversible, because of the 
  * `gimbal lock <http://en.wikipedia.org/wiki/Gimbal_lock>`__.
+ * 
+ * It is also possible to calculate independent angles. You can calculate 
+ * yaw, pitch and roll in a right-handed vehicle coordinate system according to DIN70000
+ * with::
+ * 
+ *  yaw   =  atan2(2*x*y + 2*w*z, w*w + x*x - y*y - z*z)
+ *  pitch = -asin(2*w*y - 2*x*z)
+ *  roll  = -atan2(2*y*z + 2*w*x, -w*w + x*x + y*y - z*z))
  * 
  * Converting the quaternions to an OpenGL transformation matrix is
  * possible with the following formula::
@@ -621,7 +633,7 @@ int imu_get_convergence_speed(IMU *imu, uint16_t *ret_speed);
  * 
  * The gyroscope bias is highly dependent on the temperature, so you have to
  * calibrate the bias two times with different temperatures. The values ``xl``,
- * ``yl``, ``zl `` and ``temp l`` are the bias for ``x``, ``y``, ``z`` and the
+ * ``yl``, ``zl`` and ``temp l`` are the bias for ``x``, ``y``, ``z`` and the
  * corresponding temperature for a low temperature. The values ``xh``, ``yh``,
  * ``zh`` and ``temp h`` are the same for a high temperatures. The temperature
  * difference should be at least 5°C. If you have a temperature where the
@@ -781,8 +793,6 @@ int imu_is_orientation_calculation_on(IMU *imu, bool *ret_orientation_calculatio
  * 
  * This functions sole purpose is to allow automatic flashing of v1.x.y Bricklet
  * plugins.
- * 
- * .. versionadded:: 2.0.0~(Firmware)
  */
 int imu_get_protocol1_bricklet_name(IMU *imu, char port, uint8_t *ret_protocol_version, uint8_t ret_firmware_version[3], char ret_name[40]);
 
@@ -795,8 +805,6 @@ int imu_get_protocol1_bricklet_name(IMU *imu, char port, uint8_t *ret_protocol_v
  * The temperature is only proportional to the real temperature and it has an
  * accuracy of +-15%. Practically it is only useful as an indicator for
  * temperature changes.
- * 
- * .. versionadded:: 1.0.7~(Firmware)
  */
 int imu_get_chip_temperature(IMU *imu, int16_t *ret_temperature);
 
@@ -809,8 +817,6 @@ int imu_get_chip_temperature(IMU *imu, int16_t *ret_temperature);
  * After a reset you have to create new device objects,
  * calling functions on the existing ones will result in
  * undefined behavior!
- * 
- * .. versionadded:: 1.0.7~(Firmware)
  */
 int imu_reset(IMU *imu);
 
@@ -823,10 +829,13 @@ int imu_reset(IMU *imu);
  * 
  * The position can be '0'-'8' (stack position).
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Firmware)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int imu_get_identity(IMU *imu, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

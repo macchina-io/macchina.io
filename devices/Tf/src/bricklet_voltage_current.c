@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_voltage_current.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -400,7 +404,7 @@ void voltage_current_create(VoltageCurrent *voltage_current, const char *uid, IP
 }
 
 void voltage_current_destroy(VoltageCurrent *voltage_current) {
-	device_destroy(voltage_current);
+	device_release(voltage_current->p);
 }
 
 int voltage_current_get_response_expected(VoltageCurrent *voltage_current, uint8_t function_id, bool *ret_response_expected) {
@@ -941,3 +945,7 @@ int voltage_current_get_identity(VoltageCurrent *voltage_current, char ret_uid[8
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

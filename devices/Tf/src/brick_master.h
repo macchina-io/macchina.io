@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICK_MASTER_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickMaster Master Brick
@@ -343,6 +347,36 @@ typedef Device Master;
  * \ingroup BrickMaster
  */
 #define MASTER_FUNCTION_SET_ETHERNET_MAC_ADDRESS 70
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_ETHERNET_WEBSOCKET_CONFIGURATION 71
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_ETHERNET_WEBSOCKET_CONFIGURATION 72
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_ETHERNET_AUTHENTICATION_SECRET 73
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_ETHERNET_AUTHENTICATION_SECRET 74
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_SET_WIFI_AUTHENTICATION_SECRET 75
+
+/**
+ * \ingroup BrickMaster
+ */
+#define MASTER_FUNCTION_GET_WIFI_AUTHENTICATION_SECRET 76
 
 /**
  * \ingroup BrickMaster
@@ -837,8 +871,6 @@ int master_get_extension_type(Master *master, uint8_t extension, uint32_t *ret_e
  * \ingroup BrickMaster
  *
  * Returns *true* if a Chibi Extension is available to be used by the Master Brick.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_is_chibi_present(Master *master, bool *ret_present);
 
@@ -850,8 +882,6 @@ int master_is_chibi_present(Master *master, bool *ret_present);
  * It is possible to set the address with the Brick Viewer and it will be 
  * saved in the EEPROM of the Chibi Extension, it does not
  * have to be set on every startup.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_set_chibi_address(Master *master, uint8_t address);
 
@@ -859,8 +889,6 @@ int master_set_chibi_address(Master *master, uint8_t address);
  * \ingroup BrickMaster
  *
  * Returns the address as set by {@link master_set_chibi_address}.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_get_chibi_address(Master *master, uint8_t *ret_address);
 
@@ -873,8 +901,6 @@ int master_get_chibi_address(Master *master, uint8_t *ret_address);
  * It is possible to set the address with the Brick Viewer and it will be 
  * saved in the EEPROM of the Chibi Extension, it does not
  * have to be set on every startup.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_set_chibi_master_address(Master *master, uint8_t address);
 
@@ -882,8 +908,6 @@ int master_set_chibi_master_address(Master *master, uint8_t address);
  * \ingroup BrickMaster
  *
  * Returns the address as set by {@link master_set_chibi_master_address}.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_get_chibi_master_address(Master *master, uint8_t *ret_address);
 
@@ -892,7 +916,7 @@ int master_get_chibi_master_address(Master *master, uint8_t *ret_address);
  *
  * Sets up to 254 slave addresses. Valid addresses are in range 1-255. 0 has a
  * special meaning, it is used as list terminator and not allowed as normal slave
- * address. The address numeration (via ``num`` parameter) has to be used
+ * address. The address numeration (via \c num parameter) has to be used
  * ascending from 0. For example: If you use the Chibi Extension in Master mode
  * (i.e. the stack has an USB connection) and you want to talk to three other
  * Chibi stacks with the slave addresses 17, 23, and 42, you should call with
@@ -905,18 +929,14 @@ int master_get_chibi_master_address(Master *master, uint8_t *ret_address);
  * 
  * The slave addresses will be saved in the EEPROM of the Chibi Extension, they
  * don't have to be set on every startup.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_set_chibi_slave_address(Master *master, uint8_t num, uint8_t address);
 
 /**
  * \ingroup BrickMaster
  *
- * Returns the slave address for a given ``num`` as set by
+ * Returns the slave address for a given \c num as set by
  * {@link master_set_chibi_slave_address}.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_get_chibi_slave_address(Master *master, uint8_t num, uint8_t *ret_address);
 
@@ -925,8 +945,6 @@ int master_get_chibi_slave_address(Master *master, uint8_t num, uint8_t *ret_add
  *
  * Returns the signal strength in dBm. The signal strength updates every time a
  * packet is received.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_get_chibi_signal_strength(Master *master, uint8_t *ret_signal_strength);
 
@@ -937,8 +955,6 @@ int master_get_chibi_signal_strength(Master *master, uint8_t *ret_signal_strengt
  * communication. If these errors start rising, it is likely that either the
  * distance between two Chibi stacks is becoming too big or there are
  * interferences.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_get_chibi_error_log(Master *master, uint16_t *ret_underrun, uint16_t *ret_crc_error, uint16_t *ret_no_ack, uint16_t *ret_overflow);
 
@@ -959,8 +975,6 @@ int master_get_chibi_error_log(Master *master, uint16_t *ret_underrun, uint16_t 
  * It is possible to set the frequency with the Brick Viewer and it will be 
  * saved in the EEPROM of the Chibi Extension, it does not
  * have to be set on every startup.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_set_chibi_frequency(Master *master, uint8_t frequency);
 
@@ -968,8 +982,6 @@ int master_set_chibi_frequency(Master *master, uint8_t frequency);
  * \ingroup BrickMaster
  *
  * Returns the frequency value as set by {@link master_set_chibi_frequency}.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_get_chibi_frequency(Master *master, uint8_t *ret_frequency);
 
@@ -991,8 +1003,6 @@ int master_get_chibi_frequency(Master *master, uint8_t *ret_frequency);
  * It is possible to set the channel with the Brick Viewer and it will be 
  * saved in the EEPROM of the Chibi Extension, it does not
  * have to be set on every startup.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_set_chibi_channel(Master *master, uint8_t channel);
 
@@ -1000,8 +1010,6 @@ int master_set_chibi_channel(Master *master, uint8_t channel);
  * \ingroup BrickMaster
  *
  * Returns the channel as set by {@link master_set_chibi_channel}.
- * 
- * .. versionadded:: 1.1.0~(Firmware)
  */
 int master_get_chibi_channel(Master *master, uint8_t *ret_channel);
 
@@ -1009,8 +1017,6 @@ int master_get_chibi_channel(Master *master, uint8_t *ret_channel);
  * \ingroup BrickMaster
  *
  * Returns *true* if a RS485 Extension is available to be used by the Master Brick.
- * 
- * .. versionadded:: 1.2.0~(Firmware)
  */
 int master_is_rs485_present(Master *master, bool *ret_present);
 
@@ -1025,8 +1031,6 @@ int master_is_rs485_present(Master *master, bool *ret_present);
  * It is possible to set the address with the Brick Viewer and it will be 
  * saved in the EEPROM of the RS485 Extension, it does not
  * have to be set on every startup.
- * 
- * .. versionadded:: 1.2.0~(Firmware)
  */
 int master_set_rs485_address(Master *master, uint8_t address);
 
@@ -1034,8 +1038,6 @@ int master_set_rs485_address(Master *master, uint8_t address);
  * \ingroup BrickMaster
  *
  * Returns the address as set by {@link master_set_rs485_address}.
- * 
- * .. versionadded:: 1.2.0~(Firmware)
  */
 int master_get_rs485_address(Master *master, uint8_t *ret_address);
 
@@ -1057,8 +1059,6 @@ int master_get_rs485_address(Master *master, uint8_t *ret_address);
  * 
  * The slave addresses will be saved in the EEPROM of the Chibi Extension, they
  * don't have to be set on every startup.
- * 
- * .. versionadded:: 1.2.0~(Firmware)
  */
 int master_set_rs485_slave_address(Master *master, uint8_t num, uint8_t address);
 
@@ -1067,8 +1067,6 @@ int master_set_rs485_slave_address(Master *master, uint8_t num, uint8_t address)
  *
  * Returns the slave address for a given ``num`` as set by
  * {@link master_set_rs485_slave_address}.
- * 
- * .. versionadded:: 1.2.0~(Firmware)
  */
 int master_get_rs485_slave_address(Master *master, uint8_t num, uint8_t *ret_address);
 
@@ -1079,8 +1077,6 @@ int master_get_rs485_slave_address(Master *master, uint8_t num, uint8_t *ret_add
  * If this counter starts rising, it is likely that the distance
  * between the RS485 nodes is too big or there is some kind of
  * interference.
- * 
- * .. versionadded:: 1.2.0~(Firmware)
  */
 int master_get_rs485_error_log(Master *master, uint16_t *ret_crc_error);
 
@@ -1099,8 +1095,6 @@ int master_get_rs485_error_log(Master *master, uint16_t *ret_crc_error);
  * 
  * The values are stored in the EEPROM and only applied on startup. That means
  * you have to restart the Master Brick after configuration.
- * 
- * .. versionadded:: 1.2.0~(Firmware)
  */
 int master_set_rs485_configuration(Master *master, uint32_t speed, char parity, uint8_t stopbits);
 
@@ -1108,8 +1102,6 @@ int master_set_rs485_configuration(Master *master, uint32_t speed, char parity, 
  * \ingroup BrickMaster
  *
  * Returns the configuration as set by {@link master_set_rs485_configuration}.
- * 
- * .. versionadded:: 1.2.0~(Firmware)
  */
 int master_get_rs485_configuration(Master *master, uint32_t *ret_speed, char *ret_parity, uint8_t *ret_stopbits);
 
@@ -1117,8 +1109,6 @@ int master_get_rs485_configuration(Master *master, uint32_t *ret_speed, char *re
  * \ingroup BrickMaster
  *
  * Returns *true* if a WIFI Extension is available to be used by the Master Brick.
- * 
- * .. versionadded:: 1.2.0~(Firmware)
  */
 int master_is_wifi_present(Master *master, bool *ret_present);
 
@@ -1152,8 +1142,6 @@ int master_is_wifi_present(Master *master, bool *ret_present);
  * you have to restart the Master Brick after configuration.
  * 
  * It is recommended to use the Brick Viewer to set the WIFI configuration.
- * 
- * .. versionadded:: 1.3.0~(Firmware)
  */
 int master_set_wifi_configuration(Master *master, const char ssid[32], uint8_t connection, uint8_t ip[4], uint8_t subnet_mask[4], uint8_t gateway[4], uint16_t port);
 
@@ -1161,8 +1149,6 @@ int master_set_wifi_configuration(Master *master, const char ssid[32], uint8_t c
  * \ingroup BrickMaster
  *
  * Returns the configuration as set by {@link master_set_wifi_configuration}.
- * 
- * .. versionadded:: 1.3.0~(Firmware)
  */
 int master_get_wifi_configuration(Master *master, char ret_ssid[32], uint8_t *ret_connection, uint8_t ret_ip[4], uint8_t ret_subnet_mask[4], uint8_t ret_gateway[4], uint16_t *ret_port);
 
@@ -1212,8 +1198,6 @@ int master_get_wifi_configuration(Master *master, char ret_ssid[32], uint8_t *re
  * you have to restart the Master Brick after configuration.
  * 
  * It is recommended to use the Brick Viewer to set the WIFI encryption.
- * 
- * .. versionadded:: 1.3.0~(Firmware)
  */
 int master_set_wifi_encryption(Master *master, uint8_t encryption, const char key[50], uint8_t key_index, uint8_t eap_options, uint16_t ca_certificate_length, uint16_t client_certificate_length, uint16_t private_key_length);
 
@@ -1221,8 +1205,6 @@ int master_set_wifi_encryption(Master *master, uint8_t encryption, const char ke
  * \ingroup BrickMaster
  *
  * Returns the encryption as set by {@link master_set_wifi_encryption}.
- * 
- * .. versionadded:: 1.3.0~(Firmware)
  */
 int master_get_wifi_encryption(Master *master, uint8_t *ret_encryption, char ret_key[50], uint8_t *ret_key_index, uint8_t *ret_eap_options, uint16_t *ret_ca_certificate_length, uint16_t *ret_client_certificate_length, uint16_t *ret_private_key_length);
 
@@ -1244,8 +1226,6 @@ int master_get_wifi_encryption(Master *master, uint8_t *ret_encryption, char ret
  *  "3", "Error"
  *  "255", "Not initialized yet"
  * \endverbatim
- * 
- * .. versionadded:: 1.3.0~(Firmware)
  */
 int master_get_wifi_status(Master *master, uint8_t ret_mac_address[6], uint8_t ret_bssid[6], uint8_t *ret_channel, int16_t *ret_rssi, uint8_t ret_ip[4], uint8_t ret_subnet_mask[4], uint8_t ret_gateway[4], uint32_t *ret_rx_count, uint32_t *ret_tx_count, uint8_t *ret_state);
 
@@ -1258,8 +1238,6 @@ int master_get_wifi_status(Master *master, uint8_t ret_mac_address[6], uint8_t r
  * unfortunately time consuming. This means, that it might take some ms
  * until the stack with attached WIFI Extension reacts again after this
  * function is called.
- * 
- * .. versionadded:: 1.3.0~(Firmware)
  */
 int master_refresh_wifi_status(Master *master);
 
@@ -1284,8 +1262,6 @@ int master_refresh_wifi_status(Master *master);
  * 
  * It is recommended to use the Brick Viewer to set the certificate, username
  * and password.
- * 
- * .. versionadded:: 1.3.0~(Firmware)
  */
 int master_set_wifi_certificate(Master *master, uint16_t index, uint8_t data[32], uint8_t data_length);
 
@@ -1293,8 +1269,6 @@ int master_set_wifi_certificate(Master *master, uint16_t index, uint8_t data[32]
  * \ingroup BrickMaster
  *
  * Returns the certificate for a given index as set by {@link master_set_wifi_certificate}.
- * 
- * .. versionadded:: 1.3.0~(Firmware)
  */
 int master_get_wifi_certificate(Master *master, uint16_t index, uint8_t ret_data[32], uint8_t *ret_data_length);
 
@@ -1311,8 +1285,6 @@ int master_get_wifi_certificate(Master *master, uint16_t index, uint8_t ret_data
  * \endverbatim
  * 
  * The default value is 0 (Full Speed).
- * 
- * .. versionadded:: 1.3.0~(Firmware)
  */
 int master_set_wifi_power_mode(Master *master, uint8_t mode);
 
@@ -1320,8 +1292,6 @@ int master_set_wifi_power_mode(Master *master, uint8_t mode);
  * \ingroup BrickMaster
  *
  * Returns the power mode as set by {@link master_set_wifi_power_mode}.
- * 
- * .. versionadded:: 1.3.0~(Firmware)
  */
 int master_get_wifi_power_mode(Master *master, uint8_t *ret_mode);
 
@@ -1342,8 +1312,6 @@ int master_get_wifi_power_mode(Master *master, uint8_t *ret_mode);
  * 
  * Try to not send more then 50 messages at a time without any kind of
  * break between them.
- * 
- * .. versionadded:: 1.3.2~(Firmware)
  */
 int master_get_wifi_buffer_info(Master *master, uint32_t *ret_overflow, uint16_t *ret_low_watermark, uint16_t *ret_used);
 
@@ -1361,8 +1329,6 @@ int master_get_wifi_buffer_info(Master *master, uint32_t *ret_overflow, uint16_t
  * \endverbatim
  * 
  * The default value is 1 (ETSI).
- * 
- * .. versionadded:: 1.3.4~(Firmware)
  */
 int master_set_wifi_regulatory_domain(Master *master, uint8_t domain);
 
@@ -1370,8 +1336,6 @@ int master_set_wifi_regulatory_domain(Master *master, uint8_t domain);
  * \ingroup BrickMaster
  *
  * Returns the regulatory domain as set by {@link master_set_wifi_regulatory_domain}.
- * 
- * .. versionadded:: 1.3.4~(Firmware)
  */
 int master_get_wifi_regulatory_domain(Master *master, uint8_t *ret_domain);
 
@@ -1379,8 +1343,6 @@ int master_get_wifi_regulatory_domain(Master *master, uint8_t *ret_domain);
  * \ingroup BrickMaster
  *
  * Returns the USB voltage in mV.
- * 
- * .. versionadded:: 1.3.5~(Firmware)
  */
 int master_get_usb_voltage(Master *master, uint16_t *ret_voltage);
 
@@ -1728,13 +1690,100 @@ int master_set_ethernet_mac_address(Master *master, uint8_t mac_address[6]);
 /**
  * \ingroup BrickMaster
  *
+ * Sets the Ethernet WebSocket configuration. The first parameter sets the number of socket
+ * connections that are reserved for WebSockets. The range is 0-7. The connections
+ * are shared with the plain sockets. Example: If you set the connections to 3,
+ * there will be 3 WebSocket and 4 plain socket connections available.
+ * 
+ * The second parameter is the port for the WebSocket connections. The port can
+ * not be the same as the port for the plain socket connections.
+ * 
+ * The values are stored in the EEPROM and only applied on startup. That means
+ * you have to restart the Master Brick after configuration.
+ * 
+ * It is recommended to use the Brick Viewer to set the Ethernet configuration.
+ * 
+ * The default values are 3 for the socket connections and 4280 for the port.
+ * 
+ * .. versionadded:: 2.2.0~(Firmware)
+ */
+int master_set_ethernet_websocket_configuration(Master *master, uint8_t sockets, uint16_t port);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the configuration as set by {@link master_set_ethernet_configuration}.
+ * 
+ * .. versionadded:: 2.2.0~(Firmware)
+ */
+int master_get_ethernet_websocket_configuration(Master *master, uint8_t *ret_sockets, uint16_t *ret_port);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Sets the Ethernet authentication secret. The secret can be a string of up to 64
+ * characters. An empty string disables the authentication.
+ * 
+ * See the :ref:`authentication tutorial <tutorial_authentication>` for more
+ * information.
+ * 
+ * The secret is stored in the EEPROM and only applied on startup. That means
+ * you have to restart the Master Brick after configuration.
+ * 
+ * It is recommended to use the Brick Viewer to set the Ethernet authentication secret.
+ * 
+ * The default value is an empty string (authentication disabled).
+ * 
+ * .. versionadded:: 2.2.0~(Firmware)
+ */
+int master_set_ethernet_authentication_secret(Master *master, const char secret[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the authentication secret as set by {@link master_set_ethernet_authentication_secret}.
+ * 
+ * .. versionadded:: 2.2.0~(Firmware)
+ */
+int master_get_ethernet_authentication_secret(Master *master, char ret_secret[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Sets the WIFI authentication secret. The secret can be a string of up to 64
+ * characters. An empty string disables the authentication.
+ * 
+ * See the :ref:`authentication tutorial <tutorial_authentication>` for more
+ * information.
+ * 
+ * The secret is stored in the EEPROM and only applied on startup. That means
+ * you have to restart the Master Brick after configuration.
+ * 
+ * It is recommended to use the Brick Viewer to set the WIFI authentication secret.
+ * 
+ * The default value is an empty string (authentication disabled).
+ * 
+ * .. versionadded:: 2.2.0~(Firmware)
+ */
+int master_set_wifi_authentication_secret(Master *master, const char secret[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
+ * Returns the authentication secret as set by {@link master_set_wifi_authentication_secret}.
+ * 
+ * .. versionadded:: 2.2.0~(Firmware)
+ */
+int master_get_wifi_authentication_secret(Master *master, char ret_secret[64]);
+
+/**
+ * \ingroup BrickMaster
+ *
  * Returns the firmware and protocol version and the name of the Bricklet for a
  * given port.
  * 
  * This functions sole purpose is to allow automatic flashing of v1.x.y Bricklet
  * plugins.
- * 
- * .. versionadded:: 2.0.0~(Firmware)
  */
 int master_get_protocol1_bricklet_name(Master *master, char port, uint8_t *ret_protocol_version, uint8_t ret_firmware_version[3], char ret_name[40]);
 
@@ -1747,8 +1796,6 @@ int master_get_protocol1_bricklet_name(Master *master, char port, uint8_t *ret_p
  * The temperature is only proportional to the real temperature and it has an
  * accuracy of +-15%. Practically it is only useful as an indicator for
  * temperature changes.
- * 
- * .. versionadded:: 1.2.1~(Firmware)
  */
 int master_get_chip_temperature(Master *master, int16_t *ret_temperature);
 
@@ -1761,8 +1808,6 @@ int master_get_chip_temperature(Master *master, int16_t *ret_temperature);
  * After a reset you have to create new device objects,
  * calling functions on the existing ones will result in
  * undefined behavior!
- * 
- * .. versionadded:: 1.2.1~(Firmware)
  */
 int master_reset(Master *master);
 
@@ -1775,10 +1820,13 @@ int master_reset(Master *master);
  * 
  * The position can be '0'-'8' (stack position).
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Firmware)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int master_get_identity(Master *master, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

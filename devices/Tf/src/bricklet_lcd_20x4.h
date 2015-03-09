@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_LCD_20X4_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletLCD20x4 LCD20x4 Bricklet
@@ -105,7 +109,7 @@ typedef Device LCD20x4;
  * Signature: \code void callback(uint8_t button, void *user_data) \endcode
  * 
  * This callback is triggered when a button is pressed. The parameter is
- * the number of the button (0 to 2 or 0 to 3 with hardware version >= 1.2).
+ * the number of the button (0 to 2 or 0 to 3 since hardware version 1.2).
  */
 #define LCD_20X4_CALLBACK_BUTTON_PRESSED 9
 
@@ -115,7 +119,7 @@ typedef Device LCD20x4;
  * Signature: \code void callback(uint8_t button, void *user_data) \endcode
  * 
  * This callback is triggered when a button is released. The parameter is
- * the number of the button (0 to 2 or 0 to 3 with hardware version >= 1.2).
+ * the number of the button (0 to 2 or 0 to 3 since hardware version 1.2).
  */
 #define LCD_20X4_CALLBACK_BUTTON_RELEASED 10
 
@@ -276,7 +280,7 @@ int lcd_20x4_get_config(LCD20x4 *lcd_20x4, bool *ret_cursor, bool *ret_blinking)
 /**
  * \ingroup BrickletLCD20x4
  *
- * Returns *true* if the button (0 to 2 or 0 to 3 with hardware version >= 1.2) 
+ * Returns *true* if the button (0 to 2 or 0 to 3 since hardware version 1.2)
  * is pressed. If you want to react
  * on button presses and releases it is recommended to use the
  * {@link LCD_20X4_CALLBACK_BUTTON_PRESSED} and {@link LCD_20X4_CALLBACK_BUTTON_RELEASED} callbacks.
@@ -301,7 +305,7 @@ int lcd_20x4_is_button_pressed(LCD20x4 *lcd_20x4, uint8_t button, bool *ret_pres
  * * ``character[7] = 0b00000000`` (decimal value 0)
  * 
  * The characters can later be written with {@link lcd_20x4_write_line} by using the
- * characters with the byte representation 8 to 15.
+ * characters with the byte representation 8 ("\x08") to 15 ("\x0F").
  * 
  * You can play around with the custom characters in Brick Viewer version
  * since 2.0.1.
@@ -387,10 +391,13 @@ int lcd_20x4_get_default_text_counter(LCD20x4 *lcd_20x4, int32_t *ret_counter);
  * 
  * The position can be 'a', 'b', 'c' or 'd'.
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int lcd_20x4_get_identity(LCD20x4 *lcd_20x4, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

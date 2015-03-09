@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_moisture.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -190,7 +194,7 @@ void moisture_create(Moisture *moisture, const char *uid, IPConnection *ipcon) {
 }
 
 void moisture_destroy(Moisture *moisture) {
-	device_destroy(moisture);
+	device_release(moisture->p);
 }
 
 int moisture_get_response_expected(Moisture *moisture, uint8_t function_id, bool *ret_response_expected) {
@@ -447,3 +451,7 @@ int moisture_get_identity(Moisture *moisture, char ret_uid[8], char ret_connecte
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

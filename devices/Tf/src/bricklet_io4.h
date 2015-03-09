@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_IO4_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletIO4 IO4 Bricklet
@@ -127,8 +131,6 @@ typedef Device IO4;
  * This callback is triggered whenever a monoflop timer reaches 0. The
  * parameters contain the involved pins and the current value of the pins
  * (the value after the monoflop).
- * 
- * .. versionadded:: 1.1.1~(Plugin)
  */
 #define IO4_CALLBACK_MONOFLOP_DONE 12
 
@@ -250,8 +252,8 @@ int io4_get_api_version(IO4 *io4, uint8_t ret_api_version[3]);
 /**
  * \ingroup BrickletIO4
  *
- * Sets the output value (high or low) with a bitmask. The bitmask
- * is 4bit long, *true* refers to high and *false* refers to low.
+ * Sets the output value (high or low) with a bitmask (4bit). A 1 in the bitmask
+ * means high and a 0 in the bitmask means low.
  * 
  * For example: The value 3 or 0b0011 will turn the pins 0-1 high and the
  * pins 2-3 low.
@@ -289,13 +291,16 @@ int io4_get_value(IO4 *io4, uint8_t *ret_value_mask);
  * * (8, 'i', false) or (0b1000, 'i', false) will set pin 3 of as input default (floating if nothing is connected).
  * * (3, 'o', false) or (0b0011, 'o', false) will set pins 0 and 1 as output low.
  * * (4, 'o', true) or (0b0100, 'o', true) will set pin 2 of as output high.
+ * 
+ * The default configuration is input with pull-up.
  */
 int io4_set_configuration(IO4 *io4, uint8_t selection_mask, char direction, bool value);
 
 /**
  * \ingroup BrickletIO4
  *
- * Returns a value bitmask and a direction bitmask.
+ * Returns a value bitmask and a direction bitmask. A 1 in the direction bitmask
+ * means input and a 0 in the bitmask means output.
  * 
  * For example: A return value of (3, 5) or (0b0011, 0b0101) for direction and
  * value means that:
@@ -356,7 +361,7 @@ int io4_get_interrupt(IO4 *io4, uint8_t *ret_interrupt_mask);
  * pins will be ignored.
  * 
  * The second parameter is a bitmask with the desired value of the specified
- * output pins (*true* means high and *false* means low).
+ * output pins. A 1 in the bitmask means high and a 0 in the bitmask means low.
  * 
  * The third parameter indicates the time (in ms) that the pins should hold
  * the value.
@@ -370,8 +375,6 @@ int io4_get_interrupt(IO4 *io4, uint8_t *ret_interrupt_mask);
  * stacks. You can now call this function every second, with a time parameter
  * of two seconds and pin 0 set to high. Pin 0 will be high all the time. If now
  * the RS485 connection is lost, then pin 0 will get low in at most two seconds.
- * 
- * .. versionadded:: 1.1.1~(Plugin)
  */
 int io4_set_monoflop(IO4 *io4, uint8_t selection_mask, uint8_t value_mask, uint32_t time);
 
@@ -383,8 +386,6 @@ int io4_set_monoflop(IO4 *io4, uint8_t selection_mask, uint8_t value_mask, uint3
  * 
  * If the timer is not running currently, the remaining time will be returned
  * as 0.
- * 
- * .. versionadded:: 1.1.1~(Plugin)
  */
 int io4_get_monoflop(IO4 *io4, uint8_t pin, uint8_t *ret_value, uint32_t *ret_time, uint32_t *ret_time_remaining);
 
@@ -401,8 +402,6 @@ int io4_get_monoflop(IO4 *io4, uint8_t pin, uint8_t *ret_value, uint32_t *ret_ti
  * \note
  *  This function does nothing for pins that are configured as input.
  *  Pull-up resistors can be switched on with {@link io4_set_configuration}.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
  */
 int io4_set_selected_values(IO4 *io4, uint8_t selection_mask, uint8_t value_mask);
 
@@ -433,6 +432,8 @@ int io4_get_edge_count(IO4 *io4, uint8_t pin, bool reset_counter, uint32_t *ret_
  * 
  * The debounce time is given in ms.
  * 
+ * Configuring an edge counter resets its value to 0.
+ * 
  * If you don't know what any of this means, just leave it at default. The
  * default configuration is very likely OK for you.
  * 
@@ -461,10 +462,13 @@ int io4_get_edge_count_config(IO4 *io4, uint8_t pin, uint8_t *ret_edge_type, uin
  * 
  * The position can be 'a', 'b', 'c' or 'd'.
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int io4_get_identity(IO4 *io4, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

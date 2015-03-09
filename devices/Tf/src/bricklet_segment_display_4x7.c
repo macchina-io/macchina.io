@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_segment_display_4x7.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -124,7 +128,7 @@ void segment_display_4x7_create(SegmentDisplay4x7 *segment_display_4x7, const ch
 }
 
 void segment_display_4x7_destroy(SegmentDisplay4x7 *segment_display_4x7) {
-	device_destroy(segment_display_4x7);
+	device_release(segment_display_4x7->p);
 }
 
 int segment_display_4x7_get_response_expected(SegmentDisplay4x7 *segment_display_4x7, uint8_t function_id, bool *ret_response_expected) {
@@ -271,3 +275,7 @@ int segment_display_4x7_get_identity(SegmentDisplay4x7 *segment_display_4x7, cha
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

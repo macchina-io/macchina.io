@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_led_strip.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -101,6 +105,20 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+	uint16_t chip;
+} ATTRIBUTE_PACKED SetChipType_;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED GetChipType_;
+
+typedef struct {
+	PacketHeader header;
+	uint16_t chip;
+} ATTRIBUTE_PACKED GetChipTypeResponse_;
+
+typedef struct {
+	PacketHeader header;
 } ATTRIBUTE_PACKED GetIdentity_;
 
 typedef struct {
@@ -136,7 +154,7 @@ static void led_strip_callback_wrapper_frame_rendered(DevicePrivate *device_p, P
 void led_strip_create(LEDStrip *led_strip, const char *uid, IPConnection *ipcon) {
 	DevicePrivate *device_p;
 
-	device_create(led_strip, uid, ipcon->p, 2, 0, 1);
+	device_create(led_strip, uid, ipcon->p, 2, 0, 2);
 
 	device_p = led_strip->p;
 
@@ -148,13 +166,15 @@ void led_strip_create(LEDStrip *led_strip, const char *uid, IPConnection *ipcon)
 	device_p->response_expected[LED_STRIP_CALLBACK_FRAME_RENDERED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[LED_STRIP_FUNCTION_SET_CLOCK_FREQUENCY] = DEVICE_RESPONSE_EXPECTED_FALSE;
 	device_p->response_expected[LED_STRIP_FUNCTION_GET_CLOCK_FREQUENCY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
+	device_p->response_expected[LED_STRIP_FUNCTION_SET_CHIP_TYPE] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[LED_STRIP_FUNCTION_GET_CHIP_TYPE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[LED_STRIP_FUNCTION_GET_IDENTITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 
 	device_p->callback_wrappers[LED_STRIP_CALLBACK_FRAME_RENDERED] = led_strip_callback_wrapper_frame_rendered;
 }
 
 void led_strip_destroy(LEDStrip *led_strip) {
-	device_destroy(led_strip);
+	device_release(led_strip->p);
 }
 
 int led_strip_get_response_expected(LEDStrip *led_strip, uint8_t function_id, bool *ret_response_expected) {
@@ -342,6 +362,50 @@ int led_strip_get_clock_frequency(LEDStrip *led_strip, uint32_t *ret_frequency) 
 	return ret;
 }
 
+int led_strip_set_chip_type(LEDStrip *led_strip, uint16_t chip) {
+	DevicePrivate *device_p = led_strip->p;
+	SetChipType_ request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_SET_CHIP_TYPE, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	request.chip = leconvert_uint16_to(chip);
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+
+	return ret;
+}
+
+int led_strip_get_chip_type(LEDStrip *led_strip, uint16_t *ret_chip) {
+	DevicePrivate *device_p = led_strip->p;
+	GetChipType_ request;
+	GetChipTypeResponse_ response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), LED_STRIP_FUNCTION_GET_CHIP_TYPE, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+	*ret_chip = leconvert_uint16_from(response.chip);
+
+
+
+	return ret;
+}
+
 int led_strip_get_identity(LEDStrip *led_strip, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier) {
 	DevicePrivate *device_p = led_strip->p;
 	GetIdentity_ request;
@@ -371,3 +435,7 @@ int led_strip_get_identity(LEDStrip *led_strip, char ret_uid[8], char ret_connec
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

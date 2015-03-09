@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_joystick.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -343,7 +347,7 @@ void joystick_create(Joystick *joystick, const char *uid, IPConnection *ipcon) {
 }
 
 void joystick_destroy(Joystick *joystick) {
-	device_destroy(joystick);
+	device_release(joystick->p);
 }
 
 int joystick_get_response_expected(Joystick *joystick, uint8_t function_id, bool *ret_response_expected) {
@@ -726,3 +730,7 @@ int joystick_get_identity(Joystick *joystick, char ret_uid[8], char ret_connecte
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

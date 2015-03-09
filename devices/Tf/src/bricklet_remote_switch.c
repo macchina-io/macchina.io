@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_remote_switch.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -151,7 +155,7 @@ void remote_switch_create(RemoteSwitch *remote_switch, const char *uid, IPConnec
 }
 
 void remote_switch_destroy(RemoteSwitch *remote_switch) {
-	device_destroy(remote_switch);
+	device_release(remote_switch->p);
 }
 
 int remote_switch_get_response_expected(RemoteSwitch *remote_switch, uint8_t function_id, bool *ret_response_expected) {
@@ -377,3 +381,7 @@ int remote_switch_get_identity(RemoteSwitch *remote_switch, char ret_uid[8], cha
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

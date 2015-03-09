@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICK_DC_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickDC DC Brick
@@ -465,12 +469,12 @@ int dc_is_enabled(DC *dc, bool *ret_enabled);
  * \ingroup BrickDC
  *
  * Sets the minimum voltage in mV, below which the {@link DC_CALLBACK_UNDER_VOLTAGE} callback
- * is triggered. The minimum possible value that works with the DC Brick is 5V.
+ * is triggered. The minimum possible value that works with the DC Brick is 6V.
  * You can use this function to detect the discharge of a battery that is used
  * to drive the motor. If you have a fixed power supply, you likely do not need
  * this functionality.
  * 
- * The default value is 5V.
+ * The default value is 6V.
  */
 int dc_set_minimum_voltage(DC *dc, uint16_t voltage);
 
@@ -536,8 +540,6 @@ int dc_get_current_velocity_period(DC *dc, uint16_t *ret_period);
  * 
  * This functions sole purpose is to allow automatic flashing of v1.x.y Bricklet
  * plugins.
- * 
- * .. versionadded:: 2.0.0~(Firmware)
  */
 int dc_get_protocol1_bricklet_name(DC *dc, char port, uint8_t *ret_protocol_version, uint8_t ret_firmware_version[3], char ret_name[40]);
 
@@ -550,8 +552,6 @@ int dc_get_protocol1_bricklet_name(DC *dc, char port, uint8_t *ret_protocol_vers
  * The temperature is only proportional to the real temperature and it has an
  * accuracy of +-15%. Practically it is only useful as an indicator for
  * temperature changes.
- * 
- * .. versionadded:: 1.1.3~(Firmware)
  */
 int dc_get_chip_temperature(DC *dc, int16_t *ret_temperature);
 
@@ -564,8 +564,6 @@ int dc_get_chip_temperature(DC *dc, int16_t *ret_temperature);
  * After a reset you have to create new device objects,
  * calling functions on the existing ones will result in
  * undefined behavior!
- * 
- * .. versionadded:: 1.1.3~(Firmware)
  */
 int dc_reset(DC *dc);
 
@@ -578,10 +576,13 @@ int dc_reset(DC *dc);
  * 
  * The position can be '0'-'8' (stack position).
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Firmware)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int dc_get_identity(DC *dc, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

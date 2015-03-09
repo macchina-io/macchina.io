@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_rotary_encoder.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -227,7 +231,7 @@ void rotary_encoder_create(RotaryEncoder *rotary_encoder, const char *uid, IPCon
 }
 
 void rotary_encoder_destroy(RotaryEncoder *rotary_encoder) {
-	device_destroy(rotary_encoder);
+	device_release(rotary_encoder->p);
 }
 
 int rotary_encoder_get_response_expected(RotaryEncoder *rotary_encoder, uint8_t function_id, bool *ret_response_expected) {
@@ -466,3 +470,7 @@ int rotary_encoder_get_identity(RotaryEncoder *rotary_encoder, char ret_uid[8], 
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

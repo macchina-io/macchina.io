@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_dual_button.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -125,7 +129,7 @@ void dual_button_create(DualButton *dual_button, const char *uid, IPConnection *
 }
 
 void dual_button_destroy(DualButton *dual_button) {
-	device_destroy(dual_button);
+	device_release(dual_button->p);
 }
 
 int dual_button_get_response_expected(DualButton *dual_button, uint8_t function_id, bool *ret_response_expected) {
@@ -269,3 +273,7 @@ int dual_button_get_identity(DualButton *dual_button, char ret_uid[8], char ret_
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

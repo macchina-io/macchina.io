@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "brick_dc.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -346,7 +350,7 @@ void dc_create(DC *dc, const char *uid, IPConnection *ipcon) {
 }
 
 void dc_destroy(DC *dc) {
-	device_destroy(dc);
+	device_release(dc->p);
 }
 
 int dc_get_response_expected(DC *dc, uint8_t function_id, bool *ret_response_expected) {
@@ -912,3 +916,7 @@ int dc_get_identity(DC *dc, char ret_uid[8], char ret_connected_uid[8], char *re
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

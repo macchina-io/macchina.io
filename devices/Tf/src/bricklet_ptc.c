@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_ptc.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -310,7 +314,7 @@ void ptc_create(PTC *ptc, const char *uid, IPConnection *ipcon) {
 }
 
 void ptc_destroy(PTC *ptc) {
-	device_destroy(ptc);
+	device_release(ptc->p);
 }
 
 int ptc_get_response_expected(PTC *ptc, uint8_t function_id, bool *ret_response_expected) {
@@ -753,3 +757,7 @@ int ptc_get_identity(PTC *ptc, char ret_uid[8], char ret_connected_uid[8], char 
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

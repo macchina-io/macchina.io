@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_io16.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -248,7 +252,7 @@ void io16_create(IO16 *io16, const char *uid, IPConnection *ipcon) {
 }
 
 void io16_destroy(IO16 *io16) {
-	device_destroy(io16);
+	device_release(io16->p);
 }
 
 int io16_get_response_expected(IO16 *io16, uint8_t function_id, bool *ret_response_expected) {
@@ -632,3 +636,7 @@ int io16_get_identity(IO16 *io16, char ret_uid[8], char ret_connected_uid[8], ch
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

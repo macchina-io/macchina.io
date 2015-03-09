@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_analog_out.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -96,7 +100,7 @@ void analog_out_create(AnalogOut *analog_out, const char *uid, IPConnection *ipc
 }
 
 void analog_out_destroy(AnalogOut *analog_out) {
-	device_destroy(analog_out);
+	device_release(analog_out->p);
 }
 
 int analog_out_get_response_expected(AnalogOut *analog_out, uint8_t function_id, bool *ret_response_expected) {
@@ -236,3 +240,7 @@ int analog_out_get_identity(AnalogOut *analog_out, char ret_uid[8], char ret_con
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

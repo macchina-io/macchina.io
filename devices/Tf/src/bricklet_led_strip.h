@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_LED_STRIP_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletLEDStrip LEDStrip Bricklet
@@ -62,6 +66,16 @@ typedef Device LEDStrip;
 /**
  * \ingroup BrickletLEDStrip
  */
+#define LED_STRIP_FUNCTION_SET_CHIP_TYPE 9
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_FUNCTION_GET_CHIP_TYPE 10
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
 #define LED_STRIP_FUNCTION_GET_IDENTITY 255
 
 /**
@@ -78,6 +92,21 @@ typedef Device LEDStrip;
  */
 #define LED_STRIP_CALLBACK_FRAME_RENDERED 6
 
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHIP_TYPE_WS2801 2801
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHIP_TYPE_WS2811 2811
+
+/**
+ * \ingroup BrickletLEDStrip
+ */
+#define LED_STRIP_CHIP_TYPE_WS2812 2812
 
 /**
  * \ingroup BrickletLEDStrip
@@ -187,6 +216,8 @@ int led_strip_get_api_version(LEDStrip *led_strip, uint8_t ret_api_version[3]);
  * 
  * the LED with index 5 will be red, 6 will be green and 7 will be blue.
  * 
+ * \note Depending on the LED circuitry colors can be permuted.
+ * 
  * The colors will be transfered to actual LEDs when the next
  * frame duration ends, see {@link led_strip_set_frame_duration}.
  * 
@@ -277,11 +308,39 @@ int led_strip_set_clock_frequency(LEDStrip *led_strip, uint32_t frequency);
 /**
  * \ingroup BrickletLEDStrip
  *
- * Returns the currently used clock frequency.
+ * Returns the currently used clock frequency as set by {@link led_strip_set_clock_frequency}.
  * 
  * .. versionadded:: 2.0.1~(Plugin)
  */
 int led_strip_get_clock_frequency(LEDStrip *led_strip, uint32_t *ret_frequency);
+
+/**
+ * \ingroup BrickletLEDStrip
+ *
+ * Sets the type of the led driver chip. We currently support
+ * the chips
+ * 
+ * * WS2801 (``chip`` = 2801),
+ * * WS2811 (``chip`` = 2811) and
+ * * WS2812 (``chip`` = 2812).
+ * 
+ * The WS2812 is sometimes also called "NeoPixel", a name coined by
+ * Adafruit.
+ * 
+ * The default value is WS2801 (``chip`` = 2801).
+ * 
+ * .. versionadded:: 2.0.2~(Plugin)
+ */
+int led_strip_set_chip_type(LEDStrip *led_strip, uint16_t chip);
+
+/**
+ * \ingroup BrickletLEDStrip
+ *
+ * Returns the currently used chip type as set by {@link led_strip_set_chip_type}.
+ * 
+ * .. versionadded:: 2.0.2~(Plugin)
+ */
+int led_strip_get_chip_type(LEDStrip *led_strip, uint16_t *ret_chip);
 
 /**
  * \ingroup BrickletLEDStrip
@@ -292,10 +351,13 @@ int led_strip_get_clock_frequency(LEDStrip *led_strip, uint32_t *ret_frequency);
  * 
  * The position can be 'a', 'b', 'c' or 'd'.
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int led_strip_get_identity(LEDStrip *led_strip, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

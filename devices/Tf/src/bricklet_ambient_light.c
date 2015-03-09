@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_ambient_light.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -268,7 +272,7 @@ void ambient_light_create(AmbientLight *ambient_light, const char *uid, IPConnec
 }
 
 void ambient_light_destroy(AmbientLight *ambient_light) {
-	device_destroy(ambient_light);
+	device_release(ambient_light->p);
 }
 
 int ambient_light_get_response_expected(AmbientLight *ambient_light, uint8_t function_id, bool *ret_response_expected) {
@@ -598,3 +602,7 @@ int ambient_light_get_identity(AmbientLight *ambient_light, char ret_uid[8], cha
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

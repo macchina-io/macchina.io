@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_industrial_quad_relay.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -160,7 +164,7 @@ void industrial_quad_relay_create(IndustrialQuadRelay *industrial_quad_relay, co
 }
 
 void industrial_quad_relay_destroy(IndustrialQuadRelay *industrial_quad_relay) {
-	device_destroy(industrial_quad_relay);
+	device_release(industrial_quad_relay->p);
 }
 
 int industrial_quad_relay_get_response_expected(IndustrialQuadRelay *industrial_quad_relay, uint8_t function_id, bool *ret_response_expected) {
@@ -394,3 +398,7 @@ int industrial_quad_relay_get_identity(IndustrialQuadRelay *industrial_quad_rela
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

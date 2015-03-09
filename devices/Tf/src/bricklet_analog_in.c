@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_analog_in.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -300,7 +304,7 @@ void analog_in_create(AnalogIn *analog_in, const char *uid, IPConnection *ipcon)
 }
 
 void analog_in_destroy(AnalogIn *analog_in) {
-	device_destroy(analog_in);
+	device_release(analog_in->p);
 }
 
 int analog_in_get_response_expected(AnalogIn *analog_in, uint8_t function_id, bool *ret_response_expected) {
@@ -718,3 +722,7 @@ int analog_in_get_identity(AnalogIn *analog_in, char ret_uid[8], char ret_connec
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

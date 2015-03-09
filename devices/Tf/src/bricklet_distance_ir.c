@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "bricklet_distance_ir.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -286,7 +290,7 @@ void distance_ir_create(DistanceIR *distance_ir, const char *uid, IPConnection *
 }
 
 void distance_ir_destroy(DistanceIR *distance_ir) {
-	device_destroy(distance_ir);
+	device_release(distance_ir->p);
 }
 
 int distance_ir_get_response_expected(DistanceIR *distance_ir, uint8_t function_id, bool *ret_response_expected) {
@@ -662,3 +666,7 @@ int distance_ir_get_identity(DistanceIR *distance_ir, char ret_uid[8], char ret_
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

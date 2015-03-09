@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -14,6 +14,10 @@
 #include "brick_servo.h"
 
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -436,7 +440,7 @@ void servo_create(Servo *servo, const char *uid, IPConnection *ipcon) {
 }
 
 void servo_destroy(Servo *servo) {
-	device_destroy(servo);
+	device_release(servo->p);
 }
 
 int servo_get_response_expected(Servo *servo, uint8_t function_id, bool *ret_response_expected) {
@@ -1266,3 +1270,7 @@ int servo_get_identity(Servo *servo, char ret_uid[8], char ret_connected_uid[8],
 
 	return ret;
 }
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_DUAL_RELAY_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletDualRelay DualRelay Bricklet
@@ -62,8 +66,6 @@ typedef Device DualRelay;
  * This callback is triggered whenever a monoflop timer reaches 0. The 
  * parameter contain the relay (1 or 2) and the current state of the relay 
  * (the state after the monoflop).
- * 
- * .. versionadded:: 1.1.1~(Plugin)
  */
 #define DUAL_RELAY_CALLBACK_MONOFLOP_DONE 5
 
@@ -196,8 +198,6 @@ int dual_relay_get_state(DualRelay *dual_relay, bool *ret_relay1, bool *ret_rela
  * stacks. You can now call this function every second, with a time parameter
  * of two seconds. The relay will be on all the time. If now the RS485 
  * connection is lost, the relay will turn off in at most two seconds.
- * 
- * .. versionadded:: 1.1.1~(Plugin)
  */
 int dual_relay_set_monoflop(DualRelay *dual_relay, uint8_t relay, bool state, uint32_t time);
 
@@ -209,8 +209,6 @@ int dual_relay_set_monoflop(DualRelay *dual_relay, uint8_t relay, bool state, ui
  * 
  * If the timer is not running currently, the remaining time will be returned
  * as 0.
- * 
- * .. versionadded:: 1.1.1~(Plugin)
  */
 int dual_relay_get_monoflop(DualRelay *dual_relay, uint8_t relay, bool *ret_state, uint32_t *ret_time, uint32_t *ret_time_remaining);
 
@@ -220,8 +218,6 @@ int dual_relay_get_monoflop(DualRelay *dual_relay, uint8_t relay, bool *ret_stat
  * Sets the state of the selected relay (1 or 2), *true* means on and *false* means off. 
  * 
  * The other relay remains untouched.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
  */
 int dual_relay_set_selected_state(DualRelay *dual_relay, uint8_t relay, bool state);
 
@@ -234,10 +230,13 @@ int dual_relay_set_selected_state(DualRelay *dual_relay, uint8_t relay, bool sta
  * 
  * The position can be 'a', 'b', 'c' or 'd'.
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int dual_relay_get_identity(DualRelay *dual_relay, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

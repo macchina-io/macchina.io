@@ -1,7 +1,7 @@
 /* ***********************************************************
- * This file was automatically generated on 2013-12-19.      *
+ * This file was automatically generated on 2014-12-10.      *
  *                                                           *
- * Bindings Version 2.0.13                                    *
+ * Bindings Version 2.1.6                                    *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
@@ -12,6 +12,10 @@
 #define BRICKLET_SEGMENT_DISPLAY_4X7_H
 
 #include "ip_connection.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \defgroup BrickletSegmentDisplay4x7 SegmentDisplay4x7 Bricklet
@@ -161,7 +165,7 @@ int segment_display_4x7_get_api_version(SegmentDisplay4x7 *segment_display_4x7, 
  *    :align: center
  * 
  * For example to set a "5" you would want to activate segments 0, 2, 3, 5 and 6.
- * This is represented by the number 0b00110101 = 0x35 = 53.
+ * This is represented by the number 0b01101101 = 0x6d = 109.
  * 
  * The brightness can be set between 0 (dark) and 7 (bright). The colon
  * parameter turns the colon of the display on or off.
@@ -212,10 +216,13 @@ int segment_display_4x7_get_counter_value(SegmentDisplay4x7 *segment_display_4x7
  * 
  * The position can be 'a', 'b', 'c' or 'd'.
  * 
- * The device identifiers can be found :ref:`here <device_identifier>`.
- * 
- * .. versionadded:: 2.0.0~(Plugin)
+ * The device identifier numbers can be found :ref:`here <device_identifier>`.
+ * |device_identifier_constant|
  */
 int segment_display_4x7_get_identity(SegmentDisplay4x7 *segment_display_4x7, char ret_uid[8], char ret_connected_uid[8], char *ret_position, uint8_t ret_hardware_version[3], uint8_t ret_firmware_version[3], uint16_t *ret_device_identifier);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

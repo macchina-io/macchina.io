@@ -1,0 +1,13 @@
+Release Notes
+AAAAMacchinaIO
+
+!!!Release 0.1.0 - Developer Preview 1
+
+This is the first release of macchina.io, released with the intent to get
+early feedback from the IoT developer community. 
+
+macchina.io is still in development. The core platform code is done and
+considered stable (it's based on code having seen heavy production use
+for a few years already). Work leading to 1.0 release focuses on adding 
+additional sensor, device and cloud service interfaces, as well as improving 
+the existing interfaces.
