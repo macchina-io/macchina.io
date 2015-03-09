@@ -79,6 +79,7 @@ void Deserializer::deserializeStructEnd(const std::string& /*name*/)
 
 bool Deserializer::deserializeSequenceBegin(const std::string& name, bool /*isMandatory*/, Poco::UInt32& lengthHint)
 {
+	lengthHint = 0;
 	v8::Local<v8::Value> jsValue = deserializeValue(name);
 	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
 	if (jsValue->IsObject())
