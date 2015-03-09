@@ -32,6 +32,8 @@ V8FLAGS += arm_version=7
 endif
 ifeq ($(findstring armv6,$(OSARCH)),armv6)
 V8FLAGS += arm_version=6
+# Workaround for Raspberry Pi
+V8FLAGS += armfpu=vfp armfloatabi=hard armneon=off
 endif
 ifeq ($(findstring mipsel,$(OSARCH)),mipsel)
 V8ARCH = mipsel
