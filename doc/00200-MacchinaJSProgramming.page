@@ -491,6 +491,11 @@ fixed and thus the node ID may change after a reboot.
 The number of CPU cores available on the system.
 
 
+!!clock
+
+Returns the number of seconds (including fractional seconds) elapsed since system startup.
+
+
 !!has(name)
 
 This function returns true if an environment variable with the given name exists.

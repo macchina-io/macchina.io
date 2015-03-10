@@ -21,6 +21,7 @@
 #include "Poco/Pipe.h"
 #include "Poco/PipeStream.h"
 #include "Poco/StreamCopier.h"
+#include "Poco/Clock.h"
 
 
 namespace Poco {
@@ -50,6 +51,7 @@ v8::Handle<v8::ObjectTemplate> SystemWrapper::objectTemplate(v8::Isolate* pIsola
 	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "nodeName"), nodeName);
 	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "nodeId"), nodeId);
 	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "processorCount"), processorCount);
+	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "clock"), clock);
 	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, has));
 	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "get"), v8::FunctionTemplate::New(pIsolate, get));
 	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "set"), v8::FunctionTemplate::New(pIsolate, set));
@@ -167,6 +169,13 @@ void SystemWrapper::nodeId(v8::Local<v8::String> name, const v8::PropertyCallbac
 void SystemWrapper::processorCount(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	info.GetReturnValue().Set(Poco::Environment::processorCount());
+}
+
+
+void SystemWrapper::clock(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	Poco::Clock clock;
+	info.GetReturnValue().Set(clock.microseconds()/1000000.0);
 }
 
 

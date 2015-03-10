@@ -55,6 +55,7 @@ protected:
 	static void nodeName(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void nodeId(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void processorCount(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
+	static void clock(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 };
 
 
