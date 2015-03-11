@@ -54,7 +54,12 @@ objects = Device DeviceException \
 	IOEventDispatcher \
 	IORemoteObject \
 	IOServerHelper \
-	IOSkeleton 
+	IOSkeleton \
+	IBarcodeReader \
+	BarcodeReaderEventDispatcher \
+	BarcodeReaderRemoteObject \
+	BarcodeReaderServerHelper \
+	BarcodeReaderSkeleton 
 
 target         = IoTDevices
 target_version = 1
