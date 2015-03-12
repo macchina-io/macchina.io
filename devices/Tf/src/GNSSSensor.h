@@ -24,6 +24,7 @@ extern "C"
 #include "bricklet_gps.h"
 }
 
+
 namespace IoT {
 namespace Tf {
 
