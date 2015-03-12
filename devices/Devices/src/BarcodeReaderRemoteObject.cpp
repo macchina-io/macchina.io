@@ -65,7 +65,7 @@ bool BarcodeReaderRemoteObject::remoting__hasEvents() const
 }
 
 
-void BarcodeReaderRemoteObject::event__barcodeRead(const std::string& data)
+void BarcodeReaderRemoteObject::event__barcodeRead(const IoT::Devices::BarcodeReadEvent& data)
 {
 	barcodeRead(this, data);
 }

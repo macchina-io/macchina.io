@@ -124,7 +124,7 @@ public:
 		/// actual device implementation.
 
 protected:
-	void event__barcodeRead(const std::string& data);
+	void event__barcodeRead(const IoT::Devices::BarcodeReadEvent& data);
 
 private:
 	Poco::SharedPtr<IoT::Devices::BarcodeReader> _pServiceObject;

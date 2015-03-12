@@ -41,12 +41,12 @@ public:
 	virtual ~BarcodeReaderEventDispatcher();
 		/// Destroys the BarcodeReaderEventDispatcher.
 
-	void event__barcodeRead(const void* pSender, const std::string& data);
+	void event__barcodeRead(const void* pSender, const IoT::Devices::BarcodeReadEvent& data);
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
-	void event__barcodeReadImpl(const std::string& subscriberURI, const std::string& data);
+	void event__barcodeReadImpl(const std::string& subscriberURI, const IoT::Devices::BarcodeReadEvent& data);
 
 	static const std::string DEFAULT_NS;
 	BarcodeReaderRemoteObject* _pRemoteObject;

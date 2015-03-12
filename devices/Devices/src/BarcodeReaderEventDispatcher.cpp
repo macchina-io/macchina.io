@@ -16,6 +16,8 @@
 
 
 #include "IoT/Devices/BarcodeReaderEventDispatcher.h"
+#include "IoT/Devices/BarcodeReadEventDeserializer.h"
+#include "IoT/Devices/BarcodeReadEventSerializer.h"
 #include "Poco/Delegate.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/RemotingException.h"
@@ -50,7 +52,7 @@ BarcodeReaderEventDispatcher::~BarcodeReaderEventDispatcher()
 }
 
 
-void BarcodeReaderEventDispatcher::event__barcodeRead(const void* pSender, const std::string& data)
+void BarcodeReaderEventDispatcher::event__barcodeRead(const void* pSender, const IoT::Devices::BarcodeReadEvent& data)
 {
 	if (pSender)
 	{
@@ -84,7 +86,7 @@ void BarcodeReaderEventDispatcher::event__barcodeRead(const void* pSender, const
 }
 
 
-void BarcodeReaderEventDispatcher::event__barcodeReadImpl(const std::string& subscriberURI, const std::string& data)
+void BarcodeReaderEventDispatcher::event__barcodeReadImpl(const std::string& subscriberURI, const IoT::Devices::BarcodeReadEvent& data)
 {
 	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"barcodeRead","subscriberURI","data"};
@@ -93,7 +95,7 @@ void BarcodeReaderEventDispatcher::event__barcodeReadImpl(const std::string& sub
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Devices::BarcodeReadEvent >::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
