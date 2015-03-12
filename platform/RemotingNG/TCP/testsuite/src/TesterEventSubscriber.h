@@ -33,6 +33,8 @@ private:
 
 	void event__testOneWayEvent(std::string& data);
 
+	void event__testVoidEvent();
+
 public:
 	static const std::string DEFAULT_NS;
 };

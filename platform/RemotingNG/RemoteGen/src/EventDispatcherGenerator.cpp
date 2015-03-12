@@ -1,7 +1,7 @@
 //
 // EventDispatcherGenerator.cpp
 //
-// $Id: //poco/1.6/RemotingNG/RemoteGen/src/EventDispatcherGenerator.cpp#1 $
+// $Id: //poco/1.6/RemotingNG/RemoteGen/src/EventDispatcherGenerator.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -1091,17 +1091,23 @@ void EventDispatcherGenerator::checkForEventMembers(const Poco::CppParser::Struc
 				if (templTypes.size() != 1)
 					throw Poco::InvalidArgumentException("Illegal remote event param: " + pVar->fullName());
 				std::string paramDecl = templTypes[0];
-				paramDecl.append("& data");
+				if (paramDecl != "void")
+				{
+					paramDecl.append("& data");
+				}
 				{
 					Poco::CppParser::Function* pFunc = new Poco::CppParser::Function(funcDecl, _pStruct);
 
 					Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter("const void* pSender", 0);
 					pFunc->addParameter(pParam);
 
-					Poco::CppParser::Parameter* pParam2 = new Poco::CppParser::Parameter(paramDecl, 0);
-					pFunc->addParameter(pParam2);
+					if (paramDecl != "void")
+					{
+						Poco::CppParser::Parameter* pParam2 = new Poco::CppParser::Parameter(paramDecl, 0);
+						pFunc->addParameter(pParam2);
+					}
 					_outerEventFunctions.push_back(fctName);
-					
+				
 					if (pVar->getAttributes().has("oneway"))
 					{
 						Poco::CppParser::Attributes funcAttr = pFunc->getAttributes();
@@ -1113,9 +1119,12 @@ void EventDispatcherGenerator::checkForEventMembers(const Poco::CppParser::Struc
 				{
 					Poco::CppParser::Function* pFunc = new Poco::CppParser::Function(funcDecl, _pStruct);
 					Poco::CppParser::Parameter* pParam0 = new Poco::CppParser::Parameter("const std::string& subscriberURI", 0);
-					Poco::CppParser::Parameter* pParam1 = new Poco::CppParser::Parameter(paramDecl, 0);
 					pFunc->addParameter(pParam0);
-					pFunc->addParameter(pParam1);
+					if (templTypes[0] != "void")
+					{
+						Poco::CppParser::Parameter* pParam1 = new Poco::CppParser::Parameter(paramDecl, 0);
+						pFunc->addParameter(pParam1);
+					}
 					CodeGenerator::Properties methodProperties;
 					Poco::CppParser::Attributes funcAttr;
 					const Poco::CppParser::Attributes& varAttr = pVar->getAttributes();
@@ -1196,7 +1205,10 @@ void EventDispatcherGenerator::eventCodeGen(const Poco::CppParser::Function* pFu
 	{
 		gen.writeMethodImplementation("\t\t\ttry");
 		gen.writeMethodImplementation("\t\t\t{");
-		gen.writeMethodImplementation("\t\t\t\t" + pFunc->name() + "Impl(it->first, data);");
+		if (pFunc->countParameters() == 1) // void event		
+			gen.writeMethodImplementation("\t\t\t\t" + pFunc->name() + "Impl(it->first);");
+		else
+			gen.writeMethodImplementation("\t\t\t\t" + pFunc->name() + "Impl(it->first, data);");
 		gen.writeMethodImplementation("\t\t\t}");
 		gen.writeMethodImplementation("\t\t\tcatch (Poco::Exception&)");
 		gen.writeMethodImplementation("\t\t\t{");
@@ -1206,7 +1218,10 @@ void EventDispatcherGenerator::eventCodeGen(const Poco::CppParser::Function* pFu
 	{
 		gen.writeMethodImplementation("\t\t\ttry");
 		gen.writeMethodImplementation("\t\t\t{");
-		gen.writeMethodImplementation("\t\t\t\t" + pFunc->name() + "Impl(it->first, data);");
+		if (pFunc->countParameters() == 1) // void event
+			gen.writeMethodImplementation("\t\t\t\t" + pFunc->name() + "Impl(it->first);");
+		else
+			gen.writeMethodImplementation("\t\t\t\t" + pFunc->name() + "Impl(it->first, data);");
 		gen.writeMethodImplementation("\t\t\t}");
 		gen.writeMethodImplementation("\t\t\tcatch (Poco::RemotingNG::RemoteException&)");
 		gen.writeMethodImplementation("\t\t\t{");

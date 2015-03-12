@@ -1,7 +1,7 @@
 //
 // Tester.cpp
 //
-// $Id: //poco/1.6/RemotingNG/testsuite/src/Tester.cpp#1 $
+// $Id: //poco/1.6/RemotingNG/testsuite/src/Tester.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -246,4 +246,10 @@ void Tester::fireTestOneWayEvent(const std::string& arg)
 {
 	std::string mutableArg(arg);
 	testOneWayEvent(this, mutableArg);
+}
+
+
+void Tester::fireTestVoidEvent()
+{
+	testVoidEvent(this);
 }

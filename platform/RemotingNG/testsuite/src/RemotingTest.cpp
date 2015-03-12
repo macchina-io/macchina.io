@@ -1,7 +1,7 @@
 //
 // RemotingTest.cpp
 //
-// $Id: //poco/1.6/RemotingNG/testsuite/src/RemotingTest.cpp#1 $
+// $Id: //poco/1.6/RemotingNG/testsuite/src/RemotingTest.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -586,6 +586,30 @@ void RemotingTest::testOneWayEvent()
 }
 
 
+void RemotingTest::testVoidEvent()
+{
+	MockListener::Ptr pEventListener = new MockListener("evmock", "endpoint2", _pListener.cast<MockListener>());
+	std::string elEndpoint = Poco::RemotingNG::ORB::instance().registerListener(pEventListener);
+	TestTransportFactory::registerFactory(pEventListener, "evmock");
+	TesterServerHelper::enableEvents(_objectURI, "evmock");
+
+	// We must use the exact same URI as registered on the server ORB,
+	// so we have to manually build a Proxy, otherwise the ORB would
+	// just return a RemoteObject.
+	Poco::AutoPtr<TesterProxy> pTester = new TesterProxy("TheTester");
+	pTester->remoting__connect("mock", "mock://localhost/mock/Tester/TheTester");
+	pTester->remoting__enableEvents(pEventListener);
+	
+	pTester->testVoidEvent += Poco::delegate(this, &RemotingTest::onVoidEvent);
+	_eventArg.clear();
+	pTester->fireTestVoidEvent();
+	assert (_eventArg == "FIRED");
+
+	TestTransportFactory::unregisterFactory("evmock");
+	Poco::RemotingNG::ORB::instance().unregisterListener(elEndpoint);	
+}
+
+
 void RemotingTest::testInt(ITester::Ptr pTester)
 {
 	int i = pTester->testInt1(42);
@@ -886,6 +910,12 @@ void RemotingTest::onEvent(const void* pSender, std::string& arg)
 }
 
 
+void RemotingTest::onVoidEvent(const void* pSender)
+{
+	_eventArg = "FIRED";
+}
+
+
 CppUnit::Test* RemotingTest::suite()
 {
 	CppUnit::TestSuite* pSuite = new CppUnit::TestSuite("RemotingTest");
@@ -908,6 +938,7 @@ CppUnit::Test* RemotingTest::suite()
 	CppUnit_addTest(pSuite, RemotingTest, testOneWay);
 	CppUnit_addTest(pSuite, RemotingTest, testEvent);
 	CppUnit_addTest(pSuite, RemotingTest, testOneWayEvent);
+	CppUnit_addTest(pSuite, RemotingTest, testVoidEvent);
 
 	return pSuite;
 }

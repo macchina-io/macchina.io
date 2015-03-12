@@ -26,6 +26,7 @@
 				-I../../RemotingNG/include
 				-E
 				-C
+				-DPOCO_NO_GCC_API_ATTRIBUTE
 				-o%.i
 			</options>
 		</compiler>
@@ -36,6 +37,7 @@
 				-I../../RemotingNG/include
 				-E
 				-C
+				-DPOCO_NO_GCC_API_ATTRIBUTE
 				-xc++
 				-o%.i
 			</options>

@@ -35,6 +35,8 @@ public:
 
 	virtual void fireTestOneWayEvent(const std::string& arg) = 0;
 
+	virtual void fireTestVoidEvent() = 0;
+
 	virtual void remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true)) = 0;
 		/// Enable or disable delivery of remote events.
 		///
@@ -125,6 +127,7 @@ public:
 
 	Poco::BasicEvent < std::string > testEvent;
 	Poco::BasicEvent < std::string > testOneWayEvent;
+	Poco::BasicEvent < void > testVoidEvent;
 };
 
 

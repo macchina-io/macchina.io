@@ -1,7 +1,7 @@
 //
 // RemotingTest.h
 //
-// $Id: //poco/1.6/RemotingNG/testsuite/src/RemotingTest.h#1 $
+// $Id: //poco/1.6/RemotingNG/testsuite/src/RemotingTest.h#2 $
 //
 // Definition of the RemotingTest class.
 //
@@ -46,6 +46,7 @@ public:
 	void testOneWay();
 	void testEvent();
 	void testOneWayEvent();
+	void testVoidEvent();
 
 	void setUp();
 	void tearDown();
@@ -66,6 +67,7 @@ protected:
 	void testPtr(ITester::Ptr pTester);
 	void testStruct1Vec(ITester::Ptr pTester);
 	void onEvent(const void* pSender, std::string& arg);
+	void onVoidEvent(const void* pSender);
 	
 private:
 	std::string _listener;

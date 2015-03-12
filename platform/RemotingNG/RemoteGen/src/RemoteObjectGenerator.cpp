@@ -1,7 +1,7 @@
 //
 // RemoteObjectGenerator.cpp
 //
-// $Id: //poco/1.6/RemotingNG/RemoteGen/src/RemoteObjectGenerator.cpp#1 $
+// $Id: //poco/1.6/RemotingNG/RemoteGen/src/RemoteObjectGenerator.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -235,11 +235,17 @@ void RemoteObjectGenerator::checkForEventMembers(const Poco::CppParser::Struct* 
 				if (templTypes.size() != 1)
 					throw Poco::InvalidArgumentException("Illegal remote event param: " + pVar->fullName());
 				std::string paramDecl = templTypes[0];
-				paramDecl.append("& data");
+				if (paramDecl != "void")
+				{
+					paramDecl.append("& data");
+				}
 				Poco::CppParser::Function* pFunc = new Poco::CppParser::Function(funcDecl, _pStruct);
 				pFunc->setAccess(Poco::CppParser::Symbol::ACC_PROTECTED);
-				Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter(paramDecl, 0);
-				pFunc->addParameter(pParam);				
+				if (paramDecl != "void")
+				{
+					Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter(paramDecl, 0);
+					pFunc->addParameter(pParam);
+				}		
 			}
 		}	
 	}
@@ -328,7 +334,10 @@ void RemoteObjectGenerator::eventCodeGen(const Poco::CppParser::Function* pFunc,
 		if (name == pFunc->name())
 		{
 			// jep, we found the value
-			gen.writeMethodImplementation(*it + "(this, data);");
+			if (pFunc->countParameters() == 0) // void event
+				gen.writeMethodImplementation(*it + "(this);");
+			else
+				gen.writeMethodImplementation(*it + "(this, data);");
 			return;
 		}
 	}

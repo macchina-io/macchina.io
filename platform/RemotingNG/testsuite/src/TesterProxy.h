@@ -34,6 +34,8 @@ public:
 
 	void fireTestOneWayEvent(const std::string& arg);
 
+	void fireTestVoidEvent();
+
 	virtual void remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;

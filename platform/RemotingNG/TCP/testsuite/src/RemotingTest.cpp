@@ -1,7 +1,7 @@
 //
 // RemotingTest.cpp
 //
-// $Id: //poco/1.6/RemotingNG/TCP/testsuite/src/RemotingTest.cpp#1 $
+// $Id: //poco/1.6/RemotingNG/TCP/testsuite/src/RemotingTest.cpp#2 $
 //
 // Copyright (c) 2006-2012, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -303,9 +303,40 @@ void RemotingTest::testOneWayEvent()
 }
 
 
+void RemotingTest::testVoidEvent()
+{
+	Poco::RemotingNG::TCP::Listener::Ptr pEventListener = new Poco::RemotingNG::TCP::Listener;
+	TesterServerHelper::enableEvents(_objectURI, "tcp");
+
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	pProxy->remoting__enableEvents(pEventListener);
+	
+	pTester->testVoidEvent += Poco::delegate(this, &RemotingTest::onVoidEvent);
+	_eventArg.clear();
+	pTester->fireTestVoidEvent();
+	_eventReceived.wait(2000);
+	assert (_eventArg == "FIRED");
+
+	pTester->testVoidEvent -= Poco::delegate(this, &RemotingTest::onVoidEvent);
+	pProxy->remoting__enableEvents(pEventListener, false);
+	pTester = 0;
+	pProxy = 0;
+	Poco::Thread::sleep(500); // wait for unsubscribe message
+}
+
+
 void RemotingTest::onEvent(const void* pSender, std::string& arg)
 {
 	_eventArg = arg;
+	_eventReceived.set();
+}
+
+
+void RemotingTest::onVoidEvent(const void* pSender)
+{
+	_eventArg = "FIRED";
 	_eventReceived.set();
 }
 
@@ -685,6 +716,7 @@ CppUnit::Test* RemotingTestCompressed::suite()
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testFault);
 	CppUnit_addTest(pSuite, RemotingTest, testEvent);
 	CppUnit_addTest(pSuite, RemotingTest, testOneWayEvent);
+	CppUnit_addTest(pSuite, RemotingTest, testVoidEvent);
 
 	return pSuite;
 }

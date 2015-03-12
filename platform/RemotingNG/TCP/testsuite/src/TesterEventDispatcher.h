@@ -30,12 +30,16 @@ public:
 
 	void event__testOneWayEvent(const void* pSender, std::string& data);
 
+	void event__testVoidEvent(const void* pSender);
+
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
 	void event__testEventImpl(const std::string& subscriberURI, std::string& data);
 
 	void event__testOneWayEventImpl(const std::string& subscriberURI, std::string& data);
+
+	void event__testVoidEventImpl(const std::string& subscriberURI);
 
 	static const std::string DEFAULT_NS;
 	TesterRemoteObject* _pRemoteObject;

@@ -15,7 +15,8 @@
 ITester::ITester():
 	Poco::RefCountedObject(),
 	testEvent(),
-	testOneWayEvent()
+	testOneWayEvent(),
+	testVoidEvent()
 {
 }
 

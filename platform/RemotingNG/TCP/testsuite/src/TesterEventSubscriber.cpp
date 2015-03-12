@@ -126,12 +126,42 @@ private:
 };
 
 
+class TesterEvent__testVoidEventMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	TesterEvent__testVoidEventMethodHandler(TesterProxy* pProxy)
+	{
+		_pProxy = pProxy;
+	}
+
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__transport, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		remoting__staticInitBegin(REMOTING__NAMES);
+		static const std::string REMOTING__NAMES[] = {"testVoidEvent"};
+		remoting__staticInitEnd(REMOTING__NAMES);
+		remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+		remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+		try
+		{
+			_pProxy->testVoidEvent(0);
+		}
+		catch (...)
+		{
+		}
+	}
+
+private:
+	TesterProxy* _pProxy;
+};
+
+
 TesterEventSubscriber::TesterEventSubscriber(const std::string& uri, TesterProxy* pProxy):
 	Poco::RemotingNG::EventSubscriber(uri)
 
 {
 	addMethodHandler("testEvent", new TesterEvent__testEventMethodHandler(pProxy));
 	addMethodHandler("testOneWayEvent", new TesterEvent__testOneWayEventMethodHandler(pProxy));
+	addMethodHandler("testVoidEvent", new TesterEvent__testVoidEventMethodHandler(pProxy));
 }
 
 
@@ -146,6 +176,11 @@ void TesterEventSubscriber::event__testEvent(std::string& data)
 
 
 void TesterEventSubscriber::event__testOneWayEvent(std::string& data)
+{
+}
+
+
+void TesterEventSubscriber::event__testVoidEvent()
 {
 }
 

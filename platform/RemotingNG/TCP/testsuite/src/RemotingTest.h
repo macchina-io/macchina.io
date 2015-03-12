@@ -1,7 +1,7 @@
 //
 // RemotingTest.h
 //
-// $Id: //poco/1.6/RemotingNG/TCP/testsuite/src/RemotingTest.h#1 $
+// $Id: //poco/1.6/RemotingNG/TCP/testsuite/src/RemotingTest.h#2 $
 //
 // Definition of the RemotingTest class.
 //
@@ -48,6 +48,7 @@ public:
 	void testFault();
 	void testEvent();
 	void testOneWayEvent();
+	void testVoidEvent();
 
 	void setUp();
 	void tearDown();
@@ -71,6 +72,8 @@ protected:
 	virtual ITester::Ptr createProxy(const std::string& uri);
 
 	void onEvent(const void* pSender, std::string& arg);
+	
+	void onVoidEvent(const void* pSender);
 
 protected:
 	std::string _listener;

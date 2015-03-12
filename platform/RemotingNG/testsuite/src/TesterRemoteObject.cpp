@@ -22,6 +22,7 @@ TesterRemoteObject::TesterRemoteObject(const Poco::RemotingNG::Identifiable::Obj
 {
 	_pServiceObject->testEvent += Poco::delegate(this, &TesterRemoteObject::event__testEvent);
 	_pServiceObject->testOneWayEvent += Poco::delegate(this, &TesterRemoteObject::event__testOneWayEvent);
+	_pServiceObject->testVoidEvent += Poco::delegate(this, &TesterRemoteObject::event__testVoidEvent);
 }
 
 
@@ -31,6 +32,7 @@ TesterRemoteObject::~TesterRemoteObject()
 	{
 		_pServiceObject->testEvent -= Poco::delegate(this, &TesterRemoteObject::event__testEvent);
 		_pServiceObject->testOneWayEvent -= Poco::delegate(this, &TesterRemoteObject::event__testOneWayEvent);
+		_pServiceObject->testVoidEvent -= Poco::delegate(this, &TesterRemoteObject::event__testVoidEvent);
 	}
 	catch (...)
 	{
@@ -66,6 +68,12 @@ void TesterRemoteObject::event__testEvent(std::string& data)
 void TesterRemoteObject::event__testOneWayEvent(std::string& data)
 {
 	testOneWayEvent(this, data);
+}
+
+
+void TesterRemoteObject::event__testVoidEvent()
+{
+	testVoidEvent(this);
 }
 
 

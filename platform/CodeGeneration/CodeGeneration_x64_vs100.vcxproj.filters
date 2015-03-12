@@ -2,13 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="CodeGeneration">
-      <UniqueIdentifier>{8d00b6ea-cab5-457d-b073-e0cd6c907ffb}</UniqueIdentifier>
+      <UniqueIdentifier>{3b2bca59-429c-4940-bce4-e9326619ebde}</UniqueIdentifier>
     </Filter>
     <Filter Include="CodeGeneration\Header Files">
-      <UniqueIdentifier>{8e6fd9e4-d247-42d7-afa2-a3d616aa7ac3}</UniqueIdentifier>
+      <UniqueIdentifier>{92113cd0-da8f-4360-9ce0-f32779bbd52b}</UniqueIdentifier>
     </Filter>
     <Filter Include="CodeGeneration\Source Files">
-      <UniqueIdentifier>{6482a722-26e2-4f96-9c3c-7d3cdbc39741}</UniqueIdentifier>
+      <UniqueIdentifier>{a8bf4744-215c-42d5-8a3e-0e60ac451ca5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

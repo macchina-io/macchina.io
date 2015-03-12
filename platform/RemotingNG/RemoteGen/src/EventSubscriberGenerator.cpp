@@ -1,7 +1,7 @@
 //
 // EventSubscriberGenerator.cpp
 //
-// $Id: //poco/1.6/RemotingNG/RemoteGen/src/EventSubscriberGenerator.cpp#1 $
+// $Id: //poco/1.6/RemotingNG/RemoteGen/src/EventSubscriberGenerator.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -368,10 +368,14 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 	}
 	else
 		invokeLine.append(pFunc->name()); //??? or exception: no the same code is used by functions too!
-	invokeLine.append("(0, "); // 0 because it came from the network
 	// write single params
 	it = pFunc->begin();
 	itEnd = pFunc->end();
+
+	if (it == itEnd) // voidEvent
+		invokeLine.append("(0");
+	else
+		invokeLine.append("(0, "); // 0 because it came from the network
 	
 	for (; it != itEnd; ++it)
 	{
@@ -786,11 +790,17 @@ void EventSubscriberGenerator::checkForEventMembers(const Poco::CppParser::Struc
 				if (templTypes.size() != 1)
 					throw Poco::InvalidArgumentException("Illegal remote event param: " + pVar->fullName());
 				std::string paramDecl = templTypes[0];
-				paramDecl.append("& data");
+				if (paramDecl != "void")
+				{
+					paramDecl.append("& data");
+				}
 				{
 					Poco::CppParser::Function* pFunc = new Poco::CppParser::Function(funcDecl, _pStruct);
-					Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter(paramDecl, 0);
-					pFunc->addParameter(pParam);
+					if (paramDecl != "void")
+					{
+						Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter(paramDecl, 0);
+						pFunc->addParameter(pParam);
+					}
 					CodeGenerator::Properties methodProperties;
 					Poco::CppParser::Attributes funcAttr;
 					const Poco::CppParser::Attributes& varAttr = pVar->getAttributes();
