@@ -58,7 +58,7 @@ class IoTDevices_API GNSSSensor: public Device
 {
 public:
 	Poco::BasicEvent<const PositionUpdate> positionUpdate;
-		/// Fired when a position update (e.g., a NMEA 0183 RMC message)
+		/// Fired when a position update (e.g., a valid NMEA 0183 RMC message)
 		/// has been received from the receiver.
 		///
 		/// Actual behavior of this event (e.g., minimum interval

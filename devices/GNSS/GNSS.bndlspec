@@ -1,16 +1,20 @@
 <bundlespec>
 	<manifest>
-    	<name>macchina.io Serial Port</name>
-		<symbolicName>io.macchina.serial</symbolicName>
+    	<name>macchina.io GNSS Sensor (NMEA-0183)</name>
+		<symbolicName>io.macchina.gnss.nmea</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
 		<copyright>(c) 2015, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
-			<class>IoT::Serial::BundleActivator</class>
-			<library>io.macchina.serial</library>
+			<class>IoT::GNSS::BundleActivator</class>
+			<library>io.macchina.gnss.nmea</library>
 		</activator>
 		<dependency>
 			<symbolicName>io.macchina.devices</symbolicName>
+			<version>[1.0.0, 2.0.0)</version>
+		</dependency>
+		<dependency>
+			<symbolicName>io.macchina.serial</symbolicName>
 			<version>[1.0.0, 2.0.0)</version>
 		</dependency>
 		<lazyStart>false</lazyStart>
@@ -21,8 +25,8 @@
 		bin/*.pdb,
 		bin/${osName}/${osArch}/*.so,
 		bin/${osName}/${osArch}/*.dylib,
-    	../../lib/${osName}/${osArch}/libIoTSerial*.1.dylib,
-    	../../lib/${osName}/${osArch}/libIoTSerial*.so.1
+    	../../lib/${osName}/${osArch}/libIoTGNSSNMEA*.1.dylib,
+    	../../lib/${osName}/${osArch}/libIoTGNSSNMEA*.so.1
 	</code>
 	<files>
 		bundle/*
