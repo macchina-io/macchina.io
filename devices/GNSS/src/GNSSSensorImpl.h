@@ -55,6 +55,8 @@ protected:
 	void setPositionChangedPeriod(const std::string&, const Poco::Any& value);
 	Poco::Any getPositionChangedDelta(const std::string&) const;
 	void setPositionChangedDelta(const std::string&, const Poco::Any& value);
+	Poco::Any getPositionTimeout(const std::string&) const;
+	void setPositionTimeout(const std::string&, const Poco::Any& value);
 	Poco::Any getDisplayValue(const std::string&) const;
 
 	void run();
@@ -70,6 +72,7 @@ private:
 	Poco::SharedPtr<IoT::Serial::SerialPort> _pSerialPort;
 	Poco::Timestamp _lastValidPosition;
 	Poco::Timestamp _lastPositionUpdate;
+	bool _positionAvailable;
 	IoT::Devices::LatLon _position;
 	double _course;
 	double _speed;
@@ -78,6 +81,7 @@ private:
 	double _hdop;
 	int _period;
 	double _delta;
+	int _timeout;
 	bool _done;
 	Poco::Thread _thread;
 	Poco::Logger& _logger;

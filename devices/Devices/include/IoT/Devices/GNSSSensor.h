@@ -64,6 +64,8 @@ public:
 		/// Actual behavior of this event (e.g., minimum interval
 		/// between fires) are implementation specific
 		/// and can be configured via properties.
+
+	Poco::BasicEvent<void> positionLost;
 		
 	GNSSSensor();
 		/// Creates the GNSSSensor.

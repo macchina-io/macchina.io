@@ -148,6 +148,8 @@ public:
 		/// If no speed is available, returns -1.
 
 protected:
+	void event__positionLost();
+
 	void event__positionUpdate(const IoT::Devices::PositionUpdate& data);
 
 private:

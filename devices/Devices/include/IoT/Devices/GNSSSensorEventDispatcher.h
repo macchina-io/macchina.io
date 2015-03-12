@@ -37,11 +37,15 @@ public:
 	virtual ~GNSSSensorEventDispatcher();
 		/// Destroys the GNSSSensorEventDispatcher.
 
+	void event__positionLost(const void* pSender);
+
 	void event__positionUpdate(const void* pSender, const IoT::Devices::PositionUpdate& data);
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
+	void event__positionLostImpl(const std::string& subscriberURI);
+
 	void event__positionUpdateImpl(const std::string& subscriberURI, const IoT::Devices::PositionUpdate& data);
 
 	static const std::string DEFAULT_NS;

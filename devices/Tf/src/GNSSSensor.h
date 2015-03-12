@@ -61,8 +61,11 @@ protected:
 	static void onPositionChanged(Poco::UInt32 latitude, char ns, Poco::UInt32 longitude, char ew,
 		Poco::UInt16 pdop, Poco::UInt16 hdop, Poco::UInt16 vdop, Poco::UInt16 epe, void* userData);
 	
+	static void onStatusChanged(Poco::UInt8 fix, Poco::UInt8 satsInView, Poco::UInt8 satsUsed, void* userData);
+	
 private:
 	mutable GPS _gps;
+	bool _positionAvailable;
 };
 
 

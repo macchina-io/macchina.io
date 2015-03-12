@@ -30,6 +30,7 @@ GNSSSensorRemoteObject::GNSSSensorRemoteObject(const Poco::RemotingNG::Identifia
 	Poco::RemotingNG::RemoteObject(oid),
 	_pServiceObject(pServiceObject)
 {
+	_pServiceObject->positionLost += Poco::delegate(this, &GNSSSensorRemoteObject::event__positionLost);
 	_pServiceObject->positionUpdate += Poco::delegate(this, &GNSSSensorRemoteObject::event__positionUpdate);
 }
 
@@ -38,6 +39,7 @@ GNSSSensorRemoteObject::~GNSSSensorRemoteObject()
 {
 	try
 	{
+		_pServiceObject->positionLost -= Poco::delegate(this, &GNSSSensorRemoteObject::event__positionLost);
 		_pServiceObject->positionUpdate -= Poco::delegate(this, &GNSSSensorRemoteObject::event__positionUpdate);
 	}
 	catch (...)
@@ -62,6 +64,12 @@ void GNSSSensorRemoteObject::remoting__enableRemoteEvents(const std::string& pro
 bool GNSSSensorRemoteObject::remoting__hasEvents() const
 {
 	return true;
+}
+
+
+void GNSSSensorRemoteObject::event__positionLost()
+{
+	positionLost(this);
 }
 
 

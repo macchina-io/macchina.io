@@ -24,6 +24,7 @@ namespace Devices {
 
 IGNSSSensor::IGNSSSensor():
 	IoT::Devices::IDevice(),
+	positionLost(),
 	positionUpdate()
 {
 }

@@ -30,6 +30,7 @@ GNSSSensorImpl::GNSSSensorImpl(Poco::SharedPtr<IoT::Serial::SerialPort> pSerialP
 	_pSerialPort(pSerialPort),
 	_lastValidPosition(0),
 	_lastPositionUpdate(0),
+	_positionAvailable(false),
 	_course(-1),
 	_speed(-1),
 	_magneticVariation(-1),
@@ -37,6 +38,7 @@ GNSSSensorImpl::GNSSSensorImpl(Poco::SharedPtr<IoT::Serial::SerialPort> pSerialP
 	_hdop(-9999),
 	_period(0),
 	_delta(0),
+	_timeout(30000),
 	_done(false),
 	_logger(Poco::Logger::get("IoT.NMEA.GNSSSensorImpl"))
 {
@@ -45,6 +47,7 @@ GNSSSensorImpl::GNSSSensorImpl(Poco::SharedPtr<IoT::Serial::SerialPort> pSerialP
 	addProperty("displayValue", &GNSSSensorImpl::getDisplayValue);
 	addProperty("positionChangedPeriod", &GNSSSensorImpl::getPositionChangedPeriod, &GNSSSensorImpl::setPositionChangedPeriod);
 	addProperty("positionChangedDelta", &GNSSSensorImpl::getPositionChangedDelta, &GNSSSensorImpl::setPositionChangedDelta);
+	addProperty("positionTimeout", &GNSSSensorImpl::getPositionTimeout, &GNSSSensorImpl::setPositionTimeout);
 
 	_thread.start(*this);
 }
@@ -84,7 +87,26 @@ void GNSSSensorImpl::run()
 				std::string data;
 				_pSerialPort->read(data);
 				nmeaDecoder.processBuffer(data.data(), data.size());
-			}	
+			}
+			bool fireLostPosition = false;
+			{
+				Poco::FastMutex::ScopedLock lock(_mutex);
+				if (_positionAvailable && _lastPositionUpdate.elapsed() > Poco::Timestamp::TimeVal(_timeout)*1000)
+				{
+					_positionAvailable = false;
+					fireLostPosition = true;
+				}
+			}
+			if (fireLostPosition)
+			{
+				try
+				{
+					positionLost(this);
+				}
+				catch (Poco::Exception&)
+				{
+				}
+			}
 		}
 		catch (Poco::Exception& exc)
 		{
@@ -117,7 +139,7 @@ bool GNSSSensorImpl::positionAvailable() const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	return _lastValidPosition.elapsed() < 30000000;
+	return _positionAvailable;
 }
 
 
@@ -219,6 +241,22 @@ void GNSSSensorImpl::setPositionChangedDelta(const std::string&, const Poco::Any
 }
 
 
+Poco::Any GNSSSensorImpl::getPositionTimeout(const std::string&) const
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	return Poco::Any(_timeout);
+}
+
+
+void GNSSSensorImpl::setPositionTimeout(const std::string&, const Poco::Any& value)
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	_timeout = Poco::AnyCast<int>(value);
+}
+
+
 Poco::Any GNSSSensorImpl::getDisplayValue(const std::string&) const
 {
 	if (positionAvailable())
@@ -248,6 +286,7 @@ void GNSSSensorImpl::onRMCReceived(const IoT::GNSS::NMEA::RMCProcessor::RMC& rmc
 		period = _period;
 
 		_lastValidPosition.update();
+		_positionAvailable = true;
 
 		lastPosition = _position;
 		_position.latitude = rmc.position.latitude().degrees();
@@ -259,7 +298,7 @@ void GNSSSensorImpl::onRMCReceived(const IoT::GNSS::NMEA::RMCProcessor::RMC& rmc
 	
 	try
 	{
-		if (_lastPositionUpdate.isElapsed(1000*period))
+		if (_lastPositionUpdate.isElapsed(1000*Poco::Timestamp::TimeVal(period)))
 		{
 			bool needUpdate = delta == 0;
 			if (!needUpdate)

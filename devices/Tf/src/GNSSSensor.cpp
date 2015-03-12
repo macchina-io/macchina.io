@@ -21,7 +21,8 @@ namespace Tf {
 
 
 GNSSSensor::GNSSSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.gnss", "Tinkerforge GPS Bricklet", "")
+	BrickletType("io.macchina.tf.gnss", "Tinkerforge GPS Bricklet", ""),
+	_positionAvailable(false)
 {
 	addProperty("displayValue", &GNSSSensor::getDisplayValue);
 	addProperty("positionChangedPeriod", &GNSSSensor::getPositionChangedPeriod, &GNSSSensor::setPositionChangedPeriod);
@@ -43,6 +44,9 @@ GNSSSensor::GNSSSensor(MasterConnection::Ptr pMasterConn, const std::string& uid
 	
 	gps_register_callback(&_gps, GPS_CALLBACK_COORDINATES, reinterpret_cast<void*>(onPositionChanged), this);
 	gps_set_coordinates_callback_period(&_gps, 1000);
+
+	gps_register_callback(&_gps, GPS_CALLBACK_STATUS, reinterpret_cast<void*>(onStatusChanged), this);
+	gps_set_status_callback_period(&_gps, 10000);
 }
 
 	
@@ -249,11 +253,30 @@ void GNSSSensor::onPositionChanged(Poco::UInt32 latitude, char ns, Poco::UInt32 
 			positionUpdate.speed = -1;
 		}
 		positionUpdate.magneticVariation = -1;
-		
+
+		pThis->_positionAvailable = true;		
 		pThis->positionUpdate(positionUpdate);
 	}
 	catch (...)
 	{
+	}
+}
+
+
+void GNSSSensor::onStatusChanged(Poco::UInt8 fix, Poco::UInt8 satsInView, Poco::UInt8 satsUsed, void* userData)
+{
+	GNSSSensor* pThis = reinterpret_cast<GNSSSensor*>(userData);
+
+	if (pThis->_positionAvailable && fix < GPS_FIX_2D_FIX)
+	{
+		try
+		{
+			pThis->_positionAvailable = false;
+			pThis->positionLost();
+		}
+		catch (...)
+		{
+		}
 	}
 }
 
