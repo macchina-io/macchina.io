@@ -30,6 +30,18 @@ namespace Devices {
 
 class IGNSSSensor: public IoT::Devices::IDevice
 	/// The interface for GNSS/GPS receivers.
+	///
+	/// Implementations of this class should also support the
+	/// following (optional) properties for configuration:
+	///
+	///   - positionChangedPeriod (int): the minimum time interval
+	///     in milliseconds between firings of the positionUpdate event.
+	///   - positionChangedDelta (int): the minimum distance (in meters)
+	///     the receiver must move before the positionUpdate event
+	///     is fired again.
+	///   - positionTimeout (int): Timeout in milliseconds after which the
+	///     positionLost event is fired if no valid position has been
+	///     received from the GNSS receiver.
 {
 public:
 	typedef Poco::AutoPtr<IGNSSSensor> Ptr;
