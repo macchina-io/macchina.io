@@ -102,6 +102,12 @@ public:
 	virtual void setPinState(int pin, bool value) = 0;
 		/// Sets the state of the output pin with the given index (0 - 31) to
 		/// the given value. The pin must be configured as an output pin.
+		
+	virtual int physicalPin(int pin) const = 0;
+		/// Returns the physical pin number the logical pin with the given index
+		/// (0 - 31) is mapped to. Mapping of logical to physical pin numbers is
+		/// done when setting up the IO object and is specific to the actual
+		/// implementation.
 
 	virtual Poco::UInt32 available() const = 0;
 		/// Returns a bitmask specifying available I/O ports.

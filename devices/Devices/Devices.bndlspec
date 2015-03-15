@@ -17,8 +17,8 @@
 		bin/*.pdb,
 		bin/${osName}/${osArch}/*.so,
 		bin/${osName}/${osArch}/*.dylib,
-    	../lib/${osName}/${osArch}/libIoTDevices*.1.dylib,
-    	../lib/${osName}/${osArch}/libIoTDevices*.so.1
+    	../../lib/${osName}/${osArch}/libIoTDevices*.1.dylib,
+    	../../lib/${osName}/${osArch}/libIoTDevices*.so.1
 	</code>
 	<files>
 		bundle/*

@@ -1111,6 +1111,63 @@ public:
 };
 
 
+class IOPhysicalPinMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__transport, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		remoting__staticInitBegin(REMOTING__NAMES);
+		static const std::string REMOTING__NAMES[] = {"physicalPin","pin"};
+		remoting__staticInitEnd(REMOTING__NAMES);
+		bool remoting__requestSucceeded = false;
+		try
+		{
+			int pin;
+			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, pin);
+			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			IoT::Devices::IORemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::IORemoteObject*>(remoting__pRemoteObject.get());
+			int remoting__return = remoting__pCastedRO->physicalPin(pin);
+			remoting__requestSucceeded = true;
+			Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__staticInitBegin(REMOTING__REPLY_NAME);
+			static const std::string REMOTING__REPLY_NAME("physicalPinReply");
+			remoting__staticInitEnd(REMOTING__REPLY_NAME);
+			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<int >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+		}
+		catch (Poco::Exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
+			}
+		}
+		catch (std::exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc(e.what());
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+		catch (...)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc("Unknown Exception");
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+	}
+
+};
+
+
 class IOSetPinStateMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
@@ -1356,6 +1413,7 @@ IOSkeleton::IOSkeleton():
 	addMethodHandler("isInput", new IoT::Devices::IOIsInputMethodHandler);
 	addMethodHandler("isOutput", new IoT::Devices::IOIsOutputMethodHandler);
 	addMethodHandler("outputs", new IoT::Devices::IOOutputsMethodHandler);
+	addMethodHandler("physicalPin", new IoT::Devices::IOPhysicalPinMethodHandler);
 	addMethodHandler("setFeature", new IoT::Devices::IOSetFeatureMethodHandler);
 	addMethodHandler("setPinState", new IoT::Devices::IOSetPinStateMethodHandler);
 	addMethodHandler("setPropertyBool", new IoT::Devices::IOSetPropertyBoolMethodHandler);

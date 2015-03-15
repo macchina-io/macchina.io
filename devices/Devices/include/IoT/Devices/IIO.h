@@ -93,6 +93,12 @@ public:
 		/// Actual mapping of logical pins to physical
 		/// pins is configured when setting up the IO device.
 
+	virtual int physicalPin(int pin) const = 0;
+		/// Returns the physical pin number the logical pin with the given index
+		/// (0 - 31) is mapped to. Mapping of logical to physical pin numbers is
+		/// done when setting up the IO object and is specific to the actual
+		/// implementation.
+
 	virtual void remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true)) = 0;
 		/// Enable or disable delivery of remote events.
 		///
