@@ -117,7 +117,7 @@ install_sdk:
 	cp -f $(POCO_BASE)/OSP/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	cp -f $(MACCHINA_BASE)/*/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	rm -f $(INSTALLDIR)/bin/*$(LIBEXT)
-	cp $(MACCHINA_BASE)/server/macchina.properties $(INSTALLDIR)/etc
+	cp $(MACCHINA_BASE)/server/macchina.properties.install $(INSTALLDIR)/etc/macchina.properties
 	cp $(MACCHINA_BASE)/server/rootcert.pem $(INSTALLDIR)/etc
 	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc	
 
@@ -133,6 +133,6 @@ install_runtime:
 	done
 	cp -f $(POCO_BASE)/OSP/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	cp -f $(MACCHINA_BASE)/*/bundles/*.bndl $(INSTALLDIR)/lib/bundles
-	cp $(MACCHINA_BASE)/server/macchina.properties $(INSTALLDIR)/etc
+	cp $(MACCHINA_BASE)/server/macchina.properties.install $(INSTALLDIR)/etc/macchina.properties
 	cp $(MACCHINA_BASE)/server/rootcert.pem $(INSTALLDIR)/etc
 	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc
