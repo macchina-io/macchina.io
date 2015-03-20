@@ -26,6 +26,8 @@ matrix:
       compiler: gcc
       language: cpp
       script:
+        - pwd
+        - ls
         - curl http://macchina.io/files/arago/linux-devkit.tgz >linux-devkit.tgz
         - tar xfz linux-devkit.tgz
         - make -s -j2 hosttools
