@@ -29,5 +29,4 @@ matrix:
         - curl http://macchina.io/files/arago/linux-devkit.tgz >linux-devkit.tgz
         - tar xfz linux-devkit.tgz
         - make -s -j2 hosttools
-        - export PATH=$PATH:`pwd`/linux-devkit/sysroots/i686-arago-linux/usr/bin/
-        - POCO_CONFIG=Arago LINKMODE=SHARED make -s -j8 DEFAULT_TARGET=shared_release
+        - export PATH=$PATH:`pwd`/linux-devkit/sysroots/i686-arago-linux/usr/bin/ && POCO_CONFIG=Arago LINKMODE=SHARED make -s -j8 DEFAULT_TARGET=shared_release
