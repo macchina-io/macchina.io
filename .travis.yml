@@ -10,9 +10,6 @@ before_install:
 env:
   global: 
     - TEST_NAME=""
-    - MACCHINA_BASE=`pwd`
-    - POCO_BASE=$MACCHINA_BASE/platform
-    - PROJECT_BASE=$MACCHINA_BASE
 
 before_script:
  - echo ${TEST_NAME}
@@ -24,6 +21,8 @@ matrix:
       script:
         - make -s -j2 
 
-#    - env:    TEST_NAME="arm-linux-gnueabi- (make)"
-#      script:
-#        - make -s -j2 CROSS_COMPILE=arm-linux-gnueabi- POCO_TARGET_OSARCH=armv7l 
+    - env:    TEST_NAME="arm-linux-gnueabihf- (make)"
+      compiler: gcc
+      script:
+        - make -s -j2 hosttools
+        - make -s -j2 CROSS_COMPILE=arm-linux-gnueabihf- POCO_TARGET_OSARCH=armv7l 
