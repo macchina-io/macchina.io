@@ -28,6 +28,7 @@ matrix:
       script:
         - curl http://macchina.io/files/arago/linux-devkit.tgz >linux-devkit.tgz
         - tar xfz linux-devkit.tgz
+        - ls ./linux-devkit/sysroots/i686-arago-linux/usr/bin
         - ./linux-devkit/sysroots/i686-arago-linux/usr/bin/arm-linux-gnueabihf-g++ --version
         - make -s -j2 hosttools DEFAULT_TARGET=shared_release
         - export PATH=`pwd`/linux-devkit/sysroots/i686-arago-linux/usr/bin:$PATH; POCO_CONFIG=Arago LINKMODE=SHARED make -s -j2 DEFAULT_TARGET=shared_release
