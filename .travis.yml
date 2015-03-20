@@ -5,7 +5,7 @@ cache:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq -y g++-arm-linux-gnueabi g++-arm-linux-gnueabihf 
+  - sudo apt-get install -qq -y g++-arm-linux-gnueabi g++-arm-linux-gnueabihf gcc-multilib
 
 env:
   global: 
