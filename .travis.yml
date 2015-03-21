@@ -26,7 +26,7 @@ matrix:
       compiler: gcc
       language: cpp
       script:
-        - curl http://downloads.ti.com/sitara_linux/esd/AM335xSDK/latest/exports/ti-sdk-am335x-evm-08.00.00.00-Linux-x86-Install.bin >ti-sdk-am335x-evm-08.00.00.00-Linux-x86-Install.bin
-        - ./ti-sdk-am335x-evm-08.00.00.00-Linux-x86-Install.bin --mode unattended
+        - curl http://macchina.io/files/travis/ti-am335x-sdk.tgz >ti-am335x-sdk.tgz
+        - tar xfz ti-am335x-sdk.tgz
         - make -s -j2 hosttools DEFAULT_TARGET=shared_release
-        - export PATH=$PATH:`pwd`/linux-devkit/sysroots/i686-arago-linux/usr/bin; POCO_CONFIG=Arago make -s -j2 DEFAULT_TARGET=shared_release
+        - export PATH=$PATH:`pwd`/ti-am335x-sdk/linux-devkit/sysroots/i686-arago-linux/usr/bin; POCO_CONFIG=Arago make -s -j2 DEFAULT_TARGET=shared_release
