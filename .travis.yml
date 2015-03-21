@@ -5,7 +5,7 @@ cache:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq -y libc6-i386 lib32stdc++6
+  - sudo apt-get install -qq -y libc6-i386 lib32stdc++6 gcc-multilib
 
 env:
   global: 
@@ -16,19 +16,17 @@ before_script:
 
 matrix:
   include:
-    - env:    TEST_NAME="gcc (make)"
+    - env:    TEST_NAME="gcc (host)"
       compiler: gcc
       language: cpp
       script:
         - make -s -j2 
 
-    - env:    TEST_NAME="arm-linux-gnueabihf-gcc (make)"
+    - env:    TEST_NAME="arm-linux-gnueabihf-gcc (target)"
       compiler: gcc
       language: cpp
       script:
         - curl http://macchina.io/files/arago/linux-devkit.tgz >linux-devkit.tgz
         - tar xfz linux-devkit.tgz
-        - ls ./linux-devkit/sysroots/i686-arago-linux/usr/bin
-        - ./linux-devkit/sysroots/i686-arago-linux/usr/bin/arm-linux-gnueabihf-g++ --version
         - make -s -j2 hosttools DEFAULT_TARGET=shared_release
-        - export PATH=`pwd`/linux-devkit/sysroots/i686-arago-linux/usr/bin:$PATH; POCO_CONFIG=Arago LINKMODE=SHARED make -s -j2 DEFAULT_TARGET=shared_release
+        - export PATH=$PATH:`pwd`/linux-devkit/sysroots/i686-arago-linux/usr/bin; POCO_CONFIG=Arago make -s -j2 DEFAULT_TARGET=shared_release
