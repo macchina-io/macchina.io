@@ -10,3 +10,4 @@
 
 clean all:
 	$(MAKE) -C MQTT $(MAKECMDGOALS)
+	$(MAKE) -C WebTunnel $(MAKECMDGOALS)
