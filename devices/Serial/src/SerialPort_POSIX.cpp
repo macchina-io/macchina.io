@@ -137,18 +137,42 @@ void SerialPortImpl::openImpl(const std::string& device, int baudRate, const std
 	case   57600:   speed =   B57600; break;
 	case  115200:   speed =  B115200; break;
 	case  230400:   speed =  B230400; break;
+#ifdef B460800
 	case  460800:   speed =  B460800; break;
+#endif
+#ifdef B500000
 	case  500000:   speed =  B500000; break;
+#endif
+#ifdef B576000
 	case  576000:   speed =  B576000; break;
+#endif
+#ifdef B921600
 	case  921600:   speed =  B921600; break;
+#endif
+#ifdef B1000000
 	case 1000000:   speed = B1000000; break;
+#endif
+#ifdef B1152000
 	case 1152000:   speed = B1152000; break;
+#endif
+#ifdef B1500000
 	case 1500000:   speed = B1500000; break;
+#endif
+#ifdef B2000000
 	case 2000000:   speed = B2000000; break;
+#endif
+#ifdef B2500000
 	case 2500000:   speed = B2500000; break;
+#endif
+#ifdef B3000000
 	case 3000000:   speed = B3000000; break;
+#endif
+#ifdef B3500000
 	case 3500000:   speed = B3500000; break;
+#endif
+#ifdef B4000000
 	case 4000000:   speed = B4000000; break;
+#endif
 	default: throw Poco::InvalidArgumentException(format("unsupported serial line speed: %d", baudRate));
 	}
 
