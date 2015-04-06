@@ -54,7 +54,10 @@ namespace WebTunnel {
 class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
-	BundleActivator()
+	BundleActivator():
+		_useProxy(false),
+		_threads(0),
+		_retryDelay(1000)
 	{
 	}
 	
@@ -76,7 +79,7 @@ public:
 				_deviceName = getStringConfig("webtunnel.deviceName", "");
 				_username = getStringConfig("webtunnel.username", "");
 				_password = getStringConfig("webtunnel.password", "");
-				std::string host = getStringConfig("webtunnel.host", "localhost");
+				std::string host = getStringConfig("webtunnel.host", "127.0.0.1");
 				if (!Poco::Net::IPAddress::tryParse(host, _host))
 				{
 					_host = Poco::Net::DNS::resolveOne(host);
