@@ -55,7 +55,9 @@ class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
 	BundleActivator():
+		_httpPort(80),
 		_useProxy(false),
+		_proxyPort(0),
 		_threads(0),
 		_retryDelay(1000)
 	{
