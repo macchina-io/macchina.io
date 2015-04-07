@@ -115,6 +115,7 @@ void ControllerRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reque
 	}
 	response.setContentLength(0);
 	response.redirect(nextPage, Poco::Net::HTTPResponse::HTTP_SEE_OTHER);
+	response.set("Cache-Control", "no-cache");
 }
 
 

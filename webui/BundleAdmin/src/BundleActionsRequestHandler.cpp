@@ -121,6 +121,16 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 	if (pBundle)
 	{
 		symbolicName = pBundle->symbolicName();
+		// try to resolve bundle
+		try
+		{
+			pBundle->resolve();
+		}
+		catch (Poco::Exception& exc)
+		{
+			error = exc.displayText();
+			context()->logger().error(Poco::format("Failed to resolve bundle %s: %s", symbolicName, error));
+		}
 		bundleState = pBundle->stateString();
 	}
 	else if (error.empty())
