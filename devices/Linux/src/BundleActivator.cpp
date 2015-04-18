@@ -74,22 +74,26 @@ public:
 	
 	void createLEDs()
 	{
-		Poco::DirectoryIterator it(Poco::Path("/sys/class/leds"));
-		Poco::DirectoryIterator end;
-		while (it != end)
+		Poco::File ledsDir("/sys/class/leds");
+		if (ledsDir.exists() && ledsDir.isDirectory())
 		{
-			if (it->isDirectory())
+			Poco::DirectoryIterator it(ledsDir);
+			Poco::DirectoryIterator end;
+			while (it != end)
 			{
-				try
+				if (it->isDirectory())
 				{
-					createLED(it.path().toString());
+					try
+					{
+						createLED(it.path().toString());
+					}
+					catch (Poco::Exception& exc)
+					{
+						_pContext->logger().error(Poco::format("Cannot create LED for device '%s': %s", it.path().toString(), exc.displayText()));
+					}
 				}
-				catch (Poco::Exception& exc)
-				{
-					_pContext->logger().error(Poco::format("Cannot create LED for device '%s': %s", it.path().toString(), exc.displayText()));
-				}
+				++it;
 			}
-			++it;
 		}
 	}
 	
@@ -99,7 +103,14 @@ public:
 		_pContext = pContext;
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
 		
-		createLEDs();
+		try
+		{
+			createLEDs();
+		}
+		catch (Poco::Exception& exc)
+		{
+			_pContext->logger().log(exc);
+		}
 	}
 		
 	void stop(BundleContext::Ptr pContext)
