@@ -45,16 +45,24 @@ objects = Device DeviceException \
 	GNSSSensorRemoteObject \
 	GNSSSensorServerHelper \
 	GNSSSensorSkeleton \
+	Accelerometer \
 	IAccelerometer \
 	AccelerometerEventDispatcher \
 	AccelerometerRemoteObject \
 	AccelerometerServerHelper \
 	AccelerometerSkeleton \
+	IO \
 	IIO \
 	IOEventDispatcher \
 	IORemoteObject \
 	IOServerHelper \
 	IOSkeleton \
+	LED \
+	ILED \
+	LEDRemoteObject \
+	LEDServerHelper \
+	LEDSkeleton \
+	BarcodeReader \
 	IBarcodeReader \
 	BarcodeReaderEventDispatcher \
 	BarcodeReaderRemoteObject \
