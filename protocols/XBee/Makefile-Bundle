@@ -1,0 +1,24 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io XBee bundle
+#
+
+BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
+
+include $(POCO_BASE)/build/rules/global
+
+INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
+INCLUDE += -I$(PROJECT_BASE)/devices/Serial/include
+
+objects = XBeeNodeImpl BundleActivator
+
+target         = io.macchina.xbee
+target_version = 1
+target_libs    = IoTXBee IoTSerial IoTDevices PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
+
+postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles XBee.bndlspec
+
+include $(POCO_BASE)/build/rules/dylib

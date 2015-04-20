@@ -86,6 +86,7 @@ public:
 			std::string oid(Poco::format("io.macchina.mqtt.client#%z", _clients.size()));
 			ServerHelper::RemoteObjectPtr pMQTTClientRemoteObject = ServerHelper::createRemoteObject(pMQTTClient, oid);
 			Poco::OSP::Properties props;
+			props.set("io.macchina.protocol", "io.macchina.mqtt");
 			props.set("io.macchina.mqtt.id", clientId);	
 			props.set("io.macchina.mqtt.serverURI", serverURI);	
 			Poco::OSP::ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pMQTTClientRemoteObject, props);

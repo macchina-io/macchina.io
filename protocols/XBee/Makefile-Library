@@ -1,0 +1,28 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io MQTT Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
+INCLUDE += -I$(PROJECT_BASE)/devices/Serial/include
+
+objects = \
+	XBeeFrame \
+	XBeePort \
+	XBeeNode \
+	IXBeeNode \
+	XBeeNodeEventDispatcher \
+	XBeeNodeRemoteObject \
+	XBeeNodeSkeleton \
+	XBeeNodeServerHelper
+
+target         = IoTXBee
+target_version = 1
+target_libs    = IoTSerial IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib
