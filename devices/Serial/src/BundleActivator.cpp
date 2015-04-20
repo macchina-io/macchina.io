@@ -61,7 +61,7 @@ public:
 		ServerHelper::RemoteObjectPtr pDeviceRemoteObject = ServerHelper::createRemoteObject(pDevice, oid);
 		
 		Properties props;
-		props.set("io.macchina.device", oid);
+		props.set("io.macchina.device", symbolicName);
 		props.set("io.macchina.serialport.device", pSerialPort->device());
 		
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pDeviceRemoteObject, props);
@@ -109,37 +109,6 @@ public:
 		_serviceRefs.clear();
 		_pPrefs = 0;
 		_pContext = 0;
-	}
-
-protected:
-	bool getBoolConfig(const std::string& key)
-	{
-		return _pPrefs->configuration()->getBool(key, _pContext->thisBundle()->properties().getBool(key));
-	}
-
-	bool getBoolConfig(const std::string& key, bool deflt)
-	{
-		return _pPrefs->configuration()->getBool(key, _pContext->thisBundle()->properties().getBool(key, deflt));
-	}
-
-	int getIntConfig(const std::string& key)
-	{
-		return _pPrefs->configuration()->getInt(key, _pContext->thisBundle()->properties().getInt(key));
-	}
-
-	int getIntConfig(const std::string& key, int deflt)
-	{
-		return _pPrefs->configuration()->getInt(key, _pContext->thisBundle()->properties().getInt(key, deflt));
-	}
-	
-	std::string getStringConfig(const std::string& key)
-	{
-		return _pPrefs->configuration()->getString(key, _pContext->thisBundle()->properties().getString(key));
-	}
-	
-	std::string getStringConfig(const std::string& key, const std::string& deflt)
-	{
-		return _pPrefs->configuration()->getString(key, _pContext->thisBundle()->properties().getString(key, deflt));
 	}
 	
 private:
