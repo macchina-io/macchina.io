@@ -72,6 +72,14 @@ public:
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
 
+	virtual void off() = 0;
+		/// Convenience method that turns the LED off by
+		/// calling setBrightness(0.0).
+
+	virtual void on() = 0;
+		/// Convenience method that turns the LED on by
+		/// calling setBrightness(1.0).
+
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();
 		/// Returns the TypeId of the class.
 

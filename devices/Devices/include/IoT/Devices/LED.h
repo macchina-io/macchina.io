@@ -53,6 +53,14 @@ public:
 		
 	~LED();
 		/// Destroys the LED.
+		
+	virtual void on() = 0;
+		/// Convenience method that turns the LED on by
+		/// calling setBrightness(1.0).
+		
+	virtual void off() = 0;
+		/// Convenience method that turns the LED off by
+		/// calling setBrightness(0.0).
 
 	virtual double getBrightness() const = 0;
 		/// Returns the current brightness of the LED in range 0.0 to 1.0.

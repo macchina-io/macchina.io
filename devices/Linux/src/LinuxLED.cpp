@@ -77,6 +77,18 @@ LinuxLED::~LinuxLED()
 }
 
 
+void LinuxLED::on()
+{
+	setBrightness(1.0);
+}
+
+
+void LinuxLED::off()
+{
+	setBrightness(0.0);
+}
+
+
 double LinuxLED::getBrightness() const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);

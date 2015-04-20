@@ -36,6 +36,8 @@ public:
 		/// Destroys the LinuxLED.
 	
 	// LED
+	void on();
+	void off();
 	double getBrightness() const;
 	void setBrightness(double brightness);
 	void blink(int onMilliseconds, int offMilliseconds);

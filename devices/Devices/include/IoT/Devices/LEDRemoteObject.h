@@ -111,6 +111,14 @@ public:
 		/// Returns true if the property with the given name
 		/// exists, or false otherwise.
 
+	virtual void off();
+		/// Convenience method that turns the LED off by
+		/// calling setBrightness(0.0).
+
+	virtual void on();
+		/// Convenience method that turns the LED on by
+		/// calling setBrightness(1.0).
+
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 	virtual void setBrightness(double brightness);
@@ -208,6 +216,18 @@ inline bool LEDRemoteObject::hasFeature(const std::string& name) const
 inline bool LEDRemoteObject::hasProperty(const std::string& name) const
 {
 	return _pServiceObject->hasProperty(name);
+}
+
+
+inline void LEDRemoteObject::off()
+{
+	_pServiceObject->off();
+}
+
+
+inline void LEDRemoteObject::on()
+{
+	_pServiceObject->on();
 }
 
 

@@ -27,8 +27,10 @@
 #include "Poco/Path.h"
 #include "Poco/DirectoryIterator.h"
 #include "Poco/Format.h"
+#include "Poco/StringTokenizer.h"
 #include "LinuxLED.h"
 #include <vector>
+#include <set>
 
 
 using Poco::OSP::BundleContext;
@@ -72,7 +74,7 @@ public:
 		_serviceRefs.push_back(pServiceRef);
 	}
 	
-	void createLEDs()
+	void createLEDs(const std::set<std::string>& deviceWhitelist)
 	{
 		Poco::File ledsDir("/sys/class/leds");
 		if (ledsDir.exists() && ledsDir.isDirectory())
@@ -85,7 +87,10 @@ public:
 				{
 					try
 					{
-						createLED(it.path().toString());
+						if (deviceWhitelist.empty() || deviceWhitelist.count(it.path().getFileName()) == 1)
+						{
+							createLED(it.path().toString());
+						}
 					}
 					catch (Poco::Exception& exc)
 					{
@@ -105,7 +110,13 @@ public:
 		
 		try
 		{
-			createLEDs();
+			if (_pPrefs->configuration()->getBool("linux.leds.enable", true))
+			{
+				std::string devices = _pPrefs->configuration()->getString("linux.leds.whitelist", "");
+				Poco::StringTokenizer tok(devices, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+				std::set<std::string> deviceWhitelist(tok.begin(), tok.end());
+				createLEDs(deviceWhitelist);
+			}
 		}
 		catch (Poco::Exception& exc)
 		{
