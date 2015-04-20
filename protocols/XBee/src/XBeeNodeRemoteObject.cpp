@@ -33,7 +33,9 @@ XBeeNodeRemoteObject::XBeeNodeRemoteObject(const Poco::RemotingNG::Identifiable:
 	_pServiceObject->commandResponseReceived += Poco::delegate(this, &XBeeNodeRemoteObject::event__commandResponseReceived);
 	_pServiceObject->frameReceived += Poco::delegate(this, &XBeeNodeRemoteObject::event__frameReceived);
 	_pServiceObject->ioSampleReceived += Poco::delegate(this, &XBeeNodeRemoteObject::event__ioSampleReceived);
+	_pServiceObject->modemStatusReceived += Poco::delegate(this, &XBeeNodeRemoteObject::event__modemStatusReceived);
 	_pServiceObject->remoteCommandResponseReceived += Poco::delegate(this, &XBeeNodeRemoteObject::event__remoteCommandResponseReceived);
+	_pServiceObject->sensorReadReceived += Poco::delegate(this, &XBeeNodeRemoteObject::event__sensorReadReceived);
 }
 
 
@@ -44,7 +46,9 @@ XBeeNodeRemoteObject::~XBeeNodeRemoteObject()
 		_pServiceObject->commandResponseReceived -= Poco::delegate(this, &XBeeNodeRemoteObject::event__commandResponseReceived);
 		_pServiceObject->frameReceived -= Poco::delegate(this, &XBeeNodeRemoteObject::event__frameReceived);
 		_pServiceObject->ioSampleReceived -= Poco::delegate(this, &XBeeNodeRemoteObject::event__ioSampleReceived);
+		_pServiceObject->modemStatusReceived -= Poco::delegate(this, &XBeeNodeRemoteObject::event__modemStatusReceived);
 		_pServiceObject->remoteCommandResponseReceived -= Poco::delegate(this, &XBeeNodeRemoteObject::event__remoteCommandResponseReceived);
+		_pServiceObject->sensorReadReceived -= Poco::delegate(this, &XBeeNodeRemoteObject::event__sensorReadReceived);
 	}
 	catch (...)
 	{
@@ -89,9 +93,21 @@ void XBeeNodeRemoteObject::event__ioSampleReceived(const IoT::XBee::IOSample& da
 }
 
 
+void XBeeNodeRemoteObject::event__modemStatusReceived(const IoT::XBee::ModemStatus& data)
+{
+	modemStatusReceived(this, data);
+}
+
+
 void XBeeNodeRemoteObject::event__remoteCommandResponseReceived(const IoT::XBee::RemoteATCommandResponse& data)
 {
 	remoteCommandResponseReceived(this, data);
+}
+
+
+void XBeeNodeRemoteObject::event__sensorReadReceived(const IoT::XBee::SensorRead& data)
+{
+	sensorReadReceived(this, data);
 }
 
 

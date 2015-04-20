@@ -27,7 +27,9 @@ IXBeeNode::IXBeeNode():
 	commandResponseReceived(),
 	frameReceived(),
 	ioSampleReceived(),
-	remoteCommandResponseReceived()
+	modemStatusReceived(),
+	remoteCommandResponseReceived(),
+	sensorReadReceived()
 {
 }
 

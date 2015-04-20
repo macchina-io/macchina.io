@@ -81,7 +81,9 @@ public:
 	Poco::BasicEvent < const ATCommandResponse > commandResponseReceived;
 	Poco::BasicEvent < const APIFrame > frameReceived;
 	Poco::BasicEvent < const IOSample > ioSampleReceived;
+	Poco::BasicEvent < const ModemStatus > modemStatusReceived;
 	Poco::BasicEvent < const RemoteATCommandResponse > remoteCommandResponseReceived;
+	Poco::BasicEvent < const SensorRead > sensorReadReceived;
 };
 
 

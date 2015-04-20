@@ -44,7 +44,11 @@ public:
 
 	void event__ioSampleReceived(const void* pSender, const IoT::XBee::IOSample& data);
 
+	void event__modemStatusReceived(const void* pSender, const IoT::XBee::ModemStatus& data);
+
 	void event__remoteCommandResponseReceived(const void* pSender, const IoT::XBee::RemoteATCommandResponse& data);
+
+	void event__sensorReadReceived(const void* pSender, const IoT::XBee::SensorRead& data);
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
@@ -55,7 +59,11 @@ private:
 
 	void event__ioSampleReceivedImpl(const std::string& subscriberURI, const IoT::XBee::IOSample& data);
 
+	void event__modemStatusReceivedImpl(const std::string& subscriberURI, const IoT::XBee::ModemStatus& data);
+
 	void event__remoteCommandResponseReceivedImpl(const std::string& subscriberURI, const IoT::XBee::RemoteATCommandResponse& data);
+
+	void event__sensorReadReceivedImpl(const std::string& subscriberURI, const IoT::XBee::SensorRead& data);
 
 	static const std::string DEFAULT_NS;
 	XBeeNodeRemoteObject* _pRemoteObject;

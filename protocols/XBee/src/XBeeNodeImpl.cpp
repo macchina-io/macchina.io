@@ -205,6 +205,9 @@ void XBeeNodeImpl::handleFrame(const XBeeFrame& frame)
 	
 	switch (frame.type())
 	{
+	case XBeeFrame::XBEE_FRAME_MODEM_STATUS:
+		handleModemStatus(frame);
+		break;
 	case XBeeFrame::XBEE_FRAME_AT_COMMAND_RESPONSE:
 		handleCommandResponse(frame);
 		break;
@@ -316,6 +319,47 @@ void XBeeNodeImpl::handleSampleRxIndicator(const XBeeFrame& frame)
 	}
 
 	ioSampleReceived(ioSample);
+}
+
+
+void XBeeNodeImpl::handleSensorRead(const XBeeFrame& frame)
+{
+	SensorRead sensorRead;
+	Poco::MemoryInputStream mistr(frame.data(), frame.dataSize());
+	Poco::BinaryReader reader(mistr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
+
+	Poco::UInt64 deviceAddress;
+	reader >> deviceAddress;
+	Poco::NumberFormatter::appendHex(sensorRead.deviceAddress, deviceAddress, 16);
+	
+	Poco::UInt16 networkAddress;
+	reader >> networkAddress;
+	Poco::NumberFormatter::appendHex(sensorRead.networkAddress, networkAddress, 4);
+	
+	reader >> sensorRead.options >> sensorRead.sensor;
+
+	for (int i = 0; i < 4; i++)
+	{
+		Poco::Int16 sample;
+		reader >> sample;
+		sensorRead.analogSamples.push_back(sample);
+	}
+	
+	reader >> sensorRead.temperature;
+	
+	sensorReadReceived(sensorRead);
+}
+
+
+void XBeeNodeImpl::handleModemStatus(const XBeeFrame& frame)
+{
+	ModemStatus modemStatus;
+
+	if (frame.dataSize() > 0)
+	{
+		modemStatus.status = static_cast<Poco::UInt8>(*frame.data());
+		modemStatusReceived(modemStatus);
+	}
 }
 
 

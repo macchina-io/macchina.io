@@ -63,9 +63,11 @@ protected:
 	void start();
 	void stop();
 	void handleFrame(const XBeeFrame& frame);
+	void handleModemStatus(const XBeeFrame& frame);
 	void handleCommandResponse(const XBeeFrame& frame);
 	void handleRemoteCommandResponse(const XBeeFrame& frame);
 	void handleSampleRxIndicator(const XBeeFrame& frame);
+	void handleSensorRead(const XBeeFrame& frame);
 	void sendFrame(XBeeFrame& frame);
 
 private:

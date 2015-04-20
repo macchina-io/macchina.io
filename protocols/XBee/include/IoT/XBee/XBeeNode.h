@@ -45,6 +45,24 @@ struct APIFrame
 
 
 //@ serialize
+struct ModemStatus
+	/// Modem Status frame reported by XBee module.
+{
+	Poco::UInt8 status;
+		/// Modem status.
+		///   - 0x00 = Hardware reset
+		///   - 0x01 = Watchdog timer reset
+		///   - 0x02 = Joined network (routers and end devices)
+		///   - 0x03 = Disassociated
+		///   - 0x06 = Coordinator started
+		///   - 0x07 = Network security key was updated
+		///   - 0x0D = Voltage supply limit exceeded
+		///   - 0x11 = Modem configuration changed while join in progress
+		///   - 0x80+ = Stack error
+};
+
+
+//@ serialize
 struct ATCommand
 	/// An AT command sent to the connected XBee module.
 {
@@ -157,7 +175,7 @@ struct RemoteATCommandResponse
 
 //@ serialize
 struct IOSample
-	/// ZigBee IO Data Sample Rx Indicator
+	/// ZigBee IO Data Sample Rx Indicator.
 {
 	std::string deviceAddress;
 		/// Hexadecimal text representation of 64-bit address of the remote device.
@@ -196,6 +214,35 @@ struct IOSample
 };
 
 
+//@ serialize
+struct SensorRead
+	/// XBee Sensor Read Indicator.
+{
+	std::string deviceAddress;
+		/// Hexadecimal text representation of 64-bit address of the remote device.
+
+	std::string networkAddress;
+		/// Hexadecimal text representation of the 16-bit network address of the remote device.
+
+	Poco::UInt8 options;
+		/// Receive options:
+		///   - 0x01 - Packet Acknowledged
+		///   - 0x02 - Packet was a broadcast packet
+		
+	Poco::UInt8 sensor;
+		/// 1-Wire Sensors:
+		///   - 0x01 = A/D Sensor Read
+		///   - 0x02 = Temperature Sensor Read
+		///   - 0x60 = Water present (module CD pin low)
+
+	std::vector<Poco::Int16> analogSamples;
+		/// 16-bit analog sample values from four ADCs A, B, C, D.
+	
+	Poco::Int16 temperature;
+		/// Indicates the two-byte value read from a digital thermometer if present. 		
+};
+
+
 //@ remote
 class IoTXBee_API XBeeNode
 	/// This class provides a high-level interface to a Digi XBee device
@@ -204,6 +251,9 @@ class IoTXBee_API XBeeNode
 public:
 	Poco::BasicEvent<const APIFrame> frameReceived;
 		/// Fired when a valid frame has been received from the connected XBee device.
+
+	Poco::BasicEvent<const ModemStatus> modemStatusReceived;
+		/// Fired when a valid modem status frame has been received from the connected XBee device.
 
 	Poco::BasicEvent<const ATCommandResponse> commandResponseReceived;
 		/// Fired when an AT command response frame has been received from 
@@ -216,6 +266,10 @@ public:
 	Poco::BasicEvent<const IOSample> ioSampleReceived;
 		/// Fired when an ZigBee IO Data Sample Rx Indicator frame has been received from
 		/// the connected XBee device.
+		
+	Poco::BasicEvent<const SensorRead> sensorReadReceived;
+		/// Fired when a XBee Sensor Read Indicator frame has been received from the
+		/// connected XBee device.
 	
 	XBeeNode();
 		/// Creates a XBeeNode.

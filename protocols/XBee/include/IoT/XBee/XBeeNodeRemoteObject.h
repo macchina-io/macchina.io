@@ -74,7 +74,11 @@ protected:
 
 	void event__ioSampleReceived(const IoT::XBee::IOSample& data);
 
+	void event__modemStatusReceived(const IoT::XBee::ModemStatus& data);
+
 	void event__remoteCommandResponseReceived(const IoT::XBee::RemoteATCommandResponse& data);
+
+	void event__sensorReadReceived(const IoT::XBee::SensorRead& data);
 
 private:
 	Poco::SharedPtr<IoT::XBee::XBeeNode> _pServiceObject;
