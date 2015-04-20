@@ -29,6 +29,7 @@
 #include "Poco/AutoPtr.h"
 #include "Poco/Mutex.h"
 #include <map>
+#include <set>
 
 
 namespace Poco {
@@ -70,6 +71,15 @@ public:
 	void clear();
 		/// Resets the associated JavaScript object.
 		
+	void enableEvent(const std::string& event);
+		/// Adds the given event to the set of handled events.
+		
+	void disableEvent(const std::string& event);
+		/// Removes the given event from the set of handled events.
+		
+	bool handleEvent(const std::string& event);
+		/// Returns true if the given event is handled.
+		
 	static Ptr find(const std::string& subscriberURI);
 		/// Finds the Holder in the global holder map.
 
@@ -92,6 +102,7 @@ private:
 	std::string _subscriberURI;
 	v8::Persistent<v8::Object> _persistent;
 	Poco::RemotingNG::EventDispatcher::Ptr _pEventDispatcher;
+	std::set<std::string> _handledEvents;
 	
 	static Poco::AtomicCounter _counter;
 	static HolderMap _holderMap;

@@ -296,7 +296,7 @@ void BridgeHolder::clear()
 
 void BridgeHolder::fireEvent(const std::string& event, const std::string& args)
 {
-	if (_pExecutor)
+	if (_pExecutor && handleEvent(event))
 	{
 		Poco::JS::Core::TimedJSExecutor::Ptr pTimedExecutor = _pExecutor.cast<Poco::JS::Core::TimedJSExecutor>();
 		if (pTimedExecutor)
@@ -379,6 +379,24 @@ void BridgeHolder::onExecutorStopped()
 		_pExecutor->stopped -= Poco::delegate(this, &BridgeHolder::onExecutorStopped);
 	}
 	_pExecutor = 0;
+}
+
+
+void BridgeHolder::enableEvent(const std::string& event)
+{
+	_handledEvents.insert(event);
+}
+
+	
+void BridgeHolder::disableEvent(const std::string& event)
+{
+	_handledEvents.erase(event);
+}
+
+	
+bool BridgeHolder::handleEvent(const std::string& event)
+{
+	return _handledEvents.count(event) > 0;
 }
 
 
@@ -485,6 +503,20 @@ void BridgeWrapper::setProperty(v8::Local<v8::String> name, v8::Local<v8::Value>
 		{
 			poco_check_ptr (pHolder);
 			pHolder->enableEvents();
+			pHolder->enableEvent(toString(name));
+		}
+		catch (Poco::Exception& exc)
+		{
+			returnException(info, exc);
+		}
+	}
+	else
+	{
+		BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(info);
+		try
+		{
+			poco_check_ptr (pHolder);
+			pHolder->disableEvent(toString(name));
 		}
 		catch (Poco::Exception& exc)
 		{
@@ -559,6 +591,21 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					poco_check_ptr (pHolder);
 					pHolder->enableEvents();
+					pHolder->enableEvent(toString(args[0]));
+				}
+				catch (Poco::Exception& exc)
+				{
+					returnException(args, exc);
+				}
+			}
+			else if (args.Length() >= 2 && args[1]->IsNull())
+			{
+				object->ForceSet(name, args[1]);
+				BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(args);
+				try
+				{
+					poco_check_ptr (pHolder);
+					pHolder->disableEvent(toString(args[0]));
 				}
 				catch (Poco::Exception& exc)
 				{
