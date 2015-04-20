@@ -66,6 +66,12 @@ double AmbientLightSensor::value() const
 }
 
 
+bool AmbientLightSensor::ready() const
+{
+	return true;
+}
+
+
 Poco::Any AmbientLightSensor::getValueChangedPeriod(const std::string&) const
 {
 	Poco::UInt32 uperiod;

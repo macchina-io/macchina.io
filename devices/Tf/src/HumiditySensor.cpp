@@ -66,6 +66,12 @@ double HumiditySensor::value() const
 }
 
 
+bool HumiditySensor::ready() const
+{
+	return true;
+}
+
+
 Poco::Any HumiditySensor::getValueChangedPeriod(const std::string&) const
 {
 	Poco::UInt32 uperiod;

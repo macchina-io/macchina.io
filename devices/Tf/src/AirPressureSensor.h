@@ -45,6 +45,7 @@ public:
 	
 	// Sensor
 	double value() const;
+	bool ready() const;
 
 protected:
 	Poco::Any getValueChangedPeriod(const std::string&) const;

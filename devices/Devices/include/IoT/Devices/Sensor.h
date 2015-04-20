@@ -60,6 +60,13 @@ public:
 
 	virtual double value() const = 0;
 		/// Returns the current value measured by the sensor.
+		///
+		/// Some sensors may not be able to immediately report
+		/// a valid value. Therefore, before calling value() the first time, ready() 
+		/// should be called to check if a valid value is available.
+		
+	virtual bool ready() const = 0;
+		/// Returns true if a valid value is available.
 		
 	static std::string PHYSICAL_UNIT_DEGREES_CELSIUS;
 	static std::string PHYSICAL_UNIT_DEGREES_FAHRENHEIT;

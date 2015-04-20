@@ -93,6 +93,9 @@ public:
 		/// Returns true if the property with the given name
 		/// exists, or false otherwise.
 
+	virtual bool ready() const;
+		/// Returns true if a valid value is available.
+
 	virtual void remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
 
 	virtual void remoting__enableRemoteEvents(const std::string& protocol);
@@ -133,6 +136,10 @@ public:
 
 	virtual double value() const;
 		/// Returns the current value measured by the sensor.
+		///
+		/// Some sensors may not be able to immediately report
+		/// a valid value. Therefore, before calling value() the first time, ready() 
+		/// should be called to check if a valid value is available.
 
 protected:
 	void event__valueChanged(const double& data);
@@ -181,6 +188,12 @@ inline bool SensorRemoteObject::hasFeature(const std::string& name) const
 inline bool SensorRemoteObject::hasProperty(const std::string& name) const
 {
 	return _pServiceObject->hasProperty(name);
+}
+
+
+inline bool SensorRemoteObject::ready() const
+{
+	return _pServiceObject->ready();
 }
 
 

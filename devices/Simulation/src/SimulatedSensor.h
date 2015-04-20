@@ -71,6 +71,7 @@ public:
 	
 	// Sensor
 	double value() const;
+	bool ready() const;
 
 	static const std::string NAME;
 	static const std::string SYMBOLIC_NAME;

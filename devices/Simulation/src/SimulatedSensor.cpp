@@ -146,6 +146,12 @@ double SimulatedSensor::value() const
 }
 
 
+bool SimulatedSensor::ready() const
+{
+	return true;
+}
+
+
 Poco::Any SimulatedSensor::getValueChangedPeriod(const std::string&) const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);

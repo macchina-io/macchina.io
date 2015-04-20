@@ -66,6 +66,12 @@ double AirPressureSensor::value() const
 }
 
 
+bool AirPressureSensor::ready() const
+{
+	return true;
+}
+
+
 Poco::Any AirPressureSensor::getValueChangedPeriod(const std::string&) const
 {
 	Poco::UInt32 uperiod;

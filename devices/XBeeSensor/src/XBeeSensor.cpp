@@ -28,6 +28,7 @@ XBeeSensor::XBeeSensor(IXBeeNode::Ptr pXBeeNode, Params params):
 	_pXBeeNode(pXBeeNode),
 	_id(params.id),
 	_analogChannel(params.analogChannel),
+	_ready(false),
 	_value(0),
 	_valueChangedDelta(0.0),
 	_pEventPolicy(new IoT::Devices::NoModerationPolicy<double>(valueChanged)),
@@ -62,6 +63,14 @@ double XBeeSensor::value() const
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	return _value;
+}
+
+
+bool XBeeSensor::ready() const
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	return _ready;	
 }
 
 
@@ -133,8 +142,9 @@ void XBeeSensor::update(double value)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (_value != value)
+	if (!_ready || _value != value)
 	{
+		_ready = true;
 		_value = value;
 		_pEventPolicy->valueChanged(value);
 	}

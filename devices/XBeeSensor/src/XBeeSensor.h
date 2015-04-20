@@ -52,6 +52,7 @@ public:
 	
 	// Sensor
 	double value() const;
+	bool ready() const;
 
 	static const std::string NAME;
 	static const std::string SYMBOLIC_NAME;
@@ -72,6 +73,7 @@ protected:
 	IXBeeNode::Ptr _pXBeeNode;
 	std::string _id;
 	int _analogChannel;
+	bool _ready;
 	double _value;
 	double _valueChangedDelta;
 	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double> > _pEventPolicy;

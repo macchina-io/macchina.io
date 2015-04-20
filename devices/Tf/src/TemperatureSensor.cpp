@@ -66,6 +66,12 @@ double TemperatureSensor::value() const
 }
 
 
+bool TemperatureSensor::ready() const
+{
+	return true;
+}
+
+
 Poco::Any TemperatureSensor::getValueChangedPeriod(const std::string&) const
 {
 	Poco::UInt32 uperiod;
