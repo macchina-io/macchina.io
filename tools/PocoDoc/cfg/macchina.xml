@@ -12,9 +12,9 @@
 				${MacchinaBase}/devices/Serial/include/*/*/*.h
 				${MacchinaBase}/devices/GNSS/include/*/*/*.h
 				${MacchinaBase}/devices/GNSS/NMEA/include/*/*/*/*.h
-				${MacchinaBase}/devices/Simulation/include/*/*/*.h
 				${MacchinaBase}/services/WebEvent/include/*/*/*.h
 				${MacchinaBase}/protocols/MQTT/include/*/*/*.h
+				${MacchinaBase}/protocols/XBee/include/*/*/*.h
 			</include>
 			<exclude>
 				*_*.h,
@@ -73,6 +73,7 @@
 				-I${MacchinaBase}/devices/Simulation/include
 				-I${MacchinaBase}/services/WebEvent/include
 				-I${MacchinaBase}/protocols/MQTT/include
+				-I${MacchinaBase}/protocols/XBee/include
 				-D_DEBUG
 				-E
 				-C
