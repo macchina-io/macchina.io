@@ -14,3 +14,4 @@ clean all:
 	$(MAKE) -C Tf $(MAKECMDGOALS)
 	$(MAKE) -C Simulation $(MAKECMDGOALS)
 	$(MAKE) -C Linux $(MAKECMDGOALS)
+	$(MAKE) -C XBeeSensor $(MAKECMDGOALS)
