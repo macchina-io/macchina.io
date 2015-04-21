@@ -388,7 +388,7 @@ struct ATCommandResponse
 		/// Two character AT command.
 		
 	Poco::UInt8 status;
-		/// Command status;
+		/// Command status:
 		///   - 0 = OK
 		///   - 1 = ERROR
 		///   - 2 = Invalid Command 
@@ -459,7 +459,7 @@ struct RemoteATCommandResponse
 		/// Two character AT command.
 
 	Poco::UInt8 status;
-		/// Command status;
+		/// Command status:
 		///   - 0 = OK
 		///   - 1 = ERROR
 		///   - 2 = Invalid Command 
