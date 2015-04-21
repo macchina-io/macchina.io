@@ -45,6 +45,11 @@ public:
 		XBEE_OPTION_ESCAPE_FRAMES = 0x01
 	};
 	
+	enum
+	{
+		XBEE_MAX_PAYLOAD_SIZE = 100
+	};
+	
 	XBeeNodeImpl(Poco::SharedPtr<XBeePort> pXBeePort, int options = 0);
 		/// Creates a XBeeNodeImpl using the given XBeePort instance
 		/// and options.
@@ -57,12 +62,21 @@ public:
 	void sendCommand(const ATCommand& command);
 	void queueCommand(const ATCommand& command);
 	void sendRemoteCommand(const RemoteATCommand& command);
+	void sendTransmitRequest(const TransmitRequest& request);
+	void sendZigBeeTransmitRequest(const ZigBeeTransmitRequest& request);
+	void sendExplicitAddressingZigBeeTransmitRequest(const ExplicitAddressingZigBeeTransmitRequest& request);
 	
 protected:
 	void run();
 	void start();
 	void stop();
 	void handleFrame(const XBeeFrame& frame);
+	void handleTransmitStatusReceived(const XBeeFrame& frame);
+	void handlePacketReceived(const XBeeFrame& frame);
+	void handleIODataReceived(const XBeeFrame& frame);
+	void handleZigBeeTransmitStatusReceived(const XBeeFrame& frame);
+	void handleZigBeePacketReceived(const XBeeFrame& frame);
+	void handleExplicitAddressingZigBeePacketReceived(const XBeeFrame& frame);
 	void handleModemStatus(const XBeeFrame& frame);
 	void handleCommandResponse(const XBeeFrame& frame);
 	void handleRemoteCommandResponse(const XBeeFrame& frame);

@@ -33,7 +33,13 @@ namespace XBee {
 
 class XBeeNodeServerHelper
 	/// This class provides a high-level interface to a Digi XBee device
-	/// using the Digi XBee API frame-based protocol.
+	/// using the Digi XBee API frame-based protocol. This class can be
+	/// used with all XBee devices supporting the XBee API frame-based
+	/// protocol, including ZigBee devices. Actually supported methods
+	/// and events are depending on the kind of XBee device, e.g., an
+	/// 802.15.4 module won't support ZigBee-specific API frames, and
+	/// vice-versa. Please refer to the XBee product manual for detailed
+	/// information about the API.
 {
 public:
 	typedef IoT::XBee::XBeeNode Service;

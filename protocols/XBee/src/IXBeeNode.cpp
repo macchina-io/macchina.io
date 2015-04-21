@@ -25,11 +25,17 @@ namespace XBee {
 IXBeeNode::IXBeeNode():
 	Poco::OSP::Service(),
 	commandResponseReceived(),
+	explicitAddressingZigBeePacketReceived(),
 	frameReceived(),
+	ioDataReceived(),
 	ioSampleReceived(),
 	modemStatusReceived(),
+	packetReceived(),
 	remoteCommandResponseReceived(),
-	sensorReadReceived()
+	sensorReadReceived(),
+	transmitStatusReceived(),
+	zigBeePacketReceived(),
+	zigBeeTransmitStatusReceived()
 {
 }
 

@@ -20,8 +20,14 @@
 #include "IoT/XBee/APIFrameSerializer.h"
 #include "IoT/XBee/ATCommandDeserializer.h"
 #include "IoT/XBee/ATCommandSerializer.h"
+#include "IoT/XBee/ExplicitAddressingZigBeeTransmitRequestDeserializer.h"
+#include "IoT/XBee/ExplicitAddressingZigBeeTransmitRequestSerializer.h"
 #include "IoT/XBee/RemoteATCommandDeserializer.h"
 #include "IoT/XBee/RemoteATCommandSerializer.h"
+#include "IoT/XBee/TransmitRequestDeserializer.h"
+#include "IoT/XBee/TransmitRequestSerializer.h"
+#include "IoT/XBee/ZigBeeTransmitRequestDeserializer.h"
+#include "IoT/XBee/ZigBeeTransmitRequestSerializer.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/MethodHandler.h"
 #include "Poco/RemotingNG/Serializer.h"
@@ -112,6 +118,62 @@ public:
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendCommandReply");
+			remoting__staticInitEnd(REMOTING__REPLY_NAME);
+			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+		}
+		catch (Poco::Exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
+			}
+		}
+		catch (std::exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc(e.what());
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+		catch (...)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc("Unknown Exception");
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+	}
+
+};
+
+
+class XBeeNodeSendExplicitAddressingZigBeeTransmitRequestMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__transport, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		remoting__staticInitBegin(REMOTING__NAMES);
+		static const std::string REMOTING__NAMES[] = {"sendExplicitAddressingZigBeeTransmitRequest","request"};
+		remoting__staticInitEnd(REMOTING__NAMES);
+		bool remoting__requestSucceeded = false;
+		try
+		{
+			IoT::XBee::ExplicitAddressingZigBeeTransmitRequest request;
+			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			Poco::RemotingNG::TypeDeserializer<IoT::XBee::ExplicitAddressingZigBeeTransmitRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
+			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = static_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
+			remoting__pCastedRO->sendExplicitAddressingZigBeeTransmitRequest(request);
+			remoting__requestSucceeded = true;
+			Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__staticInitBegin(REMOTING__REPLY_NAME);
+			static const std::string REMOTING__REPLY_NAME("sendExplicitAddressingZigBeeTransmitRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -259,14 +321,129 @@ public:
 };
 
 
+class XBeeNodeSendTransmitRequestMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__transport, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		remoting__staticInitBegin(REMOTING__NAMES);
+		static const std::string REMOTING__NAMES[] = {"sendTransmitRequest","request"};
+		remoting__staticInitEnd(REMOTING__NAMES);
+		bool remoting__requestSucceeded = false;
+		try
+		{
+			IoT::XBee::TransmitRequest request;
+			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			Poco::RemotingNG::TypeDeserializer<IoT::XBee::TransmitRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
+			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = static_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
+			remoting__pCastedRO->sendTransmitRequest(request);
+			remoting__requestSucceeded = true;
+			Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__staticInitBegin(REMOTING__REPLY_NAME);
+			static const std::string REMOTING__REPLY_NAME("sendTransmitRequestReply");
+			remoting__staticInitEnd(REMOTING__REPLY_NAME);
+			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+		}
+		catch (Poco::Exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
+			}
+		}
+		catch (std::exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc(e.what());
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+		catch (...)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc("Unknown Exception");
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+	}
+
+};
+
+
+class XBeeNodeSendZigBeeTransmitRequestMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__transport, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		remoting__staticInitBegin(REMOTING__NAMES);
+		static const std::string REMOTING__NAMES[] = {"sendZigBeeTransmitRequest","request"};
+		remoting__staticInitEnd(REMOTING__NAMES);
+		bool remoting__requestSucceeded = false;
+		try
+		{
+			IoT::XBee::ZigBeeTransmitRequest request;
+			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			Poco::RemotingNG::TypeDeserializer<IoT::XBee::ZigBeeTransmitRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
+			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = static_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
+			remoting__pCastedRO->sendZigBeeTransmitRequest(request);
+			remoting__requestSucceeded = true;
+			Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__staticInitBegin(REMOTING__REPLY_NAME);
+			static const std::string REMOTING__REPLY_NAME("sendZigBeeTransmitRequestReply");
+			remoting__staticInitEnd(REMOTING__REPLY_NAME);
+			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+		}
+		catch (Poco::Exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
+			}
+		}
+		catch (std::exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc(e.what());
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+		catch (...)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc("Unknown Exception");
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+	}
+
+};
+
+
 XBeeNodeSkeleton::XBeeNodeSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
 	addMethodHandler("queueCommand", new IoT::XBee::XBeeNodeQueueCommandMethodHandler);
 	addMethodHandler("sendCommand", new IoT::XBee::XBeeNodeSendCommandMethodHandler);
+	addMethodHandler("sendExplicitAddressingZigBeeTransmitRequest", new IoT::XBee::XBeeNodeSendExplicitAddressingZigBeeTransmitRequestMethodHandler);
 	addMethodHandler("sendFrame", new IoT::XBee::XBeeNodeSendFrameMethodHandler);
 	addMethodHandler("sendRemoteCommand", new IoT::XBee::XBeeNodeSendRemoteCommandMethodHandler);
+	addMethodHandler("sendTransmitRequest", new IoT::XBee::XBeeNodeSendTransmitRequestMethodHandler);
+	addMethodHandler("sendZigBeeTransmitRequest", new IoT::XBee::XBeeNodeSendZigBeeTransmitRequestMethodHandler);
 }
 
 
