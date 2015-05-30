@@ -46,6 +46,7 @@ v8::Handle<v8::ObjectTemplate> HTMLFormWrapper::objectTemplate(v8::Isolate* pIso
 		objectTemplate->SetInternalFieldCount(1);
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "hasField"), v8::FunctionTemplate::New(pIsolate, hasField));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getField"), v8::FunctionTemplate::New(pIsolate, getField));
+		objectTemplate->SetNamedPropertyHandler(getProperty);
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> formTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
@@ -72,6 +73,26 @@ void HTMLFormWrapper::getField(const v8::FunctionCallbackInfo<v8::Value>& args)
 	if (args.Length() > 1) deflt = toString(args[1]);
 	std::string value = pForm->get(name, deflt);
 	returnString(args, value);
+}
+
+
+void HTMLFormWrapper::getProperty(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	v8::Local<v8::Object> object = info.Holder();
+	if (object->HasRealNamedProperty(property))
+	{
+		info.GetReturnValue().Set(object->GetRealNamedProperty(property));
+	}
+	else
+	{
+		Poco::Net::HTMLForm* pForm = Wrapper::unwrapNative<Poco::Net::HTMLForm>(info);
+		std::string name = toString(property);
+		if (pForm->has(name))
+		{
+			std::string value = pForm->get(name);
+			returnString(info, value);
+		}
+	}
 }
 
 
