@@ -1168,6 +1168,16 @@ convenient access to any HTML form data sent by the browser.
 
 The <[form]> object has two methods, <[hasField()]> and <[getField()]>.
 
+Additionally, the <[form]> object has shortcut accessors for form fields. Instead of writing:
+
+	var value = form.getField('field');
+----
+
+one can also write:
+
+	var value = form.field;
+----
+
 
 !!hasField(name)
 
