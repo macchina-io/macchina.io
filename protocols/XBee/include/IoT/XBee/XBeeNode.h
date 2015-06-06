@@ -626,8 +626,8 @@ public:
 	virtual void queueCommand(const ATCommand& command) = 0;
 		/// Queues an AT command for execution on the connected XBee device.
 		///
-		/// In contrast to sendATCommand(), new parameter values are queued 
-		/// and not applied until either sendATCommand() is called
+		/// In contrast to sendCommand(), new parameter values are queued 
+		/// and not applied until either sendCommand() is called
 		/// or the Apply Changes (AC) AT command is issued. Register queries 
 		/// (reading parameter values) are returned immediately.
 
