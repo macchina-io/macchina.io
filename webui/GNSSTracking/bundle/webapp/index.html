@@ -53,15 +53,27 @@
                   <th>Longitude</th>
                   <td>{{trackingData.position.longitude | number:6}}&deg;</td>
                   <th>Altitude</th>
-                  <td>{{trackingData.altitude | number:2}}</td>
+                  <td>
+                  	<span ng-if="trackingData.altitude != -9999">{{trackingData.altitude | number:2}}</span>
+                  	<span ng-if="trackingData.altitude == -9999">n/a</span>
+                  </td>
                 </tr>
                 <tr class="odd">
                   <th>Course</th>
-                  <td>{{trackingData.course | number:1}}&deg;</td>
+                  <td>
+                  	<span ng-if="trackingData.course != -1">{{trackingData.course | number:1}}&deg;</span>
+                  	<span ng-if="trackingData.course == -1">n/a</span>
+                  </td>
                   <th>Speed</th>
-                  <td>{{trackingData.speed*1.852 | number:2}} km/h</td>
+                  <td>
+                  	<span ng-if="trackingData.speed != -1">{{trackingData.speed*1.852 | number:2}} km/h</span>
+                  	<span ng-if="trackingData.speed == -1">n/a</span>
+                  </td>
                   <th>Position Accuracy</th>
-                  <td>{{trackingData.hdop | number:2}} m</td>
+                  <td>
+                  	<span ng-if="trackingData.hdop != -9999">{{trackingData.hdop | number:2}} m</span>
+                  	<span ng-if="trackingData.hdop == -9999">n/a</span>
+                  </td>
                 </tr>
               </tbody>
             </table>
