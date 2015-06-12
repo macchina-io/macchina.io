@@ -20,12 +20,14 @@
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/Util/Timer.h"
 #include "IoT/Devices/SensorServerHelper.h"
+#include "IoT/Devices/GNSSSensorServerHelper.h"
 #include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/SharedPtr.h"
 #include "SimulatedSensor.h"
+#include "SimulatedGNSSSEnsor.h"
 #include <vector>
 
 
@@ -67,6 +69,20 @@ public:
 		}
 		
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(params.id, pSensorRemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
+	}
+
+	void createGNSSSensor(const SimulatedGNSSSensor::Params& params)
+	{
+		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::GNSSSensor> ServerHelper;
+		
+		Poco::SharedPtr<SimulatedGNSSSensor> pGNSSSensor = new SimulatedGNSSSensor(params);
+		ServerHelper::RemoteObjectPtr pGNSSSensorRemoteObject = ServerHelper::createRemoteObject(pGNSSSensor, params.id);
+		
+		Properties props;
+		props.set("io.macchina.device", SimulatedGNSSSensor::SYMBOLIC_NAME);
+		
+		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(params.id, pGNSSSensorRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
 	
@@ -111,6 +127,25 @@ public:
 				pContext->logger().error(Poco::format("Cannot create simulated sensor: %s", exc.displayText())); 
 			}
 			index++;
+		}
+		
+		std::string gpxPath = _pPrefs->configuration()->getString("simulation.gnss.gpxPath", "");
+		if (!gpxPath.empty())
+		{
+			SimulatedGNSSSensor::Params params;
+			params.id = SimulatedGNSSSensor::SYMBOLIC_NAME;
+			params.gpxPath = gpxPath;
+			params.loopReplay = _pPrefs->configuration()->getBool("simulation.gnss.loopReplay", true);
+			params.speedUp = _pPrefs->configuration()->getDouble("simulation.gnss.speedUp", 1.0);
+		
+			try
+			{
+				createGNSSSensor(params);
+			}
+			catch (Poco::Exception& exc)
+			{
+				pContext->logger().error(Poco::format("Cannot create simulated GNSS sensor: %s", exc.displayText())); 
+			}
 		}
 	}
 		
