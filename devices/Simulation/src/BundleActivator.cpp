@@ -27,7 +27,7 @@
 #include "Poco/NumberFormatter.h"
 #include "Poco/SharedPtr.h"
 #include "SimulatedSensor.h"
-#include "SimulatedGNSSSEnsor.h"
+#include "SimulatedGNSSSensor.h"
 #include <vector>
 
 
