@@ -57,6 +57,8 @@
                   	<span ng-if="trackingData.altitude != -9999">{{trackingData.altitude | number:2}}</span>
                   	<span ng-if="trackingData.altitude == -9999">n/a</span>
                   </td>
+                  <th>Source</th>
+                  <td>{{trackingData.source}}</td>
                 </tr>
                 <tr class="odd">
                   <th>Course</th>
@@ -74,6 +76,8 @@
                   	<span ng-if="trackingData.hdop != -9999">{{trackingData.hdop | number:2}} m</span>
                   	<span ng-if="trackingData.hdop == -9999">n/a</span>
                   </td>
+                  <th></th>
+                  <td></td>
                 </tr>
               </tbody>
             </table>

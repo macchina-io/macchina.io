@@ -62,16 +62,19 @@ trackingControllers.controller('TrackingCtrl', ['$scope', '$http', '$interval',
       {
         $scope.setPosition(data.position);
       }
+      if (data.refresh)
+      {
+        $interval(function() {
+          $http.get('/macchina/gnss/tracking.jss').success(function(data) {
+            $scope.trackingData = data;
+            if (data.valid)
+            {
+              $scope.setPosition(data.position);
+            }
+          })
+        }, data.refresh);
+      }
     });
-    $interval(function() {
-      $http.get('/macchina/gnss/tracking.jss').success(function(data) {
-        $scope.trackingData = data;
-        if (data.valid)
-        {
-          $scope.setPosition(data.position);
-        }
-      })
-    }, 10000);
   }]);
 
 trackingControllers.controller('SessionCtrl', ['$scope', '$http',

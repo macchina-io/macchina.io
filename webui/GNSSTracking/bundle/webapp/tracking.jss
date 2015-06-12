@@ -25,6 +25,8 @@ if (gnssSensorRefs.length > 0)
     	trackingData.altitude = gnssSensor.altitude();
     	trackingData.hdop = gnssSensor.hdop();
     	trackingData.valid = true;
+    	trackingData.source = gnssSensor.getPropertyString("name");
+    	trackingData.refresh = 1000*application.config.getInt("webui.gnsstracking.refresh", 10);
     }
 }
 
