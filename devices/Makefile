@@ -15,3 +15,5 @@ clean all:
 	$(MAKE) -C Simulation $(MAKECMDGOALS)
 	$(MAKE) -C Linux $(MAKECMDGOALS)
 	$(MAKE) -C XBeeSensor $(MAKECMDGOALS)
+	$(MAKE) -C GNSS/NMEA $(MAKECMDGOALS)
+	$(MAKE) -C GNSS $(MAKECMDGOALS)
