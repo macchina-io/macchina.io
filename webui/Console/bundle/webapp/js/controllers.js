@@ -67,7 +67,7 @@ webeventControllers.controller('ConsoleCtrl', ['$scope',
       {
         var json = JSON.parse(evt.data);
         var date = moment(json.time);
-        var text = date.format("YYYY-MM-DD HH:mm:ss.S") + " [" + $scope.priorities[json.priority] + "] " + json.text;
+        var text = date.format("YYYY-MM-DD HH:mm:ss.S") + " [" + $scope.priorities[json.priority] + "] " + json.source + ": " + json.text;
 
         $scope.appendMessage(text, $scope.priorityClasses[json.priority]);
       }
