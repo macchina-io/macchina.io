@@ -1,0 +1,64 @@
+#messages
+{
+	background-color: #224;
+	color: white;
+	font-size: 0.9em;
+	line-height: 1.5em;
+	font-family: "Lucida Console", "Monaco", Courier, "Courier New", monospace;
+	padding: 4px;
+	margin: 0;
+	display: block;
+	white-space: pre;
+	overflow: auto;
+	word-wrap: normal;
+}
+
+#messages p
+{
+	font-size: 0.9em;
+	line-height: 1.5em;
+	font-family: "Lucida Console", "Monaco", Courier, "Courier New", monospace;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.prio-fatal
+{
+	color: #f00;
+}
+
+.prio-critical
+{
+	color: #f22;
+}
+
+.prio-error
+{
+	color: #f44;
+}
+
+.prio-warning
+{
+	color: #ff8;
+}
+
+.prio-notice
+{
+	color: #8f8;
+}
+
+.prio-information
+{
+	color: #eee;
+}
+
+.prio-debug
+{
+	color: #aaa;
+}
+
+.prio-trace
+{
+	color: #999;
+}
