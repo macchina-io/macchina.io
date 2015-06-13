@@ -194,7 +194,7 @@ SimulatedGNSSSensor::SimulatedGNSSSensor(const Params& params):
 	_period(0),
 	_delta(0),
 	_timeout(30000),
-	_logger(Poco::Logger::get("IoT.NMEA.SimulatedGNSSSensor"))
+	_logger(Poco::Logger::get("IoT.Simulation.SimulatedGNSSSensor"))
 {
 	addProperty("symbolicName", &SimulatedGNSSSensor::getSymbolicName);
 	addProperty("name", &SimulatedGNSSSensor::getName);
