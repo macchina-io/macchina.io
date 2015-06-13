@@ -70,6 +70,10 @@ simulation.sensors.humidity1.cycles = 20
 simulation.sensors.humidity1.updateRate = 0.2
 simulation.sensors.humidity1.mode = random
 
+# GNSS Simulation using a track from a GPX file
+#simulation.gnss.gpxPath = track.gpx
+#simulation.gnss.speedUp = 2.0
+
 
 #
 # MQTT
@@ -87,7 +91,7 @@ mqtt.clients.eclipse.id = macchina.io
 # <http://pocoproject.org/slides/185-LoggingConfiguration.pdf>
 # for more information.
 #
-logging.loggers.root.channel = console
+logging.loggers.root.channel = splitter
 logging.loggers.root.level = information
 
 logging.loggers.remoting.name = RemotingNG
@@ -102,6 +106,11 @@ logging.channels.file.purgeCount = 10
 
 logging.channels.console.class = ColorConsoleChannel
 logging.channels.console.pattern = %Y-%m-%d %H:%M:%S.%i [%p] %s<%I>: %t
+
+logging.channels.webconsole.class = EventChannel
+
+logging.channels.splitter.class = SplitterChannel
+logging.channels.splitter.channels = console, webconsole
 
 
 #
