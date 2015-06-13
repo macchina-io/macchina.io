@@ -41,11 +41,12 @@ public:
 	EventChannel();
 		/// Creates the EventChannel.
 
-	~EventChannel();
-		/// Destroys the EventChannel.
-
 	void log(const Message& msg);
 		/// Fires the messageLogged event.
+
+protected:
+	~EventChannel();
+		/// Destroys the EventChannel.
 };
 
 
