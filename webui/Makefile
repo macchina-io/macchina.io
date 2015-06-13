@@ -22,3 +22,4 @@ clean all:
 	$(MAKE) -C OpenLayers $(MAKECMDGOALS)
 	$(MAKE) -C GNSSTracking $(MAKECMDGOALS)
 	$(MAKE) -C MQTT $(MAKECMDGOALS)
+	$(MAKE) -C Console $(MAKECMDGOALS)
