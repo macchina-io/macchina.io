@@ -5,10 +5,12 @@ var webeventControllers = angular.module('consoleControllers', []);
 webeventControllers.controller('ConsoleCtrl', ['$scope', 
   function($scope) {
   	$scope.messages = $("#messages");
+  	$scope.messageCount = 0;
+  	$scope.messageLimit = 10000;
   
   	$scope.clear = function() {
-      var messagesElem = $('#messages');
-      messagesElem.empty();
+      $scope.messages.empty();
+      $scope.messageCount = 0;
   	};
   	
   	$scope.follow = function() {
@@ -19,8 +21,8 @@ webeventControllers.controller('ConsoleCtrl', ['$scope',
       var newSize = $(window).height() - 140;
       if (newSize < 200) newSize = 200;
       var newWidth = $("#messagesContainer").width() - 8;
-      $("#messages").height(newSize);
-      $("#messages").width(newWidth);
+      $scope.messages.height(newSize);
+      $scope.messages.width(newWidth);
 	}
 
     $(window).resize(function() {
@@ -54,7 +56,6 @@ webeventControllers.controller('ConsoleCtrl', ['$scope',
 	];
 	
 	$scope.appendMessage = function(text, clazz) {
-	  console.log("scrollTop: " + $scope.messages.scrollTop() + ", scrollHeight: " + $scope.messages.prop("scrollHeight"));
       var needScroll = $scope.messages.scrollTop() > $scope.messages.prop("scrollHeight") - $scope.messages.height() - 60;
       
       var messagesElem = $('#messages');
@@ -63,6 +64,15 @@ webeventControllers.controller('ConsoleCtrl', ['$scope',
       var textNode = $(document.createTextNode(text));
       paraElem.append(textNode);
       messagesElem.append(paraElem); 
+      
+      if ($scope.messageCount >= $scope.messageLimit)
+      {
+      	messagesElem.find('p:first').remove();
+      }
+      else
+      {
+        $scope.messageCount++;
+      }
         
       if (needScroll) 
       {
