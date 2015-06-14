@@ -1,3 +1,8 @@
+body 
+{
+	overflow: hidden;
+}
+
 #messages
 {
 	background-color: #224;
@@ -7,9 +12,11 @@
 	font-family: "Lucida Console", "Monaco", Courier, "Courier New", monospace;
 	padding: 4px;
 	margin: 0;
+	border: 0;
 	display: block;
 	white-space: pre;
-	overflow: auto;
+	overflow-x: auto;
+	overflow-y: auto;
 	word-wrap: normal;
 }
 

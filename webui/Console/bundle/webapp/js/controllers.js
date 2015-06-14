@@ -4,6 +4,7 @@ var webeventControllers = angular.module('consoleControllers', []);
 
 webeventControllers.controller('ConsoleCtrl', ['$scope', 
   function($scope) {
+  	$scope.messages = $("#messages");
   
   	$scope.clear = function() {
       var messagesElem = $('#messages');
@@ -11,9 +12,23 @@ webeventControllers.controller('ConsoleCtrl', ['$scope',
   	};
   	
   	$scope.follow = function() {
-      $(window).scrollTop($(document).height() - $(window).height());
+      $scope.messages.scrollTop($scope.messages.prop("scrollHeight"));
   	}
-  	
+ 
+ 	$scope.resizeMessages = function() {
+      var newSize = $(window).height() - 140;
+      if (newSize < 200) newSize = 200;
+      var newWidth = $("#messagesContainer").width() - 8;
+      $("#messages").height(newSize);
+      $("#messages").width(newWidth);
+	}
+
+    $(window).resize(function() {
+      $scope.resizeMessages();
+    });
+    
+    $scope.resizeMessages();
+ 	
   	$scope.priorities = [
   		"",
 		"Fatal",
@@ -39,7 +54,8 @@ webeventControllers.controller('ConsoleCtrl', ['$scope',
 	];
 	
 	$scope.appendMessage = function(text, clazz) {
-      var needScroll = $(window).scrollTop() + $(window).height() > $(document).height() - 60;
+	  console.log("scrollTop: " + $scope.messages.scrollTop() + ", scrollHeight: " + $scope.messages.prop("scrollHeight"));
+      var needScroll = $scope.messages.scrollTop() > $scope.messages.prop("scrollHeight") - $scope.messages.height() - 60;
       
       var messagesElem = $('#messages');
       var paraElem = $(document.createElement("p"));
@@ -50,7 +66,7 @@ webeventControllers.controller('ConsoleCtrl', ['$scope',
         
       if (needScroll) 
       {
-        $(window).scrollTop($(document).height() - $(window).height());
+      	$scope.messages.scrollTop($scope.messages.prop("scrollHeight"))
       }
 	}
   
