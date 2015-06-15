@@ -222,11 +222,11 @@ protected:
 		
 		if (_httpPort != 0)
 		{
-			request.set("X-PTTH-Set-Property", Poco::format("device;httpPort=%hu", _httpPort));
+			request.add("X-PTTH-Set-Property", Poco::format("device;httpPort=%hu", _httpPort));
 		}
 		if (!_deviceName.empty())
 		{
-			request.set("X-PTTH-Set-Property", Poco::format("device;name=\"%s\"", _deviceName));
+			request.add("X-PTTH-Set-Property", Poco::format("device;name=\"%s\"", _deviceName));
 		}
 		request.set("User-Agent", _userAgent);
 		
