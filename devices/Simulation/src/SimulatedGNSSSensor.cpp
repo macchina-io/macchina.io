@@ -365,7 +365,7 @@ void SimulatedGNSSSensor::updatePosition(const Poco::Geo::LatLon& latLon, double
 {
 	if (_logger.debug())
 	{
-		_logger.debug(Poco::format("Updating position to lat=%f, lon=%f, altitude=%f",
+		_logger.debug(Poco::format("Updating position to lat=%f, lon=%f, alt=%f",
 			latLon.latitude().degrees(), 
 			latLon.longitude().degrees(),
 			altitude));
