@@ -9,7 +9,7 @@
 include $(POCO_BASE)/build/rules/global
 
 objects = Wrapper PooledIsolate \
-	LoggerWrapper SystemWrapper DateTimeWrapper LocalDateTimeWrapper \
+	LoggerWrapper ConsoleWrapper SystemWrapper DateTimeWrapper LocalDateTimeWrapper \
 	ConfigurationWrapper ApplicationWrapper URIWrapper TimerWrapper \
 	JSExecutor
 

@@ -9,7 +9,7 @@
 //
 // Definition of the LoggerWrapper interface.
 //
-// Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2013-2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -45,7 +45,7 @@ public:
 		
 protected:
 	static void log(const v8::FunctionCallbackInfo<v8::Value>& args);
-	static void log2(Poco::Message::Priority prio, const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void format(int prio, const v8::FunctionCallbackInfo<v8::Value>& args, int firstArgIndex = 0, const std::string& prefix = "");
 	static void trace(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void debug(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void information(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -54,6 +54,8 @@ protected:
 	static void error(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void critical(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void fatal(const v8::FunctionCallbackInfo<v8::Value>& args);
+	
+	friend class ConsoleWrapper;
 };
 
 

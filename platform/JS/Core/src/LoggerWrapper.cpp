@@ -7,7 +7,7 @@
 // Package: JSCore
 // Module:  LoggerWrapper
 //
-// Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2013-2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -17,6 +17,7 @@
 #include "Poco/JS/Core/LoggerWrapper.h"
 #include "Poco/Logger.h"
 #include "Poco/NumberParser.h"
+#include "Poco/NumberFormatter.h"
 
 
 namespace Poco {
@@ -64,17 +65,7 @@ void LoggerWrapper::log(const v8::FunctionCallbackInfo<v8::Value>& args)
 		{
 			prio = Poco::Logger::parseLevel(prioStr);
 		}
-		Poco::Logger* pLogger = Wrapper::unwrapNative<Poco::Logger>(args);
-		if (pLogger->is(prio))
-		{
-			std::string text;
-			for (int i = 1; i < args.Length(); i++)
-			{
-				text.append(toString(args[i]));
-			}
-			Poco::Message msg(pLogger->name(), text, static_cast<Poco::Message::Priority>(prio));
-			pLogger->log(msg);
-		}
+		format(prio, args, 1);
 	}
 	catch (...)
 	{
@@ -82,17 +73,97 @@ void LoggerWrapper::log(const v8::FunctionCallbackInfo<v8::Value>& args)
 }
 
 
-void LoggerWrapper::log2(Poco::Message::Priority prio, const v8::FunctionCallbackInfo<v8::Value>& args)
+void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& args, int firstArgIndex, const std::string& prefix)
 {
-	if (args.Length() < 1) return;
+	if (args.Length() <= firstArgIndex) return;
 	v8::HandleScope scope(args.GetIsolate());
 	Poco::Logger* pLogger = Wrapper::unwrapNative<Poco::Logger>(args);
 	try
 	{
 		if (pLogger->is(prio))
 		{
-			std::string text;
-			for (int i = 0; i < args.Length(); i++)
+			std::string text(prefix);
+			int nextArgIndex = firstArgIndex;
+			if (args[nextArgIndex]->IsString())
+			{
+				std::string fmt(toString(args[nextArgIndex]));
+				nextArgIndex++;
+				std::string::const_iterator it = fmt.begin(); 
+				while (it != fmt.end())
+				{
+					if (*it == '%')
+					{
+						++it;
+						if (it != fmt.end())
+						{
+							switch (*it)
+							{
+							case 'd':
+							case 'i':
+								if (nextArgIndex < args.Length())
+								{
+									if (args[nextArgIndex]->IsNumber())
+									{
+										Poco::Int64 intValue = args[nextArgIndex]->IntegerValue();
+										Poco::NumberFormatter::append(text, intValue);
+									}
+									else
+									{
+										text.append(toString(args[nextArgIndex]));
+									}
+								}
+								nextArgIndex++;
+								break;
+							case 'f':
+								if (nextArgIndex < args.Length())
+								{
+									if (args[nextArgIndex]->IsNumber())
+									{
+										double doubleValue = args[nextArgIndex]->NumberValue();
+										Poco::NumberFormatter::append(text, doubleValue);
+									}
+									else
+									{
+										text.append(toString(args[nextArgIndex]));
+									}
+								}
+								nextArgIndex++;
+								break;
+							case 's':
+								if (nextArgIndex < args.Length())
+								{
+									text.append(toString(args[nextArgIndex]));
+								}
+								nextArgIndex++;
+								break;
+							case 'o':
+								if (nextArgIndex < args.Length())
+								{
+									// use built-in JSON.stringify() 
+									v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
+									v8::Local<v8::Object> global = context->Global();
+									v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
+									v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
+									v8::Local<v8::Value> argv[1] = {args[nextArgIndex]};
+									text.append(toString(stringify->Call(json, 1, argv)));
+								}
+								nextArgIndex++;
+								break;
+							case '%':
+								text += '%';
+								break;
+							default:
+								text += '%';
+								text += *it;
+								break;
+							}
+							it++;
+						}
+					}
+					else text += *it++;
+				}
+			}
+			for (int i = nextArgIndex; i < args.Length(); i++)
 			{
 				text.append(toString(args[i]));
 			}
@@ -108,49 +179,49 @@ void LoggerWrapper::log2(Poco::Message::Priority prio, const v8::FunctionCallbac
 
 void LoggerWrapper::trace(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	log2(Poco::Message::PRIO_TRACE, args);
+	format(Poco::Message::PRIO_TRACE, args);
 }
 
 
 void LoggerWrapper::debug(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	log2(Poco::Message::PRIO_DEBUG, args);
+	format(Poco::Message::PRIO_DEBUG, args);
 }
 
 
 void LoggerWrapper::information(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	log2(Poco::Message::PRIO_INFORMATION, args);
+	format(Poco::Message::PRIO_INFORMATION, args);
 }
 
 
 void LoggerWrapper::notice(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	log2(Poco::Message::PRIO_NOTICE, args);
+	format(Poco::Message::PRIO_NOTICE, args);
 }
 
 
 void LoggerWrapper::warning(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	log2(Poco::Message::PRIO_WARNING, args);
+	format(Poco::Message::PRIO_WARNING, args);
 }
 
 
 void LoggerWrapper::error(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	log2(Poco::Message::PRIO_ERROR, args);
+	format(Poco::Message::PRIO_ERROR, args);
 }
 
 
 void LoggerWrapper::critical(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	log2(Poco::Message::PRIO_CRITICAL, args);
+	format(Poco::Message::PRIO_CRITICAL, args);
 }
 
 
 void LoggerWrapper::fatal(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	log2(Poco::Message::PRIO_FATAL, args);
+	format(Poco::Message::PRIO_FATAL, args);
 }
 
 
