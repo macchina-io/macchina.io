@@ -436,7 +436,7 @@ Example:
 
 !!logger
 
-Returns the application's logger object. This can be used to write
+The application's logger object. This can be used to write
 log messages. Note that in macchina.io, each bundle also has its own logger object,
 which should be preferred to the application's logger.
 
@@ -555,6 +555,50 @@ Example:
 ----
 
 
+!!!The console Object
+
+The global <[console]> object allows a script to write diagnostic output
+using the application's logging infrastructure. It provides similar methods
+to the <[console]> object available in most web browsers.
+A script's <[console]> object is always connected to its bundle's logger.
+The following methods are supported:
+
+!!trace()
+
+Outputs a stack trace to the bundle's logger using debug log level.
+
+!!assert(condition, message [, arg]...)
+
+Writes an error-level log message, as well as a debug-level stack trace to the
+bundle's logger if the given condition evaluates to <[false]>.
+The message can contain formatting specifiers. See the Logger object for more information.
+
+!!debug(message [, arg]...)
+
+Writes a debug-level log message to the bundle's logger.
+The message can contain formatting specifiers. See the Logger object for more information.
+
+!!log(message [, arg]...)
+
+Writes an information-level log message to the bundle's logger.
+The message can contain formatting specifiers. See the Logger object for more information.
+
+!!info(message [, arg]...)
+
+Writes an information-level log message to the bundle's logger.
+The message can contain formatting specifiers. See the Logger object for more information.
+
+!!warn(message [, arg]...)
+
+Writes an warning-level log message to the bundle's logger.
+The message can contain formatting specifiers. See the Logger object for more information.
+
+!!error(message [, arg]...)
+
+Writes an error-level log message to the bundle's logger.
+The message can contain formatting specifiers. See the Logger object for more information.
+
+
 !!!Configuration Objects
 
 Configuration objects support the following methods:
@@ -609,68 +653,95 @@ Example:
 
 The following methods are available:
 
-!!trace(arg [, arg]...)
+!!trace(message [, arg]...)
 
 Writes a trace log message. Trace log messages have the lowest priority.
-All arguments are concatenated into a single log message.
+The message can contain formatting specifiers.
 
-!!debug(arg [, arg]...)
+!!debug(message [, arg]...)
 
 Writes a debug log message.
-All arguments are concatenated into a single log message.
+The message can contain formatting specifiers.
 
-!!information(arg [, arg]...)
+!!information(message [, arg]...)
 
 Writes an informational log message.
-All arguments are concatenated into a single log message.
+The message can contain formatting specifiers.
 
-!!notice(arg [, arg]...)
+!!notice(message [, arg]...)
 
 Writes a notice log message.
-All arguments are concatenated into a single log message.
+The message can contain formatting specifiers.
 
-!!warning(arg [, arg]...)
+!!warning(message [, arg]...)
 
 Writes a warning log message.
-All arguments are concatenated into a single log message.
+The message can contain formatting specifiers.
 
-!!error(arg [, arg]...)
+!!error(message [, arg]...)
 
 Writes an error log message.
-All arguments are concatenated into a single log message.
+The message can contain formatting specifiers.
 
-!!critical(arg [, arg]...)
+!!critical(message [, arg]...)
 
 Writes a critical error log message.
-All arguments are concatenated into a single log message.
+The message can contain formatting specifiers.
 
-!!fatal(arg [, arg]...)
+!!fatal(message [, arg]...)
 
 Writes a fatal error log message. Fatal log messages have the highest priority.
-All arguments are concatenated into a single log message.
+The message can contain formatting specifiers.
 
-!!log(priority, arg [, arg]...)
+!!log(priority, message [, arg]...)
 
 Writes a log message with the specified level.
 The level can either be an integer from 1 to 8, where
 1 corresponds to fatal error message and 8 corresponds to a trace message,
 or it can be one of the following strings, representing a priority:
 
-  * fatal
-  * critical
-  * error
-  * warning
-  * notice
-  * information
-  * debug
-  * trace
+  * fatal (1)
+  * critical (2)
+  * error (3)
+  * warning (4)
+  * notice (5)
+  * information (6)
+  * debug (7)
+  * trace (8)
+  
+Numerical log levels are also available as properties of the <[logger]> object,
+named <[FATAL]>, <[CRITICAL]>, <[ERROR]>, <[WARNING]>, <[NOTICE]>, <[INFORMATION]>, 
+<[DEBUG]> and <[TRACE]>.
 
-All remaining arguments are concatenated into a single log message.
+The message can contain formatting specifiers.
 
 Example:
 
     logger.log(7, "A debug message");
     logger.log("error", "An error message");
+    logger.log(logger.WARNING, "A warning message");
+----
+
+!!Message Formatting
+
+The first message argument in a logging method can contain formatting specifiers.
+Additional arguments are formatted according to these specifiers. If more arguments
+than formatting specifiers are present, the remaining arguments are simply appended
+to the log message.
+
+The following formatting specifiers are supported:
+
+  * %d, %i: The argument is formatted as an integer.
+  * %f: The argument is formatted as a floating-point number.
+  * %s: The argument is formatted as a string.
+  * %o: The argument is formatted as an object, using JSON.
+
+If the type of the argument does not match the formatting specifier, a simple string
+representation of the object is output instead.
+
+Examples:
+
+    logger.information("The answer to life, the universe and everything: %d", 42);
 ----
 
 
