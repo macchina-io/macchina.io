@@ -741,7 +741,7 @@ representation of the object is output instead.
 
 Examples:
 
-    logger.information("The answer to life, the universe and everything: %d", 42);
+    logger.information("The answer to %s, the %s and everything: %d", "live", "universe", 42);
 ----
 
 
