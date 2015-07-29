@@ -217,10 +217,21 @@ void JSExecutor::call(v8::Persistent<v8::Object>& jsObject, const std::string& m
 			v8::TryCatch tryCatch;
 			v8::Local<v8::Value> argv[1];
 			argv[0] = v8::JSON::Parse(jsArgs);
-			jsFunction->Call(localObject, 1, argv);
-			if (tryCatch.HasCaught())
+			if (!argv[0].IsEmpty())
 			{
-				reportError(tryCatch);
+				jsFunction->Call(localObject, 1, argv);
+				if (tryCatch.HasCaught())
+				{
+					reportError(tryCatch);
+				}
+			}
+			else
+			{
+				ErrorInfo errorInfo;
+				errorInfo.uri = _sourceURI.toString();
+				errorInfo.lineNo = 0;
+				errorInfo.message = "JSExecutor::call(): failed to parse JSON arguments: " + args;
+				reportError(errorInfo);
 			}
 		}
 	}
