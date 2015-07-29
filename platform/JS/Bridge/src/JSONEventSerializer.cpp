@@ -18,6 +18,7 @@
 
 #include "Poco/JS/Bridge/JSONEventSerializer.h"
 #include "Poco/Base64Encoder.h"
+#include "Poco/NumberFormatter.h"
 #include <sstream>
 
 
@@ -191,7 +192,12 @@ void JSONEventSerializer::serialize(const std::string& name, const std::string& 
 			str += "\\\\";
 			break;
 		default:
-			str += *it;
+			if (*it >= 0 && *it < ' ')
+			{
+				str += "\\u";
+				Poco::NumberFormatter::appendHex(str, *it, 4);
+			}
+			else str += *it;
 		}
 	}
 	str.append("\"");
