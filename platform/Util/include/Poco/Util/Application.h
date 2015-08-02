@@ -86,6 +86,8 @@ class Util_API Application: public Subsystem
 {
 public:
 	typedef std::vector<std::string> ArgVec;
+	typedef Poco::AutoPtr<Subsystem> SubsystemPtr;
+	typedef std::vector<SubsystemPtr> SubsystemVec;
 
 	enum ExitCode
 		/// Commonly used exit status codes.
@@ -217,6 +219,9 @@ public:
 		///
 		/// Throws a NotFoundException if such a subsystem has
 		/// not been registered.
+
+	SubsystemVec& subsystems();
+		/// Returns a reference to the subsystem list
 
 	virtual int run();
 		/// Runs the application by performing additional (un)initializations
@@ -367,8 +372,6 @@ private:
 	void processOptions();
 	bool findAppConfigFile(const std::string& appName, const std::string& extension, Poco::Path& path) const;
 
-	typedef Poco::AutoPtr<Subsystem> SubsystemPtr;
-	typedef std::vector<SubsystemPtr> SubsystemVec;
 	typedef Poco::AutoPtr<LayeredConfiguration> ConfigPtr;
 	
 	ConfigPtr       _pConfig;
@@ -409,6 +412,11 @@ template <class C> C& Application::getSubsystem() const
 		if (pC) return *const_cast<C*>(pC);
 	}
 	throw Poco::NotFoundException("The subsystem has not been registered", typeid(C).name());
+}
+
+inline Application::SubsystemVec& Application::subsystems()
+{
+	return _subsystems;
 }
 
 
