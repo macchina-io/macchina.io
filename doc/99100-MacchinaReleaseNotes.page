@@ -1,6 +1,32 @@
 Release Notes
 AAAAMacchinaIO
 
+!!!Release 0.2.0 - Developer Preview 2
+
+!!Summary of Changes
+
+  - upgraded POCO C++ Libraries to 1.6.1
+  - added BarcodeReader interface
+  - GNSSSensor implementation based on NMEA 0183 protocol via serial port
+  - GNSSSensor interface - added positionLost event
+  - added WebTunnel protocol support for connecting to my-devices.net
+  - Serial Port: added support for baud rates 460800 to 4000000 if available
+  - enable V8 snapshot feature to improve JavaScript startup time
+  - added LED device interface and implementation for Linux /sys/class/leds
+  - various improvements, bugfixes and optimizations in JS library
+  - added support for XBee protocol and XBee Sensor (light, temperature, humidity)
+  - added Sensor::ready() method
+  - added SimulatedGNSSSensor which plays back GPX files
+  - added web-based Console
+  - improved JavaScript logger wrapper (support for formatted messages)
+  - added JavaScript console object
+  - JavaScript: HTMLForm JavaScript wrapper now has property accessor for fields: 
+    write form.a instead of form.getField('a') (GH #16)
+  - various minor bugfixes and improvements
+  - fixed a potential crash when converting a std::string to JavaScript string
+    and the string contains invalid UTF-8.
+
+
 !!!Release 0.1.0 - Developer Preview 1
 
 This is the first release of macchina.io, released with the intent to get
