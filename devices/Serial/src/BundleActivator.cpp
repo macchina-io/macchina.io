@@ -90,6 +90,25 @@ public:
 				pContext->logger().information(Poco::format("Creating serial port for device '%s'.", device));
 
 				SerialDeviceImpl::SerialPortPtr pSerialPort = new SerialPort(device, speed, params);
+				
+				if (_pPrefs->configuration()->getBool(baseKey + ".rs485.enable", false))
+				{
+					SerialPort::RS485Params rs485Params;
+					rs485Params.flags = SerialPort::RS485Params::RS485_ENABLED;
+					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.rtsOnSend", false))
+						rs485Params.flags |= SerialPort::RS485Params::RS485_RTS_ON_SEND;
+					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.rtsAfterSend", false))
+						rs485Params.flags |= SerialPort::RS485Params::RS485_RTS_AFTER_SEND;
+					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.useGPIO", false))
+						rs485Params.flags |= SerialPort::RS485Params::RS485_USE_GPIO;
+						
+					rs485Params.delayRTSBeforeSend = _pPrefs->configuration()->getInt(baseKey + ".rs485.delayRTSBeforeSend", 0);
+					rs485Params.delayRTSAfterSend  = _pPrefs->configuration()->getInt(baseKey + ".rs485.delayRTSAfterSend", 0);
+					rs485Params.gpioPin            = _pPrefs->configuration()->getInt(baseKey + ".rs485.gpioPin", 0);
+					
+					pSerialPort->configureRS485(rs485Params);
+				}
+				
 				createSerialDevice(Poco::NumberFormatter::format(index), pSerialPort);
 			}
 			catch (Poco::Exception& exc)

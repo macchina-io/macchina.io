@@ -160,6 +160,12 @@ void SerialPortImpl::closeImpl()
 }
 
 
+void SerialPortImpl::configureRS485Impl(const RS485ParamsImpl& rs485Params)
+{
+	throw Poco::NotImplementedException("RS-485 mode");
+}
+
+
 void SerialPortImpl::setRTSImpl(bool status)
 {
 	DWORD func = status ? SETRTS : CLRRTS;

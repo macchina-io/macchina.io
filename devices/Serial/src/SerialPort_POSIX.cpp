@@ -26,6 +26,9 @@
 #include <unistd.h>
 #include <cstdio>
 #include <cstring>
+#if POCO_OS == POCO_OS_LINUX
+#include <linux/serial.h>
+#endif
 
 
 using Poco::format;
@@ -194,6 +197,28 @@ void SerialPortImpl::closeImpl()
 {
 	::close(_fd);
 	_fd = -1;
+}
+
+
+void SerialPortImpl::configureRS485Impl(const RS485ParamsImpl& rs485Params)
+{
+	poco_assert (_fd != -1);
+
+#if defined(TIOCSRS485)
+	struct serial_rs485 rs485conf;
+	rs485conf.flags = rs485Params.flags;
+	rs485conf.delay_rts_before_send = rs485Params.delayRTSBeforeSend;
+	rs485conf.delay_rts_after_send  = rs485Params.delayRTSAfterSend;
+	#if defined(SER_RS485_USE_GPIO)
+		rs485conf.gpio_pin = rs485Params.gpioPin;
+	#endif
+	if (ioctl (_fd, TIOCSRS485, &rs485conf) < 0)
+	{
+		throw Poco::IOException("error configuring RS-485 mode for serial port " + device, strerror(errno));
+	}
+#else
+	throw Poco::NotImplementedException("RS-485 mode");
+#endif
 }
 
 

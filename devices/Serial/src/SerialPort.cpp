@@ -128,6 +128,12 @@ void SerialPort::close()
 }
 
 
+void SerialPort::configureRS485(const RS485Params& rs485Params)
+{
+	configureRS485Impl(rs485Params);
+}
+
+
 void SerialPort::setRTS(bool status)
 {
 	setRTSImpl(status);

@@ -53,6 +53,8 @@ public:
 		DEFAULT_BUFFER_SIZE = 4096 /// Default size for the internal buffer.
 	};
 	
+	typedef RS485ParamsImpl RS485Params;
+	
 	SerialPort();
 		/// Creates the SerialPort.
 
@@ -104,13 +106,18 @@ public:
 		/// Returns true immediately if data is already in 
 		/// the internal buffer, or if data arrives during the
 		/// specified time interval, otherwise false.
-		
+
+	void configureRS485(const RS485Params& rs485Params);
+		/// Enable and configure RS-485 mode, if supported.
+		///
+		/// Throws a Poco::NotImplementedException if the hardware does not support RS-485 mode.
+
 	void setRTS(bool status);
 		/// Manually sets or clears RTS.
 		
 	bool getRTS() const;
 		/// Returns the RTS status.
-		
+				
 	std::size_t write(const std::string& data);
 		/// Writes the given data to the port.
 		/// Returns the number of characters written.
