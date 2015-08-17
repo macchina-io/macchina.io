@@ -214,7 +214,7 @@ void SerialPortImpl::configureRS485Impl(const RS485ParamsImpl& rs485Params)
 	#endif
 	if (ioctl (_fd, TIOCSRS485, &rs485conf) < 0)
 	{
-		throw Poco::IOException("error configuring RS-485 mode for serial port " + device, strerror(errno));
+		throw Poco::IOException("error configuring RS-485 mode for serial port", strerror(errno));
 	}
 #else
 	throw Poco::NotImplementedException("RS-485 mode");
