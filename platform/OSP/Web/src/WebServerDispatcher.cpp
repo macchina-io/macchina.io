@@ -1,7 +1,7 @@
 //
 // WebServerDispatcher.cpp
 //
-// $Id: //poco/1.6/OSP/Web/src/WebServerDispatcher.cpp#1 $
+// $Id: //poco/1.6/OSP/Web/src/WebServerDispatcher.cpp#3 $
 //
 // Library: OSP/Web
 // Package: Web
@@ -375,8 +375,13 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 	}
 	
 	// clear out any remaining data in request body
-	request.stream().clear(); 
-	request.stream().ignore(std::numeric_limits<std::streamsize>::max()); 
+	if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_POST || request.getMethod() == Poco::Net::HTTPRequest::HTTP_PUT)
+	{
+		if (Poco::icompare(request.get(Poco::Net::HTTPMessage::CONNECTION, ""), Poco::Net::HTTPRequest::UPGRADE) != 0)
+		{ 
+			request.stream().ignore(std::numeric_limits<std::streamsize>::max()); 
+		}
+	}
 
 	if (_accessLogger.information())
 	{
