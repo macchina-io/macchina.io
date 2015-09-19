@@ -56,6 +56,7 @@ class BundleActivator: public Poco::OSP::BundleActivator
 public:
 	BundleActivator():
 		_httpPort(80),
+		_vncPort(0),
 		_useProxy(false),
 		_proxyPort(0),
 		_threads(0),
@@ -103,6 +104,13 @@ public:
 			
 				_httpPort = static_cast<Poco::UInt16>(_pPrefsService->configuration()->getInt("osp.web.server.port", 22080));
 				_ports.insert(_httpPort);
+				
+				_vncPort = static_cast<Poco::UInt16>(getIntConfig("webtunnel.vncPort", 0));
+				if (_vncPort != 0 && _ports.find(_vncPort) == _ports.end())
+				{
+					_pContext->logger().warning(Poco::format("Specified vncPort %hu not in list of forwarded ports (webtunnel.ports) - ignored.", _vncPort));
+					_vncPort = 0;
+				}
 
 				_localTimeout = Poco::Timespan(getIntConfig("webtunnel.localTimeout", 7200), 0);
 				_connectTimeout = Poco::Timespan(getIntConfig("webtunnel.connectTimeout", 10), 0);
@@ -224,6 +232,10 @@ protected:
 		{
 			request.add("X-PTTH-Set-Property", Poco::format("device;httpPort=%hu", _httpPort));
 		}
+		if (_vncPort != 0)
+		{
+			request.add("X-PTTH-Set-Property", Poco::format("device;vncPort=%hu", _vncPort));
+		}
 		if (!_deviceName.empty())
 		{
 			request.add("X-PTTH-Set-Property", Poco::format("device;name=\"%s\"", _deviceName));
@@ -250,6 +262,7 @@ protected:
 					_pForwarder->webSocketClosed += Poco::delegate(this, &BundleActivator::onClose);
 					_retryDelay = 1000;
 					_pContext->logger().information("WebTunnel connection established.");
+					pWebSocket->setNoDelay(true);
 					return;
 				}
 				else
@@ -347,6 +360,7 @@ private:
 	std::string _password;
 	std::string _userAgent;
 	Poco::UInt16 _httpPort;
+	Poco::UInt16 _vncPort;
 	bool _useProxy;
 	std::string _proxyHost;
 	Poco::UInt16 _proxyPort;
