@@ -103,6 +103,16 @@ void Serializer::serializeNullableEnd(const std::string& name)
 }
 
 
+void Serializer::serializeOptionalBegin(const std::string& name, bool isSpecified)
+{
+}
+
+
+void Serializer::serializeOptionalEnd(const std::string& name)
+{
+}
+
+
 void Serializer::serialize(const std::string& name, Poco::Int8 value)
 {
 	serializeValue(name, v8::Integer::New(_pIsolate, static_cast<Poco::Int32>(value)));

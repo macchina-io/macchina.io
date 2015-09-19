@@ -50,6 +50,8 @@ public:
 	void deserializeSequenceEnd(const std::string& name);
 	bool deserializeNullableBegin(const std::string& name, bool isMandatory, bool& isNull);
 	void deserializeNullableEnd(const std::string& name);
+	bool deserializeOptionalBegin(const std::string& name, bool isMandatory, bool& isSpecified);
+	void deserializeOptionalEnd(const std::string& name);
 	bool deserialize(const std::string& name, bool isMandatory, Poco::Int8& value);
 	bool deserialize(const std::string& name, bool isMandatory, Poco::UInt8& value);
 	bool deserialize(const std::string& name, bool isMandatory, Poco::Int16& value);

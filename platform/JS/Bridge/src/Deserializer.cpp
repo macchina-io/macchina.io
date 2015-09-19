@@ -113,6 +113,20 @@ void Deserializer::deserializeNullableEnd(const std::string& /*name*/)
 }
 
 
+bool Deserializer::deserializeOptionalBegin(const std::string& name, bool /*isMandatory*/, bool& isSpecified)
+{
+	v8::Local<v8::Value> jsValue = peekValue(name);
+	if (jsValue.IsEmpty()) return false;
+	isSpecified = !jsValue->IsNull() && !jsValue->IsUndefined();
+	return true;
+}
+
+
+void Deserializer::deserializeOptionalEnd(const std::string& name)
+{
+}
+
+
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, Poco::Int8& value)
 {
 	v8::Local<v8::Value> jsValue = deserializeValue(name);

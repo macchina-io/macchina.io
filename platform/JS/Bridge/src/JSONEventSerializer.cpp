@@ -142,6 +142,16 @@ void JSONEventSerializer::serializeNullableEnd(const std::string&)
 }
 
 
+void JSONEventSerializer::serializeOptionalBegin(const std::string& name, bool isSpecified)
+{
+}
+
+
+void JSONEventSerializer::serializeOptionalEnd(const std::string& name)
+{
+}
+
+
 void JSONEventSerializer::serialize(const std::string& name, char val)
 {
 	std::string tmp("\"");

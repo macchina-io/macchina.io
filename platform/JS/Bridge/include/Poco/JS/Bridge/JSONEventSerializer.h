@@ -64,6 +64,8 @@ public:
 	void serializeSequenceEnd(const std::string& name);
 	void serializeNullableBegin(const std::string& name, bool isNull);
 	void serializeNullableEnd(const std::string& name);
+	void serializeOptionalBegin(const std::string& name, bool isSpecified);
+	void serializeOptionalEnd(const std::string& name);
 	void serialize(const std::string& name, Poco::Int8 val);
 	void serialize(const std::string& name, Poco::UInt8 val);
 	void serialize(const std::string& name, Poco::Int16 val);
