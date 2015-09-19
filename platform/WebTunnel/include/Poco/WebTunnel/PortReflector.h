@@ -1,7 +1,7 @@
 //
 // PortReflector.h
 //
-// $Id: //poco/1.4/WebTunnel/include/Poco/WebTunnel/PortReflector.h#16 $
+// $Id: //poco/1.4/WebTunnel/include/Poco/WebTunnel/PortReflector.h#17 $
 //
 // Library: WebTunnel
 // Package: WebTunnel
@@ -63,10 +63,16 @@ public:
 		///
 		/// All open WebSocket connections will be closed.
 
-	void addClientSocket(Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket, const std::string& targetId, Poco::UInt16 targetPort);
+	void addWebSocket(Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket, const std::string& targetId, Poco::UInt16 targetPort);
 		/// Adds a client WebSocket connection for forwarding to the given target device and port.
 		///
-		/// The WebSocket will be managed by the PortReflector until closed by the peer.
+		/// The socket will be managed by the PortReflector until closed by the peer.
+
+	void addStreamSocket(Poco::SharedPtr<Poco::Net::StreamSocket> pStreamSocket, const std::string& targetId, Poco::UInt16 targetPort, const std::string& initialMessage);
+		/// Adds a client StreamSocket connection for forwarding to the given target device and port.
+		/// As soon as the tunnel connection is established, the initialMessage is sent to the peer.
+		///
+		/// The socket will be managed by the PortReflector until closed by the peer.
 
 	TunnelSocket openTunnelSocket(const std::string& targetId, Poco::UInt16 targetPort);
 		/// Creates and returns a TunnelSocket for the given target and port number.
@@ -127,9 +133,10 @@ protected:
 		ChannelState state; 
 		Poco::Event stateChanged;
 		Poco::UInt16 channel;
-		Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket;
-		Poco::FastMutex webSocketMutex;
+		Poco::SharedPtr<Poco::Net::StreamSocket> pSocket;
+		Poco::FastMutex socketMutex;
 		Poco::SharedPtr<TunnelSocket> pTunnelSocket;
+		std::string initialMessage;
 	};
 	typedef std::map<Poco::UInt16, ChannelInfo::Ptr> ChannelMap;
 	
@@ -148,17 +155,18 @@ protected:
 	
 	typedef std::map<std::string, TargetInfo::Ptr> TargetMap;
 	
-	bool multiplex(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer);
+	bool multiplexWebSocket(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer);
+	bool multiplexStreamSocket(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer);
 	void multiplexError(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer);
 	void multiplexTimeout(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer);
 	bool demultiplex(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, Poco::Buffer<char>& buffer);
 	void demultiplexError(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, Poco::Buffer<char>& buffer);
 	void demultiplexTimeout(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, Poco::Buffer<char>& buffer);
 
-	class TunnelMultiplexer: public SocketDispatcher::SocketHandler
+	class WebSocketTunnelMultiplexer: public SocketDispatcher::SocketHandler
 	{
 	public:
-		TunnelMultiplexer(PortReflector& reflector, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo):
+		WebSocketTunnelMultiplexer(PortReflector& reflector, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo):
 			_reflector(reflector),
 			_pTargetInfo(pTargetInfo),
 			_pChannelInfo(pChannelInfo),
@@ -168,7 +176,40 @@ protected:
 		
 		bool readable(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 		{
-			return _reflector.multiplex(dispatcher, socket, _pTargetInfo, _pChannelInfo, _buffer);
+			return _reflector.multiplexWebSocket(dispatcher, socket, _pTargetInfo, _pChannelInfo, _buffer);
+		}
+		
+		void exception(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
+		{
+			_reflector.multiplexError(dispatcher, socket, _pTargetInfo, _pChannelInfo, _buffer);
+		}
+
+		void timeout(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
+		{
+			return _reflector.multiplexTimeout(dispatcher, socket, _pTargetInfo, _pChannelInfo, _buffer);
+		}
+		
+	private:
+		PortReflector& _reflector;
+		TargetInfo::Ptr _pTargetInfo;
+		ChannelInfo::Ptr _pChannelInfo;
+		Poco::Buffer<char> _buffer;
+	};
+
+	class StreamSocketTunnelMultiplexer: public SocketDispatcher::SocketHandler
+	{
+	public:
+		StreamSocketTunnelMultiplexer(PortReflector& reflector, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo):
+			_reflector(reflector),
+			_pTargetInfo(pTargetInfo),
+			_pChannelInfo(pChannelInfo),
+			_buffer(Protocol::WT_FRAME_MAX_SIZE + Protocol::WT_FRAME_HEADER_SIZE)
+		{
+		}
+		
+		bool readable(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
+		{
+			return _reflector.multiplexStreamSocket(dispatcher, socket, _pTargetInfo, _pChannelInfo, _buffer);
 		}
 		
 		void exception(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
@@ -218,7 +259,7 @@ protected:
 		TargetInfo::Ptr _pTargetInfo;
 		Poco::Buffer<char> _buffer;
 	};
-
+	
 	bool abortTarget(TargetInfo::Ptr pTargetInfo);
 	void removeTarget(TargetInfo::Ptr pTargetInfo);
 	void shutdownChannel(TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo);
@@ -227,7 +268,8 @@ protected:
 	bool confirmOpenChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt16 channel);
 	void confirmCloseChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt16 channel, Poco::UInt16 errorCode = Protocol::WT_ERR_NONE);
 	bool forwardData(const char* buffer, std::size_t size, TargetInfo::Ptr pTargetInfo, Poco::UInt16 channel);
-
+	bool sendInitialMessage(TargetInfo::Ptr pTargetInfo, Poco::UInt16 channel);
+	
 	SocketDispatcher _dispatcher;
 	TargetMap _targetMap;
 	Poco::Timespan _clientTimeout;

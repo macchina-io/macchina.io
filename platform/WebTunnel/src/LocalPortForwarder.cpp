@@ -1,7 +1,7 @@
 //
 // LocalPortForwarder.cpp
 //
-// $Id: //poco/1.4/WebTunnel/src/LocalPortForwarder.cpp#11 $
+// $Id: //poco/1.4/WebTunnel/src/LocalPortForwarder.cpp#12 $
 //
 // Library: WebTunnel
 // Package: WebTunnel
@@ -255,7 +255,7 @@ public:
 		BasicSocketForwarder(pDispatcher),
 		_streamSocket(streamSocket),
 		_timeoutCount(0),
-		_logger(Poco::Logger::get("WebSocketToStreamSocketForwarder"))
+		_logger(Poco::Logger::get("WebTunnel.WebSocketToStreamSocketForwarder"))
 	{
 	}
 	
@@ -437,6 +437,9 @@ void LocalPortForwarder::forward(Poco::Net::StreamSocket& socket)
 			socket.close();
 			return;
 		}
+
+		socket.setNoDelay(true);
+		pWebSocket->setNoDelay(true);
 
 		_pDispatcher->addSocket(socket, new StreamSocketToWebSocketForwarder(_pDispatcher, pWebSocket), _localTimeout);
 		_pDispatcher->addSocket(*pWebSocket, new WebSocketToStreamSocketForwarder(_pDispatcher, socket), _remoteTimeout);

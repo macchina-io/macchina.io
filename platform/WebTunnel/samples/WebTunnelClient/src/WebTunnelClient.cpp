@@ -1,7 +1,7 @@
 //
 // WebTunnelClient.cpp
 //
-// $Id: //poco/1.4/WebTunnel/samples/WebTunnelClient/src/WebTunnelClient.cpp#7 $
+// $Id: //poco/1.4/WebTunnel/samples/WebTunnelClient/src/WebTunnelClient.cpp#9 $
 //
 // Copyright (c) 2013, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -11,6 +11,7 @@
 
 
 #include "Poco/WebTunnel/LocalPortForwarder.h"
+#include "Poco/Net/HTTPClientSession.h"
 #include "Poco/Net/HTTPSessionFactory.h"
 #include "Poco/Net/HTTPSessionInstantiator.h"
 #if defined(WEBTUNNEL_ENABLE_TLS)
@@ -28,6 +29,11 @@
 #include "Poco/Util/IntValidator.h"
 #include "Poco/NumberParser.h"
 #include <iostream>
+#if defined(POCO_OS_FAMILY_WINDOWS)
+#include <windows.h>
+#elif defined(POCO_OS_FAMILY_UNIX)
+#include <termios.h>
+#endif
 
 
 using Poco::Util::Option;
@@ -221,7 +227,40 @@ protected:
 		else name = def;
 		config().setString(name, value);
 	}
-		
+
+	void promptLogin()
+	{
+		if (_username.empty())
+		{
+			std::cout << "my-devices.net Username: " << std::flush;
+			std::getline(std::cin, _username);
+		}
+		if (_password.empty())
+		{
+			std::cout << "my-devices.net Password: " << std::flush;
+			echo(false);
+			std::getline(std::cin, _password);
+			echo(true);
+			std::cout << std::endl;
+		}
+	}
+	
+	void echo(bool status)
+	{
+#if defined(POCO_OS_FAMILY_WINDOWS)
+		HANDLE stdIn = GetStdHandle(STD_INPUT_HANDLE);
+		DWORD mode;
+		GetConsoleMode(stdIn, &mode);
+		mode = status ? mode | ENABLE_ECHO_INPUT : mode & ~ENABLE_ECHO_INPUT;
+		SetConsoleMode(stdIn, mode);
+#elif defined(POCO_OS_FAMILY_UNIX)
+		struct termios tio;
+		tcgetattr(0, &tio);
+		tio.c_lflag = status ? tio.c_lflag | ECHO : tio.c_lflag & ~(ECHO);
+		tcsetattr(0, TCSANOW, &tio);
+#endif
+	}
+
 	int main(const std::vector<std::string>& args)
 	{
 		if (_helpRequested || args.size() != 1)
@@ -249,6 +288,19 @@ protected:
 			pContext->enableExtendedCertificateVerification(extendedVerification);
 			Poco::Net::SSLManager::instance().initializeClient(0, pCertificateHandler, pContext);
 #endif
+
+			if (config().getBool("http.proxy.enable", false))
+			{
+				logger().information("Proxy enable");
+				Poco::Net::HTTPClientSession::ProxyConfig proxyConfig;
+				proxyConfig.host = config().getString("http.proxy.host", "");
+				proxyConfig.port = static_cast<Poco::UInt16>(config().getInt("http.proxy.port", 80));
+				proxyConfig.username = config().getString("http.proxy.username", "");
+				proxyConfig.password = config().getString("http.proxy.password", "");
+				Poco::Net::HTTPClientSession::setGlobalProxyConfig(proxyConfig);
+			}
+			
+			promptLogin();
 
 			Poco::URI uri(args[0]);
 			Poco::WebTunnel::LocalPortForwarder forwarder(_localPort, _remotePort, uri, new Poco::WebTunnel::DefaultWebSocketFactory(_username, _password, connectTimeout));

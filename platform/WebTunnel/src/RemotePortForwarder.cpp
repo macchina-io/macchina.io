@@ -1,7 +1,7 @@
 //
 // RemotePortForwarder.cpp
 //
-// $Id: //poco/1.4/WebTunnel/src/RemotePortForwarder.cpp#18 $
+// $Id: //poco/1.4/WebTunnel/src/RemotePortForwarder.cpp#20 $
 //
 // Library: WebTunnel
 // Package: WebTunnel
@@ -43,14 +43,20 @@ RemotePortForwarder::~RemotePortForwarder()
 {
 	try
 	{
-		if (_pWebSocket)
-		{
-			closeWebSocket(RPF_CLOSE_GRACEFUL, true);
-		}
+		stop();
 	}
 	catch (...)
 	{
 		poco_unexpected();
+	}
+}
+
+
+void RemotePortForwarder::stop()
+{
+	if (_pWebSocket)
+	{
+		closeWebSocket(RPF_CLOSE_GRACEFUL, true);
 	}
 }
 
@@ -82,12 +88,6 @@ const Poco::Timespan& RemotePortForwarder::getConnectTimeout() const
 const Poco::Timespan& RemotePortForwarder::remoteTimeout() const
 {
 	return _remoteTimeout;
-}
-
-
-void RemotePortForwarder::stop()
-{
-	_dispatcher.stop();
 }
 
 
@@ -317,6 +317,7 @@ bool RemotePortForwarder::openChannel(Poco::UInt16 channel, Poco::UInt16 port)
 			Poco::Net::SocketAddress addr(_host, port);
 			Poco::Net::StreamSocket streamSocket;
 			streamSocket.connect(addr, _connectTimeout);
+			streamSocket.setNoDelay(true);
 			_dispatcher.addSocket(streamSocket, new TunnelMultiplexer(*this, channel), _localTimeout);
 			_channelMap[channel] = streamSocket;
 		}
@@ -384,12 +385,15 @@ void RemotePortForwarder::sendResponse(Poco::UInt16 channel, Poco::UInt8 opcode,
 
 void RemotePortForwarder::closeWebSocket(CloseReason reason, bool active)
 {
+	if (!_pWebSocket) return;
+
 	if (_logger.debug())
 	{
-		_logger.debug(Poco::format("Closing WebSocket, reason: %d", static_cast<int>(reason)));
+		_logger.debug(Poco::format("Closing WebSocket, reason: %d, active: %b", static_cast<int>(reason), active));
 	}
 	try
 	{
+		_dispatcher.removeSocket(*_pWebSocket);
 		if (reason == RPF_CLOSE_GRACEFUL)
 		{
 			try
@@ -403,9 +407,11 @@ void RemotePortForwarder::closeWebSocket(CloseReason reason, bool active)
 			{
 			}
 		}
-		_dispatcher.reset();
+		for (ChannelMap::iterator it = _channelMap.begin(); it != _channelMap.end(); ++it)
+		{
+			_dispatcher.removeSocket(it->second);
+		}
 		_pWebSocket->close();
-		_pWebSocket = 0;
 		_channelMap.clear();
 	}
 	catch (Poco::Exception& exc)

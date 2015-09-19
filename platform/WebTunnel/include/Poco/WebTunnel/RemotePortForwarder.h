@@ -1,7 +1,7 @@
 //
 // RemotePortForwarder.h
 //
-// $Id: //poco/1.4/WebTunnel/include/Poco/WebTunnel/RemotePortForwarder.h#13 $
+// $Id: //poco/1.4/WebTunnel/include/Poco/WebTunnel/RemotePortForwarder.h#14 $
 //
 // Library: WebTunnel
 // Package: WebTunnel
@@ -69,6 +69,9 @@ public:
 	~RemotePortForwarder();
 		/// Destroys the RemotePortForwarder and closes the web socket connection.
 		
+	void stop();
+		/// Stops the RemotePortForwarder.
+
 	void setLocalTimeout(const Poco::Timespan& timeout);
 		/// Sets the timeout for the forwarded local ports.
 		
@@ -84,9 +87,6 @@ public:
 	const Poco::Timespan& remoteTimeout() const;
 		/// Returns the timeout for the remote connection.
 		
-	void stop();
-		/// Stops the RemotePortForwarder.
-
 protected:
 	bool multiplex(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, Poco::UInt16 channel, Poco::Buffer<char>& buffer);
 	void multiplexError(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, Poco::UInt16 channel, Poco::Buffer<char>& buffer);

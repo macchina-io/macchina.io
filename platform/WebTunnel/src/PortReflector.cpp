@@ -1,7 +1,7 @@
 //
 // PortReflector.cpp
 //
-// $Id: //poco/1.4/WebTunnel/src/PortReflector.cpp#19 $
+// $Id: //poco/1.4/WebTunnel/src/PortReflector.cpp#22 $
 //
 // Library: WebTunnel
 // Package: WebTunnel
@@ -16,11 +16,23 @@
 
 #include "Poco/WebTunnel/PortReflector.h"
 #include "Poco/WebTunnel/TunnelSocketImpl.h"
+#include "Poco/Net/WebSocketImpl.h"
 #include "Poco/Format.h"
 
 
 namespace Poco {
 namespace WebTunnel {
+
+
+void shutdownSocket(Poco::Net::StreamSocket& socket, Poco::UInt16 statusCode)
+{
+	if (dynamic_cast<Poco::Net::WebSocketImpl*>(socket.impl()))
+	{
+		Poco::Net::WebSocket webSocket(socket);
+		webSocket.shutdown(statusCode);
+	}
+	socket.shutdownSend();
+}
 
 
 PortReflector::PortReflector(int threadCount, Poco::Timespan dispatcherTimeout, int maxReadsPerWorker):
@@ -34,11 +46,11 @@ PortReflector::~PortReflector()
 {
 	try
 	{
-		_dispatcher.stop();
 		for (TargetMap::iterator it = _targetMap.begin(); it != _targetMap.end(); ++it)
 		{
 			abortTarget(it->second);
 		}
+		_dispatcher.stop();
 	}
 	catch (...)
 	{
@@ -47,7 +59,7 @@ PortReflector::~PortReflector()
 }
 
 
-void PortReflector::addClientSocket(Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket, const std::string& targetId, Poco::UInt16 targetPort)
+void PortReflector::addWebSocket(Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket, const std::string& targetId, Poco::UInt16 targetPort)
 {
 	if (_logger.debug())
 	{
@@ -75,7 +87,7 @@ void PortReflector::addClientSocket(Poco::SharedPtr<Poco::Net::WebSocket> pWebSo
 		ChannelInfo::Ptr pChannelInfo = new ChannelInfo;
 		pChannelInfo->state = CS_CONNECTING;
 		pChannelInfo->channel = channel;
-		pChannelInfo->pWebSocket = pWebSocket;
+		pChannelInfo->pSocket = pWebSocket;
 		pChannelInfo->pTunnelSocket = 0;
 		pTargetInfo->channelMap[channel] = pChannelInfo;
 		if (_logger.debug())
@@ -84,7 +96,54 @@ void PortReflector::addClientSocket(Poco::SharedPtr<Poco::Net::WebSocket> pWebSo
 		}
 		targetLock.unlock();
 		
-		_dispatcher.addSocket(*pWebSocket, new TunnelMultiplexer(*this, pTargetInfo, pChannelInfo), _clientTimeout);
+		pWebSocket->setNoDelay(true);
+		_dispatcher.addSocket(*pWebSocket, new WebSocketTunnelMultiplexer(*this, pTargetInfo, pChannelInfo), _clientTimeout);
+		openChannel(pTargetInfo, channel, targetPort);
+	}
+	else throw Poco::NotFoundException(targetId);
+}
+
+
+void PortReflector::addStreamSocket(Poco::SharedPtr<Poco::Net::StreamSocket> pStreamSocket, const std::string& targetId, Poco::UInt16 targetPort, const std::string& initialMessage)
+{
+	if (_logger.debug())
+	{
+		_logger.debug(Poco::format("Adding stream socket connection for target %s, port %hu", targetId, targetPort));
+	}
+	
+	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+	
+	TargetMap::iterator it = _targetMap.find(targetId);
+	if (it != _targetMap.end())
+	{
+		TargetInfo::Ptr pTargetInfo = it->second;
+		lock.unlock();
+		Poco::ScopedLockWithUnlock<Poco::FastMutex> targetLock(pTargetInfo->mutex);
+		if (pTargetInfo->channelMap.size() >= MAX_CHANNELS)
+		{
+			throw Poco::RuntimeException("Too many channels for target", targetId);
+		}
+		Poco::UInt16 channel = pTargetInfo->lastChannel + 1;
+		while (pTargetInfo->channelMap.find(channel) != pTargetInfo->channelMap.end())
+		{
+			channel++;
+		}
+		pTargetInfo->lastChannel = channel;
+		ChannelInfo::Ptr pChannelInfo = new ChannelInfo;
+		pChannelInfo->state = CS_CONNECTING;
+		pChannelInfo->channel = channel;
+		pChannelInfo->pSocket = pStreamSocket;
+		pChannelInfo->pTunnelSocket = 0;
+		pChannelInfo->initialMessage = initialMessage;
+		pTargetInfo->channelMap[channel] = pChannelInfo;
+		if (_logger.debug())
+		{
+			_logger.debug(Poco::format("Now %z channels to target %s", pTargetInfo->channelMap.size(), targetId));
+		}
+		targetLock.unlock();
+		
+		pStreamSocket->setNoDelay(true);
+		_dispatcher.addSocket(*pStreamSocket, new StreamSocketTunnelMultiplexer(*this, pTargetInfo, pChannelInfo), _clientTimeout);
 		openChannel(pTargetInfo, channel, targetPort);
 	}
 	else throw Poco::NotFoundException(targetId);
@@ -194,7 +253,7 @@ void PortReflector::setServerTimeout(Poco::Timespan timeout)
 }
 
 
-bool PortReflector::multiplex(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer)
+bool PortReflector::multiplexWebSocket(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer)
 {
 	bool expectMore = true;
 	Poco::Net::WebSocket webSocket(socket);
@@ -204,10 +263,20 @@ bool PortReflector::multiplex(SocketDispatcher& dispatcher, Poco::Net::StreamSoc
 	{
 		int flags;
 		n = webSocket.receiveFrame(buffer.begin() + hn, static_cast<int>(buffer.size() - hn), flags);
-		if (n <= 0 || (flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_CLOSE)
+		if (n >= 0 && (flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_PING)
+		{
+			_logger.debug("PING received from client");
+			Poco::FastMutex::ScopedLock lock(pTargetInfo->webSocketMutex);
+			webSocket.sendFrame(buffer.begin() + hn, n, Poco::Net::WebSocket::FRAME_FLAG_FIN | Poco::Net::WebSocket::FRAME_OP_PONG);
+			return false;
+		}
+		else if (n <= 0 || (flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_CLOSE)
 		{
 			_logger.debug("Client WebSocket closed by peer");
-			_dispatcher.removeSocket(*pChannelInfo->pWebSocket);
+			if (pChannelInfo->pSocket) 
+			{
+				_dispatcher.removeSocket(*pChannelInfo->pSocket);
+			}
 			if (pChannelInfo->state == CS_CONNECTED)
 			{
 				if (_logger.debug())
@@ -219,17 +288,76 @@ bool PortReflector::multiplex(SocketDispatcher& dispatcher, Poco::Net::StreamSoc
 			}
 			else return false;
 		}
-		else if (n >= 0 && (flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_PING)
+	}
+	catch (Poco::Exception& exc)
+	{	
+		_logger.error(Poco::format("Error reading from client WebSocket for channel %hu on target %s: %s", pChannelInfo->channel, pTargetInfo->id, exc.displayText()));
+		shutdownChannel(pTargetInfo, pChannelInfo);
+		expectMore = false;
+	}
+
+	while (n > 0 && pChannelInfo->state == CS_CONNECTING)
+	{
+		_logger.debug("Waiting for channel to be ready...");
+		if (!pChannelInfo->stateChanged.tryWait(CONNECT_TIMEOUT))
 		{
-			_logger.debug("PING received from client");
-			Poco::FastMutex::ScopedLock lock(pTargetInfo->webSocketMutex);
-			webSocket.sendFrame(buffer.begin() + hn, n, Poco::Net::WebSocket::FRAME_FLAG_FIN | Poco::Net::WebSocket::FRAME_OP_PONG);
-			return false;
+			pChannelInfo->state = CS_ERROR;
+			removeTarget(pTargetInfo);
+			throw Poco::TimeoutException();
+		}
+	}
+	
+	if (n > 0 && pChannelInfo->state != CS_CONNECTED)
+	{
+		_logger.warning(Poco::format("Ignoring data for unconnected channel %hu to target %s", pChannelInfo->channel, pTargetInfo->id));
+		return false;
+	}
+
+	try
+	{
+		Poco::FastMutex::ScopedLock lock(pTargetInfo->webSocketMutex);
+		pTargetInfo->pWebSocket->sendFrame(buffer.begin(), static_cast<int>(n + hn), Poco::Net::WebSocket::FRAME_BINARY);
+	}
+	catch (Poco::Exception& exc)
+	{
+		_logger.error(Poco::format("Error sending WebSocket frame for channel %hu: %s", pChannelInfo->channel, exc.displayText()));
+		removeTarget(pTargetInfo);
+		expectMore = false;
+	}
+	return expectMore;
+}
+
+
+bool PortReflector::multiplexStreamSocket(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer)
+{
+	bool expectMore = true;
+	std::size_t hn = Protocol::writeHeader(buffer.begin(), buffer.size(), Protocol::WT_OP_DATA, 0, pChannelInfo->channel);
+	int n = 0;
+	try
+	{
+		n = socket.receiveBytes(buffer.begin() + hn, static_cast<int>(buffer.size() - hn));
+		if (n == 0)
+		{
+			_logger.debug("Client StreamSocket closed by peer");
+			if (pChannelInfo->pSocket) 
+			{
+				_dispatcher.removeSocket(*pChannelInfo->pSocket);
+			}
+			if (pChannelInfo->state == CS_CONNECTED)
+			{
+				if (_logger.debug())
+				{
+					_logger.debug(Poco::format("Actively closing channel %hu to target %s", pChannelInfo->channel, pTargetInfo->id));
+				}
+				shutdownChannel(pTargetInfo, pChannelInfo);
+				return false;
+			}
+			else return false;
 		}
 	}
 	catch (Poco::Exception& exc)
 	{	
-		_logger.error(Poco::format("Error reading from client socket for channel %hu on target %s: %s", pChannelInfo->channel, pTargetInfo->id, exc.displayText()));
+		_logger.error(Poco::format("Error reading from client stream socket for channel %hu on target %s: %s", pChannelInfo->channel, pTargetInfo->id, exc.displayText()));
 		shutdownChannel(pTargetInfo, pChannelInfo);
 		expectMore = false;
 	}
@@ -326,7 +454,10 @@ bool PortReflector::demultiplex(SocketDispatcher& dispatcher, Poco::Net::StreamS
 			return true;
 			
 		case Protocol::WT_OP_OPEN_CONFIRM:
-			return confirmOpenChannel(pTargetInfo, channel);
+			if (confirmOpenChannel(pTargetInfo, channel))
+				return sendInitialMessage(pTargetInfo, channel);
+			else
+				return false;
 			
 		case Protocol::WT_OP_OPEN_FAULT:
 			_logger.error(Poco::format("Failed to open channel %hu (status code %hu)", channel, portOrErrorCode));
@@ -394,22 +525,21 @@ bool PortReflector::abortTarget(TargetInfo::Ptr pTargetInfo)
 		{
 			try
 			{
-				if (it->second->pWebSocket && it->second->state != CS_DISCONNECTED)
+				if (it->second->pSocket && it->second->state != CS_DISCONNECTED)
 				{
 					it->second->state = CS_DISCONNECTED;
 					it->second->stateChanged.set();
-					Poco::FastMutex::ScopedLock lock(it->second->webSocketMutex);
-					it->second->pWebSocket->shutdown(Poco::Net::WebSocket::WS_UNEXPECTED_CONDITION);
-					it->second->pWebSocket->shutdownSend();
+					Poco::FastMutex::ScopedLock lock(it->second->socketMutex);
+					shutdownSocket(*it->second->pSocket, Poco::Net::WebSocket::WS_UNEXPECTED_CONDITION);
 				}
 			}
 			catch (Poco::Exception& exc)
 			{
 				_logger.warning(Poco::format("Error closing channel %hu for target %s: %s", it->second->channel, pTargetInfo->id, exc.displayText()));
 			}
-			if (it->second->pWebSocket)
+			if (it->second->pSocket)
 			{
-				_dispatcher.removeSocket(*it->second->pWebSocket);
+				_dispatcher.removeSocket(*it->second->pSocket);
 			}
 		}
 		_dispatcher.closeSocket(*pTargetInfo->pWebSocket);
@@ -441,9 +571,9 @@ void PortReflector::removeTarget(TargetInfo::Ptr pTargetInfo)
 
 void PortReflector::shutdownChannel(TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo)
 {
-	if (pChannelInfo->pWebSocket)
+	if (pChannelInfo->pSocket)
 	{
-		_dispatcher.removeSocket(*pChannelInfo->pWebSocket);
+		_dispatcher.removeSocket(*pChannelInfo->pSocket);
 	}
 	if (pChannelInfo->state != CS_DISCONNECTED)
 	{
@@ -545,10 +675,9 @@ void PortReflector::confirmCloseChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt1
 		it->second->stateChanged.set();
 		try
 		{
-			if (it->second->pWebSocket)
+			if (it->second->pSocket)
 			{
-				it->second->pWebSocket->shutdown(Poco::Net::WebSocket::WS_NORMAL_CLOSE);
-				it->second->pWebSocket->shutdownSend();
+				shutdownSocket(*it->second->pSocket, Poco::Net::WebSocket::WS_NORMAL_CLOSE);
 			}
 			else if (it->second->pTunnelSocket)
 			{
@@ -559,10 +688,10 @@ void PortReflector::confirmCloseChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt1
 		{
 			_logger.warning(Poco::format("Error closing client WebSocket for channel %hu: %s", channel, exc.displayText()));
 		}
-		if (it->second->pWebSocket)
+		if (it->second->pSocket)
 		{
-			_dispatcher.closeSocket(*it->second->pWebSocket);
-			it->second->pWebSocket = 0;
+			_dispatcher.closeSocket(*it->second->pSocket);
+			it->second->pSocket = 0;
 		}
 		it->second->pTunnelSocket = 0;
 		pTargetInfo->channelMap.erase(it);
@@ -581,10 +710,10 @@ bool PortReflector::forwardData(const char* buffer, std::size_t size, TargetInfo
 		targetLock.unlock();
 		try
 		{
-			if (pChannelInfo->pWebSocket)
+			if (pChannelInfo->pSocket)
 			{
-				Poco::FastMutex::ScopedLock lock(pChannelInfo->webSocketMutex);
-				pChannelInfo->pWebSocket->sendBytes(buffer, static_cast<int>(size));
+				Poco::FastMutex::ScopedLock lock(pChannelInfo->socketMutex);
+				pChannelInfo->pSocket->sendBytes(buffer, static_cast<int>(size));
 			}
 			else if (pChannelInfo->pTunnelSocket)
 			{
@@ -604,6 +733,33 @@ bool PortReflector::forwardData(const char* buffer, std::size_t size, TargetInfo
 		_logger.error(Poco::format("Received unexpected data message for channel %hu on target %s", channel, pTargetInfo->id));		
 	}
 	return false;
+}
+
+
+bool PortReflector::sendInitialMessage(TargetInfo::Ptr pTargetInfo, Poco::UInt16 channel)
+{
+	ChannelMap::iterator it = pTargetInfo->channelMap.find(channel);
+	if (it != pTargetInfo->channelMap.end())
+	{
+		if (!it->second->initialMessage.empty())
+		{
+			Poco::Buffer<char> buffer(it->second->initialMessage.size() + 8);
+			std::size_t hn = Protocol::writeHeader(buffer.begin(), buffer.size(), Protocol::WT_OP_DATA, 0, channel);
+			std::memcpy(buffer.begin() + hn, it->second->initialMessage.data(), it->second->initialMessage.size());
+			try
+			{
+				Poco::FastMutex::ScopedLock lock(pTargetInfo->webSocketMutex);
+				pTargetInfo->pWebSocket->sendFrame(buffer.begin(), static_cast<int>(it->second->initialMessage.size() + hn), Poco::Net::WebSocket::FRAME_BINARY);
+			}
+			catch (Poco::Exception& exc)
+			{
+				_logger.error(Poco::format("Error sending WebSocket frame for channel %hu: %s", channel, exc.displayText()));
+				removeTarget(pTargetInfo);
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 

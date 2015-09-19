@@ -16,16 +16,47 @@
 
 #include "Poco/WebTunnel/SocketDispatcher.h"
 #include "Poco/Net/NetException.h"
+#include "Poco/Event.h"
 
 
 namespace Poco {
 namespace WebTunnel {
 
 
+class AutoSetEvent
+{
+public:
+	AutoSetEvent(Poco::Event& event):
+		_event(event)
+	{
+	}
+	
+	~AutoSetEvent()
+	{
+		try
+		{
+			_event.set();
+		}
+		catch (...)
+		{
+			poco_unexpected();
+		}
+	}
+	
+private:
+	Poco::Event& _event;
+};
+
+
 class TaskNotification: public Poco::Notification
 {
 public:
 	typedef Poco::AutoPtr<TaskNotification> Ptr;
+	
+	enum
+	{
+		TASK_WAIT_TIMEOUT = 30000
+	};
 	
 	TaskNotification(SocketDispatcher& dispatcher):
 		_dispatcher(dispatcher)
@@ -36,16 +67,24 @@ public:
 	{
 	}
 	
+	void wait()
+	{
+		_done.wait(TASK_WAIT_TIMEOUT);
+	}
+	
 	virtual void execute() = 0;
 	
 protected:
 	SocketDispatcher& _dispatcher;
+	Poco::Event _done;
 };
 
 
 class ReadableNotification: public TaskNotification
 {
 public:
+	typedef Poco::AutoPtr<ReadableNotification> Ptr;
+
 	ReadableNotification(SocketDispatcher& dispatcher, const Poco::Net::StreamSocket& socket, const SocketDispatcher::SocketInfo::Ptr& pInfo):
 		TaskNotification(dispatcher),
 		_socket(socket),
@@ -55,7 +94,9 @@ public:
 	
 	void execute()
 	{
-		_dispatcher.readableImpl(_socket, _pInfo);
+		AutoSetEvent ase(_done);
+
+		_dispatcher.readableImpl(_socket, _pInfo);		
 	}
 	
 private:
@@ -67,6 +108,8 @@ private:
 class ExceptionNotification: public TaskNotification
 {
 public:
+	typedef Poco::AutoPtr<ExceptionNotification> Ptr;
+
 	ExceptionNotification(SocketDispatcher& dispatcher, const Poco::Net::StreamSocket& socket, const SocketDispatcher::SocketInfo::Ptr& pInfo):
 		TaskNotification(dispatcher),
 		_socket(socket),
@@ -76,6 +119,8 @@ public:
 	
 	void execute()
 	{
+		AutoSetEvent ase(_done);
+
 		_dispatcher.exceptionImpl(_socket, _pInfo);
 	}
 	
@@ -88,6 +133,8 @@ private:
 class TimeoutNotification: public TaskNotification
 {
 public:
+	typedef Poco::AutoPtr<TimeoutNotification> Ptr;
+
 	TimeoutNotification(SocketDispatcher& dispatcher, const Poco::Net::StreamSocket& socket, const SocketDispatcher::SocketInfo::Ptr& pInfo):
 		TaskNotification(dispatcher),
 		_socket(socket),
@@ -97,6 +144,8 @@ public:
 	
 	void execute()
 	{
+		AutoSetEvent ase(_done);
+
 		_dispatcher.timeoutImpl(_socket, _pInfo);
 	}
 	
@@ -109,6 +158,8 @@ private:
 class AddSocketNotification: public TaskNotification
 {
 public:
+	typedef Poco::AutoPtr<AddSocketNotification> Ptr;
+
 	AddSocketNotification(SocketDispatcher& dispatcher, const Poco::Net::StreamSocket& socket, const SocketDispatcher::SocketHandler::Ptr& pHandler, Poco::Timespan timeout):
 		TaskNotification(dispatcher),
 		_socket(socket),
@@ -119,6 +170,8 @@ public:
 	
 	void execute()
 	{
+		AutoSetEvent ase(_done);
+
 		_dispatcher.addSocketImpl(_socket, _pHandler, _timeout);
 	}
 	
@@ -132,6 +185,8 @@ private:
 class RemoveSocketNotification: public TaskNotification
 {
 public:
+	typedef Poco::AutoPtr<RemoveSocketNotification> Ptr;
+
 	RemoveSocketNotification(SocketDispatcher& dispatcher, const Poco::Net::StreamSocket& socket):
 		TaskNotification(dispatcher),
 		_socket(socket)
@@ -140,6 +195,8 @@ public:
 	
 	void execute()
 	{
+		AutoSetEvent ase(_done);
+
 		_dispatcher.removeSocketImpl(_socket);
 	}
 	
@@ -151,6 +208,8 @@ private:
 class CloseSocketNotification: public TaskNotification
 {
 public:
+	typedef Poco::AutoPtr<CloseSocketNotification> Ptr;
+
 	CloseSocketNotification(SocketDispatcher& dispatcher, const Poco::Net::StreamSocket& socket):
 		TaskNotification(dispatcher),
 		_socket(socket)
@@ -159,6 +218,8 @@ public:
 	
 	void execute()
 	{
+		AutoSetEvent ase(_done);
+
 		_dispatcher.closeSocketImpl(_socket);
 	}
 	
@@ -170,6 +231,8 @@ private:
 class ResetNotification: public TaskNotification
 {
 public:
+	typedef Poco::AutoPtr<ResetNotification> Ptr;
+
 	ResetNotification(SocketDispatcher& dispatcher):
 		TaskNotification(dispatcher)
 	{
@@ -177,6 +240,8 @@ public:
 	
 	void execute()
 	{
+		AutoSetEvent ase(_done);
+
 		_dispatcher.resetImpl();
 	}
 };
@@ -232,25 +297,33 @@ void SocketDispatcher::stop()
 
 void SocketDispatcher::reset()
 {
-	_mainQueue.enqueueNotification(new ResetNotification(*this));
+	ResetNotification::Ptr pNf = new ResetNotification(*this);
+	_mainQueue.enqueueNotification(pNf);
+	pNf->wait();
 }
 
 
 void SocketDispatcher::addSocket(const Poco::Net::StreamSocket& socket, SocketHandler::Ptr pHandler, Poco::Timespan timeout)
 {
-	_mainQueue.enqueueNotification(new AddSocketNotification(*this, socket, pHandler, timeout));
+	AddSocketNotification::Ptr pNf = new AddSocketNotification(*this, socket, pHandler, timeout);
+	_mainQueue.enqueueNotification(pNf);
+	pNf->wait();
 }
 
 	
 void SocketDispatcher::removeSocket(const Poco::Net::StreamSocket& socket)
 {
-	_mainQueue.enqueueNotification(new RemoveSocketNotification(*this, socket));
+	RemoveSocketNotification::Ptr pNf = new RemoveSocketNotification(*this, socket);
+	_mainQueue.enqueueNotification(pNf);
+	pNf->wait();
 }
 
 
 void SocketDispatcher::closeSocket(const Poco::Net::StreamSocket& socket)
 {
-	_mainQueue.enqueueNotification(new CloseSocketNotification(*this, socket));
+	CloseSocketNotification::Ptr pNf = new CloseSocketNotification(*this, socket);
+	_mainQueue.enqueueNotification(pNf);
+	pNf->wait();
 }
 
 
@@ -260,6 +333,7 @@ void SocketDispatcher::runMain()
 	Poco::Net::Socket::SocketList writeList;
 	Poco::Net::Socket::SocketList exceptList;
 
+	Poco::Timespan currentTimeout(_timeout);
 	while (!_stopped)
 	{
 		try
@@ -286,9 +360,10 @@ void SocketDispatcher::runMain()
 				}
 			}
 			
-			int n = Poco::Net::Socket::select(readList, writeList, exceptList, _timeout);
+			int n = Poco::Net::Socket::select(readList, writeList, exceptList, currentTimeout);
 			if (n > 0)
 			{
+				currentTimeout = _timeout;
 				for (Poco::Net::Socket::SocketList::iterator it = readList.begin(); it != readList.end(); ++it)
 				{
 					SocketMap::iterator its = _socketMap.find(*it);
@@ -309,6 +384,10 @@ void SocketDispatcher::runMain()
 						exception(its->first, its->second);
 					}
 				}
+			}
+			else
+			{
+				if (currentTimeout.totalMicroseconds() < 4*_timeout.totalMicroseconds()) currentTimeout += _timeout.totalMicroseconds()/2;
 			}
 		
 			Poco::Notification::Ptr pNf = _socketMap.empty() ? _mainQueue.waitDequeueNotification() : _mainQueue.dequeueNotification();
@@ -393,7 +472,7 @@ void SocketDispatcher::readableImpl(Poco::Net::StreamSocket& socket, SocketDispa
 		{
 			expectMore = pInfo->pHandler->readable(*this, socket);
 		}
-		while (expectMore && reads++ < _maxReadsPerWorker && socket.poll(_timeout, Poco::Net::Socket::SELECT_READ));
+		while (socket.available() > 0 || (expectMore && reads++ < _maxReadsPerWorker && socket.poll(_timeout, Poco::Net::Socket::SELECT_READ)));
 	}
 	catch (Poco::Exception& exc)
 	{

@@ -2,6 +2,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebTunnelClient", "WebTunnelClient\WebTunnelClient_vs100.vcxproj", "{95E343A2-E65C-3871-BEA8-392C1B734D2D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebTunnelSSH", "WebTunnelSSH\WebTunnelSSH_vs100.vcxproj", "{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebTunnelAgent", "WebTunnelAgent\WebTunnelAgent_vs100.vcxproj", "{D2818248-3379-399A-997A-74285E034C90}"
 EndProject
 Global
@@ -32,6 +34,24 @@ Global
 		{95E343A2-E65C-3871-BEA8-392C1B734D2D}.release_static_md|Win32.ActiveCfg = release_static_md|Win32
 		{95E343A2-E65C-3871-BEA8-392C1B734D2D}.release_static_md|Win32.Build.0 = release_static_md|Win32
 		{95E343A2-E65C-3871-BEA8-392C1B734D2D}.release_static_md|Win32.Deploy.0 = release_static_md|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.debug_shared|Win32.ActiveCfg = debug_shared|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.debug_shared|Win32.Build.0 = debug_shared|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.debug_shared|Win32.Deploy.0 = debug_shared|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.release_shared|Win32.ActiveCfg = release_shared|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.release_shared|Win32.Build.0 = release_shared|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.release_shared|Win32.Deploy.0 = release_shared|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.debug_static_mt|Win32.ActiveCfg = debug_static_mt|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.debug_static_mt|Win32.Build.0 = debug_static_mt|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.debug_static_mt|Win32.Deploy.0 = debug_static_mt|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.release_static_mt|Win32.ActiveCfg = release_static_mt|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.release_static_mt|Win32.Build.0 = release_static_mt|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.release_static_mt|Win32.Deploy.0 = release_static_mt|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.debug_static_md|Win32.ActiveCfg = debug_static_md|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.debug_static_md|Win32.Build.0 = debug_static_md|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.debug_static_md|Win32.Deploy.0 = debug_static_md|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.release_static_md|Win32.ActiveCfg = release_static_md|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.release_static_md|Win32.Build.0 = release_static_md|Win32
+		{0D848FB4-EEB3-3F9D-A05E-E5E09EE03820}.release_static_md|Win32.Deploy.0 = release_static_md|Win32
 		{D2818248-3379-399A-997A-74285E034C90}.debug_shared|Win32.ActiveCfg = debug_shared|Win32
 		{D2818248-3379-399A-997A-74285E034C90}.debug_shared|Win32.Build.0 = debug_shared|Win32
 		{D2818248-3379-399A-997A-74285E034C90}.debug_shared|Win32.Deploy.0 = debug_shared|Win32
