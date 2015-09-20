@@ -52,6 +52,7 @@ endif
 
 ifeq ($(findstring clang,$(CXX)),clang)
 GYP_DEFINES += clang=1
+CXX += -Wno-tautological-undefined-compare -Wno-inconsistent-missing-override
 endif
 
 export GYP_DEFINES
