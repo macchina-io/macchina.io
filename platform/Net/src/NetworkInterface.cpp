@@ -38,7 +38,6 @@
 #include <iostream>
 #include <iomanip>
 
-
 using Poco::NumberFormatter;
 using Poco::FastMutex;
 using Poco::format;
