@@ -1,7 +1,7 @@
 //
 // WebTunnelAgent.cpp
 //
-// $Id: //poco/1.4/WebTunnel/samples/WebTunnelAgent/src/WebTunnelAgent.cpp#8 $
+// $Id: //poco/1.4/WebTunnel/samples/WebTunnelAgent/src/WebTunnelAgent.cpp#9 $
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -169,9 +169,9 @@ protected:
 		helpFormatter.setUsage("OPTIONS");
 		helpFormatter.setHeader("\n"
 			"my-devices.net WebTunnel Agent.\n"
-			"Copyright (c) 2013-2014 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2013-2015 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
-			"This application is used to forward a local TCP port to remote\n"
+			"This application is used to forward local TCP ports to remote\n"
 			"clients via the my-devices.net reflector server.\n\n"
 			"The following command-line options are supported:");
 		helpFormatter.setFooter(
@@ -236,12 +236,6 @@ protected:
 		Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, path, Poco::Net::HTTPRequest::HTTP_1_1);
 		request.set(SEC_WEBSOCKET_PROTOCOL, WEBTUNNEL_PROTOCOL);
 		
-		if (!_username.empty())
-		{
-			Poco::Net::HTTPBasicCredentials creds(_username, _password);
-			creds.authenticate(request);
-		}
-		
 		if (_httpPort != 0)
 		{
 			request.add("X-PTTH-Set-Property", Poco::format("device;httpPort=%hu", _httpPort));
@@ -264,6 +258,18 @@ protected:
 			try
 			{
 				Poco::Net::DNS::reload();
+
+				// Note: Obtain username/password as late as possible. Reason: The username
+				// may contain ${system.nodeId} (Ethernet address), which may not be available
+				// by the time we launch, as the network interface may not be up yet.
+				std::string username = config().getString("webtunnel.username", "");
+				std::string password = config().getString("webtunnel.password", "");
+				if (!username.empty())
+				{
+					Poco::Net::HTTPBasicCredentials creds(username, password);
+					creds.authenticate(request);
+				}
+
 				logger().debug("Creating WebSocket...");
 				Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket = new Poco::Net::WebSocket(*_pHTTPClientSession, request, response);
 				if (response.get(SEC_WEBSOCKET_PROTOCOL, "") == WEBTUNNEL_PROTOCOL)
@@ -419,8 +425,6 @@ protected:
 			{
 				_deviceName = config().getString("webtunnel.deviceName", "");
 				_reflectorURI = config().getString("webtunnel.reflectorURI");
-				_username = config().getString("webtunnel.username", "");
-				_password = config().getString("webtunnel.password", "");
 				std::string host = config().getString("webtunnel.host", "localhost");
 				if (!Poco::Net::IPAddress::tryParse(host, _host))
 				{
@@ -538,8 +542,6 @@ private:
 	Poco::Net::IPAddress _host;
 	std::set<Poco::UInt16> _ports;
 	Poco::URI _reflectorURI;
-	std::string _username;
-	std::string _password;
 	std::string _userAgent;
 	Poco::UInt16 _httpPort;
 	Poco::UInt16 _vncPort;

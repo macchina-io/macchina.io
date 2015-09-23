@@ -1,7 +1,7 @@
 //
 // WebTunnelClient.cpp
 //
-// $Id: //poco/1.4/WebTunnel/samples/WebTunnelClient/src/WebTunnelClient.cpp#9 $
+// $Id: //poco/1.4/WebTunnel/samples/WebTunnelClient/src/WebTunnelClient.cpp#10 $
 //
 // Copyright (c) 2013, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -192,7 +192,7 @@ protected:
 		helpFormatter.setUsage("OPTIONS <Remote-URI>");
 		helpFormatter.setHeader("\n"
 			"my-devices.net WebTunnel Client.\n"
-			"Copyright (c) 2013 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2013-2015 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This application is used to forward a remote TCP port to the local\n"
 			"host via the my-devices.net reflector server.\n\n"

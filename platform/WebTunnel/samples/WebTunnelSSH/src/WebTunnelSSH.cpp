@@ -1,7 +1,7 @@
 //
 // WebTunnelSSH.cpp
 //
-// $Id: //poco/1.4/WebTunnel/samples/WebTunnelSSH/src/WebTunnelSSH.cpp#2 $
+// $Id: //poco/1.4/WebTunnel/samples/WebTunnelSSH/src/WebTunnelSSH.cpp#3 $
 //
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -208,7 +208,7 @@ protected:
 		helpFormatter.setUsage("OPTIONS <Remote-URI> [-- SSH-OPTIONS]");
 		helpFormatter.setHeader("\n"
 			"my-devices.net WebTunnel SSH Client.\n"
-			"Copyright (c) 2014 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2014-2015 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This application is used to launch a SSH connection to a remote\n"
 			"host via the my-devices.net reflector server.\n\n"
