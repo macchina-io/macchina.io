@@ -47,7 +47,7 @@ well.
 
 The [[http://pocoproject.org POCO C++ Libraries]] are modern, powerful open source 
 C++ class libraries and frameworks for building network- and internet-based applications 
-that run on desktop, server, mobile and embedded systems. It provides essential features
+that run on desktop, server, mobile and embedded systems. They provide essential features
 such as platform abstraction, multithreading, XML and JSON processing, filesystem access,
 logging, stream, datagram and multicast sockets, HTTP server and client, SSL/TLS, etc. 
 Virtually everything implemented in macchina.io (except some integrated third-party open 
