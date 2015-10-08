@@ -47,12 +47,12 @@ public:
 	{
 	}
 	
-	void createClient(const std::string& baseConfig)
+	void createClient(const std::string& baseConfig, const std::string& id)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::MQTT::MQTTClient> ServerHelper;
 
 		std::string serverURI = getStringConfig(baseConfig + ".serverURI", "");
-		std::string clientId = getStringConfig(baseConfig + ".id", "");
+		std::string clientId = getStringConfig(baseConfig + ".clientID", "");
 		std::string persistencePath = getStringConfig(baseConfig + ".persistence.path", "");
 		MQTTClientImpl::Persistence persistence = persistencePath.empty() ? MQTTClientImpl::MQTT_PERSISTENCE_NONE : MQTTClientImpl::MQTT_PERSISTENCE_FILE;
 
@@ -76,19 +76,20 @@ public:
 			options.willRetained = getBoolConfig(baseConfig + ".will.retained", false);
 		
 			options.sslTrustStore = getStringConfig(baseConfig + ".ssl.trustStore", "");
-			options.sslKeyStore = getStringConfig(baseConfig + ".ssl.keystore", "");
+			options.sslKeyStore = getStringConfig(baseConfig + ".ssl.keyStore", "");
 			options.sslPrivateKey = getStringConfig(baseConfig + ".ssl.privateKey", "");
 			options.sslPrivateKeyPassword = getStringConfig(baseConfig + ".ssl.privateKeyPassword", "");
 			options.sslEnabledCipherSuites = getStringConfig(baseConfig + ".ssl.enabledCipherSuites", "");
-			options.sslEnableServerCertAuth = getBoolConfig(baseConfig + ".ssl.enableServerCertAuth", "");
+			options.sslEnableServerCertAuth = getBoolConfig(baseConfig + ".ssl.enableServerCertAuth", false);
 		
 			MQTTClientImpl::Ptr pMQTTClient = new MQTTClientImpl(serverURI, clientId, persistence, persistencePath, options);
 			std::string oid(Poco::format("io.macchina.mqtt.client#%z", _clients.size()));
 			ServerHelper::RemoteObjectPtr pMQTTClientRemoteObject = ServerHelper::createRemoteObject(pMQTTClient, oid);
 			Poco::OSP::Properties props;
 			props.set("io.macchina.protocol", "io.macchina.mqtt");
-			props.set("io.macchina.mqtt.id", clientId);	
+			props.set("io.macchina.mqtt.clientId", clientId);	
 			props.set("io.macchina.mqtt.serverURI", serverURI);	
+			props.set("io.macchina.mqtt.id", id);
 			Poco::OSP::ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pMQTTClientRemoteObject, props);
 			
 			_clients.push_back(pMQTTClient);
@@ -107,7 +108,7 @@ public:
 		{
 			std::string baseKey = "mqtt.clients.";
 			baseKey += *it;
-			createClient(baseKey);
+			createClient(baseKey, *it);
 		}
 	}
 		
