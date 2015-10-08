@@ -46,7 +46,7 @@
             No MQTT clients configured.
           </div>
           <div class="groupbox" ng-repeat="client in clients">
-            <h1>{{client.id}}
+            <h1>{{client.id}} [{{client.clientId}}]
             <span ng-if="client.connected">&#x2192;</span>
             <span ng-if="!client.connected">&#x219b;</span>
             {{client.serverURI}}</h1>

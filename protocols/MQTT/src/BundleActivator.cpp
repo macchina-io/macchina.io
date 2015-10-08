@@ -52,7 +52,7 @@ public:
 		typedef Poco::RemotingNG::ServerHelper<IoT::MQTT::MQTTClient> ServerHelper;
 
 		std::string serverURI = getStringConfig(baseConfig + ".serverURI", "");
-		std::string clientId = getStringConfig(baseConfig + ".clientID", "");
+		std::string clientId = getStringConfig(baseConfig + ".clientId", "");
 		std::string persistencePath = getStringConfig(baseConfig + ".persistence.path", "");
 		MQTTClientImpl::Persistence persistence = persistencePath.empty() ? MQTTClientImpl::MQTT_PERSISTENCE_NONE : MQTTClientImpl::MQTT_PERSISTENCE_FILE;
 

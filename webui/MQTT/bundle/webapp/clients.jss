@@ -15,14 +15,15 @@ for (var i = 0; i < clientRefs.length; i++)
 	var client = clientRef.instance();
 	if (client)
 	{
-		var clientInfo = {};
-		clientInfo.id = client.id();
-		clientInfo.name = clientRef.name;
-		clientInfo.serverURI = client.serverURI();
-		clientInfo.connected = client.connected();
-		clientInfo.subscribedTopics = client.subscribedTopics();
-		clientInfo.statistics = client.statistics();
-
+		var clientInfo = {
+			id: clientRef["io.macchina.mqtt.id"],
+			clientId: client.id(),
+			name: clientRef.name,
+			serverURI: client.serverURI(),
+			connected: client.connected(),
+			subscribedTopics: client.subscribedTopics(),
+			statistics: client.statistics()
+		};
 		clients.push(clientInfo);
 	}
 }
