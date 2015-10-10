@@ -48,6 +48,8 @@ protected:
 	static void getBool(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getString(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void has(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void set(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void keys(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 
