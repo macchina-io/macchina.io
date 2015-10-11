@@ -601,7 +601,9 @@ The message can contain formatting specifiers. See the Logger object for more in
 
 !!!Configuration Objects
 
-Configuration objects support the following methods:
+Configuration objects provide access to the configuration mechanism provided by the
+POCO Util library and are used for application configuration, bundle properties, etc.
+The following methods are supported:
 
 !!getInt(key [, default])
 
@@ -634,6 +636,17 @@ value is given.
 !!has(key)
 
 Returns <*true*> if the given configuration key exists, otherwise <*false*>.
+
+!!set(key, value)
+
+Sets the configuration value for the given key. Value can be a string, integer,
+floating-point number or boolean. An exception is thrown if setting the value
+for the given key fails (e.g., because the configuration is read-only).
+
+!!keys([key])
+
+Returns an array containing all subkeys of the given key, or root-level keys if no
+or an empty key is given.
 
 
 !!!Logger Objects
