@@ -213,7 +213,7 @@ std::vector<GATTClient::Characteristic> BlueZGATTClient::characteristics(const s
 	
 	if (it->second->characteristics.empty())
 	{
-		sendCommand(Poco::format("char %hu %hu", it->second->service.firstHandle, it->second->service.lastHandle));
+		sendCommand(Poco::format("char %hx %hx", it->second->service.firstHandle, it->second->service.lastHandle));
 		ParsedResponse::Ptr pResponse = expectResponse("find");
 		ParsedResponse::const_iterator itr = pResponse->find("hnd");
 		ParsedResponse::const_iterator end = pResponse->end();
@@ -237,7 +237,7 @@ std::vector<GATTClient::Characteristic> BlueZGATTClient::characteristics(const s
 				chara.uuid = decodeValue(itr->second);
 				it->second->characteristics.push_back(chara);
 			}
-			++it;
+			++itr;
 		}
 	}
 	
@@ -252,7 +252,7 @@ std::string BlueZGATTClient::readHandle(Poco::UInt16 handle)
 	if (_state != GATT_STATE_CONNECTED)
 		throw Poco::IllegalStateException("not connected");
 
-	sendCommand(Poco::format("rd %hu", handle));
+	sendCommand(Poco::format("rd %hx", handle));
 	ParsedResponse::Ptr pResponse = expectResponse("rd");
 	return decodeValue(pResponse->get("d"));
 }
@@ -268,7 +268,7 @@ void BlueZGATTClient::write(Poco::UInt16 handle, const std::string& value)
 	if (value.empty())
 		throw Poco::InvalidArgumentException("cannot write empty value");
 
-	std::string cmd(Poco::format("wrr %hu ", handle));
+	std::string cmd(Poco::format("wrr %hx ", handle));
 	for (std::string::const_iterator it = value.begin(); it != value.end(); ++it)
 	{
 		Poco::NumberFormatter::appendHex(cmd, static_cast<unsigned char>(*it), 2);
@@ -288,7 +288,7 @@ void BlueZGATTClient::writeNoResponse(Poco::UInt16 handle, const std::string& va
 	if (value.empty())
 		throw Poco::InvalidArgumentException("cannot write empty value");
 
-	std::string cmd(Poco::format("wr %hu ", handle));
+	std::string cmd(Poco::format("wr %hx ", handle));
 	for (std::string::const_iterator it = value.begin(); it != value.end(); ++it)
 	{
 		Poco::NumberFormatter::appendHex(cmd, static_cast<unsigned char>(*it), 2);
