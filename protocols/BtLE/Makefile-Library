@@ -1,0 +1,21 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io Bluetooth LE Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
+
+objects = \
+	GATTClient \
+	BlueZGATTClient
+
+target         = IoTBtLE
+target_version = 1
+target_libs    = PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

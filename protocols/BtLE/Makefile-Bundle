@@ -1,0 +1,23 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io Bluetooth LE bundle
+#
+
+BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
+
+include $(POCO_BASE)/build/rules/global
+
+INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
+
+objects = BundleActivator
+
+target         = io.macchina.btle
+target_version = 1
+target_libs    = IoTBtLE IoTDevices PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
+
+postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles BtLE.bndlspec
+
+include $(POCO_BASE)/build/rules/dylib
