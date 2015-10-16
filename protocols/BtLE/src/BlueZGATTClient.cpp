@@ -131,7 +131,7 @@ void BlueZGATTClient::disconnect()
 }
 
 
-GATTClient::State BlueZGATTClient::state()
+GATTClient::State BlueZGATTClient::state() const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
@@ -245,7 +245,7 @@ std::vector<GATTClient::Characteristic> BlueZGATTClient::characteristics(const s
 }
 
 
-std::string BlueZGATTClient::readHandle(Poco::UInt16 handle)
+std::string BlueZGATTClient::read(Poco::UInt16 handle)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
@@ -258,7 +258,7 @@ std::string BlueZGATTClient::readHandle(Poco::UInt16 handle)
 }
 
 
-void BlueZGATTClient::write(Poco::UInt16 handle, const std::string& value)
+void BlueZGATTClient::write(Poco::UInt16 handle, const std::string& value, bool withResponse)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
@@ -268,27 +268,7 @@ void BlueZGATTClient::write(Poco::UInt16 handle, const std::string& value)
 	if (value.empty())
 		throw Poco::InvalidArgumentException("cannot write empty value");
 
-	std::string cmd(Poco::format("wrr %hx ", handle));
-	for (std::string::const_iterator it = value.begin(); it != value.end(); ++it)
-	{
-		Poco::NumberFormatter::appendHex(cmd, static_cast<unsigned char>(*it), 2);
-	}
-	sendCommand(cmd);
-	expectResponse("wr");
-}
-
-
-void BlueZGATTClient::writeNoResponse(Poco::UInt16 handle, const std::string& value)
-{
-	Poco::FastMutex::ScopedLock lock(_mutex);
-
-	if (_state != GATT_STATE_CONNECTED)
-		throw Poco::IllegalStateException("not connected");
-		
-	if (value.empty())
-		throw Poco::InvalidArgumentException("cannot write empty value");
-
-	std::string cmd(Poco::format("wr %hx ", handle));
+	std::string cmd(Poco::format("%s %hx ", std::string(withResponse ? "wrr" : "wr"), handle));
 	for (std::string::const_iterator it = value.begin(); it != value.end(); ++it)
 	{
 		Poco::NumberFormatter::appendHex(cmd, static_cast<unsigned char>(*it), 2);

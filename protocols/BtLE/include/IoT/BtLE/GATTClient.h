@@ -22,6 +22,7 @@
 
 #include "IoT/BtLE/BtLE.h"
 #include "Poco/BasicEvent.h"
+#include "Poco/SharedPtr.h"
 #include <vector>
 
 
@@ -34,6 +35,8 @@ class IoTBtLE_API GATTClient
 	/// device using the Bluetooth Generic Attribute Profile (GATT).
 {
 public:
+	typedef Poco::SharedPtr<GATTClient> Ptr;
+
 	enum State
 		/// State of the connection to the peripheral device.
 	{
@@ -130,7 +133,7 @@ public:
 	virtual void disconnect() = 0;
 		/// Disconnects from the peripheral.
 		
-	virtual State state() = 0;
+	virtual State state() const = 0;
 		/// Returns the current state of the client.
 		
 	virtual std::string address() const = 0;
@@ -146,16 +149,12 @@ public:
 	virtual std::vector<Characteristic> characteristics(const std::string& serviceUUID) = 0;
 		/// Returns a list of all characteristics of the service with the given UUID.
 		
-	virtual std::string readHandle(Poco::UInt16 handle) = 0;
+	virtual std::string read(Poco::UInt16 handle) = 0;
 		/// Reads the value of the characteristic's value with the given value handle.
 		
-	virtual void write(Poco::UInt16 handle, const std::string& value) = 0;
+	virtual void write(Poco::UInt16 handle, const std::string& value, bool withResponse = true) = 0;
 		/// Writes the value of the characteristic's value with the given handle.
-		/// Expects a response from the peripheral device.
-
-	virtual void writeNoResponse(Poco::UInt16 handle, const std::string& value) = 0;
-		/// Writes the value of the characteristic's value with the given handle,
-		/// without expecting a response from the peripheral device.
+		/// If withResponse is true, expects a response from the peripheral device.
 
 	virtual void setSecurityLevel(SecurityLevel level) = 0;
 		/// Sets the connection's security level.
@@ -170,7 +169,6 @@ public:
 		/// Returns the connection's MTU size, which may be 0 for 
 		/// the default size.
 
-protected:
 	virtual ~GATTClient();
 };
 

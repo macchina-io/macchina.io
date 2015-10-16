@@ -12,7 +12,9 @@ INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 
 objects = \
 	GATTClient \
-	BlueZGATTClient
+	BlueZGATTClient \
+	Peripheral \
+	PeripheralImpl
 
 target         = IoTBtLE
 target_version = 1

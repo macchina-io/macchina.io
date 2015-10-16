@@ -59,14 +59,13 @@ public:
 	// GATTClient
 	void connect(const std::string& address);
 	void disconnect();
-	State state();
+	State state() const;
 	std::string address() const;
 	std::vector<Service> services();
 	std::vector<Service> includedServices(const std::string& serviceUUID);
 	std::vector<Characteristic> characteristics(const std::string& serviceUUID);
-	std::string readHandle(Poco::UInt16 handle);
-	void write(Poco::UInt16 handle, const std::string& value);
-	void writeNoResponse(Poco::UInt16 handle, const std::string& value);
+	std::string read(Poco::UInt16 handle);
+	void write(Poco::UInt16 handle, const std::string& value, bool withResponse);
 	void setSecurityLevel(SecurityLevel level);
 	SecurityLevel getSecurityLevel() const;
 	void setMTU(Poco::UInt8 mtu);
