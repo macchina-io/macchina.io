@@ -69,6 +69,7 @@ SensorTagSensor::SensorTagSensor(Peripheral::Ptr pPeripheral, const Params& para
 	_pEventPolicy = new IoT::Devices::NoModerationPolicy<double>(valueChanged);
 
 	_pPeripheral->connect();
+	_pPeripheral->services();
 	_controlChar = _pPeripheral->characteristic(_params.serviceUUID, _params.controlUUID);
 	_dataChar = _pPeripheral->characteristic(_params.serviceUUID, _params.dataUUID);
 

@@ -109,27 +109,46 @@ public:
 			
 			SensorTagSensor::Params params;
 			// humidity
-			params.serviceUUID = "F000AA20-0451-4000-b000-000000000000";
-			params.controlUUID = "F000AA22-0451-4000-b000-000000000000";
-			params.dataUUID    = "F000AA21-0451-4000-b000-000000000000";
+			params.serviceUUID = "f000aa20-0451-4000-b000-000000000000";
+			params.controlUUID = "f000aa22-0451-4000-b000-000000000000";
+			params.dataUUID    = "f000aa21-0451-4000-b000-000000000000";
 			params.physicalQuantity = "humidity";
 			params.physicalUnit = "%RH";
-			createSensor(pPeripheral, params);
+			params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".humidity.pollInterval", 10000);
 
-			// ambient humidity
-			params.serviceUUID = "F000AA20-0451-4000-b000-000000000000";
-			params.controlUUID = "F000AA22-0451-4000-b000-000000000000";
-			params.dataUUID    = "F000AA21-0451-4000-b000-000000000000";
+			try
+			{
+				createSensor(pPeripheral, params);
+			}
+			catch (Poco::Exception& exc)
+			{
+				pContext->logger().error(Poco::format("Cannot create SensorTag Sensor: %s", exc.displayText())); 
+			}
+
+			// ambient temperature
+			params.serviceUUID = "f000aa20-0451-4000-b000-000000000000";
+			params.controlUUID = "f000aa22-0451-4000-b000-000000000000";
+			params.dataUUID    = "f000aa21-0451-4000-b000-000000000000";
 			params.physicalQuantity = "temperature";
 			params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS;
-			createSensor(pPeripheral, params);
+			params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".temperature.pollInterval", 10000);
+			
+			try
+			{
+				createSensor(pPeripheral, params);
+			}
+			catch (Poco::Exception& exc)
+			{
+				pContext->logger().error(Poco::format("Cannot create SensorTag Sensor: %s", exc.displayText())); 
+			}
 
 			// illuminance
-			params.serviceUUID = "F000AA70-0451-4000-b000-000000000000";
-			params.controlUUID = "F000AA72-0451-4000-b000-000000000000";
-			params.dataUUID    = "F000AA71-0451-4000-b000-000000000000";
+			params.serviceUUID = "f000aa70-0451-4000-b000-000000000000";
+			params.controlUUID = "f000aa72-0451-4000-b000-000000000000";
+			params.dataUUID    = "f000aa71-0451-4000-b000-000000000000";
 			params.physicalQuantity = "illuminance";
 			params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_LUX;
+			params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".illuminance.pollInterval", 10000);
 			
 			try
 			{
