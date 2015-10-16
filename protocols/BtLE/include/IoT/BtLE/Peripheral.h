@@ -22,6 +22,7 @@
 
 #include "IoT/BtLE/BtLE.h"
 #include "Poco/BasicEvent.h"
+#include "Poco/SharedPtr.h"
 #include <vector>
 
 
@@ -43,6 +44,8 @@ class IoTBtLE_API Peripheral
 	/// device using the Bluetooth Generic Attribute Profile (GATT).
 {
 public:
+	typedef Poco::SharedPtr<Peripheral> Ptr;
+
 	virtual void connect() = 0;
 		/// Connects to the Bluetooth LE peripheral.
 		
