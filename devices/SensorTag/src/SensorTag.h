@@ -131,6 +131,20 @@ protected:
 };
 
 
+class SensorTagAirPressureSensor: public SensorTagSensor
+{
+public:
+	SensorTagAirPressureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+		/// Creates the SensorAirPressureSensor.
+
+	~SensorTagAirPressureSensor();
+		/// Destroys the SensorAirPressureSensor.
+		
+protected:
+	void poll();
+};
+
+
 } } } // namespace IoT::BtLE::SensorTag
 
 

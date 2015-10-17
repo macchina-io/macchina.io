@@ -278,4 +278,38 @@ void SensorTagLightSensor::poll()
 }
 
 
+//
+// SensorTagAirPressureSensor
+//
+
+
+SensorTagAirPressureSensor::SensorTagAirPressureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+	SensorTagSensor(pPeripheral, params, pTimer)
+{
+}
+
+
+SensorTagAirPressureSensor::~SensorTagAirPressureSensor()
+{
+}
+
+
+void SensorTagAirPressureSensor::poll()
+{
+	if (!_ready)
+	{
+		_pPeripheral->writeUInt8(_controlChar.valueHandle, 1, true);
+	}
+	std::string bytes = _pPeripheral->read(_dataChar.valueHandle);
+	if (bytes.size() == 6)
+	{
+		Poco::UInt32 raw = static_cast<unsigned char>(bytes[3]) 
+						 + (static_cast<unsigned char>(bytes[4]) << 8) 
+						 + (static_cast<unsigned char>(bytes[5]) << 16);
+ 
+		update(raw/100.0);
+	}
+}
+
+
 } } } // namespace IoT::BtLE::SensorTag

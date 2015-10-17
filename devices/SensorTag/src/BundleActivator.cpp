@@ -68,6 +68,8 @@ public:
 			pSensor = new SensorTagHumiditySensor(pPeripheral, params, _pTimer);
 		else if (params.physicalQuantity == "illuminance")
 			pSensor = new SensorTagLightSensor(pPeripheral, params, _pTimer);
+		else if (params.physicalQuantity == "airPressure")
+			pSensor = new SensorTagAirPressureSensor(pPeripheral, params, _pTimer);
 		else
 			throw Poco::InvalidArgumentException("Unknown sensor type", params.physicalQuantity);
 
@@ -149,6 +151,23 @@ public:
 			params.physicalQuantity = "illuminance";
 			params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_LUX;
 			params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".illuminance.pollInterval", 10000);
+			
+			try
+			{
+				createSensor(pPeripheral, params);
+			}
+			catch (Poco::Exception& exc)
+			{
+				pContext->logger().error(Poco::format("Cannot create SensorTag Sensor: %s", exc.displayText())); 
+			}
+
+			// air pressure
+			params.serviceUUID = "f000aa40-0451-4000-b000-000000000000";
+			params.controlUUID = "f000aa42-0451-4000-b000-000000000000";
+			params.dataUUID    = "f000aa41-0451-4000-b000-000000000000";
+			params.physicalQuantity = "airPressure";
+			params.physicalUnit = "hPa";
+			params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".airPressure.pollInterval", 10000);
 			
 			try
 			{
