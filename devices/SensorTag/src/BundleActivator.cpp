@@ -98,7 +98,6 @@ public:
 		Poco::Util::AbstractConfiguration::Keys keys;
 		std::string helperPath = _pPrefs->configuration()->getString("sensortag.bluez.helper");
 		_pPrefs->configuration()->keys("sensortag.sensors", keys);
-		int index = 0;
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "sensortag.sensors.";
