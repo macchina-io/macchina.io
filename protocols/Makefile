@@ -11,4 +11,5 @@
 clean all:
 	$(MAKE) -C MQTT $(MAKECMDGOALS)
 	$(MAKE) -C XBee $(MAKECMDGOALS)
+	$(MAKE) -C BtLE $(MAKECMDGOALS)
 	$(MAKE) -C WebTunnel $(MAKECMDGOALS)
