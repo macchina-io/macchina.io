@@ -24,6 +24,7 @@
 #include "Poco/BasicEvent.h"
 #include "Poco/SharedPtr.h"
 #include <vector>
+#include <map>
 
 
 namespace IoT {
@@ -36,6 +37,13 @@ class IoTBtLE_API GATTClient
 {
 public:
 	typedef Poco::SharedPtr<GATTClient> Ptr;
+
+	enum ConnectMode
+		/// Connect mode - synchronous or asynchronous.
+	{
+		GATT_CONNECT_WAIT,
+		GATT_CONNECT_NOWAIT
+	};
 
 	enum State
 		/// State of the connection to the peripheral device.
@@ -80,6 +88,18 @@ public:
 		Poco::UInt16 firstHandle;
 		Poco::UInt16 lastHandle;
 	};
+
+	struct Descriptor
+		/// Handle Descriptor
+	{
+		Descriptor():
+			handle(0)
+		{
+		}
+
+		Poco::UInt16 handle;
+		std::string uuid;
+	};
 	
 	struct Characteristic
 		/// Characteristic description.
@@ -119,16 +139,32 @@ public:
 		std::string data;
 	};
 
+	Poco::BasicEvent<void> connected;
+		/// Fired when a connection with the peripheral has been established.
+
+	Poco::BasicEvent<void> disconnected;
+		/// Fired when the connection with the peripheral has been disconnected.
+
+	Poco::BasicEvent<const std::string> error;
+		/// Fired when the connection attempt with the peripheral has failed.
+		/// The event argument contains more information about the error.
+
 	Poco::BasicEvent<const Indication> indicationReceived;
 		/// Fired when an Indication has been received from the peripheral.
 		
 	Poco::BasicEvent<const Notification> notificationReceived;
 		/// Fired when a Notification has been received from the peripheral.
 	
-	virtual void connect(const std::string& address) = 0;
+	virtual void connect(const std::string& address, ConnectMode mode = GATT_CONNECT_WAIT) = 0;
 		/// Connects the GATTClient to the Bluetooth LE peripheral with the
 		/// given address. The address consists of six hexadecimal byte values, 
 		/// separated by a colon, e.g.: "68:C9:0B:06:23:09".
+		///
+		/// If mode is GATT_CONNECT_WAIT, waits for the connection to be established (or
+		/// for an error to be reported). 
+		///
+		/// If wait is GATT_CONNECT_NOWAIT, returns immediately. The connection state is
+		/// reported via the connected event.
 
 	virtual void disconnect() = 0;
 		/// Disconnects from the peripheral.
@@ -148,6 +184,9 @@ public:
 
 	virtual std::vector<Characteristic> characteristics(const std::string& serviceUUID) = 0;
 		/// Returns a list of all characteristics of the service with the given UUID.
+
+	virtual std::vector<Descriptor> descriptors(const std::string& serviceUUID) = 0;
+		/// Returns a list of all handle descriptors for the service with the given UUID.
 		
 	virtual std::string read(Poco::UInt16 handle) = 0;
 		/// Reads the value of the characteristic's value with the given value handle.
@@ -169,6 +208,12 @@ public:
 		/// Returns the connection's MTU size, which may be 0 for 
 		/// the default size.
 
+	virtual void setTimeout(long milliseconds) = 0;
+		/// Sets the timeout for communication with the peripheral device.
+
+	virtual long getTimeout() const = 0;
+		/// Returns the timeout for communication with the peripheral device.
+
 	virtual ~GATTClient();
 };
 
@@ -177,3 +222,4 @@ public:
 
 
 #endif // IoT_BtLE_GATTClient_INCLUDED
+

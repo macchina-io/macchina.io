@@ -57,19 +57,22 @@ public:
 	static Poco::UInt16 decodeWord(const std::string& value);
 	
 	// GATTClient
-	void connect(const std::string& address);
+	void connect(const std::string& address, ConnectMode mode);
 	void disconnect();
 	State state() const;
 	std::string address() const;
 	std::vector<Service> services();
 	std::vector<Service> includedServices(const std::string& serviceUUID);
 	std::vector<Characteristic> characteristics(const std::string& serviceUUID);
+	std::vector<Descriptor> descriptors(const std::string& serviceUUID);
 	std::string read(Poco::UInt16 handle);
 	void write(Poco::UInt16 handle, const std::string& value, bool withResponse);
 	void setSecurityLevel(SecurityLevel level);
 	SecurityLevel getSecurityLevel() const;
 	void setMTU(Poco::UInt8 mtu);
 	Poco::UInt8 getMTU() const;
+	void setTimeout(long timeout);
+	long getTimeout() const;
 
 protected:
 	typedef std::pair<std::string, std::string> KeyValuePair;
@@ -123,14 +126,15 @@ protected:
 		std::vector<KeyValuePair> _params;
 	};
 
+	void changeState(State newState);
 	void startHelper();
 	void stopHelper();
 	void run();
 	void sendCommand(const std::string& command);
 	void processResponse(const std::string& response);
 	void parseResponse(const std::string& response, ParsedResponse& parsedResponse);
-	ParsedResponse::Ptr waitResponse(long timeout = RESPONSE_TIMEOUT);
-	ParsedResponse::Ptr expectResponse(const std::string& type, long timeout = RESPONSE_TIMEOUT);
+	ParsedResponse::Ptr waitResponse(long timeout);
+	ParsedResponse::Ptr expectResponse(const std::string& type, long timeout);
 
 	struct ServiceDesc: public Poco::RefCountedObject
 	{
@@ -138,6 +142,7 @@ protected:
 
 		Service service;
 		std::vector<Characteristic> characteristics;
+		std::vector<Descriptor> descriptors;
 	};
 	typedef std::map<std::string, ServiceDesc::Ptr> ServiceMap;
 	
@@ -159,15 +164,18 @@ protected:
 	
 	enum
 	{
-		RESPONSE_TIMEOUT = 60000
+		DEFAULT_TIMEOUT = 60000,
+		DISCONNECT_TIMEOUT = 1000
 	};
 	
 private:
 	std::string _helperPath;
 	std::string _address;
 	State _state;
+	ConnectMode _connectMode;
 	SecurityLevel _securityLevel;
 	Poco::UInt8 _mtu;
+	long _timeout;
 	ServiceMap _services;
 	Poco::Thread _helperThread;
 	HelperInfo::Ptr _pHelperInfo;
@@ -175,6 +183,7 @@ private:
 	Poco::Logger& _logger;
 	mutable Poco::FastMutex _mutex;
 	mutable Poco::FastMutex _responseMutex;
+	mutable Poco::FastMutex _stateMutex;
 };
 
 
