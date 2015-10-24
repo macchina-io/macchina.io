@@ -34,6 +34,7 @@
 #include "Poco/Delegate.h"
 #include "Poco/Buffer.h"
 #include "Poco/Event.h"
+#include "Poco/Clock.h"
 #include "Poco/Environment.h"
 #include "Poco/ClassLibrary.h"
 
@@ -80,8 +81,6 @@ public:
 			{
 				_reflectorURI = getStringConfig("webtunnel.reflectorURI");
 				_deviceName = getStringConfig("webtunnel.deviceName", "");
-				_username = getStringConfig("webtunnel.username", "");
-				_password = getStringConfig("webtunnel.password", "");
 				std::string host = getStringConfig("webtunnel.host", "127.0.0.1");
 				if (!Poco::Net::IPAddress::tryParse(host, _host))
 				{
@@ -220,13 +219,8 @@ protected:
 		std::string path(_reflectorURI.getPathEtc());
 		if (path.empty()) path = "/";
 		Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, path, Poco::Net::HTTPRequest::HTTP_1_1);
+		Poco::Net::HTTPResponse response;
 		request.set(SEC_WEBSOCKET_PROTOCOL, WEBTUNNEL_PROTOCOL);
-		
-		if (!_username.empty())
-		{
-			Poco::Net::HTTPBasicCredentials creds(_username, _password);
-			creds.authenticate(request);
-		}
 		
 		if (_httpPort != 0)
 		{
@@ -242,61 +236,69 @@ protected:
 		}
 		request.set("User-Agent", _userAgent);
 		
-		Poco::Net::HTTPResponse response;
-		bool reconnect = true;
-		while (reconnect)
+		try
 		{
-			_pContext->logger().debug("Entering reconnect loop...");
-			try
-			{
-				Poco::Net::DNS::reload();
-				_pContext->logger().debug("Creating WebSocket...");
-				Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket = new Poco::Net::WebSocket(*_pHTTPClientSession, request, response);
-				if (response.get(SEC_WEBSOCKET_PROTOCOL, "") == WEBTUNNEL_PROTOCOL)
-				{
-					_pContext->logger().debug("WebSocket established. Creating RemotePortForwarder...");
-					_pDispatcher = new Poco::WebTunnel::SocketDispatcher(_threads);
-					_pForwarder = new Poco::WebTunnel::RemotePortForwarder(*_pDispatcher, pWebSocket, _host, _ports, _remoteTimeout);
-					_pForwarder->setConnectTimeout(_connectTimeout);
-					_pForwarder->setLocalTimeout(_localTimeout);
-					_pForwarder->webSocketClosed += Poco::delegate(this, &BundleActivator::onClose);
-					_retryDelay = 1000;
-					_pContext->logger().information("WebTunnel connection established.");
-					pWebSocket->setNoDelay(true);
-					return;
-				}
-				else
-				{
-					_pContext->logger().error(Poco::format("The host at %s does not support the WebTunnel protocol.", _reflectorURI.toString()));
+			Poco::Net::DNS::reload();
 
-					pWebSocket->shutdown(Poco::Net::WebSocket::WS_PROTOCOL_ERROR);
-					// receive final frame from peer; ignore if none is sent.
-					if (pWebSocket->poll(Poco::Timespan(2, 0), Poco::Net::Socket::SELECT_READ))
-					{
-						Poco::Buffer<char> buffer(1024);
-						int flags;
-						try
-						{
-							pWebSocket->receiveFrame(buffer.begin(), static_cast<int>(buffer.size()), flags);
-						}
-						catch (Poco::Exception&)
-						{
-						}
-					}
-					pWebSocket->close();
-					reconnect = false;
-				}
-			}
-			catch (Poco::Exception& exc)
+			// Note: Obtain username/password as late as possible. Reason: The username
+			// may contain ${system.nodeId} (Ethernet address), which may not be available
+			// by the time we launch, as the network interface may not be up yet.
+			std::string username = getStringConfig("webtunnel.username", "");
+			std::string password = getStringConfig("webtunnel.password", "");
+			if (!username.empty())
 			{
-				_pContext->logger().error(Poco::format("Cannot connect to reflector at %s: %s", _reflectorURI.toString(), exc.displayText()));
-				if (_retryDelay < 30000)
+				Poco::Net::HTTPBasicCredentials creds(username, password);
+				creds.authenticate(request);
+			}
+
+			_pContext->logger().debug("Creating WebSocket...");
+			Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket = new Poco::Net::WebSocket(*_pHTTPClientSession, request, response);
+			if (response.get(SEC_WEBSOCKET_PROTOCOL, "") == WEBTUNNEL_PROTOCOL)
+			{
+				_pContext->logger().debug("WebSocket established. Creating RemotePortForwarder...");
+				pWebSocket->setNoDelay(true);
+				_retryDelay = 1000;
+				_pDispatcher = new Poco::WebTunnel::SocketDispatcher(_threads);
+				_pForwarder = new Poco::WebTunnel::RemotePortForwarder(*_pDispatcher, pWebSocket, _host, _ports, _remoteTimeout);
+				_pForwarder->webSocketClosed += Poco::delegate(this, &BundleActivator::onClose);
+				_pForwarder->setConnectTimeout(_connectTimeout);
+				_pForwarder->setLocalTimeout(_localTimeout);
+				_pContext->logger().information("WebTunnel connection established.");
+				return;
+			}
+			else
+			{
+				std::string msg(Poco::format("The host at %s does not support the WebTunnel protocol.", _reflectorURI.toString()));
+				_pContext->logger().error(msg);
+
+				pWebSocket->shutdown(Poco::Net::WebSocket::WS_PROTOCOL_ERROR);
+				// receive final frame from peer; ignore if none is sent.
+				if (pWebSocket->poll(Poco::Timespan(2, 0), Poco::Net::Socket::SELECT_READ))
 				{
-					_retryDelay *= 2;
+					Poco::Buffer<char> buffer(1024);
+					int flags;
+					try
+					{
+						pWebSocket->receiveFrame(buffer.begin(), static_cast<int>(buffer.size()), flags);
+					}
+					catch (Poco::Exception&)
+					{
+					}
 				}
-				reconnect = !_stopped.tryWait(_retryDelay);
+				pWebSocket->close();
+				_retryDelay = 30000;
 			}
 		}
+		catch (Poco::Exception& exc)
+		{
+			std::string msg = response.get("X-WebTunnel-Error", exc.displayText());
+			_pContext->logger().error(Poco::format("Cannot connect to reflector at %s: %s", _reflectorURI.toString(), msg));
+			if (_retryDelay < 30000)
+			{
+				_retryDelay *= 2;
+			}
+		}
+		scheduleReconnect();
 	}
 	
 	void disconnect()
@@ -307,6 +309,7 @@ protected:
 
 			_pForwarder->webSocketClosed -= Poco::delegate(this, &BundleActivator::onClose);
 			_pForwarder->stop();
+			_pDispatcher->reset();
 			_pForwarder = 0;
 			_pDispatcher = 0;
 		}
@@ -325,11 +328,7 @@ protected:
 	void onClose(const int& reason)
 	{
 		_pContext->logger().information("WebTunnel connection closed.");
-		
-		if (!_stopped.tryWait(_retryDelay))
-		{
-			_pTimer->schedule(new Poco::Util::TimerTaskAdapter<BundleActivator>(*this, &BundleActivator::reconnect), Poco::Timestamp());
-		}
+		scheduleReconnect();
 	}
 	
 	void reconnect(Poco::Util::TimerTask&)
@@ -345,6 +344,16 @@ protected:
 		}
 	}
 
+	void scheduleReconnect()
+	{
+		if (!_stopped.tryWait(1))
+		{
+			Poco::Clock nextClock;
+			nextClock += static_cast<Poco::Clock::ClockDiff>(_retryDelay)*1000;
+			_pTimer->schedule(new Poco::Util::TimerTaskAdapter<BundleActivator>(*this, &BundleActivator::reconnect), nextClock);
+		}
+	}
+
 	static const std::string SEC_WEBSOCKET_PROTOCOL;
 	static const std::string WEBTUNNEL_PROTOCOL;
 
@@ -356,8 +365,6 @@ private:
 	std::set<Poco::UInt16> _ports;
 	Poco::URI _reflectorURI;
 	std::string _deviceName;
-	std::string _username;
-	std::string _password;
 	std::string _userAgent;
 	Poco::UInt16 _httpPort;
 	Poco::UInt16 _vncPort;
