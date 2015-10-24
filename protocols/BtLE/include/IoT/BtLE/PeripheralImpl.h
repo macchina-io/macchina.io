@@ -43,13 +43,14 @@ public:
 		/// Destroys the PeripheralImpl.
 	
 	// Peripheral
-	void connect();
+	void connect(GATTClient::ConnectMode mode);
 	void disconnect();
-	bool connected() const;
+	bool isConnected() const;
 	std::string address() const;
 	std::vector<std::string> services();
 	std::vector<std::string> characteristics(const std::string& serviceUUID);
 	Characteristic characteristic(const std::string& serviceUUID, const std::string& characteristicUUID);
+	Poco::UInt16 handleForDescriptor(const std::string& serviceUUID, const std::string& descriptorUUID);
 	Poco::UInt8 readUInt8(Poco::UInt16 valueHandle);	
 	Poco::Int8 readInt8(Poco::UInt16 valueHandle);	
 	Poco::UInt16 readUInt16(Poco::UInt16 valueHandle);	
@@ -64,6 +65,13 @@ public:
 	void writeUInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse);
 	void writeInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse);
 	void write(Poco::UInt16 valueHandle, const std::string& value, bool withResponse);
+
+protected:
+	void onConnected();
+	void onDisconnected();
+	void onError(const std::string& error);
+	void onIndication(const GATTClient::Indication& ind);
+	void onNotification(const GATTClient::Notification& nf);
 
 private:
 	std::string _address;

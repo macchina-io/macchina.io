@@ -29,8 +29,10 @@ namespace BtLE {
 BlueZGATTClient::BlueZGATTClient(const std::string helperPath):
 	_helperPath(helperPath),
 	_state(GATT_STATE_DISCONNECTED),
+	_connectMode(GATT_CONNECT_WAIT),
 	_securityLevel(GATT_SECURITY_LOW),
 	_mtu(0),
+	_timeout(DEFAULT_TIMEOUT),
 	_logger(Poco::Logger::get("IoT.BlueZGATTClient"))
 {
 }
@@ -48,54 +50,45 @@ BlueZGATTClient::~BlueZGATTClient()
 }
 
 
-void BlueZGATTClient::connect(const std::string& address)
+void BlueZGATTClient::connect(const std::string& address, ConnectMode mode)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	if (_state != GATT_STATE_DISCONNECTED)
+	if (state() != GATT_STATE_DISCONNECTED)
 		throw Poco::IllegalStateException("can only connect if current state is disconnected");
 
 	_logger.debug("Connecting to peripheral " + address + "...");
 
-	_state = GATT_STATE_CONNECTING;
+	changeState(GATT_STATE_CONNECTING);
+	_connectMode = mode;
 	try
 	{
 		startHelper();
 		sendCommand("conn " + address);
-		ParsedResponse::Ptr pResponse = expectResponse("stat");
-		if (decodeValue(pResponse->get("state")) == "tryconn")
+		if (mode == GATT_CONNECT_WAIT)
 		{
-			pResponse = expectResponse("stat");
-		}	
-		std::string state = decodeValue(pResponse->get("state"));
-		if (state == "conn")
-		{
-			_mtu = decodeWord(pResponse->get("mtu"));
-			std::string sec = decodeValue(pResponse->get("sec"));
-			if (sec == "low")
-				_securityLevel = GATT_SECURITY_LOW;
-			else if (sec == "medium")
-				_securityLevel = GATT_SECURITY_MEDIUM;
-			else if (sec == "high")
-				_securityLevel = GATT_SECURITY_HIGH;
-			else
-				_logger.warning("received invalid security level: " + sec);
-			_address = decodeValue(pResponse->get("dst"));
-			_state = GATT_STATE_CONNECTED;
-		}
-		else if (state == "disc")
-		{
-			expectResponse("err", 1000);
+			ParsedResponse::Ptr pResponse = expectResponse("stat", _timeout);
+			if (decodeValue(pResponse->get("state")) == "tryconn")
+			{
+				pResponse = expectResponse("stat", _timeout);
+			}	
+			std::string state = decodeValue(pResponse->get("state"));
+			if (state == "disc")
+			{
+				expectResponse("err", DISCONNECT_TIMEOUT);
+			}
+			else if (state != "conn")
+			{
+				_logger.warning("Invalid state after connect: " + state);
+			}
 		}
 	}
 	catch (...)
 	{
-		_state = GATT_STATE_DISCONNECTED;
+		changeState(GATT_STATE_DISCONNECTED);
 		_address.clear();
 		throw;
 	}
-	
-	_logger.debug("Connected.");
 }
 
 
@@ -103,15 +96,15 @@ void BlueZGATTClient::disconnect()
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	if (_state == GATT_STATE_CONNECTED)
+	if (state() == GATT_STATE_CONNECTED)
 	{
 		_logger.debug("Disconnecting from peripheral " + _address + "...");
 
-		_state = GATT_STATE_DISCONNECTING;
+		changeState(GATT_STATE_DISCONNECTING);
 		try
 		{
 			sendCommand("disc");
-			ParsedResponse::Ptr pResponse = expectResponse("stat");
+			ParsedResponse::Ptr pResponse = expectResponse("stat", DISCONNECT_TIMEOUT);
 			std::string state = decodeValue(pResponse->get("state"));
 			if (state != "disc")
 			{
@@ -122,7 +115,7 @@ void BlueZGATTClient::disconnect()
 		{
 			_logger.log(exc);
 		}
-		_state = GATT_STATE_DISCONNECTED;
+		changeState(GATT_STATE_DISCONNECTED);
 		_address.clear();
 		
 		_logger.debug("Disconnected.");
@@ -133,7 +126,7 @@ void BlueZGATTClient::disconnect()
 
 GATTClient::State BlueZGATTClient::state() const
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
+	Poco::FastMutex::ScopedLock lock(_stateMutex);
 
 	return _state;
 }
@@ -151,13 +144,13 @@ std::vector<GATTClient::Service> BlueZGATTClient::services()
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	if (_state != GATT_STATE_CONNECTED)
+	if (state() != GATT_STATE_CONNECTED)
 		throw Poco::IllegalStateException("not connected");
 
 	if (_services.empty())
 	{
 		sendCommand("svcs");
-		ParsedResponse::Ptr pResponse = expectResponse("find");
+		ParsedResponse::Ptr pResponse = expectResponse("find", _timeout);
 		ParsedResponse::const_iterator it = pResponse->find("hstart");
 		ParsedResponse::const_iterator end = pResponse->end();
 		Service service;
@@ -204,7 +197,7 @@ std::vector<GATTClient::Characteristic> BlueZGATTClient::characteristics(const s
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	if (_state != GATT_STATE_CONNECTED)
+	if (state() != GATT_STATE_CONNECTED)
 		throw Poco::IllegalStateException("not connected");
 
 	ServiceMap::iterator it = _services.find(serviceUUID);
@@ -214,7 +207,7 @@ std::vector<GATTClient::Characteristic> BlueZGATTClient::characteristics(const s
 	if (it->second->characteristics.empty())
 	{
 		sendCommand(Poco::format("char %hx %hx", it->second->service.firstHandle, it->second->service.lastHandle));
-		ParsedResponse::Ptr pResponse = expectResponse("find");
+		ParsedResponse::Ptr pResponse = expectResponse("find", _timeout);
 		ParsedResponse::const_iterator itr = pResponse->find("hnd");
 		ParsedResponse::const_iterator end = pResponse->end();
 		Characteristic chara;
@@ -245,15 +238,52 @@ std::vector<GATTClient::Characteristic> BlueZGATTClient::characteristics(const s
 }
 
 
+std::vector<GATTClient::Descriptor> BlueZGATTClient::descriptors(const std::string& serviceUUID)
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	if (state() != GATT_STATE_CONNECTED)
+		throw Poco::IllegalStateException("not connected");
+
+	ServiceMap::iterator it = _services.find(serviceUUID);
+	if (it == _services.end())
+		throw Poco::NotFoundException("Service", serviceUUID);
+	
+	if (it->second->descriptors.empty())
+	{
+		sendCommand(Poco::format("desc %hx %hx", it->second->service.firstHandle, it->second->service.lastHandle));
+		ParsedResponse::Ptr pResponse = expectResponse("desc", _timeout);
+		ParsedResponse::const_iterator itr = pResponse->find("hnd");
+		ParsedResponse::const_iterator end = pResponse->end();
+		Descriptor desc;
+		while (itr != end)
+		{
+			if (itr->first == "hnd")
+			{
+				desc.handle = decodeWord(itr->second);
+			}
+			else if (itr->first == "uuid")
+			{
+				desc.uuid = decodeValue(itr->second);
+				it->second->descriptors.push_back(desc);
+			}
+			++itr;
+		}
+	}
+	
+	return it->second->descriptors;
+}
+
+
 std::string BlueZGATTClient::read(Poco::UInt16 handle)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	if (_state != GATT_STATE_CONNECTED)
+	if (state() != GATT_STATE_CONNECTED)
 		throw Poco::IllegalStateException("not connected");
 
 	sendCommand(Poco::format("rd %hx", handle));
-	ParsedResponse::Ptr pResponse = expectResponse("rd");
+	ParsedResponse::Ptr pResponse = expectResponse("rd", _timeout);
 	return decodeValue(pResponse->get("d"));
 }
 
@@ -262,7 +292,7 @@ void BlueZGATTClient::write(Poco::UInt16 handle, const std::string& value, bool 
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	if (_state != GATT_STATE_CONNECTED)
+	if (state() != GATT_STATE_CONNECTED)
 		throw Poco::IllegalStateException("not connected");
 		
 	if (value.empty())
@@ -274,7 +304,7 @@ void BlueZGATTClient::write(Poco::UInt16 handle, const std::string& value, bool 
 		Poco::NumberFormatter::appendHex(cmd, static_cast<unsigned char>(*it), 2);
 	}
 	sendCommand(cmd);
-	expectResponse("wr");
+	expectResponse("wr", _timeout);
 }
 
 
@@ -307,6 +337,50 @@ Poco::UInt8 BlueZGATTClient::getMTU() const
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
 	return _mtu;
+}
+
+
+void BlueZGATTClient::setTimeout(long timeout)
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	_timeout = timeout;
+}
+
+
+long BlueZGATTClient::getTimeout() const
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	return _timeout;
+}
+
+
+void BlueZGATTClient::changeState(State state)
+{
+	bool stateChanged = false;
+	{
+		Poco::FastMutex::ScopedLock lock(_stateMutex);
+
+		stateChanged = (state != _state);
+		_state = state;
+	}
+
+	if (stateChanged)
+	{
+		switch (state)
+		{
+		case GATT_STATE_CONNECTED:
+			connected.notifyAsync(this);
+			break;
+		case GATT_STATE_DISCONNECTED:
+			disconnected.notifyAsync(this);
+			break;
+		case GATT_STATE_CONNECTING:
+		case GATT_STATE_DISCONNECTING:
+			break;
+		}
+	}
 }
 
 
@@ -389,7 +463,7 @@ void BlueZGATTClient::sendCommand(const std::string& command)
 
 		if (!_responseQueue.empty())
 		{
-			_logger.warning("Response queue not empty");
+			_logger.debug("Response queue not empty");
 			_responseQueue.clear();
 		}
 
@@ -406,6 +480,7 @@ void BlueZGATTClient::processResponse(const std::string& response)
 	ParsedResponse::Ptr pResponse = new ParsedResponse;
 	parseResponse(response, *pResponse);
 	
+	bool queueResponse = false;
 	if (pResponse->type() == "ind")
 	{
 		Indication ind;
@@ -421,18 +496,57 @@ void BlueZGATTClient::processResponse(const std::string& response)
 	}
 	else if (pResponse->type() == "ntfy")
 	{
-		Notification ind;
-		ind.handle = decodeWord(pResponse->get("hnd"));
-		ind.data = decodeValue(pResponse->get("d"));
+		Notification nf;
+		nf.handle = decodeWord(pResponse->get("hnd"));
+		nf.data = decodeValue(pResponse->get("d"));
 		try
 		{
-			notificationReceived(this, ind);
+			notificationReceived(this, nf);
 		}
 		catch (...)
 		{
 		}
 	}
+	else if (pResponse->type() == "stat")
+	{
+		queueResponse = (_connectMode == GATT_CONNECT_WAIT || state() != GATT_STATE_CONNECTING);
+		std::string state = decodeValue(pResponse->get("state"));
+		if (state == "tryconn")
+		{
+			changeState(GATT_STATE_CONNECTING);
+		}
+		else if (state == "conn")
+		{
+			_mtu = decodeWord(pResponse->get("mtu"));
+			std::string sec = decodeValue(pResponse->get("sec"));
+			if (sec == "low")
+				_securityLevel = GATT_SECURITY_LOW;
+			else if (sec == "medium")
+				_securityLevel = GATT_SECURITY_MEDIUM;
+			else if (sec == "high")
+				_securityLevel = GATT_SECURITY_HIGH;
+			else
+				_logger.warning("received invalid security level: " + sec);
+			_address = decodeValue(pResponse->get("dst"));
+			changeState(GATT_STATE_CONNECTED);
+			_logger.information("Connected to " + _address);
+		}
+		else if (state == "disc")
+		{
+			changeState(GATT_STATE_DISCONNECTED);
+		}
+	}
+	else if (pResponse->type() == "err")
+	{
+		std::string code = decodeValue(pResponse->get("code"));
+		error(code);
+		queueResponse = true;
+	}
 	else
+	{
+		queueResponse = true;
+	}
+	if (queueResponse)
 	{
 		_responseQueue.enqueueNotification(pResponse);
 	}

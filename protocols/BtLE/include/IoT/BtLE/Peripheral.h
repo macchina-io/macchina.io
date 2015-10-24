@@ -21,6 +21,7 @@
 
 
 #include "IoT/BtLE/BtLE.h"
+#include "IoT/BtLE/GATTClient.h"
 #include "Poco/BasicEvent.h"
 #include "Poco/SharedPtr.h"
 #include <vector>
@@ -46,13 +47,29 @@ class IoTBtLE_API Peripheral
 public:
 	typedef Poco::SharedPtr<Peripheral> Ptr;
 
-	virtual void connect() = 0;
+	Poco::BasicEvent<void> connected;
+		/// Fired when a connection with the peripheral has been established.
+
+	Poco::BasicEvent<void> disconnected;
+		/// Fired when the connection with the peripheral has been disconnected.
+
+	Poco::BasicEvent<const std::string> error;
+		/// Fired when the connection attempt with the peripheral has failed.
+		/// The event argument contains more information about the error.
+
+	Poco::BasicEvent<const GATTClient::Indication> indicationReceived;
+		/// Fired when an Indication has been received from the peripheral.
+		
+	Poco::BasicEvent<const GATTClient::Notification> notificationReceived;
+		/// Fired when a Notification has been received from the peripheral.
+
+	virtual void connect(GATTClient::ConnectMode mode = GATTClient::GATT_CONNECT_WAIT) = 0;
 		/// Connects to the Bluetooth LE peripheral.
 		
 	virtual void disconnect() = 0;
 		/// Disconnects from the Bluetooth LE peripheral.
 		
-	virtual bool connected() const = 0;
+	virtual bool isConnected() const = 0;
 		/// Returns true if the device is connected.
 	
 	virtual std::string address() const = 0;
@@ -60,13 +77,16 @@ public:
 		
 	virtual std::vector<std::string> services() = 0;
 		/// Returns a vector containing the UUIDs of all available services.
-		
+
 	virtual std::vector<std::string> characteristics(const std::string& serviceUUID) = 0;
 		/// Returns a vector containing the UUIDs of all available characteristics
 		/// of the service identified by the given serviceUUID.
 		
 	virtual Characteristic characteristic(const std::string& serviceUUID, const std::string& characteristicUUID) = 0;
 		/// Returns the properties and handle for accessing the value of the given characteristic.
+
+	virtual Poco::UInt16 handleForDescriptor(const std::string& serviceUUID, const std::string& descriptorUUID) = 0;
+		/// Returns the handle with the given descriptor UUID for the service with the given serviceUUID.
 
 	virtual Poco::UInt8 readUInt8(Poco::UInt16 valueHandle) = 0;	
 	virtual Poco::Int8 readInt8(Poco::UInt16 valueHandle) = 0;	
