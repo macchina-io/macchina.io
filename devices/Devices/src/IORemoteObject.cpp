@@ -65,7 +65,7 @@ bool IORemoteObject::remoting__hasEvents() const
 }
 
 
-void IORemoteObject::event__stateChanged(const Poco::UInt32& data)
+void IORemoteObject::event__stateChanged(const bool& data)
 {
 	stateChanged(this, data);
 }

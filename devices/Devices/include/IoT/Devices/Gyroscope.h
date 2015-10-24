@@ -1,11 +1,11 @@
 //
-// Accelerometer.h
+// Gyroscope.h
 //
 // $Id: //iot/Main/Devices/include/IoT/Devices/Sensor.h#2 $
 //
 // Library: IoT/Devices
 // Package: Devices
-// Module:  Accelerometer
+// Module:  Gyroscope
 //
 // Definition of the GNSSSensor interface.
 //
@@ -16,8 +16,8 @@
 //
 
 
-#ifndef IoT_Devices_Accelerometer_INCLUDED
-#define IoT_Devices_Accelerometer_INCLUDED
+#ifndef IoT_Devices_Gyroscope_INCLUDED
+#define IoT_Devices_Gyroscope_INCLUDED
 
 
 #include "IoT/Devices/Device.h"
@@ -30,8 +30,8 @@ namespace Devices {
 
 
 //@ serialize
-struct Acceleration
-	/// Acceleration values from a three-axis accelerometer.
+struct Rotation
+	/// Rotation values from a three-axis Gyroscope.
 {
 	double x; 
 	double y;
@@ -40,29 +40,29 @@ struct Acceleration
 
 
 //@ remote
-class IoTDevices_API Accelerometer: public Device
-	/// The interface for three-axis Accelerometers.
+class IoTDevices_API Gyroscope: public Device
+	/// The interface for three-axis Gyroscopes.
 {
 public:
-	Poco::BasicEvent<const Acceleration> accelerationChanged;
+	Poco::BasicEvent<const Rotation> rotationChanged;
 		/// Fired when new acceleration values are available.
 		///
 		/// Actual behavior of this event (e.g., minimum interval
 		/// between fires) are implementation specific
 		/// and can be configured via properties.
 		
-	Accelerometer();
-		/// Creates the Accelerometer.
+	Gyroscope();
+		/// Creates the Gyroscope.
 		
-	~Accelerometer();
-		/// Destroys the Accelerometer.
+	~Gyroscope();
+		/// Destroys the Gyroscope.
 		
-	virtual Acceleration acceleration() const = 0;
-		/// Returns the most recently measured acceleration values.
+	virtual Rotation rotation() const = 0;
+		/// Returns the most recently measured rotation values.
 };
 
 
 } } // namespace IoT::Devices
 
 
-#endif // IoT_Devices_Accelerometer_INCLUDED
+#endif // IoT_Devices_Gyroscope_INCLUDED

@@ -13,6 +13,8 @@
 				include/IoT/Devices/SerialDevice.h
 				include/IoT/Devices/GNSSSensor.h
 				include/IoT/Devices/Accelerometer.h
+				include/IoT/Devices/Gyroscope.h
+				include/IoT/Devices/Magnetometer.h
 				include/IoT/Devices/IO.h
 				include/IoT/Devices/LED.h
 				include/IoT/Devices/BarcodeReader.h

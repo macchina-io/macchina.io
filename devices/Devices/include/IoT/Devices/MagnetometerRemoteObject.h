@@ -1,9 +1,9 @@
 //
-// AccelerometerRemoteObject.h
+// MagnetometerRemoteObject.h
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  AccelerometerRemoteObject
+// Module:  MagnetometerRemoteObject
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,11 +15,11 @@
 //
 
 
-#ifndef IoT_Devices_AccelerometerRemoteObject_INCLUDED
-#define IoT_Devices_AccelerometerRemoteObject_INCLUDED
+#ifndef IoT_Devices_MagnetometerRemoteObject_INCLUDED
+#define IoT_Devices_MagnetometerRemoteObject_INCLUDED
 
 
-#include "IoT/Devices/IAccelerometer.h"
+#include "IoT/Devices/IMagnetometer.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/RemoteObject.h"
 #include "Poco/SharedPtr.h"
@@ -29,20 +29,20 @@ namespace IoT {
 namespace Devices {
 
 
-class AccelerometerRemoteObject: public IoT::Devices::IAccelerometer, public Poco::RemotingNG::RemoteObject
-	/// The interface for three-axis Accelerometers.
+class MagnetometerRemoteObject: public IoT::Devices::IMagnetometer, public Poco::RemotingNG::RemoteObject
+	/// The interface for three-axis Magnetometers.
 {
 public:
-	typedef Poco::AutoPtr<AccelerometerRemoteObject> Ptr;
+	typedef Poco::AutoPtr<MagnetometerRemoteObject> Ptr;
 
-	AccelerometerRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Accelerometer> pServiceObject);
-		/// Creates a AccelerometerRemoteObject.
+	MagnetometerRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Magnetometer> pServiceObject);
+		/// Creates a MagnetometerRemoteObject.
 
-	virtual ~AccelerometerRemoteObject();
-		/// Destroys the AccelerometerRemoteObject.
+	virtual ~MagnetometerRemoteObject();
+		/// Destroys the MagnetometerRemoteObject.
 
-	IoT::Devices::Acceleration acceleration() const;
-		/// Returns the most recently measured acceleration values.
+	IoT::Devices::MagneticFieldStrength fieldStrength() const;
+		/// Returns the most recently measured field strength values.
 
 	virtual bool getFeature(const std::string& name) const;
 		/// Returns true if the feature with the given name
@@ -123,92 +123,92 @@ public:
 		/// actual device implementation.
 
 protected:
-	void event__accelerationChanged(const IoT::Devices::Acceleration& data);
+	void event__fieldStrengthChanged(const IoT::Devices::MagneticFieldStrength& data);
 
 private:
-	Poco::SharedPtr<IoT::Devices::Accelerometer> _pServiceObject;
+	Poco::SharedPtr<IoT::Devices::Magnetometer> _pServiceObject;
 };
 
 
-inline IoT::Devices::Acceleration AccelerometerRemoteObject::acceleration() const
+inline IoT::Devices::MagneticFieldStrength MagnetometerRemoteObject::fieldStrength() const
 {
-	return _pServiceObject->acceleration();
+	return _pServiceObject->fieldStrength();
 }
 
 
-inline bool AccelerometerRemoteObject::getFeature(const std::string& name) const
+inline bool MagnetometerRemoteObject::getFeature(const std::string& name) const
 {
 	return _pServiceObject->getFeature(name);
 }
 
 
-inline bool AccelerometerRemoteObject::getPropertyBool(const std::string& name) const
+inline bool MagnetometerRemoteObject::getPropertyBool(const std::string& name) const
 {
 	return _pServiceObject->getPropertyBool(name);
 }
 
 
-inline double AccelerometerRemoteObject::getPropertyDouble(const std::string& name) const
+inline double MagnetometerRemoteObject::getPropertyDouble(const std::string& name) const
 {
 	return _pServiceObject->getPropertyDouble(name);
 }
 
 
-inline int AccelerometerRemoteObject::getPropertyInt(const std::string& name) const
+inline int MagnetometerRemoteObject::getPropertyInt(const std::string& name) const
 {
 	return _pServiceObject->getPropertyInt(name);
 }
 
 
-inline std::string AccelerometerRemoteObject::getPropertyString(const std::string& name) const
+inline std::string MagnetometerRemoteObject::getPropertyString(const std::string& name) const
 {
 	return _pServiceObject->getPropertyString(name);
 }
 
 
-inline bool AccelerometerRemoteObject::hasFeature(const std::string& name) const
+inline bool MagnetometerRemoteObject::hasFeature(const std::string& name) const
 {
 	return _pServiceObject->hasFeature(name);
 }
 
 
-inline bool AccelerometerRemoteObject::hasProperty(const std::string& name) const
+inline bool MagnetometerRemoteObject::hasProperty(const std::string& name) const
 {
 	return _pServiceObject->hasProperty(name);
 }
 
 
-inline const Poco::RemotingNG::Identifiable::TypeId& AccelerometerRemoteObject::remoting__typeId() const
+inline const Poco::RemotingNG::Identifiable::TypeId& MagnetometerRemoteObject::remoting__typeId() const
 {
-	return IAccelerometer::remoting__typeId();
+	return IMagnetometer::remoting__typeId();
 }
 
 
-inline void AccelerometerRemoteObject::setFeature(const std::string& name, bool enable)
+inline void MagnetometerRemoteObject::setFeature(const std::string& name, bool enable)
 {
 	_pServiceObject->setFeature(name, enable);
 }
 
 
-inline void AccelerometerRemoteObject::setPropertyBool(const std::string& name, bool value)
+inline void MagnetometerRemoteObject::setPropertyBool(const std::string& name, bool value)
 {
 	_pServiceObject->setPropertyBool(name, value);
 }
 
 
-inline void AccelerometerRemoteObject::setPropertyDouble(const std::string& name, double value)
+inline void MagnetometerRemoteObject::setPropertyDouble(const std::string& name, double value)
 {
 	_pServiceObject->setPropertyDouble(name, value);
 }
 
 
-inline void AccelerometerRemoteObject::setPropertyInt(const std::string& name, int value)
+inline void MagnetometerRemoteObject::setPropertyInt(const std::string& name, int value)
 {
 	_pServiceObject->setPropertyInt(name, value);
 }
 
 
-inline void AccelerometerRemoteObject::setPropertyString(const std::string& name, const std::string& value)
+inline void MagnetometerRemoteObject::setPropertyString(const std::string& name, const std::string& value)
 {
 	_pServiceObject->setPropertyString(name, value);
 }
@@ -218,5 +218,5 @@ inline void AccelerometerRemoteObject::setPropertyString(const std::string& name
 } // namespace IoT
 
 
-#endif // IoT_Devices_AccelerometerRemoteObject_INCLUDED
+#endif // IoT_Devices_MagnetometerRemoteObject_INCLUDED
 

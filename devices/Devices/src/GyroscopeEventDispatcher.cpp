@@ -1,9 +1,9 @@
 //
-// IOEventDispatcher.cpp
+// GyroscopeEventDispatcher.cpp
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  IOEventDispatcher
+// Module:  GyroscopeEventDispatcher
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,7 +15,9 @@
 //
 
 
-#include "IoT/Devices/IOEventDispatcher.h"
+#include "IoT/Devices/GyroscopeEventDispatcher.h"
+#include "IoT/Devices/RotationDeserializer.h"
+#include "IoT/Devices/RotationSerializer.h"
 #include "Poco/Delegate.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/RemotingException.h"
@@ -29,19 +31,19 @@ namespace IoT {
 namespace Devices {
 
 
-IOEventDispatcher::IOEventDispatcher(IORemoteObject* pRemoteObject, const std::string& protocol):
+GyroscopeEventDispatcher::GyroscopeEventDispatcher(GyroscopeRemoteObject* pRemoteObject, const std::string& protocol):
 	Poco::RemotingNG::EventDispatcher(protocol),
 	_pRemoteObject(pRemoteObject)
 {
-	_pRemoteObject->stateChanged += Poco::delegate(this, &IOEventDispatcher::event__stateChanged);
+	_pRemoteObject->rotationChanged += Poco::delegate(this, &GyroscopeEventDispatcher::event__rotationChanged);
 }
 
 
-IOEventDispatcher::~IOEventDispatcher()
+GyroscopeEventDispatcher::~GyroscopeEventDispatcher()
 {
 	try
 	{
-		_pRemoteObject->stateChanged -= Poco::delegate(this, &IOEventDispatcher::event__stateChanged);
+		_pRemoteObject->rotationChanged -= Poco::delegate(this, &GyroscopeEventDispatcher::event__rotationChanged);
 	}
 	catch (...)
 	{
@@ -50,7 +52,7 @@ IOEventDispatcher::~IOEventDispatcher()
 }
 
 
-void IOEventDispatcher::event__stateChanged(const void* pSender, const bool& data)
+void GyroscopeEventDispatcher::event__rotationChanged(const void* pSender, const IoT::Devices::Rotation& data)
 {
 	if (pSender)
 	{
@@ -68,7 +70,7 @@ void IOEventDispatcher::event__stateChanged(const void* pSender, const bool& dat
 			{
 				try
 				{
-					event__stateChangedImpl(it->first, data);
+					event__rotationChangedImpl(it->first, data);
 				}
 				catch (Poco::RemotingNG::RemoteException&)
 				{
@@ -84,22 +86,22 @@ void IOEventDispatcher::event__stateChanged(const void* pSender, const bool& dat
 }
 
 
-void IOEventDispatcher::event__stateChangedImpl(const std::string& subscriberURI, const bool& data)
+void GyroscopeEventDispatcher::event__rotationChangedImpl(const std::string& subscriberURI, const IoT::Devices::Rotation& data)
 {
 	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"stateChanged","subscriberURI","data"};
+	static const std::string REMOTING__NAMES[] = {"rotationChanged","subscriberURI","data"};
 	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<bool >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Devices::Rotation >::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
-const std::string IOEventDispatcher::DEFAULT_NS("");
+const std::string GyroscopeEventDispatcher::DEFAULT_NS("");
 } // namespace Devices
 } // namespace IoT
 

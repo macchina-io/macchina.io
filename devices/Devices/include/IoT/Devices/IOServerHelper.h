@@ -32,23 +32,17 @@ namespace Devices {
 
 
 class IOServerHelper
-	/// The base class for general purpose input/output (GPIO)
-	/// devices.
+	/// The interface for general purpose input/output (GPIO)
+	/// ports.
 	///
-	/// The IO class supports up to 32 logical pins. Each logical
-	/// pin is mapped to a physical pin on the hardware. Logical
-	/// pins are counted from 0 to 31. Mapping to physical pins
-	/// is configured when setting up the IO implementation class,
-	/// typically using a configuration file.
-	///
-	/// Implementations that support interrupt-capable input pins
-	/// should expose an int property named "stateChangedEventMask"
-	/// that allows enabling interrupts for specific pins, based
-	/// on the given bit mask.
+	/// This class represents a single GPIO pin. 
+	/// Mapping to physical pins is configured when setting up 
+	/// the specific IO implementation class, typically using a 
+	/// configuration file.
 	///
 	/// Implementations supporting dynamically changing pin directions
-	/// should expose int properties named "configureInputs" and
-	/// "configureOutputs" that take a bit mask specifying affected pins.
+	/// should expose a string property named "direction" that takes the
+	/// values "in" and "out".
 {
 public:
 	typedef IoT::Devices::IO Service;

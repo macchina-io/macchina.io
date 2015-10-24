@@ -1,9 +1,9 @@
 //
-// AccelerometerRemoteObject.h
+// GyroscopeRemoteObject.h
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  AccelerometerRemoteObject
+// Module:  GyroscopeRemoteObject
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,11 +15,11 @@
 //
 
 
-#ifndef IoT_Devices_AccelerometerRemoteObject_INCLUDED
-#define IoT_Devices_AccelerometerRemoteObject_INCLUDED
+#ifndef IoT_Devices_GyroscopeRemoteObject_INCLUDED
+#define IoT_Devices_GyroscopeRemoteObject_INCLUDED
 
 
-#include "IoT/Devices/IAccelerometer.h"
+#include "IoT/Devices/IGyroscope.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/RemoteObject.h"
 #include "Poco/SharedPtr.h"
@@ -29,20 +29,17 @@ namespace IoT {
 namespace Devices {
 
 
-class AccelerometerRemoteObject: public IoT::Devices::IAccelerometer, public Poco::RemotingNG::RemoteObject
-	/// The interface for three-axis Accelerometers.
+class GyroscopeRemoteObject: public IoT::Devices::IGyroscope, public Poco::RemotingNG::RemoteObject
+	/// The interface for three-axis Gyroscopes.
 {
 public:
-	typedef Poco::AutoPtr<AccelerometerRemoteObject> Ptr;
+	typedef Poco::AutoPtr<GyroscopeRemoteObject> Ptr;
 
-	AccelerometerRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Accelerometer> pServiceObject);
-		/// Creates a AccelerometerRemoteObject.
+	GyroscopeRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Gyroscope> pServiceObject);
+		/// Creates a GyroscopeRemoteObject.
 
-	virtual ~AccelerometerRemoteObject();
-		/// Destroys the AccelerometerRemoteObject.
-
-	IoT::Devices::Acceleration acceleration() const;
-		/// Returns the most recently measured acceleration values.
+	virtual ~GyroscopeRemoteObject();
+		/// Destroys the GyroscopeRemoteObject.
 
 	virtual bool getFeature(const std::string& name) const;
 		/// Returns true if the feature with the given name
@@ -92,6 +89,9 @@ public:
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
+	IoT::Devices::Rotation rotation() const;
+		/// Returns the most recently measured rotation values.
+
 	virtual void setFeature(const std::string& name, bool enable);
 		/// Enables or disables the feature with the given name.
 		///
@@ -123,92 +123,92 @@ public:
 		/// actual device implementation.
 
 protected:
-	void event__accelerationChanged(const IoT::Devices::Acceleration& data);
+	void event__rotationChanged(const IoT::Devices::Rotation& data);
 
 private:
-	Poco::SharedPtr<IoT::Devices::Accelerometer> _pServiceObject;
+	Poco::SharedPtr<IoT::Devices::Gyroscope> _pServiceObject;
 };
 
 
-inline IoT::Devices::Acceleration AccelerometerRemoteObject::acceleration() const
-{
-	return _pServiceObject->acceleration();
-}
-
-
-inline bool AccelerometerRemoteObject::getFeature(const std::string& name) const
+inline bool GyroscopeRemoteObject::getFeature(const std::string& name) const
 {
 	return _pServiceObject->getFeature(name);
 }
 
 
-inline bool AccelerometerRemoteObject::getPropertyBool(const std::string& name) const
+inline bool GyroscopeRemoteObject::getPropertyBool(const std::string& name) const
 {
 	return _pServiceObject->getPropertyBool(name);
 }
 
 
-inline double AccelerometerRemoteObject::getPropertyDouble(const std::string& name) const
+inline double GyroscopeRemoteObject::getPropertyDouble(const std::string& name) const
 {
 	return _pServiceObject->getPropertyDouble(name);
 }
 
 
-inline int AccelerometerRemoteObject::getPropertyInt(const std::string& name) const
+inline int GyroscopeRemoteObject::getPropertyInt(const std::string& name) const
 {
 	return _pServiceObject->getPropertyInt(name);
 }
 
 
-inline std::string AccelerometerRemoteObject::getPropertyString(const std::string& name) const
+inline std::string GyroscopeRemoteObject::getPropertyString(const std::string& name) const
 {
 	return _pServiceObject->getPropertyString(name);
 }
 
 
-inline bool AccelerometerRemoteObject::hasFeature(const std::string& name) const
+inline bool GyroscopeRemoteObject::hasFeature(const std::string& name) const
 {
 	return _pServiceObject->hasFeature(name);
 }
 
 
-inline bool AccelerometerRemoteObject::hasProperty(const std::string& name) const
+inline bool GyroscopeRemoteObject::hasProperty(const std::string& name) const
 {
 	return _pServiceObject->hasProperty(name);
 }
 
 
-inline const Poco::RemotingNG::Identifiable::TypeId& AccelerometerRemoteObject::remoting__typeId() const
+inline const Poco::RemotingNG::Identifiable::TypeId& GyroscopeRemoteObject::remoting__typeId() const
 {
-	return IAccelerometer::remoting__typeId();
+	return IGyroscope::remoting__typeId();
 }
 
 
-inline void AccelerometerRemoteObject::setFeature(const std::string& name, bool enable)
+inline IoT::Devices::Rotation GyroscopeRemoteObject::rotation() const
+{
+	return _pServiceObject->rotation();
+}
+
+
+inline void GyroscopeRemoteObject::setFeature(const std::string& name, bool enable)
 {
 	_pServiceObject->setFeature(name, enable);
 }
 
 
-inline void AccelerometerRemoteObject::setPropertyBool(const std::string& name, bool value)
+inline void GyroscopeRemoteObject::setPropertyBool(const std::string& name, bool value)
 {
 	_pServiceObject->setPropertyBool(name, value);
 }
 
 
-inline void AccelerometerRemoteObject::setPropertyDouble(const std::string& name, double value)
+inline void GyroscopeRemoteObject::setPropertyDouble(const std::string& name, double value)
 {
 	_pServiceObject->setPropertyDouble(name, value);
 }
 
 
-inline void AccelerometerRemoteObject::setPropertyInt(const std::string& name, int value)
+inline void GyroscopeRemoteObject::setPropertyInt(const std::string& name, int value)
 {
 	_pServiceObject->setPropertyInt(name, value);
 }
 
 
-inline void AccelerometerRemoteObject::setPropertyString(const std::string& name, const std::string& value)
+inline void GyroscopeRemoteObject::setPropertyString(const std::string& name, const std::string& value)
 {
 	_pServiceObject->setPropertyString(name, value);
 }
@@ -218,5 +218,5 @@ inline void AccelerometerRemoteObject::setPropertyString(const std::string& name
 } // namespace IoT
 
 
-#endif // IoT_Devices_AccelerometerRemoteObject_INCLUDED
+#endif // IoT_Devices_GyroscopeRemoteObject_INCLUDED
 

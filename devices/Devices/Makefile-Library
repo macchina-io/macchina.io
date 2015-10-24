@@ -51,6 +51,18 @@ objects = Device DeviceException \
 	AccelerometerRemoteObject \
 	AccelerometerServerHelper \
 	AccelerometerSkeleton \
+	Gyroscope \
+	IGyroscope \
+	GyroscopeEventDispatcher \
+	GyroscopeRemoteObject \
+	GyroscopeServerHelper \
+	GyroscopeSkeleton \
+	Magnetometer \
+	IMagnetometer \
+	MagnetometerEventDispatcher \
+	MagnetometerRemoteObject \
+	MagnetometerServerHelper \
+	MagnetometerSkeleton \
 	IO \
 	IIO \
 	IOEventDispatcher \

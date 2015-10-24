@@ -35,7 +35,7 @@ AccelerometerEventDispatcher::AccelerometerEventDispatcher(AccelerometerRemoteOb
 	Poco::RemotingNG::EventDispatcher(protocol),
 	_pRemoteObject(pRemoteObject)
 {
-	_pRemoteObject->accelerationUpdate += Poco::delegate(this, &AccelerometerEventDispatcher::event__accelerationUpdate);
+	_pRemoteObject->accelerationChanged += Poco::delegate(this, &AccelerometerEventDispatcher::event__accelerationChanged);
 }
 
 
@@ -43,7 +43,7 @@ AccelerometerEventDispatcher::~AccelerometerEventDispatcher()
 {
 	try
 	{
-		_pRemoteObject->accelerationUpdate -= Poco::delegate(this, &AccelerometerEventDispatcher::event__accelerationUpdate);
+		_pRemoteObject->accelerationChanged -= Poco::delegate(this, &AccelerometerEventDispatcher::event__accelerationChanged);
 	}
 	catch (...)
 	{
@@ -52,7 +52,7 @@ AccelerometerEventDispatcher::~AccelerometerEventDispatcher()
 }
 
 
-void AccelerometerEventDispatcher::event__accelerationUpdate(const void* pSender, const IoT::Devices::Acceleration& data)
+void AccelerometerEventDispatcher::event__accelerationChanged(const void* pSender, const IoT::Devices::Acceleration& data)
 {
 	if (pSender)
 	{
@@ -70,7 +70,7 @@ void AccelerometerEventDispatcher::event__accelerationUpdate(const void* pSender
 			{
 				try
 				{
-					event__accelerationUpdateImpl(it->first, data);
+					event__accelerationChangedImpl(it->first, data);
 				}
 				catch (Poco::RemotingNG::RemoteException&)
 				{
@@ -86,10 +86,10 @@ void AccelerometerEventDispatcher::event__accelerationUpdate(const void* pSender
 }
 
 
-void AccelerometerEventDispatcher::event__accelerationUpdateImpl(const std::string& subscriberURI, const IoT::Devices::Acceleration& data)
+void AccelerometerEventDispatcher::event__accelerationChangedImpl(const std::string& subscriberURI, const IoT::Devices::Acceleration& data)
 {
 	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"accelerationUpdate","subscriberURI","data"};
+	static const std::string REMOTING__NAMES[] = {"accelerationChanged","subscriberURI","data"};
 	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);

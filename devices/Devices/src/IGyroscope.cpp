@@ -1,9 +1,9 @@
 //
-// IAccelerometer.cpp
+// IGyroscope.cpp
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  IAccelerometer
+// Module:  IGyroscope
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,44 +15,44 @@
 //
 
 
-#include "IoT/Devices/IAccelerometer.h"
+#include "IoT/Devices/IGyroscope.h"
 
 
 namespace IoT {
 namespace Devices {
 
 
-IAccelerometer::IAccelerometer():
+IGyroscope::IGyroscope():
 	IoT::Devices::IDevice(),
-	accelerationChanged()
+	rotationChanged()
 {
 }
 
 
-IAccelerometer::~IAccelerometer()
+IGyroscope::~IGyroscope()
 {
 }
 
 
-bool IAccelerometer::isA(const std::type_info& otherType) const
+bool IGyroscope::isA(const std::type_info& otherType) const
 {
 	std::string name(type().name());
 	return name == otherType.name();
 }
 
 
-const Poco::RemotingNG::Identifiable::TypeId& IAccelerometer::remoting__typeId()
+const Poco::RemotingNG::Identifiable::TypeId& IGyroscope::remoting__typeId()
 {
 	remoting__staticInitBegin(REMOTING__TYPE_ID);
-	static const std::string REMOTING__TYPE_ID("Accelerometer");
+	static const std::string REMOTING__TYPE_ID("Gyroscope");
 	remoting__staticInitEnd(REMOTING__TYPE_ID);
 	return REMOTING__TYPE_ID;
 }
 
 
-const std::type_info& IAccelerometer::type() const
+const std::type_info& IGyroscope::type() const
 {
-	return typeid(IAccelerometer);
+	return typeid(IGyroscope);
 }
 
 

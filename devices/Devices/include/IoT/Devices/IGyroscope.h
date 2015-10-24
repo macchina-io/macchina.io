@@ -1,9 +1,9 @@
 //
-// IAccelerometer.h
+// IGyroscope.h
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  IAccelerometer
+// Module:  IGyroscope
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,11 +15,11 @@
 //
 
 
-#ifndef IoT_Devices_IAccelerometer_INCLUDED
-#define IoT_Devices_IAccelerometer_INCLUDED
+#ifndef IoT_Devices_IGyroscope_INCLUDED
+#define IoT_Devices_IGyroscope_INCLUDED
 
 
-#include "IoT/Devices/Accelerometer.h"
+#include "IoT/Devices/Gyroscope.h"
 #include "IoT/Devices/IDevice.h"
 #include "Poco/RemotingNG/Listener.h"
 
@@ -28,20 +28,17 @@ namespace IoT {
 namespace Devices {
 
 
-class IAccelerometer: public IoT::Devices::IDevice
-	/// The interface for three-axis Accelerometers.
+class IGyroscope: public IoT::Devices::IDevice
+	/// The interface for three-axis Gyroscopes.
 {
 public:
-	typedef Poco::AutoPtr<IAccelerometer> Ptr;
+	typedef Poco::AutoPtr<IGyroscope> Ptr;
 
-	IAccelerometer();
-		/// Creates a IAccelerometer.
+	IGyroscope();
+		/// Creates a IGyroscope.
 
-	virtual ~IAccelerometer();
-		/// Destroys the IAccelerometer.
-
-	virtual IoT::Devices::Acceleration acceleration() const = 0;
-		/// Returns the most recently measured acceleration values.
+	virtual ~IGyroscope();
+		/// Destroys the IGyroscope.
 
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
@@ -58,10 +55,13 @@ public:
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();
 		/// Returns the TypeId of the class.
 
+	virtual IoT::Devices::Rotation rotation() const = 0;
+		/// Returns the most recently measured rotation values.
+
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const Acceleration > accelerationChanged;
+	Poco::BasicEvent < const Rotation > rotationChanged;
 };
 
 
@@ -69,5 +69,5 @@ public:
 } // namespace IoT
 
 
-#endif // IoT_Devices_IAccelerometer_INCLUDED
+#endif // IoT_Devices_IGyroscope_INCLUDED
 

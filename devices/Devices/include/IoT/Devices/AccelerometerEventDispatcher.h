@@ -37,12 +37,12 @@ public:
 	virtual ~AccelerometerEventDispatcher();
 		/// Destroys the AccelerometerEventDispatcher.
 
-	void event__accelerationUpdate(const void* pSender, const IoT::Devices::Acceleration& data);
+	void event__accelerationChanged(const void* pSender, const IoT::Devices::Acceleration& data);
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
-	void event__accelerationUpdateImpl(const std::string& subscriberURI, const IoT::Devices::Acceleration& data);
+	void event__accelerationChangedImpl(const std::string& subscriberURI, const IoT::Devices::Acceleration& data);
 
 	static const std::string DEFAULT_NS;
 	AccelerometerRemoteObject* _pRemoteObject;

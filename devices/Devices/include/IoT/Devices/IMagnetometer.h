@@ -1,9 +1,9 @@
 //
-// IAccelerometer.h
+// IMagnetometer.h
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  IAccelerometer
+// Module:  IMagnetometer
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,12 +15,12 @@
 //
 
 
-#ifndef IoT_Devices_IAccelerometer_INCLUDED
-#define IoT_Devices_IAccelerometer_INCLUDED
+#ifndef IoT_Devices_IMagnetometer_INCLUDED
+#define IoT_Devices_IMagnetometer_INCLUDED
 
 
-#include "IoT/Devices/Accelerometer.h"
 #include "IoT/Devices/IDevice.h"
+#include "IoT/Devices/Magnetometer.h"
 #include "Poco/RemotingNG/Listener.h"
 
 
@@ -28,20 +28,20 @@ namespace IoT {
 namespace Devices {
 
 
-class IAccelerometer: public IoT::Devices::IDevice
-	/// The interface for three-axis Accelerometers.
+class IMagnetometer: public IoT::Devices::IDevice
+	/// The interface for three-axis Magnetometers.
 {
 public:
-	typedef Poco::AutoPtr<IAccelerometer> Ptr;
+	typedef Poco::AutoPtr<IMagnetometer> Ptr;
 
-	IAccelerometer();
-		/// Creates a IAccelerometer.
+	IMagnetometer();
+		/// Creates a IMagnetometer.
 
-	virtual ~IAccelerometer();
-		/// Destroys the IAccelerometer.
+	virtual ~IMagnetometer();
+		/// Destroys the IMagnetometer.
 
-	virtual IoT::Devices::Acceleration acceleration() const = 0;
-		/// Returns the most recently measured acceleration values.
+	virtual IoT::Devices::MagneticFieldStrength fieldStrength() const = 0;
+		/// Returns the most recently measured field strength values.
 
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
@@ -61,7 +61,7 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const Acceleration > accelerationChanged;
+	Poco::BasicEvent < const MagneticFieldStrength > fieldStrengthChanged;
 };
 
 
@@ -69,5 +69,5 @@ public:
 } // namespace IoT
 
 
-#endif // IoT_Devices_IAccelerometer_INCLUDED
+#endif // IoT_Devices_IMagnetometer_INCLUDED
 
