@@ -33,6 +33,13 @@ namespace Devices {
 struct Rotation
 	/// Rotation values from a three-axis Gyroscope.
 {
+	Rotation():
+		x(0),
+		y(0),
+		z(0)
+	{
+	}
+
 	double x; 
 	double y;
 	double z;

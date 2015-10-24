@@ -33,6 +33,13 @@ namespace Devices {
 struct Acceleration
 	/// Acceleration values from a three-axis accelerometer.
 {
+	Acceleration():
+		x(0),
+		y(0),
+		z(0)
+	{
+	}
+
 	double x; 
 	double y;
 	double z;
