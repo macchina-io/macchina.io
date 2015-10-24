@@ -463,7 +463,7 @@ void BlueZGATTClient::sendCommand(const std::string& command)
 
 		if (!_responseQueue.empty())
 		{
-			_logger.warning("Response queue not empty");
+			_logger.debug("Response queue not empty");
 			_responseQueue.clear();
 		}
 
