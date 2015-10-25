@@ -100,7 +100,6 @@ SensorTagSensor::~SensorTagSensor()
 	_pPeripheral->disconnected -= Poco::delegate(this, &SensorTagSensor::onDisconnected);
 
 	if (_pPollTask) _pPollTask->cancel();
-	_pPeripheral->disconnect();
 	_pPeripheral = 0;
 }
 

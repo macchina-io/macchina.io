@@ -21,6 +21,7 @@
 #include "Poco/Util/Timer.h"
 #include "Poco/Util/TimerTask.h"
 #include "IoT/Devices/SensorServerHelper.h"
+#include "IoT/Devices/AccelerometerServerHelper.h"
 #include "IoT/BtLE/BlueZGATTClient.h"
 #include "IoT/BtLE/PeripheralImpl.h"
 #include "Poco/Delegate.h"
@@ -31,6 +32,7 @@
 #include "Poco/String.h"
 #include "Poco/StringTokenizer.h"
 #include "SensorTag.h"
+#include "SensorTagAccelerometer.h"
 #include <vector>
 #include <map>
 
@@ -107,6 +109,34 @@ public:
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pSensorRemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
+	}
+
+	void createAccelerometer(Peripheral::Ptr pPeripheral, const SensorTag2Accelerometer::Params& params)
+	{
+		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Accelerometer> ServerHelper;
+
+		Poco::SharedPtr<SensorTagAccelerometer> pAccelerometer;
+		if (params.version == 1)
+		{
+			return;
+		}
+		else
+		{
+			pAccelerometer = new SensorTag2Accelerometer(pPeripheral, params);
+		}
+
+		std::string oid(SensorTagAccelerometer::SYMBOLIC_NAME);
+		oid += '#';
+		oid += pPeripheral->address();
+
+		ServerHelper::RemoteObjectPtr pAccelerometerRemoteObject = ServerHelper::createRemoteObject(pAccelerometer, oid);
+		
+		Properties props;
+		props.set("io.macchina.device", SensorTagAccelerometer::SYMBOLIC_NAME);
+		props.set("io.macchina.btle.address", pPeripheral->address());
+		
+		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pAccelerometerRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
 
@@ -201,6 +231,24 @@ public:
 		catch (Poco::Exception& exc)
 		{
 			_pContext->logger().error(Poco::format("Cannot create SensorTag %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+		}
+
+		// accelerometer
+		SensorTag2Accelerometer::Params accParams;
+		accParams.version = _pPrefs->configuration()->getInt(baseKey + ".version", 2);
+		accParams.serviceUUID = "f000aa80-0451-4000-b000-000000000000";
+		accParams.controlUUID = "f000aa82-0451-4000-b000-000000000000";
+		accParams.dataUUID    = "f000aa81-0451-4000-b000-000000000000";
+		accParams.periodUUID  = "f000aa83-0451-4000-b000-000000000000";
+		accParams.notifUUID   = "00002902-0000-1000-8000-00805f9b34fb";
+
+		try
+		{
+			createAccelerometer(pPeripheral, accParams);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_pContext->logger().error(Poco::format("Cannot create SensorTag Accelerometer: %s", exc.displayText())); 
 		}
 	}
 
