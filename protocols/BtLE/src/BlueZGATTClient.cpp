@@ -388,7 +388,7 @@ void BlueZGATTClient::startHelper()
 {
 	if (!_pHelperInfo)
 	{
-		_logger.debug("Starting helper " + _helperPath + "...");
+		_logger.debug(Poco::format("Starting helper: %s...", _helperPath));
 		Poco::File helperExec(_helperPath);
 		if (!helperExec.exists())
 			throw Poco::FileNotFoundException("helper executable not found", _helperPath);
@@ -459,7 +459,7 @@ void BlueZGATTClient::sendCommand(const std::string& command)
 {
 	if (_pHelperInfo)
 	{
-		_logger.debug("Sending command: " + command);
+		_logger.debug(Poco::format("[%s] Sending command: %s", _address, command));
 
 		if (!_responseQueue.empty())
 		{
@@ -596,7 +596,7 @@ BlueZGATTClient::ParsedResponse::Ptr BlueZGATTClient::waitResponse(long timeout)
 
 void BlueZGATTClient::parseResponse(const std::string& response, ParsedResponse& parsedResponse)
 {
-	_logger.debug("Parsing response: " + response);
+	_logger.debug(Poco::format("[%s] Parsing response: %s", _address, response));
 
 	Poco::StringTokenizer tok(response, " ", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 	if (tok.count() > 0)
