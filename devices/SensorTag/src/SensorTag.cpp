@@ -309,7 +309,7 @@ SensorTag1IRAmbientTemperatureSensor::~SensorTag1IRAmbientTemperatureSensor()
 
 void SensorTag1IRAmbientTemperatureSensor::poll()
 {
-	std::string data = _pPeripheral->read(_dataChar.valueHandle);
+	std::string data = _pPeripheral->readString(_dataChar.valueHandle);
 	if (data.size() == 4)
 	{
 		Poco::MemoryInputStream istr(data.data(), data.size());
@@ -342,7 +342,7 @@ SensorTag1IRObjectTemperatureSensor::~SensorTag1IRObjectTemperatureSensor()
 
 void SensorTag1IRObjectTemperatureSensor::poll()
 {
-	std::string data = _pPeripheral->read(_dataChar.valueHandle);
+	std::string data = _pPeripheral->readString(_dataChar.valueHandle);
 	if (data.size() == 4)
 	{
 		Poco::MemoryInputStream istr(data.data(), data.size());
@@ -390,7 +390,7 @@ SensorTag2IRAmbientTemperatureSensor::~SensorTag2IRAmbientTemperatureSensor()
 
 void SensorTag2IRAmbientTemperatureSensor::poll()
 {
-	std::string data = _pPeripheral->read(_dataChar.valueHandle);
+	std::string data = _pPeripheral->readString(_dataChar.valueHandle);
 	if (data.size() == 4)
 	{
 		Poco::MemoryInputStream istr(data.data(), data.size());
@@ -424,7 +424,7 @@ SensorTag2IRObjectTemperatureSensor::~SensorTag2IRObjectTemperatureSensor()
 
 void SensorTag2IRObjectTemperatureSensor::poll()
 {
-	std::string data = _pPeripheral->read(_dataChar.valueHandle);
+	std::string data = _pPeripheral->readString(_dataChar.valueHandle);
 	if (data.size() == 4)
 	{
 		Poco::MemoryInputStream istr(data.data(), data.size());
@@ -458,7 +458,7 @@ SensorTagHumiditySensor::~SensorTagHumiditySensor()
 
 void SensorTagHumiditySensor::poll()
 {
-	std::string data = _pPeripheral->read(_dataChar.valueHandle);
+	std::string data = _pPeripheral->readString(_dataChar.valueHandle);
 	Poco::MemoryInputStream istr(data.data(), data.size());
 	Poco::BinaryReader reader(istr, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
 	Poco::UInt16 rawT;
@@ -523,7 +523,7 @@ SensorTag1AirPressureSensor::~SensorTag1AirPressureSensor()
 
 void SensorTag1AirPressureSensor::poll()
 {
-	std::string bytes = _pPeripheral->read(_dataChar.valueHandle);
+	std::string bytes = _pPeripheral->readString(_dataChar.valueHandle);
 	if (bytes.size() == 6)
 	{
 		Poco::UInt32 raw = static_cast<unsigned char>(bytes[3]) 
@@ -554,7 +554,7 @@ SensorTag2AirPressureSensor::~SensorTag2AirPressureSensor()
 
 void SensorTag2AirPressureSensor::poll()
 {
-	std::string bytes = _pPeripheral->read(_dataChar.valueHandle);
+	std::string bytes = _pPeripheral->readString(_dataChar.valueHandle);
 	if (bytes.size() == 6)
 	{
 		Poco::UInt32 raw = static_cast<unsigned char>(bytes[3]) 

@@ -66,7 +66,7 @@ public:
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor> ServerHelper;
 
 		Poco::SharedPtr<SensorTagSensor> pSensor;
-		if (params.version == 1)
+		if (pPeripheral->modelNumber() != "CC2650 SensorTag")
 		{
 			if (params.physicalQuantity == "ambientTemperature")
 				pSensor = new SensorTag1IRAmbientTemperatureSensor(pPeripheral, params, _pTimer);
@@ -112,14 +112,14 @@ public:
 		_serviceRefs.push_back(pServiceRef);
 	}
 
-	void createAccelerometer(Peripheral::Ptr pPeripheral, const SensorTag2Accelerometer::Params& params)
+	void createAccelerometer(Peripheral::Ptr pPeripheral, const SensorTagAccelerometer::Params& params)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Accelerometer> ServerHelper;
 
 		Poco::SharedPtr<SensorTagAccelerometer> pAccelerometer;
-		if (params.version == 1)
+		if (pPeripheral->modelNumber() != "CC2650 SensorTag")
 		{
-			return;
+			pAccelerometer = new SensorTag1Accelerometer(pPeripheral, params);
 		}
 		else
 		{
@@ -143,7 +143,6 @@ public:
 	void createSensors(Peripheral::Ptr pPeripheral, const std::string& baseKey)
 	{
 		SensorTagSensor::Params params;
-		params.version = _pPrefs->configuration()->getInt(baseKey + ".version", 2);
 
 		// humidity
 		params.serviceUUID = "f000aa20-0451-4000-b000-000000000000";
@@ -206,7 +205,7 @@ public:
 		
 		try
 		{
-			if (params.version == 2)
+			if (pPeripheral->modelNumber() == "CC2650 SensorTag")
 			{
 				createSensor(pPeripheral, params);
 			}			
@@ -234,13 +233,23 @@ public:
 		}
 
 		// accelerometer
-		SensorTag2Accelerometer::Params accParams;
-		accParams.version = _pPrefs->configuration()->getInt(baseKey + ".version", 2);
-		accParams.serviceUUID = "f000aa80-0451-4000-b000-000000000000";
-		accParams.controlUUID = "f000aa82-0451-4000-b000-000000000000";
-		accParams.dataUUID    = "f000aa81-0451-4000-b000-000000000000";
-		accParams.periodUUID  = "f000aa83-0451-4000-b000-000000000000";
-		accParams.notifUUID   = "00002902-0000-1000-8000-00805f9b34fb";
+		SensorTagAccelerometer::Params accParams;
+		if (pPeripheral->modelNumber() != "CC2650 SensorTag")
+		{
+			accParams.serviceUUID = "f000aa10-0451-4000-b000-000000000000";
+			accParams.controlUUID = "f000aa12-0451-4000-b000-000000000000";
+			accParams.dataUUID    = "f000aa11-0451-4000-b000-000000000000";
+			accParams.periodUUID  = "f000aa13-0451-4000-b000-000000000000";
+			accParams.notifUUID   = "00002902-0000-1000-8000-00805f9b34fb";
+		}
+		else
+		{
+			accParams.serviceUUID = "f000aa80-0451-4000-b000-000000000000";
+			accParams.controlUUID = "f000aa82-0451-4000-b000-000000000000";
+			accParams.dataUUID    = "f000aa81-0451-4000-b000-000000000000";
+			accParams.periodUUID  = "f000aa83-0451-4000-b000-000000000000";
+			accParams.notifUUID   = "00002902-0000-1000-8000-00805f9b34fb";
+		}
 
 		try
 		{
@@ -335,6 +344,8 @@ protected:
 				_pContext->logger().information(Poco::format("Peripheral connected: %s", it->pPeripheral->address()));
 				try
 				{
+					_pContext->logger().debug(Poco::format("Manufacturer Name: %s", it->pPeripheral->manufacturerName()));
+					_pContext->logger().debug(Poco::format("Model Number: %s", it->pPeripheral->modelNumber()));
 					if (!it->haveSensors)
 					{
 						createSensors(it->pPeripheral, it->baseKey);

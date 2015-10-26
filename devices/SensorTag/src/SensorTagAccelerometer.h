@@ -33,7 +33,6 @@ public:
 
 	struct Params
 	{
-		int version;
 		std::string serviceUUID;
 		std::string controlUUID;
 		std::string periodUUID;
@@ -95,6 +94,24 @@ protected:
 
 class SensorTag1Accelerometer: public SensorTagAccelerometer
 {
+public:
+	SensorTag1Accelerometer(Peripheral::Ptr pPeripheral, const Params& params);
+		/// Creates a SensorTag2Accelerometer.
+
+	~SensorTag1Accelerometer();
+		/// Destroys the SensorTag2Accelerometer.
+
+protected:
+	void update(const std::string& data);
+	void enable(bool enable);
+	Poco::Any getEnabled(const std::string&) const;
+	void setEnabled(const std::string&, const Poco::Any& value);
+	Poco::Any getWakeOnMotion(const std::string&) const;
+	void setWakeOnMotion(const std::string&, const Poco::Any& value);
+	Poco::Any getRange(const std::string&) const;
+	void setRange(const std::string&, const Poco::Any& value);
+	Poco::Any getValueChangedPeriod(const std::string&) const;
+	void setValueChangedPeriod(const std::string&, const Poco::Any& value);
 };
 
 

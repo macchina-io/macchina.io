@@ -145,6 +145,121 @@ void SensorTagAccelerometer::onNotificationReceived(const GATTClient::Notificati
 
 
 //
+// SensorTag1Accelerometer
+//
+
+
+SensorTag1Accelerometer::SensorTag1Accelerometer(Peripheral::Ptr pPeripheral, const Params& params):
+	SensorTagAccelerometer(pPeripheral, params)
+{
+	enable(true);
+}
+
+	
+SensorTag1Accelerometer::~SensorTag1Accelerometer()
+{
+}
+
+
+void SensorTag1Accelerometer::enable(bool enabled)
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	_pPeripheral->writeUInt16(_notifHandle, enabled, true);
+	_pPeripheral->writeUInt8(_controlChar.valueHandle, enabled, true);
+}
+
+
+Poco::Any SensorTag1Accelerometer::getEnabled(const std::string&) const
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	return (_pPeripheral->readUInt8(_controlChar.valueHandle) != 0) ? true : false;
+}
+
+
+void SensorTag1Accelerometer::setEnabled(const std::string&, const Poco::Any& value)
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	enable(Poco::AnyCast<bool>(value));
+}
+
+
+Poco::Any SensorTag1Accelerometer::getWakeOnMotion(const std::string&) const
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+	
+	return false;
+}
+
+
+void SensorTag1Accelerometer::setWakeOnMotion(const std::string& name, const Poco::Any&)
+{
+	throw IoT::Devices::NotWritableException(name);
+}
+
+
+Poco::Any SensorTag1Accelerometer::getValueChangedPeriod(const std::string&) const
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+	
+	Poco::UInt8 rawPeriod = _pPeripheral->readUInt8(_periodChar.valueHandle);
+	return static_cast<int>(static_cast<unsigned>(rawPeriod)*10);
+}
+
+
+void SensorTag1Accelerometer::setValueChangedPeriod(const std::string&, const Poco::Any& value)
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	int period = Poco::AnyCast<int>(value);
+	if (period >= 100 && period <= 2550)
+	{
+		Poco::UInt8 rawPeriod = static_cast<Poco::UInt8>(period/10);
+		_pPeripheral->writeUInt8(_periodChar.valueHandle, rawPeriod, true);
+	}
+	else throw Poco::InvalidArgumentException("period out of range (100 - 2550)");
+}
+
+
+Poco::Any SensorTag1Accelerometer::getRange(const std::string&) const
+{
+	return 2;
+}
+
+
+void SensorTag1Accelerometer::setRange(const std::string& name, const Poco::Any&)
+{
+	throw IoT::Devices::NotWritableException(name);
+}
+
+
+void SensorTag1Accelerometer::update(const std::string& data)
+{
+	if (data.size() == 3)
+	{
+		Poco::MemoryInputStream istr(data.data(), data.size());
+		Poco::BinaryReader reader(istr, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
+		Poco::Int8 accX;
+		Poco::Int8 accY;
+		Poco::Int8 accZ;
+		reader >> accX >> accY >> accZ;
+
+		{
+			Poco::Mutex::ScopedLock lock(_mutex);
+		
+			_acceleration.x = static_cast<double>(accX)/16.0;		
+			_acceleration.y = static_cast<double>(accY)/16.0;		
+			_acceleration.z = static_cast<double>(accZ)/16.0;
+			_ready = true;	
+		}
+		accelerationChanged(_acceleration);
+	}
+}
+
+
+//
 // SensorTag2Accelerometer
 //
 
