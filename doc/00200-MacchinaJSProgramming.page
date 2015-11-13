@@ -633,6 +633,14 @@ specified, the default value is returned if the configuration key has not
 been found. An exception is thrown if the key cannot be found and no default
 value is given.
 
+!!getObject(key [, default])
+
+Returns the configuration value for the given key as object. If a default value is
+specified, the default value is returned if the configuration key has not
+been found. The configuration value must be valid JSON.
+An exception is thrown if the key cannot be found and no default
+value is given, or if the configuration value is not valid JSON.
+
 !!has(key)
 
 Returns <*true*> if the given configuration key exists, otherwise <*false*>.
@@ -640,8 +648,9 @@ Returns <*true*> if the given configuration key exists, otherwise <*false*>.
 !!set(key, value)
 
 Sets the configuration value for the given key. Value can be a string, integer,
-floating-point number or boolean. An exception is thrown if setting the value
-for the given key fails (e.g., because the configuration is read-only).
+floating-point number, boolean or any object that can be JSON-formatted with JSON.stringify().
+An exception is thrown if setting the value for the given key fails 
+(e.g., because the configuration is read-only).
 
 !!keys([key])
 
