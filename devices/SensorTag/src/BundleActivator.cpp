@@ -21,6 +21,7 @@
 #include "Poco/Util/Timer.h"
 #include "Poco/Util/TimerTask.h"
 #include "IoT/Devices/SensorServerHelper.h"
+#include "IoT/Devices/AccelerometerServerHelper.h"
 #include "IoT/BtLE/BlueZGATTClient.h"
 #include "IoT/BtLE/PeripheralImpl.h"
 #include "Poco/Delegate.h"
@@ -31,6 +32,7 @@
 #include "Poco/String.h"
 #include "Poco/StringTokenizer.h"
 #include "SensorTag.h"
+#include "SensorTagAccelerometer.h"
 #include <vector>
 #include <map>
 
@@ -64,7 +66,7 @@ public:
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor> ServerHelper;
 
 		Poco::SharedPtr<SensorTagSensor> pSensor;
-		if (params.version == 1)
+		if (pPeripheral->modelNumber() != "CC2650 SensorTag")
 		{
 			if (params.physicalQuantity == "ambientTemperature")
 				pSensor = new SensorTag1IRAmbientTemperatureSensor(pPeripheral, params, _pTimer);
@@ -110,10 +112,37 @@ public:
 		_serviceRefs.push_back(pServiceRef);
 	}
 
+	void createAccelerometer(Peripheral::Ptr pPeripheral, const SensorTagAccelerometer::Params& params)
+	{
+		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Accelerometer> ServerHelper;
+
+		Poco::SharedPtr<SensorTagAccelerometer> pAccelerometer;
+		if (pPeripheral->modelNumber() != "CC2650 SensorTag")
+		{
+			pAccelerometer = new SensorTag1Accelerometer(pPeripheral, params);
+		}
+		else
+		{
+			pAccelerometer = new SensorTag2Accelerometer(pPeripheral, params);
+		}
+
+		std::string oid(SensorTagAccelerometer::SYMBOLIC_NAME);
+		oid += '#';
+		oid += pPeripheral->address();
+
+		ServerHelper::RemoteObjectPtr pAccelerometerRemoteObject = ServerHelper::createRemoteObject(pAccelerometer, oid);
+		
+		Properties props;
+		props.set("io.macchina.device", SensorTagAccelerometer::SYMBOLIC_NAME);
+		props.set("io.macchina.btle.address", pPeripheral->address());
+		
+		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pAccelerometerRemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
+	}
+
 	void createSensors(Peripheral::Ptr pPeripheral, const std::string& baseKey)
 	{
 		SensorTagSensor::Params params;
-		params.version = _pPrefs->configuration()->getInt(baseKey + ".version", 2);
 
 		// humidity
 		params.serviceUUID = "f000aa20-0451-4000-b000-000000000000";
@@ -176,7 +205,7 @@ public:
 		
 		try
 		{
-			if (params.version == 2)
+			if (pPeripheral->modelNumber() == "CC2650 SensorTag")
 			{
 				createSensor(pPeripheral, params);
 			}			
@@ -201,6 +230,34 @@ public:
 		catch (Poco::Exception& exc)
 		{
 			_pContext->logger().error(Poco::format("Cannot create SensorTag %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+		}
+
+		// accelerometer
+		SensorTagAccelerometer::Params accParams;
+		if (pPeripheral->modelNumber() != "CC2650 SensorTag")
+		{
+			accParams.serviceUUID = "f000aa10-0451-4000-b000-000000000000";
+			accParams.controlUUID = "f000aa12-0451-4000-b000-000000000000";
+			accParams.dataUUID    = "f000aa11-0451-4000-b000-000000000000";
+			accParams.periodUUID  = "f000aa13-0451-4000-b000-000000000000";
+			accParams.notifUUID   = "00002902-0000-1000-8000-00805f9b34fb";
+		}
+		else
+		{
+			accParams.serviceUUID = "f000aa80-0451-4000-b000-000000000000";
+			accParams.controlUUID = "f000aa82-0451-4000-b000-000000000000";
+			accParams.dataUUID    = "f000aa81-0451-4000-b000-000000000000";
+			accParams.periodUUID  = "f000aa83-0451-4000-b000-000000000000";
+			accParams.notifUUID   = "00002902-0000-1000-8000-00805f9b34fb";
+		}
+
+		try
+		{
+			createAccelerometer(pPeripheral, accParams);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_pContext->logger().error(Poco::format("Cannot create SensorTag Accelerometer: %s", exc.displayText())); 
 		}
 	}
 
@@ -287,6 +344,8 @@ protected:
 				_pContext->logger().information(Poco::format("Peripheral connected: %s", it->pPeripheral->address()));
 				try
 				{
+					_pContext->logger().debug(Poco::format("Manufacturer Name: %s", it->pPeripheral->manufacturerName()));
+					_pContext->logger().debug(Poco::format("Model Number: %s", it->pPeripheral->modelNumber()));
 					if (!it->haveSensors)
 					{
 						createSensors(it->pPeripheral, it->baseKey);

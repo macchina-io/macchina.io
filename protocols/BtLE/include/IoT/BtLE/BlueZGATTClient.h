@@ -164,8 +164,8 @@ protected:
 	
 	enum
 	{
-		DEFAULT_TIMEOUT = 60000,
-		DISCONNECT_TIMEOUT = 1000
+		DEFAULT_TIMEOUT = 30000,
+		DISCONNECT_TIMEOUT = 2000
 	};
 	
 private:

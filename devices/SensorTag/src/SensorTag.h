@@ -35,7 +35,6 @@ public:
 
 	struct Params
 	{
-		int version;
 		std::string serviceUUID;
 		std::string controlUUID;
 		std::string dataUUID;

@@ -13,7 +13,7 @@ include $(POCO_BASE)/build/rules/global
 INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 INCLUDE += -I$(PROJECT_BASE)/protocols/BtLE/include
 
-objects = SensorTag BundleActivator 
+objects = SensorTag SensorTagAccelerometer BundleActivator 
 
 target         = io.macchina.btle.sensortag
 target_version = 1
