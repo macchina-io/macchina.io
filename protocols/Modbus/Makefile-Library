@@ -1,0 +1,30 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io Modbus Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
+INCLUDE += -I$(PROJECT_BASE)/devices/Serial/include
+
+objects = \
+	ModbusMaster \
+	IModbusMaster \
+	ModbusMasterEventDispatcher \
+	ModbusMasterRemoteObject \
+	ModbusMasterServerHelper \
+	ModbusMasterSkeleton \
+	ModbusException \
+	PDUWriter \
+	PDUReader \
+	RTUPort
+
+target         = IoTModbus
+target_version = 1
+target_libs    = IoTSerial IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib
