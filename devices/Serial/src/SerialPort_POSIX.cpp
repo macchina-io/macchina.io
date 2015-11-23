@@ -206,11 +206,15 @@ void SerialPortImpl::configureRS485Impl(const RS485ParamsImpl& rs485Params)
 
 #if defined(TIOCSRS485)
 	struct serial_rs485 rs485conf;
+	std::memset(&rs485conf, 0, sizeof(rs485conf));
 	rs485conf.flags = rs485Params.flags;
 	rs485conf.delay_rts_before_send = rs485Params.delayRTSBeforeSend;
 	rs485conf.delay_rts_after_send  = rs485Params.delayRTSAfterSend;
-	#if defined(SER_RS485_USE_GPIO)
+	// BeagleBone needs a hack to enable RTS via GPIO pin
+	#if defined(SER_RS485_USE_GPIO) // patched <linux/serial.h> header available
 		rs485conf.gpio_pin = rs485Params.gpioPin;
+	#elif defined(MACCHINA_ENABLE_BEAGLEBONE_RS485_HACK) // unpatched <linux/serial.h> header: gpioPin is padding[0]
+		rs485conf.padding[0] = rs485Params.gpioPin;
 	#endif
 	if (ioctl (_fd, TIOCSRS485, &rs485conf) < 0)
 	{

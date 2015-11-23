@@ -10,6 +10,10 @@ include $(POCO_BASE)/build/rules/global
 
 INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 
+ifdef MACCHINA_ENABLE_BEAGLEBONE_RS485_HACK
+SYSFLAGS += -DMACCHINA_ENABLE_BEAGLEBONE_RS485_HACK
+endif
+
 objects = SerialPort SerialDeviceImpl
 
 target         = IoTSerial
