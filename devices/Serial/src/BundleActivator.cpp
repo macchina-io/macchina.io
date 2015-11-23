@@ -75,7 +75,7 @@ public:
 		
 		Poco::Util::AbstractConfiguration::Keys keys;
 		_pPrefs->configuration()->keys("serial.ports", keys);
-		int index = 0;
+
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "serial.ports.";
@@ -109,13 +109,12 @@ public:
 					pSerialPort->configureRS485(rs485Params);
 				}
 				
-				createSerialDevice(Poco::NumberFormatter::format(index), pSerialPort);
+				createSerialDevice(*it, pSerialPort);
 			}
 			catch (Poco::Exception& exc)
 			{
 				pContext->logger().error(Poco::format("Cannot create serial port for device '%s': %s", device, exc.displayText())); 
 			}
-			index++;
 		}
 	}
 		
