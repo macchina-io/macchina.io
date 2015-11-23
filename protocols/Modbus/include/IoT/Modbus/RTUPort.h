@@ -72,7 +72,9 @@ public:
 		{
 			crc = updateCRC16(crc, _sendBuffer[i]);
 		}
-		binaryWriter << crc;
+		// CRC is sent in little endian (low-order byte, high-order byte)
+		binaryWriter << static_cast<Poco::UInt8>(crc & 0xff);
+		binaryWriter << static_cast<Poco::UInt8>((crc >> 8) & 0xff);
 		poco_assert (ostr.good());
 		_pSerialPort->write(_sendBuffer.begin(), ostr.charsWritten());
 	}

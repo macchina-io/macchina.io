@@ -98,8 +98,9 @@ bool RTUPort::checkFrame(std::size_t size)
 		binaryReader >> byte;
 		crc = updateCRC16(crc, byte);
 	}
-	Poco::UInt16 receivedCRC;
-	binaryReader >> receivedCRC;
+	Poco::UInt8 loCRC, hiCRC;
+	binaryReader >> loCRC >> hiCRC;
+	Poco::UInt16 receivedCRC = loCRC + (hiCRC << 8);
 	return crc == receivedCRC;
 }
 
