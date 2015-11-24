@@ -163,7 +163,7 @@ public:
 		_pPort->sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame();
+			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
 			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -193,7 +193,7 @@ public:
 		_pPort->sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame();
+			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
 			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -223,7 +223,7 @@ public:
 		_pPort->sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame();
+			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
 			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -253,7 +253,7 @@ public:
 		_pPort->sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame();
+			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
 			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;

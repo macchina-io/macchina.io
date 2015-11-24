@@ -79,7 +79,7 @@ public:
 		_pSerialPort->write(_sendBuffer.begin(), ostr.charsWritten());
 	}
 	
-	Poco::UInt8 receiveFrame();
+	Poco::UInt8 receiveFrame(const Poco::Timespan& timeout);
 		/// Receives the next frame from the wire. Returns the frame's function code.
 
 	template <class Message>
@@ -92,7 +92,6 @@ public:
 		Poco::BinaryReader binaryReader(istr, _byteOrder == RTU_BIG_ENDIAN ? Poco::BinaryReader::BIG_ENDIAN_BYTE_ORDER : Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
 		PDUReader pduReader(binaryReader);
 		pduReader.read(message);
-		
 	}
 		
 	bool poll(const Poco::Timespan& timeout);
