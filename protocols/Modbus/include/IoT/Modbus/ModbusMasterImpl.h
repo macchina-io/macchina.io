@@ -167,13 +167,13 @@ public:
 			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
-				_pPort->receiveFrame(message);
+				_pPort->decodeFrame(message);
 				throw ModbusException(message.functionCode, message.exceptionCode);
 			}
 			else if ((fc & 0x7F) == request.functionCode)
 			{
 				ReadCoilsResponse response;
-				_pPort->receiveFrame(response);
+				_pPort->decodeFrame(response);
 				return response.coilStatus;
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
@@ -197,13 +197,13 @@ public:
 			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
-				_pPort->receiveFrame(message);
+				_pPort->decodeFrame(message);
 				throw ModbusException(message.functionCode, message.exceptionCode);
 			}
 			else if ((fc & 0x7F) == request.functionCode)
 			{
 				ReadDiscreteInputsResponse response;
-				_pPort->receiveFrame(response);
+				_pPort->decodeFrame(response);
 				return response.inputStatus;
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
@@ -227,13 +227,13 @@ public:
 			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
-				_pPort->receiveFrame(message);
+				_pPort->decodeFrame(message);
 				throw ModbusException(message.functionCode, message.exceptionCode);
 			}
 			else if ((fc & 0x7F) == request.functionCode)
 			{
 				ReadHoldingRegistersResponse response;
-				_pPort->receiveFrame(response);
+				_pPort->decodeFrame(response);
 				return response.registerValues;
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
@@ -257,13 +257,13 @@ public:
 			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
-				_pPort->receiveFrame(message);
+				_pPort->decodeFrame(message);
 				throw ModbusException(message.functionCode, message.exceptionCode);
 			}
 			else if ((fc & 0x7F) == request.functionCode)
 			{
 				ReadInputRegistersResponse response;
-				_pPort->receiveFrame(response);
+				_pPort->decodeFrame(response);
 				return response.registerValues;
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");

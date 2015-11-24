@@ -83,8 +83,8 @@ public:
 		/// Receives the next frame from the wire. Returns the frame's function code.
 
 	template <class Message>
-	void receiveFrame(Message& message)
-		/// Reads the currently buffered Modbus RTU frame.
+	void decodeFrame(Message& message)
+		/// Decodes the currently buffered Modbus RTU frame.
 		///
 		/// The raw frame must have been read from the wire with receiveFrame().
 	{
