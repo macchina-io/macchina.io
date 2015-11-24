@@ -51,11 +51,11 @@ public:
 	{
 	}
 	
-	void createModbusRTUMaster(const std::string& uid, Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort)
+	void createModbusRTUMaster(const std::string& uid, Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort, Poco::Timespan interCharTimeout)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Modbus::ModbusMaster> ServerHelper;
 		
-		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<RTUPort>(new RTUPort(pSerialPort));
+		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<RTUPort>(new RTUPort(pSerialPort, interCharTimeout));
 		std::string symbolicName = "io.macchina.modbus";
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
@@ -85,7 +85,8 @@ public:
 
 			std::string device = _pPrefs->configuration()->getString(baseKey + ".device", "");
 			std::string params = _pPrefs->configuration()->getString(baseKey + ".params", "8N1");
-			int speed = _pPrefs->configuration()->getInt(baseKey + ".speed", 38400);
+			int speed = _pPrefs->configuration()->getInt(baseKey + ".speed", 9600);
+			Poco::Timespan interCharTimeout = _pPrefs->configuration()->getInt(baseKey + ".rtu.interCharTimeout", speed <= 19200 ? 1500 : 750);
 		
 			try
 			{
@@ -111,7 +112,7 @@ public:
 					pSerialPort->configureRS485(rs485Params);
 				}
 								
-				createModbusRTUMaster(Poco::NumberFormatter::format(index), pSerialPort);
+				createModbusRTUMaster(Poco::NumberFormatter::format(index), pSerialPort, interCharTimeout);
 			}
 			catch (Poco::Exception& exc)
 			{
