@@ -36,20 +36,24 @@ RTUPort::~RTUPort()
 }
 
 
-Poco::UInt8 RTUPort::receiveFrame(const Poco::Timespan& frameTimeout)
+Poco::UInt8 RTUPort::receiveFrame(const Poco::Timespan& timeout)
 {
 	std::size_t n = 0;
 	bool frameComplete = false;
-	Poco::Timespan timeout = frameTimeout;
 	do
 	{
-		std::size_t rd = _pSerialPort->read(_receiveBuffer.begin() + n, _receiveBuffer.size() - n, timeout);
+		std::size_t rd = _pSerialPort->read(_receiveBuffer.begin() + n, _receiveBuffer.size() - n, _interCharTimeout);
 		if (rd == 0) return 0;
 		if (rd == 1 && n == 0 && _receiveBuffer[0] == 0)
-			continue; // ignore spurious null bytes at beginning of frame
+		{
+			// ignore spurious null bytes before frame
+			if (poll(timeout))
+				continue;
+			else
+				throw Poco::TimeoutException();
+		}
 		n += rd;
 		frameComplete = checkFrame(n);
-		timeout = _interCharTimeout;
 	}
 	while (!frameComplete && n < _receiveBuffer.size());
 	
