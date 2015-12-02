@@ -170,7 +170,10 @@ void BundleLoader::unloadBundle(Bundle::Ptr pBundle)
 		unloadActivator(it->second);
 	}
 	BundleEvent unloadedEvent(pBundle, BundleEvent::EV_BUNDLE_UNLOADED);
-	_bundles.erase(it);
+	if (it != _bundles.end())
+	{
+		_bundles.erase(it);
+	}
 	_bundleIds.erase(pBundle->id());
 	_events.bundleUnloaded(this, unloadedEvent);
 }
@@ -443,7 +446,10 @@ void BundleLoader::uninstallBundle(Bundle* pBundle)
 	bundleFile.remove(true);
 	
 	BundleEvent unloadedEvent(pBundle, BundleEvent::EV_BUNDLE_UNLOADED);
-	_bundles.erase(it);
+	if (it != _bundles.end())
+	{
+		_bundles.erase(it);
+	}
 	_bundleIds.erase(pBundle->id());
 	_events.bundleUnloaded(this, unloadedEvent);
 	
