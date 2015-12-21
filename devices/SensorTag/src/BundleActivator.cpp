@@ -268,7 +268,7 @@ public:
 		_pTimer = new Poco::Util::Timer;
 	
 		Poco::Util::AbstractConfiguration::Keys keys;
-		std::string helperPath = _pPrefs->configuration()->getString("sensortag.bluez.helper");
+		std::string helperPath = _pPrefs->configuration()->getString("btle.bluez.helper");
 		_pPrefs->configuration()->keys("sensortag.sensors", keys);
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
