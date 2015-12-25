@@ -420,7 +420,7 @@ The code for the server application is shown below.
             Poco::SharedPtr<Sample::TimeService> pTimeService = new Sample::TimeService;
             
             // 3. Register service object with ORB.
-            std::string uri = Sample::TimeServiceServerHelper::registerRemoteObject(pTimeService, "TheTimeService", listener);
+            std::string uri = Sample::TimeServiceServerHelper::registerObject(pTimeService, "TheTimeService", listener);
             std::cout << "TimeService URI is: " << uri << std::endl;
     
             // Wait for CTRL-C or kill.
