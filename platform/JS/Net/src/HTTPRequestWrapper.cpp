@@ -84,6 +84,7 @@ v8::Handle<v8::ObjectTemplate> HTTPRequestWrapper::objectTemplate(v8::Isolate* p
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "hasHeader"), v8::FunctionTemplate::New(pIsolate, hasHeader));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getHeader"), v8::FunctionTemplate::New(pIsolate, getHeader));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "setHeader"), v8::FunctionTemplate::New(pIsolate, setHeader));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "addHeader"), v8::FunctionTemplate::New(pIsolate, addHeader));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "authenticate"), v8::FunctionTemplate::New(pIsolate, authenticate));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "send"), v8::FunctionTemplate::New(pIsolate, send));
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
@@ -269,6 +270,16 @@ void HTTPRequestWrapper::setHeader(const v8::FunctionCallbackInfo<v8::Value>& ar
 	std::string name = toString(args[0]);
 	std::string value = toString(args[1]);
 	pRequestHolder->request().set(name, value);
+}
+
+
+void HTTPRequestWrapper::addHeader(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() < 2) return;
+	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(args);
+	std::string name = toString(args[0]);
+	std::string value = toString(args[1]);
+	pRequestHolder->request().add(name, value);
 }
 
 

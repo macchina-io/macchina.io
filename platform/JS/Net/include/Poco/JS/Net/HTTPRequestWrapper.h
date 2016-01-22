@@ -178,6 +178,7 @@ protected:
 	static void hasHeader(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getHeader(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void setHeader(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void addHeader(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void authenticate(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void send(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void sendBlocking(const v8::FunctionCallbackInfo<v8::Value>& args);
