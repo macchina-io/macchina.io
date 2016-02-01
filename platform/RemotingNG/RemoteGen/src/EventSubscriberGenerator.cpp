@@ -172,9 +172,9 @@ void EventSubscriberGenerator::methodStartImpl(const Poco::CppParser::Function* 
 	pVar->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
 	_cppGen.registerConstructorHint(pVar, "pProxy");
 	
-	// add: void invoke(Poco::RemotingNG::ServerTransport& remoting__transport, Poco::RemotingNG::Desrializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	// add: void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Desrializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	Poco::CppParser::Function* pInvoke = new Poco::CppParser::Function("void invoke", pStruct);
-	Poco::CppParser::Parameter* pParam1 = new Poco::CppParser::Parameter("Poco::RemotingNG::ServerTransport& remoting__transport", 0);
+	Poco::CppParser::Parameter* pParam1 = new Poco::CppParser::Parameter("Poco::RemotingNG::ServerTransport& remoting__trans", 0);
 	Poco::CppParser::Parameter* pParam2 = new Poco::CppParser::Parameter("Poco::RemotingNG::Deserializer& remoting__deser", 0);
 	Poco::CppParser::Parameter* pParam3 = new Poco::CppParser::Parameter("Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject", 0);
 	pInvoke->addParameter(pParam1);
@@ -411,7 +411,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 		std::string funcDefaultNS(structDefaultNS);
 		GeneratorEngine::getStringProperty(funcProps, Utility::NAMESPACE, funcDefaultNS);
 		int funcNsIdx = -1;
-		gen.writeMethodImplementation(indentation+"Poco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);");
+		gen.writeMethodImplementation(indentation+"Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);");
 		if (!funcDefaultNS.empty())
 		{
 			if (funcDefaultNS == structDefaultNS)
@@ -427,17 +427,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 				gen.writeMethodImplementation(indentation+code);
 			}
 		}
-		std::string structVersion;
-		GeneratorEngine::getStringProperty(structProps, GenUtility::ATTR_VERSION, structVersion);
-		std::string funcVersion(structVersion);
-		GeneratorEngine::getStringProperty(funcProps, GenUtility::ATTR_VERSION, funcVersion);
-		if (!funcVersion.empty())
-		{
-			std::string line("remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_VERSION, \"");
-			line.append(funcVersion);
-			line.append("\");");
-			gen.writeMethodImplementation(indentation+line);
-		}
+
 		// write attrs before serializeRequest
 		writePushAttributes(pGen, pFunc, attrs, outParams, indentation, gen);
 		// push soapHeader attributes
@@ -525,7 +515,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 		// don't catch errors which happen during serializing data back to the caller
 		gen.writeMethodImplementation(indentation+"if (!remoting__requestSucceeded)");
 		gen.writeMethodImplementation(indentation+"{");
-		gen.writeMethodImplementation(indentation+"\tPoco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);");
+		gen.writeMethodImplementation(indentation+"\tPoco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);");
 		gen.writeMethodImplementation(indentation+"\tremoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);");
 		gen.writeMethodImplementation(indentation+"}");
 		gen.writeMethodImplementation("}");
@@ -534,7 +524,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 		// don't catch errors which happen during serializing data back to the caller
 		gen.writeMethodImplementation(indentation+"if (!remoting__requestSucceeded)");
 		gen.writeMethodImplementation(indentation+"{");
-		gen.writeMethodImplementation(indentation+"\tPoco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);");
+		gen.writeMethodImplementation(indentation+"\tPoco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);");
 		gen.writeMethodImplementation(indentation+"\tPoco::Exception exc(e.what());");
 		gen.writeMethodImplementation(indentation+"\tremoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);");
 		gen.writeMethodImplementation(indentation+"}");
@@ -544,7 +534,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 		// don't catch errors which happen during serializing data back to the caller
 		gen.writeMethodImplementation(indentation+"if (!remoting__requestSucceeded)");
 		gen.writeMethodImplementation(indentation+"{");
-		gen.writeMethodImplementation(indentation+"\tPoco::RemotingNG::Serializer& remoting__ser = remoting__transport.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);");
+		gen.writeMethodImplementation(indentation+"\tPoco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);");
 		gen.writeMethodImplementation(indentation+"\tPoco::Exception exc(\"Unknown Exception\");");
 		gen.writeMethodImplementation(indentation+"\tremoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);");
 		gen.writeMethodImplementation(indentation+"}");

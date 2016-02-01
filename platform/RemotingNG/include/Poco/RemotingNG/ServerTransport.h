@@ -69,7 +69,7 @@ public:
 	virtual void endRequest() = 0;
 		/// Signals the ServerTransport that request processing is
 		/// finished for this request.
-
+		
 private:
 	ServerTransport(const ServerTransport&);
 	ServerTransport& operator = (const ServerTransport&);

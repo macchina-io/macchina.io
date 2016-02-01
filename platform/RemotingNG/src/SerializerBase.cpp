@@ -23,12 +23,15 @@ namespace RemotingNG {
 
 
 const std::string SerializerBase::PROP_NAMESPACE("namespace");
-const std::string SerializerBase::PROP_VERSION("version");
 const std::string SerializerBase::PROP_HEADER("header");
 const std::string SerializerBase::PROP_ACTION("action");
 const std::string SerializerBase::PROP_REQUEST("request");
 const std::string SerializerBase::PROP_REPLY("reply");
 const std::string SerializerBase::PROP_FAULT("fault");
+const std::string SerializerBase::PROP_LOCATION("location");
+const std::string SerializerBase::PROP_FORMAT("format");
+const std::string SerializerBase::PROP_PATH("path");
+const std::string SerializerBase::PROP_CONTENT_TYPE("contentType");
 const std::string SerializerBase::RETURN_PARAM("return");
 
 

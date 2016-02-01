@@ -78,16 +78,8 @@ bool ORB::invoke(const Listener& listener, const std::string& uri, ServerTranspo
 {
 	poco_assert (!uri.empty());
 
-	std::string uriPath;
-	if (uri[0] == '/')
-	{
-		uriPath = uri;
-	}
-	else
-	{
-		Poco::URI theURI(uri);
-		uriPath = theURI.getPathEtc();
-	}
+	Poco::URI theURI(uri);
+	std::string uriPath = theURI.getPath();
 	
 	Skeleton::Ptr pSkeleton;
 	RemoteObject::Ptr pRemoteObject;
@@ -95,7 +87,7 @@ bool ORB::invoke(const Listener& listener, const std::string& uri, ServerTranspo
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 	
-		URIAliases::const_iterator ita = _uriAliases.find(uriPath);
+		URIAliases::const_iterator ita = findAlias(uriPath);
 		if (ita == _uriAliases.end())
 		{
 			Poco::StringTokenizer tok(uriPath, "/", Poco::StringTokenizer::TOK_IGNORE_EMPTY);
@@ -486,6 +478,7 @@ std::string ORB::registerObject(RemoteObject::Ptr pRemoteObject, const std::stri
 	else
 	{
 		_uriAliases.insert(std::make_pair(pRemoteObject->remoting__getURI().getPath(), objectPath));
+		_logger.debug("Registered alias path: " + pRemoteObject->remoting__getURI().getPath());
 	}
 
 	if (_logger.information())
@@ -570,6 +563,16 @@ EventDispatcher::Ptr ORB::findEventDispatcher(const std::string& uri, const std:
 		else throw Poco::NotFoundException("event dispatcher for protocol", protocol);
 	}
 	else throw Poco::NotFoundException("remote object", uri);
+}
+
+
+ORB::URIAliases::const_iterator ORB::findAlias(const std::string& path) const
+{
+	for (URIAliases::const_iterator it = _uriAliases.begin(); it != _uriAliases.end(); ++it)
+	{
+		if (URIUtility::matchPath(path, it->first)) return it;
+	}
+	return _uriAliases.end();
 }
 
 

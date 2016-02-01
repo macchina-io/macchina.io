@@ -72,6 +72,11 @@ public:
 	static const std::string REQUEST;
 	static const std::string REPLY;
 	static const std::string FAULT;
+	static const std::string IN;
+	static const std::string FORMAT;
+	static const std::string PATH;
+	static const std::string PRODUCES;
+	static const std::string CONSUMES;
 
 	static const std::string VAL_TRUE;
 	static const std::string VAL_FALSE;

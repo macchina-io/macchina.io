@@ -27,6 +27,7 @@
 
 
 using Poco::CodeGeneration::Utility;
+using Poco::CodeGeneration::GeneratorEngine;
 
 
 ServerHelperGenerator::ServerHelperGenerator(Poco::CodeGeneration::CppGenerator& cppGen): AbstractGenerator(cppGen)
@@ -326,9 +327,8 @@ void ServerHelperGenerator::registerObjectCodeGen(const Poco::CppParser::Functio
 	poco_check_ptr (pGen);
 	const Poco::CppParser::Struct* pStructIn = pGen->_pStructIn;
 
-	std::string ro("new ");
-	ro.append(RemoteObjectGenerator::generateClassName(pStructIn));
-	ro.append("(oid, pServiceObject)");
+	std::string ro("createRemoteObject");
+	ro.append("(pServiceObject, oid)");
 	gen.writeMethodImplementation("return " + pStruct->name() + "::instance().registerObjectImpl("+ro+", listenerId);");
 }
 
@@ -384,10 +384,32 @@ void ServerHelperGenerator::createRemoteObjectImplCodeGen(const Poco::CppParser:
 	poco_check_ptr (pGen);
 	const Poco::CppParser::Struct* pStructIn = pGen->_pStructIn;
 
-	std::string code("return new ");
-	code.append(RemoteObjectGenerator::generateClassName(pStructIn));
-	code.append("(oid, pServiceObject);");
-	gen.writeMethodImplementation(code);
+	CodeGenerator::Properties structProps;
+	GeneratorEngine::parseProperties(pStructIn, structProps);
+	std::string path;
+	GeneratorEngine::getStringProperty(structProps, Utility::PATH, path);
+
+	if (!path.empty())
+	{
+		std::string code("Poco::AutoPtr<");
+		code.append(RemoteObjectGenerator::generateClassName(pStructIn));
+		code.append(" > pRemoteObject = new ");
+		code.append(RemoteObjectGenerator::generateClassName(pStructIn));
+		code.append("(oid, pServiceObject);");
+		gen.writeMethodImplementation(code);
+		code = "pRemoteObject->remoting__setURI(Poco::URI(\"";
+		code.append(path);
+		code.append("\"));");
+		gen.writeMethodImplementation(code);
+		gen.writeMethodImplementation("return pRemoteObject;");
+	}
+	else
+	{
+		std::string code("return new ");
+		code.append(RemoteObjectGenerator::generateClassName(pStructIn));
+		code.append("(oid, pServiceObject);");
+		gen.writeMethodImplementation(code);
+	}
 }
 
 

@@ -41,6 +41,14 @@ public:
 		/// Parses an URI containing a path created by createURIPath().
 		///
 		/// Throws an exception if the URI format is not recognized.
+
+	static bool matchPath(const std::string& path, const std::string& pathTemplate);
+		/// Matches the given path against the path template. A path template can contain
+		/// placeholders for certain path segments. The format of a place holder is {<identifier>},
+		/// an identifier enclosed in curly brackets. For example, the path "/object/12345"
+		/// will match the path template "/object/{id}".
+		///
+		/// Returns true if the path matches the pathTemplate, otherwise false.
 };
 
 

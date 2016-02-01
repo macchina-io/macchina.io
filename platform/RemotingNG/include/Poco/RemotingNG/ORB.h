@@ -78,7 +78,8 @@ public:
 		/// Returns true if the object with the given URI was found, false otherwise.
 		///
 		/// URI can be a complete URI, or a URI path. In any case, only the URI path will
-		/// be considered. The given URI can be an alias URI.
+		/// be considered. The given URI can be an alias URI, which will be matched against
+		/// registered aliases.
 
 	bool invoke(const std::string& objectPath, ServerTransport& transport) const;
 		/// Invoke a method on the object registered for the given object path.
@@ -257,6 +258,7 @@ private:
 	ORB& operator = (const ORB&);
 
 	RemoteObjectInfo::Ptr findLocalObject(const Identifiable::TypeId& tid, const Identifiable::ObjectId& oid, const std::string& protocol) const;
+	URIAliases::const_iterator findAlias(const std::string& path) const;
 
 	bool                _enabled;
 	ListenerMap         _listeners;         /// Maps endpoints to Listener objects

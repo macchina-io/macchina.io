@@ -539,17 +539,6 @@ void EventDispatcherGenerator::writeSerializingBlock(const Poco::CppParser::Func
 			gen.writeMethodImplementation(code);
 		}
 	}
-	std::string structVersion;
-	GeneratorEngine::getStringProperty(structProps, GenUtility::ATTR_VERSION, structVersion);
-	std::string funcVersion(structVersion);
-	GeneratorEngine::getStringProperty(funcProps, GenUtility::ATTR_VERSION, funcVersion);
-	if (!funcVersion.empty())
-	{
-		std::string line("remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_VERSION, \"");
-		line.append(funcVersion);
-		line.append("\");");
-		gen.writeMethodImplementation(line);
-	}
 	
 	// write attrs before serializeRequest
 	OrderedParameters::const_iterator itOP = attrs.begin();
@@ -612,10 +601,6 @@ void EventDispatcherGenerator::writeSerializingBlock(const Poco::CppParser::Func
 
 	gen.writeMethodImplementation("remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_" + messageType + ");");
 
-	if (!funcVersion.empty())
-	{
-		gen.writeMethodImplementation("remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_VERSION);");
-	}
 	if (!funcDefaultNS.empty())
 	{
 		gen.writeMethodImplementation("remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);");

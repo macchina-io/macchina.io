@@ -74,4 +74,32 @@ void URIUtility::parseURIPath(const std::string& path, Identifiable::ObjectId& o
 }
 
 
+bool URIUtility::matchPath(const std::string& path, const std::string& pathTemplate)
+{
+	std::string::const_iterator itPath = path.begin();
+	std::string::const_iterator endPath = path.end();
+	std::string::const_iterator itTempl = pathTemplate.begin();
+	std::string::const_iterator endTempl = pathTemplate.end();
+	
+	while (itPath != endPath && itTempl != endTempl)
+	{
+		if (*itPath == *itTempl)
+		{
+			++itPath;
+			++itTempl;
+		}
+		else if (*itTempl == '{')
+		{
+			++itTempl;
+			while (itTempl != endTempl && *itTempl != '}') ++itTempl;
+			if (itTempl != endTempl) ++itTempl;
+			while (itPath != endPath && *itPath != '/') ++itPath;
+		}
+		else return false;
+	}
+	
+	return itPath == endPath && itTempl == endTempl;
+}
+
+
 } } // namespace Poco::RemotingNG

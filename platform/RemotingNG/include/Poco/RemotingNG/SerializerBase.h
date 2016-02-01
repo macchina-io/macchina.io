@@ -57,12 +57,15 @@ public:
 	};
 	
 	static const std::string PROP_NAMESPACE;
-	static const std::string PROP_VERSION;
 	static const std::string PROP_HEADER;
 	static const std::string PROP_ACTION;
 	static const std::string PROP_REQUEST;
 	static const std::string PROP_REPLY;
 	static const std::string PROP_FAULT;
+	static const std::string PROP_LOCATION;
+	static const std::string PROP_FORMAT;
+	static const std::string PROP_PATH;
+	static const std::string PROP_CONTENT_TYPE;
 
 	static const std::string RETURN_PARAM;
 		/// The element name used to serialize a function's return value.

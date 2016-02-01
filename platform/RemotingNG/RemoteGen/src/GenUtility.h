@@ -34,6 +34,7 @@ class GenUtility
 public:
 	static const std::string ATTR_HEADER;
 	static const std::string ATTR_VERSION;
+	static const std::string ATTR_RETURN;
 
 	static std::string getMethodName(const Poco::CppParser::Function* pFunc);
 
@@ -130,9 +131,7 @@ private:
 	static const std::string ATTR_NAME;
 	static const std::string ATTR_REPLYNAME;
 	static const std::string VAL_REQUEST;
-	static const std::string VAL_REPLY;
-	static const std::string ATTR_RETURN;
-	
+	static const std::string VAL_REPLY;	
 
 	enum
 	{
