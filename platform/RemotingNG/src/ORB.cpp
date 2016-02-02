@@ -90,7 +90,7 @@ bool ORB::invoke(const Listener& listener, const std::string& uri, ServerTranspo
 		URIAliases::const_iterator ita = findAlias(uriPath);
 		if (ita == _uriAliases.end())
 		{
-			Poco::StringTokenizer tok(uriPath, "/", Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+			Poco::StringTokenizer tok(theURI.getPathEtc(), "/", Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 			if (tok.count() == 3)
 			{
 				objectPath.reserve(256);
