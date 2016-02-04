@@ -11,7 +11,6 @@
 
 
 #include "ServiceRegistryWrapper.h"
-#include "Poco/OSP/ServiceRegistry.h"
 #include "ServiceRefWrapper.h"
 
 

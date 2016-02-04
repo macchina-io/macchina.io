@@ -145,7 +145,7 @@ Wrapper::~Wrapper()
 std::string Wrapper::toString(v8::Local<v8::Value> value)
 {
 	v8::String::Utf8Value utf8(value);
-	return std::string(*utf8);
+	return std::string(*utf8, utf8.length());
 }
 
 

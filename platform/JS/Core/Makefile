@@ -11,6 +11,7 @@ include $(POCO_BASE)/build/rules/global
 objects = Wrapper PooledIsolate \
 	LoggerWrapper ConsoleWrapper SystemWrapper DateTimeWrapper LocalDateTimeWrapper \
 	ConfigurationWrapper ApplicationWrapper URIWrapper TimerWrapper \
+	BufferWrapper \
 	JSExecutor
 
 target         = PocoJSCore

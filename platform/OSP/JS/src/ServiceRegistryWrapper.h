@@ -16,6 +16,7 @@
 
 #include "Poco/JS/Core/Core.h"
 #include "Poco/JS/Core/Wrapper.h"
+#include "Poco/OSP/ServiceRegistry.h"
 
 
 namespace Poco {

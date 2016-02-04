@@ -15,6 +15,7 @@
 
 
 #include "Poco/JS/Bridge/Deserializer.h"
+#include "Poco/JS/Core/BufferWrapper.h"
 #include "Poco/RemotingNG/RemotingException.h"
 
 
@@ -355,9 +356,17 @@ bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, st
 }
 
 
-bool Deserializer::deserialize(const std::string& /*name*/, bool /*isMandatory*/, std::vector<char>& value)
+bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, std::vector<char>& value)
 {
-	throw Poco::NotImplementedException("deserialize std::vector<char>");
+	v8::Local<v8::Value> jsValue = deserializeValue(name);
+	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
+	if (jsValue->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::JS::Core::BufferWrapper::Buffer>(_pIsolate, jsValue))
+	{
+		Poco::JS::Core::BufferWrapper::Buffer* pArgBuffer = Poco::JS::Core::Wrapper::unwrapNativeObject<Poco::JS::Core::BufferWrapper::Buffer>(jsValue);
+		value.assign(pArgBuffer->begin(), pArgBuffer->end());
+		return true;
+	}
+	else throw Poco::RemotingNG::DeserializerException("value is not a buffer");
 }
 
 

@@ -25,6 +25,7 @@
 #include "Poco/AutoPtr.h"
 #include "Poco/Exception.h"
 #include "Poco/Mutex.h"
+#include <typeinfo>
 #include <map>
 #include <set>
 #include "v8.h"
@@ -197,6 +198,7 @@ public:
 		v8::Local<v8::External> ext = v8::External::New(pIsolate, pNative);
 		poco_assert (wrapper->InternalFieldCount() > 0);
 		wrapper->SetInternalField(0, ext);
+		wrapper->SetHiddenValue(v8::String::NewFromUtf8(pIsolate, "Poco::nativeType"), v8::String::NewFromUtf8(pIsolate, typeid(T).name()));
 		return handleScope.Escape(wrapper);
 	}
 
@@ -252,6 +254,60 @@ public:
 			return static_cast<T*>(pRaw);
 		}
 		else return 0;
+	}
+
+	template <typename T>
+	static T* unwrapNativeObject(const v8::Local<v8::Value>& value)
+	{
+		if (!value.IsEmpty() && value->IsObject())	
+		{	
+			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
+			if (object->InternalFieldCount() > 0)
+			{
+				v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(object->GetInternalField(0));
+				void* pRaw = wrap->Value();
+				return static_cast<T*>(pRaw);
+			}
+		}
+		return 0;
+	}
+
+	template <typename T>
+	static T* safeUnwrapNative(v8::Isolate* pIsolate, v8::Local<v8::Value>& value)
+	{
+		if (!value.IsEmpty() && value->IsObject())	
+		{	
+			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
+			if (object->InternalFieldCount() > 0)
+			{
+				v8::Local<v8::Value> nativeType = object->GetHiddenValue(v8::String::NewFromUtf8(pIsolate, "Poco::nativeType"));
+				if (!nativeType.IsEmpty() && nativeType->IsString() && toString(nativeType) == typeid(T).name())
+				{
+					v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(object->GetInternalField(0));
+					void* pRaw = wrap->Value();
+					return static_cast<T*>(pRaw);
+				}
+			}
+		}
+		return 0;
+	}
+
+	template <typename T>
+	static bool isWrapper(v8::Isolate* pIsolate, const v8::Local<v8::Value>& value)
+	{
+		if (!value.IsEmpty() && value->IsObject())
+		{
+			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
+			if (object->InternalFieldCount() > 0)
+			{
+				v8::Local<v8::Value> nativeType = object->GetHiddenValue(v8::String::NewFromUtf8(pIsolate, "Poco::nativeType"));
+				if (!nativeType.IsEmpty() && nativeType->IsString())
+				{
+					return toString(nativeType) == typeid(T).name();
+				}
+			}
+		}
+		return false;
 	}
 	
 	static std::string toString(v8::Local<v8::Value> value);

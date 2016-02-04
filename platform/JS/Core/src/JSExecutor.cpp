@@ -21,6 +21,7 @@
 #include "Poco/JS/Core/ApplicationWrapper.h"
 #include "Poco/JS/Core/URIWrapper.h"
 #include "Poco/JS/Core/TimerWrapper.h"
+#include "Poco/JS/Core/BufferWrapper.h"
 #include "Poco/Delegate.h"
 #include "Poco/URIStreamOpener.h"
 #include "Poco/StreamCopier.h"
@@ -297,6 +298,9 @@ void JSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isol
 {
 	Poco::JS::Core::DateTimeWrapper dateTimeWrapper;
 	global->Set(v8::String::NewFromUtf8(pIsolate, "DateTime"), dateTimeWrapper.constructor(pIsolate));
+
+	Poco::JS::Core::BufferWrapper bufferWrapper;
+	global->Set(v8::String::NewFromUtf8(pIsolate, "Buffer"), bufferWrapper.constructor(pIsolate));
 
 	Poco::JS::Core::LocalDateTimeWrapper localDateTimeWrapper;
 	global->Set(v8::String::NewFromUtf8(pIsolate, "LocalDateTime"), localDateTimeWrapper.constructor(pIsolate));

@@ -35,7 +35,7 @@ class JSCore_API DateTimeWrapper: public Wrapper
 {
 public:
 	DateTimeWrapper();
-		/// Creates the DateTimeWrapper for the root logger.
+		/// Creates the DateTimeWrapper.
 	
 	~DateTimeWrapper();
 		/// Destroys the DateTimeWrapper.

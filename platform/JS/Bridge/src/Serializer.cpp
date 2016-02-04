@@ -15,6 +15,7 @@
 
 
 #include "Poco/JS/Bridge/Serializer.h"
+#include "Poco/JS/Core/BufferWrapper.h"
 
 
 namespace Poco {
@@ -207,7 +208,11 @@ void Serializer::serialize(const std::string& name, const std::string& value)
 
 void Serializer::serialize(const std::string& name, const std::vector<char>& value)
 {
-	throw Poco::NotImplementedException("serialize std::vector<char>");
+	Poco::JS::Core::BufferWrapper::Buffer* pBuffer = new Poco::JS::Core::BufferWrapper::Buffer(&value[0], value.size());
+	Poco::JS::Core::BufferWrapper wrapper;
+	v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(_pIsolate, pBuffer));
+	v8::Local<v8::Object> localBufferObject = v8::Local<v8::Object>::New(_pIsolate, bufferObject);
+	serializeValue(name, localBufferObject);
 }
 
 
