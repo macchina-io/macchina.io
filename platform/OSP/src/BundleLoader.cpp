@@ -40,8 +40,27 @@ using Poco::Environment;
 using Poco::Logger;
 
 
+#define POCO_OSP_STRINGIFY(X) POCO_OSP_STRINGIFY_(X)
+#define POCO_OSP_STRINGIFY_(X) #X
+
+
 namespace Poco {
 namespace OSP {
+
+
+BundleLoader::BundleLoader(CodeCache& codeCache, BundleFactory::Ptr pBundleFactory, BundleContextFactory::Ptr pBundleContextFactory, const std::string& osName, const std::string& osArch, bool autoUpdateCodeCache):
+	_nextBundleId(1),
+	_codeCache(codeCache),
+	_autoUpdateCodeCache(autoUpdateCodeCache),
+	_pBundleFactory(pBundleFactory),
+	_pBundleContextFactory(pBundleContextFactory),
+	_osName(osName),
+	_osArch(osArch),
+	_logger(Logger::get("osp.core.BundleLoader"))
+{
+	makeValidFileName(_osName);
+	makeValidFileName(_osArch);
+}
 
 
 BundleLoader::BundleLoader(CodeCache& codeCache, BundleFactory::Ptr pBundleFactory, BundleContextFactory::Ptr pBundleContextFactory, bool autoUpdateCodeCache):
@@ -50,8 +69,16 @@ BundleLoader::BundleLoader(CodeCache& codeCache, BundleFactory::Ptr pBundleFacto
 	_autoUpdateCodeCache(autoUpdateCodeCache),
 	_pBundleFactory(pBundleFactory),
 	_pBundleContextFactory(pBundleContextFactory),
+#ifdef POCO_TARGET_OSNAME
+	_osName(POCO_OSP_STRINGIFY(POCO_TARGET_OSNAME)),
+#else
 	_osName(Environment::osName()),
+#endif
+#ifdef POCO_TARGET_OSARCH
+	_osArch(POCO_OSP_STRINGIFY(POCO_TARGET_OSARCH)),
+#else
 	_osArch(Environment::osArchitecture()),
+#endif
 	_logger(Logger::get("osp.core.BundleLoader"))
 {
 	makeValidFileName(_osName);

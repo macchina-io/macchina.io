@@ -80,6 +80,9 @@ public:
 	Poco::BasicEvent<const BundleError> bundleError;
 		/// Fired when an error occurs while resolving
 		/// or starting a bundle.
+
+	BundleLoader(CodeCache& codeCache, BundleFactory::Ptr pBundleFactory, BundleContextFactory::Ptr pBundleContextFactory, const std::string& osName, const std::string& osArch, bool autoUpdateCodeCache = true);
+		/// Creates the BundleLoader.
 	
 	BundleLoader(CodeCache& codeCache, BundleFactory::Ptr pBundleFactory, BundleContextFactory::Ptr pBundleContextFactory, bool autoUpdateCodeCache = true);
 		/// Creates the BundleLoader.
