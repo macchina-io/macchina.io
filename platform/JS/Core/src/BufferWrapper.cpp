@@ -281,6 +281,7 @@ void BufferWrapper::setAt(uint32_t index, v8::Local<v8::Value> value, const v8::
 	if (index < size)
 	{
 		(*pBuffer)[index] = static_cast<char>(value->Uint32Value());
+		info.GetReturnValue().Set(value);
 	}
 	else
 	{

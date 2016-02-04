@@ -504,6 +504,7 @@ void BridgeWrapper::setProperty(v8::Local<v8::String> name, v8::Local<v8::Value>
 			poco_check_ptr (pHolder);
 			pHolder->enableEvents();
 			pHolder->enableEvent(toString(name));
+			info.GetReturnValue().Set(value);
 		}
 		catch (Poco::Exception& exc)
 		{
@@ -517,6 +518,7 @@ void BridgeWrapper::setProperty(v8::Local<v8::String> name, v8::Local<v8::Value>
 		{
 			poco_check_ptr (pHolder);
 			pHolder->disableEvent(toString(name));
+			info.GetReturnValue().Set(value);
 		}
 		catch (Poco::Exception& exc)
 		{
