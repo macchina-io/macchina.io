@@ -72,6 +72,7 @@ protected:
 	static void push(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void pop(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void makeString(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static std::size_t calculatePackBufferSize(const std::string& format);
 
 	static void encode(Buffer* pBuffer, const v8::Local<v8::Value>& str, const std::string& encoding);
 	static void decode(const v8::FunctionCallbackInfo<v8::Value>& args, const std::string& encoding);

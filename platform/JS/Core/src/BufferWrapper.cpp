@@ -25,10 +25,13 @@
 #include "Poco/TextConverter.h"
 #include "Poco/UTF8Encoding.h"
 #include "Poco/UTF16Encoding.h"
+#include "Poco/BinaryReader.h"
+#include "Poco/BinaryWriter.h"
 #include "Poco/Exception.h"
 #include "Poco/String.h"
 #include "Poco/Format.h"
 #include <sstream>
+#include <cstdlib>
 
 
 namespace Poco {
@@ -395,28 +398,463 @@ void BufferWrapper::encodeString(const v8::FunctionCallbackInfo<v8::Value>& args
 
 void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	if (args.Length() < 2) return;
+	
 	Buffer* pBuffer = Wrapper::unwrapNative<Buffer>(args);
 	try
 	{
-		throw Poco::NotImplementedException();
+		if (!args[1]->IsArray()) throw Poco::InvalidArgumentException("second argument to pack() must be array");
+	
+		v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[1]);
+		std::string format(toString(args[0]));
+		std::size_t size = calculatePackBufferSize(format);
+		pBuffer->resize(size, false);
+		Poco::BinaryWriter::StreamByteOrder byteOrder = Poco::BinaryWriter::NATIVE_BYTE_ORDER;
+		std::string::const_iterator it = format.begin();
+		std::string::const_iterator end = format.end();
+		if (it != end)
+		{
+			switch (*it)
+			{
+			case '=':
+				byteOrder = Poco::BinaryWriter::NATIVE_BYTE_ORDER;
+				++it;
+				break;
+			case '>':
+				byteOrder = Poco::BinaryWriter::BIG_ENDIAN_BYTE_ORDER;
+				++it;
+				break;
+			case '<':
+				byteOrder = Poco::BinaryWriter::LITTLE_ENDIAN_BYTE_ORDER;
+				++it;
+				break;
+			case '!':
+				byteOrder = Poco::BinaryWriter::NETWORK_BYTE_ORDER;
+				++it;
+				break;
+			default:
+				break;
+			}
+		}
+
+		Poco::BasicMemoryBinaryWriter<char> writer(*pBuffer, byteOrder);
+		Poco::UInt32 index = 0;
+		int repeat = -1;
+
+		while (it != end)
+		{
+			switch (*it)
+			{
+			case ' ':
+				if (repeat != -1) throw Poco::SyntaxException("repeat count must be followed by format character");
+				break;
+			case 'x':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					writer << static_cast<Poco::UInt8>(0);
+				}
+				repeat = -1;
+				break;
+			case 'c':
+			case 's':
+				{
+					std::string utf8;
+					std::size_t size = std::abs(repeat);
+					if (array->Has(index))
+					{
+						utf8 = toString(array->Get(index));
+					}
+					utf8.resize(size);
+					writer.writeRaw(utf8);
+					index++;
+					repeat = -1;
+				}
+				break;
+			case 'b':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::Int8 v = 0;
+					if (array->Has(index))
+					{
+						v = static_cast<Poco::Int8>(array->Get(index)->Int32Value());
+					}
+					writer << v;
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'B':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::UInt8 v = 0;
+					if (array->Has(index))
+					{
+						v = static_cast<Poco::UInt8>(array->Get(index)->Uint32Value());
+					}
+					writer << v;
+					index++;
+				}
+				repeat = -1;
+				break;
+			case '?':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					bool v = false;
+					if (array->Has(index))
+					{
+						v = array->Get(index)->BooleanValue();
+					}
+					writer << v;
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'h':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::Int16 v = 0;
+					if (array->Has(index))
+					{
+						v = static_cast<Poco::Int16>(array->Get(index)->Int32Value());
+					}
+					writer << v;
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'H':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::UInt16 v = 0;
+					if (array->Has(index))
+					{
+						v = static_cast<Poco::UInt16>(array->Get(index)->Uint32Value());
+					}
+					writer << v;
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'i':
+			case 'l':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::Int32 v = 0;
+					if (array->Has(index))
+					{
+						v = array->Get(index)->Int32Value();
+					}
+					writer << v;
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'I':
+			case 'L':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::UInt32 v = 0;
+					if (array->Has(index))
+					{
+						v = array->Get(index)->Uint32Value();
+					}
+					writer << v;
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'q':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::Int64 v = 0;
+					if (array->Has(index))
+					{
+						v = static_cast<Poco::Int64>(array->Get(index)->IntegerValue());
+					}
+					writer << v;
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'Q':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::UInt64 v = 0;
+					if (array->Has(index))
+					{
+						v = static_cast<Poco::UInt64>(array->Get(index)->IntegerValue());
+					}
+					writer << v;
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'f':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					float v = 0.0f;
+					if (array->Has(index))
+					{
+						v = static_cast<float>(array->Get(index)->NumberValue());
+					}
+					writer << v;
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'd':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					double v = 0.0;
+					if (array->Has(index))
+					{
+						v = array->Get(index)->NumberValue();
+					}
+					writer << v;
+					index++;
+				}
+				repeat = -1;
+				break;
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				if (repeat == -1)
+					repeat = *it - '0';
+				else
+					repeat = 10*repeat + (*it - '0');
+				break;
+			default:
+				throw Poco::InvalidArgumentException("invalid character in format string", format);
+			}
+			++it;
+		}
 	}
 	catch (Poco::Exception& exc)
 	{
 		returnException(args, exc);
+	}
+	catch (std::exception& exc)
+	{
+		returnException(args, std::string("Out of memory"));
 	}
 }
 
 
 void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	if (args.Length() < 1) return;
+	
 	Buffer* pBuffer = Wrapper::unwrapNative<Buffer>(args);
 	try
 	{
-		throw Poco::NotImplementedException();
+		v8::Local<v8::Array> array = v8::Array::New(args.GetIsolate());
+		std::string format(toString(args[0]));
+		Poco::BinaryReader::StreamByteOrder byteOrder = Poco::BinaryReader::NATIVE_BYTE_ORDER;
+		std::string::const_iterator it = format.begin();
+		std::string::const_iterator end = format.end();
+		if (it != end)
+		{
+			switch (*it)
+			{
+			case '=':
+				byteOrder = Poco::BinaryReader::NATIVE_BYTE_ORDER;
+				++it;
+				break;
+			case '>':
+				byteOrder = Poco::BinaryReader::BIG_ENDIAN_BYTE_ORDER;
+				++it;
+				break;
+			case '<':
+				byteOrder = Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER;
+				++it;
+				break;
+			case '!':
+				byteOrder = Poco::BinaryReader::NETWORK_BYTE_ORDER;
+				++it;
+				break;
+			default:
+				break;
+			}
+		}
+
+		Poco::BasicMemoryBinaryReader<char> reader(*pBuffer, byteOrder);
+		Poco::UInt32 index = 0;
+		int repeat = -1;
+
+		while (it != end)
+		{
+			switch (*it)
+			{
+			case ' ':
+				if (repeat != -1) throw Poco::SyntaxException("repeat count must be followed by format character");
+				break;
+			case 'x':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					char c;
+					reader >> c;
+				}
+				repeat = -1;
+				break;
+			case 'c':
+			case 's':
+				{
+					std::string utf8;
+					std::size_t size = std::abs(repeat);
+					reader.readRaw(size, utf8);
+					array->Set(index, v8::String::NewFromUtf8(args.GetIsolate(), utf8.c_str()));
+					index++;
+					repeat = -1;
+				}
+				break;
+			case 'b':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::Int8 v = 0;
+					reader >> v;
+					array->Set(index, v8::Integer::New(args.GetIsolate(), static_cast<Poco::Int32>(v)));
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'B':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::UInt8 v = 0;
+					reader >> v;
+					array->Set(index, v8::Integer::NewFromUnsigned(args.GetIsolate(), static_cast<Poco::UInt32>(v)));
+					index++;
+				}
+				repeat = -1;
+				break;
+			case '?':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					bool v = false;
+					reader >> v;
+					array->Set(index, v8::Boolean::New(args.GetIsolate(), v));
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'h':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::Int16 v = 0;
+					reader >> v;
+					array->Set(index, v8::Integer::New(args.GetIsolate(), static_cast<Poco::Int32>(v)));
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'H':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::UInt16 v = 0;
+					reader >> v;
+					array->Set(index, v8::Integer::NewFromUnsigned(args.GetIsolate(), static_cast<Poco::UInt32>(v)));
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'i':
+			case 'l':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::Int32 v = 0;
+					reader >> v;
+					array->Set(index, v8::Integer::New(args.GetIsolate(), v));
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'I':
+			case 'L':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::UInt32 v = 0;
+					reader >> v;
+					array->Set(index, v8::Integer::NewFromUnsigned(args.GetIsolate(), v));
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'q':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::Int64 v = 0;
+					reader >> v;
+					array->Set(index, v8::Number::New(args.GetIsolate(), static_cast<double>(v)));
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'Q':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					Poco::UInt64 v = 0;
+					reader >> v;
+					array->Set(index, v8::Number::New(args.GetIsolate(), static_cast<double>(v)));
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'f':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					float v = 0.0f;
+					reader >> v;
+					array->Set(index, v8::Number::New(args.GetIsolate(), v));
+					index++;
+				}
+				repeat = -1;
+				break;
+			case 'd':
+				for (int i = 0; i < std::abs(repeat); i++)
+				{
+					double v = 0.0;
+					reader >> v;
+					array->Set(index, v8::Number::New(args.GetIsolate(), v));
+					index++;
+				}
+				repeat = -1;
+				break;
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				if (repeat == -1)
+					repeat = *it - '0';
+				else
+					repeat = 10*repeat + (*it - '0');
+				break;
+			default:
+				throw Poco::InvalidArgumentException("invalid character in format string", format);
+			}
+			++it;
+		}
+		args.GetReturnValue().Set(array);
 	}
 	catch (Poco::Exception& exc)
 	{
 		returnException(args, exc);
+	}
+	catch (std::exception& exc)
+	{
+		returnException(args, std::string("Out of memory"));
 	}
 }
 
@@ -641,6 +1079,76 @@ void BufferWrapper::decode(const v8::FunctionCallbackInfo<v8::Value>& args, cons
 		converter.convert(pBuffer->begin(), pBuffer->size(), result);
 		args.GetReturnValue().Set(v8::String::NewFromUtf8(args.GetIsolate(), result.data(), v8::String::kNormalString, static_cast<int>(result.size())));	
 	}
+}
+
+
+std::size_t BufferWrapper::calculatePackBufferSize(const std::string& format)
+{
+	std::size_t size = 0;
+	int repeat = -1;
+	std::string::const_iterator it = format.begin();
+	std::string::const_iterator end = format.end();
+	while (it != end)
+	{
+		switch (*it)
+		{
+		case '=':
+		case '>':
+		case '<':
+		case '!':
+			break;
+		case ' ':
+			if (repeat != -1) throw Poco::SyntaxException("repeat count must be followed by format character");
+			break;
+		case 'x':
+		case 'c':
+		case 's':
+		case 'b':
+		case 'B':
+		case '?':
+			size += std::abs(repeat);
+			repeat = -1;
+			break;
+		case 'h':
+		case 'H':
+			size += 2*std::abs(repeat);
+			repeat = -1;
+			break;
+		case 'i':
+		case 'I':
+		case 'l':
+		case 'L':
+		case 'f':
+			size += 4*std::abs(repeat);
+			repeat = -1;
+			break;
+		case 'q':
+		case 'Q':
+		case 'd':
+			size += 8*std::abs(repeat);
+			repeat = -1;
+			break;
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			if (repeat == -1)
+				repeat = *it - '0';
+			else
+				repeat = 10*repeat + (*it - '0');
+			break;
+		default:
+			throw Poco::InvalidArgumentException("invalid character in format string", format);
+		}
+		++it;
+	}
+	return size;
 }
 
 
