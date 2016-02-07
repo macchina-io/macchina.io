@@ -446,6 +446,9 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 			switch (*it)
 			{
 			case ' ':
+			case '\t':
+			case '\r':
+			case '\n':
 				if (repeat != -1) throw Poco::SyntaxException("repeat count must be followed by format character");
 				break;
 			case 'x':
@@ -693,6 +696,9 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 			switch (*it)
 			{
 			case ' ':
+			case '\t':
+			case '\r':
+			case '\n':
 				if (repeat != -1) throw Poco::SyntaxException("repeat count must be followed by format character");
 				break;
 			case 'x':
@@ -1098,6 +1104,9 @@ std::size_t BufferWrapper::calculatePackBufferSize(const std::string& format)
 		case '!':
 			break;
 		case ' ':
+		case '\t':
+		case '\r':
+		case '\n':
 			if (repeat != -1) throw Poco::SyntaxException("repeat count must be followed by format character");
 			break;
 		case 'x':
