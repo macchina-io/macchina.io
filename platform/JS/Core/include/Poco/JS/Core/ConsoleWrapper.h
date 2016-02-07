@@ -52,6 +52,7 @@ protected:
 	static void info(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void error(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void warn(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void dump(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 

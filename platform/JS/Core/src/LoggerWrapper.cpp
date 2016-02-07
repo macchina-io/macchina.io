@@ -15,6 +15,7 @@
 
 
 #include "Poco/JS/Core/LoggerWrapper.h"
+#include "Poco/JS/Core/BufferWrapper.h"
 #include "Poco/Logger.h"
 #include "Poco/NumberParser.h"
 #include "Poco/NumberFormatter.h"
@@ -49,6 +50,7 @@ v8::Handle<v8::ObjectTemplate> LoggerWrapper::objectTemplate(v8::Isolate* pIsola
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "critical"), v8::FunctionTemplate::New(pIsolate, critical));
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "fatal"), v8::FunctionTemplate::New(pIsolate, fatal));
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "log"), v8::FunctionTemplate::New(pIsolate, log));
+	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "dump"), v8::FunctionTemplate::New(pIsolate, dump));
 
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "TRACE"), v8::Integer::New(pIsolate, 8));
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "DEBUG"), v8::Integer::New(pIsolate, 7));
@@ -147,6 +149,7 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 								nextArgIndex++;
 								break;
 							case 'o':
+							case 'O':
 								if (nextArgIndex < args.Length())
 								{
 									// use built-in JSON.stringify() 
@@ -154,8 +157,12 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 									v8::Local<v8::Object> global = context->Global();
 									v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
 									v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
-									v8::Local<v8::Value> argv[1] = {args[nextArgIndex]};
-									text.append(toString(stringify->Call(json, 1, argv)));
+									v8::Local<v8::Value> argv[3] = {
+										args[nextArgIndex], 
+										v8::Null(args.GetIsolate()), 
+										v8::Integer::New(args.GetIsolate(), *it == 'O' ? 4 : 0)
+									};
+									text.append(toString(stringify->Call(json, 3, argv)));
 								}
 								nextArgIndex++;
 								break;
@@ -232,6 +239,52 @@ void LoggerWrapper::critical(const v8::FunctionCallbackInfo<v8::Value>& args)
 void LoggerWrapper::fatal(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	format(Poco::Message::PRIO_FATAL, args);
+}
+
+
+void LoggerWrapper::dump(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() < 2) return;
+	v8::HandleScope scope(args.GetIsolate());
+	Poco::Logger* pLogger = Wrapper::unwrapNative<Poco::Logger>(args);
+	int prio = Poco::Message::PRIO_DEBUG;
+	try
+	{
+		std::string message = toString(args[0]);
+		if (args.Length() > 2)
+		{
+			std::string prioStr = toString(args[2]);
+			if (!Poco::NumberParser::tryParse(prioStr, prio))
+			{
+				prio = Poco::Logger::parseLevel(prioStr);
+			}
+		}
+		if (Wrapper::isWrapper<BufferWrapper::Buffer>(args.GetIsolate(), args[1]))
+		{
+			BufferWrapper::Buffer* pBuffer = Wrapper::unwrapNativeObject<BufferWrapper::Buffer>(args[1]);
+			pLogger->dump(message, pBuffer->begin(), pBuffer->size(), static_cast<Poco::Message::Priority>(prio));
+		}
+		else
+		{
+			// use built-in JSON.stringify() 
+			v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
+			v8::Local<v8::Object> global = context->Global();
+			v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
+			v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
+			v8::Local<v8::Value> argv[3] = {
+				args[1], 
+				v8::Null(args.GetIsolate()), 
+				v8::Integer::New(args.GetIsolate(), 4)
+			};
+			message += "\n";
+			message += toString(stringify->Call(json, 3, argv));
+			Poco::Message msg(pLogger->name(), message, static_cast<Poco::Message::Priority>(prio));
+			pLogger->log(msg);
+		}
+	}
+	catch (...)
+	{
+	}
 }
 
 

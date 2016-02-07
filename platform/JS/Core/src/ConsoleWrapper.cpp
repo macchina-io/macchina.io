@@ -47,6 +47,7 @@ v8::Handle<v8::ObjectTemplate> ConsoleWrapper::objectTemplate(v8::Isolate* pIsol
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "info"), v8::FunctionTemplate::New(pIsolate, info));
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "warn"), v8::FunctionTemplate::New(pIsolate, warn));
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "error"), v8::FunctionTemplate::New(pIsolate, error));
+	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "dump"), v8::FunctionTemplate::New(pIsolate, dump));
 	return handleScope.Escape(loggerTemplate);
 }
 	
@@ -132,6 +133,12 @@ void ConsoleWrapper::warn(const v8::FunctionCallbackInfo<v8::Value>& args)
 void ConsoleWrapper::error(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	LoggerWrapper::format(Poco::Message::PRIO_ERROR, args);
+}
+
+
+void ConsoleWrapper::dump(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	LoggerWrapper::dump(args);
 }
 
 

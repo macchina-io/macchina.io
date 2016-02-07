@@ -54,6 +54,7 @@ protected:
 	static void error(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void critical(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void fatal(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void dump(const v8::FunctionCallbackInfo<v8::Value>& args);
 	
 	friend class ConsoleWrapper;
 };
