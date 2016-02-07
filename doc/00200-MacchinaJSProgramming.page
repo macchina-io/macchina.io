@@ -406,23 +406,23 @@ to obtain information about the application it's executing in.
 The following properties are available:
 
 
-!!name
+!name
 
 The name of the application. In macchina.io, this is "macchina".
 
 
-!!startTime
+!startTime
 
 The date and time the application was started, as a DateTime object.
 
 
-!!uptime
+!uptime
 
 The time in seconds the application has been running, with millisecond accuracy.
 Therefore a floating-point number.
 
 
-!!config
+!config
 
 The application's configuration, as a Configuration object.
 
@@ -434,7 +434,7 @@ Example:
 ----
 
 
-!!logger
+!logger
 
 The application's logger object. This can be used to write
 log messages. Note that in macchina.io, each bundle also has its own logger object,
@@ -453,55 +453,55 @@ to obtain information about the environment it's executing in.
 
 The following read-only properties and methods are available:
 
-!!osName
+!osName
 
 This property contains the name of the operating system,
 typically "Linux" or "Darwin" (OS X).
 
 
-!!osDisplayName
+!osDisplayName
 
 On platforms supported by macchina.io, this is the same as <*osName*>.
 
 
-!!osArchitecture
+!osArchitecture
 
 The CPU architecture, e.g. "x86_64" or "armv7l".
 
 
-!!osVersion
+!osVersion
 
 The operating system version, e.g. "3.18.7+".
 
 
-!!nodeName
+!nodeName
 
 The computer's configured host name.
 
 
-!!nodeId
+!nodeId
 
 The Ethernet address of the first Ethernet adapter in the system, e.g. "3c:07:54:0d:6e:ef".
 Note that for systems with multiple adapters, the order of the adapters may not be
 fixed and thus the node ID may change after a reboot.
 
 
-!!processorCount
+!processorCount
 
 The number of CPU cores available on the system.
 
 
-!!clock
+!clock
 
 Returns the number of seconds (including fractional seconds) elapsed since system startup.
 
 
-!!has(name)
+!has(name)
 
 This function returns true if an environment variable with the given name exists.
 
 
-!!get(name [, default])
+!get(name [, default])
 
 Returns the value of the environment variable with the given name.
 If the environment variable does not exist and a default value is given,
@@ -513,12 +513,12 @@ Example:
 ----
 
 
-!!set(name, value)
+!set(name, value)
 
 Sets the environment variable with the given name to the given value.
 
 
-!!exec(command)
+!exec(command)
 
 Executes the given shell command using the system's default shell.
 Returns the output of the command.
@@ -533,25 +533,38 @@ to <[system.exec()]> as command arguments. Always check such strings
 for validity before using their values.
 
 
-!!sleep(milliseconds)
+!sleep(milliseconds)
 
 Sleeps the current thread for the given period, in milliseconds.
 
 
 !!!The uri Object
 
-The global <[uri]> object allows a script to load a string from a URI.
+The global <[uri]> object allows a script to load a string or Buffer from a URI.
 The URI can refer to a local file, a bundle resource ("bndl://"), 
-a HTTP(S) or FTP server. It provides a single method, <[loadString()]>.
+a HTTP(S) or FTP server. It provides two methods, <[loadString()]> and <[loadBuffer()]>.
 
 
-!!loadString(uri)
+!loadString(uri)
 
 Loads a string from the given URI.
+The retrieved content must be UTF-8 encoded text, otherwise the results of converting
+the content to a string may be undefined.
 
 Example:
 
     var page = uri.loadString("http://macchina.io");
+----
+
+
+!loadBuffer(uri)
+
+Loads a Buffer from the given URI. This can be used to retrieve binary data or
+non-UTF8 text from a resource. 
+
+Example:
+
+    var page = uri.loadBuffer("http://macchina.io");
 ----
 
 
@@ -563,40 +576,47 @@ to the <[console]> object available in most web browsers.
 A script's <[console]> object is always connected to its bundle's logger.
 The following methods are supported:
 
-!!trace()
+!trace()
 
 Outputs a stack trace to the bundle's logger using debug log level.
 
-!!assert(condition, message [, arg]...)
+!assert(condition, message [, arg]...)
 
 Writes an error-level log message, as well as a debug-level stack trace to the
 bundle's logger if the given condition evaluates to <[false]>.
 The message can contain formatting specifiers. See the Logger object for more information.
 
-!!debug(message [, arg]...)
+!debug(message [, arg]...)
 
 Writes a debug-level log message to the bundle's logger.
 The message can contain formatting specifiers. See the Logger object for more information.
 
-!!log(message [, arg]...)
+!log(message [, arg]...)
 
 Writes an information-level log message to the bundle's logger.
 The message can contain formatting specifiers. See the Logger object for more information.
 
-!!info(message [, arg]...)
+!info(message [, arg]...)
 
 Writes an information-level log message to the bundle's logger.
 The message can contain formatting specifiers. See the Logger object for more information.
 
-!!warn(message [, arg]...)
+!warn(message [, arg]...)
 
 Writes an warning-level log message to the bundle's logger.
 The message can contain formatting specifiers. See the Logger object for more information.
 
-!!error(message [, arg]...)
+!error(message [, arg]...)
 
 Writes an error-level log message to the bundle's logger.
 The message can contain formatting specifiers. See the Logger object for more information.
+
+!dump(message, object [, level])
+
+Dumps an object (or Buffer) to the bundle's logger.
+If the given object is a Buffer, a hex dump of its contents will be written.
+Otherwise, a pretty-printed JSON representation (JSON.stringify()) of the object will be written.
+If no log level is specified, debug log level will be used.
 
 
 !!!Configuration Objects
@@ -605,35 +625,35 @@ Configuration objects provide access to the configuration mechanism provided by 
 POCO Util library and are used for application configuration, bundle properties, etc.
 The following methods are supported:
 
-!!getInt(key [, default])
+!getInt(key [, default])
 
 Returns the configuration value for the given key as integer. If a default value is
 specified, the default value is returned if the configuration key has not
 been found. An exception is thrown if the key cannot be found and no default
 value is given, or if the configuration value is not a valid integer.
 
-!!getDouble(key [, default])
+!getDouble(key [, default])
 
 Returns the configuration value for the given key as floating-point number. If a default value is
 specified, the default value is returned if the configuration key has not
 been found. An exception is thrown if the key cannot be found and no default
 value is given, or if the configuration value is not a valid floating-point number.
 
-!!getBool(key [, default])
+!getBool(key [, default])
 
 Returns the configuration value for the given key as boolean. If a default value is
 specified, the default value is returned if the configuration key has not
 been found. An exception is thrown if the key cannot be found and no default
 value is given, or if the configuration value is not a boolean (true/false).
 
-!!getString(key [, default])
+!getString(key [, default])
 
 Returns the configuration value for the given key as string. If a default value is
 specified, the default value is returned if the configuration key has not
 been found. An exception is thrown if the key cannot be found and no default
 value is given.
 
-!!getObject(key [, default])
+!getObject(key [, default])
 
 Returns the configuration value for the given key as object. If a default value is
 specified, the default value is returned if the configuration key has not
@@ -641,18 +661,18 @@ been found. The configuration value must be valid JSON.
 An exception is thrown if the key cannot be found and no default
 value is given, or if the configuration value is not valid JSON.
 
-!!has(key)
+!has(key)
 
 Returns <*true*> if the given configuration key exists, otherwise <*false*>.
 
-!!set(key, value)
+!set(key, value)
 
 Sets the configuration value for the given key. Value can be a string, integer,
 floating-point number, boolean or any object that can be JSON-formatted with JSON.stringify().
 An exception is thrown if setting the value for the given key fails 
 (e.g., because the configuration is read-only).
 
-!!keys([key])
+!keys([key])
 
 Returns an array containing all subkeys of the given key, or root-level keys if no
 or an empty key is given.
@@ -675,47 +695,47 @@ Example:
 
 The following methods are available:
 
-!!trace(message [, arg]...)
+!trace(message [, arg]...)
 
 Writes a trace log message. Trace log messages have the lowest priority.
 The message can contain formatting specifiers.
 
-!!debug(message [, arg]...)
+!debug(message [, arg]...)
 
 Writes a debug log message.
 The message can contain formatting specifiers.
 
-!!information(message [, arg]...)
+!information(message [, arg]...)
 
 Writes an informational log message.
 The message can contain formatting specifiers.
 
-!!notice(message [, arg]...)
+!notice(message [, arg]...)
 
 Writes a notice log message.
 The message can contain formatting specifiers.
 
-!!warning(message [, arg]...)
+!warning(message [, arg]...)
 
 Writes a warning log message.
 The message can contain formatting specifiers.
 
-!!error(message [, arg]...)
+!error(message [, arg]...)
 
 Writes an error log message.
 The message can contain formatting specifiers.
 
-!!critical(message [, arg]...)
+!critical(message [, arg]...)
 
 Writes a critical error log message.
 The message can contain formatting specifiers.
 
-!!fatal(message [, arg]...)
+!fatal(message [, arg]...)
 
 Writes a fatal error log message. Fatal log messages have the highest priority.
 The message can contain formatting specifiers.
 
-!!log(priority, message [, arg]...)
+!log(priority, message [, arg]...)
 
 Writes a log message with the specified level.
 The level can either be an integer from 1 to 8, where
@@ -744,6 +764,13 @@ Example:
     logger.log(logger.WARNING, "A warning message");
 ----
 
+!dump(message, object [, level])
+
+Dumps an object (or Buffer) to the bundle's logger.
+If the given object is a Buffer, a hex dump of its contents will be written.
+Otherwise, a pretty-printed JSON representation (JSON.stringify()) of the object will be written.
+If no log level is specified, debug log level will be used.
+
 !!Message Formatting
 
 The first message argument in a logging method can contain formatting specifiers.
@@ -756,7 +783,8 @@ The following formatting specifiers are supported:
   * %d, %i: The argument is formatted as an integer.
   * %f: The argument is formatted as a floating-point number.
   * %s: The argument is formatted as a string.
-  * %o: The argument is formatted as an object, using JSON.
+  * %o: The argument is formatted with JSON.stringify().
+  * %O: The argument is formatted with JSON.stringify(), using indentation.
 
 If the type of the argument does not match the formatting specifier, a simple string
 representation of the object is output instead.
@@ -770,9 +798,9 @@ Examples:
 !!!Timeouts and Intervals
 
 macchina.io supports the <[setTimeout()]> and <[setInterval()]> functions known
-from browser-based JavaScript.
+from browser-based JavaScript, as well as <[setImmediate()]> known from node.js.
 
-!!setTimeout(function, milliseconds)
+!setTimeout(function, milliseconds [, arg]...)
 
 To execute a function after a given time period, use the <[setTimeout()]> function.
 
@@ -785,7 +813,10 @@ Example:
         2000);
 ----
 
-!!setInterval(function, milliseconds)
+Any additional arguments passed after the milliseconds will be passed to the callback 
+function.
+
+!setInterval(function, milliseconds [, arg]...)
 
 To execute a function periodically in a specific interval (given in milliseconds),
 use the <[setInterval()]> function.
@@ -799,7 +830,52 @@ Example:
         2000);
 ----
 
-Both <[setTimeout()]> and <[setInterval()]> return a timer object which exposes
+Example (with argument to callback):
+
+    setInterval(
+        function(arg) {
+            logger.information("Timeout! " + arg);
+        },
+        2000,
+        42);
+----
+
+!setInterval(function, milliseconds)
+
+To execute a function periodically in a specific interval (given in milliseconds),
+use the <[setInterval()]> function.
+
+Example:
+
+    setInterval(
+        function() {
+            logger.information("Timeout!");
+        },
+        2000);
+----
+
+Any additional arguments passed after the milliseconds will be passed to the callback 
+function.
+
+
+!setImmediate(function [, arg]...)
+
+To schedule a function for execution as soon as the current script or callback function
+finishes, use the <[setImmediate()]> function.
+
+Example:
+
+    setImmediate(
+        function() {
+            logger.information("Callback!");
+        });
+----
+
+Any additional arguments passed after the function will be passed to the callback 
+function. <[setImmediate()]> is equivalent to calling <[setTimeout()]> with 0 milliseconds.
+
+
+<[setTimeout()]>, <[setInterval()]> and <[setImmediate()]> return a timer object which exposes
 a boolean property named <[cancelled]>, as well as a <[cancel()]> method to cancel
 an active timer.
 
@@ -821,6 +897,21 @@ Example:
 
 Note: Since JavaScript execution is single threaded per script, timer callback 
 functions will only run when the script is idle and not currently executing any code.
+
+For compatibility with Browser-based JavaScript and node.js, macchina.io also 
+provides <[clearTimeout()]>, <[clearInterval()]> and <[clearImmediate()]>.
+
+!clearTimeout(timeout)
+
+Cancels the given timeout, which must be an object returned from <[setTimeout()]>.
+
+!clearInterval(interval)
+
+Cancels the given interval, which must be an object returned from <[setInterval()]>.
+
+!clearImmediate(immediate)
+
+Cancels the given immediate, which must be an object returned from <[setImmediate()]>.
 
 
 !!!DateTime and LocalDateTime Objects
@@ -1008,6 +1099,258 @@ fixed strings for standard formats:
 Returns a JavaScript Date object for the stored date/time.
 
 
+!!!Buffer Objects
+
+Buffer objects are used to work efficiently with binary data in JavaScript.
+Standard (browser-based) JavaScript has no efficient way for handling binary data. 
+macchina.io provides Buffer objects to handle continuous blocks of memory containing
+arbitrary (binary) data.
+
+A Buffer object contains a variable-size, continuous block of memory, located on the
+(C++) heap. The size of the block can change during the lifetime of a Buffer object. 
+In order to avoid frequent resizing and re-allocation of the memory block, the Buffer
+object differentiates between the physical and logical size of the block.
+The physical size, or capacity, of the block is the number of bytes actually allocated on the heap.
+The logical size, or length, is the number of bytes in use. The length is therefore always
+smaller than or equal to the capacity. The capacity of a Buffer can be 0 -- in this case
+no heap memory will be allocated (and consequently, the Buffer cannot contain any data).
+Both capacity and length of a Buffer can change during the lifetime of a Buffer object.
+
+The contents of a Buffer can be accessed via indexed properties. In this regard, a Buffer
+provides an interface very similar to a JavaScript array. Each byte in the buffer can
+be addressed by its offset from the beginning of the Buffer's memory block. Buffer objects
+also support the methods <[concat()]>, <[slice()]>, <[push()]> and <[pop()]> known from
+JavaScript Array.
+
+
+!!Creating Buffer Objects
+
+A Buffer object can be created empty, from a JavaScript Array (containing byte values),
+from a JavaScript String, or from (a part of) another Buffer. The <[Buffer()]> constructor
+can be used to create a Buffer object.
+
+!Buffer()
+
+Creates an empty, zero-capacity (and zero-size) Buffer.
+No memory for the buffer's content will be allocated.
+
+
+!Buffer(capacity)
+
+Creates an empty (zero-size) Buffer with the given capacity in bytes. 
+A block of memory with size given in capacity will be allocated.
+
+
+!Buffer(string [, encoding])
+
+Creates a Buffer from the given string. The (optional) encoding parameter specifies
+how the contents of the string will be store in the buffer:
+
+  - Buffer.BASE64: The string contains binary data encoded using Base64 encoding. The Base64
+    data will be decoded and the raw binary data will be stored in the Buffer. This is
+    the default if no encoding is given.
+  - Buffer.UTF8: The string will be stored in the Buffer using UTF-8 encoding.
+  - Buffer.UTF16: The string will be stored in the Buffer using UTF-16 encoding (in the 
+    hosts native byte order).
+  - Buffer.ASCII: The string will be stored in the Buffer using ASCII encoding.
+
+In addition to the above values, encoding can also be a string containing the name of one
+of the text encodings supported by the POCO C++ Libraries:
+
+  - "UTF-8", "UTF8"
+  - "UTF-16", "UTF16"
+  - "UTF-32", "UTF32"
+  - "ISO-8859-1", "Latin-1", "Latin1"
+  - "ISO-8859-2", "Latin-2", "Latin2"
+  - "ISO-8859-15", "Latin-9", "Latin9"
+  - "Windows-1250", "windows-1250", "cp1250", "CP1250"
+  - "Windows-1251", "windows-1251", "cp1251", "CP1251"
+  - "Windows-1252", "windows-1252", "cp1252", "CP1252"
+
+
+!Buffer(array)
+
+Creates a buffer from a JavaScript Array containing byte values.
+
+
+!Buffer(buffer [, begin [, end]])
+
+Creates a buffer by copying the contents of another buffer.
+An optional range can be given, with <[begin]> specifying the offset
+of the first byte to copy and <[end]> specifying the offset of the
+byte following the last byte to copy.
+
+Example:
+   
+    var newBuffer = new Buffer(buffer, 0, buffer.length);
+----
+   
+will copy the entire buffer, while
+
+    var newBuffer = new Buffer(buffer, 2, 4);
+----
+  
+will copy two bytes, starting at offset 2.
+
+The given offsets can also be negative, meaning relative to the length of the Buffer.
+
+Example:
+
+    var newBuffer = new Buffer(buffer, -2, buffer.length);
+----
+
+will copy the last two bytes of the Buffer.
+
+
+!!Packing and Unpacking Structured Data
+
+Buffer objects support packing and unpacking of structured data via the
+<[pack()]> and <[unpack()]> methods. The interface of these objects, specifically
+the format string, follows the <[struct.pack()]> and <[struct.unpack()]> functions
+known from the Python programming language. However, one important difference is
+that Buffer's <[pack()]> and <[unpack()]> do not support automatic alignment of values.
+
+<[pack()]> and <[unpack()]> are controlled via a format string.
+
+!Format String
+
+A format string begins with an optional byte order specifier. The following
+specifiers are supported:
+
+  - "=" - host's native byte order (default)
+  - "<" - little endian byte order
+  - ">" - big endian byte order
+  - "!" - network byte order (big endian)
+  
+The byte order specifier is followed by one or more type specifiers. A type specifier
+can be preceded by an optional repeat count. For atomic types, the repeat count
+specifies the number of values that will be packed according to the following type
+specifier. For strings ("c" and "s"), the repeat count specifies the number of bytes 
+reserved for the packed string. If a string exceeds the given length, it will be truncated. 
+Unused bytes will be zero-filled.
+
+Whitespace characters (Space, TAB, CR, LF) in the format string are ignored. However, there 
+must not be a whitespace character between length and type specifier.
+
+The following type specifiers are supported:
+
+    Specifier    Native C/C++ Type              Size    Notes
+    -------------------------------------------------------------------------------------
+    x            -                              1       Padding Byte (set to 0 in pack())
+    c, s         char[repeat]                   repeat  UTF-8 encoded 
+    b            int8_t (signed char)           1
+    B            uint8_t (unsigned char)        1
+    ?            bool                           1       0 = false, 1 = true
+    h            int16_t (short)                2
+    H            uint16_t (unsigned short)      2
+    i, l         int32_t (int)                  4
+    I, L         uint32_t (unsigned)            4
+    q            int64_t (long long)            8
+    Q            uint64_t (unsigned long long)  8
+    f            float                          4
+    d            double                         8
+----
+
+
+!!Buffer Properties
+
+Buffer objects support the following properties:
+
+!length (r/w)
+
+The length of the buffer, in terms of actually used bytes (as opposed to the capacity).
+Can be changed dynamically; existing contents will be preserved, but may be truncated.
+
+!capacity (r/w)
+
+The capacity of the buffer in bytes, or how much memory is allocated.
+Can be changed dynamically; existing contents will be preserved, but may be truncated.
+
+
+!!Buffer Methods
+
+Buffer objects support the following methods:
+
+!concat(buffer)
+
+Appends the contents of the given Buffer to this Buffer.
+Capacity and length of the Buffer will be adjusted as necessary.
+
+!slice([begin [, end]])
+
+Creates a new Buffer by copying the contents of an existing Buffer.
+An optional range can be given, with <[begin]> specifying the offset
+of the first byte to copy and <[end]> specifying the offset of the
+byte following the last byte to copy.
+
+!push(byte)
+
+Appends a single byte to the Buffer. The given byte value must be an integer
+in range 0 - 255. Length will be incremented. Capacity will be adjusted if necessary
+(implying a re-allocation of the buffer).
+
+!pop()
+
+Returns and removes the last byte in the buffer. The length of the buffer will
+be decremented by one.
+
+!toBase64([lineLength])
+
+Returns a String containing the Base64-encoded content of the Buffer. An optional
+line length for the Base64 data can be given. If no line length, or a zero line length
+is given, there will be no line breaks in the Base64 data. For best interoperability,
+a line length of 72 should be used if Base64 data is to be sent over a network or
+otherwise exchanged with other parties.
+
+!fromBase64(string)
+
+Decodes the given Base64-encoded string and stores the resulting data in the buffer.
+
+!decodeString([encoding])
+
+Returns a JavaScript String from the contents of the buffer, assuming the given encoding, or
+UTF-8 if no encoding is given. See the Buffer constructor documentation for a list
+of supported encodings.
+
+!encodeString(string [, encoding])
+
+Encodes the given JavaScript string and stores the result in the Buffer, using the given
+encoding, or UTF-8 if no encoding is given. See the Buffer constructor documentation for a list
+of supported encodings.
+
+!pack(format, array)
+
+Packs the values in the given array into the buffer, using the byte order and types
+found in the format string.
+
+Example:
+    buffer.pack("!4BH", {192, 168, 1, 2, 8080});
+----
+
+This will fill the buffer with the following content:
+
+    Offset   Byte
+    -------------
+    0        192
+    1        168
+    2        1
+    3        2
+    4        31
+    5        144
+----
+  
+!unpack(format)
+
+Unpacks values from the buffer according to the byte order and types found in the format
+string. Returns an Array containing the unpacked values.
+
+Example:
+    var buffer = new Buffer({192, 168, 1, 2, 31, 44});
+    var values = buffer.unpack("!4BH"); // {192, 168, 1, 2, 8080}
+----
+
+
+
 !!!HTTPRequest and HTTPResponse Objects
 
 HTTPRequest objects are used to either send a HTTP or HTTPS request to a web server,
@@ -1104,9 +1447,19 @@ The request content type, e.g. "application/json".
 
 !content (r/w)
 
-The request content.
+The request content, as string.
 
-Note: currently only Unicode UTF-8 encoded text content is supported.
+Only Unicode UTF-8 encoded text content is supported.
+For other types of content, use the <[buffer]> property.
+
+
+!buffer (r/w)
+
+The request content, as Buffer object.
+Using the <[buffer]> property, content that is not UTF-8 text can be handled.
+
+Note: setting the <[buffer]> property will also affect the <[content]> property 
+(and vice-versa), since both use the same underlying data.
 
 
 !timeout (r/w)
@@ -1133,19 +1486,19 @@ If no valid authentication information has been sent, returns null.
 The following methods are supported by HTTPRequest objects:
 
 
-!hasHeader(name)
+!has(name)
 
 Returns true if the request has a header with the given name, false otherwise.
 
 
-!getHeader(name [, default])
+!get(name [, default])
 
 Returns the value of the request header with the given name, or the given default
 value if the header is not present. If no default is given, returns an empty string
 if the header is not present.
 
 
-!setHeader(name, value)
+!set(name, value)
 
 Sets the request header with the given name to the given value.
 
@@ -1197,29 +1550,39 @@ The HTTP version string, e.g. "HTTP/1.1".
 The response body content type, e.g. "text/html".
 
 
-!content
+!content (r/w)
 
-The response content.
+The response content, as string.
 
-Note: currently only Unicode UTF-8 encoded text content is supported.
+Only Unicode UTF-8 encoded text content is supported.
+For other types of content, use the <[buffer]> property.
+
+
+!buffer (r/w)
+
+The response content, as Buffer object.
+Using the <[buffer]> property, content that is not UTF-8 text can be handled.
+
+Note: setting the <[buffer]> property will also affect the <[content]> property 
+(and vice-versa), since both use the same underlying data.
 
 
 !!HTTPResponse Methods
 
 
-!hasHeader(name)
+!has(name)
 
 Returns true if the response has a header with the given name, false otherwise.
 
 
-!getHeader(name [, default])
+!get(name [, default])
 
 Returns the value of the response header with the given name, or the given default
 value if the header is not present. If no default is given, returns an empty string
 if the header is not present.
 
 
-!setHeader(name, value)
+!set(name, value)
 
 Sets the response header with the given name to the given value.
 
@@ -1259,11 +1622,11 @@ Sends the response. Can be used in servlets or server pages on the global
 The global <[form]> object is available in servlets and server pages. It gives
 convenient access to any HTML form data sent by the browser.
 
-The <[form]> object has two methods, <[hasField()]> and <[getField()]>.
+The <[form]> object has two methods, <[has()]> and <[get()]>.
 
 Additionally, the <[form]> object has shortcut accessors for form fields. Instead of writing:
 
-	var value = form.getField('field');
+	var value = form.get('field');
 ----
 
 one can also write:
@@ -1272,12 +1635,12 @@ one can also write:
 ----
 
 
-!!hasField(name)
+!has(name)
 
 Returns true if the form has a field with the given name, false otherwise.
 
 
-!!getField(name [, default])
+!get(name [, default])
 
 Returns the value of the form field with the given name. If the field is not
 present, returns the default value. If no default value has been given, returns
