@@ -95,6 +95,12 @@ public:
 		///
 		/// Sets up a script context scope for the call.
 
+	void call(v8::Persistent<v8::Function>& function, v8::Persistent<v8::Array>& args);
+		/// Calls a specific function defined in the script, with the given arguments,
+		/// which must be in a JavaScript Array.
+		///
+		/// Sets up a script context scope for the call.
+
 	void includeScript(const std::string& uri);
 		/// Includes another script.
 		
@@ -202,8 +208,10 @@ public:
 	
 protected:
 	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
+	static void setImmediate(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void setTimeout(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void setInterval(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void cancelTimer(const v8::FunctionCallbackInfo<v8::Value>& args);
 	
 private:
 	Poco::Util::Timer _timer;

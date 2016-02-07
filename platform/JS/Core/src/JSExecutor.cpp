@@ -78,7 +78,11 @@ void JSExecutor::setup()
 	v8::HandleScope handleScope(pIsolate);
 
 	v8::ResourceConstraints resourceConstraints;
+#if POCO_JS_V8VERSION >= 0x031C0400
+	resourceConstraints.ConfigureDefaults(_memoryLimit, _memoryLimit, 1);
+#else
 	resourceConstraints.ConfigureDefaults(_memoryLimit, 1);
+#endif
 	if (!v8::SetResourceConstraints(pIsolate, &resourceConstraints))
 	{
 		throw Poco::SystemException("cannot set resource constraints");
@@ -251,9 +255,44 @@ void JSExecutor::call(v8::Persistent<v8::Function>& function)
 	v8::Local<v8::Object> global = context->Global();
 
 	v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(pIsolate, function));
-	v8::Local<v8::Value> args[1];
+	v8::Local<v8::Value> argv[1];
 	v8::TryCatch tryCatch;
-	localFunction->Call(global, 0, args);
+	localFunction->Call(global, 0, argv);
+	if (tryCatch.HasCaught())
+	{
+		reportError(tryCatch);
+	}
+}
+
+
+void JSExecutor::call(v8::Persistent<v8::Function>& function, v8::Persistent<v8::Array>& args)
+{
+	v8::Isolate* pIsolate = _pooledIso.isolate();
+	v8::Isolate::Scope isoScope(pIsolate);
+	v8::HandleScope handleScope(pIsolate);
+
+	v8::Local<v8::Context> context(v8::Local<v8::Context>::New(pIsolate, _scriptContext));
+	v8::Context::Scope contextScope(context);
+
+	v8::Local<v8::Object> global = context->Global();
+
+	v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(pIsolate, function));
+	
+	v8::Local<v8::Value> argv[16];
+	Poco::UInt32 argsLength = 0;
+	if (!args.IsEmpty())
+	{
+		v8::Local<v8::Array> localArgs(v8::Local<v8::Array>::New(pIsolate, args));
+		argsLength = localArgs->Length();
+		if (argsLength > 16) argsLength = 16;
+		for (Poco::UInt32 i = 0; i < argsLength; i++)
+		{
+			argv[i] = localArgs->Get(i);
+		}
+	}
+
+	v8::TryCatch tryCatch;
+	localFunction->Call(global, argsLength, argv);
 	if (tryCatch.HasCaught())
 	{
 		reportError(tryCatch);
@@ -299,11 +338,11 @@ void JSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isol
 	Poco::JS::Core::DateTimeWrapper dateTimeWrapper;
 	global->Set(v8::String::NewFromUtf8(pIsolate, "DateTime"), dateTimeWrapper.constructor(pIsolate));
 
-	Poco::JS::Core::BufferWrapper bufferWrapper;
-	global->Set(v8::String::NewFromUtf8(pIsolate, "Buffer"), bufferWrapper.constructor(pIsolate));
-
 	Poco::JS::Core::LocalDateTimeWrapper localDateTimeWrapper;
 	global->Set(v8::String::NewFromUtf8(pIsolate, "LocalDateTime"), localDateTimeWrapper.constructor(pIsolate));
+
+	Poco::JS::Core::BufferWrapper bufferWrapper;
+	global->Set(v8::String::NewFromUtf8(pIsolate, "Buffer"), bufferWrapper.constructor(pIsolate));
 
 	Poco::JS::Core::SystemWrapper systemWrapper;
 	v8::Local<v8::Object> systemObject = systemWrapper.wrapNative(pIsolate);
@@ -555,7 +594,15 @@ public:
 	{
 		_pExecutor->stopped += Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
 	}
-	
+
+	CallFunctionTask(v8::Isolate* pIsolate, TimedJSExecutor* pExecutor, v8::Handle<v8::Function> function, v8::Handle<v8::Array> arguments):
+		_pExecutor(pExecutor, true),
+		_function(pIsolate, function),
+		_arguments(pIsolate, arguments)
+	{
+		_pExecutor->stopped += Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
+	}
+		
 	~CallFunctionTask()
 	{
 		try
@@ -564,12 +611,13 @@ public:
 			{
 				_pExecutor->stopped -= Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
 			}
-			_function.Reset();
 		}
 		catch (...)
 		{
 			poco_unexpected();
 		}
+		_function.Reset();
+		_arguments.Reset();
 	}
 	
 	void run()
@@ -577,7 +625,7 @@ public:
 		TimedJSExecutor::Ptr pExecutor = _pExecutor;
 		if (pExecutor)
 		{
-			pExecutor->call(_function);
+			pExecutor->call(_function, _arguments);
 		} 
 	}
 	
@@ -593,6 +641,7 @@ public:
 private:
 	TimedJSExecutor::Ptr _pExecutor;
 	v8::Persistent<v8::Function> _function;
+	v8::Persistent<v8::Array> _arguments;
 };
 
 
@@ -631,8 +680,12 @@ void TimedJSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8:
 {
 	JSExecutor::registerGlobals(global, pIsolate);
 	
+	global->Set(v8::String::NewFromUtf8(pIsolate, "setImmediate"), v8::FunctionTemplate::New(pIsolate, setImmediate));
 	global->Set(v8::String::NewFromUtf8(pIsolate, "setTimeout"), v8::FunctionTemplate::New(pIsolate, setTimeout));
 	global->Set(v8::String::NewFromUtf8(pIsolate, "setInterval"), v8::FunctionTemplate::New(pIsolate, setInterval));
+	global->Set(v8::String::NewFromUtf8(pIsolate, "clearImmediate"), v8::FunctionTemplate::New(pIsolate, cancelTimer));
+	global->Set(v8::String::NewFromUtf8(pIsolate, "clearTimeout"), v8::FunctionTemplate::New(pIsolate, cancelTimer));
+	global->Set(v8::String::NewFromUtf8(pIsolate, "clearInterval"), v8::FunctionTemplate::New(pIsolate, cancelTimer));
 }
 
 
@@ -643,21 +696,62 @@ void TimedJSExecutor::stop()
 }
 
 
-void TimedJSExecutor::setTimeout(const v8::FunctionCallbackInfo<v8::Value>& args)
+void TimedJSExecutor::setImmediate(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	v8::EscapableHandleScope handleScope(args.GetIsolate());
 
-	if (args.Length() != 2) return;
+	if (args.Length() < 1) return;
 	if (!args[0]->IsFunction()) return;
 	v8::Local<v8::Function> function = args[0].As<v8::Function>();
-	if (!args[1]->IsNumber()) return;
-	double millisecs = args[1]->NumberValue();
+
+	Poco::UInt32 argsLength = args.Length() > 1 ? args.Length() - 1 : 0;
+	v8::Local<v8::Array> argsArray = v8::Array::New(args.GetIsolate(), argsLength);
+	if (argsLength > 0)
+	{
+		for (Poco::UInt32 i = 0; i < argsLength; i++)
+		{
+			argsArray->Set(i, args[i + 1]);
+		}
+	}
 	
 	JSExecutor* pCurrentExecutor = _pCurrentExecutor.get();
 	if (!pCurrentExecutor) return;
 	TimedJSExecutor* pThis = static_cast<TimedJSExecutor*>(pCurrentExecutor);
 	
-	CallFunctionTask::Ptr pTask = new CallFunctionTask(args.GetIsolate(), pThis, function);
+	CallFunctionTask::Ptr pTask = new CallFunctionTask(args.GetIsolate(), pThis, function, argsArray);
+	Poco::Timestamp ts;
+	pThis->_timer.schedule(pTask, ts);
+	TimerWrapper wrapper;
+	v8::Persistent<v8::Object> timerObject(args.GetIsolate(), wrapper.wrapNativePersistent(args.GetIsolate(), pTask));
+	args.GetReturnValue().Set(timerObject);
+}
+
+
+void TimedJSExecutor::setTimeout(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::EscapableHandleScope handleScope(args.GetIsolate());
+
+	if (args.Length() < 2) return;
+	if (!args[0]->IsFunction()) return;
+	v8::Local<v8::Function> function = args[0].As<v8::Function>();
+	if (!args[1]->IsNumber()) return;
+	double millisecs = args[1]->NumberValue();
+	
+	Poco::UInt32 argsLength = args.Length() > 2 ? args.Length() - 2 : 0;
+	v8::Local<v8::Array> argsArray = v8::Array::New(args.GetIsolate(), argsLength);
+	if (argsLength > 0)
+	{
+		for (Poco::UInt32 i = 0; i < argsLength; i++)
+		{
+			argsArray->Set(i, args[i + 2]);
+		}
+	}
+	
+	JSExecutor* pCurrentExecutor = _pCurrentExecutor.get();
+	if (!pCurrentExecutor) return;
+	TimedJSExecutor* pThis = static_cast<TimedJSExecutor*>(pCurrentExecutor);
+	
+	CallFunctionTask::Ptr pTask = new CallFunctionTask(args.GetIsolate(), pThis, function, argsArray);
 	Poco::Timestamp ts;
 	ts += millisecs*1000;
 	pThis->_timer.schedule(pTask, ts);
@@ -671,21 +765,50 @@ void TimedJSExecutor::setInterval(const v8::FunctionCallbackInfo<v8::Value>& arg
 {
 	v8::EscapableHandleScope handleScope(args.GetIsolate());
 
-	if (args.Length() != 2) return;
+	if (args.Length() < 2) return;
 	if (!args[0]->IsFunction()) return;
 	v8::Local<v8::Function> function = args[0].As<v8::Function>();
 	if (!args[1]->IsNumber()) return;
 	double millisecs = args[1]->NumberValue();
-	
+
+	Poco::UInt32 argsLength = args.Length() > 2 ? args.Length() - 2 : 0;
+	v8::Local<v8::Array> argsArray = v8::Array::New(args.GetIsolate(), argsLength);
+	if (argsLength > 0)
+	{
+		for (Poco::UInt32 i = 0; i < argsLength; i++)
+		{
+			argsArray->Set(i, args[i + 2]);
+		}
+	}
+
 	JSExecutor* pCurrentExecutor = _pCurrentExecutor.get();
 	if (!pCurrentExecutor) return;
 	TimedJSExecutor* pThis = static_cast<TimedJSExecutor*>(pCurrentExecutor);
 	
-	CallFunctionTask::Ptr pTask = new CallFunctionTask(args.GetIsolate(), pThis, function);
+	CallFunctionTask::Ptr pTask = new CallFunctionTask(args.GetIsolate(), pThis, function, argsArray);
 	pThis->_timer.scheduleAtFixedRate(pTask, millisecs, millisecs);
 	TimerWrapper wrapper;
 	v8::Persistent<v8::Object> timerObject(args.GetIsolate(), wrapper.wrapNativePersistent(args.GetIsolate(), pTask));
 	args.GetReturnValue().Set(timerObject);
+}
+
+
+void TimedJSExecutor::cancelTimer(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() < 1) return;
+	try
+	{
+		if (Wrapper::isWrapper<CallFunctionTask>(args.GetIsolate(), args[0]))
+		{
+			CallFunctionTask* pTimerTask = Wrapper::unwrapNativeObject<CallFunctionTask>(args[0]);
+			pTimerTask->cancel();
+		}
+		else throw Poco::InvalidArgumentException("Invalid object passed to clearImmediate(), clearTimer() or clearTimeout()");
+	}
+	catch (Poco::Exception& exc)
+	{
+		Wrapper::returnException(args, exc);
+	}
 }
 
 
