@@ -44,8 +44,13 @@ v8::Handle<v8::ObjectTemplate> HTMLFormWrapper::objectTemplate(v8::Isolate* pIso
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
 		objectTemplate->SetInternalFieldCount(1);
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, hasField));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "get"), v8::FunctionTemplate::New(pIsolate, getField));
+
+		// deprecated - for backwards compatibility, will be removed eventually
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "hasField"), v8::FunctionTemplate::New(pIsolate, hasField));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getField"), v8::FunctionTemplate::New(pIsolate, getField));
+
 		objectTemplate->SetNamedPropertyHandler(getProperty);
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}

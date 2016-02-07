@@ -18,6 +18,7 @@
 #include "Poco/JS/Net/HTTPResponseWrapper.h"
 #include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/JS/Core/JSExecutor.h"
+#include "Poco/JS/Core/BufferWrapper.h"
 #include "Poco/Net/HTTPClientSession.h"
 #include "Poco/Net/HTTPSessionFactory.h"
 #include "Poco/Net/HTTPResponse.h"
@@ -77,16 +78,24 @@ v8::Handle<v8::ObjectTemplate> HTTPRequestWrapper::objectTemplate(v8::Isolate* p
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "version"), getVersion, setVersion);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "contentType"), getContentType, setContentType);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "content"), getContent, setContent);
+		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "buffer"), getBuffer, setBuffer);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "timeout"), getTimeout, setTimeout);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "cookies"), getCookies);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "credentials"), getCredentials);
 
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, hasHeader));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "get"), v8::FunctionTemplate::New(pIsolate, getHeader));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "set"), v8::FunctionTemplate::New(pIsolate, setHeader));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "add"), v8::FunctionTemplate::New(pIsolate, addHeader));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "authenticate"), v8::FunctionTemplate::New(pIsolate, authenticate));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "send"), v8::FunctionTemplate::New(pIsolate, send));
+
+		// deprecated - for backwards, will be removed eventually
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "hasHeader"), v8::FunctionTemplate::New(pIsolate, hasHeader));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getHeader"), v8::FunctionTemplate::New(pIsolate, getHeader));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "setHeader"), v8::FunctionTemplate::New(pIsolate, setHeader));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "addHeader"), v8::FunctionTemplate::New(pIsolate, addHeader));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "authenticate"), v8::FunctionTemplate::New(pIsolate, authenticate));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "send"), v8::FunctionTemplate::New(pIsolate, send));
+		
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> requestTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
@@ -180,6 +189,28 @@ void HTTPRequestWrapper::setContent(v8::Local<v8::String> name, v8::Local<v8::Va
 {
 	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(info);
 	pRequestHolder->content() = toString(value);
+}
+
+
+void HTTPRequestWrapper::getBuffer(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(info);
+	Poco::JS::Core::BufferWrapper::Buffer* pBuffer = new Poco::JS::Core::BufferWrapper::Buffer(pRequestHolder->content().data(), pRequestHolder->content().size());
+	Poco::JS::Core::BufferWrapper wrapper;
+	v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(info.GetIsolate(), pBuffer));
+	info.GetReturnValue().Set(v8::Local<v8::Object>::New(info.GetIsolate(), bufferObject));
+}
+
+
+void HTTPRequestWrapper::setBuffer(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(info);
+	if (Poco::JS::Core::Wrapper::isWrapper<Poco::JS::Core::BufferWrapper::Buffer>(info.GetIsolate(), value))
+	{
+		Poco::JS::Core::BufferWrapper::Buffer* pBuffer = Poco::JS::Core::Wrapper::unwrapNativeObject<Poco::JS::Core::BufferWrapper::Buffer>(value);
+		pRequestHolder->content().assign(pBuffer->begin(), pBuffer->size());
+	}
+	else returnException(info, Poco::InvalidArgumentException("argument must be a Buffer"));
 }
 
 

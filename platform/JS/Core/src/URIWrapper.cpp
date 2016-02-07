@@ -15,6 +15,7 @@
 
 
 #include "Poco/JS/Core/URIWrapper.h"
+#include "Poco/JS/Core/BufferWrapper.h"
 #include "Poco/URIStreamOpener.h"
 #include "Poco/StreamCopier.h"
 #include <memory>
@@ -55,6 +56,28 @@ void URIWrapper::loadString(const v8::FunctionCallbackInfo<v8::Value>& args)
 		std::auto_ptr<std::istream> pStream(Poco::URIStreamOpener::defaultOpener().open(uri));
 		Poco::StreamCopier::copyToString(*pStream, data);
 		returnString(args, data);
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
+}
+
+
+void URIWrapper::loadBuffer(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() < 1) return;
+	v8::HandleScope scope(args.GetIsolate());
+	std::string uri = toString(args[0]);
+	try
+	{
+		std::string data;
+		std::auto_ptr<std::istream> pStream(Poco::URIStreamOpener::defaultOpener().open(uri));
+		Poco::StreamCopier::copyToString(*pStream, data);
+		Poco::JS::Core::BufferWrapper::Buffer* pBuffer = new Poco::JS::Core::BufferWrapper::Buffer(data.data(), data.size());
+		Poco::JS::Core::BufferWrapper wrapper;
+		v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(args.GetIsolate(), pBuffer));
+		args.GetReturnValue().Set(v8::Local<v8::Object>::New(args.GetIsolate(), bufferObject));
 	}
 	catch (Poco::Exception& exc)
 	{
