@@ -355,8 +355,13 @@ void HTTPRequestWrapper::sendBlocking(const v8::FunctionCallbackInfo<v8::Value>&
 			pRequestHolder->request().setContentLength(pRequestHolder->content().length());
 		}
 		pCS->setTimeout(pRequestHolder->getTimeout());
-		pCS->sendRequest(pRequestHolder->request()) << pRequestHolder->content();
+		pCS->sendRequest(pRequestHolder->request()).write(pRequestHolder->content().data(), pRequestHolder->content().size());
 		std::istream& istr = pCS->receiveResponse(pResponseHolder->response());
+		std::streamsize contentLength = pResponseHolder->response().getContentLength();
+		if (contentLength != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
+		{
+			pResponseHolder->content().reserve(contentLength);
+		}
 		Poco::StreamCopier::copyToString(istr, pResponseHolder->content());
 		HTTPResponseWrapper wrapper;
 		v8::Persistent<v8::Object>& responseObject(wrapper.wrapNativePersistent(args.GetIsolate(), pResponseHolder));
@@ -488,10 +493,15 @@ public:
 		Poco::JS::Core::TimedJSExecutor::Ptr pTimedJSExecutor = _pExecutor.cast<Poco::JS::Core::TimedJSExecutor>();
 		try
 		{
-			_pSession->sendRequest(*_pRequest) << _body;
+			_pSession->sendRequest(*_pRequest).write(_body.data(), _body.size());
 			Poco::SharedPtr<Poco::Net::HTTPResponse> pResponse = new Poco::Net::HTTPResponse;
 			std::istream& istr = _pSession->receiveResponse(*pResponse);
 			std::string responseBody;
+			std::streamsize contentLength = pResponse->getContentLength();
+			if (contentLength != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
+			{
+				responseBody.reserve(contentLength);
+			}
 			Poco::StreamCopier::copyToString(istr, responseBody);
 			if (pTimedJSExecutor)
 			{
