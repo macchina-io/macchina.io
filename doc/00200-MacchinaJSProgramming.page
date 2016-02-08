@@ -1122,12 +1122,16 @@ be addressed by its offset from the beginning of the Buffer's memory block. Buff
 also support the methods <[concat()]>, <[slice()]>, <[push()]> and <[pop()]> known from
 JavaScript Array.
 
+For debugging purposes, the contents of a Buffer can be written to the application log
+as a hex dump, using <[logger.dump()]> or <[console.dump()]>.
+
 
 !!Creating Buffer Objects
 
 A Buffer object can be created empty, from a JavaScript Array (containing byte values),
 from a JavaScript String, or from (a part of) another Buffer. The <[Buffer()]> constructor
 can be used to create a Buffer object.
+
 
 !Buffer()
 
@@ -1166,6 +1170,9 @@ of the text encodings supported by the POCO C++ Libraries:
   - "Windows-1250", "windows-1250", "cp1250", "CP1250"
   - "Windows-1251", "windows-1251", "cp1251", "CP1251"
   - "Windows-1252", "windows-1252", "cp1252", "CP1252"
+
+If any additional text encodings have been registered using Poco::TextEncoding::add(),
+these can be used as well.
 
 
 !Buffer(array)
@@ -1316,7 +1323,8 @@ of supported encodings.
 
 Encodes the given JavaScript string and stores the result in the Buffer, using the given
 encoding, or UTF-8 if no encoding is given. See the Buffer constructor documentation for a list
-of supported encodings.
+of supported encodings. Note that the default encoding (UTF-8) is different from the
+Buffer constructor (Base64).
 
 !pack(format, array)
 
@@ -1338,6 +1346,7 @@ This will fill the buffer with the following content:
     4        31
     5        144
 ----
+ 
   
 !unpack(format)
 
