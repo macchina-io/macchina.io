@@ -14,13 +14,17 @@
 #include "Poco/OSP/BundleContext.h"
 #include "Poco/OSP/Bundle.h"
 #include "Poco/OSP/ServiceRegistry.h"
+#include "Poco/OSP/ServiceFinder.h"
 #include "Poco/OSP/ExtensionPointService.h"
+#include "Poco/OSP/PreferencesService.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/RemoteObject.h"
 #include "Poco/JS/Bridge/Listener.h"
 #include "Poco/JS/Bridge/BridgeWrapper.h"
+#include "Poco/StringTokenizer.h"
 #include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
+#include "JSExecutor.h"
 #include "JSExtensionPoint.h"
 #include "JSServletFilter.h"
 #include "JSServerPageFilter.h"
@@ -46,18 +50,11 @@ public:
 	{
 		_pContext = pContext;
 	
-		// find ExtensionPointService using the Service Registry
-		Poco::OSP::ServiceRef::Ptr pXPSRef = pContext->registry().findByName("osp.core.xp");
-		if (pXPSRef)
-		{
-			_pXPS = pXPSRef->castedInstance<ExtensionPointService>();
-			Poco::OSP::ExtensionPoint::Ptr pXP = new JSExtensionPoint(pContext);
-			_pXPS->registerExtensionPoint(pContext->thisBundle(), "com.appinf.osp.js", pXP);
-		}
-		else
-		{
-			pContext->logger().error("The OSP ExtensionPointService is not available.");
-		}
+		_pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(_pContext);
+		_pXPS = Poco::OSP::ServiceFinder::find<Poco::OSP::ExtensionPointService>(_pContext);
+
+		Poco::OSP::ExtensionPoint::Ptr pXP = new JSExtensionPoint(pContext);
+		_pXPS->registerExtensionPoint(pContext->thisBundle(), "com.appinf.osp.js", pXP);
 		
 		Poco::JS::Bridge::Listener::Ptr pListener = new Poco::JS::Bridge::Listener;
 		_jsBridgeListenerId = Poco::RemotingNG::ORB::instance().registerListener(pListener);
@@ -73,15 +70,17 @@ public:
 		pContext->registry().serviceUnregistered += Poco::delegate(this, &JSBundleActivator::handleServiceUnregistered);
 		
 		Poco::JS::Bridge::BridgeWrapper::registerTransportFactory();
+		
+		std::string paths = _pPrefs->configuration()->getString("osp.js.moduleSearchPaths", "");
+		Poco::StringTokenizer tok(paths, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+		JSExecutor::setGlobalModuleSearchPaths(std::vector<std::string>(tok.begin(), tok.end()));
 	}
 		
 	void stop(BundleContext::Ptr pContext)
 	{
-		if (_pXPS)
-		{
-			_pXPS->unregisterExtensionPoint("com.appinf.osp.js");
-			_pXPS = 0;
-		}
+		_pXPS->unregisterExtensionPoint("com.appinf.osp.js");
+		_pXPS = 0;
+		_pPrefs = 0;
 	
 		Poco::RemotingNG::ORB::instance().unregisterListener(_jsBridgeListenerId, true);
 		Poco::JS::Bridge::BridgeWrapper::unregisterTransportFactory();
@@ -125,6 +124,7 @@ public:
 private:
 	Poco::OSP::BundleContext::Ptr _pContext;
 	Poco::OSP::ExtensionPointService::Ptr _pXPS;
+	Poco::OSP::PreferencesService::Ptr _pPrefs;
 	std::string _jsBridgeListenerId;
 };
 

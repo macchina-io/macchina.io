@@ -274,7 +274,7 @@ void SessionWrapper::execute(const v8::FunctionCallbackInfo<v8::Value>& args)
 #endif
 				else
 				{
-					throw Poco::InvalidArgumentException(Poco::format("cannot convert argument %d to native type", i));
+					throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to native type", i));
 				}
 			}
 			if (pSessionHolder->getPageSize() > 0)

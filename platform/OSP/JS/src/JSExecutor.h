@@ -41,7 +41,7 @@ class JSExecutor: public Poco::JS::Core::JSExecutor
 public:
 	typedef Poco::AutoPtr<JSExecutor> Ptr;
 
-	JSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, Poco::UInt64 memoryLimit);
+	JSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit);
 		/// Creates the JSExecutor.
 
 	~JSExecutor();
@@ -52,6 +52,12 @@ public:
 
 	Poco::OSP::BundleContext::Ptr context() const;
 		/// Returns the bundle context.
+		
+	static const std::vector<std::string> getGlobalModuleSearchPaths();
+		/// Returns the global module search paths.
+
+	static void setGlobalModuleSearchPaths(const std::vector<std::string>& searchPaths);
+		/// Sets the global module search paths.
 
 protected:
 	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
@@ -60,6 +66,8 @@ protected:
 private:	
 	Poco::OSP::BundleContext::Ptr _pContext;
 	Poco::OSP::Bundle::Ptr _pBundle;
+	
+	static std::vector<std::string> _globalModuleSearchPaths;
 };
 
 
@@ -81,7 +89,7 @@ class TimedJSExecutor: public Poco::JS::Core::TimedJSExecutor
 public:
 	typedef Poco::AutoPtr<TimedJSExecutor> Ptr;
 
-	TimedJSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, Poco::UInt64 memoryLimit);
+	TimedJSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit);
 		/// Creates the TimedJSExecutor.
 		
 	~TimedJSExecutor();
@@ -116,6 +124,12 @@ inline Poco::OSP::Bundle::Ptr JSExecutor::bundle() const
 inline Poco::OSP::BundleContext::Ptr JSExecutor::context() const
 {
 	return _pContext;
+}
+
+
+inline const std::vector<std::string> JSExecutor::getGlobalModuleSearchPaths()
+{
+	return _globalModuleSearchPaths;
 }
 
 

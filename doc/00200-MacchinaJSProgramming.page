@@ -53,7 +53,7 @@ The JavaScript extension point in macchina.io tells the macchina.io server which
 scripts (contained in the bundle) to automatically execute when the bundle starts.
 Each script is executed in its own thread. Optionally, the extension point can
 also specify a limit to the JavaScript heap, thus preventing the script from using
-too much memory.
+too much memory. A list of search paths can also be given.
 
 By convention, extensions are specified using an XML file named "extensions.xml", located 
 in the root directory of a bundle.
@@ -76,6 +76,9 @@ the allowed amount of memory in bytes. Example:
         <extension point="com.appinf.osp.js" script="main.js" memoryLimit="500000"/>
     </extensions>
 ----
+
+A comma or semicolon-separated list of search paths/URIs for imported modules can
+be specified using the <*searchPaths*> attribute.
 
 There are actually no special tools required to create a bundle. In the simplest form,
 a bundle is just a directory with specific contents, located in one of the directories
@@ -299,8 +302,8 @@ with the imported script being encapsulated within a "module" and thus not pollu
 the global namespace. 
 
 A script can import another module using the <[require()]> function, specifying either
-a relative path to the script (i.e., in the same bundle) or a complete URI. This may
-even be used to download scripts from a web server, using a HTTP URI.
+a relative path to the script (i.e., in the same bundle, or to a list of search paths/URIs) 
+or a complete URI. This may even be used to download scripts from a web server, using a HTTP URI.
 
 For <[require()]> to work, a module must follow certain conventions:
 
@@ -310,6 +313,7 @@ For <[require()]> to work, a module must follow certain conventions:
     assigning that object or function to its <[exports]> or <[module.exports]>
     object. The <[module.exports]> object is the only object available to
     importers of the module.
+  - The name of the resource containing the module must have the extension ".js".
     
 Here's a quick example. Say we want to write a function that looks for a temperature
 sensor, and returns the sensor object, if one if found:
@@ -346,7 +350,7 @@ What we've essentially done is we've added the function to the module's exports 
 Assuming we've put the above function in a file named "sensors.js", whenever
 we need this function in a script, we can write:
 
-    var sensors = require("sensors.js");
+    var sensors = require("sensors");
     var temperatureSensor = sensors.findTemperatureSensor();
 ----
 
@@ -396,6 +400,22 @@ Example:
 
     var module = require("bndl://com.mycompany.mybundle/mymodule.js");
 ----
+
+!!Finding Modules
+
+Modules imported with <[require()]> will be searched in the following locations and order:
+
+  1. If a fully qualified URI is specified, the module is loaded from that URI.
+  2. The given (relative) path will be resolved against the URI of the importing module.
+  3. The given (relative) path will be resolved against the search paths specified
+     for the script (using the <[searchPaths()]> extension point attribute).
+  4. The given (relative) path will be resolved against the global module search paths.
+
+!!Global Module Search Paths
+
+A global search path for JavaScript modules can be set in the application's configuration
+file, using the <[osp.js.moduleSearchPaths]> configuration property. Multiple paths
+must be separated with a comma or semicolon.
 
 
 !!!The application Object

@@ -8,11 +8,14 @@
 
 include $(POCO_BASE)/build/rules/global
 
+V8VERSION = 0x031C0400 
+
+CXXFLAGS += -DPOCO_JS_V8VERSION=$(V8VERSION)
+
 objects = Wrapper PooledIsolate \
 	LoggerWrapper ConsoleWrapper SystemWrapper DateTimeWrapper LocalDateTimeWrapper \
 	ConfigurationWrapper ApplicationWrapper URIWrapper TimerWrapper \
-	BufferWrapper \
-	JSExecutor
+	BufferWrapper JSExecutor JSException
 
 target         = PocoJSCore
 target_version = 1

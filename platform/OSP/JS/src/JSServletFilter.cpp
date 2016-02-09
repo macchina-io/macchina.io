@@ -13,6 +13,7 @@
 #include "JSServletFilter.h"
 #include "Poco/StreamCopier.h"
 #include "Poco/NumberParser.h"
+#include "Poco/StringTokenizer.h"
 
 
 namespace Poco {
@@ -52,6 +53,12 @@ JSServletFilter::JSServletFilter(Poco::OSP::BundleContext::Ptr pContext, const P
 	{
 		_memoryLimit = Poco::NumberParser::parseUnsigned64(it->second);
 	}
+	it = args.find("searchPaths");
+	if (it != args.end())
+	{
+		Poco::StringTokenizer tok(it->second, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+		_moduleSearchPaths.assign(tok.begin(), tok.end());
+	}
 }
 
 
@@ -71,7 +78,7 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 			scriptURI += path;
 			std::string servlet;
 			preprocess(request, response, scriptURI, resourceStream, servlet);
-			_pServletExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _memoryLimit, request, response);
+			_pServletExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _moduleSearchPaths, _memoryLimit, request, response);
 		}
 		_pServletExecutor->run();
 		if (!response.sent())

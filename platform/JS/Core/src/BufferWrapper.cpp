@@ -403,7 +403,7 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 	Buffer* pBuffer = Wrapper::unwrapNative<Buffer>(args);
 	try
 	{
-		if (!args[1]->IsArray()) throw Poco::InvalidArgumentException("second argument to pack() must be array");
+		if (!args[1]->IsArray()) throw Poco::InvalidArgumentException("Second argument to pack() must be array");
 	
 		v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[1]);
 		std::string format(toString(args[0]));
@@ -449,7 +449,7 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 			case '\t':
 			case '\r':
 			case '\n':
-				if (repeat != -1) throw Poco::SyntaxException("repeat count must be followed by format character");
+				if (repeat != -1) throw Poco::SyntaxException("Repeat count must be followed by format character");
 				break;
 			case 'x':
 				for (int i = 0; i < std::abs(repeat); i++)
@@ -634,7 +634,7 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 					repeat = 10*repeat + (*it - '0');
 				break;
 			default:
-				throw Poco::InvalidArgumentException("invalid character in format string", format);
+				throw Poco::InvalidArgumentException("Invalid character in format string", format);
 			}
 			++it;
 		}
@@ -699,7 +699,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 			case '\t':
 			case '\r':
 			case '\n':
-				if (repeat != -1) throw Poco::SyntaxException("repeat count must be followed by format character");
+				if (repeat != -1) throw Poco::SyntaxException("Repeat count must be followed by format character");
 				break;
 			case 'x':
 				for (int i = 0; i < std::abs(repeat); i++)
@@ -848,7 +848,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 					repeat = 10*repeat + (*it - '0');
 				break;
 			default:
-				throw Poco::InvalidArgumentException("invalid character in format string", format);
+				throw Poco::InvalidArgumentException("Invalid character in format string", format);
 			}
 			++it;
 		}
@@ -1107,7 +1107,7 @@ std::size_t BufferWrapper::calculatePackBufferSize(const std::string& format)
 		case '\t':
 		case '\r':
 		case '\n':
-			if (repeat != -1) throw Poco::SyntaxException("repeat count must be followed by format character");
+			if (repeat != -1) throw Poco::SyntaxException("Repeat count must be followed by format character");
 			break;
 		case 'x':
 		case 'c':
@@ -1153,7 +1153,7 @@ std::size_t BufferWrapper::calculatePackBufferSize(const std::string& format)
 				repeat = 10*repeat + (*it - '0');
 			break;
 		default:
-			throw Poco::InvalidArgumentException("invalid character in format string", format);
+			throw Poco::InvalidArgumentException("Invalid character in format string", format);
 		}
 		++it;
 	}

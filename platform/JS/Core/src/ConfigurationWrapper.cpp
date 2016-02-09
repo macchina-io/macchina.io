@@ -166,7 +166,7 @@ void ConfigurationWrapper::getObject(const v8::FunctionCallbackInfo<v8::Value>& 
 			if (!value.IsEmpty())
 				args.GetReturnValue().Set(value);
 			else
-				throw Poco::DataFormatException("Invalid JSON", json);
+				throw Poco::DataFormatException(std::string("Invalid JSON in configuration property ") + key, json);
 		}
 	}
 	catch (Poco::Exception& exc)

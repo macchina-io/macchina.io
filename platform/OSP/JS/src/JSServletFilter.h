@@ -42,6 +42,7 @@ protected:
 		
 private:
 	BundleContext::Ptr _pContext;
+	std::vector<std::string> _moduleSearchPaths;
 	Poco::UInt64 _memoryLimit;
 	JSServletExecutor::Ptr _pServletExecutor;
 	Poco::FastMutex _mutex;

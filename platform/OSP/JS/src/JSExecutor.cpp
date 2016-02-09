@@ -28,11 +28,19 @@ namespace OSP {
 namespace JS {
 
 
-JSExecutor::JSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, Poco::UInt64 memoryLimit):
-	Poco::JS::Core::JSExecutor(source, sourceURI, memoryLimit),
+std::vector<std::string> JSExecutor::_globalModuleSearchPaths;
+
+
+JSExecutor::JSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit):
+	Poco::JS::Core::JSExecutor(source, sourceURI, moduleSearchPaths, memoryLimit),
 	_pContext(pContext),
 	_pBundle(pBundle)
 {
+	const std::vector<std::string>& paths = getGlobalModuleSearchPaths();
+	for (std::vector<std::string>::const_iterator it = paths.begin(); it != paths.end(); ++it)
+	{
+		addModuleSearchPath(*it);
+	}
 }
 
 
@@ -90,11 +98,23 @@ void JSExecutor::handleError(const ErrorInfo& errorInfo)
 }
 
 
-TimedJSExecutor::TimedJSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, Poco::UInt64 memoryLimit):
-	Poco::JS::Core::TimedJSExecutor(source, sourceURI, memoryLimit),
+void JSExecutor::setGlobalModuleSearchPaths(const std::vector<std::string>& searchPaths)
+{
+	_globalModuleSearchPaths = searchPaths;
+}
+
+
+TimedJSExecutor::TimedJSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit):
+	Poco::JS::Core::TimedJSExecutor(source, sourceURI, moduleSearchPaths, memoryLimit),
 	_pContext(pContext),
 	_pBundle(pBundle)
 {
+	const std::vector<std::string>& paths = Poco::OSP::JS::JSExecutor::getGlobalModuleSearchPaths();
+	for (std::vector<std::string>::const_iterator it = paths.begin(); it != paths.end(); ++it)
+	{
+		addModuleSearchPath(*it);
+	}
+
 	pContext->events().bundleStopped += Poco::delegate(this, &TimedJSExecutor::onBundleStopped);
 }
 

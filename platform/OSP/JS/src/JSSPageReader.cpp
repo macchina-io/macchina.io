@@ -172,7 +172,7 @@ void JSSPageReader::parse(std::istream& pageStream)
 	{
 		_page.handler() << MARKUP_END;
 	}
-	else throw Poco::SyntaxException("unclosed meta or code block", where());
+	else throw Poco::SyntaxException("Unclosed meta or code block", where());
 }
 
 
@@ -192,22 +192,22 @@ void JSSPageReader::parseAttributes()
 		std::string value;
 		while (ch != eof && Poco::Ascii::isAlphaNumeric(ch)) { name += (char) ch; ch = istr.get(); }
 		while (ch != eof && Poco::Ascii::isSpace(ch)) ch = istr.get();
-		if (ch != '=') throw Poco::SyntaxException("bad attribute syntax: '=' expected", where());
+		if (ch != '=') throw Poco::SyntaxException("Bad attribute syntax: '=' expected", where());
 		ch = istr.get();
 		while (ch != eof && Poco::Ascii::isSpace(ch)) ch = istr.get();
 		if (ch == '"')
 		{
 			ch = istr.get();
 			while (ch != eof && ch != '"') { value += (char) ch; ch = istr.get(); }
-			if (ch != '"') throw Poco::SyntaxException("bad attribute syntax: '\"' expected", where());
+			if (ch != '"') throw Poco::SyntaxException("Bad attribute syntax: '\"' expected", where());
 		}
 		else if (ch == '\'')
 		{
 			ch = istr.get();
 			while (ch != eof && ch != '\'') { value += (char) ch; ch = istr.get(); }
-			if (ch != '\'') throw Poco::SyntaxException("bad attribute syntax: ''' expected", where());
+			if (ch != '\'') throw Poco::SyntaxException("Bad attribute syntax: ''' expected", where());
 		}
-		else throw Poco::SyntaxException("bad attribute syntax: '\"' or ''' expected", where());
+		else throw Poco::SyntaxException("Bad attribute syntax: '\"' or ''' expected", where());
 		ch = istr.get();
 		handleAttribute(name, value);
 		while (ch != eof && Poco::Ascii::isSpace(ch)) ch = istr.get();

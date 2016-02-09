@@ -22,6 +22,7 @@
 #include "Poco/JS/Core/URIWrapper.h"
 #include "Poco/JS/Core/TimerWrapper.h"
 #include "Poco/JS/Core/BufferWrapper.h"
+#include "Poco/JS/Core/JSException.h"
 #include "Poco/Delegate.h"
 #include "Poco/URIStreamOpener.h"
 #include "Poco/StreamCopier.h"
@@ -50,6 +51,16 @@ JSExecutor::JSExecutor(const std::string& source, const Poco::URI& sourceURI, Po
 }
 
 
+JSExecutor::JSExecutor(const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit):
+	_source(source),
+	_sourceURI(sourceURI),
+	_moduleSearchPaths(moduleSearchPaths),
+	_memoryLimit(memoryLimit)
+{
+	_importStack.push_back(sourceURI);
+}
+
+
 JSExecutor::~JSExecutor()
 {
 	_script.Reset();
@@ -72,6 +83,12 @@ void JSExecutor::stop()
 }
 
 
+void JSExecutor::addModuleSearchPath(const std::string& path)
+{
+	_moduleSearchPaths.push_back(path);
+}
+
+
 void JSExecutor::setup()
 {
 	v8::Isolate* pIsolate = _pooledIso.isolate();
@@ -85,7 +102,7 @@ void JSExecutor::setup()
 #endif
 	if (!v8::SetResourceConstraints(pIsolate, &resourceConstraints))
 	{
-		throw Poco::SystemException("cannot set resource constraints");
+		throw JSException("Cannot set resource constraints");
 	}
 
 	v8::Local<v8::Context> globalContext = v8::Context::New(pIsolate);
@@ -452,6 +469,10 @@ void JSExecutor::require(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 	try
 	{
+		if (uri.length() > 3 && uri.compare(uri.length() - 3, 3, ".js") != 0)
+		{
+			uri += ".js";
+		}
 		pCurrentExecutor->importModule(args, uri);
 	}
 	catch (Poco::Exception& exc)
@@ -482,9 +503,8 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 	};
 
 	// Resolve URI
-	poco_assert_dbg (!_importStack.empty());
-	Poco::URI moduleURI = _importStack.back();
-	moduleURI.resolve(uri);
+	Poco::URI moduleURI;
+	Poco::SharedPtr<std::istream> pStream = resolveModule(uri, moduleURI);
 	ImportScope importScope(_importStack, moduleURI);
 	std::string moduleURIString = moduleURI.toString();
 
@@ -506,10 +526,12 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 	v8::Local<v8::String> jsModuleURI = v8::String::NewFromUtf8(pIsolate, moduleURIString.c_str());
 	if (globalImports->Has(jsModuleURI))
 	{
+		poco_assert (!pStream);
 		args.GetReturnValue().Set(globalImports->Get(jsModuleURI));
 	}
 	else
 	{
+		poco_assert (pStream);
 		// Create context for import
 		v8::Local<v8::ObjectTemplate> moduleTemplate(v8::Local<v8::ObjectTemplate>::New(pIsolate, _globalObject));
 		updateGlobals(moduleTemplate, pIsolate);
@@ -526,8 +548,7 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 		v8::Context::Scope moduleContextScope(moduleContext);
 	
 		std::string source;
-		std::auto_ptr<std::istream> istr(Poco::URIStreamOpener::defaultOpener().open(moduleURIString));
-		Poco::StreamCopier::copyToString(*istr, source);
+		Poco::StreamCopier::copyToString(*pStream, source);
 
 		v8::Local<v8::String> sourceObject = v8::String::NewFromUtf8(pIsolate, source.c_str());
 		v8::TryCatch tryCatch;
@@ -552,6 +573,50 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 			}
 		}
 	}
+}
+
+
+Poco::SharedPtr<std::istream> JSExecutor::resolveModule(const std::string& uri, Poco::URI& resolvedURI)
+{
+	Poco::SharedPtr<std::istream> pStream;
+
+	poco_assert (!_importStack.empty());
+	resolvedURI = _importStack.back();
+	resolvedURI.resolve(uri);
+	std::string resolvedURIString = resolvedURI.toString();
+
+	if (_imports.find(resolvedURIString) != _imports.end())
+		return pStream;
+		
+	try
+	{
+		pStream = Poco::URIStreamOpener::defaultOpener().open(resolvedURIString);
+		return pStream;
+	}
+	catch (Poco::Exception&)
+	{
+	}
+
+	for (std::vector<std::string>::const_iterator it = _moduleSearchPaths.begin(); it != _moduleSearchPaths.end(); ++it)
+	{
+		resolvedURI = *it;
+		resolvedURI.resolve(uri);
+		resolvedURIString = resolvedURI.toString();
+
+		if (_imports.find(resolvedURIString) != _imports.end())
+			return pStream;
+
+		try
+		{
+			pStream = Poco::URIStreamOpener::defaultOpener().open(resolvedURIString);
+			return pStream;
+		}
+		catch (Poco::Exception&)
+		{
+		}
+	}
+
+	throw ModuleNotFoundException(uri);
 }
 
 
@@ -650,8 +715,8 @@ private:
 //
 
 
-TimedJSExecutor::TimedJSExecutor(const std::string& source, const Poco::URI& sourceURI, Poco::UInt64 memoryLimit):
-	JSExecutor(source, sourceURI, memoryLimit)
+TimedJSExecutor::TimedJSExecutor(const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit):
+	JSExecutor(source, sourceURI, moduleSearchPaths, memoryLimit)
 {
 }
 

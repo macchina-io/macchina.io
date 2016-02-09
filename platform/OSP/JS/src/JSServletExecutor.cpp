@@ -49,8 +49,8 @@ namespace
 }
 
 
-JSServletExecutor::JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, Poco::UInt64 memoryLimit, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response):
-	JSExecutor(pContext, pBundle, script, scriptURI, memoryLimit),
+JSServletExecutor::JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response):
+	JSExecutor(pContext, pBundle, script, scriptURI, moduleSearchPaths, memoryLimit),
 	_pRequest(&request),
 	_pResponse(&response),
 	_pForm(new Poco::Net::HTMLForm(request, request.stream()))

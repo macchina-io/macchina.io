@@ -14,6 +14,7 @@
 #include "Poco/OSP/BundleEvents.h"
 #include "Poco/StreamCopier.h"
 #include "Poco/NumberParser.h"
+#include "Poco/StringTokenizer.h"
 #include "Poco/Format.h"
 #include "Poco/Delegate.h"
 #include <memory>
@@ -46,6 +47,10 @@ void JSExtensionPoint::handleExtension(Bundle::ConstPtr pBundle, Poco::XML::Elem
 	{
 		memoryLimit = Poco::NumberParser::parseUnsigned64(strMemoryLimit);
 	}
+	
+	Poco::StringTokenizer tok(pExtensionElem->getAttribute("searchPaths"), ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+	std::vector<std::string> moduleSearchPaths(tok.begin(), tok.end());
+	
 	std::string script;
 	std::auto_ptr<std::istream> pStream(pBundle->getResource(scriptPath));
 	Poco::StreamCopier::copyToString(*pStream, script);
@@ -54,7 +59,7 @@ void JSExtensionPoint::handleExtension(Bundle::ConstPtr pBundle, Poco::XML::Elem
 	scriptURI += pBundle->symbolicName();
 	if (scriptPath.empty() || scriptPath[0] != '/') scriptURI += "/";
 	scriptURI += scriptPath;
-	TimedJSExecutor::Ptr pExecutor = new TimedJSExecutor(_pContext->contextForBundle(pBundle), pBundle, script, Poco::URI(scriptURI), memoryLimit);
+	TimedJSExecutor::Ptr pExecutor = new TimedJSExecutor(_pContext->contextForBundle(pBundle), pBundle, script, Poco::URI(scriptURI), moduleSearchPaths, memoryLimit);
 	{
 		FastMutex::ScopedLock lock(_mutex);
 		_executors.push_back(pExecutor);

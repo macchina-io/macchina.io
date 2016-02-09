@@ -24,12 +24,14 @@
 #include "Poco/Thread.h"
 #include "Poco/ThreadLocal.h"
 #include "Poco/AutoPtr.h"
+#include "Poco/SharedPtr.h"
 #include "Poco/URI.h"
 #include "Poco/BasicEvent.h"
 #include "Poco/Util/Timer.h"
 #include "Poco/Util/TimerTask.h"
 #include "Poco/JS/Core/PooledIsolate.h"
 #include "v8.h"
+#include <vector>
 #include <set>
 
 
@@ -67,6 +69,9 @@ public:
 
 	JSExecutor(const std::string& source, const Poco::URI& sourceURI, Poco::UInt64 memoryLimit = DEFAULT_MEMORY_LIMIT);
 		/// Creates the JSExecutor with the given JavaScript source, sourceURI and memoryLimit.
+
+	JSExecutor(const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit = DEFAULT_MEMORY_LIMIT);
+		/// Creates the JSExecutor with the given JavaScript source, sourceURI, module search paths and memoryLimit.
 		
 	virtual ~JSExecutor();
 		/// Destroys the JSExecutor.
@@ -118,6 +123,12 @@ public:
 	
 	virtual void stop();
 		/// Stops the script.
+		
+	void addModuleSearchPath(const std::string& path);
+		/// Adds a search path to the internal list of search paths.
+		///
+		/// Module search paths must be added before the script
+		/// is executed.
 	
 	// Poco::Runnable
 	void run();
@@ -151,6 +162,14 @@ protected:
 	void importModule(const v8::FunctionCallbackInfo<v8::Value>& args, const std::string& uri);
 		/// Imports a module.
 
+	Poco::SharedPtr<std::istream> resolveModule(const std::string& uri, Poco::URI& resolvedURI);
+		/// Tries to locate the script identified by uri (which may be a relative, partial URI),
+		/// and returns a stream for reading the script source if the module has not been
+		/// imported yet, or null if the module has already been imported.
+		/// If the module URI has been successfully resolved, resolvedURI will contain
+		/// the fully-qualified URI. If the module URI cannot be successfully resolved,
+		/// a Poco::NotFoundException will be thrown.
+
 	void runImpl();
 	void setup();
 	void compile();
@@ -165,6 +184,7 @@ private:
 protected:	
 	std::string _source;
 	Poco::URI _sourceURI;
+	std::vector<std::string> _moduleSearchPaths;
 	Poco::UInt64 _memoryLimit;
 	Poco::JS::Core::PooledIsolate _pooledIso;
 	v8::Persistent<v8::ObjectTemplate> _globalObject;
@@ -172,6 +192,7 @@ protected:
 	v8::Persistent<v8::Context> _scriptContext;
 	v8::Persistent<v8::Script> _script;
 	std::vector<Poco::URI> _importStack;
+	std::set<std::string> _imports;
 	static Poco::ThreadLocal<JSExecutor*> _pCurrentExecutor;
 	
 	friend class RunScriptTask;
@@ -189,7 +210,7 @@ class JSCore_API TimedJSExecutor: public JSExecutor
 public:
 	typedef Poco::AutoPtr<TimedJSExecutor> Ptr;
 
-	TimedJSExecutor(const std::string& source, const Poco::URI& sourceURI, Poco::UInt64 memoryLimit = JSExecutor::DEFAULT_MEMORY_LIMIT);
+	TimedJSExecutor(const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit = JSExecutor::DEFAULT_MEMORY_LIMIT);
 		/// Creates the TimedJSExecutor.
 		
 	~TimedJSExecutor();

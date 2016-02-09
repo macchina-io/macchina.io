@@ -40,7 +40,7 @@ class JSServletExecutor: public JSExecutor
 public:
 	typedef Poco::AutoPtr<JSServletExecutor> Ptr;
 
-	JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, Poco::UInt64 memoryLimit, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
+	JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 		/// Creates the ServletExecutor.
 
 	void reset(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
