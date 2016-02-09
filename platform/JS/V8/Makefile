@@ -8,7 +8,7 @@
 
 include $(POCO_BASE)/build/rules/global
 
-V8VERSION = 3.28.4
+V8VERSION = 3.25.28.18
 GYPREVISION = 1831
 V8BASE = v8-$(V8VERSION)
 ifdef V8_NOSNAPSHOT
