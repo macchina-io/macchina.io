@@ -578,9 +578,10 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 
 Poco::SharedPtr<std::istream> JSExecutor::resolveModule(const std::string& uri, Poco::URI& resolvedURI)
 {
+	poco_assert (!_importStack.empty());
+
 	Poco::SharedPtr<std::istream> pStream;
 
-	poco_assert (!_importStack.empty());
 	resolvedURI = _importStack.back();
 	resolvedURI.resolve(uri);
 	std::string resolvedURIString = resolvedURI.toString();
@@ -599,7 +600,11 @@ Poco::SharedPtr<std::istream> JSExecutor::resolveModule(const std::string& uri, 
 
 	for (std::vector<std::string>::const_iterator it = _moduleSearchPaths.begin(); it != _moduleSearchPaths.end(); ++it)
 	{
-		resolvedURI = *it;
+		std::string path;
+		path.reserve(it->size() + 1);
+		path += *it;
+		if (!path.empty() && path[path.size() - 1] != '/') path += '/';
+		resolvedURI = path;
 		resolvedURI.resolve(uri);
 		resolvedURIString = resolvedURI.toString();
 
