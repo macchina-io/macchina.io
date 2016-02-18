@@ -23,6 +23,7 @@
 #include "Poco/RemotingNG/RemotingNG.h"
 #include "Poco/RemotingNG/AttributedObject.h"
 #include "Poco/RemotingNG/MethodHandler.h"
+#include "Poco/RefCountedObject.h"
 #include "Poco/AutoPtr.h"
 #include <map>
 
@@ -35,7 +36,7 @@ class ServerTransport;
 class RemoteObject;
 
 
-class RemotingNG_API Skeleton: public AttributedObject
+class RemotingNG_API Skeleton: public AttributedObject, public Poco::RefCountedObject
 	/// A Skeleton is responsible for demultiplexing incoming requests
 	/// to the correct service object method, using MethodHandler objects.
 {

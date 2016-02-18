@@ -24,6 +24,7 @@
 #include "Poco/RemotingNG/AttributedObject.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/SerializerBase.h"
+#include "Poco/RefCountedObject.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/Mutex.h"
 #include <map>
@@ -37,7 +38,7 @@ class Serializer;
 class Deserializer;
 
 
-class RemotingNG_API Transport: public AttributedObject
+class RemotingNG_API Transport: public AttributedObject, public Poco::RefCountedObject
 	/// Transport objects are responsible for setting up and maintaining a
 	/// network (or other kind of) connection between Proxy objects on the
 	/// client side and Listener objects on the server side, and for exchanging

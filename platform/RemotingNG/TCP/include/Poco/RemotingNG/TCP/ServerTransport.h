@@ -27,8 +27,9 @@
 #include "Poco/RemotingNG/BinaryDeserializer.h"
 #include "Poco/InflatingStream.h"
 #include "Poco/DeflatingStream.h"
-#include "Poco/SharedPtr.h"
+#include "Poco/RefCountedObject.h"
 #include "Poco/AutoPtr.h"
+#include "Poco/SharedPtr.h"
 #include "Poco/Event.h"
 #include "Poco/Logger.h"
 

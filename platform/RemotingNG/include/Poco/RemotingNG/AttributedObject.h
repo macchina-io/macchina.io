@@ -21,7 +21,6 @@
 
 
 #include "Poco/RemotingNG/RemotingNG.h"
-#include "Poco/RefCountedObject.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/Mutex.h"
 #include <map>
@@ -31,7 +30,7 @@ namespace Poco {
 namespace RemotingNG {
 
 
-class RemotingNG_API AttributedObject: public Poco::RefCountedObject
+class RemotingNG_API AttributedObject
 	/// A AttributedObject can hold any number of attributes in 
 	/// the form of name-value pairs.
 {
@@ -40,7 +39,13 @@ public:
 	typedef std::map<std::string,std::string> NameValueMap;
 
 	AttributedObject();
-		/// Creates a AttributedObject.
+		/// Creates an AttributedObject.
+
+	AttributedObject(const AttributedObject& other);
+		/// Creates an AttributedObject by copying the attributes from another one.
+		
+	AttributedObject& operator = (const AttributedObject& other);
+		/// Assigns the attributes from another AttributedObject.
 
 	virtual ~AttributedObject();
 		/// Destroys the AttributedObject.
@@ -62,9 +67,6 @@ public:
 		/// Returns true iff an attribute with the given name exists.
 		
 private:
-	AttributedObject(const AttributedObject&);
-	AttributedObject& operator = (const AttributedObject&);
-
 	NameValueMap _attributes;
 	mutable Poco::FastMutex _mutex;
 };

@@ -22,6 +22,7 @@
 
 #include "Poco/RemotingNG/RemotingNG.h"
 #include "Poco/RemotingNG/SerializerBase.h"
+#include "Poco/RemotingNG/AttributedObject.h"
 
 
 namespace Poco {
@@ -32,7 +33,7 @@ class Serializer;
 class Deserializer;
 
 
-class RemotingNG_API ServerTransport
+class RemotingNG_API ServerTransport: public AttributedObject
 	/// ServerTransport objects are used as mediators between
 	/// a Listener, receiving a request, and the ORB, Skeleton and
 	/// MethodHandlers, processing the request.

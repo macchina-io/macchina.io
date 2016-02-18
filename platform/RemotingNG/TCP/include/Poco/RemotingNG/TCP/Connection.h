@@ -25,6 +25,7 @@
 #include "Poco/RemotingNG/AttributedObject.h"
 #include "Poco/Net/StreamSocket.h"
 #include "Poco/Runnable.h"
+#include "Poco/RefCountedObject.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/Timestamp.h"
 #include "Poco/ObjectPool.h"
@@ -45,7 +46,7 @@ namespace TCP {
 class FrameHandler;
 
 
-class RemotingNGTCP_API Connection: public Poco::Runnable, public Poco::RemotingNG::AttributedObject
+class RemotingNGTCP_API Connection: public Poco::Runnable, public Poco::RemotingNG::AttributedObject, public Poco::RefCountedObject
 	/// This class represents a TCP connection between a client
 	/// and a server.
 	///

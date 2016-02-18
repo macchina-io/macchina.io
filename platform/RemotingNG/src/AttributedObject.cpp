@@ -29,6 +29,19 @@ AttributedObject::AttributedObject()
 }
 
 
+AttributedObject::AttributedObject(const AttributedObject& other):
+	_attributes(other._attributes)
+{
+}
+
+	
+AttributedObject& AttributedObject::operator = (const AttributedObject& other)
+{
+	_attributes = other._attributes;
+	return *this;
+}
+
+
 AttributedObject::~AttributedObject()
 {
 }
