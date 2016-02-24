@@ -3,12 +3,10 @@
 //
 // $Id: //poco/1.6/RemotingNG/samples/TimeServerTCP/src/TimeServer.cpp#1 $
 //
-// Copyright (c) 2006-2012, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// This is unpublished proprietary source code of Applied Informatics.
-// The contents of this file may not be disclosed to third parties, 
-// copied or duplicated in any form, in whole or in part.
+// SPDX-License-Identifier: Apache-2.0
 //
 
 
