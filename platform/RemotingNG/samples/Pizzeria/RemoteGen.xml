@@ -1,0 +1,76 @@
+<AppConfig>
+	<RemoteGen>
+		<files>
+			<include>
+				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/RemoteObject.h
+				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Proxy.h
+				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Skeleton.h
+				../Pizzeria/include/Pizzeria/PizzaDeliveryService.h
+				../Pizzeria/include/Pizzeria/PizzaPickupService.h
+				../Pizzeria/include/Pizzeria/Pizza.h
+				../Pizzeria/include/Pizzeria/Topping.h
+				../Pizzeria/include/Pizzeria/DeliveryAddress.h
+			</include>
+			<exclude>
+			</exclude>
+		</files>
+		<output>
+			<include>include/Pizzeria</include>
+			<includeRoot>include</includeRoot>
+			<src>src</src>
+			<namespace>Pizzeria</namespace>
+			<schema>wsdl</schema>
+			<copyright>Copyright (c) 2006-2015, Applied Informatics Software Engineering GmbH.</copyright>
+			<mode>server</mode>
+			<timestamps>false</timestamps>
+		</output>
+		<schema>
+			<PizzaDeliveryService>
+				<serviceLocation>http://localhost:8080/soap/PizzaDeliveryService/ThePizzeria</serviceLocation>
+			</PizzaDeliveryService>
+			<PizzaPickupService>
+				<serviceLocation>http://localhost:8080/soap/PizzaPickupService/ThePizzeria</serviceLocation>
+			</PizzaPickupService>
+		</schema>
+		<compiler id="gcc">
+			<exec>g++</exec>
+			<options>
+				-I${POCO_BASE}/Foundation/include
+				-I${POCO_BASE}/RemotingNG/include
+				-I./include
+				-I../Pizzeria/include
+				-E
+				-C
+				-DPOCO_NO_GCC_API_ATTRIBUTE
+				-o%.i
+			</options>
+		</compiler>
+		<compiler id="clang">
+			<exec>clang++</exec>
+			<options>
+				-I${POCO_BASE}/Foundation/include
+				-I${POCO_BASE}/RemotingNG/include
+				-I./include
+				-I../Pizzeria/include
+				-E
+				-C
+				-DPOCO_NO_GCC_API_ATTRIBUTE
+				-xc++
+				-o%.i
+			</options>
+		</compiler>
+		<compiler id="msvc">
+			<exec>cl</exec>
+			<options>
+				/I "${POCO_BASE}\Foundation\include"
+				/I "${POCO_BASE}\RemotingNG\include"
+				/I ".\include"
+				/I "..\Pizzeria\include"
+				/nologo
+				/C
+				/P
+				/TP
+			</options>
+		</compiler>
+	</RemoteGen>
+</AppConfig>
