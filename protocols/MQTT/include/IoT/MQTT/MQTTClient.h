@@ -212,6 +212,24 @@ public:
 	virtual bool connected() const = 0;
 		/// Returns true if the client is currently connected to the server.
 		
+	virtual void connect() = 0;
+		/// Connects to the server if not already connected.
+		///
+		/// Normally, the client connects automatically if a
+		///
+		/// Throws a Poco::IOException if the connection cannot be established.
+		
+	virtual void disconnect(int timeout) = 0;
+		/// Disconnects from the server.
+		///
+		/// In order to allow the client time to complete handling of messages that are 
+		/// in-flight when this function is called, a timeout period is specified (in milliseconds). 
+		/// When the timeout period has expired, the client disconnects even if there 
+		/// are still outstanding message acknowledgements. The next time the client 
+		/// connects to the same server, any QoS 1 or 2 messages which have not completed 
+		/// will be retried depending on the clean session settings for both the previous 
+		/// and the new connection.
+	
 	virtual std::vector<TopicQoS> subscribedTopics() const = 0;
 		/// Returns a vector containing all currently subscribed
 		/// topics with their QoS level.

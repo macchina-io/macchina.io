@@ -132,25 +132,16 @@ public:
 	~MQTTClientImpl();
 		/// Destroys the MQTTClientImpl.
 		
-	void connect();
 		/// Connects to the MQTT server, if not yet connected.
 		///
 		/// Throws a Poco::IOException if the connection cannot be established.
-		
-	void disconnect(int timeout);
-		/// This function attempts to disconnect the client from the MQTT server. 
-		/// In order to allow the client time to complete handling of messages that are 
-		/// in-flight when this function is called, a timeout period is specified. 
-		/// When the timeout period has expired, the client disconnects even if there 
-		/// are still outstanding message acknowledgements. The next time the client 
-		/// connects to the same server, any QoS 1 or 2 messages which have not completed 
-		/// will be retried depending on the clean session settings for both the previous 
-		/// and the new connection.
 	
 	// MQTTClient
 	const std::string& id() const;
 	const std::string& serverURI() const;
 	bool connected() const;
+	void connect();
+	void disconnect(int timeout);
 	std::vector<TopicQoS> subscribedTopics() const;
 	Statistics statistics() const;
 	int publish(const std::string& topic, const std::string& payload, int qos);

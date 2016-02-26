@@ -104,7 +104,7 @@ inline void MQTTClientServerHelper::enableEvents(const std::string& uri, const s
 
 inline std::string MQTTClientServerHelper::registerObject(Poco::SharedPtr<IoT::MQTT::MQTTClient> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return MQTTClientServerHelper::instance().registerObjectImpl(new MQTTClientRemoteObject(oid, pServiceObject), listenerId);
+	return MQTTClientServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 
