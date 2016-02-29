@@ -1,29 +1,6 @@
 // Copyright 2012 the V8 project authors. All rights reserved.
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of Google Inc. nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 /** \mainpage V8 API Reference Guide
  *
@@ -129,6 +106,7 @@ template<class T,
          class M = NonCopyablePersistentTraits<T> > class Persistent;
 template<class T> class UniquePersistent;
 template<class K, class V, class T> class PersistentValueMap;
+template<class V, class T> class PersistentValueVector;
 template<class T, class P> class WeakCallbackObject;
 class FunctionTemplate;
 class ObjectTemplate;
@@ -315,15 +293,6 @@ template <class T> class Handle {
     return New(isolate, that.val_);
   }
 
-#ifndef V8_ALLOW_ACCESS_TO_RAW_HANDLE_CONSTRUCTOR
-
- private:
-#endif
-  /**
-   * Creates a new handle for the specified value.
-   */
-  V8_INLINE explicit Handle(T* val) : val_(val) {}
-
  private:
   friend class Utils;
   template<class F, class M> friend class Persistent;
@@ -341,6 +310,11 @@ template <class T> class Handle {
   friend class HandleScope;
   friend class Object;
   friend class Private;
+
+  /**
+   * Creates a new handle for the specified value.
+   */
+  V8_INLINE explicit Handle(T* val) : val_(val) {}
 
   V8_INLINE static Handle<T> New(Isolate* isolate, T* that);
 
@@ -395,12 +369,6 @@ template <class T> class Local : public Handle<T> {
   V8_INLINE static Local<T> New(Isolate* isolate,
                                 const PersistentBase<T>& that);
 
-#ifndef V8_ALLOW_ACCESS_TO_RAW_HANDLE_CONSTRUCTOR
-
- private:
-#endif
-  template <class S> V8_INLINE Local(S* that) : Handle<T>(that) { }
-
  private:
   friend class Utils;
   template<class F> friend class Eternal;
@@ -417,7 +385,9 @@ template <class T> class Local : public Handle<T> {
   friend class HandleScope;
   friend class EscapableHandleScope;
   template<class F1, class F2, class F3> friend class PersistentValueMap;
+  template<class F1, class F2> friend class PersistentValueVector;
 
+  template <class S> V8_INLINE Local(S* that) : Handle<T>(that) { }
   V8_INLINE static Local<T> New(Isolate* isolate, T* that);
 };
 
@@ -522,6 +492,13 @@ template <class T> class PersistentBase {
     return !operator==(that);
   }
 
+  /**
+   *  Install a finalization callback on this object.
+   *  NOTE: There is no guarantee as to *when* or even *if* the callback is
+   *  invoked. The invocation is performed solely on a best effort basis.
+   *  As always, GC-based finalization should *not* be relied upon for any
+   *  critical form of resource management!
+   */
   template<typename P>
   V8_INLINE void SetWeak(
       P* parameter,
@@ -586,6 +563,7 @@ template <class T> class PersistentBase {
   template<class F> friend class PersistentBase;
   template<class F> friend class ReturnValue;
   template<class F1, class F2, class F3> friend class PersistentValueMap;
+  template<class F1, class F2> friend class PersistentValueVector;
   friend class Object;
 
   explicit V8_INLINE PersistentBase(T* val) : val_(val) {}
@@ -719,15 +697,6 @@ template <class T, class M> class Persistent : public PersistentBase<T> {
   // This will be removed.
   V8_INLINE T* ClearAndLeak();
 
-  // TODO(dcarney): remove
-#ifndef V8_ALLOW_ACCESS_TO_RAW_HANDLE_CONSTRUCTOR
-
- private:
-#endif
-  template <class S> V8_INLINE Persistent(S* that) : PersistentBase<T>(that) { }
-
-  V8_INLINE T* operator*() const { return this->val_; }
-
  private:
   friend class Isolate;
   friend class Utils;
@@ -736,6 +705,8 @@ template <class T, class M> class Persistent : public PersistentBase<T> {
   template<class F1, class F2> friend class Persistent;
   template<class F> friend class ReturnValue;
 
+  template <class S> V8_INLINE Persistent(S* that) : PersistentBase<T>(that) { }
+  V8_INLINE T* operator*() const { return this->val_; }
   template<class S, class M2>
   V8_INLINE void Copy(const Persistent<S, M2>& that);
 };
@@ -804,7 +775,7 @@ class UniquePersistent : public PersistentBase<T> {
   /**
    * Pass allows returning uniques from functions, etc.
    */
-  V8_INLINE UniquePersistent Pass() { return UniquePersistent(RValue(this)); }
+  UniquePersistent Pass() { return UniquePersistent(RValue(this)); }
 
  private:
   UniquePersistent(UniquePersistent&);
@@ -937,53 +908,6 @@ class V8_EXPORT Data {
 
 
 /**
- * Pre-compilation data that can be associated with a script.  This
- * data can be calculated for a script in advance of actually
- * compiling it, and can be stored between compilations.  When script
- * data is given to the compile method compilation will be faster.
- */
-class V8_EXPORT ScriptData {  // NOLINT
- public:
-  virtual ~ScriptData() { }
-
-  /**
-   * Pre-compiles the specified script (context-independent).
-   *
-   * NOTE: Pre-compilation using this method cannot happen on another thread
-   * without using Lockers.
-   *
-   * \param source Script source code.
-   */
-  static ScriptData* PreCompile(Handle<String> source);
-
-  /**
-   * Load previous pre-compilation data.
-   *
-   * \param data Pointer to data returned by a call to Data() of a previous
-   *   ScriptData. Ownership is not transferred.
-   * \param length Length of data.
-   */
-  static ScriptData* New(const char* data, int length);
-
-  /**
-   * Returns the length of Data().
-   */
-  virtual int Length() = 0;
-
-  /**
-   * Returns a serialized representation of this ScriptData that can later be
-   * passed to New(). NOTE: Serialized data is platform-dependent.
-   */
-  virtual const char* Data() = 0;
-
-  /**
-   * Returns true if the source code could not be parsed.
-   */
-  virtual bool HasError() = 0;
-};
-
-
-/**
  * The origin, within a file, of a script.
  */
 class ScriptOrigin {
@@ -1040,12 +964,9 @@ class V8_EXPORT Script {
  public:
   /**
    * A shorthand for ScriptCompiler::Compile().
-   * The ScriptData parameter will be deprecated; use ScriptCompiler::Compile if
-   * you want to pass it.
    */
   static Local<Script> Compile(Handle<String> source,
-                               ScriptOrigin* origin = NULL,
-                               ScriptData* script_data = NULL);
+                               ScriptOrigin* origin = NULL);
 
   // To be decprecated, use the Compile above.
   static Local<Script> Compile(Handle<String> source,
@@ -1063,24 +984,9 @@ class V8_EXPORT Script {
    */
   Local<UnboundScript> GetUnboundScript();
 
-  // To be deprecated; use GetUnboundScript()->GetId();
-  int GetId() {
-    return GetUnboundScript()->GetId();
-  }
-
-  // Use GetUnboundScript()->GetId();
   V8_DEPRECATED("Use GetUnboundScript()->GetId()",
-                Handle<Value> GetScriptName()) {
-    return GetUnboundScript()->GetScriptName();
-  }
-
-  /**
-   * Returns zero based line number of the code_pos location in the script.
-   * -1 will be returned if no information available.
-   */
-  V8_DEPRECATED("Use GetUnboundScript()->GetLineNumber()",
-                int GetLineNumber(int code_pos)) {
-    return GetUnboundScript()->GetLineNumber(code_pos);
+                int GetId()) {
+    return GetUnboundScript()->GetId();
   }
 };
 
@@ -1118,15 +1024,14 @@ class V8_EXPORT ScriptCompiler {
     int length;
     BufferPolicy buffer_policy;
 
-  private:
-     // Prevent copying. Not implemented.
-     CachedData(const CachedData&);
-     CachedData& operator=(const CachedData&);
+   private:
+    // Prevent copying. Not implemented.
+    CachedData(const CachedData&);
+    CachedData& operator=(const CachedData&);
   };
 
   /**
-   * Source code which can be then compiled to a UnboundScript or
-   * BoundScript.
+   * Source code which can be then compiled to a UnboundScript or Script.
    */
   class Source {
    public:
@@ -1144,7 +1049,7 @@ class V8_EXPORT ScriptCompiler {
 
    private:
     friend class ScriptCompiler;
-     // Prevent copying. Not implemented.
+    // Prevent copying. Not implemented.
     Source(const Source&);
     Source& operator=(const Source&);
 
@@ -1204,16 +1109,16 @@ class V8_EXPORT Message {
   Local<String> GetSourceLine() const;
 
   /**
+   * Returns the origin for the script from where the function causing the
+   * error originates.
+   */
+  ScriptOrigin GetScriptOrigin() const;
+
+  /**
    * Returns the resource name for the script from where the function causing
    * the error originates.
    */
   Handle<Value> GetScriptResourceName() const;
-
-  /**
-   * Returns the resource data for the script from where the function causing
-   * the error originates.
-   */
-  Handle<Value> GetScriptData() const;
 
   /**
    * Exception stack trace. By default stack traces are not captured for
@@ -1286,6 +1191,7 @@ class V8_EXPORT StackTrace {
     kIsConstructor = 1 << 5,
     kScriptNameOrSourceURL = 1 << 6,
     kScriptId = 1 << 7,
+    kExposeFramesAcrossSecurityOrigins = 1 << 8,
     kOverview = kLineNumber | kColumnOffset | kScriptName | kFunctionName,
     kDetailed = kOverview | kIsEval | kIsConstructor | kScriptNameOrSourceURL
   };
@@ -2156,11 +2062,7 @@ typedef void (*AccessorSetterCallback)(
  * accessors have an explicit access control parameter which specifies
  * the kind of cross-context access that should be allowed.
  *
- * Additionally, for security, accessors can prohibit overwriting by
- * accessors defined in JavaScript.  For objects that have such
- * accessors either locally or in their prototype chain it is not
- * possible to overwrite the accessor by using __defineGetter__ or
- * __defineSetter__ from JavaScript code.
+ * TODO(dcarney): Remove PROHIBITS_OVERWRITING as it is now unused.
  */
 enum AccessControl {
   DEFAULT               = 0,
@@ -2181,7 +2083,7 @@ class V8_EXPORT Object : public Value {
 
   bool Set(uint32_t index, Handle<Value> value);
 
-  // Sets a local property on this object bypassing interceptors and
+  // Sets an own property on this object bypassing interceptors and
   // overriding accessors or read-only properties.
   //
   // Note that if the object has an interceptor the property will be set
@@ -2514,6 +2416,10 @@ class ReturnValue {
   // Convenience getter for Isolate
   V8_INLINE Isolate* GetIsolate();
 
+  // Pointer setter: Uncompilable to prevent inadvertent misuse.
+  template <typename S>
+  V8_INLINE void Set(S* whatever);
+
  private:
   template<class F> friend class ReturnValue;
   template<class F> friend class FunctionCallbackInfo;
@@ -2714,6 +2620,7 @@ class V8_EXPORT Promise : public Object {
    */
   Local<Promise> Chain(Handle<Function> handler);
   Local<Promise> Catch(Handle<Function> handler);
+  Local<Promise> Then(Handle<Function> handler);
 
   V8_INLINE static Promise* Cast(Value* obj);
 
@@ -3941,14 +3848,17 @@ class V8_EXPORT ResourceConstraints {
    *
    * \param physical_memory The total amount of physical memory on the current
    *   device, in bytes.
+   * \param virtual_memory_limit The amount of virtual memory on the current
+   *   device, in bytes, or zero, if there is no limit.
    * \param number_of_processors The number of CPUs available on the current
    *   device.
    */
   void ConfigureDefaults(uint64_t physical_memory,
+                         uint64_t virtual_memory_limit,
                          uint32_t number_of_processors);
 
-  int max_young_space_size() const { return max_young_space_size_; }
-  void set_max_young_space_size(int value) { max_young_space_size_ = value; }
+  int max_semi_space_size() const { return max_semi_space_size_; }
+  void set_max_semi_space_size(int value) { max_semi_space_size_ = value; }
   int max_old_space_size() const { return max_old_space_size_; }
   void set_max_old_space_size(int value) { max_old_space_size_ = value; }
   int max_executable_size() const { return max_executable_size_; }
@@ -3961,13 +3871,18 @@ class V8_EXPORT ResourceConstraints {
   void set_max_available_threads(int value) {
     max_available_threads_ = value;
   }
+  size_t code_range_size() const { return code_range_size_; }
+  void set_code_range_size(size_t value) {
+    code_range_size_ = value;
+  }
 
  private:
-  int max_young_space_size_;
+  int max_semi_space_size_;
   int max_old_space_size_;
   int max_executable_size_;
   uint32_t* stack_limit_;
   int max_available_threads_;
+  size_t code_range_size_;
 };
 
 
@@ -4041,6 +3956,9 @@ typedef void (*MemoryAllocationCallback)(ObjectSpace space,
 
 // --- Leave Script Callback ---
 typedef void (*CallCompletedCallback)();
+
+// --- Microtask Callback ---
+typedef void (*MicrotaskCallback)(void* data);
 
 // --- Failed Access Check Callback ---
 typedef void (*FailedAccessCheckCallback)(Local<Object> target,
@@ -4147,7 +4065,7 @@ class V8_EXPORT Isolate {
   /**
    * Assert that no Javascript code is invoked.
    */
-  class DisallowJavascriptExecutionScope {
+  class V8_EXPORT DisallowJavascriptExecutionScope {
    public:
     enum OnFailure { CRASH_ON_FAILURE, THROW_ON_FAILURE };
 
@@ -4168,7 +4086,7 @@ class V8_EXPORT Isolate {
   /**
    * Introduce exception to DisallowJavascriptExecutionScope.
    */
-  class AllowJavascriptExecutionScope {
+  class V8_EXPORT AllowJavascriptExecutionScope {
    public:
     explicit AllowJavascriptExecutionScope(Isolate* isolate);
     ~AllowJavascriptExecutionScope();
@@ -4184,6 +4102,24 @@ class V8_EXPORT Isolate {
   };
 
   /**
+   * Do not run microtasks while this scope is active, even if microtasks are
+   * automatically executed otherwise.
+   */
+  class V8_EXPORT SuppressMicrotaskExecutionScope {
+   public:
+    explicit SuppressMicrotaskExecutionScope(Isolate* isolate);
+    ~SuppressMicrotaskExecutionScope();
+
+   private:
+    internal::Isolate* isolate_;
+
+    // Prevent copying of Scope objects.
+    SuppressMicrotaskExecutionScope(const SuppressMicrotaskExecutionScope&);
+    SuppressMicrotaskExecutionScope& operator=(
+        const SuppressMicrotaskExecutionScope&);
+  };
+
+  /**
    * Types of garbage collections that can be requested via
    * RequestGarbageCollectionForTesting.
    */
@@ -4191,6 +4127,19 @@ class V8_EXPORT Isolate {
     kFullGarbageCollection,
     kMinorGarbageCollection
   };
+
+  /**
+   * Features reported via the SetUseCounterCallback callback. Do not chang
+   * assigned numbers of existing items; add new features to the end of this
+   * list.
+   */
+  enum UseCounterFeature {
+    kUseAsm = 0
+  };
+
+  typedef void (*UseCounterCallback)(Isolate* isolate,
+                                     UseCounterFeature feature);
+
 
   /**
    * Creates a new isolate.  Does not change the currently entered
@@ -4270,7 +4219,8 @@ class V8_EXPORT Isolate {
    *   kept alive by JavaScript objects.
    * \returns the adjusted value.
    */
-  int64_t AdjustAmountOfExternalAllocatedMemory(int64_t change_in_bytes);
+  V8_INLINE int64_t
+      AdjustAmountOfExternalAllocatedMemory(int64_t change_in_bytes);
 
   /**
    * Returns heap profiler for this isolate. Will return NULL until the isolate
@@ -4418,6 +4368,53 @@ class V8_EXPORT Isolate {
    */
   void SetEventLogger(LogEventCallback that);
 
+  /**
+   * Adds a callback to notify the host application when a script finished
+   * running.  If a script re-enters the runtime during executing, the
+   * CallCompletedCallback is only invoked when the outer-most script
+   * execution ends.  Executing scripts inside the callback do not trigger
+   * further callbacks.
+   */
+  void AddCallCompletedCallback(CallCompletedCallback callback);
+
+  /**
+   * Removes callback that was installed by AddCallCompletedCallback.
+   */
+  void RemoveCallCompletedCallback(CallCompletedCallback callback);
+
+  /**
+   * Experimental: Runs the Microtask Work Queue until empty
+   * Any exceptions thrown by microtask callbacks are swallowed.
+   */
+  void RunMicrotasks();
+
+  /**
+   * Experimental: Enqueues the callback to the Microtask Work Queue
+   */
+  void EnqueueMicrotask(Handle<Function> microtask);
+
+  /**
+   * Experimental: Enqueues the callback to the Microtask Work Queue
+   */
+  void EnqueueMicrotask(MicrotaskCallback microtask, void* data = NULL);
+
+   /**
+   * Experimental: Controls whether the Microtask Work Queue is automatically
+   * run when the script call depth decrements to zero.
+   */
+  void SetAutorunMicrotasks(bool autorun);
+
+  /**
+   * Experimental: Returns whether the Microtask Work Queue is automatically
+   * run when the script call depth decrements to zero.
+   */
+  bool WillAutorunMicrotasks() const;
+
+  /**
+   * Sets a callback for counting the number of times a feature of V8 is used.
+   */
+  void SetUseCounterCallback(UseCounterCallback callback);
+
  private:
   template<class K, class V, class Traits> friend class PersistentValueMap;
 
@@ -4431,6 +4428,7 @@ class V8_EXPORT Isolate {
   void SetObjectGroupId(internal::Object** object, UniqueId id);
   void SetReferenceFromGroup(UniqueId id, internal::Object** object);
   void SetReference(internal::Object** parent, internal::Object** child);
+  void CollectAllGarbage(const char* gc_reason);
 };
 
 class V8_EXPORT StartupData {
@@ -4670,6 +4668,24 @@ class V8_EXPORT V8 {
   static void SetDecompressedStartupData(StartupData* decompressed_data);
 
   /**
+   * Hand startup data to V8, in case the embedder has chosen to build
+   * V8 with external startup data.
+   *
+   * Note:
+   * - By default the startup data is linked into the V8 library, in which
+   *   case this function is not meaningful.
+   * - If this needs to be called, it needs to be called before V8
+   *   tries to make use of its built-ins.
+   * - To avoid unnecessary copies of data, V8 will point directly into the
+   *   given data blob, so pretty please keep it around until V8 exit.
+   * - Compression of the startup blob might be useful, but needs to
+   *   handled entirely on the embedders' side.
+   * - The call will abort if the data is invalid.
+   */
+  static void SetNativesDataBlob(StartupData* startup_blob);
+  static void SetSnapshotDataBlob(StartupData* startup_blob);
+
+  /**
    * Adds a message listener.
    *
    * The same message listener can be added more than once and in that
@@ -4780,36 +4796,6 @@ class V8_EXPORT V8 {
   static void RemoveMemoryAllocationCallback(MemoryAllocationCallback callback);
 
   /**
-   * Adds a callback to notify the host application when a script finished
-   * running.  If a script re-enters the runtime during executing, the
-   * CallCompletedCallback is only invoked when the outer-most script
-   * execution ends.  Executing scripts inside the callback do not trigger
-   * further callbacks.
-   */
-  static void AddCallCompletedCallback(CallCompletedCallback callback);
-
-  /**
-   * Removes callback that was installed by AddCallCompletedCallback.
-   */
-  static void RemoveCallCompletedCallback(CallCompletedCallback callback);
-
-  /**
-   * Experimental: Runs the Microtask Work Queue until empty
-   */
-  static void RunMicrotasks(Isolate* isolate);
-
-  /**
-   * Experimental: Enqueues the callback to the Microtask Work Queue
-   */
-  static void EnqueueMicrotask(Isolate* isolate, Handle<Function> microtask);
-
-   /**
-   * Experimental: Controls whether the Microtask Work Queue is automatically
-   * run when the script call depth decrements to zero.
-   */
-  static void SetAutorunMicrotasks(Isolate *source, bool autorun);
-
-  /**
    * Initializes from snapshot if possible. Otherwise, attempts to
    * initialize from scratch.  This function is called implicitly if
    * you use the API without calling it first.
@@ -4870,15 +4856,14 @@ class V8_EXPORT V8 {
 
   /**
    * Forcefully terminate the current thread of JavaScript execution
-   * in the given isolate. If no isolate is provided, the default
-   * isolate is used.
+   * in the given isolate.
    *
    * This method can be used by any thread even if that thread has not
    * acquired the V8 lock with a Locker object.
    *
    * \param isolate The isolate in which to terminate the current JS execution.
    */
-  static void TerminateExecution(Isolate* isolate = NULL);
+  static void TerminateExecution(Isolate* isolate);
 
   /**
    * Is V8 terminating JavaScript execution.
@@ -5125,6 +5110,22 @@ class V8_EXPORT TryCatch {
    */
   void SetCaptureMessage(bool value);
 
+  /**
+   * There are cases when the raw address of C++ TryCatch object cannot be
+   * used for comparisons with addresses into the JS stack. The cases are:
+   * 1) ARM, ARM64 and MIPS simulators which have separate JS stack.
+   * 2) Address sanitizer allocates local C++ object in the heap when
+   *    UseAfterReturn mode is enabled.
+   * This method returns address that can be used for comparisons with
+   * addresses into the JS stack. When neither simulator nor ASAN's
+   * UseAfterReturn is enabled, then the address returned will be the address
+   * of the C++ try catch handler itself.
+   */
+  static void* JSStackComparableAddress(v8::TryCatch* handler) {
+    if (handler == NULL) return NULL;
+    return handler->js_stack_comparable_address_;
+  }
+
  private:
   // Make it hard to create heap-allocated TryCatch blocks.
   TryCatch(const TryCatch&);
@@ -5133,10 +5134,11 @@ class V8_EXPORT TryCatch {
   void operator delete(void*, size_t);
 
   v8::internal::Isolate* isolate_;
-  void* next_;
+  v8::TryCatch* next_;
   void* exception_;
   void* message_obj_;
   void* message_script_;
+  void* js_stack_comparable_address_;
   int message_start_pos_;
   int message_end_pos_;
   bool is_verbose_ : 1;
@@ -5246,8 +5248,13 @@ class V8_EXPORT Context {
    */
   void Exit();
 
-  /** Returns true if the context has experienced an out of memory situation. */
-  bool HasOutOfMemoryException() { return false; }
+  /**
+   * Returns true if the context has experienced an out of memory situation.
+   * Since V8 always treats OOM as fatal error, this can no longer return true.
+   * Therefore this is now deprecated.
+   * */
+  V8_DEPRECATED("This can no longer happen. OOM is a fatal error.",
+                bool HasOutOfMemoryException()) { return false; }
 
   /** Returns an isolate associated with a current context. */
   v8::Isolate* GetIsolate();
@@ -5468,6 +5475,7 @@ namespace internal {
 
 const int kApiPointerSize = sizeof(void*);  // NOLINT
 const int kApiIntSize = sizeof(int);  // NOLINT
+const int kApiInt64Size = sizeof(int64_t);  // NOLINT
 
 // Tag information for HeapObject.
 const int kHeapObjectTag = 1;
@@ -5493,7 +5501,7 @@ V8_INLINE internal::Object* IntToSmi(int value) {
 template <> struct SmiTagging<4> {
   static const int kSmiShiftSize = 0;
   static const int kSmiValueSize = 31;
-  V8_INLINE static int SmiToInt(internal::Object* value) {
+  V8_INLINE static int SmiToInt(const internal::Object* value) {
     int shift_bits = kSmiTagSize + kSmiShiftSize;
     // Throw away top 32 bits and shift down (requires >> to be sign extending).
     return static_cast<int>(reinterpret_cast<intptr_t>(value)) >> shift_bits;
@@ -5521,7 +5529,7 @@ template <> struct SmiTagging<4> {
 template <> struct SmiTagging<8> {
   static const int kSmiShiftSize = 31;
   static const int kSmiValueSize = 32;
-  V8_INLINE static int SmiToInt(internal::Object* value) {
+  V8_INLINE static int SmiToInt(const internal::Object* value) {
     int shift_bits = kSmiTagSize + kSmiShiftSize;
     // Shift down and throw away top 32 bits.
     return static_cast<int>(reinterpret_cast<intptr_t>(value) >> shift_bits);
@@ -5551,7 +5559,8 @@ class Internals {
   // These values match non-compiler-dependent values defined within
   // the implementation of v8.
   static const int kHeapObjectMapOffset = 0;
-  static const int kMapInstanceTypeOffset = 1 * kApiPointerSize + kApiIntSize;
+  static const int kMapInstanceTypeAndBitFieldOffset =
+      1 * kApiPointerSize + kApiIntSize;
   static const int kStringResourceOffset = 3 * kApiPointerSize;
 
   static const int kOddballKindOffset = 3 * kApiPointerSize;
@@ -5559,19 +5568,29 @@ class Internals {
   static const int kJSObjectHeaderSize = 3 * kApiPointerSize;
   static const int kFixedArrayHeaderSize = 2 * kApiPointerSize;
   static const int kContextHeaderSize = 2 * kApiPointerSize;
-  static const int kContextEmbedderDataIndex = 65;
+  static const int kContextEmbedderDataIndex = 76;
   static const int kFullStringRepresentationMask = 0x07;
   static const int kStringEncodingMask = 0x4;
   static const int kExternalTwoByteRepresentationTag = 0x02;
   static const int kExternalAsciiRepresentationTag = 0x06;
 
   static const int kIsolateEmbedderDataOffset = 0 * kApiPointerSize;
-  static const int kIsolateRootsOffset = 5 * kApiPointerSize;
+  static const int kAmountOfExternalAllocatedMemoryOffset =
+      4 * kApiPointerSize;
+  static const int kAmountOfExternalAllocatedMemoryAtLastGlobalGCOffset =
+      kAmountOfExternalAllocatedMemoryOffset + kApiInt64Size;
+  static const int kIsolateRootsOffset =
+      kAmountOfExternalAllocatedMemoryAtLastGlobalGCOffset + kApiInt64Size +
+      kApiPointerSize;
   static const int kUndefinedValueRootIndex = 5;
   static const int kNullValueRootIndex = 7;
   static const int kTrueValueRootIndex = 8;
   static const int kFalseValueRootIndex = 9;
-  static const int kEmptyStringRootIndex = 154;
+  static const int kEmptyStringRootIndex = 160;
+
+  // The external allocation limit should be below 256 MB on all architectures
+  // to avoid that resource-constrained embedders run low on memory.
+  static const int kExternalAllocationLimit = 192 * 1024 * 1024;
 
   static const int kNodeClassIdOffset = 1 * kApiPointerSize;
   static const int kNodeFlagsOffset = 1 * kApiPointerSize + 3;
@@ -5599,12 +5618,12 @@ class Internals {
 #endif
   }
 
-  V8_INLINE static bool HasHeapObjectTag(internal::Object* value) {
+  V8_INLINE static bool HasHeapObjectTag(const internal::Object* value) {
     return ((reinterpret_cast<intptr_t>(value) & kHeapObjectTagMask) ==
             kHeapObjectTag);
   }
 
-  V8_INLINE static int SmiValue(internal::Object* value) {
+  V8_INLINE static int SmiValue(const internal::Object* value) {
     return PlatformSmiTagging::SmiToInt(value);
   }
 
@@ -5616,13 +5635,15 @@ class Internals {
     return PlatformSmiTagging::IsValidSmi(value);
   }
 
-  V8_INLINE static int GetInstanceType(internal::Object* obj) {
+  V8_INLINE static int GetInstanceType(const internal::Object* obj) {
     typedef internal::Object O;
     O* map = ReadField<O*>(obj, kHeapObjectMapOffset);
-    return ReadField<uint8_t>(map, kMapInstanceTypeOffset);
+    // Map::InstanceType is defined so that it will always be loaded into
+    // the LS 8 bits of one 16-bit word, regardless of endianess.
+    return ReadField<uint16_t>(map, kMapInstanceTypeAndBitFieldOffset) & 0xff;
   }
 
-  V8_INLINE static int GetOddballKind(internal::Object* obj) {
+  V8_INLINE static int GetOddballKind(const internal::Object* obj) {
     typedef internal::Object O;
     return SmiValue(ReadField<O*>(obj, kOddballKindOffset));
   }
@@ -5655,18 +5676,19 @@ class Internals {
     *addr = static_cast<uint8_t>((*addr & ~kNodeStateMask) | value);
   }
 
-  V8_INLINE static void SetEmbedderData(v8::Isolate *isolate,
+  V8_INLINE static void SetEmbedderData(v8::Isolate* isolate,
                                         uint32_t slot,
-                                        void *data) {
+                                        void* data) {
     uint8_t *addr = reinterpret_cast<uint8_t *>(isolate) +
                     kIsolateEmbedderDataOffset + slot * kApiPointerSize;
     *reinterpret_cast<void**>(addr) = data;
   }
 
-  V8_INLINE static void* GetEmbedderData(v8::Isolate* isolate, uint32_t slot) {
-    uint8_t* addr = reinterpret_cast<uint8_t*>(isolate) +
+  V8_INLINE static void* GetEmbedderData(const v8::Isolate* isolate,
+                                         uint32_t slot) {
+    const uint8_t* addr = reinterpret_cast<const uint8_t*>(isolate) +
         kIsolateEmbedderDataOffset + slot * kApiPointerSize;
-    return *reinterpret_cast<void**>(addr);
+    return *reinterpret_cast<void* const*>(addr);
   }
 
   V8_INLINE static internal::Object** GetRoot(v8::Isolate* isolate,
@@ -5675,16 +5697,18 @@ class Internals {
     return reinterpret_cast<internal::Object**>(addr + index * kApiPointerSize);
   }
 
-  template <typename T> V8_INLINE static T ReadField(Object* ptr, int offset) {
-    uint8_t* addr = reinterpret_cast<uint8_t*>(ptr) + offset - kHeapObjectTag;
-    return *reinterpret_cast<T*>(addr);
+  template <typename T>
+  V8_INLINE static T ReadField(const internal::Object* ptr, int offset) {
+    const uint8_t* addr =
+        reinterpret_cast<const uint8_t*>(ptr) + offset - kHeapObjectTag;
+    return *reinterpret_cast<const T*>(addr);
   }
 
   template <typename T>
-  V8_INLINE static T ReadEmbedderData(Context* context, int index) {
+  V8_INLINE static T ReadEmbedderData(const v8::Context* context, int index) {
     typedef internal::Object O;
     typedef internal::Internals I;
-    O* ctx = *reinterpret_cast<O**>(context);
+    O* ctx = *reinterpret_cast<O* const*>(context);
     int embedder_data_offset = I::kContextHeaderSize +
         (internal::kApiPointerSize * I::kContextEmbedderDataIndex);
     O* embedder_data = I::ReadField<O*>(ctx, embedder_data_offset);
@@ -5692,14 +5716,6 @@ class Internals {
         I::kFixedArrayHeaderSize + (internal::kApiPointerSize * index);
     return I::ReadField<T>(embedder_data, value_offset);
   }
-
-  V8_INLINE static bool CanCastToHeapObject(void* o) { return false; }
-  V8_INLINE static bool CanCastToHeapObject(Context* o) { return true; }
-  V8_INLINE static bool CanCastToHeapObject(String* o) { return true; }
-  V8_INLINE static bool CanCastToHeapObject(Object* o) { return true; }
-  V8_INLINE static bool CanCastToHeapObject(Message* o) { return true; }
-  V8_INLINE static bool CanCastToHeapObject(StackTrace* o) { return true; }
-  V8_INLINE static bool CanCastToHeapObject(StackFrame* o) { return true; }
 };
 
 }  // namespace internal
@@ -6007,6 +6023,13 @@ Isolate* ReturnValue<T>::GetIsolate() {
 }
 
 template<typename T>
+template<typename S>
+void ReturnValue<T>::Set(S* whatever) {
+  // Uncompilable to prevent inadvertent misuse.
+  TYPE_CHECK(S*, Primitive);
+}
+
+template<typename T>
 internal::Object* ReturnValue<T>::GetDefaultValue() {
   // Default value is always the pointer below value_ on the stack.
   return value_[-1];
@@ -6191,7 +6214,7 @@ Local<String> String::Empty(Isolate* isolate) {
 String::ExternalStringResource* String::GetExternalStringResource() const {
   typedef internal::Object O;
   typedef internal::Internals I;
-  O* obj = *reinterpret_cast<O**>(const_cast<String*>(this));
+  O* obj = *reinterpret_cast<O* const*>(this);
   String::ExternalStringResource* result;
   if (I::IsExternalTwoByteString(I::GetInstanceType(obj))) {
     void* value = I::ReadField<void*>(obj, I::kStringResourceOffset);
@@ -6210,7 +6233,7 @@ String::ExternalStringResourceBase* String::GetExternalStringResourceBase(
     String::Encoding* encoding_out) const {
   typedef internal::Object O;
   typedef internal::Internals I;
-  O* obj = *reinterpret_cast<O**>(const_cast<String*>(this));
+  O* obj = *reinterpret_cast<O* const*>(this);
   int type = I::GetInstanceType(obj) & I::kFullStringRepresentationMask;
   *encoding_out = static_cast<Encoding>(type & I::kStringEncodingMask);
   ExternalStringResourceBase* resource = NULL;
@@ -6237,7 +6260,7 @@ bool Value::IsUndefined() const {
 bool Value::QuickIsUndefined() const {
   typedef internal::Object O;
   typedef internal::Internals I;
-  O* obj = *reinterpret_cast<O**>(const_cast<Value*>(this));
+  O* obj = *reinterpret_cast<O* const*>(this);
   if (!I::HasHeapObjectTag(obj)) return false;
   if (I::GetInstanceType(obj) != I::kOddballType) return false;
   return (I::GetOddballKind(obj) == I::kUndefinedOddballKind);
@@ -6255,7 +6278,7 @@ bool Value::IsNull() const {
 bool Value::QuickIsNull() const {
   typedef internal::Object O;
   typedef internal::Internals I;
-  O* obj = *reinterpret_cast<O**>(const_cast<Value*>(this));
+  O* obj = *reinterpret_cast<O* const*>(this);
   if (!I::HasHeapObjectTag(obj)) return false;
   if (I::GetInstanceType(obj) != I::kOddballType) return false;
   return (I::GetOddballKind(obj) == I::kNullOddballKind);
@@ -6273,7 +6296,7 @@ bool Value::IsString() const {
 bool Value::QuickIsString() const {
   typedef internal::Object O;
   typedef internal::Internals I;
-  O* obj = *reinterpret_cast<O**>(const_cast<Value*>(this));
+  O* obj = *reinterpret_cast<O* const*>(this);
   if (!I::HasHeapObjectTag(obj)) return false;
   return (I::GetInstanceType(obj) < I::kFirstNonstringType);
 }
@@ -6589,6 +6612,28 @@ void* Isolate::GetData(uint32_t slot) {
 uint32_t Isolate::GetNumberOfDataSlots() {
   typedef internal::Internals I;
   return I::kNumIsolateDataSlots;
+}
+
+
+int64_t Isolate::AdjustAmountOfExternalAllocatedMemory(
+    int64_t change_in_bytes) {
+  typedef internal::Internals I;
+  int64_t* amount_of_external_allocated_memory =
+      reinterpret_cast<int64_t*>(reinterpret_cast<uint8_t*>(this) +
+                                 I::kAmountOfExternalAllocatedMemoryOffset);
+  int64_t* amount_of_external_allocated_memory_at_last_global_gc =
+      reinterpret_cast<int64_t*>(
+          reinterpret_cast<uint8_t*>(this) +
+          I::kAmountOfExternalAllocatedMemoryAtLastGlobalGCOffset);
+  int64_t amount = *amount_of_external_allocated_memory + change_in_bytes;
+  if (change_in_bytes > 0 &&
+      amount - *amount_of_external_allocated_memory_at_last_global_gc >
+          I::kExternalAllocationLimit) {
+    CollectAllGarbage("external memory allocation limit reached.");
+  } else {
+    *amount_of_external_allocated_memory = amount;
+  }
+  return *amount_of_external_allocated_memory;
 }
 
 
