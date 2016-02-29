@@ -1,7 +1,7 @@
 //
 // TCP.h
 //
-// $Id: //poco/1.6/RemotingNG/TCP/include/Poco/RemotingNG/TCP/TCP.h#1 $
+// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/TCP.h#1 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP

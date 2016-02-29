@@ -1,7 +1,7 @@
 //
 // Configuration.cpp
 //
-// $Id: //poco/1.6/OSP/src/Configuration.cpp#1 $
+// $Id: //poco/1.7/OSP/src/Configuration.cpp#1 $
 //
 // Library: OSP
 // Package: PreferencesService

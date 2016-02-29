@@ -1,7 +1,7 @@
 //
 // MediaTypeMapperTest.h
 //
-// $Id: //poco/1.6/OSP/Web/testsuite/src/MediaTypeMapperTest.h#1 $
+// $Id: //poco/1.7/OSP/Web/testsuite/src/MediaTypeMapperTest.h#1 $
 //
 // Definition of the MediaTypeMapperTest class.
 //

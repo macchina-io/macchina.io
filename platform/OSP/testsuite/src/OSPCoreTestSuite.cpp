@@ -1,7 +1,7 @@
 //
 // OSPCoreTestSuite.cpp
 //
-// $Id: //poco/1.6/OSP/testsuite/src/OSPCoreTestSuite.cpp#1 $
+// $Id: //poco/1.7/OSP/testsuite/src/OSPCoreTestSuite.cpp#1 $
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.

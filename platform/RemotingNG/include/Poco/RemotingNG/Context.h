@@ -1,7 +1,7 @@
 //
 // Context.h
 //
-// $Id: //poco/1.6/RemotingNG/include/Poco/RemotingNG/Context.h#1 $
+// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/Context.h#1 $
 //
 // Library: RemotingNG
 // Package: Transport

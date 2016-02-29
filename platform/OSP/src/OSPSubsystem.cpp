@@ -1,7 +1,7 @@
 //
 // OSPSubsystem.cpp
 //
-// $Id: //poco/1.6/OSP/src/OSPSubsystem.cpp#1 $
+// $Id: //poco/1.7/OSP/src/OSPSubsystem.cpp#1 $
 //
 // Library: OSP
 // Package: Util

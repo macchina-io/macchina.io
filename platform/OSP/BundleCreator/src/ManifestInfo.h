@@ -1,7 +1,7 @@
 //
 // ManifestInfo.h
 //
-// $Id: //poco/1.6/OSP/BundleCreator/src/ManifestInfo.h#1 $
+// $Id: //poco/1.7/OSP/BundleCreator/src/ManifestInfo.h#1 $
 //
 // Declaration of the ManifestInfo class.
 //

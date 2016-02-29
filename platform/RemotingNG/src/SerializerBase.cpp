@@ -1,7 +1,7 @@
 //
 // SerializerBase.cpp
 //
-// $Id: //poco/1.6/RemotingNG/src/SerializerBase.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/src/SerializerBase.cpp#1 $
 //
 // Library: RemotingNG
 // Package: Serialization

@@ -1,7 +1,7 @@
 //
 // QLParserTest.h
 //
-// $Id: //poco/1.6/OSP/testsuite/src/QLParserTest.h#1 $
+// $Id: //poco/1.7/OSP/testsuite/src/QLParserTest.h#1 $
 //
 // Definition of the QLParserTest class.
 //

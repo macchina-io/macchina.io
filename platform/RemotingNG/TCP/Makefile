@@ -1,7 +1,7 @@
 #
 # Makefile
 #
-# $Id: //poco/1.6/RemotingNG/TCP/Makefile#1 $
+# $Id: //poco/1.7/RemotingNG/TCP/Makefile#1 $
 #
 # Makefile for Poco RemotingNG TCP Transport
 #

@@ -1,7 +1,7 @@
 //
 // XSDGenerator.h
 //
-// $Id: //poco/1.6/RemotingNG/RemoteGen/src/XSDGenerator.h#1 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/XSDGenerator.h#1 $
 //
 // Definition of the XSDGenerator class.
 //

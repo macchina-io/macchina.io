@@ -1,6 +1,24 @@
 Remoting NG Release Notes
 Remoting NG
 
+!!!Release 2015.2
+
+!!Summary of Changes
+
+  - Support for void events (Poco::BasicEvent<void>) in RemoteGen
+  - RemoteGen.xml fixes (add -DPOCO_NO_GCC_API_ATTRIBUTE) for POCO 1.6
+  - XSDGen: added command-line option to force code generation for all bindings
+
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2015.1
 
 !!Summary of Changes

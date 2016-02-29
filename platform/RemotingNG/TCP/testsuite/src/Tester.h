@@ -1,7 +1,7 @@
 //
 // Tester.h
 //
-// $Id: //poco/1.6/RemotingNG/TCP/testsuite/src/Tester.h#2 $
+// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/Tester.h#1 $
 //
 // Definition of the Tester class.
 //

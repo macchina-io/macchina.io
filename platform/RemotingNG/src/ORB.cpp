@@ -486,6 +486,20 @@ std::string ORB::registerObject(RemoteObject::Ptr pRemoteObject, const std::stri
 		_logger.information("Registered RemoteObject, path: " + objectPath + ", URI: " + uri);
 	}
 	
+	try
+	{
+		ObjectRegistration reg;
+		reg.uri = uri;
+		reg.alias = pRemoteObject->remoting__getURI().toString();
+		reg.pRemoteObject = pRemoteObject;
+		reg.pListener = pListener;
+		objectRegistered(this, reg);
+	}
+	catch (Poco::Exception& exc)
+	{
+		_logger.warning("objectRegistered event handler leaked exception: %s", exc.displayText());
+	}
+	
 	return uri;
 }
 
@@ -497,6 +511,12 @@ void ORB::unregisterObject(const std::string& uri)
 	RemoteObjects::iterator itRO = _remoteObjectURIs.find(uri);
 	if (itRO != _remoteObjectURIs.end())
 	{
+		ObjectRegistration reg;
+		reg.uri = uri;
+		reg.alias = itRO->second->pRemoteObject->remoting__getURI().toString();
+		reg.pRemoteObject = itRO->second->pRemoteObject;
+		reg.pListener = itRO->second->pListener;
+		
 		itRO->second->pListener->unregisterObject(itRO->second->pRemoteObject);
 		_remoteObjects.erase(itRO->second->objectPath);
 		URIAliases::iterator itAl = _uriAliases.find(itRO->second->pRemoteObject->remoting__getURI().getPath());
@@ -505,6 +525,15 @@ void ORB::unregisterObject(const std::string& uri)
 			_uriAliases.erase(itAl);
 		}
 		_remoteObjectURIs.erase(itRO);
+		
+		try
+		{
+			objectUnregistered(this, reg);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_logger.warning("objectUnegistered event handler leaked exception: %s", exc.displayText());
+		}
 	}
 }
 

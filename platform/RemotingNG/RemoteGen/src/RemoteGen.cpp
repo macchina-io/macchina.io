@@ -1,7 +1,7 @@
 //
 // RemoteGen.cpp
 //
-// $Id: //poco/1.6/RemotingNG/RemoteGen/src/RemoteGen.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/RemoteGen.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -235,7 +235,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics Remoting NG Code Generator.\n"
-			"Copyright (c) 2006-2015 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2006-2016 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program parses C++ header files annotated with "
 			"Remoting attributes and generates C++ code for "

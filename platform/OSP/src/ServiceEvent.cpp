@@ -1,7 +1,7 @@
 //
 // ServiceEvent.cpp
 //
-// $Id: //poco/1.6/OSP/src/ServiceEvent.cpp#1 $
+// $Id: //poco/1.7/OSP/src/ServiceEvent.cpp#1 $
 //
 // Library: OSP
 // Package: Service

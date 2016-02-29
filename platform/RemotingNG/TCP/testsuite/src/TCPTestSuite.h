@@ -1,7 +1,7 @@
 //
 // TCPTestSuite.h
 //
-// $Id: //poco/1.6/RemotingNG/TCP/testsuite/src/TCPTestSuite.h#1 $
+// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/TCPTestSuite.h#1 $
 //
 // Definition of the TCPTestSuite class.
 //

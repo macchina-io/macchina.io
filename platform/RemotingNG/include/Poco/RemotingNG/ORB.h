@@ -28,6 +28,7 @@
 #include "Poco/RemotingNG/ProxyFactory.h"
 #include "Poco/RemotingNG/Listener.h"
 #include "Poco/RefCountedObject.h"
+#include "Poco/BasicEvent.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/Logger.h"
 #include "Poco/Mutex.h"
@@ -61,6 +62,23 @@ class RemotingNG_API ORB
 {
 public:
 	typedef std::vector<Listener::Ptr> ListenerVec;
+	
+	struct ObjectRegistration
+		/// Event argument for objectRegistered and objectUnregistered events.
+	{
+		std::string uri;
+		std::string alias;
+		RemoteObject::Ptr pRemoteObject;
+		Listener::Ptr pListener;
+	};
+	
+	Poco::BasicEvent<const ObjectRegistration> objectRegistered;
+		/// Fired when an object has been registered 
+		/// by calling registerObject().
+		
+	Poco::BasicEvent<const ObjectRegistration> objectUnregistered;
+		/// Fired when an object has been unregistered
+		/// by calling unregisterObject().
 
 	static ORB& instance();
 		/// Returns a reference to the global ORB.
