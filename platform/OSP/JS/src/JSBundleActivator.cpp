@@ -28,6 +28,7 @@
 #include "JSExtensionPoint.h"
 #include "JSServletFilter.h"
 #include "JSServerPageFilter.h"
+#include "v8.h"
 
 
 namespace Poco {
@@ -72,8 +73,18 @@ public:
 		Poco::JS::Bridge::BridgeWrapper::registerTransportFactory();
 		
 		std::string paths = _pPrefs->configuration()->getString("osp.js.moduleSearchPaths", "");
-		Poco::StringTokenizer tok(paths, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
-		JSExecutor::setGlobalModuleSearchPaths(std::vector<std::string>(tok.begin(), tok.end()));
+		Poco::StringTokenizer pathsTok(paths, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+		JSExecutor::setGlobalModuleSearchPaths(std::vector<std::string>(pathsTok.begin(), pathsTok.end()));
+		
+		std::string v8Options = _pPrefs->configuration()->getString("osp.js.v8.flags", "");
+		Poco::StringTokenizer v8OptionsTok(v8Options, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+		for (Poco::StringTokenizer::Iterator it = v8OptionsTok.begin(); it != v8OptionsTok.end(); ++it)
+		{
+			v8::V8::SetFlagsFromString(it->data(), it->size());
+		}
+		
+		std::string v8Version =  v8::V8::GetVersion();
+		_pContext->logger().information("Using V8 version: %s", v8Version);
 	}
 		
 	void stop(BundleContext::Ptr pContext)
