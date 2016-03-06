@@ -18,6 +18,6 @@ target         = io.macchina.btle
 target_version = 1
 target_libs    = IoTBtLE IoTDevices PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
 
-postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles BtLE.bndlspec
+postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles BtLE.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib

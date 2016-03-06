@@ -19,6 +19,6 @@ target         = io.macchina.xbee
 target_version = 1
 target_libs    = IoTXBee IoTSerial IoTDevices PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
 
-postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles XBee.bndlspec
+postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles XBee.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib

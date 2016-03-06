@@ -22,6 +22,6 @@ target         = com.appinf.osp.js
 target_version = 1
 target_libs    = PocoJSNet PocoJSData PocoJSBridge PocoJSCore PocoOSPWeb PocoOSP PocoRemotingNG PocoNet PocoUtil PocoXML PocoData PocoFoundation v8
 
-postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles JS.bndlspec
+postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles JS.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib

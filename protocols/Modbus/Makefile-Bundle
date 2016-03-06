@@ -19,6 +19,6 @@ target         = io.macchina.modbus
 target_version = 1
 target_libs    = IoTModbus IoTSerial IoTDevices PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
 
-postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles Modbus.bndlspec
+postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles Modbus.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib

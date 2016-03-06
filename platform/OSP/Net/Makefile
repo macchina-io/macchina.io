@@ -16,6 +16,6 @@ target         = poco.net
 target_version = 1
 target_libs    = PocoOSP PocoNet PocoUtil PocoXML PocoFoundation
 
-postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles Net.bndlspec
+postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles Net.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib

@@ -75,6 +75,6 @@ target         = io.macchina.tf
 target_version = 1
 target_libs    = IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoFoundation
 
-postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles Tf.bndlspec
+postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles Tf.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib

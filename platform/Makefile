@@ -11,10 +11,6 @@ $(warning WARNING: POCO_BASE is not defined. Assuming current directory.)
 export POCO_BASE=$(shell pwd)
 endif
 
-ifndef POCO_PREFIX
-export POCO_PREFIX=/usr/local
-endif
-
 ifndef POCO_BUILD
 export POCO_BUILD=$(POCO_BASE)
 endif

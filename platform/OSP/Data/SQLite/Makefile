@@ -16,6 +16,6 @@ target         = poco.data.sqlite
 target_version = 1
 target_libs    = PocoOSP PocoDataSQLite PocoData PocoUtil PocoXML PocoFoundation
 
-postbuild      = $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../../bundles SQLite.bndlspec
+postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../../bundles SQLite.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib
