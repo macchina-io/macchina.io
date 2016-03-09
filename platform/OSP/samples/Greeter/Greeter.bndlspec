@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>Greeter Sample</name>
+    <symbolicName>com.appinf.osp.samples.greeter</symbolicName>
+    <version>1.0.1</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2007-2016, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>GreeterBundleActivator</class>
+      <library>com.appinf.osp.samples.greeter</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>400</runLevel>
+    <dependency>
+      <symbolicName>com.appinf.osp.samples.greetingservice</symbolicName>
+      <version>1.0.1</version>
+    </dependency>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib
+  </code>
+</bundlespec>

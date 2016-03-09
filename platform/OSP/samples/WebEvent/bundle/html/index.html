@@ -1,0 +1,102 @@
+<html>
+  <head>
+    <title>WebEvent Sample</title>
+    <script type="text/javascript">
+      var eventWS = null;
+      
+      function log(msg, color)
+      {
+        var div = document.getElementById("output");
+        div.innerHTML = div.innerHTML + "<pre style='color:" + color + "'>" + msg + "</pre>";
+      }
+      
+      function createEventWS()
+      {
+        if ("WebSocket" in window)  
+        {
+          var wss = window.location.protocol == "https:" ? "wss://" : "ws://";
+          eventWS = new WebSocket(wss + window.location.host + "/webevent");    
+          eventWS.onopen = function()      
+          {
+            log("WebSocket opened.", "green");
+          }; 
+          eventWS.onmessage = function(evt)      
+          {
+            var msg = evt.data;
+            log(msg, "blue");
+          };      
+          eventWS.onclose = function()
+          {
+            log("WebSocket closed.", "green");
+            eventWS = null;
+          };
+          eventWS.onerror = function()
+          {
+            log("WebSocket error.", "red");
+          }
+          
+          setInterval(ping, 30000);
+        }
+        else
+        {
+            log("This browser does not support WebSockets.", "black");
+        }
+      }
+      
+      function subscribe(subject)
+      {
+        if (eventWS)
+        {
+          var msg = "SUBSCRIBE " + subject + " WebEvent/1.0";
+          log(msg, "black");
+          eventWS.send(msg);
+        }
+      }
+      
+      function unsubscribe(subject)
+      {
+        if (eventWS)
+        {
+          var msg = "UNSUBSCRIBE " + subject + " WebEvent/1.0";
+          log(msg, "black");
+          eventWS.send(msg);
+        }
+      }
+      
+      function notify(subject, data)
+      {
+        if (eventWS)
+        {
+          var msg = "NOTIFY " + subject + " WebEvent/1.0\r\n" + data;
+          log(msg, "black");
+          eventWS.send(msg);
+        }
+      }
+      
+      function ping()
+      {
+      	notify("system.ping", "");
+      }
+    </script>
+  </head>
+  <body onload="createEventWS()">
+    <h1>WebEvent Sample</h1>
+    <form>
+      <button onclick="subscribe('sample.tenSecondsTimer'); return false">Subscribe to 10 Seconds Timer</button>
+      <button onclick="unsubscribe('sample.tenSecondsTimer'); return false">Unsubscribe from 10 Seconds Timer</button>
+      <br />
+      <button onclick="subscribe('sample.sixtySecondsTimer'); return false">Subscribe to 60 Seconds Timer</button>
+      <button onclick="unsubscribe('sample.sixtySecondsTimer'); return false">Unsubscribe from 60 Seconds Timer</button>
+      <br />
+      <button onclick="subscribe('sample.client'); return false">Subscribe to Client</button>
+      <button onclick="unsubscribe('sample.client'); return false">Unsubscribe from Client</button>
+      <button onclick="notify('sample.client', navigator.userAgent); return false">Send Client Notification</button>
+      <br />
+      <button onclick="subscribe('sample.tenSecondsTimer,sample.sixtySecondsTimer,sample.client'); return false">Subscribe all</button>
+      <button onclick="unsubscribe('*'); return false">Unsubscribe all</button>
+      <br />
+    </form>
+    <div id="output">
+    </div>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="/info/css" resource="css" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.directory" path="/info/images" resource="images" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.requesthandler" path="/info" class="InfoHandlerFactory" library="com.appinf.osp.samples.webinfo" allowSpecialization="owner" description="OSP Server Information"/>
+</extensions>

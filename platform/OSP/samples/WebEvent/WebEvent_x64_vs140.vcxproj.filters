@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{1cf66f85-d2cd-4928-be95-fe83f71c2016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bundle">
+      <UniqueIdentifier>{a7b49ae0-eb54-4aaf-a2ad-4f9a0fd17c02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bundle\html">
+      <UniqueIdentifier>{d2181ea9-6a1a-47f4-9e44-c7652d7ea48e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\WebEventBundleActivator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="bundle\extensions.xml">
+      <Filter>Bundle</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="WebEvent.bndlspec">
+      <Filter>Bundle</Filter>
+    </None>
+    <None Include="bundle\html\index.html">
+      <Filter>Bundle\html</Filter>
+    </None>
+  </ItemGroup>
+</Project>

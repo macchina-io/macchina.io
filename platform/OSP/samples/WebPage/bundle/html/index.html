@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Welcome</title>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+<meta name="author" content="Applied Informatics Software Engineering GmbH and Contributors"/>
+<meta name="publisher" content="Applied Informatics Software Engineering GmbH and Contributors"/>
+<meta name="copyright" content="Copyright (c) 2007, Applied Informatics Software Engineering GmbH and Contributors"/>
+<meta name="language" content="en"/>
+<meta name="date" content="2007-05-16"/>
+<link rel="stylesheet" href="css/styles.css" type="text/css"/>
+</head>
+<body bgcolor="#ffffff" leftmargin="0" topmargin="30">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-image: url(images/background.jpg);">
+<!-- border -->
+<tr>
+<td style="background-color: white;" height="32"></td>
+</tr>
+<!-- header logo -->
+<tr>
+<td align="center"><img src="images/header.jpg" width="700" height="77" border="0" alt="Header+Logo" /></td>
+</tr>
+<!-- title pic -->
+<tr>
+<td align="center"><img src="images/title.jpg" width="700" height="455" border="0" alt="Applied Informatics C++ Libraries and Tools" /></td>
+</tr>
+<!-- shadow -->
+<tr>
+<td style="background-image: url(images/bottom.jpg);" height="6"></td>
+</tr>
+</table>
+<!-- body -->
+<div class="body">
+<h2>Applied Informatics Open Service Platform Web Server Extension Sample</h2>
+<p>This sample shows how a bundle can extend the OSP Web Server with static web pages,
+stored in the bundle.</p>
+<p>The bundle providing this web page does not contain any code. All that is required
+to add static web pages to the web server is to provide an <tt>extensions.xml</tt>
+file in the bundle, containing an <tt>osp.web.server.directory</tt> extension
+point:</p>
+<pre>
+&lt;extensions&gt;
+    &lt;extension point="osp.web.server.directory" path="/sample" resource="html" allowSpecialization="none"/&gt;
+&lt;/extensions&gt;
+</pre>
+<p>Also, the necessary HTML, image and style sheet files must be stored in the bundle.</p>
+</div>
+</body>
+</html>
+

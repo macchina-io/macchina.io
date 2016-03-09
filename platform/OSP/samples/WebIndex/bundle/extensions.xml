@@ -1,0 +1,5 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="/css" resource="css" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.directory" path="/images" resource="images" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.requesthandler" path="/" class="IndexHandlerFactory" library="com.appinf.osp.samples.webindex" allowSpecialization="all" description="Web Server Index" hidden="true"/>
+</extensions>

@@ -1,0 +1,5 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="/echo/css" resource="css" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.directory" path="/echo/images" resource="images" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.requesthandler" path="/echo" class="EchoHandlerFactory" library="com.appinf.osp.samples.webecho" allowSpecialization="owner" description="Echo HTTP Headers and HTML Form Information"/>
+</extensions>

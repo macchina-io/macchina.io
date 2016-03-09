@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="/sample" resource="html" allowSpecialization="none" description="Sample Page"/>
+</extensions>

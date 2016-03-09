@@ -1,0 +1,4 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="/WebFilter" resource="WebFilter" index="index.shtml" allowSpecialization="none" hidden="false" description="WebFilter Sample"/>
+  <extension point="osp.web.server.filter" mediaType="text/x-server-parsed-html" class="DateTimeFilterFactory" library="com.appinf.osp.samples.webfilter"/>
+</extensions>

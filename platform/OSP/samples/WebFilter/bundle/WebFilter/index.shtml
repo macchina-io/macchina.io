@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>WebFilter Sample</title>
+</head>
+<body>
+<h1>WebFilter Sample</h1>
+<p>$$DATETIME$$</p>
+</body>
+</html>

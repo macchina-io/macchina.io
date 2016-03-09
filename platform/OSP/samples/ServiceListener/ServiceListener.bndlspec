@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>Service Listener Sample</name>
+    <symbolicName>com.appinf.osp.samples.servicelistener</symbolicName>
+    <version>1.0.1</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2007-2016, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>ServiceListenerBundleActivator</class>
+      <library>com.appinf.osp.samples.servicelistener</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>100</runLevel>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib
+  </code>
+</bundlespec>

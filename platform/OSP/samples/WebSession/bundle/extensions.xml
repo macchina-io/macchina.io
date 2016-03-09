@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="osp.web.server.requesthandler" path="${path}" class="SessionHandlerFactory" allowSpecialization="all" description="${description}"/>
+</extensions>
