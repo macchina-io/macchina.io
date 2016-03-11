@@ -1,7 +1,7 @@
 //
 // EventSubscriberGenerator.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/EventSubscriberGenerator.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/EventSubscriberGenerator.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -144,6 +144,8 @@ void EventSubscriberGenerator::methodStart(const Poco::CppParser::Function* pFun
 
 void EventSubscriberGenerator::methodStartImpl(const Poco::CppParser::Function* pFuncOld, const CodeGenerator::Properties& properties)
 {
+	includeTypeSerializers(pFuncOld, false, false);
+
 	_pCurrent = pFuncOld;
 
 	_currentFctOneWayProperty = (properties.find(Poco::CodeGeneration::Utility::ONEWAY) != properties.end());
