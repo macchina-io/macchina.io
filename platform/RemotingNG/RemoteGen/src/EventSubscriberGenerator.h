@@ -55,11 +55,10 @@ public:
 	std::vector<std::string> newBaseClasses(const Poco::CppParser::Struct* pStruct);
 
 private:
-	void checkForEventMembers(const Poco::CppParser::Struct* pStruct);
+	void checkForEventMembers(const Poco::CppParser::Struct* pStruct, std::vector<const Poco::CppParser::Function*>& eventFunctions);
 		/// checks if the class or any parent contains public BasicEvents
 
-	void methodStartImpl(const Poco::CppParser::Function* pFunc, const CodeGenerator::Properties& properties);
-		/// Writes the method header. Properties contains the properties found in the functions docuementation and in the class documentation.
+	void generateEventFunction(const Poco::CppParser::Function* pFunc, const CodeGenerator::Properties& properties);
 
 	const Poco::CppParser::Function* getCurrentFct() const;
 	bool currentFctHasOneWayProperty() const;
