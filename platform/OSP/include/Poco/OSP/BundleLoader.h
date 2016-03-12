@@ -1,7 +1,7 @@
 //
 // BundleLoader.h
 //
-// $Id: //poco/1.6/OSP/include/Poco/OSP/BundleLoader.h#1 $
+// $Id: //poco/1.7/OSP/include/Poco/OSP/BundleLoader.h#2 $
 //
 // Library: OSP
 // Package: Bundle

@@ -1,7 +1,7 @@
 //
 // BundleLoader.cpp
 //
-// $Id: //poco/1.6/OSP/src/BundleLoader.cpp#1 $
+// $Id: //poco/1.7/OSP/src/BundleLoader.cpp#2 $
 //
 // Library: OSP
 // Package: Bundle
