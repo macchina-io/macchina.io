@@ -282,6 +282,7 @@
     <ClInclude Include="include\Poco\RemotingNG\Context.h"/>
     <ClInclude Include="include\Poco\RemotingNG\Deserializer.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventDispatcher.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\EventFilter.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventListener.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventSubscriber.h"/>
     <ClInclude Include="include\Poco\RemotingNG\Identifiable.h"/>

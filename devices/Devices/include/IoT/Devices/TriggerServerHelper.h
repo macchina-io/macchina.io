@@ -105,7 +105,7 @@ inline void TriggerServerHelper::enableEvents(const std::string& uri, const std:
 
 inline std::string TriggerServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::Trigger> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return TriggerServerHelper::instance().registerObjectImpl(new TriggerRemoteObject(oid, pServiceObject), listenerId);
+	return TriggerServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

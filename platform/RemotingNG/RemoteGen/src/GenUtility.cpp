@@ -1,7 +1,7 @@
 //
 // GenUtility.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/GenUtility.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/GenUtility.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -33,7 +33,6 @@ const std::string GenUtility::VAL_REQUEST("Request");
 const std::string GenUtility::VAL_REPLY("Reply");
 const std::string GenUtility::ATTR_RETURN("return");
 const std::string GenUtility::ATTR_HEADER("header");
-const std::string GenUtility::ATTR_VERSION("version");
 const std::string GenUtility::KEYS_VECTOR[KEYS_SIZE] = {"std::vector", "std::set", "std::multiset", "std::list"};
 
 

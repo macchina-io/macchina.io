@@ -1,7 +1,7 @@
 //
 // EventDispatcherGenerator.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/EventDispatcherGenerator.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/EventDispatcherGenerator.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -71,7 +71,7 @@ std::string EventDispatcherGenerator::generateOutParamName(const Poco::CppParser
 
 std::string EventDispatcherGenerator::generateRetParamName(const Poco::CppParser::Function* pFunc)
 {
-	if (pFunc->getReturnParameter() == Poco::CodeGeneration::Utility::TYPE_VOID || pFunc->getReturnParameter().empty())
+	if (pFunc->getReturnParameter() == Utility::TYPE_VOID || pFunc->getReturnParameter().empty())
 		return std::string();
 
 	std::string result("_");
@@ -190,7 +190,6 @@ void EventDispatcherGenerator::methodStartImpl(Poco::CppParser::Function* pFunc,
 			enableCachingForThisMethod = true;
 		std::map<std::string, const Poco::CppParser::Parameter*> outParams;
 		detectOutParams(pFunc, outParams);
-		// bool isOneWay = outParams.empty() && (pFunc->getReturnParameter().empty() || pFunc->getReturnParameter() == Poco::CodeGeneration::Utility::TYPE_VOID);
 		// if we find any method that has return/out parameters add a place where we can store these results
 		if (enableCachingForThisMethod)
 		{
@@ -281,16 +280,16 @@ void EventDispatcherGenerator::serializeCodeGen(const Poco::CppParser::Function*
 	detectOutParams(pFunc, outParams);
 	Poco::CodeGeneration::CodeGenerator::Properties classProperties;
 	Poco::CodeGeneration::GeneratorEngine::parseProperties(pStruct, classProperties);
-	if (classProperties.find(Poco::CodeGeneration::Utility::CACHING) != classProperties.end())
+	if (classProperties.find(Utility::CACHING) != classProperties.end())
 		throw Poco::InvalidArgumentException("cacheResult property is not allowed on class level!");
 
 	Poco::CodeGeneration::CodeGenerator::Properties methodProperties(classProperties);
 	Poco::CodeGeneration::GeneratorEngine::parseProperties(pFunc, methodProperties);
 
-	bool hasReturnParam = pFunc->getReturnParameter() != Poco::CodeGeneration::Utility::TYPE_VOID && !pFunc->getReturnParameter().empty();
-	bool isOneWay = (outParams.empty() && !hasReturnParam) || (methodProperties.find(Poco::CodeGeneration::Utility::ONEWAY) != methodProperties.end());
+	bool hasReturnParam = pFunc->getReturnParameter() != Utility::TYPE_VOID && !pFunc->getReturnParameter().empty();
+	bool isOneWay = (outParams.empty() && !hasReturnParam) || (methodProperties.find(Utility::ONEWAY) != methodProperties.end());
 
-	Poco::CodeGeneration::CodeGenerator::Properties::const_iterator itCache = methodProperties.find(Poco::CodeGeneration::Utility::CACHING);
+	Poco::CodeGeneration::CodeGenerator::Properties::const_iterator itCache = methodProperties.find(Utility::CACHING);
 	// now check if we have sth cached and if the property is set
 	bool useCache = (itCache != methodProperties.end() && itCache->second == Utility::VAL_TRUE);
 	Poco::CodeGeneration::CodeGenerator::Properties::const_iterator itEvent = methodProperties.find("event");
@@ -989,7 +988,7 @@ bool EventDispatcherGenerator::hasAnyOutParams(const Poco::CppParser::Function* 
 		}
 	}
 
-	return pFunc->getReturnParameter() != Poco::CodeGeneration::Utility::TYPE_VOID && !pFunc->getReturnParameter().empty();
+	return pFunc->getReturnParameter() != Utility::TYPE_VOID && !pFunc->getReturnParameter().empty();
 }
 
 
@@ -1099,6 +1098,13 @@ void EventDispatcherGenerator::checkForEventMembers(const Poco::CppParser::Struc
 						funcAttr.set("oneway", pVar->getAttributes().getString("oneway"));
 						pFunc->setAttributes(funcAttr);
 					}
+
+					if (pVar->getAttributes().has(Utility::FILTER))
+					{
+						Poco::CppParser::Attributes funcAttr = pFunc->getAttributes();
+						funcAttr.set(Utility::FILTER, pVar->getAttributes().getString(Utility::FILTER));
+						pFunc->setAttributes(funcAttr);
+					}
 				}
 				funcDecl.append("Impl");
 				{
@@ -1147,7 +1153,7 @@ void EventDispatcherGenerator::checkForEventMembers(const Poco::CppParser::Struc
 	
 	if (!_events.empty())
 	{
-		Poco::Path file (Poco::CodeGeneration::Utility::createInclude(_pStruct, true));
+		Poco::Path file (Utility::createInclude(_pStruct, true));
 	
 		std::string newFileName = RemoteObjectGenerator::generateClassName(_pStructIn);
 		file.setBaseName(newFileName);
@@ -1171,6 +1177,17 @@ void EventDispatcherGenerator::eventCodeGen(const Poco::CppParser::Function* pFu
 	EventDispatcherGenerator* pProxy = dynamic_cast<EventDispatcherGenerator*>(pAGen);
 	poco_check_ptr (pProxy);
 
+	bool hasFilter = pFunc->getAttributes().getBool(Utility::FILTER, false); 	
+	if (hasFilter)
+	{
+		std::string nameLine("static const std::string REMOTING__EVENT_NAME(\"");
+		nameLine.append(pFunc->name().substr(7)); // strip out "event__" prefix
+		nameLine.append("\");");
+		gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__EVENT_NAME);");
+		gen.writeMethodImplementation(nameLine);
+		gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__EVENT_NAME);");
+	}
+	
 	// only forward to the network if the network is not the sender
 	gen.writeMethodImplementation("if (pSender)");
 	gen.writeMethodImplementation("{");
@@ -1190,10 +1207,24 @@ void EventDispatcherGenerator::eventCodeGen(const Poco::CppParser::Function* pFu
 	{
 		gen.writeMethodImplementation("\t\t\ttry");
 		gen.writeMethodImplementation("\t\t\t{");
-		if (pFunc->countParameters() == 1) // void event		
+		if (pFunc->countParameters() == 1) // void event	
+		{	
 			gen.writeMethodImplementation("\t\t\t\t" + pFunc->name() + "Impl(it->first);");
+		}
 		else
-			gen.writeMethodImplementation("\t\t\t\t" + pFunc->name() + "Impl(it->first, data);");
+		{
+			if (hasFilter)
+			{
+				gen.writeMethodImplementation("\t\t\t\tif (accept(it->second->filters, REMOTING__EVENT_NAME, data))");
+				gen.writeMethodImplementation("\t\t\t\t{");
+				gen.writeMethodImplementation("\t\t\t\t\t" + pFunc->name() + "Impl(it->first, data);");
+				gen.writeMethodImplementation("\t\t\t\t}");
+			}
+			else
+			{
+				gen.writeMethodImplementation("\t\t\t\t" + pFunc->name() + "Impl(it->first, data);");
+			}
+		}
 		gen.writeMethodImplementation("\t\t\t}");
 		gen.writeMethodImplementation("\t\t\tcatch (Poco::Exception&)");
 		gen.writeMethodImplementation("\t\t\t{");
@@ -1203,10 +1234,24 @@ void EventDispatcherGenerator::eventCodeGen(const Poco::CppParser::Function* pFu
 	{
 		gen.writeMethodImplementation("\t\t\ttry");
 		gen.writeMethodImplementation("\t\t\t{");
-		if (pFunc->countParameters() == 1) // void event
+		if (pFunc->countParameters() == 1) // void event	
+		{	
 			gen.writeMethodImplementation("\t\t\t\t" + pFunc->name() + "Impl(it->first);");
+		}
 		else
-			gen.writeMethodImplementation("\t\t\t\t" + pFunc->name() + "Impl(it->first, data);");
+		{
+			if (hasFilter)
+			{
+				gen.writeMethodImplementation("\t\t\t\tif (accept(it->second->filters, REMOTING__EVENT_NAME, data))");
+				gen.writeMethodImplementation("\t\t\t\t{");
+				gen.writeMethodImplementation("\t\t\t\t\t" + pFunc->name() + "Impl(it->first, data);");
+				gen.writeMethodImplementation("\t\t\t\t}");
+			}
+			else
+			{
+				gen.writeMethodImplementation("\t\t\t\t" + pFunc->name() + "Impl(it->first, data);");
+			}
+		}
 		gen.writeMethodImplementation("\t\t\t}");
 		gen.writeMethodImplementation("\t\t\tcatch (Poco::RemotingNG::RemoteException&)");
 		gen.writeMethodImplementation("\t\t\t{");

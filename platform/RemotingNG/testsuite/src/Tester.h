@@ -1,7 +1,7 @@
 //
 // Tester.h
 //
-// $Id: //poco/1.7/RemotingNG/testsuite/src/Tester.h#1 $
+// $Id: //poco/1.7/RemotingNG/testsuite/src/Tester.h#2 $
 //
 // Definition of the Tester class.
 //
@@ -275,12 +275,17 @@ public:
 	
 	void fireTestVoidEvent();
 	
+	void fireTestFilteredEvent(int arg);
+	
 	Poco::BasicEvent<std::string> testEvent;
 	
 	//@ oneway
 	Poco::BasicEvent<std::string> testOneWayEvent;
 	
 	Poco::BasicEvent<void> testVoidEvent;
+	
+	//@ filter=true
+	Poco::BasicEvent<const int> testFilteredEvent;
 	
 private:
 	std::string _oneWayResult;

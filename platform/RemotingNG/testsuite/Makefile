@@ -1,7 +1,7 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/RemotingNG/testsuite/Makefile#1 $
+# $Id: //poco/1.7/RemotingNG/testsuite/Makefile#2 $
 #
 # Makefile for Poco Remoting testsuite
 #
@@ -11,6 +11,7 @@ include $(POCO_BASE)/build/rules/global
 objects = \
 	Driver \
 	RemotingTest \
+	EventFilterTest \
 	RemotingTestSuite \
 	Tester \
 	ITester \

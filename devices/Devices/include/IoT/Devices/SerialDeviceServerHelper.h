@@ -120,7 +120,7 @@ inline void SerialDeviceServerHelper::enableEvents(const std::string& uri, const
 
 inline std::string SerialDeviceServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::SerialDevice> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return SerialDeviceServerHelper::instance().registerObjectImpl(new SerialDeviceRemoteObject(oid, pServiceObject), listenerId);
+	return SerialDeviceServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

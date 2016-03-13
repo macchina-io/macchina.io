@@ -1,7 +1,7 @@
 //
 // EventDispatcher.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/EventDispatcher.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/src/EventDispatcher.cpp#2 $
 //
 // Library: RemotingNG
 // Package: ORB
@@ -63,6 +63,31 @@ void EventDispatcher::unsubscribe(const std::string& subscriberURI)
 		_subscribers.erase(it);
 	}
 	else throw Poco::NotFoundException("event subscriber", subscriberURI);
+}
+
+
+void EventDispatcher::setEventFilterImpl(const std::string& subscriberURI, const std::string& event, const Poco::Any& filter)
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	SubscriberMap::iterator it = _subscribers.find(subscriberURI);
+	if (it != _subscribers.end())
+	{
+		it->second->filters[event] = filter;
+	}
+	else throw Poco::NotFoundException("event subscriber", subscriberURI);
+}
+
+
+void EventDispatcher::removeEventFilter(const std::string& subscriberURI, const std::string& event)
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	SubscriberMap::iterator it = _subscribers.find(subscriberURI);
+	if (it != _subscribers.end())
+	{
+		it->second->filters.erase(event);
+	}
 }
 
 

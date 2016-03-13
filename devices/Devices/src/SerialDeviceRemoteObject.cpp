@@ -47,8 +47,9 @@ SerialDeviceRemoteObject::~SerialDeviceRemoteObject()
 }
 
 
-void SerialDeviceRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
+std::string SerialDeviceRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
 {
+	return std::string();
 }
 
 

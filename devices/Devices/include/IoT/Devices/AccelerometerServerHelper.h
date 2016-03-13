@@ -98,7 +98,7 @@ inline void AccelerometerServerHelper::enableEvents(const std::string& uri, cons
 
 inline std::string AccelerometerServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::Accelerometer> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return AccelerometerServerHelper::instance().registerObjectImpl(new AccelerometerRemoteObject(oid, pServiceObject), listenerId);
+	return AccelerometerServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

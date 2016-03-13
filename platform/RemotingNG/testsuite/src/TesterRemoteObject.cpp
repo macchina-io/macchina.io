@@ -21,6 +21,7 @@ TesterRemoteObject::TesterRemoteObject(const Poco::RemotingNG::Identifiable::Obj
 	_pServiceObject(pServiceObject)
 {
 	_pServiceObject->testEvent += Poco::delegate(this, &TesterRemoteObject::event__testEvent);
+	_pServiceObject->testFilteredEvent += Poco::delegate(this, &TesterRemoteObject::event__testFilteredEvent);
 	_pServiceObject->testOneWayEvent += Poco::delegate(this, &TesterRemoteObject::event__testOneWayEvent);
 	_pServiceObject->testVoidEvent += Poco::delegate(this, &TesterRemoteObject::event__testVoidEvent);
 }
@@ -31,6 +32,7 @@ TesterRemoteObject::~TesterRemoteObject()
 	try
 	{
 		_pServiceObject->testEvent -= Poco::delegate(this, &TesterRemoteObject::event__testEvent);
+		_pServiceObject->testFilteredEvent -= Poco::delegate(this, &TesterRemoteObject::event__testFilteredEvent);
 		_pServiceObject->testOneWayEvent -= Poco::delegate(this, &TesterRemoteObject::event__testOneWayEvent);
 		_pServiceObject->testVoidEvent -= Poco::delegate(this, &TesterRemoteObject::event__testVoidEvent);
 	}
@@ -41,8 +43,9 @@ TesterRemoteObject::~TesterRemoteObject()
 }
 
 
-void TesterRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
+std::string TesterRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
 {
+	return std::string();
 }
 
 
@@ -62,6 +65,12 @@ bool TesterRemoteObject::remoting__hasEvents() const
 void TesterRemoteObject::event__testEvent(std::string& data)
 {
 	testEvent(this, data);
+}
+
+
+void TesterRemoteObject::event__testFilteredEvent(const int& data)
+{
+	testFilteredEvent(this, data);
 }
 
 

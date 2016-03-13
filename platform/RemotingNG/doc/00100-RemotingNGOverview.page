@@ -350,7 +350,9 @@ call to <[remoting__enableEvents()]>.
 The EventDispatcher is responsible for delivering
 events fired by service objects to remote subscribers. This class is only
 generated if the service object has events. The ServerHelper class will
-create and register the EventDispatcher with the ORB.
+create and register the EventDispatcher with the ORB. 
+The EventDispatcher also supports per-subscriber event filtering, based
+on Poco::RemotingNG::EventFilter.
 
 
 !ServiceServerHelper

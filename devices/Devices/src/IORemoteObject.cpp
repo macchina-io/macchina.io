@@ -47,8 +47,9 @@ IORemoteObject::~IORemoteObject()
 }
 
 
-void IORemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
+std::string IORemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
 {
+	return std::string();
 }
 
 

@@ -41,8 +41,9 @@ TesterRemoteObject::~TesterRemoteObject()
 }
 
 
-void TesterRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
+std::string TesterRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
 {
+	return std::string();
 }
 
 

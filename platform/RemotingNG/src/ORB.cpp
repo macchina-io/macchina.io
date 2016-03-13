@@ -1,7 +1,7 @@
 //
 // ORB.cpp
 //
-// $Id: //poco/1.6/RemotingNG/src/ORB.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/src/ORB.cpp#3 $
 //
 // Library: RemotingNG
 // Package: ORB
@@ -21,6 +21,7 @@
 #include "Poco/RemotingNG/EventListener.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/NumberParser.h"
+#include "Poco/Format.h"
 #include "Poco/URI.h"
 #include "Poco/StringTokenizer.h"
 #if defined(POCO_REQUIRE_LICENSE)
@@ -151,16 +152,14 @@ bool ORB::invoke(const std::string& objectPath, ServerTransport& transport) cons
 
 Identifiable::Ptr ORB::findObject(const std::string& uri) const
 {
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
 	if (!_enabled) throw ORBDisabledException();
 
+	RemoteObjects::const_iterator itRO = _remoteObjectURIs.find(uri);
+	if (itRO != _remoteObjectURIs.end())
 	{
-		Poco::FastMutex::ScopedLock lock(_mutex);
-
-		RemoteObjects::const_iterator itRO = _remoteObjectURIs.find(uri);
-		if (itRO != _remoteObjectURIs.end())
-		{
-			return itRO->second->pRemoteObject;
-		}
+		return itRO->second->pRemoteObject;
 	}
 
 	Identifiable::TypeId tid;
@@ -197,8 +196,6 @@ Identifiable::Ptr ORB::findObject(const std::string& uri, const Identifiable::Ty
 
 ORB::RemoteObjectInfo::Ptr ORB::findLocalObject(const Identifiable::TypeId& tid, const Identifiable::ObjectId& oid, const std::string& protocol) const
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
-
 	for (ListenerMap::const_iterator it = _listeners.begin(); it != _listeners.end(); ++it)
 	{
 		if (it->second->protocol() == protocol)
@@ -581,17 +578,32 @@ EventDispatcher::Ptr ORB::findEventDispatcher(const std::string& uri, const std:
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 	
+	std::string eventProto = protocol;
+	RemoteObjectInfo::Ptr pRemoteObjectInfo;
 	RemoteObjects::const_iterator itRO = _remoteObjectURIs.find(uri);
 	if (itRO != _remoteObjectURIs.end())
 	{
-		EventDispatchers::const_iterator itED = itRO->second->eventDispatchers.find(protocol);
-		if (itED != itRO->second->eventDispatchers.end())
+		pRemoteObjectInfo = itRO->second;
+	}
+	else
+	{
+		Identifiable::TypeId tid;
+		Identifiable::ObjectId oid;
+		std::string proto;
+		URIUtility::parseURIPath(uri, oid, tid, proto);
+		pRemoteObjectInfo = findLocalObject(tid, oid, proto);
+		if (eventProto.empty()) eventProto = proto;
+	}
+	if (pRemoteObjectInfo)
+	{
+		EventDispatchers::const_iterator itED = pRemoteObjectInfo->eventDispatchers.find(eventProto);
+		if (itED != pRemoteObjectInfo->eventDispatchers.end())
 		{
 			return itED->second;
 		}
-		else throw Poco::NotFoundException("event dispatcher for protocol", protocol);
+		else throw Poco::NotFoundException(Poco::format("event dispatcher for URI: %s and protocol: %s", uri, protocol));
 	}
-	else throw Poco::NotFoundException("remote object", uri);
+	else throw Poco::NotFoundException("event dispatcher for URI", uri);
 }
 
 

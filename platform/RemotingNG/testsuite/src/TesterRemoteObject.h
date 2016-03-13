@@ -32,11 +32,13 @@ public:
 
 	void fireTestEvent(const std::string& arg);
 
+	void fireTestFilteredEvent(int arg);
+
 	void fireTestOneWayEvent(const std::string& arg);
 
 	void fireTestVoidEvent();
 
-	virtual void remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
+	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
 
 	virtual void remoting__enableRemoteEvents(const std::string& protocol);
 
@@ -123,6 +125,8 @@ public:
 protected:
 	void event__testEvent(std::string& data);
 
+	void event__testFilteredEvent(const int& data);
+
 	void event__testOneWayEvent(std::string& data);
 
 	void event__testVoidEvent();
@@ -135,6 +139,12 @@ private:
 inline void TesterRemoteObject::fireTestEvent(const std::string& arg)
 {
 	_pServiceObject->fireTestEvent(arg);
+}
+
+
+inline void TesterRemoteObject::fireTestFilteredEvent(int arg)
+{
+	_pServiceObject->fireTestFilteredEvent(arg);
 }
 
 

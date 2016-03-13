@@ -159,7 +159,7 @@ public:
 		/// Specify "none" or an empty string for no flow control.
 		/// Specify "rtscts" for hardware (RTS/CTS) flow control.
 
-	virtual void remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
+	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
 
 	virtual void remoting__enableRemoteEvents(const std::string& protocol);
 

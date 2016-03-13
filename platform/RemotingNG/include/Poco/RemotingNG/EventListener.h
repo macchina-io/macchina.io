@@ -1,7 +1,7 @@
 //
 // EventListener.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/EventListener.h#1 $
+// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/EventListener.h#2 $
 //
 // Library: RemotingNG
 // Package: Transport
@@ -42,7 +42,7 @@ public:
 	virtual ~EventListener();
 		/// Destroys the EventListener.
 
-	virtual void subscribeToEvents(EventSubscriber::Ptr pEventSubscriber) = 0;
+	virtual std::string subscribeToEvents(EventSubscriber::Ptr pEventSubscriber) = 0;
 		/// Register an EventSubscriber to the EventListener.
 		///
 		/// The EventListener is responsible for sending a protocol-specific
@@ -52,6 +52,9 @@ public:
 		/// If necessary for the event delivery protocol, the EventListener
 		/// is also responsible for assigning a unique ID (or URI) to
 		/// the registered EventSubscriber instance.
+		///
+		/// Returns the unique URI that identifies the EventListener if the
+		/// underlying transport provides one. Otherwise returns an empty string.
 
 	virtual void unsubscribeFromEvents(EventSubscriber::Ptr pEventSubscriber) = 0;
 		/// Unregister an EventSubscriber from the EventListener.

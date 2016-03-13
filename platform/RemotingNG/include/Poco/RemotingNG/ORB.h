@@ -1,7 +1,7 @@
 //
 // ORB.h
 //
-// $Id: //poco/1.6/RemotingNG/include/Poco/RemotingNG/ORB.h#1 $
+// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/ORB.h#3 $
 //
 // Library: RemotingNG
 // Package: ORB
@@ -246,7 +246,10 @@ public:
 		
 	EventDispatcher::Ptr findEventDispatcher(const std::string& uri, const std::string& protocol) const;
 		/// Return the EventDispatcher handling the given protocol, for the RemoteObject
-		/// identified by URI.
+		/// identified by URI. The given URI can be a fully-qualified URI (the result
+		/// of registerObject()), or an object path. The format of an object path is 
+		/// <protocol>/<endpoint>/<typeId>/<objectId>. If an object path is specified, protocol
+		/// can be empty.
 		///
 		/// Throws a Poco::NotFoundException if no matching EventDispatcher has been registered.
 

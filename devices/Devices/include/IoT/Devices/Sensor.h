@@ -21,6 +21,7 @@
 
 
 #include "IoT/Devices/Device.h"
+#include "Poco/RemotingNG/EventFilter.h"
 #include "Poco/BasicEvent.h"
 
 
@@ -45,6 +46,7 @@ class IoTDevices_API Sensor: public Device
 	///     formatted as string for display purposes.
 {
 public:
+	//@ filter=true
 	Poco::BasicEvent<const double> valueChanged;
 		/// Fired when the state of the Sensor has changed.
 		///
@@ -67,7 +69,34 @@ public:
 		
 	virtual bool ready() const = 0;
 		/// Returns true if a valid value is available.
+
+	void clearValueChangedFilter(const std::string& subscriberURI);
+		/// Clears the filter set for the valueChanged event.
+
+	void setValueChangedIsGreaterThanFilter(const std::string& subscriberURI, double limit);
+		/// Sets a Poco::RemotingNG::GreaterThanFilter for the valueChanged event.
+
+	void setValueChangedIsGreaterThanOrEqualToFilter(const std::string& subscriberURI, double limit);
+		/// Sets a Poco::RemotingNG::GreaterThanFilter for the valueChanged event.
+
+	void setValueChangedIsLessThanThanFilter(const std::string& subscriberURI, double limit);
+		/// Sets a Poco::RemotingNG::LessThanFilter for the valueChanged event.
+
+	void setValueChangedIsLessThanOrEqualToFilter(const std::string& subscriberURI, double limit);
+		/// Sets a Poco::RemotingNG::LessThanOrEqualToFilter for the valueChanged event.
+
+	void setValueChangedMinimumDeltaFilter(const std::string& subscriberURI, double delta);
+		/// Sets a Poco::RemotingNG::MinimumDeltaFilter for the valueChanged event.
+
+	void setValueChangedMinimumIntervalFilter(const std::string& subscriberURI, long milliseconds);
+		/// Sets a Poco::RemotingNG::MinimumIntervalFilter for the valueChanged event.
 		
+	void setValueChangedMinimumIntervalOrDeltaFilter(const std::string& subscriberURI, long milliseconds, double delta);
+		/// Sets a Poco::RemotingNG::MinimumIntervalOrDeltaFilter for the valueChanged event.
+		
+	void setValueChangedHysteresisFilter(const std::string& subscriberURI, double lowerThreshold, double upperThreshold);
+		/// Sets a Poco::RemotingNG::HysteresisFilter for the valueChanged event.
+
 	static std::string PHYSICAL_UNIT_DEGREES_CELSIUS;
 	static std::string PHYSICAL_UNIT_DEGREES_FAHRENHEIT;
 	static std::string PHYSICAL_UNIT_KELVIN;
@@ -80,6 +109,9 @@ public:
 	static std::string PHYSICAL_UNIT_CANDELA;
 	static std::string PHYSICAL_UNIT_LUX;
 	static std::string PHYSICAL_UNIT_MBAR;
+	
+private:
+	void setValueChangedFilter(const std::string& subscriberURI, Poco::RemotingNG::EventFilter<double>::Ptr pFilter);
 };
 
 

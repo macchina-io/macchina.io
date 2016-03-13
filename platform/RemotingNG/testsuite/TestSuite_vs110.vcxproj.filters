@@ -2,40 +2,43 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Remoting">
-      <UniqueIdentifier>{4a361c6e-5ba0-4e56-a2ac-f7d7bda5631b}</UniqueIdentifier>
+      <UniqueIdentifier>{2cd9eb1e-947b-4563-8006-ba719c859b9d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Remoting\Header Files">
-      <UniqueIdentifier>{64505afc-47f1-4cf9-897b-e7d53ad37daf}</UniqueIdentifier>
+      <UniqueIdentifier>{1fada1de-2d62-40ff-a166-42131547bdfa}</UniqueIdentifier>
     </Filter>
     <Filter Include="Remoting\Source Files">
-      <UniqueIdentifier>{c748b6ae-248e-403c-9ccb-773110540190}</UniqueIdentifier>
+      <UniqueIdentifier>{640670c7-6463-4ad6-9837-07f13a33f6b4}</UniqueIdentifier>
     </Filter>
     <Filter Include="_Suite">
-      <UniqueIdentifier>{7cf20bce-c345-4e94-8422-739892b27b05}</UniqueIdentifier>
+      <UniqueIdentifier>{7d501df8-59d0-4ca7-aae4-505b0dcaef3f}</UniqueIdentifier>
     </Filter>
     <Filter Include="_Suite\Header Files">
-      <UniqueIdentifier>{c7be2188-5aae-40a9-b24f-27ba99ede30c}</UniqueIdentifier>
+      <UniqueIdentifier>{3c29cba6-4bf0-4ee7-a7d6-52915954d34e}</UniqueIdentifier>
     </Filter>
     <Filter Include="_Suite\Source Files">
-      <UniqueIdentifier>{925fb380-71df-452a-97a2-12f665de9c2b}</UniqueIdentifier>
+      <UniqueIdentifier>{8da171bf-4196-4c19-9d02-9edd6167451e}</UniqueIdentifier>
     </Filter>
     <Filter Include="_Driver">
-      <UniqueIdentifier>{77e5ef06-6922-43de-b652-7f071e9f666e}</UniqueIdentifier>
+      <UniqueIdentifier>{bbc489cb-b8a9-46e9-af88-9d079702adca}</UniqueIdentifier>
     </Filter>
     <Filter Include="_Driver\Source Files">
-      <UniqueIdentifier>{4c0cda22-46c7-46ce-90cb-ad5e045d8f33}</UniqueIdentifier>
+      <UniqueIdentifier>{58bdc94c-4a3e-4bbe-b4eb-0119e1795357}</UniqueIdentifier>
     </Filter>
     <Filter Include="Generated">
-      <UniqueIdentifier>{278654bd-6c9f-4ea2-981e-44d40b6d36aa}</UniqueIdentifier>
+      <UniqueIdentifier>{8db3073b-cdd9-423c-b417-db22d6926220}</UniqueIdentifier>
     </Filter>
     <Filter Include="Generated\Header Files">
-      <UniqueIdentifier>{aba60d2a-8db4-41a1-84ce-a8f75518169c}</UniqueIdentifier>
+      <UniqueIdentifier>{6fbfcba1-2560-480a-b4dc-5a8ba75d7807}</UniqueIdentifier>
     </Filter>
     <Filter Include="Generated\Source Files">
-      <UniqueIdentifier>{151b1251-4947-4d05-b5c8-79a1f884afd6}</UniqueIdentifier>
+      <UniqueIdentifier>{884479ef-82d8-42fb-82ec-7af0207c134e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\EventFilterTest.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\RemotingTest.h">
       <Filter>Remoting\Header Files</Filter>
     </ClInclude>
@@ -110,6 +113,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\EventFilterTest.cpp">
+      <Filter>Remoting\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\RemotingTest.cpp">
       <Filter>Remoting\Source Files</Filter>
     </ClCompile>

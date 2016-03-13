@@ -110,7 +110,7 @@ inline void GNSSSensorServerHelper::enableEvents(const std::string& uri, const s
 
 inline std::string GNSSSensorServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::GNSSSensor> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return GNSSSensorServerHelper::instance().registerObjectImpl(new GNSSSensorRemoteObject(oid, pServiceObject), listenerId);
+	return GNSSSensorServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

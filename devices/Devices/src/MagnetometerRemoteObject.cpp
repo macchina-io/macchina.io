@@ -47,8 +47,9 @@ MagnetometerRemoteObject::~MagnetometerRemoteObject()
 }
 
 
-void MagnetometerRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
+std::string MagnetometerRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
 {
+	return std::string();
 }
 
 

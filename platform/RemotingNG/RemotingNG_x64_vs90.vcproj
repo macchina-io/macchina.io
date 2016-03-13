@@ -402,6 +402,8 @@
 				<File
 					RelativePath=".\include\Poco\RemotingNG\EventDispatcher.h"/>
 				<File
+					RelativePath=".\include\Poco\RemotingNG\EventFilter.h"/>
+				<File
 					RelativePath=".\include\Poco\RemotingNG\EventSubscriber.h"/>
 				<File
 					RelativePath=".\include\Poco\RemotingNG\Identifiable.h"/>

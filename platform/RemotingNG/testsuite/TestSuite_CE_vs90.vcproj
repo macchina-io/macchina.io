@@ -467,12 +467,16 @@
 			<Filter
 				Name="Header Files">
 				<File
+					RelativePath=".\src\EventFilterTest.h"/>
+				<File
 					RelativePath=".\src\RemotingTest.h"/>
 				<File
 					RelativePath=".\src\Tester.h"/>
 			</Filter>
 			<Filter
 				Name="Source Files">
+				<File
+					RelativePath=".\src\EventFilterTest.cpp"/>
 				<File
 					RelativePath=".\src\RemotingTest.cpp"/>
 				<File

@@ -98,7 +98,7 @@ inline void RotaryEncoderServerHelper::enableEvents(const std::string& uri, cons
 
 inline std::string RotaryEncoderServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::RotaryEncoder> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return RotaryEncoderServerHelper::instance().registerObjectImpl(new RotaryEncoderRemoteObject(oid, pServiceObject), listenerId);
+	return RotaryEncoderServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

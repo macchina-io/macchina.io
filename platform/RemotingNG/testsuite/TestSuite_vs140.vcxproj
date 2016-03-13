@@ -85,7 +85,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros"/>
   <PropertyGroup>
-    <_ProjectFileVersion>14.0.23107.0</_ProjectFileVersion>
+    <_ProjectFileVersion>14.0.25008.0</_ProjectFileVersion>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_shared|Win32'">TestSuited</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_static_md|Win32'">TestSuited</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_static_mt|Win32'">TestSuited</TargetName>
@@ -306,6 +306,7 @@
   <ItemGroup>
     <ClInclude Include="src\Class1Deserializer.h"/>
     <ClInclude Include="src\Class1Serializer.h"/>
+    <ClInclude Include="src\EventFilterTest.h"/>
     <ClInclude Include="src\ITester.h"/>
     <ClInclude Include="src\RemotingTest.h"/>
     <ClInclude Include="src\RemotingTestSuite.h"/>
@@ -331,6 +332,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Driver.cpp"/>
+    <ClCompile Include="src\EventFilterTest.cpp"/>
     <ClCompile Include="src\ITester.cpp"/>
     <ClCompile Include="src\RemotingTest.cpp"/>
     <ClCompile Include="src\RemotingTestSuite.cpp"/>

@@ -82,9 +82,16 @@ Examples: "2h", "4min", "2000ms", "infinite"
 !!cacheResult
 Enables caching of return values. Will reduce the number of method calls if a remote method always 
 returns the same value (for a certain time). See also the <[@cacheExpire]> attribute.
-  * level : method
+  * level: method
   * type: boolean
   * default: true
+
+
+!!consumes
+For the REST transport, specifies the MIME content type of the request body.
+  * level: method
+  * type: string
+  * default: "application/json"
 
 
 !!direction
@@ -99,7 +106,6 @@ parameter as output only. The <[@direction]> attribute allows to rectify that.
     parameters passed by non-const reference
     
 Example:
-
     //@ $image = {direction = "out"}
     void retrieveImage(const std::string& id, std::vector<char>& image);
     
@@ -121,6 +127,60 @@ i.e. all header elements are serialized before the body elements.
   * level: parameter
   * type: boolean
   * default: true
+
+
+!!filter
+Enable or disable event filters for an event. If enabled, event filters can be installed
+at run-time for the event via an object's Poco::RemotingNG::EventDispatcher::setEventFilter()
+method, and will be honored while dispatching the event. 
+If disabled, all installed event filters will be ignored when dispatching the event.
+  * level: event
+  * type: boolean
+  * default: false
+
+
+!!format
+For the REST transport, describes the format of a parameter passed in the request
+or response body. 
+  * level: parameter
+  * type: string
+  * default: "json"
+
+Valid values are:
+  * raw: The parameter is passed as a string or raw binary data. Can only be used
+    for simple types, e.g. std::string and std::vector<char>. 
+    This is useful for passing raw binary data as a std::string or std::vector<char> in 
+    the request or response body.
+  * json: The parameter is formatted as JSON. Can be used for simple and complex types.
+  
+Example:
+    //@ $file={in=path}
+    //@ return={in=body, format=raw}
+    //@ produces="text/plain"
+    std::string get(const std::string& file);
+----
+
+
+!!in
+For the REST transport, defines the location of a parameter. 
+  * level: parameter
+  * type: string
+  * default: "body"
+
+Valid values are:
+  * path: The parameter is passed as part of the URI path. A <[@path]> attribute
+    must also be specified for the method or object, containing a corresponding
+    place holder for the parameter ("{name}").
+  * query: The parameter is a passed as URI query parameter.
+  * header: The parameters is passed as HTTP request or response header.
+  * body: The parameter is passed in the request or response body (raw string or JSON-formatted).
+
+Example:
+    //@ $file={in=path}
+    //@ return={in=body, format=raw}
+    //@ produces="text/plain"
+    std::string get(const std::string& file);
+----
 
 
 !!inline
@@ -216,6 +276,30 @@ Example:
     //@ remote, $first = {order = 1}, $second = {order = 2}
     void foo(int first, int second);
 ----
+
+
+!!path
+For the REST transport, specifies the path template used for extracting parameters
+passed within the request URI.
+  * level: class/method
+  * type: string
+
+The location of parameters within the path is indicated by putting the parameter
+name in curly brackets.
+
+Example:
+    //@ path="/api/1.0/orders/{orderNo}/items/{itemNo}"
+    //@ $orderNo={in=path}
+    //@ $itemNo={in=path}
+    Item get(int orderNo, int itemNo);
+----
+
+
+!!produces
+For the REST transport, specifies the MIME content type of the response body.
+  * level: method
+  * type: string
+  * default: "application/json"
 
 
 !!remote

@@ -110,7 +110,7 @@ inline void SensorServerHelper::enableEvents(const std::string& uri, const std::
 
 inline std::string SensorServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::Sensor> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return SensorServerHelper::instance().registerObjectImpl(new SensorRemoteObject(oid, pServiceObject), listenerId);
+	return SensorServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

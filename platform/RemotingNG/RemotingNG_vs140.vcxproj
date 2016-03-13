@@ -85,7 +85,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros"/>
   <PropertyGroup>
-    <_ProjectFileVersion>14.0.23107.0</_ProjectFileVersion>
+    <_ProjectFileVersion>14.0.25008.0</_ProjectFileVersion>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_shared|Win32'">PocoRemotingNGd</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_static_md|Win32'">PocoRemotingNGmdd</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_static_mt|Win32'">PocoRemotingNGmtd</TargetName>
@@ -282,6 +282,7 @@
     <ClInclude Include="include\Poco\RemotingNG\Context.h"/>
     <ClInclude Include="include\Poco\RemotingNG\Deserializer.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventDispatcher.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\EventFilter.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventListener.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventSubscriber.h"/>
     <ClInclude Include="include\Poco\RemotingNG\Identifiable.h"/>

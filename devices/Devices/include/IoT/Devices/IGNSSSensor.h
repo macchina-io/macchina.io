@@ -79,7 +79,7 @@ public:
 	virtual bool positionAvailable() const = 0;
 		/// Returns true if a valid position is available.
 
-	virtual void remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true)) = 0;
+	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true)) = 0;
 		/// Enable or disable delivery of remote events.
 		///
 		/// The given Listener instance must implement the Poco::RemotingNG::EventListener

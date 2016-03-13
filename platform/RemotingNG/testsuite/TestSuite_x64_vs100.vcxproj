@@ -312,6 +312,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\EventFilterTest.h"/>
     <ClInclude Include="src\RemotingTest.h"/>
     <ClInclude Include="src\Tester.h"/>
     <ClInclude Include="src\RemotingTestSuite.h"/>
@@ -338,6 +339,7 @@
     <ClInclude Include="src\TesterSkeleton.h"/>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\EventFilterTest.cpp"/>
     <ClCompile Include="src\RemotingTest.cpp"/>
     <ClCompile Include="src\Tester.cpp"/>
     <ClCompile Include="src\RemotingTestSuite.cpp"/>

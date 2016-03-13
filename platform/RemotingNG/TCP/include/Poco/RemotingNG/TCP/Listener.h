@@ -1,7 +1,7 @@
 //
 // Listener.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Listener.h#1 $
+// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Listener.h#2 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -105,7 +105,7 @@ public:
 		/// Returns the ConnectionManager used by the Listener.
 
 	// Poco::RemotingNG::EventListener
-	void subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber);
+	std::string subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber);
 	void unsubscribeFromEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber);
 
 	// Poco::RemotingNG::Listener
@@ -134,6 +134,7 @@ private:
 		
 		EventSubscription(Listener& listener, const std::string& uri, Poco::UInt32 id);
 		void run();
+		const std::string& uri() const;
 		const std::string& path() const;
 		
 	private:

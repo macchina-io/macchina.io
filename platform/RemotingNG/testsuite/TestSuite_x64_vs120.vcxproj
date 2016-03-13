@@ -306,6 +306,7 @@
   <ItemGroup>
     <ClInclude Include="src\Class1Deserializer.h"/>
     <ClInclude Include="src\Class1Serializer.h"/>
+    <ClInclude Include="src\EventFilterTest.h"/>
     <ClInclude Include="src\ITester.h"/>
     <ClInclude Include="src\RemotingTest.h"/>
     <ClInclude Include="src\RemotingTestSuite.h"/>
@@ -331,6 +332,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Driver.cpp"/>
+    <ClCompile Include="src\EventFilterTest.cpp"/>
     <ClCompile Include="src\ITester.cpp"/>
     <ClCompile Include="src\RemotingTest.cpp"/>
     <ClCompile Include="src\RemotingTestSuite.cpp"/>

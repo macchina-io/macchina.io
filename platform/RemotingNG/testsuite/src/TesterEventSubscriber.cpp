@@ -12,6 +12,7 @@
 #include "TesterEventSubscriber.h"
 #include "Class1Deserializer.h"
 #include "Class1Serializer.h"
+#include "Poco/Delegate.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/MethodHandler.h"
 #include "Poco/RemotingNG/Serializer.h"
@@ -95,6 +96,37 @@ private:
 };
 
 
+class TesterEvent__testFilteredEventMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	TesterEvent__testFilteredEventMethodHandler(TesterProxy* pProxy)
+	{
+		_pProxy = pProxy;
+	}
+
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		remoting__staticInitBegin(REMOTING__NAMES);
+		static const std::string REMOTING__NAMES[] = {"testFilteredEvent","data"};
+		remoting__staticInitEnd(REMOTING__NAMES);
+		int data;
+		remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+		Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, data);
+		remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+		try
+		{
+			_pProxy->testFilteredEvent(0, data);
+		}
+		catch (...)
+		{
+		}
+	}
+
+private:
+	TesterProxy* _pProxy;
+};
+
+
 class TesterEvent__testOneWayEventMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
@@ -160,6 +192,7 @@ TesterEventSubscriber::TesterEventSubscriber(const std::string& uri, TesterProxy
 
 {
 	addMethodHandler("testEvent", new TesterEvent__testEventMethodHandler(pProxy));
+	addMethodHandler("testFilteredEvent", new TesterEvent__testFilteredEventMethodHandler(pProxy));
 	addMethodHandler("testOneWayEvent", new TesterEvent__testOneWayEventMethodHandler(pProxy));
 	addMethodHandler("testVoidEvent", new TesterEvent__testVoidEventMethodHandler(pProxy));
 }
@@ -171,6 +204,11 @@ TesterEventSubscriber::~TesterEventSubscriber()
 
 
 void TesterEventSubscriber::event__testEvent(std::string& data)
+{
+}
+
+
+void TesterEventSubscriber::event__testFilteredEvent(const int& data)
 {
 }
 

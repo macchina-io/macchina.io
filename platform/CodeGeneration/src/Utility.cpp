@@ -1,7 +1,7 @@
 //
 // Utility.cpp
 //
-// $Id: //poco/1.7/CodeGeneration/src/Utility.cpp#1 $
+// $Id: //poco/1.7/CodeGeneration/src/Utility.cpp#2 $
 //
 // Library: CodeGeneration
 // Package: CodeGeneration
@@ -67,6 +67,7 @@ const std::string Utility::ACTION("action");
 const std::string Utility::REQUEST("request");
 const std::string Utility::REPLY("reply");
 const std::string Utility::FAULT("fault");
+const std::string Utility::FILTER("filter");
 const std::string Utility::IN("in");
 const std::string Utility::FORMAT("format");
 const std::string Utility::PATH("path");

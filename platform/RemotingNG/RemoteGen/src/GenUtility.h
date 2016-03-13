@@ -1,7 +1,7 @@
 //
 // GenUtility.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/GenUtility.h#1 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/GenUtility.h#2 $
 //
 // Definition of the GenUtility class.
 //
@@ -33,7 +33,6 @@ class GenUtility
 {
 public:
 	static const std::string ATTR_HEADER;
-	static const std::string ATTR_VERSION;
 	static const std::string ATTR_RETURN;
 
 	static std::string getMethodName(const Poco::CppParser::Function* pFunc);

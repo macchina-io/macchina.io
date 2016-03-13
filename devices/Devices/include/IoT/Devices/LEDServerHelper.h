@@ -100,7 +100,7 @@ inline Poco::AutoPtr<IoT::Devices::LEDRemoteObject> LEDServerHelper::createRemot
 
 inline std::string LEDServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::LED> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return LEDServerHelper::instance().registerObjectImpl(new LEDRemoteObject(oid, pServiceObject), listenerId);
+	return LEDServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

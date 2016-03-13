@@ -1,7 +1,7 @@
 //
 // Listener.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/Listener.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/TCP/src/Listener.cpp#2 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -152,7 +152,7 @@ ConnectionManager& Listener::connectionManager()
 }
 
 
-void Listener::subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber)
+std::string Listener::subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 	
@@ -171,6 +171,7 @@ void Listener::subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSu
 	long interval = static_cast<long>(_eventSubscriptionTimeout.totalMilliseconds()/2);
 	_timer.scheduleAtFixedRate(pEventSubscription, interval, interval);
 	pEventSubscription->run();
+	return pEventSubscription->uri();
 }
 
 
@@ -262,6 +263,12 @@ Listener::EventSubscription::EventSubscription(Listener& listener, const std::st
 	suri.setFragment(Poco::NumberFormatter::format(id));
 	_suri = suri.toString();
 	_path = suri.getPathEtc().substr(1);
+}
+
+
+const std::string& Listener::EventSubscription::uri() const
+{
+	return _suri;
 }
 
 

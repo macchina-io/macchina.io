@@ -94,12 +94,6 @@ void ServerTransport::run()
 	Ptr pThis(this, true);
 	_ready.set();
 
-	Poco::RemotingNG::ScopedContext scopedContext;
-	scopedContext.context()->setValue("transport", Transport::PROTOCOL);
-	scopedContext.context()->setValue("remoteAddress", _pRequestStream->rdbuf()->connection()->remoteAddress());
-	scopedContext.context()->setValue("localAddress", _pRequestStream->rdbuf()->connection()->localAddress());
-	scopedContext.context()->setValue("id", _pRequestStream->rdbuf()->connection()->id());
-
 	if (_pInflater)
 		_deserializer.setup(*_pInflater);
 	else
@@ -112,6 +106,13 @@ void ServerTransport::run()
 	path += tid;
 	path += '/';
 	path += oid;
+
+	Poco::RemotingNG::ScopedContext scopedContext;
+	scopedContext.context()->setValue("transport", Transport::PROTOCOL);
+	scopedContext.context()->setValue("remoteAddress", _pRequestStream->rdbuf()->connection()->remoteAddress());
+	scopedContext.context()->setValue("localAddress", _pRequestStream->rdbuf()->connection()->localAddress());
+	scopedContext.context()->setValue("id", _pRequestStream->rdbuf()->connection()->id());
+	scopedContext.context()->setValue("uri", path);
 	
 	Poco::RemotingNG::ORB& orb = Poco::RemotingNG::ORB::instance();
 	if (oid.find('#') != std::string::npos)

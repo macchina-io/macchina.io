@@ -93,7 +93,7 @@ inline Poco::AutoPtr<IoT::Devices::DeviceRemoteObject> DeviceServerHelper::creat
 
 inline std::string DeviceServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::Device> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return DeviceServerHelper::instance().registerObjectImpl(new DeviceRemoteObject(oid, pServiceObject), listenerId);
+	return DeviceServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

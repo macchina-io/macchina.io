@@ -31,6 +31,8 @@ public:
 private:
 	void event__testEvent(std::string& data);
 
+	void event__testFilteredEvent(const int& data);
+
 	void event__testOneWayEvent(std::string& data);
 
 	void event__testVoidEvent();

@@ -186,14 +186,16 @@ A service method can obtain transport-specific information via a thread-local
 Poco::RemotingNG::Context object. The Context object contains key-value pairs
 (attributes), depending on the transport used to deliver the request.
 
-The following attributes are generally available when using the TCP, SOAP and
-JSON-RPC transports:
+The following attributes are generally available when using the TCP, SOAP,
+JSON-RPC and REST transports:
 
   - <[transport]>: a std::string specifying the used transport ("tcp", "soap" or "json-rpc")
   - <[remoteAddress]>: the socket address (Poco::Net::SocketAddress) of the client sending the request
   - <[localAddress]>: the socket address (Poco::Net::SocketAddress) of the server
-  
-In addition, the SOAP and JSON-RPC transports support the <[username]> and <[password]>
+  - <[uri]>: for the SOAP, JSON-RPC and REST transports, the HTTP request URI;
+    for the TCP transport the path the object is registered under with the ORB (std::string).
+
+In addition, the SOAP, JSON-RPC and REST transports support the <[username]> and <[password]>
 attributes (std::string) if the client has provided HTTP Basic credentials. This can be used to
 implement authentication and authorization.
 
@@ -221,7 +223,7 @@ method:
     }
 ----
 
-The SOAP and JSON-RPC transports furthermore support the <[httpRequest]> and <[httpResponse]>
+The SOAP, JSON-RPC and REST transports furthermore support the <[httpRequest]> and <[httpResponse]>
 attributes. This can be used to obtain the underlying Poco::Net::HTTPServerRequest and
 Poco::Net::HTTPServerResponse objects (via pointers). A typical use case is to obtain
 a session cookie from the Poco::Net::HTTPServerRequest object, or to set a session 
@@ -232,6 +234,104 @@ can be obtained as follows:
 
     Poco::Net::HTTPServerRequest* pRequest = pContext->getValue<Poco::Net::HTTPServerRequest*>("httpRequest");
     Poco::Net::HTTPServerResponse* pResponse = pContext->getValue<Poco::Net::HTTPServerResponse*>("httpResponse");
+----
+
+
+!!!Server-Side Event Filtering
+
+Remoting NG supports server-side filtering of events (Poco::BasicEvent) based on
+client-specific criteria. This can be used to reduce network traffic, by reducing
+the number of event notifications sent out to remote clients. Each client can install its 
+own filter for a specific event. To allow clients to install filters, the service object
+must provide remote methods to install (and remove) filters.
+
+Events that should support filtering must have the <[@filter]> attribute set to <[true]>.
+Event filtering is done by the generated EventDispatcher subclass.
+
+Events, and therefore, event filtering, are only supported by the TCP transport.
+
+!!Event Filter Types
+
+A couple of filter types are provided by the Remoting NG framework. Filters must be
+subclasses of the Poco::RemotingNG::EventFilter class template, instantiated for
+the event's argument type. The following predefined filter classes are available:
+  * Poco::RemotingNG::IsGreaterThanFilter
+  * Poco::RemotingNG::IsGreaterThanOrEqualToFilter
+  * Poco::RemotingNG::IsLessThanFilter
+  * Poco::RemotingNG::IsLessThanOrEqualToFilter
+  * Poco::RemotingNG::LogicalOrFilter
+  * Poco::RemotingNG::LogicalAndFilter
+  * Poco::RemotingNG::LogicalXorFilter
+  * Poco::RemotingNG::MinimumDeltaFilter
+  * Poco::RemotingNG::MinimumIntervalFilter
+  * Poco::RemotingNG::MinimumIntervalOrDeltaFilter
+  * Poco::RemotingNG::HysteresisFilter
+
+Custom filter classes can be defined by subclassing the Poco::RemotingNG::EventFilter
+class template.
+
+!!Installing an Event Filter
+
+To install a filter, an instance of a Poco::RemotingNG::EventFilter subclass must
+be created and registered with Poco::RemotingNG::EventDispatcher::setEventFilter().
+A filter is always installed for a specific client (subscriber), identified by
+its subscriber URI. To allow a client to install a filter, the service object must provide 
+one or more methods that manage filters. A client can obtain its subscriber URI from the
+return value of the proxy's remoting__enableEvents() method.
+
+Example:
+    //@ remote
+    class Sensor
+    {
+    public:
+        //@ filter=true
+        Poco::BasicEvent<double> valueChanged;
+            /// Fired when the sensor's measured value changes.
+        
+        double value();
+            /// Returns the current value of the sensor.
+
+        void setMinimumDeltaFilter(const std::string subscriberURI, double delta);
+            /// Installs a Poco::RemotingNG::MinimumDeltaFilter for the client
+            /// identified by subscriberURI. The valueChanged event will only be
+            /// dispatched to the client if the sensor value has changed by at
+            /// least the specified delta.
+            
+        void removeFilter(const std::string subscriberURI);
+        	/// Removes the filter for the client identified by subscriberURI.
+    };
+----
+
+The implementation of Sensor::setMinimumDeltaFilter() looks as follows:
+
+    void Sensor::setMinimumDeltaFilter(const std::string subscriberURI, double delta)
+    {
+        Poco::RemotingNG::ORB& orb = Poco::RemotingNG::ORB::instance();
+        Poco::RemotingNG::Context::Ptr pContext = Poco::RemotingNG::Context::get();
+        std::string uri = pContext->getValue<std::string>("uri");
+        Poco::RemotingNG::EventDispatcher::Ptr pED = orb.findEventDispatcher(uri, "");
+        pED->setEventFilter<double>(subscriberURI, "valueChanged", 
+            new Poco::RemotingNG::MinimumDeltaFilter<double>(delta));
+    }
+----
+
+Via the Poco::RemotingNG::ORB, we obtain the Poco::RemotingNG::EventDispatcher instance
+for the Sensor object. The URI/path of the sensor remote object can be obtained
+via the Poco::RemotingNG::Context object's <[uri]> value. The filter for the
+<[valueChanged]> event is installed via Poco::RemotingNG::EventDispatcher::setEventFilter().
+
+An installed event filter can be removed with 
+Poco::RemotingNG::EventDispatcher::removeEventFilter(). To do so, the Sensor object
+provides the removeFilter() function to its remote clients:
+
+    void Sensor::removeFilter(const std::string subscriberURI)
+    {
+        Poco::RemotingNG::ORB& orb = Poco::RemotingNG::ORB::instance();
+        Poco::RemotingNG::Context::Ptr pContext = Poco::RemotingNG::Context::get();
+        std::string uri = pContext->getValue<std::string>("uri");
+        Poco::RemotingNG::EventDispatcher::Ptr pED = orb.findEventDispatcher(uri, "");
+        pED->removeEventFilter(subscriberURI, "valueChanged");
+    }
 ----
 
 

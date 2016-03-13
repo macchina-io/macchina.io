@@ -1,7 +1,7 @@
 //
 // RemotingTestSuite.cpp
 //
-// $Id: //poco/1.7/RemotingNG/testsuite/src/RemotingTestSuite.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/testsuite/src/RemotingTestSuite.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -12,6 +12,7 @@
 
 #include "RemotingTestSuite.h"
 #include "RemotingTest.h"
+#include "EventFilterTest.h"
 
 
 CppUnit::Test* RemotingTestSuite::suite()
@@ -19,6 +20,7 @@ CppUnit::Test* RemotingTestSuite::suite()
 	CppUnit::TestSuite* pSuite = new CppUnit::TestSuite("RemotingTestSuite");
 
 	pSuite->addTest(RemotingTest::suite());
+	pSuite->addTest(EventFilterTest::suite());
 
 	return pSuite;
 }

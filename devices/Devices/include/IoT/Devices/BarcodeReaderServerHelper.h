@@ -102,7 +102,7 @@ inline void BarcodeReaderServerHelper::enableEvents(const std::string& uri, cons
 
 inline std::string BarcodeReaderServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::BarcodeReader> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return BarcodeReaderServerHelper::instance().registerObjectImpl(new BarcodeReaderRemoteObject(oid, pServiceObject), listenerId);
+	return BarcodeReaderServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

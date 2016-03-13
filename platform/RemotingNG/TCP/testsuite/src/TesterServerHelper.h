@@ -87,7 +87,7 @@ inline void TesterServerHelper::enableEvents(const std::string& uri, const std::
 
 inline std::string TesterServerHelper::registerObject(Poco::SharedPtr<Tester> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return TesterServerHelper::instance().registerObjectImpl(new TesterRemoteObject(oid, pServiceObject), listenerId);
+	return TesterServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

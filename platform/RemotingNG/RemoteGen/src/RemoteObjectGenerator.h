@@ -1,7 +1,7 @@
 //
 // RemoteObjectGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/RemoteObjectGenerator.h#1 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/RemoteObjectGenerator.h#2 $
 //
 // Definition of the RemoteObjectGenerator class.
 //
@@ -60,6 +60,7 @@ private:
 	static void syncFwdCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
 	static void eventCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
 	static void hasEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
+	static void enableEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
 	static void enableRemoteEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
 
 	static void constructorCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);

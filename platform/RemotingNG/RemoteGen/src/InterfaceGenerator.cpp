@@ -1,7 +1,7 @@
 //
 // InterfaceGenerator.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/InterfaceGenerator.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/InterfaceGenerator.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -110,7 +110,7 @@ void InterfaceGenerator::structStart(const Poco::CppParser::Struct* pStruct, con
 	bool ev = checkForEventMembers(pStruct);
 	if (ev)
 	{
-		Poco::CppParser::Function* pEvents = new Poco::CppParser::Function("virtual void remoting__enableEvents", _pStruct);
+		Poco::CppParser::Function* pEvents = new Poco::CppParser::Function("virtual std::string remoting__enableEvents", _pStruct);
 		Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter("Poco::RemotingNG::Listener::Ptr pListener", 0);
 		pEvents->addParameter(pParam);
 		pParam = new Poco::CppParser::Parameter("bool enable = true", 0);

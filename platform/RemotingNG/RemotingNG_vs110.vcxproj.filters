@@ -2,31 +2,31 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Remoting">
-      <UniqueIdentifier>{e1436194-e7d7-47d9-9749-19585f6b6731}</UniqueIdentifier>
+      <UniqueIdentifier>{dbd3f933-507f-4514-9762-7407a3a3267e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Remoting\Header Files">
-      <UniqueIdentifier>{9d119baf-fc5a-4328-8287-a405d809d9e3}</UniqueIdentifier>
+      <UniqueIdentifier>{c740d2e3-8a50-4e14-bf17-e37c05bbf214}</UniqueIdentifier>
     </Filter>
     <Filter Include="Remoting\Source Files">
-      <UniqueIdentifier>{6cf5d770-aa00-47a0-9a06-afb9cca6904d}</UniqueIdentifier>
+      <UniqueIdentifier>{62bb8228-0ed4-4d79-af8e-08752ae373a4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Serialization">
-      <UniqueIdentifier>{4463d594-c06a-4973-bdb1-6236a4194570}</UniqueIdentifier>
+      <UniqueIdentifier>{22d1e561-d78c-4719-8e40-93d7bbb22c4e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Serialization\Header Files">
-      <UniqueIdentifier>{ee82101b-1d54-4b69-bdf6-80bfec410fe3}</UniqueIdentifier>
+      <UniqueIdentifier>{e81c0575-fb2a-4603-bd2b-5f0983ee7d80}</UniqueIdentifier>
     </Filter>
     <Filter Include="Serialization\Source Files">
-      <UniqueIdentifier>{13c2f0cc-a9ee-418e-aecb-575146292068}</UniqueIdentifier>
+      <UniqueIdentifier>{1002c9b7-74e0-4921-9b88-b33ecedb0970}</UniqueIdentifier>
     </Filter>
     <Filter Include="Transport">
-      <UniqueIdentifier>{f2f77ba7-e150-4917-9317-b3db309cd4d2}</UniqueIdentifier>
+      <UniqueIdentifier>{2841df87-91a1-432e-8cc9-599005b09b49}</UniqueIdentifier>
     </Filter>
     <Filter Include="Transport\Header Files">
-      <UniqueIdentifier>{ddc8cd30-6da1-40d1-b12d-b647f239d1fe}</UniqueIdentifier>
+      <UniqueIdentifier>{e5860b29-dc76-49c1-8b87-bb4efd330bf6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Transport\Source Files">
-      <UniqueIdentifier>{b1d2ce01-2fa5-4012-89b4-1161c005e41b}</UniqueIdentifier>
+      <UniqueIdentifier>{b48aa3bf-1245-40ee-b761-265d53afcfae}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -34,6 +34,9 @@
       <Filter>Remoting\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Poco\RemotingNG\EventDispatcher.h">
+      <Filter>Remoting\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\EventFilter.h">
       <Filter>Remoting\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Poco\RemotingNG\EventSubscriber.h">

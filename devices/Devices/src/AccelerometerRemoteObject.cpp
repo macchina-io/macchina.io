@@ -47,8 +47,9 @@ AccelerometerRemoteObject::~AccelerometerRemoteObject()
 }
 
 
-void AccelerometerRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
+std::string AccelerometerRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
 {
+	return std::string();
 }
 
 

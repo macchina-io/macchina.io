@@ -47,8 +47,9 @@ GyroscopeRemoteObject::~GyroscopeRemoteObject()
 }
 
 
-void GyroscopeRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
+std::string GyroscopeRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
 {
+	return std::string();
 }
 
 

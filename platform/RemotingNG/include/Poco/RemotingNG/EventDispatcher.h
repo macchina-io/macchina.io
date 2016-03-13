@@ -1,7 +1,7 @@
 //
 // EventDispatcher.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/EventDispatcher.h#1 $
+// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/EventDispatcher.h#2 $
 //
 // Library: RemotingNG
 // Package: ORB
@@ -20,13 +20,15 @@
 #define RemotingNG_EventDispatcher_INCLUDED
 
 
-#include "Poco/RefCountedObject.h"
 #include "Poco/RemotingNG/RemotingNG.h"
 #include "Poco/RemotingNG/Transport.h"
+#include "Poco/RemotingNG/EventFilter.h"
 #include "Poco/Timestamp.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/AutoPtr.h"
+#include "Poco/RefCountedObject.h"
 #include "Poco/Mutex.h"
+#include "Poco/Any.h"
 #include <map>
 
 
@@ -82,6 +84,21 @@ public:
 		/// by the given URI.
 		///
 		/// Throws a Poco::NotFoundException if no subscription exists.
+		
+	template <typename T>
+	void setEventFilter(const std::string& subscriberURI, const std::string& event, typename EventFilter<T>::Ptr pFilter)
+		/// Sets an event filter for the given subscriber and event.
+		///
+		/// If pFilter is null, removes the filter.
+	{
+		if (pFilter)
+			setEventFilterImpl(subscriberURI, event, pFilter);
+		else
+			removeEventFilter(subscriberURI, event);
+	}
+	
+	void removeEventFilter(const std::string& subscriberURI, const std::string& event);
+		/// Removes the event filter for the given subscriber and event.
 
 	const std::string& protocol() const;
 		/// Returns the protocol to be used for delivering
@@ -99,6 +116,25 @@ protected:
 		/// given URI.
 		///
 		/// Throws a Poco::NotFoundException if the subscriber is not known.
+		
+	void setEventFilterImpl(const std::string& subscriberURI, const std::string& event, const Poco::Any& filter);
+		/// Sets the event filter for the given subscriber and event.
+		///
+		/// If the given filter is empty, removes the filter.
+		
+	typedef std::map<std::string, Poco::Any> FilterMap;
+	
+	template <typename T>
+	bool accept(const FilterMap& filters, const std::string& event, const T& value)
+	{
+		FilterMap::const_iterator it = filters.find(event);
+		if (it != filters.end())
+		{
+			typename EventFilter<T>::Ptr pFilter = Poco::AnyCast<typename EventFilter<T>::Ptr>(it->second);
+			return pFilter->accept(value);
+		}
+		return true;
+	}
 
 	struct SubscriberInfo: public Poco::RefCountedObject
 	{
@@ -107,6 +143,7 @@ protected:
 		std::string     endpoint;
 		Transport::Ptr  pTransport;
 		Poco::Timestamp expireTime;
+		FilterMap       filters;
 	};
 	typedef std::map<std::string, SubscriberInfo::Ptr> SubscriberMap;
 

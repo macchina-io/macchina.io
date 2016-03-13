@@ -275,6 +275,7 @@
   <ItemGroup>
     <ClInclude Include="include\Poco\RemotingNG\AttributedObject.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventDispatcher.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\EventFilter.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventSubscriber.h"/>
     <ClInclude Include="include\Poco\RemotingNG\Identifiable.h"/>
     <ClInclude Include="include\Poco\RemotingNG\MethodHandler.h"/>

@@ -1,7 +1,7 @@
 //
 // RemoteObjectGenerator.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/RemoteObjectGenerator.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/RemoteObjectGenerator.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -89,7 +89,7 @@ void RemoteObjectGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 
 	if (GenUtility::hasEvents(pStruct))
 	{
-		Poco::CppParser::Function* pEvents = new Poco::CppParser::Function("virtual void remoting__enableEvents", _pStruct);
+		Poco::CppParser::Function* pEvents = new Poco::CppParser::Function("virtual std::string remoting__enableEvents", _pStruct);
 		Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter("Poco::RemotingNG::Listener::Ptr pListener", 0);
 		pEvents->addParameter(pParam);
 		pParam = new Poco::CppParser::Parameter("bool enable = true", 0);
@@ -121,7 +121,7 @@ void RemoteObjectGenerator::registerCallbacks(Poco::CodeGeneration::GeneratorEng
 	e.registerCallback("remoting__typeId", &AbstractGenerator::typeIdCodeGen);
 	if (eventsFound())
 	{
-		e.registerCallback("remoting__enableEvents", &Poco::CodeGeneration::GeneratorEngine::emptyCodeGen);
+		e.registerCallback("remoting__enableEvents", &RemoteObjectGenerator::enableEventsCodeGen);
 		e.registerCallback("remoting__hasEvents", &RemoteObjectGenerator::hasEventsCodeGen);
 		e.registerCallback("remoting__enableRemoteEvents", &RemoteObjectGenerator::enableRemoteEventsCodeGen);
 	}
@@ -347,6 +347,12 @@ void RemoteObjectGenerator::eventCodeGen(const Poco::CppParser::Function* pFunc,
 void RemoteObjectGenerator::hasEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
 	gen.writeMethodImplementation("return true;");
+}
+
+
+void RemoteObjectGenerator::enableEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+{
+	gen.writeMethodImplementation("return std::string();");
 }
 
 

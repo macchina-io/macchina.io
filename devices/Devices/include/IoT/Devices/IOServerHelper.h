@@ -108,7 +108,7 @@ inline void IOServerHelper::enableEvents(const std::string& uri, const std::stri
 
 inline std::string IOServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::IO> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return IOServerHelper::instance().registerObjectImpl(new IORemoteObject(oid, pServiceObject), listenerId);
+	return IOServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

@@ -49,8 +49,9 @@ GNSSSensorRemoteObject::~GNSSSensorRemoteObject()
 }
 
 
-void GNSSSensorRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
+std::string GNSSSensorRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
 {
+	return std::string();
 }
 
 

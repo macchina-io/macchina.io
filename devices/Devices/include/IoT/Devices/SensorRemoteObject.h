@@ -53,6 +53,9 @@ public:
 	virtual ~SensorRemoteObject();
 		/// Destroys the SensorRemoteObject.
 
+	void clearValueChangedFilter(const std::string& subscriberURI);
+		/// Clears the filter set for the valueChanged event.
+
 	virtual bool getFeature(const std::string& name) const;
 		/// Returns true if the feature with the given name
 		/// is enabled, or false otherwise.
@@ -96,7 +99,7 @@ public:
 	virtual bool ready() const;
 		/// Returns true if a valid value is available.
 
-	virtual void remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
+	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
 
 	virtual void remoting__enableRemoteEvents(const std::string& protocol);
 
@@ -134,6 +137,30 @@ public:
 		/// Which properties are supported is defined by the
 		/// actual device implementation.
 
+	void setValueChangedHysteresisFilter(const std::string& subscriberURI, double lowerThreshold, double upperThreshold);
+		/// Sets a Poco::RemotingNG::HysteresisFilter for the valueChanged event.
+
+	void setValueChangedIsGreaterThanFilter(const std::string& subscriberURI, double limit);
+		/// Sets a Poco::RemotingNG::GreaterThanFilter for the valueChanged event.
+
+	void setValueChangedIsGreaterThanOrEqualToFilter(const std::string& subscriberURI, double limit);
+		/// Sets a Poco::RemotingNG::GreaterThanFilter for the valueChanged event.
+
+	void setValueChangedIsLessThanOrEqualToFilter(const std::string& subscriberURI, double limit);
+		/// Sets a Poco::RemotingNG::LessThanOrEqualToFilter for the valueChanged event.
+
+	void setValueChangedIsLessThanThanFilter(const std::string& subscriberURI, double limit);
+		/// Sets a Poco::RemotingNG::LessThanFilter for the valueChanged event.
+
+	void setValueChangedMinimumDeltaFilter(const std::string& subscriberURI, double delta);
+		/// Sets a Poco::RemotingNG::MinimumDeltaFilter for the valueChanged event.
+
+	void setValueChangedMinimumIntervalFilter(const std::string& subscriberURI, long milliseconds);
+		/// Sets a Poco::RemotingNG::MinimumIntervalFilter for the valueChanged event.
+
+	void setValueChangedMinimumIntervalOrDeltaFilter(const std::string& subscriberURI, long milliseconds, double delta);
+		/// Sets a Poco::RemotingNG::MinimumIntervalOrDeltaFilter for the valueChanged event.
+
 	virtual double value() const;
 		/// Returns the current value measured by the sensor.
 		///
@@ -147,6 +174,12 @@ protected:
 private:
 	Poco::SharedPtr<IoT::Devices::Sensor> _pServiceObject;
 };
+
+
+inline void SensorRemoteObject::clearValueChangedFilter(const std::string& subscriberURI)
+{
+	_pServiceObject->clearValueChangedFilter(subscriberURI);
+}
 
 
 inline bool SensorRemoteObject::getFeature(const std::string& name) const
@@ -230,6 +263,54 @@ inline void SensorRemoteObject::setPropertyInt(const std::string& name, int valu
 inline void SensorRemoteObject::setPropertyString(const std::string& name, const std::string& value)
 {
 	_pServiceObject->setPropertyString(name, value);
+}
+
+
+inline void SensorRemoteObject::setValueChangedHysteresisFilter(const std::string& subscriberURI, double lowerThreshold, double upperThreshold)
+{
+	_pServiceObject->setValueChangedHysteresisFilter(subscriberURI, lowerThreshold, upperThreshold);
+}
+
+
+inline void SensorRemoteObject::setValueChangedIsGreaterThanFilter(const std::string& subscriberURI, double limit)
+{
+	_pServiceObject->setValueChangedIsGreaterThanFilter(subscriberURI, limit);
+}
+
+
+inline void SensorRemoteObject::setValueChangedIsGreaterThanOrEqualToFilter(const std::string& subscriberURI, double limit)
+{
+	_pServiceObject->setValueChangedIsGreaterThanOrEqualToFilter(subscriberURI, limit);
+}
+
+
+inline void SensorRemoteObject::setValueChangedIsLessThanOrEqualToFilter(const std::string& subscriberURI, double limit)
+{
+	_pServiceObject->setValueChangedIsLessThanOrEqualToFilter(subscriberURI, limit);
+}
+
+
+inline void SensorRemoteObject::setValueChangedIsLessThanThanFilter(const std::string& subscriberURI, double limit)
+{
+	_pServiceObject->setValueChangedIsLessThanThanFilter(subscriberURI, limit);
+}
+
+
+inline void SensorRemoteObject::setValueChangedMinimumDeltaFilter(const std::string& subscriberURI, double delta)
+{
+	_pServiceObject->setValueChangedMinimumDeltaFilter(subscriberURI, delta);
+}
+
+
+inline void SensorRemoteObject::setValueChangedMinimumIntervalFilter(const std::string& subscriberURI, long milliseconds)
+{
+	_pServiceObject->setValueChangedMinimumIntervalFilter(subscriberURI, milliseconds);
+}
+
+
+inline void SensorRemoteObject::setValueChangedMinimumIntervalOrDeltaFilter(const std::string& subscriberURI, long milliseconds, double delta)
+{
+	_pServiceObject->setValueChangedMinimumIntervalOrDeltaFilter(subscriberURI, milliseconds, delta);
 }
 
 

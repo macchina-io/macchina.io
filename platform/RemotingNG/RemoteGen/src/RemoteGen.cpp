@@ -1,7 +1,7 @@
 //
 // RemoteGen.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/RemoteGen.cpp#2 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/RemoteGen.cpp#3 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -175,7 +175,7 @@ protected:
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleCompiler)));
 
 		options.addOption(
-			Option("osp", "o", "Create services and bundle activator for Applied Informatics Open Service Platform.")
+			Option("osp", "o", "Create services for Applied Informatics Open Service Platform.")
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleOSP)));

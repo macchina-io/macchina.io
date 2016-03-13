@@ -52,6 +52,9 @@ SensorEventDispatcher::~SensorEventDispatcher()
 
 void SensorEventDispatcher::event__valueChanged(const void* pSender, const double& data)
 {
+	remoting__staticInitBegin(REMOTING__EVENT_NAME);
+	static const std::string REMOTING__EVENT_NAME("valueChanged");
+	remoting__staticInitEnd(REMOTING__EVENT_NAME);
 	if (pSender)
 	{
 		Poco::Timestamp now;
@@ -68,7 +71,10 @@ void SensorEventDispatcher::event__valueChanged(const void* pSender, const doubl
 			{
 				try
 				{
-					event__valueChangedImpl(it->first, data);
+					if (accept(it->second->filters, REMOTING__EVENT_NAME, data))
+					{
+						event__valueChangedImpl(it->first, data);
+					}
 				}
 				catch (Poco::RemotingNG::RemoteException&)
 				{

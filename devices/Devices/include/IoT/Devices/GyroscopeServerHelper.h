@@ -98,7 +98,7 @@ inline void GyroscopeServerHelper::enableEvents(const std::string& uri, const st
 
 inline std::string GyroscopeServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::Gyroscope> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return GyroscopeServerHelper::instance().registerObjectImpl(new GyroscopeRemoteObject(oid, pServiceObject), listenerId);
+	return GyroscopeServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

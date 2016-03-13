@@ -98,7 +98,7 @@ inline void MagnetometerServerHelper::enableEvents(const std::string& uri, const
 
 inline std::string MagnetometerServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::Magnetometer> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return MagnetometerServerHelper::instance().registerObjectImpl(new MagnetometerRemoteObject(oid, pServiceObject), listenerId);
+	return MagnetometerServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

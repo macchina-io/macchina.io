@@ -1,7 +1,7 @@
 //
 // ProxyGenerator.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/ProxyGenerator.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/ProxyGenerator.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -129,7 +129,7 @@ void ProxyGenerator::structStart(const Poco::CppParser::Struct* pStruct, const C
 
 	if (!_events.empty())
 	{
-		Poco::CppParser::Function* pEvents = new Poco::CppParser::Function("virtual void remoting__enableEvents", _pStruct);
+		Poco::CppParser::Function* pEvents = new Poco::CppParser::Function("virtual std::string remoting__enableEvents", _pStruct);
 		Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter("Poco::RemotingNG::Listener::Ptr pListener", 0);
 		pEvents->addParameter(pParam);
 		pParam = new Poco::CppParser::Parameter("bool enable = true", 0);
@@ -1325,6 +1325,7 @@ void ProxyGenerator::remotingEventsCodeGen(const Poco::CppParser::Function* pFun
 	const Poco::CppParser::Struct* pStructIn = pProxy->_pStructIn;
 	poco_check_ptr (pStructIn);
 
+	gen.writeMethodImplementation("std::string subscriberURI;");
 	gen.writeMethodImplementation("if ((_pEventListener && !enable) || (!_pEventListener && enable))");
 	gen.writeMethodImplementation("{");
 	gen.writeMethodImplementation("\tPoco::RemotingNG::EventListener::Ptr pEventListener = pListener.cast<Poco::RemotingNG::EventListener>();");
@@ -1335,7 +1336,7 @@ void ProxyGenerator::remotingEventsCodeGen(const Poco::CppParser::Function* pFun
 	gen.writeMethodImplementation("\t\t\tstd::string eventURI = remoting__getEventURI().empty() ? remoting__getURI().toString() : remoting__getEventURI().toString();");
 	std::string className = EventSubscriberGenerator::generateClassName(pStructIn);
 	gen.writeMethodImplementation("\t\t\t_pEventSubscriber = new " + className + "(eventURI, this);");
-	gen.writeMethodImplementation("\t\t\tpEventListener->subscribeToEvents(_pEventSubscriber);");
+	gen.writeMethodImplementation("\t\t\tsubscriberURI = pEventListener->subscribeToEvents(_pEventSubscriber);");
 	gen.writeMethodImplementation("\t\t\t_pEventListener = pEventListener;");
 	gen.writeMethodImplementation("\t\t}");
 	gen.writeMethodImplementation("\t\telse if (_pEventListener == pEventListener)");
@@ -1357,4 +1358,5 @@ void ProxyGenerator::remotingEventsCodeGen(const Poco::CppParser::Function* pFun
 	gen.writeMethodImplementation("\t}");
 	gen.writeMethodImplementation("\telse throw Poco::RemotingNG::RemotingException(\"Listener is not an EventListener\");");
 	gen.writeMethodImplementation("}");
+	gen.writeMethodImplementation("return subscriberURI;");
 }

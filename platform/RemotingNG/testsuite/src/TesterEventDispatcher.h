@@ -28,6 +28,8 @@ public:
 
 	void event__testEvent(const void* pSender, std::string& data);
 
+	void event__testFilteredEvent(const void* pSender, const int& data);
+
 	void event__testOneWayEvent(const void* pSender, std::string& data);
 
 	void event__testVoidEvent(const void* pSender);
@@ -36,6 +38,8 @@ public:
 
 private:
 	void event__testEventImpl(const std::string& subscriberURI, std::string& data);
+
+	void event__testFilteredEventImpl(const std::string& subscriberURI, const int& data);
 
 	void event__testOneWayEventImpl(const std::string& subscriberURI, std::string& data);
 

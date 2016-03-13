@@ -24,6 +24,7 @@
 #include "Poco/RemotingNG/Transport.h"
 #include "Poco/RemotingNG/TransportFactory.h"
 #include "Poco/RemotingNG/TransportFactoryManager.h"
+#include "Poco/RemotingNG/Context.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/Util/TimerTask.h"
 #include "Poco/NumberFormatter.h"
@@ -475,19 +476,35 @@ void BridgeWrapper::getProperty(v8::Local<v8::String> property, const v8::Proper
 	{
 		info.GetReturnValue().Set(object->GetRealNamedProperty(property));
 	}
-	else if (toString(property) == "on")
-	{
-		// For some reason trying to set this function in the object template leads
-		// to a crash at runtime. Therefore this workaround.
-		v8::Local<v8::Function> function = v8::Function::New(info.GetIsolate(), on);
-		function->SetName(property);
-		info.GetReturnValue().Set(function);
-	}
 	else
 	{
-		v8::Local<v8::Function> function = v8::Function::New(info.GetIsolate(), bridgeFunction);
-		function->SetName(property);
-		info.GetReturnValue().Set(function);
+		std::string prop = toString(property);
+		if (prop == "on")
+		{
+			// For some reason trying to set this function in the object template leads
+			// to a crash at runtime. Therefore this workaround.
+			v8::Local<v8::Function> function = v8::Function::New(info.GetIsolate(), on);
+			function->SetName(property);
+			info.GetReturnValue().Set(function);
+		}
+		else if (prop == "$sub")
+		{
+			BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(info);
+			const std::string& suri = pHolder->subscriberURI();
+			info.GetReturnValue().Set(v8::String::NewFromUtf8(info.GetIsolate(), suri.c_str(), v8::String::kNormalString, static_cast<int>(suri.size())));
+		}
+		else if (prop == "$uri")
+		{
+			BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(info);
+			const std::string& uri = pHolder->uri();
+			info.GetReturnValue().Set(v8::String::NewFromUtf8(info.GetIsolate(), uri.c_str(), v8::String::kNormalString, static_cast<int>(uri.size())));
+		}
+		else
+		{
+			v8::Local<v8::Function> function = v8::Function::New(info.GetIsolate(), bridgeFunction);
+			function->SetName(property);
+			info.GetReturnValue().Set(function);
+		}
 	}
 }
 
@@ -542,6 +559,11 @@ void BridgeWrapper::bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& ar
 			{
 				argsArray->Set(i, args[i]);
 			}
+			
+			Poco::RemotingNG::ScopedContext scopedContext;
+			scopedContext.context()->setValue("transport", Transport::PROTOCOL);
+			scopedContext.context()->setValue("uri", pHolder->uri());
+
 			Deserializer deserializer(method, Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST, args.GetIsolate(), argsArray);
 			Serializer serializer(args.GetIsolate());
 			ServerTransport transport(deserializer, serializer);

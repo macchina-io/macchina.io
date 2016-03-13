@@ -54,6 +54,9 @@ public:
 	const std::string& uri() const;
 		/// Returns the Remoting URI.
 		
+	const std::string& subscriberURI() const;
+		/// Returns the event subscriber URI.
+		
 	void setPersistent(const v8::Persistent<v8::Object>& jsObject);
 		/// Sets the associated JavaScript object.
 		
@@ -149,6 +152,12 @@ protected:
 inline const std::string& BridgeHolder::uri() const
 {
 	return _uri;
+}
+
+
+inline const std::string& BridgeHolder::subscriberURI() const
+{
+	return _subscriberURI;
 }
 
 

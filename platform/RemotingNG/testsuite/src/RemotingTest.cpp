@@ -1,7 +1,7 @@
 //
 // RemotingTest.cpp
 //
-// $Id: //poco/1.7/RemotingNG/testsuite/src/RemotingTest.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/testsuite/src/RemotingTest.cpp#2 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -177,11 +177,12 @@ namespace
 		}
 				
 		// EventListener
-		void subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber)
+		std::string subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber)
 		{
 			_pEventSubscriber = pEventSubscriber;
 			std::string subscriberURI = createURI("RemotingNG::EventSubscriber", "TheEventSubscriber");
 			_pServerListener->registerSubscriber(pEventSubscriber->uri(), subscriberURI);
+			return subscriberURI;
 		}
 
 		void unsubscribeFromEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber)
@@ -381,7 +382,9 @@ bool operator == (const Struct4& s1, const Struct4& s2)
 }
 
 
-RemotingTest::RemotingTest(const std::string& name): CppUnit::TestCase(name)
+RemotingTest::RemotingTest(const std::string& name): 
+	CppUnit::TestCase(name),
+	_filteredArg(0)
 {
 }
 
@@ -604,6 +607,42 @@ void RemotingTest::testVoidEvent()
 	_eventArg.clear();
 	pTester->fireTestVoidEvent();
 	assert (_eventArg == "FIRED");
+
+	TestTransportFactory::unregisterFactory("evmock");
+	Poco::RemotingNG::ORB::instance().unregisterListener(elEndpoint);	
+}
+
+
+void RemotingTest::testFilteredEvent()
+{
+	MockListener::Ptr pEventListener = new MockListener("evmock", "endpoint2", _pListener.cast<MockListener>());
+	std::string elEndpoint = Poco::RemotingNG::ORB::instance().registerListener(pEventListener);
+	TestTransportFactory::registerFactory(pEventListener, "evmock");
+	TesterServerHelper::enableEvents(_objectURI, "evmock");
+	
+	// We must use the exact same URI as registered on the server ORB,
+	// so we have to manually build a Proxy, otherwise the ORB would
+	// just return a RemoteObject.
+	Poco::AutoPtr<TesterProxy> pTester = new TesterProxy("TheTester");
+	pTester->remoting__connect("mock", "mock://localhost/mock/Tester/TheTester");
+	std::string subscriberURI = pTester->remoting__enableEvents(pEventListener);
+
+	Poco::RemotingNG::EventDispatcher::Ptr pED = Poco::RemotingNG::ORB::instance().findEventDispatcher("mock://localhost/mock/Tester/TheTester", "evmock");
+	pED->setEventFilter<int>(subscriberURI, "testFilteredEvent", new Poco::RemotingNG::IsGreaterThanOrEqualToFilter<int>(100));
+
+	pTester->testFilteredEvent += Poco::delegate(this, &RemotingTest::onFilteredEvent);
+	_filteredArg = 0;
+	pTester->fireTestFilteredEvent(10);
+	assert (_filteredArg == 0);
+	pTester->fireTestFilteredEvent(100);
+	assert (_filteredArg == 100);
+	
+	pED->removeEventFilter(subscriberURI, "testFilteredEvent");
+	
+	pTester->fireTestFilteredEvent(1);
+	assert (_filteredArg == 1);
+	pTester->fireTestFilteredEvent(2);
+	assert (_filteredArg == 2);
 
 	TestTransportFactory::unregisterFactory("evmock");
 	Poco::RemotingNG::ORB::instance().unregisterListener(elEndpoint);	
@@ -916,6 +955,12 @@ void RemotingTest::onVoidEvent(const void* pSender)
 }
 
 
+void RemotingTest::onFilteredEvent(const int& arg)
+{
+	_filteredArg = arg;
+}
+
+
 CppUnit::Test* RemotingTest::suite()
 {
 	CppUnit::TestSuite* pSuite = new CppUnit::TestSuite("RemotingTest");
@@ -939,6 +984,7 @@ CppUnit::Test* RemotingTest::suite()
 	CppUnit_addTest(pSuite, RemotingTest, testEvent);
 	CppUnit_addTest(pSuite, RemotingTest, testOneWayEvent);
 	CppUnit_addTest(pSuite, RemotingTest, testVoidEvent);
+	CppUnit_addTest(pSuite, RemotingTest, testFilteredEvent);
 
 	return pSuite;
 }

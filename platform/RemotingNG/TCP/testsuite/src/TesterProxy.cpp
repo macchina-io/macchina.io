@@ -131,8 +131,9 @@ void TesterProxy::fireTestVoidEvent()
 }
 
 
-void TesterProxy::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
+std::string TesterProxy::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
 {
+	std::string subscriberURI;
 	if ((_pEventListener && !enable) || (!_pEventListener && enable))
 	{
 		Poco::RemotingNG::EventListener::Ptr pEventListener = pListener.cast<Poco::RemotingNG::EventListener>();
@@ -142,7 +143,7 @@ void TesterProxy::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListen
 			{
 				std::string eventURI = remoting__getEventURI().empty() ? remoting__getURI().toString() : remoting__getEventURI().toString();
 				_pEventSubscriber = new TesterEventSubscriber(eventURI, this);
-				pEventListener->subscribeToEvents(_pEventSubscriber);
+				subscriberURI = pEventListener->subscribeToEvents(_pEventSubscriber);
 				_pEventListener = pEventListener;
 			}
 			else if (_pEventListener == pEventListener)
@@ -164,6 +165,7 @@ void TesterProxy::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListen
 		}
 		else throw Poco::RemotingNG::RemotingException("Listener is not an EventListener");
 	}
+	return subscriberURI;
 }
 
 

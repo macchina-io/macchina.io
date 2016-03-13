@@ -1,7 +1,7 @@
 //
 // Utility.h
 //
-// $Id: //poco/1.7/CodeGeneration/include/Poco/CodeGeneration/Utility.h#1 $
+// $Id: //poco/1.7/CodeGeneration/include/Poco/CodeGeneration/Utility.h#2 $
 //
 // Library: CodeGeneration
 // Package: CodeGeneration
@@ -72,6 +72,7 @@ public:
 	static const std::string REQUEST;
 	static const std::string REPLY;
 	static const std::string FAULT;
+	static const std::string FILTER;
 	static const std::string IN;
 	static const std::string FORMAT;
 	static const std::string PATH;
