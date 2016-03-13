@@ -15,6 +15,7 @@
 
 
 #include "TimeServiceEventSubscriber.h"
+#include "Poco/Delegate.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/MethodHandler.h"
 #include "Poco/RemotingNG/Serializer.h"

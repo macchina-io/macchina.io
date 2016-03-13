@@ -42,7 +42,7 @@ public:
 	virtual Poco::DateTime currentTime() const = 0;
 		/// Returns the current date and time.
 
-	virtual void remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true)) = 0;
+	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true)) = 0;
 		/// Enable or disable delivery of remote events.
 		///
 		/// The given Listener instance must implement the Poco::RemotingNG::EventListener
