@@ -3,15 +3,15 @@
 //
 // $Id: //poco/1.4/OSP/JS/src/JSSPageReader.h#2 $
 //
-// Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2013-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
 
 
-#ifndef OSP_JS_JSSPageReader_INCLUDED
-#define OSP_JS_JSSPageReader_INCLUDED
+#ifndef OSP_JS_Web_JSSPageReader_INCLUDED
+#define OSP_JS_Web_JSSPageReader_INCLUDED
 
 
 #include "Poco/Poco.h"
@@ -23,6 +23,7 @@
 namespace Poco {
 namespace OSP {
 namespace JS {
+namespace Web {
 
 
 class JSSPage;
@@ -82,7 +83,7 @@ private:
 };
 
 
-} } } // namespace Poco::OSP::JS
+} } } } // namespace Poco::OSP::JS::Web
 
 
-#endif // OSP_JS_JSSPageReader_INCLUDED
+#endif // OSP_JS_Web_JSSPageReader_INCLUDED

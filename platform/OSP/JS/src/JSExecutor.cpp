@@ -10,9 +10,9 @@
 //
 
 
-#include "JSExecutor.h"
-#include "BundleWrapper.h"
-#include "ServiceRegistryWrapper.h"
+#include "Poco/OSP/JS/JSExecutor.h"
+#include "Poco/OSP/JS/BundleWrapper.h"
+#include "Poco/OSP/JS/ServiceRegistryWrapper.h"
 #include "Poco/JS/Core/LoggerWrapper.h"
 #include "Poco/JS/Core/ConsoleWrapper.h"
 #include "Poco/JS/Core/ConfigurationWrapper.h"

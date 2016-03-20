@@ -3,7 +3,7 @@
 //
 // $Id: //poco/1.4/OSP/JS/src/JSServerPageFilter.cpp#1 $
 //
-// Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2013-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -18,6 +18,7 @@
 namespace Poco {
 namespace OSP {
 namespace JS {
+namespace Web {
 
 
 JSServerPageFilter::JSServerPageFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args):
@@ -42,4 +43,4 @@ void JSServerPageFilter::preprocess(Poco::Net::HTTPServerRequest& request, Poco:
 }
 
 
-} } } // namespace Poco::OSP::JS
+} } } } // namespace Poco::OSP::JS::Web

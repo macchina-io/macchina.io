@@ -10,7 +10,7 @@
 //
 
 
-#include "BundleWrapper.h"
+#include "Poco/OSP/JS/BundleWrapper.h"
 #include "Poco/OSP/Bundle.h"
 #include "Poco/StreamCopier.h"
 #include <memory>

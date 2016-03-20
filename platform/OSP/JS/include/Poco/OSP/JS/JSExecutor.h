@@ -14,6 +14,7 @@
 #define OSP_JS_JSExecutor_INCLUDED
 
 
+#include "Poco/OSP/JS/JS.h"
 #include "Poco/OSP/BundleContext.h"
 #include "Poco/OSP/BundleEvent.h"
 #include "Poco/JS/Core/JSExecutor.h"
@@ -26,7 +27,7 @@ namespace OSP {
 namespace JS {
 
 
-class JSExecutor: public Poco::JS::Core::JSExecutor
+class OSPJS_API JSExecutor: public Poco::JS::Core::JSExecutor
 	/// An extension of the Poco::JS::Core::JSExecutor for executing JavaScript
 	/// code within an OSP environment.
 	///

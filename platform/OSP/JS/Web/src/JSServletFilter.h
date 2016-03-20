@@ -3,15 +3,15 @@
 //
 // $Id: //poco/1.4/OSP/JS/src/JSServletFilter.h#1 $
 //
-// Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2013-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
 
 
-#ifndef OSP_JS_JSServletFilter_INCLUDED
-#define OSP_JS_JSServletFilter_INCLUDED
+#ifndef OSP_JS_Web_JSServletFilter_INCLUDED
+#define OSP_JS_Web_JSServletFilter_INCLUDED
 
 
 #include "Poco/OSP/Web/WebFilter.h"
@@ -23,6 +23,7 @@
 namespace Poco {
 namespace OSP {
 namespace JS {
+namespace Web {
 
 
 class JSServletFilter: public Poco::OSP::Web::WebFilter
@@ -69,7 +70,7 @@ inline Poco::OSP::BundleContext::Ptr JSServletFilter::context() const
 }
 
 
-} } } // namespace Poco::OSP::JS
+} } } } // namespace Poco::OSP::JS::Web
 
 
-#endif // OSP_JS_JSServletFilter_INCLUDED
+#endif // OSP_JS_Web_JSServletFilter_INCLUDED

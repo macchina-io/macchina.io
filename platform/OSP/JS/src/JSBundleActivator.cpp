@@ -24,10 +24,8 @@
 #include "Poco/StringTokenizer.h"
 #include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
-#include "JSExecutor.h"
-#include "JSExtensionPoint.h"
-#include "JSServletFilter.h"
-#include "JSServerPageFilter.h"
+#include "Poco/OSP/JS/JSExecutor.h"
+#include "Poco/OSP/JS/JSExtensionPoint.h"
 #include "v8.h"
 
 
@@ -141,12 +139,6 @@ private:
 
 
 } } } // namespace Poco::OSP::JS
-
-
-POCO_BEGIN_NAMED_MANIFEST(WebFilter, Poco::OSP::Web::WebFilterFactory)
-	POCO_EXPORT_CLASS(Poco::OSP::JS::JSServletFilterFactory)
-	POCO_EXPORT_CLASS(Poco::OSP::JS::JSServerPageFilterFactory)
-POCO_END_MANIFEST
 
 
 POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)

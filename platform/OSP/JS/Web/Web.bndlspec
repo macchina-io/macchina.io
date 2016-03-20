@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>OSP JavaScript Web Server Integration</name>
+    <symbolicName>com.appinf.osp.js.web</symbolicName>
+    <version>1.0.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2013-2016, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>Poco::OSP::JS::Web::JSWebBundleActivator</class>
+      <library>com.appinf.osp.js.web</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>600</runLevel>
+    <dependency>
+      <symbolicName>com.appinf.osp.js</symbolicName>
+      <version>[1.0.0, 2.0.0)</version>
+    </dependency>
+    <dependency>
+      <symbolicName>osp.web</symbolicName>
+      <version>[1.0.0, 2.0.0)</version>
+    </dependency>
+  </manifest>
+  <files>
+  	bundle/*
+  </files>
+  <code>
+    ${bin}/*.dll
+    ${bin}/*.pdb
+     bin/${osName}/${osArch}/*.so
+    bin/${osName}/${osArch}/*.dylib
+  </code>
+</bundlespec>

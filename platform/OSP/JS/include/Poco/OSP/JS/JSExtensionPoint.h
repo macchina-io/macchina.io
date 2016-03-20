@@ -14,10 +14,11 @@
 #define OSP_JS_JSExtensionPoint_INCLUDED
 
 
+#include "Poco/OSP/JS/JS.h"
+#include "Poco/OSP/JS/JSExecutor.h"
 #include "Poco/OSP/ExtensionPoint.h"
 #include "Poco/OSP/BundleContext.h"
 #include "Poco/OSP/BundleEvent.h"
-#include "JSExecutor.h"
 #include "Poco/Mutex.h"
 #include <vector>
 
@@ -27,7 +28,7 @@ namespace OSP {
 namespace JS {
 
 
-class JSExtensionPoint: public Poco::OSP::ExtensionPoint
+class OSPJS_API JSExtensionPoint: public Poco::OSP::ExtensionPoint
 	/// An extension point for starting JavaScript scripts contained
 	/// in bundles.
 	///

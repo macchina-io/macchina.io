@@ -10,8 +10,8 @@
 //
 
 
-#include "ServiceRegistryWrapper.h"
-#include "ServiceRefWrapper.h"
+#include "Poco/OSP/JS/ServiceRegistryWrapper.h"
+#include "Poco/OSP/JS/ServiceRefWrapper.h"
 
 
 namespace Poco {

@@ -14,6 +14,7 @@
 #define OSP_JS_BundleWrapper_INCLUDED
 
 
+#include "Poco/OSP/JS/JS.h"
 #include "Poco/JS/Core/Core.h"
 #include "Poco/JS/Core/Wrapper.h"
 
@@ -23,7 +24,7 @@ namespace OSP {
 namespace JS {
 
 
-class BundleWrapper: public Poco::JS::Core::Wrapper
+class OSPJS_API BundleWrapper: public Poco::JS::Core::Wrapper
 	/// JavaScript wrapper for Poco::OSP::Bundle.
 {
 public:

@@ -1,0 +1,21 @@
+#
+# Makefile-Library
+#
+# $Id: //poco/1.7/OSP/Web/Makefile-Library#1 $
+#
+# Makefile for Poco OSPWeb Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = JSExecutor \
+	JSExtensionPoint \
+	BundleWrapper \
+	ServiceRegistryWrapper \
+	ServiceRefWrapper
+
+target         = PocoOSPJS
+target_version = 3
+target_libs    = PocoJSNet PocoJSData PocoJSBridge PocoJSCore PocoOSP PocoNet PocoUtil PocoXML PocoFoundation v8
+
+include $(POCO_BASE)/build/rules/lib

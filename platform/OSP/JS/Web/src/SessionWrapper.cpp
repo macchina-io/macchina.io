@@ -3,7 +3,7 @@
 //
 // $Id$
 //
-// Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2015-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -19,6 +19,7 @@
 namespace Poco {
 namespace OSP {
 namespace JS {
+namespace Web {
 
 
 SessionWrapper::SessionWrapper()
@@ -262,4 +263,4 @@ void SessionWrapper::authorize(const v8::FunctionCallbackInfo<v8::Value>& args)
 }
 
 
-} } } // namespace Poco::OSP::JS
+} } } } // namespace Poco::OSP::JS::Web

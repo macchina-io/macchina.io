@@ -10,7 +10,7 @@
 //
 
 
-#include "JSExtensionPoint.h"
+#include "Poco/OSP/JS/JSExtensionPoint.h"
 #include "Poco/OSP/BundleEvents.h"
 #include "Poco/StreamCopier.h"
 #include "Poco/NumberParser.h"

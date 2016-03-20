@@ -14,6 +14,7 @@
 #define OSP_JS_ServiceRefWrapper_INCLUDED
 
 
+#include "Poco/OSP/JS/JS.h"
 #include "Poco/JS/Core/Core.h"
 #include "Poco/JS/Core/Wrapper.h"
 #include "Poco/OSP/ServiceRef.h"
@@ -24,7 +25,7 @@ namespace OSP {
 namespace JS {
 
 
-class ServiceRefWrapper: public Poco::JS::Core::Wrapper
+class OSPJS_API ServiceRefWrapper: public Poco::JS::Core::Wrapper
 	/// JavaScript wrapper for Poco::OSP::ServiceRef.
 {
 public:

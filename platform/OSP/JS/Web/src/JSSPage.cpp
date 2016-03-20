@@ -18,6 +18,7 @@
 namespace Poco {
 namespace OSP {
 namespace JS {
+namespace Web {
 
 
 JSSPage::JSSPage()
@@ -53,4 +54,4 @@ int JSSPage::getInt(const std::string& property, int deflt) const
 }
 
 
-} } } // namespace Poco::OSP::JS
+} } } } // namespace Poco::OSP::JS::Web

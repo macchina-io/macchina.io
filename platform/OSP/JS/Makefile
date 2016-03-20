@@ -1,27 +1,13 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/OSP/JS/Makefile#5 $
+# $Id$
 #
-# Makefile for OSP JS Bundle
+# Makefile for Poco OSP JS 
 #
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-
-include $(POCO_BASE)/build/rules/global
-
-objects = JSExecutor JSServletExecutor \
-	JSServletFilter JSServerPageFilter \
-	JSSPage JSSPageReader \
-	JSExtensionPoint \
-	BundleWrapper ServiceRegistryWrapper ServiceRefWrapper \
-	SessionWrapper \
-	JSBundleActivator
-
-target         = com.appinf.osp.js
-target_version = 1
-target_libs    = PocoJSNet PocoJSData PocoJSBridge PocoJSCore PocoOSPWeb PocoOSP PocoRemotingNG PocoNet PocoUtil PocoXML PocoData PocoFoundation v8
-
-postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles JS.bndlspec
-
-include $(POCO_BASE)/build/rules/dylib
+.PHONY: bundle
+clean all: bundle
+bundle:
+	$(MAKE) -f Makefile-Library $(MAKECMDGOALS)
+	$(MAKE) -f Makefile-Bundle $(MAKECMDGOALS)

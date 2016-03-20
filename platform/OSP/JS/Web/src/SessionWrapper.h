@@ -3,15 +3,15 @@
 //
 // $Id$
 //
-// Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2015-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
 
 
-#ifndef OSP_JS_SessionWrapper_INCLUDED
-#define OSP_JS_SessionWrapper_INCLUDED
+#ifndef OSP_JS_Web_SessionWrapper_INCLUDED
+#define OSP_JS_Web_SessionWrapper_INCLUDED
 
 
 #include "Poco/JS/Core/Core.h"
@@ -22,6 +22,7 @@
 namespace Poco {
 namespace OSP {
 namespace JS {
+namespace Web {
 
 
 class SessionHolder
@@ -77,7 +78,7 @@ protected:
 };
 
 
-} } } // namespace Poco::OSP::JS
+} } } } // namespace Poco::OSP::JS::Web
 
 
-#endif // OSP_JS_SessionWrapper_INCLUDED
+#endif // OSP_JS_Web_SessionWrapper_INCLUDED

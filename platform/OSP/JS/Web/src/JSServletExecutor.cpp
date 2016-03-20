@@ -24,6 +24,7 @@
 namespace Poco {
 namespace OSP {
 namespace JS {
+namespace Web {
 
 
 namespace
@@ -161,4 +162,4 @@ void JSServletExecutor::handleError(const ErrorInfo& errorInfo)
 }
 
 
-} } } // namespace Poco::OSP::JS
+} } } } // namespace Poco::OSP::JS::Web

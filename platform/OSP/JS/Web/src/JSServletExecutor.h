@@ -3,7 +3,7 @@
 //
 // $Id: //poco/1.4/OSP/JS/src/JSServletExecutor.h#2 $
 //
-// Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2013-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -14,7 +14,7 @@
 #define OSP_JS_ServletExecutor_INCLUDED
 
 
-#include "JSExecutor.h"
+#include "Poco/OSP/JS/JSExecutor.h"
 #include "SessionWrapper.h"
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
@@ -27,6 +27,7 @@
 namespace Poco {
 namespace OSP {
 namespace JS {
+namespace Web {
 
 
 class JSServletExecutor: public JSExecutor
@@ -65,7 +66,7 @@ private:
 };
 
 
-} } } // namespace Poco::OSP::JS
+} } } } // namespace Poco::OSP::JS::Web
 
 
 #endif // OSP_JS_ServletExecutor_INCLUDED

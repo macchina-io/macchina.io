@@ -3,7 +3,7 @@
 //
 // $Id: //poco/1.4/OSP/JS/src/JSServletFilter.cpp#1 $
 //
-// Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2013-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -19,6 +19,7 @@
 namespace Poco {
 namespace OSP {
 namespace JS {
+namespace Web {
 
 
 namespace
@@ -127,4 +128,4 @@ void JSServletFilter::sendErrorResponse(Poco::Net::HTTPServerResponse& response,
 }
 
 
-} } } // namespace Poco::OSP::JS
+} } } } // namespace Poco::OSP::JS::Web

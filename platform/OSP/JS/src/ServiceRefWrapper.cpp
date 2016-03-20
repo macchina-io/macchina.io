@@ -10,7 +10,7 @@
 //
 
 
-#include "ServiceRefWrapper.h"
+#include "Poco/OSP/JS/ServiceRefWrapper.h"
 #include "Poco/OSP/ServiceRef.h"
 #include "Poco/JS/Bridge/BridgeWrapper.h"
 #include "Poco/JS/Core/PooledIsolate.h"
