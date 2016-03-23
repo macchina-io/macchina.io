@@ -70,7 +70,7 @@ struct Message
 		///     subscription, the flag being true indicates that the received message 
 		///     is not a new one, but one that has been retained by the MQTT server.
 		///
-		///   * retained = false: For publishers, this ndicates that this message 
+		///   * retained = false: For publishers, this indicates that this message 
 		///     should not be retained by the MQTT server. For subscribers, a false 
 		///     setting indicates this is a normal message, received as a result of it 
 		///     being published to the server.
@@ -215,7 +215,8 @@ public:
 	virtual void connect() = 0;
 		/// Connects to the server if not already connected.
 		///
-		/// Normally, the client connects automatically if a
+		/// Normally, the client connects automatically when a message is
+		/// published or a topic is subscribed to.
 		///
 		/// Throws a Poco::IOException if the connection cannot be established.
 		
