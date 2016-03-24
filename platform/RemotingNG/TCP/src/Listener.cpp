@@ -1,7 +1,7 @@
 //
 // Listener.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/Listener.cpp#2 $
+// $Id: //poco/1.7/RemotingNG/TCP/src/Listener.cpp#3 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -66,13 +66,17 @@ private:
 };
 
 
+Poco::FastMutex Listener::_staticMutex;
+Poco::UInt32 Listener::_nextSubscriberId(1);
+Listener::Ptr Listener::_pDefaultListener;
+
+
 Listener::Listener(ConnectionManager& connectionManager):
 	Poco::RemotingNG::EventListener("0.0.0.0:0"),
 	_connectionManager(connectionManager),
 	_timeout(DEFAULT_TIMEOUT, 0),
 	_eventSubscriptionTimeout(DEFAULT_EVENT_SUBSCR_TIMEOUT, 0),
-	_secure(false),
-	_nextSubscriberId(1)
+	_secure(false)
 {
 }
 
@@ -82,8 +86,7 @@ Listener::Listener(const std::string& endPoint, ConnectionManager& connectionMan
 	_connectionManager(connectionManager),
 	_timeout(DEFAULT_TIMEOUT, 0),
 	_eventSubscriptionTimeout(DEFAULT_EVENT_SUBSCR_TIMEOUT, 0),
-	_secure(false),
-	_nextSubscriberId(1)
+	_secure(false)
 {
 	Poco::Net::SocketAddress addr(endPoint);
 	Poco::Net::ServerSocket socket(addr);
@@ -96,8 +99,7 @@ Listener::Listener(const std::string& endPoint, Poco::Net::TCPServerParams::Ptr 
 	_connectionManager(connectionManager),
 	_timeout(DEFAULT_TIMEOUT, 0),
 	_eventSubscriptionTimeout(DEFAULT_EVENT_SUBSCR_TIMEOUT, 0),
-	_secure(false),
-	_nextSubscriberId(1)
+	_secure(false)
 {
 	Poco::Net::SocketAddress addr(endPoint);
 	Poco::Net::ServerSocket socket(addr);
@@ -110,8 +112,7 @@ Listener::Listener(const std::string& endPoint, const Poco::Net::ServerSocket& s
 	_connectionManager(connectionManager),
 	_timeout(DEFAULT_TIMEOUT, 0),
 	_eventSubscriptionTimeout(DEFAULT_EVENT_SUBSCR_TIMEOUT, 0),
-	_secure(socket.secure()),
-	_nextSubscriberId(1)
+	_secure(socket.secure())
 {
 	_pTCPServer = new Poco::Net::TCPServer(new ServerConnectionFactory(Ptr(this, true)), socket, pParams);
 }
@@ -156,8 +157,7 @@ std::string Listener::subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr p
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 	
-	Poco::UInt32 nextSubscriberId = _nextSubscriberId++;
-	EventSubscription::Ptr pEventSubscription = new EventSubscription(*this, pEventSubscriber->uri(), nextSubscriberId);
+	EventSubscription::Ptr pEventSubscription = new EventSubscription(*this, pEventSubscriber->uri(), nextSubscriberId());
 	EventSubscriptionsMap::iterator it = _eventSubscriptions.find(pEventSubscriber);
 	if (it == _eventSubscriptions.end())
 	{
@@ -290,6 +290,24 @@ void Listener::EventSubscription::run()
 	_suri.copy(pFrame->payloadBegin(), _suri.size());
 	pFrame->setPayloadSize(static_cast<Poco::UInt16>(_suri.size()));
 	pConnection->sendFrame(pFrame);
+}
+
+
+Poco::UInt32 Listener::nextSubscriberId()
+{
+	Poco::FastMutex::ScopedLock lock(_staticMutex);
+	return _nextSubscriberId++;
+}
+
+
+Listener::Ptr Listener::defaultListener()
+{
+	Poco::FastMutex::ScopedLock lock(_staticMutex);
+	if (!_pDefaultListener)
+	{
+		_pDefaultListener = new Listener;
+	}
+	return _pDefaultListener;
 }
 
 

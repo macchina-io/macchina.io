@@ -1,7 +1,7 @@
 //
 // Listener.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Listener.h#2 $
+// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Listener.h#3 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -30,15 +30,13 @@
 #include "Poco/BasicEvent.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/Mutex.h"
+#include "Poco/AtomicCounter.h"
 #include <map>
 
 
 namespace Poco {
 namespace RemotingNG {
 namespace TCP {
-
-
-class EventSubscription;
 
 
 class RemotingNGTCP_API Listener: public Poco::RemotingNG::EventListener
@@ -55,6 +53,14 @@ public:
 		///
 		/// This method is used to set up a passive Event Listener
 		/// on the client. No TCPServer will be created.
+		///
+		/// There must not be more than one passive Event Listener
+		/// per Connection. A single instance can be used for all
+		/// connections an application uses. The defaultListener()
+		/// method can be used to obtain such a shared Event
+		/// Listener object. Creating the Event Listener explicitly
+		/// is not recommended, unless a non-default ConnectionManager
+		/// has to be used.
 
 	Listener(const std::string& endPoint, ConnectionManager& connectionManager = ConnectionManager::defaultManager());
 		/// Creates a Listener for the given endpoint,
@@ -103,6 +109,9 @@ public:
 		
 	ConnectionManager& connectionManager();
 		/// Returns the ConnectionManager used by the Listener.
+		
+	static Ptr defaultListener();
+		/// Returns the Listener instance used for event subscriptions.
 
 	// Poco::RemotingNG::EventListener
 	std::string subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber);
@@ -145,16 +154,20 @@ private:
 	};
 
 	typedef std::map<Poco::RemotingNG::EventSubscriber::Ptr, EventSubscription::Ptr> EventSubscriptionsMap;
-	
+
+	static Poco::UInt32 nextSubscriberId();
+
 	ConnectionManager& _connectionManager;
 	Poco::Timespan _timeout;
 	Poco::Timespan _eventSubscriptionTimeout;
 	bool _secure;
 	Poco::SharedPtr<Poco::Net::TCPServer> _pTCPServer;
 	EventSubscriptionsMap _eventSubscriptions;
-	Poco::UInt32 _nextSubscriberId;
 	Timer _timer;
 	mutable Poco::FastMutex _mutex;
+	static Poco::FastMutex _staticMutex;
+	static Poco::UInt32 _nextSubscriberId;
+	static Ptr _pDefaultListener;
 };
 
 
