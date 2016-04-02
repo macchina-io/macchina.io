@@ -17,6 +17,10 @@
 #include "Poco/JS/Core/LoggerWrapper.h"
 #include "Poco/JS/Core/BufferWrapper.h"
 #include "Poco/Logger.h"
+#include "Poco/LoggingFactory.h"
+#include "Poco/LoggingRegistry.h"
+#include "Poco/FormattingChannel.h"
+#include "Poco/PatternFormatter.h"
 #include "Poco/NumberParser.h"
 #include "Poco/NumberFormatter.h"
 
@@ -33,6 +37,12 @@ LoggerWrapper::LoggerWrapper()
 
 LoggerWrapper::~LoggerWrapper()
 {
+}
+
+
+v8::Handle<v8::FunctionTemplate> LoggerWrapper::constructor(v8::Isolate* pIsolate)
+{
+	return v8::FunctionTemplate::New(pIsolate, construct);
 }
 
 
@@ -64,6 +74,96 @@ v8::Handle<v8::ObjectTemplate> LoggerWrapper::objectTemplate(v8::Isolate* pIsola
 	return handleScope.Escape(loggerTemplate);
 }
 	
+
+void LoggerWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::HandleScope handleScope(args.GetIsolate());
+
+	Poco::Logger* pLogger = 0;
+	try
+	{
+		if (args.Length() > 1 && !args[1]->IsObject())
+			throw Poco::InvalidArgumentException("Second argument must be configuration object");
+	
+		std::string loggerName;
+		if (args.Length() > 0)
+		{
+			loggerName = toString(args[0]);
+		}
+		
+		bool isExistingLogger = Poco::Logger::has(loggerName) != 0;
+		bool reconfigure = args.Length() > 2 && args[2]->BooleanValue();
+		
+		pLogger = &Poco::Logger::get(loggerName);
+		
+		if ((!isExistingLogger || reconfigure) && args.Length() > 1 && args[1]->IsObject())
+		{
+			v8::Local<v8::String> levelProp = v8::String::NewFromUtf8(args.GetIsolate(), "level");
+			v8::Local<v8::String> patternProp = v8::String::NewFromUtf8(args.GetIsolate(), "pattern");
+			v8::Local<v8::String> channelProp = v8::String::NewFromUtf8(args.GetIsolate(), "channel");
+			v8::Local<v8::String> classProp = v8::String::NewFromUtf8(args.GetIsolate(), "class");
+			
+			v8::Local<v8::Object> config = args[1].As<v8::Object>();			
+			Poco::AutoPtr<Poco::Channel> pChannel;
+			
+			if (config->Has(levelProp))
+			{
+				std::string level = toString(config->Get(levelProp));
+				pLogger->setLevel(level);
+			}
+						
+			if (config->Has(channelProp))
+			{
+				v8::Local<v8::Value> channelArg = config->Get(channelProp);
+				if (channelArg->IsObject())
+				{
+					std::string channelClass;
+					v8::Local<v8::Object> channelConfig = channelArg.As<v8::Object>();
+					if (channelConfig->Has(classProp))
+					{
+						channelClass = toString(channelConfig->Get(classProp));
+					}
+					else throw Poco::NotFoundException("Missing channel configuration property", "class");
+					pChannel = Poco::LoggingFactory::defaultFactory().createChannel(channelClass);
+					
+					v8::Local<v8::Array> channelProps = channelConfig->GetOwnPropertyNames();
+					for (unsigned i = 0; i < channelProps->Length(); i++)
+					{
+						std::string prop = toString(channelProps->Get(i));
+						if (prop != "class")
+						{
+							std::string value = toString(channelConfig->Get(channelProps->Get(i)));
+							pChannel->setProperty(prop, value);
+						}
+					}
+				}
+				else
+				{
+					std::string channelName = toString(channelArg);
+					pChannel.assign(Poco::LoggingRegistry::defaultRegistry().channelForName(channelName), true);
+				}
+			}
+			
+			if (config->Has(patternProp))
+			{
+				std::string pattern = toString(config->Get(patternProp));
+				Poco::AutoPtr<Poco::PatternFormatter> pPatternFormatter = new Poco::PatternFormatter(pattern);
+				pChannel = new Poco::FormattingChannel(pPatternFormatter, pChannel);
+			}
+
+			pLogger->setChannel(pChannel);
+		}
+		
+		LoggerWrapper wrapper;
+		v8::Local<v8::Object> loggerObject(wrapper.wrapNative(args.GetIsolate(), pLogger));
+		args.GetReturnValue().Set(loggerObject);
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
+}
+
 
 void LoggerWrapper::log(const v8::FunctionCallbackInfo<v8::Value>& args)
 {

@@ -21,6 +21,7 @@
 #include "Poco/JS/Core/ApplicationWrapper.h"
 #include "Poco/JS/Core/URIWrapper.h"
 #include "Poco/JS/Core/TimerWrapper.h"
+#include "Poco/JS/Core/LoggerWrapper.h"
 #include "Poco/JS/Core/BufferWrapper.h"
 #include "Poco/JS/Core/JSException.h"
 #include "Poco/Delegate.h"
@@ -360,6 +361,9 @@ void JSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isol
 
 	Poco::JS::Core::BufferWrapper bufferWrapper;
 	global->Set(v8::String::NewFromUtf8(pIsolate, "Buffer"), bufferWrapper.constructor(pIsolate));
+
+	Poco::JS::Core::LoggerWrapper loggerWrapper;
+	global->Set(v8::String::NewFromUtf8(pIsolate, "Logger"), loggerWrapper.constructor(pIsolate));
 
 	Poco::JS::Core::SystemWrapper systemWrapper;
 	v8::Local<v8::Object> systemObject = systemWrapper.wrapNative(pIsolate);
