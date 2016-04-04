@@ -43,7 +43,10 @@ DateTimeWrapper::~DateTimeWrapper()
 
 v8::Handle<v8::FunctionTemplate> DateTimeWrapper::constructor(v8::Isolate* pIsolate)
 {
-	return v8::FunctionTemplate::New(pIsolate, construct);
+	v8::EscapableHandleScope handleScope(pIsolate);
+	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isDateTime"), v8::FunctionTemplate::New(pIsolate, isDateTime));
+	return handleScope.Escape(funcTemplate);
 }
 
 
@@ -156,6 +159,19 @@ void DateTimeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		delete pDateTime;
 		returnException(args, exc);
+	}
+}
+
+
+void DateTimeWrapper::isDateTime(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() > 0)
+	{
+		args.GetReturnValue().Set(Wrapper::isWrapper<Poco::DateTime>(args.GetIsolate(), args[0]));
+	}
+	else
+	{
+		args.GetReturnValue().Set(false);
 	}
 }
 

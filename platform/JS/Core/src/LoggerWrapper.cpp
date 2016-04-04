@@ -42,7 +42,19 @@ LoggerWrapper::~LoggerWrapper()
 
 v8::Handle<v8::FunctionTemplate> LoggerWrapper::constructor(v8::Isolate* pIsolate)
 {
-	return v8::FunctionTemplate::New(pIsolate, construct);
+	v8::EscapableHandleScope handleScope(pIsolate);
+	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "TRACE"), v8::Integer::New(pIsolate, 8));
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "DEBUG"), v8::Integer::New(pIsolate, 7));
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "INFORMATION"), v8::Integer::New(pIsolate, 6));
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "NOTICE"), v8::Integer::New(pIsolate, 5));
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "WARNING"), v8::Integer::New(pIsolate, 4));
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "ERROR"), v8::Integer::New(pIsolate, 3));
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "CRITICAL"), v8::Integer::New(pIsolate, 2));
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "FATAL"), v8::Integer::New(pIsolate, 1));
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isLogger"), v8::FunctionTemplate::New(pIsolate, isLogger));
+	
+	return handleScope.Escape(funcTemplate);
 }
 
 
@@ -61,15 +73,6 @@ v8::Handle<v8::ObjectTemplate> LoggerWrapper::objectTemplate(v8::Isolate* pIsola
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "fatal"), v8::FunctionTemplate::New(pIsolate, fatal));
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "log"), v8::FunctionTemplate::New(pIsolate, log));
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "dump"), v8::FunctionTemplate::New(pIsolate, dump));
-
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "TRACE"), v8::Integer::New(pIsolate, 8));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "DEBUG"), v8::Integer::New(pIsolate, 7));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "INFORMATION"), v8::Integer::New(pIsolate, 6));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "NOTICE"), v8::Integer::New(pIsolate, 5));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "WARNING"), v8::Integer::New(pIsolate, 4));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "ERROR"), v8::Integer::New(pIsolate, 3));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "CRITICAL"), v8::Integer::New(pIsolate, 2));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "FATAL"), v8::Integer::New(pIsolate, 1));
 
 	return handleScope.Escape(loggerTemplate);
 }
@@ -161,6 +164,19 @@ void LoggerWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 	catch (Poco::Exception& exc)
 	{
 		returnException(args, exc);
+	}
+}
+
+
+void LoggerWrapper::isLogger(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() > 0)
+	{
+		args.GetReturnValue().Set(Wrapper::isWrapper<Poco::Logger>(args.GetIsolate(), args[0]));
+	}
+	else
+	{
+		args.GetReturnValue().Set(false);
 	}
 }
 

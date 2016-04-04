@@ -48,6 +48,7 @@ public:
 		
 protected:
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void isLogger(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void log(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void format(int prio, const v8::FunctionCallbackInfo<v8::Value>& args, int firstArgIndex = 0, const std::string& prefix = "");
 	static void trace(const v8::FunctionCallbackInfo<v8::Value>& args);

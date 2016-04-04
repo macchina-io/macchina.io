@@ -408,7 +408,7 @@ Modules imported with <[require()]> will be searched in the following locations 
   1. If a fully qualified URI is specified, the module is loaded from that URI.
   2. The given (relative) path will be resolved against the URI of the importing module.
   3. The given (relative) path will be resolved against the search paths specified
-     for the script (using the <[searchPaths()]> extension point attribute).
+     for the script (using the <[searchPaths]> extension point attribute).
   4. The given (relative) path will be resolved against the global module search paths.
 
 !!Global Module Search Paths
@@ -713,6 +713,149 @@ Example:
     logger.information("The answer to live, the universe and everything: ", i);
 ----
 
+!!Creating Logger Objects
+
+In addition to the bundle-specific and application-global logger objects 
+available through the <[logger]> and <[application.logger]> variables,
+a script can use the <[Logger]> constructor to use other logger instances.
+
+
+!Logger(name [, configuration [, reconfigure]])
+
+Creates a new Logger object, using a logger with the given name obtained from the
+POCO C++ Libraries logging framework. If a logger with the given name does not exist, 
+a new logger instance is created. Note that the underlying logger instances are 
+shared application-wide.
+
+If a new logger instance is created, the given <[configuration]> object is used to
+configure the logger. If <[reconfigure]> is true (default is false), the configuration
+is also applied to an already existing logger. Otherwise, the configuration is ignored
+and the configuration of an already existing logger is not changed. The <[reconfigure]>
+option should be used judiciously, as reconfiguring an existing logger instance used by 
+other parts of the application may interfere with the workings of the application.
+
+The <[configuration]> object can have the following properties:
+
+  * level: specifies the log level; see Log Levels below.
+  * pattern: format pattern; if specified, a FormattingChannel with a PatternFormatter
+    is created for the logger. See Format Pattern below for the format of the pattern.
+  * channel: either a string containing the name of a globally configured logging 
+    channel (through the application's configuration files), or an object containing
+    properties for creating and configuring a new channel. See Channel Configuration
+    below.
+
+
+!Log Levels
+
+The level can either be an integer from 1 to 8, where
+1 corresponds to fatal error message and 8 corresponds to a trace message,
+or it can be one of the following strings, representing a priority:
+
+  * fatal (1)
+  * critical (2)
+  * error (3)
+  * warning (4)
+  * notice (5)
+  * information (6)
+  * debug (7)
+  * trace (8)
+
+Numerical log levels are also available as properties of the <[Logger]> constructor,
+named <[FATAL]>, <[CRITICAL]>, <[ERROR]>, <[WARNING]>, <[NOTICE]>, <[INFORMATION]>, 
+<[DEBUG]> and <[TRACE]>.
+
+
+!Format Pattern
+
+The format pattern is used as a template to format the message and
+is copied character by character except for the following special characters,
+which are replaced by the corresponding value.
+
+  * %s - message source
+  * %t - message text
+  * %l - message priority level (1 .. 7)
+  * %p - message priority (Fatal, Critical, Error, Warning, Notice, Information, Debug, Trace)
+  * %q - abbreviated message priority (F, C, E, W, N, I, D, T)
+  * %P - message process identifier
+  * %T - message thread name
+  * %I - message thread identifier (numeric)
+  * %N - node or host name
+  * %U - message source file path (empty string if not set)
+  * %u - message source line number (0 if not set)
+  * %w - message date/time abbreviated weekday (Mon, Tue, ...)
+  * %W - message date/time full weekday (Monday, Tuesday, ...)
+  * %b - message date/time abbreviated month (Jan, Feb, ...)
+  * %B - message date/time full month (January, February, ...)
+  * %d - message date/time zero-padded day of month (01 .. 31)
+  * %e - message date/time day of month (1 .. 31)
+  * %f - message date/time space-padded day of month ( 1 .. 31)
+  * %m - message date/time zero-padded month (01 .. 12)
+  * %n - message date/time month (1 .. 12)
+  * %o - message date/time space-padded month ( 1 .. 12)
+  * %y - message date/time year without century (70)
+  * %Y - message date/time year with century (1970)
+  * %H - message date/time hour (00 .. 23)
+  * %h - message date/time hour (00 .. 12)
+  * %a - message date/time am/pm
+  * %A - message date/time AM/PM
+  * %M - message date/time minute (00 .. 59)
+  * %S - message date/time second (00 .. 59)
+  * %i - message date/time millisecond (000 .. 999)
+  * %c - message date/time centisecond (0 .. 9)
+  * %F - message date/time fractional seconds/microseconds (000000 - 999999)
+  * %z - time zone differential in ISO 8601 format (Z or +NN.NN)
+  * %Z - time zone differential in RFC format (GMT or +NNNN)
+  * %L - convert time to local time (must be specified before any date/time specifier; does not itself output anything)
+  * %E - epoch time (UTC, seconds since midnight, January 1, 1970)
+  * %v[width] - the message source (%s) but text length is padded/cropped to 'width'
+  * %[name] - the value of the message parameter with the given name
+  * %% - percent sign
+
+
+!Channel Configuration
+
+Logging channels can be configured using a configuration object containing channel-specific
+properties. The <[class]> property specifies the class name of the channel, and can
+be one of the standard channel classes supported by the POCO C++ Libraries, as well as
+the name of any custom channel registered with the logging framework. The supported channel
+class names are:
+
+  * ConsoleChannel (see Poco::ConsoleChannel)
+  * ColorConsoleChannel (see Poco::ColorConsoleChannel)
+  * FileChannel (see Poco::FileChannel)
+  * SyslogChannel (see Poco::SyslogChannel)
+  * NullChannel (see Poco::NullChannel)
+
+Any other properties of the configuration object are passed directly to the newly
+created channel, and are specific to the respective channel. See the documentation of
+the respective logging channel (Poco::Channel) subclass for supported configuration
+properties.
+
+Example:
+
+    var testLogger = new Logger("TestLogger", {
+        level: "debug",
+        pattern: "%Y-%m-%d %H:%M:%S.%i [%p] %s<%I>: %t",
+        channel: {
+            class: "FileChannel",
+            path: "test.log"
+        }
+    });
+----
+
+
+!!Checking for Logger Objects
+
+The <[Logger.isLogger()]> function can be used to check whether a given object
+is a Logger object.
+
+!Logger.isLogger(object)
+
+Returns true if the given object is a Logger object, otherwise false.
+
+
+!!Logger Methods
+
 The following methods are available:
 
 !trace(message [, arg]...)
@@ -757,8 +900,8 @@ The message can contain formatting specifiers.
 
 !log(priority, message [, arg]...)
 
-Writes a log message with the specified level.
-The level can either be an integer from 1 to 8, where
+Writes a log message with the specified priority or log level.
+The log level can either be an integer from 1 to 8, where
 1 corresponds to fatal error message and 8 corresponds to a trace message,
 or it can be one of the following strings, representing a priority:
 
@@ -771,7 +914,7 @@ or it can be one of the following strings, representing a priority:
   * debug (7)
   * trace (8)
   
-Numerical log levels are also available as properties of the <[logger]> object,
+Numerical log levels are also available as properties of the <[Logger]> constructor,
 named <[FATAL]>, <[CRITICAL]>, <[ERROR]>, <[WARNING]>, <[NOTICE]>, <[INFORMATION]>, 
 <[DEBUG]> and <[TRACE]>.
 
@@ -781,7 +924,7 @@ Example:
 
     logger.log(7, "A debug message");
     logger.log("error", "An error message");
-    logger.log(logger.WARNING, "A warning message");
+    logger.log(Logger.WARNING, "A warning message");
 ----
 
 !dump(message, object [, level])
@@ -968,6 +1111,21 @@ Examples:
 	var dt1 = new DateTime("2015-03-09 11:55:33");
 	var dt2 = new DateTime(2015, 3, 9, 11, 55, 33);
 ----
+
+
+!!Checking for DateTime and LocalDateTime Objects
+
+The <[DateTime.isDateTime()]> and <[LocalDateTime.isLocalDateTime()]> functions can be used to check whether a given object
+is a DateTime, or LocalDateTime, respectively, object.
+
+!DateTime.isDateTime(object)
+
+Returns true if the given object is a DateTime object, otherwise false.
+
+
+!LocalDateTime.isLocalDateTime(object)
+
+Returns true if the given object is a LocalDateTime object, otherwise false.
 
 
 !!DateTime and LocalDateTime Properties
@@ -1227,6 +1385,16 @@ Example:
 ----
 
 will copy the last two bytes of the Buffer.
+
+
+!!Checking for Buffer Objects
+
+The <[Buffer.isBuffer()]> function can be used to check whether a given object
+is a Buffer object.
+
+!Buffer.isBuffer(object)
+
+Returns true if the given object is a Buffer object, otherwise false.
 
 
 !!Packing and Unpacking Structured Data
@@ -1763,6 +1931,37 @@ access to some properties of its bundle.
 
 The <[bundle]> object has the following read-only properties:
 
+!name
+
+The name of the bundle.
+
+
+!symbolicName
+
+The symbolic name of the bundle.
+
+
+!version
+
+The version of the bundle.
+
+
+!path
+
+The path of the bundle.
+
+
+!state
+
+The state of the bundle as string. Possible values are:
+
+  * installed
+  * uninstalled
+  * resolved
+  * starting
+  * active
+  * stopping
+
 
 !temporaryDirectory
 
@@ -1779,6 +1978,39 @@ The path to the bundle's directory for storing persistent data.
 
 A Configuration object for accessing the bundle's properties defined in the
 bundles' "bundle.properties" file.
+
+
+!!bundle Methods
+
+The <[bundle]> object has the following methods:
+
+
+!getResource(path)
+
+Returns a string containing the contents of the file stored in the bundle with the
+given path. Will only work for files containing text, as the contents of the file
+are stored in a string.
+
+
+!getBinaryResource(path)
+
+Returns a Buffer containing the contents of the file stored in the bundle with the
+given path. 
+
+
+!getLocalizedResource(path [, language])
+
+Returns a string containing the contents of the localized file stored in the bundle with the
+given path. Will only work for files containing text, as the contents of the file
+are stored in a string. An optional RFC 1766 language tag string (e.g., "en-US") can be specified.
+See the Poco::OSP::LanguageTag class for more information.
+
+
+!getLocalizedBinaryResource(path [, language])
+
+Returns a Buffer containing the contents of the localized file stored in the bundle with the
+given path. An optional RFC 1766 language tag string (e.g., "en-US") can be specified.
+See the Poco::OSP::LanguageTag class for more information.
 
 
 !!!The serviceRegistry Object

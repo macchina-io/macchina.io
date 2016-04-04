@@ -48,6 +48,7 @@ public:
 		
 protected:
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void isLocalDateTime(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void year(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void month(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void day(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);

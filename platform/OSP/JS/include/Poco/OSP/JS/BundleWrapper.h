@@ -41,9 +41,13 @@ protected:
 	static void name(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void symbolicName(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void version(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
+	static void path(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void state(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void active(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void getResource(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void getBinaryResource(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void getLocalizedResource(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void getLocalizedBinaryResource(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 

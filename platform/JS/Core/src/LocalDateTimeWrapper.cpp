@@ -43,7 +43,10 @@ LocalDateTimeWrapper::~LocalDateTimeWrapper()
 
 v8::Handle<v8::FunctionTemplate> LocalDateTimeWrapper::constructor(v8::Isolate* pIsolate)
 {
-	return v8::FunctionTemplate::New(pIsolate, construct);
+	v8::EscapableHandleScope handleScope(pIsolate);
+	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isLocalDateTime"), v8::FunctionTemplate::New(pIsolate, isLocalDateTime));
+	return handleScope.Escape(funcTemplate);
 }
 
 
@@ -158,6 +161,19 @@ void LocalDateTimeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& 
 	{
 		delete pLocalDateTime;
 		returnException(args, exc);
+	}
+}
+
+
+void LocalDateTimeWrapper::isLocalDateTime(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() > 0)
+	{
+		args.GetReturnValue().Set(Wrapper::isWrapper<Poco::LocalDateTime>(args.GetIsolate(), args[0]));
+	}
+	else
+	{
+		args.GetReturnValue().Set(false);
 	}
 }
 
