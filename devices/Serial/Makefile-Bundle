@@ -12,7 +12,7 @@ include $(POCO_BASE)/build/rules/global
 
 INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 
-objects = BundleActivator
+objects = SerialDeviceImpl BundleActivator
 
 target         = io.macchina.serial
 target_version = 1

@@ -48,6 +48,11 @@ public:
 		FLOW_RTSCTS  /// Hardware (RTS/CTS) flow control
 	};
 	
+	enum Options
+	{
+		OPTION_FLUSH = 0x01 /// 
+	};
+	
 	enum
 	{
 		DEFAULT_BUFFER_SIZE = 4096 /// Default size for the internal buffer.
@@ -106,6 +111,9 @@ public:
 		/// Returns true immediately if data is already in 
 		/// the internal buffer, or if data arrives during the
 		/// specified time interval, otherwise false.
+		
+	void drain();
+		/// Waits until all output written to the serial port has been transmitted.
 
 	void configureRS485(const RS485Params& rs485Params);
 		/// Enable and configure RS-485 mode, if supported.

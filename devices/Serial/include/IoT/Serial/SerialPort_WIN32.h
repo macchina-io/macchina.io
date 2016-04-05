@@ -75,6 +75,7 @@ public:
 	void closeImpl();
 	bool isOpenImpl() const;
 	
+	void drainImpl();
 	void configureRS485Impl(const RS485ParamsImpl& rs485Params);
 	void setRTSImpl(bool status);
 	bool getRTSImpl() const;

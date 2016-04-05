@@ -8,8 +8,6 @@
 
 include $(POCO_BASE)/build/rules/global
 
-INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
-
 # BeagleBone needs a special hack to enable
 # RS-485 RTS via GPIO. Try to detect BeagleBone
 # and enable hack.
@@ -22,10 +20,10 @@ ifdef MACCHINA_ENABLE_BEAGLEBONE_RS485_HACK
 SYSFLAGS += -DMACCHINA_ENABLE_BEAGLEBONE_RS485_HACK
 endif
 
-objects = SerialPort SerialDeviceImpl
+objects = SerialPort
 
 target         = IoTSerial
 target_version = 1
-target_libs    = IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoFoundation
+target_libs    = PocoUtil PocoXML PocoFoundation
 
 include $(POCO_BASE)/build/rules/lib

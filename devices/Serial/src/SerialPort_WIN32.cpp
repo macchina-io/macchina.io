@@ -160,6 +160,11 @@ void SerialPortImpl::closeImpl()
 }
 
 
+void SerialPortImpl::drainImpl()
+{
+}
+
+
 void SerialPortImpl::configureRS485Impl(const RS485ParamsImpl& rs485Params)
 {
 	throw Poco::NotImplementedException("RS-485 mode");

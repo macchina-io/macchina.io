@@ -185,7 +185,7 @@ void SerialPortImpl::openImpl(const std::string& device, int baudRate, const std
 		if (rc == -1) throw Poco::IOException("error setting baud rate on serial port " + device, strerror(errno));
 	}
 	
-	rc = tcflush(_fd, TCIFLUSH);
+	rc = tcflush(_fd, TCIOFLUSH);
  	if (rc == -1) throw Poco::IOException("error flushing serial port " + device, strerror(errno));
 	
 	rc = tcsetattr(_fd, TCSANOW, &term);
@@ -197,6 +197,15 @@ void SerialPortImpl::closeImpl()
 {
 	::close(_fd);
 	_fd = -1;
+}
+
+
+void SerialPortImpl::drainImpl()
+{
+	poco_assert (_fd != -1);
+
+	int rc = tcdrain(_fd);
+ 	if (rc == -1) throw Poco::IOException("error draining serial port", strerror(errno));
 }
 
 
