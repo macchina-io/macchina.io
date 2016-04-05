@@ -48,11 +48,6 @@ public:
 		FLOW_RTSCTS  /// Hardware (RTS/CTS) flow control
 	};
 	
-	enum Options
-	{
-		OPTION_FLUSH = 0x01 /// 
-	};
-	
 	enum
 	{
 		DEFAULT_BUFFER_SIZE = 4096 /// Default size for the internal buffer.

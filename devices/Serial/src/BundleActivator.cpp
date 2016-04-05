@@ -18,7 +18,7 @@
 #include "Poco/OSP/ServiceFinder.h"
 #include "Poco/OSP/PreferencesService.h"
 #include "Poco/RemotingNG/ORB.h"
-#include "IoT/Serial/SerialDeviceImpl.h"
+#include "SerialDeviceImpl.h"
 #include "IoT/Devices/SerialDeviceServerHelper.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
