@@ -16,6 +16,12 @@
 #include "Poco/JS/Core/ConsoleWrapper.h"
 #include "Poco/JS/Net/HTTPRequestWrapper.h"
 #include "Poco/JS/Data/SessionWrapper.h"
+#include "Poco/Net/HTTPStreamFactory.h"
+#include "Poco/Net/FTPStreamFactory.h"
+#include "Poco/Net/HTTPSessionInstantiator.h"
+#include "Poco/Net/HTTPClientSession.h"
+#include "Poco/Net/HTTPSStreamFactory.h"
+#include "Poco/Net/HTTPSSessionInstantiator.h"
 #include "Poco/Util/ServerApplication.h"
 #include "Poco/Util/Option.h"
 #include "Poco/Util/OptionSet.h"
@@ -97,11 +103,29 @@ protected:
 	{
 		loadConfiguration(); // load default configuration files, if present
 		ServerApplication::initialize(self);
+		
+		Poco::Net::initializeNetwork();
+		Poco::Net::HTTPStreamFactory::registerFactory();
+		Poco::Net::FTPStreamFactory::registerFactory();
+		Poco::Net::HTTPSessionInstantiator::registerInstantiator();
+		
+		Poco::Net::initializeSSL();
+		Poco::Net::HTTPSStreamFactory::registerFactory();
+		Poco::Net::HTTPSSessionInstantiator::registerInstantiator();
 	}
 	
 	void uninitialize()
 	{
 		ServerApplication::uninitialize();
+		
+		Poco::Net::HTTPSessionInstantiator::unregisterInstantiator();
+		Poco::Net::HTTPStreamFactory::unregisterFactory();
+		Poco::Net::FTPStreamFactory::unregisterFactory();
+		Poco::Net::uninitializeNetwork();
+		
+		Poco::Net::HTTPSSessionInstantiator::unregisterInstantiator();
+		Poco::Net::HTTPSStreamFactory::unregisterFactory();
+		Poco::Net::uninitializeSSL();
 	}
 	
 	void defineOptions(OptionSet& options)
