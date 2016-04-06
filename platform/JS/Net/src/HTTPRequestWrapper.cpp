@@ -350,7 +350,7 @@ void HTTPRequestWrapper::sendBlocking(const v8::FunctionCallbackInfo<v8::Value>&
 		if (uriPath.empty()) uriPath = "/";
 		pRequestHolder->request().setURI(uriPath);
 		Poco::SharedPtr<Poco::Net::HTTPClientSession> pCS = Poco::Net::HTTPSessionFactory::defaultFactory().createClientSession(uri);
-		if (pRequestHolder->request().getMethod() == Poco::Net::HTTPRequest::HTTP_PUT || pRequestHolder->request().getMethod() == Poco::Net::HTTPRequest::HTTP_POST)
+		if (pRequestHolder->request().getMethod() == Poco::Net::HTTPRequest::HTTP_PUT || pRequestHolder->request().getMethod() == Poco::Net::HTTPRequest::HTTP_POST || pRequestHolder->request().getMethod() == Poco::Net::HTTPRequest::HTTP_PATCH)
 		{
 			pRequestHolder->request().setContentLength(pRequestHolder->content().length());
 		}
