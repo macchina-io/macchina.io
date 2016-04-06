@@ -592,10 +592,11 @@ Poco::SharedPtr<std::istream> JSExecutor::resolveModule(const std::string& uri, 
 
 	if (_imports.find(resolvedURIString) != _imports.end())
 		return pStream;
-		
+
 	try
 	{
 		pStream = Poco::URIStreamOpener::defaultOpener().open(resolvedURIString);
+		_imports.insert(resolvedURIString);
 		return pStream;
 	}
 	catch (Poco::Exception&)
@@ -618,6 +619,7 @@ Poco::SharedPtr<std::istream> JSExecutor::resolveModule(const std::string& uri, 
 		try
 		{
 			pStream = Poco::URIStreamOpener::defaultOpener().open(resolvedURIString);
+			_imports.insert(resolvedURIString);
 			return pStream;
 		}
 		catch (Poco::Exception&)

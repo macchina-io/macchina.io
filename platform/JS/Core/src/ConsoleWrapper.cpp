@@ -54,12 +54,12 @@ v8::Handle<v8::ObjectTemplate> ConsoleWrapper::objectTemplate(v8::Isolate* pIsol
 
 void ConsoleWrapper::trace(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	std::string text("Stack trace:");
+	std::string text("Stack Trace:")	;
 	v8::HandleScope scope(args.GetIsolate());
 	v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(args.GetIsolate(), 128, v8::StackTrace::kDetailed);
 	for (int i = 0; i < stackTrace->GetFrameCount(); i++)
 	{
-		text.append("\nFrame #");
+		text.append("\n  Frame #");
 		Poco::NumberFormatter::append(text, i);
 		v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(i);
 
@@ -82,11 +82,13 @@ void ConsoleWrapper::trace(const v8::FunctionCallbackInfo<v8::Value>& args)
 		}
 		else
 		{
+			text.append("\"");
 			text.append(toString(script));
+			text.append("\"");
 		}
 		if (frame->GetLineNumber() > 0)
 		{
-			text.append(":");
+			text.append(", line ");
 			Poco::NumberFormatter::append(text, frame->GetLineNumber());
 		}
 	}
