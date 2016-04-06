@@ -13,9 +13,10 @@
 #include "Poco/JS/Core/JSExecutor.h"
 #include "Poco/JS/Core/LoggerWrapper.h"
 #include "Poco/JS/Core/ConfigurationWrapper.h"
+#include "Poco/JS/Core/ConsoleWrapper.h"
 #include "Poco/JS/Net/HTTPRequestWrapper.h"
 #include "Poco/JS/Data/SessionWrapper.h"
-#include "Poco/Util/Application.h"
+#include "Poco/Util/ServerApplication.h"
 #include "Poco/Util/Option.h"
 #include "Poco/Util/OptionSet.h"
 #include "Poco/Util/HelpFormatter.h"
@@ -24,28 +25,32 @@
 #include "Poco/FileStream.h"
 #include "Poco/StreamCopier.h"
 #include "Poco/Delegate.h"
+#include "Poco/StringTokenizer.h"
 #include <iostream>
 
 
 using Poco::Util::Application;
+using Poco::Util::ServerApplication;
 using Poco::Util::Option;
 using Poco::Util::OptionSet;
 using Poco::Util::HelpFormatter;
 using Poco::Util::OptionCallback;
 
 
-class JSRunExecutor: public Poco::JS::Core::JSExecutor
+template <class Base>
+class JSRunExecutor: public Base
 {
 public:
-	JSRunExecutor(const std::string& source, const Poco::URI& sourceURI):
-		Poco::JS::Core::JSExecutor(source, sourceURI)
+	JSRunExecutor(const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& args, const std::vector<std::string>& modulePaths, Poco::UInt64 memoryLimit):
+		Base(source, sourceURI, modulePaths, memoryLimit),
+		_args(args)
 	{
 	}
 	
 protected:
 	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
 	{
-		Poco::JS::Core::JSExecutor::registerGlobals(global, pIsolate);
+		Base::registerGlobals(global, pIsolate);
 	
 		Poco::JS::Core::ConfigurationWrapper configurationWrapper;
 		v8::Local<v8::Object> configurationObject = configurationWrapper.wrapNative(pIsolate, &Application::instance().config());
@@ -55,19 +60,35 @@ protected:
 		v8::Local<v8::Object> loggerObject = loggerWrapper.wrapNative(pIsolate, &Application::instance().logger());
 		global->Set(v8::String::NewFromUtf8(pIsolate, "logger"), loggerObject);
 
+		Poco::JS::Core::ConsoleWrapper consoleWrapper;
+		v8::Local<v8::Object> consoleObject = consoleWrapper.wrapNative(pIsolate, &Poco::Logger::get("console"));
+		global->Set(v8::String::NewFromUtf8(pIsolate, "console"), consoleObject);
+
 		Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
 		global->Set(v8::String::NewFromUtf8(pIsolate, "HTTPRequest"), httpRequestWrapper.constructor(pIsolate));
 	
 		Poco::JS::Data::SessionWrapper sessionWrapper;
 		global->Set(v8::String::NewFromUtf8(pIsolate, "DBSession"), sessionWrapper.constructor(pIsolate));
+		
+		v8::Local<v8::Array> args = v8::Array::New(pIsolate, static_cast<int>(_args.size()));
+		for (unsigned i = 0; i < _args.size(); i++)
+		{
+			args->Set(i, v8::String::NewFromUtf8(pIsolate, _args[i].c_str()));
+		}
+		global->Set(v8::String::NewFromUtf8(pIsolate, "$args"), args);
 	}
+	
+private:
+	std::vector<std::string> _args;
 };
 
 
-class JSRunApp: public Application
+class JSRunApp: public ServerApplication
 {
 public:
-	JSRunApp(): _helpRequested(false)
+	JSRunApp(): 
+		_helpRequested(false),
+		_wait(false)
 	{
 	}
 
@@ -75,51 +96,48 @@ protected:
 	void initialize(Application& self)
 	{
 		loadConfiguration(); // load default configuration files, if present
-		Application::initialize(self);
-		// add your own initialization code here
+		ServerApplication::initialize(self);
 	}
 	
 	void uninitialize()
 	{
-		// add your own uninitialization code here
-		Application::uninitialize();
-	}
-	
-	void reinitialize(Application& self)
-	{
-		Application::reinitialize(self);
-		// add your own reinitialization code here
+		ServerApplication::uninitialize();
 	}
 	
 	void defineOptions(OptionSet& options)
 	{
-		Application::defineOptions(options);
+		ServerApplication::defineOptions(options);
 
 		options.addOption(
-			Option("help", "h", "display help information on command line arguments")
+			Option("help", "h", "Display help information on command line arguments.")
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<JSRunApp>(this, &JSRunApp::handleHelp)));
 
 		options.addOption(
-			Option("define", "D", "define a configuration property")
+			Option("define", "D", "Define a configuration property.")
 				.required(false)
 				.repeatable(true)
 				.argument("name=value")
 				.callback(OptionCallback<JSRunApp>(this, &JSRunApp::handleDefine)));
 				
 		options.addOption(
-			Option("config-file", "f", "load configuration data from a file")
+			Option("config-file", "f", "Load configuration data from a file.")
 				.required(false)
 				.repeatable(true)
 				.argument("file")
 				.callback(OptionCallback<JSRunApp>(this, &JSRunApp::handleConfig)));
+
+		options.addOption(
+			Option("wait", "w", "Wait to be terminated by user. Lets scripts use timers and asynchronous callbacks.")
+				.required(false)
+				.repeatable(false)
+				.callback(OptionCallback<JSRunApp>(this, &JSRunApp::handleWait)));
 	}
 	
 	void handleHelp(const std::string& name, const std::string& value)
 	{
 		_helpRequested = true;
-		displayHelp();
 		stopOptionsProcessing();
 	}
 	
@@ -132,13 +150,18 @@ protected:
 	{
 		loadConfiguration(value);
 	}
+
+	void handleWait(const std::string& name, const std::string& value)
+	{
+		_wait = true;
+	}
 		
 	void displayHelp()
 	{
 		HelpFormatter helpFormatter(options());
 		helpFormatter.setCommand(commandName());
-		helpFormatter.setUsage("[options] <script>");
-		helpFormatter.setHeader("This application runs JavaScript scripts.");
+		helpFormatter.setUsage("[options] <script> [-- {<script-argument>}]");
+		helpFormatter.setHeader("Run JavaScript scripts.");
 		helpFormatter.format(std::cout);
 	}
 	
@@ -172,26 +195,50 @@ protected:
 
 	int main(const std::vector<std::string>& args)
 	{
-		if (!_helpRequested)
+		if (_helpRequested || args.empty())
 		{
-			for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
+			displayHelp();
+		}
+		else
+		{		
+			std::string paths = config().getString("js.moduleSearchPaths", "");
+			Poco::StringTokenizer pathsTok(paths, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+			std::vector<std::string> searchPaths(pathsTok.begin(), pathsTok.end());
+	
+			std::string v8Options = config().getString("js.v8.flags", "");
+			Poco::StringTokenizer v8OptionsTok(v8Options, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+			for (Poco::StringTokenizer::Iterator it = v8OptionsTok.begin(); it != v8OptionsTok.end(); ++it)
 			{
-				try
+				v8::V8::SetFlagsFromString(it->data(), it->size());
+			}
+			
+			Poco::UInt64 memoryLimit = static_cast<Poco::UInt64>(1024)*config().getInt("js.memoryLimit", 1024);
+
+			try
+			{
+				Poco::Path path(args[0]);
+				Poco::File file(args[0]);
+				Poco::URI uri(path);
+				std::string script;
+				Poco::FileInputStream istr(path.toString());
+				Poco::StreamCopier::copyToString(istr, script);
+				if (_wait)
 				{
-					Poco::Path path(*it);
-					Poco::File file(*it);
-					Poco::URI uri(path);
-					std::string script;
-					Poco::FileInputStream istr(path.toString());
-					Poco::StreamCopier::copyToString(istr, script);
-					JSRunExecutor jsExecutor(script, uri);
+					JSRunExecutor<Poco::JS::Core::TimedJSExecutor> jsExecutor(script, uri, args, searchPaths, memoryLimit);
+					jsExecutor.scriptError += Poco::delegate(this, &JSRunApp::reportError);
+					jsExecutor.run();
+					waitForTerminationRequest();
+				}
+				else
+				{
+					JSRunExecutor<Poco::JS::Core::JSExecutor> jsExecutor(script, uri, args, searchPaths, memoryLimit);
 					jsExecutor.scriptError += Poco::delegate(this, &JSRunApp::reportError);
 					jsExecutor.run();
 				}
-				catch (Poco::Exception& exc)
-				{
-					logger().log(exc);
-				}
+			}
+			catch (Poco::Exception& exc)
+			{
+				logger().log(exc);
 			}
 		}
 		return Application::EXIT_OK;
@@ -199,7 +246,8 @@ protected:
 	
 private:
 	bool _helpRequested;
+	bool _wait;
 };
 
 
-POCO_APP_MAIN(JSRunApp)
+POCO_SERVER_MAIN(JSRunApp)
