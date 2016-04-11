@@ -122,7 +122,11 @@ public:
 		/// Returns the JSExecutor's script context.
 	
 	virtual void stop();
-		/// Stops the script.
+		/// Stops the script's event loop, if it has one (such as TimedJSExecutor).
+		/// Does nothing if the script does not have an event loop.
+		
+	void terminate();
+		/// Forcefully terminates the script.
 		
 	void addModuleSearchPath(const std::string& path);
 		/// Adds a search path to the internal list of search paths.

@@ -84,6 +84,12 @@ void JSExecutor::stop()
 }
 
 
+void JSExecutor::terminate()
+{
+	v8::V8::TerminateExecution(_pooledIso.isolate());
+}
+
+
 void JSExecutor::addModuleSearchPath(const std::string& path)
 {
 	_moduleSearchPaths.push_back(path);
