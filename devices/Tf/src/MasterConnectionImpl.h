@@ -15,10 +15,7 @@
 
 
 #include "IoT/Tf/MasterConnection.h"
-extern "C" 
-{
 #include "ip_connection.h"
-}
 
 
 namespace IoT {

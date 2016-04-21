@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_DISTANCE_US_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletDistanceUS DistanceUS Bricklet
+ * \defgroup BrickletDistanceUS Distance US Bricklet
  */
 
 /**
  * \ingroup BrickletDistanceUS
  *
- * Device for sensing distance via ultrasound
+ * Measures distance between 2cm and 400cm with ultrasound
  */
 typedef Device DistanceUS;
 
@@ -135,13 +135,20 @@ typedef Device DistanceUS;
 /**
  * \ingroup BrickletDistanceUS
  *
- * This constant is used to identify a DistanceUS Bricklet.
+ * This constant is used to identify a Distance US Bricklet.
  *
  * The {@link distance_us_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define DISTANCE_US_DEVICE_IDENTIFIER 229
+
+/**
+ * \ingroup BrickletDistanceUS
+ *
+ * This constant represents the display name of a Distance US Bricklet.
+ */
+#define DISTANCE_US_DEVICE_DISPLAY_NAME "Distance US Bricklet"
 
 /**
  * \ingroup BrickletDistanceUS
@@ -276,14 +283,14 @@ int distance_us_get_distance_callback_period(DistanceUS *distance_us, uint32_t *
  * 
  * The default value is ('x', 0, 0).
  */
-int distance_us_set_distance_callback_threshold(DistanceUS *distance_us, char option, int16_t min, int16_t max);
+int distance_us_set_distance_callback_threshold(DistanceUS *distance_us, char option, uint16_t min, uint16_t max);
 
 /**
  * \ingroup BrickletDistanceUS
  *
  * Returns the threshold as set by {@link distance_us_set_distance_callback_threshold}.
  */
-int distance_us_get_distance_callback_threshold(DistanceUS *distance_us, char *ret_option, int16_t *ret_min, int16_t *ret_max);
+int distance_us_get_distance_callback_threshold(DistanceUS *distance_us, char *ret_option, uint16_t *ret_min, uint16_t *ret_max);
 
 /**
  * \ingroup BrickletDistanceUS
@@ -312,7 +319,7 @@ int distance_us_get_debounce_period(DistanceUS *distance_us, uint32_t *ret_debou
 /**
  * \ingroup BrickletDistanceUS
  *
- * Sets the length of a `moving averaging <http://en.wikipedia.org/wiki/Moving_average>`__ 
+ * Sets the length of a `moving averaging <https://en.wikipedia.org/wiki/Moving_average>`__
  * for the distance value.
  * 
  * Setting the length to 0 will turn the averaging completely off. With less

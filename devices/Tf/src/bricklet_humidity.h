@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_HUMIDITY_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletHumidity
  *
- * Device for sensing Humidity
+ * Measures relative humidity
  */
 typedef Device Humidity;
 
@@ -185,6 +185,13 @@ typedef Device Humidity;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define HUMIDITY_DEVICE_IDENTIFIER 27
+
+/**
+ * \ingroup BrickletHumidity
+ *
+ * This constant represents the display name of a Humidity Bricklet.
+ */
+#define HUMIDITY_DEVICE_DISPLAY_NAME "Humidity Bricklet"
 
 /**
  * \ingroup BrickletHumidity
@@ -357,14 +364,14 @@ int humidity_get_analog_value_callback_period(Humidity *humidity, uint32_t *ret_
  * 
  * The default value is ('x', 0, 0).
  */
-int humidity_set_humidity_callback_threshold(Humidity *humidity, char option, int16_t min, int16_t max);
+int humidity_set_humidity_callback_threshold(Humidity *humidity, char option, uint16_t min, uint16_t max);
 
 /**
  * \ingroup BrickletHumidity
  *
  * Returns the threshold as set by {@link humidity_set_humidity_callback_threshold}.
  */
-int humidity_get_humidity_callback_threshold(Humidity *humidity, char *ret_option, int16_t *ret_min, int16_t *ret_max);
+int humidity_get_humidity_callback_threshold(Humidity *humidity, char *ret_option, uint16_t *ret_min, uint16_t *ret_max);
 
 /**
  * \ingroup BrickletHumidity

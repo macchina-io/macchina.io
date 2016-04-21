@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_BAROMETER_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletBarometer
  *
- * Device for sensing air pressure and altitude changes
+ * Measures air pressure and altitude changes
  */
 typedef Device Barometer;
 
@@ -210,6 +210,13 @@ typedef Device Barometer;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define BAROMETER_DEVICE_IDENTIFIER 221
+
+/**
+ * \ingroup BrickletBarometer
+ *
+ * This constant represents the display name of a Barometer Bricklet.
+ */
+#define BAROMETER_DEVICE_DISPLAY_NAME "Barometer Bricklet"
 
 /**
  * \ingroup BrickletBarometer
@@ -441,13 +448,14 @@ int barometer_get_debounce_period(Barometer *barometer, uint32_t *ret_debounce);
  * \ingroup BrickletBarometer
  *
  * Sets the reference air pressure in mbar/1000 for the altitude calculation.
+ * Valid values are between 10000 and 1200000.
  * Setting the reference to the current air pressure results in a calculated
  * altitude of 0cm. Passing 0 is a shortcut for passing the current air pressure as
  * reference.
  * 
  * Well known reference values are the Q codes
- * `QNH <http://en.wikipedia.org/wiki/QNH>`__ and
- * `QFE <http://en.wikipedia.org/wiki/Mean_sea_level_pressure#Mean_sea_level_pressure>`__
+ * `QNH <https://en.wikipedia.org/wiki/QNH>`__ and
+ * `QFE <https://en.wikipedia.org/wiki/Mean_sea_level_pressure#Mean_sea_level_pressure>`__
  * used in aviation.
  * 
  * The default value is 1013.25mbar.
@@ -480,7 +488,7 @@ int barometer_get_reference_air_pressure(Barometer *barometer, int32_t *ret_air_
  * Sets the different averaging parameters. It is possible to set
  * the length of a normal averaging for the temperature and pressure,
  * as well as an additional length of a 
- * `moving average <http://en.wikipedia.org/wiki/Moving_average>`__ 
+ * `moving average <https://en.wikipedia.org/wiki/Moving_average>`__
  * for the pressure. The moving average is calculated from the normal 
  * averages.  There is no moving average for the temperature.
  * 
@@ -496,7 +504,7 @@ int barometer_get_reference_air_pressure(Barometer *barometer, int32_t *ret_air_
  * The default values are 10 for the normal averages and 25 for the
  * moving average.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int barometer_set_averaging(Barometer *barometer, uint8_t moving_average_pressure, uint8_t average_pressure, uint8_t average_temperature);
 
@@ -505,7 +513,7 @@ int barometer_set_averaging(Barometer *barometer, uint8_t moving_average_pressur
  *
  * Returns the averaging configuration as set by {@link barometer_set_averaging}.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int barometer_get_averaging(Barometer *barometer, uint8_t *ret_moving_average_pressure, uint8_t *ret_average_pressure, uint8_t *ret_average_temperature);
 

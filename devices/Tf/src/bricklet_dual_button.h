@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_DUAL_BUTTON_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletDualButton DualButton Bricklet
+ * \defgroup BrickletDualButton Dual Button Bricklet
  */
 
 /**
  * \ingroup BrickletDualButton
  *
- * Device with two buttons and two LEDs
+ * Two tactile buttons with built-in blue LEDs
  */
 typedef Device DualButton;
 
@@ -118,13 +118,20 @@ typedef Device DualButton;
 /**
  * \ingroup BrickletDualButton
  *
- * This constant is used to identify a DualButton Bricklet.
+ * This constant is used to identify a Dual Button Bricklet.
  *
  * The {@link dual_button_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define DUAL_BUTTON_DEVICE_IDENTIFIER 230
+
+/**
+ * \ingroup BrickletDualButton
+ *
+ * This constant represents the display name of a Dual Button Bricklet.
+ */
+#define DUAL_BUTTON_DEVICE_DISPLAY_NAME "Dual Button Bricklet"
 
 /**
  * \ingroup BrickletDualButton

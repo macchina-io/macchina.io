@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_LED_STRIP_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletLEDStrip LEDStrip Bricklet
+ * \defgroup BrickletLEDStrip LED Strip Bricklet
  */
 
 /**
  * \ingroup BrickletLEDStrip
  *
- * Device to control up to 320 RGB LEDs
+ * Controls up to 320 RGB LEDs
  */
 typedef Device LEDStrip;
 
@@ -83,7 +83,8 @@ typedef Device LEDStrip;
  *
  * Signature: \code void callback(uint16_t length, void *user_data) \endcode
  * 
- * This callback is triggered directly after a new frame is rendered.
+ * This callback is triggered directly after a new frame is rendered. The
+ * parameter is the number of LEDs in that frame.
  * 
  * You should send the data for the next frame directly after this callback
  * was triggered.
@@ -111,13 +112,20 @@ typedef Device LEDStrip;
 /**
  * \ingroup BrickletLEDStrip
  *
- * This constant is used to identify a LEDStrip Bricklet.
+ * This constant is used to identify a LED Strip Bricklet.
  *
  * The {@link led_strip_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define LED_STRIP_DEVICE_IDENTIFIER 231
+
+/**
+ * \ingroup BrickletLEDStrip
+ *
+ * This constant represents the display name of a LED Strip Bricklet.
+ */
+#define LED_STRIP_DEVICE_DISPLAY_NAME "LED Strip Bricklet"
 
 /**
  * \ingroup BrickletLEDStrip
@@ -268,7 +276,7 @@ int led_strip_set_frame_duration(LEDStrip *led_strip, uint16_t duration);
 /**
  * \ingroup BrickletLEDStrip
  *
- * Returns the frame duration as set by {@link led_strip_set_frame_duration}.
+ * Returns the frame duration in ms as set by {@link led_strip_set_frame_duration}.
  */
 int led_strip_get_frame_duration(LEDStrip *led_strip, uint16_t *ret_duration);
 
@@ -301,7 +309,7 @@ int led_strip_get_supply_voltage(LEDStrip *led_strip, uint16_t *ret_voltage);
  * \note
  *  The frequency in firmware version 2.0.0 is fixed at 2MHz.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int led_strip_set_clock_frequency(LEDStrip *led_strip, uint32_t frequency);
 
@@ -310,7 +318,7 @@ int led_strip_set_clock_frequency(LEDStrip *led_strip, uint32_t frequency);
  *
  * Returns the currently used clock frequency as set by {@link led_strip_set_clock_frequency}.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int led_strip_get_clock_frequency(LEDStrip *led_strip, uint32_t *ret_frequency);
 
@@ -329,7 +337,7 @@ int led_strip_get_clock_frequency(LEDStrip *led_strip, uint32_t *ret_frequency);
  * 
  * The default value is WS2801 (``chip`` = 2801).
  * 
- * .. versionadded:: 2.0.2~(Plugin)
+ * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
 int led_strip_set_chip_type(LEDStrip *led_strip, uint16_t chip);
 
@@ -338,7 +346,7 @@ int led_strip_set_chip_type(LEDStrip *led_strip, uint16_t chip);
  *
  * Returns the currently used chip type as set by {@link led_strip_set_chip_type}.
  * 
- * .. versionadded:: 2.0.2~(Plugin)
+ * .. versionadded:: 2.0.2$nbsp;(Plugin)
  */
 int led_strip_get_chip_type(LEDStrip *led_strip, uint16_t *ret_chip);
 

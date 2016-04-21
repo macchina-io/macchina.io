@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 
@@ -25,7 +25,7 @@ typedef void (*CoordinatesCallbackFunction)(uint32_t, char, uint32_t, char, uint
 
 typedef void (*StatusCallbackFunction)(uint8_t, uint8_t, uint8_t, void *);
 
-typedef void (*AltitudeCallbackFunction)(uint32_t, uint32_t, void *);
+typedef void (*AltitudeCallbackFunction)(int32_t, int32_t, void *);
 
 typedef void (*MotionCallbackFunction)(uint32_t, uint32_t, void *);
 
@@ -80,8 +80,8 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
-	uint32_t altitude;
-	uint32_t geoidal_separation;
+	int32_t altitude;
+	int32_t geoidal_separation;
 } ATTRIBUTE_PACKED GetAltitudeResponse_;
 
 typedef struct {
@@ -200,8 +200,8 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
-	uint32_t altitude;
-	uint32_t geoidal_separation;
+	int32_t altitude;
+	int32_t geoidal_separation;
 } ATTRIBUTE_PACKED AltitudeCallback_;
 
 typedef struct {
@@ -278,8 +278,8 @@ static void gps_callback_wrapper_altitude(DevicePrivate *device_p, Packet *packe
 		return;
 	}
 
-	callback->altitude = leconvert_uint32_from(callback->altitude);
-	callback->geoidal_separation = leconvert_uint32_from(callback->geoidal_separation);
+	callback->altitude = leconvert_int32_from(callback->altitude);
+	callback->geoidal_separation = leconvert_int32_from(callback->geoidal_separation);
 
 	callback_function(callback->altitude, callback->geoidal_separation, user_data);
 }
@@ -319,7 +319,7 @@ static void gps_callback_wrapper_date_time(DevicePrivate *device_p, Packet *pack
 void gps_create(GPS *gps, const char *uid, IPConnection *ipcon) {
 	DevicePrivate *device_p;
 
-	device_create(gps, uid, ipcon->p, 2, 0, 0);
+	device_create(gps, uid, ipcon->p, 2, 0, 1);
 
 	device_p = gps->p;
 
@@ -436,7 +436,7 @@ int gps_get_status(GPS *gps, uint8_t *ret_fix, uint8_t *ret_satellites_view, uin
 	return ret;
 }
 
-int gps_get_altitude(GPS *gps, uint32_t *ret_altitude, uint32_t *ret_geoidal_separation) {
+int gps_get_altitude(GPS *gps, int32_t *ret_altitude, int32_t *ret_geoidal_separation) {
 	DevicePrivate *device_p = gps->p;
 	GetAltitude_ request;
 	GetAltitudeResponse_ response;
@@ -454,8 +454,8 @@ int gps_get_altitude(GPS *gps, uint32_t *ret_altitude, uint32_t *ret_geoidal_sep
 	if (ret < 0) {
 		return ret;
 	}
-	*ret_altitude = leconvert_uint32_from(response.altitude);
-	*ret_geoidal_separation = leconvert_uint32_from(response.geoidal_separation);
+	*ret_altitude = leconvert_int32_from(response.altitude);
+	*ret_geoidal_separation = leconvert_int32_from(response.geoidal_separation);
 
 
 

@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_SOLID_STATE_RELAY_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletSolidStateRelay SolidStateRelay Bricklet
+ * \defgroup BrickletSolidStateRelay Solid State Relay Bricklet
  */
 
 /**
  * \ingroup BrickletSolidStateRelay
  *
- * Device for controlling AC and DC Solid State Relays
+ * Controls AC and DC Solid State Relays
  */
 typedef Device SolidStateRelay;
 
@@ -68,13 +68,20 @@ typedef Device SolidStateRelay;
 /**
  * \ingroup BrickletSolidStateRelay
  *
- * This constant is used to identify a SolidStateRelay Bricklet.
+ * This constant is used to identify a Solid State Relay Bricklet.
  *
  * The {@link solid_state_relay_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define SOLID_STATE_RELAY_DEVICE_IDENTIFIER 244
+
+/**
+ * \ingroup BrickletSolidStateRelay
+ *
+ * This constant represents the display name of a Solid State Relay Bricklet.
+ */
+#define SOLID_STATE_RELAY_DEVICE_DISPLAY_NAME "Solid State Relay Bricklet"
 
 /**
  * \ingroup BrickletSolidStateRelay

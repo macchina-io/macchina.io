@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_MOTION_DETECTOR_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletMotionDetector MotionDetector Bricklet
+ * \defgroup BrickletMotionDetector Motion Detector Bricklet
  */
 
 /**
  * \ingroup BrickletMotionDetector
  *
- * Device that reads out PIR motion detector
+ * Passive infrared (PIR) motion sensor, 7m range
  */
 typedef Device MotionDetector;
 
@@ -72,13 +72,20 @@ typedef Device MotionDetector;
 /**
  * \ingroup BrickletMotionDetector
  *
- * This constant is used to identify a MotionDetector Bricklet.
+ * This constant is used to identify a Motion Detector Bricklet.
  *
  * The {@link motion_detector_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define MOTION_DETECTOR_DEVICE_IDENTIFIER 233
+
+/**
+ * \ingroup BrickletMotionDetector
+ *
+ * This constant represents the display name of a Motion Detector Bricklet.
+ */
+#define MOTION_DETECTOR_DEVICE_DISPLAY_NAME "Motion Detector Bricklet"
 
 /**
  * \ingroup BrickletMotionDetector

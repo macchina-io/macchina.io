@@ -18,10 +18,8 @@
 #include "IoT/Devices/Trigger.h"
 #include "IoT/Tf/MasterConnection.h"
 #include "BrickletImpl.h"
-extern "C"
-{
 #include "bricklet_motion_detector.h"
-}
+
 
 namespace IoT {
 namespace Tf {

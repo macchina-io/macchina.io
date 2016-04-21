@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_CURRENT25_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletCurrent25
  *
- * Device for sensing current of up to 25A
+ * Measures AC/DC current between -25A and +25A
  */
 typedef Device Current25;
 
@@ -205,6 +205,13 @@ typedef Device Current25;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define CURRENT25_DEVICE_IDENTIFIER 24
+
+/**
+ * \ingroup BrickletCurrent25
+ *
+ * This constant represents the display name of a Current25 Bricklet.
+ */
+#define CURRENT25_DEVICE_DISPLAY_NAME "Current25 Bricklet"
 
 /**
  * \ingroup BrickletCurrent25

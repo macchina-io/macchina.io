@@ -54,6 +54,12 @@ enum {
 	E_UNKNOWN_ERROR_CODE = -11 // error response from device
 };
 
+#ifdef IPCON_EXPOSE_MILLISLEEP
+
+void millisleep(uint32_t msec);
+
+#endif // IPCON_EXPOSE_MILLISLEEP
+
 #ifdef IPCON_EXPOSE_INTERNALS
 
 typedef struct _Socket Socket;

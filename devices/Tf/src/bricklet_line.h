@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_LINE_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletLine
  *
- * Device that measures reflectivity to allow following a line
+ * Measures reflectivity of a surface
  */
 typedef Device Line;
 
@@ -132,6 +132,13 @@ typedef Device Line;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define LINE_DEVICE_IDENTIFIER 241
+
+/**
+ * \ingroup BrickletLine
+ *
+ * This constant represents the display name of a Line Bricklet.
+ */
+#define LINE_DEVICE_DISPLAY_NAME "Line Bricklet"
 
 /**
  * \ingroup BrickletLine

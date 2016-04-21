@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_LCD_16X2_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletLCD16x2 LCD16x2 Bricklet
+ * \defgroup BrickletLCD16x2 LCD 16x2 Bricklet
  */
 
 /**
  * \ingroup BrickletLCD16x2
  *
- * Device for controlling a LCD with 2 lines a 16 characters
+ * 16x2 character alphanumeric display with blue backlight
  */
 typedef Device LCD16x2;
 
@@ -107,13 +107,20 @@ typedef Device LCD16x2;
 /**
  * \ingroup BrickletLCD16x2
  *
- * This constant is used to identify a LCD16x2 Bricklet.
+ * This constant is used to identify a LCD 16x2 Bricklet.
  *
  * The {@link lcd_16x2_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define LCD_16X2_DEVICE_IDENTIFIER 211
+
+/**
+ * \ingroup BrickletLCD16x2
+ *
+ * This constant represents the display name of a LCD 16x2 Bricklet.
+ */
+#define LCD_16X2_DEVICE_DISPLAY_NAME "LCD 16x2 Bricklet"
 
 /**
  * \ingroup BrickletLCD16x2
@@ -260,8 +267,9 @@ int lcd_16x2_get_config(LCD16x2 *lcd_16x2, bool *ret_cursor, bool *ret_blinking)
 /**
  * \ingroup BrickletLCD16x2
  *
- * Returns *true* if the button (0 to 2) is pressed. If you want to react
- * on button presses and releases it is recommended to use the
+ * Returns *true* if the button (0 to 2) is pressed.
+ * 
+ * If you want to react on button presses and releases it is recommended to use the
  * {@link LCD_16X2_CALLBACK_BUTTON_PRESSED} and {@link LCD_16X2_CALLBACK_BUTTON_RELEASED} callbacks.
  */
 int lcd_16x2_is_button_pressed(LCD16x2 *lcd_16x2, uint8_t button, bool *ret_pressed);
@@ -292,7 +300,7 @@ int lcd_16x2_is_button_pressed(LCD16x2 *lcd_16x2, uint8_t button, bool *ret_pres
  * Custom characters are stored by the LCD in RAM, so they have to be set
  * after each startup.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int lcd_16x2_set_custom_character(LCD16x2 *lcd_16x2, uint8_t index, uint8_t character[8]);
 
@@ -302,7 +310,7 @@ int lcd_16x2_set_custom_character(LCD16x2 *lcd_16x2, uint8_t index, uint8_t char
  * Returns the custom character for a given index, as set with
  * {@link lcd_16x2_set_custom_character}.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int lcd_16x2_get_custom_character(LCD16x2 *lcd_16x2, uint8_t index, uint8_t ret_character[8]);
 

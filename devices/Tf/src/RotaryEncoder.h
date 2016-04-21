@@ -18,10 +18,8 @@
 #include "IoT/Devices/RotaryEncoder.h"
 #include "BrickletImpl.h"
 #include "IoT/Tf/MasterConnection.h"
-extern "C"
-{
 #include "bricklet_rotary_encoder.h"
-}
+
 
 namespace IoT {
 namespace Tf {

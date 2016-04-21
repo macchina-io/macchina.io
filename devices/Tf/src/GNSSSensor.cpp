@@ -147,8 +147,8 @@ double GNSSSensor::altitude() const
 	int rc = gps_get_status(&_gps, &fix, &nSatsInView, &nSatsUsed);
 	if (rc == E_OK && fix == GPS_FIX_3D_FIX)
 	{
-		Poco::UInt32 altitude;
-		Poco::UInt32 geoidalSeparation;
+		Poco::Int32 altitude;
+		Poco::Int32 geoidalSeparation;
 		rc = gps_get_altitude(&_gps, &altitude, &geoidalSeparation);
 		if (rc == E_OK)
 		{

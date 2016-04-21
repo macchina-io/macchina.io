@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_SOUND_INTENSITY_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletSoundIntensity SoundIntensity Bricklet
+ * \defgroup BrickletSoundIntensity Sound Intensity Bricklet
  */
 
 /**
  * \ingroup BrickletSoundIntensity
  *
- * Device for sensing sound intensity
+ * Measures sound intensity
  */
 typedef Device SoundIntensity;
 
@@ -125,13 +125,20 @@ typedef Device SoundIntensity;
 /**
  * \ingroup BrickletSoundIntensity
  *
- * This constant is used to identify a SoundIntensity Bricklet.
+ * This constant is used to identify a Sound Intensity Bricklet.
  *
  * The {@link sound_intensity_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define SOUND_INTENSITY_DEVICE_IDENTIFIER 238
+
+/**
+ * \ingroup BrickletSoundIntensity
+ *
+ * This constant represents the display name of a Sound Intensity Bricklet.
+ */
+#define SOUND_INTENSITY_DEVICE_DISPLAY_NAME "Sound Intensity Bricklet"
 
 /**
  * \ingroup BrickletSoundIntensity
@@ -217,7 +224,7 @@ int sound_intensity_get_api_version(SoundIntensity *sound_intensity, uint8_t ret
  * Returns the current sound intensity. The value has a range of
  * 0 to 4095.
  * 
- * The value corresponds to the `upper envelop <http://en.wikipedia.org/wiki/Envelope_(waves)>`__
+ * The value corresponds to the `upper envelop <https://en.wikipedia.org/wiki/Envelope_(waves)>`__
  * of the signal of the microphone capsule.
  * 
  * If you want to get the intensity periodically, it is recommended to use the

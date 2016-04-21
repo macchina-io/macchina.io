@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_ROTARY_POTI_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletRotaryPoti RotaryPoti Bricklet
+ * \defgroup BrickletRotaryPoti Rotary Poti Bricklet
  */
 
 /**
  * \ingroup BrickletRotaryPoti
  *
- * Device for sensing Rotary Potentiometer input
+ * 300° rotary potentiometer
  */
 typedef Device RotaryPoti;
 
@@ -178,13 +178,20 @@ typedef Device RotaryPoti;
 /**
  * \ingroup BrickletRotaryPoti
  *
- * This constant is used to identify a RotaryPoti Bricklet.
+ * This constant is used to identify a Rotary Poti Bricklet.
  *
  * The {@link rotary_poti_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define ROTARY_POTI_DEVICE_IDENTIFIER 215
+
+/**
+ * \ingroup BrickletRotaryPoti
+ *
+ * This constant represents the display name of a Rotary Poti Bricklet.
+ */
+#define ROTARY_POTI_DEVICE_DISPLAY_NAME "Rotary Poti Bricklet"
 
 /**
  * \ingroup BrickletRotaryPoti

@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICK_DC_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickDC
  *
- * Device for controlling DC motors
+ * Drives one brushed DC motor with up to 28V and 5A (peak)
  */
 typedef Device DC;
 
@@ -127,6 +127,21 @@ typedef Device DC;
  * \ingroup BrickDC
  */
 #define DC_FUNCTION_GET_CURRENT_VELOCITY_PERIOD 20
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_FUNCTION_ENABLE_STATUS_LED 238
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_FUNCTION_DISABLE_STATUS_LED 239
+
+/**
+ * \ingroup BrickDC
+ */
+#define DC_FUNCTION_IS_STATUS_LED_ENABLED 240
 
 /**
  * \ingroup BrickDC
@@ -234,6 +249,13 @@ typedef Device DC;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define DC_DEVICE_IDENTIFIER 11
+
+/**
+ * \ingroup BrickDC
+ *
+ * This constant represents the display name of a DC Brick.
+ */
+#define DC_DEVICE_DISPLAY_NAME "DC Brick"
 
 /**
  * \ingroup BrickDC
@@ -531,6 +553,43 @@ int dc_set_current_velocity_period(DC *dc, uint16_t period);
  * Returns the period as set by {@link dc_set_current_velocity_period}.
  */
 int dc_get_current_velocity_period(DC *dc, uint16_t *ret_period);
+
+/**
+ * \ingroup BrickDC
+ *
+ * Enables the status LED.
+ * 
+ * The status LED is the blue LED next to the USB connector. If enabled is is
+ * on and it flickers if data is transfered. If disabled it is always off.
+ * 
+ * The default state is enabled.
+ * 
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
+ */
+int dc_enable_status_led(DC *dc);
+
+/**
+ * \ingroup BrickDC
+ *
+ * Disables the status LED.
+ * 
+ * The status LED is the blue LED next to the USB connector. If enabled is is
+ * on and it flickers if data is transfered. If disabled it is always off.
+ * 
+ * The default state is enabled.
+ * 
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
+ */
+int dc_disable_status_led(DC *dc);
+
+/**
+ * \ingroup BrickDC
+ *
+ * Returns *true* if the status LED is enabled, *false* otherwise.
+ * 
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
+ */
+int dc_is_status_led_enabled(DC *dc, bool *ret_enabled);
 
 /**
  * \ingroup BrickDC

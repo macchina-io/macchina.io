@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_REMOTE_SWITCH_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletRemoteSwitch RemoteSwitch Bricklet
+ * \defgroup BrickletRemoteSwitch Remote Switch Bricklet
  */
 
 /**
  * \ingroup BrickletRemoteSwitch
  *
- * Device that controls mains switches remotely
+ * Controls remote mains switches
  */
 typedef Device RemoteSwitch;
 
@@ -107,13 +107,20 @@ typedef Device RemoteSwitch;
 /**
  * \ingroup BrickletRemoteSwitch
  *
- * This constant is used to identify a RemoteSwitch Bricklet.
+ * This constant is used to identify a Remote Switch Bricklet.
  *
  * The {@link remote_switch_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define REMOTE_SWITCH_DEVICE_IDENTIFIER 235
+
+/**
+ * \ingroup BrickletRemoteSwitch
+ *
+ * This constant represents the display name of a Remote Switch Bricklet.
+ */
+#define REMOTE_SWITCH_DEVICE_DISPLAY_NAME "Remote Switch Bricklet"
 
 /**
  * \ingroup BrickletRemoteSwitch
@@ -244,7 +251,7 @@ int remote_switch_get_repeats(RemoteSwitch *remote_switch, uint8_t *ret_repeats)
  * A detailed description on how you can figure out the house and receiver code
  * can be found :ref:`here <remote_switch_bricklet_type_a_house_and_receiver_code>`.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int remote_switch_switch_socket_a(RemoteSwitch *remote_switch, uint8_t house_code, uint8_t receiver_code, uint8_t switch_to);
 
@@ -261,7 +268,7 @@ int remote_switch_switch_socket_a(RemoteSwitch *remote_switch, uint8_t house_cod
  * A detailed description on how you can teach a socket the address and unit can
  * be found :ref:`here <remote_switch_bricklet_type_b_address_and_unit>`.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int remote_switch_switch_socket_b(RemoteSwitch *remote_switch, uint32_t address, uint8_t unit, uint8_t switch_to);
 
@@ -277,7 +284,7 @@ int remote_switch_switch_socket_b(RemoteSwitch *remote_switch, uint32_t address,
  * A detailed description on how you can teach a dimmer the address and unit can
  * be found :ref:`here <remote_switch_bricklet_type_b_address_and_unit>`.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int remote_switch_dim_socket_b(RemoteSwitch *remote_switch, uint32_t address, uint8_t unit, uint8_t dim_value);
 
@@ -293,7 +300,7 @@ int remote_switch_dim_socket_b(RemoteSwitch *remote_switch, uint32_t address, ui
  * A detailed description on how you can figure out the system and device code
  * can be found :ref:`here <remote_switch_bricklet_type_c_system_and_device_code>`.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int remote_switch_switch_socket_c(RemoteSwitch *remote_switch, char system_code, uint8_t device_code, uint8_t switch_to);
 

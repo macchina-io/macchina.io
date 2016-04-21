@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_SEGMENT_DISPLAY_4X7_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletSegmentDisplay4x7 SegmentDisplay4x7 Bricklet
+ * \defgroup BrickletSegmentDisplay4x7 Segment Display 4x7 Bricklet
  */
 
 /**
  * \ingroup BrickletSegmentDisplay4x7
  *
- * Device for controling four 7-segment displays
+ * Four 7-segment displays with switchable colon
  */
 typedef Device SegmentDisplay4x7;
 
@@ -67,13 +67,20 @@ typedef Device SegmentDisplay4x7;
 /**
  * \ingroup BrickletSegmentDisplay4x7
  *
- * This constant is used to identify a SegmentDisplay4x7 Bricklet.
+ * This constant is used to identify a Segment Display 4x7 Bricklet.
  *
  * The {@link segment_display_4x7_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define SEGMENT_DISPLAY_4X7_DEVICE_IDENTIFIER 237
+
+/**
+ * \ingroup BrickletSegmentDisplay4x7
+ *
+ * This constant represents the display name of a Segment Display 4x7 Bricklet.
+ */
+#define SEGMENT_DISPLAY_4X7_DEVICE_DISPLAY_NAME "Segment Display 4x7 Bricklet"
 
 /**
  * \ingroup BrickletSegmentDisplay4x7
@@ -188,11 +195,13 @@ int segment_display_4x7_get_segments(SegmentDisplay4x7 *segment_display_4x7, uin
  * The *length* of the increment is given in ms.
  * 
  * Example: If you set *from* to 0, *to* to 100, *increment* to 1 and
- * *length* to 1000, a counter that goes from 0 to 100 with 1 second
+ * *length* to 1000, a counter that goes from 0 to 100 with one second
  * pause between each increment will be started.
  * 
  * The maximum values for *from*, *to* and *increment* is 9999, 
  * the minimum value is -999.
+ * 
+ * Using a negative increment allows to count backwards.
  * 
  * You can stop the counter at every time by calling {@link segment_display_4x7_set_segments}.
  */

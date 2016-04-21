@@ -22,6 +22,7 @@ objects = \
 	RotaryEncoder \
 	MotionDetector \
 	GNSSSensor \
+	DCMotor \
 	BundleActivator \
 	brick_dc \
 	brick_imu \

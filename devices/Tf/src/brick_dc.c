@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 
@@ -207,6 +207,23 @@ typedef struct {
 
 typedef struct {
 	PacketHeader header;
+} ATTRIBUTE_PACKED EnableStatusLED_;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED DisableStatusLED_;
+
+typedef struct {
+	PacketHeader header;
+} ATTRIBUTE_PACKED IsStatusLEDEnabled_;
+
+typedef struct {
+	PacketHeader header;
+	bool enabled;
+} ATTRIBUTE_PACKED IsStatusLEDEnabledResponse_;
+
+typedef struct {
+	PacketHeader header;
 	char port;
 } ATTRIBUTE_PACKED GetProtocol1BrickletName_;
 
@@ -338,6 +355,9 @@ void dc_create(DC *dc, const char *uid, IPConnection *ipcon) {
 	device_p->response_expected[DC_CALLBACK_EMERGENCY_SHUTDOWN] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[DC_CALLBACK_VELOCITY_REACHED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
 	device_p->response_expected[DC_CALLBACK_CURRENT_VELOCITY] = DEVICE_RESPONSE_EXPECTED_ALWAYS_FALSE;
+	device_p->response_expected[DC_FUNCTION_ENABLE_STATUS_LED] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[DC_FUNCTION_DISABLE_STATUS_LED] = DEVICE_RESPONSE_EXPECTED_FALSE;
+	device_p->response_expected[DC_FUNCTION_IS_STATUS_LED_ENABLED] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[DC_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[DC_FUNCTION_GET_CHIP_TEMPERATURE] = DEVICE_RESPONSE_EXPECTED_ALWAYS_TRUE;
 	device_p->response_expected[DC_FUNCTION_RESET] = DEVICE_RESPONSE_EXPECTED_FALSE;
@@ -810,6 +830,67 @@ int dc_get_current_velocity_period(DC *dc, uint16_t *ret_period) {
 		return ret;
 	}
 	*ret_period = leconvert_uint16_from(response.period);
+
+
+
+	return ret;
+}
+
+int dc_enable_status_led(DC *dc) {
+	DevicePrivate *device_p = dc->p;
+	EnableStatusLED_ request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_ENABLE_STATUS_LED, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+
+	return ret;
+}
+
+int dc_disable_status_led(DC *dc) {
+	DevicePrivate *device_p = dc->p;
+	DisableStatusLED_ request;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_DISABLE_STATUS_LED, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+
+	ret = device_send_request(device_p, (Packet *)&request, NULL);
+
+
+	return ret;
+}
+
+int dc_is_status_led_enabled(DC *dc, bool *ret_enabled) {
+	DevicePrivate *device_p = dc->p;
+	IsStatusLEDEnabled_ request;
+	IsStatusLEDEnabledResponse_ response;
+	int ret;
+
+	ret = packet_header_create(&request.header, sizeof(request), DC_FUNCTION_IS_STATUS_LED_ENABLED, device_p->ipcon_p, device_p);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+
+	ret = device_send_request(device_p, (Packet *)&request, (Packet *)&response);
+
+	if (ret < 0) {
+		return ret;
+	}
+	*ret_enabled = response.enabled;
 
 
 

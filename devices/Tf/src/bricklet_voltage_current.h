@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_VOLTAGE_CURRENT_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletVoltageCurrent VoltageCurrent Bricklet
+ * \defgroup BrickletVoltageCurrent Voltage/Current Bricklet
  */
 
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * Device for high precision sensing of voltage and current
+ * Measures power, DC voltage and DC current up to 720W/36V/20A
  */
 typedef Device VoltageCurrent;
 
@@ -291,13 +291,20 @@ typedef Device VoltageCurrent;
 /**
  * \ingroup BrickletVoltageCurrent
  *
- * This constant is used to identify a VoltageCurrent Bricklet.
+ * This constant is used to identify a Voltage/Current Bricklet.
  *
  * The {@link voltage_current_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define VOLTAGE_CURRENT_DEVICE_IDENTIFIER 227
+
+/**
+ * \ingroup BrickletVoltageCurrent
+ *
+ * This constant represents the display name of a Voltage/Current Bricklet.
+ */
+#define VOLTAGE_CURRENT_DEVICE_DISPLAY_NAME "Voltage/Current Bricklet"
 
 /**
  * \ingroup BrickletVoltageCurrent

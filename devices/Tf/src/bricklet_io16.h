@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_IO16_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletIO16 IO16 Bricklet
+ * \defgroup BrickletIO16 IO-16 Bricklet
  */
 
 /**
  * \ingroup BrickletIO16
  *
- * Device for controlling up to 16 general purpose input/output pins
+ * 16-channel digital input/output
  */
 typedef Device IO16;
 
@@ -164,13 +164,20 @@ typedef Device IO16;
 /**
  * \ingroup BrickletIO16
  *
- * This constant is used to identify a IO16 Bricklet.
+ * This constant is used to identify a IO-16 Bricklet.
  *
  * The {@link io16_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define IO16_DEVICE_IDENTIFIER 28
+
+/**
+ * \ingroup BrickletIO16
+ *
+ * This constant represents the display name of a IO-16 Bricklet.
+ */
+#define IO16_DEVICE_DISPLAY_NAME "IO-16 Bricklet"
 
 /**
  * \ingroup BrickletIO16
@@ -416,7 +423,7 @@ int io16_set_selected_values(IO16 *io16, char port, uint8_t selection_mask, uint
  * If you set the reset counter to *true*, the count is set back to 0
  * directly after it is read.
  * 
- * .. versionadded:: 2.0.3~(Plugin)
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
  */
 int io16_get_edge_count(IO16 *io16, uint8_t pin, bool reset_counter, uint32_t *ret_count);
 
@@ -442,7 +449,7 @@ int io16_get_edge_count(IO16 *io16, uint8_t pin, bool reset_counter, uint32_t *r
  * 
  * Default values: 0 (edge type) and 100ms (debounce time)
  * 
- * .. versionadded:: 2.0.3~(Plugin)
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
  */
 int io16_set_edge_count_config(IO16 *io16, uint8_t pin, uint8_t edge_type, uint8_t debounce);
 
@@ -452,7 +459,7 @@ int io16_set_edge_count_config(IO16 *io16, uint8_t pin, uint8_t edge_type, uint8
  * Returns the edge type and debounce time for the selected pin of port A as set by
  * {@link io16_set_edge_count_config}.
  * 
- * .. versionadded:: 2.0.3~(Plugin)
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
  */
 int io16_get_edge_count_config(IO16 *io16, uint8_t pin, uint8_t *ret_edge_type, uint8_t *ret_debounce);
 

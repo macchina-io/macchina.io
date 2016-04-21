@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_MULTI_TOUCH_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletMultiTouch MultiTouch Bricklet
+ * \defgroup BrickletMultiTouch Multi Touch Bricklet
  */
 
 /**
  * \ingroup BrickletMultiTouch
  *
- * Device with 12 touch sensors
+ * Capacitive touch sensor for 12 electrodes
  */
 typedef Device MultiTouch;
 
@@ -79,13 +79,20 @@ typedef Device MultiTouch;
 /**
  * \ingroup BrickletMultiTouch
  *
- * This constant is used to identify a MultiTouch Bricklet.
+ * This constant is used to identify a Multi Touch Bricklet.
  *
  * The {@link multi_touch_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define MULTI_TOUCH_DEVICE_IDENTIFIER 234
+
+/**
+ * \ingroup BrickletMultiTouch
+ *
+ * This constant represents the display name of a Multi Touch Bricklet.
+ */
+#define MULTI_TOUCH_DEVICE_DISPLAY_NAME "Multi Touch Bricklet"
 
 /**
  * \ingroup BrickletMultiTouch

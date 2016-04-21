@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_IO4_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletIO4 IO4 Bricklet
+ * \defgroup BrickletIO4 IO-4 Bricklet
  */
 
 /**
  * \ingroup BrickletIO4
  *
- * Device for controlling up to 4 general purpose input/output pins
+ * 4-channel digital input/output
  */
 typedef Device IO4;
 
@@ -163,13 +163,20 @@ typedef Device IO4;
 /**
  * \ingroup BrickletIO4
  *
- * This constant is used to identify a IO4 Bricklet.
+ * This constant is used to identify a IO-4 Bricklet.
  *
  * The {@link io4_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define IO4_DEVICE_IDENTIFIER 29
+
+/**
+ * \ingroup BrickletIO4
+ *
+ * This constant represents the display name of a IO-4 Bricklet.
+ */
+#define IO4_DEVICE_DISPLAY_NAME "IO-4 Bricklet"
 
 /**
  * \ingroup BrickletIO4
@@ -414,7 +421,7 @@ int io4_set_selected_values(IO4 *io4, uint8_t selection_mask, uint8_t value_mask
  * If you set the reset counter to *true*, the count is set back to 0
  * directly after it is read.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int io4_get_edge_count(IO4 *io4, uint8_t pin, bool reset_counter, uint32_t *ret_count);
 
@@ -439,7 +446,7 @@ int io4_get_edge_count(IO4 *io4, uint8_t pin, bool reset_counter, uint32_t *ret_
  * 
  * Default values: 0 (edge type) and 100ms (debounce time)
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int io4_set_edge_count_config(IO4 *io4, uint8_t selection_mask, uint8_t edge_type, uint8_t debounce);
 
@@ -449,7 +456,7 @@ int io4_set_edge_count_config(IO4 *io4, uint8_t selection_mask, uint8_t edge_typ
  * Returns the edge type and debounce time for the selected pin as set by
  * {@link io4_set_edge_count_config}.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int io4_get_edge_count_config(IO4 *io4, uint8_t pin, uint8_t *ret_edge_type, uint8_t *ret_debounce);
 

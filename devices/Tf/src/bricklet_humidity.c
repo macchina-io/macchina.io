@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 
@@ -94,8 +94,8 @@ typedef struct {
 typedef struct {
 	PacketHeader header;
 	char option;
-	int16_t min;
-	int16_t max;
+	uint16_t min;
+	uint16_t max;
 } ATTRIBUTE_PACKED SetHumidityCallbackThreshold_;
 
 typedef struct {
@@ -105,8 +105,8 @@ typedef struct {
 typedef struct {
 	PacketHeader header;
 	char option;
-	int16_t min;
-	int16_t max;
+	uint16_t min;
+	uint16_t max;
 } ATTRIBUTE_PACKED GetHumidityCallbackThresholdResponse_;
 
 typedef struct {
@@ -243,7 +243,7 @@ static void humidity_callback_wrapper_analog_value_reached(DevicePrivate *device
 void humidity_create(Humidity *humidity, const char *uid, IPConnection *ipcon) {
 	DevicePrivate *device_p;
 
-	device_create(humidity, uid, ipcon->p, 2, 0, 0);
+	device_create(humidity, uid, ipcon->p, 2, 0, 1);
 
 	device_p = humidity->p;
 
@@ -433,7 +433,7 @@ int humidity_get_analog_value_callback_period(Humidity *humidity, uint32_t *ret_
 	return ret;
 }
 
-int humidity_set_humidity_callback_threshold(Humidity *humidity, char option, int16_t min, int16_t max) {
+int humidity_set_humidity_callback_threshold(Humidity *humidity, char option, uint16_t min, uint16_t max) {
 	DevicePrivate *device_p = humidity->p;
 	SetHumidityCallbackThreshold_ request;
 	int ret;
@@ -445,8 +445,8 @@ int humidity_set_humidity_callback_threshold(Humidity *humidity, char option, in
 	}
 
 	request.option = option;
-	request.min = leconvert_int16_to(min);
-	request.max = leconvert_int16_to(max);
+	request.min = leconvert_uint16_to(min);
+	request.max = leconvert_uint16_to(max);
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
@@ -454,7 +454,7 @@ int humidity_set_humidity_callback_threshold(Humidity *humidity, char option, in
 	return ret;
 }
 
-int humidity_get_humidity_callback_threshold(Humidity *humidity, char *ret_option, int16_t *ret_min, int16_t *ret_max) {
+int humidity_get_humidity_callback_threshold(Humidity *humidity, char *ret_option, uint16_t *ret_min, uint16_t *ret_max) {
 	DevicePrivate *device_p = humidity->p;
 	GetHumidityCallbackThreshold_ request;
 	GetHumidityCallbackThresholdResponse_ response;
@@ -473,8 +473,8 @@ int humidity_get_humidity_callback_threshold(Humidity *humidity, char *ret_optio
 		return ret;
 	}
 	*ret_option = response.option;
-	*ret_min = leconvert_int16_from(response.min);
-	*ret_max = leconvert_int16_from(response.max);
+	*ret_min = leconvert_uint16_from(response.min);
+	*ret_max = leconvert_uint16_from(response.max);
 
 
 

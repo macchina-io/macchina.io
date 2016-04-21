@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 
@@ -94,8 +94,8 @@ typedef struct {
 typedef struct {
 	PacketHeader header;
 	char option;
-	int16_t min;
-	int16_t max;
+	uint16_t min;
+	uint16_t max;
 } ATTRIBUTE_PACKED SetIlluminanceCallbackThreshold_;
 
 typedef struct {
@@ -105,8 +105,8 @@ typedef struct {
 typedef struct {
 	PacketHeader header;
 	char option;
-	int16_t min;
-	int16_t max;
+	uint16_t min;
+	uint16_t max;
 } ATTRIBUTE_PACKED GetIlluminanceCallbackThresholdResponse_;
 
 typedef struct {
@@ -243,7 +243,7 @@ static void ambient_light_callback_wrapper_analog_value_reached(DevicePrivate *d
 void ambient_light_create(AmbientLight *ambient_light, const char *uid, IPConnection *ipcon) {
 	DevicePrivate *device_p;
 
-	device_create(ambient_light, uid, ipcon->p, 2, 0, 0);
+	device_create(ambient_light, uid, ipcon->p, 2, 0, 1);
 
 	device_p = ambient_light->p;
 
@@ -433,7 +433,7 @@ int ambient_light_get_analog_value_callback_period(AmbientLight *ambient_light, 
 	return ret;
 }
 
-int ambient_light_set_illuminance_callback_threshold(AmbientLight *ambient_light, char option, int16_t min, int16_t max) {
+int ambient_light_set_illuminance_callback_threshold(AmbientLight *ambient_light, char option, uint16_t min, uint16_t max) {
 	DevicePrivate *device_p = ambient_light->p;
 	SetIlluminanceCallbackThreshold_ request;
 	int ret;
@@ -445,8 +445,8 @@ int ambient_light_set_illuminance_callback_threshold(AmbientLight *ambient_light
 	}
 
 	request.option = option;
-	request.min = leconvert_int16_to(min);
-	request.max = leconvert_int16_to(max);
+	request.min = leconvert_uint16_to(min);
+	request.max = leconvert_uint16_to(max);
 
 	ret = device_send_request(device_p, (Packet *)&request, NULL);
 
@@ -454,7 +454,7 @@ int ambient_light_set_illuminance_callback_threshold(AmbientLight *ambient_light
 	return ret;
 }
 
-int ambient_light_get_illuminance_callback_threshold(AmbientLight *ambient_light, char *ret_option, int16_t *ret_min, int16_t *ret_max) {
+int ambient_light_get_illuminance_callback_threshold(AmbientLight *ambient_light, char *ret_option, uint16_t *ret_min, uint16_t *ret_max) {
 	DevicePrivate *device_p = ambient_light->p;
 	GetIlluminanceCallbackThreshold_ request;
 	GetIlluminanceCallbackThresholdResponse_ response;
@@ -473,8 +473,8 @@ int ambient_light_get_illuminance_callback_threshold(AmbientLight *ambient_light
 		return ret;
 	}
 	*ret_option = response.option;
-	*ret_min = leconvert_int16_from(response.min);
-	*ret_max = leconvert_int16_from(response.max);
+	*ret_min = leconvert_uint16_from(response.min);
+	*ret_max = leconvert_uint16_from(response.max);
 
 
 

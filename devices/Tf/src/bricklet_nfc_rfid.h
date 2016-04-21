@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_NFC_RFID_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletNFCRFID NFCRFID Bricklet
+ * \defgroup BrickletNFCRFID NFC/RFID Bricklet
  */
 
 /**
  * \ingroup BrickletNFCRFID
  *
- * Device that can read and write NFC and RFID tags
+ * Reads and writes NFC and RFID tags
  */
 typedef Device NFCRFID;
 
@@ -182,13 +182,20 @@ typedef Device NFCRFID;
 /**
  * \ingroup BrickletNFCRFID
  *
- * This constant is used to identify a NFCRFID Bricklet.
+ * This constant is used to identify a NFC/RFID Bricklet.
  *
  * The {@link nfc_rfid_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define NFC_RFID_DEVICE_IDENTIFIER 246
+
+/**
+ * \ingroup BrickletNFCRFID
+ *
+ * This constant represents the display name of a NFC/RFID Bricklet.
+ */
+#define NFC_RFID_DEVICE_DISPLAY_NAME "NFC/RFID Bricklet"
 
 /**
  * \ingroup BrickletNFCRFID
@@ -278,9 +285,9 @@ int nfc_rfid_get_api_version(NFCRFID *nfc_rfid, uint8_t ret_api_version[3]);
  * 
  * Current the following tag types are supported:
  * 
- * * Mifare Classic (``tag_type`` = 0)
- * * NFC Forum Type 1 (``tag_type`` = 1)
- * * NFC Forum Type 2 (``tag_type`` = 2)
+ * * Mifare Classic
+ * * NFC Forum Type 1
+ * * NFC Forum Type 2
  * 
  * After you call {@link nfc_rfid_request_tag_id} the NFC/RFID Bricklet will try to read 
  * the tag ID from the tag. After this process is done the state will change.
@@ -312,9 +319,10 @@ int nfc_rfid_request_tag_id(NFCRFID *nfc_rfid, uint8_t tag_type);
  * 
  * To get the tag ID of a tag the approach is as follows:
  * 
- * * Call {@link nfc_rfid_request_tag_id}
- * * Wait for state to change to *RequestTagIDReady* (see {@link nfc_rfid_get_state} or {@link NFC_RFID_CALLBACK_STATE_CHANGED})
- * * Call {@link nfc_rfid_get_tag_id}
+ * 1. Call {@link nfc_rfid_request_tag_id}
+ * 2. Wait for state to change to *RequestTagIDReady* (see {@link nfc_rfid_get_state} or
+ *    {@link NFC_RFID_CALLBACK_STATE_CHANGED})
+ * 3. Call {@link nfc_rfid_get_tag_id}
  */
 int nfc_rfid_get_tag_id(NFCRFID *nfc_rfid, uint8_t *ret_tag_type, uint8_t *ret_tid_length, uint8_t ret_tid[7]);
 
@@ -335,24 +343,6 @@ int nfc_rfid_get_tag_id(NFCRFID *nfc_rfid, uint8_t *ret_tag_type, uint8_t *ret_t
  * didn't. If the request worked you can get the page by calling {@link nfc_rfid_get_page}.
  * 
  * The same approach is used analogously for the other API functions.
- * 
- * Possible states are:
- * 
- * * Initialization = 0
- * * Idle = 128
- * * Error = 192
- * * RequestTagID = 2
- * * RequestTagIDReady = 130
- * * RequestTagIDError = 194
- * * AuthenticatingMifareClassicPage = 3
- * * AuthenticatingMifareClassicPageReady = 131
- * * AuthenticatingMifareClassicPageError = 195
- * * WritePage = 4
- * * WritePageReady = 132
- * * WritePageError = 196
- * * RequestPage = 5
- * * RequestPageReady = 133
- * * RequestPageError = 197
  */
 int nfc_rfid_get_state(NFCRFID *nfc_rfid, uint8_t *ret_state, bool *ret_idle);
 
@@ -368,13 +358,15 @@ int nfc_rfid_get_state(NFCRFID *nfc_rfid, uint8_t *ret_state, bool *ret_idle);
  * 
  * The approach to read or write a Mifare Classic page is as follows:
  * 
- * * Call {@link nfc_rfid_request_tag_id}
- * * Wait for state to change to *RequestTagIDReady* (see {@link nfc_rfid_get_state}
- *   or {@link NFC_RFID_CALLBACK_STATE_CHANGED})
- * * Call {@link nfc_rfid_get_tag_id} and check if tag ID is correct
- * * Call {@link nfc_rfid_authenticate_mifare_classic_page} with page and key for the page
- * * Wait for state to change to *AuthenticatingMifareClassicPageReady*
- * * Call {@link nfc_rfid_request_page} or :func`WritePage` to read/write page
+ * 1. Call {@link nfc_rfid_request_tag_id}
+ * 2. Wait for state to change to *RequestTagIDReady* (see {@link nfc_rfid_get_state}
+ *    or {@link NFC_RFID_CALLBACK_STATE_CHANGED})
+ * 3. If looking for a specific tag then call {@link nfc_rfid_get_tag_id} and check if the
+ *    expected tag was found, if it was not found got back to step 1
+ * 4. Call {@link nfc_rfid_authenticate_mifare_classic_page} with page and key for the page
+ * 5. Wait for state to change to *AuthenticatingMifareClassicPageReady* (see
+ *    {@link nfc_rfid_get_state} or {@link NFC_RFID_CALLBACK_STATE_CHANGED})
+ * 6. Call {@link nfc_rfid_request_page} or {@link nfc_rfid_write_page} to read/write page
  */
 int nfc_rfid_authenticate_mifare_classic_page(NFCRFID *nfc_rfid, uint16_t page, uint8_t key_number, uint8_t key[6]);
 
@@ -390,11 +382,14 @@ int nfc_rfid_authenticate_mifare_classic_page(NFCRFID *nfc_rfid, uint16_t page, 
  * 
  * The general approach for writing to a tag is as follows:
  * 
- * * Call {@link nfc_rfid_request_tag_id}
- * * Wait for state to change to *RequestTagIDReady* (see {@link nfc_rfid_get_state} or {@link NFC_RFID_CALLBACK_STATE_CHANGED})
- * * Call {@link nfc_rfid_get_tag_id} and check if tag ID is correct
- * * Call {@link nfc_rfid_write_page} with page number and data
- * * Wait for state to change to *WritePageReady*
+ * 1. Call {@link nfc_rfid_request_tag_id}
+ * 2. Wait for state to change to *RequestTagIDReady* (see {@link nfc_rfid_get_state} or
+ *    {@link NFC_RFID_CALLBACK_STATE_CHANGED})
+ * 3. If looking for a specific tag then call {@link nfc_rfid_get_tag_id} and check if the
+ *    expected tag was found, if it was not found got back to step 1
+ * 4. Call {@link nfc_rfid_write_page} with page number and data
+ * 5. Wait for state to change to *WritePageReady* (see {@link nfc_rfid_get_state} or
+ *    {@link NFC_RFID_CALLBACK_STATE_CHANGED})
  * 
  * If you use a Mifare Classic tag you have to authenticate a page before you
  * can write to it. See {@link nfc_rfid_authenticate_mifare_classic_page}.
@@ -415,12 +410,15 @@ int nfc_rfid_write_page(NFCRFID *nfc_rfid, uint16_t page, uint8_t data[16]);
  * 
  * The general approach for reading a tag is as follows:
  * 
- * * Call {@link nfc_rfid_request_tag_id}
- * * Wait for state to change to *RequestTagIDReady* (see {@link nfc_rfid_get_state} or {@link NFC_RFID_CALLBACK_STATE_CHANGED})
- * * Call {@link nfc_rfid_get_tag_id} and check if tag ID is correct
- * * Call {@link nfc_rfid_request_page} with page number
- * * Wait for state to change to *RequestPageReady*
- * * Call {@link nfc_rfid_get_page} to retrieve the page from the buffer
+ * 1. Call {@link nfc_rfid_request_tag_id}
+ * 2. Wait for state to change to *RequestTagIDReady* (see {@link nfc_rfid_get_state}
+ *    or {@link NFC_RFID_CALLBACK_STATE_CHANGED})
+ * 3. If looking for a specific tag then call {@link nfc_rfid_get_tag_id} and check if the
+ *    expected tag was found, if it was not found got back to step 1
+ * 4. Call {@link nfc_rfid_request_page} with page number
+ * 5. Wait for state to change to *RequestPageReady* (see {@link nfc_rfid_get_state}
+ *    or {@link NFC_RFID_CALLBACK_STATE_CHANGED})
+ * 6. Call {@link nfc_rfid_get_page} to retrieve the page from the buffer
  * 
  * If you use a Mifare Classic tag you have to authenticate a page before you
  * can read it. See {@link nfc_rfid_authenticate_mifare_classic_page}.

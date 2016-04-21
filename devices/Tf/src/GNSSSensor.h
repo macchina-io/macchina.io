@@ -19,10 +19,7 @@
 #include "IoT/Devices/DeviceImpl.h"
 #include "IoT/Tf/MasterConnection.h"
 #include "BrickletImpl.h"
-extern "C"
-{
 #include "bricklet_gps.h"
-}
 
 
 namespace IoT {

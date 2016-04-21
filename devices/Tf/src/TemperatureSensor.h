@@ -20,10 +20,8 @@
 #include "IoT/Devices/EventModerationPolicy.h"
 #include "IoT/Tf/MasterConnection.h"
 #include "BrickletImpl.h"
-extern "C"
-{
 #include "bricklet_temperature.h"
-}
+
 
 namespace IoT {
 namespace Tf {

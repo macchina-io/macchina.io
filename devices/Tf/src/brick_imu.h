@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICK_IMU_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickIMU
  *
- * Device for sensing acceleration, magnetic field and angular velocity
+ * Full fledged AHRS with 9 degrees of freedom
  */
 typedef Device IMU;
 
@@ -196,6 +196,21 @@ typedef Device IMU;
 /**
  * \ingroup BrickIMU
  */
+#define IMU_FUNCTION_ENABLE_STATUS_LED 238
+
+/**
+ * \ingroup BrickIMU
+ */
+#define IMU_FUNCTION_DISABLE_STATUS_LED 239
+
+/**
+ * \ingroup BrickIMU
+ */
+#define IMU_FUNCTION_IS_STATUS_LED_ENABLED 240
+
+/**
+ * \ingroup BrickIMU
+ */
 #define IMU_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME 241
 
 /**
@@ -327,6 +342,13 @@ typedef Device IMU;
 /**
  * \ingroup BrickIMU
  *
+ * This constant represents the display name of a IMU Brick.
+ */
+#define IMU_DEVICE_DISPLAY_NAME "IMU Brick"
+
+/**
+ * \ingroup BrickIMU
+ *
  * Creates the device object \c imu with the unique device ID \c uid and adds
  * it to the IPConnection \c ipcon.
  */
@@ -406,7 +428,7 @@ int imu_get_api_version(IMU *imu, uint8_t ret_api_version[3]);
  * \ingroup BrickIMU
  *
  * Returns the calibrated acceleration from the accelerometer for the 
- * x, y and z axis in mG (G/1000, 1G = 9.80605m/s²).
+ * x, y and z axis in g/1000 (1g = 9.80665m/s²).
  * 
  * If you want to get the acceleration periodically, it is recommended 
  * to use the callback {@link IMU_CALLBACK_ACCELERATION} and set the period with 
@@ -458,7 +480,7 @@ int imu_get_all_data(IMU *imu, int16_t *ret_acc_x, int16_t *ret_acc_y, int16_t *
  *
  * Returns the current orientation (roll, pitch, yaw) of the IMU Brick as Euler
  * angles in one-hundredth degree. Note that Euler angles always experience a
- * `gimbal lock <http://en.wikipedia.org/wiki/Gimbal_lock>`__.
+ * `gimbal lock <https://en.wikipedia.org/wiki/Gimbal_lock>`__.
  * 
  * We recommend that you use quaternions instead.
  * 
@@ -475,7 +497,7 @@ int imu_get_orientation(IMU *imu, int16_t *ret_roll, int16_t *ret_pitch, int16_t
  * \ingroup BrickIMU
  *
  * Returns the current orientation (x, y, z, w) of the IMU as 
- * `quaternions <http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation>`__.
+ * `quaternions <https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation>`__.
  * 
  * You can go from quaternions to Euler angles with the following formula::
  * 
@@ -484,7 +506,7 @@ int imu_get_orientation(IMU *imu, int16_t *ret_roll, int16_t *ret_pitch, int16_t
  *  zAngle =  asin(2*x*y + 2*z*w)
  * 
  * This process is not reversible, because of the 
- * `gimbal lock <http://en.wikipedia.org/wiki/Gimbal_lock>`__.
+ * `gimbal lock <https://en.wikipedia.org/wiki/Gimbal_lock>`__.
  * 
  * It is also possible to calculate independent angles. You can calculate 
  * yaw, pitch and roll in a right-handed vehicle coordinate system according to DIN70000
@@ -752,7 +774,7 @@ int imu_get_quaternion_period(IMU *imu, uint32_t *ret_period);
  * 
  * As default the calculation is on.
  * 
- * .. versionadded:: 2.0.2~(Firmware)
+ * .. versionadded:: 2.0.2$nbsp;(Firmware)
  */
 int imu_orientation_calculation_on(IMU *imu);
 
@@ -771,7 +793,7 @@ int imu_orientation_calculation_on(IMU *imu);
  * 
  * As default the calculation is on.
  * 
- * .. versionadded:: 2.0.2~(Firmware)
+ * .. versionadded:: 2.0.2$nbsp;(Firmware)
  */
 int imu_orientation_calculation_off(IMU *imu);
 
@@ -781,9 +803,46 @@ int imu_orientation_calculation_off(IMU *imu);
  * Returns *true* if the orientation calculation of the IMU Brick
  * is on, *false* otherwise.
  * 
- * .. versionadded:: 2.0.2~(Firmware)
+ * .. versionadded:: 2.0.2$nbsp;(Firmware)
  */
 int imu_is_orientation_calculation_on(IMU *imu, bool *ret_orientation_calculation_on);
+
+/**
+ * \ingroup BrickIMU
+ *
+ * Enables the status LED.
+ * 
+ * The status LED is the blue LED next to the USB connector. If enabled is is
+ * on and it flickers if data is transfered. If disabled it is always off.
+ * 
+ * The default state is enabled.
+ * 
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
+ */
+int imu_enable_status_led(IMU *imu);
+
+/**
+ * \ingroup BrickIMU
+ *
+ * Disables the status LED.
+ * 
+ * The status LED is the blue LED next to the USB connector. If enabled is is
+ * on and it flickers if data is transfered. If disabled it is always off.
+ * 
+ * The default state is enabled.
+ * 
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
+ */
+int imu_disable_status_led(IMU *imu);
+
+/**
+ * \ingroup BrickIMU
+ *
+ * Returns *true* if the status LED is enabled, *false* otherwise.
+ * 
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
+ */
+int imu_is_status_led_enabled(IMU *imu, bool *ret_enabled);
 
 /**
  * \ingroup BrickIMU

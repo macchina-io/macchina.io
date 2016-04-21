@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_TEMPERATURE_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletTemperature
  *
- * Device for sensing Temperature
+ * Measures ambient temperature with 0.5°C accuracy
  */
 typedef Device Temperature;
 
@@ -152,6 +152,13 @@ typedef Device Temperature;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define TEMPERATURE_DEVICE_IDENTIFIER 216
+
+/**
+ * \ingroup BrickletTemperature
+ *
+ * This constant represents the display name of a Temperature Bricklet.
+ */
+#define TEMPERATURE_DEVICE_DISPLAY_NAME "Temperature Bricklet"
 
 /**
  * \ingroup BrickletTemperature
@@ -331,7 +338,7 @@ int temperature_get_debounce_period(Temperature *temperature, uint32_t *ret_debo
  * It is however not recommended to lower the I2C speed in applications where
  * a high throughput needs to be achieved.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int temperature_set_i2c_mode(Temperature *temperature, uint8_t mode);
 
@@ -340,7 +347,7 @@ int temperature_set_i2c_mode(Temperature *temperature, uint8_t mode);
  *
  * Returns the I2C mode as set by {@link temperature_set_i2c_mode}.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int temperature_get_i2c_mode(Temperature *temperature, uint8_t *ret_mode);
 

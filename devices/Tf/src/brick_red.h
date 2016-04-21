@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICK_RED_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickRED
  *
- * Device for running user programs standalone on the stack
+ * Executes user programs and controls other Bricks/Bricklets standalone
  */
 typedef Device RED;
 
@@ -381,6 +381,156 @@ typedef Device RED;
  */
 #define RED_CALLBACK_PROGRAM_PROCESS_SPAWNED 66
 
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_SUCCESS 0
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_UNKNOWN_ERROR 1
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_INVALID_OPERATION 2
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_OPERATION_ABORTED 3
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_INTERNAL_ERROR 4
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_UNKNOWN_SESSION_ID 5
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_NO_FREE_SESSION_ID 6
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_UNKNOWN_OBJECT_ID 7
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_NO_FREE_OBJECT_ID 8
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_OBJECT_IS_LOCKED 9
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_NO_MORE_DATA 10
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_WRONG_LIST_ITEM_TYPE 11
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_PROGRAM_IS_PURGED 12
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_INVALID_PARAMETER 128
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_NO_FREE_MEMORY 129
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_NO_FREE_SPACE 130
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_ACCESS_DENIED 121
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_ALREADY_EXISTS 132
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_DOES_NOT_EXIST 133
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_INTERRUPTED 134
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_IS_DIRECTORY 135
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_NOT_A_DIRECTORY 136
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_WOULD_BLOCK 137
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_OVERFLOW 138
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_BAD_FILE_DESCRIPTOR 139
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_OUT_OF_RANGE 140
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_NAME_TOO_LONG 141
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_INVALID_SEEK 142
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_NOT_SUPPORTED 143
+
+/**
+ * \ingroup BrickRED
+ */
+#define RED_ERROR_CODE_TOO_MANY_OPEN_FILES 144
 
 /**
  * \ingroup BrickRED
@@ -797,6 +947,13 @@ typedef Device RED;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define RED_DEVICE_IDENTIFIER 17
+
+/**
+ * \ingroup BrickRED
+ *
+ * This constant represents the display name of a RED Brick.
+ */
+#define RED_DEVICE_DISPLAY_NAME "RED Brick"
 
 /**
  * \ingroup BrickRED
@@ -1482,7 +1639,7 @@ int red_get_program_schedule(RED *red, uint16_t program_id, uint16_t session_id,
 /**
  * \ingroup BrickRED
  *
- * FIXME: message is currently vaild in error-occurred state only
+ * FIXME: message is currently valid in error-occurred state only
  */
 int red_get_program_scheduler_state(RED *red, uint16_t program_id, uint16_t session_id, uint8_t *ret_error_code, uint8_t *ret_state, uint64_t *ret_timestamp, uint16_t *ret_message_string_id);
 

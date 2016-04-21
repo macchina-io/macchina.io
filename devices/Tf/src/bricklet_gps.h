@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_GPS_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletGPS
  *
- * Device for receiving GPS position
+ * Determine position, velocity and altitude using GPS
  */
 typedef Device GPS;
 
@@ -145,7 +145,7 @@ typedef Device GPS;
 /**
  * \ingroup BrickletGPS
  *
- * Signature: \code void callback(uint32_t altitude, uint32_t geoidal_separation, void *user_data) \endcode
+ * Signature: \code void callback(int32_t altitude, int32_t geoidal_separation, void *user_data) \endcode
  * 
  * This callback is triggered periodically with the period that is set by
  * {@link gps_set_altitude_callback_period}. The parameters are the same
@@ -232,6 +232,13 @@ typedef Device GPS;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define GPS_DEVICE_IDENTIFIER 222
+
+/**
+ * \ingroup BrickletGPS
+ *
+ * This constant represents the display name of a GPS Bricklet.
+ */
+#define GPS_DEVICE_DISPLAY_NAME "GPS Bricklet"
 
 /**
  * \ingroup BrickletGPS
@@ -323,7 +330,7 @@ int gps_get_api_version(GPS *gps, uint8_t ret_api_version[3]);
  * PDOP, HDOP and VDOP are the dilution of precision (DOP) values. They specify
  * the additional multiplicative effect of GPS satellite geometry on GPS 
  * precision. See 
- * `here <http://en.wikipedia.org/wiki/Dilution_of_precision_(GPS)>`__
+ * `here <https://en.wikipedia.org/wiki/Dilution_of_precision_(GPS)>`__
  * for more information. The values are give in hundredths.
  * 
  * EPE is the "Estimated Position Error". The EPE is given in cm. This is not the
@@ -346,9 +353,9 @@ int gps_get_coordinates(GPS *gps, uint32_t *ret_latitude, char *ret_ns, uint32_t
  * \verbatim
  *  "Value", "Description"
  * 
- *  "1", "No Fix, {@link gps_get_coordinates} and {@link gps_get_altitude} return invalid data"
- *  "2", "2D Fix, only {@link gps_get_coordinates} returns valid data"
- *  "3", "3D Fix, {@link gps_get_coordinates} and {@link gps_get_altitude} return valid data"
+ *  "1", "No Fix, {@link gps_get_coordinates}, {@link gps_get_altitude} and {@link gps_get_motion} return invalid data"
+ *  "2", "2D Fix, only {@link gps_get_coordinates} and {@link gps_get_motion} return valid data"
+ *  "3", "3D Fix, {@link gps_get_coordinates}, {@link gps_get_altitude} and {@link gps_get_motion} return valid data"
  * \endverbatim
  * 
  * There is also a :ref:`blue LED <gps_bricklet_fix_led>` on the Bricklet that
@@ -366,7 +373,7 @@ int gps_get_status(GPS *gps, uint8_t *ret_fix, uint8_t *ret_satellites_view, uin
  * This data is only valid if there is currently a fix as indicated by
  * {@link gps_get_status}.
  */
-int gps_get_altitude(GPS *gps, uint32_t *ret_altitude, uint32_t *ret_geoidal_separation);
+int gps_get_altitude(GPS *gps, int32_t *ret_altitude, int32_t *ret_geoidal_separation);
 
 /**
  * \ingroup BrickletGPS

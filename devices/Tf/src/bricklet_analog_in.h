@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_ANALOG_IN_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletAnalogIn AnalogIn Bricklet
+ * \defgroup BrickletAnalogIn Analog In Bricklet
  */
 
 /**
  * \ingroup BrickletAnalogIn
  *
- * Device for sensing Voltages between 0 and 45V
+ * Measures DC voltage between 0V and 45V
  */
 typedef Device AnalogIn;
 
@@ -228,13 +228,20 @@ typedef Device AnalogIn;
 /**
  * \ingroup BrickletAnalogIn
  *
- * This constant is used to identify a AnalogIn Bricklet.
+ * This constant is used to identify a Analog In Bricklet.
  *
  * The {@link analog_in_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define ANALOG_IN_DEVICE_IDENTIFIER 219
+
+/**
+ * \ingroup BrickletAnalogIn
+ *
+ * This constant represents the display name of a Analog In Bricklet.
+ */
+#define ANALOG_IN_DEVICE_DISPLAY_NAME "Analog In Bricklet"
 
 /**
  * \ingroup BrickletAnalogIn
@@ -404,14 +411,14 @@ int analog_in_get_analog_value_callback_period(AnalogIn *analog_in, uint32_t *re
  * 
  * The default value is ('x', 0, 0).
  */
-int analog_in_set_voltage_callback_threshold(AnalogIn *analog_in, char option, int16_t min, int16_t max);
+int analog_in_set_voltage_callback_threshold(AnalogIn *analog_in, char option, uint16_t min, uint16_t max);
 
 /**
  * \ingroup BrickletAnalogIn
  *
  * Returns the threshold as set by {@link analog_in_set_voltage_callback_threshold}.
  */
-int analog_in_get_voltage_callback_threshold(AnalogIn *analog_in, char *ret_option, int16_t *ret_min, int16_t *ret_max);
+int analog_in_get_voltage_callback_threshold(AnalogIn *analog_in, char *ret_option, uint16_t *ret_min, uint16_t *ret_max);
 
 /**
  * \ingroup BrickletAnalogIn
@@ -477,11 +484,11 @@ int analog_in_get_debounce_period(AnalogIn *analog_in, uint32_t *ret_debounce);
  * * 2: 0V - 10.32V, ~2.52mV resolution
  * * 3: 0V - 36.30V, ~8.86mV resolution
  * * 4: 0V - 45.00V, ~11.25mV resolution
- * * 5: 0V - 3.3V, ~0.81mV resolution, new in version 2.0.3 (Plugin)
+ * * 5: 0V - 3.3V, ~0.81mV resolution, new in version 2.0.3$nbsp;(Plugin)
  * 
  * The default measurement range is 0.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int analog_in_set_range(AnalogIn *analog_in, uint8_t range);
 
@@ -490,7 +497,7 @@ int analog_in_set_range(AnalogIn *analog_in, uint8_t range);
  *
  * Returns the measurement range as set by {@link analog_in_set_range}.
  * 
- * .. versionadded:: 2.0.1~(Plugin)
+ * .. versionadded:: 2.0.1$nbsp;(Plugin)
  */
 int analog_in_get_range(AnalogIn *analog_in, uint8_t *ret_range);
 
@@ -505,7 +512,7 @@ int analog_in_get_range(AnalogIn *analog_in, uint8_t *ret_range);
  * 
  * The default value is 50.
  * 
- * .. versionadded:: 2.0.3~(Plugin)
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
  */
 int analog_in_set_averaging(AnalogIn *analog_in, uint8_t average);
 
@@ -514,7 +521,7 @@ int analog_in_set_averaging(AnalogIn *analog_in, uint8_t average);
  *
  * Returns the averaging configuration as set by {@link analog_in_set_averaging}.
  * 
- * .. versionadded:: 2.0.3~(Plugin)
+ * .. versionadded:: 2.0.3$nbsp;(Plugin)
  */
 int analog_in_get_averaging(AnalogIn *analog_in, uint8_t *ret_average);
 

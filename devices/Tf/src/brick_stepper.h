@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICK_STEPPER_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickStepper
  *
- * Device for controlling stepper motors
+ * Drives one bipolar stepper motor with up to 38V and 2.5A per phase
  */
 typedef Device Stepper;
 
@@ -216,6 +216,21 @@ typedef Device Stepper;
 /**
  * \ingroup BrickStepper
  */
+#define STEPPER_FUNCTION_ENABLE_STATUS_LED 238
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_FUNCTION_DISABLE_STATUS_LED 239
+
+/**
+ * \ingroup BrickStepper
+ */
+#define STEPPER_FUNCTION_IS_STATUS_LED_ENABLED 240
+
+/**
+ * \ingroup BrickStepper
+ */
 #define STEPPER_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME 241
 
 /**
@@ -279,15 +294,6 @@ typedef Device Stepper;
  * 
  * This callback is triggered whenever the Stepper Brick enters a new state. 
  * It returns the new state as well as the previous state.
- * 
- * Possible states are:
- * 
- * * 1 = Stop
- * * 2 = Acceleration
- * * 3 = Run
- * * 4 = Deacceleration
- * * 5 = Direction change to forward
- * * 6 = Direction change to backward
  */
 #define STEPPER_CALLBACK_NEW_STATE 41
 
@@ -352,6 +358,13 @@ typedef Device Stepper;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define STEPPER_DEVICE_IDENTIFIER 15
+
+/**
+ * \ingroup BrickStepper
+ *
+ * This constant represents the display name of a Stepper Brick.
+ */
+#define STEPPER_DEVICE_DISPLAY_NAME "Stepper Brick"
 
 /**
  * \ingroup BrickStepper
@@ -762,7 +775,7 @@ int stepper_get_minimum_voltage(Stepper *stepper, uint16_t *ret_voltage);
  * decay is used.
  * 
  * For an explanation of synchronous rectification see 
- * `here <http://en.wikipedia.org/wiki/Active_rectification>`__.
+ * `here <https://en.wikipedia.org/wiki/Active_rectification>`__.
  * 
  * \warning
  *  If you want to use high speeds (> 10000 steps/s) for a large 
@@ -827,6 +840,43 @@ int stepper_set_all_data_period(Stepper *stepper, uint32_t period);
  * Returns the period as set by {@link stepper_set_all_data_period}.
  */
 int stepper_get_all_data_period(Stepper *stepper, uint32_t *ret_period);
+
+/**
+ * \ingroup BrickStepper
+ *
+ * Enables the status LED.
+ * 
+ * The status LED is the blue LED next to the USB connector. If enabled is is
+ * on and it flickers if data is transfered. If disabled it is always off.
+ * 
+ * The default state is enabled.
+ * 
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
+ */
+int stepper_enable_status_led(Stepper *stepper);
+
+/**
+ * \ingroup BrickStepper
+ *
+ * Disables the status LED.
+ * 
+ * The status LED is the blue LED next to the USB connector. If enabled is is
+ * on and it flickers if data is transfered. If disabled it is always off.
+ * 
+ * The default state is enabled.
+ * 
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
+ */
+int stepper_disable_status_led(Stepper *stepper);
+
+/**
+ * \ingroup BrickStepper
+ *
+ * Returns *true* if the status LED is enabled, *false* otherwise.
+ * 
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
+ */
+int stepper_is_status_led_enabled(Stepper *stepper, bool *ret_enabled);
 
 /**
  * \ingroup BrickStepper

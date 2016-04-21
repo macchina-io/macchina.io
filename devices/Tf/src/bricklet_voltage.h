@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_VOLTAGE_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletVoltage
  *
- * Device for sensing Voltages between 0 and 50V
+ * Measures DC voltage between 0V and 50V
  */
 typedef Device Voltage;
 
@@ -185,6 +185,13 @@ typedef Device Voltage;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define VOLTAGE_DEVICE_IDENTIFIER 218
+
+/**
+ * \ingroup BrickletVoltage
+ *
+ * This constant represents the display name of a Voltage Bricklet.
+ */
+#define VOLTAGE_DEVICE_DISPLAY_NAME "Voltage Bricklet"
 
 /**
  * \ingroup BrickletVoltage
@@ -353,14 +360,14 @@ int voltage_get_analog_value_callback_period(Voltage *voltage, uint32_t *ret_per
  * 
  * The default value is ('x', 0, 0).
  */
-int voltage_set_voltage_callback_threshold(Voltage *voltage, char option, int16_t min, int16_t max);
+int voltage_set_voltage_callback_threshold(Voltage *voltage, char option, uint16_t min, uint16_t max);
 
 /**
  * \ingroup BrickletVoltage
  *
  * Returns the threshold as set by {@link voltage_set_voltage_callback_threshold}.
  */
-int voltage_get_voltage_callback_threshold(Voltage *voltage, char *ret_option, int16_t *ret_min, int16_t *ret_max);
+int voltage_get_voltage_callback_threshold(Voltage *voltage, char *ret_option, uint16_t *ret_min, uint16_t *ret_max);
 
 /**
  * \ingroup BrickletVoltage

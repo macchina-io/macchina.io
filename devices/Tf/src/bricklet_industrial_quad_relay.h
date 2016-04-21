@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_INDUSTRIAL_QUAD_RELAY_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletIndustrialQuadRelay IndustrialQuadRelay Bricklet
+ * \defgroup BrickletIndustrialQuadRelay Industrial Quad Relay Bricklet
  */
 
 /**
  * \ingroup BrickletIndustrialQuadRelay
  *
- * Device for controlling up to 4 Solid State Relays
+ * 4 galvanically isolated solid state relays
  */
 typedef Device IndustrialQuadRelay;
 
@@ -88,13 +88,20 @@ typedef Device IndustrialQuadRelay;
 /**
  * \ingroup BrickletIndustrialQuadRelay
  *
- * This constant is used to identify a IndustrialQuadRelay Bricklet.
+ * This constant is used to identify a Industrial Quad Relay Bricklet.
  *
  * The {@link industrial_quad_relay_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define INDUSTRIAL_QUAD_RELAY_DEVICE_IDENTIFIER 225
+
+/**
+ * \ingroup BrickletIndustrialQuadRelay
+ *
+ * This constant represents the display name of a Industrial Quad Relay Bricklet.
+ */
+#define INDUSTRIAL_QUAD_RELAY_DEVICE_DISPLAY_NAME "Industrial Quad Relay Bricklet"
 
 /**
  * \ingroup BrickletIndustrialQuadRelay

@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICK_SERVO_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickServo
  *
- * Device for controlling up to seven servos
+ * Drives up to 7 RC Servos with up to 3A
  */
 typedef Device Servo;
 
@@ -186,6 +186,21 @@ typedef Device Servo;
 /**
  * \ingroup BrickServo
  */
+#define SERVO_FUNCTION_ENABLE_STATUS_LED 238
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_FUNCTION_DISABLE_STATUS_LED 239
+
+/**
+ * \ingroup BrickServo
+ */
+#define SERVO_FUNCTION_IS_STATUS_LED_ENABLED 240
+
+/**
+ * \ingroup BrickServo
+ */
 #define SERVO_FUNCTION_GET_PROTOCOL1_BRICKLET_NAME 241
 
 /**
@@ -261,6 +276,13 @@ typedef Device Servo;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define SERVO_DEVICE_IDENTIFIER 14
+
+/**
+ * \ingroup BrickServo
+ *
+ * This constant represents the display name of a Servo Brick.
+ */
+#define SERVO_DEVICE_DISPLAY_NAME "Servo Brick"
 
 /**
  * \ingroup BrickServo
@@ -471,7 +493,7 @@ int servo_get_output_voltage(Servo *servo, uint16_t *ret_voltage);
  * Sets the minimum and maximum pulse width of the specified servo in µs.
  * 
  * Usually, servos are controlled with a 
- * `PWM <http://en.wikipedia.org/wiki/Pulse-width_modulation>`__, whereby the
+ * `PWM <https://en.wikipedia.org/wiki/Pulse-width_modulation>`__, whereby the
  * length of the pulse controls the position of the servo. Every servo has
  * different minimum and maximum pulse widths, these can be specified with
  * this function.
@@ -546,7 +568,7 @@ int servo_get_degree(Servo *servo, uint8_t servo_num, int16_t *ret_min, int16_t 
  * Sets the period of the specified servo in µs.
  * 
  * Usually, servos are controlled with a 
- * `PWM <http://en.wikipedia.org/wiki/Pulse-width_modulation>`__. Different
+ * `PWM <https://en.wikipedia.org/wiki/Pulse-width_modulation>`__. Different
  * servos expect PWMs with different periods. Most servos run well with a 
  * period of about 20ms.
  * 
@@ -636,7 +658,7 @@ int servo_get_minimum_voltage(Servo *servo, uint16_t *ret_voltage);
  * 
  * Default is disabled.
  * 
- * .. versionadded:: 2.0.1~(Firmware)
+ * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
 int servo_enable_position_reached_callback(Servo *servo);
 
@@ -647,7 +669,7 @@ int servo_enable_position_reached_callback(Servo *servo);
  * 
  * Default is disabled.
  * 
- * .. versionadded:: 2.0.1~(Firmware)
+ * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
 int servo_disable_position_reached_callback(Servo *servo);
 
@@ -656,9 +678,9 @@ int servo_disable_position_reached_callback(Servo *servo);
  *
  * Returns *true* if {@link SERVO_CALLBACK_POSITION_REACHED} callback is enabled, *false* otherwise.
  * 
- * .. versionadded:: 2.0.1~(Firmware)
+ * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
-int servo_is_position_reached_callback_enabled(Servo *servo, uint8_t *ret_enabled);
+int servo_is_position_reached_callback_enabled(Servo *servo, bool *ret_enabled);
 
 /**
  * \ingroup BrickServo
@@ -667,7 +689,7 @@ int servo_is_position_reached_callback_enabled(Servo *servo, uint8_t *ret_enable
  * 
  * Default is disabled.
  * 
- * .. versionadded:: 2.0.1~(Firmware)
+ * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
 int servo_enable_velocity_reached_callback(Servo *servo);
 
@@ -678,7 +700,7 @@ int servo_enable_velocity_reached_callback(Servo *servo);
  * 
  * Default is disabled.
  * 
- * .. versionadded:: 2.0.1~(Firmware)
+ * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
 int servo_disable_velocity_reached_callback(Servo *servo);
 
@@ -687,9 +709,46 @@ int servo_disable_velocity_reached_callback(Servo *servo);
  *
  * Returns *true* if {@link SERVO_CALLBACK_VELOCITY_REACHED} callback is enabled, *false* otherwise.
  * 
- * .. versionadded:: 2.0.1~(Firmware)
+ * .. versionadded:: 2.0.1$nbsp;(Firmware)
  */
-int servo_is_velocity_reached_callback_enabled(Servo *servo, uint8_t *ret_enabled);
+int servo_is_velocity_reached_callback_enabled(Servo *servo, bool *ret_enabled);
+
+/**
+ * \ingroup BrickServo
+ *
+ * Enables the status LED.
+ * 
+ * The status LED is the blue LED next to the USB connector. If enabled is is
+ * on and it flickers if data is transfered. If disabled it is always off.
+ * 
+ * The default state is enabled.
+ * 
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
+ */
+int servo_enable_status_led(Servo *servo);
+
+/**
+ * \ingroup BrickServo
+ *
+ * Disables the status LED.
+ * 
+ * The status LED is the blue LED next to the USB connector. If enabled is is
+ * on and it flickers if data is transfered. If disabled it is always off.
+ * 
+ * The default state is enabled.
+ * 
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
+ */
+int servo_disable_status_led(Servo *servo);
+
+/**
+ * \ingroup BrickServo
+ *
+ * Returns *true* if the status LED is enabled, *false* otherwise.
+ * 
+ * .. versionadded:: 2.3.1$nbsp;(Firmware)
+ */
+int servo_is_status_led_enabled(Servo *servo, bool *ret_enabled);
 
 /**
  * \ingroup BrickServo

@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_JOYSTICK_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletJoystick
  *
- * Dual-Axis Joystick with Button
+ * 2-axis joystick with push-button
  */
 typedef Device Joystick;
 
@@ -213,6 +213,13 @@ typedef Device Joystick;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define JOYSTICK_DEVICE_IDENTIFIER 210
+
+/**
+ * \ingroup BrickletJoystick
+ *
+ * This constant represents the display name of a Joystick Bricklet.
+ */
+#define JOYSTICK_DEVICE_DISPLAY_NAME "Joystick Bricklet"
 
 /**
  * \ingroup BrickletJoystick

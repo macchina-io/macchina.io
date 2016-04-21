@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_MOISTURE_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletMoisture
  *
- * Device for sensing Moisture
+ * Measures soil moisture
  */
 typedef Device Moisture;
 
@@ -142,6 +142,13 @@ typedef Device Moisture;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define MOISTURE_DEVICE_IDENTIFIER 232
+
+/**
+ * \ingroup BrickletMoisture
+ *
+ * This constant represents the display name of a Moisture Bricklet.
+ */
+#define MOISTURE_DEVICE_DISPLAY_NAME "Moisture Bricklet"
 
 /**
  * \ingroup BrickletMoisture
@@ -309,7 +316,7 @@ int moisture_get_debounce_period(Moisture *moisture, uint32_t *ret_debounce);
 /**
  * \ingroup BrickletMoisture
  *
- * Sets the length of a `moving averaging <http://en.wikipedia.org/wiki/Moving_average>`__ 
+ * Sets the length of a `moving averaging <https://en.wikipedia.org/wiki/Moving_average>`__
  * for the moisture value.
  * 
  * Setting the length to 0 will turn the averaging completely off. With less

@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_TEMPERATURE_IR_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletTemperatureIR TemperatureIR Bricklet
+ * \defgroup BrickletTemperatureIR Temperature IR Bricklet
  */
 
 /**
  * \ingroup BrickletTemperatureIR
  *
- * Device for non-contact temperature sensing
+ * Measures contactless object temperature between -70°C and +380°C
  */
 typedef Device TemperatureIR;
 
@@ -188,13 +188,20 @@ typedef Device TemperatureIR;
 /**
  * \ingroup BrickletTemperatureIR
  *
- * This constant is used to identify a TemperatureIR Bricklet.
+ * This constant is used to identify a Temperature IR Bricklet.
  *
  * The {@link temperature_ir_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define TEMPERATURE_IR_DEVICE_IDENTIFIER 217
+
+/**
+ * \ingroup BrickletTemperatureIR
+ *
+ * This constant represents the display name of a Temperature IR Bricklet.
+ */
+#define TEMPERATURE_IR_DEVICE_DISPLAY_NAME "Temperature IR Bricklet"
 
 /**
  * \ingroup BrickletTemperatureIR
@@ -298,7 +305,7 @@ int temperature_ir_get_ambient_temperature(TemperatureIR *temperature_ir, int16_
  * on the surface of the object.
  * 
  * The temperature of different materials is dependent on their `emissivity 
- * <http://en.wikipedia.org/wiki/Emissivity>`__. The emissivity of the material
+ * <https://en.wikipedia.org/wiki/Emissivity>`__. The emissivity of the material
  * can be set with {@link temperature_ir_set_emissivity}.
  * 
  * If you want to get the object temperature periodically, it is recommended 
@@ -310,7 +317,7 @@ int temperature_ir_get_object_temperature(TemperatureIR *temperature_ir, int16_t
 /**
  * \ingroup BrickletTemperatureIR
  *
- * Sets the `emissivity <http://en.wikipedia.org/wiki/Emissivity>`__ that is
+ * Sets the `emissivity <https://en.wikipedia.org/wiki/Emissivity>`__ that is
  * used to calculate the surface temperature as returned by 
  * {@link temperature_ir_get_object_temperature}. 
  * 

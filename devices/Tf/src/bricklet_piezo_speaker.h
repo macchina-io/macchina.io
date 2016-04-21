@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_PIEZO_SPEAKER_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletPiezoSpeaker PiezoSpeaker Bricklet
+ * \defgroup BrickletPiezoSpeaker Piezo Speaker Bricklet
  */
 
 /**
  * \ingroup BrickletPiezoSpeaker
  *
- * Device for controlling a piezo buzzer with configurable frequencies
+ * Creates beep with configurable frequency
  */
 typedef Device PiezoSpeaker;
 
@@ -81,13 +81,20 @@ typedef Device PiezoSpeaker;
 /**
  * \ingroup BrickletPiezoSpeaker
  *
- * This constant is used to identify a PiezoSpeaker Bricklet.
+ * This constant is used to identify a Piezo Speaker Bricklet.
  *
  * The {@link piezo_speaker_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define PIEZO_SPEAKER_DEVICE_IDENTIFIER 242
+
+/**
+ * \ingroup BrickletPiezoSpeaker
+ *
+ * This constant represents the display name of a Piezo Speaker Bricklet.
+ */
+#define PIEZO_SPEAKER_DEVICE_DISPLAY_NAME "Piezo Speaker Bricklet"
 
 /**
  * \ingroup BrickletPiezoSpeaker
@@ -175,7 +182,7 @@ int piezo_speaker_get_api_version(PiezoSpeaker *piezo_speaker, uint8_t ret_api_v
  * the piezo buzzer will beep for one second with a frequency of
  * approximately 2 kHz.
  * 
- * .. versionchanged:: 2.0.2~(Plugin)
+ * .. versionchanged:: 2.0.2$nbsp;(Plugin)
  *    A duration of 0 stops the current beep if any, the frequency parameter is
  *    ignored. A duration of 4294967295 results in an infinite beep.
  * 

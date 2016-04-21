@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_INDUSTRIAL_DIGITAL_OUT_4_H
@@ -18,13 +18,13 @@ extern "C" {
 #endif
 
 /**
- * \defgroup BrickletIndustrialDigitalOut4 IndustrialDigitalOut4 Bricklet
+ * \defgroup BrickletIndustrialDigitalOut4 Industrial Digital Out 4 Bricklet
  */
 
 /**
  * \ingroup BrickletIndustrialDigitalOut4
  *
- * Device for controlling up to 4 optically coupled digital outputs
+ * 4 galvanically isolated digital outputs
  */
 typedef Device IndustrialDigitalOut4;
 
@@ -88,13 +88,20 @@ typedef Device IndustrialDigitalOut4;
 /**
  * \ingroup BrickletIndustrialDigitalOut4
  *
- * This constant is used to identify a IndustrialDigitalOut4 Bricklet.
+ * This constant is used to identify a Industrial Digital Out 4 Bricklet.
  *
  * The {@link industrial_digital_out_4_get_identity} function and the
  * {@link IPCON_CALLBACK_ENUMERATE} callback of the IP Connection have a
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define INDUSTRIAL_DIGITAL_OUT_4_DEVICE_IDENTIFIER 224
+
+/**
+ * \ingroup BrickletIndustrialDigitalOut4
+ *
+ * This constant represents the display name of a Industrial Digital Out 4 Bricklet.
+ */
+#define INDUSTRIAL_DIGITAL_OUT_4_DEVICE_DISPLAY_NAME "Industrial Digital Out 4 Bricklet"
 
 /**
  * \ingroup BrickletIndustrialDigitalOut4

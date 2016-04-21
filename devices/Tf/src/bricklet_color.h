@@ -1,11 +1,11 @@
 /* ***********************************************************
- * This file was automatically generated on 2014-12-10.      *
+ * This file was automatically generated on 2016-02-10.      *
  *                                                           *
- * Bindings Version 2.1.6                                    *
+ * C/C++ Bindings Version 2.1.10                             *
  *                                                           *
  * If you have a bugfix for this file and want to commit it, *
  * please fix the bug in the generator. You can find a link  *
- * to the generator git on tinkerforge.com                   *
+ * to the generators git repository on tinkerforge.com       *
  *************************************************************/
 
 #ifndef BRICKLET_COLOR_H
@@ -24,7 +24,7 @@ extern "C" {
 /**
  * \ingroup BrickletColor
  *
- * Device for measuring color (RGB value), illuminance and color temperature
+ * Measures color (RGB value), illuminance and color temperature
  */
 typedef Device Color;
 
@@ -142,12 +142,13 @@ typedef Device Color;
  *
  * Signature: \code void callback(uint16_t r, uint16_t g, uint16_t b, uint16_t c, void *user_data) \endcode
  * 
- * This callback is triggered periodically with the period that is set by
- * {@link color_set_color_callback_period}. The parameter is the color
+ * This callback is triggered when the threshold as set by
+ * {@link color_set_color_callback_threshold} is reached.
+ * The parameter is the color
  * of the sensor as RGBC.
  * 
- * {@link COLOR_CALLBACK_COLOR} is only triggered if the color has changed since the
- * last triggering.
+ * If the threshold keeps being reached, the callback is triggered periodically
+ * with the period as set by {@link color_set_debounce_period}.
  */
 #define COLOR_CALLBACK_COLOR_REACHED 9
 
@@ -158,7 +159,7 @@ typedef Device Color;
  * 
  * This callback is triggered periodically with the period that is set by
  * {@link color_set_illuminance_callback_period}. The parameter is the illuminance.
- * See {@link color_get_illuminance} for how to interrept this value.
+ * See {@link color_get_illuminance} for how to interpret this value.
  * 
  * {@link COLOR_CALLBACK_ILLUMINANCE} is only triggered if the illuminance has changed since the
  * last triggering.
@@ -270,6 +271,13 @@ typedef Device Color;
  * \c device_identifier parameter to specify the Brick's or Bricklet's type.
  */
 #define COLOR_DEVICE_IDENTIFIER 243
+
+/**
+ * \ingroup BrickletColor
+ *
+ * This constant represents the display name of a Color Bricklet.
+ */
+#define COLOR_DEVICE_DISPLAY_NAME "Color Bricklet"
 
 /**
  * \ingroup BrickletColor
