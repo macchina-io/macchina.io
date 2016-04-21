@@ -18,6 +18,7 @@
 				include/IoT/Devices/IO.h
 				include/IoT/Devices/LED.h
 				include/IoT/Devices/BarcodeReader.h
+				include/IoT/Devices/Switch.h
 			</include>
 			<exclude>
 			</exclude>

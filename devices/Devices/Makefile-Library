@@ -79,7 +79,13 @@ objects = Device DeviceException \
 	BarcodeReaderEventDispatcher \
 	BarcodeReaderRemoteObject \
 	BarcodeReaderServerHelper \
-	BarcodeReaderSkeleton 
+	BarcodeReaderSkeleton \
+	Switch \
+	ISwitch \
+	SwitchEventDispatcher \
+	SwitchRemoteObject \
+	SwitchServerHelper \
+	SwitchSkeleton
 
 target         = IoTDevices
 target_version = 1
