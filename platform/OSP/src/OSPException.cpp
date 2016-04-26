@@ -29,6 +29,7 @@ POCO_IMPLEMENT_EXCEPTION(BundleStateException, BundleException, "Invalid bundle 
 POCO_IMPLEMENT_EXCEPTION(BundleVersionConflictException, BundleException, "Bundle version conflict")
 POCO_IMPLEMENT_EXCEPTION(BundleLoadException, BundleException, "Cannot load bundle")
 POCO_IMPLEMENT_EXCEPTION(BundleResolveException, BundleException, "Cannot resolve bundle")
+POCO_IMPLEMENT_EXCEPTION(BundleInstallException, BundleException, "Cannot install bundle")
 
 
 } } // namespace Poco::OSP

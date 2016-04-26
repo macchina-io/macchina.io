@@ -267,15 +267,16 @@ Bundle::Ptr BundleRepository::installBundle(std::istream& istr, const std::strin
 			newName += ".bndl";
 			pBundle = 0;
 			
-			if (replaceBundle.empty())
+			if (replaceBundle != symbolicName)
 			{
 				Bundle::Ptr pExistingBundle = _loader.findBundle(symbolicName);
 				if (pExistingBundle)
 				{
-					throw Poco::OSP::BundleException("Cannot install bundle as a bundle with same symbolic name already exists", symbolicName);
+					throw Poco::OSP::BundleInstallException("A bundle with the same symbolic name is already installed", symbolicName);
 				}
 			}
-			else
+			
+			if (!replaceBundle.empty())
 			{
 				removeBundle(replaceBundle);
 			}
