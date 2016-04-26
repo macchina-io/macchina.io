@@ -260,14 +260,26 @@ Bundle::Ptr BundleRepository::installBundle(std::istream& istr, const std::strin
 			ostr.close();
 
 			Bundle::Ptr pBundle(_loader.createBundle(p.toString()));
-			std::string newName(pBundle->symbolicName());
+			std::string symbolicName = pBundle->symbolicName();
+			std::string newName(symbolicName);
 			newName += "_";
 			newName += pBundle->version().toString();
 			newName += ".bndl";
 			pBundle = 0;
-
-			removeBundle(replaceBundle);
-
+			
+			if (replaceBundle.empty())
+			{
+				Bundle::Ptr pExistingBundle = _loader.findBundle(symbolicName);
+				if (pExistingBundle)
+				{
+					throw Poco::OSP::BundleException("Cannot install bundle as a bundle with same symbolic name already exists", symbolicName);
+				}
+			}
+			else
+			{
+				removeBundle(replaceBundle);
+			}
+			
 			Path np(p);
 			np.setFileName(newName);		
 			f.renameTo(np.toString());
