@@ -1,7 +1,7 @@
 //
 // ProxyGenerator.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/ProxyGenerator.cpp#2 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/ProxyGenerator.cpp#3 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -814,22 +814,25 @@ void ProxyGenerator::writeDeserializingBlock(const Poco::CppParser::Function* pF
 		OrderedParameters::const_iterator itElemEnd = elems.end();
 		for (; itElem != itElemEnd; ++itElem)
 		{
-			std::string elemStr;
-			GeneratorEngine::getStringProperty(funcProps, "$" + itElem->second.varName, elemStr);
-			if (!elemStr.empty())
+			if (itElem->second.direction != "in")
 			{
-				CodeGenerator::Properties elemProps;
-				GeneratorEngine::parseElementProperties(elemStr, elemProps);
-				bool header = false;
-				GeneratorEngine::getBoolProperty(elemProps, GenUtility::ATTR_HEADER, header);
-
-				if (header)
+				std::string elemStr;
+				GeneratorEngine::getStringProperty(funcProps, "$" + itElem->second.varName, elemStr);
+				if (!elemStr.empty())
 				{
-					std::string code("remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_HEADER, ");
-					code.append("REMOTING__NAMES[");
-					code.append(Poco::NumberFormatter::format(itElem->second.namePos));
-					code.append("]);");
-					gen.writeMethodImplementation(code);
+					CodeGenerator::Properties elemProps;
+					GeneratorEngine::parseElementProperties(elemStr, elemProps);
+					bool header = false;
+					GeneratorEngine::getBoolProperty(elemProps, GenUtility::ATTR_HEADER, header);
+
+					if (header)
+					{
+						std::string code("remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_HEADER, ");
+						code.append("REMOTING__NAMES[");
+						code.append(Poco::NumberFormatter::format(itElem->second.namePos));
+						code.append("]);");
+						gen.writeMethodImplementation(code);
+					}
 				}
 			}
 		}
