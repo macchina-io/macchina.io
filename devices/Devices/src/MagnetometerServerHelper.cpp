@@ -36,7 +36,7 @@ MagnetometerServerHelper::MagnetometerServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("Magnetometer", new MagnetometerSkeleton);
+	_pORB->registerSkeleton("IoT.Devices.Magnetometer", new MagnetometerSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ MagnetometerServerHelper::~MagnetometerServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("Magnetometer", true);
+		_pORB->unregisterSkeleton("IoT.Devices.Magnetometer", true);
 	}
 	catch (...)
 	{

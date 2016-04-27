@@ -73,8 +73,9 @@ ModbusMasterRemoteObject::~ModbusMasterRemoteObject()
 }
 
 
-void ModbusMasterRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
+std::string ModbusMasterRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
 {
+	return std::string();
 }
 
 

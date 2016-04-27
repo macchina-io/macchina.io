@@ -36,7 +36,7 @@ ModbusMasterServerHelper::ModbusMasterServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("ModbusMaster", new ModbusMasterSkeleton);
+	_pORB->registerSkeleton("IoT.Modbus.ModbusMaster", new ModbusMasterSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ ModbusMasterServerHelper::~ModbusMasterServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("ModbusMaster", true);
+		_pORB->unregisterSkeleton("IoT.Modbus.ModbusMaster", true);
 	}
 	catch (...)
 	{

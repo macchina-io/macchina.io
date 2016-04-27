@@ -36,7 +36,7 @@ BarcodeReaderServerHelper::BarcodeReaderServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("BarcodeReader", new BarcodeReaderSkeleton);
+	_pORB->registerSkeleton("IoT.Devices.BarcodeReader", new BarcodeReaderSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ BarcodeReaderServerHelper::~BarcodeReaderServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("BarcodeReader", true);
+		_pORB->unregisterSkeleton("IoT.Devices.BarcodeReader", true);
 	}
 	catch (...)
 	{

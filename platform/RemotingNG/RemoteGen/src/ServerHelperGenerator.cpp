@@ -23,6 +23,7 @@
 #include "Poco/Exception.h"
 #include "Poco/Path.h"
 #include "Poco/NumberFormatter.h"
+#include "Poco/String.h"
 #include <cctype>
 
 
@@ -278,7 +279,7 @@ void ServerHelperGenerator::constructorCodeGen(const Poco::CppParser::Function* 
 	gen.writeMethodImplementation("_pORB = &Poco::RemotingNG::ORB::instance();");
 	// simply call ORB::instance().registerSkeleton(className, new Skeleton());
 	std::string codeLine("_pORB->registerSkeleton(\"");
-	codeLine.append(pStructIn->name());
+	codeLine.append(Poco::replace(pStructIn->fullName(), "::", "."));
 	codeLine.append("\", new ");
 	codeLine.append(SkeletonGenerator::generateClassName(pStructIn));
 	codeLine.append(");");
@@ -297,7 +298,7 @@ void ServerHelperGenerator::destructorCodeGen(const Poco::CppParser::Function* p
 	gen.writeMethodImplementation("try");
 	gen.writeMethodImplementation("{");
 	std::string codeLine("\t_pORB->unregisterSkeleton(\"");
-	codeLine.append(pStructIn->name());
+	codeLine.append(Poco::replace(pStructIn->fullName(), "::", "."));
 	codeLine.append("\", true);");
 	gen.writeMethodImplementation(codeLine);
 	gen.writeMethodImplementation("}");

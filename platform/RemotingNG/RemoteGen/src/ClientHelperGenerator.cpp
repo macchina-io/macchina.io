@@ -21,6 +21,7 @@
 #include "Poco/Exception.h"
 #include "Poco/Path.h"
 #include "Poco/NumberFormatter.h"
+#include "Poco/String.h"
 #include <cctype>
 
 
@@ -186,7 +187,7 @@ void ClientHelperGenerator::constructorCodeGen(const Poco::CppParser::Function* 
 	gen.writeMethodImplementation("_pORB = &Poco::RemotingNG::ORB::instance();");
 	// simply call ORB::instance().registerProxyFactory(className, new ProxyFactory);
 	std::string codeLine("_pORB->registerProxyFactory(\"");
-	codeLine.append(pStructIn->name());
+	codeLine.append(Poco::replace(pStructIn->fullName(), "::", "."));
 	codeLine.append("\", new ");
 	codeLine.append(ProxyFactoryGenerator::generateClassName(pStructIn));
 	codeLine.append(");");

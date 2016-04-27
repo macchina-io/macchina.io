@@ -33,7 +33,7 @@ PizzaDeliveryServiceServerHelper::PizzaDeliveryServiceServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("PizzaDeliveryService", new PizzaDeliveryServiceSkeleton);
+	_pORB->registerSkeleton("Pizzeria.PizzaDeliveryService", new PizzaDeliveryServiceSkeleton);
 }
 
 
@@ -41,7 +41,7 @@ PizzaDeliveryServiceServerHelper::~PizzaDeliveryServiceServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("PizzaDeliveryService", true);
+		_pORB->unregisterSkeleton("Pizzeria.PizzaDeliveryService", true);
 	}
 	catch (...)
 	{

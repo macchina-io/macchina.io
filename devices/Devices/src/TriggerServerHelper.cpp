@@ -36,7 +36,7 @@ TriggerServerHelper::TriggerServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("Trigger", new TriggerSkeleton);
+	_pORB->registerSkeleton("IoT.Devices.Trigger", new TriggerSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ TriggerServerHelper::~TriggerServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("Trigger", true);
+		_pORB->unregisterSkeleton("IoT.Devices.Trigger", true);
 	}
 	catch (...)
 	{

@@ -35,7 +35,7 @@ IPizzaDeliveryService::~IPizzaDeliveryService()
 const Poco::RemotingNG::Identifiable::TypeId& IPizzaDeliveryService::remoting__typeId()
 {
 	remoting__staticInitBegin(REMOTING__TYPE_ID);
-	static const std::string REMOTING__TYPE_ID("PizzaDeliveryService");
+	static const std::string REMOTING__TYPE_ID("Pizzeria.PizzaDeliveryService");
 	remoting__staticInitEnd(REMOTING__TYPE_ID);
 	return REMOTING__TYPE_ID;
 }

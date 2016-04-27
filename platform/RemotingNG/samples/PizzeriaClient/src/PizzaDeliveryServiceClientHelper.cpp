@@ -32,7 +32,7 @@ PizzaDeliveryServiceClientHelper::PizzaDeliveryServiceClientHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerProxyFactory("PizzaDeliveryService", new PizzaDeliveryServiceProxyFactory);
+	_pORB->registerProxyFactory("Pizzeria.PizzaDeliveryService", new PizzaDeliveryServiceProxyFactory);
 }
 
 

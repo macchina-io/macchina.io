@@ -36,7 +36,7 @@ IOServerHelper::IOServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IO", new IOSkeleton);
+	_pORB->registerSkeleton("IoT.Devices.IO", new IOSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ IOServerHelper::~IOServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("IO", true);
+		_pORB->unregisterSkeleton("IoT.Devices.IO", true);
 	}
 	catch (...)
 	{

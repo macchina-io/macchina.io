@@ -36,7 +36,7 @@ XBeeNodeServerHelper::XBeeNodeServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("XBeeNode", new XBeeNodeSkeleton);
+	_pORB->registerSkeleton("IoT.XBee.XBeeNode", new XBeeNodeSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ XBeeNodeServerHelper::~XBeeNodeServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("XBeeNode", true);
+		_pORB->unregisterSkeleton("IoT.XBee.XBeeNode", true);
 	}
 	catch (...)
 	{

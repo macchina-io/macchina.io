@@ -35,7 +35,7 @@ WebEventNotifierServerHelper::WebEventNotifierServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("WebEventNotifier", new WebEventNotifierSkeleton);
+	_pORB->registerSkeleton("IoT.WebEvent.WebEventNotifier", new WebEventNotifierSkeleton);
 }
 
 
@@ -43,7 +43,7 @@ WebEventNotifierServerHelper::~WebEventNotifierServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("WebEventNotifier", true);
+		_pORB->unregisterSkeleton("IoT.WebEvent.WebEventNotifier", true);
 	}
 	catch (...)
 	{

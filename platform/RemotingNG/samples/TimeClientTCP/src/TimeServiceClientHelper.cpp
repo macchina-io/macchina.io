@@ -32,7 +32,7 @@ TimeServiceClientHelper::TimeServiceClientHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerProxyFactory("TimeService", new TimeServiceProxyFactory);
+	_pORB->registerProxyFactory("Services.TimeService", new TimeServiceProxyFactory);
 }
 
 

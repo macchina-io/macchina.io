@@ -51,7 +51,8 @@ public:
 	virtual void connect() = 0;
 		/// Connects to the server if not already connected.
 		///
-		/// Normally, the client connects automatically if a
+		/// Normally, the client connects automatically when a message is
+		/// published or a topic is subscribed to.
 		///
 		/// Throws a Poco::IOException if the connection cannot be established.
 
@@ -91,7 +92,7 @@ public:
 		///
 		/// Throws a Poco::IOException if the message cannot be published.
 
-	virtual void remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true)) = 0;
+	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true)) = 0;
 		/// Enable or disable delivery of remote events.
 		///
 		/// The given Listener instance must implement the Poco::RemotingNG::EventListener

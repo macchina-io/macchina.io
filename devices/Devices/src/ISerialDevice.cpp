@@ -44,7 +44,7 @@ bool ISerialDevice::isA(const std::type_info& otherType) const
 const Poco::RemotingNG::Identifiable::TypeId& ISerialDevice::remoting__typeId()
 {
 	remoting__staticInitBegin(REMOTING__TYPE_ID);
-	static const std::string REMOTING__TYPE_ID("SerialDevice");
+	static const std::string REMOTING__TYPE_ID("IoT.Devices.SerialDevice");
 	remoting__staticInitEnd(REMOTING__TYPE_ID);
 	return REMOTING__TYPE_ID;
 }

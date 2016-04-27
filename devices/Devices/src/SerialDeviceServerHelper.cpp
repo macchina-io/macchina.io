@@ -36,7 +36,7 @@ SerialDeviceServerHelper::SerialDeviceServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("SerialDevice", new SerialDeviceSkeleton);
+	_pORB->registerSkeleton("IoT.Devices.SerialDevice", new SerialDeviceSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ SerialDeviceServerHelper::~SerialDeviceServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("SerialDevice", true);
+		_pORB->unregisterSkeleton("IoT.Devices.SerialDevice", true);
 	}
 	catch (...)
 	{

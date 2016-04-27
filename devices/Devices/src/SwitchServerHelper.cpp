@@ -36,7 +36,7 @@ SwitchServerHelper::SwitchServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("Switch", new SwitchSkeleton);
+	_pORB->registerSkeleton("IoT.Devices.Switch", new SwitchSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ SwitchServerHelper::~SwitchServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("Switch", true);
+		_pORB->unregisterSkeleton("IoT.Devices.Switch", true);
 	}
 	catch (...)
 	{

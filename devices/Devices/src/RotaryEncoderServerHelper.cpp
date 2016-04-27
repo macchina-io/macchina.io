@@ -36,7 +36,7 @@ RotaryEncoderServerHelper::RotaryEncoderServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("RotaryEncoder", new RotaryEncoderSkeleton);
+	_pORB->registerSkeleton("IoT.Devices.RotaryEncoder", new RotaryEncoderSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ RotaryEncoderServerHelper::~RotaryEncoderServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("RotaryEncoder", true);
+		_pORB->unregisterSkeleton("IoT.Devices.RotaryEncoder", true);
 	}
 	catch (...)
 	{

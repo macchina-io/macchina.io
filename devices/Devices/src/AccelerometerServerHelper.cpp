@@ -36,7 +36,7 @@ AccelerometerServerHelper::AccelerometerServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("Accelerometer", new AccelerometerSkeleton);
+	_pORB->registerSkeleton("IoT.Devices.Accelerometer", new AccelerometerSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ AccelerometerServerHelper::~AccelerometerServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("Accelerometer", true);
+		_pORB->unregisterSkeleton("IoT.Devices.Accelerometer", true);
 	}
 	catch (...)
 	{

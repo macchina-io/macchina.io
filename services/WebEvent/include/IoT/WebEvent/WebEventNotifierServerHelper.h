@@ -86,7 +86,7 @@ inline Poco::AutoPtr<IoT::WebEvent::WebEventNotifierRemoteObject> WebEventNotifi
 
 inline std::string WebEventNotifierServerHelper::registerObject(Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return WebEventNotifierServerHelper::instance().registerObjectImpl(new WebEventNotifierRemoteObject(oid, pServiceObject), listenerId);
+	return WebEventNotifierServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

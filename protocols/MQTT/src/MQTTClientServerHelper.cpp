@@ -36,7 +36,7 @@ MQTTClientServerHelper::MQTTClientServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("MQTTClient", new MQTTClientSkeleton);
+	_pORB->registerSkeleton("IoT.MQTT.MQTTClient", new MQTTClientSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ MQTTClientServerHelper::~MQTTClientServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("MQTTClient", true);
+		_pORB->unregisterSkeleton("IoT.MQTT.MQTTClient", true);
 	}
 	catch (...)
 	{

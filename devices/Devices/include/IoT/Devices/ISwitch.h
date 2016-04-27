@@ -29,13 +29,13 @@ namespace Devices {
 
 
 class ISwitch: public IoT::Devices::IDevice
-	/// The base class for Switchs, such as
-	/// push buttons or motion detectors.
+	/// The base class for switchable things (that can
+	/// be turned on and off).
 	///
 	/// A Switch has a current state and a target state.
 	/// Depending upon the implementation, the current state
 	/// and target state may be different for a short amount
-	/// of time. 
+	/// of time (e.g., while the device is powering on).
 	///
 	/// In addition to the methods defined in this interface,
 	/// a Switch implementation should expose the following

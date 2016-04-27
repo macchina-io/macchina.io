@@ -105,7 +105,7 @@ inline void XBeeNodeServerHelper::enableEvents(const std::string& uri, const std
 
 inline std::string XBeeNodeServerHelper::registerObject(Poco::SharedPtr<IoT::XBee::XBeeNode> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return XBeeNodeServerHelper::instance().registerObjectImpl(new XBeeNodeRemoteObject(oid, pServiceObject), listenerId);
+	return XBeeNodeServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

@@ -35,7 +35,7 @@ LEDServerHelper::LEDServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("LED", new LEDSkeleton);
+	_pORB->registerSkeleton("IoT.Devices.LED", new LEDSkeleton);
 }
 
 
@@ -43,7 +43,7 @@ LEDServerHelper::~LEDServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("LED", true);
+		_pORB->unregisterSkeleton("IoT.Devices.LED", true);
 	}
 	catch (...)
 	{

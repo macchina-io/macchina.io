@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 		Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener;
 		
 		// get proxy for remote object
-		Services::ITimeService::Ptr pClock = Services::TimeServiceClientHelper::find("remoting.tcp://localhost:7777/tcp/TimeService/TheClock");
+		Services::ITimeService::Ptr pClock = Services::TimeServiceClientHelper::find("remoting.tcp://localhost:7777/tcp/Services.TimeService/TheClock");
 
 		// invoke method on remote object
 		Poco::DateTime dt = pClock->currentTime();

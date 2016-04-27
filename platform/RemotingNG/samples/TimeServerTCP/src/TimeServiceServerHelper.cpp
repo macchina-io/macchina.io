@@ -34,7 +34,7 @@ TimeServiceServerHelper::TimeServiceServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("TimeService", new TimeServiceSkeleton);
+	_pORB->registerSkeleton("Services.TimeService", new TimeServiceSkeleton);
 }
 
 
@@ -42,7 +42,7 @@ TimeServiceServerHelper::~TimeServiceServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("TimeService", true);
+		_pORB->unregisterSkeleton("Services.TimeService", true);
 	}
 	catch (...)
 	{

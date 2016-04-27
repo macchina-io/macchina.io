@@ -55,12 +55,12 @@ public:
 	virtual void queueCommand(const IoT::XBee::ATCommand& command) = 0;
 		/// Queues an AT command for execution on the connected XBee device.
 		///
-		/// In contrast to sendATCommand(), new parameter values are queued 
-		/// and not applied until either sendATCommand() is called
+		/// In contrast to sendCommand(), new parameter values are queued 
+		/// and not applied until either sendCommand() is called
 		/// or the Apply Changes (AC) AT command is issued. Register queries 
 		/// (reading parameter values) are returned immediately.
 
-	virtual void remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true)) = 0;
+	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true)) = 0;
 		/// Enable or disable delivery of remote events.
 		///
 		/// The given Listener instance must implement the Poco::RemotingNG::EventListener

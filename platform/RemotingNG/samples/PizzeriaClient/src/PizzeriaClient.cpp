@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 		Poco::RemotingNG::TCP::TransportFactory::registerFactory();
 		
 		// get proxy for remote object
-		Pizzeria::IPizzaDeliveryService::Ptr pPizzeria = Pizzeria::PizzaDeliveryServiceClientHelper::find("remoting.tcp://localhost:8123/tcp/PizzaDeliveryService/ThePizzeria");
+		Pizzeria::IPizzaDeliveryService::Ptr pPizzeria = Pizzeria::PizzaDeliveryServiceClientHelper::find("remoting.tcp://localhost:8123/tcp/Pizzeria.PizzaDeliveryService/ThePizzeria");
 
 		// invoke methods on remote object
 		

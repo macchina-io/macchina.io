@@ -36,7 +36,7 @@ SensorServerHelper::SensorServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("Sensor", new SensorSkeleton);
+	_pORB->registerSkeleton("IoT.Devices.Sensor", new SensorSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ SensorServerHelper::~SensorServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("Sensor", true);
+		_pORB->unregisterSkeleton("IoT.Devices.Sensor", true);
 	}
 	catch (...)
 	{

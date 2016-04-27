@@ -46,7 +46,7 @@ bool IMQTTClient::isA(const std::type_info& otherType) const
 const Poco::RemotingNG::Identifiable::TypeId& IMQTTClient::remoting__typeId()
 {
 	remoting__staticInitBegin(REMOTING__TYPE_ID);
-	static const std::string REMOTING__TYPE_ID("MQTTClient");
+	static const std::string REMOTING__TYPE_ID("IoT.MQTT.MQTTClient");
 	remoting__staticInitEnd(REMOTING__TYPE_ID);
 	return REMOTING__TYPE_ID;
 }

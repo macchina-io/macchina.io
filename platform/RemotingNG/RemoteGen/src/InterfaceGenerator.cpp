@@ -20,6 +20,7 @@
 #include "Poco/CppParser/TypeDef.h"
 #include "Poco/Exception.h"
 #include "Poco/Path.h"
+#include "Poco/String.h"
 
 
 using Poco::CodeGeneration::Utility;
@@ -232,7 +233,7 @@ void InterfaceGenerator::ifaceTypeIdCodeGen(const Poco::CppParser::Function* pFu
 	const Poco::CppParser::Struct* pDataType = pIG->_pStructIn; // returns the data type for which pStruct was generated
 	poco_assert(pDataType);
 	gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__TYPE_ID);");
-	gen.writeMethodImplementation("static const std::string REMOTING__TYPE_ID(\"" + pDataType->name() + "\");");
+	gen.writeMethodImplementation("static const std::string REMOTING__TYPE_ID(\"" + Poco::replace(pDataType->fullName(), "::", ".") + "\");");
 	gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__TYPE_ID);");
 	gen.writeMethodImplementation("return REMOTING__TYPE_ID;");
 }

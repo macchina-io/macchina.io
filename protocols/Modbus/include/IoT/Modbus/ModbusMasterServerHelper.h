@@ -115,7 +115,7 @@ inline void ModbusMasterServerHelper::enableEvents(const std::string& uri, const
 
 inline std::string ModbusMasterServerHelper::registerObject(Poco::SharedPtr<IoT::Modbus::ModbusMaster> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
-	return ModbusMasterServerHelper::instance().registerObjectImpl(new ModbusMasterRemoteObject(oid, pServiceObject), listenerId);
+	return ModbusMasterServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
 }
 
 

@@ -36,7 +36,7 @@ GNSSSensorServerHelper::GNSSSensorServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("GNSSSensor", new GNSSSensorSkeleton);
+	_pORB->registerSkeleton("IoT.Devices.GNSSSensor", new GNSSSensorSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ GNSSSensorServerHelper::~GNSSSensorServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("GNSSSensor", true);
+		_pORB->unregisterSkeleton("IoT.Devices.GNSSSensor", true);
 	}
 	catch (...)
 	{

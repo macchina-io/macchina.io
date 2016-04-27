@@ -88,7 +88,7 @@ public:
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
 		/// Throws a ModbusException if the device responds with an exception message.
 
-	virtual void remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
+	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
 
 	virtual void remoting__enableRemoteEvents(const std::string& protocol);
 

@@ -44,7 +44,7 @@ bool ISensor::isA(const std::type_info& otherType) const
 const Poco::RemotingNG::Identifiable::TypeId& ISensor::remoting__typeId()
 {
 	remoting__staticInitBegin(REMOTING__TYPE_ID);
-	static const std::string REMOTING__TYPE_ID("Sensor");
+	static const std::string REMOTING__TYPE_ID("IoT.Devices.Sensor");
 	remoting__staticInitEnd(REMOTING__TYPE_ID);
 	return REMOTING__TYPE_ID;
 }

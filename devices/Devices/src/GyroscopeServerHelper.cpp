@@ -36,7 +36,7 @@ GyroscopeServerHelper::GyroscopeServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("Gyroscope", new GyroscopeSkeleton);
+	_pORB->registerSkeleton("IoT.Devices.Gyroscope", new GyroscopeSkeleton);
 }
 
 
@@ -44,7 +44,7 @@ GyroscopeServerHelper::~GyroscopeServerHelper()
 {
 	try
 	{
-		_pORB->unregisterSkeleton("Gyroscope", true);
+		_pORB->unregisterSkeleton("IoT.Devices.Gyroscope", true);
 	}
 	catch (...)
 	{
