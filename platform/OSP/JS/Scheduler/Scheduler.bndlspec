@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>OSP JavaScript Task Scheduler</name>
+    <symbolicName>com.appinf.osp.js.scheduler</symbolicName>
+    <version>1.0.0</version>
+    <version>1.0.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2016, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>Poco::OSP::JS::Scheduler::BundleActivator</class>
+      <library>com.appinf.osp.js.scheduler</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>600</runLevel>
+    <dependency>
+      <symbolicName>com.appinf.osp.js</symbolicName>
+      <version>[1.0.0, 2.0.0)</version>
+    </dependency>
+  </manifest>
+  <files>
+  	bundle/*
+  </files>
+  <code>
+    ${bin}/*.dll
+    ${bin}/*.pdb
+    bin/${osName}/${osArch}/*.so
+    bin/${osName}/${osArch}/*.dylib
+  </code>
+</bundlespec>

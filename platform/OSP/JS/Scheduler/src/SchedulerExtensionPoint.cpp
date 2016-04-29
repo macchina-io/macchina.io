@@ -1,0 +1,438 @@
+//
+// SchedulerExtensionPoint.cpp
+//
+// $Id$
+//
+// Copyright (c) 2016, Applied Informatics Software Engineering GmbH.
+// and Contributors.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+
+#include "SchedulerExtensionPoint.h"
+#include "Poco/OSP/BundleEvents.h"
+#include "Poco/Util/TimerTask.h"
+#include "Poco/StreamCopier.h"
+#include "Poco/DateTime.h"
+#include "Poco/LocalDateTime.h"
+#include "Poco/NumberParser.h"
+#include "Poco/DateTimeParser.h"
+#include "Poco/DateTimeFormat.h"
+#include "Poco/Format.h"
+#include "Poco/Delegate.h"
+#include "Poco/Event.h"
+#include "Poco/String.h"
+#include "v8.h"
+#include <memory>
+
+
+namespace Poco {
+namespace OSP {
+namespace JS {
+namespace Scheduler {
+
+
+class SchedulerTask: public Poco::Util::TimerTask
+{
+public:
+	SchedulerTask(SchedulerExtensionPoint& scheduler):
+		_scheduler(scheduler)
+	{
+	}
+	
+	void run()
+	{
+		_scheduler.scheduleTasks();
+	}
+	
+private:
+	SchedulerExtensionPoint& _scheduler;
+};
+
+
+class CallExportedFunctionTask: public Poco::Util::TimerTask
+{
+public:
+	typedef Poco::AutoPtr<CallExportedFunctionTask> Ptr;
+
+	CallExportedFunctionTask(Poco::OSP::JS::TimedJSExecutor::Ptr pExecutor, const std::string& function):
+		_pExecutor(pExecutor),
+		_function(function)
+	{
+	}
+	
+	void run()
+	{
+		try
+		{
+			v8::Isolate* pIsolate = _pExecutor->isolate();
+			v8::Isolate::Scope isoScope(pIsolate);
+			v8::HandleScope handleScope(pIsolate);
+
+			v8::Persistent<v8::Context>& persistentContext = _pExecutor->scriptContext();
+			if (!persistentContext.IsEmpty()) // ran at least once
+			{
+				v8::Local<v8::Context> context(v8::Local<v8::Context>::New(pIsolate, persistentContext));
+				v8::Context::Scope contextScope(context);
+
+				v8::Local<v8::Object> global = context->Global();
+
+				v8::Local<v8::Value> moduleValue = global->Get(v8::String::NewFromUtf8(pIsolate, "module"));
+				if (!moduleValue.IsEmpty() && moduleValue->IsObject())
+				{
+					v8::Local<v8::Object> module = moduleValue.As<v8::Object>();
+					v8::Local<v8::Value> exportsValue = module->Get(v8::String::NewFromUtf8(pIsolate, "exports"));
+					if (!exportsValue.IsEmpty() && exportsValue->IsObject())
+					{
+						v8::Local<v8::Object> exports = exportsValue.As<v8::Object>();
+						v8::Local<v8::Value> startValue = exports->Get(v8::String::NewFromUtf8(pIsolate, _function.c_str()));
+						if (!startValue.IsEmpty() && startValue->IsFunction())
+						{
+							v8::Local<v8::Function> start = startValue.As<v8::Function>();
+							v8::Handle<v8::Value> arg;
+							_pExecutor->callInContext(start, exportsValue, 0, &arg);
+						}
+					}
+				}
+			}
+		}
+		catch (Poco::Exception&)
+		{
+		}
+		_done.set();
+	}
+	
+	void wait()
+	{
+		_done.wait();
+	}
+	
+	bool tryWait(long milliseconds)
+	{
+		return _done.tryWait(milliseconds);
+	}
+	
+private:
+	Poco::OSP::JS::TimedJSExecutor::Ptr _pExecutor;
+	std::string _function;
+	Poco::Event _done;
+};
+
+
+SchedulerExtensionPoint::Schedule::Schedule():
+	minutesMask(0),
+	hoursMask(0),
+	daysOfMonthMask(0),
+	monthsMask(0),
+	daysOfWeekMask(0)
+{
+}
+
+
+SchedulerExtensionPoint::Task::Task():
+	exportsStart(false)
+{
+}
+
+
+const std::string SchedulerExtensionPoint::YEARLY("0 0 1 1 *");
+const std::string SchedulerExtensionPoint::MONTHLY("0 0 1 * *");
+const std::string SchedulerExtensionPoint::WEEKLY("0 0 * * 0");
+const std::string SchedulerExtensionPoint::DAILY("0 0 * * *");
+const std::string SchedulerExtensionPoint::HOURLY("0 * * * *");
+
+
+SchedulerExtensionPoint::SchedulerExtensionPoint(Poco::OSP::BundleContext::Ptr pContext):
+	_pContext(pContext)
+{
+	_pContext->events().bundleStopped += Poco::delegate(this, &SchedulerExtensionPoint::onBundleStopped);
+	scheduleNext();
+}
+
+
+SchedulerExtensionPoint::~SchedulerExtensionPoint()
+{
+	_pContext->events().bundleStopped -= Poco::delegate(this, &SchedulerExtensionPoint::onBundleStopped);
+	_schedulerTimer.cancel(true);
+}
+
+
+void SchedulerExtensionPoint::scheduleTasks()
+{
+	{
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		Poco::Timestamp now;
+		Poco::LocalDateTime local;
+		for (std::vector<Task>::iterator it = _tasks.begin(); it != _tasks.end(); ++it)
+		{
+			if ((it->schedule.notBefore == 0 || now >= it->schedule.notBefore) && 
+				(it->schedule.notAfter == 0 || now <= it->schedule.notAfter))
+			{
+				if ((it->schedule.minutesMask & (1 << local.minute())) &&
+					(it->schedule.hoursMask & (1 << local.hour())) &&
+					(it->schedule.daysOfMonthMask & (1 << local.day())) &&
+					(it->schedule.monthsMask & (1 << local.month())) &&
+					(it->schedule.daysOfWeekMask & (1 << local.dayOfWeek())))
+				{
+					it->pExecutor->run();
+					CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(it->pExecutor, "start");
+					it->pExecutor->timer().schedule(pStartTask, Poco::Clock());
+				}
+			}
+		}
+	}
+	scheduleNext();
+}
+
+
+void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundle, Poco::XML::Element* pExtensionElem)
+{
+	std::string schedule = pExtensionElem->getAttribute("schedule");
+	std::string notBefore = pExtensionElem->getAttribute("notBefore");
+	std::string notAfter = pExtensionElem->getAttribute("notAfter");
+	std::string scriptPath = pExtensionElem->getAttribute("script");
+	std::string runtimeLimit = pExtensionElem->getAttribute("runtimeLimit");
+	Poco::UInt64 memoryLimit = 1024*1024;
+	std::string strMemoryLimit = pExtensionElem->getAttribute("memoryLimit");
+	if (!strMemoryLimit.empty())
+	{
+		memoryLimit = Poco::NumberParser::parseUnsigned64(strMemoryLimit);
+	}
+	
+	Poco::StringTokenizer tok(pExtensionElem->getAttribute("modulePath"), ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+	std::vector<std::string> moduleSearchPaths(tok.begin(), tok.end());
+	
+	std::string script;
+	std::auto_ptr<std::istream> pStream(pBundle->getResource(scriptPath));
+	Poco::StreamCopier::copyToString(*pStream, script);
+	_pContext->logger().information(Poco::format("Starting script %s from bundle %s.", scriptPath, pBundle->symbolicName()));
+	std::string scriptURI("bndl://");
+	scriptURI += pBundle->symbolicName();
+	if (scriptPath.empty() || scriptPath[0] != '/') scriptURI += "/";
+	scriptURI += scriptPath;
+	
+	if (schedule.empty()) schedule = "@start";
+	
+	Task task;
+	task.pExecutor = new Poco::OSP::JS::TimedJSExecutor(_pContext->contextForBundle(pBundle), pBundle, script, Poco::URI(scriptURI), moduleSearchPaths, memoryLimit);
+	task.schedule.expression = schedule;
+	parseSchedule(task.schedule, schedule);
+	
+	if (!notBefore.empty())
+	{
+		int tzd;
+		task.schedule.notBefore = Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FORMAT, notBefore, tzd).timestamp();
+	}
+	else
+	{
+		task.schedule.notBefore = 0;
+	}
+
+	if (!notAfter.empty())
+	{
+		int tzd;
+		task.schedule.notAfter = Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FORMAT, notAfter, tzd).timestamp();
+	}
+	else
+	{
+		task.schedule.notAfter = 0;
+	}
+	
+	{
+		Poco::FastMutex::ScopedLock lock(_mutex);
+		_tasks.push_back(task);
+	}
+
+	if (task.schedule.expression == "@start")
+	{
+		task.pExecutor->run();
+		CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(task.pExecutor, "start");
+		task.pExecutor->timer().schedule(pStartTask, Poco::Clock());
+		pStartTask->wait();
+	}
+}
+
+
+void SchedulerExtensionPoint::onBundleStopped(const void* pSender, Poco::OSP::BundleEvent& ev)
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	Poco::OSP::Bundle::ConstPtr pBundle = ev.bundle();
+	for (std::vector<Task>::iterator it = _tasks.begin(); it != _tasks.end();)
+	{
+		if (it->pExecutor->bundle() == pBundle)
+		{
+			_pContext->logger().information(Poco::format("Stopping script %s.", it->pExecutor->uri().toString()));
+			CallExportedFunctionTask::Ptr pStopTask = new CallExportedFunctionTask(it->pExecutor, "stop");
+			it->pExecutor->timer().schedule(pStopTask, Poco::Clock());
+			pStopTask->wait();
+			it->pExecutor->stop();
+			it = _tasks.erase(it);
+		}
+		else ++it;
+	}
+}
+
+
+void SchedulerExtensionPoint::parseSchedule(Schedule& schedule, const std::string& expr)
+{
+	if (expr == "@yearly")
+	{
+		std::string::const_iterator it = YEARLY.begin();
+		std::string::const_iterator end = YEARLY.end();
+		parseSchedule(schedule, it, end);
+	}
+	else if (expr == "@monthly")
+	{
+		std::string::const_iterator it = MONTHLY.begin();
+		std::string::const_iterator end = MONTHLY.end();
+		parseSchedule(schedule, it, end);
+	}
+	else if (expr == "@weekly")
+	{
+		std::string::const_iterator it = WEEKLY.begin();
+		std::string::const_iterator end = WEEKLY.end();
+		parseSchedule(schedule, it, end);
+	}
+	else if (expr == "@daily")
+	{
+		std::string::const_iterator it = DAILY.begin();
+		std::string::const_iterator end = DAILY.end();
+		parseSchedule(schedule, it, end);
+	}
+	else if (expr == "@hourly")
+	{
+		std::string::const_iterator it = HOURLY.begin();
+		std::string::const_iterator end = HOURLY.end();
+		parseSchedule(schedule, it, end);
+	}
+	else if (expr != "@start")
+	{
+		std::string::const_iterator it = expr.begin();
+		std::string::const_iterator end = expr.end();
+		parseSchedule(schedule, it, end);
+	}
+}
+
+
+void SchedulerExtensionPoint::parseSchedule(Schedule& schedule, std::string::const_iterator& it, const std::string::const_iterator& end)
+{
+	schedule.minutesMask = parseScheduleItem(it, end, 0, 59, "");
+	schedule.hoursMask = static_cast<Poco::UInt32>(parseScheduleItem(it, end, 0, 23, ""));
+	schedule.daysOfMonthMask = static_cast<Poco::UInt32>(parseScheduleItem(it, end, 1, 31, ""));
+	schedule.monthsMask = static_cast<Poco::UInt16>(parseScheduleItem(it, end, 1, 12, "#,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC"));
+	schedule.daysOfWeekMask = static_cast<Poco::UInt8>(parseScheduleItem(it, end, 0, 7, "SUN,MON,TUE,WED,THU,FRI,SAT"));
+	if (schedule.daysOfWeekMask & 0x80) // special case - 7 = SUN
+	{
+		schedule.daysOfWeekMask |= 0x01;
+	}
+}
+
+
+Poco::UInt64 SchedulerExtensionPoint::parseScheduleItem(std::string::const_iterator& it, const std::string::const_iterator& end, int min, int max, const std::string& symbols)
+{
+	Poco::UInt64 mask = 0;
+	while (it != end && Poco::Ascii::isSpace(*it)) ++it;
+
+	Poco::StringTokenizer tok(symbols, ",", 0);
+
+	if (it == end || *it == '*')
+	{
+		if (it != end) ++it;
+		int incr = parseIncrement(it, end);
+		for (int i = min; i <= max; i += incr)
+		{
+			mask |= (1 << i);
+		}
+	}
+	else
+	{
+		while (it != end && Poco::Ascii::isAlphaNumeric(*it))
+		{
+			int num = parseNumberOrSymbol(it, end, tok);
+			if (num < min || num > max) throw Poco::InvalidArgumentException("argument out of range");
+			if (it != end && *it == '-')
+			{
+				++it;
+				int to = parseNumberOrSymbol(it, end, tok);
+				if (min == 0 && max == 7 && to == 0) to = 7; // special case: make MON-SUN work
+				if (to < num || to > max) throw Poco::InvalidArgumentException("argument out of range");
+				int incr = parseIncrement(it, end);
+				for (int i = num; i <= to; i += incr)
+				{
+					mask |= (1 << i);
+				}
+			}
+			else
+			{
+				mask += (1 << num);
+			}
+			if (it != end && *it == ',')
+			{
+				++it;
+			}
+		}
+	}
+	return mask;
+}
+
+
+int SchedulerExtensionPoint::parseIncrement(std::string::const_iterator& it, const std::string::const_iterator& end)
+{
+	int incr = 1;
+	if (it != end && *it == '/')
+	{
+		++it;
+		if (it != end && Poco::Ascii::isDigit(*it))
+		{
+			incr = *it++ - '0';
+			while (it != end && Poco::Ascii::isDigit(*it))
+			{
+				incr = 10*incr + *it++ - '0';
+			}
+		}
+		else throw Poco::SyntaxException("invalid schedule: expecting increment (integer) after '/'");
+	}
+	if (incr == 0) throw Poco::InvalidArgumentException("increment cannot be 0");
+	return incr;
+}
+
+
+int SchedulerExtensionPoint::parseNumberOrSymbol(std::string::const_iterator& it, const std::string::const_iterator& end, const Poco::StringTokenizer& symbols)
+{
+	int num = 0;
+	if (it != end && Poco::Ascii::isDigit(*it))
+	{
+		num = *it++ - '0';
+		while (it != end && Poco::Ascii::isDigit(*it))
+		{
+			num = 10*num + *it++ - '0';
+		}
+	}
+	else if (it != end)
+	{
+		std::string tok;
+		tok += *it++;
+		while (it != end && Poco::Ascii::isAlpha(*it))
+		{
+			tok += Poco::Ascii::toUpper(*it++);
+		}
+		num = static_cast<int>(symbols.find(tok));
+	}
+	return num;
+}
+
+
+void SchedulerExtensionPoint::scheduleNext()
+{
+	Poco::Clock clock;
+	Poco::DateTime now;
+	long secondsToStart = 60 - now.second();
+	clock += secondsToStart*Poco::Clock::resolution();
+	_schedulerTimer.schedule(new SchedulerTask(*this), clock);
+}
+
+
+} } } } // namespace Poco::OSP::JS::Scheduler
