@@ -91,7 +91,7 @@ returns the same value (for a certain time). See also the <[@cacheExpire]> attri
 For the REST transport, specifies the MIME content type of the request body.
   * level: method
   * type: string
-  * default: "application/json"
+  * default: "application/json" or "application/x-www-form-urlencoded"
 
 
 !!direction
@@ -150,7 +150,8 @@ Valid values are:
   * raw: The parameter is passed as a string or raw binary data. Can only be used
     for simple types, e.g. std::string and std::vector<char>. 
     This is useful for passing raw binary data as a std::string or std::vector<char> in 
-    the request or response body.
+    the request or response body. If specified, an appropriate content type should 
+    also be specified using the <[@consumes]> or <[@produces]> attribute. 
   * json: The parameter is formatted as JSON. Can be used for simple and complex types.
   
 Example:
@@ -170,8 +171,10 @@ For the REST transport, defines the location of a parameter.
 Valid values are:
   * path: The parameter is passed as part of the URI path. A <[@path]> attribute
     must also be specified for the method or object, containing a corresponding
-    place holder for the parameter ("{name}").
+    place holder for the parameter (<[{name}]>).
   * query: The parameter is a passed as URI query parameter.
+  * form: The parameter is passed in the request body, using form encoding
+    (content type "application/x-www-form-urlencoded").
   * header: The parameters is passed as HTTP request or response header.
   * body: The parameter is passed in the request or response body (raw string or JSON-formatted).
 

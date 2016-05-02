@@ -222,7 +222,7 @@ class MinimumDeltaFilter: public EventFilter<T>
 public:
 	MinimumDeltaFilter(const T& delta):
 		_delta(delta),
-		_lastValue(std::numeric_limits<T>::max())
+		_lastValue((std::numeric_limits<T>::max)())
 	{
 	}
 	
@@ -282,7 +282,7 @@ public:
 		_interval(interval),
 		_delta(delta),
 		_lastClock(0),
-		_lastValue(std::numeric_limits<T>::max())
+		_lastValue((std::numeric_limits<T>::max)())
 	{
 	}
 	

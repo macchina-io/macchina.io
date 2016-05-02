@@ -1,6 +1,29 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2016.1
+
+  - Poco::OSP::BundleRepository: prevent a bundle from being newly installed if a bundle 
+    with same symbolic name already exists.
+  - Poco::OSP::BundleLoader: allow setting a fixed operating system name and
+    architecture at compile time via POCO_TARGET_OSNAME and POCO_TARGET_OSARCH
+    macros. If set, the values provided via these macros will be used instead
+    of Poco::Environment::osName() and Poco::Environment::osArchitecture().
+  - Poco::OSP::Auth::AuthAdminServiceImpl: use transactions consequently in all
+    methods modifying the authentication database.
+  - Poco::OSP::Auth::AuthAdminServiceImpl: new configuration setting 
+    "auth.ldap.localUsers". User accounts that match the regular expression specified
+    with this property will never be looked up via LDAP, always via local database only.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2015.2
 
   - Allow passing arguments to OSP WebFilterExtensionPoint

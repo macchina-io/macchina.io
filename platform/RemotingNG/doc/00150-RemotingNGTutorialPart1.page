@@ -13,6 +13,10 @@ This tuturial assumes that you are familiar with basic POCO C++ Libraries
 programming techniques. You should also have read the [[00100-RemotingNGOverview.html Remoting Overview]]
 and be familiar with basic Remoting concepts.
 
+Note: The tutorial only covers feature available in the macchina.io open source
+release of the Remoting framework. Features available in the commercial version
+(SOAP, JSON-RPC and REST transports) are not covered.
+
 
 !!!Writing a Service Class
 

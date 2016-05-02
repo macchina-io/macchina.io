@@ -1,7 +1,7 @@
 //
 // Utility.h
 //
-// $Id: //poco/1.7/CodeGeneration/include/Poco/CodeGeneration/Utility.h#2 $
+// $Id: //poco/1.7/CodeGeneration/include/Poco/CodeGeneration/Utility.h#3 $
 //
 // Library: CodeGeneration
 // Package: CodeGeneration
@@ -25,6 +25,11 @@
 #include "Poco/CppParser/Struct.h"
 #include "Poco/CppParser/Parameter.h"
 #include <vector>
+
+
+#if defined(_WIN32)
+#undef IN
+#endif
 
 
 namespace Poco {
