@@ -10,3 +10,4 @@
 
 clean all:
 	$(MAKE) -C WebEvent $(MAKECMDGOALS)
+	$(MAKE) -C DeviceStatus $(MAKECMDGOALS)

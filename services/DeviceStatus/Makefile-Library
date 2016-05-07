@@ -1,0 +1,23 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io DeviceStatus Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = \
+	DeviceStatusService \
+	DeviceStatusServiceEventDispatcher \
+	DeviceStatusServiceRemoteObject \
+	DeviceStatusServiceServerHelper \
+	DeviceStatusServiceSkeleton \
+	IDeviceStatusService
+	
+target         = IoTDeviceStatus
+target_version = 1
+target_libs    = PocoRemotingNG PocoOSP PocoNet PocoUtil PocoJSON PocoXML PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib
