@@ -250,9 +250,11 @@ std::vector<StatusMessage> DeviceStatusServiceImpl::messages(int maxMessages) co
 	std::vector<StatusMessage> result;
 	while (!select.done() && (maxMessages == 0 || result.size() < maxMessages))
 	{
-		select.execute();
-		message.status = static_cast<DeviceStatus>(status);
-		result.push_back(message);
+		if (select.execute())
+		{
+			message.status = static_cast<DeviceStatus>(status);
+			result.push_back(message);
+		}
 	}
 	return result;
 }
