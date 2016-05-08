@@ -14,9 +14,10 @@
 //
 
 
-#include "IoT/DeviceStatus/DeviceStatusServiceImpl.h"
+#include "DeviceStatusServiceImpl.h"
 #include "Poco/Data/Statement.h"
 #include "Poco/Data/Transaction.h"
+#include "Poco/Timespan.h"
 #include "Poco/Path.h"
 
 
@@ -27,8 +28,9 @@ namespace IoT {
 namespace DeviceStatus {
 
 
-DeviceStatusServiceImpl::DeviceStatusServiceImpl(Poco::OSP::BundleContext::Ptr pContext):
+DeviceStatusServiceImpl::DeviceStatusServiceImpl(Poco::OSP::BundleContext::Ptr pContext, int maxAge):
 	_pContext(pContext),
+	_maxAge(maxAge),
 	_logger(Poco::Logger::get("IoT.DeviceStatus"))
 {
 	Poco::Path path(pContext->persistentDirectory());
@@ -45,6 +47,8 @@ DeviceStatusServiceImpl::DeviceStatusServiceImpl(Poco::OSP::BundleContext::Ptr p
 		"    timestamp DATETIME,"
 		"    acknowledged BOOLEAN"
 		")", now;
+		
+	cleanup(true);
 }
 
 	
@@ -99,6 +103,8 @@ DeviceStatusChange DeviceStatusServiceImpl::postStatus(const StatusUpdate& statu
 		into(message.id),
 		into(currentStatus), 
 		now;
+		
+	cleanup();
 	
 	xa.commit();
 	lock.unlock();
@@ -257,6 +263,20 @@ void DeviceStatusServiceImpl::reset()
 	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
 
 	(*_pSession) << "DELETE FROM messages", now;	
+}
+
+
+void DeviceStatusServiceImpl::cleanup(bool force)
+{
+	if (force || _lastCleanup.isElapsed(_lastCleanup.resolution()*3600))
+	{
+		Poco::DateTime cutoffDate;
+		cutoffDate -= Poco::Timespan(0, _maxAge, 0, 0, 0);
+		(*_pSession) << "DELETE FROM messages WHERE acknowledged AND timestamp < ?",
+			use(cutoffDate),
+			now;
+		_lastCleanup.update();
+	}
 }
 
 

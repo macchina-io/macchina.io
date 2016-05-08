@@ -10,13 +10,15 @@
 //
 
 
-#include "IoT/DeviceStatus/DeviceStatusServiceImpl.h"
+#include "DeviceStatusServiceImpl.h"
 #include "IoT/DeviceStatus/DeviceStatusServiceServerHelper.h"
 #include "Poco/OSP/BundleActivator.h"
 #include "Poco/OSP/BundleContext.h"
 #include "Poco/OSP/Bundle.h"
 #include "Poco/OSP/ServiceRegistry.h"
 #include "Poco/OSP/ServiceRef.h"
+#include "Poco/OSP/ServiceFinder.h"
+#include "Poco/OSP/PreferencesService.h"
 #include "Poco/ClassLibrary.h"
 
 
@@ -44,8 +46,12 @@ public:
 	void start(BundleContext::Ptr pContext)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::DeviceStatus::DeviceStatusService> ServerHelper;
+
+		Poco::OSP::PreferencesService::Ptr pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(pContext);
 		
-		Poco::SharedPtr<IoT::DeviceStatus::DeviceStatusService> pDeviceStatusService = new DeviceStatusServiceImpl(pContext);
+		int maxAgeHours = pPrefs->configuration()->getInt("deviceStatus.messages.maxAge", 30*24);
+		
+		Poco::SharedPtr<IoT::DeviceStatus::DeviceStatusService> pDeviceStatusService = new DeviceStatusServiceImpl(pContext, maxAgeHours);
 		std::string oid("io.macchina.services.devicestatus");
 		ServerHelper::RemoteObjectPtr pDeviceStatusServiceRemoteObject = ServerHelper::createRemoteObject(pDeviceStatusService, oid);		
 		_pServiceRef = pContext->registry().registerService(oid, pDeviceStatusServiceRemoteObject, Properties());

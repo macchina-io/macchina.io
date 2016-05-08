@@ -23,6 +23,7 @@
 #include "IoT/DeviceStatus/DeviceStatusService.h"
 #include "Poco/OSP/BundleContext.h"
 #include "Poco/Data/Session.h"
+#include "Poco/Clock.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/Logger.h"
 #include "Poco/Mutex.h"
@@ -36,7 +37,7 @@ class DeviceStatusServiceImpl: public DeviceStatusService
 	/// Default implementation of the DeviceStatusService.
 {
 public:
-	DeviceStatusServiceImpl(Poco::OSP::BundleContext::Ptr pContext);
+	DeviceStatusServiceImpl(Poco::OSP::BundleContext::Ptr pContext, int maxAge);
 		/// Creates the DeviceStatusServiceImpl.
 		
 	~DeviceStatusServiceImpl();
@@ -51,8 +52,13 @@ public:
 	std::vector<StatusMessage> messages(int maxMessages) const;
 	void reset();
 
+protected:
+	void cleanup(bool force = false);
+
 private:
 	Poco::OSP::BundleContext::Ptr _pContext;
+	int _maxAge;
+	Poco::Clock _lastCleanup;
 	mutable Poco::SharedPtr<Poco::Data::Session> _pSession;
 	Poco::Logger& _logger;
 	mutable Poco::FastMutex _mutex;
