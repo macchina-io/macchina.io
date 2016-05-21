@@ -26,6 +26,7 @@
 #include "Poco/ClassLibrary.h"
 #include "Poco/OSP/JS/JSExecutor.h"
 #include "Poco/OSP/JS/JSExtensionPoint.h"
+#include "Poco/OSP/JS/ModuleExtensionPoint.h"
 #include "v8.h"
 
 
@@ -52,8 +53,13 @@ public:
 		_pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(_pContext);
 		_pXPS = Poco::OSP::ServiceFinder::find<Poco::OSP::ExtensionPointService>(_pContext);
 
-		Poco::OSP::ExtensionPoint::Ptr pXP = new JSExtensionPoint(pContext);
-		_pXPS->registerExtensionPoint(pContext->thisBundle(), "com.appinf.osp.js", pXP);
+		JSExtensionPoint::Ptr pScriptXP = new JSExtensionPoint(pContext);
+		_pXPS->registerExtensionPoint(pContext->thisBundle(), "com.appinf.osp.js", pScriptXP);
+		
+		ModuleExtensionPoint::Ptr pModuleXP = new ModuleExtensionPoint(pContext);
+		_pXPS->registerExtensionPoint(pContext->thisBundle(), "com.appinf.osp.js.module", pModuleXP);
+		
+		JSExecutor::setGlobalModuleRegistry(pModuleXP->moduleRegistry());
 		
 		Poco::JS::Bridge::Listener::Ptr pListener = new Poco::JS::Bridge::Listener;
 		_jsBridgeListenerId = Poco::RemotingNG::ORB::instance().registerListener(pListener);

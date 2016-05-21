@@ -59,6 +59,12 @@ public:
 
 	static void setGlobalModuleSearchPaths(const std::vector<std::string>& searchPaths);
 		/// Sets the global module search paths.
+		
+	static void setGlobalModuleRegistry(Poco::JS::Core::ModuleRegistry::Ptr pModuleRegistry);
+		/// Sets the global module registry.
+		
+	static Poco::JS::Core::ModuleRegistry::Ptr getGlobalModuleRegistry();
+		/// Returns the global module registry.
 
 protected:
 	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
@@ -69,6 +75,7 @@ private:
 	Poco::OSP::Bundle::Ptr _pBundle;
 	
 	static std::vector<std::string> _globalModuleSearchPaths;
+	static Poco::JS::Core::ModuleRegistry::Ptr _globalModuleRegistry;
 };
 
 
@@ -131,6 +138,12 @@ inline Poco::OSP::BundleContext::Ptr JSExecutor::context() const
 inline const std::vector<std::string> JSExecutor::getGlobalModuleSearchPaths()
 {
 	return _globalModuleSearchPaths;
+}
+
+
+inline Poco::JS::Core::ModuleRegistry::Ptr JSExecutor::getGlobalModuleRegistry()
+{
+	return _globalModuleRegistry;
 }
 
 

@@ -37,6 +37,8 @@ class OSPJS_API JSExtensionPoint: public Poco::OSP::ExtensionPoint
 	///   - memoryLimit: size limit for JavaScript allocated memory (default 1 MB)
 {
 public:
+	typedef Poco::AutoPtr<JSExtensionPoint> Ptr;
+
 	JSExtensionPoint(BundleContext::Ptr pContext);
 		/// Creates the JavaScript extension point.
 	

@@ -29,6 +29,7 @@ namespace JS {
 
 
 std::vector<std::string> JSExecutor::_globalModuleSearchPaths;
+Poco::JS::Core::ModuleRegistry::Ptr JSExecutor::_globalModuleRegistry;
 
 
 JSExecutor::JSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit):
@@ -40,6 +41,11 @@ JSExecutor::JSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle
 	for (std::vector<std::string>::const_iterator it = paths.begin(); it != paths.end(); ++it)
 	{
 		addModuleSearchPath(*it);
+	}
+	
+	if (_globalModuleRegistry)
+	{
+		addModuleRegistry(_globalModuleRegistry);
 	}
 }
 
@@ -104,6 +110,12 @@ void JSExecutor::setGlobalModuleSearchPaths(const std::vector<std::string>& sear
 }
 
 
+void JSExecutor::setGlobalModuleRegistry(Poco::JS::Core::ModuleRegistry::Ptr pModuleRegistry)
+{
+	_globalModuleRegistry = pModuleRegistry;
+}
+
+
 TimedJSExecutor::TimedJSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit):
 	Poco::JS::Core::TimedJSExecutor(source, sourceURI, moduleSearchPaths, memoryLimit),
 	_pContext(pContext),
@@ -113,6 +125,11 @@ TimedJSExecutor::TimedJSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::O
 	for (std::vector<std::string>::const_iterator it = paths.begin(); it != paths.end(); ++it)
 	{
 		addModuleSearchPath(*it);
+	}
+
+	if (Poco::OSP::JS::JSExecutor::getGlobalModuleRegistry())
+	{
+		addModuleRegistry(Poco::OSP::JS::JSExecutor::getGlobalModuleRegistry());
 	}
 
 	pContext->events().bundleStopped += Poco::delegate(this, &TimedJSExecutor::onBundleStopped);

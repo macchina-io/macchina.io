@@ -35,6 +35,25 @@ namespace JS {
 namespace Core {
 
 
+class ScopedRunningCounter
+{
+public:
+	ScopedRunningCounter(Poco::AtomicCounter& counter):
+		_counter(counter)
+	{
+		++_counter;
+	}
+	
+	~ScopedRunningCounter()
+	{
+		--_counter;
+	}
+	
+private:
+	Poco::AtomicCounter& _counter;
+};
+
+
 //
 // JSExecutor
 //
@@ -96,6 +115,12 @@ void JSExecutor::addModuleSearchPath(const std::string& path)
 }
 
 
+void JSExecutor::addModuleRegistry(ModuleRegistry::Ptr pRegistry)
+{
+	_moduleRegistries.push_back(pRegistry);
+}
+
+
 void JSExecutor::setup()
 {
 	v8::Isolate* pIsolate = _pooledIso.isolate();
@@ -148,6 +173,8 @@ void JSExecutor::compile()
 
 void JSExecutor::runImpl()
 {
+	ScopedRunningCounter src(_running);
+
 	*_pCurrentExecutor = this;
 	
 	v8::Isolate* pIsolate = _pooledIso.isolate();
@@ -213,6 +240,8 @@ void JSExecutor::call(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>&
 
 void JSExecutor::callInContext(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>& receiver, int argc, v8::Handle<v8::Value> argv[])
 {
+	ScopedRunningCounter src(_running);
+
 	v8::TryCatch tryCatch;
 	function->Call(receiver, argc, argv);
 	if (tryCatch.HasCaught())
@@ -224,6 +253,8 @@ void JSExecutor::callInContext(v8::Handle<v8::Function>& function, v8::Handle<v8
 
 void JSExecutor::call(v8::Persistent<v8::Object>& jsObject, const std::string& method, const std::string& args)
 {
+	ScopedRunningCounter src(_running);
+
 	v8::Isolate* pIsolate = _pooledIso.isolate();
 	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
@@ -269,6 +300,8 @@ void JSExecutor::call(v8::Persistent<v8::Object>& jsObject, const std::string& m
 
 void JSExecutor::call(v8::Persistent<v8::Function>& function)
 {
+	ScopedRunningCounter src(_running);
+
 	v8::Isolate* pIsolate = _pooledIso.isolate();
 	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
@@ -281,6 +314,7 @@ void JSExecutor::call(v8::Persistent<v8::Function>& function)
 	v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(pIsolate, function));
 	v8::Local<v8::Value> argv[1];
 	v8::TryCatch tryCatch;
+
 	localFunction->Call(global, 0, argv);
 	if (tryCatch.HasCaught())
 	{
@@ -291,6 +325,8 @@ void JSExecutor::call(v8::Persistent<v8::Function>& function)
 
 void JSExecutor::call(v8::Persistent<v8::Function>& function, v8::Persistent<v8::Array>& args)
 {
+	ScopedRunningCounter src(_running);
+
 	v8::Isolate* pIsolate = _pooledIso.isolate();
 	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
@@ -479,11 +515,23 @@ void JSExecutor::require(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 	try
 	{
-		if (uri.length() > 3 && uri.compare(uri.length() - 3, 3, ".js") != 0)
+		Module::Ptr pModule;
+		for (std::vector<ModuleRegistry::Ptr>::const_iterator it = pCurrentExecutor->_moduleRegistries.begin(); !pModule && it != pCurrentExecutor->_moduleRegistries.end(); ++it)
 		{
-			uri += ".js";
+			pModule = (*it)->findModule(uri);
 		}
-		pCurrentExecutor->importModule(args, uri);
+		if (pModule)
+		{
+			pCurrentExecutor->importModule(args, uri, pModule);
+		}
+		else
+		{
+			if (uri.length() > 3 && uri.compare(uri.length() - 3, 3, ".js") != 0)
+			{
+				uri += ".js";
+			}
+			pCurrentExecutor->importModule(args, uri);
+		}
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -582,6 +630,37 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 				args.GetReturnValue().Set(moduleObject->Get(v8::String::NewFromUtf8(pIsolate, "exports")));
 			}
 		}
+	}
+}
+
+
+void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, const std::string& uri, Module::Ptr pModule)
+{
+	// Set up import context	
+	v8::Isolate* pIsolate = _pooledIso.isolate();
+	v8::HandleScope handleScope(pIsolate);
+
+	v8::Local<v8::Context> scriptContext(v8::Local<v8::Context>::New(pIsolate, _scriptContext));
+	v8::Context::Scope scriptContextScope(scriptContext);
+	
+	// Get global/root module and imports
+	v8::Local<v8::Object> global = scriptContext->Global();
+	v8::Local<v8::Object> globalModule = v8::Local<v8::Object>::Cast(global->Get(v8::String::NewFromUtf8(pIsolate, "module")));
+	poco_assert_dbg (globalModule->IsObject());
+	v8::Local<v8::Object> globalImports = v8::Local<v8::Object>::Cast(globalModule->Get(v8::String::NewFromUtf8(pIsolate, "imports")));
+	poco_assert_dbg (globalImports->IsObject());
+
+	// Check if we have already imported the module
+	v8::Local<v8::String> jsModuleURI = v8::String::NewFromUtf8(pIsolate, uri.c_str());
+	if (globalImports->Has(jsModuleURI))
+	{
+		args.GetReturnValue().Set(globalImports->Get(jsModuleURI));
+	}
+	else
+	{
+		v8::Local<v8::Object> exportsObject = pModule->exportIt(pIsolate);
+		globalImports->Set(jsModuleURI, exportsObject);
+		args.GetReturnValue().Set(exportsObject);
 	}
 }
 

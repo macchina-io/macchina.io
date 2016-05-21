@@ -30,6 +30,8 @@
 #include "Poco/Util/Timer.h"
 #include "Poco/Util/TimerTask.h"
 #include "Poco/JS/Core/PooledIsolate.h"
+#include "Poco/JS/Core/ModuleRegistry.h"
+#include "Poco/JS/Core/Module.h"
 #include "v8.h"
 #include <vector>
 #include <set>
@@ -133,6 +135,15 @@ public:
 		///
 		/// Module search paths must be added before the script
 		/// is executed.
+		
+	void addModuleRegistry(ModuleRegistry::Ptr pRegistry);
+		/// Adds a module registry to the collection of registries.
+		///
+		/// Module registries must be added before the script
+		/// is executed.
+		
+	bool running() const;
+		/// Returns true if the JSExecutor is currently executing a script.
 	
 	// Poco::Runnable
 	void run();
@@ -164,7 +175,10 @@ protected:
 		/// Implements the JavaScript require function to import a module.
 
 	void importModule(const v8::FunctionCallbackInfo<v8::Value>& args, const std::string& uri);
-		/// Imports a module.
+		/// Imports a JavaScript module.
+
+	void importModule(const v8::FunctionCallbackInfo<v8::Value>& args, const std::string& uri, Module::Ptr pModule);
+		/// Imports a native module.
 
 	Poco::SharedPtr<std::istream> resolveModule(const std::string& uri, Poco::URI& resolvedURI);
 		/// Tries to locate the script identified by uri (which may be a relative, partial URI),
@@ -189,6 +203,7 @@ protected:
 	std::string _source;
 	Poco::URI _sourceURI;
 	std::vector<std::string> _moduleSearchPaths;
+	std::vector<ModuleRegistry::Ptr> _moduleRegistries;
 	Poco::UInt64 _memoryLimit;
 	Poco::JS::Core::PooledIsolate _pooledIso;
 	v8::Persistent<v8::ObjectTemplate> _globalObject;
@@ -197,6 +212,7 @@ protected:
 	v8::Persistent<v8::Script> _script;
 	std::vector<Poco::URI> _importStack;
 	std::set<std::string> _imports;
+	Poco::AtomicCounter _running;
 	static Poco::ThreadLocal<JSExecutor*> _pCurrentExecutor;
 	
 	friend class RunScriptTask;
@@ -270,6 +286,12 @@ inline v8::Persistent<v8::Context>& JSExecutor::globalContext()
 inline v8::Persistent<v8::Context>& JSExecutor::scriptContext()
 {
 	return _scriptContext;
+}
+
+
+inline bool JSExecutor::running() const
+{
+	return !!_running;
 }
 
 
