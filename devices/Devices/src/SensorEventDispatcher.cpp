@@ -57,7 +57,7 @@ void SensorEventDispatcher::event__valueChanged(const void* pSender, const doubl
 	remoting__staticInitEnd(REMOTING__EVENT_NAME);
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())

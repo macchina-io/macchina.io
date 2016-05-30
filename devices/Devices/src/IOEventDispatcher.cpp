@@ -54,7 +54,7 @@ void IOEventDispatcher::event__stateChanged(const void* pSender, const bool& dat
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())

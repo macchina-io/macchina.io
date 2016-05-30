@@ -56,7 +56,7 @@ void RotaryEncoderEventDispatcher::event__buttonStateChanged(const void* pSender
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -90,7 +90,7 @@ void RotaryEncoderEventDispatcher::event__countChanged(const void* pSender, cons
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())

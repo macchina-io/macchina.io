@@ -56,7 +56,7 @@ void MagnetometerEventDispatcher::event__fieldStrengthChanged(const void* pSende
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())

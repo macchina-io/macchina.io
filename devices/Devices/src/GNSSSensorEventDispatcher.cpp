@@ -58,7 +58,7 @@ void GNSSSensorEventDispatcher::event__positionLost(const void* pSender)
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -92,7 +92,7 @@ void GNSSSensorEventDispatcher::event__positionUpdate(const void* pSender, const
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())

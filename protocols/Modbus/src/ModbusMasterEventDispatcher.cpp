@@ -108,7 +108,7 @@ void ModbusMasterEventDispatcher::event__exceptionReceived(const void* pSender, 
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -142,7 +142,7 @@ void ModbusMasterEventDispatcher::event__maskWriteRegisterResponseReceived(const
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -176,7 +176,7 @@ void ModbusMasterEventDispatcher::event__readCoilsResponseReceived(const void* p
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -210,7 +210,7 @@ void ModbusMasterEventDispatcher::event__readDiscreteInputsResponseReceived(cons
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -244,7 +244,7 @@ void ModbusMasterEventDispatcher::event__readExceptionStatusResponseReceived(con
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -278,7 +278,7 @@ void ModbusMasterEventDispatcher::event__readFIFOQueueResponseReceived(const voi
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -312,7 +312,7 @@ void ModbusMasterEventDispatcher::event__readHoldingRegistersResponseReceived(co
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -346,7 +346,7 @@ void ModbusMasterEventDispatcher::event__readInputRegistersResponseReceived(cons
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -380,7 +380,7 @@ void ModbusMasterEventDispatcher::event__readWriteMultipleRegistersResponseRecei
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -414,7 +414,7 @@ void ModbusMasterEventDispatcher::event__responseReceived(const void* pSender, c
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -448,7 +448,7 @@ void ModbusMasterEventDispatcher::event__writeMultipleCoilsResponseReceived(cons
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -482,7 +482,7 @@ void ModbusMasterEventDispatcher::event__writeMultipleRegistersResponseReceived(
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -516,7 +516,7 @@ void ModbusMasterEventDispatcher::event__writeSingleCoilResponseReceived(const v
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -550,7 +550,7 @@ void ModbusMasterEventDispatcher::event__writeSingleRegisterResponseReceived(con
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())

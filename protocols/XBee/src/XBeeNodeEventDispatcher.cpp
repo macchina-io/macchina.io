@@ -98,7 +98,7 @@ void XBeeNodeEventDispatcher::event__commandResponseReceived(const void* pSender
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -132,7 +132,7 @@ void XBeeNodeEventDispatcher::event__explicitAddressingZigBeePacketReceived(cons
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -166,7 +166,7 @@ void XBeeNodeEventDispatcher::event__frameReceived(const void* pSender, const Io
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -200,7 +200,7 @@ void XBeeNodeEventDispatcher::event__ioDataReceived(const void* pSender, const I
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -234,7 +234,7 @@ void XBeeNodeEventDispatcher::event__ioSampleReceived(const void* pSender, const
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -268,7 +268,7 @@ void XBeeNodeEventDispatcher::event__modemStatusReceived(const void* pSender, co
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -302,7 +302,7 @@ void XBeeNodeEventDispatcher::event__packetReceived(const void* pSender, const I
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -336,7 +336,7 @@ void XBeeNodeEventDispatcher::event__remoteCommandResponseReceived(const void* p
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -370,7 +370,7 @@ void XBeeNodeEventDispatcher::event__sensorReadReceived(const void* pSender, con
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -404,7 +404,7 @@ void XBeeNodeEventDispatcher::event__transmitStatusReceived(const void* pSender,
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -438,7 +438,7 @@ void XBeeNodeEventDispatcher::event__zigBeePacketReceived(const void* pSender, c
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -472,7 +472,7 @@ void XBeeNodeEventDispatcher::event__zigBeeTransmitStatusReceived(const void* pS
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
