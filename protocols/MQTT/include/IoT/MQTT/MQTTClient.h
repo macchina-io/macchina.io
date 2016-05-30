@@ -174,6 +174,17 @@ struct Statistics
 };
 
 
+//@ serialize
+struct ConnectionInfo
+{
+	std::string serverURI;
+		/// URI of server the client is connected to.
+		
+	bool sessionPresent;
+		/// True if a previously set up session is present on the server.
+};
+
+
 //@ remote
 class IoTMQTT_API MQTTClient
 	/// The interface for MQTT clients.
@@ -281,6 +292,10 @@ public:
 		///
 		/// Throws a Poco::IOException if there was a problem removing the
 		/// subscriptions.
+		
+	virtual ConnectionInfo connectionInfo() const = 0;
+		/// Returns a ConnectionInfo structure describing the currently active
+		/// connection. If not connected, the ConnectionInfo's serverURI will be empty.
 };
 
 

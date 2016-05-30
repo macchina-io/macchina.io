@@ -1,7 +1,7 @@
 //
 // ServerConnection.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/ServerConnection.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/TCP/src/ServerConnection.cpp#2 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -90,7 +90,7 @@ public:
 			Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = orb.findEventDispatcher(dispURI.toString(), Transport::PROTOCOL);
 			if (pFrame->type() == Frame::FRAME_TYPE_EVSU)
 			{
-				Poco::Timestamp expire;
+				Poco::Clock expire;
 				expire += _pListener->getEventSubscriptionTimeout().totalMicroseconds();
 				pEventDispatcher->subscribe(suri, suri, expire);
 			}

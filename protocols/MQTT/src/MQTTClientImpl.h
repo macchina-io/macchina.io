@@ -150,6 +150,7 @@ public:
 	void unsubscribe(const std::string& topic);
 	void subscribeMany(const std::vector<TopicQoS>& topicsAndQoS);
 	void unsubscribeMany(const std::vector<std::string>& topics);
+	ConnectionInfo connectionInfo() const;
 	
 protected:
 	enum 
@@ -177,6 +178,7 @@ private:
 	std::map<std::string, int> _publishedMessages;
 	::MQTTClient _mqttClient;
 	Poco::Util::Timer _timer;
+	ConnectionInfo _connectionInfo;
 	Poco::Logger& _logger;
 	mutable Poco::Mutex _mutex;
 	

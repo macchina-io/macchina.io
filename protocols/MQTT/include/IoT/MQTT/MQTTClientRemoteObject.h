@@ -58,6 +58,10 @@ public:
 	virtual bool connected() const;
 		/// Returns true if the client is currently connected to the server.
 
+	IoT::MQTT::ConnectionInfo connectionInfo() const;
+		/// Returns a ConnectionInfo structure describing the currently active
+		/// connection. If not connected, the ConnectionInfo's serverURI will be empty.
+
 	virtual void disconnect(int timeout);
 		/// Disconnects from the server.
 		///
@@ -155,6 +159,12 @@ inline void MQTTClientRemoteObject::connect()
 inline bool MQTTClientRemoteObject::connected() const
 {
 	return _pServiceObject->connected();
+}
+
+
+inline IoT::MQTT::ConnectionInfo MQTTClientRemoteObject::connectionInfo() const
+{
+	return _pServiceObject->connectionInfo();
 }
 
 

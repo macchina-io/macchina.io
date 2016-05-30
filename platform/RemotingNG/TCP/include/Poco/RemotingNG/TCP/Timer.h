@@ -1,7 +1,7 @@
 //
 // Timer.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Timer.h#1 $
+// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Timer.h#2 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -56,11 +56,6 @@ public:
 		/// Returns true iff the TimerTask has been cancelled by a call
 		/// to cancel().
 	
-	Poco::Timestamp lastExecution() const;
-		/// Returns the time of the last execution of the timer task.
-		///
-		/// Returns 0 if the timer has never been executed.
-		
 protected:
 	~TimerTask();
 		/// Destroys the TimerTask.
@@ -69,7 +64,6 @@ private:
 	TimerTask(const TimerTask&);
 	TimerTask& operator = (const TimerTask&);
 	
-	Poco::Timestamp _lastExecution;
 	bool _isCancelled;
 	
 	friend class TaskNotification;
@@ -136,12 +130,6 @@ private:
 inline bool TimerTask::isCancelled() const
 {
 	return _isCancelled;
-}
-
-
-inline Poco::Timestamp TimerTask::lastExecution() const
-{
-	return _lastExecution;
 }
 
 

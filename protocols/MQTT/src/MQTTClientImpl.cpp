@@ -257,6 +257,9 @@ void MQTTClientImpl::connectImpl(const ConnectOptions& options)
 	_logger.information(Poco::format("Connected to MQTT server \"%s\".", _serverURI));
 	_reconnectDelay = INITIAL_RECONNECT_DELAY;
 	
+	_connectionInfo.serverURI = connectOptions.returned.serverURI;
+	_connectionInfo.sessionPresent = connectOptions.returned.sessionPresent != 0;
+	
 	try
 	{
 		resubscribe();
@@ -279,6 +282,9 @@ void MQTTClientImpl::disconnect(int timeout)
 			throw Poco::IOException("Failed to disconnect from MQTT server", errorMessage(rc), rc);
 		_logger.debug(Poco::format("Disconnected from server \"%s\".", _serverURI));
 		_subscribedTopics.clear();
+		
+		_connectionInfo.serverURI.clear();
+		_connectionInfo.sessionPresent = false;
 	}
 }
 
@@ -523,6 +529,14 @@ int MQTTClientImpl::onMessageArrived(void* context, char* topicName, int topicLe
     MQTTClient_free(topicName);
 	
 	return event.handled;
+}
+
+
+ConnectionInfo MQTTClientImpl::connectionInfo() const
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	return _connectionInfo;
 }
 
 

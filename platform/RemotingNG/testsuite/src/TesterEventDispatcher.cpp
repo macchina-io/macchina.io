@@ -50,7 +50,7 @@ void TesterEventDispatcher::event__testEvent(const void* pSender, std::string& d
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -87,7 +87,7 @@ void TesterEventDispatcher::event__testFilteredEvent(const void* pSender, const 
 	remoting__staticInitEnd(REMOTING__EVENT_NAME);
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -124,7 +124,7 @@ void TesterEventDispatcher::event__testOneWayEvent(const void* pSender, std::str
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())
@@ -154,7 +154,7 @@ void TesterEventDispatcher::event__testVoidEvent(const void* pSender)
 {
 	if (pSender)
 	{
-		Poco::Timestamp now;
+		Poco::Clock now;
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		SubscriberMap::iterator it = _subscribers.begin();
 		while (it != _subscribers.end())

@@ -1,7 +1,7 @@
 //
 // Connection.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Connection.h#1 $
+// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Connection.h#2 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -27,7 +27,7 @@
 #include "Poco/Runnable.h"
 #include "Poco/RefCountedObject.h"
 #include "Poco/AutoPtr.h"
-#include "Poco/Timestamp.h"
+#include "Poco/Clock.h"
 #include "Poco/ObjectPool.h"
 #include "Poco/BasicEvent.h"
 #include "Poco/Event.h"
@@ -258,7 +258,7 @@ private:
 	std::set<Poco::UInt32> _peerCapabilities;
 	std::set<Poco::UInt32> _allocatedChannels;
 	Poco::UInt32 _nextChannel;
-	Poco::Timestamp _lastFrame;
+	Poco::Clock _lastFrame;
 	Poco::Event _ready;
 	Poco::Logger& _logger;
 	Poco::FastMutex _mutex;

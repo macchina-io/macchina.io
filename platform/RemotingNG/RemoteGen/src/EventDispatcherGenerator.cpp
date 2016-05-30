@@ -1,7 +1,7 @@
 //
 // EventDispatcherGenerator.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/EventDispatcherGenerator.cpp#2 $
+// $Id: //poco/1.7/RemotingNG/RemoteGen/src/EventDispatcherGenerator.cpp#3 $
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -1191,7 +1191,7 @@ void EventDispatcherGenerator::eventCodeGen(const Poco::CppParser::Function* pFu
 	// only forward to the network if the network is not the sender
 	gen.writeMethodImplementation("if (pSender)");
 	gen.writeMethodImplementation("{");
-	gen.writeMethodImplementation("\tPoco::Timestamp now;");
+	gen.writeMethodImplementation("\tPoco::Clock now;");
 	gen.writeMethodImplementation("\tPoco::FastMutex::ScopedLock lock(_mutex);");
 	gen.writeMethodImplementation("\tSubscriberMap::iterator it = _subscribers.begin();");
 	gen.writeMethodImplementation("\twhile (it != _subscribers.end())");

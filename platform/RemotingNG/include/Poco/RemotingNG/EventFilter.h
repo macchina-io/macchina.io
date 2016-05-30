@@ -256,7 +256,7 @@ public:
 	}
 
 	// EventFilter
-	bool accept(const T& value)
+	bool accept(const T&)
 	{
 		if (_lastClock.isElapsed(_interval))
 		{

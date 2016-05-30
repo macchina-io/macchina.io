@@ -1,7 +1,7 @@
 //
 // EventDispatcher.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/EventDispatcher.cpp#2 $
+// $Id: //poco/1.7/RemotingNG/src/EventDispatcher.cpp#3 $
 //
 // Library: RemotingNG
 // Package: ORB
@@ -34,7 +34,7 @@ EventDispatcher::~EventDispatcher()
 }
 
 
-void EventDispatcher::subscribe(const std::string& subscriberURI, const std::string& endpointURI, Poco::Timestamp expireTime)
+void EventDispatcher::subscribe(const std::string& subscriberURI, const std::string& endpointURI, Poco::Clock expireTime)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 	

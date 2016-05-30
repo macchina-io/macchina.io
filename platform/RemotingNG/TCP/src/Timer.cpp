@@ -1,7 +1,7 @@
 //
 // Timer.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/Timer.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/TCP/src/Timer.cpp#2 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -27,7 +27,6 @@ namespace TCP {
 
 
 TimerTask::TimerTask():
-	_lastExecution(0),
 	_isCancelled(false)
 {
 }
@@ -141,7 +140,6 @@ public:
 		{
 			try
 			{
-				_pTask->_lastExecution.update();
 				_pTask->run();
 			}
 			catch (Exception& exc)
@@ -168,10 +166,10 @@ private:
 class FixedRateTaskNotification: public TaskNotification
 {
 public:
-	FixedRateTaskNotification(Poco::TimedNotificationQueue& queue, TimerTask::Ptr pTask, long interval, Poco::Timestamp time):
+	FixedRateTaskNotification(Poco::TimedNotificationQueue& queue, TimerTask::Ptr pTask, long interval, Poco::Clock clock):
 		TaskNotification(queue, pTask),
 		_interval(interval),
-		_nextExecution(time)
+		_nextExecution(clock)
 	{
 	}
 	
@@ -185,8 +183,8 @@ public:
 
 		if (!task()->isCancelled())
 		{
-			Poco::Timestamp now;
-			_nextExecution += static_cast<Poco::Timestamp::TimeDiff>(_interval)*1000;
+			Poco::Clock now;
+			_nextExecution += static_cast<Poco::Clock::ClockDiff>(_interval)*1000;
 			if (_nextExecution < now) _nextExecution = now;
 			queue().enqueueNotification(this, _nextExecution);
 			duplicate();
@@ -196,7 +194,7 @@ public:
 	
 private:
 	long _interval;
-	Poco::Timestamp _nextExecution;
+	Poco::Clock _nextExecution;
 };
 
 
@@ -233,8 +231,8 @@ void Timer::cancel(bool wait)
 
 void Timer::scheduleAtFixedRate(TimerTask::Ptr pTask, long delay, long interval)
 {
-	Poco::Timestamp time;
-	time += static_cast<Poco::Timestamp::TimeDiff>(delay)*1000;
+	Poco::Clock time;
+	time += static_cast<Poco::Clock::ClockDiff>(delay)*1000;
 	_queue.enqueueNotification(new FixedRateTaskNotification(_queue, pTask, interval, time), time);
 }
 

@@ -1,7 +1,7 @@
 //
 // EventDispatcher.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/EventDispatcher.h#2 $
+// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/EventDispatcher.h#3 $
 //
 // Library: RemotingNG
 // Package: ORB
@@ -23,7 +23,7 @@
 #include "Poco/RemotingNG/RemotingNG.h"
 #include "Poco/RemotingNG/Transport.h"
 #include "Poco/RemotingNG/EventFilter.h"
-#include "Poco/Timestamp.h"
+#include "Poco/Clock.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/RefCountedObject.h"
@@ -66,7 +66,7 @@ public:
 	virtual ~EventDispatcher();
 		/// Destroys the EventDispatcher.
 
-	void subscribe(const std::string& subscriberURI, const std::string& endpointURI, Poco::Timestamp expireTime = 0);
+	void subscribe(const std::string& subscriberURI, const std::string& endpointURI, Poco::Clock expireTime = 0);
 		/// Registers a remote EventSubscriber identified by
 		/// the given subscriberURI. Events will be sent to the
 		/// specified endpoint, which must be a proper RemotingNG URI.
@@ -142,7 +142,7 @@ protected:
 		
 		std::string     endpoint;
 		Transport::Ptr  pTransport;
-		Poco::Timestamp expireTime;
+		Poco::Clock     expireTime;
 		FilterMap       filters;
 	};
 	typedef std::map<std::string, SubscriberInfo::Ptr> SubscriberMap;
