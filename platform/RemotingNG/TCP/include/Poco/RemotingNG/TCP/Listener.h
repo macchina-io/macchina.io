@@ -1,7 +1,7 @@
 //
 // Listener.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Listener.h#3 $
+// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Listener.h#4 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -112,6 +112,20 @@ public:
 		
 	static Ptr defaultListener();
 		/// Returns the Listener instance used for event subscriptions.
+		///
+		/// The first call to this method will create the default Listener
+		/// instance, using the default ConnectionManager.
+
+	static Ptr defaultListener(ConnectionManager& cm);
+		/// Returns the Listener instance used for event subscriptions.
+		///
+		/// The first call to this method (unless the no-argument version has been
+		/// called first) will create the default Listener
+		/// instance using the given ConnectionManager. Subsequent calls to
+		/// this method must specify the same ConnectionManager instance
+		/// or use the no-argument version. Specifying a different
+		/// ConnectionManager instance in a subsequent call will result
+		/// in a Poco::IllegalStateException being thrown.
 
 	// Poco::RemotingNG::EventListener
 	std::string subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber);

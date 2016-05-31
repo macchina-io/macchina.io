@@ -1,7 +1,7 @@
 //
 // Listener.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/Listener.cpp#3 $
+// $Id: //poco/1.7/RemotingNG/TCP/src/Listener.cpp#4 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -306,6 +306,21 @@ Listener::Ptr Listener::defaultListener()
 	if (!_pDefaultListener)
 	{
 		_pDefaultListener = new Listener;
+	}
+	return _pDefaultListener;
+}
+
+
+Listener::Ptr Listener::defaultListener(ConnectionManager& cm)
+{
+	Poco::FastMutex::ScopedLock lock(_staticMutex);
+	if (!_pDefaultListener)
+	{
+		_pDefaultListener = new Listener(cm);
+	}
+	else if (&_pDefaultListener->connectionManager() != &cm)
+	{
+		throw Poco::IllegalStateException("A default Listener using a different ConnectionManager already exists");
 	}
 	return _pDefaultListener;
 }
