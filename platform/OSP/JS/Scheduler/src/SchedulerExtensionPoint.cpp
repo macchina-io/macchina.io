@@ -170,7 +170,7 @@ void SchedulerExtensionPoint::scheduleTasks()
 			if ((it->schedule.notBefore == 0 || now >= it->schedule.notBefore) && 
 				(it->schedule.notAfter == 0 || now <= it->schedule.notAfter))
 			{
-				if ((it->schedule.minutesMask & (1 << local.minute())) &&
+				if ((it->schedule.minutesMask & (1ULL << local.minute())) &&
 					(it->schedule.hoursMask & (1 << local.hour())) &&
 					(it->schedule.daysOfMonthMask & (1 << local.day())) &&
 					(it->schedule.monthsMask & (1 << local.month())) &&
@@ -344,7 +344,7 @@ Poco::UInt64 SchedulerExtensionPoint::parseScheduleItem(std::string::const_itera
 		int incr = parseIncrement(it, end);
 		for (int i = min; i <= max; i += incr)
 		{
-			mask |= (1 << i);
+			mask |= (1ULL << i);
 		}
 	}
 	else
@@ -362,12 +362,12 @@ Poco::UInt64 SchedulerExtensionPoint::parseScheduleItem(std::string::const_itera
 				int incr = parseIncrement(it, end);
 				for (int i = num; i <= to; i += incr)
 				{
-					mask |= (1 << i);
+					mask |= (1ULL << i);
 				}
 			}
 			else
 			{
-				mask += (1 << num);
+				mask += (1ULL << num);
 			}
 			if (it != end && *it == ',')
 			{
