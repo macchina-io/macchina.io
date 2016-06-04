@@ -44,17 +44,18 @@ public:
 	static void deserializeImpl(Deserializer& deser, IoT::DeviceStatus::StatusMessage& value)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"acknowledged","id","messageClass","status","text","timestamp"};
+		static const std::string REMOTING__NAMES[] = {"acknowledged","id","messageClass","source","status","text","timestamp"};
 		remoting__staticInitEnd(REMOTING__NAMES);
 		bool ret = false;
 		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[0], true, deser, value.acknowledged);
 		TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, deser, value.id);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.messageClass);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[3], true, deser, value.source);
 		int genstatus;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[3], true, deser, genstatus);
+		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[4], true, deser, genstatus);
 		if (ret) value.status = static_cast<IoT::DeviceStatus::DeviceStatus>(genstatus);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[4], true, deser, value.text);
-		TypeDeserializer<Poco::DateTime >::deserialize(REMOTING__NAMES[5], true, deser, value.timestamp);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[5], true, deser, value.text);
+		TypeDeserializer<Poco::DateTime >::deserialize(REMOTING__NAMES[6], true, deser, value.timestamp);
 	}
 
 };

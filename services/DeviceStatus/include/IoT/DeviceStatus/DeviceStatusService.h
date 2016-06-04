@@ -85,6 +85,11 @@ struct StatusUpdate
 		/// the new message is added. Therefore, at most
 		/// one message of a given non-empty message class
 		/// is stored.
+	
+	//@ mandatory = false	
+	std::string source;
+		/// Optional source of the status update. Can be
+		/// an application specific name of a subsystem or device.
 		 
 	DeviceStatus status;
 		/// New device status.
@@ -117,6 +122,10 @@ struct StatusMessage
 		/// the new message is added. Therefore, at most
 		/// one message of a given non-empty message class
 		/// is stored.
+		
+	std::string source;
+		/// Optional source of the status update. Can be
+		/// an application specific name of a subsystem or device.
 		 
 	DeviceStatus status;
 		/// New device status.

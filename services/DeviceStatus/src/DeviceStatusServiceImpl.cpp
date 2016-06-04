@@ -42,6 +42,7 @@ DeviceStatusServiceImpl::DeviceStatusServiceImpl(Poco::OSP::BundleContext::Ptr p
 		"CREATE TABLE IF NOT EXISTS messages ("
 		"    id INTEGER PRIMARY KEY AUTOINCREMENT,"
 		"    messageClass VARCHAR(64),"
+		"    source VARCHAR(256),"
 		"    status INTEGER,"
 		"    text VARCHAR(1024),"
 		"    timestamp DATETIME,"
@@ -74,6 +75,7 @@ DeviceStatusChange DeviceStatusServiceImpl::postStatus(const StatusUpdate& statu
 
 	StatusMessage message;
 	message.messageClass = statusUpdate.messageClass;
+	message.source       = statusUpdate.source;
 	message.status       = statusUpdate.status;
 	message.text         = statusUpdate.text;
 	message.acknowledged = false;
@@ -90,8 +92,9 @@ DeviceStatusChange DeviceStatusServiceImpl::postStatus(const StatusUpdate& statu
 		(*_pSession) << "DELETE FROM messages WHERE messageClass = ?", use(message.messageClass), now;
 	}
 	
-	(*_pSession) << "INSERT INTO messages VALUES (NULL, ?, ?, ?, ?, ?)",
+	(*_pSession) << "INSERT INTO messages VALUES (NULL, ?, ?, ?, ?, ?, ?)",
 		use(message.messageClass), 
+		use(message.source),
 		use(message.status), 
 		use(message.text), 
 		use(message.timestamp),
@@ -236,11 +239,12 @@ std::vector<StatusMessage> DeviceStatusServiceImpl::messages(int maxMessages) co
 	StatusMessage message;
 	int status;
 	Poco::Data::Statement select = ((*_pSession) <<
-		"SELECT id, messageClass, status, text, timestamp, acknowledged"
+		"SELECT id, messageClass, source, status, text, timestamp, acknowledged"
 		"  FROM messages"
 		"  ORDER BY timestamp DESC, id DESC",
 		into(message.id),
 		into(message.messageClass),
+		into(message.source),
 		into(status),
 		into(message.text),
 		into(message.timestamp),
