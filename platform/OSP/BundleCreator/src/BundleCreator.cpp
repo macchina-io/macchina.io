@@ -125,7 +125,8 @@ public:
 		_showHelp(false),
 		_outputDir(Path::current()),
 		_keep(false),
-		_noDeflate(false)
+		_noDeflate(false),
+		_noFile(false)
 	{
 		makeValidFileName(_osName);
 		makeValidFileName(_osArch);
@@ -160,6 +161,12 @@ protected:
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleKeep)));
+
+		options.addOption(
+			Option("bundle-dir-only", "d", "Create bundle directory only, no bundle (.bndl) file (implies --keep-bundle-dir).")
+				.required(false)
+				.repeatable(false)
+				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleBundleDir)));
 
 		options.addOption(
 			Option("osname", "n", "Specify default target operating system name (e.g., Linux).")
@@ -209,6 +216,12 @@ protected:
 	void handleKeep(const std::string& name, const std::string& value)
 	{
 		_keep = true;
+	}
+
+	void handleBundleDir(const std::string& name, const std::string& value)
+	{
+		_keep = true;
+		_noFile = true;
 	}
 	
 	void handleOSName(const std::string& name, const std::string& value)
@@ -335,21 +348,24 @@ private:
 			handleBin(bndlPath);
 			handleMeta(bndlPath, mi);
 			handleOther(bndlPath);
-			Path bndlFilePath(bndlPath);
-			bndlFilePath.setFileName(bndlFilePath.getFileName() + ".bndl");
-			FileOutputStream out(bndlFilePath.toString());
-			Compress compr(out, true);
-			if (!_storeExtensions.empty())
+			if (!_noFile)
 			{
-				compr.setStoreExtensions(_storeExtensions);
-			}
-			compr.addRecursive(bndlPath, _noDeflate ? Poco::Zip::ZipCommon::CM_STORE : Poco::Zip::ZipCommon::CM_AUTO, Poco::Zip::ZipCommon::CL_MAXIMUM, true);
-			compr.close();
-			out.close();
-			if (!_keep)
-			{
-				safeRemove(bndlDir);
-				bndlDir.remove(true);
+				Path bndlFilePath(bndlPath);
+				bndlFilePath.setFileName(bndlFilePath.getFileName() + ".bndl");
+				FileOutputStream out(bndlFilePath.toString());
+				Compress compr(out, true);
+				if (!_storeExtensions.empty())
+				{
+					compr.setStoreExtensions(_storeExtensions);
+				}
+				compr.addRecursive(bndlPath, _noDeflate ? Poco::Zip::ZipCommon::CM_STORE : Poco::Zip::ZipCommon::CM_AUTO, Poco::Zip::ZipCommon::CL_MAXIMUM, true);
+				compr.close();
+				out.close();
+				if (!_keep)
+				{
+					safeRemove(bndlDir);
+					bndlDir.remove(true);
+				}
 			}
 		}
 		catch (...)
@@ -614,6 +630,7 @@ private:
 	std::string _outputDir;
 	bool _keep;
 	bool _noDeflate;
+	bool _noFile;
 	Poco::AutoPtr<XMLConfiguration> _ptrCfg;
 	std::set<std::string> _storeExtensions;
 };
