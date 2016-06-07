@@ -19,6 +19,7 @@
 #include "Poco/OSP/BundleEvent.h"
 #include "Poco/OSP/JS/JSExecutor.h"
 #include "Poco/StringTokenizer.h"
+#include "Poco/DateTime.h"
 #include "Poco/Mutex.h"
 #include <vector>
 
@@ -64,8 +65,8 @@ private:
 		Poco::UInt32 daysOfMonthMask; /// bitmask for days of month (bits 1 .. 31)
 		Poco::UInt16 monthsMask;      /// bitmask for months (bits 1 .. 12)
 		Poco::UInt8  daysOfWeekMask;  /// bitmask for days of week (bits 0 .. 6)
-		Poco::Timestamp notBefore;    /// 0 if not specified
-		Poco::Timestamp notAfter;     /// 0 if not specified
+		Poco::DateTime notBefore;     /// treated as local time
+		Poco::DateTime notAfter;      /// treated as local time
 	};
 	
 	struct Task

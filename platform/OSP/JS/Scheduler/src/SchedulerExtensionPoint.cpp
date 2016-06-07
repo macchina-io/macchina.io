@@ -33,6 +33,52 @@ namespace JS {
 namespace Scheduler {
 
 
+bool notBefore(const Poco::DateTime& refDate, const Poco::LocalDateTime& curDate)
+{
+	if (curDate.year() > refDate.year()) return true;
+	if (curDate.year() == refDate.year())
+	{
+		if (curDate.month() > refDate.month()) return true;
+		if (curDate.month() == refDate.month())
+		{
+			if (curDate.day() > refDate.day()) return true;
+			if (curDate.day() == refDate.day())
+			{
+				if (curDate.hour() > refDate.hour()) return true;
+				if (curDate.hour() == refDate.hour())
+				{
+					if (curDate.minute() >= refDate.minute()) return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
+bool notAfter(const Poco::DateTime& refDate, const Poco::LocalDateTime& curDate)
+{
+	if (curDate.year() < refDate.year()) return true;
+	if (curDate.year() == refDate.year())
+	{
+		if (curDate.month() < refDate.month()) return true;
+		if (curDate.month() == refDate.month())
+		{
+			if (curDate.day() < refDate.day()) return true;
+			if (curDate.day() == refDate.day())
+			{
+				if (curDate.hour() < refDate.hour()) return true;
+				if (curDate.hour() == refDate.hour())
+				{
+					if (curDate.minute() < refDate.minute()) return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
 class SchedulerTask: public Poco::Util::TimerTask
 {
 public:
@@ -163,18 +209,16 @@ void SchedulerExtensionPoint::scheduleTasks()
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 
-		Poco::Timestamp now;
-		Poco::LocalDateTime local;
+		Poco::LocalDateTime now;
 		for (std::vector<Task>::iterator it = _tasks.begin(); it != _tasks.end(); ++it)
 		{
-			if ((it->schedule.notBefore == 0 || now >= it->schedule.notBefore) && 
-				(it->schedule.notAfter == 0 || now <= it->schedule.notAfter))
+			if (notBefore(it->schedule.notBefore, now) && notAfter(it->schedule.notAfter, now))
 			{
-				if ((it->schedule.minutesMask & (1ULL << local.minute())) &&
-					(it->schedule.hoursMask & (1 << local.hour())) &&
-					(it->schedule.daysOfMonthMask & (1 << local.day())) &&
-					(it->schedule.monthsMask & (1 << local.month())) &&
-					(it->schedule.daysOfWeekMask & (1 << local.dayOfWeek())))
+				if ((it->schedule.minutesMask & (1ULL << now.minute())) &&
+					(it->schedule.hoursMask & (1 << now.hour())) &&
+					(it->schedule.daysOfMonthMask & (1 << now.day())) &&
+					(it->schedule.monthsMask & (1 << now.month())) &&
+					(it->schedule.daysOfWeekMask & (1 << now.dayOfWeek())))
 				{
 					it->pExecutor->run();
 					CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(it->pExecutor, "start");
@@ -223,21 +267,21 @@ void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundl
 	if (!notBefore.empty())
 	{
 		int tzd;
-		task.schedule.notBefore = Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FORMAT, notBefore, tzd).timestamp();
+		task.schedule.notBefore = Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FORMAT, notBefore, tzd);
 	}
 	else
 	{
-		task.schedule.notBefore = 0;
+		task.schedule.notBefore = Poco::DateTime(2000, 1, 1);
 	}
 
 	if (!notAfter.empty())
 	{
 		int tzd;
-		task.schedule.notAfter = Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FORMAT, notAfter, tzd).timestamp();
+		task.schedule.notAfter = Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FORMAT, notAfter, tzd);
 	}
 	else
 	{
-		task.schedule.notAfter = 0;
+		task.schedule.notAfter = Poco::DateTime(2200, 1, 1);
 	}
 	
 	{
