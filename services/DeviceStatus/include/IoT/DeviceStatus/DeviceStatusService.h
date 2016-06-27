@@ -183,6 +183,9 @@ public:
 		
 	virtual DeviceStatus status() const = 0;
 		/// Returns the current device status.
+		///
+		/// Only unacknowledged status updates are considered in determining
+		/// the current status.
 		
 	virtual DeviceStatusChange postStatus(const StatusUpdate& statusUpdate) = 0;
 		/// Updates the device status. The given statusId in statusUpdate should uniquely 
