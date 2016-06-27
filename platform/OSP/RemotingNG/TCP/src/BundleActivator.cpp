@@ -20,6 +20,7 @@
 #include "Poco/RemotingNG/TCP/Listener.h"
 #include "Poco/RemotingNG/TCP/Transport.h"
 #include "Poco/RemotingNG/TCP/TransportFactory.h"
+#include "Poco/RemotingNG/TCP/ConnectionManager.h"
 #include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
 
@@ -65,6 +66,9 @@ public:
 		
 			pContext->registry().serviceRegistered   += Poco::delegate(this, &BundleActivator::handleServiceRegistered);
 			pContext->registry().serviceUnregistered += Poco::delegate(this, &BundleActivator::handleServiceUnregistered);
+			
+			int connectionIdleTimeout = _pPrefs->configuration()->getInt("remoting.tcp.connection.idleTimeout", 60);
+			Poco::RemotingNG::TCP::ConnectionManager::defaultManager().setIdleTimeout(Poco::Timespan(connectionIdleTimeout, 0));
 		}
 	}
 		
