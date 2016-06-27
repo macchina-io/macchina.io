@@ -203,6 +203,8 @@ void TimedJSExecutor::onBundleStopped(const void* pSender, Poco::OSP::BundleEven
 {
 	if (ev.bundle() == _pBundle)
 	{
+		TimedJSExecutor::Ptr pThis(this, true);
+		terminate();
 		stop();
 	}
 }

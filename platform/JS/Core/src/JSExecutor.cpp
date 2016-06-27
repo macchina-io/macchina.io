@@ -206,6 +206,7 @@ void JSExecutor::runImpl()
 
 	if (!_script.IsEmpty())
 	{
+		v8::V8::CancelTerminateExecution(pIsolate);
 		v8::TryCatch tryCatch;
 		v8::Local<v8::Script> script(v8::Local<v8::Script>::New(pIsolate, _script));
 		v8::Local<v8::Value> result = script->Run();
@@ -214,7 +215,7 @@ void JSExecutor::runImpl()
 			reportError(tryCatch);
 		}
 	}
-	
+
 	scriptCompleted();
 }
 
@@ -234,6 +235,7 @@ void JSExecutor::call(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>&
 	v8::Local<v8::Context> context(v8::Local<v8::Context>::New(pIsolate, _scriptContext));
 	v8::Context::Scope contextScope(context);
 
+	v8::V8::CancelTerminateExecution(pIsolate);
 	callInContext(function, receiver, argc, argv);
 }
 
@@ -267,6 +269,7 @@ void JSExecutor::call(v8::Persistent<v8::Object>& jsObject, const std::string& m
 
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(pIsolate, jsObject));
 
+	v8::V8::CancelTerminateExecution(pIsolate);
 	if (localObject->Has(jsMethod))
 	{
 		v8::Local<v8::Value> jsValue = localObject->Get(jsMethod);
@@ -311,6 +314,7 @@ void JSExecutor::call(v8::Persistent<v8::Function>& function)
 
 	v8::Local<v8::Object> global = context->Global();
 
+	v8::V8::CancelTerminateExecution(pIsolate);
 	v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(pIsolate, function));
 	v8::Local<v8::Value> argv[1];
 	v8::TryCatch tryCatch;
@@ -351,6 +355,7 @@ void JSExecutor::call(v8::Persistent<v8::Function>& function, v8::Persistent<v8:
 		}
 	}
 
+	v8::V8::CancelTerminateExecution(pIsolate);
 	v8::TryCatch tryCatch;
 	localFunction->Call(global, argsLength, argv);
 	if (tryCatch.HasCaught())
@@ -448,7 +453,12 @@ void JSExecutor::reportError(v8::TryCatch& tryCatch)
 	errorInfo.uri = _sourceURI.toString();
 	errorInfo.lineNo = 0;
 	v8::Local<v8::Value> exception = tryCatch.Exception();
-	if (!exception.IsEmpty())
+	if (tryCatch.HasTerminated())
+	{
+		v8::V8::CancelTerminateExecution(_pooledIso.isolate());
+		errorInfo.message = "Terminated";
+	}
+	else if (!exception.IsEmpty())
 	{
 		v8::String::Utf8Value str(exception);
 		errorInfo.message = *str;

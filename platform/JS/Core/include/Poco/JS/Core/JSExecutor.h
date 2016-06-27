@@ -129,6 +129,9 @@ public:
 		
 	void terminate();
 		/// Forcefully terminates the script.
+		///
+		/// Note that termination is asynchronous. The script may continue to run
+		/// for some time before actually terminating.
 		
 	void addModuleSearchPath(const std::string& path);
 		/// Adds a search path to the internal list of search paths.
