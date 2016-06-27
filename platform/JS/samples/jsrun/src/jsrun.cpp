@@ -252,6 +252,7 @@ protected:
 					jsExecutor.scriptError += Poco::delegate(this, &JSRunApp::reportError);
 					jsExecutor.run();
 					waitForTerminationRequest();
+					jsExecutor.terminate();
 				}
 				else
 				{
