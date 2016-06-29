@@ -17,6 +17,7 @@
 #include "Poco/Util/OptionSet.h"
 #include "Poco/Util/HelpFormatter.h"
 #include "Poco/Util/AbstractConfiguration.h"
+#include "Poco/Net/NetException.h"
 #include "Poco/OSP/OSPSubsystem.h"
 #include "Poco/OSP/ServiceRegistry.h"
 #include "Poco/ErrorHandler.h"
@@ -70,7 +71,18 @@ protected:
 		
 		void exception(const Poco::Exception& exc)
 		{
-			log(exc.displayText());
+			try
+			{
+				exc.rethrow();
+			}
+			catch (Poco::Net::ConnectionResetException&)
+			{
+				// ignore - getting too many of that from the web server
+			}
+			catch (Poco::Exception&)
+			{
+				log(exc.displayText());
+			}
 		}
 
 		void exception(const std::exception& exc)
