@@ -17,12 +17,12 @@
 #include "Poco/Util/OptionSet.h"
 #include "Poco/Util/HelpFormatter.h"
 #include "Poco/Util/AbstractConfiguration.h"
-#include "Poco/Net/NetException.h"
 #include "Poco/OSP/OSPSubsystem.h"
 #include "Poco/OSP/ServiceRegistry.h"
 #include "Poco/ErrorHandler.h"
 #include "Poco/Environment.h"
 #include "Poco/Format.h"
+#include <cstring>
 #include <iostream>
 
 
@@ -71,15 +71,9 @@ protected:
 		
 		void exception(const Poco::Exception& exc)
 		{
-			try
-			{
-				exc.rethrow();
-			}
-			catch (Poco::Net::ConnectionResetException&)
-			{
-				// ignore - getting too many of that from the web server
-			}
-			catch (Poco::Exception&)
+			// Don't log Poco::Net::ConnectionResetException - 
+			// getting too many of them from the web server.
+			if (std::strcmp(exc.name(), "Connection reset by peer") != 0)
 			{
 				log(exc.displayText());
 			}
