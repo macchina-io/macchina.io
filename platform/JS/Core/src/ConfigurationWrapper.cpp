@@ -199,14 +199,22 @@ void ConfigurationWrapper::set(const v8::FunctionCallbackInfo<v8::Value>& args)
 	v8::HandleScope scope(args.GetIsolate());
 	Poco::Util::AbstractConfiguration* pConfig = Wrapper::unwrapNative<Poco::Util::AbstractConfiguration>(args);
 	std::string key = toString(args[0]);
-
-	// use built-in JSON.stringify() 
-	v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
-	v8::Local<v8::Object> global = context->Global();
-	v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
-	v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
-	v8::Local<v8::Value> argv[1] = {args[1]};
-	std::string value = toString(stringify->Call(json, 1, argv));
+	std::string value;
+	
+	if (args[1]->IsObject())
+	{
+		// use built-in JSON.stringify() 
+		v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
+		v8::Local<v8::Object> global = context->Global();
+		v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
+		v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
+		v8::Local<v8::Value> argv[1] = {args[1]};
+		value = toString(stringify->Call(json, 1, argv));
+	}
+	else
+	{
+		value = toString(args[1]);
+	}
 
 	try
 	{
