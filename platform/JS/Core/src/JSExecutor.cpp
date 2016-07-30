@@ -98,6 +98,12 @@ JSExecutor::Ptr JSExecutor::current()
 }
 
 
+void JSExecutor::attachToCurrentThread()
+{
+	*_pCurrentExecutor = this;
+}
+
+
 void JSExecutor::stop()
 {
 }
@@ -175,7 +181,7 @@ void JSExecutor::runImpl()
 {
 	ScopedRunningCounter src(_running);
 
-	*_pCurrentExecutor = this;
+	attachToCurrentThread();
 	
 	v8::Isolate* pIsolate = _pooledIso.isolate();
 	v8::Isolate::Scope isoScope(pIsolate);
@@ -235,7 +241,6 @@ void JSExecutor::call(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>&
 	v8::Local<v8::Context> context(v8::Local<v8::Context>::New(pIsolate, _scriptContext));
 	v8::Context::Scope contextScope(context);
 
-	v8::V8::CancelTerminateExecution(pIsolate);
 	callInContext(function, receiver, argc, argv);
 }
 
@@ -243,6 +248,11 @@ void JSExecutor::call(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>&
 void JSExecutor::callInContext(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>& receiver, int argc, v8::Handle<v8::Value> argv[])
 {
 	ScopedRunningCounter src(_running);
+
+	attachToCurrentThread();
+
+	v8::Isolate* pIsolate = _pooledIso.isolate();
+	v8::V8::CancelTerminateExecution(pIsolate);
 
 	v8::TryCatch tryCatch;
 	function->Call(receiver, argc, argv);
@@ -256,6 +266,8 @@ void JSExecutor::callInContext(v8::Handle<v8::Function>& function, v8::Handle<v8
 void JSExecutor::call(v8::Persistent<v8::Object>& jsObject, const std::string& method, const std::string& args)
 {
 	ScopedRunningCounter src(_running);
+
+	attachToCurrentThread();
 
 	v8::Isolate* pIsolate = _pooledIso.isolate();
 	v8::Isolate::Scope isoScope(pIsolate);
@@ -305,6 +317,8 @@ void JSExecutor::call(v8::Persistent<v8::Function>& function)
 {
 	ScopedRunningCounter src(_running);
 
+	attachToCurrentThread();
+
 	v8::Isolate* pIsolate = _pooledIso.isolate();
 	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
@@ -330,6 +344,8 @@ void JSExecutor::call(v8::Persistent<v8::Function>& function)
 void JSExecutor::call(v8::Persistent<v8::Function>& function, v8::Persistent<v8::Array>& args)
 {
 	ScopedRunningCounter src(_running);
+
+	attachToCurrentThread();
 
 	v8::Isolate* pIsolate = _pooledIso.isolate();
 	v8::Isolate::Scope isoScope(pIsolate);
@@ -519,7 +535,7 @@ void JSExecutor::require(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 	if (args.Length() != 1) return;
 	std::string uri(Poco::JS::Core::Wrapper::toString(args[0]));
-	
+
 	JSExecutor* pCurrentExecutor = _pCurrentExecutor.get();
 	if (!pCurrentExecutor) return;
 
@@ -602,7 +618,6 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 		poco_assert (pStream);
 		// Create context for import
 		v8::Local<v8::ObjectTemplate> moduleTemplate(v8::Local<v8::ObjectTemplate>::New(pIsolate, _globalObject));
-		updateGlobals(moduleTemplate, pIsolate);
 
 		v8::Local<v8::Object> moduleObject = v8::Object::New(pIsolate);
 		moduleObject->Set(v8::String::NewFromUtf8(pIsolate, "id"), jsModuleURI);
@@ -637,7 +652,9 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 			{
 				// Note: we cannot use the exports handle from above as the script may 
 				// have assigned a new object to module.exports.
-				args.GetReturnValue().Set(moduleObject->Get(v8::String::NewFromUtf8(pIsolate, "exports")));
+				v8::Local<v8::Value> newExportsObject = moduleObject->Get(v8::String::NewFromUtf8(pIsolate, "exports"));
+				globalImports->Set(jsModuleURI, newExportsObject);
+				args.GetReturnValue().Set(newExportsObject);
 			}
 		}
 	}

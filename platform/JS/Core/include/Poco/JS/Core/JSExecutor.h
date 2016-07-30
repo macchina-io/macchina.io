@@ -191,6 +191,11 @@ protected:
 		/// the fully-qualified URI. If the module URI cannot be successfully resolved,
 		/// a Poco::NotFoundException will be thrown.
 
+	void attachToCurrentThread();
+		/// Attaches the JSExecutor to the current thread. Must be called before
+		/// any JavaScript code is executed if the JSExecutor is invoked
+		/// from a different thread it was created in.
+
 	void runImpl();
 	void setup();
 	void compile();
