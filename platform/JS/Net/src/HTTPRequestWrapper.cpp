@@ -398,6 +398,7 @@ public:
 	{
 		poco_assert (_pIsolate == _pExecutor->isolate());
 		
+		v8::Locker locker(_pIsolate);
 		v8::Isolate::Scope isoScope(_pIsolate);
 		v8::HandleScope handleScope(_pIsolate);
 
@@ -447,6 +448,7 @@ public:
 	{
 		poco_assert (_pIsolate == _pExecutor->isolate());
 
+		v8::Locker locker(_pIsolate);
 		v8::Isolate::Scope isoScope(_pIsolate);
 		v8::HandleScope handleScope(_pIsolate);
 

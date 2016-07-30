@@ -113,6 +113,7 @@ public:
 		try
 		{
 			v8::Isolate* pIsolate = _pExecutor->isolate();
+			v8::Locker locker(pIsolate);
 			v8::Isolate::Scope isoScope(pIsolate);
 			v8::HandleScope handleScope(pIsolate);
 
