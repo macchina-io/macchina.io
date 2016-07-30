@@ -75,7 +75,6 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 		if (path.empty() || path[0] != '/') scriptURI += "/";
 		scriptURI += path;
 
-		bool mustPrepare = true;
 		JSServletExecutorHolder::Ptr pExecutorHolder;
 		{
 			Poco::ScopedLockWithUnlock<JSServletExecutorCache> cacheLock(_cache);
@@ -85,7 +84,7 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 			{
 				cacheLock.unlock();
 				Poco::ScopedLock<JSServletExecutorHolder> lock(*pExecutorHolder);
-				if (mustPrepare) pExecutorHolder->executor()->prepareRequest(request, response);
+				pExecutorHolder->executor()->prepareRequest(request, response);
 				pExecutorHolder->executor()->handleRequest(request, response);
 			}
 			else
@@ -94,7 +93,6 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 				preprocess(request, response, scriptURI, resourceStream, servlet);
 				JSServletExecutor::Ptr pExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _moduleSearchPaths, _memoryLimit);
 				pExecutor->prepareRequest(request, response);
-				mustPrepare = false;
 				pExecutor->run();
 				pExecutorHolder = new JSServletExecutorHolder(pExecutor);
 				Poco::ScopedLock<JSServletExecutorHolder> lock(*pExecutorHolder);

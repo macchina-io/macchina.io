@@ -86,6 +86,7 @@ void JSServletExecutor::handleRequest(Poco::Net::HTTPServerRequest& request, Poc
 	Poco::StreamCopier::copyToString(request.stream(), _pRequestHolder->content());
 
 	v8::Isolate* pIsolate = _pooledIso.isolate();
+	v8::Locker locker(pIsolate);
 	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
 
