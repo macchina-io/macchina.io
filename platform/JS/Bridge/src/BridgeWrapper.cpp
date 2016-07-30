@@ -282,7 +282,6 @@ void BridgeHolder::setPersistent(const v8::Persistent<v8::Object>& jsObject)
 
 void BridgeHolder::clear()
 {
-	_persistent.ClearWeak();
 	_persistent.Reset();
 	try
 	{
