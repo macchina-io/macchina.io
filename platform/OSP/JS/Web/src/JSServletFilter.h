@@ -18,6 +18,7 @@
 #include "Poco/OSP/Web/WebFilterFactory.h"
 #include "Poco/Mutex.h"
 #include "JSServletExecutor.h"
+#include "JSServletExecutorCache.h"
 
 
 namespace Poco {
@@ -30,7 +31,7 @@ class JSServletFilter: public Poco::OSP::Web::WebFilter
 	/// A web filter for executing JavaScript servlets.
 {
 public:
-	JSServletFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args);
+	JSServletFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args, JSServletExecutorCache& cache);
 		/// Creates the JSServletFilter using the given BundleContext.
 	
 	// Poco::OSP::Web::WebFilter
@@ -43,10 +44,9 @@ protected:
 		
 private:
 	BundleContext::Ptr _pContext;
+	JSServletExecutorCache& _cache;
 	std::vector<std::string> _moduleSearchPaths;
 	Poco::UInt64 _memoryLimit;
-	JSServletExecutor::Ptr _pServletExecutor;
-	Poco::FastMutex _mutex;
 };
 
 
@@ -56,8 +56,11 @@ class JSServletFilterFactory: public Poco::OSP::Web::WebFilterFactory
 public:
 	Poco::OSP::Web::WebFilter* createFilter(const Poco::OSP::Web::WebFilter::Args& args)
 	{
-		return new JSServletFilter(context(), args);
+		return new JSServletFilter(context(), args, _cache);
 	}
+	
+private:
+	JSServletExecutorCache _cache;
 };
 
 

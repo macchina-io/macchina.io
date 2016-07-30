@@ -45,8 +45,9 @@ namespace
 }
 
 
-JSServletFilter::JSServletFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args):
+JSServletFilter::JSServletFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args, JSServletExecutorCache& cache):
 	_pContext(pContext),
+	_cache(cache),
 	_memoryLimit(1024*1024)
 {
 	Poco::OSP::Web::WebFilter::Args::const_iterator it = args.find("memoryLimit");
@@ -69,19 +70,40 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 	{
 		response.setContentType("text/html");
 
-		Poco::FastMutex::ScopedLock lock(_mutex);
-		
-		if (!_pServletExecutor)
+		std::string scriptURI("bndl://");
+		scriptURI += pBundle->symbolicName();
+		if (path.empty() || path[0] != '/') scriptURI += "/";
+		scriptURI += path;
+
+		bool mustPrepare = true;
+		JSServletExecutorHolder::Ptr pExecutorHolder;
 		{
-			std::string scriptURI("bndl://");
-			scriptURI += pBundle->symbolicName();
-			if (path.empty() || path[0] != '/') scriptURI += "/";
-			scriptURI += path;
-			std::string servlet;
-			preprocess(request, response, scriptURI, resourceStream, servlet);
-			_pServletExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _moduleSearchPaths, _memoryLimit, request, response);
+			Poco::ScopedLockWithUnlock<JSServletExecutorCache> cacheLock(_cache);
+
+			pExecutorHolder = _cache.get(scriptURI);
+			if (pExecutorHolder)
+			{
+				cacheLock.unlock();
+				Poco::ScopedLock<JSServletExecutorHolder> lock(*pExecutorHolder);
+				if (mustPrepare) pExecutorHolder->executor()->prepareRequest(request, response);
+				pExecutorHolder->executor()->handleRequest(request, response);
+			}
+			else
+			{
+				std::string servlet;
+				preprocess(request, response, scriptURI, resourceStream, servlet);
+				JSServletExecutor::Ptr pExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _moduleSearchPaths, _memoryLimit);
+				pExecutor->prepareRequest(request, response);
+				mustPrepare = false;
+				pExecutor->run();
+				pExecutorHolder = new JSServletExecutorHolder(pExecutor);
+				Poco::ScopedLock<JSServletExecutorHolder> lock(*pExecutorHolder);
+				_cache.add(scriptURI, pExecutorHolder);
+				cacheLock.unlock();
+				pExecutorHolder->executor()->handleRequest(request, response);
+			}
 		}
-		_pServletExecutor->run();
+	
 		if (!response.sent())
 		{
 			sendErrorResponse(response, "Script execution failed. See server log for details.");
@@ -103,9 +125,9 @@ void JSServletFilter::preprocess(Poco::Net::HTTPServerRequest& request, Poco::Ne
 	// The $servlet function is created to prevent the script from
 	// creating global variables. V8 does not seem to garbage collect
 	// global variables, resulting in memory leaks.
-	servlet += "function $servlet() {";
+	servlet += "function $servlet(request, response, form, session) { ";
 	Poco::StreamCopier::copyToString(resourceStream, servlet);
-	servlet += "}\n$servlet();";
+	servlet += " }\n";
 }
 
 

@@ -11,14 +11,12 @@
 
 
 #include "JSServletExecutor.h"
-#include "Poco/JS/Net/HTMLFormWrapper.h"
 #include "Poco/OSP/Web/WebSession.h"
 #include "Poco/OSP/Web/WebSessionManager.h"
 #include "Poco/OSP/ServiceRegistry.h"
 #include "Poco/OSP/ServiceFinder.h"
 #include "Poco/StreamCopier.h"
 #include "v8.h"
-#include <iostream>
 
 
 namespace Poco {
@@ -50,27 +48,19 @@ namespace
 }
 
 
-JSServletExecutor::JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response):
-	JSExecutor(pContext, pBundle, script, scriptURI, moduleSearchPaths, memoryLimit),
-	_pRequest(&request),
-	_pResponse(&response),
-	_pForm(new Poco::Net::HTMLForm(request, request.stream()))
+JSServletExecutor::JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit):
+	JSExecutor(pContext, pBundle, script, scriptURI, moduleSearchPaths, memoryLimit)
 {
 }
 
 
-void JSServletExecutor::reset(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
+void JSServletExecutor::prepareRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
-	_pRequest = &request;
 	_pResponse = &response;
+
+	_pRequestHolder = new Poco::JS::Net::RequestRefHolderImpl<Poco::Net::HTTPServerRequest>(request);
+	_pResponseHolder = new Poco::JS::Net::ResponseRefHolderImpl<Poco::Net::HTTPServerResponse>(response);
 	_pForm = new Poco::Net::HTMLForm(request, request.stream());
-}
-
-
-void JSServletExecutor::run()
-{
-	_pRequestHolder = new Poco::JS::Net::RequestRefHolderImpl<Poco::Net::HTTPServerRequest>(*_pRequest);
-	_pResponseHolder = new Poco::JS::Net::ResponseRefHolderImpl<Poco::Net::HTTPServerResponse>(*_pResponse);
 	_pSessionHolder = 0;
 
 	Poco::OSP::Web::WebSession::Ptr pSession;
@@ -81,71 +71,59 @@ void JSServletExecutor::run()
 		if (pWebSessionManagerRef)
 		{
 			Poco::OSP::Web::WebSessionManager::Ptr pWebSessionManager = pWebSessionManagerRef->castedInstance<Poco::OSP::Web::WebSessionManager>();
-			pSession = pWebSessionManager->find(sessionId, *_pRequest);
+			pSession = pWebSessionManager->find(sessionId, request);
 			if (pSession)
 			{
 				_pSessionHolder = new SessionHolder(context(), pSession);
 			}
 		}
 	}
-
-	JSExecutor::run();
-	_pRequestHolder = 0;
-	_pResponseHolder = 0;
-	_pSessionHolder = 0;
 }
 
 
-void JSServletExecutor::scriptCompleted()
+void JSServletExecutor::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
-	while (!v8::V8::IdleNotification()) {}
-}
+	Poco::StreamCopier::copyToString(request.stream(), _pRequestHolder->content());
 
-
-void JSServletExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
-{
-	JSExecutor::registerGlobals(global, pIsolate);
-	updateGlobals(global, pIsolate);
-}
-
-
-void JSServletExecutor::updateGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
-{
-	JSExecutor::updateGlobals(global, pIsolate);
-
+	v8::Isolate* pIsolate = _pooledIso.isolate();
+	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
 
+	v8::Local<v8::Context> context(v8::Local<v8::Context>::New(pIsolate, _scriptContext));
+	v8::Context::Scope contextScope(context);
+
+	v8::Local<v8::Object> global = context->Global();
+
+	v8::Local<v8::Function> servletFunction = v8::Local<v8::Function>::Cast(global->Get(v8::String::NewFromUtf8(pIsolate, "$servlet")));
+
 	Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
-	v8::Local<v8::Object> requestObject = httpRequestWrapper.wrapNative(pIsolate, &*_pRequestHolder);
-	global->Set(v8::String::NewFromUtf8(pIsolate, "request"), requestObject);
-
 	Poco::JS::Net::HTTPResponseWrapper httpResponseWrapper;
-	v8::Local<v8::Object> responseObject = httpResponseWrapper.wrapNative(pIsolate, &*_pResponseHolder);
-	global->Set(v8::String::NewFromUtf8(pIsolate, "response"), responseObject);
-
+	Poco::JS::Net::HTMLFormWrapper formWrapper;
 	SessionWrapper sessionWrapper;
+
+	v8::Handle<v8::Value> argv[4];
+	argv[0] = httpRequestWrapper.wrapNative(pIsolate, &*_pRequestHolder);
+	argv[1] = httpResponseWrapper.wrapNative(pIsolate, &*_pResponseHolder);
+	argv[2] = formWrapper.wrapNative(pIsolate, &*_pForm);
+
 	if (_pSessionHolder)
 	{
-		v8::Local<v8::Object> sessionObject = sessionWrapper.wrapNative(pIsolate, &*_pSessionHolder);
-		global->Set(v8::String::NewFromUtf8(pIsolate, "session"), sessionObject);
+		argv[3] = sessionWrapper.wrapNative(pIsolate, &*_pSessionHolder);
 	}
 	else
 	{
-		global->Set(v8::String::NewFromUtf8(pIsolate, "session"), v8::Null(pIsolate));
+		argv[3] = v8::Null(pIsolate);
 	}
 
-	Poco::JS::Net::HTMLFormWrapper formWrapper;
-	v8::Local<v8::Object> formObject = formWrapper.wrapNative(pIsolate, &*_pForm);
-	global->Set(v8::String::NewFromUtf8(pIsolate, "form"), formObject);
-	
-	Poco::StreamCopier::copyToString(_pRequest->stream(), _pRequestHolder->content());
+	v8::Local<v8::Value> receiver = global;
+	callInContext(servletFunction, receiver, 4, argv);
 }
 
 
 void JSServletExecutor::handleError(const ErrorInfo& errorInfo)
 {
 	JSExecutor::handleError(errorInfo);
-	if (!_pResponse->sent())
+	if (_pResponse && !_pResponse->sent())
 	{
 		_pResponse->setStatusAndReason(Poco::Net::HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
 		_pResponse->setChunkedTransferEncoding(false);

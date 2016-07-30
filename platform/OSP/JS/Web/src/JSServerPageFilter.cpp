@@ -21,8 +21,8 @@ namespace JS {
 namespace Web {
 
 
-JSServerPageFilter::JSServerPageFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args):
-	JSServletFilter(pContext, args)
+JSServerPageFilter::JSServerPageFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args, JSServletExecutorCache& cache):
+	JSServletFilter(pContext, args, cache)
 {
 }
 
@@ -35,10 +35,10 @@ void JSServerPageFilter::preprocess(Poco::Net::HTTPServerRequest& request, Poco:
 	// The $servlet function is created to prevent the script from
 	// creating global variables. V8 does not seem to garbage collect
 	// global variables, resulting in memory leaks.
-	servlet += "function $servlet() { ";
+	servlet += "function $servlet(request, response, form, session) { ";
 	servlet += page.handler().str();
-	servlet += "\nresponse.send();";
-	servlet += "}\n$servlet();";
+	servlet += "\nresponse.send();\n";
+	servlet += "}\n";
 	response.setContentType(page.get("contentType", "text/html"));
 }
 

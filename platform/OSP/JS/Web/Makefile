@@ -10,7 +10,7 @@ BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
 
 include $(POCO_BASE)/build/rules/global
 
-objects = JSServletExecutor \
+objects = JSServletExecutor JSServletExecutorCache \
 	JSServletFilter JSServerPageFilter \
 	JSSPage JSSPageReader \
 	SessionWrapper \
