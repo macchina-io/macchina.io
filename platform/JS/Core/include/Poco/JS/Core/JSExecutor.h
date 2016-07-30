@@ -197,6 +197,7 @@ protected:
 		/// from a different thread it was created in.
 
 	void runImpl();
+	void init();
 	void setup();
 	void compile();
 	void reportError(v8::TryCatch& tryCatch);

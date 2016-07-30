@@ -68,6 +68,7 @@ JSExecutor::JSExecutor(const std::string& source, const Poco::URI& sourceURI, Po
 	_memoryLimit(memoryLimit)
 {
 	_importStack.push_back(sourceURI);
+	init();
 }
 
 
@@ -78,6 +79,7 @@ JSExecutor::JSExecutor(const std::string& source, const Poco::URI& sourceURI, co
 	_memoryLimit(memoryLimit)
 {
 	_importStack.push_back(sourceURI);
+	init();
 }
 
 
@@ -89,6 +91,23 @@ JSExecutor::~JSExecutor()
 	_globalObject.Reset();
 	
 	WeakPersistentWrapperRegistry::cleanupIsolate(_pooledIso.isolate());
+}
+
+
+void JSExecutor::init()
+{
+	v8::Isolate* pIsolate = _pooledIso.isolate();
+
+	v8::ResourceConstraints resourceConstraints;
+#if POCO_JS_V8VERSION >= 0x031C0400
+	resourceConstraints.ConfigureDefaults(_memoryLimit, _memoryLimit, 1);
+#else
+	resourceConstraints.ConfigureDefaults(_memoryLimit, 1);
+#endif
+	if (!v8::SetResourceConstraints(pIsolate, &resourceConstraints))
+	{
+		throw JSException("Cannot set resource constraints");
+	}
 }
 
 
@@ -132,17 +151,6 @@ void JSExecutor::setup()
 	v8::Isolate* pIsolate = _pooledIso.isolate();
 	v8::HandleScope handleScope(pIsolate);
 
-	v8::ResourceConstraints resourceConstraints;
-#if POCO_JS_V8VERSION >= 0x031C0400
-	resourceConstraints.ConfigureDefaults(_memoryLimit, _memoryLimit, 1);
-#else
-	resourceConstraints.ConfigureDefaults(_memoryLimit, 1);
-#endif
-	if (!v8::SetResourceConstraints(pIsolate, &resourceConstraints))
-	{
-		throw JSException("Cannot set resource constraints");
-	}
-
 	v8::Local<v8::Context> globalContext = v8::Context::New(pIsolate);
 	v8::Context::Scope globalContextScope(globalContext);
 	_globalContext.Reset(pIsolate, globalContext);
@@ -184,6 +192,7 @@ void JSExecutor::runImpl()
 	attachToCurrentThread();
 	
 	v8::Isolate* pIsolate = _pooledIso.isolate();
+	v8::Locker locker(pIsolate);
 	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
 
@@ -202,6 +211,7 @@ void JSExecutor::runImpl()
 	{
 		updateGlobals(global, pIsolate);
 	}
+
 	v8::Local<v8::Context> scriptContext = v8::Local<v8::Context>::New(pIsolate, _scriptContext);
 	v8::Context::Scope contextScope(scriptContext);
 
@@ -235,6 +245,7 @@ void JSExecutor::run()
 void JSExecutor::call(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>& receiver, int argc, v8::Handle<v8::Value> argv[])
 {
 	v8::Isolate* pIsolate = _pooledIso.isolate();
+	v8::Locker locker(pIsolate);
 	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
 
@@ -270,6 +281,7 @@ void JSExecutor::call(v8::Persistent<v8::Object>& jsObject, const std::string& m
 	attachToCurrentThread();
 
 	v8::Isolate* pIsolate = _pooledIso.isolate();
+	v8::Locker locker(pIsolate);
 	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
 
@@ -320,6 +332,7 @@ void JSExecutor::call(v8::Persistent<v8::Function>& function)
 	attachToCurrentThread();
 
 	v8::Isolate* pIsolate = _pooledIso.isolate();
+	v8::Locker locker(pIsolate);
 	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
 
@@ -348,6 +361,7 @@ void JSExecutor::call(v8::Persistent<v8::Function>& function, v8::Persistent<v8:
 	attachToCurrentThread();
 
 	v8::Isolate* pIsolate = _pooledIso.isolate();
+	v8::Locker locker(pIsolate);
 	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
 
