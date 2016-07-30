@@ -67,7 +67,6 @@ JSExecutor::JSExecutor(const std::string& source, const Poco::URI& sourceURI, Po
 	_sourceURI(sourceURI),
 	_memoryLimit(memoryLimit)
 {
-	_importStack.push_back(sourceURI);
 	init();
 }
 
@@ -78,7 +77,6 @@ JSExecutor::JSExecutor(const std::string& source, const Poco::URI& sourceURI, co
 	_moduleSearchPaths(moduleSearchPaths),
 	_memoryLimit(memoryLimit)
 {
-	_importStack.push_back(sourceURI);
 	init();
 }
 
@@ -108,6 +106,8 @@ void JSExecutor::init()
 	{
 		throw JSException("Cannot set resource constraints");
 	}
+
+	_importStack.push_back(_sourceURI);
 }
 
 
