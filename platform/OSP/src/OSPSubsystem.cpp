@@ -61,6 +61,18 @@ void OSPSubsystem::cancelInit()
 }
 
 
+void OSPSubsystem::setBundleFilter(BundleFilter::Ptr pFilter)
+{
+	_pBundleFilter = pFilter;
+}
+
+	
+BundleFilter::Ptr OSPSubsystem::getBundleFilter() const
+{
+	return _pBundleFilter;
+}
+
+
 void OSPSubsystem::initialize(Poco::Util::Application& app)
 {
 	if (_cancelInit) return;
@@ -100,7 +112,7 @@ void OSPSubsystem::initialize(Poco::Util::Application& app)
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(languageTag));
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(*_pServiceRegistry, _systemEvents, dataPath));
 	_pBundleLoader     = new BundleLoader(*_pCodeCache, pBundleFactory, pBundleContextFactory, autoUpdateCodeCache);
-	_pBundleRepository = new BundleRepository(bundleRepository, *_pBundleLoader);
+	_pBundleRepository = new BundleRepository(bundleRepository, *_pBundleLoader, _pBundleFilter);
 	
 	BundleStreamFactory::registerFactory(*_pBundleLoader);
 	

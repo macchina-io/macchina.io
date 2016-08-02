@@ -10,7 +10,7 @@ include $(POCO_BASE)/build/rules/global
 
 objects = Bundle BundleProperties BundleEvent BundleManifest OSPException \
 	BundleActivator BundleEvents BundleStorage ServiceRegistry \
-	BundleContext BundleFile CodeCache Version SystemEvents \
+	BundleContext BundleFile BundleFilter CodeCache Version SystemEvents \
 	BundleDirectory BundleLoader LanguageTag VersionRange \
 	BundleRepository Service Properties QLExpr QLParser QLTokens \
 	ServiceEvent ServiceFactory ServiceRef \

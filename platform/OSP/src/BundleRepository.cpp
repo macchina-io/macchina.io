@@ -47,8 +47,9 @@ namespace Poco {
 namespace OSP {
 
 
-BundleRepository::BundleRepository(const std::string& path, BundleLoader& loader):
+BundleRepository::BundleRepository(const std::string& path, BundleLoader& loader, BundleFilter::Ptr pFilter):
 	_loader(loader),
+	_pFilter(pFilter),
 	_logger(Logger::get("com.osp.BundleRepository"))
 {
 #ifdef POCO_OS_FAMILY_UNIX
@@ -187,6 +188,17 @@ void BundleRepository::loadBundles(const std::string& path, BundleMap& bundles)
 void BundleRepository::loadBundle(const std::string& path, BundleMap& bundles)
 {
 	Bundle::Ptr pBundle(_loader.createBundle(path));
+	
+	if (_pFilter && !_pFilter->accept(pBundle))
+	{
+		std::string msg("Bundle rejected by filter: ");
+		msg += pBundle->symbolicName();
+		msg += "/";
+		msg += pBundle->version().toString();
+		_logger.information(msg);
+		return;
+	}
+	
 	const std::string& id = pBundle->symbolicName();
 	BundleMap::iterator it = bundles.find(id);
 	if (it != bundles.end())

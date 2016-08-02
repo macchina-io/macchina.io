@@ -28,6 +28,9 @@ public:
 
 	void testLoad();
 	void testInstall();
+	void testBundleFilterAcceptAll();
+	void testBundleFilterRejectAll();
+	void testBundleFilterAcceptOne();
 	
 	void setUp();
 	void tearDown();

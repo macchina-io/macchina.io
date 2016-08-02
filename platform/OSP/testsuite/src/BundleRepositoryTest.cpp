@@ -18,6 +18,7 @@
 #include "Poco/OSP/BundleFactory.h"
 #include "Poco/OSP/BundleContextFactory.h"
 #include "Poco/OSP/BundleLoader.h"
+#include "Poco/OSP/BundleFilter.h"
 #include "Poco/OSP/CodeCache.h"
 #include "Poco/OSP/ServiceRegistry.h"
 #include "Poco/OSP/LanguageTag.h"
@@ -44,6 +45,36 @@ using Poco::OSP::BundleEvent;
 using Poco::Path;
 using Poco::File;
 using Poco::Logger;
+
+
+class AcceptAllFilter: public Poco::OSP::BundleFilter
+{
+public:
+	bool accept(Bundle::Ptr pBundle)
+	{
+		return true;
+	}
+};
+
+
+class RejectAllFilter: public Poco::OSP::BundleFilter
+{
+public:
+	bool accept(Bundle::Ptr pBundle)
+	{
+		return false;
+	}
+};
+
+
+class AcceptOneFilter: public Poco::OSP::BundleFilter
+{
+public:
+	bool accept(Bundle::Ptr pBundle)
+	{
+		return pBundle->symbolicName() == "com.appinf.osp.bundle5";
+	}
+};
 
 
 BundleRepositoryTest::BundleRepositoryTest(const std::string& name): CppUnit::TestCase(name)
@@ -143,6 +174,111 @@ void BundleRepositoryTest::testInstall()
 }
 
 
+void BundleRepositoryTest::testBundleFilterAcceptAll()
+{
+	CodeCache cc("codeCache");
+	ServiceRegistry reg;
+	LanguageTag lang("en", "US");
+	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
+	Poco::OSP::SystemEvents systemEvents;
+	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
+	BundleLoader loader(cc, pBundleFactory, pBundleContextFactory);
+	BundleRepository repo(findBundleRepository(), loader, new AcceptAllFilter);
+	
+	repo.loadBundles();
+	
+	Bundle::Ptr pBundle1(loader.findBundle("com.appinf.osp.bundle1"));
+	Bundle::Ptr pBundle2(loader.findBundle("com.appinf.osp.bundle2"));
+	Bundle::Ptr pBundle3(loader.findBundle("com.appinf.osp.bundle3"));
+	Bundle::Ptr pBundle4(loader.findBundle("com.appinf.osp.bundle4"));
+	Bundle::Ptr pBundle5(loader.findBundle("com.appinf.osp.bundle5"));
+	Bundle::Ptr pBundle6(loader.findBundle("com.appinf.osp.bundle6"));
+	Bundle::Ptr pBundle7(loader.findBundle("com.appinf.osp.bundle7"));
+	Bundle::Ptr pBundle8(loader.findBundle("com.appinf.osp.bundle8"));
+	Bundle::Ptr pBundle9(loader.findBundle("com.appinf.osp.bundle9"));
+
+	assert (!pBundle1.isNull());
+	assert (!pBundle2.isNull());
+	assert (!pBundle3.isNull());
+	assert (!pBundle4.isNull());
+	assert (!pBundle5.isNull());
+	assert (!pBundle6.isNull());
+	assert (!pBundle7.isNull());
+	assert (!pBundle8.isNull());
+	assert (!pBundle9.isNull());
+}
+
+
+void BundleRepositoryTest::testBundleFilterRejectAll()
+{
+	CodeCache cc("codeCache");
+	ServiceRegistry reg;
+	LanguageTag lang("en", "US");
+	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
+	Poco::OSP::SystemEvents systemEvents;
+	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
+	BundleLoader loader(cc, pBundleFactory, pBundleContextFactory);
+	BundleRepository repo(findBundleRepository(), loader, new RejectAllFilter);
+	
+	repo.loadBundles();
+	
+	Bundle::Ptr pBundle1(loader.findBundle("com.appinf.osp.bundle1"));
+	Bundle::Ptr pBundle2(loader.findBundle("com.appinf.osp.bundle2"));
+	Bundle::Ptr pBundle3(loader.findBundle("com.appinf.osp.bundle3"));
+	Bundle::Ptr pBundle4(loader.findBundle("com.appinf.osp.bundle4"));
+	Bundle::Ptr pBundle5(loader.findBundle("com.appinf.osp.bundle5"));
+	Bundle::Ptr pBundle6(loader.findBundle("com.appinf.osp.bundle6"));
+	Bundle::Ptr pBundle7(loader.findBundle("com.appinf.osp.bundle7"));
+	Bundle::Ptr pBundle8(loader.findBundle("com.appinf.osp.bundle8"));
+	Bundle::Ptr pBundle9(loader.findBundle("com.appinf.osp.bundle9"));
+
+	assert (pBundle1.isNull());
+	assert (pBundle2.isNull());
+	assert (pBundle3.isNull());
+	assert (pBundle4.isNull());
+	assert (pBundle5.isNull());
+	assert (pBundle6.isNull());
+	assert (pBundle7.isNull());
+	assert (pBundle8.isNull());
+	assert (pBundle9.isNull());
+}
+
+
+void BundleRepositoryTest::testBundleFilterAcceptOne()
+{
+	CodeCache cc("codeCache");
+	ServiceRegistry reg;
+	LanguageTag lang("en", "US");
+	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
+	Poco::OSP::SystemEvents systemEvents;
+	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
+	BundleLoader loader(cc, pBundleFactory, pBundleContextFactory);
+	BundleRepository repo(findBundleRepository(), loader, new AcceptOneFilter);
+	
+	repo.loadBundles();
+	
+	Bundle::Ptr pBundle1(loader.findBundle("com.appinf.osp.bundle1"));
+	Bundle::Ptr pBundle2(loader.findBundle("com.appinf.osp.bundle2"));
+	Bundle::Ptr pBundle3(loader.findBundle("com.appinf.osp.bundle3"));
+	Bundle::Ptr pBundle4(loader.findBundle("com.appinf.osp.bundle4"));
+	Bundle::Ptr pBundle5(loader.findBundle("com.appinf.osp.bundle5"));
+	Bundle::Ptr pBundle6(loader.findBundle("com.appinf.osp.bundle6"));
+	Bundle::Ptr pBundle7(loader.findBundle("com.appinf.osp.bundle7"));
+	Bundle::Ptr pBundle8(loader.findBundle("com.appinf.osp.bundle8"));
+	Bundle::Ptr pBundle9(loader.findBundle("com.appinf.osp.bundle9"));
+
+	assert (pBundle1.isNull());
+	assert (pBundle2.isNull());
+	assert (pBundle3.isNull());
+	assert (pBundle4.isNull());
+	assert (!pBundle5.isNull());
+	assert (pBundle6.isNull());
+	assert (pBundle7.isNull());
+	assert (pBundle8.isNull());
+	assert (pBundle9.isNull());
+}
+
+
 void BundleRepositoryTest::setUp()
 {
 	Poco::AutoPtr<Poco::Channel> pChannel(new Poco::ConsoleChannel);
@@ -202,6 +338,9 @@ CppUnit::Test* BundleRepositoryTest::suite()
 
 	CppUnit_addTest(pSuite, BundleRepositoryTest, testLoad);
 	CppUnit_addTest(pSuite, BundleRepositoryTest, testInstall);
+	CppUnit_addTest(pSuite, BundleRepositoryTest, testBundleFilterAcceptAll);
+	CppUnit_addTest(pSuite, BundleRepositoryTest, testBundleFilterRejectAll);
+	CppUnit_addTest(pSuite, BundleRepositoryTest, testBundleFilterAcceptOne);
 
 	return pSuite;
 }

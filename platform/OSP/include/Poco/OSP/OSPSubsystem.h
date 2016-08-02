@@ -22,6 +22,7 @@
 
 #include "Poco/OSP/OSP.h"
 #include "Poco/OSP/SystemEvents.h"
+#include "Poco/OSP/BundleFilter.h"
 #include "Poco/Util/Subsystem.h"
 
 
@@ -67,16 +68,26 @@ public:
 
 	~OSPSubsystem();
 		/// Destroys the OSPSubsystem.
-		
+	
 	BundleLoader& bundleLoader();
 		/// Returns a reference to the bundle loader.
 		
-	void cancelInit();
-		/// Cancels initialization.	
-		
 	ServiceRegistry& serviceRegistry();
 		/// Returns a reference to the service registry.
-	
+
+	void cancelInit();
+		/// Cancels initialization.	
+
+	void setBundleFilter(BundleFilter::Ptr pFilter);
+		/// Sets the BundleFilter to be used by the BundleRepository.
+		/// May be set to a null pointer to disable filtering.
+		///
+		/// Must be called before initialize().
+		
+	BundleFilter::Ptr getBundleFilter() const;
+		/// Returns the BundleFilter used by the BundleRepository.
+		/// May return a null pointer if no BundleFilter has been set.
+
 	// Subsystem
 	void initialize(Poco::Util::Application& app);		
 	void uninitialize();
@@ -98,6 +109,7 @@ private:
 	ServiceRegistry*  _pServiceRegistry;
 	BundleLoader*     _pBundleLoader;
 	BundleRepository* _pBundleRepository;
+	BundleFilter::Ptr _pBundleFilter;
 	SystemEvents      _systemEvents;
 	bool              _clearCache;
 	bool              _cancelInit;
@@ -115,7 +127,7 @@ inline BundleLoader& OSPSubsystem::bundleLoader()
 	return *_pBundleLoader;
 }
 
-	
+
 inline ServiceRegistry& OSPSubsystem::serviceRegistry()
 {
 	poco_check_ptr (_pServiceRegistry);

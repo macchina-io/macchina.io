@@ -22,6 +22,7 @@
 
 #include "Poco/OSP/OSP.h"
 #include "Poco/OSP/Bundle.h"
+#include "Poco/OSP/BundleFilter.h"
 #include "Poco/Logger.h"
 #include <vector>
 #include <map>
@@ -43,9 +44,9 @@ class OSP_API BundleRepository
 	/// to log non-fatal errors.
 {
 public:
-	BundleRepository(const std::string& path, BundleLoader& loader);
+	BundleRepository(const std::string& path, BundleLoader& loader, BundleFilter::Ptr pBundleFilter = 0);
 		/// Creates the BundleRepository, using the given
-		/// path and BundleLoader.
+		/// path and BundleLoader, and optional BundleFilter.
 		///
 		/// The path argument may contain a single path, or a list
 		/// of paths, separated by the platform's path separator
@@ -122,6 +123,7 @@ private:
 	
 	std::vector<std::string> _paths;
 	BundleLoader&            _loader;
+	BundleFilter::Ptr        _pFilter;
 	Poco::Logger&            _logger;
 };
 
