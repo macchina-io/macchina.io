@@ -223,7 +223,7 @@ void SchedulerExtensionPoint::scheduleTasks()
 				{
 					it->pExecutor->run();
 					CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(it->pExecutor, "start");
-					it->pExecutor->timer().schedule(pStartTask, Poco::Clock());
+					it->pExecutor->schedule(pStartTask);
 				}
 			}
 		}
@@ -294,7 +294,7 @@ void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundl
 	{
 		task.pExecutor->run();
 		CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(task.pExecutor, "start");
-		task.pExecutor->timer().schedule(pStartTask, Poco::Clock());
+		task.pExecutor->schedule(pStartTask);
 		pStartTask->wait();
 	}
 }
@@ -311,7 +311,7 @@ void SchedulerExtensionPoint::onBundleStopped(const void* pSender, Poco::OSP::Bu
 		{
 			_pContext->logger().information(Poco::format("Stopping script %s.", it->pExecutor->uri().toString()));
 			CallExportedFunctionTask::Ptr pStopTask = new CallExportedFunctionTask(it->pExecutor, "stop");
-			it->pExecutor->timer().schedule(pStopTask, Poco::Clock());
+			it->pExecutor->schedule(pStopTask);
 			pStopTask->wait();
 			it->pExecutor->stop();
 			it = _tasks.erase(it);

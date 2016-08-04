@@ -77,6 +77,9 @@ public:
 	{
 		_mutex.unlock();
 	}
+	
+	static JSServletExecutorCache& instance();
+		/// Returns the shared instance of the JSServletExecutorCache.
 };
 
 

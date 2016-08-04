@@ -54,7 +54,24 @@ public:
 	}
 		
 	void stop(BundleContext::Ptr pContext)
+	{	
+		cleanupCache();
+	}
+	
+protected:
+	void cleanupCache()
 	{
+		JSServletExecutorCache& cache = JSServletExecutorCache::instance();
+		std::set<std::string> keys = cache.getAllKeys();
+		for (std::set<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
+		{
+			JSServletExecutorHolder::Ptr pHolder = cache.get(*it);
+			if (pHolder)
+			{
+				pHolder->executor()->stop();
+			}
+		}
+		JSServletExecutorCache::instance().clear();
 	}
 };
 

@@ -11,6 +11,7 @@
 
 
 #include "JSServletExecutorCache.h"
+#include "Poco/SingletonHolder.h"
 
 
 namespace Poco {
@@ -38,6 +39,18 @@ JSServletExecutorHolder::JSServletExecutorHolder(JSServletExecutor::Ptr pExecuto
 JSServletExecutorCache::JSServletExecutorCache(long size):
 	Poco::LRUCache<std::string, JSServletExecutorHolder, Poco::Mutex>(size)
 {
+}
+
+
+namespace
+{
+	static Poco::SingletonHolder<JSServletExecutorCache> sh;
+}
+
+
+JSServletExecutorCache& JSServletExecutorCache::instance()
+{
+	return *sh.get();
 }
 
 

@@ -78,6 +78,7 @@ void JSExtensionPoint::onBundleStopped(const void* pSender, Poco::OSP::BundleEve
 		if ((*it)->bundle() == pBundle)
 		{
 			_pContext->logger().information(Poco::format("Stopping script %s.", (*it)->uri().toString()));
+			(*it)->stop();
 			it = _executors.erase(it);
 		}
 		else ++it;

@@ -302,7 +302,7 @@ void BridgeHolder::fireEvent(const std::string& event, const std::string& args)
 		if (pTimedExecutor)
 		{
 			EventTask::Ptr pEventTask = new EventTask(pTimedExecutor, _pIsolate, _persistent, event, args);
-			pTimedExecutor->timer().schedule(pEventTask, Poco::Clock());
+			pTimedExecutor->schedule(pEventTask);
 		}
 	}
 }

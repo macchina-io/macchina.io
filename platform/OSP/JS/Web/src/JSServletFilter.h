@@ -54,13 +54,18 @@ class JSServletFilterFactory: public Poco::OSP::Web::WebFilterFactory
 	/// The factory for JSServletFilter.
 {
 public:
+	JSServletFilterFactory():
+		_cache(JSServletExecutorCache::instance())
+	{
+	}
+
 	Poco::OSP::Web::WebFilter* createFilter(const Poco::OSP::Web::WebFilter::Args& args)
 	{
 		return new JSServletFilter(context(), args, _cache);
 	}
 	
 private:
-	JSServletExecutorCache _cache;
+	JSServletExecutorCache& _cache;
 };
 
 

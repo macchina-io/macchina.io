@@ -15,6 +15,7 @@
 
 
 #include "JSServletFilter.h"
+#include "JSServletExecutorCache.h"
 
 
 namespace Poco {
@@ -39,14 +40,18 @@ class JSServerPageFilterFactory: public Poco::OSP::Web::WebFilterFactory
 	/// The factory for JSServerPageFilter.
 {
 public:
+	JSServerPageFilterFactory():
+		_cache(JSServletExecutorCache::instance())
+	{
+	}
+
 	Poco::OSP::Web::WebFilter* createFilter(const Poco::OSP::Web::WebFilter::Args& args)
 	{
 		return new JSServerPageFilter(context(), args, _cache);
 	}
-	
-	
+
 private:
-	JSServletExecutorCache _cache;
+	JSServletExecutorCache& _cache;
 };
 
 

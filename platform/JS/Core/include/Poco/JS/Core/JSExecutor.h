@@ -50,9 +50,6 @@ class JSCore_API JSExecutor: public Poco::Runnable, public Poco::RefCountedObjec
 public:
 	typedef Poco::AutoPtr<JSExecutor> Ptr;
 
-	Poco::BasicEvent<void> stopped;
-		/// Fired when the executor has been stopped.
-
 	enum 
 	{
 		DEFAULT_MEMORY_LIMIT = 1024*1024
@@ -64,6 +61,9 @@ public:
 		std::string message;
 		int lineNo;
 	};
+
+	Poco::BasicEvent<void> stopped;
+		/// Fired when the executor has been stopped.
 	
 	Poco::BasicEvent<const ErrorInfo> scriptError;
 		/// Fired when the script terminates with an error.
@@ -108,9 +108,6 @@ public:
 		///
 		/// Sets up a script context scope for the call.
 
-	void includeScript(const std::string& uri);
-		/// Includes another script.
-		
 	static Ptr current();
 		/// Returns the JSExecutor for the current thread.
 	
@@ -122,17 +119,35 @@ public:
 
 	v8::Persistent<v8::Context>& scriptContext();
 		/// Returns the JSExecutor's script context.
-	
+
+	bool isRunning() const;
+		/// Returns true if the JSExecutor is currently executing a script.
+		
 	virtual void stop();
-		/// Stops the script's event loop, if it has one (such as TimedJSExecutor).
-		/// Does nothing if the script does not have an event loop.
+		/// Stops the script's execution.
+		///
+		/// After calling stop(), the JSExecutor can no longer be
+		/// used to execute a script by calling run() or call().
+		///
+		/// Will also fire the stopped event.
 		
 	void terminate();
-		/// Forcefully terminates the script.
+		/// Terminate the currently running script.
 		///
 		/// Note that termination is asynchronous. The script may continue to run
 		/// for some time before actually terminating.
+		///
+		/// After calling terminate(), the JSExecutor is still usable and
+		/// execution can be resumed at a later time by calling
+		/// run() or call().
 		
+	void cancelTerminate();
+		/// Cancels a previous terminate() call.
+		
+	bool isTerminating() const;
+		/// Returns true if the script is currently terminating due
+		/// to a call to terminate().
+	
 	void addModuleSearchPath(const std::string& path);
 		/// Adds a search path to the internal list of search paths.
 		///
@@ -145,9 +160,6 @@ public:
 		/// Module registries must be added before the script
 		/// is executed.
 		
-	bool running() const;
-		/// Returns true if the JSExecutor is currently executing a script.
-	
 	// Poco::Runnable
 	void run();
 		/// Runs the script.
@@ -177,6 +189,9 @@ protected:
 	static void require(const v8::FunctionCallbackInfo<v8::Value>& args);
 		/// Implements the JavaScript require function to import a module.
 
+	void includeScript(const std::string& uri);
+		/// Includes another script.
+
 	void importModule(const v8::FunctionCallbackInfo<v8::Value>& args, const std::string& uri);
 		/// Imports a JavaScript module.
 
@@ -198,6 +213,7 @@ protected:
 
 	void runImpl();
 	void setup();
+	void cleanup();
 	void compile();
 	void reportError(v8::TryCatch& tryCatch);
 	void reportError(const ErrorInfo& errorInfo);
@@ -245,19 +261,25 @@ public:
 		
 	~TimedJSExecutor();
 		/// Destroys the TimedJSExecutor.
-	
-	Poco::Util::Timer& timer();	
-		/// Returns the executor's timer.
-	
-	void stop();
-		/// Stops the executor and cancels all timer events.
+
+	void schedule(Poco::Util::TimerTask::Ptr pTask);
+		/// Schedules a task using the timer-based event loop.
+			
+	void schedule(Poco::Util::TimerTask::Ptr pTask, const Poco::Clock& clock);
+		/// Schedules a task using the timer-based event loop.
 	
 	// JSExecutor
 	void run();
 		/// Runs the script as timer task. Note that run() will return immediately.
 		/// The script will be executed within the timer thread.
+
+	void stop();
+		/// Stops the executor and cancels all timer events.
 	
 protected:
+	Poco::Util::Timer& timer();	
+		/// Returns the executor's timer.
+
 	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
 	static void setImmediate(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void setTimeout(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -266,6 +288,8 @@ protected:
 	
 private:
 	Poco::Util::Timer _timer;
+	bool _stopped;
+	Poco::FastMutex _mutex;
 	
 	friend class RunScriptTask;
 	friend class CallFunctionTask;
@@ -299,7 +323,7 @@ inline v8::Persistent<v8::Context>& JSExecutor::scriptContext()
 }
 
 
-inline bool JSExecutor::running() const
+inline bool JSExecutor::isRunning() const
 {
 	return !!_running;
 }

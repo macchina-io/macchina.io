@@ -42,7 +42,7 @@ public:
 	~PooledIsolate();
 		/// Destroys the PooledIsolate.
 		
-	v8::Isolate* isolate();
+	v8::Isolate* isolate() const;
 		/// Returns the underlying v8::Isolate.
 		
 	static PooledIsolate* fromIsolate(v8::Isolate* pIsolate);
@@ -100,7 +100,7 @@ private:
 //
 // inlines
 //
-inline v8::Isolate* PooledIsolate::isolate()
+inline v8::Isolate* PooledIsolate::isolate() const
 {
 	return _pIsolate;
 }

@@ -35,6 +35,11 @@ namespace JS {
 namespace Core {
 
 
+//
+// ScopedRunningCounter
+//
+
+
 class ScopedRunningCounter
 {
 public:
@@ -86,9 +91,16 @@ JSExecutor::~JSExecutor()
 	_script.Reset();
 	_scriptContext.Reset();
 	_globalContext.Reset();
-	_globalObject.Reset();
+	_globalObject.Reset();	
 	
-	WeakPersistentWrapperRegistry::cleanupIsolate(_pooledIso.isolate());
+	try
+	{
+		cleanup();
+	}
+	catch (Poco::Exception&)
+	{
+		poco_unexpected();
+	}
 }
 
 
@@ -125,12 +137,29 @@ void JSExecutor::attachToCurrentThread()
 
 void JSExecutor::stop()
 {
+	terminate();
+	
+	stopped(this);
+
+	cleanup();
 }
 
 
 void JSExecutor::terminate()
 {
 	v8::V8::TerminateExecution(_pooledIso.isolate());
+}
+
+
+void JSExecutor::cancelTerminate()
+{
+	v8::V8::CancelTerminateExecution(_pooledIso.isolate());
+}
+
+
+bool JSExecutor::isTerminating() const
+{
+	return v8::V8::IsExecutionTerminating(_pooledIso.isolate());
 }
 
 
@@ -161,6 +190,15 @@ void JSExecutor::setup()
 
 	v8::Local<v8::Context> scriptContext = v8::Context::New(pIsolate, 0, globalObject);
 	_scriptContext.Reset(pIsolate, scriptContext);
+}
+
+
+void JSExecutor::cleanup()
+{
+	_importStack.clear();
+	_imports.clear();
+	
+	WeakPersistentWrapperRegistry::cleanupIsolate(_pooledIso.isolate());
 }
 
 
@@ -263,7 +301,6 @@ void JSExecutor::callInContext(v8::Handle<v8::Function>& function, v8::Handle<v8
 	attachToCurrentThread();
 
 	v8::Isolate* pIsolate = _pooledIso.isolate();
-	v8::V8::CancelTerminateExecution(pIsolate);
 
 	v8::TryCatch tryCatch;
 	function->Call(receiver, argc, argv);
@@ -293,7 +330,6 @@ void JSExecutor::call(v8::Persistent<v8::Object>& jsObject, const std::string& m
 
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(pIsolate, jsObject));
 
-	v8::V8::CancelTerminateExecution(pIsolate);
 	if (localObject->Has(jsMethod))
 	{
 		v8::Local<v8::Value> jsValue = localObject->Get(jsMethod);
@@ -341,7 +377,6 @@ void JSExecutor::call(v8::Persistent<v8::Function>& function)
 
 	v8::Local<v8::Object> global = context->Global();
 
-	v8::V8::CancelTerminateExecution(pIsolate);
 	v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(pIsolate, function));
 	v8::Local<v8::Value> argv[1];
 	v8::TryCatch tryCatch;
@@ -385,7 +420,6 @@ void JSExecutor::call(v8::Persistent<v8::Function>& function, v8::Persistent<v8:
 		}
 	}
 
-	v8::V8::CancelTerminateExecution(pIsolate);
 	v8::TryCatch tryCatch;
 	localFunction->Call(global, argsLength, argv);
 	if (tryCatch.HasCaught())
@@ -485,7 +519,6 @@ void JSExecutor::reportError(v8::TryCatch& tryCatch)
 	v8::Local<v8::Value> exception = tryCatch.Exception();
 	if (tryCatch.HasTerminated())
 	{
-		v8::V8::CancelTerminateExecution(_pooledIso.isolate());
 		errorInfo.message = "Terminated";
 	}
 	else if (!exception.IsEmpty())
@@ -812,6 +845,7 @@ public:
 			if (_pExecutor)
 			{
 				_pExecutor->stopped -= Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
+				_pExecutor = 0;
 			}
 		}
 		catch (...)
@@ -836,8 +870,8 @@ public:
 		if (_pExecutor)
 		{
 			_pExecutor->stopped -= Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
+			_pExecutor = 0;
 		}
-		_pExecutor = 0;
 	}
 	
 private:
@@ -853,7 +887,8 @@ private:
 
 
 TimedJSExecutor::TimedJSExecutor(const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit):
-	JSExecutor(source, sourceURI, moduleSearchPaths, memoryLimit)
+	JSExecutor(source, sourceURI, moduleSearchPaths, memoryLimit),
+	_stopped(false)
 {
 }
 
@@ -862,8 +897,7 @@ TimedJSExecutor::~TimedJSExecutor()
 {
 	try
 	{
-		_timer.cancel(true);
-		stopped(this);
+		stop();
 	}
 	catch (...)
 	{
@@ -891,10 +925,42 @@ void TimedJSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8:
 }
 
 
+void TimedJSExecutor::schedule(Poco::Util::TimerTask::Ptr pTask)
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+	
+	if (!_stopped)
+	{
+		_timer.schedule(pTask, Poco::Clock());
+	}
+}
+
+
+void TimedJSExecutor::schedule(Poco::Util::TimerTask::Ptr pTask, const Poco::Clock& clock)
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	if (!_stopped)
+	{
+		_timer.schedule(pTask, clock);
+	}
+}
+
+
 void TimedJSExecutor::stop()
 {
+	terminate();
+
+	{
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		_stopped = true;
+	}
+
 	_timer.cancel(true);
 	stopped(this);
+
+	cleanup();
 }
 
 

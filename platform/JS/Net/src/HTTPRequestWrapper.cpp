@@ -507,14 +507,14 @@ public:
 			Poco::StreamCopier::copyToString(istr, responseBody);
 			if (pTimedJSExecutor)
 			{
-				pTimedJSExecutor->timer().schedule(new AsyncRequestCompletionTask(_pIsolate, _pExecutor, pResponse, responseBody, _function), Poco::Clock());
+				pTimedJSExecutor->schedule(new AsyncRequestCompletionTask(_pIsolate, _pExecutor, pResponse, responseBody, _function));
 			}
 		}
 		catch (Poco::Exception& exc)
 		{
 			if (pTimedJSExecutor)
 			{
-				pTimedJSExecutor->timer().schedule(new AsyncRequestFailedTask(_pIsolate, _pExecutor, exc.clone(), _function), Poco::Clock());
+				pTimedJSExecutor->schedule(new AsyncRequestFailedTask(_pIsolate, _pExecutor, exc.clone(), _function));
 			}
 		}
 		catch (...)
