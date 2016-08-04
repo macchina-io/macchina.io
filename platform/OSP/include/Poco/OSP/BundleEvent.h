@@ -22,6 +22,7 @@
 
 #include "Poco/OSP/OSP.h"
 #include "Poco/OSP/Bundle.h"
+#include "Poco/Exception.h"
 
 
 namespace Poco {
@@ -45,11 +46,16 @@ public:
 		EV_BUNDLE_STOPPED,
 		EV_BUNDLE_UNINSTALLING,
 		EV_BUNDLE_UNINSTALLED,
-		EV_BUNDLE_UNLOADED
+		EV_BUNDLE_UNLOADED,
+		EV_BUNDLE_FAILED
 	};
 	
 	BundleEvent(Bundle::Ptr pBundle, EventKind what);
 		/// Creates the BundleEvent.
+
+	BundleEvent(Bundle* pBundle, const Poco::Exception& exception);
+		/// Creates the BundleEvent with the given exception,
+		/// and state EV_BUNDLE_FAILED.
 
 	BundleEvent(Bundle* pBundle, EventKind what);
 		/// Creates the BundleEvent.
@@ -68,12 +74,17 @@ public:
 		
 	EventKind what() const;
 		/// Returns the reason of the event.
+		
+	Poco::Exception* exception() const;
+		/// Returns the exception if starting the bundle failed,
+		/// or null if no exception is available.
 
 private:
 	BundleEvent();
 	
-	Bundle::Ptr _pBundle;
-	EventKind   _what;
+	Bundle::Ptr      _pBundle;
+	EventKind        _what;
+	Poco::Exception* _pException;
 };
 
 
@@ -89,6 +100,12 @@ inline Bundle::ConstPtr BundleEvent::bundle() const
 inline BundleEvent::EventKind BundleEvent::what() const
 {
 	return _what;
+}
+
+
+inline Poco::Exception* BundleEvent::exception() const
+{
+	return _pException;
 }
 
 

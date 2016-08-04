@@ -197,7 +197,28 @@ void Bundle::start()
 	StateChange stateChange(_state, BUNDLE_STARTING);
 	BundleEvent startingEvent(this, BundleEvent::EV_BUNDLE_STARTING);
 	events().bundleStarting(this, startingEvent);
-	_loader.startBundle(this);
+	try
+	{
+		_loader.startBundle(this);
+	}
+	catch (Poco::Exception& exc)
+	{
+		BundleEvent failedEvent(this, exc);
+		events().bundleFailed(this, failedEvent);
+		throw;
+	}
+	catch (std::exception& exc)
+	{
+		BundleEvent failedEvent(this, Poco::SystemException(exc.what()));
+		events().bundleFailed(this, failedEvent);
+		throw;
+	}
+	catch (...)
+	{
+		BundleEvent failedEvent(this, Poco::UnhandledException("unknown exception"));
+		events().bundleFailed(this, failedEvent);
+		throw;
+	}
 	stateChange.commit(BUNDLE_ACTIVE);
 	BundleEvent startedEvent(this, BundleEvent::EV_BUNDLE_STARTED);
 	events().bundleStarted(this, startedEvent);

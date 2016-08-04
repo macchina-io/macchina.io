@@ -80,6 +80,11 @@ public:
 		/// Fired after a bundle has been successfully unloaded.
 		/// The bundle is still in "installed" or "resolved" state.
 		
+	Poco::BasicEvent<BundleEvent> bundleFailed;
+		/// Fired after a bundle has failed to start due to
+		/// an exception being thrown by its BundleActivator.
+		/// The bundle is still in "resolved" state.
+		
 	BundleEvents();
 		/// Creates a BundleEvents object.
 		
