@@ -168,6 +168,9 @@ public:
 
 	void removeBundle(Bundle::ConstPtr pBundle);
 		/// Removes all mappings from the given bundle.
+		
+	void uncacheBundleResources(Bundle::ConstPtr pBundle);
+		/// Removes all cached resources from the given bundle form the cache.
 
 	void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, bool secure);
 		/// Handles the given request. Secure specifies whether the request has been

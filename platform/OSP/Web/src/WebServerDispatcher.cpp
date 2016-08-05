@@ -550,10 +550,34 @@ void WebServerDispatcher::removeBundle(Bundle::ConstPtr pBundle)
 }
 
 
+void WebServerDispatcher::uncacheBundleResources(Bundle::ConstPtr pBundle)
+{
+	std::string cachePath = "//";
+	cachePath += pBundle->symbolicName();
+	cachePath += "/";
+	
+	Poco::FastMutex::ScopedLock lock(_resourceCacheMutex);
+
+	ResourceCache::iterator it = _resourceCache.begin();
+	ResourceCache::iterator end = _resourceCache.end();
+	while (it != end)
+	{
+		if (it->first.compare(0, cachePath.size(), cachePath) == 0)
+		{
+			ResourceCache::iterator itDel = it;
+			++it;
+			_resourceCache.erase(itDel);
+		}
+		else ++it;
+	}
+}
+
+
 void WebServerDispatcher::onBundleStopping(const void*, BundleEvent& ev)
 {
 	Bundle::ConstPtr pBundle = ev.bundle();
 	removeBundle(pBundle);
+	uncacheBundleResources(pBundle);
 }
 
 
