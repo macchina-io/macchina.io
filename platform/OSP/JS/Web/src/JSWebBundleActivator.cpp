@@ -13,22 +13,12 @@
 #include "Poco/OSP/BundleActivator.h"
 #include "Poco/OSP/BundleContext.h"
 #include "Poco/OSP/Bundle.h"
-#include "Poco/OSP/ServiceRegistry.h"
-#include "Poco/OSP/ServiceFinder.h"
-#include "Poco/OSP/ExtensionPointService.h"
-#include "Poco/OSP/PreferencesService.h"
-#include "Poco/RemotingNG/ORB.h"
-#include "Poco/RemotingNG/RemoteObject.h"
-#include "Poco/JS/Bridge/Listener.h"
-#include "Poco/JS/Bridge/BridgeWrapper.h"
+#include "Poco/OSP/BundleEvents.h"
 #include "Poco/StringTokenizer.h"
 #include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
-#include "Poco/OSP/JS/JSExecutor.h"
-#include "Poco/OSP/JS/JSExtensionPoint.h"
 #include "JSServletFilter.h"
 #include "JSServerPageFilter.h"
-#include "v8.h"
 
 
 namespace Poco {
@@ -50,15 +40,37 @@ public:
 	
 	void start(Poco::OSP::BundleContext::Ptr pContext)
 	{
-
+		pContext->events().bundleStopping += Poco::delegate(this, &JSWebBundleActivator::onBundleStopping);
 	}
 		
 	void stop(BundleContext::Ptr pContext)
 	{	
+		pContext->events().bundleStopping -= Poco::delegate(this, &JSWebBundleActivator::onBundleStopping);
+
 		cleanupCache();
 	}
 	
 protected:
+	void onBundleStopping(const void*, BundleEvent& ev)
+	{
+		uncacheScripts(ev.bundle());
+	}
+
+	void uncacheScripts(Bundle::Ptr pBundle)
+	{
+		JSServletExecutorCache& cache = JSServletExecutorCache::instance();
+		std::set<std::string> keys = cache.getAllKeys();
+		for (std::set<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
+		{
+			JSServletExecutorHolder::Ptr pHolder = cache.get(*it);
+			if (pHolder && pHolder->executor()->uri().getAuthority() == pBundle->symbolicName())
+			{
+				pHolder->executor()->stop();
+				cache.remove(*it);
+			}
+		}
+	}
+	
 	void cleanupCache()
 	{
 		JSServletExecutorCache& cache = JSServletExecutorCache::instance();
