@@ -496,8 +496,9 @@ and implementation file.
 !output/includeRoot
 
 Specifies the base directory for all include
-files. Must be specified, unless <*output/flatIncludes*> is set to <[true]>.
-Not setting this correctly may cause non-compilable code being generated.
+files. Should be specified, unless <*output/flatIncludes*> is set to <[true]>.
+Not setting this correctly may cause non-compilable code being generated in
+certain cases. See also <*output/flatIncludes*> below.
 
 !output/flatIncludes
 
@@ -560,7 +561,7 @@ elements as follows resolves that issue:
         <flatIncludes>false</flatIncludes>
         ...
     </output>
-
+----
 
 !output/library
 
