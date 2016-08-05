@@ -85,6 +85,9 @@ public:
 
 	IoT::DeviceStatus::DeviceStatus status() const;
 		/// Returns the current device status.
+		///
+		/// Only unacknowledged status updates are considered in determining
+		/// the current status.
 
 protected:
 	void event__statusChanged(const IoT::DeviceStatus::DeviceStatusChange& data);

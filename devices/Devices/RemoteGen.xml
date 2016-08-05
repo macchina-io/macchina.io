@@ -32,6 +32,9 @@
 			           
 			           SPDX-License-Identifier: Apache-2.0</copyright>
 			<mode>server</mode>
+			<osp>
+				<enable>true</enable>
+			</osp>
 			<timestamps>false</timestamps>
 			<includeRoot>include</includeRoot>
 			<flatIncludes>false</flatIncludes>

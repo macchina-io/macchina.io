@@ -93,6 +93,9 @@ public:
 
 	virtual IoT::DeviceStatus::DeviceStatus status() const = 0;
 		/// Returns the current device status.
+		///
+		/// Only unacknowledged status updates are considered in determining
+		/// the current status.
 
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.

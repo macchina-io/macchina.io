@@ -19,6 +19,9 @@
 			           All rights reserved.
 			           
 			           SPDX-License-Identifier: Apache-2.0</copyright>
+			<osp>
+				<enable>true</enable>
+			</osp>
 			<mode>server</mode>
 			<timestamps>false</timestamps>
 			<includeRoot>include</includeRoot>
