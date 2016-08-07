@@ -263,7 +263,7 @@ Bundle::Ptr BundleRepository::installBundle(std::istream& istr, const std::strin
 	p.setFileName(tempBundleName());
 
 	File f(p);	
-	Poco::FileOutputStream ostr(f.getPath());
+	Poco::FileOutputStream ostr(f.path());
 	if (ostr.good())
 	{
 		try
@@ -271,7 +271,7 @@ Bundle::Ptr BundleRepository::installBundle(std::istream& istr, const std::strin
 			StreamCopier::copyStream(istr, ostr);
 			ostr.close();
 
-			Bundle::Ptr pBundle(_loader.createBundle(f.getPath()));
+			Bundle::Ptr pBundle(_loader.createBundle(f.path()));
 			std::string symbolicName = pBundle->symbolicName();
 			std::string newName(symbolicName);
 			newName += "_";
