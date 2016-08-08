@@ -5,7 +5,8 @@ AAAAMacchinaIO
 
 !!Summary of Changes
 
-  - upgraded POCO C++ Libraries to 1.6.1
+  - upgraded POCO C++ Libraries to 1.7.4
+  - upgraded V8 to release 3.28.4
   - added BarcodeReader interface
   - GNSSSensor implementation based on NMEA 0183 protocol via serial port
   - GNSSSensor interface - added positionLost event
@@ -25,6 +26,11 @@ AAAAMacchinaIO
   - various minor bugfixes and improvements
   - fixed a potential crash when converting a std::string to JavaScript string
     and the string contains invalid UTF-8.
+  - added support for Modbus protocol
+  - added support for Bluetooth LE devices
+  - added DeviceStatus service
+  - added JavaScript task scheduler
+  - performance improvements
 
 
 !!!Release 0.1.0 - Developer Preview 1
