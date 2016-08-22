@@ -725,10 +725,9 @@ void ProxyGenerator::writeTypeSerializer(const Poco::CppParser::Function* pFunc,
 			std::string serLine("Poco::RemotingNG::TypeSerializer<");
 			std::string type(Poco::CodeGeneration::Utility::resolveType(pFunc->nameSpace(), itOP->second.pParam->declType()));
 			Poco::CppParser::Symbol* pSym = pFunc->nameSpace()->lookup(type);
-			bool enumMode = false;
+
 			if (pSym && pSym->kind() == Poco::CppParser::Symbol::SYM_ENUM)
 			{
-				enumMode = true;
 				type = "int";
 			}
 			serLine.append(type);
@@ -781,7 +780,7 @@ void ProxyGenerator::writeDeserializingBlock(const Poco::CppParser::Function* pF
 		GeneratorEngine::getStringProperty(structProps, Utility::NAMESPACE, structDefaultNS);
 		std::string funcDefaultNS(structDefaultNS);
 		GeneratorEngine::getStringProperty(funcProps, Utility::NAMESPACE, funcDefaultNS);
-		int funcNsIdx = -1;
+
 		if (!funcDefaultNS.empty())
 		{
 			if (funcDefaultNS == structDefaultNS)
@@ -791,7 +790,6 @@ void ProxyGenerator::writeDeserializingBlock(const Poco::CppParser::Function* pF
 				std::map<std::string, int>::const_iterator itNS = nsIdx.find(funcDefaultNS);
 				poco_assert_dbg (itNS != nsIdx.end());
 				std::string code("remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, REMOTING__NAMES[");
-				funcNsIdx = itNS->second;
 				code.append(Poco::NumberFormatter::format(itNS->second));
 				code.append("]);");
 				gen.writeMethodImplementation(code);

@@ -715,10 +715,9 @@ std::string SerializerGenerator::generateTypeSerializerLine(const Poco::CppParse
 	Poco::CppParser::Parameter ret(it->second.first->declType()+" dummy", 0);
 	std::string retType (Poco::CodeGeneration::Utility::resolveType(pContext, ret.declType()));
 	Poco::CppParser::Symbol* pSym = pContext->lookup(it->second.first->declType());
-	bool enumMode = false;
+
 	if (pSym && pSym->kind() == Poco::CppParser::Symbol::SYM_ENUM)
 	{
-		enumMode = true;
 		retType = "int";
 	}	
 

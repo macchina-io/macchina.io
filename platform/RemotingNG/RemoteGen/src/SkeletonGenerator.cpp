@@ -858,10 +858,9 @@ void SkeletonGenerator::writeTypeSerializer(const Poco::CppParser::Function* pFu
 				std::string serLine("Poco::RemotingNG::TypeSerializer<");
 				std::string type(Poco::CodeGeneration::Utility::resolveType(pFunc->nameSpace(), itOP->second.pParam->declType()));
 				Poco::CppParser::Symbol* pSym = pFunc->nameSpace()->lookup(type);
-				bool enumMode = false;
+
 				if (pSym && pSym->kind() == Poco::CppParser::Symbol::SYM_ENUM)
 				{
-					enumMode = true;
 					type = "int";
 				}
 				serLine.append(type);

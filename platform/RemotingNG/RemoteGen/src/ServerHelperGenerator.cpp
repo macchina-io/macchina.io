@@ -326,7 +326,6 @@ void ServerHelperGenerator::registerObjectCodeGen(const Poco::CppParser::Functio
 	AbstractGenerator* pAGen = reinterpret_cast<AbstractGenerator*>(addParam);
 	ServerHelperGenerator* pGen = dynamic_cast<ServerHelperGenerator*>(pAGen);
 	poco_check_ptr (pGen);
-	const Poco::CppParser::Struct* pStructIn = pGen->_pStructIn;
 
 	std::string ro("createRemoteObject");
 	ro.append("(pServiceObject, oid)");
