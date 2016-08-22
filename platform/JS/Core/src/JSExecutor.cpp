@@ -300,8 +300,6 @@ void JSExecutor::callInContext(v8::Handle<v8::Function>& function, v8::Handle<v8
 
 	attachToCurrentThread();
 
-	v8::Isolate* pIsolate = _pooledIso.isolate();
-
 	v8::TryCatch tryCatch;
 	function->Call(receiver, argc, argv);
 	if (tryCatch.HasCaught())
