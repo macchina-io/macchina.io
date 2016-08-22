@@ -1,9 +1,9 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/NetEnv/Makefile#1 $
+# $Id$
 #
-# Makefile for OSP NetEnv
+# Makefile for IoT NetworkEnvironment
 #
 
 .PHONY: bundle
