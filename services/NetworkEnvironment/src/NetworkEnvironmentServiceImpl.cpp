@@ -278,7 +278,7 @@ std::vector<NetworkInterface> NetworkEnvironmentServiceImpl::enumerateInterfaces
 			{
 				addr.subnetMask = ita->get<1>().toString();
 			}
-			if (it->second.supportsBroadcast() || it->second.isPointToPoint())
+			if ((addr.version == 4 && it->second.supportsBroadcast()) || it->second.isPointToPoint())
 			{
 				addr.broadcastOrDestinationAddress = ita->get<2>().toString();
 			}
