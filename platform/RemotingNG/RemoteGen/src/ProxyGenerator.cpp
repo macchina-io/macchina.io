@@ -1277,7 +1277,7 @@ void ProxyGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct
 	{
 		Poco::CppParser::Variable* pVar = static_cast<Poco::CppParser::Variable*>(it->second);
 		const std::string& varType = pVar->declType();
-		if (pVar->getAccess() == Poco::CppParser::Variable::ACC_PUBLIC)
+		if (pVar->getAccess() == Poco::CppParser::Variable::ACC_PUBLIC && !(pVar->flags() & Poco::CppParser::Variable::VAR_STATIC))
 		{
 			if (varType.find("Poco::BasicEvent") == 0 || varType.find("Poco::FIFOEvent") == 0)
 			{
