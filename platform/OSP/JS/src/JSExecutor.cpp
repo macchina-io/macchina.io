@@ -100,7 +100,11 @@ void JSExecutor::handleError(const ErrorInfo& errorInfo)
 		fullMessage += Poco::format(", line %d", errorInfo.lineNo);
 	}
 	fullMessage += "]";
-	_pContext->logger().error(fullMessage);
+
+	if (errorInfo.message == "Terminated")
+		_pContext->logger().notice(fullMessage);
+	else
+		_pContext->logger().error(fullMessage);
 }
 
 
@@ -195,7 +199,11 @@ void TimedJSExecutor::handleError(const ErrorInfo& errorInfo)
 		fullMessage += Poco::format(", line %d", errorInfo.lineNo);
 	}
 	fullMessage += "]";
-	_pContext->logger().error(fullMessage);
+
+	if (errorInfo.message == "Terminated")
+		_pContext->logger().notice(fullMessage);
+	else
+		_pContext->logger().error(fullMessage);
 }
 
 
