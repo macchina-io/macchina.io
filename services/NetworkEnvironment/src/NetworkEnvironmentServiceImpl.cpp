@@ -104,7 +104,7 @@ public:
 		Poco::Net::StreamSocket socket(new Poco::Net::StreamSocketImpl(sockfd));
 		Poco::Buffer<char> buffer(4096);
 		bool pendingChange = false;
-		NetEnvService::NetEnvChange lastChange = NETENV_UNSPECIFIED;
+		ChangeType lastChange = NETENV_UNSPECIFIED;
 		while (!_stopped.tryWait(0))
 		{
 			try
