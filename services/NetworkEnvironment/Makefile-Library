@@ -1,0 +1,22 @@
+#
+# Makefile-Library
+#
+# $Id$
+#
+# Makefile for IoT NetworkEnvironment Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = INetworkEnvironmentService \
+	NetworkEnvironmentService \
+	NetworkEnvironmentServiceEventDispatcher \
+	NetworkEnvironmentServiceRemoteObject \
+	NetworkEnvironmentServiceServerHelper \
+	NetworkEnvironmentServiceSkeleton
+
+target         = IoTNetworkEnvironment
+target_version = 1
+target_libs    = PocoRemotingNG PocoNet PocoOSP PocoZip PocoUtil PocoJSON PocoXML PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

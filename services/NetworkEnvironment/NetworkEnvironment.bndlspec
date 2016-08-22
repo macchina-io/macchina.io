@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>macchina.io Network Environment Service</name>
+    <symbolicName>io.macchina.services.networkenvironment</symbolicName>
+    <version>1.0.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2013-2016, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>IoT::NetworkEnvironment::BundleActivator</class>
+      <library>io.macchina.services.networkenvironment</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>000</runLevel>
+    <dependency>
+      <symbolicName>poco.net</symbolicName>
+      <version>[1.7.0, 2.0.0)</version>
+    </dependency>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../${bin}/IoTNetworkEnvironment${64}.dll,
+    ../../${bin}/IoTNetworkEnvironment${64}d.dll,
+    ../../${bin}/IoTNetworkEnvironment${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../lib/${osName}/${osArch}/libIoTNetworkEnvironment.so.*,
+    ../../lib/${osName}/${osArch}/libIoTNetworkEnvironmentd.so.*,
+    ../../lib/${osName}/${osArch}/libIoTNetworkEnvironment.*.dylib,
+    ../../lib/${osName}/${osArch}/libIoTNetworkEnvironmentd.*.dylib
+  </code>
+</bundlespec>
