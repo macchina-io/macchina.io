@@ -36,26 +36,19 @@ MQTTClientServerHelper::MQTTClientServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.MQTT.MQTTClient", new MQTTClientSkeleton);
+	registerSkeleton();
 }
 
 
 MQTTClientServerHelper::~MQTTClientServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.MQTT.MQTTClient", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string MQTTClientServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::MQTT::MQTTClientRemoteObject> pRemoteObject, const std::string& listenerId)
+void MQTTClientServerHelper::shutdown()
 {
-	return MQTTClientServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	MQTTClientServerHelper::instance().unregisterSkeleton();
+	shMQTTClientServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string MQTTClientServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::MQTT::
 }
 
 
+void MQTTClientServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.MQTT.MQTTClient", new MQTTClientSkeleton);
+}
+
+
 void MQTTClientServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void MQTTClientServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.MQTT.MQTTClient", true);
 }
 
 

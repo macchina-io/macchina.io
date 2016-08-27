@@ -33,6 +33,8 @@ namespace WebEvent {
 class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
+	typedef Poco::RemotingNG::ServerHelper<IoT::WebEvent::WebEventNotifier> ServerHelper;
+		
 	BundleActivator()
 	{
 	}
@@ -43,8 +45,6 @@ public:
 
 	void start(BundleContext::Ptr pContext)
 	{
-		typedef Poco::RemotingNG::ServerHelper<IoT::WebEvent::WebEventNotifier> ServerHelper;
-		
 		Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> pWebEventNotifier = new WebEventNotifierImpl(pContext);
 		std::string oid("io.macchina.services.webeventnotifier");
 		ServerHelper::RemoteObjectPtr pWebEventNotifierRemoteObject = ServerHelper::createRemoteObject(pWebEventNotifier, oid);		
@@ -55,6 +55,8 @@ public:
 	{
 		pContext->registry().unregisterService(_pServiceRef);
 		_pServiceRef = 0;
+		
+		ServerHelper::shutdown();
 	}
 
 private:

@@ -41,6 +41,9 @@ namespace DeviceStatus {
 class BundleActivator: public Poco::OSP::BundleActivator, public Poco::ActiveDispatcher
 {
 public:
+	typedef Poco::RemotingNG::ServerHelper<IoT::DeviceStatus::DeviceStatusService> ServerHelper;
+
+
 	BundleActivator():
 		postStatusAsync(this, &BundleActivator::postStatusAsyncImpl),
 		_messageCache(128, 30000)
@@ -54,8 +57,6 @@ public:
 	void start(BundleContext::Ptr pContext)
 	{
 		_pContext = pContext;
-
-		typedef Poco::RemotingNG::ServerHelper<IoT::DeviceStatus::DeviceStatusService> ServerHelper;
 
 		Poco::OSP::PreferencesService::Ptr pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(pContext);
 		
@@ -89,6 +90,8 @@ public:
 		_pServiceRef = 0;
 		_pDeviceStatusService = 0;
 		_pContext = 0;
+		
+		ServerHelper::shutdown();
 	}
 
 protected:

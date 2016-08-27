@@ -66,6 +66,9 @@ public:
 		/// 
 		///	Returns the URI created for the object.
 
+	static void shutdown();
+		/// Removes the Skeleton for IoT::DeviceStatus::DeviceStatusService from the ORB.
+
 	static void unregisterObject(const std::string& uri);
 		/// Unregisters a service object identified by URI from the ORB.
 
@@ -79,7 +82,11 @@ private:
 
 	std::string registerObjectImpl(Poco::AutoPtr<IoT::DeviceStatus::DeviceStatusServiceRemoteObject> pRemoteObject, const std::string& listenerId);
 
+	void registerSkeleton();
+
 	void unregisterObjectImpl(const std::string& uri);
+
+	void unregisterSkeleton();
 
 	Poco::RemotingNG::ORB* _pORB;
 };
@@ -100,6 +107,12 @@ inline void DeviceStatusServiceServerHelper::enableEvents(const std::string& uri
 inline std::string DeviceStatusServiceServerHelper::registerObject(Poco::SharedPtr<IoT::DeviceStatus::DeviceStatusService> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
 	return DeviceStatusServiceServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
+}
+
+
+inline std::string DeviceStatusServiceServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::DeviceStatus::DeviceStatusServiceRemoteObject> pRemoteObject, const std::string& listenerId)
+{
+	return DeviceStatusServiceServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
 }
 
 

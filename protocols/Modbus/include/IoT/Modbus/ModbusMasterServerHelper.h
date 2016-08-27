@@ -82,6 +82,9 @@ public:
 		/// 
 		///	Returns the URI created for the object.
 
+	static void shutdown();
+		/// Removes the Skeleton for IoT::Modbus::ModbusMaster from the ORB.
+
 	static void unregisterObject(const std::string& uri);
 		/// Unregisters a service object identified by URI from the ORB.
 
@@ -95,7 +98,11 @@ private:
 
 	std::string registerObjectImpl(Poco::AutoPtr<IoT::Modbus::ModbusMasterRemoteObject> pRemoteObject, const std::string& listenerId);
 
+	void registerSkeleton();
+
 	void unregisterObjectImpl(const std::string& uri);
+
+	void unregisterSkeleton();
 
 	Poco::RemotingNG::ORB* _pORB;
 };
@@ -116,6 +123,12 @@ inline void ModbusMasterServerHelper::enableEvents(const std::string& uri, const
 inline std::string ModbusMasterServerHelper::registerObject(Poco::SharedPtr<IoT::Modbus::ModbusMaster> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
 	return ModbusMasterServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
+}
+
+
+inline std::string ModbusMasterServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Modbus::ModbusMasterRemoteObject> pRemoteObject, const std::string& listenerId)
+{
+	return ModbusMasterServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
 }
 
 

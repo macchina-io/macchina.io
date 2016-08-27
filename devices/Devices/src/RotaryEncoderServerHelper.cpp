@@ -36,26 +36,19 @@ RotaryEncoderServerHelper::RotaryEncoderServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.Devices.RotaryEncoder", new RotaryEncoderSkeleton);
+	registerSkeleton();
 }
 
 
 RotaryEncoderServerHelper::~RotaryEncoderServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.Devices.RotaryEncoder", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string RotaryEncoderServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::RotaryEncoderRemoteObject> pRemoteObject, const std::string& listenerId)
+void RotaryEncoderServerHelper::shutdown()
 {
-	return RotaryEncoderServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	RotaryEncoderServerHelper::instance().unregisterSkeleton();
+	shRotaryEncoderServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string RotaryEncoderServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::Dev
 }
 
 
+void RotaryEncoderServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.Devices.RotaryEncoder", new RotaryEncoderSkeleton);
+}
+
+
 void RotaryEncoderServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void RotaryEncoderServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.Devices.RotaryEncoder", true);
 }
 
 

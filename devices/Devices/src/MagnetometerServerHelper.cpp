@@ -36,26 +36,19 @@ MagnetometerServerHelper::MagnetometerServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.Devices.Magnetometer", new MagnetometerSkeleton);
+	registerSkeleton();
 }
 
 
 MagnetometerServerHelper::~MagnetometerServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.Devices.Magnetometer", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string MagnetometerServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::MagnetometerRemoteObject> pRemoteObject, const std::string& listenerId)
+void MagnetometerServerHelper::shutdown()
 {
-	return MagnetometerServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	MagnetometerServerHelper::instance().unregisterSkeleton();
+	shMagnetometerServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string MagnetometerServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::Devi
 }
 
 
+void MagnetometerServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.Devices.Magnetometer", new MagnetometerSkeleton);
+}
+
+
 void MagnetometerServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void MagnetometerServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.Devices.Magnetometer", true);
 }
 
 

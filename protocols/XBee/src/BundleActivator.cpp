@@ -42,6 +42,8 @@ namespace XBee {
 class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
+	typedef Poco::RemotingNG::ServerHelper<IoT::XBee::XBeeNode> ServerHelper;
+		
 	BundleActivator()
 	{
 	}
@@ -52,8 +54,6 @@ public:
 	
 	void createXBeeNode(const std::string& uid, Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort, int options)
 	{
-		typedef Poco::RemotingNG::ServerHelper<IoT::XBee::XBeeNode> ServerHelper;
-		
 		Poco::SharedPtr<XBeeNode> pXBeeNode = new XBeeNodeImpl(new XBeePort(pSerialPort));
 		std::string symbolicName = "io.macchina.xbee";
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
@@ -115,6 +115,8 @@ public:
 		_serviceRefs.clear();
 		_pPrefs = 0;
 		_pContext = 0;
+		
+		ServerHelper::shutdown();
 	}
 
 private:

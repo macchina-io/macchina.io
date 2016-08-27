@@ -36,26 +36,19 @@ SwitchServerHelper::SwitchServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.Devices.Switch", new SwitchSkeleton);
+	registerSkeleton();
 }
 
 
 SwitchServerHelper::~SwitchServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.Devices.Switch", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string SwitchServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::SwitchRemoteObject> pRemoteObject, const std::string& listenerId)
+void SwitchServerHelper::shutdown()
 {
-	return SwitchServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	SwitchServerHelper::instance().unregisterSkeleton();
+	shSwitchServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string SwitchServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::Devices::S
 }
 
 
+void SwitchServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.Devices.Switch", new SwitchSkeleton);
+}
+
+
 void SwitchServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void SwitchServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.Devices.Switch", true);
 }
 
 

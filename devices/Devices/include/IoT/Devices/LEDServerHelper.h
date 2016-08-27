@@ -75,6 +75,9 @@ public:
 		/// 
 		///	Returns the URI created for the object.
 
+	static void shutdown();
+		/// Removes the Skeleton for IoT::Devices::LED from the ORB.
+
 	static void unregisterObject(const std::string& uri);
 		/// Unregisters a service object identified by URI from the ORB.
 
@@ -86,7 +89,11 @@ private:
 
 	std::string registerObjectImpl(Poco::AutoPtr<IoT::Devices::LEDRemoteObject> pRemoteObject, const std::string& listenerId);
 
+	void registerSkeleton();
+
 	void unregisterObjectImpl(const std::string& uri);
+
+	void unregisterSkeleton();
 
 	Poco::RemotingNG::ORB* _pORB;
 };
@@ -101,6 +108,12 @@ inline Poco::AutoPtr<IoT::Devices::LEDRemoteObject> LEDServerHelper::createRemot
 inline std::string LEDServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::LED> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
 	return LEDServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
+}
+
+
+inline std::string LEDServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::LEDRemoteObject> pRemoteObject, const std::string& listenerId)
+{
+	return LEDServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
 }
 
 

@@ -36,26 +36,19 @@ TriggerServerHelper::TriggerServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.Devices.Trigger", new TriggerSkeleton);
+	registerSkeleton();
 }
 
 
 TriggerServerHelper::~TriggerServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.Devices.Trigger", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string TriggerServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::TriggerRemoteObject> pRemoteObject, const std::string& listenerId)
+void TriggerServerHelper::shutdown()
 {
-	return TriggerServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	TriggerServerHelper::instance().unregisterSkeleton();
+	shTriggerServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string TriggerServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::Devices::
 }
 
 
+void TriggerServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.Devices.Trigger", new TriggerSkeleton);
+}
+
+
 void TriggerServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void TriggerServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.Devices.Trigger", true);
 }
 
 

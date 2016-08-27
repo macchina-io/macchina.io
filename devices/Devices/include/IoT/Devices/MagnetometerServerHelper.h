@@ -65,6 +65,9 @@ public:
 		/// 
 		///	Returns the URI created for the object.
 
+	static void shutdown();
+		/// Removes the Skeleton for IoT::Devices::Magnetometer from the ORB.
+
 	static void unregisterObject(const std::string& uri);
 		/// Unregisters a service object identified by URI from the ORB.
 
@@ -78,7 +81,11 @@ private:
 
 	std::string registerObjectImpl(Poco::AutoPtr<IoT::Devices::MagnetometerRemoteObject> pRemoteObject, const std::string& listenerId);
 
+	void registerSkeleton();
+
 	void unregisterObjectImpl(const std::string& uri);
+
+	void unregisterSkeleton();
 
 	Poco::RemotingNG::ORB* _pORB;
 };
@@ -99,6 +106,12 @@ inline void MagnetometerServerHelper::enableEvents(const std::string& uri, const
 inline std::string MagnetometerServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::Magnetometer> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
 	return MagnetometerServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
+}
+
+
+inline std::string MagnetometerServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::MagnetometerRemoteObject> pRemoteObject, const std::string& listenerId)
+{
+	return MagnetometerServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
 }
 
 

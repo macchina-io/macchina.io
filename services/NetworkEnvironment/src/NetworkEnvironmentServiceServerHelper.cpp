@@ -36,26 +36,19 @@ NetworkEnvironmentServiceServerHelper::NetworkEnvironmentServiceServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.NetworkEnvironment.NetworkEnvironmentService", new NetworkEnvironmentServiceSkeleton);
+	registerSkeleton();
 }
 
 
 NetworkEnvironmentServiceServerHelper::~NetworkEnvironmentServiceServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.NetworkEnvironment.NetworkEnvironmentService", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string NetworkEnvironmentServiceServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject> pRemoteObject, const std::string& listenerId)
+void NetworkEnvironmentServiceServerHelper::shutdown()
 {
-	return NetworkEnvironmentServiceServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	NetworkEnvironmentServiceServerHelper::instance().unregisterSkeleton();
+	shNetworkEnvironmentServiceServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string NetworkEnvironmentServiceServerHelper::registerObjectImpl(Poco::Auto
 }
 
 
+void NetworkEnvironmentServiceServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.NetworkEnvironment.NetworkEnvironmentService", new NetworkEnvironmentServiceSkeleton);
+}
+
+
 void NetworkEnvironmentServiceServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void NetworkEnvironmentServiceServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.NetworkEnvironment.NetworkEnvironmentService", true);
 }
 
 

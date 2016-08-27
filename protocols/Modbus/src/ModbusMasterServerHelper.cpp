@@ -36,26 +36,19 @@ ModbusMasterServerHelper::ModbusMasterServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.Modbus.ModbusMaster", new ModbusMasterSkeleton);
+	registerSkeleton();
 }
 
 
 ModbusMasterServerHelper::~ModbusMasterServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.Modbus.ModbusMaster", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string ModbusMasterServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Modbus::ModbusMasterRemoteObject> pRemoteObject, const std::string& listenerId)
+void ModbusMasterServerHelper::shutdown()
 {
-	return ModbusMasterServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	ModbusMasterServerHelper::instance().unregisterSkeleton();
+	shModbusMasterServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string ModbusMasterServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::Modb
 }
 
 
+void ModbusMasterServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.Modbus.ModbusMaster", new ModbusMasterSkeleton);
+}
+
+
 void ModbusMasterServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void ModbusMasterServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.Modbus.ModbusMaster", true);
 }
 
 

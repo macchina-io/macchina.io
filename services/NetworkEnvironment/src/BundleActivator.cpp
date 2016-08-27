@@ -35,6 +35,8 @@ namespace NetworkEnvironment {
 class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
+	typedef Poco::RemotingNG::ServerHelper<IoT::NetworkEnvironment::NetworkEnvironmentService> ServerHelper;
+
 	BundleActivator()
 	{
 	}
@@ -45,8 +47,6 @@ public:
 
 	void start(BundleContext::Ptr pContext)
 	{
-		typedef Poco::RemotingNG::ServerHelper<IoT::NetworkEnvironment::NetworkEnvironmentService> ServerHelper;
-
 		NetworkEnvironmentServiceImpl::Ptr pNetworkEnvironmentService = new NetworkEnvironmentServiceImpl;
 		std::string oid("io.macchina.services.networkenvironment");
 		ServerHelper::RemoteObjectPtr pNetworkEnvironmentServiceRemoteObject = ServerHelper::createRemoteObject(pNetworkEnvironmentService, oid);		
@@ -57,6 +57,7 @@ public:
 	{
 		pContext->registry().unregisterService(_pServiceRef);
 		_pServiceRef = 0;
+		ServerHelper::shutdown();
 	}
 
 private:

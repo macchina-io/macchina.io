@@ -36,26 +36,19 @@ GyroscopeServerHelper::GyroscopeServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.Devices.Gyroscope", new GyroscopeSkeleton);
+	registerSkeleton();
 }
 
 
 GyroscopeServerHelper::~GyroscopeServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.Devices.Gyroscope", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string GyroscopeServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::GyroscopeRemoteObject> pRemoteObject, const std::string& listenerId)
+void GyroscopeServerHelper::shutdown()
 {
-	return GyroscopeServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	GyroscopeServerHelper::instance().unregisterSkeleton();
+	shGyroscopeServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string GyroscopeServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::Devices
 }
 
 
+void GyroscopeServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.Devices.Gyroscope", new GyroscopeSkeleton);
+}
+
+
 void GyroscopeServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void GyroscopeServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.Devices.Gyroscope", true);
 }
 
 

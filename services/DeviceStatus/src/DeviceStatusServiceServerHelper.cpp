@@ -36,26 +36,19 @@ DeviceStatusServiceServerHelper::DeviceStatusServiceServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.DeviceStatus.DeviceStatusService", new DeviceStatusServiceSkeleton);
+	registerSkeleton();
 }
 
 
 DeviceStatusServiceServerHelper::~DeviceStatusServiceServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.DeviceStatus.DeviceStatusService", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string DeviceStatusServiceServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::DeviceStatus::DeviceStatusServiceRemoteObject> pRemoteObject, const std::string& listenerId)
+void DeviceStatusServiceServerHelper::shutdown()
 {
-	return DeviceStatusServiceServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	DeviceStatusServiceServerHelper::instance().unregisterSkeleton();
+	shDeviceStatusServiceServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string DeviceStatusServiceServerHelper::registerObjectImpl(Poco::AutoPtr<Io
 }
 
 
+void DeviceStatusServiceServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.DeviceStatus.DeviceStatusService", new DeviceStatusServiceSkeleton);
+}
+
+
 void DeviceStatusServiceServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void DeviceStatusServiceServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.DeviceStatus.DeviceStatusService", true);
 }
 
 

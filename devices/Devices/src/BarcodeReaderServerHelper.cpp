@@ -36,26 +36,19 @@ BarcodeReaderServerHelper::BarcodeReaderServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.Devices.BarcodeReader", new BarcodeReaderSkeleton);
+	registerSkeleton();
 }
 
 
 BarcodeReaderServerHelper::~BarcodeReaderServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.Devices.BarcodeReader", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string BarcodeReaderServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::BarcodeReaderRemoteObject> pRemoteObject, const std::string& listenerId)
+void BarcodeReaderServerHelper::shutdown()
 {
-	return BarcodeReaderServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	BarcodeReaderServerHelper::instance().unregisterSkeleton();
+	shBarcodeReaderServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string BarcodeReaderServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::Dev
 }
 
 
+void BarcodeReaderServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.Devices.BarcodeReader", new BarcodeReaderSkeleton);
+}
+
+
 void BarcodeReaderServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void BarcodeReaderServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.Devices.BarcodeReader", true);
 }
 
 

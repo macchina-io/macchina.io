@@ -87,6 +87,9 @@ public:
 		/// 
 		///	Returns the URI created for the object.
 
+	static void shutdown();
+		/// Removes the Skeleton for IoT::Devices::SerialDevice from the ORB.
+
 	static void unregisterObject(const std::string& uri);
 		/// Unregisters a service object identified by URI from the ORB.
 
@@ -100,7 +103,11 @@ private:
 
 	std::string registerObjectImpl(Poco::AutoPtr<IoT::Devices::SerialDeviceRemoteObject> pRemoteObject, const std::string& listenerId);
 
+	void registerSkeleton();
+
 	void unregisterObjectImpl(const std::string& uri);
+
+	void unregisterSkeleton();
 
 	Poco::RemotingNG::ORB* _pORB;
 };
@@ -121,6 +128,12 @@ inline void SerialDeviceServerHelper::enableEvents(const std::string& uri, const
 inline std::string SerialDeviceServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::SerialDevice> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
 	return SerialDeviceServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
+}
+
+
+inline std::string SerialDeviceServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::SerialDeviceRemoteObject> pRemoteObject, const std::string& listenerId)
+{
+	return SerialDeviceServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
 }
 
 

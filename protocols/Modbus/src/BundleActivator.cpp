@@ -43,6 +43,8 @@ namespace Modbus {
 class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
+	typedef Poco::RemotingNG::ServerHelper<IoT::Modbus::ModbusMaster> ServerHelper;
+
 	BundleActivator()
 	{
 	}
@@ -52,9 +54,7 @@ public:
 	}
 	
 	void createModbusRTUMaster(const std::string& uid, Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort, Poco::Timespan interCharTimeout)
-	{
-		typedef Poco::RemotingNG::ServerHelper<IoT::Modbus::ModbusMaster> ServerHelper;
-		
+	{		
 		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<RTUPort>(new RTUPort(pSerialPort, interCharTimeout));
 		std::string symbolicName = "io.macchina.modbus";
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
@@ -131,6 +131,8 @@ public:
 		_serviceRefs.clear();
 		_pPrefs = 0;
 		_pContext = 0;
+		
+		ServerHelper::shutdown();
 	}
 
 private:

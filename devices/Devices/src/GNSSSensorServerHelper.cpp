@@ -36,26 +36,19 @@ GNSSSensorServerHelper::GNSSSensorServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.Devices.GNSSSensor", new GNSSSensorSkeleton);
+	registerSkeleton();
 }
 
 
 GNSSSensorServerHelper::~GNSSSensorServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.Devices.GNSSSensor", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string GNSSSensorServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::GNSSSensorRemoteObject> pRemoteObject, const std::string& listenerId)
+void GNSSSensorServerHelper::shutdown()
 {
-	return GNSSSensorServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	GNSSSensorServerHelper::instance().unregisterSkeleton();
+	shGNSSSensorServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string GNSSSensorServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::Device
 }
 
 
+void GNSSSensorServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.Devices.GNSSSensor", new GNSSSensorSkeleton);
+}
+
+
 void GNSSSensorServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void GNSSSensorServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.Devices.GNSSSensor", true);
 }
 
 

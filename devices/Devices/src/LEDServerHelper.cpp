@@ -35,26 +35,19 @@ LEDServerHelper::LEDServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.Devices.LED", new LEDSkeleton);
+	registerSkeleton();
 }
 
 
 LEDServerHelper::~LEDServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.Devices.LED", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string LEDServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::LEDRemoteObject> pRemoteObject, const std::string& listenerId)
+void LEDServerHelper::shutdown()
 {
-	return LEDServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	LEDServerHelper::instance().unregisterSkeleton();
+	shLEDServerHelper.reset();
 }
 
 
@@ -76,9 +69,21 @@ std::string LEDServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::Devices::LEDR
 }
 
 
+void LEDServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.Devices.LED", new LEDSkeleton);
+}
+
+
 void LEDServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void LEDServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.Devices.LED", true);
 }
 
 

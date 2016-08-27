@@ -69,6 +69,9 @@ public:
 		/// 
 		///	Returns the URI created for the object.
 
+	static void shutdown();
+		/// Removes the Skeleton for IoT::Devices::BarcodeReader from the ORB.
+
 	static void unregisterObject(const std::string& uri);
 		/// Unregisters a service object identified by URI from the ORB.
 
@@ -82,7 +85,11 @@ private:
 
 	std::string registerObjectImpl(Poco::AutoPtr<IoT::Devices::BarcodeReaderRemoteObject> pRemoteObject, const std::string& listenerId);
 
+	void registerSkeleton();
+
 	void unregisterObjectImpl(const std::string& uri);
+
+	void unregisterSkeleton();
 
 	Poco::RemotingNG::ORB* _pORB;
 };
@@ -103,6 +110,12 @@ inline void BarcodeReaderServerHelper::enableEvents(const std::string& uri, cons
 inline std::string BarcodeReaderServerHelper::registerObject(Poco::SharedPtr<IoT::Devices::BarcodeReader> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
 	return BarcodeReaderServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
+}
+
+
+inline std::string BarcodeReaderServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::BarcodeReaderRemoteObject> pRemoteObject, const std::string& listenerId)
+{
+	return BarcodeReaderServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
 }
 
 

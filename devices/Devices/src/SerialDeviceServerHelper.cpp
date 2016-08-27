@@ -36,26 +36,19 @@ SerialDeviceServerHelper::SerialDeviceServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.Devices.SerialDevice", new SerialDeviceSkeleton);
+	registerSkeleton();
 }
 
 
 SerialDeviceServerHelper::~SerialDeviceServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.Devices.SerialDevice", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string SerialDeviceServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::SerialDeviceRemoteObject> pRemoteObject, const std::string& listenerId)
+void SerialDeviceServerHelper::shutdown()
 {
-	return SerialDeviceServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	SerialDeviceServerHelper::instance().unregisterSkeleton();
+	shSerialDeviceServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string SerialDeviceServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::Devi
 }
 
 
+void SerialDeviceServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.Devices.SerialDevice", new SerialDeviceSkeleton);
+}
+
+
 void SerialDeviceServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void SerialDeviceServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.Devices.SerialDevice", true);
 }
 
 

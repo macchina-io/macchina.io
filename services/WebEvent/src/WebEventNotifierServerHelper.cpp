@@ -35,26 +35,19 @@ WebEventNotifierServerHelper::WebEventNotifierServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.WebEvent.WebEventNotifier", new WebEventNotifierSkeleton);
+	registerSkeleton();
 }
 
 
 WebEventNotifierServerHelper::~WebEventNotifierServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.WebEvent.WebEventNotifier", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string WebEventNotifierServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::WebEvent::WebEventNotifierRemoteObject> pRemoteObject, const std::string& listenerId)
+void WebEventNotifierServerHelper::shutdown()
 {
-	return WebEventNotifierServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	WebEventNotifierServerHelper::instance().unregisterSkeleton();
+	shWebEventNotifierServerHelper.reset();
 }
 
 
@@ -76,9 +69,21 @@ std::string WebEventNotifierServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::
 }
 
 
+void WebEventNotifierServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.WebEvent.WebEventNotifier", new WebEventNotifierSkeleton);
+}
+
+
 void WebEventNotifierServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void WebEventNotifierServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.WebEvent.WebEventNotifier", true);
 }
 
 

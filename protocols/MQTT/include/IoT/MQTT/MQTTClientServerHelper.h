@@ -71,6 +71,9 @@ public:
 		/// 
 		///	Returns the URI created for the object.
 
+	static void shutdown();
+		/// Removes the Skeleton for IoT::MQTT::MQTTClient from the ORB.
+
 	static void unregisterObject(const std::string& uri);
 		/// Unregisters a service object identified by URI from the ORB.
 
@@ -84,7 +87,11 @@ private:
 
 	std::string registerObjectImpl(Poco::AutoPtr<IoT::MQTT::MQTTClientRemoteObject> pRemoteObject, const std::string& listenerId);
 
+	void registerSkeleton();
+
 	void unregisterObjectImpl(const std::string& uri);
+
+	void unregisterSkeleton();
 
 	Poco::RemotingNG::ORB* _pORB;
 };
@@ -105,6 +112,12 @@ inline void MQTTClientServerHelper::enableEvents(const std::string& uri, const s
 inline std::string MQTTClientServerHelper::registerObject(Poco::SharedPtr<IoT::MQTT::MQTTClient> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
 	return MQTTClientServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
+}
+
+
+inline std::string MQTTClientServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::MQTT::MQTTClientRemoteObject> pRemoteObject, const std::string& listenerId)
+{
+	return MQTTClientServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
 }
 
 

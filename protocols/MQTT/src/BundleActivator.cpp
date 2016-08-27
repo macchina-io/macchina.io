@@ -39,6 +39,8 @@ namespace MQTT {
 class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
+	typedef Poco::RemotingNG::ServerHelper<IoT::MQTT::MQTTClient> ServerHelper;
+
 	BundleActivator()
 	{
 	}
@@ -49,8 +51,6 @@ public:
 	
 	void createClient(const std::string& baseConfig, const std::string& id)
 	{
-		typedef Poco::RemotingNG::ServerHelper<IoT::MQTT::MQTTClient> ServerHelper;
-
 		std::string serverURI = getStringConfig(baseConfig + ".serverURI", "");
 		std::string clientId = getStringConfig(baseConfig + ".clientId", "");
 		std::string persistencePath = getStringConfig(baseConfig + ".persistence.path", "");
@@ -131,6 +131,8 @@ public:
 			}
 		}
 		_clients.clear();
+		
+		ServerHelper::shutdown();
 	}
 
 protected:

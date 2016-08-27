@@ -36,26 +36,19 @@ XBeeNodeServerHelper::XBeeNodeServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.XBee.XBeeNode", new XBeeNodeSkeleton);
+	registerSkeleton();
 }
 
 
 XBeeNodeServerHelper::~XBeeNodeServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.XBee.XBeeNode", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string XBeeNodeServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::XBee::XBeeNodeRemoteObject> pRemoteObject, const std::string& listenerId)
+void XBeeNodeServerHelper::shutdown()
 {
-	return XBeeNodeServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	XBeeNodeServerHelper::instance().unregisterSkeleton();
+	shXBeeNodeServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string XBeeNodeServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::XBee::XB
 }
 
 
+void XBeeNodeServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.XBee.XBeeNode", new XBeeNodeSkeleton);
+}
+
+
 void XBeeNodeServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void XBeeNodeServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.XBee.XBeeNode", true);
 }
 
 

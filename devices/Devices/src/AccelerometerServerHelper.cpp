@@ -36,26 +36,19 @@ AccelerometerServerHelper::AccelerometerServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.Devices.Accelerometer", new AccelerometerSkeleton);
+	registerSkeleton();
 }
 
 
 AccelerometerServerHelper::~AccelerometerServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.Devices.Accelerometer", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string AccelerometerServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::AccelerometerRemoteObject> pRemoteObject, const std::string& listenerId)
+void AccelerometerServerHelper::shutdown()
 {
-	return AccelerometerServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	AccelerometerServerHelper::instance().unregisterSkeleton();
+	shAccelerometerServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string AccelerometerServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::Dev
 }
 
 
+void AccelerometerServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.Devices.Accelerometer", new AccelerometerSkeleton);
+}
+
+
 void AccelerometerServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void AccelerometerServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.Devices.Accelerometer", true);
 }
 
 

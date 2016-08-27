@@ -66,6 +66,9 @@ public:
 		/// 
 		///	Returns the URI created for the object.
 
+	static void shutdown();
+		/// Removes the Skeleton for IoT::NetworkEnvironment::NetworkEnvironmentService from the ORB.
+
 	static void unregisterObject(const std::string& uri);
 		/// Unregisters a service object identified by URI from the ORB.
 
@@ -79,7 +82,11 @@ private:
 
 	std::string registerObjectImpl(Poco::AutoPtr<IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject> pRemoteObject, const std::string& listenerId);
 
+	void registerSkeleton();
+
 	void unregisterObjectImpl(const std::string& uri);
+
+	void unregisterSkeleton();
 
 	Poco::RemotingNG::ORB* _pORB;
 };
@@ -100,6 +107,12 @@ inline void NetworkEnvironmentServiceServerHelper::enableEvents(const std::strin
 inline std::string NetworkEnvironmentServiceServerHelper::registerObject(Poco::SharedPtr<IoT::NetworkEnvironment::NetworkEnvironmentService> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
 	return NetworkEnvironmentServiceServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
+}
+
+
+inline std::string NetworkEnvironmentServiceServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject> pRemoteObject, const std::string& listenerId)
+{
+	return NetworkEnvironmentServiceServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
 }
 
 

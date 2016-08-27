@@ -36,26 +36,19 @@ SensorServerHelper::SensorServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("IoT.Devices.Sensor", new SensorSkeleton);
+	registerSkeleton();
 }
 
 
 SensorServerHelper::~SensorServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("IoT.Devices.Sensor", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string SensorServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::Devices::SensorRemoteObject> pRemoteObject, const std::string& listenerId)
+void SensorServerHelper::shutdown()
 {
-	return SensorServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	SensorServerHelper::instance().unregisterSkeleton();
+	shSensorServerHelper.reset();
 }
 
 
@@ -89,9 +82,21 @@ std::string SensorServerHelper::registerObjectImpl(Poco::AutoPtr<IoT::Devices::S
 }
 
 
+void SensorServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("IoT.Devices.Sensor", new SensorSkeleton);
+}
+
+
 void SensorServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void SensorServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("IoT.Devices.Sensor", true);
 }
 
 

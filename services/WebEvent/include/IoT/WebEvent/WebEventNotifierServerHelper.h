@@ -61,6 +61,9 @@ public:
 		/// 
 		///	Returns the URI created for the object.
 
+	static void shutdown();
+		/// Removes the Skeleton for IoT::WebEvent::WebEventNotifier from the ORB.
+
 	static void unregisterObject(const std::string& uri);
 		/// Unregisters a service object identified by URI from the ORB.
 
@@ -72,7 +75,11 @@ private:
 
 	std::string registerObjectImpl(Poco::AutoPtr<IoT::WebEvent::WebEventNotifierRemoteObject> pRemoteObject, const std::string& listenerId);
 
+	void registerSkeleton();
+
 	void unregisterObjectImpl(const std::string& uri);
+
+	void unregisterSkeleton();
 
 	Poco::RemotingNG::ORB* _pORB;
 };
@@ -87,6 +94,12 @@ inline Poco::AutoPtr<IoT::WebEvent::WebEventNotifierRemoteObject> WebEventNotifi
 inline std::string WebEventNotifierServerHelper::registerObject(Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
 	return WebEventNotifierServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
+}
+
+
+inline std::string WebEventNotifierServerHelper::registerRemoteObject(Poco::AutoPtr<IoT::WebEvent::WebEventNotifierRemoteObject> pRemoteObject, const std::string& listenerId)
+{
+	return WebEventNotifierServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
 }
 
 
