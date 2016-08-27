@@ -54,6 +54,9 @@ public:
 		/// 
 		///	Returns the URI created for the object.
 
+	static void shutdown();
+		/// Removes the Skeleton for Tester from the ORB.
+
 	static void unregisterObject(const std::string& uri);
 		/// Unregisters a service object identified by URI from the ORB.
 
@@ -67,7 +70,11 @@ private:
 
 	std::string registerObjectImpl(Poco::AutoPtr<TesterRemoteObject> pRemoteObject, const std::string& listenerId);
 
+	void registerSkeleton();
+
 	void unregisterObjectImpl(const std::string& uri);
+
+	void unregisterSkeleton();
 
 	Poco::RemotingNG::ORB* _pORB;
 };
@@ -88,6 +95,12 @@ inline void TesterServerHelper::enableEvents(const std::string& uri, const std::
 inline std::string TesterServerHelper::registerObject(Poco::SharedPtr<Tester> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
 	return TesterServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
+}
+
+
+inline std::string TesterServerHelper::registerRemoteObject(Poco::AutoPtr<TesterRemoteObject> pRemoteObject, const std::string& listenerId)
+{
+	return TesterServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
 }
 
 

@@ -62,6 +62,9 @@ public:
 		/// 
 		///	Returns the URI created for the object.
 
+	static void shutdown();
+		/// Removes the Skeleton for Services::TimeService from the ORB.
+
 	static void unregisterObject(const std::string& uri);
 		/// Unregisters a service object identified by URI from the ORB.
 
@@ -75,7 +78,11 @@ private:
 
 	std::string registerObjectImpl(Poco::AutoPtr<Services::TimeServiceRemoteObject> pRemoteObject, const std::string& listenerId);
 
+	void registerSkeleton();
+
 	void unregisterObjectImpl(const std::string& uri);
+
+	void unregisterSkeleton();
 
 	Poco::RemotingNG::ORB* _pORB;
 };
@@ -96,6 +103,12 @@ inline void TimeServiceServerHelper::enableEvents(const std::string& uri, const 
 inline std::string TimeServiceServerHelper::registerObject(Poco::SharedPtr<Services::TimeService> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
 	return TimeServiceServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
+}
+
+
+inline std::string TimeServiceServerHelper::registerRemoteObject(Poco::AutoPtr<Services::TimeServiceRemoteObject> pRemoteObject, const std::string& listenerId)
+{
+	return TimeServiceServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
 }
 
 

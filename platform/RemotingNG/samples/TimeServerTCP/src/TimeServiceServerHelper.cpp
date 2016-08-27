@@ -34,26 +34,19 @@ TimeServiceServerHelper::TimeServiceServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("Services.TimeService", new TimeServiceSkeleton);
+	registerSkeleton();
 }
 
 
 TimeServiceServerHelper::~TimeServiceServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("Services.TimeService", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string TimeServiceServerHelper::registerRemoteObject(Poco::AutoPtr<Services::TimeServiceRemoteObject> pRemoteObject, const std::string& listenerId)
+void TimeServiceServerHelper::shutdown()
 {
-	return TimeServiceServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	TimeServiceServerHelper::instance().unregisterSkeleton();
+	shTimeServiceServerHelper.reset();
 }
 
 
@@ -87,9 +80,21 @@ std::string TimeServiceServerHelper::registerObjectImpl(Poco::AutoPtr<Services::
 }
 
 
+void TimeServiceServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("Services.TimeService", new TimeServiceSkeleton);
+}
+
+
 void TimeServiceServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void TimeServiceServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("Services.TimeService", true);
 }
 
 

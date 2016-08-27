@@ -94,6 +94,10 @@ class ServerHelper
 		{ \
 			return Helper::createRemoteObject(pService, oid); \
 		} \
+		static void shutdown() \
+		{ \
+			return Helper::shutdown(); \
+		} \
 	}; \
 	} }
 

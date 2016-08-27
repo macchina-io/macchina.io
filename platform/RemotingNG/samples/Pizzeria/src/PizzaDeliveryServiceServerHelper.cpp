@@ -33,26 +33,19 @@ PizzaDeliveryServiceServerHelper::PizzaDeliveryServiceServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("Pizzeria.PizzaDeliveryService", new PizzaDeliveryServiceSkeleton);
+	registerSkeleton();
 }
 
 
 PizzaDeliveryServiceServerHelper::~PizzaDeliveryServiceServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("Pizzeria.PizzaDeliveryService", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string PizzaDeliveryServiceServerHelper::registerRemoteObject(Poco::AutoPtr<Pizzeria::PizzaDeliveryServiceRemoteObject> pRemoteObject, const std::string& listenerId)
+void PizzaDeliveryServiceServerHelper::shutdown()
 {
-	return PizzaDeliveryServiceServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	PizzaDeliveryServiceServerHelper::instance().unregisterSkeleton();
+	shPizzaDeliveryServiceServerHelper.reset();
 }
 
 
@@ -74,9 +67,21 @@ std::string PizzaDeliveryServiceServerHelper::registerObjectImpl(Poco::AutoPtr<P
 }
 
 
+void PizzaDeliveryServiceServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("Pizzeria.PizzaDeliveryService", new PizzaDeliveryServiceSkeleton);
+}
+
+
 void PizzaDeliveryServiceServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void PizzaDeliveryServiceServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("Pizzeria.PizzaDeliveryService", true);
 }
 
 

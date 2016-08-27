@@ -56,6 +56,9 @@ public:
 		/// 
 		///	Returns the URI created for the object.
 
+	static void shutdown();
+		/// Removes the Skeleton for Pizzeria::PizzaDeliveryService from the ORB.
+
 	static void unregisterObject(const std::string& uri);
 		/// Unregisters a service object identified by URI from the ORB.
 
@@ -67,7 +70,11 @@ private:
 
 	std::string registerObjectImpl(Poco::AutoPtr<Pizzeria::PizzaDeliveryServiceRemoteObject> pRemoteObject, const std::string& listenerId);
 
+	void registerSkeleton();
+
 	void unregisterObjectImpl(const std::string& uri);
+
+	void unregisterSkeleton();
 
 	Poco::RemotingNG::ORB* _pORB;
 };
@@ -82,6 +89,12 @@ inline Poco::AutoPtr<Pizzeria::PizzaDeliveryServiceRemoteObject> PizzaDeliverySe
 inline std::string PizzaDeliveryServiceServerHelper::registerObject(Poco::SharedPtr<Pizzeria::PizzaDeliveryService> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 {
 	return PizzaDeliveryServiceServerHelper::instance().registerObjectImpl(createRemoteObject(pServiceObject, oid), listenerId);
+}
+
+
+inline std::string PizzaDeliveryServiceServerHelper::registerRemoteObject(Poco::AutoPtr<Pizzeria::PizzaDeliveryServiceRemoteObject> pRemoteObject, const std::string& listenerId)
+{
+	return PizzaDeliveryServiceServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
 }
 
 

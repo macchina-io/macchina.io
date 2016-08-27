@@ -79,6 +79,12 @@ void ServerHelperGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 	pDestr->setAccess(Poco::CppParser::Symbol::ACC_PUBLIC);
 	pDestr->addDocumentation(	" Destroys the " + _pStruct->name() + ".");
 
+	Poco::CppParser::Function* pRegisterSkeleton = new Poco::CppParser::Function("void registerSkeleton", _pStruct);
+	pRegisterSkeleton->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
+
+	Poco::CppParser::Function* pUnregisterSkeleton = new Poco::CppParser::Function("void unregisterSkeleton", _pStruct);
+	pUnregisterSkeleton->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
+
 	// add a method void registerObject(MyClass* pObj, const RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId)
 	Poco::CppParser::Function* pRegObj = new Poco::CppParser::Function("static std::string registerObject", _pStruct);
 	pRegObj->makeInline();
@@ -104,6 +110,7 @@ void ServerHelperGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 
 	pRegObj = new Poco::CppParser::Function("static std::string registerRemoteObject", _pStruct);
 	pRegObj->setAccess(Poco::CppParser::Symbol::ACC_PUBLIC);
+	pRegObj->makeInline();
 	pRegObj->addDocumentation(" Registers the given RemoteObject with the ORB and the Listener instance");
 	pRegObj->addDocumentation(" uniquely identified by the Listener's ID.");
 	pRegObj->addDocumentation(" ");
@@ -138,6 +145,9 @@ void ServerHelperGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 	pParam2 = new Poco::CppParser::Parameter("const Poco::RemotingNG::Identifiable::ObjectId& oid", 0);
 	pCreateObj->addParameter(pParam1);
 	pCreateObj->addParameter(pParam2);
+
+	Poco::CppParser::Function* pShutdown = new Poco::CppParser::Function("static void shutdown", _pStruct);
+	pShutdown->addDocumentation(" Removes the Skeleton for " + pStruct->fullName() + " from the ORB.");
 	
 	bool events = hasEvents(pStruct);
 	if (events)
@@ -207,6 +217,8 @@ void ServerHelperGenerator::registerCallbacks(Poco::CodeGeneration::GeneratorEng
 {
 	e.registerCallback(_pStruct->name(), &ServerHelperGenerator::constructorCodeGen);
 	e.registerCallback("~"+_pStruct->name(), &ServerHelperGenerator::destructorCodeGen);
+	e.registerCallback("registerSkeleton", &ServerHelperGenerator::registerSkeletonCodeGen);
+	e.registerCallback("unregisterSkeleton", &ServerHelperGenerator::unregisterSkeletonCodeGen);
 	e.registerCallback("registerObjectImpl", &ServerHelperGenerator::registerObjectImplCodeGen);
 	e.registerCallback("instance", &ServerHelperGenerator::instanceCodeGen);
 	e.registerCallback("registerObject", &ServerHelperGenerator::registerObjectCodeGen);
@@ -215,6 +227,7 @@ void ServerHelperGenerator::registerCallbacks(Poco::CodeGeneration::GeneratorEng
 	e.registerCallback("unregisterObjectImpl", &ServerHelperGenerator::unregisterObjectImplCodeGen);
 	e.registerCallback("createRemoteObject", &ServerHelperGenerator::createRemoteObjectCodeGen);
 	e.registerCallback("createRemoteObjectImpl", &ServerHelperGenerator::createRemoteObjectImplCodeGen);
+	e.registerCallback("shutdown", &ServerHelperGenerator::shutdownCodeGen);
 	e.registerCallback("enableEvents", &ServerHelperGenerator::enableEventsCodeGen);
 	e.registerCallback("enableEventsImpl", &ServerHelperGenerator::enableEventsImplCodeGen);
 	e.registerPreClassCallback(&ServerHelperGenerator::singletonHolder);
@@ -270,14 +283,25 @@ void ServerHelperGenerator::constructorCodeGen(const Poco::CppParser::Function* 
 	ServerHelperGenerator* pGen = dynamic_cast<ServerHelperGenerator*>(pAGen);
 	poco_check_ptr (pGen);
 	const Poco::CppParser::Struct* pStructIn = pGen->_pStructIn;
-	// register namespace (if necessary)
-	Poco::CodeGeneration::CodeGenerator::Properties props;
-	Poco::CodeGeneration::GeneratorEngine::parseProperties(pStructIn, props);
-	std::string ns;
-	Poco::CodeGeneration::GeneratorEngine::getStringProperty(props, Poco::CodeGeneration::Utility::NAMESPACE, ns);
 
 	gen.writeMethodImplementation("_pORB = &Poco::RemotingNG::ORB::instance();");
-	// simply call ORB::instance().registerSkeleton(className, new Skeleton());
+	gen.writeMethodImplementation("registerSkeleton();");
+}
+
+
+void ServerHelperGenerator::destructorCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+{
+}
+
+
+void ServerHelperGenerator::registerSkeletonCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+{
+	poco_assert (addParam);
+	AbstractGenerator* pAGen = reinterpret_cast<AbstractGenerator*>(addParam);
+	ServerHelperGenerator* pGen = dynamic_cast<ServerHelperGenerator*>(pAGen);
+	poco_check_ptr (pGen);
+	const Poco::CppParser::Struct* pStructIn = pGen->_pStructIn;
+
 	std::string codeLine("_pORB->registerSkeleton(\"");
 	codeLine.append(Poco::replace(pStructIn->fullName(), "::", "."));
 	codeLine.append("\", new ");
@@ -287,7 +311,7 @@ void ServerHelperGenerator::constructorCodeGen(const Poco::CppParser::Function* 
 }
 
 
-void ServerHelperGenerator::destructorCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+void ServerHelperGenerator::unregisterSkeletonCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
 	poco_assert (addParam);
 	AbstractGenerator* pAGen = reinterpret_cast<AbstractGenerator*>(addParam);
@@ -295,22 +319,10 @@ void ServerHelperGenerator::destructorCodeGen(const Poco::CppParser::Function* p
 	poco_check_ptr (pGen);
 	const Poco::CppParser::Struct* pStructIn = pGen->_pStructIn;
 
-	gen.writeMethodImplementation("try");
-	gen.writeMethodImplementation("{");
-	std::string codeLine("\t_pORB->unregisterSkeleton(\"");
+	std::string codeLine("_pORB->unregisterSkeleton(\"");
 	codeLine.append(Poco::replace(pStructIn->fullName(), "::", "."));
 	codeLine.append("\", true);");
 	gen.writeMethodImplementation(codeLine);
-	gen.writeMethodImplementation("}");
-	gen.writeMethodImplementation("catch (...)");
-	gen.writeMethodImplementation("{");
-	gen.writeMethodImplementation("\tpoco_unexpected();");
-	gen.writeMethodImplementation("}");
-
-	Poco::CodeGeneration::CodeGenerator::Properties props;
-	Poco::CodeGeneration::GeneratorEngine::parseProperties(pStructIn, props);
-	std::string ns;
-	Poco::CodeGeneration::GeneratorEngine::getStringProperty(props, Poco::CodeGeneration::Utility::NAMESPACE, ns);
 }
 
 
@@ -410,6 +422,17 @@ void ServerHelperGenerator::createRemoteObjectImplCodeGen(const Poco::CppParser:
 		code.append("(oid, pServiceObject);");
 		gen.writeMethodImplementation(code);
 	}
+}
+
+
+void ServerHelperGenerator::shutdownCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+{
+	poco_assert (addParam);
+	AbstractGenerator* pAGen = reinterpret_cast<AbstractGenerator*>(addParam);
+	ServerHelperGenerator* pGen = dynamic_cast<ServerHelperGenerator*>(pAGen);
+	poco_check_ptr (pGen);
+	gen.writeMethodImplementation(pStruct->name() + "::instance().unregisterSkeleton();");
+	gen.writeMethodImplementation("sh" + pStruct->name() + ".reset();");
 }
 
 

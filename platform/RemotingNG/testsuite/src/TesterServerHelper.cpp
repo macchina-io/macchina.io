@@ -26,26 +26,19 @@ TesterServerHelper::TesterServerHelper():
 	_pORB(0)
 {
 	_pORB = &Poco::RemotingNG::ORB::instance();
-	_pORB->registerSkeleton("Tester", new TesterSkeleton);
+	registerSkeleton();
 }
 
 
 TesterServerHelper::~TesterServerHelper()
 {
-	try
-	{
-		_pORB->unregisterSkeleton("Tester", true);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 
-std::string TesterServerHelper::registerRemoteObject(Poco::AutoPtr<TesterRemoteObject> pRemoteObject, const std::string& listenerId)
+void TesterServerHelper::shutdown()
 {
-	return TesterServerHelper::instance().registerObjectImpl(pRemoteObject, listenerId);
+	TesterServerHelper::instance().unregisterSkeleton();
+	shTesterServerHelper.reset();
 }
 
 
@@ -79,9 +72,21 @@ std::string TesterServerHelper::registerObjectImpl(Poco::AutoPtr<TesterRemoteObj
 }
 
 
+void TesterServerHelper::registerSkeleton()
+{
+	_pORB->registerSkeleton("Tester", new TesterSkeleton);
+}
+
+
 void TesterServerHelper::unregisterObjectImpl(const std::string& uri)
 {
 	_pORB->unregisterObject(uri);
+}
+
+
+void TesterServerHelper::unregisterSkeleton()
+{
+	_pORB->unregisterSkeleton("Tester", true);
 }
 
 
