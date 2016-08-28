@@ -1,6 +1,32 @@
 Remoting NG Release Notes
 Remoting NG
 
+!!!Release 2016.2
+
+!!Summary of Changes
+
+  - RemoteGen bugfix: ignore static Poco::BasicEvent<> members in @remote classes.
+  - Use Poco::Clock instead of Poco::Timestamp for event subscription timeouts for 
+    resiliency against system time changes.
+  - Poco::RemotingNG::Listener: add new defaultListener() overload allowing to specify a 
+    Poco::RemotingNG::ConnectionManager.
+  - The generated ServerHelper classes have a new shutdown() method to explicitly 
+    unregister the Skeleton with the ORB. Note that calling it is optional and most
+    servers don't have to do it. This is for use cases that require dynamic
+    registration and unregistration of Skeleton classes. 
+    Furthermore, the ServerHelper destructor will no longer unregister the Skeleton.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - Due to changes in the ServerHelper interface, all ServerHelper files generated
+    by RemoteGen must be re-generated after upgrading to this release by running 
+    RemoteGen.
+
+
 !!!Release 2016.1
 
 !!Summary of Changes

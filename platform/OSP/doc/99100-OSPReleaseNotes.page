@@ -1,6 +1,25 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2016.2
+
+  - Poco::OSP::BundleEvents: added bundleFailed event if starting a bundle fails
+  - Added Poco::OSP::BundleFilter class. This new class allows filtering of bundles
+    loaded by a Poco::OSP::BundleRepository.
+  - Poco::OSP::Auth::AuthAdminService: added events to notify if users or roles have
+    been added or removed.
+  - Poco::OSP::Auth::AuthAdminServiceImpl: remove user permissions from cache when
+    account is deleted.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2016.1
 
   - Poco::OSP::BundleRepository: prevent a bundle from being newly installed if a bundle 
