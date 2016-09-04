@@ -51,7 +51,7 @@ tests    = Foundation-tests XML-tests JSON-tests Util-tests Net-tests Crypto-tes
 samples  = Foundation-samples XML-samples JSON-samples Util-samples Net-samples Crypto-samples NetSSL_OpenSSL-samples Data-samples Zip-samples PageCompiler-samples
 cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-clean NetSSL_OpenSSL-clean Data-clean Data/SQLite-clean Zip-clean PageCompiler-clean PageCompiler/File2Page-clean CppParser-clean
 
-# WebTunnel, JS, Remoting and OSP
+# WebTunnel, JS, Redis, Remoting and OSP
 libexecs += \
     WebTunnel-libexec \
     JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec \
@@ -59,9 +59,13 @@ libexecs += \
     OSP-libexec OSP/BundleCreator-libexec OSP/Web-libexec OSP/Core-libexec OSP/Crypto-libexec OSP/Data-libexec OSP/Data/SQLite-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec OSP/SecureWebServer-libexec OSP/WebServer-libexec OSP/JS-libexec OSP/JS/Web-libexec OSP/JS/Scheduler-libexec OSP/WebEvent-libexec OSP/SimpleAuth-libexec \
     OSP/RemotingNG/TCP-libexec \
     Geo-libexec \
-    Serial-libexec
-tests    += CodeGeneration-tests RemotingNG-tests RemotingNG/TCP-tests OSP-tests OSP/Web-tests Geo-tests
+    Serial-libexec \
+    Redis-libexec
+    
+tests    += CodeGeneration-tests RemotingNG-tests RemotingNG/TCP-tests OSP-tests OSP/Web-tests Geo-tests Redis-tests
+
 samples  += WebTunnel-samples
+
 cleans   += \
     WebTunnel-clean \
     JS/V8-clean JS/Core-clean JS/Data-clean JS/Bridge-clean JS/Net-clean \
@@ -69,7 +73,8 @@ cleans   += \
     OSP-clean OSP/BundleCreator-clean OSP/Web-clean OSP/Core-clean OSP/Crypto-clean OSP/Data-clean OSP/Data/SQLite-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean OSP/SecureWebServer-clean OSP/WebServer-clean OSP/JS-clean OSP/JS/Web-clean OSP/JS/Scheduler-clean OSP/WebEvent-clean OSP/SimpleAuth-clean \
     OSP/RemotingNG/TCP-clean \
     Geo-clean \
-    Serial-clean
+    Serial-clean \
+    Redis-clean
 
 .PHONY: $(libexecs)
 .PHONY: $(tests)
@@ -443,6 +448,16 @@ Serial-libexec:  Foundation-libexec
 
 Serial-clean:
 	$(MAKE) -C $(POCO_BASE)/Serial clean
+
+Redis-libexec:  Foundation-libexec Net-libexec
+	$(MAKE) -C $(POCO_BASE)/Redis
+
+Redis-tests: Redis-libexec cppunit
+	$(MAKE) -C $(POCO_BASE)/Redis/testsuite
+
+Redis-clean:
+	$(MAKE) -C $(POCO_BASE)/Redis clean
+	$(MAKE) -C $(POCO_BASE)/Redis/testsuite clean
 
 clean: cleans CppUnit-clean
 

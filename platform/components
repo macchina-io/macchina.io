@@ -35,4 +35,5 @@ OSP/WebEvent
 OSP/JS
 Geo
 Serial
+Redis
 WebTunnel
