@@ -71,9 +71,10 @@ protected:
 		
 		void exception(const Poco::Exception& exc)
 		{
-			// Don't log Poco::Net::ConnectionResetException - 
+			// Don't log Poco::Net::ConnectionResetException and Poco::TimeoutException - 
 			// getting too many of them from the web server.
-			if (std::strcmp(exc.name(), "Connection reset by peer") != 0)
+			if (std::strcmp(exc.name(), "Connection reset by peer") != 0 &&
+			    std::strcmp(exc.name(), "Timeout") != 0)
 			{
 				log(exc.displayText());
 			}
@@ -91,7 +92,7 @@ protected:
 		
 		void log(const std::string& message)
 		{
-			_app.logger().error("A thread was terminated by an unhandled exception: " + message);
+			_app.logger().notice("A thread was terminated by an unhandled exception: " + message);
 		}
 		
 	private:
