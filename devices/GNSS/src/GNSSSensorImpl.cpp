@@ -26,7 +26,7 @@ const std::string GNSSSensorImpl::NAME("GNSS Sensor (NMEA-0183)");
 const std::string GNSSSensorImpl::SYMBOLIC_NAME("io.macchina.gnss.nmea");
 
 
-GNSSSensorImpl::GNSSSensorImpl(Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort):
+GNSSSensorImpl::GNSSSensorImpl(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort):
 	_pSerialPort(pSerialPort),
 	_lastValidPosition(0),
 	_lastPositionUpdate(0),

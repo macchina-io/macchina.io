@@ -16,7 +16,7 @@
 
 #include "IoT/Devices/GNSSSensor.h"
 #include "IoT/Devices/DeviceImpl.h"
-#include "IoT/Serial/SerialPort.h"
+#include "Poco/Serial/SerialPort.h"
 #include "IoT/GNSS/NMEA/RMCProcessor.h"
 #include "IoT/GNSS/NMEA/GGAProcessor.h"
 #include "Poco/Timestamp.h"
@@ -32,7 +32,7 @@ namespace GNSS {
 class GNSSSensorImpl: public IoT::Devices::DeviceImpl<IoT::Devices::GNSSSensor, GNSSSensorImpl>, public Poco::Runnable
 {
 public:
-	GNSSSensorImpl(Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort);
+	GNSSSensorImpl(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort);
 		/// Creates a GNSSSensorImpl.
 		
 	~GNSSSensorImpl();
@@ -69,7 +69,7 @@ protected:
 	static const std::string SYMBOLIC_NAME;
 
 private:
-	Poco::SharedPtr<IoT::Serial::SerialPort> _pSerialPort;
+	Poco::SharedPtr<Poco::Serial::SerialPort> _pSerialPort;
 	Poco::Timestamp _lastValidPosition;
 	Poco::Timestamp _lastPositionUpdate;
 	bool _positionAvailable;

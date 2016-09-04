@@ -49,7 +49,7 @@ public:
 	{
 	}
 	
-	void createGNSSSensor(Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort)
+	void createGNSSSensor(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::GNSSSensor> ServerHelper;
 		
@@ -80,7 +80,7 @@ public:
 			{
 				pContext->logger().information(Poco::format("Creating GNSSSensor for serial port '%s'.", device));
 
-				createGNSSSensor(new IoT::Serial::SerialPort(device, speed, params));
+				createGNSSSensor(new Poco::Serial::SerialPort(device, speed, params));
 			}
 		}
 		catch (Poco::Exception& exc)
