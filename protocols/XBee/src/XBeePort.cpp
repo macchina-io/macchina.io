@@ -22,7 +22,7 @@ namespace IoT {
 namespace XBee {
 
 
-XBeePort::XBeePort(Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort):
+XBeePort::XBeePort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort):
 	_pSerialPort(pSerialPort),
 	_buffer(XBeeFrame::XBEE_MAX_FRAME_LENGTH)
 {

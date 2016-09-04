@@ -21,7 +21,7 @@
 
 
 #include "IoT/XBee/XBee.h"
-#include "IoT/Serial/SerialPort.h"
+#include "Poco/Serial/SerialPort.h"
 #include "Poco/Timespan.h"
 #include "Poco/Buffer.h"
 #include "Poco/SharedPtr.h"
@@ -39,7 +39,7 @@ class IoTXBee_API XBeePort
 	/// using the Digi XBee API frame-based protocol.
 {
 public:
-	XBeePort(Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort);
+	XBeePort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort);
 		/// Creates a XBeePort using the given SerialPort.
 		///
 		/// The SerialPort must be open and properly configured
@@ -74,7 +74,7 @@ private:
 	XBeePort(const XBeePort&);
 	XBeePort& operator = (const XBeePort&);
 	
-	Poco::SharedPtr<IoT::Serial::SerialPort> _pSerialPort;
+	Poco::SharedPtr<Poco::Serial::SerialPort> _pSerialPort;
 	Poco::Buffer<char> _buffer;
 };
 

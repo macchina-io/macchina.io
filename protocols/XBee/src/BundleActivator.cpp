@@ -20,7 +20,7 @@
 #include "Poco/RemotingNG/ORB.h"
 #include "IoT/XBee/XBeeNodeImpl.h"
 #include "IoT/XBee/XBeeNodeServerHelper.h"
-#include "IoT/Serial/SerialPort.h"
+#include "Poco/Serial/SerialPort.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
 #include "Poco/NumberFormatter.h"
@@ -52,7 +52,7 @@ public:
 	{
 	}
 	
-	void createXBeeNode(const std::string& uid, Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort, int options)
+	void createXBeeNode(const std::string& uid, Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, int options)
 	{
 		Poco::SharedPtr<XBeeNode> pXBeeNode = new XBeeNodeImpl(new XBeePort(pSerialPort));
 		std::string symbolicName = "io.macchina.xbee";
@@ -95,7 +95,7 @@ public:
 			{
 				pContext->logger().information(Poco::format("Creating serial port for XBee device '%s'.", device));
 
-				Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort = new IoT::Serial::SerialPort(device, speed, params);
+				Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort = new Poco::Serial::SerialPort(device, speed, params);
 				createXBeeNode(Poco::NumberFormatter::format(index), pSerialPort, options);
 			}
 			catch (Poco::Exception& exc)
