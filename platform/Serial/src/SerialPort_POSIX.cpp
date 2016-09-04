@@ -1,20 +1,20 @@
 //
 // SerialPort_POSIX.cpp
 //
-// $Id: //poco/1.4/IO/Serial/src/SerialPort_POSIX.cpp#2 $
+// $Id$
 //
-// Library: IoT/Serial
+// Library: Serial
 // Package: Serial
 // Module:  SerialPort
 //
-// Copyright (c) 2009-2015, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2009-2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: BSL-1.0
 //
 
 
-#include "IoT/Serial/SerialPort_POSIX.h"
+#include "Poco/Serial/SerialPort_POSIX.h"
 #include "Poco/Format.h"
 #include "Poco/Exception.h"
 #include <termios.h>
@@ -34,7 +34,7 @@
 using Poco::format;
 
 
-namespace IoT {
+namespace Poco {
 namespace Serial {
 
 
@@ -222,7 +222,7 @@ void SerialPortImpl::configureRS485Impl(const RS485ParamsImpl& rs485Params)
 	// BeagleBone needs a hack to enable RTS via GPIO pin
 	#if defined(SER_RS485_USE_GPIO) // patched <linux/serial.h> header available
 		rs485conf.gpio_pin = rs485Params.gpioPin;
-	#elif defined(MACCHINA_ENABLE_BEAGLEBONE_RS485_HACK) // unpatched <linux/serial.h> header: gpioPin is padding[0]
+	#elif defined(POCO_SERIAL_ENABLE_BEAGLEBONE_RS485_HACK) // unpatched <linux/serial.h> header: gpioPin is padding[0]
 		rs485conf.padding[0] = rs485Params.gpioPin;
 	#endif
 	if (ioctl (_fd, TIOCSRS485, &rs485conf) < 0)
@@ -311,4 +311,4 @@ int SerialPortImpl::readImpl(char* buffer, std::size_t size)
 }
 
 
-} } // namespace IoT::Serial
+} } // namespace Poco::Serial

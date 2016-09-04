@@ -20,7 +20,7 @@
 #define IoT_Serial_SerialDeviceImpl_INCLUDED
 
 
-#include "IoT/Serial/SerialPort.h"
+#include "Poco/Serial/SerialPort.h"
 #include "IoT/Devices/SerialDevice.h"
 #include "IoT/Devices/DeviceImpl.h"
 #include "Poco/SharedPtr.h"
@@ -32,13 +32,13 @@ namespace IoT {
 namespace Serial {
 
 
-class IoTSerial_API SerialDeviceImpl: public IoT::Devices::DeviceImpl<IoT::Devices::SerialDevice, SerialDeviceImpl>, public Poco::Runnable
+class SerialDeviceImpl: public IoT::Devices::DeviceImpl<IoT::Devices::SerialDevice, SerialDeviceImpl>, public Poco::Runnable
 	/// Default implementation for SerialDevice using the
-	/// SerialPort class.
+	/// Poco::Serial::SerialPort class.
 {
 public:
 	typedef Poco::AutoPtr<SerialDeviceImpl> Ptr;
-	typedef Poco::SharedPtr<SerialPort> SerialPortPtr;
+	typedef Poco::SharedPtr<Poco::Serial::SerialPort> SerialPortPtr;
 
 	SerialDeviceImpl(SerialPortPtr pSerialPort);
 		/// Creates the SerialDeviceImpl using the given SerialPort object.

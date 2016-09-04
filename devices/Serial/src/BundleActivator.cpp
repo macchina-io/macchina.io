@@ -32,6 +32,7 @@ using Poco::OSP::ServiceRef;
 using Poco::OSP::ServiceFinder;
 using Poco::OSP::Properties;
 using Poco::OSP::PreferencesService;
+using Poco::Serial::SerialPort;
 
 
 namespace IoT {

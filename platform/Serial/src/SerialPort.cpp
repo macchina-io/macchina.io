@@ -1,20 +1,20 @@
 //
 // SerialPort.cpp
 //
-// $Id: //poco/1.4/IO/Serial/src/SerialPort.cpp#3 $
+// $Id$
 //
-// Library: IoT/Serial
+// Library: Serial
 // Package: Serial
 // Module:  SerialPort
 //
-// Copyright (c) 2009-2015, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2009-2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: BSL-1.0
 //
 
 
-#include "IoT/Serial/SerialPort.h"
+#include "Poco/Serial/SerialPort.h"
 #include "Poco/Format.h"
 #include "Poco/Exception.h"
 
@@ -29,7 +29,7 @@ using Poco::format;
 #endif
 
 
-namespace IoT {
+namespace Poco {
 namespace Serial {
 
 
@@ -270,4 +270,4 @@ void SerialPort::readBuffer()
 }
 
 
-} } // namespace IoT::Serial
+} } // namespace Poco::Serial

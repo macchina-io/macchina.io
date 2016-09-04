@@ -1,20 +1,20 @@
 //
 // SerialPort_WIN32.cpp
 //
-// $Id: //poco/1.4/IO/Serial/src/SerialPort_WIN32.cpp#2 $
+// $Id$
 //
-// Library: IoT/Serial
+// Library: Serial
 // Package: Serial
 // Module:  SerialPort
 //
-// Copyright (c) 2009-2015, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2009-2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: BSL-1.0
 //
 
 
-#include "IoT/Serial/SerialPort_WIN32.h"
+#include "Poco/Serial/SerialPort_WIN32.h"
 #include "Poco/Format.h"
 #include "Poco/UnicodeConverter.h"
 #include "Poco/Exception.h"
@@ -23,7 +23,7 @@
 using Poco::format;
 
 
-namespace IoT {
+namespace Poco {
 namespace Serial {
 
 
@@ -235,4 +235,4 @@ int SerialPortImpl::readImpl(char* buffer, std::size_t size)
 }
 
 
-} } // namespace IoT::Serial
+} } // namespace Poco::Serial

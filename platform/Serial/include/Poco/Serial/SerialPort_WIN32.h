@@ -1,36 +1,38 @@
 //
-// SerialPort_POSIX.h
+// SerialPort_WIN32.h
 //
-// $Id: //poco/1.4/IO/Serial/include/Poco/IO/Serial/SerialPort_POSIX.h#2 $
+// $Id$
 //
-// Library: IoT/Serial
+// Library: Serial
 // Package: Serial
 // Module:  SerialPort
 //
-// Definition of the SerialPortImpl class for POSIX.
+// Definition of the SerialPortImpl class for Windows (CE).
 //
-// Copyright (c) 2009-2015, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2009-2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: BSL-1.0
 //
 
 
-#ifndef IoT_Serial_SerialPort_POSIX_INCLUDED
-#define IoT_Serial_SerialPort_POSIX_INCLUDED
+#ifndef Poco_Serial_SerialPort_WIN32_INCLUDED
+#define Poco_Serial_SerialPort_WIN32_INCLUDED
 
 
-#include "IoT/Serial/Serial.h"
+#include "Poco/Serial/Serial.h"
+#include "Poco/Logger.h"
 #include "Poco/Timespan.h"
+#include "Poco/UnWindows.h"
 #include <cctype>
 
 
-namespace IoT {
+namespace Poco {
 namespace Serial {
 
 
-class IoTSerial_API SerialPortImpl
-	/// Serial port implementation for POSIX.
+class Serial_API SerialPortImpl
+	/// Serial port implementation for Windows.
 {
 public:
 	enum FlowControlImpl
@@ -38,7 +40,7 @@ public:
 		FLOW_NONE,
 		FLOW_RTSCTS
 	};
-
+	
 	struct RS485ParamsImpl
 	{
 		enum RS485Flags
@@ -82,7 +84,13 @@ public:
 	int writeImpl(const char* data, std::size_t size);
 
 private:
-	int _fd;
+	enum
+	{
+		CHARACTER_TIMEOUT = 2 // timeout for single characters in milliseconds
+	};
+	
+	HANDLE _handle;
+	bool _rtsState;
 };
 
 
@@ -91,11 +99,11 @@ private:
 //
 inline bool SerialPortImpl::isOpenImpl() const
 {
-	return _fd != -1;
+	return _handle != INVALID_HANDLE_VALUE;
 }
 
 
-} } // namespace IoT::Serial
+} } // namespace Poco::Serial
 
 
-#endif // IoT_Serial_SerialPort_POSIX_INCLUDED
+#endif // Poco_Serial_SerialPort_WIN32_INCLUDED

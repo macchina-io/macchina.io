@@ -3,7 +3,7 @@
 #
 # $Id$
 #
-# Makefile for macchina.io Serial library
+# Makefile for Poco Serial library
 #
 
 include $(POCO_BASE)/build/rules/global
@@ -13,17 +13,17 @@ include $(POCO_BASE)/build/rules/global
 # and enable hack.
 ifeq ($(findstring bone,$(shell uname -r)),bone)
 $(info BeagleBone detected - enabling RS485 hack)
-MACCHINA_ENABLE_BEAGLEBONE_RS485_HACK = 1
+POCO_SERIAL_ENABLE_BEAGLEBONE_RS485_HACK = 1
 endif
 
-ifdef MACCHINA_ENABLE_BEAGLEBONE_RS485_HACK
-SYSFLAGS += -DMACCHINA_ENABLE_BEAGLEBONE_RS485_HACK
+ifdef POCO_SERIAL_ENABLE_BEAGLEBONE_RS485_HACK
+SYSFLAGS += -DPOCO_SERIAL_ENABLE_BEAGLEBONE_RS485_HACK
 endif
 
 objects = SerialPort
 
-target         = IoTSerial
+target         = PocoSerial
 target_version = 1
-target_libs    = PocoUtil PocoXML PocoFoundation
+target_libs    = PocoFoundation
 
 include $(POCO_BASE)/build/rules/lib

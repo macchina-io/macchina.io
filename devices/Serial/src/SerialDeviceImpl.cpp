@@ -18,6 +18,9 @@
 #include <cmath>
 
 
+using Poco::Serial::SerialPort;
+
+
 namespace IoT {
 namespace Serial {
 

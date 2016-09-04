@@ -1,26 +1,26 @@
 //
 // SerialPort.h
 //
-// $Id: //poco/1.4/IO/Serial/include/Poco/IO/Serial/SerialPort.h#2 $
+// $Id$
 //
-// Library: IoT/Serial
+// Library: Serial
 // Package: Serial
 // Module:  SerialPort
 //
 // Definition of the SerialPort class.
 //
-// Copyright (c) 2009-2015, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2009-2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: BSL-1.0
 //
 
 
-#ifndef IoT_Serial_SerialPort_INCLUDED
-#define IoT_Serial_SerialPort_INCLUDED
+#ifndef Poco_Serial_SerialPort_INCLUDED
+#define Poco_Serial_SerialPort_INCLUDED
 
 
-#include "IoT/Serial/Serial.h"
+#include "Poco/Serial/Serial.h"
 #include "Poco/Logger.h"
 #include "Poco/Timespan.h"
 #include "Poco/Buffer.h"
@@ -28,17 +28,17 @@
 
 
 #if defined(_WIN32)
-#include "SerialPort_WIN32.h"
+#include "Poco/Serial/SerialPort_WIN32.h"
 #else
-#include "SerialPort_POSIX.h"
+#include "Poco/Serial/SerialPort_POSIX.h"
 #endif
 
 
-namespace IoT {
+namespace Poco {
 namespace Serial {
 
 
-class IoTSerial_API SerialPort: private SerialPortImpl
+class Serial_API SerialPort: private SerialPortImpl
 	/// This class provides an interface to a serial port.
 {
 public:
@@ -237,7 +237,7 @@ inline std::size_t SerialPort::available() const
 }
 
 
-} } // namespace IoT::Serial
+} } // namespace Poco::Serial
 
 
-#endif // IO_Serial_SerialPort_INCLUDED
+#endif // Poco_Serial_SerialPort_INCLUDED

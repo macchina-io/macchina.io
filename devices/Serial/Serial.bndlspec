@@ -21,8 +21,8 @@
 		bin/*.pdb,
 		bin/${osName}/${osArch}/*.so,
 		bin/${osName}/${osArch}/*.dylib,
-    	../../lib/${osName}/${osArch}/libIoTSerial*.1.dylib,
-    	../../lib/${osName}/${osArch}/libIoTSerial*.so.1
+    	../../platform/lib/${osName}/${osArch}/libPocoSerial*.1.dylib,
+    	../../platform/lib/${osName}/${osArch}/libPocoSerial*.so.1
 	</code>
 	<files>
 		bundle/*
