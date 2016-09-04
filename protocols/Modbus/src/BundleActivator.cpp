@@ -21,7 +21,7 @@
 #include "IoT/Modbus/RTUPort.h"
 #include "IoT/Modbus/ModbusMasterImpl.h"
 #include "IoT/Modbus/ModbusMasterServerHelper.h"
-#include "IoT/Serial/SerialPort.h"
+#include "Poco/Serial/SerialPort.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
 #include "Poco/NumberFormatter.h"
@@ -53,7 +53,7 @@ public:
 	{
 	}
 	
-	void createModbusRTUMaster(const std::string& uid, Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort, Poco::Timespan interCharTimeout)
+	void createModbusRTUMaster(const std::string& uid, Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan interCharTimeout)
 	{		
 		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<RTUPort>(new RTUPort(pSerialPort, interCharTimeout));
 		std::string symbolicName = "io.macchina.modbus";
@@ -92,18 +92,18 @@ public:
 			{
 				pContext->logger().information(Poco::format("Creating serial port for Modbus device '%s'.", device));
 
-				Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort = new IoT::Serial::SerialPort(device, speed, params);
+				Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort = new Poco::Serial::SerialPort(device, speed, params);
 				
 				if (_pPrefs->configuration()->getBool(baseKey + ".rs485.enable", false))
 				{
-					IoT::Serial::SerialPort::RS485Params rs485Params;
-					rs485Params.flags = IoT::Serial::SerialPort::RS485Params::RS485_ENABLED;
+					Poco::Serial::SerialPort::RS485Params rs485Params;
+					rs485Params.flags = Poco::Serial::SerialPort::RS485Params::RS485_ENABLED;
 					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.rtsOnSend", false))
-						rs485Params.flags |= IoT::Serial::SerialPort::RS485Params::RS485_RTS_ON_SEND;
+						rs485Params.flags |= Poco::Serial::SerialPort::RS485Params::RS485_RTS_ON_SEND;
 					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.rtsAfterSend", false))
-						rs485Params.flags |= IoT::Serial::SerialPort::RS485Params::RS485_RTS_AFTER_SEND;
+						rs485Params.flags |= Poco::Serial::SerialPort::RS485Params::RS485_RTS_AFTER_SEND;
 					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.useGPIO", false))
-						rs485Params.flags |= IoT::Serial::SerialPort::RS485Params::RS485_USE_GPIO;
+						rs485Params.flags |= Poco::Serial::SerialPort::RS485Params::RS485_USE_GPIO;
 						
 					rs485Params.delayRTSBeforeSend = _pPrefs->configuration()->getInt(baseKey + ".rs485.delayRTSBeforeSend", 0);
 					rs485Params.delayRTSAfterSend  = _pPrefs->configuration()->getInt(baseKey + ".rs485.delayRTSAfterSend", 0);

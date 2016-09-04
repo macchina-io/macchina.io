@@ -21,7 +21,7 @@ namespace IoT {
 namespace Modbus {
 
 
-RTUPort::RTUPort(Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort, Poco::Timespan interCharTimeout, ByteOrder byteOrder):
+RTUPort::RTUPort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan interCharTimeout, ByteOrder byteOrder):
 	_pSerialPort(pSerialPort),
 	_interCharTimeout(interCharTimeout),
 	_byteOrder(byteOrder),

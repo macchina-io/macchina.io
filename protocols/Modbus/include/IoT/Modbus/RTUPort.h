@@ -23,7 +23,7 @@
 #include "IoT/Modbus/Modbus.h"
 #include "IoT/Modbus/PDUWriter.h"
 #include "IoT/Modbus/PDUReader.h"
-#include "IoT/Serial/SerialPort.h"
+#include "Poco/Serial/SerialPort.h"
 #include "Poco/Timespan.h"
 #include "Poco/Buffer.h"
 #include "Poco/SharedPtr.h"
@@ -47,7 +47,7 @@ public:
 		RTU_LITTLE_ENDIAN = 2
 	};
 	
-	RTUPort(Poco::SharedPtr<IoT::Serial::SerialPort> pSerialPort, Poco::Timespan interCharTimeout = 750, ByteOrder byteOrder = RTU_BIG_ENDIAN);
+	RTUPort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan interCharTimeout = 750, ByteOrder byteOrder = RTU_BIG_ENDIAN);
 		/// Creates a RTUPort using the given SerialPort.
 		///
 		/// The recommended value for interCharTimeout is 750us.
@@ -115,7 +115,7 @@ private:
 	RTUPort(const RTUPort&);
 	RTUPort& operator = (const RTUPort&);
 	
-	Poco::SharedPtr<IoT::Serial::SerialPort> _pSerialPort;
+	Poco::SharedPtr<Poco::Serial::SerialPort> _pSerialPort;
 	Poco::Timespan _interCharTimeout;
 	ByteOrder _byteOrder;
 	Poco::Buffer<char> _sendBuffer;
