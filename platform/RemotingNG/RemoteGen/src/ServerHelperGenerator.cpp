@@ -278,12 +278,6 @@ void ServerHelperGenerator::helperSpecialization(const Poco::CppParser::Function
 
 void ServerHelperGenerator::constructorCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
-	poco_assert (addParam);
-	AbstractGenerator* pAGen = reinterpret_cast<AbstractGenerator*>(addParam);
-	ServerHelperGenerator* pGen = dynamic_cast<ServerHelperGenerator*>(pAGen);
-	poco_check_ptr (pGen);
-	const Poco::CppParser::Struct* pStructIn = pGen->_pStructIn;
-
 	gen.writeMethodImplementation("_pORB = &Poco::RemotingNG::ORB::instance();");
 	gen.writeMethodImplementation("registerSkeleton();");
 }
