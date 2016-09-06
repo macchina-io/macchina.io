@@ -105,7 +105,7 @@ Poco::Any DCMotor::getDisplayState(const std::string&) const
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	bool enabled;
-	int rc = dc_is_enabled(&_dc, &enabled);
+	dc_is_enabled(&_dc, &enabled);
 
 	Poco::Int16 velocity;
 	dc_get_current_velocity(&_dc, &velocity);
