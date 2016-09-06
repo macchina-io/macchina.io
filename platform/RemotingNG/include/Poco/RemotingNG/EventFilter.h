@@ -365,6 +365,10 @@ public:
 				return true;
 			}
 			else return false;
+			
+		default:
+			poco_bugcheck();
+			return false;
 		}
 	}
 	
