@@ -72,6 +72,8 @@ v8base: $(V8BASE)
 
 v8deps: v8base
 	mkdir -p $(V8BASE)/build
+	mkdir -p $(V8BASE)/out
+	touch $(V8BASE)/out/environment
 	
 shared_debug: v8deps 
 	-$(MAKE) -C $(V8BASE) $(V8ARCH).debug $(V8FLAGS) 
