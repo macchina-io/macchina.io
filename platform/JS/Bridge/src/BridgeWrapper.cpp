@@ -275,7 +275,7 @@ BridgeHolder::~BridgeHolder()
 void BridgeHolder::setPersistent(const v8::Persistent<v8::Object>& jsObject)
 {
 	_persistent.Reset(_pIsolate, jsObject);
-	_persistent.SetWeak(this, BridgeHolder::destruct);
+	_persistent.SetWeak(this, BridgeHolder::destruct, v8::WeakCallbackType::kParameter);
 	_persistent.MarkIndependent();
 }
 
@@ -320,9 +320,8 @@ BridgeHolder::Ptr BridgeHolder::find(const std::string& subscriberURI)
 }
 
 
-void BridgeHolder::destruct(const v8::WeakCallbackData<v8::Object, BridgeHolder>& data)
+void BridgeHolder::destruct(const v8::WeakCallbackInfo<BridgeHolder>& data)
 {
-	data.GetValue().Clear();
 	data.GetParameter()->clear();
 }
 

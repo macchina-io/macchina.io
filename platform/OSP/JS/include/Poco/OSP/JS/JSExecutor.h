@@ -67,7 +67,8 @@ public:
 		/// Returns the global module registry.
 
 protected:
-	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
+	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
+	void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate);
 	void handleError(const ErrorInfo& errorInfo);
 
 private:	
@@ -110,7 +111,8 @@ public:
 		/// Returns the bundle context.
 	
 protected:
-	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
+	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
+	void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate);
 	void handleError(const ErrorInfo& errorInfo);
 	void onBundleStopped(const void* pSender, Poco::OSP::BundleEvent& ev);
 

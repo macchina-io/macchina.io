@@ -36,8 +36,8 @@ class JSCore_API PooledIsolate
 public:
 	typedef Poco::ObjectPool<PooledIsolate> Pool;
 
-	PooledIsolate();
-		/// Creates the PooledIsolate.
+	explicit PooledIsolate(Poco::UInt64 memoryLimit);
+		/// Creates the PooledIsolate with the given memoryLimit.
 
 	~PooledIsolate();
 		/// Destroys the PooledIsolate.
@@ -52,6 +52,7 @@ public:
 		/// Returns the persistent handle for the object template with the given name.
 
 private:
+	PooledIsolate();
 	PooledIsolate(const PooledIsolate&);
 	PooledIsolate& operator = (const PooledIsolate&);
 	
@@ -100,6 +101,8 @@ private:
 //
 // inlines
 //
+
+
 inline v8::Isolate* PooledIsolate::isolate() const
 {
 	return _pIsolate;

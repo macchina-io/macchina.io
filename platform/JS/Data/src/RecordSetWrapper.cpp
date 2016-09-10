@@ -187,7 +187,7 @@ v8::Handle<v8::ObjectTemplate> RecordSetWrapper::objectTemplate(v8::Isolate* pIs
 }
 	
 
-void RecordSetWrapper::destruct(const v8::WeakCallbackData<v8::Object, RecordSetHolder>& data)
+void RecordSetWrapper::destruct(const v8::WeakCallbackInfo<RecordSetHolder>& data)
 {
 	delete data.GetParameter();
 }

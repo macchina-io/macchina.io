@@ -94,7 +94,7 @@ protected:
 	void unregisterHolder();
 	void disableEvents();
 	
-	static void destruct(const v8::WeakCallbackData<v8::Object, BridgeHolder>& data);
+	static void destruct(const v8::WeakCallbackInfo<BridgeHolder>& data);
 
 private:
 	typedef std::map<std::string, BridgeHolder*> HolderMap;

@@ -50,6 +50,8 @@ public:
 	{
 		_pContext = pContext;
 	
+		Poco::JS::Core::initialize();
+	
 		_pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(_pContext);
 		_pXPS = Poco::OSP::ServiceFinder::find<Poco::OSP::ExtensionPointService>(_pContext);
 
@@ -104,6 +106,8 @@ public:
 		pContext->registry().serviceUnregistered -= Poco::delegate(this, &JSBundleActivator::handleServiceUnregistered);
 
 		_pContext = 0;
+		
+		Poco::JS::Core::uninitialize();
 	}
 
 	void handleServiceRegistered(const void* sender, ServiceEvent& event)

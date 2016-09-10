@@ -159,10 +159,9 @@ public:
 		return _persistent;
 	}
 	
-	static void destruct(const v8::WeakCallbackData<v8::Object, WeakPersistentWrapper>& data)
+	static void destruct(const v8::WeakCallbackInfo<WeakPersistentWrapper>& info)
 	{
-		data.GetValue().Clear();
-		delete data.GetParameter();
+		delete info.GetParameter();
 	}
 	
 private:
@@ -198,7 +197,10 @@ public:
 		v8::Local<v8::External> ext = v8::External::New(pIsolate, pNative);
 		poco_assert (wrapper->InternalFieldCount() > 0);
 		wrapper->SetInternalField(0, ext);
-		wrapper->SetHiddenValue(v8::String::NewFromUtf8(pIsolate, "Poco::nativeType"), v8::String::NewFromUtf8(pIsolate, typeid(T).name()));
+		wrapper->SetPrivate(
+			pIsolate->GetCurrentContext(), 
+			v8::Private::New(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")), 
+			v8::String::NewFromUtf8(pIsolate, typeid(T).name()));
 		return handleScope.Escape(wrapper);
 	}
 
@@ -216,7 +218,7 @@ public:
 		typedef WeakPersistentWrapper<T*, Internal::DeletePolicy<T*> > WPW;
 		
 		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative), pNative);
-		pWPW->persistent().SetWeak(pWPW, WPW::destruct);
+		pWPW->persistent().SetWeak(pWPW, WPW::destruct, v8::WeakCallbackType::kParameter);
 		pWPW->persistent().MarkIndependent();
 		return pWPW->persistent();
 	}
@@ -227,7 +229,7 @@ public:
 		typedef WeakPersistentWrapper<Poco::SharedPtr<T>, Internal::NoReleasePolicy<Poco::SharedPtr<T> > > WPW;
 		
 		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative.get()), pNative);
-		pWPW->persistent().SetWeak(pWPW, WPW::destruct);
+		pWPW->persistent().SetWeak(pWPW, WPW::destruct, v8::WeakCallbackType::kParameter);
 		pWPW->persistent().MarkIndependent();
 		return pWPW->persistent();
 	}
@@ -238,7 +240,7 @@ public:
 		typedef WeakPersistentWrapper<Poco::AutoPtr<T>, Internal::NoReleasePolicy<Poco::AutoPtr<T> > > WPW;
 		
 		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative.get()), pNative);
-		pWPW->persistent().SetWeak(pWPW, WPW::destruct);
+		pWPW->persistent().SetWeak(pWPW, WPW::destruct, v8::WeakCallbackType::kParameter);
 		pWPW->persistent().MarkIndependent();
 		return pWPW->persistent();
 	}
@@ -280,12 +282,16 @@ public:
 			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
 			if (object->InternalFieldCount() > 0)
 			{
-				v8::Local<v8::Value> nativeType = object->GetHiddenValue(v8::String::NewFromUtf8(pIsolate, "Poco::nativeType"));
-				if (!nativeType.IsEmpty() && nativeType->IsString() && toString(nativeType) == typeid(T).name())
+				v8::MaybeLocal<v8::Value> maybeNativeType = object->GetPrivate(pIsolate->GetCurrentContext(), v8::Private::New(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")));
+				if (!maybeNativeType.IsEmpty())
 				{
-					v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(object->GetInternalField(0));
-					void* pRaw = wrap->Value();
-					return static_cast<T*>(pRaw);
+					v8::Local<v8::Value> nativeType = maybeNativeType.ToLocalChecked();
+					if (nativeType->IsString() && toString(nativeType) == typeid(T).name())
+					{
+						v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(object->GetInternalField(0));
+						void* pRaw = wrap->Value();
+						return static_cast<T*>(pRaw);
+					}
 				}
 			}
 		}
@@ -300,10 +306,14 @@ public:
 			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
 			if (object->InternalFieldCount() > 0)
 			{
-				v8::Local<v8::Value> nativeType = object->GetHiddenValue(v8::String::NewFromUtf8(pIsolate, "Poco::nativeType"));
-				if (!nativeType.IsEmpty() && nativeType->IsString())
+				v8::MaybeLocal<v8::Value> maybeNativeType = object->GetPrivate(pIsolate->GetCurrentContext(), v8::Private::New(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")));
+				if (!maybeNativeType.IsEmpty())
 				{
-					return toString(nativeType) == typeid(T).name();
+					v8::Local<v8::Value> nativeType = maybeNativeType.ToLocalChecked();
+					if (nativeType->IsString())
+					{
+						return toString(nativeType) == typeid(T).name();
+					}
 				}
 			}
 		}

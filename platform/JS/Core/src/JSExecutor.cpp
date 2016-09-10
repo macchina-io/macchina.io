@@ -27,6 +27,7 @@
 #include "Poco/Delegate.h"
 #include "Poco/URIStreamOpener.h"
 #include "Poco/StreamCopier.h"
+#include "libplatform/libplatform.h"
 #include <memory>
 
 
@@ -70,7 +71,7 @@ Poco::ThreadLocal<JSExecutor*> JSExecutor::_pCurrentExecutor;
 JSExecutor::JSExecutor(const std::string& source, const Poco::URI& sourceURI, Poco::UInt64 memoryLimit):
 	_source(source),
 	_sourceURI(sourceURI),
-	_memoryLimit(memoryLimit)
+	_pooledIso(memoryLimit)
 {
 	init();
 }
@@ -80,7 +81,7 @@ JSExecutor::JSExecutor(const std::string& source, const Poco::URI& sourceURI, co
 	_source(source),
 	_sourceURI(sourceURI),
 	_moduleSearchPaths(moduleSearchPaths),
-	_memoryLimit(memoryLimit)
+	_pooledIso(memoryLimit)
 {
 	init();
 }
@@ -91,7 +92,7 @@ JSExecutor::~JSExecutor()
 	_script.Reset();
 	_scriptContext.Reset();
 	_globalContext.Reset();
-	_globalObject.Reset();	
+	_globalObjectTemplate.Reset();	
 	
 	try
 	{
@@ -106,19 +107,6 @@ JSExecutor::~JSExecutor()
 
 void JSExecutor::init()
 {
-	v8::Isolate* pIsolate = _pooledIso.isolate();
-
-	v8::ResourceConstraints resourceConstraints;
-#if POCO_JS_V8VERSION >= 0x031C0400
-	resourceConstraints.ConfigureDefaults(_memoryLimit, _memoryLimit, 1);
-#else
-	resourceConstraints.ConfigureDefaults(_memoryLimit, 1);
-#endif
-	if (!v8::SetResourceConstraints(pIsolate, &resourceConstraints))
-	{
-		throw JSException("Cannot set resource constraints");
-	}
-
 	_importStack.push_back(_sourceURI);
 }
 
@@ -185,8 +173,8 @@ void JSExecutor::setup()
 	_globalContext.Reset(pIsolate, globalContext);
 	
 	v8::Local<v8::ObjectTemplate> globalObject = v8::ObjectTemplate::New(pIsolate);
-	_globalObject.Reset(pIsolate, globalObject);
-	registerGlobals(globalObject, pIsolate);
+	_globalObjectTemplate.Reset(pIsolate, globalObject);
+	setupGlobalObjectTemplate(globalObject, pIsolate);
 
 	v8::Local<v8::Context> scriptContext = v8::Context::New(pIsolate, 0, globalObject);
 	_scriptContext.Reset(pIsolate, scriptContext);
@@ -234,27 +222,34 @@ void JSExecutor::runImpl()
 	v8::Isolate::Scope isoScope(pIsolate);
 	v8::HandleScope handleScope(pIsolate);
 
-	bool mustUpdateGlobals = true;
-	if (_globalObject.IsEmpty())
+	if (_globalObjectTemplate.IsEmpty())
 	{
 		setup();
-		mustUpdateGlobals = false;
 	}
 
 	v8::Local<v8::Context> globalContext = v8::Local<v8::Context>::New(pIsolate, _globalContext);
 	v8::Context::Scope globalContextScope(globalContext);
 	
-	v8::Local<v8::ObjectTemplate> global(v8::Local<v8::ObjectTemplate>::New(pIsolate, _globalObject));
-	if (mustUpdateGlobals)
-	{
-		updateGlobals(global, pIsolate);
-	}
+	v8::Local<v8::ObjectTemplate> global(v8::Local<v8::ObjectTemplate>::New(pIsolate, _globalObjectTemplate));
 
 	v8::Local<v8::Context> scriptContext = v8::Local<v8::Context>::New(pIsolate, _scriptContext);
 	v8::Context::Scope contextScope(scriptContext);
 
 	if (_script.IsEmpty())
 	{
+		// Get global/root module and imports
+		v8::Local<v8::Object> global = scriptContext->Global();
+		
+		v8::Local<v8::Object> moduleObject = v8::Object::New(pIsolate);
+		moduleObject->Set(v8::String::NewFromUtf8(pIsolate, "id"), v8::String::NewFromUtf8(pIsolate, _sourceURI.toString().c_str()));
+		v8::Local<v8::Object> importsObject = v8::Object::New(pIsolate);
+		moduleObject->Set(v8::String::NewFromUtf8(pIsolate, "imports"), importsObject);
+		v8::Local<v8::Object> exportsObject = v8::Object::New(pIsolate);
+		moduleObject->Set(v8::String::NewFromUtf8(pIsolate, "exports"), exportsObject);
+		global->Set(v8::String::NewFromUtf8(pIsolate, "module"), moduleObject);
+
+		setupGlobalObject(global, pIsolate);
+
 		compile();
 	}
 
@@ -263,6 +258,7 @@ void JSExecutor::runImpl()
 		v8::V8::CancelTerminateExecution(pIsolate);
 		v8::TryCatch tryCatch;
 		v8::Local<v8::Script> script(v8::Local<v8::Script>::New(pIsolate, _script));
+		
 		v8::Local<v8::Value> result = script->Run();
 		if (result.IsEmpty() || tryCatch.HasCaught())
 		{
@@ -460,7 +456,7 @@ void JSExecutor::includeScript(const std::string& uri)
 }
 
 
-void JSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
+void JSExecutor::setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
 {
 	Poco::JS::Core::DateTimeWrapper dateTimeWrapper;
 	global->Set(v8::String::NewFromUtf8(pIsolate, "DateTime"), dateTimeWrapper.constructor(pIsolate));
@@ -474,6 +470,13 @@ void JSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isol
 	Poco::JS::Core::LoggerWrapper loggerWrapper;
 	global->Set(v8::String::NewFromUtf8(pIsolate, "Logger"), loggerWrapper.constructor(pIsolate));
 
+	global->Set(v8::String::NewFromUtf8(pIsolate, "include"), v8::FunctionTemplate::New(pIsolate, include));
+	global->Set(v8::String::NewFromUtf8(pIsolate, "require"), v8::FunctionTemplate::New(pIsolate, require));
+}
+
+
+void JSExecutor::setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate)
+{
 	Poco::JS::Core::SystemWrapper systemWrapper;
 	v8::Local<v8::Object> systemObject = systemWrapper.wrapNative(pIsolate);
 	global->Set(v8::String::NewFromUtf8(pIsolate, "system"), systemObject);
@@ -485,22 +488,6 @@ void JSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isol
 	Poco::JS::Core::URIWrapper uriWrapper;
 	v8::Local<v8::Object> uriObject = uriWrapper.wrapNative(pIsolate);
 	global->Set(v8::String::NewFromUtf8(pIsolate, "uri"), uriObject);
-
-	global->Set(v8::String::NewFromUtf8(pIsolate, "include"), v8::FunctionTemplate::New(pIsolate, include));
-	global->Set(v8::String::NewFromUtf8(pIsolate, "require"), v8::FunctionTemplate::New(pIsolate, require));
-	
-	v8::Local<v8::Object> moduleObject = v8::Object::New(pIsolate);
-	moduleObject->Set(v8::String::NewFromUtf8(pIsolate, "id"), v8::String::NewFromUtf8(pIsolate, _sourceURI.toString().c_str()));
-	v8::Local<v8::Object> importsObject = v8::Object::New(pIsolate);
-	moduleObject->Set(v8::String::NewFromUtf8(pIsolate, "imports"), importsObject);
-	v8::Local<v8::Object> exportsObject = v8::Object::New(pIsolate);
-	moduleObject->Set(v8::String::NewFromUtf8(pIsolate, "exports"), exportsObject);
-	global->Set(v8::String::NewFromUtf8(pIsolate, "module"), moduleObject);
-}
-
-
-void JSExecutor::updateGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
-{
 }
 
 
@@ -661,19 +648,25 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 	else
 	{
 		poco_assert (pStream);
+
 		// Create context for import
-		v8::Local<v8::ObjectTemplate> moduleTemplate(v8::Local<v8::ObjectTemplate>::New(pIsolate, _globalObject));
+		v8::Local<v8::ObjectTemplate> moduleTemplate(v8::Local<v8::ObjectTemplate>::New(pIsolate, _globalObjectTemplate));
+
+		v8::Local<v8::Context> moduleContext = v8::Context::New(pIsolate, 0, moduleTemplate);
+		v8::Context::Scope moduleContextScope(moduleContext);
+
+		v8::Local<v8::Object> moduleGlobal = moduleContext->Global();		
 
 		v8::Local<v8::Object> moduleObject = v8::Object::New(pIsolate);
 		moduleObject->Set(v8::String::NewFromUtf8(pIsolate, "id"), jsModuleURI);
 		v8::Local<v8::Object> exportsObject = v8::Object::New(pIsolate);
 		moduleObject->Set(v8::String::NewFromUtf8(pIsolate, "exports"), exportsObject);
-		moduleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "module"), moduleObject);
-		moduleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "exports"), exportsObject);
+		moduleGlobal->Set(v8::String::NewFromUtf8(pIsolate, "module"), moduleObject);
+		moduleGlobal->Set(v8::String::NewFromUtf8(pIsolate, "exports"), exportsObject);
+		
+		setupGlobalObject(moduleGlobal, pIsolate);
+		
 		globalImports->Set(jsModuleURI, exportsObject);
-
-		v8::Local<v8::Context> moduleContext = v8::Context::New(pIsolate, 0, moduleTemplate);
-		v8::Context::Scope moduleContextScope(moduleContext);
 	
 		std::string source;
 		Poco::StreamCopier::copyToString(*pStream, source);
@@ -910,9 +903,9 @@ void TimedJSExecutor::run()
 }
 
 
-void TimedJSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
+void TimedJSExecutor::setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
 {
-	JSExecutor::registerGlobals(global, pIsolate);
+	JSExecutor::setupGlobalObjectTemplate(global, pIsolate);
 	
 	global->Set(v8::String::NewFromUtf8(pIsolate, "setImmediate"), v8::FunctionTemplate::New(pIsolate, setImmediate));
 	global->Set(v8::String::NewFromUtf8(pIsolate, "setTimeout"), v8::FunctionTemplate::New(pIsolate, setTimeout));
@@ -1075,6 +1068,20 @@ void TimedJSExecutor::cancelTimer(const v8::FunctionCallbackInfo<v8::Value>& arg
 	{
 		Wrapper::returnException(args, exc);
 	}
+}
+
+
+void initialize()
+{
+	v8::V8::InitializePlatform(v8::platform::CreateDefaultPlatform());
+	v8::V8::Initialize();
+}
+
+
+void uninitialize()
+{
+	v8::V8::Dispose();
+	v8::V8::ShutdownPlatform();
 }
 
 

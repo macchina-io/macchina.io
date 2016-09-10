@@ -8,10 +8,6 @@
 
 include $(POCO_BASE)/build/rules/global
 
-V8VERSION = 0x031C0400 
-
-CXXFLAGS += -DPOCO_JS_V8VERSION=$(V8VERSION)
-
 objects = Wrapper PooledIsolate \
 	LoggerWrapper ConsoleWrapper SystemWrapper DateTimeWrapper LocalDateTimeWrapper \
 	ConfigurationWrapper ApplicationWrapper URIWrapper TimerWrapper \
@@ -19,6 +15,6 @@ objects = Wrapper PooledIsolate \
 
 target         = PocoJSCore
 target_version = 1
-target_libs    = PocoUtil PocoXML PocoFoundation v8
+target_libs    = PocoUtil PocoJSON PocoXML PocoFoundation v8 v8_libplatform v8_libbase 
 
 include $(POCO_BASE)/build/rules/lib

@@ -117,12 +117,12 @@ void HTTPResponseWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& a
 	ResponseHolder* pResponseHolder = new ResponseHolderImpl();
 	HTTPResponseWrapper wrapper;
 	v8::Persistent<v8::Object> responseObject(args.GetIsolate(), wrapper.wrapNative(args.GetIsolate(), pResponseHolder));
-	responseObject.SetWeak(pResponseHolder, destruct);
+	responseObject.SetWeak(pResponseHolder, destruct, v8::WeakCallbackType::kParameter);
 	args.GetReturnValue().Set(responseObject);
 }
 
 
-void HTTPResponseWrapper::destruct(const v8::WeakCallbackData<v8::Object, ResponseHolder>& data)
+void HTTPResponseWrapper::destruct(const v8::WeakCallbackInfo<ResponseHolder>& data)
 {
 	delete data.GetParameter();
 }

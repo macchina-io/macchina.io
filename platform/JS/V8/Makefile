@@ -8,15 +8,15 @@
 
 include $(POCO_BASE)/build/rules/global
 
-V8VERSION = 3.28.4
-GYPREVISION = 1831
-V8BASE = v8-$(V8VERSION)
+V8VERSION = 5.2.361.53
+V8BASE = v8
 ifdef V8_NOSNAPSHOT
 V8SNAPSHOT = snapshot=off
 else
-V8SNAPSHOT = snapshot=on
+GYPFLAGS=-Dv8_use_external_startup_data=0
+export GYPFLAGS
 endif
-V8FLAGS = library=shared i18nsupport=off werror=no $(V8SNAPSHOT) $(V8_EXTRA_FLAGS)
+V8FLAGS = component=shared_library i18nsupport=off werror=no $(V8SNAPSHOT) $(V8_EXTRA_FLAGS)
 
 .PHONY: v8base v8deps
 
@@ -49,10 +49,9 @@ $(info Building V8 for arch $(V8ARCH) with flags: $(V8FLAGS))
 ifeq ($(V8ARCH),)
 $(error Unknown target architecture)
 endif
-
 ifeq ($(findstring clang,$(CXX)),clang)
 GYP_DEFINES += clang=1
-CXX += -Wno-tautological-undefined-compare -Wno-inconsistent-missing-override -Wno-shift-negative-value
+CXX += -Wno-unknown-warning-option
 endif
 
 export GYP_DEFINES
@@ -69,16 +68,10 @@ endif
 
 default: v8install
 
-$(V8BASE): archive/$(V8BASE).tar.gz
-	tar xfz $<
-	cd $(V8BASE) && patch -p1 <../patches/armv6.patch
-	cd $(V8BASE) && patch -p1 <../patches/standalone.patch
-
 v8base: $(V8BASE)
 
 v8deps: v8base
 	mkdir -p $(V8BASE)/build
-	cd $(V8BASE)/build && tar xfz ../../archive/gyp-$(GYPREVISION).tar.gz
 	
 shared_debug: v8deps 
 	-$(MAKE) -C $(V8BASE) $(V8ARCH).debug $(V8FLAGS) 
@@ -90,9 +83,13 @@ all_shared: shared_debug shared_release
 
 v8install: $(DEFAULT_TARGET)
 	if [ -d $(V8BASE)/out/$(V8ARCH).release ] ; then cp $(V8BASE)/out/$(V8ARCH).release/$(v8targetlibdir)/libv8$(SHAREDLIBLINKEXT) $(LIBPATH) ; fi
+	if [ -d $(V8BASE)/out/$(V8ARCH).release ] ; then cp $(V8BASE)/out/$(V8ARCH).release/$(v8targetlibdir)/libv8_libplatform.a $(LIBPATH) ; fi
 	if [ -d $(V8BASE)/out/$(V8ARCH).debug ] ; then cp $(V8BASE)/out/$(V8ARCH).debug/$(v8targetlibdir)/libv8$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8d$(SHAREDLIBLINKEXT) ; fi
+	if [ -d $(V8BASE)/out/$(V8ARCH).debug ] ; then cp $(V8BASE)/out/$(V8ARCH).debug/$(v8targetlibdir)/libv8_libplatform.a $(LIBPATH)/libv8_libplatformd.a ; fi
 	mkdir -p include
+	mkdir -p include/libplatform
 	cp $(V8BASE)/include/*.h include
+	cp $(V8BASE)/include/libplatform/*.h include/libplatform	
 
 clean:
 	-$(MAKE) -C $(V8BASE) clean
