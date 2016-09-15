@@ -221,7 +221,6 @@ void SchedulerExtensionPoint::scheduleTasks()
 					(it->schedule.monthsMask & (1 << now.month())) &&
 					(it->schedule.daysOfWeekMask & (1 << now.dayOfWeek())))
 				{
-					it->pExecutor->run();
 					CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(it->pExecutor, "start");
 					it->pExecutor->schedule(pStartTask);
 				}
@@ -290,9 +289,10 @@ void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundl
 		_tasks.push_back(task);
 	}
 
+	task.pExecutor->run();
+
 	if (task.schedule.expression == "@start")
 	{
-		task.pExecutor->run();
 		CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(task.pExecutor, "start");
 		task.pExecutor->schedule(pStartTask);
 		pStartTask->wait();
@@ -310,6 +310,7 @@ void SchedulerExtensionPoint::onBundleStopped(const void* pSender, Poco::OSP::Bu
 		if (it->pExecutor->bundle() == pBundle)
 		{
 			_pContext->logger().information(Poco::format("Stopping script %s.", it->pExecutor->uri().toString()));
+			it->pExecutor->terminate();
 			CallExportedFunctionTask::Ptr pStopTask = new CallExportedFunctionTask(it->pExecutor, "stop");
 			it->pExecutor->schedule(pStopTask);
 			pStopTask->wait();

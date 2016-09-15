@@ -1,0 +1,130 @@
+macchina.io Script Scheduler
+AAAAMacchinaIO
+
+!!!Introduction
+
+macchina.io contains a Script Scheduler for JavaScript which is responsible for starting and stopping scripts, in a fashion similar to the well-known cron job scheduler available on Unix platforms. Installed scripts can be started daily at a certain time, on a certain day of the week at a certain time, or keep running continuously. Multiple scripts can run in parallel. 
+
+
+!!!Specifying Schedules
+
+The format to specify script execution schedules is nearly the same as the format used by cron, although with some extensions. The schedule for a script is specified using the schedule attribute of the <*com.appinf.osp.js.schedule*> extension point element.
+
+The general format of the attribute value is shown below:
+
+    * * * * *
+    │ │ │ │ │
+    │ │ │ │ │
+    │ │ │ │ └─── Day of Week (0 – 7, 0/7 = Sun, 1 = Mon, 6 = Sat)
+    │ │ │ └───── Month (1 - 12)
+    │ │ └─────── Day of Month (1 - 31)
+    │ └───────── Hour (0 - 23)
+    └─────────── Minute (0 - 59)
+----
+
+The single fields in the cron expression can have special values, which are specified below:
+
+    Field Name     Allowed Values                         Allowed Special Chars
+    ---------------------------------------------------------------------------
+    Minute         0 – 59                                 * , - /
+    Hour           0 – 23                                 * , - /
+    Day of Month   1 – 31                                 * , -
+    Month          1 – 12 or JAN, FEB, ... DEC            * , -
+    Day of Week	   0 – 7 or SUN, MON, TUE, ... SAT, SUN   * , -
+----
+
+Commas (",") are used to separate items of a list. For example, using "MON,WED,FRI" in the day of week field means Mondays, Wednesdays and Fridays.
+Hyphens ("-") define ranges. For example, "MON-FRI" or "1-5" in the day of week field means Monday, Tuesday, Wednesday, Thursday and Friday.
+Slashes ("/") can be combined with ranges to specify step values. For example, */5 in the minutes field indicates every 5 minutes. It is shorthand for the more verbose form 5,10,15,20,25,30,35,40,45,50,55,00. 
+Multiple independent schedules can be specified using multiple extension point elements.
+
+Hours refer to local time.
+
+Example: Run the script <*nightly.js*> everyday at 22:00 (10:00 pm):
+
+    <extension point="com.appinf.osp.js.schedule" 
+        script="nightly.js" schedule="0 22 * * *"/>
+----
+
+Note that trailing asterisks can be omitted, therefore the above can also be written as:
+
+    <extension point="com.appinf.osp.js.schedule" 
+        script="nightly.js" schedule="0 22"/>
+----
+
+In addition to the standard cron notation, the following special values can also be used:
+
+    * @yearly: Run once a year at midnight of January 1 (0 0 1 1 *)
+    * @monthly: Run once a month at midnight of the first day of the month (0 0 1 * *)
+    * @weekly: Run once a week at midnight on Sunday morning (0 0 * * 0)
+    * @daily: Run once a day at midnight (0 0 * * *)
+    * @hourly: Run once an hour at the beginning of the hour (0 * * * *)
+    * @start: Run the script when the bundle containing it is started.
+    * @stop: Run the script when the bundle containing it is stopped.
+
+Once a script has been started by the scheduler, it continues to run until it exits. By specifying the @start schedule, a script can run continuously. A script can also use the setTimeout() and setInterval() functions provided by the macchina.io platform to schedule tasks internally. For example, using setInterval(), a script can perform a certain task every 30 seconds:
+
+    setInterval(function() { 
+            logger.information("30 seconds passed."); 
+        }, 30000);
+----
+
+This way it is possible to schedule tasks that cannot be expressed in a cron expression.
+
+If a script is still running from the previous scheduled invocation when a new invocation is to be scheduled, the new invocation will be delayed until the previous one completes.
+
+The date and time range when a script execution should be scheduled can be restricted with two additional attributes in the extension point. The attribute <*notBefore*> allows to specify the first date/time the script should be scheduled. The attribute notAfter allows to specify the latest possible execution of the script. The date and time is given in ISO8601 format.
+Example: run the script <*nightly.js*> everyday at 22:00, starting on January 5, 2016 until January 10, 2016:
+
+    <extension point="com.appinf.osp.js.schedule" 
+        script="nightly.js" schedule="0 22 * * *"
+        notBefore="2016-01-05T00:00:00"
+        notAfter="2016-01-10T23:59:59" />
+----
+
+Run script on 5th day of every month starting January 2016:
+
+    <extension point="com.appinf.osp.js.schedule" 
+        script="nightly.js" schedule="0 0 5 * *"
+        notBefore="2016-01-01" />
+----
+
+Starting from December 1, 2015, every day at 10 am until December 25, 2016:
+
+    <extension point="com.appinf.osp.js.schedule" 
+        script="nightly.js" schedule="10 0 * * *"
+        notBefore="2015-12-01"
+        notAfter="2016-12-26" />
+----
+
+Run script every Wednesday and Saturday at 22:00:
+
+    <extension point="com.appinf.osp.js.schedule" 
+        script="nightly.js" schedule="22 0 * * WED,SAT" />
+----
+
+
+!!!Script Files
+
+Scripts for the scheduler must be written as modules exporting a <[start()]>, and optionally, a <[stop()]> function. The module is initialized when the bundle containing the scheduler script is loaded. The <[start()]> function is called whenever the script is scheduled to run. The optional <[stop()]> function is called when the bundle containing the script is stopped. It can be used to perform cleanup tasks. Generally, a script for the scheduler should have the following structure:
+
+	logger.debug("Initializing Script");
+	
+	// Perform initialization tasks (called once when bundle is started).
+
+	module.exports = {
+		start: function() {
+			logger.debug("Script execution triggered by scheduler.");
+			
+			// Perform periodic tasks at the scheduled times.
+		},
+	
+		stop: function() {
+			logger.debug("Script terminating.");
+			
+			// Perform cleanup tasks when the bundle is stopped.
+		}
+	};
+----
+
+
