@@ -60,12 +60,15 @@
 				-I${MacchinaBase}/platform/OSP/include
 				-I${MacchinaBase}/platform/OSP/Web/include
 				-I${MacchinaBase}/platform/OSP/WebEvent/include
+				-I${MacchinaBase}/platform/OSP/JS/include
 				-I${MacchinaBase}/platform/CppParser/include
 				-I${MacchinaBase}/platform/CodeGeneration/include
 				-I${MacchinaBase}/platform/RemotingNG/include
 				-I${MacchinaBase}/platform/RemotingNG/TCP/include
 				-I${MacchinaBase}/platform/WebTunnel/include
 				-I${MacchinaBase}/platform/Geo/include
+				-I${MacchinaBase}/platform/Serial/include
+				-I${MacchinaBase}/platform/Redis/include
 				-I${MacchinaBase}/devices/Devices/include
 				-I${MacchinaBase}/devices/Serial/include
 				-I${MacchinaBase}/devices/GNSS/include

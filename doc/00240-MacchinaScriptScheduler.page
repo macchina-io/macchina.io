@@ -12,14 +12,14 @@ The format to specify script execution schedules is nearly the same as the forma
 
 The general format of the attribute value is shown below:
 
-    * * * * *
-    │ │ │ │ │
-    │ │ │ │ │
-    │ │ │ │ └─── Day of Week (0 – 7, 0/7 = Sun, 1 = Mon, 6 = Sat)
-    │ │ │ └───── Month (1 - 12)
-    │ │ └─────── Day of Month (1 - 31)
-    │ └───────── Hour (0 - 23)
-    └─────────── Minute (0 - 59)
+    "* * * * *"
+     │ │ │ │ │
+     │ │ │ │ │
+     │ │ │ │ └─── Day of Week (0 – 7, 0/7 = Sun, 1 = Mon, 6 = Sat)
+     │ │ │ └───── Month (1 - 12)
+     │ │ └─────── Day of Month (1 - 31)
+     │ └───────── Hour (0 - 23)
+     └─────────── Minute (0 - 59)
 ----
 
 The single fields in the cron expression can have special values, which are specified below:
@@ -30,7 +30,7 @@ The single fields in the cron expression can have special values, which are spec
     Hour           0 – 23                                 * , - /
     Day of Month   1 – 31                                 * , -
     Month          1 – 12 or JAN, FEB, ... DEC            * , -
-    Day of Week	   0 – 7 or SUN, MON, TUE, ... SAT, SUN   * , -
+    Day of Week    0 – 7 or SUN, MON, TUE, ... SAT, SUN   * , -
 ----
 
 Commas (",") are used to separate items of a list. For example, using "MON,WED,FRI" in the day of week field means Mondays, Wednesdays and Fridays.
@@ -108,23 +108,23 @@ Run script every Wednesday and Saturday at 22:00:
 
 Scripts for the scheduler must be written as modules exporting a <[start()]>, and optionally, a <[stop()]> function. The module is initialized when the bundle containing the scheduler script is loaded. The <[start()]> function is called whenever the script is scheduled to run. The optional <[stop()]> function is called when the bundle containing the script is stopped. It can be used to perform cleanup tasks. Generally, a script for the scheduler should have the following structure:
 
-	logger.debug("Initializing Script");
-	
-	// Perform initialization tasks (called once when bundle is started).
-
-	module.exports = {
-		start: function() {
-			logger.debug("Script execution triggered by scheduler.");
-			
-			// Perform periodic tasks at the scheduled times.
-		},
-	
-		stop: function() {
-			logger.debug("Script terminating.");
-			
-			// Perform cleanup tasks when the bundle is stopped.
-		}
-	};
+    logger.debug("Initializing Script");
+    
+    // Perform initialization tasks (called once when bundle is started).
+    
+    module.exports = {
+        start: function() {
+            logger.debug("Script execution triggered by scheduler.");
+            
+            // Perform periodic tasks at the scheduled times.
+        },
+    
+        stop: function() {
+            logger.debug("Script terminating.");
+            
+            // Perform cleanup tasks when the bundle is stopped.
+        }
+    };
 ----
 
 
