@@ -22,7 +22,7 @@
 #define JS_Net_Net_INCLUDED
 
 
-#include "JS/Core.h"
+#include "Poco/JS/Core/Core.h"
 
 
 //

@@ -20,7 +20,7 @@
 #define JS_Net_HTMLFormWrapper_INCLUDED
 
 
-#include "Poco/JS/Core/Core.h"
+#include "Poco/JS/Net/Net.h"
 #include "Poco/JS/Core/Wrapper.h"
 #include "Poco/Net/HTMLForm.h"
 
@@ -30,7 +30,7 @@ namespace JS {
 namespace Net {
 
 
-class JSCore_API HTMLFormWrapper: public JS::Core::Wrapper
+class JSNet_API HTMLFormWrapper: public JS::Core::Wrapper
 	/// JavaScript wrapper for Poco::HTMLForm.
 {
 public:

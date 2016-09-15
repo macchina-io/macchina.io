@@ -20,7 +20,7 @@
 #define JS_Net_HTTPRequestWrapper_INCLUDED
 
 
-#include "Poco/JS/Core/Core.h"
+#include "Poco/JS/Net/Net.h"
 #include "Poco/JS/Core/Wrapper.h"
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Timespan.h"
@@ -32,7 +32,7 @@ namespace JS {
 namespace Net {
 
 
-class RequestHolder
+class JSNet_API RequestHolder
 	/// Base class for RequestHolder classes.
 {
 public:
@@ -70,7 +70,7 @@ private:
 };
 
 
-class RequestHolderImpl: public RequestHolder
+class JSNet_API RequestHolderImpl: public RequestHolder
 {
 public:
 	RequestHolderImpl()
@@ -143,7 +143,7 @@ private:
 };
 
 
-class JSCore_API HTTPRequestWrapper: public JS::Core::Wrapper
+class JSNet_API HTTPRequestWrapper: public JS::Core::Wrapper
 	/// JavaScript wrapper for Poco::HTTPRequest.
 {
 public:
