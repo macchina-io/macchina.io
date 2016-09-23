@@ -23,6 +23,10 @@
 #include "Poco/Delegate.h"
 #include "Poco/Event.h"
 #include "Poco/String.h"
+#include "Poco/Path.h"
+#include "Poco/File.h"
+#include "Poco/FileStream.h"
+#include "Poco/MD5Engine.h"
 #include "v8.h"
 #include <memory>
 
@@ -289,13 +293,42 @@ void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundl
 		_tasks.push_back(task);
 	}
 
-	task.pExecutor->run();
-
 	if (task.schedule.expression == "@start")
 	{
+		task.pExecutor->run();
+
 		CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(task.pExecutor, "start");
 		task.pExecutor->schedule(pStartTask);
 		pStartTask->wait();
+	}
+	else if (task.schedule.expression == "@once")
+	{
+		Poco::MD5Engine md5;
+		md5.update(scriptPath);
+		
+		std::string onceFileName = ".once_";
+		onceFileName += Poco::DigestEngine::digestToHex(md5.digest());
+
+		Poco::OSP::BundleContext::Ptr pBundleContext = _pContext->contextForBundle(pBundle);
+		Poco::Path oncePath = pBundleContext->persistentDirectory();
+		oncePath.makeDirectory();
+		oncePath.setFileName(onceFileName);
+		Poco::File onceFile(oncePath.toString());
+		if (!onceFile.exists())
+		{
+			Poco::FileOutputStream ostr(onceFile.path());
+			ostr << scriptPath << "\n";
+			ostr.close();
+	
+			task.pExecutor->run();
+
+			CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(task.pExecutor, "start");
+			task.pExecutor->schedule(pStartTask);
+		}
+	}
+	else
+	{
+		task.pExecutor->run();
 	}
 }
 
@@ -354,7 +387,7 @@ void SchedulerExtensionPoint::parseSchedule(Schedule& schedule, const std::strin
 		std::string::const_iterator end = HOURLY.end();
 		parseSchedule(schedule, it, end);
 	}
-	else if (expr != "@start")
+	else if (expr != "@start" && expr != "@once")
 	{
 		std::string::const_iterator it = expr.begin();
 		std::string::const_iterator end = expr.end();

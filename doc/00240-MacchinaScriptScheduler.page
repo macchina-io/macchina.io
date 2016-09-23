@@ -61,6 +61,8 @@ In addition to the standard cron notation, the following special values can also
     * @hourly: Run once an hour at the beginning of the hour (0 * * * *)
     * @start: Run the script when the bundle containing it is started.
     * @stop: Run the script when the bundle containing it is stopped.
+    * @once: Run the script at most once, when the bundle containing it
+      is started the first time.
 
 Once a script has been started by the scheduler, it continues to run until it exits. By specifying the @start schedule, a script can run continuously. A script can also use the setTimeout() and setInterval() functions provided by the macchina.io platform to schedule tasks internally. For example, using setInterval(), a script can perform a certain task every 30 seconds:
 
