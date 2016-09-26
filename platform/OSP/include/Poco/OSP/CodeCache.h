@@ -23,6 +23,9 @@
 #include "Poco/OSP/OSP.h"
 #include "Poco/Path.h"
 #include "Poco/Timestamp.h"
+#include "Poco/NamedMutex.h"
+#include "Poco/ScopedLock.h"
+#include "Poco/SharedPtr.h"
 
 
 namespace Poco {
@@ -33,11 +36,31 @@ class OSP_API CodeCache
 	/// CodeCache is a utility class that manages the
 	/// code cache directory where the shared libraries
 	/// of resolved bundles are kept.
+	///
+	/// Under certain circumstances, multiple OSP processes
+	/// can shared the same code cache directory. 
+	/// This is not recommended, but may be done to optimize
+	/// a system's resource usage. If the codeCache is shared
+	/// between multiple processes, all processes must use
+	/// the same versions of common bundles. In other words,
+	/// while different processes can run different sets of 
+	/// bundles, all bundles used by multiple processes must
+	/// be the same, in order to prevent conflicts caused by
+	/// incompatible shared libraries in the common code cache.
+	///
+	/// See the CodeCache constructor for enabling support for
+	/// a shared code cache.
 {
 public:
-	CodeCache(const std::string& path);
+	typedef Poco::ScopedLock<CodeCache> Lock;
+
+	CodeCache(const std::string& path, bool isShared = false);
 		/// Creates the CodeCache, using the
 		/// given path.
+		///
+		/// If isShared is true, the codeCache is considered shared
+		/// among multiple processes and a named mutex is used
+		/// to guard access to it.
 		///
 		/// If the cache directory does not exist,
 		/// it is created.
@@ -73,12 +96,26 @@ public:
 		/// Clears the cache by removing the entire
 		/// cache directory.	
 		
+	void lock();
+		/// For a shared CodeCache, locks the code cache directory.
+		///
+		/// Does nothing if the codeCache is not shared.
+		
+	void unlock();
+		/// For a shared CodeCache, unlocks the code cache directory.
+		///
+		/// Does nothing if the codeCache is not shared.
+
+protected:
+	static std::string mutexName(const std::string& path);
+	
 private:
 	CodeCache();
 	CodeCache(const CodeCache&);
 	CodeCache& operator = (const CodeCache&);
 	
 	Poco::Path _path;
+	Poco::SharedPtr<Poco::NamedMutex> _pMutex;
 };
 
 

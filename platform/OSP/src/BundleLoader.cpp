@@ -636,6 +636,9 @@ void BundleLoader::installLibraries(Bundle* pBundle)
 {
 	std::vector<std::string> libs;
 	listLibraries(pBundle, libs);
+
+	CodeCache::Lock ccLock(_codeCache);
+
 	for (std::vector<std::string>::iterator it = libs.begin(); it != libs.end(); ++it)
 	{
 		Path p(false);
@@ -708,6 +711,9 @@ void BundleLoader::uninstallLibraries(Bundle* pBundle)
 {
 	std::vector<std::string> libs;
 	listLibraries(pBundle, libs);
+	
+	CodeCache::Lock ccLock(_codeCache);
+
 	for (std::vector<std::string>::iterator it = libs.begin(); it != libs.end(); ++it)
 	{
 		if (_logger.debug())
