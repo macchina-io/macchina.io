@@ -159,6 +159,7 @@ protected:
 		MAXIMUM_RECONNECT_DELAY = 32000
 	};
 	
+	void connectOnce();
 	void reconnect();
 	void connectImpl(const ConnectOptions& options);
 	void resubscribe();
@@ -179,6 +180,7 @@ private:
 	::MQTTClient _mqttClient;
 	Poco::Util::Timer _timer;
 	ConnectionInfo _connectionInfo;
+	bool _pendingReconnect;
 	Poco::Logger& _logger;
 	mutable Poco::Mutex _mutex;
 	

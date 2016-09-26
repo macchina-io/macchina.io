@@ -70,6 +70,7 @@ MQTTClientImpl::MQTTClientImpl(const std::string& serverURI, const std::string& 
 	_serverURI(serverURI),
 	_options(connectOptions),
 	_reconnectDelay(INITIAL_RECONNECT_DELAY),
+	_pendingReconnect(false),
 	_logger(Poco::Logger::get("IoT.MQTTClient"))
 {
 	PahoInitializer::initialize();
@@ -171,9 +172,21 @@ void MQTTClientImpl::connect()
 	{
 		_receivedMessages.clear();
 		_publishedMessages.clear();
-		_logger.information(Poco::format("Connecting to MQTT server \"%s\"...", _serverURI));
+		_logger.information(Poco::format("Connecting MQTT client \"%s\" to server \"%s\"...", _clientId, _serverURI));
 		connectImpl(_options);
-		_options.cleanSession = false; // Clean session only on first successful connect, not for reconnects
+	}
+}
+
+
+void MQTTClientImpl::connectOnce()
+{
+	if (!MQTTClient_isConnected(_mqttClient))
+	{
+		if (_pendingReconnect)
+			_logger.information(Poco::format("Reconnecting MQTT client \"%s\" to server \"%s\"...", _clientId, _serverURI));
+		else
+			_logger.information(Poco::format("Connecting MQTT client \"%s\" to server \"%s\"...", _clientId, _serverURI));
+		connectImpl(_options);
 	}
 }
 
@@ -184,16 +197,17 @@ void MQTTClientImpl::reconnect()
 
 	if (!MQTTClient_isConnected(_mqttClient))
 	{
+		_pendingReconnect = true;
 		try
 		{
-			_logger.information(Poco::format("Reconnecting to MQTT server \"%s\"...", _serverURI));
+			_logger.information(Poco::format("Reconnecting MQTT client \"%s\" to server \"%s\"...", _clientId, _serverURI));
 			connectImpl(_options);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.error(Poco::format("Failed to reconnect to \"%s\": %s", _serverURI, exc.displayText()));
+			_logger.error(Poco::format("Failed to reconnect MQTT client \"%s\" to \"%s\": %s", _clientId, _serverURI, exc.displayText()));
 			if (_reconnectDelay < MAXIMUM_RECONNECT_DELAY)
-				_reconnectDelay *= 2;
+				_reconnectDelay = 3*_reconnectDelay/2;
 			
 			Poco::Clock clock;
 			clock += 1000*_reconnectDelay;
@@ -250,23 +264,42 @@ void MQTTClientImpl::connectImpl(const ConnectOptions& options)
 	sslOptions.enabledCipherSuites  = options.sslEnabledCipherSuites.c_str();
 	sslOptions.enableServerCertAuth = options.sslEnableServerCertAuth;
 	
+	if (_logger.debug())
+	{
+		std::string cleanMsg(options.cleanSession ? " with clean session" : "");
+		_logger.debug("Connecting MQTT client \"%s\" to server \"%s\"%s", _clientId, _serverURI, cleanMsg);
+	}
+	
 	int rc = MQTTClient_connect(_mqttClient, &connectOptions);
 	if (rc != MQTTCLIENT_SUCCESS)
 		throw Poco::IOException(Poco::format("Cannot connect to MQTT server \"%s\"", _serverURI), errorMessage(rc), rc);
-		
+
 	_logger.information(Poco::format("Connected to MQTT server \"%s\".", _serverURI));
 	_reconnectDelay = INITIAL_RECONNECT_DELAY;
+	_pendingReconnect = false;
 	
 	_connectionInfo.serverURI = connectOptions.returned.serverURI;
 	_connectionInfo.sessionPresent = connectOptions.returned.sessionPresent != 0;
 	
+	if (_connectionInfo.sessionPresent)
+	{
+		_logger.debug("Session is present.");
+	}
+	else
+	{
+		_logger.debug("Session is not present.");
+	}
+	
 	try
 	{
-		resubscribe();
+		if (!_connectionInfo.sessionPresent)
+		{
+			resubscribe();
+		}
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.warning(Poco::format("Failed to resubscribe to previously subscribed topics: %s", exc.displayText()));
+		_logger.warning(Poco::format("Failed to resubscribe client \"%s\" to previously subscribed topics: %s", _clientId, exc.displayText()));
 	}
 }
 
@@ -280,7 +313,7 @@ void MQTTClientImpl::disconnect(int timeout)
 		int rc = MQTTClient_disconnect(_mqttClient, timeout);
 		if (rc != MQTTCLIENT_SUCCESS)
 			throw Poco::IOException("Failed to disconnect from MQTT server", errorMessage(rc), rc);
-		_logger.debug(Poco::format("Disconnected from server \"%s\".", _serverURI));
+		_logger.debug(Poco::format("Disconnected MQTT client \"%s\" from server \"%s\".", _clientId, _serverURI));
 		_subscribedTopics.clear();
 		
 		_connectionInfo.serverURI.clear();
@@ -291,9 +324,9 @@ void MQTTClientImpl::disconnect(int timeout)
 
 int MQTTClientImpl::publish(const std::string& topic, const std::string& payload, int qos)
 {
-	connect();
-
 	Poco::Mutex::ScopedLock lock(_mutex);
+
+	connectOnce();
 
 	int token;
 	int rc = MQTTClient_publish(_mqttClient, topic.c_str(), static_cast<int>(payload.size()), const_cast<char*>(payload.data()), qos, 0, &token);
@@ -308,9 +341,9 @@ int MQTTClientImpl::publish(const std::string& topic, const std::string& payload
 
 int MQTTClientImpl::publishMessage(const std::string& topic, const Message& message)
 {
-	connect();
-
 	Poco::Mutex::ScopedLock lock(_mutex);
+
+	connectOnce();
 
 	int token;
 	int rc = MQTTClient_publish(_mqttClient, topic.c_str(), static_cast<int>(message.payload.size()), const_cast<char*>(message.payload.data()), message.qos, message.retained, &token);
@@ -325,9 +358,9 @@ int MQTTClientImpl::publishMessage(const std::string& topic, const Message& mess
 
 void MQTTClientImpl::subscribe(const std::string& topic, int qos)
 {
-	connect();
-
 	Poco::Mutex::ScopedLock lock(_mutex);
+
+	connectOnce();
 
 	int rc = MQTTClient_subscribe(_mqttClient, const_cast<char*>(topic.c_str()), qos);
 	if (rc != MQTTCLIENT_SUCCESS)
@@ -339,9 +372,9 @@ void MQTTClientImpl::subscribe(const std::string& topic, int qos)
 
 void MQTTClientImpl::unsubscribe(const std::string& topic)
 {
-	connect();
-
 	Poco::Mutex::ScopedLock lock(_mutex);
+
+	connectOnce();
 
 	int rc = MQTTClient_unsubscribe(_mqttClient, const_cast<char*>(topic.c_str()));
 	if (rc != MQTTCLIENT_SUCCESS)
@@ -355,9 +388,9 @@ void MQTTClientImpl::subscribeMany(const std::vector<TopicQoS>& topicsAndQoS)
 {
 	if (topicsAndQoS.empty()) return;
 
-	connect();
-
 	Poco::Mutex::ScopedLock lock(_mutex);
+
+	connectOnce();
 
 	std::vector<char*> ctopics;
 	std::vector<int> qoss;
@@ -381,9 +414,9 @@ void MQTTClientImpl::unsubscribeMany(const std::vector<std::string>& topics)
 {
 	if (topics.empty()) return;
 
-	connect();
-
 	Poco::Mutex::ScopedLock lock(_mutex);
+
+	connectOnce();
 
 	std::vector<char*> ctopics;
 	for (std::vector<std::string>::const_iterator it = topics.begin(); it != topics.end(); ++it)
@@ -425,7 +458,7 @@ std::string MQTTClientImpl::errorMessage(int code)
 	case MQTTCLIENT_SUCCESS:
 		return "success";
 	case MQTTCLIENT_FAILURE:
-		return "unspecified error";
+		return "failure";
 	case -2:
 		return "persistence error";
 	case MQTTCLIENT_DISCONNECTED:
@@ -465,7 +498,7 @@ void MQTTClientImpl::onConnectionLost(void* context, char* cause)
 	if (cause) event.cause = cause;
 	try
 	{
-		pThis->_logger.warning("Connection to MQTT server lost.");
+		pThis->_logger.warning("MQTT client \"%s\" has lost connection to server \"%s\".", pThis->_clientId, pThis->_serverURI);
 		pThis->connectionLost(pThis, event);
 	}
 	catch (Poco::Exception& exc)
