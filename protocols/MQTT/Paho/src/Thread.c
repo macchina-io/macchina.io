@@ -91,11 +91,7 @@ mutex_type Thread_create_mutex()
 		mutex = CreateMutex(NULL, 0, NULL);
 	#else
 		mutex = malloc(sizeof(pthread_mutex_t));
-		pthread_mutexattr_t attr;
-		pthread_mutexattr_init(&attr);
-		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-		rc = pthread_mutex_init(mutex, &attr);
-		pthread_mutexattr_destroy(&attr);
+		rc = pthread_mutex_init(mutex, NULL);
 	#endif
 	FUNC_EXIT_RC(rc);
 	return mutex;
