@@ -523,6 +523,8 @@ void DeserializerGenerator::handleSuperClassCalls(const Poco::CppParser::Struct*
 			// only call the parent if it has attributes
 			if (hasAttributes(itB->pClass) || !dependsOnAttributes)
 			{
+				handleSuperClassCalls(itB->pClass, generate, dependsOnAttributes, gen);
+				
 				std::string suffix = "__";
 				suffix += Poco::replace(Poco::toUpper(itB->pClass->fullName()), ":", "_");
 				gen.writeMethodImplementation("// " + itB->pClass->fullName());

@@ -23,6 +23,7 @@ namespace RemotingNG {
 
 
 BinaryDeserializer::BinaryDeserializer():
+	_messageType(SerializerBase::MESSAGE_REQUEST),
 	_curLevel(0)
 {
 }
