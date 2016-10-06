@@ -207,9 +207,15 @@ void ConfigurationWrapper::set(const v8::FunctionCallbackInfo<v8::Value>& args)
 		v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
 		v8::Local<v8::Object> global = context->Global();
 		v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
-		v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
-		v8::Local<v8::Value> argv[1] = {args[1]};
-		value = toString(stringify->Call(json, 1, argv));
+		if (!json.IsEmpty())
+		{
+			v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
+			if (!stringify.IsEmpty())
+			{
+				v8::Local<v8::Value> argv[1] = {args[1]};
+				value = toString(stringify->Call(json, 1, argv));
+			}
+		}
 	}
 	else
 	{
@@ -239,13 +245,16 @@ void ConfigurationWrapper::keys(const v8::FunctionCallbackInfo<v8::Value>& args)
 		Poco::Util::AbstractConfiguration::Keys keys;
 		pConfig->keys(key, keys);
 		v8::Local<v8::Array> keysArray = v8::Array::New(args.GetIsolate(), static_cast<int>(keys.size()));
-		for (unsigned i = 0; i < static_cast<unsigned>(keys.size()); i++)
+		if (!keysArray.IsEmpty())
 		{
-			keysArray->Set(i, v8::String::NewFromUtf8(
-				args.GetIsolate(), 
-				keys[i].c_str(), 
-				v8::String::kNormalString,
-				static_cast<int>(keys[i].length())));
+			for (unsigned i = 0; i < static_cast<unsigned>(keys.size()); i++)
+			{
+				keysArray->Set(i, v8::String::NewFromUtf8(
+					args.GetIsolate(), 
+					keys[i].c_str(), 
+					v8::String::kNormalString,
+					static_cast<int>(keys[i].length())));
+			}
 		}
 		args.GetReturnValue().Set(keysArray);
 	}

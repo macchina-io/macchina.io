@@ -272,13 +272,19 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 									v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
 									v8::Local<v8::Object> global = context->Global();
 									v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
-									v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
-									v8::Local<v8::Value> argv[3] = {
-										args[nextArgIndex], 
-										v8::Null(args.GetIsolate()), 
-										v8::Integer::New(args.GetIsolate(), *it == 'O' ? 4 : 0)
-									};
-									text.append(toString(stringify->Call(json, 3, argv)));
+									if (!json.IsEmpty())
+									{
+										v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
+										if (!stringify.IsEmpty())
+										{
+											v8::Local<v8::Value> argv[3] = {
+												args[nextArgIndex], 
+												v8::Null(args.GetIsolate()), 
+												v8::Integer::New(args.GetIsolate(), *it == 'O' ? 4 : 0)
+											};
+											text.append(toString(stringify->Call(json, 3, argv)));
+										}
+									}
 								}
 								nextArgIndex++;
 								break;
@@ -386,14 +392,20 @@ void LoggerWrapper::dump(const v8::FunctionCallbackInfo<v8::Value>& args)
 			v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
 			v8::Local<v8::Object> global = context->Global();
 			v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
-			v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
-			v8::Local<v8::Value> argv[3] = {
-				args[1], 
-				v8::Null(args.GetIsolate()), 
-				v8::Integer::New(args.GetIsolate(), 4)
-			};
-			message += "\n";
-			message += toString(stringify->Call(json, 3, argv));
+			if (!json.IsEmpty())
+			{
+				v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
+				if (!stringify.IsEmpty())
+				{
+					v8::Local<v8::Value> argv[3] = {
+						args[1], 
+						v8::Null(args.GetIsolate()), 
+						v8::Integer::New(args.GetIsolate(), 4)
+					};
+					message += "\n";
+					message += toString(stringify->Call(json, 3, argv));
+				}
+			}
 			Poco::Message msg(pLogger->name(), message, static_cast<Poco::Message::Priority>(prio));
 			pLogger->log(msg);
 		}

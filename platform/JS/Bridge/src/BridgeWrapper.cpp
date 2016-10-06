@@ -275,8 +275,11 @@ BridgeHolder::~BridgeHolder()
 void BridgeHolder::setPersistent(const v8::Persistent<v8::Object>& jsObject)
 {
 	_persistent.Reset(_pIsolate, jsObject);
-	_persistent.SetWeak(this, BridgeHolder::destruct);
-	_persistent.MarkIndependent();
+	if (!_persistent.IsEmpty())
+	{
+		_persistent.SetWeak(this, BridgeHolder::destruct);
+		_persistent.MarkIndependent();
+	}
 }
 
 
@@ -458,7 +461,10 @@ void BridgeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 		
 		BridgeWrapper wrapper;
 		v8::Persistent<v8::Object>& bridgeObject(wrapper.wrapNativePersistent(args.GetIsolate(), pHolder));
-		pHolder->setPersistent(bridgeObject);
+		if (!bridgeObject.IsEmpty())
+		{
+			pHolder->setPersistent(bridgeObject);
+		}
 		args.GetReturnValue().Set(bridgeObject);
 	}
 	catch (Poco::Exception& exc)
@@ -483,7 +489,10 @@ void BridgeWrapper::getProperty(v8::Local<v8::String> property, const v8::Proper
 			// For some reason trying to set this function in the object template leads
 			// to a crash at runtime. Therefore this workaround.
 			v8::Local<v8::Function> function = v8::Function::New(info.GetIsolate(), on);
-			function->SetName(property);
+			if (!function.IsEmpty())
+			{
+				function->SetName(property);
+			}
 			info.GetReturnValue().Set(function);
 		}
 		else if (prop == "$sub")
@@ -501,7 +510,10 @@ void BridgeWrapper::getProperty(v8::Local<v8::String> property, const v8::Proper
 		else
 		{
 			v8::Local<v8::Function> function = v8::Function::New(info.GetIsolate(), bridgeFunction);
-			function->SetName(property);
+			if (!function.IsEmpty())
+			{
+				function->SetName(property);
+			}
 			info.GetReturnValue().Set(function);
 		}
 	}

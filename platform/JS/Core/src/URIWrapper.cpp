@@ -39,10 +39,10 @@ URIWrapper::~URIWrapper()
 v8::Handle<v8::ObjectTemplate> URIWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
-	v8::Local<v8::ObjectTemplate> configurationTemplate = v8::ObjectTemplate::New();
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "loadString"), v8::FunctionTemplate::New(pIsolate, loadString));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "loadBuffer"), v8::FunctionTemplate::New(pIsolate, loadBuffer));
-	return handleScope.Escape(configurationTemplate);
+	v8::Local<v8::ObjectTemplate> uriTemplate = v8::ObjectTemplate::New();
+	uriTemplate->Set(v8::String::NewFromUtf8(pIsolate, "loadString"), v8::FunctionTemplate::New(pIsolate, loadString));
+	uriTemplate->Set(v8::String::NewFromUtf8(pIsolate, "loadBuffer"), v8::FunctionTemplate::New(pIsolate, loadBuffer));
+	return handleScope.Escape(uriTemplate);
 }
 	
 

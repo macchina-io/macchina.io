@@ -36,6 +36,8 @@ namespace JS {
 namespace Net {
 
 
+static Poco::AtomicCounter _cnt;
+
 RequestHolder::RequestHolder():
 	_timeout(30, 0)
 {
@@ -106,19 +108,27 @@ v8::Handle<v8::ObjectTemplate> HTTPRequestWrapper::objectTemplate(v8::Isolate* p
 void HTTPRequestWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	RequestHolder* pRequestHolder = new RequestHolderImpl;
+
+	try
+	{	
+		if (args.Length() > 0) 
+			pRequestHolder->request().setMethod(toString(args[0]));
+		if (args.Length() > 1) 
+			pRequestHolder->request().setURI(toString(args[1]));
+		if (args.Length() > 2) 
+			pRequestHolder->request().setVersion(toString(args[2]));
+		else
+			pRequestHolder->request().setVersion(Poco::Net::HTTPMessage::HTTP_1_1);
 	
-	if (args.Length() > 0) 
-		pRequestHolder->request().setMethod(toString(args[0]));
-	if (args.Length() > 1) 
-		pRequestHolder->request().setURI(toString(args[1]));
-	if (args.Length() > 2) 
-		pRequestHolder->request().setVersion(toString(args[2]));
-	else
-		pRequestHolder->request().setVersion(Poco::Net::HTTPMessage::HTTP_1_1);
-	
-	HTTPRequestWrapper wrapper;
-	v8::Persistent<v8::Object>& requestObject(wrapper.wrapNativePersistent(args.GetIsolate(), pRequestHolder));
-	args.GetReturnValue().Set(requestObject);
+		HTTPRequestWrapper wrapper;
+		v8::Persistent<v8::Object>& requestObject(wrapper.wrapNativePersistent(args.GetIsolate(), pRequestHolder));
+		args.GetReturnValue().Set(requestObject);
+	}
+	catch (Poco::Exception& exc)
+	{
+		delete pRequestHolder;
+		returnException(args, exc);
+	}
 }
 
 
@@ -240,9 +250,12 @@ void HTTPRequestWrapper::getCookies(v8::Local<v8::String> name, const v8::Proper
 	Poco::Net::NameValueCollection cookies;
 	pRequestHolder->request().getCookies(cookies);
 	v8::Local<v8::Object> result(v8::Object::New(info.GetIsolate()));
-	for (Poco::Net::NameValueCollection::ConstIterator it = cookies.begin(); it != cookies.end(); ++it)
+	if (!result.IsEmpty())
 	{
-		result->Set(v8::String::NewFromUtf8(info.GetIsolate(), it->first.c_str()), v8::String::NewFromUtf8(info.GetIsolate(),it->second.c_str()));
+		for (Poco::Net::NameValueCollection::ConstIterator it = cookies.begin(); it != cookies.end(); ++it)
+		{
+			result->Set(v8::String::NewFromUtf8(info.GetIsolate(), it->first.c_str()), v8::String::NewFromUtf8(info.GetIsolate(),it->second.c_str()));
+		}
 	}
 	info.GetReturnValue().Set(result);
 }
@@ -262,8 +275,11 @@ void HTTPRequestWrapper::getCredentials(v8::Local<v8::String> name, const v8::Pr
 		{
 			Poco::Net::HTTPBasicCredentials creds(authInfo);
 			v8::Local<v8::Object> result(v8::Object::New(info.GetIsolate()));
-			result->Set(v8::String::NewFromUtf8(info.GetIsolate(), "username"), v8::String::NewFromUtf8(info.GetIsolate(), creds.getUsername().c_str()));
-			result->Set(v8::String::NewFromUtf8(info.GetIsolate(), "password"), v8::String::NewFromUtf8(info.GetIsolate(), creds.getPassword().c_str()));
+			if (!result.IsEmpty())
+			{
+				result->Set(v8::String::NewFromUtf8(info.GetIsolate(), "username"), v8::String::NewFromUtf8(info.GetIsolate(), creds.getUsername().c_str()));
+				result->Set(v8::String::NewFromUtf8(info.GetIsolate(), "password"), v8::String::NewFromUtf8(info.GetIsolate(), creds.getPassword().c_str()));
+			}
 			info.GetReturnValue().Set(result);
 			return;
 		}

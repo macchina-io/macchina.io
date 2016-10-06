@@ -149,8 +149,11 @@ public:
 	{
 		WeakPersistentWrapperRegistry::forIsolate(_pIsolate).unregisterWrapper(this);
 
-		_persistent.ClearWeak();
-		_persistent.Reset();
+		if (!_persistent.IsEmpty())
+		{
+			_persistent.ClearWeak();
+			_persistent.Reset();
+		}
 		RP::release(_pNative);
 	}
 	
@@ -194,11 +197,15 @@ public:
 	{
 	 	v8::EscapableHandleScope handleScope(pIsolate);
 		v8::Local<v8::ObjectTemplate> wrapperTempl = objectTemplate(pIsolate);
+		poco_assert (!wrapperTempl.IsEmpty());
 		v8::Local<v8::Object> wrapper = wrapperTempl->NewInstance();
-		v8::Local<v8::External> ext = v8::External::New(pIsolate, pNative);
-		poco_assert (wrapper->InternalFieldCount() > 0);
-		wrapper->SetInternalField(0, ext);
-		wrapper->SetHiddenValue(v8::String::NewFromUtf8(pIsolate, "Poco::nativeType"), v8::String::NewFromUtf8(pIsolate, typeid(T).name()));
+		if (!wrapper.IsEmpty())
+		{
+			v8::Local<v8::External> ext = v8::External::New(pIsolate, pNative);
+			poco_assert (wrapper->InternalFieldCount() > 0);
+			wrapper->SetInternalField(0, ext);
+			wrapper->SetHiddenValue(v8::String::NewFromUtf8(pIsolate, "Poco::nativeType"), v8::String::NewFromUtf8(pIsolate, typeid(T).name()));
+		}
 		return handleScope.Escape(wrapper);
 	}
 
@@ -206,6 +213,7 @@ public:
 	{
 	 	v8::EscapableHandleScope handleScope(pIsolate);
 		v8::Local<v8::ObjectTemplate> wrapperTempl = objectTemplate(pIsolate);
+		poco_assert (!wrapperTempl.IsEmpty());
 		v8::Local<v8::Object> wrapper = wrapperTempl->NewInstance();
 		return handleScope.Escape(wrapper);
 	}
@@ -216,8 +224,11 @@ public:
 		typedef WeakPersistentWrapper<T*, Internal::DeletePolicy<T*> > WPW;
 		
 		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative), pNative);
-		pWPW->persistent().SetWeak(pWPW, WPW::destruct);
-		pWPW->persistent().MarkIndependent();
+		if (!pWPW->persistent().IsEmpty())
+		{
+			pWPW->persistent().SetWeak(pWPW, WPW::destruct);
+			pWPW->persistent().MarkIndependent();
+		}
 		return pWPW->persistent();
 	}
 
@@ -227,8 +238,11 @@ public:
 		typedef WeakPersistentWrapper<Poco::SharedPtr<T>, Internal::NoReleasePolicy<Poco::SharedPtr<T> > > WPW;
 		
 		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative.get()), pNative);
-		pWPW->persistent().SetWeak(pWPW, WPW::destruct);
-		pWPW->persistent().MarkIndependent();
+		if (!pWPW->persistent().IsEmpty())
+		{
+			pWPW->persistent().SetWeak(pWPW, WPW::destruct);
+			pWPW->persistent().MarkIndependent();
+		}
 		return pWPW->persistent();
 	}
 
@@ -238,8 +252,11 @@ public:
 		typedef WeakPersistentWrapper<Poco::AutoPtr<T>, Internal::NoReleasePolicy<Poco::AutoPtr<T> > > WPW;
 		
 		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative.get()), pNative);
-		pWPW->persistent().SetWeak(pWPW, WPW::destruct);
-		pWPW->persistent().MarkIndependent();
+		if (!pWPW->persistent().IsEmpty())
+		{
+			pWPW->persistent().SetWeak(pWPW, WPW::destruct);
+			pWPW->persistent().MarkIndependent();
+		}
 		return pWPW->persistent();
 	}
 
