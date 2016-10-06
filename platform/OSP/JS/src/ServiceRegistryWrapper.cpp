@@ -83,14 +83,17 @@ void ServiceRegistryWrapper::find(const v8::FunctionCallbackInfo<v8::Value>& arg
 			std::string serviceQuery = toString(args[0]);
 			std::vector<Poco::OSP::ServiceRef::Ptr> services;
 			v8::Local<v8::Array> result = v8::Array::New(args.GetIsolate());
-			int i = 0;
-			if (pServiceRegistry->find(serviceQuery, services))
+			if (!result.IsEmpty())
 			{
-				for (std::vector<Poco::OSP::ServiceRef::Ptr>::iterator it = services.begin(); it != services.end(); ++it)
+				int i = 0;
+				if (pServiceRegistry->find(serviceQuery, services))
 				{
-					v8::Persistent<v8::Object>& serviceRefObject(wrapper.wrapNativePersistent(args.GetIsolate(), *it));
-					v8::Local<v8::Object> localServiceRefObject = v8::Local<v8::Object>::New(args.GetIsolate(), serviceRefObject);
-					result->Set(i++, localServiceRefObject);
+					for (std::vector<Poco::OSP::ServiceRef::Ptr>::iterator it = services.begin(); it != services.end(); ++it)
+					{
+						v8::Persistent<v8::Object>& serviceRefObject(wrapper.wrapNativePersistent(args.GetIsolate(), *it));
+						v8::Local<v8::Object> localServiceRefObject = v8::Local<v8::Object>::New(args.GetIsolate(), serviceRefObject);
+						result->Set(i++, localServiceRefObject);
+					}
 				}
 			}
 			args.GetReturnValue().Set(result);
