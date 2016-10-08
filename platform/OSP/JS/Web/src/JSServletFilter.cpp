@@ -48,7 +48,7 @@ namespace
 JSServletFilter::JSServletFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args, JSServletExecutorCache& cache):
 	_pContext(pContext),
 	_cache(cache),
-	_memoryLimit(1024*1024)
+	_memoryLimit(JSExecutor::getDefaultMemoryLimit())
 {
 	Poco::OSP::Web::WebFilter::Args::const_iterator it = args.find("memoryLimit");
 	if (it != args.end())

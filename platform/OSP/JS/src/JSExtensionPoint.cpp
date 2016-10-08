@@ -41,7 +41,7 @@ JSExtensionPoint::~JSExtensionPoint()
 void JSExtensionPoint::handleExtension(Bundle::ConstPtr pBundle, Poco::XML::Element* pExtensionElem)
 {
 	std::string scriptPath = pExtensionElem->getAttribute("script");
-	Poco::UInt64 memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit", 1024*1024);
+	Poco::UInt64 memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit", JSExecutor::getDefaultMemoryLimit());
 	std::string strMemoryLimit = pExtensionElem->getAttribute("memoryLimit");
 	if (!strMemoryLimit.empty())
 	{

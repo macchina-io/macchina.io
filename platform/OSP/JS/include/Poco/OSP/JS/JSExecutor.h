@@ -65,6 +65,12 @@ public:
 		
 	static Poco::JS::Core::ModuleRegistry::Ptr getGlobalModuleRegistry();
 		/// Returns the global module registry.
+		
+	static void setDefaultMemoryLimit(Poco::UInt64 memoryLimit);
+		/// Sets the global default memory limit for scripts.
+		
+	static Poco::UInt64 getDefaultMemoryLimit();
+		/// Returns the global default memory limit for scripts.
 
 protected:
 	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
@@ -76,6 +82,7 @@ private:
 	
 	static std::vector<std::string> _globalModuleSearchPaths;
 	static Poco::JS::Core::ModuleRegistry::Ptr _globalModuleRegistry;
+	static Poco::UInt64 _defaultMemoryLimit;
 };
 
 
