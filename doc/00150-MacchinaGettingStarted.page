@@ -111,6 +111,14 @@ your target, you can build for the target with the following command (assuming t
 Note: unless you intend to debug on the target, it is sufficient to build the
 release configuration only.
 
+With some cross toolchains building the V8 library may fail when building the 
+mksnapshot executable. If this happens, you can disable the V8 snapshot feature
+by building with the variable V8_NOSNAPSHOT defined:
+
+    $ POCO_CONFIG=Yocto LINKMODE=SHARED make -s -j8 DEFAULT_TARGET=shared_release V8_NOSNAPSHOT=1
+----
+
+
 After the build completes, you'll need to copy the following files to the target:
 
   - The following shared libraries (<*libPoco*.so.**>) from <*platform/lib/Linux/<target_arch>*>:

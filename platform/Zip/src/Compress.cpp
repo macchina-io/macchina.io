@@ -80,7 +80,7 @@ void Compress::addEntry(std::istream& in, const Poco::DateTime& lastModifiedAt, 
 	if (hdr.searchCRCAndSizesAfterData())
 		_offset += ZipDataInfo::getFullHeaderSize();
 	_files.insert(std::make_pair(fileName.toString(Poco::Path::PATH_UNIX), hdr));
-	poco_assert (_out);
+	if (!_out) throw Poco::IOException("Bad output stream");
 	ZipFileInfo nfo(hdr);
 	nfo.setOffset(localHeaderOffset);
 	_infos.insert(std::make_pair(fileName.toString(Poco::Path::PATH_UNIX), nfo));
@@ -93,6 +93,7 @@ void Compress::addFileRaw(std::istream& in, const ZipLocalFileHeader& h, const P
 	std::string fn = ZipUtil::validZipEntryFileName(fileName);
 	//bypass the header of the input stream and point to the first byte of the data payload
 	in.seekg(h.getDataStartPos(), std::ios_base::beg);
+	if (!in.good()) throw Poco::IOException("Failed to seek on input stream");
 
 	if (_files.size() >= 65535)
 		throw ZipException("Maximum number of entries for a ZIP file reached: 65535");
@@ -144,7 +145,7 @@ void Compress::addFileRaw(std::istream& in, const ZipLocalFileHeader& h, const P
 	if (hdr.searchCRCAndSizesAfterData())
 		_offset += ZipDataInfo::getFullHeaderSize();
 	_files.insert(std::make_pair(fileName.toString(Poco::Path::PATH_UNIX), hdr));
-	poco_assert (_out);
+	if (!_out) throw Poco::IOException("Bad output stream");
 	ZipFileInfo nfo(hdr);
 	nfo.setOffset(localHeaderOffset);
 	_infos.insert(std::make_pair(fileName.toString(Poco::Path::PATH_UNIX), nfo));
@@ -212,7 +213,7 @@ void Compress::addDirectory(const Poco::Path& entryName, const Poco::DateTime& l
 	if (hdr.searchCRCAndSizesAfterData())
 		_offset += ZipDataInfo::getFullHeaderSize();
 	_files.insert(std::make_pair(entryName.toString(Poco::Path::PATH_UNIX), hdr));
-	poco_assert (_out);
+	if (!_out) throw Poco::IOException("Bad output stream");
 	ZipFileInfo nfo(hdr);
 	nfo.setOffset(localHeaderOffset);
 	_infos.insert(std::make_pair(entryName.toString(Poco::Path::PATH_UNIX), nfo));
@@ -293,8 +294,7 @@ ZipArchive Compress::close()
 		centralDirSize += entrySize;
 		_offset += entrySize;
 	}
-	poco_assert (_out);
-
+	if (!_out) throw Poco::IOException("Bad output stream");
 	
 	Poco::UInt16 numEntries = static_cast<Poco::UInt16>(_infos.size());
 	ZipArchiveInfo central;
