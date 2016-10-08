@@ -796,6 +796,8 @@ Poco::SharedPtr<std::istream> JSExecutor::resolveModule(const std::string& uri, 
 class RunScriptTask: public Poco::Util::TimerTask
 {
 public:
+	typedef Poco::AutoPtr<RunScriptTask> Ptr;
+
 	RunScriptTask(TimedJSExecutor* pExecutor):
 		_pExecutor(pExecutor, true)
 	{
@@ -808,6 +810,42 @@ public:
 	
 private:
 	TimedJSExecutor::Ptr _pExecutor;
+};
+
+
+//
+// StopScriptTask
+//
+
+
+class StopScriptTask: public Poco::Util::TimerTask
+{
+public:
+	typedef Poco::AutoPtr<StopScriptTask> Ptr;
+
+	StopScriptTask(TimedJSExecutor* pExecutor):
+		_pExecutor(pExecutor, true)
+	{
+	}
+	
+	void run()
+	{
+		_pExecutor->_timer.cancel(false);
+		_stopped.set();
+	}
+	
+	void wait()
+	{
+		_pExecutor->terminate();
+		while (!_stopped.tryWait(200))
+		{
+			_pExecutor->terminate();
+		}
+	}
+	
+private:
+	TimedJSExecutor::Ptr _pExecutor;
+	Poco::Event _stopped;
 };
 
 
@@ -947,13 +985,17 @@ void TimedJSExecutor::schedule(Poco::Util::TimerTask::Ptr pTask, const Poco::Clo
 
 void TimedJSExecutor::stop()
 {
-	terminate();
-
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 
+		if (_stopped) return;
+
 		_stopped = true;
 	}
+
+	StopScriptTask::Ptr pStopTask = new StopScriptTask(this);
+	_timer.schedule(pStopTask, Poco::Clock());
+	pStopTask->wait();
 
 	_timer.cancel(true);
 	stopped(this);

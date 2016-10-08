@@ -292,6 +292,7 @@ private:
 	Poco::FastMutex _mutex;
 	
 	friend class RunScriptTask;
+	friend class StopScriptTask;
 	friend class CallFunctionTask;
 };
 
