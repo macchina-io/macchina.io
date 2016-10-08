@@ -91,7 +91,8 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 			{
 				std::string servlet;
 				preprocess(request, response, scriptURI, resourceStream, servlet);
-				JSServletExecutor::Ptr pExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _moduleSearchPaths, _memoryLimit);
+				Poco::UInt64 memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit", _memoryLimit);
+				JSServletExecutor::Ptr pExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _moduleSearchPaths, memoryLimit);
 				pExecutor->prepareRequest(request, response);
 				pExecutor->run();
 				pExecutorHolder = new JSServletExecutorHolder(pExecutor);

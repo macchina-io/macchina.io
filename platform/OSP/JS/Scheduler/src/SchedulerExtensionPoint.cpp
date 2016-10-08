@@ -242,7 +242,7 @@ void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundl
 	std::string notAfter = pExtensionElem->getAttribute("notAfter");
 	std::string scriptPath = pExtensionElem->getAttribute("script");
 	std::string runtimeLimit = pExtensionElem->getAttribute("runtimeLimit");
-	Poco::UInt64 memoryLimit = 1024*1024;
+	Poco::UInt64 memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit", 1024*1024);
 	std::string strMemoryLimit = pExtensionElem->getAttribute("memoryLimit");
 	if (!strMemoryLimit.empty())
 	{
