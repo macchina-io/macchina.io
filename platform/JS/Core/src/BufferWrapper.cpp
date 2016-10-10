@@ -73,7 +73,7 @@ v8::Handle<v8::ObjectTemplate> BufferWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::EscapableHandleScope handleScope(pIsolate);
 	PooledIsolate* pPooledIso = PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Buffer"));
+	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Core.Buffer"));
 	if (pooledObjectTemplate.IsEmpty())
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();

@@ -15,6 +15,7 @@
 
 
 #include "Poco/JS/Core/ConfigurationWrapper.h"
+#include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/Util/AbstractConfiguration.h"
 
 
@@ -36,17 +37,25 @@ ConfigurationWrapper::~ConfigurationWrapper()
 v8::Handle<v8::ObjectTemplate> ConfigurationWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
-	v8::Local<v8::ObjectTemplate> configurationTemplate = v8::ObjectTemplate::New();
-	configurationTemplate->SetInternalFieldCount(1);
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getInt"), v8::FunctionTemplate::New(pIsolate, getInt));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getDouble"), v8::FunctionTemplate::New(pIsolate, getDouble));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getBool"), v8::FunctionTemplate::New(pIsolate, getBool));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getString"), v8::FunctionTemplate::New(pIsolate, getString));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getObject"), v8::FunctionTemplate::New(pIsolate, getObject));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, has));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "set"), v8::FunctionTemplate::New(pIsolate, set));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "keys"), v8::FunctionTemplate::New(pIsolate, keys));
-	return handleScope.Escape(configurationTemplate);
+	PooledIsolate* pPooledIso = PooledIsolate::fromIsolate(pIsolate);
+	poco_check_ptr (pPooledIso);
+	v8::Persistent<v8::ObjectTemplate>& pooledConfigurationTemplate(pPooledIso->objectTemplate("Core.Configuration"));
+	if (pooledConfigurationTemplate.IsEmpty())
+	{
+		v8::Local<v8::ObjectTemplate> configurationTemplate = v8::ObjectTemplate::New();
+		configurationTemplate->SetInternalFieldCount(1);
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getInt"), v8::FunctionTemplate::New(pIsolate, getInt));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getDouble"), v8::FunctionTemplate::New(pIsolate, getDouble));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getBool"), v8::FunctionTemplate::New(pIsolate, getBool));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getString"), v8::FunctionTemplate::New(pIsolate, getString));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getObject"), v8::FunctionTemplate::New(pIsolate, getObject));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, has));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "set"), v8::FunctionTemplate::New(pIsolate, set));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "keys"), v8::FunctionTemplate::New(pIsolate, keys));
+		pooledConfigurationTemplate.Reset(pIsolate, configurationTemplate);
+	}
+	v8::Local<v8::ObjectTemplate> localConfigurationTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledConfigurationTemplate);
+	return handleScope.Escape(localConfigurationTemplate);
 }
 	
 

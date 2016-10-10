@@ -56,8 +56,8 @@ v8::Handle<v8::ObjectTemplate> SessionWrapper::objectTemplate(v8::Isolate* pIsol
 		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "authorize"), v8::FunctionTemplate::New(pIsolate, authorize));
 		pooledSessionTemplate.Reset(pIsolate, sessionTemplate);
 	}
-	v8::Local<v8::ObjectTemplate> sessionTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledSessionTemplate);
-	return handleScope.Escape(sessionTemplate);
+	v8::Local<v8::ObjectTemplate> localSessionTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledSessionTemplate);
+	return handleScope.Escape(localSessionTemplate);
 }
 
 
