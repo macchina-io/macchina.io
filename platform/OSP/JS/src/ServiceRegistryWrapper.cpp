@@ -53,7 +53,7 @@ void ServiceRegistryWrapper::findByName(const v8::FunctionCallbackInfo<v8::Value
 			if (pServiceRef)
 			{
 				ServiceRefWrapper wrapper;
-				v8::Persistent<v8::Object> serviceRefObject(args.GetIsolate(), wrapper.wrapNativePersistent(args.GetIsolate(), pServiceRef));
+				v8::Persistent<v8::Object>& serviceRefObject(wrapper.wrapNativePersistent(args.GetIsolate(), pServiceRef));
 				args.GetReturnValue().Set(serviceRefObject);
 				return;
 			}
