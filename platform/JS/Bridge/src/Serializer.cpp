@@ -165,13 +165,13 @@ void Serializer::serialize(const std::string& name, unsigned long value)
 #ifndef POCO_LONG_IS_64_BIT
 void Serializer::serialize(const std::string& name, Poco::Int64 value)
 {
-	serializeValue(name, v8::Number::New(_pIsolate, value));
+	serializeValue(name, v8::Number::New(_pIsolate, static_cast<double>(value)));
 }
 
 
 void Serializer::serialize(const std::string& name, Poco::UInt64 value)
 {
-	serializeValue(name, v8::Number::New(_pIsolate, value));
+	serializeValue(name, v8::Number::New(_pIsolate, static_cast<double>(value)));
 }
 #endif
 

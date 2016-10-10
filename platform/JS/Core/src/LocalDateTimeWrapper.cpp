@@ -145,7 +145,7 @@ void LocalDateTimeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& 
 				if (args.Length() >= 5 && args[4]->IsNumber()) minute = args[4]->Int32Value();
 				if (args.Length() >= 6 && args[5]->IsNumber()) second = args[5]->NumberValue();
 				double fracSecond = second - std::floor(second);
-				pLocalDateTime = new Poco::LocalDateTime(year, month, day, hour, minute, second, 1000*fracSecond);
+				pLocalDateTime = new Poco::LocalDateTime(year, month, day, hour, minute, static_cast<long>(second), static_cast<int>(1000*fracSecond));
 			}
 			else if (args.Length() >= 1 && args[0]->IsNumber())
 			{
@@ -325,7 +325,7 @@ void LocalDateTimeWrapper::addSeconds(const v8::FunctionCallbackInfo<v8::Value>&
 		Poco::LocalDateTime* pLocalDateTime = Wrapper::unwrapNative<Poco::LocalDateTime>(args);
 		double second = args[0]->NumberValue();
 		double fracSecond = second - std::floor(second);
-		Poco::Timespan ts(second, 1000000*fracSecond);
+		Poco::Timespan ts(static_cast<long>(second), static_cast<long>(1000000*fracSecond));
 		*pLocalDateTime += ts;
 	}
 	args.GetReturnValue().Set(args.Holder());

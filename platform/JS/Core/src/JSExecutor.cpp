@@ -1061,7 +1061,7 @@ void TimedJSExecutor::setTimeout(const v8::FunctionCallbackInfo<v8::Value>& args
 	
 	CallFunctionTask::Ptr pTask = new CallFunctionTask(args.GetIsolate(), pThis, function, argsArray);
 	Poco::Timestamp ts;
-	ts += millisecs*1000;
+	ts += static_cast<Poco::Timestamp::TimeDiff>(millisecs*1000);
 	pThis->_timer.schedule(pTask, ts);
 	TimerWrapper wrapper;
 	v8::Persistent<v8::Object> timerObject(args.GetIsolate(), wrapper.wrapNativePersistent(args.GetIsolate(), pTask));
@@ -1094,7 +1094,7 @@ void TimedJSExecutor::setInterval(const v8::FunctionCallbackInfo<v8::Value>& arg
 	TimedJSExecutor* pThis = static_cast<TimedJSExecutor*>(pCurrentExecutor);
 	
 	CallFunctionTask::Ptr pTask = new CallFunctionTask(args.GetIsolate(), pThis, function, argsArray);
-	pThis->_timer.scheduleAtFixedRate(pTask, millisecs, millisecs);
+	pThis->_timer.scheduleAtFixedRate(pTask, static_cast<long>(millisecs), static_cast<long>(millisecs));
 	TimerWrapper wrapper;
 	v8::Persistent<v8::Object> timerObject(args.GetIsolate(), wrapper.wrapNativePersistent(args.GetIsolate(), pTask));
 	args.GetReturnValue().Set(timerObject);

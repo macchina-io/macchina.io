@@ -237,7 +237,7 @@ void HTTPRequestWrapper::setTimeout(v8::Local<v8::String> name, v8::Local<v8::Va
 	if (value->IsNumber())
 	{
 		double timeout = value->NumberValue();
-		pRequestHolder->setTimeout(timeout*1000000);
+		pRequestHolder->setTimeout(static_cast<Poco::Timespan::TimeDiff>(timeout*1000000));
 	}
 }
 
@@ -376,7 +376,7 @@ void HTTPRequestWrapper::sendBlocking(const v8::FunctionCallbackInfo<v8::Value>&
 		std::streamsize contentLength = pResponseHolder->response().getContentLength();
 		if (contentLength != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
 		{
-			pResponseHolder->content().reserve(contentLength);
+			pResponseHolder->content().reserve(static_cast<std::size_t>(contentLength));
 		}
 		Poco::StreamCopier::copyToString(istr, pResponseHolder->content());
 		HTTPResponseWrapper wrapper;
@@ -518,7 +518,7 @@ public:
 			std::streamsize contentLength = pResponse->getContentLength();
 			if (contentLength != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
 			{
-				responseBody.reserve(contentLength);
+				responseBody.reserve(static_cast<std::size_t>(contentLength));
 			}
 			Poco::StreamCopier::copyToString(istr, responseBody);
 			if (pTimedJSExecutor)

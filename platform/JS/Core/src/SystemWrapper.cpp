@@ -97,7 +97,7 @@ void SystemWrapper::sleep(const v8::FunctionCallbackInfo<v8::Value>& args)
 	if (args.Length() < 1) return;
 	if (!args[0]->IsNumber()) return;
 	double millisecs = args[0]->NumberValue();
-	Poco::Thread::sleep(millisecs);
+	Poco::Thread::sleep(static_cast<long>(millisecs));
 }
 
 

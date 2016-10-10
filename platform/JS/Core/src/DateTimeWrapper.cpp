@@ -143,7 +143,7 @@ void DateTimeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 				if (args.Length() >= 5 && args[4]->IsNumber()) minute = args[4]->Int32Value();
 				if (args.Length() >= 6 && args[5]->IsNumber()) second = args[5]->NumberValue();
 				double fracSecond = second - std::floor(second);
-				pDateTime = new Poco::DateTime(year, month, day, hour, minute, second, 1000*fracSecond);
+				pDateTime = new Poco::DateTime(year, month, day, hour, minute, static_cast<int>(second), static_cast<int>(1000*fracSecond));
 			}
 			else if (args.Length() >= 1 && args[0]->IsNumber())
 			{
@@ -316,7 +316,7 @@ void DateTimeWrapper::addSeconds(const v8::FunctionCallbackInfo<v8::Value>& args
 		Poco::DateTime* pDateTime = Wrapper::unwrapNative<Poco::DateTime>(args);
 		double second = args[0]->NumberValue();
 		double fracSecond = second - std::floor(second);
-		Poco::Timespan ts(second, 1000000*fracSecond);
+		Poco::Timespan ts(static_cast<long>(second), static_cast<long>(1000000*fracSecond));
 		*pDateTime += ts;
 	}
 	args.GetReturnValue().Set(args.Holder());

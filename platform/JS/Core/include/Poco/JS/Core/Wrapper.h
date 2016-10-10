@@ -63,7 +63,7 @@ public:
 } // namespace Internal
 
 
-class WeakPersistentWrapperBase
+class JSCore_API WeakPersistentWrapperBase
 	/// A common base class for all WeakPersistentWrapper template
 	/// instantiations that defines a virtual destructor.
 {
@@ -72,7 +72,7 @@ public:
 };
 
 
-class WeakPersistentWrapperRegistry
+class JSCore_API WeakPersistentWrapperRegistry
 	/// This class maintains references to all active WeakPersistentWrapper instances.
 	///
 	/// The V8 engine won't properly garbage-collect any remaining objects when a script's
