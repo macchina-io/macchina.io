@@ -996,8 +996,8 @@ void TimedJSExecutor::stop()
 	StopScriptTask::Ptr pStopTask = new StopScriptTask(this);
 	_timer.schedule(pStopTask, Poco::Clock());
 	pStopTask->wait();
+	pStopTask = 0;
 
-	_timer.cancel(true);
 	stopped(this);
 
 	cleanup();
