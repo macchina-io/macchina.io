@@ -146,7 +146,7 @@ std::vector<TopicQoS> MQTTClientImpl::subscribedTopics() const
 
 Statistics MQTTClientImpl::statistics() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	Poco::Mutex::ScopedLock lock(_statsMutex);
 
 	Statistics stats;
 	
@@ -170,8 +170,11 @@ void MQTTClientImpl::connect()
 
 	if (!MQTTClient_isConnected(_mqttClient))
 	{
-		_receivedMessages.clear();
-		_publishedMessages.clear();
+		{
+			Poco::Mutex::ScopedLock lock(_statsMutex);
+			_receivedMessages.clear();
+			_publishedMessages.clear();
+		}
 		_logger.information(Poco::format("Connecting MQTT client \"%s\" to server \"%s\"...", _clientId, _serverURI));
 		connectImpl(_options);
 	}
@@ -324,16 +327,21 @@ void MQTTClientImpl::disconnect(int timeout)
 
 int MQTTClientImpl::publish(const std::string& topic, const std::string& payload, int qos)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	int token = 0;
+	{
+		Poco::Mutex::ScopedLock lock(_mutex);
 
-	connectOnce();
+		connectOnce();
 
-	int token;
-	int rc = MQTTClient_publish(_mqttClient, topic.c_str(), static_cast<int>(payload.size()), const_cast<char*>(payload.data()), qos, 0, &token);
-	if (rc != MQTTCLIENT_SUCCESS)
-		throw Poco::IOException(Poco::format("Failed to publish message on topic \"%s\"", topic), errorMessage(rc), rc);
-		
-	_publishedMessages[topic]++;
+		int rc = MQTTClient_publish(_mqttClient, topic.c_str(), static_cast<int>(payload.size()), const_cast<char*>(payload.data()), qos, 0, &token);
+		if (rc != MQTTCLIENT_SUCCESS)
+			throw Poco::IOException(Poco::format("Failed to publish message on topic \"%s\"", topic), errorMessage(rc), rc);
+	}
+	
+	{
+		Poco::Mutex::ScopedLock lock(_statsMutex);
+		_publishedMessages[topic]++;
+	}
 
 	return token;
 }
@@ -341,16 +349,21 @@ int MQTTClientImpl::publish(const std::string& topic, const std::string& payload
 
 int MQTTClientImpl::publishMessage(const std::string& topic, const Message& message)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	int token = 0;
+	{
+		Poco::Mutex::ScopedLock lock(_mutex);
 
-	connectOnce();
+		connectOnce();
 
-	int token;
-	int rc = MQTTClient_publish(_mqttClient, topic.c_str(), static_cast<int>(message.payload.size()), const_cast<char*>(message.payload.data()), message.qos, message.retained, &token);
-	if (rc != MQTTCLIENT_SUCCESS)
-		throw Poco::IOException(Poco::format("Failed to publish message on topic \"%s\"", topic), errorMessage(rc), rc);
-
-	_publishedMessages[topic]++;
+		int rc = MQTTClient_publish(_mqttClient, topic.c_str(), static_cast<int>(message.payload.size()), const_cast<char*>(message.payload.data()), message.qos, message.retained, &token);
+		if (rc != MQTTCLIENT_SUCCESS)
+			throw Poco::IOException(Poco::format("Failed to publish message on topic \"%s\"", topic), errorMessage(rc), rc);
+	}
+	
+	{
+		Poco::Mutex::ScopedLock lock(_statsMutex);
+		_publishedMessages[topic]++;
+	}
 
 	return token;
 }
@@ -544,7 +557,7 @@ int MQTTClientImpl::onMessageArrived(void* context, char* topicName, int topicLe
 	event.handled = true;
 	
 	{
-		Poco::Mutex::ScopedLock lock(pThis->_mutex);
+		Poco::Mutex::ScopedLock lock(pThis->_statsMutex);
 		pThis->_receivedMessages[event.topic]++;
 	}
 	

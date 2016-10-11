@@ -183,7 +183,8 @@ private:
 	bool _pendingReconnect;
 	Poco::Logger& _logger;
 	mutable Poco::Mutex _mutex;
-	
+	mutable Poco::Mutex _statsMutex;
+		
 	friend class ReconnectTask;
 };
 
