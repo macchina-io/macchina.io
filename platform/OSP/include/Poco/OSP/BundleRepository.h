@@ -61,6 +61,22 @@ public:
 		///
 		/// Paths may contain Glob expressions (see Poco::Glob).
 
+	BundleRepository(const std::vector<std::string>& paths, BundleLoader& loader, BundleFilter::Ptr pBundleFilter = 0);
+		/// Creates the BundleRepository, using the given
+		/// paths and BundleLoader, and optional BundleFilter.
+		///
+		/// The paths argument specifies a list of paths where
+		/// bundles are searched.
+		///
+		/// The first path given in a list is said to be the
+		/// primary path. Other paths are secondary paths.
+		///
+		/// Paths may either reference a directory containing
+		/// bundles, or a bundle file (or bundle directory with
+		/// the extension ".bndl") directly. 
+		///
+		/// Paths may contain Glob expressions (see Poco::Glob).
+
 	~BundleRepository();
 		/// Destroys the BundleRepository.
 
@@ -74,6 +90,23 @@ public:
 	Bundle::Ptr installBundle(std::istream& istr);
 		/// Reads a bundle archive file from the given stream
 		/// and installs it in the primary path.
+		///
+		/// The bundle's file name in the bundle repository
+		/// will be "<symbolicName>_<version>.bndl".
+		///
+		/// Returns the newly installed bundle, which will
+		/// be in INSTALLED state.
+
+	Bundle::Ptr installBundle(const std::string& repositoryPath, std::istream& istr);
+		/// Reads a bundle archive file from the given stream
+		/// and installs it in the specified repositoryPath.
+		///
+		/// The repositoryPath must be one of the bundle repository paths specified 
+		/// in the constructor, otherwise the bundle won't be found
+		/// the next time the application starts.
+		///
+		/// The directory referenced by repositoryPath must exist and must
+		/// be writable, otherwise installing the bundle will fail.
 		///
 		/// The bundle's file name in the bundle repository
 		/// will be "<symbolicName>_<version>.bndl".
@@ -95,6 +128,30 @@ public:
 		/// Returns the newly installed bundle, which will
 		/// be in INSTALLED state.
 
+	Bundle::Ptr installBundle(const std::string& repositoryPath, std::istream& istr, const std::string& replaceBundle);
+		/// Reads a bundle archive file from the given stream
+		/// and installs it in the primary repositoryPath.
+		///
+		/// The repositoryPath must be one of the bundle repository paths specified 
+		/// in the constructor, otherwise the bundle won't be found
+		/// the next time the application starts.
+		///
+		/// The directory referenced by repositoryPath must exist and must
+		/// be writable, otherwise installing the bundle will fail.
+		///
+		/// If a bundle with the symbolic name given in replaceBundle
+		/// exists, the bundle is stopped and uninstalled before
+		/// the new bundle is installed.
+		///
+		/// The bundle's file name in the bundle repository
+		/// will be "<symbolicName>_<version>.bndl".
+		///
+		/// Returns the newly installed bundle, which will
+		/// be in INSTALLED state.
+		
+	const std::vector<std::string>& paths() const;
+		/// Returns a vector containing all configured repository paths.
+
 protected:
 	typedef std::map<std::string, Bundle::Ptr> BundleMap;
 	
@@ -104,7 +161,7 @@ protected:
 	void loadBundle(const std::string& path, BundleMap& bundles);
 		/// Loads a bundle from the given path.
 
-	Bundle::Ptr installBundle(std::istream& istr, const std::string& replaceBundle, const std::string& path);
+	Bundle::Ptr installBundleImpl(std::istream& istr, const std::string& replaceBundle, const std::string& path);
 		/// Reads a bundle archive file from the given stream
 		/// and installs it in the given path.
 
@@ -126,6 +183,15 @@ private:
 	BundleFilter::Ptr        _pFilter;
 	Poco::Logger&            _logger;
 };
+
+
+//
+// inlines
+//
+inline const std::vector<std::string>& BundleRepository::paths() const
+{
+	return _paths;
+}
 
 
 } } // namespace Poco::OSP

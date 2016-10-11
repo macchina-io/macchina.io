@@ -65,6 +65,17 @@ BundleRepository::BundleRepository(const std::string& path, BundleLoader& loader
 }
 
 
+BundleRepository::BundleRepository(const std::vector<std::string>& paths, BundleLoader& loader, BundleFilter::Ptr pFilter):
+	_paths(paths),
+	_loader(loader),
+	_pFilter(pFilter),
+	_logger(Logger::get("com.osp.BundleRepository"))
+{
+	if (_paths.empty())
+		throw Poco::InvalidArgumentException("At least one path must be supplied to a BundleRepository");
+}
+
+
 BundleRepository::~BundleRepository()
 {
 }
@@ -244,7 +255,15 @@ Bundle::Ptr BundleRepository::installBundle(std::istream& istr)
 {
 	poco_assert (!_paths.empty());
 	
-	return installBundle(istr, _paths[0], std::string());
+	return installBundleImpl(istr, _paths[0], std::string());
+}
+
+
+Bundle::Ptr BundleRepository::installBundle(const std::string& repositoryPath, std::istream& istr)
+{
+	poco_assert (!_paths.empty());
+	
+	return installBundleImpl(istr, repositoryPath, std::string());
 }
 
 
@@ -252,11 +271,19 @@ Bundle::Ptr BundleRepository::installBundle(std::istream& istr, const std::strin
 {
 	poco_assert (!_paths.empty());
 	
-	return installBundle(istr, _paths[0], replaceBundle);
+	return installBundleImpl(istr, _paths[0], replaceBundle);
 }
 
 
-Bundle::Ptr BundleRepository::installBundle(std::istream& istr, const std::string& path, const std::string& replaceBundle)
+Bundle::Ptr BundleRepository::installBundle(const std::string& repositoryPath, std::istream& istr, const std::string& replaceBundle)
+{
+	poco_assert (!_paths.empty());
+	
+	return installBundleImpl(istr, repositoryPath, replaceBundle);
+}
+
+
+Bundle::Ptr BundleRepository::installBundleImpl(std::istream& istr, const std::string& path, const std::string& replaceBundle)
 {
 	Path p(path);
 	p.makeDirectory();

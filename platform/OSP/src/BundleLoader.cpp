@@ -219,6 +219,22 @@ void BundleLoader::listBundles(std::vector<Bundle::Ptr>& bundles) const
 }
 
 
+void BundleLoader::listBundles(std::vector<Bundle::Ptr>& bundles, BundleFilter::Ptr pFilter) const
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	bundles.clear();
+	bundles.reserve(_bundles.size());
+	for (BundleMap::const_iterator it = _bundles.begin(); it != _bundles.end(); ++it)
+	{
+		if (pFilter->accept(it->second.pBundle))
+		{
+			bundles.push_back(it->second.pBundle);
+		}
+	}
+}
+
+
 void BundleLoader::resolveAllBundles()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);

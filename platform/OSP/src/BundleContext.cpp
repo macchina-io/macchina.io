@@ -74,6 +74,12 @@ void BundleContext::listBundles(std::vector<Bundle::Ptr>& bundles) const
 }
 
 
+void BundleContext::listBundles(std::vector<Bundle::Ptr>& bundles, BundleFilter::Ptr pFilter) const
+{
+	_loader.listBundles(bundles, pFilter);
+}
+
+
 std::string BundleContext::pathForLibrary(const std::string& libraryName)
 {
 	return _loader.pathForLibrary(libraryName);
