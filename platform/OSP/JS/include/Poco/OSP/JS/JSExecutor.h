@@ -86,7 +86,7 @@ private:
 };
 
 
-class TimedJSExecutor: public Poco::JS::Core::TimedJSExecutor
+class OSPJS_API TimedJSExecutor: public Poco::JS::Core::TimedJSExecutor
 	/// An extension of the Poco::JS::Core::TimedJSExecutor for executing JavaScript
 	/// code within an OSP environment.
 	///
