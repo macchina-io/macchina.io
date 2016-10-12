@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JS", "JS_vs120.vcxproj", "{6411ABF3-5EEE-429A-8934-8CEEBE001C91}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JSBundle", "JSBundle_vs120.vcxproj", "{5E34E3A3-6B1B-4B89-BFF1-04D930AFC2CA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6411ABF3-5EEE-429A-8934-8CEEBE001C91} = {6411ABF3-5EEE-429A-8934-8CEEBE001C91}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		debug_shared|Win32 = debug_shared|Win32
+		release_shared|Win32 = release_shared|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6411ABF3-5EEE-429A-8934-8CEEBE001C91}.debug_shared|Win32.ActiveCfg = debug_shared|Win32
+		{6411ABF3-5EEE-429A-8934-8CEEBE001C91}.debug_shared|Win32.Build.0 = debug_shared|Win32
+		{6411ABF3-5EEE-429A-8934-8CEEBE001C91}.debug_shared|Win32.Deploy.0 = debug_shared|Win32
+		{6411ABF3-5EEE-429A-8934-8CEEBE001C91}.release_shared|Win32.ActiveCfg = release_shared|Win32
+		{6411ABF3-5EEE-429A-8934-8CEEBE001C91}.release_shared|Win32.Build.0 = release_shared|Win32
+		{6411ABF3-5EEE-429A-8934-8CEEBE001C91}.release_shared|Win32.Deploy.0 = release_shared|Win32
+		{5E34E3A3-6B1B-4B89-BFF1-04D930AFC2CA}.debug_shared|Win32.ActiveCfg = debug_shared|Win32
+		{5E34E3A3-6B1B-4B89-BFF1-04D930AFC2CA}.debug_shared|Win32.Build.0 = debug_shared|Win32
+		{5E34E3A3-6B1B-4B89-BFF1-04D930AFC2CA}.debug_shared|Win32.Deploy.0 = debug_shared|Win32
+		{5E34E3A3-6B1B-4B89-BFF1-04D930AFC2CA}.release_shared|Win32.ActiveCfg = release_shared|Win32
+		{5E34E3A3-6B1B-4B89-BFF1-04D930AFC2CA}.release_shared|Win32.Build.0 = release_shared|Win32
+		{5E34E3A3-6B1B-4B89-BFF1-04D930AFC2CA}.release_shared|Win32.Deploy.0 = release_shared|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
