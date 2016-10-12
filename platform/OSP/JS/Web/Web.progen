@@ -1,0 +1,14 @@
+vc.project.guid = 2AF7F617-3096-4216-AB70-9E578F2C38EC
+vc.project.name = Web
+vc.project.target = com.appinf.osp.js.web
+vc.project.type = plugin
+vc.project.pocobase = ..\\..\\..
+vc.project.outdir = .
+vc.project.platforms = Win32, x64
+vc.project.configurations = debug_shared, release_shared
+vc.project.prototype = ${vc.project.name}_vs90.vcproj
+vc.project.compiler.include = ..\\..\\..\\Foundation\\include;..\\..\\..\\XML\\include;..\\..\\..\\JSON\\include;..\\..\\..\\Util\\include;..\\..\\..\\Net\\include;..\\..\\..\\OSP\\include;..\\..\\..\\OSP\\Web\\include;..\\..\\..\\Zip\\include;..\\..\\..\\RemotingNG\\include;..\\..\\..\\OSP\\JS\\include;..\\..\\..\\JS\\Core\\include;..\\..\\..\\JS\\Net\\include;..\\..\\..\\JS\\Bridge\\include;..\\..\\..\\JS\\V8\\include
+vc.project.linker.dependencies = v8.lib
+vc.project.postbuild.debug_shared = bundled /osarch=${project.targetArchitecture} /output=../../bundles Web.bndlspec
+vc.project.postbuild.release_shared = bundle /osarch=${project.targetArchitecture} /output=../../bundles Web.bndlspec
+vc.solution.create = true
