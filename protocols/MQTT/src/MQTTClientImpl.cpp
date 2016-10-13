@@ -34,7 +34,9 @@ public:
 	{
 		if (!_initialized)
 		{
+#ifndef _WIN32
 			MQTTClient_init();
+#endif
 			_initialized = true;
 		}
 	}
