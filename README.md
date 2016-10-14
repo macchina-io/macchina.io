@@ -30,6 +30,7 @@ Prerequisites
   - GNU Make
   - GNU C++ (g++) on Linux or Clang++ on OS X
   - OpenSSL headers and libraries 
+  - Python (for building V8)
 
 
 Getting Started

@@ -41,7 +41,7 @@ For the latest stable release, you may want to check out the master branch:
 macchina.io uses the build system from the POCO C++ Libraries, which is based on 
 GNU Make. You'll also need a recent version of the GNU C++ compiler (at least
 4.4) or Clang. On Linux systems, make sure you have the OpenSSL headers and libraries
-installed.
+installed. Furthermore, Python is required for building the V8 library.
 
 
 !!Compiling macchina.io
