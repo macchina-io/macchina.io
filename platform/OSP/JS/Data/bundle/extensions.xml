@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="com.appinf.osp.js.module" module="data" class="Poco::OSP::JS::Data::DataModuleFactory" library="com.appinf.osp.js.data"/>
+</extensions>
