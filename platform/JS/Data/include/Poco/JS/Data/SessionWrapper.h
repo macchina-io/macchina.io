@@ -85,12 +85,13 @@ public:
 	v8::Handle<v8::FunctionTemplate> constructor(v8::Isolate* pIsolate);
 		/// Creates and returns a V8 FunctionTemplate for the constructor function.
 
+	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
+		/// Creates a JavaScript Session object.
+
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
 		
 protected:
-	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
-
 	static void getConnector(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void getConnectionString(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void getIsConnected(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
