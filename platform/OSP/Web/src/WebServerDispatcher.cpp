@@ -286,7 +286,11 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 					{
 						RequestHandlerFactoryPtr pFactory(vPath.pFactory);
 						lock.unlock();
+#if __cplusplus < 201103L
 						std::auto_ptr<HTTPRequestHandler> pHandler(pFactory->createRequestHandler(request));
+#else
+						std::unique_ptr<HTTPRequestHandler> pHandler(pFactory->createRequestHandler(request));
+#endif
 						try
 						{
 							if (pHandler.get())
@@ -426,7 +430,11 @@ void WebServerDispatcher::sendResource(Poco::Net::HTTPServerRequest& request, co
 	Poco::Net::HTTPServerResponse& response(request.response());
 	std::string mediaType;
 	std::string resolvedPath;
+#if __cplusplus < 201103L
 	std::auto_ptr<std::istream> pResourceStream(findResource(pBundle, resBase, resPath, index, mediaType, resolvedPath, canCache));
+#else
+	std::unique_ptr<std::istream> pResourceStream(findResource(pBundle, resBase, resPath, index, mediaType, resolvedPath, canCache));
+#endif
 	if (pResourceStream.get())
 	{
 		response.setContentType(mediaType);
@@ -687,7 +695,11 @@ std::istream* WebServerDispatcher::getCachedResource(Bundle::ConstPtr pBundle, c
 		else
 		{
 			lockWithUnlock.unlock();
+#if __cplusplus < 201103L
 			std::auto_ptr<std::istream> pResourceStream(pBundle->getResource(path));
+#else
+			std::unique_ptr<std::istream> pResourceStream(pBundle->getResource(path));
+#endif
 			if (pResourceStream.get())
 			{
 				std::string cachedData;

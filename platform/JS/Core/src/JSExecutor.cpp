@@ -436,7 +436,11 @@ void JSExecutor::includeScript(const std::string& uri)
 	v8::Context::Scope contextScope(context);
 
 	Poco::URI includeURI(_sourceURI, uri);
+#if __cplusplus < 201103L
 	std::auto_ptr<std::istream> istr(Poco::URIStreamOpener::defaultOpener().open(includeURI));
+#else
+	std::unique_ptr<std::istream> istr(Poco::URIStreamOpener::defaultOpener().open(includeURI));
+#endif
 	std::string source;
 	Poco::StreamCopier::copyToString(*istr, source);
 

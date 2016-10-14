@@ -63,7 +63,11 @@ public:
 	void start(BundleContext::Ptr pContext)
 	{
 		MediaTypeMapper::Ptr pMediaTypeMapper = new MediaTypeMapper;
+#if __cplusplus < 201103L
 		std::auto_ptr<std::istream> pStream(pContext->thisBundle()->getResource("mime.types"));
+#else
+		std::unique_ptr<std::istream> pStream(pContext->thisBundle()->getResource("mime.types"));
+#endif
 		if (pStream.get())
 		{
 			pMediaTypeMapper->load(*pStream);

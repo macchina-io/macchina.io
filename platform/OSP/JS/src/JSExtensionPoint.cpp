@@ -52,7 +52,11 @@ void JSExtensionPoint::handleExtension(Bundle::ConstPtr pBundle, Poco::XML::Elem
 	std::vector<std::string> moduleSearchPaths(tok.begin(), tok.end());
 	
 	std::string script;
+#if __cplusplus < 201103L
 	std::auto_ptr<std::istream> pStream(pBundle->getResource(scriptPath));
+#else
+	std::unique_ptr<std::istream> pStream(pBundle->getResource(scriptPath));
+#endif
 	Poco::StreamCopier::copyToString(*pStream, script);
 	_pContext->logger().information(Poco::format("Starting script %s from bundle %s.", scriptPath, pBundle->symbolicName()));
 	std::string scriptURI("bndl://");

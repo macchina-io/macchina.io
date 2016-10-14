@@ -87,7 +87,11 @@ private:
 	bool checkStream();
 	void findMessageImpl();
 
+#if __cplusplus < 201103L
 	typedef std::auto_ptr<Poco::BinaryReader> BinaryReaderPtr;
+#else
+	typedef std::unique_ptr<Poco::BinaryReader> BinaryReaderPtr;
+#endif
 	typedef std::pair<int, int> LengthLevelPair;
 	typedef std::stack<LengthLevelPair> LevelLengthVec;
 

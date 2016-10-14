@@ -106,7 +106,11 @@ protected:
 	};
 
 private:
+#if __cplusplus < 201103L
 	typedef std::auto_ptr<Poco::BinaryWriter> BinaryWriterPtr;
+#else
+	typedef std::unique_ptr<Poco::BinaryWriter> BinaryWriterPtr;
+#endif
 
 	BinaryWriterPtr _pWriter;
 	
