@@ -16,8 +16,6 @@
 #include "Poco/JS/Core/LoggerWrapper.h"
 #include "Poco/JS/Core/ConsoleWrapper.h"
 #include "Poco/JS/Core/ConfigurationWrapper.h"
-#include "Poco/JS/Net/HTTPRequestWrapper.h"
-#include "Poco/JS/Data/SessionWrapper.h"
 #include "Poco/OSP/BundleEvents.h"
 #include "Poco/Delegate.h"
 #include "Poco/Format.h"
@@ -81,12 +79,6 @@ void JSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isol
 	Poco::JS::Core::ConsoleWrapper consoleWrapper;
 	v8::Local<v8::Object> consoleObject = consoleWrapper.wrapNative(pIsolate, &_pContext->logger());
 	global->Set(v8::String::NewFromUtf8(pIsolate, "console"), consoleObject);
-
-	Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
-	global->Set(v8::String::NewFromUtf8(pIsolate, "HTTPRequest"), httpRequestWrapper.constructor(pIsolate));
-	
-	Poco::JS::Data::SessionWrapper sessionWrapper;
-	global->Set(v8::String::NewFromUtf8(pIsolate, "DBSession"), sessionWrapper.constructor(pIsolate));
 }
 
 
@@ -192,12 +184,6 @@ void TimedJSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8:
 	Poco::JS::Core::ConsoleWrapper consoleWrapper;
 	v8::Local<v8::Object> consoleObject = consoleWrapper.wrapNative(pIsolate, &_pContext->logger());
 	global->Set(v8::String::NewFromUtf8(pIsolate, "console"), consoleObject);
-
-	Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
-	global->Set(v8::String::NewFromUtf8(pIsolate, "HTTPRequest"), httpRequestWrapper.constructor(pIsolate));
-	
-	Poco::JS::Data::SessionWrapper sessionWrapper;
-	global->Set(v8::String::NewFromUtf8(pIsolate, "DBSession"), sessionWrapper.constructor(pIsolate));
 }
 
 

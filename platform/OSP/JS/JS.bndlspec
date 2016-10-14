@@ -12,14 +12,6 @@
     </activator>
     <lazyStart>false</lazyStart>
     <runLevel>600</runLevel>
-    <dependency>
-      <symbolicName>poco.net</symbolicName>
-      <version>[1.7.0, 2.0.0)</version>
-    </dependency>
-    <dependency>
-      <symbolicName>poco.data</symbolicName>
-      <version>[1.7.0, 2.0.0)</version>
-    </dependency>
   </manifest>
   <files>
   	bundle/*
