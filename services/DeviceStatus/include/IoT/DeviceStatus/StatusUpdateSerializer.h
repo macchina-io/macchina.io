@@ -40,12 +40,13 @@ public:
 	static void serializeImpl(const IoT::DeviceStatus::StatusUpdate& value, Serializer& ser)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"messageClass","source","status","text",""};
+		static const std::string REMOTING__NAMES[] = {"acknowledgeable","messageClass","source","status","text",""};
 		remoting__staticInitEnd(REMOTING__NAMES);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.messageClass, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.source, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[2], value.status, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[3], value.text, ser);
+		TypeSerializer<bool >::serialize(REMOTING__NAMES[0], value.acknowledgeable, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.messageClass, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.source, ser);
+		TypeSerializer<int >::serialize(REMOTING__NAMES[3], value.status, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[4], value.text, ser);
 	}
 
 };

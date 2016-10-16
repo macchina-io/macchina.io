@@ -44,15 +44,16 @@ public:
 	static void deserializeImpl(Deserializer& deser, IoT::DeviceStatus::StatusUpdate& value)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"messageClass","source","status","text"};
+		static const std::string REMOTING__NAMES[] = {"acknowledgeable","messageClass","source","status","text"};
 		remoting__staticInitEnd(REMOTING__NAMES);
 		bool ret = false;
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], false, deser, value.messageClass);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], false, deser, value.source);
+		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[0], false, deser, value.acknowledgeable);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], false, deser, value.messageClass);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], false, deser, value.source);
 		int genstatus;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], true, deser, genstatus);
+		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[3], true, deser, genstatus);
 		if (ret) value.status = static_cast<IoT::DeviceStatus::DeviceStatus>(genstatus);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[3], true, deser, value.text);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[4], true, deser, value.text);
 	}
 
 };

@@ -72,6 +72,7 @@ enum DeviceStatus
 struct StatusUpdate
 {
 	StatusUpdate():
+		acknowledgeable(true),
 		status(DEVICE_STATUS_OK)
 	{
 	}
@@ -90,6 +91,15 @@ struct StatusUpdate
 	std::string source;
 		/// Optional source of the status update. Can be
 		/// an application specific name of a subsystem or device.
+		
+	//@ mandatory = false
+	bool acknowledgeable;
+		/// Optional flag denoting whether the status update can
+		/// be acknowledged by the user. Once a status update has
+		/// been acknowledged, it will no longer affect the 
+		/// global (or source-specific) device status.
+		///
+		/// Defaults to true.
 		 
 	DeviceStatus status;
 		/// New device status.
@@ -106,11 +116,12 @@ struct StatusMessage
 	StatusMessage():
 		id(0),
 		status(DEVICE_STATUS_OK),
+		acknowledgeable(false),
 		acknowledged(false)
 	{
 	}
 
-	int id;
+	Poco::Int64 id;
 		/// An internally assigned integer that identifies the message.
 		/// Used with acknowledge() and remove().
 
@@ -135,9 +146,16 @@ struct StatusMessage
 
 	Poco::DateTime timestamp;
 		/// Date and time of the message.
+		
+	bool acknowledgeable;
+		/// Flag denoting whether the status update can
+		/// be acknowledged by the user. 
 
 	bool acknowledged;
 		/// True if message has been acknowledged by user, otherwise false.
+		///
+		/// Once a status update has been acknowledged, it will no longer 
+		/// affect the global (or source-specific) device status.
 };
 
 
@@ -167,13 +185,14 @@ public:
 	
 	Poco::BasicEvent<const DeviceStatusChange> statusChanged;
 		/// Fired when the device status level has changed.
-		/// Not every call to postStatus() will trigger 
-		/// a statusChanged event.
+		/// Not every call to postStatus() or postStatusAsync() 
+		/// will trigger a statusChanged event.
 
 	Poco::BasicEvent<const DeviceStatusChange> statusUpdated;
 		/// Fired when the device status has been updated
-		/// by calling postStatus(), regardless of whether the
-		/// device status level has changed or not.
+		/// by calling postStatus() or postStatusAsync(), 
+		/// regardless of whether the device status level 
+		/// has changed or not.
 
 	DeviceStatusService();
 		/// Creates the DeviceStatusService.
@@ -182,33 +201,54 @@ public:
 		/// Destroys the DeviceStatusService.
 		
 	virtual DeviceStatus status() const = 0;
-		/// Returns the current device status.
+		/// Returns the current global device status.
+		///
+		/// Only unacknowledged status updates are considered in determining
+		/// the current status.
+
+	virtual DeviceStatus statusOfSource(const std::string& source) const = 0;
+		/// Returns the current source-specific device status, considering 
+		/// only status updates with the given source.
 		///
 		/// Only unacknowledged status updates are considered in determining
 		/// the current status.
 		
 	virtual DeviceStatusChange postStatus(const StatusUpdate& statusUpdate) = 0;
-		/// Updates the device status. The given statusId in statusUpdate should uniquely 
-		/// identify this status update, and is used to clear it at a later time with 
-		/// clearStatus(), or to coalesce status updates.
-		///
-		/// statusId can also be an empty string. However, in this case the status cannot
-		/// be cleared or coalesced with another update at a later time.
+		/// Updates the device status. 
 		///
 		/// Returns a DeviceStatusChange structure.
+
+	virtual void postStatusAsync(const StatusUpdate& statusUpdate) = 0;
+		/// Updates the device status asynchronously.
+		///
+		/// The actual status update in the database will be done 
+		/// asynchronously in a separate thread.
 		
 	virtual DeviceStatus clearStatus(const std::string& messageClass) = 0;
 		/// Clears the status update with the given messageClass
 		/// and removes it from the message history.
 		///
 		/// Returns the new device status.
+
+	virtual DeviceStatus clearStatusOfSource(const std::string& source) = 0;
+		/// Clears all status updates with the given source
+		/// and removes them from the message history.
+		///
+		/// Returns the new device status.
 		
-	virtual DeviceStatus acknowledge(int id) = 0;
-		/// Marks the message with the given ID as acknowledged.
+	virtual DeviceStatus acknowledge(Poco::Int64 id) = 0;
+		/// Marks the message with the given ID as acknowledged, if it is
+		/// acknowledgeable.
 		///
 		/// Returns the new device status.
 
-	virtual DeviceStatus remove(int id) = 0;
+	virtual DeviceStatus acknowledgeUpTo(Poco::Int64 id) = 0;
+		/// Marks all acknowledgeable messages up to (and including) 
+		/// the given ID as acknowledged.
+		///
+		/// Returns the new device status.
+
+	virtual DeviceStatus remove(Poco::Int64 id) = 0;
 		/// Removes the message with the given ID from the message history.
 		///
 		/// Returns the new device status.

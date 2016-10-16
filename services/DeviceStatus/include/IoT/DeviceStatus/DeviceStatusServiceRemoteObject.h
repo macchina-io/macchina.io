@@ -42,8 +42,15 @@ public:
 	virtual ~DeviceStatusServiceRemoteObject();
 		/// Destroys the DeviceStatusServiceRemoteObject.
 
-	IoT::DeviceStatus::DeviceStatus acknowledge(int id);
-		/// Marks the message with the given ID as acknowledged.
+	IoT::DeviceStatus::DeviceStatus acknowledge(Poco::Int64 id);
+		/// Marks the message with the given ID as acknowledged, if it is
+		/// acknowledgeable.
+		///
+		/// Returns the new device status.
+
+	IoT::DeviceStatus::DeviceStatus acknowledgeUpTo(Poco::Int64 id);
+		/// Marks all acknowledgeable messages up to (and including) 
+		/// the given ID as acknowledged.
 		///
 		/// Returns the new device status.
 
@@ -53,19 +60,26 @@ public:
 		///
 		/// Returns the new device status.
 
+	IoT::DeviceStatus::DeviceStatus clearStatusOfSource(const std::string& source);
+		/// Clears all status updates with the given source
+		/// and removes them from the message history.
+		///
+		/// Returns the new device status.
+
 	std::vector < IoT::DeviceStatus::StatusMessage > messages(int maxMessages = int(0)) const;
 		/// Retrieves stored status messages. If maxMessages is > 0, will at most
 		/// return maxMessages messages.
 
 	IoT::DeviceStatus::DeviceStatusChange postStatus(const IoT::DeviceStatus::StatusUpdate& statusUpdate);
-		/// Updates the device status. The given statusId in statusUpdate should uniquely 
-		/// identify this status update, and is used to clear it at a later time with 
-		/// clearStatus(), or to coalesce status updates.
-		///
-		/// statusId can also be an empty string. However, in this case the status cannot
-		/// be cleared or coalesced with another update at a later time.
+		/// Updates the device status. 
 		///
 		/// Returns a DeviceStatusChange structure.
+
+	virtual void postStatusAsync(const IoT::DeviceStatus::StatusUpdate& statusUpdate);
+		/// Updates the device status asynchronously.
+		///
+		/// The actual status update in the database will be done 
+		/// asynchronously in a separate thread.
 
 	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
 
@@ -75,7 +89,7 @@ public:
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
-	IoT::DeviceStatus::DeviceStatus remove(int id);
+	IoT::DeviceStatus::DeviceStatus remove(Poco::Int64 id);
 		/// Removes the message with the given ID from the message history.
 		///
 		/// Returns the new device status.
@@ -84,7 +98,14 @@ public:
 		/// Resets the device status to DEVICE_STATUS_OK and removes all messages.
 
 	IoT::DeviceStatus::DeviceStatus status() const;
-		/// Returns the current device status.
+		/// Returns the current global device status.
+		///
+		/// Only unacknowledged status updates are considered in determining
+		/// the current status.
+
+	IoT::DeviceStatus::DeviceStatus statusOfSource(const std::string& source) const;
+		/// Returns the current source-specific device status, considering 
+		/// only status updates with the given source.
 		///
 		/// Only unacknowledged status updates are considered in determining
 		/// the current status.
@@ -99,15 +120,27 @@ private:
 };
 
 
-inline IoT::DeviceStatus::DeviceStatus DeviceStatusServiceRemoteObject::acknowledge(int id)
+inline IoT::DeviceStatus::DeviceStatus DeviceStatusServiceRemoteObject::acknowledge(Poco::Int64 id)
 {
 	return _pServiceObject->acknowledge(id);
+}
+
+
+inline IoT::DeviceStatus::DeviceStatus DeviceStatusServiceRemoteObject::acknowledgeUpTo(Poco::Int64 id)
+{
+	return _pServiceObject->acknowledgeUpTo(id);
 }
 
 
 inline IoT::DeviceStatus::DeviceStatus DeviceStatusServiceRemoteObject::clearStatus(const std::string& messageClass)
 {
 	return _pServiceObject->clearStatus(messageClass);
+}
+
+
+inline IoT::DeviceStatus::DeviceStatus DeviceStatusServiceRemoteObject::clearStatusOfSource(const std::string& source)
+{
+	return _pServiceObject->clearStatusOfSource(source);
 }
 
 
@@ -123,13 +156,19 @@ inline IoT::DeviceStatus::DeviceStatusChange DeviceStatusServiceRemoteObject::po
 }
 
 
+inline void DeviceStatusServiceRemoteObject::postStatusAsync(const IoT::DeviceStatus::StatusUpdate& statusUpdate)
+{
+	_pServiceObject->postStatusAsync(statusUpdate);
+}
+
+
 inline const Poco::RemotingNG::Identifiable::TypeId& DeviceStatusServiceRemoteObject::remoting__typeId() const
 {
 	return IDeviceStatusService::remoting__typeId();
 }
 
 
-inline IoT::DeviceStatus::DeviceStatus DeviceStatusServiceRemoteObject::remove(int id)
+inline IoT::DeviceStatus::DeviceStatus DeviceStatusServiceRemoteObject::remove(Poco::Int64 id)
 {
 	return _pServiceObject->remove(id);
 }
@@ -144,6 +183,12 @@ inline void DeviceStatusServiceRemoteObject::reset()
 inline IoT::DeviceStatus::DeviceStatus DeviceStatusServiceRemoteObject::status() const
 {
 	return _pServiceObject->status();
+}
+
+
+inline IoT::DeviceStatus::DeviceStatus DeviceStatusServiceRemoteObject::statusOfSource(const std::string& source) const
+{
+	return _pServiceObject->statusOfSource(source);
 }
 
 
