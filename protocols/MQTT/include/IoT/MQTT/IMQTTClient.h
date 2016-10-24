@@ -48,13 +48,25 @@ public:
 	virtual ~IMQTTClient();
 		/// Destroys the IMQTTClient.
 
-	virtual void connect() = 0;
+	virtual IoT::MQTT::ConnectionInfo connect() = 0;
 		/// Connects to the server if not already connected.
 		///
 		/// Normally, the client connects automatically when a message is
 		/// published or a topic is subscribed to.
 		///
+		/// Returns a ConnectionInfo object containing information about the
+		/// connection.
+		///
+		/// Fires the connected event if successful.
+		///
 		/// Throws a Poco::IOException if the connection cannot be established.
+
+	virtual void connectAsync() = 0;
+		/// Connects to the server if not already connected.
+		///
+		/// Connecting will be done asynchronously in a background thread.
+		///
+		/// A successful connection will be reported by firing the connected event.
 
 	virtual bool connected() const = 0;
 		/// Returns true if the client is currently connected to the server.
@@ -149,6 +161,8 @@ public:
 		/// Throws a Poco::IOException if there was a problem removing the
 		/// subscriptions.
 
+	Poco::BasicEvent < void > connectionClosed;
+	Poco::BasicEvent < const ConnectionEstablishedEvent > connectionEstablished;
 	Poco::BasicEvent < const ConnectionLostEvent > connectionLost;
 	Poco::BasicEvent < const MessageArrivedEvent > messageArrived;
 	Poco::BasicEvent < const MessageDeliveredEvent > messageDelivered;

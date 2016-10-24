@@ -166,7 +166,7 @@ Statistics MQTTClientImpl::statistics() const
 }
 
 
-void MQTTClientImpl::connect()
+ConnectionInfo MQTTClientImpl::connect()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -179,6 +179,19 @@ void MQTTClientImpl::connect()
 		}
 		_logger.information(Poco::format("Connecting MQTT client \"%s\" to server \"%s\"...", _clientId, _serverURI));
 		connectImpl(_options);
+	}
+	
+	return _connectionInfo;
+}
+
+
+void MQTTClientImpl::connectAsync()
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	if (!MQTTClient_isConnected(_mqttClient))
+	{
+		_timer.schedule(new ReconnectTask(*this), Poco::Clock());
 	}
 }
 
@@ -205,12 +218,12 @@ void MQTTClientImpl::reconnect()
 		_pendingReconnect = true;
 		try
 		{
-			_logger.information(Poco::format("Reconnecting MQTT client \"%s\" to server \"%s\"...", _clientId, _serverURI));
+			_logger.information(Poco::format("Connecting MQTT client \"%s\" to server \"%s\"...", _clientId, _serverURI));
 			connectImpl(_options);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.error(Poco::format("Failed to reconnect MQTT client \"%s\" to \"%s\": %s", _clientId, _serverURI, exc.displayText()));
+			_logger.error(Poco::format("Failed to connect MQTT client \"%s\" to \"%s\": %s", _clientId, _serverURI, exc.displayText()));
 			if (_reconnectDelay < MAXIMUM_RECONNECT_DELAY)
 				_reconnectDelay = 3*_reconnectDelay/2;
 			
@@ -306,12 +319,17 @@ void MQTTClientImpl::connectImpl(const ConnectOptions& options)
 	{
 		_logger.warning(Poco::format("Failed to resubscribe client \"%s\" to previously subscribed topics: %s", _clientId, exc.displayText()));
 	}
+	
+	Poco::ScopedUnlock<Poco::Mutex> unlock(_mutex);
+	ConnectionEstablishedEvent event;
+	event.connectionInfo = _connectionInfo;
+	connectionEstablished(this, event);
 }
 
 	
 void MQTTClientImpl::disconnect(int timeout)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	Poco::ScopedLockWithUnlock<Poco::Mutex> lock(_mutex);
 
 	if (MQTTClient_isConnected(_mqttClient))
 	{
@@ -323,6 +341,9 @@ void MQTTClientImpl::disconnect(int timeout)
 		
 		_connectionInfo.serverURI.clear();
 		_connectionInfo.sessionPresent = false;
+		
+		lock.unlock();
+		connectionClosed(this);
 	}
 }
 

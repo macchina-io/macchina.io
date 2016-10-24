@@ -43,6 +43,10 @@ public:
 	virtual ~MQTTClientEventDispatcher();
 		/// Destroys the MQTTClientEventDispatcher.
 
+	void event__connectionClosed(const void* pSender);
+
+	void event__connectionEstablished(const void* pSender, const IoT::MQTT::ConnectionEstablishedEvent& data);
+
 	void event__connectionLost(const void* pSender, const IoT::MQTT::ConnectionLostEvent& data);
 
 	void event__messageArrived(const void* pSender, const IoT::MQTT::MessageArrivedEvent& data);
@@ -52,6 +56,10 @@ public:
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
+	void event__connectionClosedImpl(const std::string& subscriberURI);
+
+	void event__connectionEstablishedImpl(const std::string& subscriberURI, const IoT::MQTT::ConnectionEstablishedEvent& data);
+
 	void event__connectionLostImpl(const std::string& subscriberURI, const IoT::MQTT::ConnectionLostEvent& data);
 
 	void event__messageArrivedImpl(const std::string& subscriberURI, const IoT::MQTT::MessageArrivedEvent& data);

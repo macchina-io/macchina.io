@@ -24,6 +24,7 @@
 #include "Poco/Util/Timer.h"
 #include "Poco/Logger.h"
 #include "Poco/Mutex.h"
+#include "Poco/ScopedUnlock.h"
 #include <map>
 
 
@@ -131,16 +132,13 @@ public:
 
 	~MQTTClientImpl();
 		/// Destroys the MQTTClientImpl.
-		
-		/// Connects to the MQTT server, if not yet connected.
-		///
-		/// Throws a Poco::IOException if the connection cannot be established.
 	
 	// MQTTClient
 	const std::string& id() const;
 	const std::string& serverURI() const;
 	bool connected() const;
-	void connect();
+	ConnectionInfo connect();
+	void connectAsync();
 	void disconnect(int timeout);
 	std::vector<TopicQoS> subscribedTopics() const;
 	Statistics statistics() const;

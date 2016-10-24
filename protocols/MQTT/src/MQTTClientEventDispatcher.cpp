@@ -16,6 +16,8 @@
 
 
 #include "IoT/MQTT/MQTTClientEventDispatcher.h"
+#include "IoT/MQTT/ConnectionEstablishedEventDeserializer.h"
+#include "IoT/MQTT/ConnectionEstablishedEventSerializer.h"
 #include "IoT/MQTT/ConnectionLostEventDeserializer.h"
 #include "IoT/MQTT/ConnectionLostEventSerializer.h"
 #include "IoT/MQTT/MessageArrivedEventDeserializer.h"
@@ -39,6 +41,8 @@ MQTTClientEventDispatcher::MQTTClientEventDispatcher(MQTTClientRemoteObject* pRe
 	Poco::RemotingNG::EventDispatcher(protocol),
 	_pRemoteObject(pRemoteObject)
 {
+	_pRemoteObject->connectionClosed += Poco::delegate(this, &MQTTClientEventDispatcher::event__connectionClosed);
+	_pRemoteObject->connectionEstablished += Poco::delegate(this, &MQTTClientEventDispatcher::event__connectionEstablished);
 	_pRemoteObject->connectionLost += Poco::delegate(this, &MQTTClientEventDispatcher::event__connectionLost);
 	_pRemoteObject->messageArrived += Poco::delegate(this, &MQTTClientEventDispatcher::event__messageArrived);
 	_pRemoteObject->messageDelivered += Poco::delegate(this, &MQTTClientEventDispatcher::event__messageDelivered);
@@ -49,6 +53,8 @@ MQTTClientEventDispatcher::~MQTTClientEventDispatcher()
 {
 	try
 	{
+		_pRemoteObject->connectionClosed -= Poco::delegate(this, &MQTTClientEventDispatcher::event__connectionClosed);
+		_pRemoteObject->connectionEstablished -= Poco::delegate(this, &MQTTClientEventDispatcher::event__connectionEstablished);
 		_pRemoteObject->connectionLost -= Poco::delegate(this, &MQTTClientEventDispatcher::event__connectionLost);
 		_pRemoteObject->messageArrived -= Poco::delegate(this, &MQTTClientEventDispatcher::event__messageArrived);
 		_pRemoteObject->messageDelivered -= Poco::delegate(this, &MQTTClientEventDispatcher::event__messageDelivered);
@@ -56,6 +62,74 @@ MQTTClientEventDispatcher::~MQTTClientEventDispatcher()
 	catch (...)
 	{
 		poco_unexpected();
+	}
+}
+
+
+void MQTTClientEventDispatcher::event__connectionClosed(const void* pSender)
+{
+	if (pSender)
+	{
+		Poco::Clock now;
+		Poco::FastMutex::ScopedLock lock(_mutex);
+		SubscriberMap::iterator it = _subscribers.begin();
+		while (it != _subscribers.end())
+		{
+			if (it->second->expireTime != 0 && it->second->expireTime < now)
+			{
+				SubscriberMap::iterator itDel(it++);
+				_subscribers.erase(itDel);
+			}
+			else
+			{
+				try
+				{
+					event__connectionClosedImpl(it->first);
+				}
+				catch (Poco::RemotingNG::RemoteException&)
+				{
+					throw;
+				}
+				catch (Poco::Exception&)
+				{
+				}
+				++it;
+			}
+		}
+	}
+}
+
+
+void MQTTClientEventDispatcher::event__connectionEstablished(const void* pSender, const IoT::MQTT::ConnectionEstablishedEvent& data)
+{
+	if (pSender)
+	{
+		Poco::Clock now;
+		Poco::FastMutex::ScopedLock lock(_mutex);
+		SubscriberMap::iterator it = _subscribers.begin();
+		while (it != _subscribers.end())
+		{
+			if (it->second->expireTime != 0 && it->second->expireTime < now)
+			{
+				SubscriberMap::iterator itDel(it++);
+				_subscribers.erase(itDel);
+			}
+			else
+			{
+				try
+				{
+					event__connectionEstablishedImpl(it->first, data);
+				}
+				catch (Poco::RemotingNG::RemoteException&)
+				{
+					throw;
+				}
+				catch (Poco::Exception&)
+				{
+				}
+				++it;
+			}
+		}
 	}
 }
 
@@ -159,6 +233,35 @@ void MQTTClientEventDispatcher::event__messageDelivered(const void* pSender, con
 			}
 		}
 	}
+}
+
+
+void MQTTClientEventDispatcher::event__connectionClosedImpl(const std::string& subscriberURI)
+{
+	remoting__staticInitBegin(REMOTING__NAMES);
+	static const std::string REMOTING__NAMES[] = {"connectionClosed","subscriberURI"};
+	remoting__staticInitEnd(REMOTING__NAMES);
+	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
+	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+}
+
+
+void MQTTClientEventDispatcher::event__connectionEstablishedImpl(const std::string& subscriberURI, const IoT::MQTT::ConnectionEstablishedEvent& data)
+{
+	remoting__staticInitBegin(REMOTING__NAMES);
+	static const std::string REMOTING__NAMES[] = {"connectionEstablished","subscriberURI","data"};
+	remoting__staticInitEnd(REMOTING__NAMES);
+	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
+	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::TypeSerializer<IoT::MQTT::ConnectionEstablishedEvent >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 

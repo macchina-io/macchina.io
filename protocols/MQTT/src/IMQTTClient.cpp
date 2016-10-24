@@ -24,6 +24,8 @@ namespace MQTT {
 
 IMQTTClient::IMQTTClient():
 	Poco::OSP::Service(),
+	connectionClosed(),
+	connectionEstablished(),
 	connectionLost(),
 	messageArrived(),
 	messageDelivered()

@@ -122,6 +122,25 @@ struct ConnectionLostEvent
 
 
 //@ serialize
+struct ConnectionInfo
+{
+	std::string serverURI;
+		/// URI of server the client is connected to.
+		
+	bool sessionPresent;
+		/// True if a previously set up session is present on the server.
+};
+
+
+//@ serialize
+struct ConnectionEstablishedEvent
+	/// Event arguments for MQTTClient::connected.
+{
+	ConnectionInfo connectionInfo;	
+};
+
+
+//@ serialize
 struct TopicQoS
 	/// A vector of these is given to MQTTClient::subscribeMany.
 {
@@ -174,17 +193,6 @@ struct Statistics
 };
 
 
-//@ serialize
-struct ConnectionInfo
-{
-	std::string serverURI;
-		/// URI of server the client is connected to.
-		
-	bool sessionPresent;
-		/// True if a previously set up session is present on the server.
-};
-
-
 //@ remote
 class IoTMQTT_API MQTTClient
 	/// The interface for MQTT clients.
@@ -205,6 +213,12 @@ public:
 	Poco::BasicEvent<const MessageDeliveredEvent> messageDelivered;
 		/// Fired when a message has been delivered.
 		
+	Poco::BasicEvent<const ConnectionEstablishedEvent> connectionEstablished;
+		/// Fired when a connection to the MQTT server has been established.
+		
+	Poco::BasicEvent<void> connectionClosed;
+		/// Fired when the client has disconnected from the server.
+
 	Poco::BasicEvent<const ConnectionLostEvent> connectionLost;
 		/// Fired when the connection to the MQTT server has been lost.
 
@@ -223,13 +237,25 @@ public:
 	virtual bool connected() const = 0;
 		/// Returns true if the client is currently connected to the server.
 		
-	virtual void connect() = 0;
+	virtual ConnectionInfo connect() = 0;
 		/// Connects to the server if not already connected.
 		///
 		/// Normally, the client connects automatically when a message is
 		/// published or a topic is subscribed to.
 		///
+		/// Returns a ConnectionInfo object containing information about the
+		/// connection.
+		///
+		/// Fires the connected event if successful.
+		///
 		/// Throws a Poco::IOException if the connection cannot be established.
+		
+	virtual void connectAsync() = 0;
+		/// Connects to the server if not already connected.
+		///
+		/// Connecting will be done asynchronously in a background thread.
+		///
+		/// A successful connection will be reported by firing the connected event.
 		
 	virtual void disconnect(int timeout) = 0;
 		/// Disconnects from the server.

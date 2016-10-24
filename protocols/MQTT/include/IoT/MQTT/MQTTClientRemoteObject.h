@@ -47,13 +47,25 @@ public:
 	virtual ~MQTTClientRemoteObject();
 		/// Destroys the MQTTClientRemoteObject.
 
-	virtual void connect();
+	IoT::MQTT::ConnectionInfo connect();
 		/// Connects to the server if not already connected.
 		///
 		/// Normally, the client connects automatically when a message is
 		/// published or a topic is subscribed to.
 		///
+		/// Returns a ConnectionInfo object containing information about the
+		/// connection.
+		///
+		/// Fires the connected event if successful.
+		///
 		/// Throws a Poco::IOException if the connection cannot be established.
+
+	virtual void connectAsync();
+		/// Connects to the server if not already connected.
+		///
+		/// Connecting will be done asynchronously in a background thread.
+		///
+		/// A successful connection will be reported by firing the connected event.
 
 	virtual bool connected() const;
 		/// Returns true if the client is currently connected to the server.
@@ -139,6 +151,10 @@ public:
 		/// subscriptions.
 
 protected:
+	void event__connectionClosed();
+
+	void event__connectionEstablished(const IoT::MQTT::ConnectionEstablishedEvent& data);
+
 	void event__connectionLost(const IoT::MQTT::ConnectionLostEvent& data);
 
 	void event__messageArrived(const IoT::MQTT::MessageArrivedEvent& data);
@@ -150,9 +166,15 @@ private:
 };
 
 
-inline void MQTTClientRemoteObject::connect()
+inline IoT::MQTT::ConnectionInfo MQTTClientRemoteObject::connect()
 {
-	_pServiceObject->connect();
+	return _pServiceObject->connect();
+}
+
+
+inline void MQTTClientRemoteObject::connectAsync()
+{
+	_pServiceObject->connectAsync();
 }
 
 
