@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>OSP Unit Test Runner</name>
+    <symbolicName>com.appinf.osp.unit.testrunner</symbolicName>
+    <version>1.0.1</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2011-2016, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>TestRunnerBundleActivator</class>
+      <library>com.appinf.osp.unit.testrunner</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>400</runLevel>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../../${bin}/PocoOSPUnit.dll,
+    ../../../${bin}/PocoOSPUnitd.dll,
+    ../../../${bin}/PocoOSPUnitd.pdb,
+    ../../../${bin}/CppUnit.dll,
+    ../../../${bin}/CppUnitd.dll,
+    ../../../${bin}/CppUnitd.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib
+    ../../../lib/${osName}/${osArch}/libPocoOSPUnit.so.*,
+    ../../../lib/${osName}/${osArch}/libPocoOSPUnitd.so.*,
+    ../../../lib/${osName}/${osArch}/libPocoOSPUnit.*.dylib,
+    ../../../lib/${osName}/${osArch}/libPocoOSPUnitd.*.dylib,
+    ../../../lib/${osName}/${osArch}/libCppUnit.so.*,
+    ../../../lib/${osName}/${osArch}/libCppUnitd.so.*,
+    ../../../lib/${osName}/${osArch}/libCppUnit.*.dylib,
+    ../../../lib/${osName}/${osArch}/libCppUnitd.*.dylib
+  </code>
+  <files>
+  </files>
+</bundlespec>

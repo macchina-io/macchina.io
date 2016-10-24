@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Unit", "Unit_vs90.vcproj", "{D0694BED-AA28-4B7E-B042-A9A70ADBDFDD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestRunner", "TestRunner\TestRunner_vs90.vcproj", "{ECB6A25E-A89A-439E-A47A-BC1DCCD7834E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D0694BED-AA28-4B7E-B042-A9A70ADBDFDD} = {D0694BED-AA28-4B7E-B042-A9A70ADBDFDD}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		debug_shared|Win32 = debug_shared|Win32
+		release_shared|Win32 = release_shared|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D0694BED-AA28-4B7E-B042-A9A70ADBDFDD}.debug_shared|Win32.ActiveCfg = debug_shared|Win32
+		{D0694BED-AA28-4B7E-B042-A9A70ADBDFDD}.debug_shared|Win32.Build.0 = debug_shared|Win32
+		{D0694BED-AA28-4B7E-B042-A9A70ADBDFDD}.debug_shared|Win32.Deploy.0 = debug_shared|Win32
+		{D0694BED-AA28-4B7E-B042-A9A70ADBDFDD}.release_shared|Win32.ActiveCfg = release_shared|Win32
+		{D0694BED-AA28-4B7E-B042-A9A70ADBDFDD}.release_shared|Win32.Build.0 = release_shared|Win32
+		{D0694BED-AA28-4B7E-B042-A9A70ADBDFDD}.release_shared|Win32.Deploy.0 = release_shared|Win32
+		{ECB6A25E-A89A-439E-A47A-BC1DCCD7834E}.debug_shared|Win32.ActiveCfg = debug_shared|Win32
+		{ECB6A25E-A89A-439E-A47A-BC1DCCD7834E}.debug_shared|Win32.Build.0 = debug_shared|Win32
+		{ECB6A25E-A89A-439E-A47A-BC1DCCD7834E}.debug_shared|Win32.Deploy.0 = debug_shared|Win32
+		{ECB6A25E-A89A-439E-A47A-BC1DCCD7834E}.release_shared|Win32.ActiveCfg = release_shared|Win32
+		{ECB6A25E-A89A-439E-A47A-BC1DCCD7834E}.release_shared|Win32.Build.0 = release_shared|Win32
+		{ECB6A25E-A89A-439E-A47A-BC1DCCD7834E}.release_shared|Win32.Deploy.0 = release_shared|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
