@@ -1,9 +1,9 @@
 #
 # OSP Configuration
 #
-osp.codeCache          = ${application.dir}codeCache
-osp.bundleRepository   = ${application.dir}../lib/bundles
-osp.data               = ${application.configDir}data
+osp.codeCache          = ${system.env.SNAP_DATA}/codeCache
+osp.bundleRepository   = ${system.env.SNAP}/lib/bundles
+osp.data               = ${system.env.SNAP_DATA}/data
 osp.web.cacheResources = true
 osp.web.sessionManager.cookiePersistence = transient
 
