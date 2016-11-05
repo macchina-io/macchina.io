@@ -12,7 +12,7 @@ PRODUCT ?= sdk
 DESTDIR ?= /usr/local/macchina
 INSTALLDIR ?= $(DESTDIR)
 
-RUNTIME_LIBS = PocoFoundation PocoXML PocoJSON PocoUtil PocoZip PocoOSP PocoRemotingNG
+RUNTIME_LIBS = PocoFoundation PocoXML PocoJSON PocoUtil PocoZip PocoOSP PocoRemotingNG PocoGeo
 
 MACCHINA_BASE = $(shell pwd)
 POCO_BASE = $(MACCHINA_BASE)/platform
@@ -30,13 +30,6 @@ MAKEARGS = DEFAULT_TARGET=shared_release
 else
 $(error Invalid PRODUCT specified: $(PRODUCT))
 endif
-
-ifdef SNAP
-MACCHINA_PROPERTIES = macchina.properties.snap
-else
-MACCHINA_PROPERTIES = macchina.properties.install
-endif
-
 
 POCO_HOST_OSNAME = $(shell uname)
 POCO_HOST_OSARCH ?= $(subst /,-,$(shell uname -m | tr ' ' _))
@@ -127,7 +120,7 @@ install_sdk:
 	cp -f $(POCO_BASE)/OSP/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	cp -f $(MACCHINA_BASE)/*/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	rm -f $(INSTALLDIR)/bin/*$(LIBEXT)
-	cp $(MACCHINA_BASE)/server/$(MACCHINA_PROPERTIES) $(INSTALLDIR)/etc/macchina.properties
+	cp $(MACCHINA_BASE)/server/macchina.properties.install $(INSTALLDIR)/etc/macchina.properties
 	cp $(MACCHINA_BASE)/server/rootcert.pem $(INSTALLDIR)/etc
 	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc	
 
@@ -143,6 +136,6 @@ install_runtime:
 	done
 	cp -f $(POCO_BASE)/OSP/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	cp -f $(MACCHINA_BASE)/*/bundles/*.bndl $(INSTALLDIR)/lib/bundles
-	cp $(MACCHINA_BASE)/server/$(MACCHINA_PROPERTIES) $(INSTALLDIR)/etc/macchina.properties
+	cp $(MACCHINA_BASE)/server/macchina.properties.install $(INSTALLDIR)/etc/macchina.properties
 	cp $(MACCHINA_BASE)/server/rootcert.pem $(INSTALLDIR)/etc
 	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc
