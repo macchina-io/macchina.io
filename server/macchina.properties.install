@@ -116,8 +116,8 @@ logging.channels.splitter.channels = console, webconsole
 #
 # NetSSL (OpenSSL) Configuration
 #
-openSSL.server.certificateFile = ${application.configDir}macchina.crt
-openSSL.server.privateKeyFile = ${application.configDir}macchina.key
+openSSL.server.certificateFile = ${application.configDir}macchina.pem
+openSSL.server.privateKeyFile = ${application.configDir}macchina.pem
 openSSL.server.verificationMode = none
 openSSL.server.verificationDepth = 9
 openSSL.server.loadDefaultCAFile = true
