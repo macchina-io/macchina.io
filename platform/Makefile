@@ -22,7 +22,7 @@ poco: libexecs $(if $(TESTS),tests) $(if $(SAMPLES),samples)
 all: libexecs tests samples
 
 INSTALLDIR = $(DESTDIR)$(POCO_PREFIX)
-COMPONENTS = Foundation XML JSON Util Net Data Data/SQLite Zip Crypto NetSSL_OpenSSL CppParser CodeGeneration JS/V8 JS/Core JS/Data JS/Bridge JS/Net RemotingNG RemotingNG/RemoteGen RemotingNG/TCP OSP OSP/BundleCreator OSP/Web OSP/Core OSP/Crypto OSP/Data OSP/Data/SQLite OSP/Net OSP/NetSSL_OpenSSL OSP/SecureWebServer OSP/WebServer OSP/JS OSP/JS/Web OSP/JS/Scheduler
+COMPONENTS = Foundation XML JSON Util Net Data Data/SQLite Zip Crypto NetSSL_OpenSSL CppParser CodeGeneration JS/V8 JS/Core JS/Data JS/Bridge JS/Net RemotingNG RemotingNG/RemoteGen RemotingNG/TCP OSP OSP/BundleCreator OSP/Web OSP/Core OSP/Crypto OSP/Data OSP/Data/SQLite OSP/Net OSP/NetSSL_OpenSSL OSP/SecureWebServer OSP/WebServer OSP/JS OSP/JS/Net OSP/JS/Data OSP/JS/Web OSP/JS/Scheduler
 
 cppunit:
 	$(MAKE) -C $(POCO_BASE)/CppUnit 
@@ -56,7 +56,7 @@ libexecs += \
     WebTunnel-libexec \
     JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec \
     CodeGeneration-libexec RemotingNG-libexec RemotingNG/RemoteGen-libexec RemotingNG/TCP-libexec \
-    OSP-libexec OSP/BundleCreator-libexec OSP/Web-libexec OSP/Core-libexec OSP/Crypto-libexec OSP/Data-libexec OSP/Data/SQLite-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec OSP/SecureWebServer-libexec OSP/WebServer-libexec OSP/JS-libexec OSP/JS/Web-libexec OSP/JS/Scheduler-libexec OSP/WebEvent-libexec OSP/SimpleAuth-libexec \
+    OSP-libexec OSP/BundleCreator-libexec OSP/Web-libexec OSP/Core-libexec OSP/Crypto-libexec OSP/Data-libexec OSP/Data/SQLite-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec OSP/SecureWebServer-libexec OSP/WebServer-libexec OSP/JS-libexec OSP/JS/Net-libexec OSP/JS/Data-libexec OSP/JS/Web-libexec OSP/JS/Scheduler-libexec OSP/WebEvent-libexec OSP/SimpleAuth-libexec \
     OSP/RemotingNG/TCP-libexec \
     Geo-libexec \
     Serial-libexec \
@@ -70,7 +70,7 @@ cleans   += \
     WebTunnel-clean \
     JS/V8-clean JS/Core-clean JS/Data-clean JS/Bridge-clean JS/Net-clean \
     CodeGeneration-clean RemotingNG-clean RemotingNG/RemoteGen-clean RemotingNG/TCP-clean \
-    OSP-clean OSP/BundleCreator-clean OSP/Web-clean OSP/Core-clean OSP/Crypto-clean OSP/Data-clean OSP/Data/SQLite-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean OSP/SecureWebServer-clean OSP/WebServer-clean OSP/JS-clean OSP/JS/Web-clean OSP/JS/Scheduler-clean OSP/WebEvent-clean OSP/SimpleAuth-clean \
+    OSP-clean OSP/BundleCreator-clean OSP/Web-clean OSP/Core-clean OSP/Crypto-clean OSP/Data-clean OSP/Data/SQLite-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean OSP/SecureWebServer-clean OSP/WebServer-clean OSP/JS-clean OSP/JS/Net-clean OSP/JS/Data-clean OSP/JS/Web-clean OSP/JS/Scheduler-clean OSP/WebEvent-clean OSP/SimpleAuth-clean \
     OSP/RemotingNG/TCP-clean \
     Geo-clean \
     Serial-clean \
@@ -402,6 +402,18 @@ OSP/JS-libexec:  Foundation-libexec XML-libexec Util-libexec Net-libexec JS/Core
 
 OSP/JS-clean:  
 	$(MAKE) -C $(POCO_BASE)/OSP/JS clean
+
+OSP/JS/Net-libexec:  OSP/JS-libexec Net-libexec OSP/BundleCreator-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/JS/Net
+
+OSP/JS/Net-clean:  
+	$(MAKE) -C $(POCO_BASE)/OSP/JS/Net clean
+
+OSP/JS/Data-libexec:  OSP/JS-libexec Data-libexec OSP/BundleCreator-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/JS/Data
+
+OSP/JS/Data-clean:  
+	$(MAKE) -C $(POCO_BASE)/OSP/JS/Data clean
 
 OSP/JS/Web-libexec:  OSP/JS-libexec OSP/Web-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Web
