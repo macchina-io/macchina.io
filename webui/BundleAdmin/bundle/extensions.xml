@@ -3,5 +3,5 @@
   <extension point="osp.web.server.requesthandler" methods="GET, HEAD" path="/macchina/bundles/bundle.json" class="IoT::Web::BundleAdmin::BundleRequestHandlerFactory" library="io.macchina.webui.bundleadmin" allowSpecialization="owner" hidden="true"/>
   <extension point="osp.web.server.requesthandler" methods="GET, HEAD" path="/macchina/bundles/list.json" class="IoT::Web::BundleAdmin::BundleListRequestHandlerFactory" library="io.macchina.webui.bundleadmin" allowSpecialization="owner" hidden="true"/>
   <extension point="osp.web.server.requesthandler" methods="POST" path="/macchina/bundles/actions.json" class="IoT::Web::BundleAdmin::BundleActionsRequestHandlerFactory" library="io.macchina.webui.bundleadmin" allowSpecialization="owner" hidden="true"/>
-  <extension point="osp.web.server.directory" path="/macchina/bundles" resource="webapp" allowSpecialization="owner" hidden="true"/>
+  <extension point="osp.web.server.directory" path="/macchina/bundles" resource="webapp" allowSpecialization="owner" hidden="true" permission="bundleAdmin" session="${websession.id}"/>
 </extensions>
