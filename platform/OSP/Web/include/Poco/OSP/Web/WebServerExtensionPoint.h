@@ -59,9 +59,16 @@ class OSPWeb_API WebServerExtensionPoint: public ExtensionPoint
 	///    * secure:      If "true", require a secure (HTTPS) connection to access the resource.
 	///    * realm:       Specify authentication realm (together with permission).
 	///    * permission:  Specify the necessary access permission for this resource.
-	///                   HTTP Basic Authentication is used to obtain the user's
-	///                   user name and password, which are then checked against
-	///                   the specified permission using the authorization service.
+	///                   Unless a session name is specified, HTTP Basic Authentication 
+	///                   is used to obtain the user's user name and password, which are 
+	///                   then checked against the specified permission using the authorization 
+	///                   service.
+	///    * session:     Specify the name of the session used for session-based 
+	///                   authentication instead of HTTP Basic Authentication.
+	///                   If specified together with a permission, the session with the
+	///                   specified name is obtained from the WebSessionService, and the
+	///                   current users's name is obtained from the session's "username"
+	///                   attribute, which must be a std::string. 
 	///    * hidden:      If "true", path is not included by WebServerDispatcher::listVirtualPaths().
 	///
 	/// The following attributes can be specified for "osp.web.server.directory":
@@ -117,6 +124,7 @@ protected:
 	static const std::string ATTR_SECURE;
 	static const std::string ATTR_REALM;
 	static const std::string ATTR_PERMISSION;
+	static const std::string ATTR_SESSION;
 	static const std::string ATTR_RESOURCE;
 	static const std::string ATTR_CLASS;
 	static const std::string ATTR_LIBRARY;

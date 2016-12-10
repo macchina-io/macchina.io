@@ -42,6 +42,7 @@ const std::string WebServerExtensionPoint::ATTR_DESCRIPTION("description");
 const std::string WebServerExtensionPoint::ATTR_SECURE("secure");
 const std::string WebServerExtensionPoint::ATTR_REALM("realm");
 const std::string WebServerExtensionPoint::ATTR_PERMISSION("permission");
+const std::string WebServerExtensionPoint::ATTR_SESSION("session");
 const std::string WebServerExtensionPoint::ATTR_RESOURCE("resource");
 const std::string WebServerExtensionPoint::ATTR_CLASS("class");
 const std::string WebServerExtensionPoint::ATTR_LIBRARY("library");
@@ -150,6 +151,7 @@ void WebServerExtensionPoint::handleCommon(Bundle::ConstPtr pBundle, Poco::XML::
 	vPath.description         = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_DESCRIPTION));
 	vPath.security.realm      = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_REALM));
 	vPath.security.permission = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_PERMISSION));
+	vPath.security.session    = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_SESSION));
 	vPath.security.secure     = pExtensionElem->getAttribute(ATTR_SECURE) == "true";
 	vPath.hidden              = pExtensionElem->getAttribute(ATTR_HIDDEN) == "true";
 	vPath.cache               = pExtensionElem->getAttribute(ATTR_CACHE) != "false";
