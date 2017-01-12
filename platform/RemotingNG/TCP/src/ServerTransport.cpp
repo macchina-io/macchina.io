@@ -112,6 +112,7 @@ void ServerTransport::run()
 	scopedContext.context()->setValue("remoteAddress", _pRequestStream->rdbuf()->connection()->remoteAddress());
 	scopedContext.context()->setValue("localAddress", _pRequestStream->rdbuf()->connection()->localAddress());
 	scopedContext.context()->setValue("id", _pRequestStream->rdbuf()->connection()->id());
+	scopedContext.context()->setValue("connection", _pRequestStream->rdbuf()->connection().get());
 	scopedContext.context()->setValue("uri", path);
 	
 	Poco::RemotingNG::ORB& orb = Poco::RemotingNG::ORB::instance();
