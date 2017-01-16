@@ -85,7 +85,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros"/>
   <PropertyGroup>
-    <_ProjectFileVersion>14.0.25008.0</_ProjectFileVersion>
+    <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_shared|Win32'">PocoRemotingNGd</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_static_md|Win32'">PocoRemotingNGmdd</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_static_mt|Win32'">PocoRemotingNGmtd</TargetName>
@@ -277,9 +277,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Poco\RemotingNG\AttributedObject.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\Authenticator.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\Authorizer.h"/>
     <ClInclude Include="include\Poco\RemotingNG\BinaryDeserializer.h"/>
     <ClInclude Include="include\Poco\RemotingNG\BinarySerializer.h"/>
     <ClInclude Include="include\Poco\RemotingNG\Context.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\Credentials.h"/>
     <ClInclude Include="include\Poco\RemotingNG\Deserializer.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventDispatcher.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventFilter.h"/>
@@ -309,9 +312,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AttributedObject.cpp"/>
+    <ClCompile Include="src\Authenticator.cpp"/>
+    <ClCompile Include="src\Authorizer.cpp"/>
     <ClCompile Include="src\BinaryDeserializer.cpp"/>
     <ClCompile Include="src\BinarySerializer.cpp"/>
     <ClCompile Include="src\Context.cpp"/>
+    <ClCompile Include="src\Credentials.cpp"/>
     <ClCompile Include="src\Deserializer.cpp"/>
     <ClCompile Include="src\EventDispatcher.cpp"/>
     <ClCompile Include="src\EventListener.cpp"/>

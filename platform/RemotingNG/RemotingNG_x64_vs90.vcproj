@@ -498,7 +498,13 @@
 			<Filter
 				Name="Header Files">
 				<File
+					RelativePath=".\include\Poco\RemotingNG\Authenticator.h"/>
+				<File
+					RelativePath=".\include\Poco\RemotingNG\Authorizer.h"/>
+				<File
 					RelativePath=".\include\Poco\RemotingNG\Context.h"/>
+				<File
+					RelativePath=".\include\Poco\RemotingNG\Credentials.h"/>
 				<File
 					RelativePath=".\include\Poco\RemotingNG\EventListener.h"/>
 				<File
@@ -515,7 +521,13 @@
 			<Filter
 				Name="Source Files">
 				<File
+					RelativePath=".\src\Authenticator.cpp"/>
+				<File
+					RelativePath=".\src\Authorizer.cpp"/>
+				<File
 					RelativePath=".\src\Context.cpp"/>
+				<File
+					RelativePath=".\src\Credentials.cpp"/>
 				<File
 					RelativePath=".\src\EventListener.cpp"/>
 				<File

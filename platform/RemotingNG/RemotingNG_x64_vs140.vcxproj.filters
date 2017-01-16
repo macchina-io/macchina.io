@@ -2,31 +2,31 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Remoting">
-      <UniqueIdentifier>{a9a88106-2036-45d2-9b7f-800b8a0748a6}</UniqueIdentifier>
+      <UniqueIdentifier>{373e82c9-2792-4969-868a-bc9ca0991d1b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Remoting\Header Files">
-      <UniqueIdentifier>{ac9aadcc-2efa-4c5f-aae1-d78512739544}</UniqueIdentifier>
+      <UniqueIdentifier>{36737fd6-38ff-4002-846c-8ef4f4a986bc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Remoting\Source Files">
-      <UniqueIdentifier>{d9829335-fb4d-40ed-8bac-4da0fc11afcc}</UniqueIdentifier>
+      <UniqueIdentifier>{65350f7d-2974-4530-afb6-6a9aa3153bcc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Serialization">
-      <UniqueIdentifier>{f940f223-8217-493b-be3d-d5b1676815c2}</UniqueIdentifier>
+      <UniqueIdentifier>{a27b6d70-71f2-4143-8a2e-86f627fc5bca}</UniqueIdentifier>
     </Filter>
     <Filter Include="Serialization\Header Files">
-      <UniqueIdentifier>{533d1871-be7d-4727-82d0-d857a4f3f01c}</UniqueIdentifier>
+      <UniqueIdentifier>{f7e50069-34d4-420e-b9b3-7c00efea2327}</UniqueIdentifier>
     </Filter>
     <Filter Include="Serialization\Source Files">
-      <UniqueIdentifier>{902cbd52-1989-412d-a2ed-1aabfc5ff536}</UniqueIdentifier>
+      <UniqueIdentifier>{221419a0-9bcf-4bc2-aae1-14b279c8cb29}</UniqueIdentifier>
     </Filter>
     <Filter Include="Transport">
-      <UniqueIdentifier>{a848fdb5-0d0a-4334-9fa6-424d642b920f}</UniqueIdentifier>
+      <UniqueIdentifier>{12228179-babd-41b4-a35c-98aba0aaeda0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Transport\Header Files">
-      <UniqueIdentifier>{59bd7554-1c59-4665-86af-9ae0ea9ec804}</UniqueIdentifier>
+      <UniqueIdentifier>{ba621e79-73d2-4abb-b4aa-6d3608ef32b4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Transport\Source Files">
-      <UniqueIdentifier>{3ee6d31c-cdc3-43c7-a6dd-948ab60241ee}</UniqueIdentifier>
+      <UniqueIdentifier>{2f00b7df-5d44-4e89-8e81-291ca0768b08}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -99,7 +99,16 @@
     <ClInclude Include="include\Poco\RemotingNG\TypeSerializer.h">
       <Filter>Serialization\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\Authenticator.h">
+      <Filter>Transport\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\Authorizer.h">
+      <Filter>Transport\Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\Poco\RemotingNG\Context.h">
+      <Filter>Transport\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\Credentials.h">
       <Filter>Transport\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Poco\RemotingNG\EventListener.h">
@@ -176,7 +185,16 @@
     <ClCompile Include="src\SerializerBase.cpp">
       <Filter>Serialization\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Authenticator.cpp">
+      <Filter>Transport\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Authorizer.cpp">
+      <Filter>Transport\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\Context.cpp">
+      <Filter>Transport\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Credentials.cpp">
       <Filter>Transport\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\EventListener.cpp">

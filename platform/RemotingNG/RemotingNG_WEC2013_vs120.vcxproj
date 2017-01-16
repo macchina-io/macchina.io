@@ -258,9 +258,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Poco\RemotingNG\AttributedObject.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\Authenticator.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\Authorizer.h"/>
     <ClInclude Include="include\Poco\RemotingNG\BinaryDeserializer.h"/>
     <ClInclude Include="include\Poco\RemotingNG\BinarySerializer.h"/>
     <ClInclude Include="include\Poco\RemotingNG\Context.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\Credentials.h"/>
     <ClInclude Include="include\Poco\RemotingNG\Deserializer.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventDispatcher.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventFilter.h"/>
@@ -290,9 +293,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AttributedObject.cpp"/>
+    <ClCompile Include="src\Authenticator.cpp"/>
+    <ClCompile Include="src\Authorizer.cpp"/>
     <ClCompile Include="src\BinaryDeserializer.cpp"/>
     <ClCompile Include="src\BinarySerializer.cpp"/>
     <ClCompile Include="src\Context.cpp"/>
+    <ClCompile Include="src\Credentials.cpp"/>
     <ClCompile Include="src\Deserializer.cpp"/>
     <ClCompile Include="src\EventDispatcher.cpp"/>
     <ClCompile Include="src\EventListener.cpp"/>
