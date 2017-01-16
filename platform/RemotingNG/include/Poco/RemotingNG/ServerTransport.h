@@ -51,6 +51,22 @@ public:
 
 	virtual ~ServerTransport();
 		/// Destroys the ServerTransport.
+		
+	virtual bool authorize(const std::string& method, const std::string& permission);
+		/// Verify that an authenticated user has the given permission, which is required
+		/// to invoke the given method. 
+		///
+		/// The given permission will be the the one specified with the @permission 
+		/// attribute for the respective remote method. If no @permission attribute
+		/// has been specified for a remote method, this method will not be called.
+		///
+		/// An implementation should obtain the Authorizer object from the Listener,
+		/// and call the Authorizer's authorize() method to authorize the
+		/// method call.
+		///
+		/// Returns true if authorization is successful, otherwise false.
+		///
+		/// The default implementation simply returns true.
 
 	virtual Deserializer& beginRequest() = 0;
 		/// Prepare a Deserializer for reading the request message.

@@ -14,6 +14,7 @@ objects = SerializerBase Serializer Deserializer \
 	BinarySerializer BinaryDeserializer \
 	Transport TransportFactory TransportFactoryManager \
 	ServerTransport Listener Context \
+	Authorizer Authenticator Credentials \
 	Proxy ProxyFactory ProxyFactoryManager \
 	Identifiable RemoteObject Skeleton MethodHandler \
 	EventDispatcher EventListener EventSubscriber \

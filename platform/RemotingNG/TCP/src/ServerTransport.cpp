@@ -19,6 +19,7 @@
 #include "Poco/RemotingNG/TCP/Transport.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/Context.h"
+#include "Poco/RemotingNG/Authorizer.h"
 
 
 namespace Poco {
@@ -55,6 +56,17 @@ ServerTransport::~ServerTransport()
 void ServerTransport::waitReady()
 {
 	_ready.wait();
+}
+
+
+bool ServerTransport::authorizeRequest(const std::string& method, const std::string& permission)
+{
+	Authorizer::Ptr pAuth = _listener.getAuthorizer();
+	if (pAuth)
+	{
+		return pAuth->authorize(method, permission);
+	}
+	return false;
 }
 
 

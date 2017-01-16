@@ -116,6 +116,7 @@ void SkeletonGenerator::structStart(const Poco::CppParser::Struct* pStruct, cons
 	_cppGen.addSrcIncludeFile("Poco/RemotingNG/Deserializer.h");
 	_cppGen.addSrcIncludeFile("Poco/RemotingNG/TypeSerializer.h");
 	_cppGen.addSrcIncludeFile("Poco/RemotingNG/TypeDeserializer.h");
+	_cppGen.addSrcIncludeFile("Poco/RemotingNG/RemotingException.h");
 	_cppGen.addSrcIncludeFile("Poco/SharedPtr.h");
 	_cppGen.writeIncludes();
 	_cppGen.writeNameSpaceBegin(nameSpace());
@@ -267,6 +268,11 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 		indentation = "\t";
 	}
 
+	CodeGenerator::Properties structProps;
+	GeneratorEngine::parseProperties(pFunc->nameSpace(), structProps);
+	CodeGenerator::Properties funcProps(structProps);
+	GeneratorEngine::parseProperties(pFunc, funcProps);
+
 	// now create for each method variable a placeholder where we can deserialize data to
 	Poco::CppParser::Function::Iterator it = pFunc->begin();
 	Poco::CppParser::Function::Iterator itEnd = pFunc->end();
@@ -291,10 +297,6 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 	//not needed: done in Skeleton::invoke gen.writeMethodImplementation(indentation + "remoting__deser.setup(istr);");
 	writePrepareAttribute(pGen, attrs, indentation, gen);
 
-	CodeGenerator::Properties structProps;
-	GeneratorEngine::parseProperties(pFunc->nameSpace(), structProps);
-	CodeGenerator::Properties funcProps(structProps);
-	GeneratorEngine::parseProperties(pFunc, funcProps);
 	std::string structDefaultNS;
 	GeneratorEngine::getStringProperty(structProps, Utility::NAMESPACE, structDefaultNS);
 	std::string funcDefaultNS(structDefaultNS);
@@ -387,6 +389,20 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 	if (!funcDefaultNS.empty())
 	{
 		gen.writeMethodImplementation(indentation + "remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);");
+	}
+
+	std::string structPermission;
+	GeneratorEngine::getStringProperty(structProps, Utility::PERMISSION, structPermission);
+	std::string funcPermission(structPermission);
+	GeneratorEngine::getStringProperty(funcProps, Utility::PERMISSION, funcPermission);
+	if (!funcPermission.empty())
+	{
+		gen.writeMethodImplementation(indentation + "remoting__staticInitBegin(REMOTING__PERMISSION);");
+		gen.writeMethodImplementation(indentation + "static const std::string REMOTING__PERMISSION(\"" + funcPermission + "\");");
+		gen.writeMethodImplementation(indentation + "remoting__staticInitEnd(REMOTING__PERMISSION);");
+		
+		gen.writeMethodImplementation(indentation + "if (!remoting__trans.authorize(REMOTING__NAMES[0], REMOTING__PERMISSION))");
+		gen.writeMethodImplementation(indentation + "\tthrow Poco::RemotingNG::NoPermissionException(REMOTING__PERMISSION);");
 	}
 
 	// now get the pRemoteObject and static_cast it to the required RemoteObject subclass

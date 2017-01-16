@@ -48,6 +48,7 @@ public:
 	void testOneWayEvent();
 	void testVoidEvent();
 	void testFilteredEvent();
+	void testPermissions();
 
 	void setUp();
 	void tearDown();
@@ -67,6 +68,7 @@ protected:
 	void testClass1(ITester::Ptr pTester);
 	void testPtr(ITester::Ptr pTester);
 	void testStruct1Vec(ITester::Ptr pTester);
+	void testPermissions(ITester::Ptr pTester);
 	void onEvent(const void* pSender, std::string& arg);
 	void onVoidEvent(const void* pSender);
 	void onFilteredEvent(const int& arg);

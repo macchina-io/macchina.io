@@ -35,8 +35,7 @@ class RemotingNG_API AttributedObject
 	/// the form of name-value pairs.
 {
 public:
-	typedef Poco::AutoPtr<AttributedObject> Ptr;
-	typedef std::map<std::string,std::string> NameValueMap;
+	typedef std::map<std::string, std::string> NameValueMap;
 
 	AttributedObject();
 		/// Creates an AttributedObject.

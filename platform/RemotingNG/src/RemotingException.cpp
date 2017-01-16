@@ -25,6 +25,8 @@ namespace RemotingNG {
 POCO_IMPLEMENT_EXCEPTION(RemotingException, Poco::LogicException, "RemotingNG Exception")
 POCO_IMPLEMENT_EXCEPTION(TransportException, RemotingException, "Transport error")
 POCO_IMPLEMENT_EXCEPTION(ProtocolException, RemotingException, "Protocol error")
+POCO_IMPLEMENT_EXCEPTION(SecurityException, RemotingException, "Security Exception")
+POCO_IMPLEMENT_EXCEPTION(NoPermissionException, SecurityException, "No permission")
 POCO_IMPLEMENT_EXCEPTION(RemoteException, RemotingException, "Remote Exception")
 POCO_IMPLEMENT_EXCEPTION(SerializerException, RemotingException, "Failed to serialize data")
 POCO_IMPLEMENT_EXCEPTION(DeserializerException, RemotingException, "Failed to deserialize data")
