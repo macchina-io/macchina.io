@@ -74,6 +74,10 @@ public:
 
 	std::string testOneWayResult();
 
+	void testPermission1();
+
+	void testPermission2();
+
 	Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1);
 
 	Struct1 testStruct11(const Struct1& s1);

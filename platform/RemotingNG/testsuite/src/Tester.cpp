@@ -260,3 +260,12 @@ void Tester::fireTestFilteredEvent(int arg)
 	testFilteredEvent(this, arg);
 }
 
+
+void Tester::testPermission1()
+{
+}
+
+
+void Tester::testPermission2()
+{
+}

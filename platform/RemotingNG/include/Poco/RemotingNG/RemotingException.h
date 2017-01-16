@@ -31,6 +31,8 @@ namespace RemotingNG {
 POCO_DECLARE_EXCEPTION(RemotingNG_API, RemotingException, Poco::LogicException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, TransportException, RemotingException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, ProtocolException, RemotingException)
+POCO_DECLARE_EXCEPTION(RemotingNG_API, SecurityException, RemotingException)
+POCO_DECLARE_EXCEPTION(RemotingNG_API, NoPermissionException, SecurityException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, RemoteException, RemotingException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, SerializerException, RemotingException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, DeserializerException, RemotingException)

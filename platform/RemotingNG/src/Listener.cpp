@@ -33,4 +33,16 @@ Listener::~Listener()
 }
 
 
+void Listener::setAuthenticator(Authenticator::Ptr pAuthenticator)
+{
+	_pAuthenticator = pAuthenticator;
+}
+
+
+void Listener::setAuthorizer(Authorizer::Ptr pAuthorizer)
+{
+	_pAuthorizer = pAuthorizer;
+}
+
+
 } } // namespace Poco::RemotingNG

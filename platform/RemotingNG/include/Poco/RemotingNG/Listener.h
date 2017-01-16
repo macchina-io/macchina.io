@@ -23,6 +23,8 @@
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/RemoteObject.h"
 #include "Poco/RemotingNG/Skeleton.h"
+#include "Poco/RemotingNG/Authenticator.h"
+#include "Poco/RemotingNG/Authorizer.h"
 #include "Poco/RefCountedObject.h"
 #include "Poco/AutoPtr.h"
 
@@ -102,6 +104,32 @@ public:
 
 	virtual void unregisterObject(RemoteObject::Ptr pRemoteObject) = 0;
 		/// Unregisters a RemoteObject from the Listener.
+		
+	virtual void setAuthenticator(Authenticator::Ptr pAuthenticator);
+		/// Sets the Authenticator instance for this Listener.
+		///
+		/// An Authenticator should be set immediately after creating the 
+		/// Listener, before registering it with the ORB and accepting
+		/// requests.
+		///
+		/// Can be overridden by subclasses, but overriders should
+		/// call the base class implementation.
+		
+	Authenticator::Ptr getAuthenticator() const;
+		/// Returns the Authenticator instance for this Listener.
+
+	virtual void setAuthorizer(Authorizer::Ptr pAuthorizer);
+		/// Sets the Authorizer instance for this Listener.
+		///
+		/// An Authorizer should be set immediately after creating the 
+		/// Listener, before registering it with the ORB and accepting
+		/// requests.
+		///
+		/// Can be overridden by subclasses, but overriders should
+		/// call the base class implementation.
+		
+	Authorizer::Ptr getAuthorizer() const;
+		/// Returns the Authorizer instance for this Listener.
 
 private:
 	Listener(const Listener&);
@@ -109,6 +137,8 @@ private:
 
 private:
 	std::string _endPoint;
+	Authenticator::Ptr _pAuthenticator;
+	Authorizer::Ptr _pAuthorizer;
 };
 
 
@@ -118,6 +148,18 @@ private:
 inline const std::string& Listener::endPoint() const
 {
 	return _endPoint;
+}
+
+
+inline Authenticator::Ptr Listener::getAuthenticator() const
+{
+	return _pAuthenticator;
+}
+
+
+inline Authorizer::Ptr Listener::getAuthorizer() const
+{
+	return _pAuthorizer;
 }
 
 
