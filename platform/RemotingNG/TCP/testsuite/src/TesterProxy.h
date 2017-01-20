@@ -40,6 +40,8 @@ public:
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
+	void testAuthenticated();
+
 	Class1 testClass11(const Class1& c1);
 
 	void testClass12(Class1& c1);
@@ -71,6 +73,8 @@ public:
 	void testOneWay(const std::string& arg);
 
 	std::string testOneWayResult();
+
+	void testPermission();
 
 	Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1);
 

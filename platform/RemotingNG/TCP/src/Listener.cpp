@@ -51,7 +51,10 @@ public:
 					flags |= Frame::FRAME_FLAG_DEFLATE;
 				pReplyStream = new ChannelOutputStream(pConnection, Frame::FRAME_TYPE_EVNR, pFrame->channel(), flags);
 			}
-			ServerTransport::Ptr pServerTransport = new ServerTransport(*_pListener, pRequestStream, pReplyStream, (pFrame->flags() & Frame::FRAME_FLAG_DEFLATE) != 0);
+			ServerTransport::Ptr pServerTransport = new ServerTransport(
+				*_pListener, 0, pRequestStream, pReplyStream, 
+				(pFrame->flags() & Frame::FRAME_FLAG_DEFLATE) != 0, 
+				false);
 			_pListener->connectionManager().threadPool().start(*pServerTransport);
 			Poco::Thread::yield();
 			pServerTransport->waitReady();

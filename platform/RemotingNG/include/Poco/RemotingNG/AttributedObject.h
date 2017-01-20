@@ -23,6 +23,8 @@
 #include "Poco/RemotingNG/RemotingNG.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/Mutex.h"
+#include <cstdlib>
+#include <vector>
 #include <map>
 
 
@@ -65,10 +67,33 @@ public:
 	bool hasAttribute(const std::string& name) const;
 		/// Returns true iff an attribute with the given name exists.
 		
+	void removeAttribute(const std::string& name);
+		/// Removes the attribute with the given name.
+
+		/// Does nothing if no attribute with the given name exists.
+		
+	std::size_t countAttributes() const;
+		/// Returns the number of attributes.
+		
+	std::vector<std::string> enumerateAttributes() const;
+		/// Returns a vector containing all attribute names.
+		
+	void clearAttributes();
+		/// Removes all attributes.
+	
 private:
 	NameValueMap _attributes;
 	mutable Poco::FastMutex _mutex;
 };
+
+
+//
+// inlines
+//
+inline std::size_t AttributedObject::countAttributes() const
+{
+	return _attributes.size();
+}
 
 
 } } // namespace Poco::RemotingNG

@@ -46,6 +46,11 @@ public:
 	void testStruct1Vec();
 	void testOneWay();
 	void testFault();
+	void testAuthenticatedGoodCredentials();
+	void testAuthenticatedNoCredentials();
+	void testAuthenticatedBadCredentials();
+	void testPermission();
+	void testNoPermission();
 	void testEvent();
 	void testOneWayEvent();
 	void testVoidEvent();

@@ -1176,6 +1176,8 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
+			if (!remoting__trans.authenticate(REMOTING__NAMES[0]))
+				throw Poco::RemotingNG::AuthenticationFailedException();
 			remoting__staticInitBegin(REMOTING__PERMISSION);
 			static const std::string REMOTING__PERMISSION("perm1");
 			remoting__staticInitEnd(REMOTING__PERMISSION);
@@ -1239,6 +1241,8 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
+			if (!remoting__trans.authenticate(REMOTING__NAMES[0]))
+				throw Poco::RemotingNG::AuthenticationFailedException();
 			remoting__staticInitBegin(REMOTING__PERMISSION);
 			static const std::string REMOTING__PERMISSION("perm2");
 			remoting__staticInitEnd(REMOTING__PERMISSION);

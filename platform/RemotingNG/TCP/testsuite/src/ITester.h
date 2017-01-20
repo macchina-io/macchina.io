@@ -49,6 +49,8 @@ public:
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();
 		/// Returns the TypeId of the class.
 
+	virtual void testAuthenticated() = 0;
+
 	virtual Class1 testClass11(const Class1& c1) = 0;
 
 	virtual void testClass12(Class1& c1) = 0;
@@ -80,6 +82,8 @@ public:
 	virtual void testOneWay(const std::string& arg) = 0;
 
 	virtual std::string testOneWayResult() = 0;
+
+	virtual void testPermission() = 0;
 
 	virtual Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1) = 0;
 

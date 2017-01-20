@@ -37,4 +37,10 @@ bool ServerTransport::authorize(const std::string& method, const std::string& pe
 }
 
 
+bool ServerTransport::authenticate(const std::string& method)
+{
+	return true;
+}
+
+
 } } // namespace Poco::RemotingNG

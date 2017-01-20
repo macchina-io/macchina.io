@@ -44,6 +44,8 @@ public:
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
+	void testAuthenticated();
+
 	Class1 testClass11(const Class1& c1);
 
 	void testClass12(Class1& c1);
@@ -75,6 +77,8 @@ public:
 	void testOneWay(const std::string& arg);
 
 	std::string testOneWayResult();
+
+	void testPermission();
 
 	Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1);
 
@@ -153,6 +157,12 @@ inline void TesterRemoteObject::fireTestVoidEvent()
 inline const Poco::RemotingNG::Identifiable::TypeId& TesterRemoteObject::remoting__typeId() const
 {
 	return ITester::remoting__typeId();
+}
+
+
+inline void TesterRemoteObject::testAuthenticated()
+{
+	_pServiceObject->testAuthenticated();
 }
 
 
@@ -249,6 +259,12 @@ inline void TesterRemoteObject::testOneWay(const std::string& arg)
 inline std::string TesterRemoteObject::testOneWayResult()
 {
 	return _pServiceObject->testOneWayResult();
+}
+
+
+inline void TesterRemoteObject::testPermission()
+{
+	_pServiceObject->testPermission();
 }
 
 

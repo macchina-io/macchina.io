@@ -59,6 +59,14 @@ public:
 
 	void serializeEndPoint(const std::string& oid, const std::string& tid);
 		/// Serializes the object and type ID of the service object.
+		
+	template <typename T>
+	void serializeToken(T t)
+		/// Serializes the given value, which must be a type directly supported
+		/// by Poco::BinaryWriter.
+	{
+		(*this->_pWriter) << t;
+	}
 
 	// Serializer
 	void serializeMessageBegin(const std::string& name, SerializerBase::MessageType type);

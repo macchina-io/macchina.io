@@ -49,6 +49,16 @@ public:
 	void deserializeEndPoint(std::string& oid, std::string& tid);
 		/// Serializes the object and type ID of the service object.
 
+	template <typename T>
+	T deserializeToken()
+		/// Deserializes the given value, which must be a type directly supported
+		/// by Poco::BinaryReader.
+	{
+		T t;
+		(*this->_pReader) >> t;
+		return t;
+	}
+
 	// Deserializer
 	SerializerBase::MessageType findMessage(std::string& name);
 	void deserializeMessageBegin(const std::string& name, SerializerBase::MessageType type);

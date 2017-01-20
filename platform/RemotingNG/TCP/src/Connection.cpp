@@ -531,7 +531,7 @@ Frame::Ptr Connection::receiveFrame()
 					pFrame->flags(),
 					pFrame->getPayloadSize()));
 				_logger.dump(msg, pFrame->payloadBegin(), pFrame->getPayloadSize());
-		}
+			}
 			return pFrame;
 		}
 		else throw Poco::OutOfMemoryException("No more frames available");
