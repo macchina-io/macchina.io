@@ -390,11 +390,29 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 	{
 		gen.writeMethodImplementation(indentation + "remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);");
 	}
-
+	
+	bool authenticated = false;	
 	std::string structPermission;
 	GeneratorEngine::getStringProperty(structProps, Utility::PERMISSION, structPermission);
 	std::string funcPermission(structPermission);
 	GeneratorEngine::getStringProperty(funcProps, Utility::PERMISSION, funcPermission);
+	
+	if (funcPermission.empty())
+	{
+		GeneratorEngine::getBoolProperty(structProps, Utility::AUTHENTICATED, authenticated);
+		GeneratorEngine::getBoolProperty(funcProps, Utility::AUTHENTICATED, authenticated);
+	}
+	else
+	{
+		authenticated = true;
+	}
+	
+	if (authenticated)
+	{
+		gen.writeMethodImplementation(indentation + "if (!remoting__trans.authenticate(REMOTING__NAMES[0]))");
+		gen.writeMethodImplementation(indentation + "\tthrow Poco::RemotingNG::AuthenticationFailedException();");
+	}
+	
 	if (!funcPermission.empty())
 	{
 		gen.writeMethodImplementation(indentation + "remoting__staticInitBegin(REMOTING__PERMISSION);");

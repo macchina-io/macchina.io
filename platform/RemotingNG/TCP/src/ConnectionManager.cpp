@@ -174,6 +174,8 @@ Connection::Ptr ConnectionManager::createConnection(const Poco::URI& endpointURI
 	Poco::Net::StreamSocket ss = _pSocketFactory->createSocket(endpointURI);
 	Connection::Ptr pConnection = new Connection(ss, Connection::MODE_CLIENT);
 	pConnection->setIdleTimeout(_idleTimeout);
+	pConnection->addCapability(Frame::CAPA_REMOTING_PROTOCOL_1_0);
+	pConnection->addCapability(Frame::CAPA_REMOTING_PROTOCOL_1_1);	
 	_threadPool.start(*pConnection);
 	if (pConnection->waitReady())
 	{

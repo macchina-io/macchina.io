@@ -17,10 +17,15 @@
 #include "Poco/RemotingNG/TCP/Transport.h"
 #include "Poco/RemotingNG/TCP/ConnectionManager.h"
 #include "Poco/RemotingNG/TCP/ChannelStream.h"
+#include "Poco/RemotingNG/TCP/Frame.h"
+#include "Poco/RemotingNG/TCP/FrameHandler.h"
 #include "Poco/RemotingNG/RemotingException.h"
-#include "Poco/NullStream.h"
 #include "Poco/InflatingStream.h"
 #include "Poco/DeflatingStream.h"
+#include "Poco/MemoryStream.h"
+#include "Poco/CountingStream.h"
+#include "Poco/BinaryWriter.h"
+#include "Poco/BinaryReader.h"
 #include "Poco/StreamCopier.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/Format.h"
@@ -31,6 +36,43 @@ namespace RemotingNG {
 namespace TCP {
 
 
+class AuthResponseFrameHandler: public FrameHandler
+{
+public:
+	typedef Poco::AutoPtr<AuthResponseFrameHandler> Ptr;
+
+	explicit AuthResponseFrameHandler(Poco::UInt32 channel):
+		_channel(channel),
+		_authToken(0)
+	{
+	}
+	
+	bool handleFrame(Connection::Ptr pConnection, Frame::Ptr pFrame)
+	{
+		if (pFrame->channel() == _channel && pFrame->type() == Frame::FRAME_TYPE_AUTR)
+		{
+			Poco::MemoryInputStream istr(pFrame->payloadBegin(), pFrame->getPayloadSize());
+			Poco::BinaryReader reader(istr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
+			reader >> _authToken;
+			_received.set();
+			return true;
+		}
+		else return false;
+	}
+	
+	Poco::UInt64 wait(long timeout)
+	{
+		_received.wait(timeout);
+		return _authToken;
+	}
+	
+private:
+	Poco::UInt32 _channel;
+	Poco::Event _received;
+	Poco::UInt64 _authToken;
+};
+
+
 const std::string Transport::PROTOCOL("tcp");
 
 
@@ -39,6 +81,8 @@ Transport::Transport(ConnectionManager& connectionManager):
 	_timeout(DEFAULT_TIMEOUT, 0),
 	_compression(false),
 	_channel(0),
+	_authToken(0),
+	_authConnectionId(0),
 	_logger(Poco::Logger::get("RemotingNG.TCP.Transport"))
 {
 }
@@ -90,6 +134,21 @@ const std::string& Transport::endPoint() const
 }
 
 
+void Transport::setCredentials(const Credentials& credentials)
+{
+	_credentials = credentials;
+	// force re-authentication with next request
+	_authToken = 0;
+	_authConnectionId = 0;
+}
+
+
+const Credentials& Transport::getCredentials() const
+{
+	return _credentials;
+}
+
+
 void Transport::connect(const std::string& endPoint)
 {
 	_endPoint = endPoint;
@@ -118,6 +177,7 @@ Poco::RemotingNG::Serializer& Transport::beginMessage(const Poco::RemotingNG::Id
 	}
 	_pConnection = _connectionManager.getConnection(_endPointURI);
 	_channel = _pConnection->allocChannel();
+	authenticate();
 	setupSerializer(oid, tid, messageType, Frame::FRAME_FLAG_ONEWAY);
 	return _serializer;
 }
@@ -147,6 +207,7 @@ Poco::RemotingNG::Serializer& Transport::beginRequest(const Poco::RemotingNG::Id
 	}
 	_pConnection = _connectionManager.getConnection(_endPointURI);
 	_channel = _pConnection->allocChannel();	
+	authenticate();
 	setupSerializer(oid, tid, messageType, 0);
 	return _serializer;
 }
@@ -230,6 +291,7 @@ void Transport::setupSerializer(const Poco::RemotingNG::Identifiable::ObjectId& 
 	}
 
 	if (_compression) frameFlags |= Frame::FRAME_FLAG_DEFLATE;
+	if (_authToken) frameFlags |= Frame::FRAME_FLAG_AUTH;
 	
 	_pRequestStream = new ChannelOutputStream(_pConnection, frameType, _channel, frameFlags);
 	if (_compression)
@@ -240,6 +302,10 @@ void Transport::setupSerializer(const Poco::RemotingNG::Identifiable::ObjectId& 
 	else
 	{
 		_serializer.setup(*_pRequestStream);
+	}
+	if (_authToken)
+	{
+		_serializer.serializeToken(_authToken);
 	}
 	if (messageType == Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST)
 	{
@@ -252,6 +318,84 @@ void Transport::setupSerializer(const Poco::RemotingNG::Identifiable::ObjectId& 
 		eoid += _endPointURI.getFragment();
 		_serializer.serializeEndPoint(eoid, tid);
 	}
+}
+
+
+namespace 
+{
+	void serializeCredentials(const Credentials& creds, std::ostream& ostr)
+	{
+		poco_assert (creds.countAttributes() < 256);
+
+		Poco::BinaryWriter writer(ostr, Poco::BinaryWriter::NETWORK_BYTE_ORDER);
+		writer << static_cast<Poco::UInt8>(creds.countAttributes());
+		std::vector<std::string> keys = creds.enumerateAttributes();
+		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
+		{
+			writer << *it << creds.getAttribute(*it);
+		}
+	}
+}
+
+
+void Transport::authenticate()
+{
+	if (_credentials.countAttributes() > 0 && _authConnectionId != _pConnection->id())
+	{
+		if (verifyCredentials(_credentials))
+		{	
+			if (_logger.debug())
+			{
+				_logger.debug("Authenticating transport...");
+			}
+			AuthResponseFrameHandler::Ptr pAuthResponseFrameHandler = new AuthResponseFrameHandler(_channel);
+			_pConnection->pushFrameHandler(pAuthResponseFrameHandler);
+			try
+			{
+				Frame::Ptr pFrame = new Frame(Frame::FRAME_TYPE_AUTH, _channel, Frame::FRAME_FLAG_EOM, Frame::FRAME_MAX_SIZE);
+				Poco::MemoryOutputStream ostr(pFrame->payloadBegin(), pFrame->maxPayloadSize());
+				serializeCredentials(_credentials, ostr);
+				pFrame->setPayloadSize(static_cast<Poco::UInt16>(ostr.charsWritten()));
+				_pConnection->sendFrame(pFrame);
+				
+				if (_logger.debug())
+				{
+					_logger.debug("Waiting for authentication response...");
+				}
+				_authToken = pAuthResponseFrameHandler->wait(_timeout.totalMilliseconds());
+				if (_authToken)
+				{
+					_authConnectionId = _pConnection->id();
+					if (_logger.debug())
+					{
+						_logger.debug("Authentication done.");
+					}
+				}
+				else throw AuthenticationFailedException("The server refused the provided credentials");
+			}
+			catch (Poco::Exception&)
+			{
+				_authToken = 0;
+				_authConnectionId = 0;
+				_pConnection->popFrameHandler(pAuthResponseFrameHandler);
+				throw;
+			}
+			_pConnection->popFrameHandler(pAuthResponseFrameHandler);
+		}
+		else throw InvalidCredentialsException("Credentials too large");
+	}
+}
+
+
+bool Transport::verifyCredentials(const Credentials& creds)
+{
+	if (creds.countAttributes() < 256)
+	{
+		Poco::CountingOutputStream ostr;
+		serializeCredentials(creds, ostr);
+		return ostr.chars() <= Frame::FRAME_MAX_PAYLOAD_SIZE;
+	}
+	else return false;
 }
 
 

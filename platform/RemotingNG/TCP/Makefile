@@ -15,6 +15,7 @@ objects = \
 	Frame \
 	FrameQueue \
 	Listener \
+	CredentialsStore \
 	ServerConnection \
 	ServerConnectionFactory \
 	ServerTransport \

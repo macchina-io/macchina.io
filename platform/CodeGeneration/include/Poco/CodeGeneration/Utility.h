@@ -84,6 +84,7 @@ public:
 	static const std::string PRODUCES;
 	static const std::string CONSUMES;
 	static const std::string PERMISSION;
+	static const std::string AUTHENTICATED;
 
 	static const std::string VAL_TRUE;
 	static const std::string VAL_FALSE;

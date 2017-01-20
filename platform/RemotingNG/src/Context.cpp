@@ -87,6 +87,18 @@ Context::Attributes::const_iterator Context::end() const
 }
 
 
+void Context::setCredentials(const Credentials& creds)
+{
+	_creds = creds;
+}
+
+
+void Context::clearCredentials()
+{
+	_creds.clearAttributes();
+}
+
+
 ScopedContext::ScopedContext():
 	_pContext(new Context)
 {

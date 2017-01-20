@@ -22,6 +22,7 @@
 
 #include "Poco/RemotingNG/TCP/TCP.h"
 #include "Poco/RemotingNG/TCP/ChannelStream.h"
+#include "Poco/RemotingNG/TCP/CredentialsStore.h"
 #include "Poco/RemotingNG/ServerTransport.h"
 #include "Poco/RemotingNG/BinarySerializer.h"
 #include "Poco/RemotingNG/BinaryDeserializer.h"
@@ -48,7 +49,7 @@ class RemotingNGTCP_API ServerTransport: public Poco::RemotingNG::ServerTranspor
 public:
 	typedef Poco::AutoPtr<ServerTransport> Ptr;
 
-	ServerTransport(Listener& _listener, const Poco::SharedPtr<ChannelInputStream>& pRequestStream, const Poco::SharedPtr<ChannelOutputStream>& pReplyStream, bool compressed);
+	ServerTransport(Listener& _listener, CredentialsStore::Ptr pCredentialsStore, const Poco::SharedPtr<ChannelInputStream>& pRequestStream, const Poco::SharedPtr<ChannelOutputStream>& pReplyStream, bool compressed, bool authenticated);
 		/// Creates a ServerTransport.
 		
 	~ServerTransport();
@@ -58,7 +59,8 @@ public:
 		/// Waits until the server thread is ready.
 
 	// ServerTransport
-	bool authorizeRequest(const std::string& method, const std::string& permission);
+	bool authenticate(const std::string& method);
+	bool authorize(const std::string& method, const std::string& permission);
 	Deserializer& beginRequest();
 	Serializer& sendReply(SerializerBase::MessageType messageType);
 	void endRequest();
@@ -68,8 +70,10 @@ public:
 	
 private:
 	Listener& _listener;
+	CredentialsStore::Ptr _pCredentialsStore;
 	Poco::SharedPtr<ChannelInputStream> _pRequestStream;
 	Poco::SharedPtr<ChannelOutputStream> _pReplyStream;
+	bool _authenticated;
 	Poco::InflatingInputStream* _pInflater;
 	Poco::DeflatingOutputStream* _pDeflater;
 	Poco::RemotingNG::BinarySerializer _serializer;

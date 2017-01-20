@@ -235,6 +235,16 @@ void Tester::testFault()
 }
 
 
+void Tester::testAuthenticated()
+{
+}
+
+
+void Tester::testPermission()
+{
+}
+
+
 void Tester::fireTestEvent(const std::string& arg)
 {
 	std::string mutableArg(arg);

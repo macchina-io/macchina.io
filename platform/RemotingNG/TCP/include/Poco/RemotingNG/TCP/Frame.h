@@ -70,6 +70,14 @@ public:
 			///
 			/// The frame has no payload.
 
+		FRAME_TYPE_AUTH = 0x41555448,
+			/// "AUTH" - A Remoting NG authentication request message.
+			/// Payload is credentials.
+			
+		FRAME_TYPE_AUTR = 0x41555452,
+			/// "AUTR" - A Remoting NG authentication response message.
+			/// Payload is authentication token.
+
 		FRAME_TYPE_REQU = 0x52455155,
 			/// "REQU" - A Remoting NG request message.
 			/// Payload is serialized request (see Poco::RemotingNG::BinarySerializer).
@@ -108,6 +116,9 @@ public:
 		FRAME_FLAG_DEFLATE = 0x0008,
 			/// Frame/message payload is compressed using zlib deflate
 			/// algorithm.
+
+		FRAME_FLAG_AUTH    = 0x0010,
+			/// Frame contains authentication token.
 			
 		FRAME_FLAG_EXTHDR  = 0x8000
 			/// Extended header - reserved for future use.
@@ -128,13 +139,17 @@ public:
 	enum Version
 	{
 		PROTO_MAJOR_VERSION = 1,
-		PROTO_MINOR_VERSION = 0
+		PROTO_MINOR_VERSION = 1
 	};
 	
 	enum Capabilities
 	{
-		CAPA_REMOTING_PROTOCOL_1_0 = 0x524D0100 
+		CAPA_REMOTING_PROTOCOL_1_0 = 0x524D0100,
 			/// The endpoint understands the Remoting NG binary protocol, version 1.0
+
+		CAPA_REMOTING_PROTOCOL_1_1 = 0x524D0101,
+			/// The endpoint understands the Remoting NG binary protocol, version 1.1
+			/// (including authentication)
 	};
 
 	Frame(Poco::UInt32 type, Poco::UInt32 channel, Poco::UInt16 flags, Poco::UInt16 bufferSize);

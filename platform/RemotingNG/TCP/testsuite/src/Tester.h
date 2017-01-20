@@ -274,6 +274,12 @@ public:
 	
 	void testFault();
 	
+	//@ authenticated
+	void testAuthenticated();
+
+	//@ permission="perm1"
+	void testPermission();
+	
 	//@ oneway
 	void fireTestEvent(const std::string& arg);
 	

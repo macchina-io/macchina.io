@@ -21,6 +21,7 @@
 #include "Poco/RemotingNG/TCP/Transport.h"
 #include "Poco/RemotingNG/TCP/TransportFactory.h"
 #include "Poco/RemotingNG/TCP/Listener.h"
+#include "Poco/RemotingNG/Context.h"
 #include "Poco/RemotingNG/RemotingException.h"
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
@@ -37,6 +38,37 @@
 #include "TesterRemoteObject.h"
 #include "TesterProxy.h"
 #include <sstream>
+
+
+class MockAuthenticator: public Poco::RemotingNG::Authenticator
+{
+public:
+	bool authenticate(const Poco::RemotingNG::Credentials& creds)
+	{
+		std::string username = creds.getAttribute("username", "");
+		std::string password = creds.getAttribute("password", "");
+		
+		return (username == "user" && password == "pass") 
+		    || (username == "admin" && password == "s3cr3t");
+	}
+};
+
+
+class MockAuthorizer: public Poco::RemotingNG::Authorizer
+{
+public:
+	bool authorize(const std::string& method, const std::string& permission)
+	{
+		Poco::RemotingNG::Context::Ptr pContext = Poco::RemotingNG::Context::get();
+		
+		const Poco::RemotingNG::Credentials& creds = pContext->getCredentials();
+
+		std::string username = creds.getAttribute("username", "");
+		std::string password = creds.getAttribute("password", "");
+		
+		return username == "admin";
+	}
+};
 
 
 bool operator == (const Struct1& s1, const Struct1& s2)
@@ -251,6 +283,111 @@ void RemotingTest::testFault()
 	catch (Poco::RemotingNG::RemoteException& exc)
 	{
 		assert (exc.message() == "Application exception: Something went wrong");
+	}
+}
+
+
+void RemotingTest::testAuthenticatedGoodCredentials()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute("username", "user");
+	creds.setAttribute("password", "pass");
+	trans.setCredentials(creds);
+	
+	_pListener->setAuthenticator(new MockAuthenticator);
+
+	pTester->testAuthenticated();
+}
+
+
+void RemotingTest::testAuthenticatedBadCredentials()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute("username", "user");
+	creds.setAttribute("password", "bad");
+	trans.setCredentials(creds);
+	
+	_pListener->setAuthenticator(new MockAuthenticator);
+
+	try
+	{
+		pTester->testAuthenticated();
+	}
+	catch (Poco::RemotingNG::AuthenticationFailedException& exc)
+	{
+		assert (exc.message() == "The server refused the provided credentials");
+	}
+}
+
+
+void RemotingTest::testAuthenticatedNoCredentials()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+	
+	_pListener->setAuthenticator(new MockAuthenticator);
+
+	try
+	{
+		pTester->testAuthenticated();
+	}
+	catch (Poco::RemotingNG::RemoteException& exc)
+	{
+		assert (exc.message() == "Authentication failed: No credentials");
+	}
+}
+
+
+void RemotingTest::testPermission()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute("username", "admin");
+	creds.setAttribute("password", "s3cr3t");
+	trans.setCredentials(creds);
+	
+	_pListener->setAuthenticator(new MockAuthenticator);
+	_pListener->setAuthorizer(new MockAuthorizer);
+
+	pTester->testPermission();
+}
+
+
+void RemotingTest::testNoPermission()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute("username", "user");
+	creds.setAttribute("password", "pass");
+	trans.setCredentials(creds);
+	
+	_pListener->setAuthenticator(new MockAuthenticator);
+	_pListener->setAuthorizer(new MockAuthorizer);
+
+	try
+	{
+		pTester->testPermission();
+	}
+	catch (Poco::RemotingNG::RemoteException& exc)
+	{
+		assert (exc.message() == "No permission: perm1");
 	}
 }
 
@@ -668,6 +805,11 @@ CppUnit::Test* RemotingTest::suite()
 	CppUnit_addTest(pSuite, RemotingTest, testStruct1Vec);
 	CppUnit_addTest(pSuite, RemotingTest, testOneWay);
 	CppUnit_addTest(pSuite, RemotingTest, testFault);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedGoodCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedBadCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedNoCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testPermission);
+	CppUnit_addTest(pSuite, RemotingTest, testNoPermission);
 	CppUnit_addTest(pSuite, RemotingTest, testEvent);
 	CppUnit_addTest(pSuite, RemotingTest, testOneWayEvent);
 
@@ -714,9 +856,14 @@ CppUnit::Test* RemotingTestCompressed::suite()
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testStruct1Vec);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testOneWay);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testFault);
-	CppUnit_addTest(pSuite, RemotingTest, testEvent);
-	CppUnit_addTest(pSuite, RemotingTest, testOneWayEvent);
-	CppUnit_addTest(pSuite, RemotingTest, testVoidEvent);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedGoodCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedBadCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedNoCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testPermission);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testNoPermission);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testEvent);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testOneWayEvent);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testVoidEvent);
 
 	return pSuite;
 }
