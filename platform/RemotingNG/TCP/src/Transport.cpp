@@ -1,7 +1,7 @@
 //
 // Transport.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/Transport.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/TCP/src/Transport.cpp#3 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -362,7 +362,7 @@ void Transport::authenticate()
 				{
 					_logger.debug("Waiting for authentication response...");
 				}
-				_authToken = pAuthResponseFrameHandler->wait(_timeout.totalMilliseconds());
+				_authToken = pAuthResponseFrameHandler->wait(static_cast<long>(_timeout.totalMilliseconds()));
 				if (_authToken)
 				{
 					_authConnectionId = _pConnection->id();

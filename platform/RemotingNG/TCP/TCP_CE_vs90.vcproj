@@ -445,6 +445,8 @@
 				<File
 					RelativePath=".\include\Poco\RemotingNG\TCP\ConnectionManager.h"/>
 				<File
+					RelativePath=".\include\Poco\RemotingNG\TCP\CredentialsStore.h"/>
+				<File
 					RelativePath=".\include\Poco\RemotingNG\TCP\Frame.h"/>
 				<File
 					RelativePath=".\include\Poco\RemotingNG\TCP\FrameFactory.h"/>
@@ -479,6 +481,8 @@
 					RelativePath=".\src\Connection.cpp"/>
 				<File
 					RelativePath=".\src\ConnectionManager.cpp"/>
+				<File
+					RelativePath=".\src\CredentialsStore.cpp"/>
 				<File
 					RelativePath=".\src\Frame.cpp"/>
 				<File

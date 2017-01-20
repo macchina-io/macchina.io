@@ -2,13 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="TCP">
-      <UniqueIdentifier>{03398a39-f054-4c94-928d-043af8eb6248}</UniqueIdentifier>
+      <UniqueIdentifier>{5ca5688c-f096-41c3-b3c1-122527d04948}</UniqueIdentifier>
     </Filter>
     <Filter Include="TCP\Header Files">
-      <UniqueIdentifier>{5717f54b-eea8-404f-90d6-2cd411fe3575}</UniqueIdentifier>
+      <UniqueIdentifier>{7a97472f-eab2-4180-8f11-b3e58a868ad9}</UniqueIdentifier>
     </Filter>
     <Filter Include="TCP\Source Files">
-      <UniqueIdentifier>{27eeadf3-d547-4bf4-80f9-f660fc361ec8}</UniqueIdentifier>
+      <UniqueIdentifier>{61d92266-d951-401d-8dea-b7a6b8d01126}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -19,6 +19,9 @@
       <Filter>TCP\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Poco\RemotingNG\TCP\ConnectionManager.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\CredentialsStore.h">
       <Filter>TCP\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Poco\RemotingNG\TCP\Frame.h">
@@ -69,6 +72,9 @@
       <Filter>TCP\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ConnectionManager.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CredentialsStore.cpp">
       <Filter>TCP\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Frame.cpp">

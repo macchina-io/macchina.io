@@ -85,7 +85,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros"/>
   <PropertyGroup>
-    <_ProjectFileVersion>14.0.23107.0</_ProjectFileVersion>
+    <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_shared|Win32'">PocoRemotingNGTCPd</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_static_md|Win32'">PocoRemotingNGTCPmdd</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_static_mt|Win32'">PocoRemotingNGTCPmtd</TargetName>
@@ -279,6 +279,7 @@
     <ClInclude Include="include\Poco\RemotingNG\TCP\ChannelStream.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\Connection.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\ConnectionManager.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\CredentialsStore.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\Frame.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\FrameFactory.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\FrameHandler.h"/>
@@ -297,6 +298,7 @@
     <ClCompile Include="src\ChannelStream.cpp"/>
     <ClCompile Include="src\Connection.cpp"/>
     <ClCompile Include="src\ConnectionManager.cpp"/>
+    <ClCompile Include="src\CredentialsStore.cpp"/>
     <ClCompile Include="src\Frame.cpp"/>
     <ClCompile Include="src\FrameQueue.cpp"/>
     <ClCompile Include="src\Listener.cpp"/>
