@@ -49,6 +49,7 @@ public:
 	void testAuthenticatedGoodCredentials();
 	void testAuthenticatedNoCredentials();
 	void testAuthenticatedBadCredentials();
+	void testAuthenticatedUpdatedCredentials();
 	void testPermission();
 	void testNoPermission();
 	void testEvent();

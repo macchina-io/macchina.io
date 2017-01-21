@@ -43,14 +43,26 @@
 class MockAuthenticator: public Poco::RemotingNG::Authenticator
 {
 public:
+	typedef Poco::AutoPtr<MockAuthenticator> Ptr;
+
 	bool authenticate(const Poco::RemotingNG::Credentials& creds)
 	{
 		std::string username = creds.getAttribute("username", "");
 		std::string password = creds.getAttribute("password", "");
 		
+		_lastUsername = username;
+		
 		return (username == "user" && password == "pass") 
 		    || (username == "admin" && password == "s3cr3t");
 	}
+	
+	const std::string& lastUsername() const
+	{
+		return _lastUsername;
+	}
+	
+private:
+	std::string _lastUsername;
 };
 
 
@@ -344,6 +356,46 @@ void RemotingTest::testAuthenticatedNoCredentials()
 	{
 		assert (exc.message() == "Authentication failed: No credentials");
 	}
+}
+
+
+void RemotingTest::testAuthenticatedUpdatedCredentials()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute("username", "user");
+	creds.setAttribute("password", "pass");
+	trans.setCredentials(creds);
+
+	MockAuthenticator::Ptr pAuth = new MockAuthenticator;
+	_pListener->setAuthenticator(pAuth);
+
+	pTester->testAuthenticated();
+	
+	assert (pAuth->lastUsername() == "user");
+	
+	creds.setAttribute("username", "admin");
+	creds.setAttribute("password", "s3cr3t");
+	
+	pTester->testAuthenticated();
+	
+	assert (pAuth->lastUsername() == "user");
+	
+	creds.setAttribute("username", "h@ck3r");
+	creds.setAttribute("password", "dummy");
+
+	try
+	{
+		pTester->testAuthenticated();
+	}
+	catch (Poco::RemotingNG::AuthenticationFailedException& exc)
+	{
+		assert (exc.message() == "The server refused the provided credentials");
+	}	
 }
 
 
@@ -808,6 +860,7 @@ CppUnit::Test* RemotingTest::suite()
 	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedGoodCredentials);
 	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedBadCredentials);
 	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedNoCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedUpdatedCredentials);
 	CppUnit_addTest(pSuite, RemotingTest, testPermission);
 	CppUnit_addTest(pSuite, RemotingTest, testNoPermission);
 	CppUnit_addTest(pSuite, RemotingTest, testEvent);
@@ -859,6 +912,7 @@ CppUnit::Test* RemotingTestCompressed::suite()
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedGoodCredentials);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedBadCredentials);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedNoCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedUpdatedCredentials);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testPermission);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testNoPermission);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testEvent);
