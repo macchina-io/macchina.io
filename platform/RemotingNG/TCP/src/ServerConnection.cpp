@@ -1,7 +1,7 @@
 //
 // ServerConnection.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/ServerConnection.cpp#3 $
+// $Id: //poco/1.7/RemotingNG/TCP/src/ServerConnection.cpp#4 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -22,6 +22,7 @@
 #include "Poco/RemotingNG/TCP/Transport.h"
 #include "Poco/RemotingNG/TCP/ChannelStream.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
+#include "Poco/RemotingNG/Context.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/BinaryReader.h"
 #include "Poco/MemoryStream.h"
@@ -66,6 +67,16 @@ public:
 						reader >> key >> value;
 						creds.setAttribute(key, value);
 					}
+					
+					Poco::RemotingNG::ScopedContext scopedContext;
+					Context::Ptr pContext = scopedContext.context();
+					pContext->setValue("transport", Transport::PROTOCOL);
+					pContext->setValue("remoteAddress", pConnection->remoteAddress());
+					pContext->setValue("localAddress", pConnection->localAddress());
+					pContext->setValue("id", pConnection->id());
+					pContext->setValue("connection", pConnection.get());
+					pContext->clearCredentials();
+
 					if (pAuthenticator->authenticate(creds))
 					{
 						authToken = _pCredentialsStore->addCredentials(creds);
