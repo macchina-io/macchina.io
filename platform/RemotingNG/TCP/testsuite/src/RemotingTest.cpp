@@ -1,7 +1,7 @@
 //
 // RemotingTest.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/RemotingTest.cpp#1 $
+// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/RemotingTest.cpp#4 $
 //
 // Copyright (c) 2006-2012, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -291,6 +291,7 @@ void RemotingTest::testFault()
 	try
 	{
 		pTester->testFault();
+		fail("must throw");
 	}
 	catch (Poco::RemotingNG::RemoteException& exc)
 	{
@@ -334,6 +335,7 @@ void RemotingTest::testAuthenticatedBadCredentials()
 	try
 	{
 		pTester->testAuthenticated();
+		fail("bad credentials - must throw");
 	}
 	catch (Poco::RemotingNG::AuthenticationFailedException& exc)
 	{
@@ -351,6 +353,7 @@ void RemotingTest::testAuthenticatedNoCredentials()
 	try
 	{
 		pTester->testAuthenticated();
+		fail("no credentials - must throw");
 	}
 	catch (Poco::RemotingNG::RemoteException& exc)
 	{
@@ -380,17 +383,20 @@ void RemotingTest::testAuthenticatedUpdatedCredentials()
 	
 	creds.setAttribute("username", "admin");
 	creds.setAttribute("password", "s3cr3t");
+	trans.setCredentials(creds);
 	
 	pTester->testAuthenticated();
 	
-	assert (pAuth->lastUsername() == "user");
+	assert (pAuth->lastUsername() == "admin");
 	
 	creds.setAttribute("username", "h@ck3r");
 	creds.setAttribute("password", "dummy");
+	trans.setCredentials(creds);
 
 	try
 	{
 		pTester->testAuthenticated();
+		fail("bad credentials - must throw");
 	}
 	catch (Poco::RemotingNG::AuthenticationFailedException& exc)
 	{
@@ -436,6 +442,7 @@ void RemotingTest::testNoPermission()
 	try
 	{
 		pTester->testPermission();
+		fail("no permission - must throw");
 	}
 	catch (Poco::RemotingNG::RemoteException& exc)
 	{
