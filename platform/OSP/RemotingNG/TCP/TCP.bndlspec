@@ -4,7 +4,7 @@
 		<symbolicName>com.appinf.osp.remotingng.tcp</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2016, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2017, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>Poco::OSP::RemotingNG::TCP::BundleActivator</class>
 			<library>com.appinf.osp.remotingng.tcp</library>
