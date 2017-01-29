@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.modbus</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2015-2016, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2015-2017, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::Modbus::BundleActivator</class>
 			<library>io.macchina.modbus</library>

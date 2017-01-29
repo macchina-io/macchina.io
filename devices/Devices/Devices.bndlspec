@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.devices</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2014-2016, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2014-2017, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::Devices::BundleActivator</class>
 			<library>io.macchina.devices</library>
