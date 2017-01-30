@@ -3,6 +3,6 @@ Bundle-Name: macchina.io Playground Sandbox
 Bundle-SymbolicName: io.macchina.webui.playground.sandbox
 Bundle-Version: 1.0.0
 Bundle-Vendor: Applied Informatics
-Bundle-Copyright: (c) 2015, Applied Informatics Software Engineering GmbH
+Bundle-Copyright: (c) 2015-2017, Applied Informatics Software Engineering GmbH
 Bundle-RunLevel: 900
 Bundle-LazyStart: true
