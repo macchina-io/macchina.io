@@ -44,8 +44,11 @@ V8FLAGS += arm_version=6
 # Workaround for Raspberry Pi
 V8FLAGS += armfpu=vfp armfloatabi=hard armneon=off
 endif
-ifeq ($(findstring mipsel,$(OSARCH)),mipsel)
+ifeq ($(OSARCH),mipsel)
 V8ARCH = mipsel
+endif
+ifeq ($(OSARCH),mips)
+V8ARCH = mips
 endif
 
 $(info Building V8 for arch $(V8ARCH) with flags: $(V8FLAGS))
