@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>macchina.io UDP Endpoint</name>
+    <symbolicName>io.macchina.protocols.udp</symbolicName>
+    <version>1.0.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2017, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>IoT::UDP::BundleActivator</class>
+      <library>io.macchina.protocols.udp</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>000</runLevel>
+    <dependency>
+      <symbolicName>poco.net</symbolicName>
+      <version>[1.7.0, 2.0.0)</version>
+    </dependency>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../${bin}/IoTUDP${64}.dll,
+    ../../${bin}/IoTUDP${64}d.dll,
+    ../../${bin}/IoTUDP${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../lib/${osName}/${osArch}/IoTUDP.so.*,
+    ../../lib/${osName}/${osArch}/IoTUDPd.so.*,
+    ../../lib/${osName}/${osArch}/IoTUDP.*.dylib,
+    ../../lib/${osName}/${osArch}/IoTUDPd.*.dylib
+  </code>
+</bundlespec>
