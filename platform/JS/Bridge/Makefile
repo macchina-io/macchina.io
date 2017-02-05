@@ -9,7 +9,8 @@
 include $(POCO_BASE)/build/rules/global
 
 objects = Serializer Deserializer Listener \
-	BridgeWrapper JSONEventSerializer
+	TaggedBinarySerializer TaggedBinaryReader \
+	BridgeWrapper
 
 target         = PocoJSBridge
 target_version = 1
