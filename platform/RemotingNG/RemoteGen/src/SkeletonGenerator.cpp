@@ -284,7 +284,7 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 		std::string decl(fullDeclType);
 		decl += " ";
 		decl += (*it)->name();
-		if ((*it)->hasDefaultValue())
+		if ((*it)->hasDefaultValue() && !(*it)->defaultValue().empty())
 		{
 			decl += "(";
 			decl += (*it)->defaultValue();
