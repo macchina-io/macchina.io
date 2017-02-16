@@ -1,7 +1,7 @@
 //
 // Authorizer.cpp
 //
-// $Id$
+// $Id: //poco/1.7/RemotingNG/src/Authorizer.cpp#2 $
 //
 // Library: RemotingNG
 // Package: Transport

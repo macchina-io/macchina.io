@@ -395,6 +395,8 @@
 				<File
 					RelativePath=".\include\Poco\RemotingNG\TCP\ChannelStream.h"/>
 				<File
+					RelativePath=".\include\Poco\RemotingNG\TCP\ClientAuthenticator.h"/>
+				<File
 					RelativePath=".\include\Poco\RemotingNG\TCP\Connection.h"/>
 				<File
 					RelativePath=".\include\Poco\RemotingNG\TCP\ConnectionManager.h"/>
@@ -410,6 +412,12 @@
 					RelativePath=".\include\Poco\RemotingNG\TCP\FrameQueue.h"/>
 				<File
 					RelativePath=".\include\Poco\RemotingNG\TCP\Listener.h"/>
+				<File
+					RelativePath=".\include\Poco\RemotingNG\TCP\PlainClientAuthenticator.h"/>
+				<File
+					RelativePath=".\include\Poco\RemotingNG\TCP\SCRAMAuthenticator.h"/>
+				<File
+					RelativePath=".\include\Poco\RemotingNG\TCP\SCRAMClientAuthenticator.h"/>
 				<File
 					RelativePath=".\include\Poco\RemotingNG\TCP\ServerConnection.h"/>
 				<File
@@ -443,6 +451,12 @@
 					RelativePath=".\src\FrameQueue.cpp"/>
 				<File
 					RelativePath=".\src\Listener.cpp"/>
+				<File
+					RelativePath=".\src\PlainClientAuthenticator.cpp"/>
+				<File
+					RelativePath=".\src\SCRAMAuthenticator.cpp"/>
+				<File
+					RelativePath=".\src\SCRAMClientAuthenticator.cpp"/>
 				<File
 					RelativePath=".\src\ServerConnection.cpp"/>
 				<File

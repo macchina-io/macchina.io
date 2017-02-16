@@ -158,13 +158,6 @@ void ServerTransport::run()
 			return;
 		}
 	}
-	if (_listener.getAuthenticator() && !authToken)
-	{
-		_logger.error("No authentication token");
-		AuthenticationFailedException exc("No credentials");
-		sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT).serializeFaultMessage("fault", exc);
-		return;
-	}
 	
 	Poco::RemotingNG::ORB& orb = Poco::RemotingNG::ORB::instance();
 	if (oid.find('#') != std::string::npos)

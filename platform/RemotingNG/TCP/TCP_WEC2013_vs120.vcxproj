@@ -258,6 +258,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Poco\RemotingNG\TCP\ChannelStream.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\ClientAuthenticator.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\Connection.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\ConnectionManager.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\CredentialsStore.h"/>
@@ -266,6 +267,9 @@
     <ClInclude Include="include\Poco\RemotingNG\TCP\FrameHandler.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\FrameQueue.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\Listener.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\PlainClientAuthenticator.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\SCRAMAuthenticator.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\SCRAMClientAuthenticator.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\ServerConnection.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\ServerConnectionFactory.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TCP\ServerTransport.h"/>
@@ -283,6 +287,9 @@
     <ClCompile Include="src\Frame.cpp"/>
     <ClCompile Include="src\FrameQueue.cpp"/>
     <ClCompile Include="src\Listener.cpp"/>
+    <ClCompile Include="src\PlainClientAuthenticator.cpp"/>
+    <ClCompile Include="src\SCRAMAuthenticator.cpp"/>
+    <ClCompile Include="src\SCRAMClientAuthenticator.cpp"/>
     <ClCompile Include="src\ServerConnection.cpp"/>
     <ClCompile Include="src\ServerConnectionFactory.cpp"/>
     <ClCompile Include="src\ServerTransport.cpp"/>

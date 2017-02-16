@@ -67,6 +67,17 @@ Assigns an SOAP action to a method. Used by the SOAP transport only.
   * type: string
 
 
+!!authenticated
+Enforces authentication for a method or all methods of a class (unless overridden with a
+method-level attribute). If set to true, a transport-specific authentication mechanism
+must be used to provide credentials (e.g., a username and password) with the request. 
+Before the actual method is invoked, the Poco::RemotingNG::Authenticator instance 
+registered with the Listener is used to validate the supplied credentials.
+  * level: class/method
+  * type: boolean
+  * default: true
+
+
 !!cacheExpire
 Sets the time how long return values are cached. A cacheExpire value consists
 of a single positive integer number and a single appended unit. Valid units are: ms, s(ec), m(in), h(our)
@@ -296,6 +307,18 @@ Example:
     //@ $itemNo={in=path}
     Item get(int orderNo, int itemNo);
 ----
+
+
+!!permission
+Specifies a permission (in the form of a string) that is required to invoke the method
+or all methods of a class (if specified on class level).
+If specified and set to a non-empty string, the Poco::RemotingNG::Authorizer 
+instance registered with the Listener is used to verify that the user identified by
+the supplied credentials has the specific permission. Names and semantics of the
+permission string are entirely up to the supplied Poco::RemotingNG::Authorizer 
+implementation.
+  * level: class/method
+  * type: string
 
 
 !!produces

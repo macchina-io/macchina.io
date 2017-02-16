@@ -1,7 +1,7 @@
 //
 // Transport.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Transport.h#1 $
+// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Transport.h#3 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -23,6 +23,7 @@
 #include "Poco/RemotingNG/TCP/TCP.h"
 #include "Poco/RemotingNG/TCP/Connection.h"
 #include "Poco/RemotingNG/TCP/ChannelStream.h"
+#include "Poco/RemotingNG/TCP/ClientAuthenticator.h"
 #include "Poco/RemotingNG/BinarySerializer.h"
 #include "Poco/RemotingNG/BinaryDeserializer.h"
 #include "Poco/RemotingNG/Transport.h"
@@ -68,6 +69,12 @@ public:
 	void enableCompression(bool enable);
 		/// Enables or disables zlib deflate compression for requests.
 
+	void setAuthenticator(ClientAuthenticator::Ptr pAuthenticator);
+		/// Sets the ClientAuthenticator to be used for authentication.
+		
+	ClientAuthenticator::Ptr getAuthenticator() const;
+		/// Returns the ClientAuthenticator.
+
 	void setCredentials(const Credentials& credentials);
 		/// Sets the credentials for authentication.
 		
@@ -105,6 +112,7 @@ private:
 	Poco::URI _endPointURI;
 	Poco::Timespan _timeout;
 	bool _compression;
+	ClientAuthenticator::Ptr _pClientAuthenticator;
 	Credentials _credentials;
 	Connection::Ptr _pConnection;
 	Poco::UInt32 _channel;

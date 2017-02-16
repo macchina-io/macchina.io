@@ -1,7 +1,7 @@
 //
 // Credentials.h
 //
-// $Id$
+// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/Credentials.h#5 $
 //
 // Library: RemotingNG
 // Package: Transport
@@ -28,14 +28,16 @@ namespace RemotingNG {
 
 
 class RemotingNG_API Credentials: public AttributedObject
-	/// This class contains credentials for authentication.
+	/// This class contains credentials for authentication,
+	/// in the form of key-value pairs (attributes).
 	///
 	/// The content of a Credentials object depends upon a
 	/// specific authentication mechanism and is implementation 
 	/// specific.
 	///
 	/// In case of username/password credentials, a Credentials
-	/// object would contain a "username" and a "password" attribute.
+	/// object would contain a username (ATTR_USERNAME, "n") and 
+	/// a password (ATTR_PASSWORD, "p") attribute.
 {
 public:
 	Credentials();
@@ -49,6 +51,24 @@ public:
 		
 	~Credentials();
 		/// Destroys the Credentials object.
+		
+	static const std::string ATTR_USERNAME;
+		/// Attribute named "n" containing a username.
+	static const std::string ATTR_PASSWORD;
+		/// Attribute named "p" containing a password or proof.
+	static const std::string ATTR_MECHANISM;
+		/// Attribute named "#mechanism" containing the authentication mechanism.
+	static const std::string ATTR_TOKEN;
+		/// Attribute named "t" containing a bearer token.
+	static const std::string ATTR_NONCE;
+		/// Attribute named "r" containing a nonce.
+	static const std::string ATTR_SALT;
+		/// Attribute named "s" containing a password salt.
+	static const std::string ATTR_ITERATIONS;
+		/// Attribute named "i" containing the number of
+		/// iterations for PBKDF2.
+	static const std::string ATTR_SIGNATURE;
+		/// Attribute named "v" containing a signature.
 };
 
 

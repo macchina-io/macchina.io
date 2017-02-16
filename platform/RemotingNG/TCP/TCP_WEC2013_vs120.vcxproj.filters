@@ -2,17 +2,20 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="TCP">
-      <UniqueIdentifier>{2c36471d-f1e1-454a-9d47-d0c17ce15f0b}</UniqueIdentifier>
+      <UniqueIdentifier>{7d67bcca-6e04-41f0-9588-976f60cd492b}</UniqueIdentifier>
     </Filter>
     <Filter Include="TCP\Header Files">
-      <UniqueIdentifier>{15079cb1-18b3-408b-965a-dd72f19357ed}</UniqueIdentifier>
+      <UniqueIdentifier>{2d4daa94-3b6a-4ffa-84fc-3967248d6867}</UniqueIdentifier>
     </Filter>
     <Filter Include="TCP\Source Files">
-      <UniqueIdentifier>{8513ec27-6a71-484a-820d-01bfe9d20c06}</UniqueIdentifier>
+      <UniqueIdentifier>{d4a04550-d257-4070-a069-f0b58111571d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Poco\RemotingNG\TCP\ChannelStream.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\ClientAuthenticator.h">
       <Filter>TCP\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Poco\RemotingNG\TCP\Connection.h">
@@ -37,6 +40,15 @@
       <Filter>TCP\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Poco\RemotingNG\TCP\Listener.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\PlainClientAuthenticator.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\SCRAMAuthenticator.h">
+      <Filter>TCP\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\RemotingNG\TCP\SCRAMClientAuthenticator.h">
       <Filter>TCP\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Poco\RemotingNG\TCP\ServerConnection.h">
@@ -84,6 +96,15 @@
       <Filter>TCP\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Listener.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PlainClientAuthenticator.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SCRAMAuthenticator.cpp">
+      <Filter>TCP\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SCRAMClientAuthenticator.cpp">
       <Filter>TCP\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ServerConnection.cpp">

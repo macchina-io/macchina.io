@@ -197,7 +197,10 @@ JSON-RPC and REST transports:
 
 In addition, the SOAP, JSON-RPC and REST transports support the <[username]> and <[password]>
 attributes (std::string) if the client has provided HTTP Basic credentials. This can be used to
-implement authentication and authorization.
+implement authentication and authorization. In release 2017.1, these two attributes have been
+replaced with a Poco::RemotingNG::Credentials object, which can be obtained by calling
+getCredentials() on the context object. The two attributes are still provided for backwards
+compatibility, though.
 
 The TCP transport supports the <[id]> attribute (Poco::UInt32), returning the unique (within
 the server process) ID of the connection. This can be used to associate clients to sessions.
@@ -213,12 +216,10 @@ method:
         std::cout << pContext->getValue<std::string>("transport") << std::endl;
         std::cout << pContext->getValue<Poco::Net::SocketAddress>("remoteAddress").toString() << std::endl;
         std::cout << pContext->getValue<Poco::Net::SocketAddress>("localAddress").toString() << std::endl;
-        // username and password are only available if the client has provided HTTP Basic
-        // credentials
-        if (pContext->has("username"))
+        const Poco::RemotingNG::Credentials& creds = pContext->getCredentials();
+        if (creds.hasAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME))
         {
-            std::cout << pContext->getValue<std::string>("username") << std::endl;
-            std::cout << pContext->getValue<std::string>("password") << std::endl;
+            std::cout << creds.getAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME) << std::endl;
         }
     }
 ----
@@ -331,6 +332,199 @@ provides the removeFilter() function to its remote clients:
         std::string uri = pContext->getValue<std::string>("uri");
         Poco::RemotingNG::EventDispatcher::Ptr pED = orb.findEventDispatcher(uri, "");
         pED->removeEventFilter(subscriberURI, "valueChanged");
+    }
+----
+
+
+!!!Authentication and Authorization
+
+Starting with release 2017.1, Remoting NG includes a generic framework for user 
+authentication and authorization. The authentication and authorization framework
+supports transport-specific authentication mechanisms, as well as
+permission-based authorization for individual remote methods.
+
+Authentication means associating user account information (e.g., a
+username) with a request, and verifying that the user account is valid. Along with
+the username, the user has to proof that he's really the rightful owner of the
+username. This is usually done by providing a secret that only the rightful
+owner of the username knows, to the server. Typically this is a password or some 
+form of cryptographic signature derived from a secret.
+
+In contrast, authorization means verifying that a specific (properly authenticated) 
+user is allowed to perform a specific action.
+
+
+!!Authentication
+
+Authentication support is provided by the new Poco::RemotingNG::Credentials class
+and the Poco::RemotingNG::Authenticator interface. The Credentials class stores
+user credentials in a generic way, using key-value pairs (called attributes). 
+A typical example would be a username and a password:
+
+    Credentials creds;
+    creds.setAttribute(Credentials::ATTR_USERNAME, "user");
+    creds.setAttribute(Credentials::ATTR_PASSWORD, "pass");
+----
+
+The client's credentials are passed to the Transport, which then passes them to server
+for validation, using a transport-specific method. All Transport implementations 
+supporting authentication provide a <[setCredentials()]> method that accepts a 
+Poco::RemotingNG::Credentials object as argument. This also replaces the 
+<[setUsername()]> and <[setPassword()]> methods provided previously for that purpose
+by some transport implementations (although these are still provided for backwards compatibility).
+
+
+!Authentication Mechanisms
+
+The Poco::RemotingNG::Authenticator interface supports multi-step challenge-response
+authentication message exchanges for mechanisms such as SCRAM-SHA-1 that do not 
+send the plain password to the server. However, this must also be supported by the 
+specific Transport implementation.
+
+In the simplest case, using a plain username and password for authentication, the
+conversation between client and server looks like this:
+
+    C > S: authenticate request (username, password)
+    S > C: authenticate response (done or failed)
+----
+
+In such a case, the actual implementation of Poco::RemotingNG::Authenticator is
+quite simple and, in its <[authenticate()]> method, just needs to compare the 
+provided credentials against those in a database. 
+
+In a secure multi-step (or challenge-response) authentication mechanism such as 
+SCRAM-SHA-1, the conversation looks like this:
+
+    C > S: authenticate request (username, clientNonce)
+    S > C: authenticate response (continue, salt, serverNonce, iterations, conversationID)
+    C > S: authenticate request (conversationID, clientFinal)
+    S > C: authenticate response (continue, serverSignature, conversationID)
+    C > S: authenticate request (conversationID)
+    S > C: authenticate response (done)
+----
+
+The authentication message exchange is performed via a transport-specific 
+mechanism.
+
+Therefore, in practice, authentication mechanisms are coupled to a specific transport
+implementation. For example, HTTP-based transports such as SOAP, JSON-RPC or REST 
+support HTTP Basic Authentication and username and password are sent using the 
+HTTP Authorization header in plain text, mandating the use of transport-level security
+(HTTPS). Implementing a multi-step authentication mechanism on top of
+HTTP is currently not supported by the HTTP-based transports.
+
+The TCP transport, in contrast, supports multi-step challenge-response authentication 
+schemes, specifically SCRAM-SHA-1.
+
+When implementing a challenge-response authentication mechanism, the 
+Poco::RemotingNG::Authenticator subclass must be able to support multiple simultaneous 
+conversations and keep separate state information for each conversation (identified
+by a 32 bit unsigned integer).
+
+
+!Enabling Authentication for a Class
+
+Authentication is enabled on a service class or method level. Authentication is
+mandatory if a class or method requires permissions. Authentication can also be
+enforced for a class or method with the <[@authenticated]> attribute.
+
+Example: Enforce authentication for all methods of class <[UserManager]>:
+
+    //@ remote
+    //@ authenticated
+    class UserManager
+    {
+    public:
+        UserManager(/* ... */);
+        ~UserManager();
+
+        void addUser(const User& user);
+        void updateUser(const User& user);
+        User getUser(const std::string& username);
+        void deleteUser(const std::string& username);
+
+    private:
+        // ...
+    };
+----
+
+The <[@authenticated]> attribute will be reflected in the generated skeleton
+class. Before calling the actual service object method, a call to the 
+request's Poco::RemotingNG::ServerTransport will be made to authenticate
+the credentials associated with the request. The ServerTransport will usually
+use the Authenticator registered with the Listener to perform the actual
+authentication. A session-based transport implementation (such as the TCP
+transport) may also perform the authentication during initial connection setup, 
+calling the Authenticator's <[authenticate()]> method only once for the entire
+session. The ServerTransport will then only verify that the session has been
+properly authenticated, using an implementation-specific mechanism.
+
+
+!!Authorization
+
+Authorization in Remoting is declarative, using the <[@permission]> attribute
+in a service class or method definition to specify the permission required
+to invoke the method or all methods of a class. A permission is a string,
+the format of which is entirely up to a specific application.
+
+Example: Enforce permissions for some methods of class <[UserManager]>:
+
+    //@ remote
+    //@ authenticated
+    class UserManager
+    {
+    public:
+        UserManager(/* ... */);
+        ~UserManager();
+
+        //@ permission = "user.add"
+        void addUser(const User& user);
+
+        //@ permission = "user.update"
+        void updateUser(const User& user);
+
+        User getUser(const std::string& username);
+
+        //@ permission = "user.delete"
+        void deleteUser(const std::string& username);
+
+    private:
+        // ...
+    };
+----
+
+In the above example, calling the methods <[addUser()]>, <[updateUser()]> and
+<[deleteUser()]> will require specific permissions or privileges. 
+
+Like the <[@authenticated]> attribute, the <[@permission]> attribute will be reflected in 
+the generated Skeleton class. Before invoking the actual service method, a call to the
+Poco::RemotingNG::ServerTransport will be made to verify that the user associated with the 
+request has the required permission. The Transport will use a Poco::RemotingNG::Authorizer 
+object to perform the actual permission check.
+
+Note that the permission string is entirely opaque to Remoting NG. It simply passes
+the permission string associated with a method to the Authorizer. How the permission
+string is then interpreted is entirely up the specific Authorizer implementation.
+
+An implementation of Poco::RemotingNG::Authorizer can get information about the user making the 
+request via the Poco::RemotingNG::Context associated with the request. 
+
+Like an Authenticator, an Authorizer is registered with a Poco::RemotingNG::Listener.
+
+Authorizer implementations are generally independent of the underlying Transport.
+However, an Authorizer must be able to use the Credentials attached by the 
+Transport to the current request's Context in order to associate the request with a user.
+If provided, the identity or username of the user associated with the request will
+be available from the <[ATTR_USERNAME]> attribute in the Credentials.
+
+    Poco::RemotingNG::Context::Ptr pContext = Poco::RemotingNG::Context::get();
+    if (pContext)
+    {
+        const Poco::RemotingNG::Credentials& creds = pContext->getCredentials();
+        if (creds.hasAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME))
+        {
+            std::cout << creds.getAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME) << std::endl;
+        }
     }
 ----
 
@@ -496,24 +690,22 @@ and implementation file.
 !output/includeRoot
 
 Specifies the base directory for all include
-files. Should be specified, unless <*output/flatIncludes*> is set to <[true]>.
-Not setting this correctly may cause non-compilable code being generated in
-certain cases. See also <*output/flatIncludes*> below.
+files. This element is only used if <*output/flatIncludes*> is 
+also specified and set to <[false]>.
 
 !output/flatIncludes
 
-If specified with a value of <[true]>, 
-<[#include]> directives for serializer and deserializer
+If specified with a value of <[true]>, which
+is the default, <[#include]> directives for serializer and deserializer
 header files generated by the 
 code generator in skeleton and proxy implementation
 files will not include a directory part. Unless header files are
 generated into the same directory as the implementation files, or
 the the header file directory hierarchy is flat, the generated
-proxy and skeleton files may not compile.
+proxy and skeleton files will not compile.
 
 To resolve this issue, specify a value of <[false]> for
-<*output/flatIncludes*> (or remove the setting, which defaults
-to <[false]>), and include an appropriate
+<*output/flatIncludes*>, and include an appropriate
 <*output/includeRoot*> element as well.
 
 Example: If the following is specified for a project
@@ -551,7 +743,7 @@ hierarchy is as follows:
         ...
 ----
 
-Adding <*output/flatIncludes*> and <*output/includeRoot*>
+Adding <*output/flastIncludes*> and <*output/includeRoot*>
 elements as follows resolves that issue:
 
     <output>
@@ -561,7 +753,7 @@ elements as follows resolves that issue:
         <flatIncludes>false</flatIncludes>
         ...
     </output>
-----
+
 
 !output/library
 

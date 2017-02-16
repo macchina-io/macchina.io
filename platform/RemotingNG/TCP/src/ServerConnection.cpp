@@ -1,7 +1,7 @@
 //
 // ServerConnection.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/ServerConnection.cpp#4 $
+// $Id: //poco/1.7/RemotingNG/TCP/src/ServerConnection.cpp#7 $
 //
 // Library: RemotingNG/TCP
 // Package: TCP
@@ -47,19 +47,36 @@ public:
 
 	bool handleFrame(Connection::Ptr pConnection, Frame::Ptr pFrame)
 	{
-		if (pFrame->type() == Frame::FRAME_TYPE_AUTH)
+		if (pFrame->type() == Frame::FRAME_TYPE_AUTH || pFrame->type() == Frame::FRAME_TYPE_AUTC)
 		{
 			Poco::UInt64 authToken = 0;
 			Authenticator::Ptr pAuthenticator = _pListener->getAuthenticator();
+			AuthenticateResult authResult;
 			if (pAuthenticator)
 			{
 				try
 				{
 					Poco::MemoryInputStream istr(pFrame->payloadBegin(), pFrame->getPayloadSize());
 					Poco::BinaryReader reader(istr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
+					
+					std::string mechanism;
+					Poco::UInt32 conversationID = 0;
+					if (pFrame->type() == Frame::FRAME_TYPE_AUTH)
+					{
+						reader >> mechanism;
+					}
+					else
+					{
+						reader >> conversationID;
+					}
+
 					Poco::UInt8 size;
 					reader >> size;
 					Credentials creds;
+					if (!mechanism.empty())
+					{
+						creds.setAttribute(Credentials::ATTR_MECHANISM, mechanism);
+					}
 					for (Poco::UInt8 i = 0; i < size; i++)
 					{
 						std::string key;
@@ -77,9 +94,10 @@ public:
 					pContext->setValue("connection", pConnection.get());
 					pContext->clearCredentials();
 
-					if (pAuthenticator->authenticate(creds))
+					authResult = pAuthenticator->authenticate(creds, conversationID);
+					if (authResult.done())
 					{
-						authToken = _pCredentialsStore->addCredentials(creds);
+						authToken = _pCredentialsStore->addCredentials(authResult.credentials());
 					}
 				}
 				catch (Poco::Exception& exc)
@@ -87,18 +105,42 @@ public:
 					_logger.log(exc);
 				}
 			}
-			sendAUTR(pConnection, pFrame->channel(), authToken);
+			sendAUTR(pConnection, pFrame->channel(), authResult, authToken);
 			return true;
 		}
 		else return false;
 	}
 	
-	void sendAUTR(Connection::Ptr pConnection, Poco::UInt32 channel, Poco::UInt64 token)
+	void sendAUTR(Connection::Ptr pConnection, Poco::UInt32 channel, const AuthenticateResult& authResult, Poco::UInt64 token)
 	{
-		Frame::Ptr pFrame = new Frame(Frame::FRAME_TYPE_AUTR, channel, Frame::FRAME_FLAG_EOM, 64);
+		Frame::Ptr pFrame = new Frame(Frame::FRAME_TYPE_AUTR, channel, Frame::FRAME_FLAG_EOM, 256);
 		Poco::MemoryOutputStream ostr(pFrame->payloadBegin(), pFrame->maxPayloadSize());
 		Poco::BinaryWriter writer(ostr, Poco::BinaryWriter::NETWORK_BYTE_ORDER);
-		writer << token;
+		
+		writer << static_cast<Poco::UInt8>(authResult.state());
+		writer << authResult.conversationID();
+		
+		// Write credentials only if state = continue.
+		if (authResult.cont())
+		{
+			writer << static_cast<Poco::UInt8>(authResult.credentials().countAttributes());
+	
+			std::vector<std::string> keys = authResult.credentials().enumerateAttributes();
+			for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
+			{
+				writer << *it << authResult.credentials().getAttribute(*it);
+			}
+		}
+		else
+		{
+			writer << static_cast<Poco::UInt8>(0);
+		}
+
+		if (authResult.done())
+		{
+			writer << token;
+		}
+
 		pFrame->setPayloadSize(static_cast<Poco::UInt16>(ostr.charsWritten()));
 		pConnection->sendFrame(pFrame);
 	}

@@ -1,7 +1,7 @@
 //
 // ServerTransport.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/ServerTransport.h#1 $
+// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/ServerTransport.h#3 $
 //
 // Library: RemotingNG
 // Package: Transport

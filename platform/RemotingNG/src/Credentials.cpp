@@ -1,7 +1,7 @@
 //
 // Credentials.cpp
 //
-// $Id$
+// $Id: //poco/1.7/RemotingNG/src/Credentials.cpp#4 $
 //
 // Library: RemotingNG
 // Package: Transport
@@ -19,6 +19,16 @@
 
 namespace Poco {
 namespace RemotingNG {
+
+
+const std::string Credentials::ATTR_USERNAME("n");
+const std::string Credentials::ATTR_PASSWORD("p");
+const std::string Credentials::ATTR_MECHANISM("#m");
+const std::string Credentials::ATTR_TOKEN("t");
+const std::string Credentials::ATTR_NONCE("r");
+const std::string Credentials::ATTR_SALT("s");
+const std::string Credentials::ATTR_ITERATIONS("i");
+const std::string Credentials::ATTR_SIGNATURE("v");
 
 
 Credentials::Credentials()
