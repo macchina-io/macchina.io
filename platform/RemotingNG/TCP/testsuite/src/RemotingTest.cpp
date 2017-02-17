@@ -1,7 +1,7 @@
 //
 // RemotingTest.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/RemotingTest.cpp#8 $
+// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/RemotingTest.cpp#9 $
 //
 // Copyright (c) 2006-2012, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -580,6 +580,67 @@ void RemotingTest::testAuthenticatedUpdatedSCRAMCredentials()
 }
 
 
+void RemotingTest::testAuthenticatedMultipleSCRAMCredentials()
+{
+	ITester::Ptr pTester1 = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy1 = pTester1.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans1 = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy1->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds1;
+	creds1.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "user");
+	creds1.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "pass");
+	trans1.setCredentials(creds1);
+	trans1.setAuthenticator(new Poco::RemotingNG::TCP::SCRAMClientAuthenticator);
+
+	ITester::Ptr pTester2 = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy2 = pTester2.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans2 = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy2->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds2;
+	creds2.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "admin");
+	creds2.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "s3cr3t");
+	trans2.setCredentials(creds2);
+	trans2.setAuthenticator(new Poco::RemotingNG::TCP::SCRAMClientAuthenticator);
+
+	ITester::Ptr pTester3 = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy3 = pTester3.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans3 = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy3->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds3;
+	creds3.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "h@ck3r");
+	creds3.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "dummy");
+	trans3.setCredentials(creds3);
+	trans3.setAuthenticator(new Poco::RemotingNG::TCP::SCRAMClientAuthenticator);
+
+	MockSCRAMAuthenticator::Ptr pAuth = new MockSCRAMAuthenticator;
+	_pListener->setAuthenticator(pAuth);
+
+	pTester1->testAuthenticated();
+	
+	assert (pAuth->lastUsername() == "user");
+	
+	pTester2->testAuthenticated();
+	
+	assert (pAuth->lastUsername() == "admin");
+
+	try
+	{
+		pTester3->testAuthenticated();
+		fail("bad credentials - must throw");
+	}
+	catch (Poco::RemotingNG::AuthenticationFailedException& exc)
+	{
+		assert (exc.message() == "The server refused the provided credentials");
+	}
+
+	pTester1->testAuthenticated();
+	pTester2->testAuthenticated();
+}
+
+
 void RemotingTest::testPermission()
 {
 	ITester::Ptr pTester = createProxy(_objectURI);
@@ -1049,6 +1110,7 @@ CppUnit::Test* RemotingTest::suite()
 	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedBadSCRAMCredentials);
 	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedNoSCRAMCredentials);
 	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedUpdatedSCRAMCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedMultipleSCRAMCredentials);
 	CppUnit_addTest(pSuite, RemotingTest, testPermission);
 	CppUnit_addTest(pSuite, RemotingTest, testNoPermission);
 	CppUnit_addTest(pSuite, RemotingTest, testEvent);
@@ -1105,6 +1167,7 @@ CppUnit::Test* RemotingTestCompressed::suite()
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedBadSCRAMCredentials);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedNoSCRAMCredentials);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedUpdatedSCRAMCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedMultipleSCRAMCredentials);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testPermission);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testNoPermission);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testEvent);

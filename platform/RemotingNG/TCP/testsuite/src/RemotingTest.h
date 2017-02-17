@@ -1,7 +1,7 @@
 //
 // RemotingTest.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/RemotingTest.h#4 $
+// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/RemotingTest.h#5 $
 //
 // Definition of the RemotingTest class.
 //
@@ -54,6 +54,7 @@ public:
 	void testAuthenticatedNoSCRAMCredentials();
 	void testAuthenticatedBadSCRAMCredentials();
 	void testAuthenticatedUpdatedSCRAMCredentials();
+	void testAuthenticatedMultipleSCRAMCredentials();
 	void testPermission();
 	void testNoPermission();
 	void testEvent();
