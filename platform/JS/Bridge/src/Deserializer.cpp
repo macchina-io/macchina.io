@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Bridge/src/Deserializer.cpp#4 $
 //
-// Library: JSBridge
-// Package: Bridge
+// Library: JS/Bridge
+// Package: Bridging
 // Module:  Deserializer
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.

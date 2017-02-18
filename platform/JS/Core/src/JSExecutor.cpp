@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Core/src/JSExecutor.cpp#7 $
 //
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Execution
 // Module:  JSExecutor
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.

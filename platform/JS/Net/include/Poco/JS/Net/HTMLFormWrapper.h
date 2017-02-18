@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Net/include/Poco/JS/Net/HTMLFormWrapper.h#3 $
 //
-// Library: JSNet
-// Package: HTTP
+// Library: JS/Net
+// Package: Wrappers
 // Module:  HTMLFormWrapper
 //
 // Definition of the HTMLFormWrapper interface.

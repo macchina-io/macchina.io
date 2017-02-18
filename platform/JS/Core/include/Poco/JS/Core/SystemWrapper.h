@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/SystemWrapper.h#4 $
 //
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  SystemWrapper
 //
 // Definition of the SystemWrapper interface.

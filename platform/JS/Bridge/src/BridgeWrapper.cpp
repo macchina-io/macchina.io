@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Bridge/src/BridgeWrapper.cpp#9 $
 //
-// Library: JSBridge
-// Package: Bridge
+// Library: JS/Bridge
+// Package: Bridging
 // Module:  BridgeWrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.

@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Data/src/RecordSetWrapper.cpp#8 $
 //
-// Library: JSData
-// Package: Data
+// Library: JS/Data
+// Package: Wrappers
 // Module:  RecordSetWrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.

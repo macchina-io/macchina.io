@@ -3,8 +3,8 @@
 //
 // $Id$
 //
-// Library: JSBridge
-// Package: Bridge
+// Library: JS/Bridge
+// Package: Bridging
 // Module:  TaggedBinaryReader
 //
 // Copyright (c) 2013-2017, Applied Informatics Software Engineering GmbH.

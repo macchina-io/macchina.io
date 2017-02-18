@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Core/src/LoggerWrapper.cpp#5 $
 //
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  LoggerWrapper
 //
 // Copyright (c) 2013-2015, Applied Informatics Software Engineering GmbH.

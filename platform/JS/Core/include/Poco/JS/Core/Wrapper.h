@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/Wrapper.h#9 $
 //
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  Wrapper
 //
 // Definition of the Wrapper interface.

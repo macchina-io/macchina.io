@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/ConsoleWrapper.h#4 $
 //
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  ConsoleWrapper
 //
 // Definition of the ConsoleWrapper interface.

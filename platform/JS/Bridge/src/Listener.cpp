@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Bridge/src/Listener.cpp#3 $
 //
-// Library: JSBridge
-// Package: Bridge
+// Library: JS/Bridge
+// Package: Bridging
 // Module:  Listener
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.

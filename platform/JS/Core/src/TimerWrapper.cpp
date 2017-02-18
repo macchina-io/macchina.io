@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Core/src/TimerWrapper.cpp#3 $
 //
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  TimerWrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.

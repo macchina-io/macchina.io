@@ -3,8 +3,8 @@
 //
 // $Id$
 //
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Execution
 // Module:  JSException
 //
 // Definition of the JSException class.

@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Core/src/BufferWrapper.cpp#9 $
 //
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  BufferWrapper
 //
 // Copyright (c) 2013-2016, Applied Informatics Software Engineering GmbH.

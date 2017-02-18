@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Core/src/DateTimeWrapper.cpp#9 $
 //
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  DateTimeWrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.

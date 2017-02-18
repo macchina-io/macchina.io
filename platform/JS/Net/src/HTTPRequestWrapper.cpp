@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Net/src/HTTPRequestWrapper.cpp#7 $
 //
-// Library: JSNet
-// Package: HTTP
+// Library: JS/Net
+// Package: Wrappers
 // Module:  HTTPRequestWrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.

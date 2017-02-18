@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Data/src/SessionWrapper.cpp#6 $
 //
-// Library: JSData
-// Package: Data
+// Library: JS/Data
+// Package: Wrappers
 // Module:  SessionWrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.

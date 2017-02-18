@@ -3,8 +3,8 @@
 //
 // $Id$
 //
-// Library: JSBridge
-// Package: Bridge
+// Library: JS/Bridge
+// Package: Bridging
 // Module:  TaggedBinaryReader
 //
 // Definition of the TaggedBinaryReader class.

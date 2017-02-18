@@ -3,7 +3,7 @@
 //
 // $Id: //poco/1.4/JS/Net/include/Poco/JS/Net/Net.h#3 $
 //
-// Library: JSNet
+// Library: JS/Net
 // Package: Net
 // Module:  Net
 //

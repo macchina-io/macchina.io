@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Net/include/Poco/JS/Net/HTTPRequestWrapper.h#6 $
 //
-// Library: JSNet
-// Package: HTTP
+// Library: JS/Net
+// Package: Wrappers
 // Module:  HTTPRequestWrapper
 //
 // Definition of the HTTPRequestWrapper interface.

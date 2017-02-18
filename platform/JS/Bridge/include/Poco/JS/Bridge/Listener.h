@@ -3,8 +3,8 @@
 //
 // $Id: //poco/1.4/JS/Bridge/include/Poco/JS/Bridge/Listener.h#3 $
 //
-// Library: JSBridge
-// Package: Bridge
+// Library: JS/Bridge
+// Package: Bridging
 // Module:  Listener
 //
 // Definition of the Listener class.

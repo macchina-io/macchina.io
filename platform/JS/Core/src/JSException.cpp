@@ -3,8 +3,8 @@
 //
 // $Id$
 //
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Execution
 // Module:  JSException
 //
 // Copyright (c) 2013-2016, Applied Informatics Software Engineering GmbH.

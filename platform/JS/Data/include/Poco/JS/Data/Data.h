@@ -3,7 +3,7 @@
 //
 // $Id: //poco/1.4/JS/Data/include/Poco/JS/Data/Data.h#3 $
 //
-// Library: JSData
+// Library: JS/Data
 // Package: Data
 // Module:  Data
 //

@@ -3,8 +3,8 @@
 //
 // $Id$
 //
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Execution
 // Module:  ModuleRegistry
 //
 // Definition of the ModuleRegistry interface.
