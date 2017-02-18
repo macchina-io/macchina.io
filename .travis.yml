@@ -5,7 +5,7 @@ cache:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq -y libc6-i386 libc6-dev-i386 lib32stdc++6 lib32z1 
+  - sudo apt-get install -qq -y libc6-i386 libc6-dev-i386 lib32stdc++6 lib32z1 sloccount cppcheck 
 
 env:
   global: 
@@ -30,3 +30,20 @@ matrix:
         - tar xfz ti-am335x-sdk.tgz
         - make -s -j2 hosttools DEFAULT_TARGET=shared_release
         - export PATH=$PATH:`pwd`/ti-am335x-sdk/linux-devkit/sysroots/i686-arago-linux/usr/bin; POCO_CONFIG=Arago make -s -j2 DEFAULT_TARGET=shared_release V8_NOSNAPSHOT=1
+
+    # QA jobs for code analytics and metrics
+    # static code analysis with cppcheck (we can add --enable=all later)
+    - env:    TEST_NAME="cppcheck"
+      script: cppcheck --force --quiet --inline-suppr -j2 -iplatform/Data/SQLite/src/sqlite3.c .
+    # search for TODO within source tree
+    - env:    TEST_NAME="TODO"
+      script: grep -r TODO *
+    # search for FIXME within source tree
+    - env:    TEST_NAME="FIXME"
+      script: grep -r FIXME *
+    # search for HACK within source tree
+    - env:    TEST_NAME="HACK"
+      script: grep -r HACK *
+    # some statistics about the code base
+    - env:    TEST_NAME="sloccount"
+      script: sloccount .
