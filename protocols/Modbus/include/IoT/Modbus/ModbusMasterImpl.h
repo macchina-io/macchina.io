@@ -273,7 +273,31 @@ public:
 
 	void writeSingleCoil(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, bool value)
 	{
-		// TODO
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		disableEvents();
+		WriteSingleCoilRequest request;
+		request.slaveOrUnitAddress = slaveAddress;
+		request.outputAddress = outputAddress;
+		request.value = value;
+		_pPort->sendFrame(request);
+		if (_pPort->poll(_timeout))
+		{
+			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
+			{
+				ModbusExceptionMessage message;
+				_pPort->decodeFrame(message);
+				throw ModbusException(message.functionCode, message.exceptionCode);
+			}
+			else if ((fc & 0x7F) == request.functionCode)
+			{
+				WriteSingleCoilResponse response;
+				_pPort->decodeFrame(response);
+			}
+			else throw Poco::ProtocolException("incomplete or invalid frame received");
+		}
+		else throw Poco::TimeoutException();
 	}
 
 	void writeSingleRegister(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, Poco::UInt16 value)

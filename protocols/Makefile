@@ -13,4 +13,5 @@ clean all:
 	$(MAKE) -C XBee $(MAKECMDGOALS)
 	$(MAKE) -C BtLE $(MAKECMDGOALS)
 	$(MAKE) -C UDP $(MAKECMDGOALS)
+	$(MAKE) -C Modbus $(MAKECMDGOALS)
 	$(MAKE) -C WebTunnel $(MAKECMDGOALS)
