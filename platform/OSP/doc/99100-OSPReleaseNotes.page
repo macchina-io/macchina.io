@@ -1,7 +1,26 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2017.1
+
+!!Summary of Changes
+
+  - Refactored AuthAdminService to enable different database backends (e.g., MongoDB) in
+    addition to the existing SQL database backend.
+  - AuthAdminService: added support for SCRAM-SHA-1 authentication over SASL.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2016.2
+
+!!Summary of Changes
 
   - Poco::OSP::BundleEvents: added bundleFailed event if starting a bundle fails
   - Added Poco::OSP::BundleFilter class. This new class allows filtering of bundles
@@ -21,6 +40,8 @@ Open Service Platform
 
 
 !!!Release 2016.1
+
+!!Summary of Changes
 
   - Poco::OSP::BundleRepository: prevent a bundle from being newly installed if a bundle 
     with same symbolic name already exists.
@@ -44,6 +65,8 @@ Open Service Platform
 
 
 !!!Release 2015.2
+
+!!Summary of Changes
 
   - Allow passing arguments to OSP WebFilterExtensionPoint
 

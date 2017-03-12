@@ -1,6 +1,30 @@
 Remoting NG Release Notes
 Remoting NG
 
+!!!Release 2017.1
+
+!!Summary of Changes
+
+  - Added a new framework for authentication and authorization, which replaces the
+    transport-specific authentication support available in previous releases.
+  - Support for authentication and authorization in the TCP transport.
+  - REST Transport: added support for OAuth2 Bearer Token authentication
+  - REST and JSONRPC Transport: Control characters in strings are now properly
+    encoded in JSON strings.
+  - RemoteGen bugfix: fix: don't generate () for empty default initialization in 
+    Skeleton code
+  - RemoteGen bugfix: generate correct code for EventDispatcher and EventSubscriber
+    for classes that inherit events from base classes
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2016.2
 
 !!Summary of Changes
