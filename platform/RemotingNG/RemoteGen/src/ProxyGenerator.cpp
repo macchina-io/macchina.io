@@ -31,7 +31,7 @@
 using namespace Poco::CodeGeneration;
 
 
-ProxyGenerator::ProxyGenerator(Poco::CodeGeneration::CppGenerator& cppGen): AbstractGenerator(cppGen), _cacheVariableSet(false)
+ProxyGenerator::ProxyGenerator(Poco::CodeGeneration::CppGenerator& cppGen): AbstractGenerator(cppGen), _cacheVariableSet(false), _hasEvents(false)
 {
 }
 
@@ -125,9 +125,10 @@ void ProxyGenerator::structStart(const Poco::CppParser::Struct* pStruct, const C
 	// replicate parent functions
 	handleParentFunctions(pStruct);
 	// checks if the class or any parent contains public BasicEvents
+	checkForParentEventMembers(pStruct);
 	checkForEventMembers(pStruct);
 
-	if (!_events.empty())
+	if (_hasEvents)
 	{
 		Poco::CppParser::Function* pEvents = new Poco::CppParser::Function("virtual std::string remoting__enableEvents", _pStruct);
 		Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter("Poco::RemotingNG::Listener::Ptr pListener", 0);
@@ -1285,7 +1286,7 @@ void ProxyGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct
 			
 	}
 
-	if (!_events.empty())
+	if (_hasEvents)
 	{
 		Poco::Path file (Poco::CodeGeneration::Utility::createInclude(_pStruct, true));
 	
@@ -1293,6 +1294,44 @@ void ProxyGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct
 		file.setBaseName(newFileName);
 		std::string inclFile = file.toString(Poco::Path::PATH_UNIX);
 		_cppGen.addSrcIncludeFile(inclFile);
+	}
+}
+
+
+void ProxyGenerator::checkForParentEventMembers(const Poco::CppParser::Struct* pStruct)
+{
+	checkForParentEventMembersImpl(pStruct);
+
+	Poco::CppParser::Struct::BaseIterator itB = pStruct->baseBegin();
+	Poco::CppParser::Struct::BaseIterator itBEnd = pStruct->baseEnd();
+	for (; itB != itBEnd; ++itB)
+	{
+		const Poco::CppParser::Struct* pParent = itB->pClass;
+		if (pParent && Utility::hasAnyRemoteProperty(pParent))
+		{
+			checkForParentEventMembers(pParent);
+		}
+	}
+}
+
+
+void ProxyGenerator::checkForParentEventMembersImpl(const Poco::CppParser::Struct* pStruct)
+{
+	Poco::CppParser::NameSpace::SymbolTable tbl;
+	pStruct->variables(tbl);
+	Poco::CppParser::NameSpace::SymbolTable::const_iterator it = tbl.begin();
+	Poco::CppParser::NameSpace::SymbolTable::const_iterator itEnd = tbl.end();
+	for (; it != itEnd; ++it)
+	{
+		Poco::CppParser::Variable* pVar = static_cast<Poco::CppParser::Variable*>(it->second);
+		const std::string& varType = pVar->declType();
+		if (pVar->getAccess() == Poco::CppParser::Variable::ACC_PUBLIC && !(pVar->flags() & Poco::CppParser::Variable::VAR_STATIC))
+		{
+			if (varType.find("Poco::BasicEvent") == 0 || varType.find("Poco::FIFOEvent") == 0)
+			{
+				_hasEvents = true;	
+			}
+		}	
 	}
 }
 

@@ -26,12 +26,12 @@
 #include "Poco/String.h"
 #include "Poco/Timespan.h"
 #include "Poco/RemotingNG/SerializerBase.h"
-
+#include <iostream>
 
 using namespace Poco::CodeGeneration;
 
 
-EventDispatcherGenerator::EventDispatcherGenerator(Poco::CodeGeneration::CppGenerator& cppGen): AbstractGenerator(cppGen), _cacheVariableSet(false)
+EventDispatcherGenerator::EventDispatcherGenerator(Poco::CodeGeneration::CppGenerator& cppGen): AbstractGenerator(cppGen)
 {
 }
 
@@ -81,15 +81,6 @@ std::string EventDispatcherGenerator::generateRetParamName(const Poco::CppParser
 }
 
 
-std::string EventDispatcherGenerator::generateFunctResultName(const Poco::CppParser::Function* pFunc)
-{
-	std::string result("_");
-	result.append(pFunc->name());
-	result.append("ResultIsSet");
-	return result;
-}
-
-
 void EventDispatcherGenerator::structStart(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
 {
 	AbstractGenerator::structStart(pStruct, properties);
@@ -127,43 +118,8 @@ void EventDispatcherGenerator::structStart(const Poco::CppParser::Struct* pStruc
 	Poco::CppParser::Variable* pVar2 = new Poco::CppParser::Variable("static const std::string DEFAULT_NS", _pStruct);
 	pVar2->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
 
-	// replicate parent functions
-	handleParentFunctions(pStruct);
 	// checks if the class or any parent contains public BasicEvents
 	checkForEventMembers(pStruct);
-	
-	if (!_cacheVariableSet)
-	{
-		// check the local functions
-		Poco::CppParser::Struct::Functions functions;
-		// we only handle public functions, others cannot be called remote
-		pStruct->methods(Poco::CppParser::Symbol::ACC_PUBLIC, functions);
-		Poco::CppParser::Struct::Functions::const_iterator it = functions.begin();
-		Poco::CppParser::Struct::Functions::const_iterator itEnd = functions.end();
-		
-		for (; it != itEnd && !_cacheVariableSet; ++it)
-		{
-			Poco::CppParser::Function* pFunc = *it;
-			CodeGenerator::Properties methodProperties(properties); 
-			Poco::CodeGeneration::GeneratorEngine::parseProperties(pFunc, methodProperties);
-			CodeGenerator::Properties::const_iterator itProp = methodProperties.find(Utility::REMOTE);
-			if (itProp != methodProperties.end() && itProp->second == Utility::VAL_TRUE)
-			{
-				bool enableCachingForThisMethod = false;
-				CodeGenerator::Properties::const_iterator itPropCache = methodProperties.find(Utility::CACHING);
-				if (itPropCache != methodProperties.end() && itPropCache->second == Utility::VAL_TRUE)
-					enableCachingForThisMethod = true;
-				_cacheVariableSet |= enableCachingForThisMethod;
-			}
-		}
-	}
-	if (_cacheVariableSet)
-	{
-		_cppGen.addIncludeFile("Poco/UniqueExpireCache.h");
-		_cppGen.addIncludeFile("Poco/ExpirationDecorator.h");
-		Poco::CppParser::Variable* pVar = new Poco::CppParser::Variable("mutable Poco::UniqueExpireCache<std::string, Poco::ExpirationDecorator<int> > _cache", _pStruct);
-		pVar->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
-	}
 }
 
 
@@ -175,49 +131,14 @@ void EventDispatcherGenerator::methodStart(const Poco::CppParser::Function* pFun
 
 void EventDispatcherGenerator::methodStartImpl(Poco::CppParser::Function* pFunc, const CodeGenerator::Properties& methodProperties)
 {
-	//Poco::CppParser::Function* pFunc = methodClone(pFuncOld, methodProperties);
 	includeTypeSerializers(pFunc, false, false);
-	CodeGenerator::Properties::const_iterator it = methodProperties.find(Utility::CACHEEXPIRETIME);
-
-	bool neverExpires = (it != methodProperties.end() && it->second == Utility::VAL_INFINITE);
 
 	CodeGenerator::Properties::const_iterator itProp = methodProperties.find(Utility::REMOTE);
 	if (itProp != methodProperties.end() && itProp->second == Utility::VAL_TRUE)
 	{
-		bool enableCachingForThisMethod = false;
-		CodeGenerator::Properties::const_iterator itPropCache = methodProperties.find(Utility::CACHING);
-		if (itPropCache != methodProperties.end() && itPropCache->second == Utility::VAL_TRUE)
-			enableCachingForThisMethod = true;
 		std::map<std::string, const Poco::CppParser::Parameter*> outParams;
 		detectOutParams(pFunc, outParams);
 		// if we find any method that has return/out parameters add a place where we can store these results
-		if (enableCachingForThisMethod)
-		{
-			std::map<std::string, const Poco::CppParser::Parameter*>::const_iterator itO = outParams.begin();
-			std::map<std::string, const Poco::CppParser::Parameter*>::const_iterator itOEnd = outParams.end();
-			for (; itO != itOEnd; ++itO)
-			{
-				std::string oName = generateOutParamName(itO->second, pFunc->name());
-				std::string decl("mutable " + itO->second->declType());
-				if (itO->second->isPointer())
-					decl.append("*");
-				decl.append(" ");
-				decl.append(oName);
-				Poco::CppParser::Variable* pVarInt = new Poco::CppParser::Variable(decl, _pStruct);
-				pVarInt->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
-
-			}
-			if (neverExpires)
-			{ 
-				std::string boolName = generateFunctResultName(pFunc);
-				std::string decl("mutable bool " + boolName);
-				Poco::CppParser::Variable* pVarInt = new Poco::CppParser::Variable(decl, _pStruct);
-				pVarInt->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
-				_cppGen.registerConstructorHint(pVarInt, Utility::VAL_FALSE);
-
-			}
-		}
-		
 		std::string retParamName = generateRetParamName(pFunc);
 		if (!retParamName.empty())
 		{
@@ -230,7 +151,6 @@ void EventDispatcherGenerator::methodStartImpl(Poco::CppParser::Function* pFunc,
 			Poco::CppParser::Variable* pVarInt = new Poco::CppParser::Variable(decl, _pStruct);
 			pVarInt->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
 		}
-		_cacheVariableSet |= enableCachingForThisMethod;
 	}
 }
 
@@ -254,10 +174,7 @@ void EventDispatcherGenerator::registerCallbacks(Poco::CodeGeneration::Generator
 
 std::vector<std::string> EventDispatcherGenerator::newBaseClasses(const Poco::CppParser::Struct* pStruct)
 {
-	// we extend from EventDispatcher
 	std::vector<std::string> bases;
-	// maybe we need to extend form interface too?
-
 	bases.push_back("Poco::RemotingNG::EventDispatcher");
 	return bases;
 }
@@ -280,8 +197,6 @@ void EventDispatcherGenerator::serializeCodeGen(const Poco::CppParser::Function*
 	detectOutParams(pFunc, outParams);
 	Poco::CodeGeneration::CodeGenerator::Properties classProperties;
 	Poco::CodeGeneration::GeneratorEngine::parseProperties(pStruct, classProperties);
-	if (classProperties.find(Utility::CACHING) != classProperties.end())
-		throw Poco::InvalidArgumentException("cacheResult property is not allowed on class level!");
 
 	Poco::CodeGeneration::CodeGenerator::Properties methodProperties(classProperties);
 	Poco::CodeGeneration::GeneratorEngine::parseProperties(pFunc, methodProperties);
@@ -289,33 +204,11 @@ void EventDispatcherGenerator::serializeCodeGen(const Poco::CppParser::Function*
 	bool hasReturnParam = pFunc->getReturnParameter() != Utility::TYPE_VOID && !pFunc->getReturnParameter().empty();
 	bool isOneWay = (outParams.empty() && !hasReturnParam) || (methodProperties.find(Utility::ONEWAY) != methodProperties.end());
 
-	Poco::CodeGeneration::CodeGenerator::Properties::const_iterator itCache = methodProperties.find(Utility::CACHING);
-	// now check if we have sth cached and if the property is set
-	bool useCache = (itCache != methodProperties.end() && itCache->second == Utility::VAL_TRUE);
 	Poco::CodeGeneration::CodeGenerator::Properties::const_iterator itEvent = methodProperties.find("event");
 	bool isEvent = (itEvent != methodProperties.end());
-	Poco::CodeGeneration::CodeGenerator::Properties::const_iterator itExp = methodProperties.find(Utility::CACHEEXPIRETIME);
-	bool cacheCanExpire = true;
-	std::string expireTimeStr;
-	if (itExp != methodProperties.end())
-	{
-		cacheCanExpire = (itExp->second != Utility::VAL_INFINITE);
-		expireTimeStr = itExp->second;
-	}
-
-	if (useCache && !isOneWay)
-		writeCachingBlock(pFunc, gen, cacheCanExpire);
 
 	writeSerializingBlock(pFunc, attrs, elems, nsIdx, gen, isOneWay, isEvent);
-
-	Poco::UInt64 expireTime = 0;
-	if (cacheCanExpire && !expireTimeStr.empty())
-	{
-		expireTime = GenUtility::parseExpireTime(expireTimeStr);
-		// we need expireTime in millisecs not micro!
-		expireTime /= 1000;
-	}
-	writeDeserializingBlock(pFunc, attrs, elems, gen, isOneWay, useCache, cacheCanExpire, expireTime, isEvent);
+	writeDeserializingBlock(pFunc, attrs, elems, gen, isOneWay, isEvent);
 }
 
 
@@ -455,48 +348,6 @@ std::string EventDispatcherGenerator::generateStaticIdString(const Poco::CppPars
 		staticIds.append("};");
 
 	return staticIds;
-}
-
-
-void EventDispatcherGenerator::writeCachingBlock(const Poco::CppParser::Function* pFunc, CodeGenerator& gen, bool cacheCanExpire)
-{
-	static std::string indent("\t");
-	if (!hasAnyOutParams(pFunc))
-		return;
-
-	std::string prefix("\t");
-	if (cacheCanExpire)
-	{
-		gen.writeMethodImplementation("if (_cache.has(REMOTING__NAMES[0]))");
-	}
-	else
-	{
-		gen.writeMethodImplementation("if (" + generateFunctResultName(pFunc) + ")");
-	}
-	gen.writeMethodImplementation("{");
-	// return all outParams, and the ret Param
-	std::map<std::string, const Poco::CppParser::Parameter*> outParams;
-	detectOutParams(pFunc, outParams);
-	std::map<std::string, const Poco::CppParser::Parameter*>::const_iterator itParams = outParams.begin();
-	std::map<std::string, const Poco::CppParser::Parameter*>::const_iterator itParamsEnd = outParams.end();
-	for (; itParams != itParamsEnd; ++itParams)
-	{
-		std::string setLine(itParams->second->name());
-		setLine.append("= ");
-		setLine.append(generateOutParamName(itParams->second, pFunc->name()));
-		setLine.append(";");
-		gen.writeMethodImplementation(prefix+setLine);
-	}
-	std::string returnParam = generateRetParamName(pFunc);
-
-	if (!returnParam.empty())
-	{
-		gen.writeMethodImplementation(prefix+"return " + returnParam + ";");
-	}
-	else
-		gen.writeMethodImplementation(prefix+"return;");
-
-	gen.writeMethodImplementation("}");
 }
 
 
@@ -671,7 +522,7 @@ void EventDispatcherGenerator::writeTypeSerializer(const Poco::CppParser::Functi
 }
 
 
-void EventDispatcherGenerator::writeDeserializingBlock(const Poco::CppParser::Function* pFunc, const OrderedParameters& attrs, const OrderedParameters& elems,CodeGenerator& gen, bool isOneWay, bool useCache, bool cacheCanExpire, Poco::UInt64 expireTime, bool isEvent)
+void EventDispatcherGenerator::writeDeserializingBlock(const Poco::CppParser::Function* pFunc, const OrderedParameters& attrs, const OrderedParameters& elems,CodeGenerator& gen, bool isOneWay, bool isEvent)
 {
 	if (isOneWay)
 	{
@@ -726,13 +577,13 @@ void EventDispatcherGenerator::writeDeserializingBlock(const Poco::CppParser::Fu
 			gen.writeMethodImplementation("remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_" + messageType + ");");
 		}
 
-		writeTypeDeserializers(pFunc, attrs, outParams, useCache, "", gen);
+		writeTypeDeserializers(pFunc, attrs, outParams, "", gen);
 
 		std::string retParamName(generateRetParamName(pFunc));
 		bool hasReturnParam = !retParamName.empty();
 		writeDeserializeReturnParam(pFunc, gen);
 
-		writeTypeDeserializers(pFunc, elems, outParams, useCache, "", gen);
+		writeTypeDeserializers(pFunc, elems, outParams, "", gen);
 		if (name != responseName)
 		{
 			gen.writeMethodImplementation("remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_" + messageType + ");");
@@ -740,56 +591,6 @@ void EventDispatcherGenerator::writeDeserializingBlock(const Poco::CppParser::Fu
 		else
 		{
 			gen.writeMethodImplementation("remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_" + messageType + ");");
-		}
-
-		// notify the cache about the update
-		if (useCache)
-		{
-			if (cacheCanExpire)
-			{
-				std::string cacheAdd("_cache.add(REMOTING__NAMES[0], Poco::ExpirationDecorator<int>(0, ");
-				
-				// set 1 billion as limit 1.000.000.000
-				// yes, we could split it up in 32bits values but then we have to be careful with appending u at the end of the constants,
-				// so we don't
-				if (expireTime > 1000000000)
-				{
-					// we can't write an Int64 constant in a platform independent way
-					// compose it of 32bits
-					cacheAdd.append("((Poco::Timespan::TimeDiff)");
-					std::vector <Poco::UInt32> fragments;
-					Poco::Timespan::TimeDiff val(expireTime);
-					while (val > 1000000000)
-					{
-						fragments.push_back(static_cast<Poco::UInt32>(val%1000000000));
-						val /= 1000000000;
-					}
-					//write val, even if it is zero
-					std::string expireString = Poco::NumberFormatter::format(val);
-					cacheAdd.append(expireString+")"); // close the cast bracket
-					poco_assert (!fragments.empty());
-					std::vector <Poco::UInt32>::const_iterator it = fragments.end();
-
-					do
-					{
-						--it;
-						expireString = Poco::NumberFormatter::format(*it);
-						cacheAdd.append("*");
-						cacheAdd.append(expireString);
-					}
-					while (it != fragments.begin());
-					cacheAdd.append("));");
-				}
-				else
-				{
-					std::string expireString = Poco::NumberFormatter::format(expireTime);
-					cacheAdd.append(expireString);
-					cacheAdd.append("));");
-				}
-				gen.writeMethodImplementation(cacheAdd);
-			}
-			else
-				gen.writeMethodImplementation(generateFunctResultName(pFunc)+ " = true;");
 		}
 
 		gen.writeMethodImplementation("remoting__trans.endRequest();");
@@ -805,7 +606,6 @@ void EventDispatcherGenerator::writeDeserializingBlock(const Poco::CppParser::Fu
 void EventDispatcherGenerator::writeTypeDeserializers(const Poco::CppParser::Function* pFunc, 
 											const OrderedParameters& params, 
 											const std::map<std::string, const Poco::CppParser::Parameter*>& outParams, 
-											bool useCache,
 											const std::string& indentation,
 											CodeGenerator& gen)
 {
@@ -852,12 +652,6 @@ void EventDispatcherGenerator::writeTypeDeserializers(const Poco::CppParser::Fun
 			}
 			codeLine.append(");");
 			gen.writeMethodImplementation(indentation+codeLine);
-			// assign the result
-			if (useCache)
-			{
-				std::string cacheName (generateOutParamName(itD->second, pFunc->name()));
-				gen.writeMethodImplementation(indentation+cacheName + "= "+ itD->second->name() + ";");
-			}
 		}
 	}
 }
@@ -1050,6 +844,23 @@ void EventDispatcherGenerator::doElemAttrSplit(const Poco::CppParser::Function* 
 
 
 void EventDispatcherGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct)
+{
+	checkForEventMembersImpl(pStruct);
+
+	Poco::CppParser::Struct::BaseIterator itB = pStruct->baseBegin();
+	Poco::CppParser::Struct::BaseIterator itBEnd = pStruct->baseEnd();
+	for (; itB != itBEnd; ++itB)
+	{
+		const Poco::CppParser::Struct* pParent = itB->pClass;
+		if (pParent && Utility::hasAnyRemoteProperty(pParent))
+		{
+			checkForEventMembers(pParent);
+		}
+	}
+}
+
+
+void EventDispatcherGenerator::checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct)
 {
 	Poco::CppParser::NameSpace::SymbolTable tbl;
 	pStruct->variables(tbl);

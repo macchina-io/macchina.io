@@ -217,31 +217,8 @@ void EventSubscriberGenerator::registerCallbacks(Poco::CodeGeneration::Generator
 
 std::vector<std::string> EventSubscriberGenerator::newBaseClasses(const Poco::CppParser::Struct* pStruct)
 {
-	// we extend from EventSubscriber or from a superclass skeleton
 	std::vector<std::string> bases;
-	bool hasAnyRemote = GenUtility::hasAnyRemoteParent(pStruct);
-
-	if (!hasAnyRemote)
-	{
-		bases.push_back("Poco::RemotingNG::EventSubscriber");
-	}
-	else
-	{
-		Poco::CppParser::Struct::BaseIterator itB = pStruct->baseBegin();
-		Poco::CppParser::Struct::BaseIterator itBEnd = pStruct->baseEnd();
-		for (; itB != itBEnd; ++itB)
-		{
-			const Poco::CppParser::Struct* pParent = itB->pClass;
-			/*
-			if (!pParent)
-				throw Poco::RuntimeException("EventSubscriberGenerator: missing parent class " + itB->name + "for " + pStruct->fullName());
-			*/
-			if (pParent && Utility::hasAnyRemoteProperty(pParent))
-			{
-				bases.push_back(generateQualifiedClassName(nameSpace(), pParent));
-			}
-		}
-	}
+	bases.push_back("Poco::RemotingNG::EventSubscriber");
 	return bases;
 }
 
@@ -763,6 +740,24 @@ void EventSubscriberGenerator::staticMembersInitializer(const Poco::CppParser::F
 
 
 void EventSubscriberGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct, std::vector<const Poco::CppParser::Function*>& eventFunctions)
+{
+	checkForEventMembersImpl(pStruct, eventFunctions);
+
+	Poco::CppParser::Struct::BaseIterator itB = pStruct->baseBegin();
+	Poco::CppParser::Struct::BaseIterator itBEnd = pStruct->baseEnd();
+	for (; itB != itBEnd; ++itB)
+	{
+		const Poco::CppParser::Struct* pParent = itB->pClass;
+		if (pParent && Utility::hasAnyRemoteProperty(pParent))
+		{
+			checkForEventMembers(pParent, eventFunctions);
+		}
+	}
+}
+
+
+
+void EventSubscriberGenerator::checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct, std::vector<const Poco::CppParser::Function*>& eventFunctions)
 {
 	bool events = false;
 	Poco::CppParser::NameSpace::SymbolTable tbl;

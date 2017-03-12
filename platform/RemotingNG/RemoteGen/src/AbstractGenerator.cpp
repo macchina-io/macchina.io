@@ -252,7 +252,7 @@ void AbstractGenerator::handleParentFunctionsImpl(const Poco::CppParser::Struct*
 		const Poco::CppParser::Struct* pParent = itB->pClass;
 		if (pParent && Utility::hasAnyRemoteProperty(pParent))
 		{
-			handleParentFunctionsImpl (pParent, methodSigs, false);
+			handleParentFunctionsImpl(pParent, methodSigs, false);
 		}
 	}
 
