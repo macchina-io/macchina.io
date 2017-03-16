@@ -302,19 +302,229 @@ public:
 
 	void writeSingleRegister(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, Poco::UInt16 value)
 	{
-		// TODO
+		// TODO TEST
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		disableEvents();
+		WriteSingleRegisterRequest request;
+		request.slaveOrUnitAddress = slaveAddress;
+		request.outputAddress = outputAddress;
+		request.value = value;
+		_pPort->sendFrame(request);
+		if (_pPort->poll(_timeout))
+		{
+			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
+			{
+				ModbusExceptionMessage message;
+				_pPort->decodeFrame(message);
+				throw ModbusException(message.functionCode, message.exceptionCode);
+			}
+			else if ((fc & 0x7F) == request.functionCode)
+			{
+				WriteSingleRegisterResponse response;
+				_pPort->decodeFrame(response);
+			}
+			else throw Poco::ProtocolException("incomplete or invalid frame received");
+		}
+		else throw Poco::TimeoutException();
 	}
 
 	Poco::UInt8 readExceptionStatus(Poco::UInt8 slaveAddress)
 	{
-		// TODO
+		// TODO TEST
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		disableEvents();
+		ReadExceptionStatusRequest request;
+		request.slaveOrUnitAddress = slaveAddress;
+		_pPort->sendFrame(request);
+		if (_pPort->poll(_timeout))
+		{
+			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
+			{
+				ModbusExceptionMessage message;
+				_pPort->decodeFrame(message);
+				throw ModbusException(message.functionCode, message.exceptionCode);
+			}
+			else if ((fc & 0x7F) == request.functionCode)
+			{
+				ReadExceptionStatusResponse response;
+				_pPort->decodeFrame(response);
+				return response.data;
+			}
+			else throw Poco::ProtocolException("incomplete or invalid frame received");
+		}
+		else throw Poco::TimeoutException();
+
 		return 0;
 	}
-	
+
+	void writeMultipleCoils(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector<bool> values)
+	{
+		// TODO TEST
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		disableEvents();
+		WriteMultipleCoilsRequest request;
+		request.slaveOrUnitAddress = slaveAddress;
+		request.startingAddress = outputAddress;
+		request.values = values;
+
+		_pPort->sendFrame(request);
+		if (_pPort->poll(_timeout))
+		{
+			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
+			{
+				ModbusExceptionMessage message;
+				_pPort->decodeFrame(message);
+				throw ModbusException(message.functionCode, message.exceptionCode);
+			}
+			else if ((fc & 0x7F) == request.functionCode)
+			{
+				WriteMultipleCoilsResponse response;
+				_pPort->decodeFrame(response);
+			}
+			else throw Poco::ProtocolException("incomplete or invalid frame received");
+		}
+		else throw Poco::TimeoutException();
+	}
+
+	void writeMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector<Poco::UInt16> values)
+	{
+		// TODO TEST
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		disableEvents();
+		WriteMultipleRegistersRequest request;
+		request.slaveOrUnitAddress = slaveAddress;
+		request.startingAddress = outputAddress;
+		request.values = values;
+
+		_pPort->sendFrame(request);
+		if (_pPort->poll(_timeout))
+		{
+			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
+			{
+				ModbusExceptionMessage message;
+				_pPort->decodeFrame(message);
+				throw ModbusException(message.functionCode, message.exceptionCode);
+			}
+			else if ((fc & 0x7F) == request.functionCode)
+			{
+				WriteMultipleRegistersResponse response;
+				_pPort->decodeFrame(response);
+			}
+			else throw Poco::ProtocolException("incomplete or invalid frame received");
+		}
+		else throw Poco::TimeoutException();
+	}
+
+	virtual void maskWriteRegister(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, Poco::UInt16 andMask, Poco::UInt16 orMask)
+	{
+		// TODO TEST
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		disableEvents();
+		MaskWriteRegisterRequest request;
+		request.slaveOrUnitAddress = slaveAddress;
+		request.referenceAddress = outputAddress;
+		request.andMask = andMask;
+		request.orMask = orMask;
+
+		_pPort->sendFrame(request);
+		if (_pPort->poll(_timeout))
+		{
+			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
+			{
+				ModbusExceptionMessage message;
+				_pPort->decodeFrame(message);
+				throw ModbusException(message.functionCode, message.exceptionCode);
+			}
+			else if ((fc & 0x7F) == request.functionCode)
+			{
+				MaskWriteRegisterResponse response;
+				_pPort->decodeFrame(response);
+			}
+			else throw Poco::ProtocolException("incomplete or invalid frame received");
+		}
+		else throw Poco::TimeoutException();
+	}
+
+	std::vector<Poco::UInt16> readWriteMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 writeStartingAddress, std::vector<Poco::UInt16> writeValues, Poco::UInt16 readStartingAddress, Poco::UInt8 nOfReadRegisters)
+	{
+		// TODO TEST
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		disableEvents();
+		ReadWriteMultipleRegistersRequest request;
+		request.slaveOrUnitAddress = slaveAddress;
+		request.readStartingAddress = readStartingAddress;
+		request.readCount = nOfReadRegisters;
+		request.writeStartingAddress = writeStartingAddress;
+		request.values = writeValues;
+
+		_pPort->sendFrame(request);
+		if (_pPort->poll(_timeout))
+		{
+			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
+			{
+				ModbusExceptionMessage message;
+				_pPort->decodeFrame(message);
+				throw ModbusException(message.functionCode, message.exceptionCode);
+			}
+			else if ((fc & 0x7F) == request.functionCode)
+			{
+				ReadWriteMultipleRegistersResponse response;
+				_pPort->decodeFrame(response);
+				return response.values;
+			}
+			else throw Poco::ProtocolException("incomplete or invalid frame received");
+		}
+		else throw Poco::TimeoutException();
+	}
+
+	virtual std::vector<Poco::UInt16> readFIFOQueue(Poco::UInt8 slaveAddress, Poco::UInt16 fifoPointerAddress)
+	{
+		// TODO TEST
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		disableEvents();
+		ReadFIFOQueueRequest request;
+		request.slaveOrUnitAddress = slaveAddress;
+		request.fifoAddress = fifoPointerAddress;
+
+		_pPort->sendFrame(request);
+		if (_pPort->poll(_timeout))
+		{
+			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			if ((fc & 0x80) == MODBUS_EXCEPTION_MASK)
+			{
+				ModbusExceptionMessage message;
+				_pPort->decodeFrame(message);
+				throw ModbusException(message.functionCode, message.exceptionCode);
+			}
+			else if ((fc & 0x7F) == request.functionCode)
+			{
+				ReadFIFOQueueResponse response;
+				_pPort->decodeFrame(response);
+				return response.values;
+			}
+			else throw Poco::ProtocolException("incomplete or invalid frame received");
+		}
+		else throw Poco::TimeoutException();
+	}
+
 protected:
 	void enableEvents()
 	{
 		// TODO: start receiver thread
+		Poco::FastMutex::ScopedLock lock(_mutex);
 	}
 	
 	void disableEvents()

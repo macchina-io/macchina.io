@@ -127,53 +127,131 @@ void PDUReader::read(ReadInputRegistersResponse& response)
 
 void PDUReader::read(WriteSingleCoilResponse& response)
 {
+	/*	PDU data structure according to MODBUS specification
+		Function code			1 Byte	0x05
+		Output Address			2 Bytes	0x0000 to 0xFFFF
+		Output Value			2 Bytes	0x0000 or 0xFF00*/
+
 	readCommon(response);
-	// TODO
+	// TODO TEST
+	Poco::UInt16 value;
+	_reader >> value;
+	response.value = (0xFF00 == value)?true:false;
 }
 
 
 void PDUReader::read(WriteSingleRegisterResponse& response)
 {
+	/*	PDU data structure according to MODBUS specification
+		Function code			1 Byte		0x06
+		Register Address		2 Bytes		0x0000 to 0xFFFF
+		Register Value			2 Bytes		0x0000 or 0xFF00*/
+
 	readCommon(response);
-	// TODO
+	// TODO TEST
+	_reader >> response.value;
 }
 
 
 void PDUReader::read(ReadExceptionStatusResponse& response)
 {
+	/*	PDU data structure according to MODBUS specification
+		Function code			1 Byte		0x07
+		Output Data				1 Byte		0x00 to 0xFF*/
+
 	readCommon(response);
-	// TODO
+	// TODO TEST
+	_reader >> response.data;
 }
 
 
 void PDUReader::read(WriteMultipleCoilsResponse& response)
 {
+	/*	PDU data structure according to MODBUS specification
+		Function code			1 Byte	0x0F
+		Starting Address		2 Bytes	0x0000 to 0xFFFF
+		Quantity of Outputs		2 Bytes	0x0001 to 0x07B0*/
 	readCommon(response);
-	// TODO
+	// TODO TEST
+	_reader >> response.startingAddress;
+	_reader >> response.nOfCoils;
 }
 
 
 void PDUReader::read(WriteMultipleRegistersResponse& response)
 {
+	/*	PDU data structure according to MODBUS specification
+		Function code			1 Byte		0x10
+		Starting Address		2 Bytes		0x0000 to 0xFFFF
+		Quantity of Registers	2 Bytes		1 to 123 (0x7B)*/
 	readCommon(response);
+	// TODO TEST
+	_reader >> response.startingAddress;
+	_reader >> response.nOfRegisters;
 }
 
 
 void PDUReader::read(MaskWriteRegisterResponse& response)
 {
+	/*	PDU data structure according to MODBUS specification
+		Function code			1 Byte	0x16
+		Reference Address		2 Bytes	0x0000 to 0xFFFF
+		And_Mask				2 Bytes	0x0000 to 0xFFFF
+		Or_Mask					2 Bytes	0x0000 to 0xFFFF*/
 	readCommon(response);
+	// TODO TEST
+	response.referenceAddress = response.slaveOrUnitAddress;
+	_reader >> response.andMask;
+	_reader >> response.orMask;
 }
 
 
 void PDUReader::read(ReadWriteMultipleRegistersResponse& response)
 {
-	readCommon(response);
+	/*	PDU data structure according to MODBUS specification
+		Function code			1 Byte	0x17
+		Byte Count				1 Byte	2 x N'
+		Read Registers value	N' x 2 Bytes
+		N' = Quantity to Read*/
+
+	//readCommon(response);
+	// TODO TEST
+	_reader >> response.functionCode;
+	Poco::UInt8 n;
+	_reader >> n;
+	response.values.clear();
+	n /= 2;
+	while (n-- > 0 && _reader.good())
+	{
+		Poco::UInt16 value;
+		_reader >> value;
+		response.values.push_back(value);
+	}
 }
 
 
 void PDUReader::read(ReadFIFOQueueResponse& response)
 {
-	readCommon(response);
+	/*	PDU data structure according to MODBUS specification
+		Function code			1 Byte		0x18
+		Byte Count				2 Bytes
+		FIFO Count				2 Bytes		<=31
+		FIFO Value Register		FIFO Count x 2 Bytes*/
+
+	//readCommon(response);
+	// TODO TEST
+	_reader >> response.functionCode;
+	Poco::UInt16 byteCount;
+	Poco::UInt16 fifoCount;
+	_reader >> byteCount;
+	_reader >> fifoCount;
+	response.values.clear();
+	while (fifoCount-- > 0 && _reader.good())
+	{
+		Poco::UInt16 value;
+		_reader >> value;
+		response.values.push_back(value);
+	}
 }
 
 

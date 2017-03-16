@@ -58,6 +58,12 @@ public:
 	virtual ~ModbusMasterRemoteObject();
 		/// Destroys the ModbusMasterRemoteObject.
 
+	virtual void maskWriteRegister(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, Poco::UInt16 andMask, Poco::UInt16 orMask);
+		/// Sends a Mask Write register request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
 	virtual std::vector < bool > readCoils(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfCoils);
 		/// Sends a Read Coils request to the device and waits for the response.
 		///
@@ -76,6 +82,12 @@ public:
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
 		/// Throws a ModbusException if the device responds with an exception message.
 
+	virtual std::vector < Poco::UInt16 > readFIFOQueue(Poco::UInt8 slaveAddress, Poco::UInt16 fifoPointerAddress);
+		/// Sends a Read FIFO Queue request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
 	virtual std::vector < Poco::UInt16 > readHoldingRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfRegisters);
 		/// Sends a Read Holding Registers request to the device and waits for the response.
 		///
@@ -84,6 +96,12 @@ public:
 
 	virtual std::vector < Poco::UInt16 > readInputRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfRegisters);
 		/// Sends a Read Input Registers request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
+	virtual std::vector < Poco::UInt16 > readWriteMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 writeStartingAddress, std::vector < Poco::UInt16 > writeValues, Poco::UInt16 readStartingAddress, Poco::UInt8 nOfReadRegisters);
+		/// Sends a Read/Write Multiple registers request to the device and waits for the response.
 		///
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
 		/// Throws a ModbusException if the device responds with an exception message.
@@ -180,6 +198,18 @@ public:
 		/// A response from the device will be reported via the
 		/// writeSingleRegisterResponseReceived event.
 
+	virtual void writeMultipleCoils(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector < bool > values);
+		/// Sends a Write Multiple Coils request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
+	virtual void writeMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector < Poco::UInt16 > values);
+		/// Sends a Write Multiple Registers request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
 	virtual void writeSingleCoil(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, bool value);
 		/// Sends a Write Single Coils request to the device and waits for the response.
 		///
@@ -226,6 +256,12 @@ private:
 };
 
 
+inline void ModbusMasterRemoteObject::maskWriteRegister(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, Poco::UInt16 andMask, Poco::UInt16 orMask)
+{
+	_pServiceObject->maskWriteRegister(slaveAddress, outputAddress, andMask, orMask);
+}
+
+
 inline std::vector < bool > ModbusMasterRemoteObject::readCoils(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfCoils)
 {
 	return _pServiceObject->readCoils(slaveAddress, startingAddress, nOfCoils);
@@ -244,6 +280,12 @@ inline Poco::UInt8 ModbusMasterRemoteObject::readExceptionStatus(Poco::UInt8 sla
 }
 
 
+inline std::vector < Poco::UInt16 > ModbusMasterRemoteObject::readFIFOQueue(Poco::UInt8 slaveAddress, Poco::UInt16 fifoPointerAddress)
+{
+	return _pServiceObject->readFIFOQueue(slaveAddress, fifoPointerAddress);
+}
+
+
 inline std::vector < Poco::UInt16 > ModbusMasterRemoteObject::readHoldingRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfRegisters)
 {
 	return _pServiceObject->readHoldingRegisters(slaveAddress, startingAddress, nOfRegisters);
@@ -253,6 +295,12 @@ inline std::vector < Poco::UInt16 > ModbusMasterRemoteObject::readHoldingRegiste
 inline std::vector < Poco::UInt16 > ModbusMasterRemoteObject::readInputRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfRegisters)
 {
 	return _pServiceObject->readInputRegisters(slaveAddress, startingAddress, nOfRegisters);
+}
+
+
+inline std::vector < Poco::UInt16 > ModbusMasterRemoteObject::readWriteMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 writeStartingAddress, std::vector < Poco::UInt16 > writeValues, Poco::UInt16 readStartingAddress, Poco::UInt8 nOfReadRegisters)
+{
+	return _pServiceObject->readWriteMultipleRegisters(slaveAddress, writeStartingAddress, writeValues, readStartingAddress, nOfReadRegisters);
 }
 
 
@@ -337,6 +385,18 @@ inline void ModbusMasterRemoteObject::sendWriteSingleCoilRequest(const IoT::Modb
 inline void ModbusMasterRemoteObject::sendWriteSingleRegisterRequest(const IoT::Modbus::WriteSingleRegisterRequest& request)
 {
 	_pServiceObject->sendWriteSingleRegisterRequest(request);
+}
+
+
+inline void ModbusMasterRemoteObject::writeMultipleCoils(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector < bool > values)
+{
+	_pServiceObject->writeMultipleCoils(slaveAddress, outputAddress, values);
+}
+
+
+inline void ModbusMasterRemoteObject::writeMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector < Poco::UInt16 > values)
+{
+	_pServiceObject->writeMultipleRegisters(slaveAddress, outputAddress, values);
 }
 
 

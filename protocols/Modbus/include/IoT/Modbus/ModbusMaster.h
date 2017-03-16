@@ -267,7 +267,6 @@ struct WriteSingleCoilResponse: public ModbusMessage
 	bool value;
 };
 
-
 //@ serialize
 struct WriteSingleRegisterRequest: public ModbusMessage
 	/// Modbus Write Single Register Request
@@ -701,7 +700,32 @@ public:
 		/// Throws a ModbusException if the device responds with an exception message.
 		
 	// TODO: add methods for additional function codes.
-	
+	virtual void writeMultipleCoils(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector<bool> values) = 0;
+		/// Sends a Write Multiple Coils request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+	virtual void writeMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector<Poco::UInt16> values) = 0;
+		/// Sends a Write Multiple Registers request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+	virtual void maskWriteRegister(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, Poco::UInt16 andMask, Poco::UInt16 orMask) = 0;
+		/// Sends a Mask Write register request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+	virtual std::vector<Poco::UInt16> readWriteMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 writeStartingAddress, std::vector<Poco::UInt16> writeValues, Poco::UInt16 readStartingAddress, Poco::UInt8 nOfReadRegisters) = 0;
+		/// Sends a Read/Write Multiple registers request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+	virtual std::vector<Poco::UInt16> readFIFOQueue(Poco::UInt8 slaveAddress, Poco::UInt16 fifoPointerAddress) = 0;
+		/// Sends a Read FIFO Queue request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
 private:
 	ModbusMaster(const ModbusMaster&);
 	ModbusMaster& operator = (const ModbusMaster&);

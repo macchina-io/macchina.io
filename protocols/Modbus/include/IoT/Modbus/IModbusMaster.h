@@ -62,6 +62,12 @@ public:
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
 
+	virtual void maskWriteRegister(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, Poco::UInt16 andMask, Poco::UInt16 orMask) = 0;
+		/// Sends a Mask Write register request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
 	virtual std::vector < bool > readCoils(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfCoils) = 0;
 		/// Sends a Read Coils request to the device and waits for the response.
 		///
@@ -80,6 +86,12 @@ public:
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
 		/// Throws a ModbusException if the device responds with an exception message.
 
+	virtual std::vector < Poco::UInt16 > readFIFOQueue(Poco::UInt8 slaveAddress, Poco::UInt16 fifoPointerAddress) = 0;
+		/// Sends a Read FIFO Queue request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
 	virtual std::vector < Poco::UInt16 > readHoldingRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfRegisters) = 0;
 		/// Sends a Read Holding Registers request to the device and waits for the response.
 		///
@@ -88,6 +100,12 @@ public:
 
 	virtual std::vector < Poco::UInt16 > readInputRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfRegisters) = 0;
 		/// Sends a Read Input Registers request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
+	virtual std::vector < Poco::UInt16 > readWriteMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 writeStartingAddress, std::vector < Poco::UInt16 > writeValues, Poco::UInt16 readStartingAddress, Poco::UInt8 nOfReadRegisters) = 0;
+		/// Sends a Read/Write Multiple registers request to the device and waits for the response.
 		///
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
 		/// Throws a ModbusException if the device responds with an exception message.
@@ -190,6 +208,18 @@ public:
 
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
+
+	virtual void writeMultipleCoils(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector < bool > values) = 0;
+		/// Sends a Write Multiple Coils request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
+	virtual void writeMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector < Poco::UInt16 > values) = 0;
+		/// Sends a Write Multiple Registers request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
 
 	virtual void writeSingleCoil(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, bool value) = 0;
 		/// Sends a Write Single Coils request to the device and waits for the response.
