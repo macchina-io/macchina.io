@@ -133,6 +133,9 @@ private:
 	void checkForEventMembers(const Poco::CppParser::Struct* pStruct);
 		/// checks if the class or any parent contains public BasicEvents
 
+	void checkForParentEventMembers(const Poco::CppParser::Struct* pStruct);
+	void checkForParentEventMembersImpl(const Poco::CppParser::Struct* pStruct);
+
 	void methodStartImpl(Poco::CppParser::Function* pFunc, const CodeGenerator::Properties& methodProperties);
 	
 	bool _cacheVariableSet;
@@ -140,6 +143,7 @@ private:
 	std::vector<std::string> _events;
 	std::vector<std::string> _outerEventFunctions;
 	std::set<std::string> _functions;
+	bool _hasEvents;
 };
 
 

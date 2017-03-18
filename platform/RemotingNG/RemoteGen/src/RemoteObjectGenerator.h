@@ -70,11 +70,17 @@ private:
 		/// Code generator for destructor
 
 	void checkForEventMembers(const Poco::CppParser::Struct* pStruct);
-		/// checks if the class or any parent contains public BasicEvents
+		/// checks if the class contains public BasicEvents
+
+	void checkForParentEventMembers(const Poco::CppParser::Struct* pStruct);
+		/// checks if any base class contains public BasicEvents
+
+	void checkForParentEventMembersImpl(const Poco::CppParser::Struct* pStruct);
 
 	std::map<std::string, Poco::CodeGeneration::GeneratorEngine::MethodGenerator> _codeInjectors;
 	std::set<std::string> _functions;
 	std::vector<std::string> _events;
+	bool _hasEvents;
 };
 
 
@@ -89,7 +95,7 @@ inline std::string RemoteObjectGenerator::newClassName(const Poco::CppParser::St
 
 inline bool RemoteObjectGenerator::eventsFound() const
 {
-	return !_events.empty();
+	return _hasEvents;
 }
 
 
