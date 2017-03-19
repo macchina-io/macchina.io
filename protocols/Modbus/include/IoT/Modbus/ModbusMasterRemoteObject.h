@@ -256,6 +256,8 @@ public:
 		/// Throws a ModbusException if the device responds with an exception message.
 
 protected:
+	void event__badFrameReceived();
+
 	void event__exceptionReceived(const IoT::Modbus::ModbusExceptionMessage& data);
 
 	void event__maskWriteRegisterResponseReceived(const IoT::Modbus::MaskWriteRegisterResponse& data);

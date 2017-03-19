@@ -30,6 +30,7 @@ ModbusMasterRemoteObject::ModbusMasterRemoteObject(const Poco::RemotingNG::Ident
 	Poco::RemotingNG::RemoteObject(oid),
 	_pServiceObject(pServiceObject)
 {
+	_pServiceObject->badFrameReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__badFrameReceived);
 	_pServiceObject->exceptionReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__exceptionReceived);
 	_pServiceObject->maskWriteRegisterResponseReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__maskWriteRegisterResponseReceived);
 	_pServiceObject->readCoilsResponseReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__readCoilsResponseReceived);
@@ -52,6 +53,7 @@ ModbusMasterRemoteObject::~ModbusMasterRemoteObject()
 {
 	try
 	{
+		_pServiceObject->badFrameReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__badFrameReceived);
 		_pServiceObject->exceptionReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__exceptionReceived);
 		_pServiceObject->maskWriteRegisterResponseReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__maskWriteRegisterResponseReceived);
 		_pServiceObject->readCoilsResponseReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__readCoilsResponseReceived);
@@ -91,6 +93,12 @@ void ModbusMasterRemoteObject::remoting__enableRemoteEvents(const std::string& p
 bool ModbusMasterRemoteObject::remoting__hasEvents() const
 {
 	return true;
+}
+
+
+void ModbusMasterRemoteObject::event__badFrameReceived()
+{
+	badFrameReceived(this);
 }
 
 

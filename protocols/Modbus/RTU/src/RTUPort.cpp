@@ -24,7 +24,7 @@ namespace RTU {
 
 RTUPort::RTUPort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan interCharTimeout, ByteOrder byteOrder):
 	_pSerialPort(pSerialPort),
-	_interCharTimeout(interCharTimeout),
+	_frameTimeout(interCharTimeout),
 	_byteOrder(byteOrder),
 	_sendBuffer(RTU_MAX_PDU_SIZE),
 	_receiveBuffer(RTU_MAX_PDU_SIZE)
@@ -43,7 +43,7 @@ Poco::UInt8 RTUPort::receiveFrame(const Poco::Timespan& timeout)
 	bool frameComplete = false;
 	do
 	{
-		std::size_t rd = _pSerialPort->read(_receiveBuffer.begin() + n, _receiveBuffer.size() - n, _interCharTimeout);
+		std::size_t rd = _pSerialPort->read(_receiveBuffer.begin() + n, _receiveBuffer.size() - n, _frameTimeout);
 		if (rd == 0) return 0;
 		if (rd == 1 && n == 0 && _receiveBuffer[0] == 0)
 		{

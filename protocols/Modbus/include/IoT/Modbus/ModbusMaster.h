@@ -531,6 +531,9 @@ class IoTModbus_API ModbusMaster
 	/// allow multiple simultaneous requests, the transaction ID will always be zero.
 {
 public:
+	Poco::BasicEvent<void> badFrameReceived;
+		/// Fired when an empty or incomplete frame has been received.
+
 	Poco::BasicEvent<const Poco::UInt16> timeout;
 		/// Fired when no response has been received within the 
 		/// specified timeout for the transaction with the given
@@ -545,7 +548,7 @@ public:
 		///
 		/// Together with sendRequest(), this event can be used to handle Modbus messages 
 		/// not directly supported by the ModbusMaster interface.
-		
+	
 	Poco::BasicEvent<const ModbusExceptionMessage> exceptionReceived;
 		/// Fired when a Modbus exception message has been received.
 	

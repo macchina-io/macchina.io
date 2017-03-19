@@ -61,6 +61,7 @@ ModbusMasterEventDispatcher::ModbusMasterEventDispatcher(ModbusMasterRemoteObjec
 	Poco::RemotingNG::EventDispatcher(protocol),
 	_pRemoteObject(pRemoteObject)
 {
+	_pRemoteObject->badFrameReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__badFrameReceived);
 	_pRemoteObject->exceptionReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__exceptionReceived);
 	_pRemoteObject->maskWriteRegisterResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__maskWriteRegisterResponseReceived);
 	_pRemoteObject->readCoilsResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readCoilsResponseReceived);
@@ -83,6 +84,7 @@ ModbusMasterEventDispatcher::~ModbusMasterEventDispatcher()
 {
 	try
 	{
+		_pRemoteObject->badFrameReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__badFrameReceived);
 		_pRemoteObject->exceptionReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__exceptionReceived);
 		_pRemoteObject->maskWriteRegisterResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__maskWriteRegisterResponseReceived);
 		_pRemoteObject->readCoilsResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readCoilsResponseReceived);
@@ -102,6 +104,40 @@ ModbusMasterEventDispatcher::~ModbusMasterEventDispatcher()
 	catch (...)
 	{
 		poco_unexpected();
+	}
+}
+
+
+void ModbusMasterEventDispatcher::event__badFrameReceived(const void* pSender)
+{
+	if (pSender)
+	{
+		Poco::Clock now;
+		Poco::FastMutex::ScopedLock lock(_mutex);
+		SubscriberMap::iterator it = _subscribers.begin();
+		while (it != _subscribers.end())
+		{
+			if (it->second->expireTime != 0 && it->second->expireTime < now)
+			{
+				SubscriberMap::iterator itDel(it++);
+				_subscribers.erase(itDel);
+			}
+			else
+			{
+				try
+				{
+					event__badFrameReceivedImpl(it->first);
+				}
+				catch (Poco::RemotingNG::RemoteException&)
+				{
+					throw;
+				}
+				catch (Poco::Exception&)
+				{
+				}
+				++it;
+			}
+		}
 	}
 }
 
@@ -613,6 +649,20 @@ void ModbusMasterEventDispatcher::event__writeSingleRegisterResponseReceived(con
 			}
 		}
 	}
+}
+
+
+void ModbusMasterEventDispatcher::event__badFrameReceivedImpl(const std::string& subscriberURI)
+{
+	remoting__staticInitBegin(REMOTING__NAMES);
+	static const std::string REMOTING__NAMES[] = {"badFrameReceived","subscriberURI"};
+	remoting__staticInitEnd(REMOTING__NAMES);
+	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
+	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 

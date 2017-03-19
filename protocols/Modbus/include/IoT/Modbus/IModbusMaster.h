@@ -266,6 +266,7 @@ public:
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
 		/// Throws a ModbusException if the device responds with an exception message.
 
+	Poco::BasicEvent < void > badFrameReceived;
 	Poco::BasicEvent < const ModbusExceptionMessage > exceptionReceived;
 	Poco::BasicEvent < const MaskWriteRegisterResponse > maskWriteRegisterResponseReceived;
 	Poco::BasicEvent < const ReadCoilsResponse > readCoilsResponseReceived;

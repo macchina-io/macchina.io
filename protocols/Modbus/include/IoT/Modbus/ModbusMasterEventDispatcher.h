@@ -61,6 +61,8 @@ public:
 	virtual ~ModbusMasterEventDispatcher();
 		/// Destroys the ModbusMasterEventDispatcher.
 
+	void event__badFrameReceived(const void* pSender);
+
 	void event__exceptionReceived(const void* pSender, const IoT::Modbus::ModbusExceptionMessage& data);
 
 	void event__maskWriteRegisterResponseReceived(const void* pSender, const IoT::Modbus::MaskWriteRegisterResponse& data);
@@ -94,6 +96,8 @@ public:
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
+	void event__badFrameReceivedImpl(const std::string& subscriberURI);
+
 	void event__exceptionReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::ModbusExceptionMessage& data);
 
 	void event__maskWriteRegisterResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::MaskWriteRegisterResponse& data);

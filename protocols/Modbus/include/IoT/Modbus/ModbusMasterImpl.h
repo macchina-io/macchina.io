@@ -611,6 +611,12 @@ protected:
 	void processFrame()
 	{
 		Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+		if (fc == 0)
+		{
+			_logger.notice("Invalid or imcomplete frame received.");
+			this->badFrameReceived(this);
+			return;
+		}
 		
 		if (_logger.debug())
 		{
