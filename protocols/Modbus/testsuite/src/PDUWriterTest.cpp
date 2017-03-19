@@ -35,7 +35,7 @@ PDUWriterTest::~PDUWriterTest()
 void PDUWriterTest::testGenericMessage()
 {
 	char buffer[MODBUS_MAX_PDU_SIZE];
-	Poco::MemoryOutputStream ostr(buffer, MODBUS_MAX_PDU_SIZE);
+	Poco::MemoryOutputStream ostr(buffer, sizeof(buffer));
 	Poco::BinaryWriter binaryWriter(ostr, Poco::BinaryWriter::BIG_ENDIAN_BYTE_ORDER);
 	
 	GenericMessage message;
