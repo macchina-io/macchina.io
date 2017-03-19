@@ -25,11 +25,9 @@ namespace Bridge {
 using Poco::RemotingNG::BinarySerializer;
 
 
-const std::string TaggedBinarySerializer::EMPTY;
-
-
 TaggedBinarySerializer::TaggedBinarySerializer()
 {
+	_containerStack.reserve(32);
 }
 
 
@@ -41,11 +39,13 @@ TaggedBinarySerializer::~TaggedBinarySerializer()
 void TaggedBinarySerializer::serializeMessageBegin(const std::string& name, Poco::RemotingNG::SerializerBase::MessageType type)
 {
 	BinarySerializer::serializeMessageBegin(name, type);
+	_containerStack.push_back(CONT_MESSAGE);
 }
 
 
 void TaggedBinarySerializer::serializeMessageEnd(const std::string& name, Poco::RemotingNG::SerializerBase::MessageType type)
 {
+	_containerStack.pop_back();
 	serializeTypeTag(TYPE_TAG_MESSAGE_END);
 	BinarySerializer::serializeMessageEnd(name, type);
 }
@@ -62,11 +62,13 @@ void TaggedBinarySerializer::serializeStructBegin(const std::string& name)
 	serializeTypeTag(TYPE_TAG_STRUCT_BEGIN);
 	serializeName(name);
 	BinarySerializer::serializeStructBegin(name);
+	_containerStack.push_back(CONT_STRUCT);
 }
 
 
 void TaggedBinarySerializer::serializeStructEnd(const std::string& name)
 {
+	_containerStack.pop_back();
 	serializeTypeTag(TYPE_TAG_STRUCT_END);
 	BinarySerializer::serializeStructEnd(name);
 }
@@ -77,11 +79,13 @@ void TaggedBinarySerializer::serializeSequenceBegin(const std::string& name, Poc
 	serializeTypeTag(TYPE_TAG_SEQUENCE_BEGIN);
 	serializeName(name);
 	BinarySerializer::serializeSequenceBegin(name, numElems);
+	_containerStack.push_back(CONT_SEQUENCE);
 }
 
 
 void TaggedBinarySerializer::serializeSequenceEnd(const std::string& name)
 {
+	_containerStack.pop_back();
 	serializeTypeTag(TYPE_TAG_SEQUENCE_END);
 	BinarySerializer::serializeSequenceEnd(name);
 }

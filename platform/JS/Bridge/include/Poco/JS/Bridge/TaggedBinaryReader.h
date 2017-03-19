@@ -22,7 +22,10 @@
 
 #include "Poco/JS/Bridge/Bridge.h"
 #include "Poco/JS/Bridge/Serializer.h"
-#include "Poco/RemotingNG/Deserializer.h"
+#include "Poco/JS/Bridge/TaggedBinarySerializer.h"
+#include "Poco/RemotingNG/BinaryDeserializer.h"
+#include "Poco/RemotingNG/RemotingException.h"
+#include <vector>
 
 
 namespace Poco {
@@ -46,19 +49,51 @@ public:
 
 protected:
 	template <typename T>
-	void read(Poco::RemotingNG::Deserializer& deserializer)
+	void read(Poco::RemotingNG::BinaryDeserializer& deserializer)
 	{
-		std::string name;
-		std::string unused;
-		deserializer.deserialize(unused, true, name);
+		std::string name = deserializeName(deserializer);
+
 		T value;
-		deserializer.deserialize(name, true, value);
+		check(deserializer.deserialize(name, true, value));
 		_serializer.serialize(name, value); 
 	}
 	
+	std::string deserializeName(Poco::RemotingNG::BinaryDeserializer& deserializer);
+	Poco::UInt8 deserializeTypeTag(Poco::RemotingNG::BinaryDeserializer& deserializer);
+	void check(bool result);
+	
 private:
 	Serializer _serializer;
+	std::vector<TaggedBinarySerializer::ContainerType> _containerStack;
 };
+
+
+//
+// inlines
+//
+
+
+inline std::string TaggedBinaryReader::deserializeName(Poco::RemotingNG::BinaryDeserializer& deserializer)
+{
+	std::string name;
+	if (_containerStack.back() != TaggedBinarySerializer::CONT_SEQUENCE)
+	{
+		name = deserializer.deserializeToken<std::string>();
+	}
+	return name;
+}
+
+
+inline Poco::UInt8 TaggedBinaryReader::deserializeTypeTag(Poco::RemotingNG::BinaryDeserializer& deserializer)
+{
+	return deserializer.deserializeToken<Poco::UInt8>();
+}
+
+
+inline void TaggedBinaryReader::check(bool result)
+{
+	if (!result) throw Poco::RemotingNG::DeserializerException("Expected item not found");
+}
 
 
 } } } // namespace Poco::JS::Bridge

@@ -31,6 +31,7 @@
 #include "Poco/NumberFormatter.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/Delegate.h"
+#include "Poco/Logger.h"
 #include <sstream>
 
 
@@ -47,7 +48,8 @@ namespace Bridge {
 class Transport: public Poco::RemotingNG::Transport
 {
 public:
-	Transport()
+	Transport():
+		_logger(Poco::Logger::get("JS.Bridge.Transport"))
 	{
 	}
 	
@@ -99,6 +101,7 @@ public:
 	
 	Poco::RemotingNG::Serializer& beginRequest(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 	{
+		_logger.error("Cannot deliver event %s in class %s. Event has a non-const argument and is not declared oneway.", messageName, tid);
 		throw Poco::NotImplementedException("beginRequest() not implemented for jsbridge Transport");
 	}
 	
@@ -118,6 +121,7 @@ private:
 	std::string _endPoint;
 	Poco::SharedPtr<std::stringstream> _pStream;
 	TaggedBinarySerializer _serializer;
+	Poco::Logger& _logger;
 };
 
 
