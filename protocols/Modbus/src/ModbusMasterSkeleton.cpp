@@ -559,13 +559,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::MaskWriteRegisterRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendMaskWriteRegisterRequest(request);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendMaskWriteRegisterRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendMaskWriteRegisterRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -615,13 +616,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::ReadCoilsRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendReadCoilsRequest(request);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendReadCoilsRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendReadCoilsRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -671,13 +673,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::ReadDiscreteInputsRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendReadDiscreteInputsRequest(request);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendReadDiscreteInputsRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendReadDiscreteInputsRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -727,13 +730,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::ReadExceptionStatusRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendReadExceptionStatusRequest(request);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendReadExceptionStatusRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendReadExceptionStatusRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -783,13 +787,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::ReadFIFOQueueRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendReadFIFOQueueRequest(request);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendReadFIFOQueueRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendReadFIFOQueueRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -839,13 +844,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::ReadHoldingRegistersRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendReadHoldingRegistersRequest(request);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendReadHoldingRegistersRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendReadHoldingRegistersRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -895,13 +901,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::ReadInputRegistersRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendReadInputRegistersRequest(request);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendReadInputRegistersRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendReadInputRegistersRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -951,13 +958,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::ReadWriteMultipleRegistersRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendReadWriteMultipleRegistersRequest(request);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendReadWriteMultipleRegistersRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendReadWriteMultipleRegistersRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -1007,13 +1015,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::GenericMessage >::deserialize(REMOTING__NAMES[1], true, remoting__deser, message);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendRequest(message);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendRequest(message);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -1063,13 +1072,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::WriteMultipleCoilsRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendWriteMultipleCoilsRequest(request);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendWriteMultipleCoilsRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendWriteMultipleCoilsRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -1119,13 +1129,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::WriteMultipleRegistersRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendWriteMultipleRegistersRequest(request);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendWriteMultipleRegistersRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendWriteMultipleRegistersRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -1175,13 +1186,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::WriteSingleCoilRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendWriteSingleCoilRequest(request);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendWriteSingleCoilRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendWriteSingleCoilRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -1231,13 +1243,14 @@ public:
 			Poco::RemotingNG::TypeDeserializer<IoT::Modbus::WriteSingleRegisterRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->sendWriteSingleRegisterRequest(request);
+			Poco::UInt16 remoting__return = remoting__pCastedRO->sendWriteSingleRegisterRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("sendWriteSingleRegisterRequestReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (Poco::Exception& e)

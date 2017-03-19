@@ -47,7 +47,14 @@ class ModbusMasterRemoteObject: public IoT::Modbus::IModbusMaster, public Poco::
 	/// Note that asynchronous and synchronous (blocking) mode cannot be used
 	/// simultaneously. Calling one of the asynchronous request methods will enable
 	/// asynchronous mode. Calling one of the synchronous request methods will
-	/// disable asynchronous mode.
+	/// disable asynchronous mode. Switching to synchronous mode while a response
+	/// to an asynchronous request is pending will lead to undefined results,
+	/// including possible mismatch of requests and responses.
+	///
+	/// In asynchronous operation, requests are associated with a transaction ID,
+	/// to tell apart multiple concurrent transactions. Transaction IDs are not guaranteed
+	/// to be unique for subsequent requests. In fact, for Modbus RTU, which does not
+	/// allow multiple simultaneous requests, the transaction ID will always be zero.
 {
 public:
 	typedef Poco::AutoPtr<ModbusMasterRemoteObject> Ptr;
@@ -114,55 +121,71 @@ public:
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
-	virtual void sendMaskWriteRegisterRequest(const IoT::Modbus::MaskWriteRegisterRequest& request);
+	virtual Poco::UInt16 sendMaskWriteRegisterRequest(const IoT::Modbus::MaskWriteRegisterRequest& request);
 		/// Sends a Mask Write Register request.
 		///
 		/// A response from the device will be reported via the
 		/// maskWriteRegisterResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadCoilsRequest(const IoT::Modbus::ReadCoilsRequest& request);
+	virtual Poco::UInt16 sendReadCoilsRequest(const IoT::Modbus::ReadCoilsRequest& request);
 		/// Sends a Read Coils request.
 		///
 		/// A response from the device will be reported via the
 		/// readCoilsResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadDiscreteInputsRequest(const IoT::Modbus::ReadDiscreteInputsRequest& request);
+	virtual Poco::UInt16 sendReadDiscreteInputsRequest(const IoT::Modbus::ReadDiscreteInputsRequest& request);
 		/// Sends a Read Discrete Inputs request.
 		///
 		/// A response from the device will be reported via the
 		/// readDiscreteInputsResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadExceptionStatusRequest(const IoT::Modbus::ReadExceptionStatusRequest& request);
+	virtual Poco::UInt16 sendReadExceptionStatusRequest(const IoT::Modbus::ReadExceptionStatusRequest& request);
 		/// Sends a Read Exception Status request.
 		///
 		/// A response from the device will be reported via the
 		/// readExceptionStatusResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadFIFOQueueRequest(const IoT::Modbus::ReadFIFOQueueRequest& request);
+	virtual Poco::UInt16 sendReadFIFOQueueRequest(const IoT::Modbus::ReadFIFOQueueRequest& request);
 		/// Sends a Read FIFO Queue request.
 		///
 		/// A response from the device will be reported via the
 		/// readFIFOQueueResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadHoldingRegistersRequest(const IoT::Modbus::ReadHoldingRegistersRequest& request);
+	virtual Poco::UInt16 sendReadHoldingRegistersRequest(const IoT::Modbus::ReadHoldingRegistersRequest& request);
 		/// Sends a Read Holding Registers request.
 		///
 		/// A response from the device will be reported via the
 		/// readHoldingRegistersResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadInputRegistersRequest(const IoT::Modbus::ReadInputRegistersRequest& request);
+	virtual Poco::UInt16 sendReadInputRegistersRequest(const IoT::Modbus::ReadInputRegistersRequest& request);
 		/// Sends a Read Input Registers request.
 		///
 		/// A response from the device will be reported via the
 		/// readInputRegistersResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadWriteMultipleRegistersRequest(const IoT::Modbus::ReadWriteMultipleRegistersRequest& request);
+	virtual Poco::UInt16 sendReadWriteMultipleRegistersRequest(const IoT::Modbus::ReadWriteMultipleRegistersRequest& request);
 		/// Sends a Read Write Multiple Registers request.
 		///
 		/// A response from the device will be reported via the
 		/// readWriteMultipleRegistersResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendRequest(const IoT::Modbus::GenericMessage& message);
+	virtual Poco::UInt16 sendRequest(const IoT::Modbus::GenericMessage& message);
 		/// Sends a generic Modbus message.
 		///
 		/// The caller is responsible for correct formatting of the
@@ -173,30 +196,40 @@ public:
 		///
 		/// A response from the device will be reported via the responseReceived event 
 		/// or a more specific event if the response message type is supported.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendWriteMultipleCoilsRequest(const IoT::Modbus::WriteMultipleCoilsRequest& request);
+	virtual Poco::UInt16 sendWriteMultipleCoilsRequest(const IoT::Modbus::WriteMultipleCoilsRequest& request);
 		/// Sends a Write Multiple Coils request.
 		///
 		/// A response from the device will be reported via the
 		/// writeMultipleCoilsResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendWriteMultipleRegistersRequest(const IoT::Modbus::WriteMultipleRegistersRequest& request);
+	virtual Poco::UInt16 sendWriteMultipleRegistersRequest(const IoT::Modbus::WriteMultipleRegistersRequest& request);
 		/// Sends a Write Multiple Registers request.
 		///
 		/// A response from the device will be reported via the
 		/// writeMultipleRegistersResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendWriteSingleCoilRequest(const IoT::Modbus::WriteSingleCoilRequest& request);
+	virtual Poco::UInt16 sendWriteSingleCoilRequest(const IoT::Modbus::WriteSingleCoilRequest& request);
 		/// Sends a Write Single Coil request.
 		///
 		/// A response from the device will be reported via the
 		/// writeSingleCoilResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendWriteSingleRegisterRequest(const IoT::Modbus::WriteSingleRegisterRequest& request);
+	virtual Poco::UInt16 sendWriteSingleRegisterRequest(const IoT::Modbus::WriteSingleRegisterRequest& request);
 		/// Sends a Write Single Register request.
 		///
 		/// A response from the device will be reported via the
 		/// writeSingleRegisterResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
 	virtual void writeMultipleCoils(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector < bool > values);
 		/// Sends a Write Multiple Coils request to the device and waits for the response.
@@ -225,31 +258,33 @@ public:
 protected:
 	void event__exceptionReceived(const IoT::Modbus::ModbusExceptionMessage& data);
 
-	void event__maskWriteRegisterResponseReceived(IoT::Modbus::MaskWriteRegisterResponse& data);
+	void event__maskWriteRegisterResponseReceived(const IoT::Modbus::MaskWriteRegisterResponse& data);
 
-	void event__readCoilsResponseReceived(IoT::Modbus::ReadCoilsResponse& data);
+	void event__readCoilsResponseReceived(const IoT::Modbus::ReadCoilsResponse& data);
 
-	void event__readDiscreteInputsResponseReceived(IoT::Modbus::ReadDiscreteInputsRequest& data);
+	void event__readDiscreteInputsResponseReceived(const IoT::Modbus::ReadDiscreteInputsResponse& data);
 
-	void event__readExceptionStatusResponseReceived(IoT::Modbus::ReadExceptionStatusResponse& data);
+	void event__readExceptionStatusResponseReceived(const IoT::Modbus::ReadExceptionStatusResponse& data);
 
-	void event__readFIFOQueueResponseReceived(IoT::Modbus::ReadFIFOQueueResponse& data);
+	void event__readFIFOQueueResponseReceived(const IoT::Modbus::ReadFIFOQueueResponse& data);
 
-	void event__readHoldingRegistersResponseReceived(IoT::Modbus::ReadHoldingRegistersResponse& data);
+	void event__readHoldingRegistersResponseReceived(const IoT::Modbus::ReadHoldingRegistersResponse& data);
 
-	void event__readInputRegistersResponseReceived(IoT::Modbus::ReadInputRegistersResponse& data);
+	void event__readInputRegistersResponseReceived(const IoT::Modbus::ReadInputRegistersResponse& data);
 
-	void event__readWriteMultipleRegistersResponseReceived(IoT::Modbus::ReadWriteMultipleRegistersResponse& data);
+	void event__readWriteMultipleRegistersResponseReceived(const IoT::Modbus::ReadWriteMultipleRegistersResponse& data);
 
 	void event__responseReceived(const IoT::Modbus::GenericMessage& data);
 
-	void event__writeMultipleCoilsResponseReceived(IoT::Modbus::WriteMultipleCoilsResponse& data);
+	void event__timeout(const Poco::UInt16& data);
 
-	void event__writeMultipleRegistersResponseReceived(IoT::Modbus::WriteMultipleRegistersResponse& data);
+	void event__writeMultipleCoilsResponseReceived(const IoT::Modbus::WriteMultipleCoilsResponse& data);
 
-	void event__writeSingleCoilResponseReceived(IoT::Modbus::WriteSingleCoilResponse& data);
+	void event__writeMultipleRegistersResponseReceived(const IoT::Modbus::WriteMultipleRegistersResponse& data);
 
-	void event__writeSingleRegisterResponseReceived(IoT::Modbus::WriteSingleRegisterResponse& data);
+	void event__writeSingleCoilResponseReceived(const IoT::Modbus::WriteSingleCoilResponse& data);
+
+	void event__writeSingleRegisterResponseReceived(const IoT::Modbus::WriteSingleRegisterResponse& data);
 
 private:
 	Poco::SharedPtr<IoT::Modbus::ModbusMaster> _pServiceObject;
@@ -310,81 +345,81 @@ inline const Poco::RemotingNG::Identifiable::TypeId& ModbusMasterRemoteObject::r
 }
 
 
-inline void ModbusMasterRemoteObject::sendMaskWriteRegisterRequest(const IoT::Modbus::MaskWriteRegisterRequest& request)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendMaskWriteRegisterRequest(const IoT::Modbus::MaskWriteRegisterRequest& request)
 {
-	_pServiceObject->sendMaskWriteRegisterRequest(request);
+	return _pServiceObject->sendMaskWriteRegisterRequest(request);
 }
 
 
-inline void ModbusMasterRemoteObject::sendReadCoilsRequest(const IoT::Modbus::ReadCoilsRequest& request)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendReadCoilsRequest(const IoT::Modbus::ReadCoilsRequest& request)
 {
-	_pServiceObject->sendReadCoilsRequest(request);
+	return _pServiceObject->sendReadCoilsRequest(request);
 }
 
 
-inline void ModbusMasterRemoteObject::sendReadDiscreteInputsRequest(const IoT::Modbus::ReadDiscreteInputsRequest& request)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendReadDiscreteInputsRequest(const IoT::Modbus::ReadDiscreteInputsRequest& request)
 {
-	_pServiceObject->sendReadDiscreteInputsRequest(request);
+	return _pServiceObject->sendReadDiscreteInputsRequest(request);
 }
 
 
-inline void ModbusMasterRemoteObject::sendReadExceptionStatusRequest(const IoT::Modbus::ReadExceptionStatusRequest& request)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendReadExceptionStatusRequest(const IoT::Modbus::ReadExceptionStatusRequest& request)
 {
-	_pServiceObject->sendReadExceptionStatusRequest(request);
+	return _pServiceObject->sendReadExceptionStatusRequest(request);
 }
 
 
-inline void ModbusMasterRemoteObject::sendReadFIFOQueueRequest(const IoT::Modbus::ReadFIFOQueueRequest& request)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendReadFIFOQueueRequest(const IoT::Modbus::ReadFIFOQueueRequest& request)
 {
-	_pServiceObject->sendReadFIFOQueueRequest(request);
+	return _pServiceObject->sendReadFIFOQueueRequest(request);
 }
 
 
-inline void ModbusMasterRemoteObject::sendReadHoldingRegistersRequest(const IoT::Modbus::ReadHoldingRegistersRequest& request)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendReadHoldingRegistersRequest(const IoT::Modbus::ReadHoldingRegistersRequest& request)
 {
-	_pServiceObject->sendReadHoldingRegistersRequest(request);
+	return _pServiceObject->sendReadHoldingRegistersRequest(request);
 }
 
 
-inline void ModbusMasterRemoteObject::sendReadInputRegistersRequest(const IoT::Modbus::ReadInputRegistersRequest& request)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendReadInputRegistersRequest(const IoT::Modbus::ReadInputRegistersRequest& request)
 {
-	_pServiceObject->sendReadInputRegistersRequest(request);
+	return _pServiceObject->sendReadInputRegistersRequest(request);
 }
 
 
-inline void ModbusMasterRemoteObject::sendReadWriteMultipleRegistersRequest(const IoT::Modbus::ReadWriteMultipleRegistersRequest& request)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendReadWriteMultipleRegistersRequest(const IoT::Modbus::ReadWriteMultipleRegistersRequest& request)
 {
-	_pServiceObject->sendReadWriteMultipleRegistersRequest(request);
+	return _pServiceObject->sendReadWriteMultipleRegistersRequest(request);
 }
 
 
-inline void ModbusMasterRemoteObject::sendRequest(const IoT::Modbus::GenericMessage& message)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendRequest(const IoT::Modbus::GenericMessage& message)
 {
-	_pServiceObject->sendRequest(message);
+	return _pServiceObject->sendRequest(message);
 }
 
 
-inline void ModbusMasterRemoteObject::sendWriteMultipleCoilsRequest(const IoT::Modbus::WriteMultipleCoilsRequest& request)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendWriteMultipleCoilsRequest(const IoT::Modbus::WriteMultipleCoilsRequest& request)
 {
-	_pServiceObject->sendWriteMultipleCoilsRequest(request);
+	return _pServiceObject->sendWriteMultipleCoilsRequest(request);
 }
 
 
-inline void ModbusMasterRemoteObject::sendWriteMultipleRegistersRequest(const IoT::Modbus::WriteMultipleRegistersRequest& request)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendWriteMultipleRegistersRequest(const IoT::Modbus::WriteMultipleRegistersRequest& request)
 {
-	_pServiceObject->sendWriteMultipleRegistersRequest(request);
+	return _pServiceObject->sendWriteMultipleRegistersRequest(request);
 }
 
 
-inline void ModbusMasterRemoteObject::sendWriteSingleCoilRequest(const IoT::Modbus::WriteSingleCoilRequest& request)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendWriteSingleCoilRequest(const IoT::Modbus::WriteSingleCoilRequest& request)
 {
-	_pServiceObject->sendWriteSingleCoilRequest(request);
+	return _pServiceObject->sendWriteSingleCoilRequest(request);
 }
 
 
-inline void ModbusMasterRemoteObject::sendWriteSingleRegisterRequest(const IoT::Modbus::WriteSingleRegisterRequest& request)
+inline Poco::UInt16 ModbusMasterRemoteObject::sendWriteSingleRegisterRequest(const IoT::Modbus::WriteSingleRegisterRequest& request)
 {
-	_pServiceObject->sendWriteSingleRegisterRequest(request);
+	return _pServiceObject->sendWriteSingleRegisterRequest(request);
 }
 
 

@@ -101,7 +101,6 @@ void PDUWriter::write(const WriteMultipleCoilsRequest& request)
 		Outputs Value			N* x 1 Byte value
 		N* = Quantity of Outputs / 8, if the remainder is different of 0 =>N = N+1*/
 	writeCommon(request);
-	// TODO TEST
 	_writer << request.startingAddress;
 	Poco::UInt16 quantity = request.values.size();
 	Poco::UInt8 nBytes = quantity/8;
@@ -143,7 +142,6 @@ void PDUWriter::write(const WriteMultipleRegistersRequest& request)
 
 	writeCommon(request);
 	_writer << request.startingAddress;
-	// TODO TEST
 	Poco::UInt16 quantity = request.values.size();
 	Poco::UInt8 byteCount = (Poco::UInt8)quantity*2;
 	_writer << quantity << byteCount;
@@ -165,7 +163,6 @@ void PDUWriter::write(const MaskWriteRegisterRequest& request)
 		Or_Mask				2 Bytes	0x0000 to 0xFFFF*/
 
 	writeCommon(request);
-	// TODO TEST
 	_writer << request.referenceAddress;
 	_writer << request.andMask;
 	_writer << request.orMask;
@@ -185,7 +182,6 @@ void PDUWriter::write(const ReadWriteMultipleRegistersRequest& request)
 		N = Quantity to Write*/
 
 	writeCommon(request);
-	// TODO TEST
 	_writer << request.readStartingAddress;
 	_writer << request.readCount;
 	_writer << request.writeStartingAddress;
@@ -207,7 +203,6 @@ void PDUWriter::write(const ReadFIFOQueueRequest& request)
 		Function code			1 Byte	0x18
 		FIFO Pointer Address	2 Bytes	0x0000 to 0xFFFF*/
 	writeCommon(request);
-	// TODO TEST
 	_writer << request.fifoAddress;
 }
 

@@ -34,6 +34,7 @@ IModbusMaster::IModbusMaster():
 	readInputRegistersResponseReceived(),
 	readWriteMultipleRegistersResponseReceived(),
 	responseReceived(),
+	timeout(),
 	writeMultipleCoilsResponseReceived(),
 	writeMultipleRegistersResponseReceived(),
 	writeSingleCoilResponseReceived(),

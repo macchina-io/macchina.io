@@ -133,7 +133,6 @@ void PDUReader::read(WriteSingleCoilResponse& response)
 		Output Value			2 Bytes	0x0000 or 0xFF00*/
 
 	readCommon(response);
-	// TODO TEST
 	Poco::UInt16 value;
 	_reader >> value;
 	response.value = (0xFF00 == value)?true:false;
@@ -148,7 +147,6 @@ void PDUReader::read(WriteSingleRegisterResponse& response)
 		Register Value			2 Bytes		0x0000 or 0xFF00*/
 
 	readCommon(response);
-	// TODO TEST
 	_reader >> response.value;
 }
 
@@ -160,7 +158,6 @@ void PDUReader::read(ReadExceptionStatusResponse& response)
 		Output Data				1 Byte		0x00 to 0xFF*/
 
 	readCommon(response);
-	// TODO TEST
 	_reader >> response.data;
 }
 
@@ -171,8 +168,8 @@ void PDUReader::read(WriteMultipleCoilsResponse& response)
 		Function code			1 Byte	0x0F
 		Starting Address		2 Bytes	0x0000 to 0xFFFF
 		Quantity of Outputs		2 Bytes	0x0001 to 0x07B0*/
+
 	readCommon(response);
-	// TODO TEST
 	_reader >> response.startingAddress;
 	_reader >> response.nOfCoils;
 }
@@ -184,8 +181,8 @@ void PDUReader::read(WriteMultipleRegistersResponse& response)
 		Function code			1 Byte		0x10
 		Starting Address		2 Bytes		0x0000 to 0xFFFF
 		Quantity of Registers	2 Bytes		1 to 123 (0x7B)*/
+
 	readCommon(response);
-	// TODO TEST
 	_reader >> response.startingAddress;
 	_reader >> response.nOfRegisters;
 }
@@ -198,8 +195,8 @@ void PDUReader::read(MaskWriteRegisterResponse& response)
 		Reference Address		2 Bytes	0x0000 to 0xFFFF
 		And_Mask				2 Bytes	0x0000 to 0xFFFF
 		Or_Mask					2 Bytes	0x0000 to 0xFFFF*/
+
 	readCommon(response);
-	// TODO TEST
 	response.referenceAddress = response.slaveOrUnitAddress;
 	_reader >> response.andMask;
 	_reader >> response.orMask;
@@ -214,9 +211,7 @@ void PDUReader::read(ReadWriteMultipleRegistersResponse& response)
 		Read Registers value	N' x 2 Bytes
 		N' = Quantity to Read*/
 
-	//readCommon(response);
-	// TODO TEST
-	_reader >> response.functionCode;
+	readCommon(response);
 	Poco::UInt8 n;
 	_reader >> n;
 	response.values.clear();
@@ -238,9 +233,7 @@ void PDUReader::read(ReadFIFOQueueResponse& response)
 		FIFO Count				2 Bytes		<=31
 		FIFO Value Register		FIFO Count x 2 Bytes*/
 
-	//readCommon(response);
-	// TODO TEST
-	_reader >> response.functionCode;
+	readCommon(response);
 	Poco::UInt16 byteCount;
 	Poco::UInt16 fifoCount;
 	_reader >> byteCount;

@@ -19,6 +19,7 @@
 #include "Poco/OSP/PreferencesService.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "IoT/Modbus/RTUPort.h"
+#include "IoT/Modbus/SimPort.h"
 #include "IoT/Modbus/ModbusMasterImpl.h"
 #include "IoT/Modbus/ModbusMasterServerHelper.h"
 #include "Poco/Serial/SerialPort.h"
@@ -56,7 +57,7 @@ public:
 	void createModbusRTUMaster(const std::string& uid, Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan timeout, Poco::Timespan interCharTimeout)
 	{		
 		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<RTUPort>(new RTUPort(pSerialPort, interCharTimeout), timeout);
-		std::string symbolicName = "io.macchina.modbus";
+		std::string symbolicName = "io.macchina.modbus.rtu";
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
 		oid += uid;
@@ -65,6 +66,23 @@ public:
 		Properties props;
 		props.set("io.macchina.protocol", symbolicName);
 		props.set("io.macchina.modbus.device", pSerialPort->device());
+		
+		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pModbusMasterRemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
+	}
+
+	void createModbusSimMaster(const std::string& uid, Poco::Timespan timeout)
+	{		
+		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<SimPort>(new SimPort, timeout);
+		std::string symbolicName = "io.macchina.modbus.sim";
+		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
+		oid += '#';
+		oid += uid;
+		ServerHelper::RemoteObjectPtr pModbusMasterRemoteObject = ServerHelper::createRemoteObject(pModbusMaster, oid);
+		
+		Properties props;
+		props.set("io.macchina.protocol", symbolicName);
+		props.set("io.macchina.modbus.device", "simulation");
 		
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pModbusMasterRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
@@ -91,29 +109,36 @@ public:
 		
 			try
 			{
-				pContext->logger().information(Poco::format("Creating serial port for Modbus device '%s'.", device));
-
-				Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort = new Poco::Serial::SerialPort(device, speed, params);
-				
-				if (_pPrefs->configuration()->getBool(baseKey + ".rs485.enable", false))
+				if (device == "simulation")
 				{
-					Poco::Serial::SerialPort::RS485Params rs485Params;
-					rs485Params.flags = Poco::Serial::SerialPort::RS485Params::RS485_ENABLED;
-					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.rtsOnSend", false))
-						rs485Params.flags |= Poco::Serial::SerialPort::RS485Params::RS485_RTS_ON_SEND;
-					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.rtsAfterSend", false))
-						rs485Params.flags |= Poco::Serial::SerialPort::RS485Params::RS485_RTS_AFTER_SEND;
-					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.useGPIO", false))
-						rs485Params.flags |= Poco::Serial::SerialPort::RS485Params::RS485_USE_GPIO;
-						
-					rs485Params.delayRTSBeforeSend = _pPrefs->configuration()->getInt(baseKey + ".rs485.delayRTSBeforeSend", 0);
-					rs485Params.delayRTSAfterSend  = _pPrefs->configuration()->getInt(baseKey + ".rs485.delayRTSAfterSend", 0);
-					rs485Params.gpioPin            = _pPrefs->configuration()->getInt(baseKey + ".rs485.gpioPin", 0);
-					
-					pSerialPort->configureRS485(rs485Params);
+					createModbusSimMaster(Poco::NumberFormatter::format(index), timeout);
 				}
+				else
+				{
+					pContext->logger().information(Poco::format("Creating serial port for Modbus device '%s'.", device));
+
+					Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort = new Poco::Serial::SerialPort(device, speed, params);
+				
+					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.enable", false))
+					{
+						Poco::Serial::SerialPort::RS485Params rs485Params;
+						rs485Params.flags = Poco::Serial::SerialPort::RS485Params::RS485_ENABLED;
+						if (_pPrefs->configuration()->getBool(baseKey + ".rs485.rtsOnSend", false))
+							rs485Params.flags |= Poco::Serial::SerialPort::RS485Params::RS485_RTS_ON_SEND;
+						if (_pPrefs->configuration()->getBool(baseKey + ".rs485.rtsAfterSend", false))
+							rs485Params.flags |= Poco::Serial::SerialPort::RS485Params::RS485_RTS_AFTER_SEND;
+						if (_pPrefs->configuration()->getBool(baseKey + ".rs485.useGPIO", false))
+							rs485Params.flags |= Poco::Serial::SerialPort::RS485Params::RS485_USE_GPIO;
+						
+						rs485Params.delayRTSBeforeSend = _pPrefs->configuration()->getInt(baseKey + ".rs485.delayRTSBeforeSend", 0);
+						rs485Params.delayRTSAfterSend  = _pPrefs->configuration()->getInt(baseKey + ".rs485.delayRTSAfterSend", 0);
+						rs485Params.gpioPin            = _pPrefs->configuration()->getInt(baseKey + ".rs485.gpioPin", 0);
+					
+						pSerialPort->configureRS485(rs485Params);
+					}
 								
-				createModbusRTUMaster(Poco::NumberFormatter::format(index), pSerialPort, timeout, interCharTimeout);
+					createModbusRTUMaster(Poco::NumberFormatter::format(index), pSerialPort, timeout, interCharTimeout);
+				}
 			}
 			catch (Poco::Exception& exc)
 			{

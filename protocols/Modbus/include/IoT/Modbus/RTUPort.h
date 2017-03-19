@@ -25,6 +25,7 @@
 #include "IoT/Modbus/PDUReader.h"
 #include "Poco/Serial/SerialPort.h"
 #include "Poco/Timespan.h"
+#include "Poco/Timestamp.h"
 #include "Poco/Buffer.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/BinaryWriter.h"
@@ -101,6 +102,10 @@ public:
 		/// the internal buffer, or if data arrives during the
 		/// specified time interval, otherwise false.
 
+	int maxSimultaneousTransactions() const;
+		/// Returns the maximum number of simultaneous transactions allowed by
+		/// the port.
+
 protected:
 	Poco::UInt16 updateCRC16(Poco::UInt16 crc, Poco::UInt8 byte);
 	bool checkFrame(std::size_t size);
@@ -132,7 +137,13 @@ inline bool RTUPort::poll(const Poco::Timespan& timeout)
 }
 
 
-} } // namespace IoT::XBee
+inline int RTUPort::maxSimultaneousTransactions() const
+{
+	return 1;
+}
 
 
-#endif // IoT_XBee_XBeePort_INCLUDED
+} } // namespace IoT::Modbus
+
+
+#endif // IoT_Modbus_RTUPort_INCLUDED
