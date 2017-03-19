@@ -26,6 +26,7 @@
 #include "Poco/Thread.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/Timestamp.h"
+#include "Poco/Timespan.h"
 #include "Poco/Logger.h"
 #include <map>
 

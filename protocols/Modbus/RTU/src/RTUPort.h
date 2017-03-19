@@ -34,9 +34,10 @@
 
 namespace IoT {
 namespace Modbus {
+namespace RTU {
 
 
-class IoTModbus_API RTUPort
+class RTUPort
 	/// This class implements the Modbus RTU protocol over a serial line.
 {
 public:
@@ -143,7 +144,7 @@ inline int RTUPort::maxSimultaneousTransactions() const
 }
 
 
-} } // namespace IoT::Modbus
+} } } // namespace IoT::Modbus::RTU
 
 
 #endif // IoT_Modbus_RTUPort_INCLUDED

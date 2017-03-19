@@ -14,11 +14,12 @@
 //
 
 
-#include "IoT/Modbus/RTUPort.h"
+#include "RTUPort.h"
 
 
 namespace IoT {
 namespace Modbus {
+namespace RTU {
 
 
 RTUPort::RTUPort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan interCharTimeout, ByteOrder byteOrder):
@@ -113,4 +114,4 @@ bool RTUPort::checkFrame(std::size_t size)
 }
 
 
-} } // namespace IoT::Modbus
+} } } // namespace IoT::Modbus::RTU

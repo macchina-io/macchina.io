@@ -8,9 +8,6 @@
 
 include $(POCO_BASE)/build/rules/global
 
-INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
-INCLUDE += -I$(PROJECT_BASE)/devices/Serial/include
-
 objects = \
 	ModbusMaster \
 	IModbusMaster \
@@ -20,11 +17,10 @@ objects = \
 	ModbusMasterSkeleton \
 	ModbusException \
 	PDUWriter \
-	PDUReader \
-	RTUPort
+	PDUReader
 
 target         = IoTModbus
 target_version = 1
-target_libs    = IoTDevices PocoSerial PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
+target_libs    = PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
 
 include $(POCO_BASE)/build/rules/lib
