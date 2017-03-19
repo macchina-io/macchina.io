@@ -15,10 +15,6 @@
 
 
 #include "Poco/JS/Bridge/TaggedBinaryReader.h"
-#include "Poco/JS/Bridge/TaggedBinarySerializer.h"
-#include "Poco/RemotingNG/BinaryDeserializer.h"
-#include "Poco/Exception.h"
-#include <vector>
 
 
 namespace Poco {
@@ -29,6 +25,7 @@ namespace Bridge {
 TaggedBinaryReader::TaggedBinaryReader(v8::Isolate* pIsolate):
 	_serializer(pIsolate)
 {
+	_containerStack.reserve(32);
 }
 
 	
@@ -49,25 +46,27 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 	deserializer.deserializeMessageBegin(messageName, messageType);
 	_serializer.serializeMessageBegin(messageName, messageType);
 	names.push_back(messageName);
+	_containerStack.push_back(TaggedBinarySerializer::CONT_MESSAGE);
 
-	Poco::UInt8 tag;
 	std::string name;
 	std::string unused;
-	deserializer.deserialize(unused, true, tag);
-	while (tag != TaggedBinarySerializer::TYPE_TAG_MESSAGE_END)
+	Poco::UInt8 tag = deserializeTypeTag(deserializer);
+	while (istream.good() && tag != TaggedBinarySerializer::TYPE_TAG_MESSAGE_END)
 	{
 		switch (tag)
 		{
 		case TaggedBinarySerializer::TYPE_TAG_STRUCT_BEGIN:
 			{
-				deserializer.deserialize(unused, true, name);
+				name = deserializeName(deserializer);
 				names.push_back(name);
-				deserializer.deserializeStructBegin(name, true);
+				check(deserializer.deserializeStructBegin(name, true));
 				_serializer.serializeStructBegin(name);
+				_containerStack.push_back(TaggedBinarySerializer::CONT_STRUCT);
 			}
 			break;
 		case TaggedBinarySerializer::TYPE_TAG_STRUCT_END:
 			{
+				_containerStack.pop_back();
 				deserializer.deserializeStructEnd(names.back());
 				_serializer.serializeStructEnd(names.back());
 				names.pop_back();
@@ -75,15 +74,17 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 			break;
 		case TaggedBinarySerializer::TYPE_TAG_SEQUENCE_BEGIN:
 			{
-				deserializer.deserialize(unused, true, name);
+				name = deserializeName(deserializer);
 				names.push_back(name);
 				Poco::UInt32 lengthHint;
-				deserializer.deserializeSequenceBegin(name, true, lengthHint);
+				check(deserializer.deserializeSequenceBegin(name, true, lengthHint));
 				_serializer.serializeSequenceBegin(name, lengthHint);
+				_containerStack.push_back(TaggedBinarySerializer::CONT_SEQUENCE);
 			}
 			break;
 		case TaggedBinarySerializer::TYPE_TAG_SEQUENCE_END:
 			{
+				_containerStack.pop_back();
 				deserializer.deserializeSequenceEnd(names.back());
 				_serializer.serializeSequenceEnd(names.back());
 				names.pop_back();
@@ -91,10 +92,10 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 			break;
 		case TaggedBinarySerializer::TYPE_TAG_NULLABLE_BEGIN:
 			{
-				deserializer.deserialize(unused, true, name);
+				name = deserializeName(deserializer);
 				names.push_back(name);
 				bool isNull;
-				deserializer.deserializeNullableBegin(name, true, isNull);
+				check(deserializer.deserializeNullableBegin(name, true, isNull));
 				_serializer.serializeNullableBegin(name, isNull);
 			}
 			break;
@@ -107,10 +108,10 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 			break;
 		case TaggedBinarySerializer::TYPE_TAG_OPTIONAL_BEGIN:
 			{
-				deserializer.deserialize(unused, true, name);
+				name = deserializeName(deserializer);
 				names.push_back(name);
 				bool isSpecified;
-				deserializer.deserializeOptionalBegin(name, true, isSpecified);
+				check(deserializer.deserializeOptionalBegin(name, true, isSpecified));
 				_serializer.serializeOptionalBegin(name, isSpecified);
 			}
 			break;
@@ -202,13 +203,18 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 			}
 			break;
 		default:
-			throw Poco::DataFormatException("Invalid type tag encountered during deserialization of", names.back());
+			throw Poco::RemotingNG::DeserializerException("Invalid type tag encountered during deserialization of", names.back());
 		}
-		deserializer.deserialize(name, true, tag);
+		tag = deserializeTypeTag(deserializer);
 	}
-	_serializer.serializeMessageEnd(messageName, messageType);
-	
-	return _serializer.jsValue();
+	if (istream.good())
+	{
+		_serializer.serializeMessageEnd(messageName, messageType);
+		_containerStack.pop_back();
+		poco_assert (_containerStack.empty());
+		return _serializer.jsValue();
+	}
+	else throw Poco::RemotingNG::DeserializerException("Unexpected end of stream");
 }
 
 

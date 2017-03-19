@@ -63,6 +63,13 @@ public:
 		TYPE_TAG_BUFFER         = 0x71
 	};
 	
+	enum ContainerType
+	{
+		CONT_MESSAGE,
+		CONT_STRUCT,
+		CONT_SEQUENCE
+	};
+	
 	TaggedBinarySerializer();
 		/// Creates the Serializer. 
 
@@ -107,14 +114,13 @@ protected:
 	void serializeName(const std::string& name);
 		/// Serializes a name.
 		
-	static const std::string EMPTY;
-
 private:
 	TaggedBinarySerializer(const TaggedBinarySerializer&);
 	TaggedBinarySerializer& operator = (const TaggedBinarySerializer&);
 
 private:
 	Poco::RemotingNG::BinarySerializer _serializer;
+	std::vector<ContainerType> _containerStack;
 };
 
 
@@ -123,13 +129,16 @@ private:
 //
 inline void TaggedBinarySerializer::serializeTypeTag(TypeTag tag)
 {
-	Poco::RemotingNG::BinarySerializer::serialize(EMPTY, static_cast<Poco::UInt8>(tag));
+	serializeToken(static_cast<Poco::UInt8>(tag));
 }
 
 
 inline void TaggedBinarySerializer::serializeName(const std::string& name)
 {
-	Poco::RemotingNG::BinarySerializer::serialize(EMPTY, name);
+	if (_containerStack.back() != CONT_SEQUENCE)
+	{
+		serializeToken(name);
+	}
 }
 
 
