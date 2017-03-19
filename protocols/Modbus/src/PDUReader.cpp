@@ -39,7 +39,10 @@ void PDUReader::read(GenericMessage& message)
 	{
 		Poco::UInt8 byte;
 		_reader >> byte;
-		message.data.push_back(byte);
+		if (!_reader.eof())
+		{
+			message.data.push_back(byte);
+		}
 	}
 }
 
