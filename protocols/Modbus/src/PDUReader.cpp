@@ -35,14 +35,11 @@ PDUReader::~PDUReader()
 void PDUReader::read(GenericMessage& message)
 {
 	readCommon(message);
-	while (_reader.good())
+	while (_reader.good() && _reader.stream().peek() != std::char_traits<char>::eof())
 	{
 		Poco::UInt8 byte;
 		_reader >> byte;
-		if (!_reader.eof())
-		{
-			message.data.push_back(byte);
-		}
+		message.data.push_back(byte);
 	}
 }
 
