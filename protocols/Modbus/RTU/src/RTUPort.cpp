@@ -22,9 +22,9 @@ namespace Modbus {
 namespace RTU {
 
 
-RTUPort::RTUPort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan interCharTimeout, ByteOrder byteOrder):
+RTUPort::RTUPort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan frameTimeout, ByteOrder byteOrder):
 	_pSerialPort(pSerialPort),
-	_frameTimeout(interCharTimeout),
+	_frameTimeout(frameTimeout),
 	_byteOrder(byteOrder),
 	_sendBuffer(RTU_MAX_PDU_SIZE),
 	_receiveBuffer(RTU_MAX_PDU_SIZE)

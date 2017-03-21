@@ -52,7 +52,7 @@ public:
 	RTUPort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan frameTimeout = 10000, ByteOrder byteOrder = RTU_BIG_ENDIAN);
 		/// Creates a RTUPort using the given SerialPort.
 		///
-		/// The recommended value for interCharTimeout is 750us.
+		/// The recommended value for frameTimeout is 10ms.
 		///
 		/// The SerialPort must be open and properly configured
 		/// for RS-485 communication with the Modbus slaves.
