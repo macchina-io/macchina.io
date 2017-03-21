@@ -35,7 +35,7 @@ PDUReader::~PDUReader()
 void PDUReader::read(GenericMessage& message)
 {
 	readCommon(message);
-	while (_reader.good() && _reader.stream().peek() != std::char_traits<char>::eof())
+	while (_reader.stream().peek() != std::char_traits<char>::eof())
 	{
 		Poco::UInt8 byte;
 		_reader >> byte;
@@ -134,6 +134,7 @@ void PDUReader::read(WriteSingleCoilResponse& response)
 
 	readCommon(response);
 	Poco::UInt16 value;
+	_reader >> response.outputAddress;
 	_reader >> value;
 	response.value = (0xFF00 == value)?true:false;
 }
@@ -147,6 +148,7 @@ void PDUReader::read(WriteSingleRegisterResponse& response)
 		Register Value			2 Bytes		0x0000 or 0xFF00*/
 
 	readCommon(response);
+	_reader >> response.outputAddress;
 	_reader >> response.value;
 }
 
@@ -197,7 +199,7 @@ void PDUReader::read(MaskWriteRegisterResponse& response)
 		Or_Mask					2 Bytes	0x0000 to 0xFFFF*/
 
 	readCommon(response);
-	response.referenceAddress = response.slaveOrUnitAddress;
+	_reader >> response.referenceAddress;
 	_reader >> response.andMask;
 	_reader >> response.orMask;
 }

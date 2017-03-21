@@ -413,7 +413,7 @@ struct MaskWriteRegisterRequest: public ModbusMessage
 	/// Function Code: 0x16
 {
 	MaskWriteRegisterRequest():
-		ModbusMessage(MODBUS_READ_WRITE_MULTIPLE_REGISTERS)
+		ModbusMessage(MODBUS_MASK_WRITE_REGISTER)
 	{
 	}
 

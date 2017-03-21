@@ -143,7 +143,7 @@ void PDUWriter::write(const WriteMultipleRegistersRequest& request)
 	writeCommon(request);
 	_writer << request.startingAddress;
 	Poco::UInt16 quantity = request.values.size();
-	Poco::UInt8 byteCount = (Poco::UInt8)quantity*2;
+	Poco::UInt8 byteCount = static_cast<Poco::UInt8>(quantity*2);
 	_writer << quantity << byteCount;
 	Poco::UInt8 n = 0;
 	while (n < quantity && _writer.good())
@@ -185,9 +185,9 @@ void PDUWriter::write(const ReadWriteMultipleRegistersRequest& request)
 	_writer << request.readStartingAddress;
 	_writer << request.readCount;
 	_writer << request.writeStartingAddress;
-	Poco::UInt8 quantity =request.values.size();
-	_writer << quantity;
-	_writer << quantity*2;
+	Poco::UInt8 quantity = request.values.size();
+	_writer << static_cast<Poco::UInt16>(quantity);
+	_writer << static_cast<Poco::UInt8>(quantity*2);
 	Poco::UInt8 n = 0;
 	while (n < quantity && _writer.good())
 	{
