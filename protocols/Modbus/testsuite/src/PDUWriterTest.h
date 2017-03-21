@@ -32,7 +32,17 @@ public:
 	
 	void testGenericMessage();
 	void testReadCoilsRequest();
-	// ...
+	void testReadDiscreteInputsRequest();
+	void testReadHoldingRegistersRequest();
+	void testReadInputRegistersRequest();
+	void testWriteSingleCoilRequest();
+	void testWriteSingleRegisterRequest();
+	void testReadExceptionStatusRequest();
+	void testWriteMultipleCoilsRequest();
+	void testWriteMultipleRegistersRequest();
+	void testMaskWriteRegisterRequest();
+	void testReadWriteMultipleRegistersRequest();
+	void testReadFIFOQueueRequest();
 
 	void setUp();
 	void tearDown();

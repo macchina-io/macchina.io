@@ -27,7 +27,18 @@ public:
 	
 	void testGenericMessage();
 	void testModbusExceptionMessage();
-	// ...
+	void testReadCoilsResponse();
+	void testReadDiscreteInputsResponse();
+	void testReadHoldingRegistersResponse();
+	void testReadInputRegistersResponse();
+	void testWriteSingleCoilResponse();
+	void testWriteSingleRegisterResponse();
+	void testReadExceptionStatusResponse();
+	void testWriteMultipleCoilsResponse();
+	void testWriteMultipleRegistersResponse();
+	void testMaskWriteRegisterResponse();
+	void testReadWriteMultipleRegistersResponse();
+	void testReadFIFOQueueResponse();
 
 	void setUp();
 	void tearDown();
