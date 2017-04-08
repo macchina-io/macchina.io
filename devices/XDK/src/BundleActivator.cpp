@@ -34,8 +34,8 @@
 #include "Poco/BinaryReader.h"
 #include "XDKSensor.h"
 #include "HighRateSensor.h"
+#include "HighRateAccelerometer.h"
 #include <vector>
-#include <map>
 
 
 using Poco::OSP::BundleContext;
@@ -64,6 +64,18 @@ public:
 
 	void handleHighPrioData(const std::string& data)
 	{
+		if (data.size() >= 12)
+		{
+			Poco::MemoryInputStream istr(data.data(), data.size());
+			Poco::BinaryReader reader(istr, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
+			Poco::Int16 x, y, z;
+			reader >> x >> y >> z;
+			IoT::Devices::Acceleration acc;
+			acc.x = x/1000.0;
+			acc.y = y/1000.0;
+			acc.z = z/1000.0;	
+			_pAccelerometer->update(acc);
+		}
 	}
 	
 	void handleLowPrioData(const std::string& data)
@@ -78,7 +90,7 @@ public:
 			{
 				Poco::UInt32 light;
 				reader >> light;
-				_pAmbientLightSensor->update(light/1000.0);
+				_pAmbientLightSensor->update(light/10000.0);
 				
 				Poco::UInt8 noise;
 				reader >> noise;
@@ -90,7 +102,7 @@ public:
 				
 				Poco::Int32 temperature;
 				reader >> temperature;
-				_pTemperatureSensor->update(temperature/100.0);
+				_pTemperatureSensor->update(temperature/1000.0);
 				
 				Poco::UInt32 humidity;
 				reader >> humidity;
@@ -135,6 +147,23 @@ public:
 		
 		return pSensor;
 	}
+
+	Poco::SharedPtr<HighRateAccelerometer> createHighRateAccelerometer(Peripheral::Ptr pPeripheral)
+	{
+		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Accelerometer> ServerHelper;
+		Poco::SharedPtr<HighRateAccelerometer> pAccelerometer = new HighRateAccelerometer(pPeripheral);
+		std::string oid(HighRateAccelerometer::SYMBOLIC_NAME);
+		oid += '#';
+		oid += pPeripheral->address();
+		ServerHelper::RemoteObjectPtr pAccelerometerRemoteObject = ServerHelper::createRemoteObject(pAccelerometer, oid);
+		Properties props;
+		props.set("io.macchina.device", HighRateAccelerometer::SYMBOLIC_NAME);
+		props.set("io.macchina.btle.address", pPeripheral->address());
+		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pAccelerometerRemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
+		return pAccelerometer;
+	}
+
 	
 	void createSensor(Peripheral::Ptr pPeripheral, const XDKSensor::Params& params)
 	{
@@ -170,36 +199,6 @@ public:
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pSensorRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
-
-/***
-	void createAccelerometer(Peripheral::Ptr pPeripheral, const XDKAccelerometer::Params& params)
-	{
-		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Accelerometer> ServerHelper;
-
-		Poco::SharedPtr<XDKAccelerometer> pAccelerometer;
-		if (pPeripheral->modelNumber() != "CC2650 XDK")
-		{
-			pAccelerometer = new XDK1Accelerometer(pPeripheral, params);
-		}
-		else
-		{
-			pAccelerometer = new XDKAccelerometer(pPeripheral, params);
-		}
-
-		std::string oid(XDKAccelerometer::SYMBOLIC_NAME);
-		oid += '#';
-		oid += pPeripheral->address();
-
-		ServerHelper::RemoteObjectPtr pAccelerometerRemoteObject = ServerHelper::createRemoteObject(pAccelerometer, oid);
-		
-		Properties props;
-		props.set("io.macchina.device", XDKAccelerometer::SYMBOLIC_NAME);
-		props.set("io.macchina.btle.address", pPeripheral->address());
-		
-		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pAccelerometerRemoteObject, props);
-		_serviceRefs.push_back(pServiceRef);
-	}
-***/
 
 	void createHighRateSensors(Peripheral::Ptr pPeripheral, const std::string& baseKey)
 	{
@@ -270,8 +269,22 @@ public:
 			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
 		}
 		
+		// acceleration
+		try
+		{
+			_pAccelerometer = createHighRateAccelerometer(pPeripheral);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_pContext->logger().error(Poco::format("Cannot create XDK Accelerometer: %s", exc.displayText()));
+		}
+
 		pPeripheral->notificationReceived += Poco::delegate(this, &BundleActivator::handleHighRateNotification);
 		pPeripheral->services();
+		// turn off built-in sensor fusion - send raw accelerometer data
+		Characteristic fusionChar = pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d5-7ada-11e4-82f8-0800200c9a66");
+		pPeripheral->writeUInt8(fusionChar.valueHandle, 0, true);
+		// turn on high-rate data
 		Characteristic controlChar = pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
 		pPeripheral->writeUInt8(controlChar.valueHandle, 1, true);
 	}
@@ -404,6 +417,20 @@ public:
 		
 	void stop(BundleContext::Ptr pContext)
 	{
+		for (std::vector<PeripheralInfo>::iterator it = _peripherals.begin(); it != _peripherals.end(); ++it)
+		{
+			// turn off high-rate data
+			try
+			{
+				Characteristic controlChar = it->pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
+				it->pPeripheral->writeUInt8(controlChar.valueHandle, 0, false);
+			}
+			catch (Poco::Exception& exc)
+			{
+				_pContext->logger().log(exc);
+			}
+		}
+
 		_pTimer->cancel(true);
 		_pTimer = 0;
 		for (std::vector<ServiceRef::Ptr>::iterator it = _serviceRefs.begin(); it != _serviceRefs.end(); ++it)
@@ -526,6 +553,7 @@ private:
 	Poco::SharedPtr<HighRateSensor> _pAirPressureSensor;
 	Poco::SharedPtr<HighRateSensor> _pAmbientLightSensor;
 	Poco::SharedPtr<HighRateSensor> _pNoiseSensor;
+	Poco::SharedPtr<HighRateAccelerometer> _pAccelerometer;
 };
 
 

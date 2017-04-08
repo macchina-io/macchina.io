@@ -13,7 +13,7 @@ include $(POCO_BASE)/build/rules/global
 INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 INCLUDE += -I$(PROJECT_BASE)/protocols/BtLE/include
 
-objects = XDKSensor HighRateSensor BundleActivator 
+objects = XDKSensor HighRateSensor HighRateAccelerometer BundleActivator 
 
 target         = io.macchina.btle.xdk
 target_version = 1
