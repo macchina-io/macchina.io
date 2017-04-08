@@ -70,6 +70,9 @@ public:
 	{
 		_pPeripheral->services();
 		_dataChar = _pPeripheral->characteristic("c2967210-7ba4-11e4-82f8-0800200c9a66", "c2967212-7ba4-11e4-82f8-0800200c9a66");
+		_controlChar = _pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
+
+		_pPeripheral->writeUInt8(_controlChar.valueHandle, 1, true);
 	}
 	
 	void run()
@@ -118,6 +121,7 @@ public:
 	
 private:
 	Peripheral::Ptr _pPeripheral;
+	Characteristic _controlChar;
 	Characteristic _dataChar;
 	Sensors _sensors;
 	Poco::Logger& _logger;
