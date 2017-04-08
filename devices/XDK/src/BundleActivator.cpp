@@ -147,7 +147,7 @@ public:
 		// temperature
 		params.serviceUUID = "92dab060-7634-11e4-82f8-0800200c9a66";
 		params.dataUUID    = "92dab062-7634-11e4-82f8-0800200c9a66";
-		params.physicalQuantity = "ambientTemperature";
+		params.physicalQuantity = "temperature";
 		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS;
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".ambientTemperature.pollInterval", 10000);
 		
@@ -247,10 +247,10 @@ public:
 	
 		Poco::Util::AbstractConfiguration::Keys keys;
 		std::string helperPath = _pPrefs->configuration()->getString("btle.bluez.helper");
-		_pPrefs->configuration()->keys("XDK.sensors", keys);
+		_pPrefs->configuration()->keys("xdk.sensors", keys);
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
-			std::string baseKey = "XDK.sensors.";
+			std::string baseKey = "xdk.sensors.";
 			baseKey += *it;
 
 			std::string address = _pPrefs->configuration()->getString(baseKey + ".address");

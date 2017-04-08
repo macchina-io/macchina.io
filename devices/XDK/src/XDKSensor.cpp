@@ -36,7 +36,12 @@ public:
 		{
 			if (_sensor.isConnected())
 			{
+				_logger.debug("Polling...");
 				_sensor.poll();
+			}
+			else
+			{
+				_logger.debug("Sensor is not connected.");
 			}
 		}
 		catch (Poco::Exception& exc)
