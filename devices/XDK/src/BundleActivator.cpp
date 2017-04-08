@@ -31,7 +31,9 @@
 #include "Poco/SharedPtr.h"
 #include "Poco/String.h"
 #include "Poco/StringTokenizer.h"
+#include "Poco/BinaryReader.h"
 #include "XDKSensor.h"
+#include "HighRateSensor.h"
 #include <vector>
 #include <map>
 
@@ -49,6 +51,79 @@ namespace BtLE {
 namespace XDK {
 
 
+class LowPrioPollerTask: public Poco::Util::TimerTask
+{
+public:
+	struct Sensors
+	{
+		Poco::SharedPtr<HighRateSensor> pHumiditySensor;
+		Poco::SharedPtr<HighRateSensor> pTemperatureSensor;
+		Poco::SharedPtr<HighRateSensor> pAirPressureSensor;
+		Poco::SharedPtr<HighRateSensor> pAmbientLightSensor;
+		Poco::SharedPtr<HighRateSensor> pNoiseSensor;
+	};
+	
+	LowPrioPollerTask(Peripheral::Ptr pPeripheral, const Sensors& sensors):
+		_pPeripheral(pPeripheral),
+		_sensors(sensors),
+		_logger(Poco::Logger::get("IoT.XDK"))
+	{
+		_pPeripheral->services();
+		_dataChar = _pPeripheral->characteristic("c2967210-7ba4-11e4-82f8-0800200c9a66", "c2967212-7ba4-11e4-82f8-0800200c9a66");
+	}
+	
+	void run()
+	{
+		try
+		{
+			if (_pPeripheral->isConnected())
+			{
+				std::string data = _pPeripheral->readString(_dataChar.valueHandle);
+				if (data.size() == 20)
+				{
+					Poco::MemoryInputStream istr(data.data(), data.size());
+					Poco::BinaryReader reader(istr, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
+					Poco::UInt8 messageId;
+					reader >> messageId;
+					if (messageId == 0x01)
+					{
+						Poco::UInt32 light;
+						reader >> light;
+						if (_sensors.pAmbientLightSensor) _sensors.pAmbientLightSensor->update(light/1000.0);
+						
+						Poco::UInt8 noise;
+						reader >> noise;
+						if (_sensors.pNoiseSensor) _sensors.pNoiseSensor->update(noise*1.0);
+						
+						Poco::UInt32 pressure;
+						reader >> pressure;
+						if (_sensors.pAirPressureSensor) _sensors.pAirPressureSensor->update(pressure/100.0);
+						
+						Poco::Int32 temperature;
+						reader >> temperature;
+						if (_sensors.pTemperatureSensor) _sensors.pTemperatureSensor->update(temperature/100.0);
+						
+						Poco::UInt32 humidity;
+						reader >> humidity;
+						if (_sensors.pHumiditySensor) _sensors.pHumiditySensor->update(humidity*1.0);
+					}
+				}
+			}
+		}
+		catch (Poco::Exception& exc)
+		{
+			_logger.log(exc);
+		}
+	}
+	
+private:
+	Peripheral::Ptr _pPeripheral;
+	Characteristic _dataChar;
+	Sensors _sensors;
+	Poco::Logger& _logger;
+};
+
+
 class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
@@ -58,6 +133,31 @@ public:
 	
 	~BundleActivator()
 	{
+	}
+	
+	Poco::SharedPtr<HighRateSensor> createHighRateSensor(Peripheral::Ptr pPeripheral, const HighRateSensor::Params& params)
+	{
+		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor> ServerHelper;
+
+		Poco::SharedPtr<HighRateSensor> pSensor = new HighRateSensor(pPeripheral, params);
+
+		std::string oid(HighRateSensor::SYMBOLIC_NAME);
+		oid += ".";
+		oid += params.physicalQuantity;
+		oid += '#';
+		oid += pPeripheral->address();
+
+		ServerHelper::RemoteObjectPtr pSensorRemoteObject = ServerHelper::createRemoteObject(pSensor, oid);
+		
+		Properties props;
+		props.set("io.macchina.device", HighRateSensor::SYMBOLIC_NAME);
+		props.set("io.macchina.physicalQuantity", params.physicalQuantity);
+		props.set("io.macchina.btle.address", pPeripheral->address());
+		
+		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pSensorRemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
+		
+		return pSensor;
 	}
 	
 	void createSensor(Peripheral::Ptr pPeripheral, const XDKSensor::Params& params)
@@ -124,6 +224,81 @@ public:
 		_serviceRefs.push_back(pServiceRef);
 	}
 ***/
+
+	void createHighRateSensors(Peripheral::Ptr pPeripheral, const std::string& baseKey)
+	{
+		LowPrioPollerTask::Sensors sensors;
+
+		HighRateSensor::Params params;
+
+		// humidity
+		params.physicalQuantity = "humidity";
+		params.physicalUnit = "%RH";
+
+		try
+		{
+			sensors.pHumiditySensor = createHighRateSensor(pPeripheral, params);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+		}
+
+		// temperature
+		params.physicalQuantity = "temperature";
+		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS;
+		
+		try
+		{
+			sensors.pTemperatureSensor = createHighRateSensor(pPeripheral, params);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+		}
+
+		// air pressure
+		params.physicalQuantity = "airPressure";
+		params.physicalUnit = "hPa";
+		
+		try
+		{
+			sensors.pAirPressureSensor = createHighRateSensor(pPeripheral, params);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+		}
+
+		// illuminance
+		params.physicalQuantity = "illuminance";
+		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_LUX;
+		
+		try
+		{
+			sensors.pAmbientLightSensor = createHighRateSensor(pPeripheral, params);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+		}
+
+		// noise
+		params.physicalQuantity = "soundLevel";
+		params.physicalUnit = "dB SPL";
+		
+		try
+		{
+			sensors.pNoiseSensor = createHighRateSensor(pPeripheral, params);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+		}
+		
+		_pTimer->scheduleAtFixedRate(new LowPrioPollerTask(pPeripheral, sensors), 1000, 1000);
+	}
+
 	void createSensors(Peripheral::Ptr pPeripheral, const std::string& baseKey)
 	{
 		XDKSensor::Params params;
@@ -207,36 +382,6 @@ public:
 		{
 			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
 		}
-
-/***
-		// accelerometer
-		XDKAccelerometer::Params accParams;
-		if (pPeripheral->modelNumber() != "CC2650 XDK")
-		{
-			accParams.serviceUUID = "f000aa10-0451-4000-b000-000000000000";
-			accParams.controlUUID = "f000aa12-0451-4000-b000-000000000000";
-			accParams.dataUUID    = "f000aa11-0451-4000-b000-000000000000";
-			accParams.periodUUID  = "f000aa13-0451-4000-b000-000000000000";
-			accParams.notifUUID   = "00002902-0000-1000-8000-00805f9b34fb";
-		}
-		else
-		{
-			accParams.serviceUUID = "f000aa80-0451-4000-b000-000000000000";
-			accParams.controlUUID = "f000aa82-0451-4000-b000-000000000000";
-			accParams.dataUUID    = "f000aa81-0451-4000-b000-000000000000";
-			accParams.periodUUID  = "f000aa83-0451-4000-b000-000000000000";
-			accParams.notifUUID   = "00002902-0000-1000-8000-00805f9b34fb";
-		}
-
-		try
-		{
-			createAccelerometer(pPeripheral, accParams);
-		}
-		catch (Poco::Exception& exc)
-		{
-			_pContext->logger().error(Poco::format("Cannot create XDK Accelerometer: %s", exc.displayText())); 
-		}
-***/
 	}
 
 	void start(BundleContext::Ptr pContext)
@@ -245,6 +390,8 @@ public:
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
 		_pTimer = new Poco::Util::Timer;
 	
+		_useHighPrioService = _pPrefs->configuration()->getBool("xdk.useHighPrioDataService", true);
+
 		Poco::Util::AbstractConfiguration::Keys keys;
 		std::string helperPath = _pPrefs->configuration()->getString("btle.bluez.helper");
 		_pPrefs->configuration()->keys("xdk.sensors", keys);
@@ -326,7 +473,11 @@ protected:
 					_pContext->logger().debug(Poco::format("Model Number: %s", it->pPeripheral->modelNumber()));
 					if (!it->haveSensors)
 					{
-						createSensors(it->pPeripheral, it->baseKey);
+						if (_useHighPrioService)
+							createHighRateSensors(it->pPeripheral, it->baseKey);
+						else
+							createSensors(it->pPeripheral, it->baseKey);
+
 						it->haveSensors = true;
 					}
 					it->reconnectDelay = MIN_RECONNECT_DELAY;
@@ -391,6 +542,7 @@ private:
 	Poco::SharedPtr<Poco::Util::Timer> _pTimer;
 	std::vector<PeripheralInfo> _peripherals;
 	std::vector<ServiceRef::Ptr> _serviceRefs;
+	bool _useHighPrioService;
 };
 
 
