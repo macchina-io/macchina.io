@@ -13,7 +13,6 @@
 #include "HighRateSensor.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/Delegate.h"
-#include "Poco/Logger.h"
 
 
 namespace IoT {
@@ -21,8 +20,8 @@ namespace BtLE {
 namespace XDK {
 
 
-const std::string HighRateSensor::NAME("XDK High-Rate Sensor");
-const std::string HighRateSensor::SYMBOLIC_NAME("io.macchina.btle.xdk.high-rate");
+const std::string HighRateSensor::NAME("XDK Sensor");
+const std::string HighRateSensor::SYMBOLIC_NAME("io.macchina.btle.xdk");
 
 
 HighRateSensor::HighRateSensor(Peripheral::Ptr pPeripheral, const Params& params):

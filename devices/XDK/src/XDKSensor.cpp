@@ -310,7 +310,7 @@ XDKTemperatureSensor::~XDKTemperatureSensor()
 void XDKTemperatureSensor::poll()
 {
 	Poco::Int32 rawTemp = _pPeripheral->readInt32(_dataChar.valueHandle);
-	update(rawTemp/100.0);
+	update(rawTemp/1000.0);
 }
 
 
@@ -358,7 +358,7 @@ XDKLightSensor::~XDKLightSensor()
 void XDKLightSensor::poll()
 {
 	Poco::UInt32 rawIlluminance = _pPeripheral->readUInt32(_dataChar.valueHandle);
-	update(rawIlluminance/1000.0);
+	update(rawIlluminance/10000.0);
 }
 
 
