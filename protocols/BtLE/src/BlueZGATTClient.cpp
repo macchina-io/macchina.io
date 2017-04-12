@@ -304,7 +304,10 @@ void BlueZGATTClient::write(Poco::UInt16 handle, const std::string& value, bool 
 		Poco::NumberFormatter::appendHex(cmd, static_cast<unsigned char>(*it), 2);
 	}
 	sendCommand(cmd);
-	expectResponse("wr", _timeout);
+	if (withResponse)
+	{
+		expectResponse("wr", _timeout);
+	}
 }
 
 

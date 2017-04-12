@@ -23,3 +23,6 @@ clean all:
 	$(MAKE) -C GNSSTracking $(MAKECMDGOALS)
 	$(MAKE) -C MQTT $(MAKECMDGOALS)
 	$(MAKE) -C Console $(MAKECMDGOALS)
+	$(MAKE) -C ChartJS $(MAKECMDGOALS)
+	$(MAKE) -C MomentJS $(MAKECMDGOALS)
+	$(MAKE) -C TinyColor $(MAKECMDGOALS)

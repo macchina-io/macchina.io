@@ -1,0 +1,32 @@
+<bundlespec>
+	<manifest>
+    	<name>macchina.io XDK Sensors</name>
+		<symbolicName>io.macchina.btle.xdk</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2017, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>IoT::BtLE::XDK::BundleActivator</class>
+			<library>io.macchina.btle.xdk</library>
+		</activator>
+		<lazyStart>false</lazyStart>
+		<runLevel>610</runLevel>
+		<dependency>
+			<symbolicName>io.macchina.devices</symbolicName>
+			<version>[1.0.0, 2.0.0)</version>
+		</dependency>
+		<dependency>
+			<symbolicName>io.macchina.btle</symbolicName>
+			<version>[1.0.0, 2.0.0)</version>
+		</dependency>
+	</manifest>
+	<code>
+		bin/*.dll,
+		bin/*.pdb,
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+	</code>
+	<files>
+		bundle/*
+	</files>
+</bundlespec>
