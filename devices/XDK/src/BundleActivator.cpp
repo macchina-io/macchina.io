@@ -539,7 +539,7 @@ public:
 			}
 			catch (Poco::Exception& exc)
 			{
-				_pContext->logger().log(exc);
+				_pContext->logger().warning("Error while turning off high-rate data for device %s: %s", it->pPeripheral->address(), exc.displayText());
 			}
 		}
 
@@ -553,15 +553,13 @@ public:
 
 		for (std::vector<PeripheralInfo>::iterator it = _peripherals.begin(); it != _peripherals.end(); ++it)
 		{
-			// turn off high-rate data
 			try
 			{
 				it->pPeripheral->disconnect();
-				it->pPeripheral = 0;
 			}
 			catch (Poco::Exception& exc)
 			{
-				_pContext->logger().log(exc);
+				_pContext->logger().warning("Error while disconnecting from device %s: %s", it->pPeripheral->address(), exc.displayText());
 			}
 		}
 		_peripherals.clear();
