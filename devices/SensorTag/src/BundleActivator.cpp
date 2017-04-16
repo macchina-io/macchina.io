@@ -309,6 +309,21 @@ public:
 			_pContext->registry().unregisterService(*it);
 		}
 		_serviceRefs.clear();
+
+		for (std::vector<PeripheralInfo>::iterator it = _peripherals.begin(); it != _peripherals.end(); ++it)
+		{
+			try
+			{
+				it->pPeripheral->connected -= Poco::delegate(this, &BundleActivator::onConnected);
+				it->pPeripheral->disconnected -= Poco::delegate(this, &BundleActivator::onDisconnected);	
+				it->pPeripheral->disconnect();
+			}   
+			catch (Poco::Exception& exc)
+			{
+				_pContext->logger().warning("Error disconnecting peripheral %s", it->pPeripheral->address());
+			}   
+		}   
+
 		_peripherals.clear();
 
 		_pPrefs = 0;
