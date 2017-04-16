@@ -536,6 +536,8 @@ public:
 			{
 				Characteristic controlChar = it->pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
 				it->pPeripheral->writeUInt8(controlChar.valueHandle, 0, false);
+				it->pPeripheral->disconnect();
+				it->pPeripheral = 0;
 			}
 			catch (Poco::Exception& exc)
 			{
