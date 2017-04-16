@@ -129,6 +129,7 @@ protected:
 	void changeState(State newState);
 	void startHelper();
 	void stopHelper();
+	bool helperRunning();
 	void run();
 	void sendCommand(const std::string& command);
 	void processResponse(const std::string& response);

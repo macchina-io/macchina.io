@@ -101,19 +101,22 @@ void BlueZGATTClient::disconnect()
 		_logger.debug("Disconnecting from peripheral " + _address + "...");
 
 		changeState(GATT_STATE_DISCONNECTING);
-		try
+		if (helperRunning())
 		{
-			sendCommand("disc");
-			ParsedResponse::Ptr pResponse = expectResponse("stat", DISCONNECT_TIMEOUT);
-			std::string state = decodeValue(pResponse->get("state"));
-			if (state != "disc")
+			try
 			{
-				_logger.warning("invalid state after disconnect: " + state);
+				sendCommand("disc");
+				ParsedResponse::Ptr pResponse = expectResponse("stat", DISCONNECT_TIMEOUT);
+				std::string state = decodeValue(pResponse->get("state"));
+				if (state != "disc")
+				{
+					_logger.warning("invalid state after disconnect: " + state);
+				}
 			}
-		}
-		catch (Poco::Exception& exc)
-		{
-			_logger.log(exc);
+			catch (Poco::Exception& exc)
+			{
+				_logger.log(exc);
+			}
 		}
 		changeState(GATT_STATE_DISCONNECTED);
 		_address.clear();
@@ -414,26 +417,42 @@ void BlueZGATTClient::stopHelper()
 	if (_pHelperInfo)
 	{
 		_logger.debug("Stopping helper...");
-		sendCommand("quit");
+		if (helperRunning())
+		{
+			try
+			{
+				sendCommand("quit");
+			}
+			catch (Poco::Exception&)
+			{
+			}
+		}
 		try
 		{
 			_helperThread.join(10000);
 		}
 		catch (Poco::TimeoutException&)
 		{
+			_logger.debug("Helper failed to quit in time, killing...");
 			Poco::Process::kill(_pHelperInfo->processHandle);
-		}
-		_helperThread.join();
-		try
-		{
-			_pHelperInfo->processHandle.wait();
-		}
-		catch (Poco::Exception&)
-		{
+			try
+			{
+				_helperThread.join();
+			}
+			catch (Poco::Exception& exc)
+			{
+				_logger.debug("Failed to join helper thread: %s", exc.displayText());
+			}
 		}
 		_pHelperInfo = 0;
 		_logger.debug("Helper stopped.");
 	}
+}
+
+
+bool BlueZGATTClient::helperRunning()
+{
+	return _pHelperInfo && _pHelperInfo->outputStream.good();
 }
 
 
@@ -455,12 +474,21 @@ void BlueZGATTClient::run()
 			}
 		}
 	}
+	_logger.debug("Helper process terminated");
+	try
+	{
+		 _pHelperInfo->processHandle.wait();
+	}
+	catch (Poco::Exception& exc)
+	{
+		_logger.debug("Failed to wait for helper process: %s", exc.displayText());
+	}
 }
 
 
 void BlueZGATTClient::sendCommand(const std::string& command)
 {
-	if (_pHelperInfo)
+	if (helperRunning())
 	{
 		_logger.debug(Poco::format("[%s] Sending command: %s", _address, command));
 
@@ -471,6 +499,11 @@ void BlueZGATTClient::sendCommand(const std::string& command)
 		}
 
 		_pHelperInfo->outputStream << command << std::endl;
+		if (!_pHelperInfo->outputStream.good())
+		{
+			_pHelperInfo = 0;
+			throw Poco::IOException("helper process no longer running");
+		}
 	}
 	else throw Poco::IllegalStateException("helper process not running");
 }
