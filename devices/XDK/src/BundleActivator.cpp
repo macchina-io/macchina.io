@@ -232,7 +232,7 @@ public:
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Trigger> ServerHelper;
 		Poco::SharedPtr<HighRateButton> pButton = new HighRateButton(pPeripheral);
-		std::string oid(Poco::format("%s%d%%s", HighRateButton::SYMBOLIC_NAME, id, pPeripheral->address()));
+		std::string oid(Poco::format("%s%d#%s", HighRateButton::SYMBOLIC_NAME, id, pPeripheral->address()));
 		ServerHelper::RemoteObjectPtr pButtonRemoteObject = ServerHelper::createRemoteObject(pButton, oid);
 		Properties props;
 		props.set("io.macchina.device", HighRateButton::SYMBOLIC_NAME);
