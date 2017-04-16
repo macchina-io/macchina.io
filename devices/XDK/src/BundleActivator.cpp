@@ -536,8 +536,6 @@ public:
 			{
 				Characteristic controlChar = it->pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
 				it->pPeripheral->writeUInt8(controlChar.valueHandle, 0, false);
-				it->pPeripheral->disconnect();
-				it->pPeripheral = 0;
 			}
 			catch (Poco::Exception& exc)
 			{
@@ -552,6 +550,20 @@ public:
 			_pContext->registry().unregisterService(*it);
 		}
 		_serviceRefs.clear();
+
+		for (std::vector<PeripheralInfo>::iterator it = _peripherals.begin(); it != _peripherals.end(); ++it)
+		{
+			// turn off high-rate data
+			try
+			{
+				it->pPeripheral->disconnect();
+				it->pPeripheral = 0;
+			}
+			catch (Poco::Exception& exc)
+			{
+				_pContext->logger().log(exc);
+			}
+		}
 		_peripherals.clear();
 
 		_pPrefs = 0;
