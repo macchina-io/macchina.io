@@ -1,5 +1,5 @@
 //
-// HighRateAccelerometer.h
+// HighRateGyroscope.h
 //
 // $Id$
 //
@@ -10,11 +10,11 @@
 //
 
 
-#ifndef IoT_XDK_HighRateAccelerometer_INCLUDED
-#define IoT_XDK_HighRateAccelerometer_INCLUDED
+#ifndef IoT_XDK_HighRateGyroscope_INCLUDED
+#define IoT_XDK_HighRateGyroscope_INCLUDED
 
 
-#include "IoT/Devices/Accelerometer.h"
+#include "IoT/Devices/Gyroscope.h"
 #include "IoT/Devices/DeviceImpl.h"
 #include "IoT/BtLE/Peripheral.h"
 #include "Poco/SharedPtr.h"
@@ -25,25 +25,25 @@ namespace BtLE {
 namespace XDK {
 
 
-class HighRateAccelerometer: public IoT::Devices::DeviceImpl<IoT::Devices::Accelerometer, HighRateAccelerometer>
+class HighRateGyroscope: public IoT::Devices::DeviceImpl<IoT::Devices::Gyroscope, HighRateGyroscope>
 {
 public:
-	typedef Poco::SharedPtr<HighRateAccelerometer> Ptr;
+	typedef Poco::SharedPtr<HighRateGyroscope> Ptr;
 
-	HighRateAccelerometer(Peripheral::Ptr pPeripheral);
-		/// Creates a HighRateAccelerometer.
+	HighRateGyroscope(Peripheral::Ptr pPeripheral);
+		/// Creates a HighRateGyroscope.
 
-	~HighRateAccelerometer();
-		/// Destroys the HighRateAccelerometer.
+	~HighRateGyroscope();
+		/// Destroys the HighRateGyroscope.
 	
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
-	void update(const IoT::Devices::Acceleration& acceleration);
-		/// Updates the acceleration.
+	void update(const IoT::Devices::Rotation& rotation);
+		/// Updates the Rotation.
 
-	// Accelerometer
-	IoT::Devices::Acceleration acceleration() const;
+	// Gyroscope
+	IoT::Devices::Rotation rotation() const;
 
 	static const std::string NAME;
 	static const std::string SYMBOLIC_NAME;
@@ -65,7 +65,7 @@ protected:
 	mutable Peripheral::Ptr _pPeripheral;
 	bool _enabled;
 	bool _ready;
-	IoT::Devices::Acceleration _acceleration;
+	IoT::Devices::Rotation _rotation;
 	Poco::Any _deviceIdentifier;
 	Poco::Any _symbolicName;
 	Poco::Any _name;
@@ -75,5 +75,5 @@ protected:
 } } } // namespace IoT::BtLE::XDK
 
 
-#endif // IoT_XDK_HighRateAccelerometer_INCLUDED
+#endif // IoT_XDK_HighRateGyroscope_INCLUDED
 

@@ -1,5 +1,5 @@
 //
-// HighRateAccelerometer.h
+// HighRateMagnetometer.h
 //
 // $Id$
 //
@@ -10,11 +10,11 @@
 //
 
 
-#ifndef IoT_XDK_HighRateAccelerometer_INCLUDED
-#define IoT_XDK_HighRateAccelerometer_INCLUDED
+#ifndef IoT_XDK_HighRateMagnetometer_INCLUDED
+#define IoT_XDK_HighRateMagnetometer_INCLUDED
 
 
-#include "IoT/Devices/Accelerometer.h"
+#include "IoT/Devices/Magnetometer.h"
 #include "IoT/Devices/DeviceImpl.h"
 #include "IoT/BtLE/Peripheral.h"
 #include "Poco/SharedPtr.h"
@@ -25,25 +25,25 @@ namespace BtLE {
 namespace XDK {
 
 
-class HighRateAccelerometer: public IoT::Devices::DeviceImpl<IoT::Devices::Accelerometer, HighRateAccelerometer>
+class HighRateMagnetometer: public IoT::Devices::DeviceImpl<IoT::Devices::Magnetometer, HighRateMagnetometer>
 {
 public:
-	typedef Poco::SharedPtr<HighRateAccelerometer> Ptr;
+	typedef Poco::SharedPtr<HighRateMagnetometer> Ptr;
 
-	HighRateAccelerometer(Peripheral::Ptr pPeripheral);
-		/// Creates a HighRateAccelerometer.
+	HighRateMagnetometer(Peripheral::Ptr pPeripheral);
+		/// Creates a HighRateMagnetometer.
 
-	~HighRateAccelerometer();
-		/// Destroys the HighRateAccelerometer.
+	~HighRateMagnetometer();
+		/// Destroys the HighRateMagnetometer.
 	
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
-	void update(const IoT::Devices::Acceleration& acceleration);
-		/// Updates the acceleration.
+	void update(const IoT::Devices::MagneticFieldStrength& fieldStrength);
+		/// Updates the field strength.
 
-	// Accelerometer
-	IoT::Devices::Acceleration acceleration() const;
+	// Magnetometer
+	IoT::Devices::MagneticFieldStrength fieldStrength() const;
 
 	static const std::string NAME;
 	static const std::string SYMBOLIC_NAME;
@@ -65,7 +65,7 @@ protected:
 	mutable Peripheral::Ptr _pPeripheral;
 	bool _enabled;
 	bool _ready;
-	IoT::Devices::Acceleration _acceleration;
+	IoT::Devices::MagneticFieldStrength _fieldStrength;
 	Poco::Any _deviceIdentifier;
 	Poco::Any _symbolicName;
 	Poco::Any _name;
@@ -75,5 +75,5 @@ protected:
 } } } // namespace IoT::BtLE::XDK
 
 
-#endif // IoT_XDK_HighRateAccelerometer_INCLUDED
+#endif // IoT_XDK_HighRateMagnetometer_INCLUDED
 

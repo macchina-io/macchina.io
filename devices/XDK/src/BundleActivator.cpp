@@ -22,6 +22,9 @@
 #include "Poco/Util/TimerTask.h"
 #include "IoT/Devices/SensorServerHelper.h"
 #include "IoT/Devices/AccelerometerServerHelper.h"
+#include "IoT/Devices/GyroscopeServerHelper.h"
+#include "IoT/Devices/MagnetometerServerHelper.h"
+#include "IoT/Devices/TriggerServerHelper.h"
 #include "IoT/BtLE/BlueZGATTClient.h"
 #include "IoT/BtLE/PeripheralImpl.h"
 #include "Poco/Delegate.h"
@@ -35,6 +38,9 @@
 #include "XDKSensor.h"
 #include "HighRateSensor.h"
 #include "HighRateAccelerometer.h"
+#include "HighRateGyroscope.h"
+#include "HighRateMagnetometer.h"
+#include "HighRateButton.h"
 #include <vector>
 
 
@@ -75,6 +81,13 @@ public:
 			acc.y = y/1000.0;
 			acc.z = z/1000.0;	
 			_pAccelerometer->update(acc);
+
+			reader >> x >> y >> z;
+			IoT::Devices::Rotation rot;
+			rot.x = x/1000.0;
+			rot.y = y/1000.0;
+			rot.z = z/1000.0;	
+			_pGyroscope->update(rot);
 		}
 	}
 	
@@ -107,6 +120,25 @@ public:
 				Poco::UInt32 humidity;
 				reader >> humidity;
 				_pHumiditySensor->update(humidity*1.0);
+				
+				Poco::UInt8 cardDetect;
+				reader >> cardDetect;
+				
+				Poco::UInt8 buttons;
+				reader >> buttons;
+				_pButton1->update((buttons & 0x01) != 0);
+				_pButton2->update((buttons & 0x02) != 0);
+			}
+			else if (messageId == 0x02)
+			{
+				Poco::Int16 x, y, z, r;
+				reader >> x >> y >> z >> r;
+				IoT::Devices::MagneticFieldStrength field;
+				field.x = x/1000.0;
+				field.y = y/1000.0;
+				field.z = z/1000.0;	
+				field.r = z/1000.0;
+				_pMagnetometer->update(field);
 			}
 		}
 	}
@@ -164,6 +196,53 @@ public:
 		return pAccelerometer;
 	}
 
+	Poco::SharedPtr<HighRateGyroscope> createHighRateGyroscope(Peripheral::Ptr pPeripheral)
+	{
+		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Gyroscope> ServerHelper;
+		Poco::SharedPtr<HighRateGyroscope> pGyroscope = new HighRateGyroscope(pPeripheral);
+		std::string oid(HighRateGyroscope::SYMBOLIC_NAME);
+		oid += '#';
+		oid += pPeripheral->address();
+		ServerHelper::RemoteObjectPtr pGyroscopeRemoteObject = ServerHelper::createRemoteObject(pGyroscope, oid);
+		Properties props;
+		props.set("io.macchina.device", HighRateGyroscope::SYMBOLIC_NAME);
+		props.set("io.macchina.btle.address", pPeripheral->address());
+		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pGyroscopeRemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
+		return pGyroscope;
+	}
+	
+	Poco::SharedPtr<HighRateMagnetometer> createHighRateMagnetometer(Peripheral::Ptr pPeripheral)
+	{
+		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Magnetometer> ServerHelper;
+		Poco::SharedPtr<HighRateMagnetometer> pMagnetometer = new HighRateMagnetometer(pPeripheral);
+		std::string oid(HighRateMagnetometer::SYMBOLIC_NAME);
+		oid += '#';
+		oid += pPeripheral->address();
+		ServerHelper::RemoteObjectPtr pMagnetometerRemoteObject = ServerHelper::createRemoteObject(pMagnetometer, oid);
+		Properties props;
+		props.set("io.macchina.device", HighRateMagnetometer::SYMBOLIC_NAME);
+		props.set("io.macchina.btle.address", pPeripheral->address());
+		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pMagnetometerRemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
+		return pMagnetometer;
+	}
+
+	Poco::SharedPtr<HighRateButton> createHighRateButton(Peripheral::Ptr pPeripheral, int id)
+	{
+		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Trigger> ServerHelper;
+		Poco::SharedPtr<HighRateButton> pButton = new HighRateButton(pPeripheral, id);
+		std::string oid(HighRateButton::SYMBOLIC_NAME);
+		oid += '#';
+		oid += pPeripheral->address();
+		ServerHelper::RemoteObjectPtr pButtonRemoteObject = ServerHelper::createRemoteObject(pButton, oid);
+		Properties props;
+		props.set("io.macchina.device", HighRateButton::SYMBOLIC_NAME);
+		props.set("io.macchina.btle.address", pPeripheral->address());
+		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pButtonRemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
+		return pButton;
+	}
 	
 	void createSensor(Peripheral::Ptr pPeripheral, const XDKSensor::Params& params)
 	{
@@ -277,6 +356,37 @@ public:
 		catch (Poco::Exception& exc)
 		{
 			_pContext->logger().error(Poco::format("Cannot create XDK Accelerometer: %s", exc.displayText()));
+		}
+
+		// rotation
+		try
+		{
+			_pGyroscope = createHighRateGyroscope(pPeripheral);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_pContext->logger().error(Poco::format("Cannot create XDK Gyroscope: %s", exc.displayText()));
+		}
+
+		// magnetic field
+		try
+		{
+			_pMagnetometer = createHighRateMagnetometer(pPeripheral);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_pContext->logger().error(Poco::format("Cannot create XDK Magnetometer: %s", exc.displayText()));
+		}
+
+		// buttons
+		try
+		{
+			_pButton1 = createHighRateButton(pPeripheral, 1);
+			_pButton2 = createHighRateButton(pPeripheral, 2);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_pContext->logger().error(Poco::format("Cannot create XDK Button: %s", exc.displayText()));
 		}
 
 		pPeripheral->notificationReceived += Poco::delegate(this, &BundleActivator::handleHighRateNotification);
@@ -554,6 +664,10 @@ private:
 	Poco::SharedPtr<HighRateSensor> _pAmbientLightSensor;
 	Poco::SharedPtr<HighRateSensor> _pNoiseSensor;
 	Poco::SharedPtr<HighRateAccelerometer> _pAccelerometer;
+	Poco::SharedPtr<HighRateGyroscope> _pGyroscope;
+	Poco::SharedPtr<HighRateMagnetometer> _pMagnetometer;
+	Poco::SharedPtr<HighRateButton> _pButton1;
+	Poco::SharedPtr<HighRateButton> _pButton2;
 };
 
 
