@@ -293,8 +293,18 @@ void BundleLoader::startAllBundles()
 			catch (Poco::Exception& exc)
 			{
 				std::string msg("Failed to start bundle ");
-				msg += (*it)->symbolicName();
-				msg += ": ";
+				if (_lastBundleStarted != (*it)->symbolicName())
+				{
+					msg += _lastBundleStarted;
+					msg += " required by ";
+					msg += (*it)->symbolicName();
+					msg += ": ";
+				}
+				else
+				{
+					msg += (*it)->symbolicName();
+					msg += ": ";
+				}
 				msg += exc.displayText();
 				_logger.error(msg);
 				
@@ -416,6 +426,7 @@ void BundleLoader::startBundle(Bundle* pBundle)
 	if (it != _bundles.end())
 	{
 		startDependencies(pBundle);
+		_lastBundleStarted = pBundle->symbolicName();
 		BundleActivator* pActivator = loadActivator(it->second);
 		if (pActivator)
 		{

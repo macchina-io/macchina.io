@@ -299,6 +299,7 @@ private:
 	BundleMap                 _bundles;
 	BundleIdMap               _bundleIds;
 	BundleSet                 _resolvingBundles;
+	std::string               _lastBundleStarted;
 	Poco::Logger&             _logger;
 	mutable Poco::Mutex       _mutex;
 
