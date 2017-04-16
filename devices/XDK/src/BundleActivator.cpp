@@ -531,11 +531,17 @@ public:
 	{
 		for (std::vector<PeripheralInfo>::iterator it = _peripherals.begin(); it != _peripherals.end(); ++it)
 		{
-			// turn off high-rate data
+			// unsub and turn off high-rate data
 			try
 			{
-				Characteristic controlChar = it->pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
-				it->pPeripheral->writeUInt8(controlChar.valueHandle, 0, false);
+				it->pPeripheral->connected -= Poco::delegate(this, &BundleActivator::onConnected);
+				it->pPeripheral->disconnected -= Poco::delegate(this, &BundleActivator::onDisconnected);
+
+				if (it->pPeripheral->isConnected())
+				{
+					Characteristic controlChar = it->pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
+					it->pPeripheral->writeUInt8(controlChar.valueHandle, 0, true);
+				}
 			}
 			catch (Poco::Exception& exc)
 			{
