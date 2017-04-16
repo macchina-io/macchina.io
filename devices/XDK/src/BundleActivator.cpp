@@ -388,6 +388,10 @@ public:
 		}
 
 		pPeripheral->notificationReceived += Poco::delegate(this, &BundleActivator::handleHighRateNotification);
+	}
+	
+	void enableHighRateSensors(Peripheral::Ptr pPeripheral)
+	{
 		pPeripheral->services();
 		// turn off built-in sensor fusion - send raw accelerometer data
 		Characteristic fusionChar = pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d5-7ada-11e4-82f8-0800200c9a66");
@@ -488,7 +492,7 @@ public:
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
 		_pTimer = new Poco::Util::Timer;
 	
-		_useHighPrioService = _pPrefs->configuration()->getBool("xdk.useHighPrioDataService", true);
+		_useHighRateService = _pPrefs->configuration()->getBool("xdk.useHighRateDataService", true);
 
 		Poco::Util::AbstractConfiguration::Keys keys;
 		std::string helperPath = _pPrefs->configuration()->getString("btle.bluez.helper");
@@ -581,16 +585,18 @@ protected:
 				_pContext->logger().information(Poco::format("Peripheral connected: %s", it->pPeripheral->address()));
 				try
 				{
-					_pContext->logger().debug(Poco::format("Manufacturer Name: %s", it->pPeripheral->manufacturerName()));
-					_pContext->logger().debug(Poco::format("Model Number: %s", it->pPeripheral->modelNumber()));
 					if (!it->haveSensors)
 					{
-						if (_useHighPrioService)
+						if (_useHighRateService)
 							createHighRateSensors(it->pPeripheral, it->baseKey);
 						else
 							createSensors(it->pPeripheral, it->baseKey);
 
 						it->haveSensors = true;
+					}
+					if (_useHighRateService)
+					{
+						enableHighRateSensors(it->pPeripheral);
 					}
 					it->reconnectDelay = MIN_RECONNECT_DELAY;
 				}
@@ -654,7 +660,7 @@ private:
 	Poco::SharedPtr<Poco::Util::Timer> _pTimer;
 	std::vector<PeripheralInfo> _peripherals;
 	std::vector<ServiceRef::Ptr> _serviceRefs;
-	bool _useHighPrioService;
+	bool _useHighRateService;
 
 	Poco::SharedPtr<HighRateSensor> _pHumiditySensor;
 	Poco::SharedPtr<HighRateSensor> _pTemperatureSensor;
