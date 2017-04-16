@@ -32,17 +32,20 @@ namespace Devices {
 //@ serialize
 struct MagneticFieldStrength
 	/// Magnetic field strength values from a three-axis Magnetometer.
+	///
 {
 	MagneticFieldStrength():
 		x(0),
 		y(0),
-		z(0)
+		z(0),
+		r(0)
 	{
 	}
 	
-	double x; 
-	double y;
-	double z;
+	double x; /// x-axis
+	double y; /// y-axis
+	double z; /// z-axis
+	double r; /// internal resistance
 };
 
 
