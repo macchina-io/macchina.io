@@ -129,13 +129,15 @@ Poco::Any HighRateButton::getSymbolicName(const std::string&) const
 
 void HighRateButton::update(bool state)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	Poco::ScopedLockWithUnlock<Poco::Mutex> lock(_mutex);
 
 	if (!_ready || state != _state)
 	{
 		_ready = true;
 		_state = state;
-		stateChanged(this, _state);
+		lock.unlock();
+
+		stateChanged(this, state);
 	}
 }
 
@@ -148,16 +150,14 @@ void HighRateButton::init()
 
 void HighRateButton::onConnected()
 {
-	if (_enabled)
-	{
-		enable(true);
-	}
 }
 
 
 void HighRateButton::onDisconnected()
 {
-	enable(false);
+	Poco::Mutex::ScopedLock lock(_mutex);
+	
+	_ready = false;
 }
 
 

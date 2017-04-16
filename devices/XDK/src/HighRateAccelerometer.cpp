@@ -129,13 +129,18 @@ Poco::Any HighRateAccelerometer::getSymbolicName(const std::string&) const
 
 void HighRateAccelerometer::update(const IoT::Devices::Acceleration& acceleration)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	Poco::ScopedLockWithUnlock<Poco::Mutex> lock(_mutex);
 
-	if (!_ready || acceleration.x != _acceleration.x || acceleration.y != _acceleration.y || acceleration.z != _acceleration.z)
+	if (_enabled)
 	{
-		_ready = true;
-		_acceleration = acceleration;
-		accelerationChanged(this, _acceleration);
+		if (!_ready || acceleration.x != _acceleration.x || acceleration.y != _acceleration.y || acceleration.z != _acceleration.z)
+		{
+			_ready = true;
+			_acceleration = acceleration;
+			lock.unlock();
+
+			accelerationChanged(this, acceleration);
+		}
 	}
 }
 
@@ -148,16 +153,14 @@ void HighRateAccelerometer::init()
 
 void HighRateAccelerometer::onConnected()
 {
-	if (_enabled)
-	{
-		enable(true);
-	}
 }
 
 
 void HighRateAccelerometer::onDisconnected()
 {
-	enable(false);
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	_ready = false;
 }
 
 

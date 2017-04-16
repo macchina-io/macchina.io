@@ -146,7 +146,7 @@ void HighRateSensor::setValueChangedDelta(const std::string&, const Poco::Any& v
 
 Poco::Any HighRateSensor::getDisplayValue(const std::string&) const
 {
-	if (_ready)
+	if (_ready && _enabled)
 		return Poco::NumberFormatter::format(value(), 0, 1);
 	else
 		return std::string("n/a");
@@ -185,13 +185,18 @@ Poco::Any HighRateSensor::getPhysicalUnit(const std::string&) const
 
 void HighRateSensor::update(double value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	Poco::ScopedLockWithUnlock<Poco::Mutex> lock(_mutex);
 
-	if (!_ready || _value != value)
+	if (_enabled)
 	{
-		_ready = true;
-		_value = value;
-		_pEventPolicy->valueChanged(value);
+		if (!_ready || _value != value)
+		{
+			_ready = true;
+			_value = value;
+			lock.unlock();
+
+			_pEventPolicy->valueChanged(value);
+		}
 	}
 }
 
@@ -204,16 +209,14 @@ void HighRateSensor::init()
 
 void HighRateSensor::onConnected()
 {
-	if (_enabled)
-	{
-		enable(true);
-	}
 }
 
 
 void HighRateSensor::onDisconnected()
 {
-	enable(false);
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	_ready = false;
 }
 
 

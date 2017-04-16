@@ -129,13 +129,17 @@ Poco::Any HighRateMagnetometer::getSymbolicName(const std::string&) const
 
 void HighRateMagnetometer::update(const IoT::Devices::MagneticFieldStrength& fieldStrength)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	Poco::ScopedLockWithUnlock<Poco::Mutex> lock(_mutex);
 
-	if (!_ready || fieldStrength.x != _fieldStrength.x || fieldStrength.y != _fieldStrength.y || fieldStrength.z != _fieldStrength.z || fieldStrength.r != _fieldStrength.r)
+	if (_enabled)
 	{
-		_ready = true;
-		_fieldStrength = fieldStrength;
-		fieldStrengthChanged(this, _fieldStrength);
+		if (!_ready || fieldStrength.x != _fieldStrength.x || fieldStrength.y != _fieldStrength.y || fieldStrength.z != _fieldStrength.z || fieldStrength.r != _fieldStrength.r)
+		{
+			_ready = true;
+			_fieldStrength = fieldStrength;
+			lock.unlock();
+			fieldStrengthChanged(this, fieldStrength);
+		}
 	}
 }
 
@@ -148,16 +152,14 @@ void HighRateMagnetometer::init()
 
 void HighRateMagnetometer::onConnected()
 {
-	if (_enabled)
-	{
-		enable(true);
-	}
 }
 
 
 void HighRateMagnetometer::onDisconnected()
 {
-	enable(false);
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	_ready = false;
 }
 
 

@@ -129,13 +129,18 @@ Poco::Any HighRateGyroscope::getSymbolicName(const std::string&) const
 
 void HighRateGyroscope::update(const IoT::Devices::Rotation& rotation)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	Poco::ScopedLockWithUnlock<Poco::Mutex> lock(_mutex);
 
-	if (!_ready || rotation.x != _rotation.x || rotation.y != _rotation.y || rotation.z != _rotation.z)
+	if (_enabled)
 	{
-		_ready = true;
-		_rotation = rotation;
-		rotationChanged(this, _rotation);
+		if (!_ready || rotation.x != _rotation.x || rotation.y != _rotation.y || rotation.z != _rotation.z)
+		{
+			_ready = true;
+			_rotation = rotation;
+			lock.unlock();
+
+			rotationChanged(this, rotation);
+		}
 	}
 }
 
@@ -148,16 +153,14 @@ void HighRateGyroscope::init()
 
 void HighRateGyroscope::onConnected()
 {
-	if (_enabled)
-	{
-		enable(true);
-	}
 }
 
 
 void HighRateGyroscope::onDisconnected()
 {
-	enable(false);
+	Poco::Mutex::ScopedLock lock(_mutex);
+	
+	_ready = false;
 }
 
 
