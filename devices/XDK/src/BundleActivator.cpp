@@ -134,10 +134,10 @@ public:
 				Poco::Int16 x, y, z, r;
 				reader >> x >> y >> z >> r;
 				IoT::Devices::MagneticFieldStrength field;
-				field.x = x/1000.0;
+				field.x = x/1000.0; // millitesla
 				field.y = y/1000.0;
 				field.z = z/1000.0;	
-				field.r = z/1000.0;
+				field.r = r/1000.0;
 				_pMagnetometer->update(field);
 			}
 		}
@@ -231,10 +231,8 @@ public:
 	Poco::SharedPtr<HighRateButton> createHighRateButton(Peripheral::Ptr pPeripheral, int id)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Trigger> ServerHelper;
-		Poco::SharedPtr<HighRateButton> pButton = new HighRateButton(pPeripheral, id);
-		std::string oid(HighRateButton::SYMBOLIC_NAME);
-		oid += '#';
-		oid += pPeripheral->address();
+		Poco::SharedPtr<HighRateButton> pButton = new HighRateButton(pPeripheral);
+		std::string oid(Poco::format("%s%d%%s", HighRateButton::SYMBOLIC_NAME, id, pPeripheral->address()));
 		ServerHelper::RemoteObjectPtr pButtonRemoteObject = ServerHelper::createRemoteObject(pButton, oid);
 		Properties props;
 		props.set("io.macchina.device", HighRateButton::SYMBOLIC_NAME);

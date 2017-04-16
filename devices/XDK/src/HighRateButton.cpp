@@ -25,11 +25,11 @@ const std::string HighRateButton::NAME("XDK Button");
 const std::string HighRateButton::SYMBOLIC_NAME("io.macchina.btle.xdk.button");
 
 
-HighRateButton::HighRateButton(Peripheral::Ptr pPeripheral, int id):
+HighRateButton::HighRateButton(Peripheral::Ptr pPeripheral):
 	_pPeripheral(pPeripheral),
 	_enabled(false),
 	_ready(false),
-	_deviceIdentifier(Poco::format("%s$%d", pPeripheral->address(), id)),
+	_deviceIdentifier(pPeripheral->address()),
 	_symbolicName(SYMBOLIC_NAME),
 	_name(NAME)
 {

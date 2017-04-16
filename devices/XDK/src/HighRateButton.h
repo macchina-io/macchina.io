@@ -30,7 +30,7 @@ class HighRateButton: public IoT::Devices::DeviceImpl<IoT::Devices::Trigger, Hig
 public:
 	typedef Poco::SharedPtr<HighRateButton> Ptr;
 
-	HighRateButton(Peripheral::Ptr pPeripheral, int id);
+	HighRateButton(Peripheral::Ptr pPeripheral);
 		/// Creates a HighRateButton.
 
 	~HighRateButton();
