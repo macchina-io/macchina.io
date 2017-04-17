@@ -47,6 +47,15 @@ struct Message
 	{
 	}
 	
+#if __cplusplus >= 201103L
+	Message(std::string&& p, int q) :
+		payload(p),
+		qos(q),
+		retained(false)
+	{
+	}
+#endif
+
 	std::string payload; 
 		/// The payload of the MQTT message.
 
