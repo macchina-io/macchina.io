@@ -1,0 +1,67 @@
+<AppConfig>
+	<RemoteGen>
+		<files>
+			<include>
+				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/RemoteObject.h
+				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Proxy.h
+				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Skeleton.h
+				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/EventDispatcher.h
+				include/IoT/BtLE/Peripheral.h
+				include/IoT/BtLE/PeripheralBrowser.h
+			</include>
+			<exclude>
+			</exclude>
+		</files>
+		<output>
+			<namespace>IoT::BtLE</namespace>
+			<include>include/IoT/BtLE</include>
+			<src>src</src>
+			<copyright>Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
+			           All rights reserved.
+			           
+			           SPDX-License-Identifier: Apache-2.0</copyright>
+			<mode>server</mode>
+			<osp>
+				<enable>true</enable>
+			</osp>
+			<timestamps>false</timestamps>
+			<includeRoot>include</includeRoot>
+			<flatIncludes>false</flatIncludes>
+		</output>
+		<compiler id="gcc">
+			<exec>g++</exec>
+			<options>
+				-I${POCO_BASE}/Foundation/include
+				-I${POCO_BASE}/RemotingNG/include
+				-I./include
+				-E
+				-C
+				-o%.i
+			</options>
+		</compiler>
+		<compiler id="clang">
+			<exec>clang++</exec>
+			<options>
+				-I${POCO_BASE}/Foundation/include
+				-I${POCO_BASE}/RemotingNG/include
+				-I./include
+				-E
+				-C
+				-xc++
+				-o%.i
+			</options>
+		</compiler>
+		<compiler id="msvc">
+			<exec>cl</exec>
+			<options>
+				/I "${POCO_BASE}\Foundation\include"
+				/I "${POCO_BASE}\RemotingNG\include"
+				/I ".\include"
+				/nologo
+				/C
+				/P
+				/TP
+			</options>
+		</compiler>
+	</RemoteGen>
+</AppConfig>

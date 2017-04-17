@@ -8,13 +8,22 @@
 
 include $(POCO_BASE)/build/rules/global
 
-INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
-
 objects = \
 	GATTClient \
-	BlueZGATTClient \
+	GATTPeripheral \
+	IPeripheral \
+	IPeripheralBrowser \
 	Peripheral \
-	PeripheralImpl
+	PeripheralBrowser \
+	PeripheralBrowserEventDispatcher \
+	PeripheralBrowserRemoteObject \
+	PeripheralBrowserServerHelper \
+	PeripheralBrowserSkeleton \
+	PeripheralEventDispatcher \
+	PeripheralFactory \
+	PeripheralRemoteObject \
+	PeripheralServerHelper \
+	PeripheralSkeleton
 
 target         = IoTBtLE
 target_version = 1

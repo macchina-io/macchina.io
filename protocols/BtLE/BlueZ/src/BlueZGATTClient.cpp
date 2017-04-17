@@ -14,7 +14,7 @@
 //
 
 
-#include "IoT/BtLE/BlueZGATTClient.h"
+#include "BlueZGATTClient.h"
 #include "Poco/StringTokenizer.h"
 #include "Poco/File.h"
 #include "Poco/NumberParser.h"
@@ -24,6 +24,7 @@
 
 namespace IoT {
 namespace BtLE {
+namespace BlueZ {
 
 
 BlueZGATTClient::BlueZGATTClient(const std::string helperPath):
@@ -709,4 +710,4 @@ Poco::UInt16 BlueZGATTClient::decodeWord(const std::string& value)
 }
 
 
-} } // namespace IoT::BtLE
+} } } // namespace IoT::BtLE::BlueZ

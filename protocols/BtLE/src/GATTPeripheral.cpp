@@ -1,11 +1,11 @@
 //
-// PeripheralImpl.cpp
+// GATTPeripheral.cpp
 //
 // $Id$
 //
 // Library: IoT/BtLE
 // Package: BtLE
-// Module:  PeripheralImpl
+// Module:  GATTPeripheral
 //
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -14,7 +14,7 @@
 //
 
 
-#include "IoT/BtLE/PeripheralImpl.h"
+#include "IoT/BtLE/GATTPeripheral.h"
 #include "Poco/MemoryStream.h"
 #include "Poco/BinaryReader.h"
 #include "Poco/BinaryWriter.h"
@@ -29,57 +29,66 @@ namespace IoT {
 namespace BtLE {
 
 
-PeripheralImpl::PeripheralImpl(const std::string& address, GATTClient::Ptr pGATTClient):
+GATTPeripheral::GATTPeripheral(const std::string& address, GATTClient::Ptr pGATTClient):
 	_address(address),
 	_pGATTClient(pGATTClient),
-	_logger(Poco::Logger::get("IoT.PeripheralImpl"))
+	_logger(Poco::Logger::get("IoT.GATTPeripheral"))
 {
-	_pGATTClient->connected += Poco::delegate(this, &PeripheralImpl::onConnected);
-	_pGATTClient->disconnected += Poco::delegate(this, &PeripheralImpl::onDisconnected);
-	_pGATTClient->error += Poco::delegate(this, &PeripheralImpl::onError);
-	_pGATTClient->indicationReceived += Poco::delegate(this, &PeripheralImpl::onIndication);
-	_pGATTClient->notificationReceived += Poco::delegate(this, &PeripheralImpl::onNotification);
+	_pGATTClient->connected += Poco::delegate(this, &GATTPeripheral::onConnected);
+	_pGATTClient->disconnected += Poco::delegate(this, &GATTPeripheral::onDisconnected);
+	_pGATTClient->error += Poco::delegate(this, &GATTPeripheral::onError);
+	_pGATTClient->indicationReceived += Poco::delegate(this, &GATTPeripheral::onIndication);
+	_pGATTClient->notificationReceived += Poco::delegate(this, &GATTPeripheral::onNotification);
 }
 
 
-PeripheralImpl::~PeripheralImpl()
+GATTPeripheral::~GATTPeripheral()
 {
-	_pGATTClient->connected -= Poco::delegate(this, &PeripheralImpl::onConnected);
-	_pGATTClient->disconnected -= Poco::delegate(this, &PeripheralImpl::onDisconnected);
-	_pGATTClient->error -= Poco::delegate(this, &PeripheralImpl::onError);
-	_pGATTClient->indicationReceived -= Poco::delegate(this, &PeripheralImpl::onIndication);
-	_pGATTClient->notificationReceived -= Poco::delegate(this, &PeripheralImpl::onNotification);
+	_pGATTClient->connected -= Poco::delegate(this, &GATTPeripheral::onConnected);
+	_pGATTClient->disconnected -= Poco::delegate(this, &GATTPeripheral::onDisconnected);
+	_pGATTClient->error -= Poco::delegate(this, &GATTPeripheral::onError);
+	_pGATTClient->indicationReceived -= Poco::delegate(this, &GATTPeripheral::onIndication);
+	_pGATTClient->notificationReceived -= Poco::delegate(this, &GATTPeripheral::onNotification);
 }
 
 
-void PeripheralImpl::connect(GATTClient::ConnectMode mode)
+void GATTPeripheral::connect()
 {
 	if (_pGATTClient->state() == GATTClient::GATT_STATE_DISCONNECTED)
 	{
-		_pGATTClient->connect(_address, mode);
+		_pGATTClient->connect(_address, GATTClient::GATT_CONNECT_WAIT);
 	}
 }
 
 
-void PeripheralImpl::disconnect()
+void GATTPeripheral::connectAsync()
+{
+	if (_pGATTClient->state() == GATTClient::GATT_STATE_DISCONNECTED)
+	{
+		_pGATTClient->connect(_address, GATTClient::GATT_CONNECT_NOWAIT);
+	}
+}
+
+
+void GATTPeripheral::disconnect()
 {
 	_pGATTClient->disconnect();
 }
 
 
-bool PeripheralImpl::isConnected() const
+bool GATTPeripheral::isConnected() const
 {
 	return _pGATTClient->state() == GATTClient::GATT_STATE_CONNECTED;
 }
 
 
-std::string PeripheralImpl::address() const
+std::string GATTPeripheral::address() const
 {
 	return _address;
 }
 
 
-std::vector<std::string> PeripheralImpl::services()
+std::vector<std::string> GATTPeripheral::services()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 	
@@ -96,7 +105,7 @@ std::vector<std::string> PeripheralImpl::services()
 }
 
 
-std::string PeripheralImpl::serviceUUIDForAssignedNumber(Poco::UInt32 assignedNumber)
+std::string GATTPeripheral::serviceUUIDForAssignedNumber(Poco::UInt32 assignedNumber)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 	
@@ -118,7 +127,7 @@ std::string PeripheralImpl::serviceUUIDForAssignedNumber(Poco::UInt32 assignedNu
 }
 
 
-std::vector<std::string> PeripheralImpl::characteristics(const std::string& serviceUUID)
+std::vector<std::string> GATTPeripheral::characteristics(const std::string& serviceUUID)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -135,7 +144,7 @@ std::vector<std::string> PeripheralImpl::characteristics(const std::string& serv
 }
 
 
-Characteristic PeripheralImpl::characteristic(const std::string& serviceUUID, const std::string& characteristicUUID)
+Characteristic GATTPeripheral::characteristic(const std::string& serviceUUID, const std::string& characteristicUUID)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -156,7 +165,7 @@ Characteristic PeripheralImpl::characteristic(const std::string& serviceUUID, co
 }
 
 
-Characteristic PeripheralImpl::characteristicForAssignedNumber(const std::string& serviceUUID, Poco::UInt32 assignedNumber)
+Characteristic GATTPeripheral::characteristicForAssignedNumber(const std::string& serviceUUID, Poco::UInt32 assignedNumber)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -178,7 +187,7 @@ Characteristic PeripheralImpl::characteristicForAssignedNumber(const std::string
 }
 
 
-Poco::UInt16 PeripheralImpl::handleForDescriptor(const std::string& serviceUUID, const std::string& descriptorUUID)
+Poco::UInt16 GATTPeripheral::handleForDescriptor(const std::string& serviceUUID, const std::string& descriptorUUID)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -196,7 +205,7 @@ Poco::UInt16 PeripheralImpl::handleForDescriptor(const std::string& serviceUUID,
 }
 
 
-Poco::UInt8 PeripheralImpl::readUInt8(Poco::UInt16 valueHandle)
+Poco::UInt8 GATTPeripheral::readUInt8(Poco::UInt16 valueHandle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -210,7 +219,7 @@ Poco::UInt8 PeripheralImpl::readUInt8(Poco::UInt16 valueHandle)
 }
 
 
-Poco::Int8 PeripheralImpl::readInt8(Poco::UInt16 valueHandle)
+Poco::Int8 GATTPeripheral::readInt8(Poco::UInt16 valueHandle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -224,7 +233,7 @@ Poco::Int8 PeripheralImpl::readInt8(Poco::UInt16 valueHandle)
 }
 
 
-Poco::UInt16 PeripheralImpl::readUInt16(Poco::UInt16 valueHandle)
+Poco::UInt16 GATTPeripheral::readUInt16(Poco::UInt16 valueHandle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -239,7 +248,7 @@ Poco::UInt16 PeripheralImpl::readUInt16(Poco::UInt16 valueHandle)
 }
 
 
-Poco::Int16 PeripheralImpl::readInt16(Poco::UInt16 valueHandle)
+Poco::Int16 GATTPeripheral::readInt16(Poco::UInt16 valueHandle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -254,7 +263,7 @@ Poco::Int16 PeripheralImpl::readInt16(Poco::UInt16 valueHandle)
 }
 
 
-Poco::UInt32 PeripheralImpl::readUInt32(Poco::UInt16 valueHandle)
+Poco::UInt32 GATTPeripheral::readUInt32(Poco::UInt16 valueHandle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -269,7 +278,7 @@ Poco::UInt32 PeripheralImpl::readUInt32(Poco::UInt16 valueHandle)
 }
 
 
-Poco::Int32 PeripheralImpl::readInt32(Poco::UInt16 valueHandle)
+Poco::Int32 GATTPeripheral::readInt32(Poco::UInt16 valueHandle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -284,7 +293,7 @@ Poco::Int32 PeripheralImpl::readInt32(Poco::UInt16 valueHandle)
 }
 
 
-std::string PeripheralImpl::readString(Poco::UInt16 valueHandle)
+std::string GATTPeripheral::readString(Poco::UInt16 valueHandle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -294,7 +303,7 @@ std::string PeripheralImpl::readString(Poco::UInt16 valueHandle)
 }
 
 
-std::vector<char> PeripheralImpl::readBytes(Poco::UInt16 valueHandle)
+std::vector<char> GATTPeripheral::readBytes(Poco::UInt16 valueHandle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -305,7 +314,7 @@ std::vector<char> PeripheralImpl::readBytes(Poco::UInt16 valueHandle)
 }
 
 
-void PeripheralImpl::writeUInt8(Poco::UInt16 valueHandle, Poco::UInt8 value, bool withResponse)
+void GATTPeripheral::writeUInt8(Poco::UInt16 valueHandle, Poco::UInt8 value, bool withResponse)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -316,7 +325,7 @@ void PeripheralImpl::writeUInt8(Poco::UInt16 valueHandle, Poco::UInt8 value, boo
 }
 
 
-void PeripheralImpl::writeInt8(Poco::UInt16 valueHandle, Poco::Int8 value, bool withResponse)
+void GATTPeripheral::writeInt8(Poco::UInt16 valueHandle, Poco::Int8 value, bool withResponse)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -327,7 +336,7 @@ void PeripheralImpl::writeInt8(Poco::UInt16 valueHandle, Poco::Int8 value, bool 
 }
 
 
-void PeripheralImpl::writeUInt16(Poco::UInt16 valueHandle, Poco::UInt16 value, bool withResponse)
+void GATTPeripheral::writeUInt16(Poco::UInt16 valueHandle, Poco::UInt16 value, bool withResponse)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -339,7 +348,7 @@ void PeripheralImpl::writeUInt16(Poco::UInt16 valueHandle, Poco::UInt16 value, b
 }
 
 
-void PeripheralImpl::writeInt16(Poco::UInt16 valueHandle, Poco::Int16 value, bool withResponse)
+void GATTPeripheral::writeInt16(Poco::UInt16 valueHandle, Poco::Int16 value, bool withResponse)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -351,7 +360,7 @@ void PeripheralImpl::writeInt16(Poco::UInt16 valueHandle, Poco::Int16 value, boo
 }
 
 
-void PeripheralImpl::writeUInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse)
+void GATTPeripheral::writeUInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -363,7 +372,7 @@ void PeripheralImpl::writeUInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, b
 }
 
 
-void PeripheralImpl::writeInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse)
+void GATTPeripheral::writeInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -375,7 +384,7 @@ void PeripheralImpl::writeInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bo
 }
 
 
-void PeripheralImpl::writeString(Poco::UInt16 valueHandle, const std::string& value, bool withResponse)
+void GATTPeripheral::writeString(Poco::UInt16 valueHandle, const std::string& value, bool withResponse)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -385,7 +394,7 @@ void PeripheralImpl::writeString(Poco::UInt16 valueHandle, const std::string& va
 }
 
 
-void PeripheralImpl::writeBytes(Poco::UInt16 valueHandle, const std::vector<char>& value, bool withResponse)
+void GATTPeripheral::writeBytes(Poco::UInt16 valueHandle, const std::vector<char>& value, bool withResponse)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -397,7 +406,7 @@ void PeripheralImpl::writeBytes(Poco::UInt16 valueHandle, const std::vector<char
 }
 
 
-std::string PeripheralImpl::manufacturerName()
+std::string GATTPeripheral::manufacturerName()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -409,7 +418,7 @@ std::string PeripheralImpl::manufacturerName()
 }
 
 
-std::string PeripheralImpl::modelNumber()
+std::string GATTPeripheral::modelNumber()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -421,7 +430,7 @@ std::string PeripheralImpl::modelNumber()
 }
 
 
-std::string PeripheralImpl::serialNumber()
+std::string GATTPeripheral::serialNumber()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -433,7 +442,7 @@ std::string PeripheralImpl::serialNumber()
 }
 
 
-std::string PeripheralImpl::hardwareRevision()
+std::string GATTPeripheral::hardwareRevision()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -445,7 +454,7 @@ std::string PeripheralImpl::hardwareRevision()
 }
 
 
-std::string PeripheralImpl::firmwareRevision()
+std::string GATTPeripheral::firmwareRevision()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -457,7 +466,7 @@ std::string PeripheralImpl::firmwareRevision()
 }
 
 
-std::string PeripheralImpl::softwareRevision()
+std::string GATTPeripheral::softwareRevision()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -469,37 +478,43 @@ std::string PeripheralImpl::softwareRevision()
 }
 
 
-void PeripheralImpl::onConnected()
+void GATTPeripheral::onConnected()
 {
 	connected(this);
 }
 
 
-void PeripheralImpl::onDisconnected()
+void GATTPeripheral::onDisconnected()
 {
 	disconnected(this);
 }
 
 
-void PeripheralImpl::onError(const std::string& err)
+void GATTPeripheral::onError(const std::string& err)
 {
 	error(this, err);
 }
 
 
-void PeripheralImpl::onIndication(const GATTClient::Indication& ind)
+void GATTPeripheral::onIndication(const GATTClient::Indication& gattInd)
 {
+	Indication ind;
+	ind.handle = gattInd.handle;
+	ind.data   = gattInd.data;
 	indicationReceived(ind);
 }
 
 
-void PeripheralImpl::onNotification(const GATTClient::Notification& nf)
+void GATTPeripheral::onNotification(const GATTClient::Notification& gattNf)
 {
+	Notification nf;
+	nf.handle = gattNf.handle;
+	nf.data   = gattNf.data;
 	notificationReceived(nf);
 }
 
 
-std::string PeripheralImpl::readDeviceInformation(Poco::UInt32 assignedNumber)
+std::string GATTPeripheral::readDeviceInformation(Poco::UInt32 assignedNumber)
 {
 	std::string serviceUUID = serviceUUIDForAssignedNumber(0x180a);
 	std::string result;	

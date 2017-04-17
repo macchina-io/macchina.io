@@ -36,6 +36,7 @@
 
 namespace IoT {
 namespace BtLE {
+namespace BlueZ {
 
 
 class IoTBtLE_API BlueZGATTClient: public GATTClient, public Poco::Runnable
@@ -188,7 +189,7 @@ private:
 };
 
 
-} } // namespace IoT::BtLE
+} } } // namespace IoT::BtLE::BlueZ
 
 
 #endif // IoT_BtLE_BlueZGATTClient_INCLUDED

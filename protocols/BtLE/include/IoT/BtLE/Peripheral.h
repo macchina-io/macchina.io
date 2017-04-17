@@ -39,6 +39,32 @@ struct Characteristic
 };
 
 
+//@ serialize
+struct Indication
+{
+	Indication():
+		handle(0)
+	{
+	}
+	
+	Poco::UInt16 handle;
+	std::string data;
+};
+
+
+//@ serialize
+struct Notification
+{
+	Notification():
+		handle(0)
+	{
+	}
+	
+	Poco::UInt16 handle;
+	std::string data;
+};
+
+
 //@ remote
 class IoTBtLE_API Peripheral
 	/// This class provides a high-level interface to a Bluetooth LE peripheral
@@ -57,14 +83,22 @@ public:
 		/// Fired when the connection attempt with the peripheral has failed.
 		/// The event argument contains more information about the error.
 
-	Poco::BasicEvent<const GATTClient::Indication> indicationReceived;
+	Poco::BasicEvent<const Indication> indicationReceived;
 		/// Fired when an Indication has been received from the peripheral.
 		
-	Poco::BasicEvent<const GATTClient::Notification> notificationReceived;
+	Poco::BasicEvent<const Notification> notificationReceived;
 		/// Fired when a Notification has been received from the peripheral.
 
-	virtual void connect(GATTClient::ConnectMode mode = GATTClient::GATT_CONNECT_WAIT) = 0;
+	virtual void connect() = 0;
 		/// Connects to the Bluetooth LE peripheral.
+		///
+		/// Waits for successful connection or error.
+
+	virtual void connectAsync() = 0;
+		/// Connects to the Bluetooth LE peripheral.
+		///
+		/// Successful connection or error will be reported through connected 
+		/// and error events.
 		
 	virtual void disconnect() = 0;
 		/// Disconnects from the Bluetooth LE peripheral.
@@ -186,6 +220,7 @@ public:
 		/// Returns the peripheral's software revision string obtained from the Device Information service.
 	
 	virtual ~Peripheral();
+		/// Destroys the Peripheral.
 };
 
 

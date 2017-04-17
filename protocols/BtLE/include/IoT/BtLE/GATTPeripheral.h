@@ -1,13 +1,13 @@
 //
-// PeripheralImpl.h
+// GATTPeripheral.h
 //
 // $Id$
 //
 // Library: IoT/BtLE
 // Package: BtLE
-// Module:  PeripheralImpl
+// Module:  GATTPeripheral
 //
-// Definition of the PeripheralImpl class.
+// Definition of the GATTPeripheral class.
 //
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -16,8 +16,8 @@
 //
 
 
-#ifndef IoT_BtLE_PeripheralImpl_INCLUDED
-#define IoT_BtLE_PeripheralImpl_INCLUDED
+#ifndef IoT_BtLE_GATTPeripheral_INCLUDED
+#define IoT_BtLE_GATTPeripheral_INCLUDED
 
 
 #include "IoT/BtLE/Peripheral.h"
@@ -31,19 +31,20 @@ namespace IoT {
 namespace BtLE {
 
 
-class IoTBtLE_API PeripheralImpl: public Peripheral
+class IoTBtLE_API GATTPeripheral: public Peripheral
 	/// This class provides a high-level interface to a Bluetooth LE peripheral
 	/// device using the Bluetooth Generic Attribute Profile (GATT).
 {
 public:
-	PeripheralImpl(const std::string& address, GATTClient::Ptr pGATTClient);
-		/// Creates the PeripheralImpl.
+	GATTPeripheral(const std::string& address, GATTClient::Ptr pGATTClient);
+		/// Creates the GATTPeripheral.
 		
-	~PeripheralImpl();
-		/// Destroys the PeripheralImpl.
+	~GATTPeripheral();
+		/// Destroys the GATTPeripheral.
 	
 	// Peripheral
-	void connect(GATTClient::ConnectMode mode);
+	void connect();
+	void connectAsync();
 	void disconnect();
 	bool isConnected() const;
 	std::string address() const;
@@ -101,4 +102,4 @@ private:
 } } // namespace IoT::BtLE
 
 
-#endif // IoT_BtLE_PeripheralImpl_INCLUDED
+#endif // IoT_BtLE_GATTPeripheral_INCLUDED
