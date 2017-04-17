@@ -22,8 +22,7 @@
 #include "Poco/Util/TimerTask.h"
 #include "IoT/Devices/SensorServerHelper.h"
 #include "IoT/Devices/AccelerometerServerHelper.h"
-#include "IoT/BtLE/BlueZGATTClient.h"
-#include "IoT/BtLE/PeripheralImpl.h"
+#include "IoT/BtLE/PeripheralFactory.h"
 #include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
@@ -268,8 +267,8 @@ public:
 		_pTimer = new Poco::Util::Timer;
 	
 		Poco::Util::AbstractConfiguration::Keys keys;
-		std::string helperPath = _pPrefs->configuration()->getString("btle.bluez.helper");
 		_pPrefs->configuration()->keys("sensortag.sensors", keys);
+
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "sensortag.sensors.";
@@ -279,8 +278,9 @@ public:
 		
 			try
 			{	
-				GATTClient::Ptr pGATTClient = new BlueZGATTClient(helperPath);
-				Peripheral::Ptr pPeripheral = new PeripheralImpl(address, pGATTClient);
+				IoT::BtLE::PeripheralFactory::Ptr pPeripheralFactory = ServiceFinder::find<IoT::BtLE::PeripheralFactory>(pContext);
+				Peripheral::Ptr pPeripheral = pPeripheralFactory->createPeripheral(address);
+
 				pPeripheral->connected += Poco::delegate(this, &BundleActivator::onConnected);
 				pPeripheral->disconnected += Poco::delegate(this, &BundleActivator::onDisconnected);	
 
@@ -291,7 +291,7 @@ public:
 				info.haveSensors = false;
 				_peripherals.push_back(info);		
 
-				pPeripheral->connect(GATTClient::GATT_CONNECT_NOWAIT);
+				pPeripheral->connectAsync();
 			}
 			catch (Poco::Exception& exc)
 			{
@@ -400,7 +400,7 @@ protected:
 	{
 		try
 		{
-			pPeripheral->connect(GATTClient::GATT_CONNECT_NOWAIT);
+			pPeripheral->connectAsync();
 		}
 		catch (Poco::Exception& exc)
 		{

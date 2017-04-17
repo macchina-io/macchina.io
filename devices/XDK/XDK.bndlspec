@@ -10,7 +10,7 @@
 			<library>io.macchina.btle.xdk</library>
 		</activator>
 		<lazyStart>false</lazyStart>
-		<runLevel>610</runLevel>
+		<runLevel>620</runLevel>
 		<dependency>
 			<symbolicName>io.macchina.devices</symbolicName>
 			<version>[1.0.0, 2.0.0)</version>

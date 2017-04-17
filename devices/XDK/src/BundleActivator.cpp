@@ -25,8 +25,7 @@
 #include "IoT/Devices/GyroscopeServerHelper.h"
 #include "IoT/Devices/MagnetometerServerHelper.h"
 #include "IoT/Devices/TriggerServerHelper.h"
-#include "IoT/BtLE/BlueZGATTClient.h"
-#include "IoT/BtLE/PeripheralImpl.h"
+#include "IoT/BtLE/PeripheralFactory.h"
 #include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
@@ -143,7 +142,7 @@ public:
 		}
 	}
 	
-	void handleHighRateNotification(const void* sender, const IoT::BtLE::GATTClient::Notification& nf)
+	void handleHighRateNotification(const void* sender, const IoT::BtLE::Notification& nf)
 	{
 		if (nf.handle == 0x34)
 		{
@@ -495,8 +494,8 @@ public:
 		_useHighRateService = _pPrefs->configuration()->getBool("xdk.useHighRateDataService", true);
 
 		Poco::Util::AbstractConfiguration::Keys keys;
-		std::string helperPath = _pPrefs->configuration()->getString("btle.bluez.helper");
 		_pPrefs->configuration()->keys("xdk.sensors", keys);
+		
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "xdk.sensors.";
@@ -505,9 +504,10 @@ public:
 			std::string address = _pPrefs->configuration()->getString(baseKey + ".address");
 		
 			try
-			{	
-				GATTClient::Ptr pGATTClient = new BlueZGATTClient(helperPath);
-				Peripheral::Ptr pPeripheral = new PeripheralImpl(address, pGATTClient);
+			{
+				IoT::BtLE::PeripheralFactory::Ptr pPeripheralFactory = ServiceFinder::find<IoT::BtLE::PeripheralFactory>(pContext);
+				Peripheral::Ptr pPeripheral = pPeripheralFactory->createPeripheral(address);
+
 				pPeripheral->connected += Poco::delegate(this, &BundleActivator::onConnected);
 				pPeripheral->disconnected += Poco::delegate(this, &BundleActivator::onDisconnected);	
 
@@ -518,7 +518,7 @@ public:
 				info.haveSensors = false;
 				_peripherals.push_back(info);		
 
-				pPeripheral->connect(GATTClient::GATT_CONNECT_NOWAIT);
+				pPeripheral->connectAsync();
 			}
 			catch (Poco::Exception& exc)
 			{
@@ -650,7 +650,7 @@ protected:
 	{
 		try
 		{
-			pPeripheral->connect(GATTClient::GATT_CONNECT_NOWAIT);
+			pPeripheral->connectAsync();
 		}
 		catch (Poco::Exception& exc)
 		{

@@ -135,7 +135,7 @@ void SensorTagAccelerometer::onDisconnected()
 }
 
 
-void SensorTagAccelerometer::onNotificationReceived(const GATTClient::Notification& nf)
+void SensorTagAccelerometer::onNotificationReceived(const Notification& nf)
 {
 	if (nf.handle == _dataChar.valueHandle)
 	{

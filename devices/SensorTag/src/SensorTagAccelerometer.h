@@ -73,7 +73,7 @@ protected:
 	virtual void setValueChangedPeriod(const std::string&, const Poco::Any& value) = 0;
 	void onConnected();
 	void onDisconnected();
-	void onNotificationReceived(const GATTClient::Notification& nf);
+	void onNotificationReceived(const Notification& nf);
 
 protected:
 	Params _params;
