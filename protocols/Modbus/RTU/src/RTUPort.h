@@ -25,6 +25,7 @@
 #include "IoT/Modbus/PDUReader.h"
 #include "Poco/Serial/SerialPort.h"
 #include "Poco/Timespan.h"
+#include "Poco/Timestamp.h"
 #include "Poco/Buffer.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/BinaryWriter.h"
@@ -33,9 +34,10 @@
 
 namespace IoT {
 namespace Modbus {
+namespace RTU {
 
 
-class IoTModbus_API RTUPort
+class RTUPort
 	/// This class implements the Modbus RTU protocol over a serial line.
 {
 public:
@@ -47,10 +49,10 @@ public:
 		RTU_LITTLE_ENDIAN = 2
 	};
 	
-	RTUPort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan interCharTimeout = 750, ByteOrder byteOrder = RTU_BIG_ENDIAN);
+	RTUPort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan frameTimeout = 10000, ByteOrder byteOrder = RTU_BIG_ENDIAN);
 		/// Creates a RTUPort using the given SerialPort.
 		///
-		/// The recommended value for interCharTimeout is 750us.
+		/// The recommended value for frameTimeout is 10ms.
 		///
 		/// The SerialPort must be open and properly configured
 		/// for RS-485 communication with the Modbus slaves.
@@ -101,6 +103,10 @@ public:
 		/// the internal buffer, or if data arrives during the
 		/// specified time interval, otherwise false.
 
+	int maxSimultaneousTransactions() const;
+		/// Returns the maximum number of simultaneous transactions allowed by
+		/// the port.
+
 protected:
 	Poco::UInt16 updateCRC16(Poco::UInt16 crc, Poco::UInt8 byte);
 	bool checkFrame(std::size_t size);
@@ -116,7 +122,7 @@ private:
 	RTUPort& operator = (const RTUPort&);
 	
 	Poco::SharedPtr<Poco::Serial::SerialPort> _pSerialPort;
-	Poco::Timespan _interCharTimeout;
+	Poco::Timespan _frameTimeout;
 	ByteOrder _byteOrder;
 	Poco::Buffer<char> _sendBuffer;
 	Poco::Buffer<char> _receiveBuffer;
@@ -132,7 +138,13 @@ inline bool RTUPort::poll(const Poco::Timespan& timeout)
 }
 
 
-} } // namespace IoT::XBee
+inline int RTUPort::maxSimultaneousTransactions() const
+{
+	return 1;
+}
 
 
-#endif // IoT_XBee_XBeePort_INCLUDED
+} } } // namespace IoT::Modbus::RTU
+
+
+#endif // IoT_Modbus_RTUPort_INCLUDED

@@ -30,6 +30,7 @@ ModbusMasterRemoteObject::ModbusMasterRemoteObject(const Poco::RemotingNG::Ident
 	Poco::RemotingNG::RemoteObject(oid),
 	_pServiceObject(pServiceObject)
 {
+	_pServiceObject->badFrameReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__badFrameReceived);
 	_pServiceObject->exceptionReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__exceptionReceived);
 	_pServiceObject->maskWriteRegisterResponseReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__maskWriteRegisterResponseReceived);
 	_pServiceObject->readCoilsResponseReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__readCoilsResponseReceived);
@@ -40,6 +41,7 @@ ModbusMasterRemoteObject::ModbusMasterRemoteObject(const Poco::RemotingNG::Ident
 	_pServiceObject->readInputRegistersResponseReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__readInputRegistersResponseReceived);
 	_pServiceObject->readWriteMultipleRegistersResponseReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__readWriteMultipleRegistersResponseReceived);
 	_pServiceObject->responseReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__responseReceived);
+	_pServiceObject->timeout += Poco::delegate(this, &ModbusMasterRemoteObject::event__timeout);
 	_pServiceObject->writeMultipleCoilsResponseReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__writeMultipleCoilsResponseReceived);
 	_pServiceObject->writeMultipleRegistersResponseReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__writeMultipleRegistersResponseReceived);
 	_pServiceObject->writeSingleCoilResponseReceived += Poco::delegate(this, &ModbusMasterRemoteObject::event__writeSingleCoilResponseReceived);
@@ -51,6 +53,7 @@ ModbusMasterRemoteObject::~ModbusMasterRemoteObject()
 {
 	try
 	{
+		_pServiceObject->badFrameReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__badFrameReceived);
 		_pServiceObject->exceptionReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__exceptionReceived);
 		_pServiceObject->maskWriteRegisterResponseReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__maskWriteRegisterResponseReceived);
 		_pServiceObject->readCoilsResponseReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__readCoilsResponseReceived);
@@ -61,6 +64,7 @@ ModbusMasterRemoteObject::~ModbusMasterRemoteObject()
 		_pServiceObject->readInputRegistersResponseReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__readInputRegistersResponseReceived);
 		_pServiceObject->readWriteMultipleRegistersResponseReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__readWriteMultipleRegistersResponseReceived);
 		_pServiceObject->responseReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__responseReceived);
+		_pServiceObject->timeout -= Poco::delegate(this, &ModbusMasterRemoteObject::event__timeout);
 		_pServiceObject->writeMultipleCoilsResponseReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__writeMultipleCoilsResponseReceived);
 		_pServiceObject->writeMultipleRegistersResponseReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__writeMultipleRegistersResponseReceived);
 		_pServiceObject->writeSingleCoilResponseReceived -= Poco::delegate(this, &ModbusMasterRemoteObject::event__writeSingleCoilResponseReceived);
@@ -92,55 +96,61 @@ bool ModbusMasterRemoteObject::remoting__hasEvents() const
 }
 
 
+void ModbusMasterRemoteObject::event__badFrameReceived()
+{
+	badFrameReceived(this);
+}
+
+
 void ModbusMasterRemoteObject::event__exceptionReceived(const IoT::Modbus::ModbusExceptionMessage& data)
 {
 	exceptionReceived(this, data);
 }
 
 
-void ModbusMasterRemoteObject::event__maskWriteRegisterResponseReceived(IoT::Modbus::MaskWriteRegisterResponse& data)
+void ModbusMasterRemoteObject::event__maskWriteRegisterResponseReceived(const IoT::Modbus::MaskWriteRegisterResponse& data)
 {
 	maskWriteRegisterResponseReceived(this, data);
 }
 
 
-void ModbusMasterRemoteObject::event__readCoilsResponseReceived(IoT::Modbus::ReadCoilsResponse& data)
+void ModbusMasterRemoteObject::event__readCoilsResponseReceived(const IoT::Modbus::ReadCoilsResponse& data)
 {
 	readCoilsResponseReceived(this, data);
 }
 
 
-void ModbusMasterRemoteObject::event__readDiscreteInputsResponseReceived(IoT::Modbus::ReadDiscreteInputsRequest& data)
+void ModbusMasterRemoteObject::event__readDiscreteInputsResponseReceived(const IoT::Modbus::ReadDiscreteInputsResponse& data)
 {
 	readDiscreteInputsResponseReceived(this, data);
 }
 
 
-void ModbusMasterRemoteObject::event__readExceptionStatusResponseReceived(IoT::Modbus::ReadExceptionStatusResponse& data)
+void ModbusMasterRemoteObject::event__readExceptionStatusResponseReceived(const IoT::Modbus::ReadExceptionStatusResponse& data)
 {
 	readExceptionStatusResponseReceived(this, data);
 }
 
 
-void ModbusMasterRemoteObject::event__readFIFOQueueResponseReceived(IoT::Modbus::ReadFIFOQueueResponse& data)
+void ModbusMasterRemoteObject::event__readFIFOQueueResponseReceived(const IoT::Modbus::ReadFIFOQueueResponse& data)
 {
 	readFIFOQueueResponseReceived(this, data);
 }
 
 
-void ModbusMasterRemoteObject::event__readHoldingRegistersResponseReceived(IoT::Modbus::ReadHoldingRegistersResponse& data)
+void ModbusMasterRemoteObject::event__readHoldingRegistersResponseReceived(const IoT::Modbus::ReadHoldingRegistersResponse& data)
 {
 	readHoldingRegistersResponseReceived(this, data);
 }
 
 
-void ModbusMasterRemoteObject::event__readInputRegistersResponseReceived(IoT::Modbus::ReadInputRegistersResponse& data)
+void ModbusMasterRemoteObject::event__readInputRegistersResponseReceived(const IoT::Modbus::ReadInputRegistersResponse& data)
 {
 	readInputRegistersResponseReceived(this, data);
 }
 
 
-void ModbusMasterRemoteObject::event__readWriteMultipleRegistersResponseReceived(IoT::Modbus::ReadWriteMultipleRegistersResponse& data)
+void ModbusMasterRemoteObject::event__readWriteMultipleRegistersResponseReceived(const IoT::Modbus::ReadWriteMultipleRegistersResponse& data)
 {
 	readWriteMultipleRegistersResponseReceived(this, data);
 }
@@ -152,25 +162,31 @@ void ModbusMasterRemoteObject::event__responseReceived(const IoT::Modbus::Generi
 }
 
 
-void ModbusMasterRemoteObject::event__writeMultipleCoilsResponseReceived(IoT::Modbus::WriteMultipleCoilsResponse& data)
+void ModbusMasterRemoteObject::event__timeout(const Poco::UInt16& data)
+{
+	timeout(this, data);
+}
+
+
+void ModbusMasterRemoteObject::event__writeMultipleCoilsResponseReceived(const IoT::Modbus::WriteMultipleCoilsResponse& data)
 {
 	writeMultipleCoilsResponseReceived(this, data);
 }
 
 
-void ModbusMasterRemoteObject::event__writeMultipleRegistersResponseReceived(IoT::Modbus::WriteMultipleRegistersResponse& data)
+void ModbusMasterRemoteObject::event__writeMultipleRegistersResponseReceived(const IoT::Modbus::WriteMultipleRegistersResponse& data)
 {
 	writeMultipleRegistersResponseReceived(this, data);
 }
 
 
-void ModbusMasterRemoteObject::event__writeSingleCoilResponseReceived(IoT::Modbus::WriteSingleCoilResponse& data)
+void ModbusMasterRemoteObject::event__writeSingleCoilResponseReceived(const IoT::Modbus::WriteSingleCoilResponse& data)
 {
 	writeSingleCoilResponseReceived(this, data);
 }
 
 
-void ModbusMasterRemoteObject::event__writeSingleRegisterResponseReceived(IoT::Modbus::WriteSingleRegisterResponse& data)
+void ModbusMasterRemoteObject::event__writeSingleRegisterResponseReceived(const IoT::Modbus::WriteSingleRegisterResponse& data)
 {
 	writeSingleRegisterResponseReceived(this, data);
 }

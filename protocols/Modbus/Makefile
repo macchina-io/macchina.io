@@ -3,7 +3,7 @@
 #
 # $Id$
 #
-# Makefile for IoT Modbus 
+# Makefile for IoT Modbus
 #
 
 .PHONY: bundle

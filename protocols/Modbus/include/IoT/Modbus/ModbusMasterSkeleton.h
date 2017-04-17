@@ -45,7 +45,14 @@ class ModbusMasterSkeleton: public Poco::RemotingNG::Skeleton
 	/// Note that asynchronous and synchronous (blocking) mode cannot be used
 	/// simultaneously. Calling one of the asynchronous request methods will enable
 	/// asynchronous mode. Calling one of the synchronous request methods will
-	/// disable asynchronous mode.
+	/// disable asynchronous mode. Switching to synchronous mode while a response
+	/// to an asynchronous request is pending will lead to undefined results,
+	/// including possible mismatch of requests and responses.
+	///
+	/// In asynchronous operation, requests are associated with a transaction ID,
+	/// to tell apart multiple concurrent transactions. Transaction IDs are not guaranteed
+	/// to be unique for subsequent requests. In fact, for Modbus RTU, which does not
+	/// allow multiple simultaneous requests, the transaction ID will always be zero.
 {
 public:
 	ModbusMasterSkeleton();
