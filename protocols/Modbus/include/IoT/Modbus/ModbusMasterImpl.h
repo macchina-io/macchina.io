@@ -182,7 +182,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				ReadCoilsResponse response;
-				_pPort->decodeFrame(response);
+				_pPort->decodeFrame(response, transactionID);
 				return response.coilStatus;
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
