@@ -47,7 +47,7 @@ struct Message
 	{
 	}
 	
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L || (defined(_MSC_VER) && MSC_VER >= 1700)
 	Message(std::string&& p, int q) :
 		payload(p),
 		qos(q),
