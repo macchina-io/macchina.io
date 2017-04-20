@@ -1,7 +1,7 @@
 //
-// FPEnvironment_C99.cpp
+// FPEnvironment_QNX.cpp
 //
-// $Id: //poco/1.4/Foundation/src/FPEnvironment_C99.cpp#1 $
+// $Id: //poco/1.4/Foundation/src/FPEnvironment_QNX.cpp#1 $
 //
 // Library: Foundation
 // Package: Core
@@ -14,7 +14,7 @@
 //
 
 
-#include "Poco/FPEnvironment_C99.h"
+#include "Poco/FPEnvironment_QNX.h"
 
 
 namespace Poco {

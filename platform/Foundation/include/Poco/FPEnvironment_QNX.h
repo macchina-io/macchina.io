@@ -1,13 +1,13 @@
 //
-// FPEnvironment_C99.h
+// FPEnvironment_QNX.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/FPEnvironment_C99.h#1 $
+// $Id: //poco/1.4/Foundation/include/Poco/FPEnvironment_QNX.h#1 $
 //
 // Library: Foundation
 // Package: Core
 // Module:  FPEnvironment
 //
-// Definitions of class FPEnvironmentImpl for C99.
+// Definitions of class FPEnvironmentImpl for QNX.
 //
 // Copyright (c) 2004-2006, Applied Informatics Software Engineering GmbH.
 // and Contributors.
@@ -16,8 +16,8 @@
 //
 
 
-#ifndef Foundation_FPEnvironment_C99_INCLUDED
-#define Foundation_FPEnvironment_C99_INCLUDED
+#ifndef Foundation_FPEnvironment_QNX_INCLUDED
+#define Foundation_FPEnvironment_QNX_INCLUDED
 
 
 #include "Poco/Foundation.h"
@@ -132,4 +132,4 @@ inline double FPEnvironmentImpl::copySignImpl(double target, double source)
 } // namespace Poco
 
 
-#endif // Foundation_FPEnvironment_C99_INCLUDED
+#endif // Foundation_FPEnvironment_QNX_INCLUDED
