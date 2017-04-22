@@ -83,6 +83,7 @@ $(V8BASE): archive/$(V8BASE).tar.gz
 	tar xfz $<
 	cd $(V8BASE) && patch -p1 <../patches/armv6.patch
 	cd $(V8BASE) && patch -p1 <../patches/standalone.patch
+	cd $(V8BASE) && patch -p1 <../patches/handlescope.patch
 
 v8base: $(V8BASE)
 

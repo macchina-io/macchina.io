@@ -843,6 +843,8 @@ class V8_EXPORT HandleScope {
   // a HeapObject* in their shortcuts.
   friend class Object;
   friend class Context;
+  template <typename T> friend class Handle;
+  template <typename T> friend class Local;
 };
 
 
