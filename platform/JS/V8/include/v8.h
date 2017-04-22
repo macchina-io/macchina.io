@@ -838,13 +838,12 @@ class V8_EXPORT HandleScope {
 
   // Local::New uses CreateHandle with an Isolate* parameter.
   template<class F> friend class Local;
+  template<class T> friend class Handle;
 
   // Object::GetInternalField and Context::GetEmbedderData use CreateHandle with
   // a HeapObject* in their shortcuts.
   friend class Object;
   friend class Context;
-  template <typename T> friend class Handle;
-  template <typename T> friend class Local;
 };
 
 
