@@ -131,6 +131,9 @@ void ProxyGenerator::structStart(const Poco::CppParser::Struct* pStruct, const C
 		pFuncEnableEvents->addParameter(new Poco::CppParser::Parameter("Poco::RemotingNG::Listener::Ptr pListener", 0));
 		pFuncEnableEvents->addParameter(new Poco::CppParser::Parameter("bool enable = true", 0));
 
+		Poco::CppParser::Function* pHasEvents = new Poco::CppParser::Function("virtual bool remoting__hasEvents", _pStruct);
+		pHasEvents->makeConst();
+
 		Poco::CppParser::Function* pFuncEnableRemoteEvents = new Poco::CppParser::Function("virtual void remoting__enableRemoteEvents", _pStruct);
 		pFuncEnableRemoteEvents->addParameter(new Poco::CppParser::Parameter("const std::string& protocol", 0));
 	
@@ -262,6 +265,7 @@ void ProxyGenerator::registerCallbacks(Poco::CodeGeneration::GeneratorEngine& e)
 	e.registerCallback("~"+_pStruct->name(), &ProxyGenerator::destructorCodeGen);
 	e.registerCallback("remoting__enableEvents", &ProxyGenerator::remotingEventsCodeGen);
 	e.registerCallback("remoting__enableRemoteEvents", &ProxyGenerator::enableRemoteEventsCodeGen);
+	e.registerCallback("remoting__hasEvents", &ProxyGenerator::hasEventsCodeGen);
 
 	std::vector<std::string>::const_iterator it = _outerEventFunctions.begin();
 	for (; it != _outerEventFunctions.end(); ++it)
@@ -1419,4 +1423,10 @@ void ProxyGenerator::enableRemoteEventsCodeGen(const Poco::CppParser::Function* 
 
 	gen.writeMethodImplementation("Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new " + EventDispatcherGenerator::generateClassName(pStructIn) + "(this, protocol);");
 	gen.writeMethodImplementation("Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);");
+}
+
+
+void ProxyGenerator::hasEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+{
+	gen.writeMethodImplementation("return true;");
 }

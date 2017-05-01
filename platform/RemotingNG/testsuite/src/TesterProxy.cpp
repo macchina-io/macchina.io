@@ -205,6 +205,12 @@ void TesterProxy::remoting__enableRemoteEvents(const std::string& protocol)
 }
 
 
+bool TesterProxy::remoting__hasEvents() const
+{
+	return true;
+}
+
+
 void TesterProxy::testArgNamespace(const Struct3& s31, Struct3& s32)
 {
 	remoting__staticInitBegin(REMOTING__NAMES);

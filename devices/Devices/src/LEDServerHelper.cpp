@@ -53,7 +53,7 @@ void LEDServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Devices::LEDRemoteObject> LEDServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::LED> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new LEDRemoteObject(oid, pServiceObject);
+	return new LEDStub(oid, pServiceObject);
 }
 
 

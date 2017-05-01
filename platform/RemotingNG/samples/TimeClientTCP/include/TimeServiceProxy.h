@@ -46,6 +46,8 @@ public:
 
 	virtual void remoting__enableRemoteEvents(const std::string& protocol);
 
+	virtual bool remoting__hasEvents() const;
+
 	void wakeMeUp(const Poco::DateTime& time, const std::string& message);
 		/// Schedules a wakeup call.
 		///

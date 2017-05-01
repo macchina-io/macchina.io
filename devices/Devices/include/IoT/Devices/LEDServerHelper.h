@@ -22,6 +22,7 @@
 #include "IoT/Devices/ILED.h"
 #include "IoT/Devices/LED.h"
 #include "IoT/Devices/LEDRemoteObject.h"
+#include "IoT/Devices/LEDStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

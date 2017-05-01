@@ -22,6 +22,7 @@
 #include "IoT/Devices/IRotaryEncoder.h"
 #include "IoT/Devices/RotaryEncoder.h"
 #include "IoT/Devices/RotaryEncoderRemoteObject.h"
+#include "IoT/Devices/RotaryEncoderStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

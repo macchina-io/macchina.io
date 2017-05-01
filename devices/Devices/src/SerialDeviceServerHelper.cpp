@@ -54,7 +54,7 @@ void SerialDeviceServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Devices::SerialDeviceRemoteObject> SerialDeviceServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::SerialDevice> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new SerialDeviceRemoteObject(oid, pServiceObject);
+	return new SerialDeviceStub(oid, pServiceObject);
 }
 
 

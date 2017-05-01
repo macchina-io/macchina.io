@@ -21,6 +21,7 @@
 
 #include "IoT/Devices/Gyroscope.h"
 #include "IoT/Devices/GyroscopeRemoteObject.h"
+#include "IoT/Devices/GyroscopeStub.h"
 #include "IoT/Devices/IGyroscope.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"

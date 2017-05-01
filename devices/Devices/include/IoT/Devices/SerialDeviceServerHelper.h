@@ -22,6 +22,7 @@
 #include "IoT/Devices/ISerialDevice.h"
 #include "IoT/Devices/SerialDevice.h"
 #include "IoT/Devices/SerialDeviceRemoteObject.h"
+#include "IoT/Devices/SerialDeviceStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

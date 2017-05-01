@@ -22,6 +22,7 @@
 #include "IoT/Devices/IMagnetometer.h"
 #include "IoT/Devices/Magnetometer.h"
 #include "IoT/Devices/MagnetometerRemoteObject.h"
+#include "IoT/Devices/MagnetometerStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

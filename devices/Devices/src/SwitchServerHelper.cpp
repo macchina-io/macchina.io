@@ -54,7 +54,7 @@ void SwitchServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Devices::SwitchRemoteObject> SwitchServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::Switch> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new SwitchRemoteObject(oid, pServiceObject);
+	return new SwitchStub(oid, pServiceObject);
 }
 
 

@@ -54,7 +54,7 @@ void GyroscopeServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Devices::GyroscopeRemoteObject> GyroscopeServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::Gyroscope> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new GyroscopeRemoteObject(oid, pServiceObject);
+	return new GyroscopeStub(oid, pServiceObject);
 }
 
 

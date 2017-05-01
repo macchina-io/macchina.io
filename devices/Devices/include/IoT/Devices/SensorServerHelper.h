@@ -22,6 +22,7 @@
 #include "IoT/Devices/ISensor.h"
 #include "IoT/Devices/Sensor.h"
 #include "IoT/Devices/SensorRemoteObject.h"
+#include "IoT/Devices/SensorStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

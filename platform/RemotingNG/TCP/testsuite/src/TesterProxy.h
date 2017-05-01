@@ -41,6 +41,8 @@ public:
 
 	virtual void remoting__enableRemoteEvents(const std::string& protocol);
 
+	virtual bool remoting__hasEvents() const;
+
 	void testAuthenticated();
 
 	Class1 testClass11(const Class1& c1);

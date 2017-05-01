@@ -179,6 +179,12 @@ void TesterProxy::remoting__enableRemoteEvents(const std::string& protocol)
 }
 
 
+bool TesterProxy::remoting__hasEvents() const
+{
+	return true;
+}
+
+
 void TesterProxy::testAuthenticated()
 {
 	remoting__staticInitBegin(REMOTING__NAMES);

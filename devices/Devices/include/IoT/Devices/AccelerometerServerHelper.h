@@ -21,6 +21,7 @@
 
 #include "IoT/Devices/Accelerometer.h"
 #include "IoT/Devices/AccelerometerRemoteObject.h"
+#include "IoT/Devices/AccelerometerStub.h"
 #include "IoT/Devices/IAccelerometer.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"

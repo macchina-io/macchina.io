@@ -54,7 +54,7 @@ void MagnetometerServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Devices::MagnetometerRemoteObject> MagnetometerServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::Magnetometer> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new MagnetometerRemoteObject(oid, pServiceObject);
+	return new MagnetometerStub(oid, pServiceObject);
 }
 
 

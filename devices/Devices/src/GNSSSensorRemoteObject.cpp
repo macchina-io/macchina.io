@@ -16,67 +16,22 @@
 
 
 #include "IoT/Devices/GNSSSensorRemoteObject.h"
-#include "IoT/Devices/GNSSSensorEventDispatcher.h"
-#include "Poco/Delegate.h"
-#include "Poco/RemotingNG/ORB.h"
 
 
 namespace IoT {
 namespace Devices {
 
 
-GNSSSensorRemoteObject::GNSSSensorRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::GNSSSensor> pServiceObject):
-	IoT::Devices::IGNSSSensor(),
-	Poco::RemotingNG::RemoteObject(oid),
-	_pServiceObject(pServiceObject)
+GNSSSensorRemoteObject::GNSSSensorRemoteObject():
+	Poco::RemotingNG::RemoteObject(),
+	IoT::Devices::IGNSSSensor()
+
 {
-	_pServiceObject->positionLost += Poco::delegate(this, &GNSSSensorRemoteObject::event__positionLost);
-	_pServiceObject->positionUpdate += Poco::delegate(this, &GNSSSensorRemoteObject::event__positionUpdate);
 }
 
 
 GNSSSensorRemoteObject::~GNSSSensorRemoteObject()
 {
-	try
-	{
-		_pServiceObject->positionLost -= Poco::delegate(this, &GNSSSensorRemoteObject::event__positionLost);
-		_pServiceObject->positionUpdate -= Poco::delegate(this, &GNSSSensorRemoteObject::event__positionUpdate);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
-}
-
-
-std::string GNSSSensorRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
-{
-	return std::string();
-}
-
-
-void GNSSSensorRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
-{
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new GNSSSensorEventDispatcher(this, protocol);
-	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
-}
-
-
-bool GNSSSensorRemoteObject::remoting__hasEvents() const
-{
-	return true;
-}
-
-
-void GNSSSensorRemoteObject::event__positionLost()
-{
-	positionLost(this);
-}
-
-
-void GNSSSensorRemoteObject::event__positionUpdate(const IoT::Devices::PositionUpdate& data)
-{
-	positionUpdate(this, data);
 }
 
 

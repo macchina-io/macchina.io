@@ -22,6 +22,7 @@
 #include "IoT/Devices/ITrigger.h"
 #include "IoT/Devices/Trigger.h"
 #include "IoT/Devices/TriggerRemoteObject.h"
+#include "IoT/Devices/TriggerStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

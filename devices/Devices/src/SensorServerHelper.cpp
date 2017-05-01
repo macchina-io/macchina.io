@@ -54,7 +54,7 @@ void SensorServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Devices::SensorRemoteObject> SensorServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::Sensor> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new SensorRemoteObject(oid, pServiceObject);
+	return new SensorStub(oid, pServiceObject);
 }
 
 

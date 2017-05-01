@@ -21,6 +21,7 @@
 
 #include "IoT/Devices/BarcodeReader.h"
 #include "IoT/Devices/BarcodeReaderRemoteObject.h"
+#include "IoT/Devices/BarcodeReaderStub.h"
 #include "IoT/Devices/IBarcodeReader.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"

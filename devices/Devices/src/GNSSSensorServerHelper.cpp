@@ -54,7 +54,7 @@ void GNSSSensorServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Devices::GNSSSensorRemoteObject> GNSSSensorServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::GNSSSensor> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new GNSSSensorRemoteObject(oid, pServiceObject);
+	return new GNSSSensorStub(oid, pServiceObject);
 }
 
 

@@ -45,6 +45,12 @@ public:
 
 	virtual ~RemoteObject();
 		/// Destroys the RemoteObject.
+		
+	virtual bool remoting__hasEvents() const;
+		/// Returns true if the service object has events, false otherwise.
+		///
+		/// Must be overridden by subclasses if the service object has events.
+		/// The default implementation always returns false.
 
 	virtual void remoting__enableRemoteEvents(const std::string& protocol);
 		/// Enables remote events for this RemoteObject instance, using the

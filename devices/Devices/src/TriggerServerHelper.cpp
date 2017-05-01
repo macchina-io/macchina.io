@@ -54,7 +54,7 @@ void TriggerServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Devices::TriggerRemoteObject> TriggerServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::Trigger> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new TriggerRemoteObject(oid, pServiceObject);
+	return new TriggerStub(oid, pServiceObject);
 }
 
 

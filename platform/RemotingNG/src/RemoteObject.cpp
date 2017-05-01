@@ -37,6 +37,12 @@ RemoteObject::~RemoteObject()
 }
 
 
+bool RemoteObject::remoting__hasEvents() const
+{
+	return false;
+}
+
+
 void RemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
 }

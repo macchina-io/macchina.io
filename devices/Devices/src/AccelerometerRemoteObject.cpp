@@ -16,59 +16,22 @@
 
 
 #include "IoT/Devices/AccelerometerRemoteObject.h"
-#include "IoT/Devices/AccelerometerEventDispatcher.h"
-#include "Poco/Delegate.h"
-#include "Poco/RemotingNG/ORB.h"
 
 
 namespace IoT {
 namespace Devices {
 
 
-AccelerometerRemoteObject::AccelerometerRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Accelerometer> pServiceObject):
-	IoT::Devices::IAccelerometer(),
-	Poco::RemotingNG::RemoteObject(oid),
-	_pServiceObject(pServiceObject)
+AccelerometerRemoteObject::AccelerometerRemoteObject():
+	Poco::RemotingNG::RemoteObject(),
+	IoT::Devices::IAccelerometer()
+
 {
-	_pServiceObject->accelerationChanged += Poco::delegate(this, &AccelerometerRemoteObject::event__accelerationChanged);
 }
 
 
 AccelerometerRemoteObject::~AccelerometerRemoteObject()
 {
-	try
-	{
-		_pServiceObject->accelerationChanged -= Poco::delegate(this, &AccelerometerRemoteObject::event__accelerationChanged);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
-}
-
-
-std::string AccelerometerRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
-{
-	return std::string();
-}
-
-
-void AccelerometerRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
-{
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new AccelerometerEventDispatcher(this, protocol);
-	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
-}
-
-
-bool AccelerometerRemoteObject::remoting__hasEvents() const
-{
-	return true;
-}
-
-
-void AccelerometerRemoteObject::event__accelerationChanged(const IoT::Devices::Acceleration& data)
-{
-	accelerationChanged(this, data);
 }
 
 

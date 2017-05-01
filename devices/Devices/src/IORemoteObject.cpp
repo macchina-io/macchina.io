@@ -16,59 +16,22 @@
 
 
 #include "IoT/Devices/IORemoteObject.h"
-#include "IoT/Devices/IOEventDispatcher.h"
-#include "Poco/Delegate.h"
-#include "Poco/RemotingNG/ORB.h"
 
 
 namespace IoT {
 namespace Devices {
 
 
-IORemoteObject::IORemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::IO> pServiceObject):
-	IoT::Devices::IIO(),
-	Poco::RemotingNG::RemoteObject(oid),
-	_pServiceObject(pServiceObject)
+IORemoteObject::IORemoteObject():
+	Poco::RemotingNG::RemoteObject(),
+	IoT::Devices::IIO()
+
 {
-	_pServiceObject->stateChanged += Poco::delegate(this, &IORemoteObject::event__stateChanged);
 }
 
 
 IORemoteObject::~IORemoteObject()
 {
-	try
-	{
-		_pServiceObject->stateChanged -= Poco::delegate(this, &IORemoteObject::event__stateChanged);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
-}
-
-
-std::string IORemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
-{
-	return std::string();
-}
-
-
-void IORemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
-{
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new IOEventDispatcher(this, protocol);
-	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
-}
-
-
-bool IORemoteObject::remoting__hasEvents() const
-{
-	return true;
-}
-
-
-void IORemoteObject::event__stateChanged(const bool& data)
-{
-	stateChanged(this, data);
 }
 
 

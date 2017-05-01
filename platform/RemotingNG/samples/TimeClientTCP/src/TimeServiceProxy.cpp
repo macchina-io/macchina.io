@@ -123,6 +123,12 @@ void TimeServiceProxy::remoting__enableRemoteEvents(const std::string& protocol)
 }
 
 
+bool TimeServiceProxy::remoting__hasEvents() const
+{
+	return true;
+}
+
+
 void TimeServiceProxy::wakeMeUp(const Poco::DateTime& time, const std::string& message)
 {
 	remoting__staticInitBegin(REMOTING__NAMES);

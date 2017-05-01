@@ -16,59 +16,22 @@
 
 
 #include "IoT/Devices/SwitchRemoteObject.h"
-#include "IoT/Devices/SwitchEventDispatcher.h"
-#include "Poco/Delegate.h"
-#include "Poco/RemotingNG/ORB.h"
 
 
 namespace IoT {
 namespace Devices {
 
 
-SwitchRemoteObject::SwitchRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Switch> pServiceObject):
-	IoT::Devices::ISwitch(),
-	Poco::RemotingNG::RemoteObject(oid),
-	_pServiceObject(pServiceObject)
+SwitchRemoteObject::SwitchRemoteObject():
+	Poco::RemotingNG::RemoteObject(),
+	IoT::Devices::ISwitch()
+
 {
-	_pServiceObject->stateChanged += Poco::delegate(this, &SwitchRemoteObject::event__stateChanged);
 }
 
 
 SwitchRemoteObject::~SwitchRemoteObject()
 {
-	try
-	{
-		_pServiceObject->stateChanged -= Poco::delegate(this, &SwitchRemoteObject::event__stateChanged);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
-}
-
-
-std::string SwitchRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
-{
-	return std::string();
-}
-
-
-void SwitchRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
-{
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new SwitchEventDispatcher(this, protocol);
-	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
-}
-
-
-bool SwitchRemoteObject::remoting__hasEvents() const
-{
-	return true;
-}
-
-
-void SwitchRemoteObject::event__stateChanged(const bool& data)
-{
-	stateChanged(this, data);
 }
 
 

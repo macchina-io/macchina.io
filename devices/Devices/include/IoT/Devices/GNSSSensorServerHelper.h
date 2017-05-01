@@ -21,6 +21,7 @@
 
 #include "IoT/Devices/GNSSSensor.h"
 #include "IoT/Devices/GNSSSensorRemoteObject.h"
+#include "IoT/Devices/GNSSSensorStub.h"
 #include "IoT/Devices/IGNSSSensor.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"

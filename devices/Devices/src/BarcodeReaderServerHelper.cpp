@@ -54,7 +54,7 @@ void BarcodeReaderServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Devices::BarcodeReaderRemoteObject> BarcodeReaderServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::BarcodeReader> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new BarcodeReaderRemoteObject(oid, pServiceObject);
+	return new BarcodeReaderStub(oid, pServiceObject);
 }
 
 

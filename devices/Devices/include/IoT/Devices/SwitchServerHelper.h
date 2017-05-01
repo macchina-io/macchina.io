@@ -22,6 +22,7 @@
 #include "IoT/Devices/ISwitch.h"
 #include "IoT/Devices/Switch.h"
 #include "IoT/Devices/SwitchRemoteObject.h"
+#include "IoT/Devices/SwitchStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

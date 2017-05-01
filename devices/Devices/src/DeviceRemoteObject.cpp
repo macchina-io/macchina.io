@@ -22,23 +22,16 @@ namespace IoT {
 namespace Devices {
 
 
-DeviceRemoteObject::DeviceRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Device> pServiceObject):
-	IoT::Devices::IDevice(),
-	Poco::RemotingNG::RemoteObject(oid),
-	_pServiceObject(pServiceObject)
+DeviceRemoteObject::DeviceRemoteObject():
+	Poco::RemotingNG::RemoteObject(),
+	IoT::Devices::IDevice()
+
 {
 }
 
 
 DeviceRemoteObject::~DeviceRemoteObject()
 {
-	try
-	{
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 

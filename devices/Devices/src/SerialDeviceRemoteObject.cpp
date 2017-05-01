@@ -16,59 +16,22 @@
 
 
 #include "IoT/Devices/SerialDeviceRemoteObject.h"
-#include "IoT/Devices/SerialDeviceEventDispatcher.h"
-#include "Poco/Delegate.h"
-#include "Poco/RemotingNG/ORB.h"
 
 
 namespace IoT {
 namespace Devices {
 
 
-SerialDeviceRemoteObject::SerialDeviceRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::SerialDevice> pServiceObject):
-	IoT::Devices::ISerialDevice(),
-	Poco::RemotingNG::RemoteObject(oid),
-	_pServiceObject(pServiceObject)
+SerialDeviceRemoteObject::SerialDeviceRemoteObject():
+	Poco::RemotingNG::RemoteObject(),
+	IoT::Devices::ISerialDevice()
+
 {
-	_pServiceObject->lineReceived += Poco::delegate(this, &SerialDeviceRemoteObject::event__lineReceived);
 }
 
 
 SerialDeviceRemoteObject::~SerialDeviceRemoteObject()
 {
-	try
-	{
-		_pServiceObject->lineReceived -= Poco::delegate(this, &SerialDeviceRemoteObject::event__lineReceived);
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
-}
-
-
-std::string SerialDeviceRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable)
-{
-	return std::string();
-}
-
-
-void SerialDeviceRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
-{
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new SerialDeviceEventDispatcher(this, protocol);
-	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
-}
-
-
-bool SerialDeviceRemoteObject::remoting__hasEvents() const
-{
-	return true;
-}
-
-
-void SerialDeviceRemoteObject::event__lineReceived(const std::string& data)
-{
-	lineReceived(this, data);
 }
 
 

@@ -21,6 +21,7 @@
 
 #include "IoT/Devices/Device.h"
 #include "IoT/Devices/DeviceRemoteObject.h"
+#include "IoT/Devices/DeviceStub.h"
 #include "IoT/Devices/IDevice.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"

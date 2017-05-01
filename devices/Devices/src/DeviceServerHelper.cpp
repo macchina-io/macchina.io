@@ -53,7 +53,7 @@ void DeviceServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Devices::DeviceRemoteObject> DeviceServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::Device> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new DeviceRemoteObject(oid, pServiceObject);
+	return new DeviceStub(oid, pServiceObject);
 }
 
 

@@ -54,7 +54,7 @@ void AccelerometerServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Devices::AccelerometerRemoteObject> AccelerometerServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::Accelerometer> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new AccelerometerRemoteObject(oid, pServiceObject);
+	return new AccelerometerStub(oid, pServiceObject);
 }
 
 

@@ -45,7 +45,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->getFeature(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -102,7 +102,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->getPropertyBool(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -159,7 +159,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			double remoting__return = remoting__pCastedRO->getPropertyDouble(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -216,7 +216,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			int remoting__return = remoting__pCastedRO->getPropertyInt(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -273,7 +273,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->getPropertyString(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -330,7 +330,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->hasFeature(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -387,7 +387,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->hasProperty(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -446,7 +446,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[2], true, remoting__deser, enable);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setFeature(name, enable);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -504,7 +504,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setPropertyBool(name, value);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -562,7 +562,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			Poco::RemotingNG::TypeDeserializer<double >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setPropertyDouble(name, value);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -620,7 +620,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setPropertyInt(name, value);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -678,7 +678,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setPropertyString(name, value);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -734,7 +734,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->clearValueChangedFilter(subscriberURI);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -788,7 +788,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->ready();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -849,7 +849,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<double >::deserialize(REMOTING__NAMES[2], true, remoting__deser, lowerThreshold);
 			Poco::RemotingNG::TypeDeserializer<double >::deserialize(REMOTING__NAMES[3], true, remoting__deser, upperThreshold);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setValueChangedHysteresisFilter(subscriberURI, lowerThreshold, upperThreshold);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -907,7 +907,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
 			Poco::RemotingNG::TypeDeserializer<double >::deserialize(REMOTING__NAMES[2], true, remoting__deser, limit);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setValueChangedIsGreaterThanFilter(subscriberURI, limit);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -965,7 +965,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
 			Poco::RemotingNG::TypeDeserializer<double >::deserialize(REMOTING__NAMES[2], true, remoting__deser, limit);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setValueChangedIsGreaterThanOrEqualToFilter(subscriberURI, limit);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1023,7 +1023,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
 			Poco::RemotingNG::TypeDeserializer<double >::deserialize(REMOTING__NAMES[2], true, remoting__deser, limit);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setValueChangedIsLessThanOrEqualToFilter(subscriberURI, limit);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1081,7 +1081,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
 			Poco::RemotingNG::TypeDeserializer<double >::deserialize(REMOTING__NAMES[2], true, remoting__deser, limit);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setValueChangedIsLessThanThanFilter(subscriberURI, limit);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1139,7 +1139,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
 			Poco::RemotingNG::TypeDeserializer<double >::deserialize(REMOTING__NAMES[2], true, remoting__deser, delta);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setValueChangedMinimumDeltaFilter(subscriberURI, delta);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1197,7 +1197,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
 			Poco::RemotingNG::TypeDeserializer<long >::deserialize(REMOTING__NAMES[2], true, remoting__deser, milliseconds);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setValueChangedMinimumIntervalFilter(subscriberURI, milliseconds);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1257,7 +1257,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<long >::deserialize(REMOTING__NAMES[2], true, remoting__deser, milliseconds);
 			Poco::RemotingNG::TypeDeserializer<double >::deserialize(REMOTING__NAMES[3], true, remoting__deser, delta);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setValueChangedMinimumIntervalOrDeltaFilter(subscriberURI, milliseconds, delta);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1311,7 +1311,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::SensorRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::Devices::SensorRemoteObject*>(remoting__pRemoteObject.get());
 			double remoting__return = remoting__pCastedRO->value();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

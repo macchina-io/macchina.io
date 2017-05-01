@@ -54,7 +54,7 @@ void RotaryEncoderServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Devices::RotaryEncoderRemoteObject> RotaryEncoderServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::RotaryEncoder> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new RotaryEncoderRemoteObject(oid, pServiceObject);
+	return new RotaryEncoderStub(oid, pServiceObject);
 }
 
 
