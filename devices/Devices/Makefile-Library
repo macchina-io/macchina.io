@@ -13,11 +13,13 @@ objects = Device DeviceException \
 	ISensor \
 	SensorEventDispatcher \
 	SensorRemoteObject \
+	SensorStub \
 	SensorServerHelper \
 	SensorSkeleton \
 	Device \
 	IDevice \
 	DeviceRemoteObject \
+	DeviceStub \
 	DeviceServerHelper \
 	DeviceSkeleton \
 	DeviceException \
@@ -25,65 +27,76 @@ objects = Device DeviceException \
 	RotaryEncoder \
 	RotaryEncoderEventDispatcher \
 	RotaryEncoderRemoteObject \
+	RotaryEncoderStub \
 	RotaryEncoderServerHelper \
 	RotaryEncoderSkeleton \
 	Trigger \
 	ITrigger \
 	TriggerEventDispatcher \
 	TriggerRemoteObject \
+	TriggerStub \
 	TriggerServerHelper \
 	TriggerSkeleton \
 	SerialDevice \
 	ISerialDevice \
 	SerialDeviceEventDispatcher \
 	SerialDeviceRemoteObject \
+	SerialDeviceStub \
 	SerialDeviceServerHelper \
 	SerialDeviceSkeleton \
 	GNSSSensor \
 	IGNSSSensor \
 	GNSSSensorEventDispatcher \
 	GNSSSensorRemoteObject \
+	GNSSSensorStub \
 	GNSSSensorServerHelper \
 	GNSSSensorSkeleton \
 	Accelerometer \
 	IAccelerometer \
 	AccelerometerEventDispatcher \
 	AccelerometerRemoteObject \
+	AccelerometerStub \
 	AccelerometerServerHelper \
 	AccelerometerSkeleton \
 	Gyroscope \
 	IGyroscope \
 	GyroscopeEventDispatcher \
 	GyroscopeRemoteObject \
+	GyroscopeStub \
 	GyroscopeServerHelper \
 	GyroscopeSkeleton \
 	Magnetometer \
 	IMagnetometer \
 	MagnetometerEventDispatcher \
 	MagnetometerRemoteObject \
+	MagnetometerStub \
 	MagnetometerServerHelper \
 	MagnetometerSkeleton \
 	IO \
 	IIO \
 	IOEventDispatcher \
 	IORemoteObject \
+	IOStub \
 	IOServerHelper \
 	IOSkeleton \
 	LED \
 	ILED \
 	LEDRemoteObject \
+	LEDStub \
 	LEDServerHelper \
 	LEDSkeleton \
 	BarcodeReader \
 	IBarcodeReader \
 	BarcodeReaderEventDispatcher \
 	BarcodeReaderRemoteObject \
+	BarcodeReaderStub \
 	BarcodeReaderServerHelper \
 	BarcodeReaderSkeleton \
 	Switch \
 	ISwitch \
 	SwitchEventDispatcher \
 	SwitchRemoteObject \
+	SwitchStub \
 	SwitchServerHelper \
 	SwitchSkeleton
 

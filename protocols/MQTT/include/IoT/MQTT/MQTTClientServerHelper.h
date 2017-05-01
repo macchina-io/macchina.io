@@ -22,6 +22,7 @@
 #include "IoT/MQTT/IMQTTClient.h"
 #include "IoT/MQTT/MQTTClient.h"
 #include "IoT/MQTT/MQTTClientRemoteObject.h"
+#include "IoT/MQTT/MQTTClientStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

@@ -54,7 +54,7 @@ void UDPEndpointServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::UDP::UDPEndpointRemoteObject> UDPEndpointServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::UDP::UDPEndpoint> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new UDPEndpointRemoteObject(oid, pServiceObject);
+	return new UDPEndpointStub(oid, pServiceObject);
 }
 
 

@@ -13,6 +13,7 @@ objects = \
 	IModbusMaster \
 	ModbusMasterEventDispatcher \
 	ModbusMasterRemoteObject \
+	ModbusMasterStub \
 	ModbusMasterServerHelper \
 	ModbusMasterSkeleton \
 	ModbusException \

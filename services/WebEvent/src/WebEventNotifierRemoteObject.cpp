@@ -22,23 +22,16 @@ namespace IoT {
 namespace WebEvent {
 
 
-WebEventNotifierRemoteObject::WebEventNotifierRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> pServiceObject):
-	IoT::WebEvent::IWebEventNotifier(),
-	Poco::RemotingNG::RemoteObject(oid),
-	_pServiceObject(pServiceObject)
+WebEventNotifierRemoteObject::WebEventNotifierRemoteObject():
+	Poco::RemotingNG::RemoteObject(),
+	IoT::WebEvent::IWebEventNotifier()
+
 {
 }
 
 
 WebEventNotifierRemoteObject::~WebEventNotifierRemoteObject()
 {
-	try
-	{
-	}
-	catch (...)
-	{
-		poco_unexpected();
-	}
 }
 
 

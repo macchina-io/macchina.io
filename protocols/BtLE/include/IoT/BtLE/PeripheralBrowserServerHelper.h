@@ -22,6 +22,7 @@
 #include "IoT/BtLE/IPeripheralBrowser.h"
 #include "IoT/BtLE/PeripheralBrowser.h"
 #include "IoT/BtLE/PeripheralBrowserRemoteObject.h"
+#include "IoT/BtLE/PeripheralBrowserStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

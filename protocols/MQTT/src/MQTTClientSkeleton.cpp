@@ -26,6 +26,7 @@
 #include "IoT/MQTT/TopicQoSSerializer.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/MethodHandler.h"
+#include "Poco/RemotingNG/RemotingException.h"
 #include "Poco/RemotingNG/Serializer.h"
 #include "Poco/RemotingNG/ServerTransport.h"
 #include "Poco/RemotingNG/TypeDeserializer.h"
@@ -50,7 +51,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			IoT::MQTT::ConnectionInfo remoting__return = remoting__pCastedRO->connect();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -105,7 +106,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->connectAsync();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -159,7 +160,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->connected();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -214,7 +215,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			IoT::MQTT::ConnectionInfo remoting__return = remoting__pCastedRO->connectionInfo();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -271,7 +272,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, timeout);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->disconnect(timeout);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -325,7 +326,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->id();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -386,7 +387,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, remoting__deser, payload);
 			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[3], true, remoting__deser, qos);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			int remoting__return = remoting__pCastedRO->publish(topic, payload, qos);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -445,7 +446,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, topic);
 			Poco::RemotingNG::TypeDeserializer<IoT::MQTT::Message >::deserialize(REMOTING__NAMES[2], true, remoting__deser, message);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			int remoting__return = remoting__pCastedRO->publishMessage(topic, message);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -500,7 +501,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->serverURI();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -555,7 +556,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			IoT::MQTT::Statistics remoting__return = remoting__pCastedRO->statistics();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -614,7 +615,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, topic);
 			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], true, remoting__deser, qos);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->subscribe(topic, qos);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -670,7 +671,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::vector < IoT::MQTT::TopicQoS > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, topicsAndQoS);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->subscribeMany(topicsAndQoS);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -724,7 +725,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			std::vector < IoT::MQTT::TopicQoS > remoting__return = remoting__pCastedRO->subscribedTopics();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -781,7 +782,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, topic);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->unsubscribe(topic);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -837,7 +838,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::vector < std::string > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, topics);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = static_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MQTT::MQTTClientRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::MQTT::MQTTClientRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->unsubscribeMany(topics);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

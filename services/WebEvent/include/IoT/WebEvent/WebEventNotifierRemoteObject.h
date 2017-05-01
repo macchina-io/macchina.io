@@ -20,7 +20,6 @@
 
 
 #include "IoT/WebEvent/IWebEventNotifier.h"
-#include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/RemoteObject.h"
 #include "Poco/SharedPtr.h"
 
@@ -29,7 +28,7 @@ namespace IoT {
 namespace WebEvent {
 
 
-class WebEventNotifierRemoteObject: public IoT::WebEvent::IWebEventNotifier, public Poco::RemotingNG::RemoteObject
+class WebEventNotifierRemoteObject: public virtual Poco::RemotingNG::RemoteObject, public IoT::WebEvent::IWebEventNotifier
 	/// A simplified Remoting-capable interface to the 
 	/// Poco::OSP::WebEvent::WebEventService,
 	/// usable from both C++ and JavaScript.
@@ -37,32 +36,15 @@ class WebEventNotifierRemoteObject: public IoT::WebEvent::IWebEventNotifier, pub
 public:
 	typedef Poco::AutoPtr<WebEventNotifierRemoteObject> Ptr;
 
-	WebEventNotifierRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> pServiceObject);
+	WebEventNotifierRemoteObject();
 		/// Creates a WebEventNotifierRemoteObject.
 
 	virtual ~WebEventNotifierRemoteObject();
 		/// Destroys the WebEventNotifierRemoteObject.
 
-	virtual void notify(const std::string& subjectName, const std::string& data);
-		/// Notify all registered subscribers to the given subject, using
-		/// the given data, which is typically a serialized JSON or
-		/// XML document in UTF-8 encoding.
-		/// 
-		/// Sending the notification is done asynchronously. If a notification cannot be
-		/// delivered to a subscriber due to a network issue, the subscriber will be removed 
-		/// and its WebSocket closed.
-
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
-private:
-	Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> _pServiceObject;
 };
-
-
-inline void WebEventNotifierRemoteObject::notify(const std::string& subjectName, const std::string& data)
-{
-	_pServiceObject->notify(subjectName, data);
-}
 
 
 inline const Poco::RemotingNG::Identifiable::TypeId& WebEventNotifierRemoteObject::remoting__typeId() const

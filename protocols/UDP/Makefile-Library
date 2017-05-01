@@ -12,6 +12,7 @@ objects = IUDPEndpoint \
 	UDPEndpoint \
 	UDPEndpointEventDispatcher \
 	UDPEndpointRemoteObject \
+	UDPEndpointStub \
 	UDPEndpointServerHelper \
 	UDPEndpointSkeleton
 

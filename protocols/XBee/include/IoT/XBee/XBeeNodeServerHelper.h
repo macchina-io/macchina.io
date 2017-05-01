@@ -22,6 +22,7 @@
 #include "IoT/XBee/IXBeeNode.h"
 #include "IoT/XBee/XBeeNode.h"
 #include "IoT/XBee/XBeeNodeRemoteObject.h"
+#include "IoT/XBee/XBeeNodeStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

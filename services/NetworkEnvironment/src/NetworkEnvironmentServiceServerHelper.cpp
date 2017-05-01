@@ -54,7 +54,7 @@ void NetworkEnvironmentServiceServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject> NetworkEnvironmentServiceServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::NetworkEnvironment::NetworkEnvironmentService> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new NetworkEnvironmentServiceRemoteObject(oid, pServiceObject);
+	return new NetworkEnvironmentServiceStub(oid, pServiceObject);
 }
 
 

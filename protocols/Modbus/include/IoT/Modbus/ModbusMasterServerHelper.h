@@ -22,6 +22,7 @@
 #include "IoT/Modbus/IModbusMaster.h"
 #include "IoT/Modbus/ModbusMaster.h"
 #include "IoT/Modbus/ModbusMasterRemoteObject.h"
+#include "IoT/Modbus/ModbusMasterStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

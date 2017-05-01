@@ -54,7 +54,7 @@ void MQTTClientServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::MQTT::MQTTClientRemoteObject> MQTTClientServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::MQTT::MQTTClient> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new MQTTClientRemoteObject(oid, pServiceObject);
+	return new MQTTClientStub(oid, pServiceObject);
 }
 
 

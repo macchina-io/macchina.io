@@ -12,6 +12,7 @@ objects = \
 	DeviceStatusService \
 	DeviceStatusServiceEventDispatcher \
 	DeviceStatusServiceRemoteObject \
+	DeviceStatusServiceStub \
 	DeviceStatusServiceServerHelper \
 	DeviceStatusServiceSkeleton \
 	IDeviceStatusService

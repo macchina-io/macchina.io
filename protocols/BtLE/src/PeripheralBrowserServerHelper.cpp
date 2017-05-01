@@ -54,7 +54,7 @@ void PeripheralBrowserServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::BtLE::PeripheralBrowserRemoteObject> PeripheralBrowserServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::BtLE::PeripheralBrowser> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new PeripheralBrowserRemoteObject(oid, pServiceObject);
+	return new PeripheralBrowserStub(oid, pServiceObject);
 }
 
 

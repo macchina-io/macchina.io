@@ -21,6 +21,7 @@
 
 #include "IoT/DeviceStatus/DeviceStatusService.h"
 #include "IoT/DeviceStatus/DeviceStatusServiceRemoteObject.h"
+#include "IoT/DeviceStatus/DeviceStatusServiceStub.h"
 #include "IoT/DeviceStatus/IDeviceStatusService.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"

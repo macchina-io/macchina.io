@@ -12,6 +12,7 @@ objects = INetworkEnvironmentService \
 	NetworkEnvironmentService \
 	NetworkEnvironmentServiceEventDispatcher \
 	NetworkEnvironmentServiceRemoteObject \
+	NetworkEnvironmentServiceStub \
 	NetworkEnvironmentServiceServerHelper \
 	NetworkEnvironmentServiceSkeleton
 

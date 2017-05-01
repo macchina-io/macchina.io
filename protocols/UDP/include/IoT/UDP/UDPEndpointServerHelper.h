@@ -22,6 +22,7 @@
 #include "IoT/UDP/IUDPEndpoint.h"
 #include "IoT/UDP/UDPEndpoint.h"
 #include "IoT/UDP/UDPEndpointRemoteObject.h"
+#include "IoT/UDP/UDPEndpointStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

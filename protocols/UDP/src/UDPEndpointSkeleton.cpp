@@ -45,7 +45,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::UDP::UDPEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::UDP::UDPEndpointRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::UDP::UDPEndpointRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::UDP::UDPEndpointRemoteObject*>(remoting__pRemoteObject.get());
 			IoT::UDP::EndpointAddress remoting__return = remoting__pCastedRO->address();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -104,7 +104,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::vector < char > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, payload);
 			Poco::RemotingNG::TypeDeserializer<IoT::UDP::EndpointAddress >::deserialize(REMOTING__NAMES[2], false, remoting__deser, destination);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::UDP::UDPEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::UDP::UDPEndpointRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::UDP::UDPEndpointRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::UDP::UDPEndpointRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->sendPacket(payload, destination);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

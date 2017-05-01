@@ -22,6 +22,7 @@
 #include "IoT/BtLE/IPeripheral.h"
 #include "IoT/BtLE/Peripheral.h"
 #include "IoT/BtLE/PeripheralRemoteObject.h"
+#include "IoT/BtLE/PeripheralStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

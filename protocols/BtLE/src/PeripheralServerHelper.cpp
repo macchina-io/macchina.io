@@ -54,7 +54,7 @@ void PeripheralServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::BtLE::PeripheralRemoteObject> PeripheralServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::BtLE::Peripheral> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new PeripheralRemoteObject(oid, pServiceObject);
+	return new PeripheralStub(oid, pServiceObject);
 }
 
 

@@ -30,6 +30,7 @@
 #include "IoT/XBee/ZigBeeTransmitRequestSerializer.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/MethodHandler.h"
+#include "Poco/RemotingNG/RemotingException.h"
 #include "Poco/RemotingNG/Serializer.h"
 #include "Poco/RemotingNG/ServerTransport.h"
 #include "Poco/RemotingNG/TypeDeserializer.h"
@@ -56,7 +57,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<IoT::XBee::ATCommand >::deserialize(REMOTING__NAMES[1], true, remoting__deser, command);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = static_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->queueCommand(command);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -112,7 +113,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<IoT::XBee::ATCommand >::deserialize(REMOTING__NAMES[1], true, remoting__deser, command);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = static_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->sendCommand(command);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -168,7 +169,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<IoT::XBee::ExplicitAddressingZigBeeTransmitRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = static_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->sendExplicitAddressingZigBeeTransmitRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -224,7 +225,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<IoT::XBee::APIFrame >::deserialize(REMOTING__NAMES[1], true, remoting__deser, frame);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = static_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->sendFrame(frame);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -280,7 +281,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<IoT::XBee::RemoteATCommand >::deserialize(REMOTING__NAMES[1], true, remoting__deser, command);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = static_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->sendRemoteCommand(command);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -336,7 +337,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<IoT::XBee::TransmitRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = static_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->sendTransmitRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -392,7 +393,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<IoT::XBee::ZigBeeTransmitRequest >::deserialize(REMOTING__NAMES[1], true, remoting__deser, request);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = static_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::XBee::XBeeNodeRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::XBee::XBeeNodeRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->sendZigBeeTransmitRequest(request);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

@@ -18,6 +18,7 @@ objects = \
 	IXBeeNode \
 	XBeeNodeEventDispatcher \
 	XBeeNodeRemoteObject \
+	XBeeNodeStub \
 	XBeeNodeSkeleton \
 	XBeeNodeServerHelper
 

@@ -20,6 +20,7 @@
 #include "IoT/NetworkEnvironment/NetworkInterfaceSerializer.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/MethodHandler.h"
+#include "Poco/RemotingNG/RemotingException.h"
 #include "Poco/RemotingNG/Serializer.h"
 #include "Poco/RemotingNG/ServerTransport.h"
 #include "Poco/RemotingNG/TypeDeserializer.h"
@@ -46,7 +47,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], false, remoting__deser, options);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject* remoting__pCastedRO = static_cast<IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject*>(remoting__pRemoteObject.get());
 			std::vector < IoT::NetworkEnvironment::NetworkInterface > remoting__return = remoting__pCastedRO->enumerateInterfaces(options);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -105,7 +106,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__ipVersionTmp);
 			ipVersion = static_cast<IoT::NetworkEnvironment::IPVersion>(remoting__ipVersionTmp);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject* remoting__pCastedRO = static_cast<IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->findActiveNetworkInterface(ipVersion);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

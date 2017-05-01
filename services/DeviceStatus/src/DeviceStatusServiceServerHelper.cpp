@@ -54,7 +54,7 @@ void DeviceStatusServiceServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::DeviceStatus::DeviceStatusServiceRemoteObject> DeviceStatusServiceServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::DeviceStatus::DeviceStatusService> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new DeviceStatusServiceRemoteObject(oid, pServiceObject);
+	return new DeviceStatusServiceStub(oid, pServiceObject);
 }
 
 

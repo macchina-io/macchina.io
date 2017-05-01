@@ -13,6 +13,7 @@ objects = \
 	WebEventNotifierImpl \
 	IWebEventNotifier \
 	WebEventNotifierRemoteObject \
+	WebEventNotifierStub \
 	WebEventNotifierSkeleton \
 	WebEventNotifierServerHelper 
 	

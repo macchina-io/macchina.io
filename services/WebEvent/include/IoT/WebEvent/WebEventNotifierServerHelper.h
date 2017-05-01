@@ -22,6 +22,7 @@
 #include "IoT/WebEvent/IWebEventNotifier.h"
 #include "IoT/WebEvent/WebEventNotifier.h"
 #include "IoT/WebEvent/WebEventNotifierRemoteObject.h"
+#include "IoT/WebEvent/WebEventNotifierStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

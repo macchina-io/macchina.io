@@ -17,11 +17,13 @@ objects = \
 	PeripheralBrowser \
 	PeripheralBrowserEventDispatcher \
 	PeripheralBrowserRemoteObject \
+	PeripheralBrowserStub \
 	PeripheralBrowserServerHelper \
 	PeripheralBrowserSkeleton \
 	PeripheralEventDispatcher \
 	PeripheralFactory \
 	PeripheralRemoteObject \
+	PeripheralStub \
 	PeripheralServerHelper \
 	PeripheralSkeleton
 

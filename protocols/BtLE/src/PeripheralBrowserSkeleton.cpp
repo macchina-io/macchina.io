@@ -45,7 +45,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, seconds);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralBrowserRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralBrowserRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralBrowserRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralBrowserRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->browse(seconds);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -101,7 +101,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, address);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralBrowserRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralBrowserRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralBrowserRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralBrowserRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->serviceForPeripheral(address);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

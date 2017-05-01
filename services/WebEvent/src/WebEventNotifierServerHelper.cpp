@@ -53,7 +53,7 @@ void WebEventNotifierServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::WebEvent::WebEventNotifierRemoteObject> WebEventNotifierServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new WebEventNotifierRemoteObject(oid, pServiceObject);
+	return new WebEventNotifierStub(oid, pServiceObject);
 }
 
 

@@ -22,6 +22,7 @@
 #include "IoT/NetworkEnvironment/INetworkEnvironmentService.h"
 #include "IoT/NetworkEnvironment/NetworkEnvironmentService.h"
 #include "IoT/NetworkEnvironment/NetworkEnvironmentServiceRemoteObject.h"
+#include "IoT/NetworkEnvironment/NetworkEnvironmentServiceStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

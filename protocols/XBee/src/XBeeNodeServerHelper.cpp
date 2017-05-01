@@ -54,7 +54,7 @@ void XBeeNodeServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::XBee::XBeeNodeRemoteObject> XBeeNodeServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::XBee::XBeeNode> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new XBeeNodeRemoteObject(oid, pServiceObject);
+	return new XBeeNodeStub(oid, pServiceObject);
 }
 
 

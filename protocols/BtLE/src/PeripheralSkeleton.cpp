@@ -45,7 +45,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->address();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -104,7 +104,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, serviceUUID);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, remoting__deser, characteristicUUID);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			IoT::BtLE::Characteristic remoting__return = remoting__pCastedRO->characteristic(serviceUUID, characteristicUUID);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -163,7 +163,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, serviceUUID);
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES[2], true, remoting__deser, assignedNumber);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			IoT::BtLE::Characteristic remoting__return = remoting__pCastedRO->characteristicForAssignedNumber(serviceUUID, assignedNumber);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -220,7 +220,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, serviceUUID);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			std::vector < std::string > remoting__return = remoting__pCastedRO->characteristics(serviceUUID);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -275,7 +275,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->connect();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -329,7 +329,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->connectAsync();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -383,7 +383,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->disconnect();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -437,7 +437,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->firmwareRevision();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -496,7 +496,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, serviceUUID);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, remoting__deser, descriptorUUID);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			Poco::UInt16 remoting__return = remoting__pCastedRO->handleForDescriptor(serviceUUID, descriptorUUID);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -551,7 +551,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->hardwareRevision();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -606,7 +606,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->isConnected();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -661,7 +661,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->manufacturerName();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -716,7 +716,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->modelNumber();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -773,7 +773,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, valueHandle);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			std::vector < char > remoting__return = remoting__pCastedRO->readBytes(valueHandle);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -830,7 +830,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, valueHandle);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			Poco::Int16 remoting__return = remoting__pCastedRO->readInt16(valueHandle);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -887,7 +887,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, valueHandle);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			Poco::Int32 remoting__return = remoting__pCastedRO->readInt32(valueHandle);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -944,7 +944,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, valueHandle);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			Poco::Int8 remoting__return = remoting__pCastedRO->readInt8(valueHandle);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1001,7 +1001,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, valueHandle);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->readString(valueHandle);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1058,7 +1058,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, valueHandle);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			Poco::UInt16 remoting__return = remoting__pCastedRO->readUInt16(valueHandle);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1115,7 +1115,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, valueHandle);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			Poco::UInt32 remoting__return = remoting__pCastedRO->readUInt32(valueHandle);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1172,7 +1172,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, valueHandle);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			Poco::UInt8 remoting__return = remoting__pCastedRO->readUInt8(valueHandle);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1227,7 +1227,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->serialNumber();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1284,7 +1284,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, assignedNumber);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->serviceUUIDForAssignedNumber(assignedNumber);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1339,7 +1339,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			std::vector < std::string > remoting__return = remoting__pCastedRO->services();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1394,7 +1394,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->softwareRevision();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1455,7 +1455,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::vector < char > >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[3], true, remoting__deser, withResponse);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->writeBytes(valueHandle, value, withResponse);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1515,7 +1515,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<Poco::Int16 >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[3], true, remoting__deser, withResponse);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->writeInt16(valueHandle, value, withResponse);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1575,7 +1575,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[3], true, remoting__deser, withResponse);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->writeInt32(valueHandle, value, withResponse);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1635,7 +1635,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<Poco::Int8 >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[3], true, remoting__deser, withResponse);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->writeInt8(valueHandle, value, withResponse);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1695,7 +1695,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[3], true, remoting__deser, withResponse);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->writeString(valueHandle, value, withResponse);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1755,7 +1755,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[3], true, remoting__deser, withResponse);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->writeUInt16(valueHandle, value, withResponse);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1815,7 +1815,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[3], true, remoting__deser, withResponse);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->writeUInt32(valueHandle, value, withResponse);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -1875,7 +1875,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[3], true, remoting__deser, withResponse);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::BtLE::PeripheralRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::BtLE::PeripheralRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->writeUInt8(valueHandle, value, withResponse);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

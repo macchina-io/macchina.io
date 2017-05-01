@@ -18,6 +18,7 @@
 #include "IoT/WebEvent/WebEventNotifierSkeleton.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/MethodHandler.h"
+#include "Poco/RemotingNG/RemotingException.h"
 #include "Poco/RemotingNG/Serializer.h"
 #include "Poco/RemotingNG/ServerTransport.h"
 #include "Poco/RemotingNG/TypeDeserializer.h"
@@ -46,7 +47,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, subjectName);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, remoting__deser, data);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::WebEvent::WebEventNotifierRemoteObject* remoting__pCastedRO = static_cast<IoT::WebEvent::WebEventNotifierRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::WebEvent::WebEventNotifierRemoteObject* remoting__pCastedRO = dynamic_cast<IoT::WebEvent::WebEventNotifierRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->notify(subjectName, data);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

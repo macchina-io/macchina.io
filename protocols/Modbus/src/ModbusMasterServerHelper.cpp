@@ -54,7 +54,7 @@ void ModbusMasterServerHelper::shutdown()
 
 Poco::AutoPtr<IoT::Modbus::ModbusMasterRemoteObject> ModbusMasterServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Modbus::ModbusMaster> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new ModbusMasterRemoteObject(oid, pServiceObject);
+	return new ModbusMasterStub(oid, pServiceObject);
 }
 
 
