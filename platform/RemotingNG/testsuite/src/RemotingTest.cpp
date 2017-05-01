@@ -33,6 +33,7 @@
 #include "TesterServerHelper.h"
 #include "TesterClientHelper.h"
 #include "TesterRemoteObject.h"
+#include "TesterStub.h"
 #include "TesterProxy.h"
 #include <sstream>
 
@@ -465,7 +466,7 @@ void RemotingTest::testFindObject()
 {
 	ITester::Ptr pTester = TesterClientHelper::find(_objectURI);
 	
-	Poco::AutoPtr<TesterRemoteObject> pRO = pTester.cast<TesterRemoteObject>();
+	Poco::AutoPtr<TesterRemoteObject> pRO = pTester.cast<TesterStub>();
 	assert (!pRO.isNull());
 
 	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
@@ -473,7 +474,7 @@ void RemotingTest::testFindObject()
 	
 	pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
 
-	pRO = pTester.cast<TesterRemoteObject>();
+	pRO = pTester.cast<TesterStub>();
 	assert (pRO.isNull());
 
 	pProxy = pTester.cast<TesterProxy>();

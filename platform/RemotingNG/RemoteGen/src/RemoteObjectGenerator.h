@@ -37,8 +37,6 @@ public:
 	static std::string generateQualifiedClassName(const std::string& ns, const Poco::CppParser::Struct* pStruct);
 		/// Generates for a given class, its interface class name.
 
-	static std::string generateEventFunctionName(const std::string& eventVarname);
-
 	void structStart(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties);
 		/// Must not write the namespace
 
@@ -52,35 +50,12 @@ public:
 
 	std::vector<std::string> newBaseClasses(const Poco::CppParser::Struct* pStruct);
 
-	bool eventsFound() const;
-		/// Returns true if events were found
-
-private:
-	static void fwdCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
-	static void syncFwdCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
-	static void eventCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
-	static void hasEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
-	static void enableEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
-	static void enableRemoteEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
-
+private:	
 	static void constructorCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
 		/// Code generator for constructor
 
 	static void destructorCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
 		/// Code generator for destructor
-
-	void checkForEventMembers(const Poco::CppParser::Struct* pStruct);
-		/// checks if the class contains public BasicEvents
-
-	void checkForParentEventMembers(const Poco::CppParser::Struct* pStruct);
-		/// checks if any base class contains public BasicEvents
-
-	void checkForParentEventMembersImpl(const Poco::CppParser::Struct* pStruct);
-
-	std::map<std::string, Poco::CodeGeneration::GeneratorEngine::MethodGenerator> _codeInjectors;
-	std::set<std::string> _functions;
-	std::vector<std::string> _events;
-	bool _hasEvents;
 };
 
 
@@ -90,12 +65,6 @@ private:
 inline std::string RemoteObjectGenerator::newClassName(const Poco::CppParser::Struct* pStruct)
 {
 	return RemoteObjectGenerator::generateClassName(pStruct);
-}
-
-
-inline bool RemoteObjectGenerator::eventsFound() const
-{
-	return _hasEvents;
 }
 
 

@@ -21,6 +21,7 @@
 #include "Pizzeria/IPizzaPickupService.h"
 #include "Pizzeria/PizzaPickupService.h"
 #include "Pizzeria/PizzaPickupServiceRemoteObject.h"
+#include "Pizzeria/PizzaPickupServiceStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

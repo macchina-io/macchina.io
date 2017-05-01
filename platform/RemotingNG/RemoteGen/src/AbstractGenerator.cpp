@@ -212,7 +212,12 @@ Poco::CppParser::Struct* AbstractGenerator::structClone(const Poco::CppParser::S
 	std::vector<std::string>::const_iterator it = baseClasses.begin();
 	std::vector<std::string>::const_iterator itEnd = baseClasses.end();
 	for (; it != itEnd; ++it)
-		pStruct->addBase(*it, Poco::CppParser::Symbol::ACC_PUBLIC, false);
+	{
+		if (it->compare(0, 8, "virtual ") == 0)
+			pStruct->addBase(it->substr(8), Poco::CppParser::Symbol::ACC_PUBLIC, true);
+		else
+			pStruct->addBase(*it, Poco::CppParser::Symbol::ACC_PUBLIC, false);
+	}
 
 	pStruct->fixupBases();
 
@@ -271,12 +276,16 @@ void AbstractGenerator::handleParentFunctionsImpl(const Poco::CppParser::Struct*
 		{
 			CodeGenerator::Properties methodProperties(classProperties); 
 			Poco::CodeGeneration::GeneratorEngine::parseProperties(*it, methodProperties);
-			std::string signature = (*it)->signature();
-			if (methodSigs.find(signature) == methodSigs.end())
+			if (methodProperties.find(Utility::REMOTE) != methodProperties.end() ||
+			    classProperties.find(Utility::REMOTE) != classProperties.end())
 			{
-				methodSigs.insert(signature);
-				methodStart(*it, methodProperties);
-				methodEnd(*it, methodProperties);
+				std::string signature = (*it)->signature();
+				if (methodSigs.find(signature) == methodSigs.end())
+				{
+					methodSigs.insert(signature);
+					methodStart(*it, methodProperties);
+					methodEnd(*it, methodProperties);
+				}
 			}
 		}
 	}

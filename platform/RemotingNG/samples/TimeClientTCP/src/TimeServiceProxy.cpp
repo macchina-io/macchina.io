@@ -16,11 +16,13 @@
 
 #include "TimeServiceProxy.h"
 #include "Poco/RemotingNG/Deserializer.h"
+#include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/RemotingException.h"
 #include "Poco/RemotingNG/Serializer.h"
 #include "Poco/RemotingNG/TypeDeserializer.h"
 #include "Poco/RemotingNG/TypeSerializer.h"
 #include "Poco/RemotingNG/URIUtility.h"
+#include "TimeServiceEventDispatcher.h"
 #include "TimeServiceEventSubscriber.h"
 
 
@@ -28,12 +30,13 @@ namespace Services {
 
 
 TimeServiceProxy::TimeServiceProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid):
-	Services::ITimeService(),
-	Poco::RemotingNG::Proxy(oid),
+	Services::TimeServiceRemoteObject(),
+	Poco::RemotingNG::Proxy(),
 	_currentTimeRet(),
 	_pEventListener(),
 	_pEventSubscriber()
 {
+	remoting__init(oid);
 }
 
 
@@ -110,6 +113,13 @@ std::string TimeServiceProxy::remoting__enableEvents(Poco::RemotingNG::Listener:
 		else throw Poco::RemotingNG::RemotingException("Listener is not an EventListener");
 	}
 	return subscriberURI;
+}
+
+
+void TimeServiceProxy::remoting__enableRemoteEvents(const std::string& protocol)
+{
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new TimeServiceEventDispatcher(this, protocol);
+	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 
 

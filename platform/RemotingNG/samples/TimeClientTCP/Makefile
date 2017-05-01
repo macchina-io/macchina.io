@@ -10,8 +10,8 @@ include $(POCO_BASE)/build/rules/global
 
 INCLUDE += -I../TimeServerTCP/include
 
-objects = ITimeService TimeClient TimeServiceClientHelper TimeServiceEventSubscriber \
-	TimeServiceProxy TimeServiceProxyFactory
+objects = ITimeService TimeClient TimeServiceClientHelper TimeServiceEventSubscriber TimeServiceEventDispatcher \
+	TimeServiceRemoteObject TimeServiceProxy TimeServiceProxyFactory
 
 target         = TimeClient
 target_version = 1

@@ -18,7 +18,7 @@
 #define PizzaDeliveryServiceProxy_INCLUDED
 
 
-#include "Pizzeria/IPizzaDeliveryService.h"
+#include "Pizzeria/PizzaDeliveryServiceRemoteObject.h"
 #include "Poco/ExpirationDecorator.h"
 #include "Poco/RemotingNG/Proxy.h"
 #include "Poco/UniqueExpireCache.h"
@@ -27,7 +27,7 @@
 namespace Pizzeria {
 
 
-class PizzaDeliveryServiceProxy: public Pizzeria::IPizzaDeliveryService, public Poco::RemotingNG::Proxy
+class PizzaDeliveryServiceProxy: public Pizzeria::PizzaDeliveryServiceRemoteObject, public Poco::RemotingNG::Proxy
 {
 public:
 	typedef Poco::AutoPtr<PizzaDeliveryServiceProxy> Ptr;
@@ -56,8 +56,6 @@ public:
 		/// Order a pizza, send it to the given deliveryAddress.
 		/// Returns the expected time when the Pizza will arrive.
 
-	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
-
 private:
 	static const std::string DEFAULT_NS;
 	mutable Poco::UniqueExpireCache<std::string, Poco::ExpirationDecorator<int> > _cache;
@@ -70,12 +68,6 @@ private:
 	mutable Poco::Timespan _getWaitTimeRet;
 	mutable Poco::DateTime _orderRet;
 };
-
-
-inline const Poco::RemotingNG::Identifiable::TypeId& PizzaDeliveryServiceProxy::remoting__typeId() const
-{
-	return IPizzaDeliveryService::remoting__typeId();
-}
 
 
 } // namespace Pizzeria

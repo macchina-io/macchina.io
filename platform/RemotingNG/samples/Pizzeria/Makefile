@@ -9,9 +9,9 @@
 include $(POCO_BASE)/build/rules/global
 
 objects = DeliveryAddress IPizzaDeliveryService Pizza PizzaDeliveryService PizzaDeliveryServiceRemoteObject \
-	PizzaDeliveryServiceServerHelper PizzaDeliveryServiceSkeleton Topping \
+	PizzaDeliveryServiceServerHelper PizzaDeliveryServiceSkeleton PizzaDeliveryServiceStub Topping \
 	PizzaPickupService PizzaPickupServiceServerHelper \
-	PizzaPickupServiceRemoteObject PizzaPickupServiceSkeleton \
+	PizzaPickupServiceRemoteObject PizzaPickupServiceSkeleton PizzaPickupServiceStub \
 	IPizzaPickupService \
 	PizzeriaServer
 

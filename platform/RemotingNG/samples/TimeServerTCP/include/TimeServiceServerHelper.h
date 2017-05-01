@@ -24,6 +24,7 @@
 #include "Poco/RemotingNG/ServerHelper.h"
 #include "TimeService.h"
 #include "TimeServiceRemoteObject.h"
+#include "TimeServiceStub.h"
 
 
 namespace Services {

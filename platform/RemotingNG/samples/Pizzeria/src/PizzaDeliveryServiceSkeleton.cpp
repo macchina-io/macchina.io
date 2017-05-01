@@ -23,6 +23,7 @@
 #include "Pizzeria/PizzaSerializer.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/MethodHandler.h"
+#include "Poco/RemotingNG/RemotingException.h"
 #include "Poco/RemotingNG/Serializer.h"
 #include "Poco/RemotingNG/ServerTransport.h"
 #include "Poco/RemotingNG/TypeDeserializer.h"
@@ -48,7 +49,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = static_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
+			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = dynamic_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
 			Pizzeria::Pizza remoting__return = remoting__pCastedRO->getAnyPizza();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -107,7 +108,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = static_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
+			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = dynamic_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
 			Pizzeria::ExtTopping remoting__return = remoting__pCastedRO->getMostPopularTopping();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -166,7 +167,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = static_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
+			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = dynamic_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
 			std::set < std::string > remoting__return = remoting__pCastedRO->getPizzaNames();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -225,7 +226,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = static_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
+			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = dynamic_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
 			std::vector < Pizzeria::Pizza > remoting__return = remoting__pCastedRO->getPizzas();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -284,7 +285,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = static_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
+			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = dynamic_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
 			std::vector < Pizzeria::ExtTopping > remoting__return = remoting__pCastedRO->getToppings();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -343,7 +344,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = static_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
+			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = dynamic_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
 			Poco::Timespan remoting__return = remoting__pCastedRO->getWaitTime();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -406,7 +407,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<Pizzeria::Pizza >::deserialize(REMOTING__NAMES[2], true, remoting__deser, pizza);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = static_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
+			Pizzeria::PizzaDeliveryServiceRemoteObject* remoting__pCastedRO = dynamic_cast<Pizzeria::PizzaDeliveryServiceRemoteObject*>(remoting__pRemoteObject.get());
 			Poco::DateTime remoting__return = remoting__pCastedRO->order(pizza, deliverTo);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

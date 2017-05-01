@@ -21,6 +21,7 @@
 #include "Pizzeria/IPizzaDeliveryService.h"
 #include "Pizzeria/PizzaDeliveryService.h"
 #include "Pizzeria/PizzaDeliveryServiceRemoteObject.h"
+#include "Pizzeria/PizzaDeliveryServiceStub.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/ServerHelper.h"

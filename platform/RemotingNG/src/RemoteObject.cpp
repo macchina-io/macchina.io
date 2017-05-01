@@ -21,9 +21,14 @@ namespace Poco {
 namespace RemotingNG {
 
 
-RemoteObject::RemoteObject(const Identifiable::ObjectId& oid):
-	Identifiable(oid)
+RemoteObject::RemoteObject()
 {
+}
+
+
+RemoteObject::RemoteObject(const Identifiable::ObjectId& oid)
+{
+	remoting__init(oid);
 }
 
 
@@ -32,13 +37,7 @@ RemoteObject::~RemoteObject()
 }
 
 
-bool RemoteObject::remoting__hasEvents() const
-{
-	return false;
-}
-
-
-void RemoteObject::remoting__enableRemoteEvents(const std::string&)
+void RemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
 }
 

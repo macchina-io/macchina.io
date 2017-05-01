@@ -19,6 +19,7 @@
 #include "Poco/RemotingNG/ServerHelper.h"
 #include "Tester.h"
 #include "TesterRemoteObject.h"
+#include "TesterStub.h"
 
 
 class TesterServerHelper

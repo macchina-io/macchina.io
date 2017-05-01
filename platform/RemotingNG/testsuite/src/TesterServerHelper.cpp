@@ -44,7 +44,7 @@ void TesterServerHelper::shutdown()
 
 Poco::AutoPtr<TesterRemoteObject> TesterServerHelper::createRemoteObjectImpl(Poco::SharedPtr<Tester> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new TesterRemoteObject(oid, pServiceObject);
+	return new TesterStub(oid, pServiceObject);
 }
 
 

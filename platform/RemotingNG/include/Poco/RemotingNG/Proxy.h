@@ -21,7 +21,7 @@
 
 
 #include "Poco/RemotingNG/Transport.h"
-#include "Poco/RemotingNG/Identifiable.h"
+#include "Poco/RemotingNG/RemoteObject.h"
 #include "Poco/Mutex.h"
 
 
@@ -29,7 +29,7 @@ namespace Poco {
 namespace RemotingNG {
 
 
-class RemotingNG_API Proxy: public Identifiable
+class RemotingNG_API Proxy: public virtual RemoteObject
 	/// A Proxy maintains a connection to a remote endpoint
 	/// (using a Transport) and sends method invocations
 	/// to a remote object, using the connection.
@@ -41,7 +41,7 @@ class RemotingNG_API Proxy: public Identifiable
 public:
 	typedef Poco::AutoPtr<Proxy> Ptr;
 
-	Proxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
+	Proxy();
 		/// Creates a Proxy.
 
 	virtual ~Proxy();
@@ -70,14 +70,9 @@ public:
 		/// Returns the URI to be used for sending event subscription and
 		/// unsubscription requests.
 
-protected:
-	Poco::FastMutex& remoting__mutex() const;
-		/// Returns the Proxy's internal mutex.
-
 private:
 	mutable Transport::Ptr _pTransport;
 	Poco::URI _eventURI;
-	mutable Poco::FastMutex _mutex;
 };
 
 
@@ -93,12 +88,6 @@ inline bool Proxy::remoting__isConnected() const
 inline Transport& Proxy::remoting__transport() const
 {
 	return *_pTransport;
-}
-
-
-inline Poco::FastMutex& Proxy::remoting__mutex() const
-{
-	return _mutex;
 }
 
 

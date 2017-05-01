@@ -137,7 +137,9 @@ private:
 	void checkForParentEventMembersImpl(const Poco::CppParser::Struct* pStruct);
 
 	void methodStartImpl(Poco::CppParser::Function* pFunc, const CodeGenerator::Properties& methodProperties);
-	
+
+	static void enableRemoteEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
+
 	bool _cacheVariableSet;
 	std::vector<std::string> _boolsToInit;
 	std::vector<std::string> _events;

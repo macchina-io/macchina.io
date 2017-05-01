@@ -13,6 +13,7 @@
 #include "Class1Deserializer.h"
 #include "Class1Serializer.h"
 #include "Poco/RemotingNG/Deserializer.h"
+#include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/RemotingException.h"
 #include "Poco/RemotingNG/Serializer.h"
 #include "Poco/RemotingNG/TypeDeserializer.h"
@@ -28,12 +29,13 @@
 #include "Struct4Serializer.h"
 #include "Struct5Deserializer.h"
 #include "Struct5Serializer.h"
+#include "TesterEventDispatcher.h"
 #include "TesterEventSubscriber.h"
 
 
 TesterProxy::TesterProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid):
-	ITester(),
-	Poco::RemotingNG::Proxy(oid),
+	TesterRemoteObject(),
+	Poco::RemotingNG::Proxy(),
 	_pEventListener(),
 	_pEventSubscriber(),
 	_testClass11Ret(),
@@ -50,6 +52,7 @@ TesterProxy::TesterProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid):
 	_testStruct41Ret(),
 	_testStruct51Ret()
 {
+	remoting__init(oid);
 }
 
 
@@ -192,6 +195,13 @@ std::string TesterProxy::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr 
 		else throw Poco::RemotingNG::RemotingException("Listener is not an EventListener");
 	}
 	return subscriberURI;
+}
+
+
+void TesterProxy::remoting__enableRemoteEvents(const std::string& protocol)
+{
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new TesterEventDispatcher(this, protocol);
+	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 
 

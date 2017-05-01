@@ -17,6 +17,7 @@
 #include "TimeServiceSkeleton.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/MethodHandler.h"
+#include "Poco/RemotingNG/RemotingException.h"
 #include "Poco/RemotingNG/Serializer.h"
 #include "Poco/RemotingNG/ServerTransport.h"
 #include "Poco/RemotingNG/TypeDeserializer.h"
@@ -40,7 +41,7 @@ public:
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Services::TimeServiceRemoteObject* remoting__pCastedRO = static_cast<Services::TimeServiceRemoteObject*>(remoting__pRemoteObject.get());
+			Services::TimeServiceRemoteObject* remoting__pCastedRO = dynamic_cast<Services::TimeServiceRemoteObject*>(remoting__pRemoteObject.get());
 			Poco::DateTime remoting__return = remoting__pCastedRO->currentTime();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -99,7 +100,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<Poco::DateTime >::deserialize(REMOTING__NAMES[1], true, remoting__deser, time);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, remoting__deser, message);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Services::TimeServiceRemoteObject* remoting__pCastedRO = static_cast<Services::TimeServiceRemoteObject*>(remoting__pRemoteObject.get());
+			Services::TimeServiceRemoteObject* remoting__pCastedRO = dynamic_cast<Services::TimeServiceRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->wakeMeUp(time, message);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

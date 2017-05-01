@@ -61,6 +61,16 @@ public:
 		///
 		/// The TypeId is defined by a subclass and cannot be changed.
 
+protected:
+	Identifiable();
+		/// Default constructor. 
+		///
+		/// If used, an explicit call to remoting__init() must be used
+		/// to set the object ID.
+		
+	void remoting__init(const Identifiable::ObjectId& oid);
+		/// Initializes the object ID.
+
 private:
 	Identifiable::ObjectId _remoting__oid;
 	Poco::URI              _remoting__uri;

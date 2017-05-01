@@ -52,7 +52,7 @@ void TimeServiceServerHelper::shutdown()
 
 Poco::AutoPtr<Services::TimeServiceRemoteObject> TimeServiceServerHelper::createRemoteObjectImpl(Poco::SharedPtr<Services::TimeService> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new TimeServiceRemoteObject(oid, pServiceObject);
+	return new TimeServiceStub(oid, pServiceObject);
 }
 
 

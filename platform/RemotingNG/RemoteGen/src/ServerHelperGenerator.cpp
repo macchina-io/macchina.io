@@ -13,6 +13,7 @@
 #include "ServerHelperGenerator.h"
 #include "ProxyFactoryGenerator.h"
 #include "RemoteObjectGenerator.h"
+#include "StubGenerator.h"
 #include "SkeletonGenerator.h"
 #include "InterfaceGenerator.h"
 #include "EventDispatcherGenerator.h"
@@ -63,6 +64,7 @@ void ServerHelperGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 {
 	AbstractGenerator::structStart(pStruct, properties);
 	std::string roName = RemoteObjectGenerator::generateQualifiedClassName(nameSpace(), pStruct);
+	std::string stubName = StubGenerator::generateQualifiedClassName(nameSpace(), pStruct);
 	std::string skelName = SkeletonGenerator::generateQualifiedClassName(nameSpace(), pStruct);
 	std::string iFullName = InterfaceGenerator::generateQualifiedClassName(nameSpace(), pStruct);
 	std::string edFullName = EventDispatcherGenerator::generateQualifiedClassName(nameSpace(), pStruct);
@@ -181,6 +183,7 @@ void ServerHelperGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 	// the src file will need most includes: for generated RemoteObject+ ProxyFactory, + "Net/DNS.h"
 	Poco::CppParser::NameSpace* pRoot = Poco::CppParser::NameSpace::root();
 	const Poco::CppParser::Struct* pRO = dynamic_cast <const Poco::CppParser::Struct*>(pRoot->lookup(roName));
+	const Poco::CppParser::Struct* pStub = dynamic_cast <const Poco::CppParser::Struct*>(pRoot->lookup(stubName));
 	const Poco::CppParser::Struct* pS = dynamic_cast <const Poco::CppParser::Struct*>(pRoot->lookup(skelName));
 	const Poco::CppParser::Struct* pI = dynamic_cast <const Poco::CppParser::Struct*>(pRoot->lookup(iFullName));
 	poco_check_ptr (pRO);
@@ -189,6 +192,7 @@ void ServerHelperGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 
 	Poco::CodeGeneration::Utility::handleInclude(pI, _cppGen);
 	Poco::CodeGeneration::Utility::handleInclude(pRO, _cppGen);
+	Poco::CodeGeneration::Utility::handleInclude(pStub, _cppGen);
 	Poco::CodeGeneration::Utility::handleSrcInclude(pS, _cppGen);
 	_cppGen.addSrcIncludeFile("Poco/SingletonHolder.h");
 	
@@ -400,7 +404,7 @@ void ServerHelperGenerator::createRemoteObjectImplCodeGen(const Poco::CppParser:
 		std::string code("Poco::AutoPtr<");
 		code.append(RemoteObjectGenerator::generateClassName(pStructIn));
 		code.append(" > pRemoteObject = new ");
-		code.append(RemoteObjectGenerator::generateClassName(pStructIn));
+		code.append(StubGenerator::generateClassName(pStructIn));
 		code.append("(oid, pServiceObject);");
 		gen.writeMethodImplementation(code);
 		code = "pRemoteObject->remoting__setURI(Poco::URI(\"";
@@ -412,7 +416,7 @@ void ServerHelperGenerator::createRemoteObjectImplCodeGen(const Poco::CppParser:
 	else
 	{
 		std::string code("return new ");
-		code.append(RemoteObjectGenerator::generateClassName(pStructIn));
+		code.append(StubGenerator::generateClassName(pStructIn));
 		code.append("(oid, pServiceObject);");
 		gen.writeMethodImplementation(code);
 	}

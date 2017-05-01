@@ -14,9 +14,11 @@ objects = \
 	IPizzaDeliveryService \
 	IPizzaPickupService \
 	PizzaDeliveryServiceClientHelper \
+	PizzaDeliveryServiceRemoteObject \
 	PizzaDeliveryServiceProxy \
 	PizzaDeliveryServiceProxyFactory \
 	PizzaPickupServiceClientHelper \
+	PizzaPickupServiceRemoteObject \
 	PizzaPickupServiceProxy \
 	PizzaPickupServiceProxyFactory \
 	Pizza \

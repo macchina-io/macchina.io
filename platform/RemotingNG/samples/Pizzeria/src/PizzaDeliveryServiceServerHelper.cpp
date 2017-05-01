@@ -51,7 +51,7 @@ void PizzaDeliveryServiceServerHelper::shutdown()
 
 Poco::AutoPtr<Pizzeria::PizzaDeliveryServiceRemoteObject> PizzaDeliveryServiceServerHelper::createRemoteObjectImpl(Poco::SharedPtr<Pizzeria::PizzaDeliveryService> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
-	return new PizzaDeliveryServiceRemoteObject(oid, pServiceObject);
+	return new PizzaDeliveryServiceStub(oid, pServiceObject);
 }
 
 

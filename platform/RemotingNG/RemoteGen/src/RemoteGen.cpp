@@ -39,6 +39,7 @@
 #include "Poco/CodeGeneration/MethodPropertyFilter.h"
 #include "InterfaceGenerator.h"
 #include "RemoteObjectGenerator.h"
+#include "StubGenerator.h"
 #include "ProxyGenerator.h"
 #include "BundleActivatorGenerator.h"
 #include "ProxyFactoryGenerator.h"
@@ -254,7 +255,7 @@ protected:
 	{
 		_enableOSP = true;
 	}
-
+	
 	void generateAll()
 	{
 		std::string compilerKey = "RemoteGen.compiler[";
@@ -512,12 +513,23 @@ protected:
 					this->_bundleServices.push_back(bs);
 				}
 				
+				generateRemoteObject(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
+				bool hasEvents = GenUtility::hasEvents(pStruct);
+				if (hasEvents)
+				{
+					std::string helpMsg(
+						"The configuration file element \"RemoteGen.files.include\" must contain the header file EventDispatcher.h if events are being used in a remote interface. "
+						"Check the configuration file for the header and verify its path.");
+					Poco::CppParser::Symbol* pS = Poco::CppParser::NameSpace::root()->lookup("Poco::RemotingNG::EventDispatcher");
+					if (!pS) throw Poco::NotFoundException("Poco::RemotingNG::EventDispatcher", helpMsg);
+					generateEventDispatcher(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
+				}
+
 				if (genClient)
 				{
 					generateProxy(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
 					generateProxyFactory(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
 					generateClientHelper(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
-					bool hasEvents = GenUtility::hasEvents(pStruct);
 					if (hasEvents)
 					{
 						std::string helpMsg(
@@ -531,16 +543,7 @@ protected:
 
 				if (genServer)
 				{
-					bool hasEvents = generateRemoteObject(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
-					if (hasEvents)
-					{
-						std::string helpMsg(
-							"The configuration file element \"RemoteGen.files.include\" must contain the header file EventDispatcher.h if events are being used in a remote interface. "
-							"Check the configuration file for the header and verify its path.");
-						Poco::CppParser::Symbol* pS = Poco::CppParser::NameSpace::root()->lookup("Poco::RemotingNG::EventDispatcher");
-						if (!pS) throw Poco::NotFoundException("Poco::RemotingNG::EventDispatcher", helpMsg);
-						generateEventDispatcher(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
-					}
+					generateStub(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
 					generateSkeleton(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
 					generateServerHelper(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
 				}
@@ -652,7 +655,7 @@ protected:
 		}
 	}
 
-	bool generateRemoteObject(const Poco::CppParser::Struct* pStruct, const Poco::Path& incPath, const Poco::Path& srcPath, const std::string& defaultNameSpace, const std::string& libraryName, bool usePocoIncludeStyle, const std::string& copyright)
+	void generateRemoteObject(const Poco::CppParser::Struct* pStruct, const Poco::Path& incPath, const Poco::Path& srcPath, const std::string& defaultNameSpace, const std::string& libraryName, bool usePocoIncludeStyle, const std::string& copyright)
 	{
 		std::ofstream hOut;
 		std::ofstream cppOut;
@@ -667,7 +670,23 @@ protected:
 
 		hOut.close();
 		cppOut.close();
-		return pGen->eventsFound();
+	}
+
+	void generateStub(const Poco::CppParser::Struct* pStruct, const Poco::Path& incPath, const Poco::Path& srcPath, const std::string& defaultNameSpace, const std::string& libraryName, bool usePocoIncludeStyle, const std::string& copyright)
+	{
+		std::ofstream hOut;
+		std::ofstream cppOut;
+		openFiles(incPath, srcPath, StubGenerator::generateClassName(pStruct), hOut, cppOut);
+		Poco::CodeGeneration::CppGenerator cppGen(defaultNameSpace, libraryName, usePocoIncludeStyle, copyright, hOut, cppOut);
+		cppGen.enableTimestamps(_enableTimestamps);
+		StubGenerator* pGen = new StubGenerator(cppGen);
+		Poco::CodeGeneration::MethodPropertyFilter mi(pGen, Poco::CodeGeneration::Utility::REMOTE);
+
+		GeneratorEngine e;
+		e.generate(pStruct, mi);
+
+		hOut.close();
+		cppOut.close();
 	}
 
 	void generateEventDispatcher(const Poco::CppParser::Struct* pStruct, const Poco::Path& incPath, const Poco::Path& srcPath, const std::string& defaultNameSpace, const std::string& libraryName, bool usePocoIncludeStyle, const std::string& copyright)

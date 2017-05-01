@@ -32,8 +32,8 @@ namespace Pizzeria {
 
 
 PizzaPickupServiceProxy::PizzaPickupServiceProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid):
-	Pizzeria::IPizzaPickupService(),
-	Poco::RemotingNG::Proxy(oid),
+	Pizzeria::PizzaPickupServiceRemoteObject(),
+	Poco::RemotingNG::Proxy(),
 	_cache(),
 	_getAnyPizzaRet(),
 	_getMostPopularToppingRet(),
@@ -45,6 +45,7 @@ PizzaPickupServiceProxy::PizzaPickupServiceProxy(const Poco::RemotingNG::Identif
 	_orderForSelfPickupRet(),
 	_orderRet()
 {
+	remoting__init(oid);
 }
 
 
@@ -295,32 +296,6 @@ Poco::DateTime PizzaPickupServiceProxy::orderForSelfPickup(const Pizzeria::Pizza
 	remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	remoting__trans.endRequest();
 	return _orderForSelfPickupRet;
-}
-
-
-void PizzaPickupServiceProxy::setWaitTime(const Poco::Timespan& span)
-{
-	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"setWaitTime","span"};
-	remoting__staticInitEnd(REMOTING__NAMES);
-	const std::string& remoting__namespace(DEFAULT_NS);
-	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
-	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
-	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-	Poco::RemotingNG::TypeSerializer<Poco::Timespan >::serialize(REMOTING__NAMES[1], span, remoting__ser);
-	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
-	static const std::string REMOTING__REPLY_NAME("setWaitTimeReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
-	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-	remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-	remoting__trans.endRequest();
 }
 
 

@@ -21,7 +21,8 @@ objects = \
 	TesterProxyFactory \
 	TesterRemoteObject \
 	TesterServerHelper \
-	TesterSkeleton
+	TesterSkeleton \
+	TesterStub
 
 target         = testrunner
 target_version = 1

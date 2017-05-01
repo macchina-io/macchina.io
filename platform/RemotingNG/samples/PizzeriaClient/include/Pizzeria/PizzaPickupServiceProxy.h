@@ -18,7 +18,7 @@
 #define PizzaPickupServiceProxy_INCLUDED
 
 
-#include "Pizzeria/IPizzaPickupService.h"
+#include "Pizzeria/PizzaPickupServiceRemoteObject.h"
 #include "Poco/ExpirationDecorator.h"
 #include "Poco/RemotingNG/Proxy.h"
 #include "Poco/UniqueExpireCache.h"
@@ -27,7 +27,7 @@
 namespace Pizzeria {
 
 
-class PizzaPickupServiceProxy: public Pizzeria::IPizzaPickupService, public Poco::RemotingNG::Proxy
+class PizzaPickupServiceProxy: public Pizzeria::PizzaPickupServiceRemoteObject, public Poco::RemotingNG::Proxy
 	/// Pizzeria that allows self pickup.
 {
 public:
@@ -61,11 +61,6 @@ public:
 		/// Order a pizza, send it to the given deliveryAddress.
 		/// Returns the expected time when the Pizza will arrive.
 
-	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
-
-	void setWaitTime(const Poco::Timespan& span);
-		/// Sets the wait time. This method should not be accessible remote.
-
 private:
 	static const std::string DEFAULT_NS;
 	mutable Poco::UniqueExpireCache<std::string, Poco::ExpirationDecorator<int> > _cache;
@@ -79,12 +74,6 @@ private:
 	mutable Poco::DateTime _orderForSelfPickupRet;
 	mutable Poco::DateTime _orderRet;
 };
-
-
-inline const Poco::RemotingNG::Identifiable::TypeId& PizzaPickupServiceProxy::remoting__typeId() const
-{
-	return IPizzaPickupService::remoting__typeId();
-}
 
 
 } // namespace Pizzeria

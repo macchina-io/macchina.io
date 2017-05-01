@@ -21,6 +21,11 @@ namespace Poco {
 namespace RemotingNG {
 
 
+Identifiable::Identifiable()
+{
+}
+
+
 Identifiable::Identifiable(const Identifiable::ObjectId& oid): 
 	_remoting__oid(oid)
 {
@@ -29,6 +34,19 @@ Identifiable::Identifiable(const Identifiable::ObjectId& oid):
 
 Identifiable::~Identifiable()
 {
+}
+
+
+void Identifiable::remoting__init(const Identifiable::ObjectId& oid)
+{
+	if (_remoting__oid.empty())
+	{
+		_remoting__oid = oid;
+	}
+	else 
+	{
+		poco_assert_msg (_remoting__oid == oid, "Identifiable already initialized with different ID");
+	}
 }
 
 

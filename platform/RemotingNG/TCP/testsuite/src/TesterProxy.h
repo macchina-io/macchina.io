@@ -13,13 +13,14 @@
 #define TesterProxy_INCLUDED
 
 
-#include "ITester.h"
+#include "Poco/RemotingNG/EventDispatcher.h"
 #include "Poco/RemotingNG/EventListener.h"
 #include "Poco/RemotingNG/EventSubscriber.h"
 #include "Poco/RemotingNG/Proxy.h"
+#include "TesterRemoteObject.h"
 
 
-class TesterProxy: public ITester, public Poco::RemotingNG::Proxy
+class TesterProxy: public TesterRemoteObject, public Poco::RemotingNG::Proxy
 {
 public:
 	typedef Poco::AutoPtr<TesterProxy> Ptr;
@@ -38,7 +39,7 @@ public:
 
 	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
 
-	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
+	virtual void remoting__enableRemoteEvents(const std::string& protocol);
 
 	void testAuthenticated();
 
@@ -138,12 +139,6 @@ private:
 	mutable Struct4 _testStruct41Ret;
 	mutable Struct5 _testStruct51Ret;
 };
-
-
-inline const Poco::RemotingNG::Identifiable::TypeId& TesterProxy::remoting__typeId() const
-{
-	return ITester::remoting__typeId();
-}
 
 
 

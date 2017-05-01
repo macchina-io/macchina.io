@@ -9,7 +9,7 @@
 include $(POCO_BASE)/build/rules/global
 
 objects = TimeServer ITimeService TimeService TimeServiceEventDispatcher \
-	TimeServiceRemoteObject TimeServiceServerHelper TimeServiceSkeleton
+	TimeServiceRemoteObject TimeServiceStub TimeServiceServerHelper TimeServiceSkeleton
 
 target         = TimeServer
 target_version = 1

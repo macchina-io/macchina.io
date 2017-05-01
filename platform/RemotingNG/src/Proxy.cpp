@@ -22,8 +22,7 @@ namespace Poco {
 namespace RemotingNG {
 
 
-Proxy::Proxy(const Identifiable::ObjectId& oid): 
-	Identifiable(oid)
+Proxy::Proxy()
 {
 }
 

@@ -18,16 +18,17 @@
 #define TimeServiceProxy_INCLUDED
 
 
-#include "ITimeService.h"
+#include "Poco/RemotingNG/EventDispatcher.h"
 #include "Poco/RemotingNG/EventListener.h"
 #include "Poco/RemotingNG/EventSubscriber.h"
 #include "Poco/RemotingNG/Proxy.h"
+#include "TimeServiceRemoteObject.h"
 
 
 namespace Services {
 
 
-class TimeServiceProxy: public Services::ITimeService, public Poco::RemotingNG::Proxy
+class TimeServiceProxy: public Services::TimeServiceRemoteObject, public Poco::RemotingNG::Proxy
 {
 public:
 	typedef Poco::AutoPtr<TimeServiceProxy> Ptr;
@@ -43,7 +44,7 @@ public:
 
 	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
 
-	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
+	virtual void remoting__enableRemoteEvents(const std::string& protocol);
 
 	void wakeMeUp(const Poco::DateTime& time, const std::string& message);
 		/// Schedules a wakeup call.
@@ -57,12 +58,6 @@ private:
 	Poco::RemotingNG::EventListener::Ptr _pEventListener;
 	Poco::RemotingNG::EventSubscriber::Ptr _pEventSubscriber;
 };
-
-
-inline const Poco::RemotingNG::Identifiable::TypeId& TimeServiceProxy::remoting__typeId() const
-{
-	return ITimeService::remoting__typeId();
-}
 
 
 } // namespace Services

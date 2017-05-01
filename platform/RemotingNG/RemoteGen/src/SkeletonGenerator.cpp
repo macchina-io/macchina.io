@@ -431,7 +431,7 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 		ns = fN.substr(0, pos);
 
 	std::string remoteObject = RemoteObjectGenerator::generateQualifiedClassName(ns, pGen->_pStructIn);
-	std::string localObjectLine(remoteObject+"* remoting__pCastedRO = static_cast<");
+	std::string localObjectLine(remoteObject+"* remoting__pCastedRO = dynamic_cast<");
 	localObjectLine.append(remoteObject+"*>(remoting__pRemoteObject.get());");
 	gen.writeMethodImplementation(indentation+localObjectLine);
 

@@ -32,8 +32,8 @@ namespace Pizzeria {
 
 
 PizzaDeliveryServiceProxy::PizzaDeliveryServiceProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid):
-	Pizzeria::IPizzaDeliveryService(),
-	Poco::RemotingNG::Proxy(oid),
+	Pizzeria::PizzaDeliveryServiceRemoteObject(),
+	Poco::RemotingNG::Proxy(),
 	_cache(),
 	_getAnyPizzaRet(),
 	_getMostPopularToppingRet(),
@@ -44,6 +44,7 @@ PizzaDeliveryServiceProxy::PizzaDeliveryServiceProxy(const Poco::RemotingNG::Ide
 	_getWaitTimeRet(),
 	_orderRet()
 {
+	remoting__init(oid);
 }
 
 

@@ -12,7 +12,9 @@
 
 #include "ProxyGenerator.h"
 #include "InterfaceGenerator.h"
+#include "RemoteObjectGenerator.h"
 #include "EventSubscriberGenerator.h"
+#include "EventDispatcherGenerator.h"
 #include "SerializerGenerator.h"
 #include "GenUtility.h"
 #include "Poco/CodeGeneration/Utility.h"
@@ -102,7 +104,6 @@ void ProxyGenerator::structStart(const Poco::CppParser::Struct* pStruct, const C
 
 	Poco::CppParser::Function* pDestr = new Poco::CppParser::Function(std::string("virtual ~")+_pStruct->name(), _pStruct);
 	pDestr->addDocumentation(	" Destroys the " + _pStruct->name() + ".");
-
 	
 	_cppGen.addIncludeFile("Poco/RemotingNG/Proxy.h");
 	_cppGen.addSrcIncludeFile("Poco/RemotingNG/URIUtility.h");
@@ -110,15 +111,11 @@ void ProxyGenerator::structStart(const Poco::CppParser::Struct* pStruct, const C
 	_cppGen.addSrcIncludeFile("Poco/RemotingNG/Deserializer.h");
 	_cppGen.addSrcIncludeFile("Poco/RemotingNG/TypeSerializer.h");
 	_cppGen.addSrcIncludeFile("Poco/RemotingNG/TypeDeserializer.h");
-	// add a method virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const
-	Poco::CppParser::Function* pTypeId = new Poco::CppParser::Function("virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId", _pStruct);
-	pTypeId->makeConst();
-	pTypeId->makeInline();
 
 	// add a member: static const std::string DEFAULT_NS;
-	Poco::CppParser::Variable* pVar2 = new Poco::CppParser::Variable("static const std::string DEFAULT_NS", _pStruct);
-	pVar2->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
-
+	Poco::CppParser::Variable* pVarDefaultNS = new Poco::CppParser::Variable("static const std::string DEFAULT_NS", _pStruct);
+	pVarDefaultNS->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
+	
 	Poco::CppParser::TypeDef* pTypeDef = new Poco::CppParser::TypeDef("typedef Poco::AutoPtr<" + generateClassName(pStruct) + "> Ptr", _pStruct);
 	poco_check_ptr (pTypeDef); // just avoid unused variable warning
 
@@ -130,18 +127,22 @@ void ProxyGenerator::structStart(const Poco::CppParser::Struct* pStruct, const C
 
 	if (_hasEvents)
 	{
-		Poco::CppParser::Function* pEvents = new Poco::CppParser::Function("virtual std::string remoting__enableEvents", _pStruct);
-		Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter("Poco::RemotingNG::Listener::Ptr pListener", 0);
-		pEvents->addParameter(pParam);
-		pParam = new Poco::CppParser::Parameter("bool enable = true", 0);
-		pEvents->addParameter(pParam);
+		Poco::CppParser::Function* pFuncEnableEvents = new Poco::CppParser::Function("virtual std::string remoting__enableEvents", _pStruct);
+		pFuncEnableEvents->addParameter(new Poco::CppParser::Parameter("Poco::RemotingNG::Listener::Ptr pListener", 0));
+		pFuncEnableEvents->addParameter(new Poco::CppParser::Parameter("bool enable = true", 0));
+
+		Poco::CppParser::Function* pFuncEnableRemoteEvents = new Poco::CppParser::Function("virtual void remoting__enableRemoteEvents", _pStruct);
+		pFuncEnableRemoteEvents->addParameter(new Poco::CppParser::Parameter("const std::string& protocol", 0));
+	
 		Poco::CppParser::Variable* pEvSub = new Poco::CppParser::Variable("Poco::RemotingNG::EventSubscriber::Ptr _pEventSubscriber", _pStruct);
 		pEvSub->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
 		Poco::CppParser::Variable* pEvLis = new Poco::CppParser::Variable("Poco::RemotingNG::EventListener::Ptr _pEventListener", _pStruct);
 		pEvLis->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
 		_cppGen.addIncludeFile("Poco/RemotingNG/EventSubscriber.h");
 		_cppGen.addIncludeFile("Poco/RemotingNG/EventListener.h");
+		_cppGen.addIncludeFile("Poco/RemotingNG/EventDispatcher.h");
 		_cppGen.addSrcIncludeFile("Poco/RemotingNG/RemotingException.h");
+		_cppGen.addSrcIncludeFile("Poco/RemotingNG/ORB.h");
 	}
 	
 	if (!_cacheVariableSet)
@@ -259,8 +260,8 @@ void ProxyGenerator::registerCallbacks(Poco::CodeGeneration::GeneratorEngine& e)
 	//we don't want any code for constructor and destructor
 	e.registerCallback(_pStruct->name(), &ProxyGenerator::constructorCodeGen);
 	e.registerCallback("~"+_pStruct->name(), &ProxyGenerator::destructorCodeGen);
-	e.registerCallback("remoting__typeId", &AbstractGenerator::typeIdCodeGen);
 	e.registerCallback("remoting__enableEvents", &ProxyGenerator::remotingEventsCodeGen);
+	e.registerCallback("remoting__enableRemoteEvents", &ProxyGenerator::enableRemoteEventsCodeGen);
 
 	std::vector<std::string>::const_iterator it = _outerEventFunctions.begin();
 	for (; it != _outerEventFunctions.end(); ++it)
@@ -276,7 +277,7 @@ std::vector<std::string> ProxyGenerator::newBaseClasses(const Poco::CppParser::S
 {
 	// we extend from Proxy and from the Interface
 	std::vector<std::string> bases;
-	bases.push_back(InterfaceGenerator::generateQualifiedClassName(nameSpace(), pStruct));
+	bases.push_back(RemoteObjectGenerator::generateQualifiedClassName(nameSpace(), pStruct));
 	bases.push_back("Poco::RemotingNG::Proxy");
 	return bases;
 }
@@ -344,6 +345,7 @@ void ProxyGenerator::serializeCodeGen(const Poco::CppParser::Function* pFunc, co
 
 void ProxyGenerator::constructorCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
+	gen.writeMethodImplementation("remoting__init(oid);");
 }
 
 
@@ -1294,6 +1296,11 @@ void ProxyGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct
 		file.setBaseName(newFileName);
 		std::string inclFile = file.toString(Poco::Path::PATH_UNIX);
 		_cppGen.addSrcIncludeFile(inclFile);
+		
+		newFileName = EventDispatcherGenerator::generateClassName(_pStructIn);
+		file.setBaseName(newFileName);
+		inclFile = file.toString(Poco::Path::PATH_UNIX);
+		_cppGen.addSrcIncludeFile(inclFile);
 	}
 }
 
@@ -1399,4 +1406,17 @@ void ProxyGenerator::remotingEventsCodeGen(const Poco::CppParser::Function* pFun
 	gen.writeMethodImplementation("\telse throw Poco::RemotingNG::RemotingException(\"Listener is not an EventListener\");");
 	gen.writeMethodImplementation("}");
 	gen.writeMethodImplementation("return subscriberURI;");
+}
+
+
+void ProxyGenerator::enableRemoteEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+{
+	poco_assert (addParam);
+	AbstractGenerator* pAGen = reinterpret_cast<AbstractGenerator*>(addParam);
+	ProxyGenerator* pGen = dynamic_cast<ProxyGenerator*>(pAGen);
+	poco_check_ptr (pGen);
+	const Poco::CppParser::Struct* pStructIn = pGen->_pStructIn;
+
+	gen.writeMethodImplementation("Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new " + EventDispatcherGenerator::generateClassName(pStructIn) + "(this, protocol);");
+	gen.writeMethodImplementation("Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);");
 }
