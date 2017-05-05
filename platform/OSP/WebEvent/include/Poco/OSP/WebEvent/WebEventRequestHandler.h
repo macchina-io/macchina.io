@@ -42,7 +42,7 @@ public:
 	WebEventRequestHandler(WebEventServiceImpl::Ptr pWebEventServiceImpl, Poco::OSP::BundleContext::Ptr pContext);
 		/// Creates the WebEventRequestHandler.
 		
-	WebEventRequestHandler();
+	~WebEventRequestHandler();
 		/// Destroys the WebEventRequestHandler.
 		
 	void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
