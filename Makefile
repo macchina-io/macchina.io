@@ -94,6 +94,7 @@ hosttools:
 	$(MAKE) -C platform/Zip
 	$(MAKE) -C platform/OSP 
 	$(MAKE) -C platform/OSP/BundleCreator 
+	$(MAKE) -C platform/OSP/CodeCacheUtility 
 	$(MAKE) -C platform/CppParser 
 	$(MAKE) -C platform/CodeGeneration 
 	$(MAKE) -C platform/RemotingNG
