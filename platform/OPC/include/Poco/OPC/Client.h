@@ -116,7 +116,7 @@ private:
 	{
 		using namespace open62541;
 		T value = T();
-		UA_Variant *val = UA_Variant_new();
+		UA_Variant* val = UA_Variant_new();
 		UA_StatusCode retval =
 				UA_Client_readValueAttribute(_pClient, UA_NODEID_STRING(nsIndex, const_cast<char*>(name.c_str())), val);
 		if(retval == UA_STATUSCODE_GOOD)
