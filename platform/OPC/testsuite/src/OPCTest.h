@@ -34,6 +34,7 @@ public:
 
 	void testDataTypeMember();
 
+	void testDateTime();
 	void testServer();
 
 	void setUp();

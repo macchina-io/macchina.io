@@ -21,6 +21,7 @@
 
 using namespace Poco;
 using namespace Poco::OPC;
+using namespace open62541;
 
 
 OPCTest::OPCTest(const std::string& name): CppUnit::TestCase("OPC")
@@ -45,6 +46,12 @@ void OPCTest::tearDown()
 }
 
 
+const UA_String& getUAString(const UA_String& uaStr)
+{
+	return uaStr;
+}
+
+
 void OPCTest::testString()
 {
 	String str = {};
@@ -53,6 +60,8 @@ void OPCTest::testString()
 
 	const char* cstr = "abcXYZ123";
 	str = open62541::UA_STRING_ALLOC(cstr);
+	assert((((UA_String) STDString(str)).length) == strlen(cstr));
+	assert(0 == strncmp(reinterpret_cast<const char*>(((UA_String) STDString(str)).data), cstr, str.length()));
 	stdStr = STDString(str);
 	assert(stdStr == cstr);
 	UA_free(str.data);
@@ -441,6 +450,36 @@ void OPCTest::testDataTypeMember()
 }
 
 
+void OPCTest::testDateTime()
+{
+	OPC::DateTime dt;
+	assert(0 == dt.nanosecond());
+	Poco::DateTime pdt;
+	dt = pdt;
+	assert(dt.year() == pdt.year());
+	assert(dt.month() == pdt.month());
+	assert(dt.day() == pdt.day());
+	assert(dt.minute() == pdt.minute());
+	assert(dt.second() == pdt.second());
+	assert(dt.millisecond() == pdt.millisecond());
+	assert(dt.microsecond() == pdt.microsecond());
+	assert(dt.nanosecond() == 0);
+
+	UA_DateTimeStruct uaDT = UA_DateTime_toStruct(UA_DateTime_now());
+	OPC::DateTime oDT(uaDT);
+	assert(oDT.year() == uaDT.year);
+	assert(oDT.month() == uaDT.month);
+	assert(oDT.day() == uaDT.day);
+	assert(oDT.minute() == uaDT.min);
+	assert(oDT.second() == uaDT.sec);
+	assert(oDT.millisecond() == uaDT.milliSec);
+	assert(oDT.microsecond() == uaDT.microSec);
+	assert(oDT.nanosecond() == uaDT.nanoSec);
+
+	std::cout << oDT.toString() << std::endl;
+}
+
+
 void OPCTest::testServer()
 {
 
@@ -458,6 +497,7 @@ CppUnit::Test* OPCTest::suite()
 	CppUnit_addTest(pSuite, OPCTest, testByteStringNodeID);
 	CppUnit_addTest(pSuite, OPCTest, testGuidNodeID);
 	CppUnit_addTest(pSuite, OPCTest, testDataTypeMember);
+	CppUnit_addTest(pSuite, OPCTest, testDateTime);
 	CppUnit_addTest(pSuite, OPCTest, testServer);
 
 	return pSuite;

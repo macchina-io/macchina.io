@@ -102,48 +102,50 @@ void UAString::release()
 
 STDString::STDString(const String& from)
 {
-	if(from.length)
-	{
-		_to.assign(reinterpret_cast<char*>(from.data), from.length);
-	}
+	assign(reinterpret_cast<char*>(from.data), from.length);
 }
 
 
 STDString::STDString(const STDString& from)
 {
-	if(from._to.size())
-	{
-		_to.assign(from._to.data(), from._to.size());
-	}
+	assign(from._to.data(), from._to.size());
 }
+
 
 STDString::~STDString()
 {
 }
 
+
 STDString& STDString::operator = (const STDString& from)
 {
 	if(&from != this)
 	{
-		if(from._to.size())
-		{
-			_to.assign(from._to.data(), from._to.size());
-		}
+		assign(from._to.data(), from._to.size());
 	}
 	return *this;
 }
 
+
 STDString::operator const std::string&()
-/// Cast operator.
 {
 	return _to;
 }
+
+
+STDString::operator const String&()
+{
+	return _toUA;
+}
+
 
 void STDString::assign(const char* data, std::size_t length)
 {
 	if(length)
 	{
 		_to.assign(data, length);
+		_toUA.data = (unsigned char*) _to.c_str();
+		_toUA.length = _to.length();
 	}
 }
 

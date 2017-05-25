@@ -26,13 +26,12 @@
 
 namespace Poco {
 
-/*
-template <typename ValueType>
-void* VoidPtrAnyCast(const Any* operand)
-{
-	return (void*) static_cast<Any::Holder<ValueType>*>(operand->content())->_held;
+namespace Dynamic {
+
+	class Var;
+
 }
-*/
+
 namespace OPC {
 namespace open62541 {
 
@@ -60,10 +59,21 @@ public:
 	void stop();
 		/// Stops the Server.
 
-	void addVariableNode(int nsIndex, const std::string& id, const Any& value, int type);
+	int addNamespace(const std::string& id);
+
+	void addVariableNode(int nsIndex,
+		const Dynamic::Var& id,
+		const Any& value,
+		int type,
+		const std::string& qualifiedName,
+		const std::string& displayName,
+		const std::string& description,
+		const std::string& loc = "en_US");
 
 private:
-	const void* convert(const Any& value, int type);
+	const void* convertPOD(const Any& value, int type);
+	const void* convertString(const Any& value, UA_String& str);
+	//const void* convertDateTime(const Any& value, UA_DateTimeStruct& dt);
 
 	open62541::UA_Server*             _pServer;
 	open62541::UA_ServerNetworkLayer* _pNetworkLayer;

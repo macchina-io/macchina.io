@@ -14,6 +14,7 @@
 
 
 #include "Poco/OPC/Client.h"
+#include "Poco/OPC/Types.h"
 #include "Poco/Exception.h"
 #include <iostream>
 
@@ -52,29 +53,63 @@ const int Client::OPC_TYPE_STRING = UA_TYPES_STRING;
 const int Client::OPC_TYPE_DATETIME = UA_TYPES_DATETIME;
 
 
-Client::Client(): _pClient(UA_Client_new(UA_ClientConfig_standard)),
-	_connected(false)
+Client::Client(): _pClient(UA_Client_new(UA_ClientConfig_standard))
 {
 }
 
 
 Client::Client(const std::string& server,
 	int port,
-	bool doConnect,
 	const std::string& user,
 	const std::string& pass,
+	bool doConnect,
 	const std::string& proto): _pClient(UA_Client_new(UA_ClientConfig_standard)),
-	_connected(false)
+		_server(server),
+		_port(port),
+		_user(user),
+		_pass(pass),
+		_proto(proto)
 {
-	setServer(server, port, proto);
-	if(getState() != OPC_CLIENT_READY)
-		throw IllegalStateException("OPC client not ready");
-	getEndpointURLs();
-	if(doConnect) connect(user, pass);
+	init(doConnect);
 }
 
 
-void Client::setServer(const std::string& server, int port, const std::string& proto)
+Client::Client(const Client& other): _pClient(UA_Client_new(UA_ClientConfig_standard)),
+	_server(other._server),
+	_port(other._port),
+	_user(other._user),
+	_pass(other._pass),
+	_proto(other._proto)
+{
+	init(other.getState() == OPC_CLIENT_CONNECTED);
+}
+
+
+Client& Client::operator = (Client& other)
+{
+	_pClient = UA_Client_new(UA_ClientConfig_standard);
+	_server = other._server;
+	_port = other._port;
+	_user = other._user;
+	_pass = other._pass;
+	_proto = other._proto;
+
+	init(other.getState() == OPC_CLIENT_CONNECTED);
+	return *this;
+}
+
+
+void Client::init(bool doConnect)
+{
+	setURL(_server, _port, _proto);
+	if(getState() != OPC_CLIENT_READY)
+		throw IllegalStateException("OPC client not ready");
+	getEndpointURLs();
+	if(doConnect) connect(_user, _pass);
+}
+
+
+void Client::setURL(const std::string& server, int port, const std::string& proto)
 {
 	_url = proto;
 	_url.append("://").append(server).append(1, ':').append(NumberFormatter::format(port));
@@ -111,12 +146,6 @@ int Client::getState() const
 }
 
 
-std::string Client::getError(UInt32 val) const
-{
-	return std::string(UA_StatusCode_name(val)) + ": " + UA_StatusCode_explanation(val);
-}
-
-
 const Client::StringList& Client::getEndpointURLs()
 {
 	_endpointURLs.clear();
@@ -139,6 +168,12 @@ const Client::StringList& Client::getEndpointURLs()
 }
 
 
+void Client::setEndpointURLs(const StringList& strList)
+{
+	_endpointURLs = strList;
+}
+
+
 void Client::printEndpointURLs(std::ostream& os) const
 {
 	std::size_t count = _endpointURLs.size();
@@ -154,35 +189,70 @@ void Client::printEndpointURLs(std::ostream& os) const
 }
 
 
-std::string Client::readServerDateTime()
+void Client::getDateTime(Poco::OPC::DateTime& dt)
 {
-	std::string dt;
 	UA_Variant value;
 	UA_Variant_init(&value);
 
 	const UA_NodeId nodeId = UA_NODEID_NUMERIC(0, OPC_SERVER_TIME);
 
 	UA_StatusCode retval = UA_Client_readValueAttribute(_pClient, nodeId, &value);
-	if(retval == UA_STATUSCODE_GOOD &&
-			UA_Variant_hasScalarType(&value, &UA_TYPES[OPC_TYPE_DATETIME]))
+	if(retval != UA_STATUSCODE_GOOD ||
+			!UA_Variant_hasScalarType(&value, &UA_TYPES[OPC_TYPE_DATETIME]))
 	{
-		UA_DateTime raw_date = *(UA_DateTime*)value.data;
-		UA_String string_date = UA_DateTime_toString(raw_date);
-		dt.assign((const char*) string_date.data, string_date.length);
-		UA_String_deleteMembers(&string_date);
+		throw RuntimeException("Error in getDateTime(): " +  getError(retval));
 	}
-
+	dt = *(UA_DateTime*)value.data;
 	UA_Variant_deleteMembers(&value);
+}
+
+
+std::string Client::readServerDateTimeStr()
+{
+	Poco::OPC::DateTime dt;
+	getDateTime(dt);
+	return dt.toString();
+}
+
+
+Poco::DateTime Client::readServerDateTime()
+{
+	Poco::OPC::DateTime dt;
+	getDateTime(dt);
 	return dt;
+}
+
+
+Poco::DateTime Client::readDateTimeByName(int nsIndex, const std::string& name) const
+{
+	return Poco::OPC::DateTime(readInt64ByName(nsIndex, name));
+}
+
+
+Poco::DateTime Client::readDateTimeByID(int nsIndex, int id) const
+{
+	return Poco::OPC::DateTime(readInt64ByID(nsIndex, id));
+}
+
+
+std::string Client::readStrDateTimeByName(int nsIndex, const std::string& name) const
+{
+	return Poco::OPC::DateTime(readInt64ByName(nsIndex, name)).toString();
+}
+
+
+std::string Client::readStrDateTimeByID(int nsIndex, int id) const
+{
+	Int64 ts = readInt64ByID(nsIndex, id);
+	return Poco::OPC::DateTime(ts).toString();
 }
 
 
 void Client::disconnect()
 {
-	if(_connected)
+	if(getState() == OPC_CLIENT_CONNECTED)
 	{
 		UA_Client_disconnect(_pClient);
-		_connected = false;
 	}
 }
 

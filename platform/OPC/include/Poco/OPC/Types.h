@@ -21,18 +21,26 @@
 
 
 #include "Poco/OPC/OPC.h"
+#include "Poco/DateTime.h"
 #include "Poco/Types.h"
 #include "Poco/UUID.h"
-#include "Poco/Dynamic/Var.h"
 #include <vector>
+#include <cstring>
 
 
 namespace Poco {
 namespace OPC {
 namespace open62541 {
 
+
 #include "open62541.h"
 
+
+}
+
+inline std::string getError(UInt32 val)
+{
+	return std::string(open62541::UA_StatusCode_name(val)) + ": " + open62541::UA_StatusCode_explanation(val);
 }
 
 typedef open62541::UA_StatusCode StatusCode;
@@ -128,28 +136,138 @@ public:
 	operator const std::string&();
 		/// Cast operator.
 
-/* must heap-allocate, so maybe not a good idea
-	operator String()
-	{
-		String to;
-		if((to.length = _to.size()))
-		{
-			to.data = (open62541::UA_Byte*) UA_malloc(_to.size());
-			std::memcpy(to.data, _to.data(), _to.size());
-		}
-		return to;
-	}
-*/
+	operator const String&();
+		/// Cast operator.
 
 private:
 	void assign(const char* data, std::size_t length);
 
 	std::string _to;
+	String      _toUA;
 };
 
 
-typedef Poco::DateTime DateTime;
-	/// This Built-in DataType defines a Gregorian calendar date.
+class DateTime: public Poco::DateTime
+	/// This Built-in DataType defines an instance in time.
+	/// It is implemented as an extension of Poco:DateTime, with addition 
+	/// of nanoseconds.
+{
+public:
+	DateTime(): Poco::DateTime(), _nanosecond(0)
+		/// Creates the DateTime.
+	{
+	}
+
+	DateTime(int year, int month, int day,
+		int hour = 0, int minute = 0, int second = 0, 
+		int millisecond = 0, int microsecond = 0, int nanosecond = 0):
+			Poco::DateTime(year, month, day, hour, minute, second,
+						   millisecond, microsecond), _nanosecond(nanosecond)
+		/// Creates the DateTime.
+	{
+	}
+
+	DateTime(UInt64 ts)
+		/// Creates the DateTime.
+	{
+		open62541::UA_DateTimeStruct uDTS = open62541::UA_DateTime_toStruct(ts);
+		assign(uDTS.year, uDTS.month, uDTS.day, uDTS.hour, uDTS.min, uDTS.sec, uDTS.milliSec, uDTS.microSec);
+		_nanosecond = uDTS.nanoSec;
+	}
+
+	DateTime(open62541::UA_DateTimeStruct uDTS)
+		/// Creates the DateTime.
+	{
+		assign(uDTS.year, uDTS.month, uDTS.day, uDTS.hour, uDTS.min, uDTS.sec, uDTS.milliSec, uDTS.microSec);
+		_nanosecond = uDTS.nanoSec;
+	}
+
+	DateTime(const Poco::DateTime& dt): Poco::DateTime(dt), _nanosecond(0)
+		/// Copy-constructs the DateTime.
+	{
+	}
+
+	~DateTime()
+		/// Destroys the DateTime.
+	{
+	}
+
+	DateTime& operator = (const DateTime& dt)
+		/// Assignment operator.
+	{
+		if(&dt != this)
+		{
+			assign(dt.year(), dt.month(), dt.day(), dt.hour(), dt.minute(), dt.second(), dt.millisecond(), dt.microsecond());
+			_nanosecond = dt._nanosecond;
+		}
+		return *this;
+	}
+
+	DateTime& operator = (UInt64 ts)
+		/// Assignment operator.
+	{
+		open62541::UA_DateTimeStruct uDTS = open62541::UA_DateTime_toStruct(ts);
+		assign(uDTS.year, uDTS.month, uDTS.day, uDTS.hour, uDTS.min, uDTS.sec, uDTS.milliSec, uDTS.microSec);
+		_nanosecond = uDTS.nanoSec;
+		return *this;
+	}
+
+	DateTime& operator = (const Poco::DateTime& dt)
+		/// Assignment operator.
+	{
+		assign(dt.year(), dt.month(), dt.day(), dt.hour(), dt.minute(), dt.second(), dt.millisecond(), dt.microsecond());
+		_nanosecond = 0;
+		return *this;
+	}
+
+	int nanosecond() const
+		/// Returns the nanosecond (0 to 999)
+	{
+		return _nanosecond;
+	}
+
+	std::string toString() const
+		/// Returns the DateTime as string.
+	{
+		std::vector<char> str(32);
+		printNumber(month(), &str[0], 2);
+		str[2] = '/';
+		printNumber(day(), &str[3], 2);
+		str[5] = '/';
+		printNumber(year(), &str[6], 4);
+		str[10] = ' ';
+		printNumber(hour(), &str[11], 2);
+		str[13] = ':';
+		printNumber(minute(), &str[14], 2);
+		str[16] = ':';
+		printNumber(second(), &str[17], 2);
+		str[19] = '.';
+		printNumber(millisecond(), &str[20], 3);
+		str[23] = '.';
+		printNumber(microsecond(), &str[24], 3);
+		str[27] = '.';
+		printNumber(_nanosecond, &str[28], 3);
+		return std::string(&str[0]);
+	}
+
+	static Int64 now()
+	{
+		return open62541::UA_DateTime_now();
+	}
+
+private:
+	static void printNumber(UInt16 n, char* pos, size_t digits)
+	{
+		for(size_t i = digits; i > 0; --i)
+		{
+			pos[i-1] = ((n % 10) + '0');
+			n = n / 10;
+		}
+	}
+
+	UInt16 _nanosecond;
+};
+
 
 typedef double Double;
 	/// This Built-in DataType defines a value that adheres to the IEEE 754-1985 double precision data type definition.
@@ -180,32 +298,32 @@ typedef ByteString ImageJPG;
 typedef ByteString ImagePNG;
 	/// This abstract DataType defines a ByteString representing an image in PNG format.
 
-typedef Poco::Int64 Integer;
+typedef open62541::UA_Int64 Integer;
 
-typedef Poco::Int16 Int16;
+typedef open62541::UA_Int16 Int16;
 	/// This Built-in DataType defines a value that is a signed integer between −32,768 and 32,767 inclusive.
 
-typedef Poco::Int32 Int32;
+typedef open62541::UA_Int32 Int32;
 	/// This Built-in DataType defines a value that is a signed integer between −2,147,483,648 and 2,147,483,647
 	/// inclusive.
 
-typedef Poco::Int64 Int64;
+typedef open62541::UA_Int64 Int64;
 	/// This Built-in DataType defines a value that is a signed integer between −9,223,372,036,854,775,808 and
 	/// 9,223,372,036,854,775,807 inclusive.
 
 typedef double Number;
 	/// This abstract DataType defines a number.
 
-typedef Poco::UInt64 UInteger;
+typedef open62541::UA_UInt64 UInteger;
 	/// This abstract DataType defines an unsigned integer
 
-typedef Poco::UInt16 UInt16;
+typedef open62541::UA_UInt16 UInt16;
 	/// This Built-in DataType defines a value that is an unsigned integer between 0 and 65,535 inclusive.
 
-typedef Poco::UInt32 UInt32;
+typedef open62541::UA_UInt32 UInt32;
 /// This Built-in DataType defines a value that is an unsigned integer between 0 and 4,294,967,295 inclusive.
 
-typedef Poco::UInt16 UInt16;
+typedef open62541::UA_UInt16 UInt16;
 	/// This Built-in DataType defines a value that is an unsigned integer between 0 and 18 446,744,073,709,551,615 inclusive.
 
 typedef ByteString AudioData;
@@ -833,39 +951,7 @@ typedef DateTime UtcTime;
 	///
 	/// It should be noted that the Source and Server Timestamps may originate from different clocks that have no
 	/// synchronization. It is also possible that one may use UTC while the other uses TAI.
-/*
-class String
-	/// This Built-in DataType defines a Unicode character string that should exclude control characters
-	/// that are not whitespaces.
-{
-public:
-	String(const std::string& data = "");
-	~String();
 
-	operator const std::string&() const
-	{
-		return _data;
-	}
-
-private:
-	operator open62541::String() const
-	{
-		UA_String str;
-		str.length = _data.length();
-		str.data = (open62541::UA_Byte*) calloc(str.length, sizeof(open62541::UA_Byte));
-		return str;
-	}
-
-	static std::string purge(const std::string& str)
-	{
-		std::string purged;
-		//TODO: purge non-printable chars except spaces
-		return purged;
-	}
-
-	std::string _data;
-};
-*/
 
 typedef std::string DateString;
 	/// This Simple DataType defines a value which is a day in the Gregorian calendar in string. Lexical representation
