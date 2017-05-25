@@ -8,7 +8,7 @@ This part of the Remoting tutorial covers topics such as
 using user-defined argument types in remote methods and
 remote events.
 
-This tuturial assumes that you are familiar with basic POCO C++ Libraries
+This tutorial assumes that you are familiar with basic POCO C++ Libraries
 programming techniques. You should also have read the [[00100-RemotingNGOverview.html Remoting Overview]]
 and be familiar with basic Remoting concepts, such as presented in
 [[00150-RemotingNGTutorialPart1.html part 1 of the Remoting tutorial].

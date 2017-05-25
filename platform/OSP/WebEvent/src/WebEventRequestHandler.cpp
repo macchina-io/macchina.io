@@ -35,7 +35,7 @@ WebEventRequestHandler::WebEventRequestHandler(WebEventServiceImpl::Ptr pWebEven
 }
 
 	
-WebEventRequestHandler::WebEventRequestHandler()
+WebEventRequestHandler::~WebEventRequestHandler()
 {
 }
 
