@@ -47,7 +47,7 @@ class OPC_API Server : public Poco::Runnable
 {
 public:
 	
-	Server(int port = 16664);
+	Server(int port = OPC_STANDARD_PORT);
 		/// Creates the Server.
 
 	~Server();

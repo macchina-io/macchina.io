@@ -11,11 +11,13 @@ Data/SQLite
 Zip
 CppParser
 CodeGeneration
+OPC
 JS/V8
 JS/Core
 JS/Data
 JS/Bridge
 JS/Net
+JS/OPC
 RemotingNG
 RemotingNG/RemoteGen
 RemotingNG/TCP
@@ -37,5 +39,4 @@ Geo
 Serial
 Redis
 WebTunnel
-OPC
 

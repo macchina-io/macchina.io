@@ -54,14 +54,14 @@ cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-cle
 # WebTunnel, JS, Redis, Remoting, OSP and OPC
 libexecs += \
     WebTunnel-libexec \
-    JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec \
+    OPC-libexec \
+    JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec JS/OPC-libexec \
     CodeGeneration-libexec RemotingNG-libexec RemotingNG/RemoteGen-libexec RemotingNG/TCP-libexec \
     OSP-libexec OSP/BundleCreator-libexec OSP/CodeCacheUtility-libexec OSP/Web-libexec OSP/Core-libexec OSP/Crypto-libexec OSP/Data-libexec OSP/Data/SQLite-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec OSP/SecureWebServer-libexec OSP/WebServer-libexec OSP/JS-libexec OSP/JS/Net-libexec OSP/JS/Data-libexec OSP/JS/Web-libexec OSP/JS/Scheduler-libexec OSP/WebEvent-libexec OSP/SimpleAuth-libexec \
     OSP/RemotingNG/TCP-libexec \
     Geo-libexec \
     Serial-libexec \
-    Redis-libexec \
-    OPC-libexec
+    Redis-libexec
 
 tests    += CodeGeneration-tests RemotingNG-tests RemotingNG/TCP-tests OSP-tests OSP/Web-tests Geo-tests Redis-tests OPC-tests
 
@@ -69,7 +69,7 @@ samples  += WebTunnel-samples OPC-samples
 
 cleans   += \
     WebTunnel-clean \
-    JS/V8-clean JS/Core-clean JS/Data-clean JS/Bridge-clean JS/Net-clean \
+    JS/V8-clean JS/Core-clean JS/Data-clean JS/Bridge-clean JS/Net-clean JS/OPC-clean \
     CodeGeneration-clean RemotingNG-clean RemotingNG/RemoteGen-clean RemotingNG/TCP-clean \
     OSP-clean OSP/BundleCreator-clean OSP/CodeCacheUtility-clean OSP/Web-clean OSP/Core-clean OSP/Crypto-clean OSP/Data-clean OSP/Data/SQLite-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean OSP/SecureWebServer-clean OSP/WebServer-clean OSP/JS-clean OSP/JS/Net-clean OSP/JS/Data-clean OSP/JS/Web-clean OSP/JS/Scheduler-clean OSP/WebEvent-clean OSP/SimpleAuth-clean \
     OSP/RemotingNG/TCP-clean \
@@ -298,6 +298,12 @@ JS/Net-libexec:  Foundation-libexec Net-libexec JS/Core-libexec
 
 JS/Net-clean:
 	$(MAKE) -C $(POCO_BASE)/JS/Net clean
+
+JS/OPC-libexec:  Foundation-libexec OPC-libexec JS/Core-libexec
+	$(MAKE) -C $(POCO_BASE)/JS/OPC
+
+JS/OPC-clean:
+	$(MAKE) -C $(POCO_BASE)/JS/OPC clean
 
 RemotingNG-libexec:  Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/RemotingNG

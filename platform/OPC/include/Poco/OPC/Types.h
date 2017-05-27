@@ -24,6 +24,8 @@
 #include "Poco/DateTime.h"
 #include "Poco/Types.h"
 #include "Poco/UUID.h"
+#include "Poco/StringTokenizer.h"
+#include "Poco/Dynamic/VarHolder.h"
 #include <vector>
 #include <cstring>
 
@@ -42,6 +44,8 @@ inline std::string getError(UInt32 val)
 {
 	return std::string(open62541::UA_StatusCode_name(val)) + ": " + open62541::UA_StatusCode_explanation(val);
 }
+
+extern const UInt16 OPC_STANDARD_PORT;
 
 typedef open62541::UA_StatusCode StatusCode;
 	/// A numeric identifier for an error or condition that is associated with a value
@@ -182,6 +186,11 @@ public:
 		_nanosecond = uDTS.nanoSec;
 	}
 
+	DateTime(const std::string& str)
+	{
+		*this = fromString(str);
+	}
+
 	DateTime(const Poco::DateTime& dt): Poco::DateTime(dt), _nanosecond(0)
 		/// Copy-constructs the DateTime.
 	{
@@ -220,10 +229,35 @@ public:
 		return *this;
 	}
 
+	DateTime& operator = (const std::string& str)
+		/// Assignment operator.
+	{
+		*this = fromString(str);
+		return *this;
+	}
+
 	int nanosecond() const
 		/// Returns the nanosecond (0 to 999)
 	{
 		return _nanosecond;
+	}
+
+	static DateTime fromString(const std::string& from)
+	{
+		StringTokenizer st(from, "/ :.", StringTokenizer::TOK_TRIM | StringTokenizer::TOK_IGNORE_EMPTY);
+		if(st.count() != 9)
+		{
+			throw Poco::InvalidArgumentException("Invalid DateTime format (expected MM/DD/YYYY HH24:MI:SS.mmm.uuu.nnn)");
+		}
+		return DateTime(NumberParser::parse(st[2]),
+			NumberParser::parse(st[0]),
+			NumberParser::parse(st[1]),
+			NumberParser::parse(st[3]),
+			NumberParser::parse(st[4]),
+			NumberParser::parse(st[5]),
+			NumberParser::parse(st[6]),
+			NumberParser::parse(st[7]),
+			NumberParser::parse(st[8]));
 	}
 
 	std::string toString() const
@@ -1644,7 +1678,133 @@ private:
 // inlines
 //
 
-} } // namespace Poco::OPC
+
+} // namespace OPC
+
+
+namespace Dynamic {
+
+
+template <>
+class VarHolderImpl<OPC::DateTime>: public VarHolder
+{
+public:
+	VarHolderImpl(const OPC::DateTime& val): _val(val)
+	{
+	}
+
+	~VarHolderImpl()
+	{
+	}
+
+	const std::type_info& type() const
+	{
+		return typeid(OPC::DateTime);
+	}
+
+	void convert(Int8& /*val*/) const
+	{
+		throw BadCastException();
+	}
+
+	void convert(Int16& /*val*/) const
+	{
+		throw BadCastException();
+	}
+
+	void convert(Int32& /*val*/) const
+	{
+		throw BadCastException();
+	}
+
+	void convert(Int64& val) const
+	{
+		throw BadCastException(); // TODO
+		//val = _val.timestamp().epochMicroseconds();
+	}
+
+	void convert(UInt64& val) const
+	{
+		throw BadCastException(); // TODO
+		//val = _val.timestamp().epochMicroseconds();
+	}
+
+	void convert(std::string& val) const
+	{
+		val = _val.toString();
+	}
+
+	void convert(OPC::DateTime& val) const
+	{
+		val = _val;
+	}
+
+	void convert(LocalDateTime& ldt) const
+	{
+		ldt = _val;
+	}
+
+	void convert(Timestamp& ts) const
+	{
+		throw BadCastException(); // TODO
+		//ts = _val.timestamp();
+	}
+
+	VarHolder* clone(Placeholder<VarHolder>* pVarHolder = 0) const
+	{
+		return cloneHolder(pVarHolder, _val);
+	}
+
+	const OPC::DateTime& value() const
+	{
+		return _val;
+	}
+
+	bool isArray() const
+	{
+		return false;
+	}
+
+	bool isStruct() const
+	{
+		return false;
+	}
+
+	bool isInteger() const
+	{
+		return false;
+	}
+
+	bool isSigned() const
+	{
+		return false;
+	}
+
+	bool isNumeric() const
+	{
+		return false;
+	}
+
+	bool isBoolean() const
+	{
+		return false;
+	}
+
+	bool isString() const
+	{
+		return false;
+	}
+
+private:
+	VarHolderImpl();
+	VarHolderImpl(const VarHolderImpl&);
+	VarHolderImpl& operator = (const VarHolderImpl&);
+
+	OPC::DateTime _val;
+};
+
+
+} } // namespace Poco::Dynamic
 
 
 #endif // OPC_Node_INCLUDED

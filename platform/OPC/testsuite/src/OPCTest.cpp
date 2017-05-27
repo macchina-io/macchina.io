@@ -15,12 +15,14 @@
 #include "Poco/OPC/Types.h"
 #include "Poco/OPC/Server.h"
 #include "Poco/UUID.h"
+#include "Poco/Dynamic/Var.h"
 #include "Poco/Exception.h"
 #include <iostream>
 
 
 using namespace Poco;
 using namespace Poco::OPC;
+using namespace Poco::Dynamic;
 using namespace open62541;
 
 
@@ -61,7 +63,7 @@ void OPCTest::testString()
 	const char* cstr = "abcXYZ123";
 	str = open62541::UA_STRING_ALLOC(cstr);
 	assert((((UA_String) STDString(str)).length) == strlen(cstr));
-	assert(0 == strncmp(reinterpret_cast<const char*>(((UA_String) STDString(str)).data), cstr, str.length()));
+	assert(0 == strncmp(reinterpret_cast<const char*>(((UA_String) STDString(str)).data), cstr, str.length));
 	stdStr = STDString(str);
 	assert(stdStr == cstr);
 	UA_free(str.data);
@@ -476,7 +478,19 @@ void OPCTest::testDateTime()
 	assert(oDT.microsecond() == uaDT.microSec);
 	assert(oDT.nanosecond() == uaDT.nanoSec);
 
-	std::cout << oDT.toString() << std::endl;
+	assert(Poco::OPC::DateTime::fromString(oDT.toString()) == oDT);
+
+	OPC::DateTime sDT(oDT.toString());
+	assert(sDT == oDT);
+
+	std::string str = "05/26/2017 23:06:54.812.795.123";
+	sDT = str;
+	assert(sDT.toString() == str);
+	assert(sDT.nanosecond() == 123);
+
+	Var vDT = oDT;
+	assert(vDT.convert<OPC::DateTime>() == oDT);
+	assert(vDT.toString() == oDT.toString());
 }
 
 

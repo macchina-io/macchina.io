@@ -328,7 +328,7 @@ public:
 	}
 	
 	static std::string toString(v8::Local<v8::Value> value);
-	
+
 	template <typename T>
 	static void returnString(const T& info, const std::string& value)
 	{

@@ -23,6 +23,9 @@ namespace Poco {
 namespace OPC {
 
 
+const UInt16 OPC_STANDARD_PORT = 4840;
+
+
 //
 // UAString
 //

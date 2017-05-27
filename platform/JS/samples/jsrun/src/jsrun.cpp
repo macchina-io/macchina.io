@@ -16,6 +16,7 @@
 #include "Poco/JS/Core/ConsoleWrapper.h"
 #include "Poco/JS/Net/HTTPRequestWrapper.h"
 #include "Poco/JS/Data/SessionWrapper.h"
+#include "Poco/JS/OPC/ClientWrapper.h"
 #include "Poco/Net/HTTPStreamFactory.h"
 #include "Poco/Net/FTPStreamFactory.h"
 #include "Poco/Net/HTTPSessionInstantiator.h"
@@ -72,9 +73,12 @@ protected:
 
 		Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
 		global->Set(v8::String::NewFromUtf8(pIsolate, "HTTPRequest"), httpRequestWrapper.constructor(pIsolate));
-	
+
 		Poco::JS::Data::SessionWrapper sessionWrapper;
 		global->Set(v8::String::NewFromUtf8(pIsolate, "DBSession"), sessionWrapper.constructor(pIsolate));
+
+		Poco::JS::OPC::ClientWrapper clientWrapper;
+		global->Set(v8::String::NewFromUtf8(pIsolate, "OPCClient"), clientWrapper.constructor(pIsolate));
 		
 		v8::Local<v8::Array> args = v8::Array::New(pIsolate, static_cast<int>(_args.size()));
 		for (unsigned i = 0; i < _args.size(); i++)

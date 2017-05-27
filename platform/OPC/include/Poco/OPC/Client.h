@@ -27,6 +27,8 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <iomanip>
+#include <numeric>
 #include <iostream>
 
 
@@ -76,7 +78,7 @@ public:
 		/// Creates the Client.
 
 	Client(const std::string& server,
-		int port = 16664,
+		int port = OPC_STANDARD_PORT,
 		const std::string& user = "",
 		const std::string& pass = "",
 		bool doConnect = true,
@@ -95,11 +97,16 @@ public:
 	void init(bool doConnect);
 		/// Initializes the client. If `doConnect` is true, connects to the server.
 
-	void setURL(const std::string& server, int port, const std::string& proto = "opc.tcp");
+	void setURL(const std::string& server, int port = OPC_STANDARD_PORT, const std::string& proto = "opc.tcp");
 		/// Sets the server url.
 
 	void printEndpointURLs(std::ostream& os) const;
 		/// Prints the list of server endpoint URLs.
+
+	void printServerObjects(std::ostream& os)
+	{
+		printBrowse(os);
+	}
 
 	void connect(const std::string& user = "", const std::string& pass = "");
 		/// Connects to the server.
@@ -156,7 +163,118 @@ public:
 	std::string readStrDateTimeByName(int nsIndex, const std::string& name) const;
 	std::string readStrDateTimeByID(int nsIndex, int id) const;
 
+	template <typename T>
+	Poco::Dynamic::Var read(int nsIndex, const T& id) const
+	{
+		using namespace open62541;
+		UA_Variant* val = UA_Variant_new();
+		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
+		if(retval == UA_STATUSCODE_GOOD)
+		{
+			if(UA_Variant_isScalar(val))
+			{
+				UInt16 type = val->type->typeIndex;
+				switch(type)
+				{
+					case UA_TYPES_BOOLEAN:  { bool value;   return getValue(val, value); }
+					case UA_TYPES_SBYTE:    { Int8 value;   return getValue(val, value); }
+					case UA_TYPES_BYTE:     { UInt8 value;  return getValue(val, value); }
+					case UA_TYPES_INT16:    { Int16 value;  return getValue(val, value); }
+					case UA_TYPES_UINT16:   { UInt16 value; return getValue(val, value); }
+					case UA_TYPES_INT32:    { Int32 value;  return getValue(val, value); }
+					case UA_TYPES_UINT32:   { UInt32 value; return getValue(val, value); }
+					case UA_TYPES_INT64:    { Int64 value;  return getValue(val, value); }
+					case UA_TYPES_UINT64:   { UInt64 value; return getValue(val, value); }
+					case UA_TYPES_FLOAT:    { float value;  return getValue(val, value); }
+					case UA_TYPES_DOUBLE:   { double value; return getValue(val, value); }
+					case UA_TYPES_DATETIME:
+					{
+						UA_DateTime dt;
+						getValue<UA_DateTime>(val, dt);
+						OPC::DateTime odt(dt);
+						return odt;
+					}
+					case UA_TYPES_STRING:
+					{
+						std::string value;
+						UA_String uaStr;
+						getValue<UA_String>(val, uaStr);
+						value = STDString(uaStr);
+						return value;
+					}
+					default:
+						UA_Variant_delete(val);
+						throw Poco::NotImplementedException("Type not supported:" + Poco::NumberFormatter::format(type));
+				}
+			}
+			else // TODO: arrays
+			{
+				UA_Variant_delete(val);
+				throw Poco::NotImplementedException("OPC::Client::readValueAttribute(): Retrieval of array values not implemented");
+			}
+		}
+		else
+		{
+			UA_Variant_delete(val);
+			std::ostringstream os;
+			os << "Error in OPC::Client::readValueAttribute(" << id << "): " << getError(retval);
+			throw RuntimeException(os.str());
+		}
+		UA_Variant_delete(val);
+		return 0;
+	}
+
 private:
+	void printBrowse(std::ostream& os, int type = UA_NS0ID_OBJECTSFOLDER, std::vector<int> colWidths = std::vector<int>())
+	{
+		using namespace open62541;
+
+		if(colWidths.size() < 1) colWidths.push_back(11);
+		if(colWidths.size() < 2) colWidths.push_back(20);
+		if(colWidths.size() < 3) colWidths.push_back(36);
+		if(colWidths.size() < 4) colWidths.push_back(36);
+
+		UA_BrowseRequest bReq;
+		UA_BrowseRequest_init(&bReq);
+		bReq.requestedMaxReferencesPerNode = 0;
+		bReq.nodesToBrowse = UA_BrowseDescription_new();
+		bReq.nodesToBrowseSize = 1;
+		bReq.nodesToBrowse[0].nodeId = UA_NODEID_NUMERIC(0, type);
+		bReq.nodesToBrowse[0].resultMask = UA_BROWSERESULTMASK_ALL; // return everything
+		UA_BrowseResponse bResp = UA_Client_Service_browse(_pClient, bReq);
+		os << std::setw(colWidths.at(0)) << "[NAMESPACE]" << std::setw(colWidths.at(1)) << "[NODEID]" <<
+			std::setw(colWidths.at(2)) << "[BROWSE NAME]" << std::setw(colWidths.at(3)) << "[DISPLAY NAME]" << std::endl;
+		std::string line(std::accumulate(colWidths.begin(), colWidths.end(), 0), '-');
+		os << line << std::endl;
+		for (size_t i = 0; i < bResp.resultsSize; ++i)
+		{
+			for (size_t j = 0; j < bResp.results[i].referencesSize; ++j)
+			{
+				UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
+				if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
+				{
+					os << std::setw(colWidths.at(0)) << ref->browseName.namespaceIndex <<
+						std::setw(colWidths.at(1)) << ref->nodeId.nodeId.identifier.numeric <<
+						std::setw(colWidths.at(2)) << std::string((char*) ref->browseName.name.data, ref->browseName.name.length) <<
+						std::setw(colWidths.at(3)) << std::string((char*) ref->displayName.text.data, ref->displayName.text.length) <<
+						std::endl;
+				}
+				else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
+				{
+					os << std::setw(colWidths.at(0)) << ref->browseName.namespaceIndex << std::setw(11) <<
+						std::setw(colWidths.at(1)) << std::string((char*) ref->nodeId.nodeId.identifier.string.data,
+							ref->nodeId.nodeId.identifier.string.length) <<
+						std::setw(colWidths.at(2)) << std::string((char*) ref->browseName.name.data, ref->browseName.name.length) << 
+						std::setw(colWidths.at(3)) << std::string((char*) ref->displayName.text.data, ref->displayName.text.length) <<
+						std::endl;
+				}
+				// TODO: distinguish further types
+			}
+		}
+		UA_BrowseRequest_deleteMembers(&bReq);
+		UA_BrowseResponse_deleteMembers(&bResp);
+	}
+
 	open62541::UA_StatusCode readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val) const
 	{
 		using namespace open62541;
@@ -171,7 +289,7 @@ private:
 	}
 
 	template <typename T>
-	void getValue(open62541::UA_Variant* val, T& value) const
+	const T& getValue(open62541::UA_Variant* val, T& value) const
 	{
 		using namespace open62541;
 		if(UA_Variant_isScalar(val))
@@ -180,8 +298,9 @@ private:
 		}
 		else // TODO: arrays
 		{
-			throw Poco::NotImplementedException("OPC::getValue(): Retrieval of array values not implemented");
+			throw Poco::NotImplementedException("OPC::Client::getValue(): Retrieval of array values not implemented");
 		}
+		return value;
 	}
 
 	template <typename T, typename I>
@@ -199,7 +318,7 @@ private:
 		{
 			UA_Variant_delete(val);
 			std::ostringstream os;
-			os << "Error in OPC::readValueAttribute(" << id << "): " << getError(retval);
+			os << "Error in OPC::Client::readValueAttribute(" << id << "): " << getError(retval);
 			throw RuntimeException(os.str());
 		}
 		UA_Variant_delete(val);
@@ -223,7 +342,7 @@ private:
 		{
 			UA_Variant_delete(val);
 			std::ostringstream os;
-			os << "Error in OPC::readValueAttribute(" << id << "): " << getError(retval);
+			os << "Error in OPC::Client::readValueAttribute(" << id << "): " << getError(retval);
 			throw RuntimeException(os.str());
 		}
 		UA_Variant_delete(val);
@@ -232,9 +351,9 @@ private:
 
 	void getDateTime(Poco::OPC::DateTime& dt);
 
-	open62541::UA_Client* _pClient;
-	std::string           _url;
-	StringList            _endpointURLs;
+	open62541::UA_Client*         _pClient;
+	std::string                   _url;
+	StringList                    _endpointURLs;
 	// following members needed to copy-construct the client (remoting requirement)
 	std::string _server;
 	int _port;
