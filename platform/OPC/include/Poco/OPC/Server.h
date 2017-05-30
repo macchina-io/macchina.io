@@ -73,12 +73,12 @@ public:
 private:
 	const void* convertPOD(const Any& value, int type);
 	const void* convertString(const Any& value, UA_String& str);
-	//const void* convertDateTime(const Any& value, UA_DateTimeStruct& dt);
 
 	open62541::UA_Server*             _pServer;
 	open62541::UA_ServerNetworkLayer* _pNetworkLayer;
 	bool                              _running;
 	bool                              _done;
+	std::string                       _error;
 };
 
 

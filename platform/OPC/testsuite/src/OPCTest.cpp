@@ -95,6 +95,11 @@ void OPCTest::testString()
 	assert(stdStr.empty());
 	stdStr = uaStr;
 	assert(stdStr == cstr);
+
+	stdStr = "abc123";
+	UAString uaStr3(stdStr);
+	assert(uaStr3.length() == stdStr.length());
+	assert(std::memcmp(uaStr3.data(), stdStr.data(), stdStr.length()) == 0);
 }
 
 

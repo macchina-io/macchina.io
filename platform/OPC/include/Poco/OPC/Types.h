@@ -82,6 +82,85 @@ typedef struct {
 } UA_String;
 #endif
 
+
+inline int getUAType(const bool&)
+{
+	return UA_TYPES_BOOLEAN;
+}
+
+
+inline int getUAType(const unsigned char&)
+{
+	return UA_TYPES_SBYTE;
+}
+
+
+inline int getUAType(const char&)
+{
+	return UA_TYPES_BYTE;
+}
+
+
+inline int getUAType(const Int16&)
+{
+	return UA_TYPES_INT16;
+}
+
+
+inline int getUAType(const UInt16&)
+{
+	return UA_TYPES_UINT16;
+}
+
+
+inline int getUAType(const Int32&)
+{
+	return UA_TYPES_INT32;
+}
+
+
+inline int getUAType(const UInt32&)
+{
+	return UA_TYPES_UINT32;
+}
+
+
+inline int getUAType(const Int64&)
+{
+	return UA_TYPES_INT64;
+}
+
+
+inline int getUAType(const UInt64&)
+{
+	return UA_TYPES_UINT64;
+}
+
+
+inline int getUAType(const float&)
+{
+	return UA_TYPES_FLOAT;
+}
+
+
+inline int getUAType(const double&)
+{
+	return UA_TYPES_DOUBLE;
+}
+
+
+inline int getUAType(const std::string&)
+{
+	return UA_TYPES_STRING;
+}
+
+
+inline int getUAType(const Poco::DateTime&)
+{
+	return UA_TYPES_DATETIME;
+}
+
+
 class OPC_API UAString
 	/// A string conversion utility class with value semantics.
 	/// It can be constructed from std::string and provides
@@ -111,6 +190,16 @@ public:
 
 	operator std::string();
 		/// Cast operator.
+
+	std::size_t length() const
+	{
+		return _to.length;
+	}
+
+	const unsigned char* data() const
+	{
+		return _to.data;
+	}
 
 private:
 	void allocate(const unsigned char* data, std::size_t length);

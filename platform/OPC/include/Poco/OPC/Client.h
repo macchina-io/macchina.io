@@ -224,6 +224,55 @@ public:
 		return 0;
 	}
 
+	void writeBoolByName(int nsIndex, const std::string& name, bool value);
+	void writeBoolByID(int nsIndex, int id, bool value);
+
+	void writeSByteByName(int nsIndex, const std::string& name, unsigned char value);
+	void writeSByteByID(int nsIndex, int id, unsigned char value);
+
+	void writeByteByName(int nsIndex, const std::string& name, char value);
+	void writeByteByID(int nsIndex, int id, char value);
+
+	void writeInt16ByName(int nsIndex, const std::string& name, Int16 value);
+	void writeInt16ByID(int nsIndex, int id, Int16 value);
+
+	void writeUInt16ByName(int nsIndex, const std::string& name, UInt16 value);
+	void writeUInt16ByID(int nsIndex, int id, UInt16 value);
+
+	void writeInt32ByName(int nsIndex, const std::string& name, Int32 value);
+	void writeInt32ByID(int nsIndex, int id, Int32 value);
+
+	void writeUInt32ByName(int nsIndex, const std::string& name, UInt32 value);
+	void writeUInt32ByID(int nsIndex, int id, UInt32 value);
+
+	void writeInt64ByName(int nsIndex, const std::string& name, Int64 value);
+	void writeInt64ByID(int nsIndex, int id, Int64 value);
+
+	void writeUInt64ByName(int nsIndex, const std::string& name, UInt64 value);
+	void writeUInt64ByID(int nsIndex, int id, UInt64 value);
+
+	void writeFloatByName(int nsIndex, const std::string& name, float value);
+	void writeFloatByID(int nsIndex, int id, float value);
+
+	void writeDoubleByName(int nsIndex, const std::string& name, double value);
+	void writeDoubleByID(int nsIndex, int id, double value);
+
+	void writeStringByName(int nsIndex, const std::string& name, const std::string& value);
+	void writeStringByID(int nsIndex, int id, const std::string& value);
+/*
+	void writeDateTimeByName(int nsIndex, const std::string& name, Int64 value);
+	void writeDateTimeByID(int nsIndex, int id, Int64 value);
+
+	void writeStrDateTimeByName(int nsIndex, const std::string& name, boconst std::string& ol value);
+	void writeStrDateTimeByID(int nsIndex, int id, const std::string&  value);
+*/
+
+	template <typename I, typename T>
+	void write(int nsIndex, I id, const T& value)
+	{
+		writeValue(nsIndex, id, value);
+	}
+
 private:
 	void printBrowse(std::ostream& os, int type = UA_NS0ID_OBJECTSFOLDER, std::vector<int> colWidths = std::vector<int>())
 	{
@@ -275,6 +324,7 @@ private:
 		UA_BrowseResponse_deleteMembers(&bResp);
 	}
 
+	// reading
 	open62541::UA_StatusCode readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val) const
 	{
 		using namespace open62541;
@@ -296,9 +346,27 @@ private:
 		{
 			value = *(T*)val->data;
 		}
-		else // TODO: arrays
+		else if(val->arrayLength > 0)
 		{
 			throw Poco::NotImplementedException("OPC::Client::getValue(): Retrieval of array values not implemented");
+		}
+		else
+		{
+			std::ostringstream os;
+			os << "OPC::Client::getValue(): Retrieval of a ";
+			if(val->type)
+			{
+				if(val->type->typeIndex)
+				{
+					os << "non-suported value type (" << val->type->typeIndex << ") attempted";
+					throw Poco::NotImplementedException(os.str());
+				}
+			}
+			else
+			{
+				os << "NULL type attempted";
+				throw Poco::NullPointerException(os.str());
+			}
 		}
 		return value;
 	}
@@ -351,6 +419,48 @@ private:
 
 	void getDateTime(Poco::OPC::DateTime& dt);
 
+	// writing
+	open62541::UA_StatusCode writeValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val) const
+	{
+		using namespace open62541;
+		if(id.isString())
+		{
+			return UA_Client_writeValueAttribute(_pClient, UA_NODEID_STRING(nsIndex, const_cast<char*>(id.toString().c_str())), val);
+		}
+		else
+		{
+			return UA_Client_writeValueAttribute(_pClient, UA_NODEID_NUMERIC(nsIndex, id), val);
+		}
+	}
+
+	template <typename T, typename I>
+	void writeValue(int nsIndex, const I& id, const T& value)
+	{
+		using namespace open62541;
+		UA_Variant* var = UA_Variant_new();
+		Poco::Dynamic::Var val(value);
+		if(val.isString())
+		{
+			std::string strVal = val.toString();
+			UA_String uaStr;
+			uaStr.data = (unsigned char*) strVal.data();
+			uaStr.length = strVal.length();
+			UA_Variant_setScalarCopy(var, &uaStr, &UA_TYPES[getUAType(value)]);
+		}
+		else
+		{
+			UA_Variant_setScalarCopy(var, &value, &UA_TYPES[getUAType(value)]);
+		}
+		UA_StatusCode retval = writeValueAttribute(nsIndex, id, var);
+		UA_Variant_delete(var);
+		if(retval != UA_STATUSCODE_GOOD)
+		{
+			std::ostringstream os;
+			os << "Error in OPC::Client::writeValueAttribute(" << id << "): " << getError(retval);
+			throw RuntimeException(os.str());
+		}
+	}
+
 	open62541::UA_Client*         _pClient;
 	std::string                   _url;
 	StringList                    _endpointURLs;
@@ -365,6 +475,10 @@ private:
 
 //
 // inlines
+//
+
+//
+// reading
 //
 
 inline bool Client::readBoolByName(int nsIndex, const std::string& name) const
@@ -509,6 +623,163 @@ inline std::string Client::readStringByID(int nsIndex, int id) const
 {
 	return readStringValueAttribute(nsIndex, id);
 }
+
+
+//
+// writing
+//
+
+inline void Client::writeBoolByName(int nsIndex, const std::string& name, bool value)
+{
+	writeValue(nsIndex, name, value);
+}
+
+
+inline void Client::writeBoolByID(int nsIndex, int id, bool value)
+{
+	writeValue(nsIndex, id, value);
+}
+
+
+inline void Client::writeSByteByName(int nsIndex, const std::string& name, unsigned char value)
+{
+	writeValue(nsIndex, name, value);
+}
+
+
+inline void Client::writeSByteByID(int nsIndex, int id, unsigned char value)
+{
+	writeValue(nsIndex, id, value);
+}
+
+
+inline void Client::writeByteByName(int nsIndex, const std::string& name, char value)
+{
+	writeValue(nsIndex, name, value);
+}
+
+
+inline void Client::writeByteByID(int nsIndex, int id, char value)
+{
+	writeValue(nsIndex, id, value);
+}
+
+
+inline void Client::writeInt16ByName(int nsIndex, const std::string& name, Int16 value)
+{
+	writeValue(nsIndex, name, value);
+}
+
+
+inline void Client::writeInt16ByID(int nsIndex, int id, Int16 value)
+{
+	writeValue(nsIndex, id, value);
+}
+
+
+inline void Client::writeUInt16ByName(int nsIndex, const std::string& name, UInt16 value)
+{
+	writeValue(nsIndex, name, value);
+}
+
+
+inline void Client::writeUInt16ByID(int nsIndex, int id, UInt16 value)
+{
+	writeValue(nsIndex, id, value);
+}
+
+
+inline void Client::writeInt32ByName(int nsIndex, const std::string& name, Int32 value)
+{
+	writeValue(nsIndex, name, value);
+}
+
+
+inline void Client::writeInt32ByID(int nsIndex, int id, Int32 value)
+{
+	writeValue(nsIndex, id, value);
+}
+
+
+inline void Client::writeUInt32ByName(int nsIndex, const std::string& name, UInt32 value)
+{
+	writeValue(nsIndex, name, value);
+}
+
+
+inline void Client::writeUInt32ByID(int nsIndex, int id, UInt32 value)
+{
+	writeValue(nsIndex, id, value);
+}
+
+
+inline void Client::writeInt64ByName(int nsIndex, const std::string& name, Int64 value)
+{
+	writeValue(nsIndex, name, value);
+}
+
+
+inline void Client::writeInt64ByID(int nsIndex, int id, Int64 value)
+{
+	writeValue(nsIndex, id, value);
+}
+
+
+inline void Client::writeUInt64ByName(int nsIndex, const std::string& name, UInt64 value)
+{
+	writeValue(nsIndex, name, value);
+}
+
+
+inline void Client::writeUInt64ByID(int nsIndex, int id, UInt64 value)
+{
+	writeValue(nsIndex, id, value);
+}
+
+
+inline void Client::writeFloatByName(int nsIndex, const std::string& name, float value)
+{
+	writeValue(nsIndex, name, value);
+}
+
+
+inline void Client::writeFloatByID(int nsIndex, int id, float value)
+{
+	writeValue(nsIndex, id, value);
+}
+
+
+inline void Client::writeDoubleByName(int nsIndex, const std::string& name, double value)
+{
+	writeValue(nsIndex, name, value);
+}
+
+
+inline void Client::writeDoubleByID(int nsIndex, int id, double value)
+{
+	writeValue(nsIndex, id, value);
+}
+
+
+inline void Client::writeStringByName(int nsIndex, const std::string& name, const std::string& value)
+{
+	writeValue(nsIndex, name, value);
+}
+
+
+inline void Client::writeStringByID(int nsIndex, int id, const std::string& value)
+{
+	writeValue(nsIndex, id, value);
+}
+
+
+/*
+	void Client::writeDateTimeByName(int nsIndex, const std::string& name, Int64 value) const;
+	void Client::writeDateTimeByID(int nsIndex, int id, Int64 value) const;
+
+	void Client::writeStrDateTimeByName(int nsIndex, const std::string& name, boconst std::string& ol value) const;
+	void Client::writeStrDateTimeByID(int nsIndex, int id, const std::string&  value) const;
+*/
 
 
 } } // namespace Poco::OPC

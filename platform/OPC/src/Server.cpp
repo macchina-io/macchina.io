@@ -57,8 +57,7 @@ void Server::run()
 	UA_StatusCode retval = UA_Server_run(_pServer, &_running);
 	if(UA_STATUSCODE_GOOD != retval)
 	{
-		std::cout << getError(retval) << std::endl;
-		//throw RuntimeException("Error in Server::run(): " +  getError(retval));
+		_error = getError(retval);
 	}
 	_done = true;
 }
