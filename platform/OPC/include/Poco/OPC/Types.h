@@ -232,6 +232,16 @@ public:
 	operator const String&();
 		/// Cast operator.
 
+	std::size_t length() const
+	{
+		return _toUA.length;
+	}
+
+	const unsigned char* data() const
+	{
+		return _toUA.data;
+	}
+
 private:
 	void assign(const char* data, std::size_t length);
 

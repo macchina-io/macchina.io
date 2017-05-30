@@ -14,6 +14,7 @@
 
 
 #include "Poco/OPC/Server.h"
+#include "Poco/Thread.h"
 #include "Poco/Dynamic/Var.h"
 #include <iostream>
 
@@ -66,7 +67,7 @@ void Server::run()
 void Server::stop()
 {
 	_running = false;
-	while(!_done);
+	while(!_done) Thread::sleep(10);
 }
 
 

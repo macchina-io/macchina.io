@@ -144,12 +144,10 @@ STDString::operator const String&()
 
 void STDString::assign(const char* data, std::size_t length)
 {
-	if(length)
-	{
-		_to.assign(data, length);
-		_toUA.data = (unsigned char*) _to.c_str();
-		_toUA.length = _to.length();
-	}
+	if(data && length) _to.assign(data, length);
+	else _to.clear();
+	_toUA.data = (unsigned char*) _to.c_str();
+	_toUA.length = _to.length();
 }
 
 

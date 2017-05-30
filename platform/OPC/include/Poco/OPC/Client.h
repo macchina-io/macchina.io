@@ -113,6 +113,14 @@ public:
 
 	int getState() const;
 
+	bool isReady() const;
+
+	bool isConnected() const;
+
+	bool isErrored() const;
+
+	bool isFaulted() const;
+
 	const StringList& getEndpointURLs();
 	void setEndpointURLs(const StringList& strList);
 
@@ -439,13 +447,12 @@ private:
 		using namespace open62541;
 		UA_Variant* var = UA_Variant_new();
 		Poco::Dynamic::Var val(value);
+		UA_String uaStr;
 		if(val.isString())
 		{
 			std::string strVal = val.toString();
-			UA_String uaStr;
-			uaStr.data = (unsigned char*) strVal.data();
-			uaStr.length = strVal.length();
-			UA_Variant_setScalarCopy(var, &uaStr, &UA_TYPES[getUAType(value)]);
+			uaStr = UA_String_fromChars(strVal.c_str());
+			UA_Variant_setScalarCopy(var, &uaStr, &UA_TYPES[getUAType(strVal)]);
 		}
 		else
 		{
@@ -456,7 +463,7 @@ private:
 		if(retval != UA_STATUSCODE_GOOD)
 		{
 			std::ostringstream os;
-			os << "Error in OPC::Client::writeValueAttribute(" << id << "): " << getError(retval);
+			os << "Error in OPC::Client::writeValueAttribute(" << val.toString() << "): " << getError(retval);
 			throw RuntimeException(os.str());
 		}
 	}
@@ -476,6 +483,54 @@ private:
 //
 // inlines
 //
+
+inline void Client::setURL(const std::string& server, int port, const std::string& proto)
+{
+	_url = proto;
+	_url.append("://").append(server).append(1, ':').append(NumberFormatter::format(port));
+}
+
+
+inline void Client::setEndpointURLs(const StringList& strList)
+{
+	_endpointURLs = strList;
+}
+
+
+//
+// state
+//
+
+
+inline int Client::getState() const
+{
+	return UA_Client_getState(_pClient);
+}
+
+
+inline bool Client::isReady() const
+{
+	return (getState() == OPC_CLIENT_READY || isConnected()) && !isErrored() && !isFaulted();
+}
+
+
+inline bool Client::isConnected() const
+{
+	return getState() == OPC_CLIENT_CONNECTED;
+}
+
+
+inline bool Client::isErrored() const
+{
+	return getState() == OPC_CLIENT_ERRORED;
+}
+
+
+inline bool Client::isFaulted() const
+{
+	return getState() == OPC_CLIENT_FAULTED;
+}
+
 
 //
 // reading
@@ -622,6 +677,31 @@ inline std::string Client::readStringByName(int nsIndex, const std::string& name
 inline std::string Client::readStringByID(int nsIndex, int id) const
 {
 	return readStringValueAttribute(nsIndex, id);
+}
+
+
+inline Poco::DateTime Client::readDateTimeByName(int nsIndex, const std::string& name) const
+{
+	return Poco::OPC::DateTime(readInt64ByName(nsIndex, name));
+}
+
+
+inline Poco::DateTime Client::readDateTimeByID(int nsIndex, int id) const
+{
+	return Poco::OPC::DateTime(readInt64ByID(nsIndex, id));
+}
+
+
+inline std::string Client::readStrDateTimeByName(int nsIndex, const std::string& name) const
+{
+	return Poco::OPC::DateTime(readInt64ByName(nsIndex, name)).toString();
+}
+
+
+inline std::string Client::readStrDateTimeByID(int nsIndex, int id) const
+{
+	Int64 ts = readInt64ByID(nsIndex, id);
+	return Poco::OPC::DateTime(ts).toString();
 }
 
 

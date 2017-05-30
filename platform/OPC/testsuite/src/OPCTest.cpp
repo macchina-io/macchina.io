@@ -14,6 +14,8 @@
 #include "CppUnit/TestSuite.h"
 #include "Poco/OPC/Types.h"
 #include "Poco/OPC/Server.h"
+#include "Poco/OPC/Client.h"
+#include "Poco/Thread.h"
 #include "Poco/UUID.h"
 #include "Poco/Dynamic/Var.h"
 #include "Poco/Exception.h"
@@ -499,9 +501,72 @@ void OPCTest::testDateTime()
 }
 
 
-void OPCTest::testServer()
+void OPCTest::testClient()
 {
+	try
+	{
+		Server server;
 
+		int nsIndex = 1;
+		Var id = "the.int.answer";
+		std::string name = "the int answer";
+		server.addVariableNode(nsIndex, id, 42, UA_TYPES_INT32, name, name, name);
+		nsIndex = server.addNamespace("ns2");
+		id = "the.double.answer";
+		name = "the double answer";
+		server.addVariableNode(nsIndex, id, 4.2, UA_TYPES_DOUBLE, name, name, name);
+
+		id = 3;
+		name = "the double answer by ID in ns2";
+		server.addVariableNode(nsIndex, id, 2.4, UA_TYPES_DOUBLE, name, name, name);
+
+		id = 4;
+		name = "the string answer by ID in ns2";
+		server.addVariableNode(nsIndex, id, std::string("abc123"), UA_TYPES_STRING, name, name, name);
+
+		id = 5;
+		name = "the DateTime answer by ID in ns2";
+		Poco::Int64 ts = OPC::DateTime::now();
+		server.addVariableNode(nsIndex, id, ts, UA_TYPES_DATETIME, name, name, name);
+
+		Thread thread;
+		thread.start(server);
+
+		Thread::sleep(100);
+
+		Client client("localhost");
+		while(!client.isConnected()) Thread::sleep(10);
+
+		nsIndex = 1;
+		name = "the.int.answer";
+		assert(42 == client.readInt32ByName(nsIndex, name));
+		client.write(nsIndex, name, 24);
+		assert(24 == client.readInt32ByName(nsIndex, name));
+
+		nsIndex = 2;
+		name = "the.double.answer";
+		double dbl = client.readDoubleByName(nsIndex, name);
+		assert(4.1 < dbl && dbl < 4.3);
+
+		int nID = 3;
+		dbl = client.readDoubleByID(nsIndex, nID);
+		assert(2.3 < dbl && dbl < 2.5);
+
+		nID = 4;
+		assert(client.readStringByID(nsIndex, nID) == "abc123");
+		client.write(nsIndex, nID, "321cba");
+		assert(client.readStringByID(nsIndex, nID) == "321cba");
+
+		client.disconnect();
+		while(client.isConnected()) Thread::sleep(10);
+
+		server.stop();
+		thread.join();
+	}
+	catch(Poco::Exception& ex)
+	{
+		fail(ex.displayText());
+	}
 }
 
 
@@ -517,7 +582,7 @@ CppUnit::Test* OPCTest::suite()
 	CppUnit_addTest(pSuite, OPCTest, testGuidNodeID);
 	CppUnit_addTest(pSuite, OPCTest, testDataTypeMember);
 	CppUnit_addTest(pSuite, OPCTest, testDateTime);
-	CppUnit_addTest(pSuite, OPCTest, testServer);
+	CppUnit_addTest(pSuite, OPCTest, testClient);
 
 	return pSuite;
 }

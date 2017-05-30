@@ -99,6 +99,13 @@ Client& Client::operator = (Client& other)
 }
 
 
+Client::~Client()
+{
+	disconnect();
+	UA_Client_delete(_pClient);
+}
+
+
 void Client::init(bool doConnect)
 {
 	setURL(_server, _port, _proto);
@@ -106,20 +113,6 @@ void Client::init(bool doConnect)
 		throw IllegalStateException("OPC client not ready");
 	getEndpointURLs();
 	if(doConnect) connect(_user, _pass);
-}
-
-
-void Client::setURL(const std::string& server, int port, const std::string& proto)
-{
-	_url = proto;
-	_url.append("://").append(server).append(1, ':').append(NumberFormatter::format(port));
-}
-
-
-Client::~Client()
-{
-	disconnect();
-	UA_Client_delete(_pClient);
 }
 
 
@@ -137,12 +130,6 @@ void Client::connect(const std::string& user, const std::string& pass)
 
 	if(getState() != OPC_CLIENT_CONNECTED)
 		throw IllegalStateException(getError(retval));
-}
-
-
-int Client::getState() const
-{
-	return UA_Client_getState(_pClient);
 }
 
 
@@ -165,12 +152,6 @@ const Client::StringList& Client::getEndpointURLs()
 	}
 	UA_Array_delete(endpointArray,endpointArraySize, &UA_TYPES[UA_TYPES_ENDPOINTDESCRIPTION]);
 	return _endpointURLs;
-}
-
-
-void Client::setEndpointURLs(const StringList& strList)
-{
-	_endpointURLs = strList;
 }
 
 
@@ -223,36 +204,20 @@ Poco::DateTime Client::readServerDateTime()
 }
 
 
-Poco::DateTime Client::readDateTimeByName(int nsIndex, const std::string& name) const
-{
-	return Poco::OPC::DateTime(readInt64ByName(nsIndex, name));
-}
-
-
-Poco::DateTime Client::readDateTimeByID(int nsIndex, int id) const
-{
-	return Poco::OPC::DateTime(readInt64ByID(nsIndex, id));
-}
-
-
-std::string Client::readStrDateTimeByName(int nsIndex, const std::string& name) const
-{
-	return Poco::OPC::DateTime(readInt64ByName(nsIndex, name)).toString();
-}
-
-
-std::string Client::readStrDateTimeByID(int nsIndex, int id) const
-{
-	Int64 ts = readInt64ByID(nsIndex, id);
-	return Poco::OPC::DateTime(ts).toString();
-}
-
-
 void Client::disconnect()
 {
-	if(getState() == OPC_CLIENT_CONNECTED)
+	if(_pClient && (getState() == OPC_CLIENT_CONNECTED))
 	{
-		UA_Client_disconnect(_pClient);
+		UA_StatusCode retval = UA_Client_disconnect(_pClient);
+		if(UA_STATUSCODE_GOOD == retval)
+		{
+			UA_Client_reset(_pClient);
+		}
+		else
+		{
+			//todo: proper logging
+			std::cout << getError(retval) << std::endl;
+		}
 	}
 }
 
