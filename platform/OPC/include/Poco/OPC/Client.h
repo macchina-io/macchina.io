@@ -447,18 +447,21 @@ private:
 		using namespace open62541;
 		UA_Variant* var = UA_Variant_new();
 		Poco::Dynamic::Var val(value);
-		UA_String uaStr;
+		UA_StatusCode retval;
 		if(val.isString())
 		{
 			std::string strVal = val.toString();
-			uaStr = UA_String_fromChars(strVal.c_str());
+			UA_String uaStr;
+			uaStr.data = (UA_Byte*) strVal.data();
+			uaStr.length = strVal.length();
 			UA_Variant_setScalarCopy(var, &uaStr, &UA_TYPES[getUAType(strVal)]);
+			retval = writeValueAttribute(nsIndex, id, var);
 		}
 		else
 		{
 			UA_Variant_setScalarCopy(var, &value, &UA_TYPES[getUAType(value)]);
+			retval = writeValueAttribute(nsIndex, id, var);
 		}
-		UA_StatusCode retval = writeValueAttribute(nsIndex, id, var);
 		UA_Variant_delete(var);
 		if(retval != UA_STATUSCODE_GOOD)
 		{

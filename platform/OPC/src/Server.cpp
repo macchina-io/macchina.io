@@ -127,6 +127,14 @@ void Server::addVariableNode(int nsIndex,
 	{
 		throw RuntimeException("Error in Server::addVariableNode(): " +  getError(retval));
 	}
+	if(str.data && str.length)
+	{
+		UA_free(str.data);
+	}
+	if(nodeId.identifierType == UA_NODEIDTYPE_STRING)
+	{
+		UA_free(nodeId.identifier.string.data);
+	}
 }
 
 

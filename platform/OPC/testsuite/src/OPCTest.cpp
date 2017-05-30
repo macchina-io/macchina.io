@@ -546,11 +546,17 @@ void OPCTest::testClient()
 		nsIndex = 2;
 		name = "the.double.answer";
 		double dbl = client.readDoubleByName(nsIndex, name);
-		assert(4.1 < dbl && dbl < 4.3);
+		assert(4.19 < dbl && dbl < 4.21);
+		client.write(nsIndex, name, 2.4);
+		dbl = client.readDoubleByName(nsIndex, name);
+		assert(2.39 < dbl && dbl < 2.41);
 
 		int nID = 3;
 		dbl = client.readDoubleByID(nsIndex, nID);
 		assert(2.3 < dbl && dbl < 2.5);
+		client.write(nsIndex, nID, 4.2);
+		dbl = client.readDoubleByID(nsIndex, nID);
+		assert(4.19 < dbl && dbl < 4.21);
 
 		nID = 4;
 		assert(client.readStringByID(nsIndex, nID) == "abc123");
