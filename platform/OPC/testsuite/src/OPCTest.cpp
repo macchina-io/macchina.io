@@ -563,6 +563,22 @@ void OPCTest::testClient()
 		client.write(nsIndex, nID, "321cba");
 		assert(client.readStringByID(nsIndex, nID) == "321cba");
 
+		nID = 5;
+		assert(client.readTimestampByID(nsIndex, nID) == ts);
+		try
+		{
+			client.write(nsIndex, nID, 1.2, true);
+			fail("invalid DateTime type must fail");
+		}
+		catch(Poco::InvalidArgumentException&) { }
+
+		ts = OPC::DateTime::now();
+		client.write(nsIndex, nID, ts, true);
+		assert(client.readTimestampByID(nsIndex, nID) == ts);
+
+		client.writeCurrentDateTimeByID(nsIndex, nID);
+		assert(client.readTimestampByID(nsIndex, nID) > ts);
+
 		client.disconnect();
 		while(client.isConnected()) Thread::sleep(10);
 

@@ -250,6 +250,38 @@ private:
 };
 
 
+class UAVariant
+{
+public:
+	UAVariant(): _pVariant(open62541::UA_Variant_new())
+	{
+		poco_check_ptr(_pVariant);
+	}
+
+	~UAVariant()
+	{
+		UA_Variant_delete(_pVariant);
+	}
+
+	operator open62541::UA_Variant*()
+	{
+		return _pVariant;
+	}
+
+	operator open62541::UA_Variant&()
+	{
+		poco_check_ptr(_pVariant);
+		return *_pVariant;
+	}
+
+private:
+	UAVariant(const UAVariant&);
+	UAVariant& operator = (const UAVariant&);
+
+	open62541::UA_Variant* _pVariant;
+};
+
+
 class DateTime: public Poco::DateTime
 	/// This Built-in DataType defines an instance in time.
 	/// It is implemented as an extension of Poco:DateTime, with addition 

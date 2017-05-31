@@ -171,6 +171,9 @@ public:
 	std::string readStrDateTimeByName(int nsIndex, const std::string& name) const;
 	std::string readStrDateTimeByID(int nsIndex, int id) const;
 
+	UInt64 readTimestampByName(int nsIndex, const std::string& name) const;
+	UInt64 readTimestampByID(int nsIndex, int id) const;
+
 	template <typename T>
 	Poco::Dynamic::Var read(int nsIndex, const T& id) const
 	{
@@ -267,21 +270,26 @@ public:
 
 	void writeStringByName(int nsIndex, const std::string& name, const std::string& value);
 	void writeStringByID(int nsIndex, int id, const std::string& value);
-/*
-	void writeDateTimeByName(int nsIndex, const std::string& name, Int64 value);
-	void writeDateTimeByID(int nsIndex, int id, Int64 value);
 
-	void writeStrDateTimeByName(int nsIndex, const std::string& name, boconst std::string& ol value);
-	void writeStrDateTimeByID(int nsIndex, int id, const std::string&  value);
-*/
+	void writeDateTimeByName(int nsIndex, const std::string& name, Int64 value = -1);
+	void writeDateTimeByID(int nsIndex, int id, Int64 value = -1);
+
+	void writeCurrentDateTimeByName(int nsIndex, const std::string& name);
+	void writeCurrentDateTimeByID(int nsIndex, int id);
+
 
 	template <typename I, typename T>
-	void write(int nsIndex, I id, const T& value)
+	void write(int nsIndex, const I& id, const T& value, bool isDateTime = false)
 	{
-		writeValue(nsIndex, id, value);
+		writeValue(nsIndex, id, value, isDateTime);
 	}
 
 private:
+
+	//
+	// browsing
+	//
+
 	void printBrowse(std::ostream& os, int type = UA_NS0ID_OBJECTSFOLDER, std::vector<int> colWidths = std::vector<int>())
 	{
 		using namespace open62541;
@@ -332,7 +340,11 @@ private:
 		UA_BrowseResponse_deleteMembers(&bResp);
 	}
 
+
+	//
 	// reading
+	//
+
 	open62541::UA_StatusCode readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val) const
 	{
 		using namespace open62541;
@@ -384,7 +396,7 @@ private:
 	{
 		using namespace open62541;
 		T value = T();
-		UA_Variant* val = UA_Variant_new();
+		UAVariant val;
 		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
 		if(retval == UA_STATUSCODE_GOOD)
 		{
@@ -392,12 +404,10 @@ private:
 		}
 		else
 		{
-			UA_Variant_delete(val);
 			std::ostringstream os;
 			os << "Error in OPC::Client::readValueAttribute(" << id << "): " << getError(retval);
 			throw RuntimeException(os.str());
 		}
-		UA_Variant_delete(val);
 		return value;
 	}
 
@@ -405,29 +415,31 @@ private:
 	std::string readStringValueAttribute(int nsIndex, const I& id) const
 	{
 		using namespace open62541;
-		UA_Variant* val = UA_Variant_new();
+		OPC::UAVariant val;
 		std::string value;
 		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
 		if(retval == UA_STATUSCODE_GOOD)
 		{
 			UA_String uaStr;
-			getValue<UA_String>(val, uaStr);
+			getValue(val, uaStr);
 			value = STDString(uaStr);
 		}
 		else
 		{
-			UA_Variant_delete(val);
 			std::ostringstream os;
 			os << "Error in OPC::Client::readValueAttribute(" << id << "): " << getError(retval);
 			throw RuntimeException(os.str());
 		}
-		UA_Variant_delete(val);
 		return value;
 	}
 
 	void getDateTime(Poco::OPC::DateTime& dt);
 
+
+	//
 	// writing
+	//
+
 	open62541::UA_StatusCode writeValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val) const
 	{
 		using namespace open62541;
@@ -442,10 +454,18 @@ private:
 	}
 
 	template <typename T, typename I>
-	void writeValue(int nsIndex, const I& id, const T& value)
+	void writeValue(int nsIndex, const I& id, const T& value, bool isDateTime = false)
 	{
 		using namespace open62541;
-		UA_Variant* var = UA_Variant_new();
+		if(isDateTime && typeid(value) != typeid(UA_DateTime))
+		{
+			std::ostringstream os;
+			os << "OPC::Client::writeValue(): [" << typeid(value).name() <<
+				"] not covertible to DateTime (" << typeid(UA_DateTime).name() << ')';
+			throw Poco::InvalidArgumentException(os.str());
+		}
+
+		OPC::UAVariant var;
 		Poco::Dynamic::Var val(value);
 		UA_StatusCode retval;
 		if(val.isString())
@@ -454,7 +474,17 @@ private:
 			UA_String uaStr;
 			uaStr.data = (UA_Byte*) strVal.data();
 			uaStr.length = strVal.length();
-			UA_Variant_setScalarCopy(var, &uaStr, &UA_TYPES[getUAType(strVal)]);
+			UA_Variant_setScalarCopy(var, &uaStr, &UA_TYPES[UA_TYPES_STRING]);
+			retval = writeValueAttribute(nsIndex, id, var);
+		}
+		else if(isDateTime)
+		{
+			Int64 dtVal = val;
+			if(-1 == dtVal)
+			{
+				dtVal = OPC::DateTime::now();
+			}
+			UA_Variant_setScalarCopy(var, &dtVal, &UA_TYPES[UA_TYPES_DATETIME]);
 			retval = writeValueAttribute(nsIndex, id, var);
 		}
 		else
@@ -462,7 +492,7 @@ private:
 			UA_Variant_setScalarCopy(var, &value, &UA_TYPES[getUAType(value)]);
 			retval = writeValueAttribute(nsIndex, id, var);
 		}
-		UA_Variant_delete(var);
+
 		if(retval != UA_STATUSCODE_GOOD)
 		{
 			std::ostringstream os;
@@ -708,6 +738,18 @@ inline std::string Client::readStrDateTimeByID(int nsIndex, int id) const
 }
 
 
+inline UInt64 Client::readTimestampByName(int nsIndex, const std::string& name) const
+{
+	return readInt64ByName(nsIndex, name);
+}
+
+
+inline UInt64 Client::readTimestampByID(int nsIndex, int id) const
+{
+	return  readInt64ByID(nsIndex, id);
+}
+
+
 //
 // writing
 //
@@ -856,13 +898,28 @@ inline void Client::writeStringByID(int nsIndex, int id, const std::string& valu
 }
 
 
-/*
-	void Client::writeDateTimeByName(int nsIndex, const std::string& name, Int64 value) const;
-	void Client::writeDateTimeByID(int nsIndex, int id, Int64 value) const;
+inline void Client::writeDateTimeByName(int nsIndex, const std::string& name, Int64 value)
+{
+	writeValue(nsIndex, name, value, true);
+}
 
-	void Client::writeStrDateTimeByName(int nsIndex, const std::string& name, boconst std::string& ol value) const;
-	void Client::writeStrDateTimeByID(int nsIndex, int id, const std::string&  value) const;
-*/
+
+inline void Client::writeDateTimeByID(int nsIndex, int id, Int64 value)
+{
+	writeValue(nsIndex, id, value, true);
+}
+
+
+inline void Client::writeCurrentDateTimeByName(int nsIndex, const std::string& name)
+{
+	writeValue(nsIndex, name, (Int64) -1, true);
+}
+
+
+inline void Client::writeCurrentDateTimeByID(int nsIndex, int id)
+{
+	writeValue(nsIndex, id, (Int64) -1, true);
+}
 
 
 } } // namespace Poco::OPC
