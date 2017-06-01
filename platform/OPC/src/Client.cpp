@@ -101,6 +101,7 @@ Client& Client::operator = (Client& other)
 
 Client::~Client()
 {
+	UA_BrowseRequest_deleteMembers(&_browseReq);
 	disconnect();
 	UA_Client_delete(_pClient);
 }
@@ -112,6 +113,11 @@ void Client::init(bool doConnect)
 	if(getState() != OPC_CLIENT_READY)
 		throw IllegalStateException("OPC client not ready");
 	getEndpointURLs();
+	UA_BrowseRequest_init(&_browseReq);
+	_browseReq.requestedMaxReferencesPerNode = 0;
+	_browseReq.nodesToBrowse = UA_BrowseDescription_new();
+	_browseReq.nodesToBrowseSize = 1;
+	_browseReq.nodesToBrowse[0].resultMask = UA_BROWSERESULTMASK_ALL; // return everything
 	if(doConnect) connect(_user, _pass);
 }
 

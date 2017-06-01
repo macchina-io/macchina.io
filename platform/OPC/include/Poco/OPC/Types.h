@@ -75,13 +75,6 @@ typedef unsigned char Byte;
 typedef open62541::UA_String String;
 typedef open62541::UA_ByteString ByteString;
 
-#if 0
-typedef struct {
-    size_t length; /* The length of the string */
-    UA_Byte *data; /* The content (not null-terminated) */
-} UA_String;
-#endif
-
 
 inline int getUAType(const bool&)
 {

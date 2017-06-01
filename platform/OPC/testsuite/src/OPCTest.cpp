@@ -170,26 +170,8 @@ void OPCTest::testEmptyNodeID()
 	}
 	catch(NullPointerException&){}
 }
-#if 0
-struct UA_DataType {
-#ifdef UA_ENABLE_TYPENAMES
-    const char *typeName;
-#endif
-    UA_NodeId  typeId;           /* The nodeid of the type */
-UA_UInt16  memSize;          /* Size of the struct in memory */
-UA_UInt16  typeIndex;        /* Index of the type in the datatypetable */
-UA_Byte    membersSize;      /* How many members does the type have? */
-UA_Boolean builtin      : 1; /* The type is "builtin" and has dedicated de-
-                                    and encoding functions */
-UA_Boolean fixedSize    : 1; /* The type (and its members) contains no
-                                    pointers */
-UA_Boolean overlayable  : 1; /* The type has the identical memory layout in
-                                    memory and on the binary stream. */
-UA_UInt16  binaryEncodingId; /* NodeId of datatype when encoded as binary */
-//UA_UInt16  xmlEncodingId;  /* NodeId of datatype when encoded as XML */
-UA_DataTypeMember *members;
-};
-#endif
+
+
 void printDataType(const open62541::UA_NodeId& nIDType)
 {
 	const open62541::UA_DataType* pDT = open62541::UA_findDataType(&nIDType);
@@ -211,6 +193,7 @@ void printDataType(const open62541::UA_NodeId& nIDType)
 		std::cout << "Type NOT found" << std::endl;
 	}
 }
+
 
 void OPCTest::testNumericNodeID()
 {
@@ -260,9 +243,6 @@ void OPCTest::testStringNodeID()
 {
 	const char* cstr = "abc.123.xyz";
 	NodeID nodeID(1, cstr);
-	//open62541::UA_NodeId valueNodeId = open62541::UA_NODEID_STRING_ALLOC(1, "xyzthe.answer");
-	//open62541::UA_NodeId valueNodeId = open62541::UA_NODEID_NUMERIC(1, 3);
-	//printDataType(valueNodeId);
 	open62541::UA_DataType dt;
 	open62541::UA_new(&dt);
 	assert(!nodeID.isNumeric());

@@ -100,34 +100,36 @@ public:
 	void setURL(const std::string& server, int port = OPC_STANDARD_PORT, const std::string& proto = "opc.tcp");
 		/// Sets the server url.
 
-	void printEndpointURLs(std::ostream& os) const;
-		/// Prints the list of server endpoint URLs.
-
-	void printServerObjects(std::ostream& os)
-	{
-		printBrowse(os);
-	}
-
 	void connect(const std::string& user = "", const std::string& pass = "");
 		/// Connects to the server.
 
+	void disconnect();
+		/// Disconnects from the server.
+
+
+	//
+	// state
+	//
+
 	int getState() const;
+		/// Returns client state.
 
 	bool isReady() const;
+		/// Returns true if client is ready.
 
 	bool isConnected() const;
+		/// Returns true if client is connected.
 
 	bool isErrored() const;
+		/// Returns true if client has errored.
 
 	bool isFaulted() const;
+		/// Returns true if client has faulted.
 
-	const StringList& getEndpointURLs();
-	void setEndpointURLs(const StringList& strList);
 
-	Poco::DateTime readServerDateTime();
-	std::string readServerDateTimeStr();
-
-	void disconnect();
+	//
+	// reading
+	//
 
 	bool readBoolByName(int nsIndex, const std::string& name) const;
 	bool readBoolByID(int nsIndex, int id) const;
@@ -270,6 +272,18 @@ public:
 		return 0;
 	}
 
+	template <typename I>
+	bool isValueNode(int nsIndex, const I& id) const
+		/// Returns true if node has a value.
+	{
+		return -1 != getValueNodeType(nsIndex, id);
+	}
+
+
+	//
+	// writing
+	//
+
 	void writeBoolByName(int nsIndex, const std::string& name, bool value);
 	void writeBoolByID(int nsIndex, int id, bool value);
 
@@ -324,13 +338,40 @@ public:
 		writeArrayValue(nsIndex, id, value, isDateTime);
 	}
 
+
+	//
+	// browsing
+	//
+
+	const StringList& getEndpointURLs();
+	void setEndpointURLs(const StringList& strList);
+
+	Poco::DateTime readServerDateTime();
+	std::string readServerDateTimeStr();
+
+	void printEndpointURLs(std::ostream& os) const;
+		/// Prints the list of server endpoint URLs.
+
+	void printServerObjects(std::ostream& os)
+	{
+		printBrowse(os, UA_NS0ID_OBJECTSFOLDER);
+	}
+
 private:
 
 	//
 	// browsing
 	//
 
-	void printBrowse(std::ostream& os, int type = UA_NS0ID_OBJECTSFOLDER, std::vector<int> colWidths = std::vector<int>())
+	open62541::UA_BrowseResponse browse(int type)
+	{
+		using namespace open62541;
+
+		_browseReq.nodesToBrowse[0].nodeId = UA_NODEID_NUMERIC(0, type);
+		return UA_Client_Service_browse(_pClient, _browseReq);
+	}
+
+	void printBrowse(std::ostream& os, int type, std::vector<int> colWidths = std::vector<int>())
 	{
 		using namespace open62541;
 
@@ -338,17 +379,12 @@ private:
 		if(colWidths.size() < 2) colWidths.push_back(20);
 		if(colWidths.size() < 3) colWidths.push_back(36);
 		if(colWidths.size() < 4) colWidths.push_back(36);
+		if(colWidths.size() < 5) colWidths.push_back(36);
 
-		UA_BrowseRequest bReq;
-		UA_BrowseRequest_init(&bReq);
-		bReq.requestedMaxReferencesPerNode = 0;
-		bReq.nodesToBrowse = UA_BrowseDescription_new();
-		bReq.nodesToBrowseSize = 1;
-		bReq.nodesToBrowse[0].nodeId = UA_NODEID_NUMERIC(0, type);
-		bReq.nodesToBrowse[0].resultMask = UA_BROWSERESULTMASK_ALL; // return everything
-		UA_BrowseResponse bResp = UA_Client_Service_browse(_pClient, bReq);
+		UA_BrowseResponse bResp = browse(type);
 		os << std::setw(colWidths.at(0)) << "[NAMESPACE]" << std::setw(colWidths.at(1)) << "[NODEID]" <<
-			std::setw(colWidths.at(2)) << "[BROWSE NAME]" << std::setw(colWidths.at(3)) << "[DISPLAY NAME]" << std::endl;
+			std::setw(colWidths.at(2)) << "[BROWSE NAME]" << std::setw(colWidths.at(3)) << "[DISPLAY NAME]" <<
+			std::setw(colWidths.at(3)) << "[VALUE]" << std::endl;
 		std::string line(std::accumulate(colWidths.begin(), colWidths.end(), 0), '-');
 		os << line << std::endl;
 		for (size_t i = 0; i < bResp.resultsSize; ++i)
@@ -356,27 +392,35 @@ private:
 			for (size_t j = 0; j < bResp.results[i].referencesSize; ++j)
 			{
 				UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
+				int nsIndex = ref->browseName.namespaceIndex;
+				UA_String bName = ref->browseName.name;
+				UA_String dName = ref->displayName.text;
 				if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
 				{
-					os << std::setw(colWidths.at(0)) << ref->browseName.namespaceIndex <<
-						std::setw(colWidths.at(1)) << ref->nodeId.nodeId.identifier.numeric <<
-						std::setw(colWidths.at(2)) << std::string((char*) ref->browseName.name.data, ref->browseName.name.length) <<
-						std::setw(colWidths.at(3)) << std::string((char*) ref->displayName.text.data, ref->displayName.text.length) <<
-						std::endl;
+					int nodeID = ref->nodeId.nodeId.identifier.numeric;
+					os << std::setw(colWidths.at(0)) << nsIndex
+						<< std::setw(colWidths.at(1)) << nodeID
+						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
+						<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
+						<< std::setw(colWidths.at(4)) << (isValueNode(nsIndex, nodeID) ?
+							read(nsIndex, nodeID).toString() : std::string("N/A"))
+						<< std::endl;
 				}
 				else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
 				{
-					os << std::setw(colWidths.at(0)) << ref->browseName.namespaceIndex << std::setw(11) <<
-						std::setw(colWidths.at(1)) << std::string((char*) ref->nodeId.nodeId.identifier.string.data,
-							ref->nodeId.nodeId.identifier.string.length) <<
-						std::setw(colWidths.at(2)) << std::string((char*) ref->browseName.name.data, ref->browseName.name.length) << 
-						std::setw(colWidths.at(3)) << std::string((char*) ref->displayName.text.data, ref->displayName.text.length) <<
-						std::endl;
+					UA_String nodeID = ref->nodeId.nodeId.identifier.string;
+					std::string nID = std::string((char*) nodeID.data, nodeID.length);
+					os << std::setw(colWidths.at(0)) << nsIndex << std::setw(11)
+						<< std::setw(colWidths.at(1)) << nID
+						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
+						<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
+						<< std::setw(colWidths.at(4)) << (isValueNode(nsIndex, nID) ?
+							read(nsIndex, nID).toString() : std::string("N/A"))
+						<< std::endl;
 				}
 				// TODO: distinguish further types
 			}
 		}
-		UA_BrowseRequest_deleteMembers(&bReq);
 		UA_BrowseResponse_deleteMembers(&bResp);
 	}
 
@@ -384,6 +428,19 @@ private:
 	//
 	// reading
 	//
+
+	template <typename I>
+	int getValueNodeType(int nsIndex, const I& id) const
+	{
+		using namespace open62541;
+		UAVariant val;
+		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
+		if(retval == UA_STATUSCODE_GOOD)
+		{
+			return val.type().typeIndex;
+		}
+		return -1;
+	}
 
 	open62541::UA_StatusCode readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val) const
 	{
@@ -597,6 +654,7 @@ private:
 	open62541::UA_Client*         _pClient;
 	std::string                   _url;
 	StringList                    _endpointURLs;
+	open62541::UA_BrowseRequest   _browseReq;
 	// following members needed to copy-construct the client (remoting requirement)
 	std::string _server;
 	int _port;
