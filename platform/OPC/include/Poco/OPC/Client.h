@@ -178,13 +178,13 @@ public:
 	Poco::Dynamic::Var read(int nsIndex, const T& id) const
 	{
 		using namespace open62541;
-		UA_Variant* val = UA_Variant_new();
+		UAVariant val;
 		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
 		if(retval == UA_STATUSCODE_GOOD)
 		{
+			UInt16 type = val.type().typeIndex;
 			if(UA_Variant_isScalar(val))
 			{
-				UInt16 type = val->type->typeIndex;
 				switch(type)
 				{
 					case UA_TYPES_BOOLEAN:  { bool value;   return getValue(val, value); }
@@ -201,7 +201,7 @@ public:
 					case UA_TYPES_DATETIME:
 					{
 						UA_DateTime dt;
-						getValue<UA_DateTime>(val, dt);
+						getValue(val, dt);
 						OPC::DateTime odt(dt);
 						return odt;
 					}
@@ -209,29 +209,64 @@ public:
 					{
 						std::string value;
 						UA_String uaStr;
-						getValue<UA_String>(val, uaStr);
+						getValue(val, uaStr);
 						value = STDString(uaStr);
 						return value;
 					}
 					default:
-						UA_Variant_delete(val);
 						throw Poco::NotImplementedException("Type not supported:" + Poco::NumberFormatter::format(type));
 				}
 			}
-			else // TODO: arrays
+			else
 			{
-				UA_Variant_delete(val);
-				throw Poco::NotImplementedException("OPC::Client::readValueAttribute(): Retrieval of array values not implemented");
+				switch(type)
+				{
+					case UA_TYPES_BOOLEAN:  { std::vector<bool> value;   return getArrayValue(val, value); }
+					case UA_TYPES_SBYTE:    { std::vector<Int8> value;   return getArrayValue(val, value); }
+					case UA_TYPES_BYTE:     { std::vector<UInt8> value;  return getArrayValue(val, value); }
+					case UA_TYPES_INT16:    { std::vector<Int16> value;  return getArrayValue(val, value); }
+					case UA_TYPES_UINT16:   { std::vector<UInt16> value; return getArrayValue(val, value); }
+					case UA_TYPES_INT32:    { std::vector<Int32> value;  return getArrayValue(val, value); }
+					case UA_TYPES_UINT32:   { std::vector<UInt32> value; return getArrayValue(val, value); }
+					case UA_TYPES_INT64:    { std::vector<Int64> value;  return getArrayValue(val, value); }
+					case UA_TYPES_UINT64:   { std::vector<UInt64> value; return getArrayValue(val, value); }
+					case UA_TYPES_FLOAT:    { std::vector<float> value;  return getArrayValue(val, value); }
+					case UA_TYPES_DOUBLE:   { std::vector<double> value; return getArrayValue(val, value); }
+					case UA_TYPES_DATETIME:
+					{
+						std::vector<UA_DateTime> dt;
+						getArrayValue(val, dt);
+						std::vector<OPC::DateTime> odt;
+						for(std::vector<UA_DateTime>::const_iterator it = dt.begin(),
+							end = dt.end(); it != end; ++it)
+						{
+							odt.push_back(*it);
+						}
+						return odt;
+					}
+					case UA_TYPES_STRING:
+					{
+						std::vector<UA_String> uaStr;
+						getArrayValue(val, uaStr);
+						std::vector<std::string> values;
+						for(std::vector<UA_String>::const_iterator it = uaStr.begin(),
+							end = uaStr.end(); it != end; ++it)
+						{
+							values.push_back(STDString(*it));
+						}
+						return values;
+					}
+					default:
+						throw Poco::NotImplementedException("Type not supported:" + Poco::NumberFormatter::format(type));
+				}
 			}
 		}
 		else
 		{
-			UA_Variant_delete(val);
 			std::ostringstream os;
 			os << "Error in OPC::Client::readValueAttribute(" << id << "): " << getError(retval);
 			throw RuntimeException(os.str());
 		}
-		UA_Variant_delete(val);
 		return 0;
 	}
 
@@ -277,11 +312,16 @@ public:
 	void writeCurrentDateTimeByName(int nsIndex, const std::string& name);
 	void writeCurrentDateTimeByID(int nsIndex, int id);
 
-
 	template <typename I, typename T>
 	void write(int nsIndex, const I& id, const T& value, bool isDateTime = false)
 	{
 		writeValue(nsIndex, id, value, isDateTime);
+	}
+
+	template <typename I, typename T>
+	void writeArray(int nsIndex, const I& id, const T& value, bool isDateTime = false)
+	{
+		writeArrayValue(nsIndex, id, value, isDateTime);
 	}
 
 private:
@@ -366,28 +406,27 @@ private:
 		{
 			value = *(T*)val->data;
 		}
-		else if(val->arrayLength > 0)
-		{
-			throw Poco::NotImplementedException("OPC::Client::getValue(): Retrieval of array values not implemented");
-		}
 		else
 		{
-			std::ostringstream os;
-			os << "OPC::Client::getValue(): Retrieval of a ";
-			if(val->type)
-			{
-				if(val->type->typeIndex)
-				{
-					os << "non-suported value type (" << val->type->typeIndex << ") attempted";
-					throw Poco::NotImplementedException(os.str());
-				}
-			}
-			else
-			{
-				os << "NULL type attempted";
-				throw Poco::NullPointerException(os.str());
-			}
+			throw Poco::InvalidAccessException("OPC::Client::getValue(): "
+				"attempt to retrieve array value using scalar function");
 		}
+		return value;
+	}
+
+	template <typename T>
+	T& getTypedValue(UAVariant& val, T& value) const
+	{
+		getValue(val, value);
+		return value;
+	}
+
+	std::string& getTypedValue(UAVariant& val, std::string& value) const
+	{
+		using namespace open62541;
+		UA_String uaStr;
+		getValue(val, uaStr);
+		value = STDString(uaStr);
 		return value;
 	}
 
@@ -400,7 +439,7 @@ private:
 		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
 		if(retval == UA_STATUSCODE_GOOD)
 		{
-			getValue(val, value);
+			getTypedValue(val, value);
 		}
 		else
 		{
@@ -411,26 +450,25 @@ private:
 		return value;
 	}
 
-	template <typename I>
-	std::string readStringValueAttribute(int nsIndex, const I& id) const
+	template <typename T>
+	const std::vector<T>& getArrayValue(open62541::UA_Variant* val, std::vector<T>& values) const
 	{
 		using namespace open62541;
-		OPC::UAVariant val;
-		std::string value;
-		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
-		if(retval == UA_STATUSCODE_GOOD)
+		if(!UA_Variant_isScalar(val))
 		{
-			UA_String uaStr;
-			getValue(val, uaStr);
-			value = STDString(uaStr);
+			values.reserve(val->arrayLength);
+			T* ptr = (T*)val->data;
+			for(unsigned i = 0; i < val->arrayLength; ++i, ++ptr)
+			{
+				values.push_back(*(T*)ptr);
+			}
 		}
 		else
 		{
-			std::ostringstream os;
-			os << "Error in OPC::Client::readValueAttribute(" << id << "): " << getError(retval);
-			throw RuntimeException(os.str());
+			throw Poco::InvalidAccessException("OPC::Client::getValue(): "
+				"attempt to retrieve scalar value using array function");
 		}
-		return value;
+		return values;
 	}
 
 	void getDateTime(Poco::OPC::DateTime& dt);
@@ -498,6 +536,61 @@ private:
 			std::ostringstream os;
 			os << "Error in OPC::Client::writeValueAttribute(" << val.toString() << "): " << getError(retval);
 			throw RuntimeException(os.str());
+		}
+	}
+
+	template <typename T, typename I>
+	open62541::UA_StatusCode writeTypedArray(OPC::UAVariant& var, int nsIndex, const I& id, const T& value)
+	{
+		using namespace open62541;
+		typename T::value_type valType = typename T::value_type();
+		UA_Variant_setArrayCopy(var, &value[0], value.size(), &UA_TYPES[getUAType(valType)]);
+		return writeValueAttribute(nsIndex, id, var);
+	}
+
+	open62541::UA_StatusCode writeTypedArray(OPC::UAVariant& var, int nsIndex, const int& id, const std::vector<std::string>& value)
+	{
+		using namespace open62541;
+		UA_String uaStr[value.size()];
+		unsigned i = 0;
+		for(std::vector<std::string>::const_iterator it = value.begin(),
+			end = value.end(); it != end; ++it, ++i)
+		{
+			uaStr[i].data = (UA_Byte*) it->data();
+			uaStr[i].length = it->length();
+		}
+		UA_Variant_setArrayCopy(var, uaStr, value.size(), &UA_TYPES[UA_TYPES_STRING]);
+		return writeValueAttribute(nsIndex, id, var);
+	}
+
+	template <typename T, typename I>
+	void writeArrayValue(int nsIndex, const I& id, const T& value, bool isDateTime = false)
+	{
+		using namespace open62541;
+		if(isDateTime && typeid(value) != typeid(UA_DateTime))
+		{
+			std::ostringstream os;
+			os << "OPC::Client::writeValue(): [" << typeid(value).name() <<
+				"] not covertible to DateTime (" << typeid(UA_DateTime).name() << ')';
+			throw Poco::InvalidArgumentException(os.str());
+		}
+
+		OPC::UAVariant var;
+		Poco::Dynamic::Var val(value);
+		if(val.isArray())
+		{
+			UA_StatusCode retval = writeTypedArray(var, nsIndex, id, value);
+			if(UA_STATUSCODE_GOOD != retval)
+			{
+				std::ostringstream os;
+				os << "Error in OPC::Client::writeTypedArray(" << val.toString() << "): " << getError(retval);
+				throw RuntimeException(os.str());
+			}
+		}
+		else
+		{
+			throw Poco::InvalidArgumentException("OPC::Client::writeArrayValue(): call to array function "
+				"with non-aray value argument");
 		}
 	}
 
@@ -703,13 +796,13 @@ inline double Client::readDoubleByID(int nsIndex, int id) const
 
 inline std::string Client::readStringByName(int nsIndex, const std::string& name) const
 {
-	return readStringValueAttribute(nsIndex, name);
+	return readValueAttribute<std::string>(nsIndex, name);
 }
 
 
 inline std::string Client::readStringByID(int nsIndex, int id) const
 {
-	return readStringValueAttribute(nsIndex, id);
+	return readValueAttribute<std::string>(nsIndex, id);
 }
 
 

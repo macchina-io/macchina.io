@@ -540,16 +540,24 @@ void OPCTest::testClient()
 		nsIndex = 1;
 		name = "the.int.answer";
 		assert(42 == client.readInt32ByName(nsIndex, name));
+		Var varVal = client.read(nsIndex, name);
+		assert(varVal == 42);
 		client.write(nsIndex, name, 24);
 		assert(24 == client.readInt32ByName(nsIndex, name));
+		varVal = client.read(nsIndex, name);
+		assert(varVal == 24);
 
 		nsIndex = 2;
 		name = "the.double.answer";
 		double dbl = client.readDoubleByName(nsIndex, name);
 		assert(4.19 < dbl && dbl < 4.21);
+		varVal = client.read(nsIndex, name);
+		assert(4.19 < varVal && varVal < 4.21);
 		client.write(nsIndex, name, 2.4);
 		dbl = client.readDoubleByName(nsIndex, name);
 		assert(2.39 < dbl && dbl < 2.41);
+		varVal = client.read(nsIndex, name);
+		assert(2.39 < varVal && varVal < 2.41);
 
 		int nID = 3;
 		dbl = client.readDoubleByID(nsIndex, nID);
@@ -560,11 +568,17 @@ void OPCTest::testClient()
 
 		nID = 4;
 		assert(client.readStringByID(nsIndex, nID) == "abc123");
+		varVal = client.read(nsIndex, nID);
+		assert(varVal == "abc123");
 		client.write(nsIndex, nID, "321cba");
 		assert(client.readStringByID(nsIndex, nID) == "321cba");
+		varVal = client.read(nsIndex, nID);
+		assert(varVal == "321cba");
 
 		nID = 5;
 		assert(client.readTimestampByID(nsIndex, nID) == ts);
+		varVal = client.read(nsIndex, nID);
+		assert(varVal == OPC::DateTime(ts));
 		try
 		{
 			client.write(nsIndex, nID, 1.2, true);
@@ -575,9 +589,42 @@ void OPCTest::testClient()
 		ts = OPC::DateTime::now();
 		client.write(nsIndex, nID, ts, true);
 		assert(client.readTimestampByID(nsIndex, nID) == ts);
+		varVal = client.read(nsIndex, nID);
+		assert(varVal == OPC::DateTime(ts));
 
 		client.writeCurrentDateTimeByID(nsIndex, nID);
 		assert(client.readTimestampByID(nsIndex, nID) > ts);
+
+		std::vector<int> vec;
+		vec.push_back(1);
+		vec.push_back(2);
+		vec.push_back(3);
+		client.writeArray(nsIndex, nID, vec);
+		varVal = client.read(nsIndex, nID);
+		//TODO: Dynamic::Var should be capable of holding vectors of supported types as array
+		assert(varVal.isArray());
+		assert(varVal.size() == 3);
+		vec.clear(); assert(vec.empty());
+		vec = varVal.extract<std::vector<int> >();
+		assert(vec.size() == 3);
+		assert(vec[0] == 1);
+		assert(vec[1] == 2);
+		assert(vec[2] == 3);
+
+		std::vector<std::string> strVec;
+		strVec.push_back("abc");
+		strVec.push_back("123");
+		strVec.push_back("xyz");
+		client.writeArray(nsIndex, nID, strVec);
+		varVal = client.read(nsIndex, nID);
+		assert(varVal.isArray());
+		assert(varVal.size() == 3);
+		strVec.clear(); assert(strVec.empty());
+		strVec = varVal.extract<std::vector<std::string> >();
+		assert(strVec.size() == 3);
+		assert(strVec[0] == "abc");
+		assert(strVec[1] == "123");
+		assert(strVec[2] == "xyz");
 
 		client.disconnect();
 		while(client.isConnected()) Thread::sleep(10);

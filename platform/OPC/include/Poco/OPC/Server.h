@@ -68,6 +68,8 @@ public:
 		const std::string& qualifiedName,
 		const std::string& displayName,
 		const std::string& description,
+		int parentID = UA_NS0ID_OBJECTSFOLDER,
+		int parentRefID = UA_NS0ID_ORGANIZES,
 		const std::string& loc = "en_US");
 
 private:

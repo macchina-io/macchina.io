@@ -84,6 +84,8 @@ void Server::addVariableNode(int nsIndex,
 	const std::string& qualifiedName,
 	const std::string& displayName,
 	const std::string& description,
+	int parentID,
+	int parentRefID,
 	const std::string& loc)
 {
 	UA_VariableAttributes attr;
@@ -116,8 +118,8 @@ void Server::addVariableNode(int nsIndex,
 		throw Poco::NotImplementedException("OPC::Server::addVariableNode() - type not implemented.");
 	}
 	UA_QualifiedName qName = UA_QUALIFIEDNAME_ALLOC(nsIndex, qualifiedName.c_str());
-	UA_NodeId parentNodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_OBJECTSFOLDER);//FIXME - parameterize
-	UA_NodeId parentRefNodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES);//FIXME - parameterize
+	UA_NodeId parentNodeId = UA_NODEID_NUMERIC(0, parentID);
+	UA_NodeId parentRefNodeId = UA_NODEID_NUMERIC(0, parentRefID);
 	UA_StatusCode retval = UA_Server_addVariableNode(_pServer, nodeId, parentNodeId,
 			parentRefNodeId, qName, UA_NODEID_NULL, attr, NULL, NULL);
 	UA_VariableAttributes_deleteMembers(&attr);

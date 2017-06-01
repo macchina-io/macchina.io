@@ -268,10 +268,22 @@ public:
 		return _pVariant;
 	}
 
+	operator const open62541::UA_Variant*() const
+	{
+		return _pVariant;
+	}
+
 	operator open62541::UA_Variant&()
 	{
 		poco_check_ptr(_pVariant);
 		return *_pVariant;
+	}
+
+	const open62541::UA_DataType& type() const
+	{
+		poco_check_ptr(_pVariant);
+		poco_check_ptr(_pVariant->type);
+		return *_pVariant->type;
 	}
 
 private:
