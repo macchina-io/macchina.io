@@ -51,11 +51,10 @@ tests    = Foundation-tests XML-tests JSON-tests Util-tests Net-tests Crypto-tes
 samples  = Foundation-samples XML-samples JSON-samples Util-samples Net-samples Crypto-samples NetSSL_OpenSSL-samples Data-samples Zip-samples PageCompiler-samples
 cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-clean NetSSL_OpenSSL-clean Data-clean Data/SQLite-clean Zip-clean PageCompiler-clean PageCompiler/File2Page-clean CppParser-clean
 
-# WebTunnel, JS, Redis, Remoting, OSP and OPC
+# WebTunnel, JS, Redis, and Remoting
 libexecs += \
     WebTunnel-libexec \
-    OPC-libexec \
-    JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec JS/OPC-libexec \
+    JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec \
     CodeGeneration-libexec RemotingNG-libexec RemotingNG/RemoteGen-libexec RemotingNG/TCP-libexec \
     OSP-libexec OSP/BundleCreator-libexec OSP/CodeCacheUtility-libexec OSP/Web-libexec OSP/Core-libexec OSP/Crypto-libexec OSP/Data-libexec OSP/Data/SQLite-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec OSP/SecureWebServer-libexec OSP/WebServer-libexec OSP/JS-libexec OSP/JS/Net-libexec OSP/JS/Data-libexec OSP/JS/Web-libexec OSP/JS/Scheduler-libexec OSP/WebEvent-libexec OSP/SimpleAuth-libexec \
     OSP/RemotingNG/TCP-libexec \
@@ -63,20 +62,19 @@ libexecs += \
     Serial-libexec \
     Redis-libexec
 
-tests    += CodeGeneration-tests RemotingNG-tests RemotingNG/TCP-tests OSP-tests OSP/Web-tests Geo-tests Redis-tests OPC-tests
+tests    += CodeGeneration-tests RemotingNG-tests RemotingNG/TCP-tests OSP-tests OSP/Web-tests Geo-tests Redis-tests
 
-samples  += WebTunnel-samples OPC-samples
+samples  += WebTunnel-samples
 
 cleans   += \
     WebTunnel-clean \
-    JS/V8-clean JS/Core-clean JS/Data-clean JS/Bridge-clean JS/Net-clean JS/OPC-clean \
+    JS/V8-clean JS/Core-clean JS/Data-clean JS/Bridge-clean JS/Net-clean \
     CodeGeneration-clean RemotingNG-clean RemotingNG/RemoteGen-clean RemotingNG/TCP-clean \
     OSP-clean OSP/BundleCreator-clean OSP/CodeCacheUtility-clean OSP/Web-clean OSP/Core-clean OSP/Crypto-clean OSP/Data-clean OSP/Data/SQLite-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean OSP/SecureWebServer-clean OSP/WebServer-clean OSP/JS-clean OSP/JS/Net-clean OSP/JS/Data-clean OSP/JS/Web-clean OSP/JS/Scheduler-clean OSP/WebEvent-clean OSP/SimpleAuth-clean \
     OSP/RemotingNG/TCP-clean \
     Geo-clean \
     Serial-clean \
-    Redis-clean \
-    OPC-clean
+    Redis-clean
 
 .PHONY: $(libexecs)
 .PHONY: $(tests)
@@ -299,12 +297,6 @@ JS/Net-libexec:  Foundation-libexec Net-libexec JS/Core-libexec
 JS/Net-clean:
 	$(MAKE) -C $(POCO_BASE)/JS/Net clean
 
-JS/OPC-libexec:  Foundation-libexec OPC-libexec JS/Core-libexec
-	$(MAKE) -C $(POCO_BASE)/JS/OPC
-
-JS/OPC-clean:
-	$(MAKE) -C $(POCO_BASE)/JS/OPC clean
-
 RemotingNG-libexec:  Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/RemotingNG
 
@@ -484,20 +476,6 @@ Redis-tests: Redis-libexec cppunit
 Redis-clean:
 	$(MAKE) -C $(POCO_BASE)/Redis clean
 	$(MAKE) -C $(POCO_BASE)/Redis/testsuite clean
-
-OPC-libexec:  Foundation-libexec
-	$(MAKE) -C $(POCO_BASE)/OPC
-
-OPC-tests: OPC-libexec cppunit
-	$(MAKE) -C $(POCO_BASE)/OPC/testsuite
-
-OPC-samples: OPC-libexec
-	$(MAKE) -C $(POCO_BASE)/OPC/samples
-
-OPC-clean:
-	$(MAKE) -C $(POCO_BASE)/OPC clean
-	$(MAKE) -C $(POCO_BASE)/OPC/samples clean
-	$(MAKE) -C $(POCO_BASE)/OPC/testsuite clean
 
 clean: cleans CppUnit-clean
 

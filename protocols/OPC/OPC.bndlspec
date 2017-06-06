@@ -1,0 +1,18 @@
+<bundlespec>
+	<manifest>
+    	<name>macchina.io OPC Core Libraries</name>
+		<symbolicName>io.macchina.opc.core</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2015-2017, Applied Informatics Software Engineering GmbH</copyright>
+		<lazyStart>false</lazyStart>
+		<runLevel>610</runLevel>
+	</manifest>
+	<code>
+    	../../lib/${osName}/${osArch}/libIoTOPC*.1.dylib,
+    	../../lib/${osName}/${osArch}/libIoTOPC*.so.1
+	</code>
+	<files>
+		bundle/*
+	</files>
+</bundlespec>

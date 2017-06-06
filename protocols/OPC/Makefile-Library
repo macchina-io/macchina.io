@@ -1,0 +1,17 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for Poco OPC library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = open62541 Client Server ClientWrapper Types
+
+target         = IoTOPC
+target_version = 1
+target_libs    = PocoJSCore PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

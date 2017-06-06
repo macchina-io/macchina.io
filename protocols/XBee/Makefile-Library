@@ -3,7 +3,7 @@
 #
 # $Id$
 #
-# Makefile for macchina.io MQTT Library
+# Makefile for macchina.io XBee Library
 #
 
 include $(POCO_BASE)/build/rules/global

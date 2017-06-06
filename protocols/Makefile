@@ -17,3 +17,4 @@ clean all:
 	$(MAKE) -C Modbus $(MAKECMDGOALS)
 	$(MAKE) -C Modbus/RTU $(MAKECMDGOALS)
 	$(MAKE) -C WebTunnel $(MAKECMDGOALS)
+	$(MAKE) -C OPC $(MAKECMDGOALS)
