@@ -30,6 +30,7 @@
 #include <sstream>
 #include <iomanip>
 #include <numeric>
+#include <unordered_map>
 #include <iostream>
 
 
@@ -47,6 +48,14 @@ class DateTime;
 
 class OPC_API Client
 	/// This class represents an OPC Client.
+	///
+	/// The client can operate in a type-safe mode; this mode is default
+	/// and can be disabled. When enabled, it ensures that client never
+	/// writes a data type different from the original type as set on the
+	/// server side; it implies type-caching, which occurs initially at
+	/// connect time and subsequently, every time when data type for the
+	/// value attribute being set is not cached.
+
 {
 public:
 	typedef std::vector<std::string> StringList;
@@ -83,6 +92,7 @@ public:
 		const std::string& user = "",
 		const std::string& pass = "",
 		bool doConnect = true,
+		bool typeSafe = true,
 		const std::string& proto = "opc.tcp");
 		/// Creates the Client. If `doConnect` is true, connects to the server.
 
@@ -106,6 +116,22 @@ public:
 
 	void disconnect();
 		/// Disconnects from the server.
+
+
+	//
+	// config
+	//
+
+	bool getTypeSafe() const;
+		/// Returns true if client is caching server types.
+
+	void setTypeSafe(bool safe = true);
+		/// Sets the type-safe flag. When this flag is set
+		/// client will cache server data types and never write a
+		/// value attribute of a type different from the original
+		/// type set on the server side. Caching, however, imposes
+		/// a performance penalty associated with server-side value
+		/// attributes data type detection.
 
 
 	//
@@ -360,8 +386,87 @@ public:
 
 private:
 
+	template <typename T>
+	class ValueNodeID
+	{
+	public:
+		ValueNodeID() = delete;
+
+		ValueNodeID(int nsIndex, const T& id): _nsIndex(nsIndex), _id(id)
+		{
+		}
+
+		bool operator == (const ValueNodeID& other) const
+		{
+			return _nsIndex == other._nsIndex && _id == other._id;
+		}
+
+		int nsIndex() const
+		{
+			return _nsIndex;
+		}
+
+		const T& id() const
+		{
+			return _id;
+		}
+
+	private:
+		int _nsIndex;
+		T   _id;
+	};
+
+	template <typename T>
+	struct ValueNodeHasher
+	{
+		std::size_t operator()(const ValueNodeID<T>& key) const
+		{
+			std::size_t res = 17;
+			res = res * 31 + std::hash<T>()(key.id());
+			res = res * 31 + std::hash<int>()(key.nsIndex());
+			return res;
+		}
+	};
+
+	typedef ValueNodeID<std::string> StringNodeID;
+	typedef ValueNodeHasher<std::string> StringNodeHasher;
+	typedef ValueNodeID<int> IntNodeID;
+	typedef ValueNodeHasher<int> IntNodeHasher;
+	typedef std::unordered_map<StringNodeID, int, StringNodeHasher> StringTypeMap;
+	typedef std::unordered_map<IntNodeID, int, IntNodeHasher> IntTypeMap;
+
+	class NodeTypeCache
+	{
+	public:
+		void add(const IntNodeID& id, int type)
+		{
+			_intIDs.insert({id, type});
+		}
+
+		void add(const StringNodeID& id, int type)
+		{
+			_stringIDs.insert({id, type});
+		}
+
+		bool has(const IntNodeID& id, int type) const
+		{
+			const auto& it = _intIDs.find(id);
+			return it != _intIDs.end() && it->second == type;
+		}
+
+		bool has(const StringNodeID& id, int type) const
+		{
+			const auto& it = _stringIDs.find(id);
+			return it != _stringIDs.end() && it->second == type;
+		}
+
+	private:
+		StringTypeMap _stringIDs;
+		IntTypeMap    _intIDs;
+	};
+
 	//
-	// browsing
+	// browsing/caching
 	//
 
 	open62541::UA_BrowseResponse browse(int type)
@@ -370,6 +475,42 @@ private:
 
 		_browseReq.nodesToBrowse[0].nodeId = UA_NODEID_NUMERIC(0, type);
 		return UA_Client_Service_browse(_pClient, _browseReq);
+	}
+
+	void cacheTypes()
+	{
+		using namespace open62541;
+
+		UA_BrowseResponse bResp = browse(UA_NS0ID_OBJECTSFOLDER);
+		for (size_t i = 0; i < bResp.resultsSize; ++i)
+		{
+			for (size_t j = 0; j < bResp.results[i].referencesSize; ++j)
+			{
+				UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
+				int nsIndex = ref->browseName.namespaceIndex;
+				if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
+				{
+					int nodeID = ref->nodeId.nodeId.identifier.numeric;
+					if(isValueNode(nsIndex, nodeID))
+					{
+						//std::cout << "Caching Node: [" << nsIndex << ", " << nodeID << "], TYPE: [" << getValueNodeType(nsIndex, nodeID) << ']' << std::endl;
+						_nodeTypeCache.add(IntNodeID(nsIndex, nodeID), getValueNodeType(nsIndex, nodeID));
+					}
+				}
+				else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
+				{
+					UA_String nodeID = ref->nodeId.nodeId.identifier.string;
+					std::string nID = std::string((char*) nodeID.data, nodeID.length);
+					if(isValueNode(nsIndex, nID))
+					{
+						//std::cout << "Caching Node: [" << nsIndex << ", " << nID << "], TYPE: [" << getValueNodeType(nsIndex, nID) << ']' << std::endl;
+						_nodeTypeCache.add(StringNodeID(nsIndex, nID), getValueNodeType(nsIndex, nID));
+					}
+				}
+				// TODO: distinguish further types
+			}
+		}
+		UA_BrowseResponse_deleteMembers(&bResp);
 	}
 
 	void printBrowse(std::ostream& os, int type, std::vector<int> colWidths = std::vector<int>())
@@ -399,6 +540,7 @@ private:
 				if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
 				{
 					int nodeID = ref->nodeId.nodeId.identifier.numeric;
+					//os << "TYPE: [" << getValueNodeType(nsIndex, nodeID) << ']' << std::endl;
 					os << std::setw(colWidths.at(0)) << nsIndex
 						<< std::setw(colWidths.at(1)) << nodeID
 						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
@@ -411,6 +553,7 @@ private:
 				{
 					UA_String nodeID = ref->nodeId.nodeId.identifier.string;
 					std::string nID = std::string((char*) nodeID.data, nodeID.length);
+					//os << "TYPE: [" << getValueNodeType(nsIndex, nID) << ']' << std::endl;
 					os << std::setw(colWidths.at(0)) << nsIndex << std::setw(11)
 						<< std::setw(colWidths.at(1)) << nID
 						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
@@ -536,17 +679,55 @@ private:
 	// writing
 	//
 
-	open62541::UA_StatusCode writeValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val) const
+	template <typename T>
+	void checkTypeSafety(const T& nodeID, open62541::UA_Variant* val)
+	{
+		if(_typeSafe)
+		{
+			poco_check_ptr(val);
+			poco_check_ptr(val->type);
+			if(!_nodeTypeCache.has(nodeID, val->type->typeIndex))
+			{
+				int nodeType = getValueNodeType(nodeID.nsIndex(), nodeID.id());
+				if(-1 == nodeType)
+				{
+					std::ostringstream os;
+					os << "OPC::Client::writeValueAttribute(): "
+						"write to a non-value node [" << nodeID.nsIndex() << ", " <<
+						nodeID.id() << "] attempted.";
+					throw Poco::InvalidAccessException(os.str());
+				}
+				else if(nodeType != val->type->typeIndex)
+				{
+					std::ostringstream os;
+					os << "OPC::Client::writeValueAttribute(): "
+						"type mismatch for node [" << nodeID.nsIndex() << ", " <<
+						nodeID.id() << "] in type-safe mode.";
+					throw Poco::InvalidAccessException(os.str());
+				}
+				else
+				{
+					_nodeTypeCache.add(nodeID, nodeType);
+				}
+			}
+		}
+	}
+
+	open62541::UA_StatusCode writeValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val)
 	{
 		using namespace open62541;
 		if(id.isString())
 		{
+			checkTypeSafety(StringNodeID(nsIndex, id.toString()), val);
 			return UA_Client_writeValueAttribute(_pClient, UA_NODEID_STRING(nsIndex, const_cast<char*>(id.toString().c_str())), val);
 		}
 		else
 		{
+			checkTypeSafety(IntNodeID(nsIndex, id.convert<int>()), val);
 			return UA_Client_writeValueAttribute(_pClient, UA_NODEID_NUMERIC(nsIndex, id), val);
 		}
+		throw Poco::InvalidAccessException("OPC::Client::writeValueAttribute(): "
+			"Illegal write attempted (type mismatch in type-safe mode?)");
 	}
 
 	template <typename T, typename I>
@@ -656,6 +837,8 @@ private:
 	std::string                   _url;
 	StringList                    _endpointURLs;
 	open62541::UA_BrowseRequest   _browseReq;
+	bool                          _typeSafe;
+	NodeTypeCache                 _nodeTypeCache;
 	// following members needed to copy-construct the client (remoting requirement)
 	std::string _server;
 	int _port;
@@ -668,6 +851,23 @@ private:
 //
 // inlines
 //
+
+
+//
+// config
+//
+
+inline bool Client::getTypeSafe() const
+{
+	return _typeSafe;
+}
+
+
+inline void Client::setTypeSafe(bool safe)
+{
+	_typeSafe = safe;
+}
+
 
 inline void Client::setURL(const std::string& server, int port, const std::string& proto)
 {

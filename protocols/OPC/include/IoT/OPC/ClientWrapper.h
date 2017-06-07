@@ -37,6 +37,7 @@ public:
 		const std::string& user = "",
 		const std::string& pass = "",
 		bool doConnect = true,
+		bool typeSafe = true,
 		const std::string& proto = "opc.tcp");
 		/// Creates the ClientHolder.
 		

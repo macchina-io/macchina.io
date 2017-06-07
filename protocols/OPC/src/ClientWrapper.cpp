@@ -29,7 +29,8 @@ ClientHolder::ClientHolder(const std::string& server,
 		const std::string& user,
 		const std::string& pass,
 		bool doConnect,
-		const std::string& proto): _client(server, port, user, pass, doConnect, proto)
+		bool typeSafe,
+		const std::string& proto): _client(server, port, user, pass, doConnect, typeSafe, proto)
 {
 }
 
@@ -83,6 +84,7 @@ void ClientWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 	std::string user;
 	std::string pass;
 	bool doConnect = true;
+	bool typeSafe = true;
 	std::string proto = "opc.tcp";
 
 	if (args.Length() >= 1)
@@ -108,7 +110,11 @@ void ClientWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 					if (args.Length() >= 5)
 					{
 						doConnect = args[4]->BooleanValue();
-						if (args.Length() >= 6) proto = toString(args[5]);
+						if (args.Length() >= 6)
+						{
+							typeSafe = args[5]->BooleanValue();
+							if (args.Length() >= 7) proto = toString(args[6]);
+						}
 					}
 				}
 			}
@@ -123,7 +129,7 @@ void ClientWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 	ClientHolder* pClientHolder = 0;
 	try
 	{
-		pClientHolder = new ClientHolder(server, port, user, pass, doConnect, proto);
+		pClientHolder = new ClientHolder(server, port, user, pass, doConnect, typeSafe, proto);
 		ClientWrapper wrapper;
 		v8::Persistent<v8::Object>& clientObject(wrapper.wrapNativePersistent(args.GetIsolate(), pClientHolder));
 		args.GetReturnValue().Set(clientObject);

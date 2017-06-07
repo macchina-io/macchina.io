@@ -64,7 +64,9 @@ Client::Client(const std::string& server,
 	const std::string& user,
 	const std::string& pass,
 	bool doConnect,
+	bool typeSafe,
 	const std::string& proto): _pClient(UA_Client_new(UA_ClientConfig_standard)),
+		_typeSafe(typeSafe),
 		_server(server),
 		_port(port),
 		_user(user),
@@ -76,6 +78,7 @@ Client::Client(const std::string& server,
 
 
 Client::Client(const Client& other): _pClient(UA_Client_new(UA_ClientConfig_standard)),
+	_typeSafe(other._typeSafe),
 	_server(other._server),
 	_port(other._port),
 	_user(other._user),
@@ -89,6 +92,7 @@ Client::Client(const Client& other): _pClient(UA_Client_new(UA_ClientConfig_stan
 Client& Client::operator = (Client& other)
 {
 	_pClient = UA_Client_new(UA_ClientConfig_standard);
+	_typeSafe = other._typeSafe;
 	_server = other._server;
 	_port = other._port;
 	_user = other._user;
@@ -120,6 +124,7 @@ void Client::init(bool doConnect)
 	_browseReq.nodesToBrowseSize = 1;
 	_browseReq.nodesToBrowse[0].resultMask = UA_BROWSERESULTMASK_ALL; // return everything
 	if(doConnect) connect(_user, _pass);
+	if(_typeSafe) cacheTypes();
 }
 
 
