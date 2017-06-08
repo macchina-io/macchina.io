@@ -145,6 +145,24 @@ void Client::connect(const std::string& user, const std::string& pass)
 }
 
 
+void Client::disconnect()
+{
+	if(_pClient && (getState() == OPC_CLIENT_CONNECTED))
+	{
+		UA_StatusCode retval = UA_Client_disconnect(_pClient);
+		if(UA_STATUSCODE_GOOD == retval)
+		{
+			UA_Client_reset(_pClient);
+		}
+		else
+		{
+			//todo: proper logging
+			std::cout << getError(retval) << std::endl;
+		}
+	}
+}
+
+
 const Client::StringList& Client::getEndpointURLs()
 {
 	_endpointURLs.clear();
@@ -182,6 +200,10 @@ void Client::printEndpointURLs(std::ostream& os) const
 }
 
 
+//
+// reading
+//
+
 void Client::getDateTime(IoT::OPC::DateTime& dt)
 {
 	UA_Variant value;
@@ -216,21 +238,182 @@ Poco::DateTime Client::readServerDateTime()
 }
 
 
-void Client::disconnect()
+open62541::UA_StatusCode Client::readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val) const
 {
-	if(_pClient && (getState() == OPC_CLIENT_CONNECTED))
+	using namespace open62541;
+	if(id.isString())
 	{
-		UA_StatusCode retval = UA_Client_disconnect(_pClient);
-		if(UA_STATUSCODE_GOOD == retval)
+		return UA_Client_readValueAttribute(_pClient, UA_NODEID_STRING(nsIndex, const_cast<char*>(id.toString().c_str())), val);
+	}
+	else
+	{
+		return UA_Client_readValueAttribute(_pClient, UA_NODEID_NUMERIC(nsIndex, id), val);
+	}
+}
+
+
+std::string& Client::getTypedValue(OPC::Variant& val, std::string& value) const
+{
+	using namespace open62541;
+	UA_String uaStr;
+	getValue(val, uaStr);
+	value = STDString(uaStr);
+	return value;
+}
+
+
+//
+// writing
+//
+
+const TypeCache& Client::getTypeCache() const
+{
+	return _nodeTypeCache;
+}
+
+
+open62541::UA_StatusCode Client::writeValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val)
+{
+	using namespace open62541;
+	if(id.isString())
+	{
+		checkTypeSafety(StringNodeID(nsIndex, id.toString()), val);
+		return UA_Client_writeValueAttribute(_pClient, UA_NODEID_STRING(nsIndex, const_cast<char*>(id.toString().c_str())), val);
+	}
+	else
+	{
+		checkTypeSafety(IntNodeID(nsIndex, id.convert<int>()), val);
+		return UA_Client_writeValueAttribute(_pClient, UA_NODEID_NUMERIC(nsIndex, id), val);
+	}
+	throw Poco::InvalidAccessException("OPC::Client::writeValueAttribute(): "
+		"Illegal write attempted (type mismatch in type-safe mode?)");
+}
+
+
+open62541::UA_StatusCode Client::writeTypedArray(OPC::Variant& var, int nsIndex, const int& id, const std::vector<std::string>& value)
+{
+	using namespace open62541;
+	UA_String uaStr[value.size()];
+	unsigned i = 0;
+	for(std::vector<std::string>::const_iterator it = value.begin(),
+		end = value.end(); it != end; ++it, ++i)
+	{
+		uaStr[i].data = (UA_Byte*) it->data();
+		uaStr[i].length = it->length();
+	}
+	UA_Variant_setArrayCopy(var, uaStr, value.size(), &UA_TYPES[UA_TYPES_STRING]);
+	return writeValueAttribute(nsIndex, id, var);
+}
+
+
+//
+// browsing/caching
+//
+
+open62541::UA_BrowseResponse Client::browse(int type)
+{
+	using namespace open62541;
+	_browseReq.nodesToBrowse[0].nodeId = UA_NODEID_NUMERIC(0, type);
+	return UA_Client_Service_browse(_pClient, _browseReq);
+}
+
+
+void Client::cacheTypes()
+{
+	using namespace open62541;
+	UA_BrowseResponse bResp = browse(UA_NS0ID_OBJECTSFOLDER);
+	for (size_t i = 0; i < bResp.resultsSize; ++i)
+	{
+		for (size_t j = 0; j < bResp.results[i].referencesSize; ++j)
 		{
-			UA_Client_reset(_pClient);
-		}
-		else
-		{
-			//todo: proper logging
-			std::cout << getError(retval) << std::endl;
+			UA_ReferenceDescription* ref = &(bResp.results[i].references[j]);
+			poco_check_ptr(ref);
+			int nsIndex = ref->browseName.namespaceIndex;
+			OPC::Variant var;
+			if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
+			{
+				int nodeID = ref->nodeId.nodeId.identifier.numeric;
+				if(getValueNodeType(nsIndex, nodeID, var))
+				{
+					/*std::cout << "Caching Node: (" << nsIndex << ", " << nodeID << "), TYPE: ";
+					if(var.isArray()) { std::cout << "[" << var.type().typeIndex << ']' << std::endl; }
+					else { std::cout << var.type().typeIndex << std::endl; }*/
+					_nodeTypeCache.add(IntNodeID(nsIndex, nodeID), var.type().typeIndex, var.isArray());
+				}
+			}
+			else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
+			{
+				UA_String nodeID = ref->nodeId.nodeId.identifier.string;
+				std::string nID = std::string((char*) nodeID.data, nodeID.length);
+				if(getValueNodeType(nsIndex, nID, var))
+				{
+					/*std::cout << "Caching Node: (" << nsIndex << ", " << nID << "), TYPE: ";
+					if(var.isArray()) { std::cout << "[" << var.type().typeIndex << ']' << std::endl; }
+					else { std::cout << var.type().typeIndex << std::endl; }*/
+					_nodeTypeCache.add(StringNodeID(nsIndex, nID), var.type().typeIndex, var.isArray());
+				}
+			}
+			// TODO: distinguish further types
 		}
 	}
+	UA_BrowseResponse_deleteMembers(&bResp);
+}
+
+
+void Client::printBrowse(std::ostream& os, int type, std::vector<int> colWidths)
+{
+	using namespace open62541;
+	if(colWidths.size() < 1) colWidths.push_back(11);
+	if(colWidths.size() < 2) colWidths.push_back(20);
+	if(colWidths.size() < 3) colWidths.push_back(36);
+	if(colWidths.size() < 4) colWidths.push_back(36);
+	if(colWidths.size() < 5) colWidths.push_back(36);
+	UA_BrowseResponse bResp = browse(type);
+	os << std::setw(colWidths.at(0)) << "[NAMESPACE]" << std::setw(colWidths.at(1)) << "[NODEID]" <<
+		std::setw(colWidths.at(2)) << "[BROWSE NAME]" << std::setw(colWidths.at(3)) << "[DISPLAY NAME]" <<
+		std::setw(colWidths.at(3)) << "[VALUE]" << std::endl;
+	std::string line(std::accumulate(colWidths.begin(), colWidths.end(), 0), '-');
+	os << line << std::endl;
+	for (size_t i = 0; i < bResp.resultsSize; ++i)
+	{
+		for (size_t j = 0; j < bResp.results[i].referencesSize; ++j)
+		{
+			UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
+			int nsIndex = ref->browseName.namespaceIndex;
+			UA_String bName = ref->browseName.name;
+			UA_String dName = ref->displayName.text;
+			OPC::Variant var;
+			if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
+			{
+				int nodeID = ref->nodeId.nodeId.identifier.numeric;
+				getValueNodeType(nsIndex, nodeID, var);
+				//os << "TYPE: [" << getValueNodeType(nsIndex, nodeID) << ']' << std::endl;
+				os << std::setw(colWidths.at(0)) << nsIndex
+					<< std::setw(colWidths.at(1)) << nodeID
+					<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
+					<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
+					<< std::setw(colWidths.at(4)) << (var.hasData() ?
+						read(nsIndex, nodeID).toString() : std::string("N/A"))
+					<< std::endl;
+			}
+			else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
+			{
+				UA_String nodeID = ref->nodeId.nodeId.identifier.string;
+				std::string nID = std::string((char*) nodeID.data, nodeID.length);
+				getValueNodeType(nsIndex, nID, var);
+				//os << "TYPE: [" << getValueNodeType(nsIndex, nID) << ']' << std::endl;
+				os << std::setw(colWidths.at(0)) << nsIndex << std::setw(11)
+					<< std::setw(colWidths.at(1)) << nID
+					<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
+					<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
+					<< std::setw(colWidths.at(4)) << (var.hasData() ?
+						read(nsIndex, nID).toString() : std::string("N/A"))
+					<< std::endl;
+			}
+			// TODO: distinguish further types
+		}
+	}
+	UA_BrowseResponse_deleteMembers(&bResp);
 }
 
 

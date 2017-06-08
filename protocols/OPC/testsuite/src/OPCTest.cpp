@@ -488,24 +488,34 @@ void OPCTest::testClient()
 		int nsIndex = 1;
 		Var id = "the.int.answer";
 		std::string name = "the int answer";
-		server.addVariableNode(nsIndex, id, 42, UA_TYPES_INT32, name, name, name);
+		server.addVariableNode(nsIndex, id, 42, UA_TYPES_INT32, false, name, name, name);
 		nsIndex = server.addNamespace("ns2");
 		id = "the.double.answer";
 		name = "the double answer";
-		server.addVariableNode(nsIndex, id, 4.2, UA_TYPES_DOUBLE, name, name, name);
+		server.addVariableNode(nsIndex, id, 4.2, UA_TYPES_DOUBLE, false, name, name, name);
 
 		id = 3;
 		name = "the double answer by ID in ns2";
-		server.addVariableNode(nsIndex, id, 2.4, UA_TYPES_DOUBLE, name, name, name);
+		server.addVariableNode(nsIndex, id, 2.4, UA_TYPES_DOUBLE, false, name, name, name);
 
 		id = 4;
 		name = "the string answer by ID in ns2";
-		server.addVariableNode(nsIndex, id, std::string("abc123"), UA_TYPES_STRING, name, name, name);
+		server.addVariableNode(nsIndex, id, std::string("abc123"), UA_TYPES_STRING, false, name, name, name);
 
 		id = 5;
 		name = "the DateTime answer by ID in ns2";
 		Poco::Int64 ts = IoT::OPC::DateTime::now();
-		server.addVariableNode(nsIndex, id, ts, UA_TYPES_DATETIME, name, name, name);
+		server.addVariableNode(nsIndex, id, ts, UA_TYPES_DATETIME, false, name, name, name);
+
+		id = 6;
+		name = "the array of strings answer by ID in ns2";
+		std::vector<std::string> strArr = { "abc", "123", "xyz" };
+		server.addVariableNode(nsIndex, id, strArr, UA_TYPES_STRING, true, name, name, name);
+
+		id = 7;
+		name = "the array of doubles answer by ID in ns2";
+		std::vector<double> dblVec = { 1.2, 2.3, 3.4 };
+		server.addVariableNode(nsIndex, id, dblVec, UA_TYPES_DOUBLE, true, name, name, name);
 
 		Thread thread;
 		thread.start(server);
@@ -514,6 +524,20 @@ void OPCTest::testClient()
 
 		Client client("localhost");
 		while(!client.isConnected()) Thread::sleep(10);
+
+		const TypeCache& cache = client.getTypeCache();
+		assert(cache.has(StringNodeID(1, "the.int.answer"), UA_TYPES_INT32));
+		assert(!cache.has(StringNodeID(1, "the.int.answer"), UA_TYPES_DOUBLE));
+		assert(cache.has(StringNodeID(nsIndex, "the.double.answer"), UA_TYPES_DOUBLE));
+		assert(!cache.has(StringNodeID(nsIndex, "the.double.answer"), UA_TYPES_INT32));
+		assert(cache.has(IntNodeID(nsIndex, 3), UA_TYPES_DOUBLE));
+		assert(cache.has(IntNodeID(nsIndex, 4), UA_TYPES_STRING));
+		assert(!cache.has(IntNodeID(nsIndex, 4), UA_TYPES_DATETIME));
+		assert(cache.has(IntNodeID(nsIndex, 5), UA_TYPES_DATETIME));
+		assert(!cache.has(IntNodeID(nsIndex, 5), UA_TYPES_STRING));
+
+		assert(!cache.has(IntNodeID(nsIndex, 55), UA_TYPES_STRING));
+		assert(!cache.has(StringNodeID(33, "5"), UA_TYPES_STRING));
 
 		nsIndex = 1;
 		name = "the.int.answer";
@@ -573,12 +597,30 @@ void OPCTest::testClient()
 		client.writeCurrentDateTimeByID(nsIndex, nID);
 		assert(client.readTimestampByID(nsIndex, nID) > ts);
 
+		nID = 7;
+		varVal = client.read(nsIndex, nID);
+		std::vector<double> exDblVec = varVal.extract<std::vector<double>>();
+		assert(exDblVec.size() == 3);
+		assert(exDblVec == dblVec);
+
+		nsIndex = 1;
+		name = "the.int.answer";
+
 		std::vector<int> vec;
 		vec.push_back(1);
 		vec.push_back(2);
 		vec.push_back(3);
-		client.writeArray(nsIndex, nID, vec);
-		varVal = client.read(nsIndex, nID);
+		try
+		{
+			client.writeArray(nsIndex, name, vec);
+			fail("modifying server dataype in typesafe mode must fail");
+		}
+		catch(Poco::InvalidAccessException&) { }
+
+		// allow server datatype change by client and try again
+		client.setTypeSafe(false);
+		client.writeArray(nsIndex, name, vec);
+		varVal = client.read(nsIndex, name);
 		//TODO: Dynamic::Var should be capable of holding vectors of supported types as array
 		assert(varVal.isArray());
 		assert(varVal.size() == 3);
@@ -589,6 +631,8 @@ void OPCTest::testClient()
 		assert(vec[1] == 2);
 		assert(vec[2] == 3);
 
+		nsIndex = 2;
+		nID = 4;
 		std::vector<std::string> strVec;
 		strVec.push_back("abc");
 		strVec.push_back("123");

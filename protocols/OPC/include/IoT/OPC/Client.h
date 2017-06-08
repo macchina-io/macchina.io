@@ -15,12 +15,13 @@
 //
 
 
-#ifndef OPC_Client_INCLUDED
-#define OPC_Client_INCLUDED
+#ifndef IoT_OPC_Client_INCLUDED
+#define IoT_OPC_Client_INCLUDED
 
 
 #include "IoT/OPC/OPC.h"
 #include "IoT/OPC/Types.h"
+#include "IoT/OPC/TypeCache.h"
 #include "Poco/DateTime.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/Exception.h"
@@ -216,17 +217,17 @@ public:
 			{
 				switch(type)
 				{
-					case UA_TYPES_BOOLEAN:  { bool value;         return getValue(val, value); }
-					case UA_TYPES_SBYTE:    { Poco::Int8 value;   return getValue(val, value); }
-					case UA_TYPES_BYTE:     { Poco::UInt8 value;  return getValue(val, value); }
-					case UA_TYPES_INT16:    { Poco::Int16 value;  return getValue(val, value); }
+					case UA_TYPES_BOOLEAN:  { bool         value; return getValue(val, value); }
+					case UA_TYPES_SBYTE:    { Poco::Int8   value; return getValue(val, value); }
+					case UA_TYPES_BYTE:     { Poco::UInt8  value; return getValue(val, value); }
+					case UA_TYPES_INT16:    { Poco::Int16  value; return getValue(val, value); }
 					case UA_TYPES_UINT16:   { Poco::UInt16 value; return getValue(val, value); }
-					case UA_TYPES_INT32:    { Poco::Int32 value;  return getValue(val, value); }
+					case UA_TYPES_INT32:    { Poco::Int32  value; return getValue(val, value); }
 					case UA_TYPES_UINT32:   { Poco::UInt32 value; return getValue(val, value); }
-					case UA_TYPES_INT64:    { Poco::Int64 value;  return getValue(val, value); }
+					case UA_TYPES_INT64:    { Poco::Int64  value; return getValue(val, value); }
 					case UA_TYPES_UINT64:   { Poco::UInt64 value; return getValue(val, value); }
-					case UA_TYPES_FLOAT:    { float value;        return getValue(val, value); }
-					case UA_TYPES_DOUBLE:   { double value;       return getValue(val, value); }
+					case UA_TYPES_FLOAT:    { float        value; return getValue(val, value); }
+					case UA_TYPES_DOUBLE:   { double       value; return getValue(val, value); }
 					case UA_TYPES_DATETIME:
 					{
 						UA_DateTime dt;
@@ -299,14 +300,6 @@ public:
 		return 0;
 	}
 
-	template <typename I>
-	bool isValueNode(int nsIndex, const I& id) const
-		/// Returns true if node has a value.
-	{
-		return -1 != getValueNodeType(nsIndex, id);
-	}
-
-
 	//
 	// writing
 	//
@@ -365,6 +358,8 @@ public:
 		writeArrayValue(nsIndex, id, value, isDateTime);
 	}
 
+	const TypeCache& getTypeCache() const;
+
 
 	//
 	// browsing
@@ -379,194 +374,21 @@ public:
 	void printEndpointURLs(std::ostream& os) const;
 		/// Prints the list of server endpoint URLs.
 
-	void printServerObjects(std::ostream& os)
-	{
-		printBrowse(os, UA_NS0ID_OBJECTSFOLDER);
-	}
+	void printServerObjects(std::ostream& os);
+		/// Prints all the server objects (with values
+		/// for value attribute objects) to the provided stream.
 
 private:
-
-	template <typename T>
-	class ValueNodeID
-	{
-	public:
-		ValueNodeID() = delete;
-
-		ValueNodeID(int nsIndex, const T& id): _nsIndex(nsIndex), _id(id)
-		{
-		}
-
-		bool operator == (const ValueNodeID& other) const
-		{
-			return _nsIndex == other._nsIndex && _id == other._id;
-		}
-
-		int nsIndex() const
-		{
-			return _nsIndex;
-		}
-
-		const T& id() const
-		{
-			return _id;
-		}
-
-	private:
-		int _nsIndex;
-		T   _id;
-	};
-
-	template <typename T>
-	struct ValueNodeHasher
-	{
-		std::size_t operator()(const ValueNodeID<T>& key) const
-		{
-			std::size_t res = 17;
-			res = res * 31 + std::hash<T>()(key.id());
-			res = res * 31 + std::hash<int>()(key.nsIndex());
-			return res;
-		}
-	};
-
-	typedef ValueNodeID<std::string> StringNodeID;
-	typedef ValueNodeHasher<std::string> StringNodeHasher;
-	typedef ValueNodeID<int> IntNodeID;
-	typedef ValueNodeHasher<int> IntNodeHasher;
-	typedef std::unordered_map<StringNodeID, int, StringNodeHasher> StringTypeMap;
-	typedef std::unordered_map<IntNodeID, int, IntNodeHasher> IntTypeMap;
-
-	class NodeTypeCache
-	{
-	public:
-		void add(const IntNodeID& id, int type)
-		{
-			_intIDs.insert({id, type});
-		}
-
-		void add(const StringNodeID& id, int type)
-		{
-			_stringIDs.insert({id, type});
-		}
-
-		bool has(const IntNodeID& id, int type) const
-		{
-			const auto& it = _intIDs.find(id);
-			return it != _intIDs.end() && it->second == type;
-		}
-
-		bool has(const StringNodeID& id, int type) const
-		{
-			const auto& it = _stringIDs.find(id);
-			return it != _stringIDs.end() && it->second == type;
-		}
-
-	private:
-		StringTypeMap _stringIDs;
-		IntTypeMap    _intIDs;
-	};
 
 	//
 	// browsing/caching
 	//
 
-	open62541::UA_BrowseResponse browse(int type)
-	{
-		using namespace open62541;
+	open62541::UA_BrowseResponse browse(int type);
 
-		_browseReq.nodesToBrowse[0].nodeId = UA_NODEID_NUMERIC(0, type);
-		return UA_Client_Service_browse(_pClient, _browseReq);
-	}
+	void cacheTypes();
 
-	void cacheTypes()
-	{
-		using namespace open62541;
-
-		UA_BrowseResponse bResp = browse(UA_NS0ID_OBJECTSFOLDER);
-		for (size_t i = 0; i < bResp.resultsSize; ++i)
-		{
-			for (size_t j = 0; j < bResp.results[i].referencesSize; ++j)
-			{
-				UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
-				int nsIndex = ref->browseName.namespaceIndex;
-				if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
-				{
-					int nodeID = ref->nodeId.nodeId.identifier.numeric;
-					if(isValueNode(nsIndex, nodeID))
-					{
-						//std::cout << "Caching Node: [" << nsIndex << ", " << nodeID << "], TYPE: [" << getValueNodeType(nsIndex, nodeID) << ']' << std::endl;
-						_nodeTypeCache.add(IntNodeID(nsIndex, nodeID), getValueNodeType(nsIndex, nodeID));
-					}
-				}
-				else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
-				{
-					UA_String nodeID = ref->nodeId.nodeId.identifier.string;
-					std::string nID = std::string((char*) nodeID.data, nodeID.length);
-					if(isValueNode(nsIndex, nID))
-					{
-						//std::cout << "Caching Node: [" << nsIndex << ", " << nID << "], TYPE: [" << getValueNodeType(nsIndex, nID) << ']' << std::endl;
-						_nodeTypeCache.add(StringNodeID(nsIndex, nID), getValueNodeType(nsIndex, nID));
-					}
-				}
-				// TODO: distinguish further types
-			}
-		}
-		UA_BrowseResponse_deleteMembers(&bResp);
-	}
-
-	void printBrowse(std::ostream& os, int type, std::vector<int> colWidths = std::vector<int>())
-	{
-		using namespace open62541;
-
-		if(colWidths.size() < 1) colWidths.push_back(11);
-		if(colWidths.size() < 2) colWidths.push_back(20);
-		if(colWidths.size() < 3) colWidths.push_back(36);
-		if(colWidths.size() < 4) colWidths.push_back(36);
-		if(colWidths.size() < 5) colWidths.push_back(36);
-
-		UA_BrowseResponse bResp = browse(type);
-		os << std::setw(colWidths.at(0)) << "[NAMESPACE]" << std::setw(colWidths.at(1)) << "[NODEID]" <<
-			std::setw(colWidths.at(2)) << "[BROWSE NAME]" << std::setw(colWidths.at(3)) << "[DISPLAY NAME]" <<
-			std::setw(colWidths.at(3)) << "[VALUE]" << std::endl;
-		std::string line(std::accumulate(colWidths.begin(), colWidths.end(), 0), '-');
-		os << line << std::endl;
-		for (size_t i = 0; i < bResp.resultsSize; ++i)
-		{
-			for (size_t j = 0; j < bResp.results[i].referencesSize; ++j)
-			{
-				UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
-				int nsIndex = ref->browseName.namespaceIndex;
-				UA_String bName = ref->browseName.name;
-				UA_String dName = ref->displayName.text;
-				if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
-				{
-					int nodeID = ref->nodeId.nodeId.identifier.numeric;
-					//os << "TYPE: [" << getValueNodeType(nsIndex, nodeID) << ']' << std::endl;
-					os << std::setw(colWidths.at(0)) << nsIndex
-						<< std::setw(colWidths.at(1)) << nodeID
-						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
-						<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
-						<< std::setw(colWidths.at(4)) << (isValueNode(nsIndex, nodeID) ?
-							read(nsIndex, nodeID).toString() : std::string("N/A"))
-						<< std::endl;
-				}
-				else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
-				{
-					UA_String nodeID = ref->nodeId.nodeId.identifier.string;
-					std::string nID = std::string((char*) nodeID.data, nodeID.length);
-					//os << "TYPE: [" << getValueNodeType(nsIndex, nID) << ']' << std::endl;
-					os << std::setw(colWidths.at(0)) << nsIndex << std::setw(11)
-						<< std::setw(colWidths.at(1)) << nID
-						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
-						<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
-						<< std::setw(colWidths.at(4)) << (isValueNode(nsIndex, nID) ?
-							read(nsIndex, nID).toString() : std::string("N/A"))
-						<< std::endl;
-				}
-				// TODO: distinguish further types
-			}
-		}
-		UA_BrowseResponse_deleteMembers(&bResp);
-	}
+	void printBrowse(std::ostream& os, int type, std::vector<int> colWidths = std::vector<int>());
 
 
 	//
@@ -574,30 +396,18 @@ private:
 	//
 
 	template <typename I>
-	int getValueNodeType(int nsIndex, const I& id) const
+	bool getValueNodeType(int nsIndex, const I& id, OPC::Variant& val) const
 	{
 		using namespace open62541;
-		OPC::Variant val;
 		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
 		if(retval == UA_STATUSCODE_GOOD)
 		{
-			return val.type().typeIndex;
+			return true;//val.type().typeIndex;
 		}
-		return -1;
+		return false;
 	}
 
-	open62541::UA_StatusCode readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val) const
-	{
-		using namespace open62541;
-		if(id.isString())
-		{
-			return UA_Client_readValueAttribute(_pClient, UA_NODEID_STRING(nsIndex, const_cast<char*>(id.toString().c_str())), val);
-		}
-		else
-		{
-			return UA_Client_readValueAttribute(_pClient, UA_NODEID_NUMERIC(nsIndex, id), val);
-		}
-	}
+	open62541::UA_StatusCode readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val) const;
 
 	template <typename T>
 	const T& getValue(open62541::UA_Variant* val, T& value) const
@@ -622,14 +432,7 @@ private:
 		return value;
 	}
 
-	std::string& getTypedValue(OPC::Variant& val, std::string& value) const
-	{
-		using namespace open62541;
-		UA_String uaStr;
-		getValue(val, uaStr);
-		value = STDString(uaStr);
-		return value;
-	}
+	std::string& getTypedValue(OPC::Variant& val, std::string& value) const;
 
 	template <typename T, typename I>
 	T readValueAttribute(int nsIndex, const I& id) const
@@ -686,18 +489,19 @@ private:
 		{
 			poco_check_ptr(val);
 			poco_check_ptr(val->type);
-			if(!_nodeTypeCache.has(nodeID, val->type->typeIndex))
+			if(!_nodeTypeCache.has(nodeID, val->type->typeIndex, val->arrayLength))
 			{
-				int nodeType = getValueNodeType(nodeID.nsIndex(), nodeID.id());
-				if(-1 == nodeType)
+				OPC::Variant var;
+				getValueNodeType(nodeID.nsIndex(), nodeID.id(), var);
+				if(!var.hasData())
 				{
 					std::ostringstream os;
 					os << "OPC::Client::writeValueAttribute(): "
-						"write to a non-value node [" << nodeID.nsIndex() << ", " <<
+						"write to a non-existing or non-value node [" << nodeID.nsIndex() << ", " <<
 						nodeID.id() << "] attempted.";
 					throw Poco::InvalidAccessException(os.str());
 				}
-				else if(nodeType != val->type->typeIndex)
+				else if(var.type().typeIndex != val->type->typeIndex || (val->arrayLength && !var.isArray()))
 				{
 					std::ostringstream os;
 					os << "OPC::Client::writeValueAttribute(): "
@@ -707,28 +511,13 @@ private:
 				}
 				else
 				{
-					_nodeTypeCache.add(nodeID, nodeType);
+					_nodeTypeCache.add(nodeID, var.type().typeIndex, var.isArray());
 				}
 			}
 		}
 	}
 
-	open62541::UA_StatusCode writeValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val)
-	{
-		using namespace open62541;
-		if(id.isString())
-		{
-			checkTypeSafety(StringNodeID(nsIndex, id.toString()), val);
-			return UA_Client_writeValueAttribute(_pClient, UA_NODEID_STRING(nsIndex, const_cast<char*>(id.toString().c_str())), val);
-		}
-		else
-		{
-			checkTypeSafety(IntNodeID(nsIndex, id.convert<int>()), val);
-			return UA_Client_writeValueAttribute(_pClient, UA_NODEID_NUMERIC(nsIndex, id), val);
-		}
-		throw Poco::InvalidAccessException("OPC::Client::writeValueAttribute(): "
-			"Illegal write attempted (type mismatch in type-safe mode?)");
-	}
+	open62541::UA_StatusCode writeValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val);
 
 	template <typename T, typename I>
 	void writeValue(int nsIndex, const I& id, const T& value, bool isDateTime = false)
@@ -787,20 +576,7 @@ private:
 		return writeValueAttribute(nsIndex, id, var);
 	}
 
-	open62541::UA_StatusCode writeTypedArray(OPC::Variant& var, int nsIndex, const int& id, const std::vector<std::string>& value)
-	{
-		using namespace open62541;
-		UA_String uaStr[value.size()];
-		unsigned i = 0;
-		for(std::vector<std::string>::const_iterator it = value.begin(),
-			end = value.end(); it != end; ++it, ++i)
-		{
-			uaStr[i].data = (UA_Byte*) it->data();
-			uaStr[i].length = it->length();
-		}
-		UA_Variant_setArrayCopy(var, uaStr, value.size(), &UA_TYPES[UA_TYPES_STRING]);
-		return writeValueAttribute(nsIndex, id, var);
-	}
+	open62541::UA_StatusCode writeTypedArray(OPC::Variant& var, int nsIndex, const int& id, const std::vector<std::string>& value);
 
 	template <typename T, typename I>
 	void writeArrayValue(int nsIndex, const I& id, const T& value, bool isDateTime = false)
@@ -833,15 +609,15 @@ private:
 		}
 	}
 
-	open62541::UA_Client*         _pClient;
-	std::string                   _url;
-	StringList                    _endpointURLs;
-	open62541::UA_BrowseRequest   _browseReq;
-	bool                          _typeSafe;
-	NodeTypeCache                 _nodeTypeCache;
+	open62541::UA_Client*       _pClient;
+	std::string                 _url;
+	StringList                  _endpointURLs;
+	open62541::UA_BrowseRequest _browseReq;
+	bool                        _typeSafe;
+	TypeCache                   _nodeTypeCache;
 	// following members needed to copy-construct the client (remoting requirement)
 	std::string _server;
-	int _port;
+	int         _port;
 	std::string _user;
 	std::string _pass;
 	std::string _proto;
@@ -851,7 +627,6 @@ private:
 //
 // inlines
 //
-
 
 //
 // config
@@ -866,6 +641,7 @@ inline bool Client::getTypeSafe() const
 inline void Client::setTypeSafe(bool safe)
 {
 	_typeSafe = safe;
+	if(!_typeSafe) _nodeTypeCache.clear();
 }
 
 
@@ -1271,6 +1047,12 @@ inline void Client::writeCurrentDateTimeByName(int nsIndex, const std::string& n
 inline void Client::writeCurrentDateTimeByID(int nsIndex, int id)
 {
 	writeValue(nsIndex, id, (Int64) -1, true);
+}
+
+
+inline void Client::printServerObjects(std::ostream& os)
+{
+	printBrowse(os, UA_NS0ID_OBJECTSFOLDER);
 }
 
 

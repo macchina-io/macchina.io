@@ -189,11 +189,24 @@ Variant::operator open62541::UA_Variant&()
 }
 
 
+bool Variant::hasData() const
+{
+	return _pVariant && _pVariant->data;
+}
+
+
 const open62541::UA_DataType& Variant::type() const
 {
 	poco_check_ptr(_pVariant);
 	poco_check_ptr(_pVariant->type);
 	return *_pVariant->type;
+}
+
+
+bool Variant::isArray() const
+{
+	poco_check_ptr(_pVariant);
+	return _pVariant->arrayLength > 0;
 }
 
 

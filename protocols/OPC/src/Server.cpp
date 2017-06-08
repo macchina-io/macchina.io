@@ -84,6 +84,7 @@ void Server::addVariableNode(int nsIndex,
 	const Poco::Dynamic::Var& id,
 	const Any& value,
 	int type,
+	bool array,
 	const std::string& qualifiedName,
 	const std::string& displayName,
 	const std::string& description,
@@ -95,16 +96,34 @@ void Server::addVariableNode(int nsIndex,
 	UA_VariableAttributes_init(&attr);
 	const void* pVal = 0;
 	UA_String str = {0};
+	std::vector<UA_String> strVec;
+	std::size_t sz = 0;
 	if(UA_TYPES_STRING == type)
 	{
-		pVal = convertString(value, str);
+		if(!array)
+		{
+			pVal = convertString(value, str);
+		}
+		else
+		{
+			pVal = convertStringArray(value, strVec);
+			sz = strVec.size();
+		}
 	}
 	else
 	{
-		pVal = convertPOD(value, type);
+		if(!array)
+		{
+			pVal = convertPOD(value, type);
+		}
+		else
+		{
+			pVal = convertPODArray(value, type, sz);
+		}
 	}
 	if(!pVal) throw NullPointerException("Server::addVariableNode()");
-	UA_Variant_setScalarCopy(&attr.value, pVal, &UA_TYPES[type]);
+	if(!array) UA_Variant_setScalarCopy(&attr.value, pVal, &UA_TYPES[type]);
+	else UA_Variant_setArrayCopy(&attr.value, pVal, sz, &UA_TYPES[type]);
 	attr.description = UA_LOCALIZEDTEXT_ALLOC(loc.c_str(),description.c_str());
 	attr.displayName = UA_LOCALIZEDTEXT_ALLOC(loc.c_str(),displayName.c_str());
 	UA_NodeId nodeId;
@@ -136,6 +155,10 @@ void Server::addVariableNode(int nsIndex,
 	{
 		UA_free(str.data);
 	}
+	for(auto& s : strVec)
+	{
+		UA_free(s.data);
+	}
 	if(nodeId.identifierType == UA_NODEIDTYPE_STRING)
 	{
 		UA_free(nodeId.identifier.string.data);
@@ -155,6 +178,24 @@ const void* Server::convertString(const Any& value, UA_String& str)
 		throw Poco::NullPointerException("OPC::Server::convertString()");
 	}
 	return &str;
+}
+
+
+const void* Server::convertStringArray(const Any& value, std::vector<UA_String>& str)
+{
+	const std::vector<std::string>* pStr = UnsafeAnyCast<std::vector<std::string>>(&value);
+	if(pStr)
+	{
+		for(auto& s : *pStr)
+		{
+			str.push_back(UA_STRING_ALLOC(s.c_str()));
+		}
+	}
+	else
+	{
+		throw Poco::NullPointerException("OPC::Server::convertString()");
+	}
+	return &str[0];
 }
 
 
@@ -195,14 +236,103 @@ const void* Server::convertPOD(const Any& value, int type)
 	case UA_TYPES_DOUBLE:
 		return UnsafeAnyCast<UA_Double>(&value);
 		break;
-	case UA_TYPES_STRING:
-		return UnsafeAnyCast<std::string>(&value);
-		break;
 	case UA_TYPES_DATETIME:
 		return UnsafeAnyCast<UA_DateTime>(&value);
 		break;
 	}
 	throw Poco::NotImplementedException("OPC::Server::convertPOD(value, " +
+			Poco::NumberFormatter::format(type) + "): type not implemented");
+}
+
+
+const void* Server::convertPODArray(const Any& value, int type, std::size_t& sz)
+{
+	switch(type)
+	{
+	case UA_TYPES_BOOLEAN:
+	{
+		throw Poco::NotImplementedException("OPC::Server::convertPODArray(value, " +
+			Poco::NumberFormatter::format(type) + "): boolean array not implemented");
+	}
+	case UA_TYPES_SBYTE:
+	{
+		const std::vector<UA_SByte>* ptr = UnsafeAnyCast<std::vector<UA_SByte>>(&value);
+		poco_check_ptr(ptr);
+		sz = ptr->size();
+		return &(*ptr)[0];
+	}
+	case UA_TYPES_BYTE:
+	{
+		const std::vector<UA_Byte>* ptr = UnsafeAnyCast<std::vector<UA_Byte>>(&value);
+		poco_check_ptr(ptr);
+		sz = ptr->size();
+		return &(*ptr)[0];
+	}
+	case UA_TYPES_INT16:
+	{
+		const std::vector<UA_Int16>* ptr = UnsafeAnyCast<std::vector<UA_Int16>>(&value);
+		poco_check_ptr(ptr);
+		sz = ptr->size();
+		return &(*ptr)[0];
+	}
+	case UA_TYPES_UINT16:
+	{
+		const std::vector<UA_UInt16>* ptr = UnsafeAnyCast<std::vector<UA_UInt16>>(&value);
+		poco_check_ptr(ptr);
+		sz = ptr->size();
+		return &(*ptr)[0];
+	}
+	case UA_TYPES_INT32:
+	{
+		const std::vector<UA_Int32>* ptr = UnsafeAnyCast<std::vector<UA_Int32>>(&value);
+		poco_check_ptr(ptr);
+		sz = ptr->size();
+		return &(*ptr)[0];
+	}
+	case UA_TYPES_UINT32:
+	{
+		const std::vector<UA_UInt32>* ptr = UnsafeAnyCast<std::vector<UA_UInt32>>(&value);
+		poco_check_ptr(ptr);
+		sz = ptr->size();
+		return &(*ptr)[0];
+	}
+	case UA_TYPES_INT64:
+	{
+		const std::vector<UA_Int64>* ptr = UnsafeAnyCast<std::vector<UA_Int64>>(&value);
+		poco_check_ptr(ptr);
+		sz = ptr->size();
+		return &(*ptr)[0];
+	}
+	case UA_TYPES_UINT64:
+	{
+		const std::vector<UA_UInt64>* ptr = UnsafeAnyCast<std::vector<UA_UInt64>>(&value);
+		poco_check_ptr(ptr);
+		sz = ptr->size();
+		return &(*ptr)[0];
+	}
+	case UA_TYPES_FLOAT:
+	{
+		const std::vector<UA_Float>* ptr = UnsafeAnyCast<std::vector<UA_Float>>(&value);
+		poco_check_ptr(ptr);
+		sz = ptr->size();
+		return &(*ptr)[0];
+	}
+	case UA_TYPES_DOUBLE:
+	{
+		const std::vector<UA_Double>* ptr = UnsafeAnyCast<std::vector<UA_Double>>(&value);
+		poco_check_ptr(ptr);
+		sz = ptr->size();
+		return &(*ptr)[0];
+	}
+	case UA_TYPES_DATETIME:
+	{
+		const std::vector<UA_DateTime>* ptr = UnsafeAnyCast<std::vector<UA_DateTime>>(&value);
+		poco_check_ptr(ptr);
+		sz = ptr->size();
+		return &(*ptr)[0];
+	}
+	}
+	throw Poco::NotImplementedException("OPC::Server::convertPODArray(value, " +
 			Poco::NumberFormatter::format(type) + "): type not implemented");
 }
 

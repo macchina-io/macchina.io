@@ -11,4 +11,5 @@ clean all: projects
 projects:
 	$(MAKE) -C OPCServer $(MAKECMDGOALS)
 	$(MAKE) -C OPCClient $(MAKECMDGOALS)
+	$(MAKE) -C jsrun $(MAKECMDGOALS)
 

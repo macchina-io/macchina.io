@@ -173,7 +173,11 @@ public:
 
 	operator open62541::UA_Variant&();
 
+	bool hasData() const;
+
 	const open62541::UA_DataType& type() const;
+
+	bool isArray() const;
 
 private:
 	Variant(const Variant&);

@@ -65,6 +65,7 @@ public:
 		const Poco::Dynamic::Var& id,
 		const Poco::Any& value,
 		int type,
+		bool array,
 		const std::string& qualifiedName,
 		const std::string& displayName,
 		const std::string& description,
@@ -74,7 +75,9 @@ public:
 
 private:
 	const void* convertPOD(const Poco::Any& value, int type);
+	const void* convertPODArray(const Poco::Any& value, int type, std::size_t& sz);
 	const void* convertString(const Poco::Any& value, UA_String& str);
+	const void* convertStringArray(const Poco::Any& value, std::vector<UA_String>& str);
 
 	open62541::UA_Server*             _pServer;
 	open62541::UA_ServerNetworkLayer* _pNetworkLayer;
