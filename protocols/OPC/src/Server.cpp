@@ -15,8 +15,9 @@
 
 #include "IoT/OPC/Server.h"
 #include "Poco/Thread.h"
+#include "Poco/Format.h"
 #include "Poco/Dynamic/Var.h"
-#include <iostream>
+#include "IoT/OPC/UALogger.h"
 
 
 using namespace Poco;
@@ -24,25 +25,50 @@ using namespace Poco;
 
 namespace IoT {
 namespace OPC {
-namespace open62541 {
-
-#include "open62541.h"
-
-}
 
 
-using namespace open62541;
+extern Poco::Logger* uaLogger;
 
 
-Server::Server(int port): _pServer(0),
-	_pNetworkLayer(new UA_ServerNetworkLayer(UA_ServerNetworkLayerTCP(UA_ConnectionConfig_standard, static_cast<UA_UInt16>(port)))),
+Server::Server(int port, Poco::Message::Priority prio): _pServer(0),
+	_logger(Poco::Logger::create("IoT_OPC_Server",
+			Poco::AutoPtr<Poco::ConsoleChannel>(new Poco::ConsoleChannel),
+			prio)),
+	_pNetworkLayer(makeServerNetworkLayer(port)),
 	_running(false),
 	_done(false)
 {
+	_logger.setLevel(prio);
+	init();
+}
+
+
+Server::Server(Poco::Logger& logger, int port): _pServer(0),
+	_logger(logger),
+	_pNetworkLayer(makeServerNetworkLayer(port)),
+	_running(false),
+	_done(false)
+{
+	init();
+}
+
+
+void Server::init()
+{
 	UA_ServerConfig config = UA_ServerConfig_standard;
+	uaLogger = &_logger;
+	config.logger = (UA_Logger) UA_Log_POCO;
 	config.networkLayers = _pNetworkLayer;
 	config.networkLayersSize = 1;
 	_pServer = UA_Server_new(config);
+	if(_pServer)
+	{
+		_logger.trace("OPC Server: succesfully created.");
+	}
+	else
+	{
+		throw Poco::NullPointerException("Can't create OPC server.");
+	}
 }
 
 
@@ -52,6 +78,7 @@ Server::~Server()
 	UA_Server_delete(_pServer);
 	_pNetworkLayer->deleteMembers(_pNetworkLayer);
 	delete _pNetworkLayer;
+	_logger.trace("OPC Server: destroyed.");
 }
 
 
@@ -62,8 +89,10 @@ void Server::run()
 	if(UA_STATUSCODE_GOOD != retval)
 	{
 		_error = getError(retval);
+		_logger.error(_error);
 	}
 	_done = true;
+	_logger.trace("OPC Server: stopped.");
 }
 
 
@@ -76,7 +105,9 @@ void Server::stop()
 
 int Server::addNamespace(const std::string& name)
 {
-	return UA_Server_addNamespace(_pServer, name.c_str());
+	int nsIndex = UA_Server_addNamespace(_pServer, name.c_str());
+	_logger.trace(Poco::format("OPC Server: added namespace (%d, %s) to OPC Server.", nsIndex, name));
+	return nsIndex;
 }
 
 
@@ -150,6 +181,17 @@ void Server::addVariableNode(int nsIndex,
 	if(UA_STATUSCODE_GOOD != retval)
 	{
 		throw RuntimeException("Error in Server::addVariableNode(): " +  getError(retval));
+	}
+	else if(_logger.getLevel() >= Poco::Message::PRIO_TRACE)
+	{
+		if(id.isString())
+		{
+			_logger.trace(Poco::format("OPC Server: added variable node (%d, %s).", nsIndex, id.toString()));
+		}
+		else if(id.isNumeric())
+		{
+			_logger.trace(Poco::format("OPC Server: added variable node (%d, %d).", nsIndex, id.convert<int>()));
+		}
 	}
 	if(str.data && str.length)
 	{

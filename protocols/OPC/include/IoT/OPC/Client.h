@@ -22,10 +22,15 @@
 #include "IoT/OPC/OPC.h"
 #include "IoT/OPC/Types.h"
 #include "IoT/OPC/TypeCache.h"
+#include "Poco/Logger.h"
+#include "Poco/Message.h"
+#include "Poco/ConsoleChannel.h"
+#include "Poco/AutoPtr.h"
 #include "Poco/DateTime.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/Exception.h"
 #include "Poco/Dynamic/Var.h"
+#include "open62541.h"
 #include <vector>
 #include <string>
 #include <sstream>
@@ -37,11 +42,6 @@
 
 namespace IoT {
 namespace OPC {
-namespace open62541 {
-
-#include "open62541.h"
-
-}
 
 
 class DateTime;
@@ -85,10 +85,12 @@ public:
 	static const int OPC_TYPE_STRING;
 	static const int OPC_TYPE_DATETIME;
 
-	Client();
+	Client(Poco::Message::Priority prio = Poco::Message::PRIO_INFORMATION);
 		/// Creates the Client.
 
 	Client(const std::string& server,
+		Poco::Logger& logger = Poco::Logger::create("IoT_OPC_Client",
+			Poco::AutoPtr<Poco::ConsoleChannel>(new Poco::ConsoleChannel)),
 		int port = OPC_STANDARD_PORT,
 		const std::string& user = "",
 		const std::string& pass = "",
@@ -207,7 +209,6 @@ public:
 	template <typename T>
 	Poco::Dynamic::Var read(int nsIndex, const T& id) const
 	{
-		using namespace open62541;
 		OPC::Variant val;
 		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
 		if(retval == UA_STATUSCODE_GOOD)
@@ -384,7 +385,7 @@ private:
 	// browsing/caching
 	//
 
-	open62541::UA_BrowseResponse browse(int type);
+	UA_BrowseResponse browse(int type);
 
 	void cacheTypes();
 
@@ -398,7 +399,6 @@ private:
 	template <typename I>
 	bool getValueNodeType(int nsIndex, const I& id, OPC::Variant& val) const
 	{
-		using namespace open62541;
 		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
 		if(retval == UA_STATUSCODE_GOOD)
 		{
@@ -407,12 +407,11 @@ private:
 		return false;
 	}
 
-	open62541::UA_StatusCode readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val) const;
+	UA_StatusCode readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, UA_Variant* val) const;
 
 	template <typename T>
-	const T& getValue(open62541::UA_Variant* val, T& value) const
+	const T& getValue(UA_Variant* val, T& value) const
 	{
-		using namespace open62541;
 		if(UA_Variant_isScalar(val))
 		{
 			value = *(T*)val->data;
@@ -437,7 +436,6 @@ private:
 	template <typename T, typename I>
 	T readValueAttribute(int nsIndex, const I& id) const
 	{
-		using namespace open62541;
 		T value = T();
 		OPC::Variant val;
 		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
@@ -455,9 +453,8 @@ private:
 	}
 
 	template <typename T>
-	const std::vector<T>& getArrayValue(open62541::UA_Variant* val, std::vector<T>& values) const
+	const std::vector<T>& getArrayValue(UA_Variant* val, std::vector<T>& values) const
 	{
-		using namespace open62541;
 		if(!UA_Variant_isScalar(val))
 		{
 			values.reserve(val->arrayLength);
@@ -483,7 +480,7 @@ private:
 	//
 
 	template <typename T>
-	void checkTypeSafety(const T& nodeID, open62541::UA_Variant* val)
+	void checkTypeSafety(const T& nodeID, UA_Variant* val)
 	{
 		if(_typeSafe)
 		{
@@ -517,12 +514,11 @@ private:
 		}
 	}
 
-	open62541::UA_StatusCode writeValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val);
+	UA_StatusCode writeValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, UA_Variant* val);
 
 	template <typename T, typename I>
 	void writeValue(int nsIndex, const I& id, const T& value, bool isDateTime = false)
 	{
-		using namespace open62541;
 		if(isDateTime && typeid(value) != typeid(UA_DateTime))
 		{
 			std::ostringstream os;
@@ -568,20 +564,18 @@ private:
 	}
 
 	template <typename T, typename I>
-	open62541::UA_StatusCode writeTypedArray(OPC::Variant& var, int nsIndex, const I& id, const T& value)
+	UA_StatusCode writeTypedArray(OPC::Variant& var, int nsIndex, const I& id, const T& value)
 	{
-		using namespace open62541;
 		typename T::value_type valType = typename T::value_type();
 		UA_Variant_setArrayCopy(var, &value[0], value.size(), &UA_TYPES[getUAType(valType)]);
 		return writeValueAttribute(nsIndex, id, var);
 	}
 
-	open62541::UA_StatusCode writeTypedArray(OPC::Variant& var, int nsIndex, const int& id, const std::vector<std::string>& value);
+	UA_StatusCode writeTypedArray(OPC::Variant& var, int nsIndex, const int& id, const std::vector<std::string>& value);
 
 	template <typename T, typename I>
 	void writeArrayValue(int nsIndex, const I& id, const T& value, bool isDateTime = false)
 	{
-		using namespace open62541;
 		if(isDateTime && typeid(value) != typeid(UA_DateTime))
 		{
 			std::ostringstream os;
@@ -609,12 +603,13 @@ private:
 		}
 	}
 
-	open62541::UA_Client*       _pClient;
-	std::string                 _url;
-	StringList                  _endpointURLs;
-	open62541::UA_BrowseRequest _browseReq;
-	bool                        _typeSafe;
-	TypeCache                   _nodeTypeCache;
+	UA_Client*       _pClient;
+	Poco::Logger&    _logger;
+	std::string      _url;
+	StringList       _endpointURLs;
+	UA_BrowseRequest _browseReq;
+	bool             _typeSafe;
+	TypeCache        _nodeTypeCache;
 	// following members needed to copy-construct the client (remoting requirement)
 	std::string _server;
 	int         _port;

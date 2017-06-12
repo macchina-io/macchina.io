@@ -14,7 +14,7 @@
 
 
 #include "IoT/OPC/Client.h"
-#include <iostream>
+#include "IoT/OPC/UALogger.h"
 
 
 using namespace Poco;
@@ -24,7 +24,7 @@ namespace IoT {
 namespace OPC {
 
 
-using namespace open62541;
+extern Poco::Logger* uaLogger;
 
 
 // Client statuses
@@ -54,18 +54,23 @@ const int Client::OPC_TYPE_STRING = UA_TYPES_STRING;
 const int Client::OPC_TYPE_DATETIME = UA_TYPES_DATETIME;
 
 
-Client::Client(): _pClient(UA_Client_new(UA_ClientConfig_standard))
+Client::Client(Poco::Message::Priority prio): _pClient(UA_Client_new(UA_ClientConfig_standard)),
+	_logger(Poco::Logger::create("IoT_OPC_Server",
+			Poco::AutoPtr<Poco::ConsoleChannel>(new Poco::ConsoleChannel),
+			prio))
 {
 }
 
 
 Client::Client(const std::string& server,
+	Poco::Logger& logger,
 	int port,
 	const std::string& user,
 	const std::string& pass,
 	bool doConnect,
 	bool typeSafe,
 	const std::string& proto): _pClient(UA_Client_new(UA_ClientConfig_standard)),
+		_logger(logger),
 		_typeSafe(typeSafe),
 		_server(server),
 		_port(port),
@@ -78,6 +83,7 @@ Client::Client(const std::string& server,
 
 
 Client::Client(const Client& other): _pClient(UA_Client_new(UA_ClientConfig_standard)),
+	_logger(other._logger),
 	_typeSafe(other._typeSafe),
 	_server(other._server),
 	_port(other._port),
@@ -91,7 +97,10 @@ Client::Client(const Client& other): _pClient(UA_Client_new(UA_ClientConfig_stan
 
 Client& Client::operator = (Client& other)
 {
-	_pClient = UA_Client_new(UA_ClientConfig_standard);
+	UA_ClientConfig config = UA_ClientConfig_standard;
+	uaLogger = &_logger;
+	config.logger = (UA_Logger) UA_Log_POCO;
+	_pClient = UA_Client_new(config);
 	_typeSafe = other._typeSafe;
 	_server = other._server;
 	_port = other._port;
@@ -238,9 +247,8 @@ Poco::DateTime Client::readServerDateTime()
 }
 
 
-open62541::UA_StatusCode Client::readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val) const
+UA_StatusCode Client::readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, UA_Variant* val) const
 {
-	using namespace open62541;
 	if(id.isString())
 	{
 		return UA_Client_readValueAttribute(_pClient, UA_NODEID_STRING(nsIndex, const_cast<char*>(id.toString().c_str())), val);
@@ -254,7 +262,6 @@ open62541::UA_StatusCode Client::readValueAttribute(int nsIndex, const Poco::Dyn
 
 std::string& Client::getTypedValue(OPC::Variant& val, std::string& value) const
 {
-	using namespace open62541;
 	UA_String uaStr;
 	getValue(val, uaStr);
 	value = STDString(uaStr);
@@ -272,9 +279,8 @@ const TypeCache& Client::getTypeCache() const
 }
 
 
-open62541::UA_StatusCode Client::writeValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, open62541::UA_Variant* val)
+UA_StatusCode Client::writeValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, UA_Variant* val)
 {
-	using namespace open62541;
 	if(id.isString())
 	{
 		checkTypeSafety(StringNodeID(nsIndex, id.toString()), val);
@@ -290,9 +296,8 @@ open62541::UA_StatusCode Client::writeValueAttribute(int nsIndex, const Poco::Dy
 }
 
 
-open62541::UA_StatusCode Client::writeTypedArray(OPC::Variant& var, int nsIndex, const int& id, const std::vector<std::string>& value)
+UA_StatusCode Client::writeTypedArray(OPC::Variant& var, int nsIndex, const int& id, const std::vector<std::string>& value)
 {
-	using namespace open62541;
 	UA_String uaStr[value.size()];
 	unsigned i = 0;
 	for(std::vector<std::string>::const_iterator it = value.begin(),
@@ -310,9 +315,8 @@ open62541::UA_StatusCode Client::writeTypedArray(OPC::Variant& var, int nsIndex,
 // browsing/caching
 //
 
-open62541::UA_BrowseResponse Client::browse(int type)
+UA_BrowseResponse Client::browse(int type)
 {
-	using namespace open62541;
 	_browseReq.nodesToBrowse[0].nodeId = UA_NODEID_NUMERIC(0, type);
 	return UA_Client_Service_browse(_pClient, _browseReq);
 }
@@ -320,7 +324,6 @@ open62541::UA_BrowseResponse Client::browse(int type)
 
 void Client::cacheTypes()
 {
-	using namespace open62541;
 	UA_BrowseResponse bResp = browse(UA_NS0ID_OBJECTSFOLDER);
 	for (size_t i = 0; i < bResp.resultsSize; ++i)
 	{
@@ -362,7 +365,6 @@ void Client::cacheTypes()
 
 void Client::printBrowse(std::ostream& os, int type, std::vector<int> colWidths)
 {
-	using namespace open62541;
 	if(colWidths.size() < 1) colWidths.push_back(11);
 	if(colWidths.size() < 2) colWidths.push_back(20);
 	if(colWidths.size() < 3) colWidths.push_back(36);

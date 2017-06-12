@@ -18,7 +18,7 @@
 using namespace Poco;
 using namespace Poco::Dynamic;
 using namespace IoT::OPC;
-using namespace open62541;
+
 
 int main(int argc, char** argv)
 {
@@ -30,29 +30,24 @@ int main(int argc, char** argv)
 		Var id = "the.int.answer";
 		std::string name = "the int answer";
 		srv.addVariableNode(nsIndex, id, 42, UA_TYPES_INT32, false, name, name, name);
-		std::cout << "Added variable node \"" << name << "\", to namespace " << nsIndex << std::endl; 
 
 		nsIndex = srv.addNamespace("ns2");
 		id = "the.double.answer";
 		name = "the double answer";
 		srv.addVariableNode(nsIndex, id, 4.2, UA_TYPES_DOUBLE, false, name, name, name);
-		std::cout << "Added variable node \"" << name << "\", to namespace " << nsIndex << std::endl;
 
 		id = 3;
 		name = "the double answer by ID in ns2";
 		srv.addVariableNode(nsIndex, id, 2.4, UA_TYPES_DOUBLE, false, name, name, name);
-		std::cout << "Added double variable node \"" << name << "\", to namespace " << nsIndex << std::endl;
 
 		id = 4;
 		name = "the string answer by ID in ns2";
 		srv.addVariableNode(nsIndex, id, std::string("abc123"), UA_TYPES_STRING, false, name, name, name);
-		std::cout << "Added string variable node \"" << name << "\", to namespace " << nsIndex << std::endl;
 
 		id = 5;
 		name = "the DateTime answer by ID in ns2";
 		Poco::Int64 ts = IoT::OPC::DateTime::now();
 		srv.addVariableNode(nsIndex, id, ts, UA_TYPES_DATETIME, false, name, name, name);
-		std::cout << "Added DateTime (" << IoT::OPC::DateTime(ts).toString() << ") variable node \"" << name << "\", to namespace " << nsIndex << std::endl;
 
 		srv.run();
 	}

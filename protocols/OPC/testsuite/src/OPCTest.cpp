@@ -25,7 +25,6 @@
 using namespace Poco;
 using namespace Poco::Dynamic;
 using namespace IoT::OPC;
-using namespace open62541;
 
 
 OPCTest::OPCTest(const std::string& name): CppUnit::TestCase("OPC")
@@ -61,7 +60,7 @@ void OPCTest::testString()
 	assert(stdStr.empty());
 
 	const char* cstr = "abcXYZ123";
-	str = open62541::UA_STRING_ALLOC(cstr);
+	str = UA_STRING_ALLOC(cstr);
 	assert((((UA_String) STDString(str)).length) == strlen(cstr));
 	assert(0 == strncmp(reinterpret_cast<const char*>(((UA_String) STDString(str)).data), cstr, str.length));
 	stdStr = STDString(str);
@@ -71,7 +70,7 @@ void OPCTest::testString()
 	str.length = 0;
 
 	stdStr = cstr;
-	str = open62541::UA_STRING(const_cast<char*>(stdStr.c_str()));
+	str = UA_STRING(const_cast<char*>(stdStr.c_str()));
 	assert(str.length == stdStr.size());
 	assert(0 == strncmp(reinterpret_cast<const char*>(str.data), stdStr.c_str(), stdStr.size()));
 	str.data = 0;
@@ -170,9 +169,9 @@ void OPCTest::testEmptyNodeID()
 }
 
 
-void printDataType(const open62541::UA_NodeId& nIDType)
+void printDataType(const UA_NodeId& nIDType)
 {
-	const open62541::UA_DataType* pDT = open62541::UA_findDataType(&nIDType);
+	const UA_DataType* pDT = UA_findDataType(&nIDType);
 	if(pDT)
 	{
 		std::cout << "name: " << pDT->typeName << std::endl;
@@ -206,7 +205,7 @@ void OPCTest::testNumericNodeID()
 	assert(0 == nodeID.getIDType());
 	NodeID::Type t = nodeID.getType();
 	assert(1 == t.namespaceIndex);
-	assert(open62541::UA_NODEIDTYPE_NUMERIC == t.identifierType);
+	assert(UA_NODEIDTYPE_NUMERIC == t.identifierType);
 	assert(2 == t.identifier.numeric);
 
 	assert(2 == nodeID.getNumeric());
@@ -241,18 +240,18 @@ void OPCTest::testStringNodeID()
 {
 	const char* cstr = "abc.123.xyz";
 	NodeID nodeID(1, cstr);
-	open62541::UA_DataType dt;
-	open62541::UA_new(&dt);
+	UA_DataType dt;
+	UA_new(&dt);
 	assert(!nodeID.isNumeric());
 	assert(nodeID.isString());
 	assert(!nodeID.isByteString());
 	assert(!nodeID.isGuid());
 	assert(!nodeID.isNull());
 	assert(1 == nodeID.getNSIndex());
-	assert(open62541::UA_NODEIDTYPE_STRING == nodeID.getIDType());
+	assert(UA_NODEIDTYPE_STRING == nodeID.getIDType());
 	NodeID::Type t = nodeID.getType();
 	assert(1 == t.namespaceIndex);
-	assert(open62541::UA_NODEIDTYPE_STRING == t.identifierType);
+	assert(UA_NODEIDTYPE_STRING == t.identifierType);
 	assert(t.identifier.string.length == strlen(cstr));
 	assert(0 == strncmp(cstr, (const char*) t.identifier.string.data, strlen(cstr)));
 
@@ -296,10 +295,10 @@ void OPCTest::testByteStringNodeID()
 	assert(!nodeID.isGuid());
 	assert(!nodeID.isNull());
 	assert(1 == nodeID.getNSIndex());
-	assert(open62541::UA_NODEIDTYPE_BYTESTRING == nodeID.getIDType());
+	assert(UA_NODEIDTYPE_BYTESTRING == nodeID.getIDType());
 	NodeID::Type t = nodeID.getType();
 	assert(1 == t.namespaceIndex);
-	assert(open62541::UA_NODEIDTYPE_BYTESTRING == t.identifierType);
+	assert(UA_NODEIDTYPE_BYTESTRING == t.identifierType);
 	assert(t.identifier.byteString.length == bstr.size());
 	assert(0 == memcmp(&bstr[0], t.identifier.byteString.data, bstr.size()));
 
@@ -343,10 +342,10 @@ void OPCTest::testGuidNodeID()
 	assert(nodeID.isGuid());
 	assert(!nodeID.isNull());
 	assert(1 == nodeID.getNSIndex());
-	assert(open62541::UA_NODEIDTYPE_GUID == nodeID.getIDType());
+	assert(UA_NODEIDTYPE_GUID == nodeID.getIDType());
 	NodeID::Type t = nodeID.getType();
 	assert(1 == t.namespaceIndex);
-	assert(open62541::UA_NODEIDTYPE_GUID == t.identifierType);
+	assert(UA_NODEIDTYPE_GUID == t.identifierType);
 
 	assert(nodeID.getGuid() == uuid);
 

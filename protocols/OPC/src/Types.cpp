@@ -88,7 +88,7 @@ void UAString::allocate(const unsigned char* data, std::size_t length)
 {
 	if((_to.length = length))
 	{
-		_to.data = (open62541::UA_Byte*) UA_malloc(_to.length);
+		_to.data = (UA_Byte*) UA_malloc(_to.length);
 		std::memcpy(_to.data, data, _to.length);
 	}
 }
@@ -158,7 +158,7 @@ void STDString::assign(const char* data, std::size_t length)
 // Variant
 //
 
-Variant::Variant(): _pVariant(open62541::UA_Variant_new())
+Variant::Variant(): _pVariant(UA_Variant_new())
 {
 	poco_check_ptr(_pVariant);
 }
@@ -170,19 +170,19 @@ Variant::~Variant()
 }
 
 
-Variant::operator open62541::UA_Variant*()
+Variant::operator UA_Variant*()
 {
 	return _pVariant;
 }
 
 
-Variant::operator const open62541::UA_Variant*() const
+Variant::operator const UA_Variant*() const
 {
 	return _pVariant;
 }
 
 
-Variant::operator open62541::UA_Variant&()
+Variant::operator UA_Variant&()
 {
 	poco_check_ptr(_pVariant);
 	return *_pVariant;
@@ -195,7 +195,7 @@ bool Variant::hasData() const
 }
 
 
-const open62541::UA_DataType& Variant::type() const
+const UA_DataType& Variant::type() const
 {
 	poco_check_ptr(_pVariant);
 	poco_check_ptr(_pVariant->type);
@@ -230,13 +230,13 @@ DateTime::DateTime(int year, int month, int day,
 
 DateTime::DateTime(Poco::UInt64 ts)
 {
-	open62541::UA_DateTimeStruct uDTS = open62541::UA_DateTime_toStruct(ts);
+	UA_DateTimeStruct uDTS = UA_DateTime_toStruct(ts);
 	assign(uDTS.year, uDTS.month, uDTS.day, uDTS.hour, uDTS.min, uDTS.sec, uDTS.milliSec, uDTS.microSec);
 	_nanosecond = uDTS.nanoSec;
 }
 
 
-DateTime::DateTime(open62541::UA_DateTimeStruct uDTS)
+DateTime::DateTime(UA_DateTimeStruct uDTS)
 {
 	assign(uDTS.year, uDTS.month, uDTS.day, uDTS.hour, uDTS.min, uDTS.sec, uDTS.milliSec, uDTS.microSec);
 	_nanosecond = uDTS.nanoSec;
@@ -272,7 +272,7 @@ DateTime& DateTime::operator = (const DateTime& dt)
 
 DateTime& DateTime::operator = (Poco::UInt64 ts)
 {
-	open62541::UA_DateTimeStruct uDTS = open62541::UA_DateTime_toStruct(ts);
+	UA_DateTimeStruct uDTS = UA_DateTime_toStruct(ts);
 	assign(uDTS.year, uDTS.month, uDTS.day, uDTS.hour, uDTS.min, uDTS.sec, uDTS.milliSec, uDTS.microSec);
 	_nanosecond = uDTS.nanoSec;
 	return *this;
@@ -345,7 +345,7 @@ std::string DateTime::toString() const
 
 Int64 DateTime::now()
 {
-	return open62541::UA_DateTime_now();
+	return UA_DateTime_now();
 }
 
 
@@ -363,7 +363,7 @@ void DateTime::printNumber(Poco::UInt16 n, char* pos, size_t digits)
 // NodeID
 //
 
-NodeID::NodeID(): _nodeId(open62541::UA_NODEID_NULL)
+NodeID::NodeID(): _nodeId(UA_NODEID_NULL)
 {
 }
 
@@ -377,10 +377,10 @@ NodeID::NodeID(int nsIndex, UInt32 value)
 NodeID::NodeID(int nsIndex, const std::string& str)
 {
 	std::size_t length = str.size();
-	const open62541::UA_Byte* data = length ?
-			reinterpret_cast<const open62541::UA_Byte*>(str.data()) :
-			reinterpret_cast<const open62541::UA_Byte*>(0);
-	assignString(nsIndex, length, data, open62541::UA_NODEIDTYPE_STRING);
+	const UA_Byte* data = length ?
+			reinterpret_cast<const UA_Byte*>(str.data()) :
+			reinterpret_cast<const UA_Byte*>(0);
+	assignString(nsIndex, length, data, UA_NODEIDTYPE_STRING);
 }
 
 
@@ -393,8 +393,8 @@ NodeID::NodeID(int nsIndex, const Poco::UUID& value)
 NodeID::NodeID(int nsIndex, const ByteStringType& val)
 {
 	std::size_t length = val.size();
-	const open62541::UA_Byte* data = length ? &val[0] : reinterpret_cast<const open62541::UA_Byte*>(0);
-	assignString(nsIndex, length, data, open62541::UA_NODEIDTYPE_BYTESTRING);
+	const UA_Byte* data = length ? &val[0] : reinterpret_cast<const UA_Byte*>(0);
+	assignString(nsIndex, length, data, UA_NODEIDTYPE_BYTESTRING);
 }
 
 
@@ -407,18 +407,18 @@ NodeID::NodeID(const NodeID& other)
 NodeID::NodeID(const Type& other)
 {
 	UInt16 nsIndex = other.namespaceIndex;
-	open62541::UA_NodeIdType idType = other.identifierType;
+	UA_NodeIdType idType = other.identifierType;
 	switch(idType)
 	{
-	case open62541::UA_NODEIDTYPE_NUMERIC:
+	case UA_NODEIDTYPE_NUMERIC:
 		assignNumeric(nsIndex, other.identifier.numeric);
 		break;
-	case open62541::UA_NODEIDTYPE_STRING:
-	case open62541::UA_NODEIDTYPE_BYTESTRING:
+	case UA_NODEIDTYPE_STRING:
+	case UA_NODEIDTYPE_BYTESTRING:
 	{
 		std::size_t length = 0;
-		const open62541::UA_Byte* data = 0;
-		if(idType == open62541::UA_NODEIDTYPE_STRING)
+		const UA_Byte* data = 0;
+		if(idType == UA_NODEIDTYPE_STRING)
 		{
 			length = other.identifier.string.length;
 			if(length) data = other.identifier.string.data;
@@ -431,7 +431,7 @@ NodeID::NodeID(const Type& other)
 		assignString(nsIndex, length, data, idType);
 		break;
 	}
-	case open62541::UA_NODEIDTYPE_GUID:
+	case UA_NODEIDTYPE_GUID:
 		assignGuid(nsIndex, other.identifier.guid);
 		break;
 	}
@@ -452,7 +452,7 @@ NodeID& NodeID::operator = (const NodeID& other)
 
 Boolean NodeID::operator == (const NodeID& other) const
 {
-	return open62541::UA_NodeId_equal(&_nodeId, &other._nodeId);
+	return UA_NodeId_equal(&_nodeId, &other._nodeId);
 }
 
 
@@ -464,7 +464,7 @@ Boolean NodeID::operator != (const NodeID& other) const
 
 Boolean NodeID::isNull() const
 {
-	return open62541::UA_NodeId_isNull(&_nodeId);
+	return UA_NodeId_isNull(&_nodeId);
 }
 
 
@@ -485,21 +485,21 @@ void NodeID::throwIf(bool cond) const
 void NodeID::assign(const NodeID& other)
 {
 	UInt16 nsIndex = other._nodeId.namespaceIndex;
-	open62541::UA_NodeIdType idType = other._nodeId.identifierType;
+	UA_NodeIdType idType = other._nodeId.identifierType;
 	switch(idType)
 	{
-	case open62541::UA_NODEIDTYPE_NUMERIC:
+	case UA_NODEIDTYPE_NUMERIC:
 		assignNumeric(nsIndex, other._nodeId.identifier.numeric);
 		break;
-	case open62541::UA_NODEIDTYPE_STRING:
-	case open62541::UA_NODEIDTYPE_BYTESTRING:
+	case UA_NODEIDTYPE_STRING:
+	case UA_NODEIDTYPE_BYTESTRING:
 	{
 		std::size_t length = other._buf.size();
-		const open62541::UA_Byte* data = length ? &other._buf[0] : 0;
+		const UA_Byte* data = length ? &other._buf[0] : 0;
 		assignString(nsIndex, length, data, idType);
 		break;
 	}
-	case open62541::UA_NODEIDTYPE_GUID:
+	case UA_NODEIDTYPE_GUID:
 		assignGuid(nsIndex, other._nodeId.identifier.guid);
 		break;
 	}
@@ -509,12 +509,12 @@ void NodeID::assign(const NodeID& other)
 void NodeID::assignNumeric(int nsIndex, UInt32 value)
 {
 	_nodeId.namespaceIndex = nsIndex;
-	_nodeId.identifierType = open62541::UA_NODEIDTYPE_NUMERIC;
+	_nodeId.identifierType = UA_NODEIDTYPE_NUMERIC;
 	_nodeId.identifier.numeric = value;
 }
 
 
-void NodeID::assignString(int nsIndex, std::size_t length, const open62541::UA_Byte* data, open62541::UA_NodeIdType type)
+void NodeID::assignString(int nsIndex, std::size_t length, const UA_Byte* data, UA_NodeIdType type)
 {
 	_nodeId.namespaceIndex = nsIndex;
 	_nodeId.identifierType = type;
@@ -530,12 +530,12 @@ void NodeID::assignString(int nsIndex, std::size_t length, const open62541::UA_B
 			throw Poco::NullPointerException("OPC::NodeID assignment: length > 0, data == null.");
 		}
 	}
-	if(type == open62541::UA_NODEIDTYPE_STRING)
+	if(type == UA_NODEIDTYPE_STRING)
 	{
 		_nodeId.identifier.string.length = length;
 		_nodeId.identifier.string.data = length ? &_buf[0] : 0;
 	}
-	else if(type == open62541::UA_NODEIDTYPE_BYTESTRING)
+	else if(type == UA_NODEIDTYPE_BYTESTRING)
 	{
 		_nodeId.identifier.byteString.length = length;
 		_nodeId.identifier.byteString.data = length ? &_buf[0] : 0;
@@ -547,10 +547,10 @@ void NodeID::assignString(int nsIndex, std::size_t length, const open62541::UA_B
 }
 
 
-void NodeID::assignGuid(int nsIndex, const open62541::UA_Guid& value)
+void NodeID::assignGuid(int nsIndex, const UA_Guid& value)
 {
 	_nodeId.namespaceIndex = nsIndex;
-	_nodeId.identifierType = open62541::UA_NODEIDTYPE_GUID;
+	_nodeId.identifierType = UA_NODEIDTYPE_GUID;
 	_nodeId.identifier.guid = value;
 }
 
@@ -580,28 +580,28 @@ bool NodeID::isNumeric() const
 {
 	if(isNull()) return false;
 	return _nodeId.identifierType >= 0 &&
-		_nodeId.identifierType < open62541::UA_NODEIDTYPE_STRING;
+		_nodeId.identifierType < UA_NODEIDTYPE_STRING;
 }
 
 
 bool NodeID::isString() const
 {
 	if(isNull()) return false;
-	return _nodeId.identifierType == open62541::UA_NODEIDTYPE_STRING;
+	return _nodeId.identifierType == UA_NODEIDTYPE_STRING;
 }
 
 
 bool NodeID::isByteString() const
 {
 	if(isNull()) return false;
-	return _nodeId.identifierType == open62541::UA_NODEIDTYPE_BYTESTRING;
+	return _nodeId.identifierType == UA_NODEIDTYPE_BYTESTRING;
 }
 
 
 bool NodeID::isGuid() const
 {
 	if(isNull()) return false;
-	return _nodeId.identifierType == open62541::UA_NODEIDTYPE_GUID;
+	return _nodeId.identifierType == UA_NODEIDTYPE_GUID;
 }
 
 
@@ -637,34 +637,34 @@ UUID NodeID::getGuid() const
 }
 
 
-open62541::UA_Guid NodeID::toUA(const Poco::UUID& uuid)
+UA_Guid NodeID::toUA(const Poco::UUID& uuid)
 {
-	open62541::UA_Guid guid;
+	UA_Guid guid;
 	char buffer[16];
 	uuid.copyTo(buffer);
-	open62541::UA_UInt32 ui32;
-	open62541::UA_UInt16 ui16;
-	std::memcpy(&ui32, &buffer[0], sizeof(open62541::UA_UInt32));
+	UA_UInt32 ui32;
+	UA_UInt16 ui16;
+	std::memcpy(&ui32, &buffer[0], sizeof(UA_UInt32));
 	guid.data1 = ByteOrder::fromNetwork(ui32);
-	std::memcpy(&ui16, &buffer[4], sizeof(open62541::UA_UInt16));
+	std::memcpy(&ui16, &buffer[4], sizeof(UA_UInt16));
 	guid.data2 = ByteOrder::fromNetwork(ui16);
-	std::memcpy(&ui16, &buffer[6], sizeof(open62541::UA_UInt16));
+	std::memcpy(&ui16, &buffer[6], sizeof(UA_UInt16));
 	guid.data3 = ByteOrder::fromNetwork(ui16);
 	std::memcpy(guid.data4, &buffer[8], 8);
 	return guid;
 }
 
 
-Poco::UUID NodeID::toPoco(const open62541::UA_Guid& guid)
+Poco::UUID NodeID::toPoco(const UA_Guid& guid)
 {
 	Poco::UUID uuid;
 	char buffer[16];
-	open62541::UA_UInt32 ui32 = ByteOrder::toNetwork(guid.data1);
-	std::memcpy(&buffer[0], &ui32, sizeof(open62541::UA_UInt32));
-	open62541::UA_UInt16 ui16 = ByteOrder::toNetwork(guid.data2);
-	std::memcpy(&buffer[4], &ui16, sizeof(open62541::UA_UInt16));
+	UA_UInt32 ui32 = ByteOrder::toNetwork(guid.data1);
+	std::memcpy(&buffer[0], &ui32, sizeof(UA_UInt32));
+	UA_UInt16 ui16 = ByteOrder::toNetwork(guid.data2);
+	std::memcpy(&buffer[4], &ui16, sizeof(UA_UInt16));
 	ui16 = ByteOrder::toNetwork(guid.data3);
-	std::memcpy(&buffer[6], &ui16, sizeof(open62541::UA_UInt16));
+	std::memcpy(&buffer[6], &ui16, sizeof(UA_UInt16));
 	std::memcpy(&buffer[8], guid.data4, 8);
 	uuid.copyFrom(buffer);
 	return uuid;

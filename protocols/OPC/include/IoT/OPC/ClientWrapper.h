@@ -33,7 +33,8 @@ class OPC_API ClientHolder
 {
 public:
 	ClientHolder(const std::string& server,
-		int port = 16664,
+		Poco::Logger& logger,
+		int port = OPC_STANDARD_PORT,
 		const std::string& user = "",
 		const std::string& pass = "",
 		bool doConnect = true,

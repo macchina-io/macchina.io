@@ -22,7 +22,12 @@
 #include "IoT/OPC/OPC.h"
 #include "IoT/OPC/Types.h"
 #include "Poco/Runnable.h"
+#include "Poco/Logger.h"
+#include "Poco/Message.h"
+#include "Poco/ConsoleChannel.h"
+#include "Poco/AutoPtr.h"
 #include "Poco/Any.h"
+
 
 namespace Poco {
 namespace Dynamic {
@@ -31,23 +36,25 @@ namespace Dynamic {
 
 } } // namespace Poco::Dynamic
 
-namespace IoT {
-namespace OPC {
-namespace open62541 {
 
 struct UA_Server;
 struct UA_ServerNetworkLayer;
 
-}
 
-using namespace open62541;
+namespace IoT {
+namespace OPC {
+
 
 class OPC_API Server : public Poco::Runnable
 	/// This class represents an OPC Server.
 {
 public:
+	Server(int port, Poco::Message::Priority prio = Poco::Message::PRIO_INFORMATION);
+		/// Creates the Server.
 	
-	Server(int port = OPC_STANDARD_PORT);
+	Server(Poco::Logger& logger = Poco::Logger::create("IoT_OPC_Server",
+			Poco::AutoPtr<Poco::ConsoleChannel>(new Poco::ConsoleChannel)),
+		int port = OPC_STANDARD_PORT);
 		/// Creates the Server.
 
 	~Server();
@@ -58,6 +65,11 @@ public:
 
 	void stop();
 		/// Stops the Server.
+
+	void setLogLevel(Poco::Message::Priority prio)
+	{
+		_logger.setLevel(prio);
+	}
 
 	int addNamespace(const std::string& id);
 
@@ -74,22 +86,32 @@ public:
 		const std::string& loc = "en_US");
 
 private:
+	void init();
+	static UA_ServerNetworkLayer* makeServerNetworkLayer(int port);
+
 	const void* convertPOD(const Poco::Any& value, int type);
 	const void* convertPODArray(const Poco::Any& value, int type, std::size_t& sz);
 	const void* convertString(const Poco::Any& value, UA_String& str);
 	const void* convertStringArray(const Poco::Any& value, std::vector<UA_String>& str);
 
-	open62541::UA_Server*             _pServer;
-	open62541::UA_ServerNetworkLayer* _pNetworkLayer;
-	bool                              _running;
-	bool                              _done;
-	std::string                       _error;
+	UA_Server*             _pServer;
+	Poco::Logger&          _logger;
+	UA_ServerNetworkLayer* _pNetworkLayer;
+	bool                   _running;
+	bool                   _done;
+	std::string            _error;
 };
 
 
 //
 // inlines
 //
+
+UA_ServerNetworkLayer* Server::makeServerNetworkLayer(int port)
+{
+	return new UA_ServerNetworkLayer(UA_ServerNetworkLayerTCP(UA_ConnectionConfig_standard, static_cast<UA_UInt16>(port)));
+}
+
 
 } } // namespace IoT::OPC
 

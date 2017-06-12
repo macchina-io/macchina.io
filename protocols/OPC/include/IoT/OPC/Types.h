@@ -26,23 +26,17 @@
 #include "Poco/UUID.h"
 #include "Poco/StringTokenizer.h"
 #include "Poco/Dynamic/VarHolder.h"
+#include "open62541.h"
 #include <vector>
 #include <cstring>
 
 
 namespace IoT {
 namespace OPC {
-namespace open62541 {
-
-
-#include "open62541.h"
-
-
-}
 
 extern const Poco::UInt16 OPC_STANDARD_PORT;
 
-typedef open62541::UA_StatusCode StatusCode;
+typedef UA_StatusCode StatusCode;
 	/// A numeric identifier for an error or condition that is associated with a value
 	/// or an operation.
 
@@ -67,14 +61,14 @@ typedef bool Boolean;
 typedef unsigned char Byte;
 	/// This Built-in DataType defines a value in the range of 0 to 255.
 
-typedef open62541::UA_String String;
-typedef open62541::UA_ByteString ByteString;
+typedef UA_String String;
+typedef UA_ByteString ByteString;
 
 
 class OPC_API UAString
 	/// A string conversion utility class with value semantics.
 	/// It can be constructed from std::string and provides
-	/// implicit conversion to/from open62541::UA_String.
+	/// implicit conversion to/from UA_String.
 {
 public:
 	UAString();
@@ -120,7 +114,7 @@ private:
 
 class OPC_API STDString
 	/// A string conversion utility class with value semantics.
-	/// It can be constructed from open62541::UA_String and provides
+	/// It can be constructed from UA_String and provides
 	/// implicit conversion to/from std::string.
 {
 public:
@@ -167,15 +161,15 @@ public:
 
 	~Variant();
 
-	operator open62541::UA_Variant*();
+	operator UA_Variant*();
 
-	operator const open62541::UA_Variant*() const;
+	operator const UA_Variant*() const;
 
-	operator open62541::UA_Variant&();
+	operator UA_Variant&();
 
 	bool hasData() const;
 
-	const open62541::UA_DataType& type() const;
+	const UA_DataType& type() const;
 
 	bool isArray() const;
 
@@ -183,7 +177,7 @@ private:
 	Variant(const Variant&);
 	Variant& operator = (const Variant&);
 
-	open62541::UA_Variant* _pVariant;
+	UA_Variant* _pVariant;
 };
 
 
@@ -204,7 +198,7 @@ public:
 	DateTime(Poco::UInt64 ts);
 		/// Creates the DateTime.
 
-	DateTime(open62541::UA_DateTimeStruct uDTS);
+	DateTime(UA_DateTimeStruct uDTS);
 		/// Creates the DateTime.
 
 	DateTime(const std::string& str);
@@ -274,32 +268,32 @@ typedef ByteString ImageJPG;
 typedef ByteString ImagePNG;
 	/// This abstract DataType defines a ByteString representing an image in PNG format.
 
-typedef open62541::UA_Int64 Integer;
+typedef UA_Int64 Integer;
 
-typedef open62541::UA_Int16 Int16;
+typedef UA_Int16 Int16;
 	/// This Built-in DataType defines a value that is a signed integer between −32,768 and 32,767 inclusive.
 
-typedef open62541::UA_Int32 Int32;
+typedef UA_Int32 Int32;
 	/// This Built-in DataType defines a value that is a signed integer between −2,147,483,648 and 2,147,483,647
 	/// inclusive.
 
-typedef open62541::UA_Int64 Int64;
+typedef UA_Int64 Int64;
 	/// This Built-in DataType defines a value that is a signed integer between −9,223,372,036,854,775,808 and
 	/// 9,223,372,036,854,775,807 inclusive.
 
 typedef double Number;
 	/// This abstract DataType defines a number.
 
-typedef open62541::UA_UInt64 UInteger;
+typedef UA_UInt64 UInteger;
 	/// This abstract DataType defines an unsigned integer
 
-typedef open62541::UA_UInt16 UInt16;
+typedef UA_UInt16 UInt16;
 	/// This Built-in DataType defines a value that is an unsigned integer between 0 and 65,535 inclusive.
 
-typedef open62541::UA_UInt32 UInt32;
+typedef UA_UInt32 UInt32;
 /// This Built-in DataType defines a value that is an unsigned integer between 0 and 4,294,967,295 inclusive.
 
-typedef open62541::UA_UInt16 UInt16;
+typedef UA_UInt16 UInt16;
 	/// This Built-in DataType defines a value that is an unsigned integer between 0 and 18 446,744,073,709,551,615 inclusive.
 
 typedef ByteString AudioData;
@@ -312,9 +306,9 @@ class OPC_API NodeID
 	/// This class represents an OPC Node identifier.
 {
 public:
-	typedef std::vector<open62541::UA_Byte> ByteStringType;
-	typedef open62541::UA_NodeId Type;
-	typedef open62541::UA_NodeIdType IDType;
+	typedef std::vector<UA_Byte> ByteStringType;
+	typedef UA_NodeId Type;
+	typedef UA_NodeIdType IDType;
 
 	NodeID();
 		/// Creates a null NodeID.
@@ -386,8 +380,8 @@ public:
 		/// Returns the node ID guid value.
 		/// Throws if node ID is null or not guid.
 
-	static open62541::UA_Guid toUA(const Poco::UUID& uuid);
-	static Poco::UUID toPoco(const open62541::UA_Guid& guid);
+	static UA_Guid toUA(const Poco::UUID& uuid);
+	static Poco::UUID toPoco(const UA_Guid& guid);
 
 private:
 	NodeID(const Type& other);
@@ -397,8 +391,8 @@ private:
 	void throwIf(bool cond) const;
 	void assign(const NodeID& other);
 	void assignNumeric(int nsIndex, UInt32 value);
-	void assignString(int nsIndex, std::size_t length, const open62541::UA_Byte* data, open62541::UA_NodeIdType type);
-	void assignGuid(int nsIndex, const open62541::UA_Guid& value);
+	void assignString(int nsIndex, std::size_t length, const UA_Byte* data, UA_NodeIdType type);
+	void assignGuid(int nsIndex, const UA_Guid& value);
 
 	Type           _nodeId;
 	ByteStringType _buf;
@@ -410,7 +404,7 @@ private:
 class OPC_API DataTypeMember
 {
 public:
-	typedef open62541::UA_DataTypeMember Type;
+	typedef UA_DataTypeMember Type;
 
 	DataTypeMember(UInt16 index = 0,
 		const std::string& name = "",
@@ -571,7 +565,7 @@ struct TimeZoneDataType
 
 inline std::string getError(UInt32 val)
 {
-	return std::string(open62541::UA_StatusCode_name(val)) + ": " + open62541::UA_StatusCode_explanation(val);
+	return std::string(UA_StatusCode_name(val)) + ": " + UA_StatusCode_explanation(val);
 }
 
 

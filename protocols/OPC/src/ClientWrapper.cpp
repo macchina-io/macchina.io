@@ -25,12 +25,13 @@ namespace OPC {
 
 
 ClientHolder::ClientHolder(const std::string& server,
+		Poco::Logger& logger,
 		int port,
 		const std::string& user,
 		const std::string& pass,
 		bool doConnect,
 		bool typeSafe,
-		const std::string& proto): _client(server, port, user, pass, doConnect, typeSafe, proto)
+		const std::string& proto): _client(server, logger, port, user, pass, doConnect, typeSafe, proto)
 {
 }
 
@@ -80,6 +81,8 @@ v8::Handle<v8::ObjectTemplate> ClientWrapper::objectTemplate(v8::Isolate* pIsola
 void ClientWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	std::string server;
+	Poco::Logger& logger = Poco::Logger::create("IoT_OPC_ClientWrapper",
+							Poco::AutoPtr<Poco::ConsoleChannel>(new Poco::ConsoleChannel));
 	int port = OPC_STANDARD_PORT;
 	std::string user;
 	std::string pass;
@@ -129,7 +132,7 @@ void ClientWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 	ClientHolder* pClientHolder = 0;
 	try
 	{
-		pClientHolder = new ClientHolder(server, port, user, pass, doConnect, typeSafe, proto);
+		pClientHolder = new ClientHolder(server, logger, port, user, pass, doConnect, typeSafe, proto);
 		ClientWrapper wrapper;
 		v8::Persistent<v8::Object>& clientObject(wrapper.wrapNativePersistent(args.GetIsolate(), pClientHolder));
 		args.GetReturnValue().Set(clientObject);
