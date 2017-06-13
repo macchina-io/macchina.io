@@ -54,23 +54,28 @@ const int Client::OPC_TYPE_STRING = UA_TYPES_STRING;
 const int Client::OPC_TYPE_DATETIME = UA_TYPES_DATETIME;
 
 
-Client::Client(Poco::Message::Priority prio): _pClient(UA_Client_new(UA_ClientConfig_standard)),
-	_logger(Poco::Logger::create("IoT_OPC_Server",
+Client::Client(const std::string& server, Poco::Message::Priority prio): _pClient(nullptr),
+	_pLogger(&Poco::Logger::create("IoT_OPC_Client",
 			Poco::AutoPtr<Poco::ConsoleChannel>(new Poco::ConsoleChannel),
-			prio))
+			prio)),
+	_typeSafe(true),
+	_server(server),
+	_port(OPC_STANDARD_PORT),
+	_proto("opc.tcp")
 {
+	init(true);
 }
 
 
 Client::Client(const std::string& server,
-	Poco::Logger& logger,
+	Poco::Logger* logger,
 	int port,
 	const std::string& user,
 	const std::string& pass,
 	bool doConnect,
 	bool typeSafe,
-	const std::string& proto): _pClient(UA_Client_new(UA_ClientConfig_standard)),
-		_logger(logger),
+	const std::string& proto): _pClient(nullptr),
+		_pLogger(logger),
 		_typeSafe(typeSafe),
 		_server(server),
 		_port(port),
@@ -82,8 +87,8 @@ Client::Client(const std::string& server,
 }
 
 
-Client::Client(const Client& other): _pClient(UA_Client_new(UA_ClientConfig_standard)),
-	_logger(other._logger),
+Client::Client(const Client& other): _pClient(nullptr),
+	_pLogger(other._pLogger),
 	_typeSafe(other._typeSafe),
 	_server(other._server),
 	_port(other._port),
@@ -97,10 +102,7 @@ Client::Client(const Client& other): _pClient(UA_Client_new(UA_ClientConfig_stan
 
 Client& Client::operator = (Client& other)
 {
-	UA_ClientConfig config = UA_ClientConfig_standard;
-	uaLogger = &_logger;
-	config.logger = (UA_Logger) UA_Log_POCO;
-	_pClient = UA_Client_new(config);
+	_pLogger = other._pLogger;
 	_typeSafe = other._typeSafe;
 	_server = other._server;
 	_port = other._port;
@@ -123,9 +125,13 @@ Client::~Client()
 
 void Client::init(bool doConnect)
 {
-	setURL(_server, _port, _proto);
+	UA_ClientConfig config = UA_ClientConfig_standard;
+	uaLogger = _pLogger;
+	config.logger = (UA_Logger) UA_Log_POCO;
+	_pClient = UA_Client_new(config);
 	if(getState() != OPC_CLIENT_READY)
 		throw IllegalStateException("OPC client not ready");
+	setURL(_server, _port, _proto);
 	getEndpointURLs();
 	UA_BrowseRequest_init(&_browseReq);
 	_browseReq.requestedMaxReferencesPerNode = 0;
@@ -151,6 +157,8 @@ void Client::connect(const std::string& user, const std::string& pass)
 
 	if(getState() != OPC_CLIENT_CONNECTED)
 		throw IllegalStateException(getError(retval));
+
+	_pLogger->information("OPC Client: connected.");
 }
 
 
@@ -165,9 +173,10 @@ void Client::disconnect()
 		}
 		else
 		{
-			//todo: proper logging
-			std::cout << getError(retval) << std::endl;
+			_pLogger->error(getError(retval));
 		}
+
+		_pLogger->information("OPC Client: disconnected.");
 	}
 }
 
@@ -286,13 +295,9 @@ UA_StatusCode Client::writeValueAttribute(int nsIndex, const Poco::Dynamic::Var&
 		checkTypeSafety(StringNodeID(nsIndex, id.toString()), val);
 		return UA_Client_writeValueAttribute(_pClient, UA_NODEID_STRING(nsIndex, const_cast<char*>(id.toString().c_str())), val);
 	}
-	else
-	{
-		checkTypeSafety(IntNodeID(nsIndex, id.convert<int>()), val);
-		return UA_Client_writeValueAttribute(_pClient, UA_NODEID_NUMERIC(nsIndex, id), val);
-	}
-	throw Poco::InvalidAccessException("OPC::Client::writeValueAttribute(): "
-		"Illegal write attempted (type mismatch in type-safe mode?)");
+
+	checkTypeSafety(IntNodeID(nsIndex, id.convert<int>()), val);
+	return UA_Client_writeValueAttribute(_pClient, UA_NODEID_NUMERIC(nsIndex, id), val);
 }
 
 
@@ -324,6 +329,7 @@ UA_BrowseResponse Client::browse(int type)
 
 void Client::cacheTypes()
 {
+	_nodeTypeCache.clear();
 	UA_BrowseResponse bResp = browse(UA_NS0ID_OBJECTSFOLDER);
 	for (size_t i = 0; i < bResp.resultsSize; ++i)
 	{
@@ -338,9 +344,11 @@ void Client::cacheTypes()
 				int nodeID = ref->nodeId.nodeId.identifier.numeric;
 				if(getValueNodeType(nsIndex, nodeID, var))
 				{
-					/*std::cout << "Caching Node: (" << nsIndex << ", " << nodeID << "), TYPE: ";
-					if(var.isArray()) { std::cout << "[" << var.type().typeIndex << ']' << std::endl; }
-					else { std::cout << var.type().typeIndex << std::endl; }*/
+					std::ostringstream os;
+					os << "Caching Node: (" << nsIndex << ", " << nodeID << "), TYPE: ";
+					if(var.isArray()) { os << "[" << var.type().typeIndex << ']' << std::endl; }
+					else { os << var.type().typeIndex << std::endl; }
+					_pLogger->trace(os.str());
 					_nodeTypeCache.add(IntNodeID(nsIndex, nodeID), var.type().typeIndex, var.isArray());
 				}
 			}
@@ -350,9 +358,11 @@ void Client::cacheTypes()
 				std::string nID = std::string((char*) nodeID.data, nodeID.length);
 				if(getValueNodeType(nsIndex, nID, var))
 				{
-					/*std::cout << "Caching Node: (" << nsIndex << ", " << nID << "), TYPE: ";
-					if(var.isArray()) { std::cout << "[" << var.type().typeIndex << ']' << std::endl; }
-					else { std::cout << var.type().typeIndex << std::endl; }*/
+					std::ostringstream os;
+					os << "Caching Node: (" << nsIndex << ", " << nID << "), TYPE: ";
+					if(var.isArray()) { os << "[" << var.type().typeIndex << ']' << std::endl; }
+					else { os << var.type().typeIndex << std::endl; }
+					_pLogger->trace(os.str());
 					_nodeTypeCache.add(StringNodeID(nsIndex, nID), var.type().typeIndex, var.isArray());
 				}
 			}

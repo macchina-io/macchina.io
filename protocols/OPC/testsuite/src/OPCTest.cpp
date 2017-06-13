@@ -482,7 +482,7 @@ void OPCTest::testClient()
 {
 	try
 	{
-		Server server;
+		Server server(OPC_STANDARD_PORT/*, Message::PRIO_TRACE*/);
 
 		int nsIndex = 1;
 		Var id = "the.int.answer";
@@ -521,7 +521,7 @@ void OPCTest::testClient()
 
 		Thread::sleep(100);
 
-		Client client("localhost");
+		Client client("localhost"/*, Message::PRIO_TRACE*/);
 		while(!client.isConnected()) Thread::sleep(10);
 
 		const TypeCache& cache = client.getTypeCache();

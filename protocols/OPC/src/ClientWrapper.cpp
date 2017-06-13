@@ -15,9 +15,13 @@
 
 
 #include "IoT/OPC/ClientWrapper.h"
+#include "IoT/OPC/TypeCache.h"
 #include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/Types.h"
 #include "Poco/Format.h"
+
+
+using Poco::Dynamic::Var;
 
 
 namespace IoT {
@@ -25,13 +29,13 @@ namespace OPC {
 
 
 ClientHolder::ClientHolder(const std::string& server,
-		Poco::Logger& logger,
+		Poco::Logger* pLogger,
 		int port,
 		const std::string& user,
 		const std::string& pass,
 		bool doConnect,
 		bool typeSafe,
-		const std::string& proto): _client(server, logger, port, user, pass, doConnect, typeSafe, proto)
+		const std::string& proto): _client(server, pLogger, port, user, pass, doConnect, typeSafe, proto)
 {
 }
 
@@ -70,6 +74,7 @@ v8::Handle<v8::ObjectTemplate> ClientWrapper::objectTemplate(v8::Isolate* pIsola
 
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "serverDateTime"), v8::FunctionTemplate::New(pIsolate, serverDateTime));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "read"), v8::FunctionTemplate::New(pIsolate, read));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "write"), v8::FunctionTemplate::New(pIsolate, write));
 
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
@@ -81,7 +86,7 @@ v8::Handle<v8::ObjectTemplate> ClientWrapper::objectTemplate(v8::Isolate* pIsola
 void ClientWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	std::string server;
-	Poco::Logger& logger = Poco::Logger::create("IoT_OPC_ClientWrapper",
+	Poco::Logger* pLogger = &Poco::Logger::create("IoT_OPC_ClientWrapper",
 							Poco::AutoPtr<Poco::ConsoleChannel>(new Poco::ConsoleChannel));
 	int port = OPC_STANDARD_PORT;
 	std::string user;
@@ -132,7 +137,7 @@ void ClientWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 	ClientHolder* pClientHolder = 0;
 	try
 	{
-		pClientHolder = new ClientHolder(server, logger, port, user, pass, doConnect, typeSafe, proto);
+		pClientHolder = new ClientHolder(server, pLogger, port, user, pass, doConnect, typeSafe, proto);
 		ClientWrapper wrapper;
 		v8::Persistent<v8::Object>& clientObject(wrapper.wrapNativePersistent(args.GetIsolate(), pClientHolder));
 		args.GetReturnValue().Set(clientObject);
@@ -152,6 +157,7 @@ void ClientWrapper::serverDateTime(const v8::FunctionCallbackInfo<v8::Value>& in
 	info.GetReturnValue().Set(ret);
 }
 
+
 void ClientWrapper::read(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	try
@@ -169,11 +175,11 @@ void ClientWrapper::read(const v8::FunctionCallbackInfo<v8::Value>& args)
 				}
 				else
 				{
-					returnException(args, Poco::format("invalid argument %d type (integer expected)", idx));
+					returnException(args, Poco::format("invalid argument %d (namespace index) type (integer expected)", idx));
 					return;
 				}
 				++idx;
-				Poco::Dynamic::Var val;
+				Var val;
 				if (args[idx]->IsNumber())
 				{
 					int id = args[idx]->Int32Value();
@@ -186,7 +192,7 @@ void ClientWrapper::read(const v8::FunctionCallbackInfo<v8::Value>& args)
 				}
 				else
 				{
-					returnException(args, Poco::format("invalid argument %d type (integer or string expected)", idx));
+					returnException(args, Poco::format("invalid argument %d (node ID) type (integer or string expected)", idx));
 					return;
 				}
 
@@ -229,6 +235,68 @@ void ClientWrapper::read(const v8::FunctionCallbackInfo<v8::Value>& args)
 			else
 			{
 				returnException(args, Poco::format("invalid number of arguments (expected 2, received %d)", args.Length()));
+				return;
+			}
+		}
+		else
+		{
+			returnException(args, "OPC client is null"); return;
+		}
+	}
+	catch(Poco::Exception& ex)
+	{
+		returnException(args, ex.displayText()); return;
+	}
+	catch(std::exception& ex)
+	{
+		returnException(args, ex.what()); return;
+	}
+}
+
+
+void ClientWrapper::write(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	try
+	{
+		ClientHolder* pClientHolder = Wrapper::unwrapNative<ClientHolder>(args);
+		if(pClientHolder)
+		{
+			Client& client = pClientHolder->client();
+			if (args.Length() >= 3)
+			{
+				int nsIndex = 0;
+				int idx = 0;
+				if (args[idx]->IsNumber())
+				{
+					nsIndex = args[idx]->Int32Value();
+				}
+				else
+				{
+					returnException(args, Poco::format("invalid argument %d (namespace index) type (integer expected)", idx));
+					return;
+				}
+
+				if(args[++idx]->IsNumber())
+				{
+					int id = args[idx]->Int32Value();
+					write<IntNodeID>(nsIndex, id, args, ++idx);
+					return;
+				}
+				else if(args[idx]->IsString())
+				{
+					std::string name = toString(args[idx]);
+					write<StringNodeID>(nsIndex, name, args, ++idx);
+					return;
+				}
+				else
+				{
+					returnException(args, Poco::format("invalid argument %d (node ID) type (integer or string expected)", idx));
+					return;
+				}
+			}
+			else
+			{
+				returnException(args, Poco::format("invalid number of arguments (expected 3, received %d)", args.Length()));
 				return;
 			}
 		}

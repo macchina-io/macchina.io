@@ -37,7 +37,6 @@
 #include <iomanip>
 #include <numeric>
 #include <unordered_map>
-#include <iostream>
 
 
 namespace IoT {
@@ -60,6 +59,8 @@ class OPC_API Client
 {
 public:
 	typedef std::vector<std::string> StringList;
+
+	static const int OPC_NODE_NOT_FOUND = -1;
 
 	// Client statuses
 	static const int OPC_CLIENT_READY;
@@ -85,12 +86,12 @@ public:
 	static const int OPC_TYPE_STRING;
 	static const int OPC_TYPE_DATETIME;
 
-	Client(Poco::Message::Priority prio = Poco::Message::PRIO_INFORMATION);
+	Client(const std::string& server,
+		Poco::Message::Priority prio = Poco::Message::PRIO_INFORMATION);
 		/// Creates the Client.
 
 	Client(const std::string& server,
-		Poco::Logger& logger = Poco::Logger::create("IoT_OPC_Client",
-			Poco::AutoPtr<Poco::ConsoleChannel>(new Poco::ConsoleChannel)),
+		Poco::Logger* logger,
 		int port = OPC_STANDARD_PORT,
 		const std::string& user = "",
 		const std::string& pass = "",
@@ -361,6 +362,16 @@ public:
 
 	const TypeCache& getTypeCache() const;
 
+	template <typename N, typename T>
+	NodeType getValueType(int nsIndex, const T& id)
+	{
+		try
+		{
+			return getValueNodeType<N>(nsIndex, id);
+		}
+		catch(Poco::NotFoundException&) {}
+		return NodeType { OPC_NODE_NOT_FOUND, false };
+	}
 
 	//
 	// browsing
@@ -396,13 +407,34 @@ private:
 	// reading
 	//
 
+	template <typename N, typename T>
+	const NodeType& getValueNodeType(int nsIndex, const T& id)
+	{
+		if(!_nodeTypeCache.has(N(nsIndex, id)))
+		{
+			OPC::Variant var;
+			if(getValueNodeType(nsIndex, id, var))
+			{
+				_nodeTypeCache.add(N(nsIndex, id), var.type().typeIndex, var.isArray());
+			}
+			else
+			{
+				std::ostringstream os;
+				os << "Node (" << nsIndex << ", " << id << ") not found.";
+				throw Poco::NotFoundException(os.str());
+			}
+		}
+
+		return _nodeTypeCache.type(N(nsIndex, id));
+	}
+
 	template <typename I>
 	bool getValueNodeType(int nsIndex, const I& id, OPC::Variant& val) const
 	{
 		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
 		if(retval == UA_STATUSCODE_GOOD)
 		{
-			return true;//val.type().typeIndex;
+			return true;
 		}
 		return false;
 	}
@@ -493,7 +525,7 @@ private:
 				if(!var.hasData())
 				{
 					std::ostringstream os;
-					os << "OPC::Client::writeValueAttribute(): "
+					os << "OPC::Client::checkTypeSafety(): "
 						"write to a non-existing or non-value node [" << nodeID.nsIndex() << ", " <<
 						nodeID.id() << "] attempted.";
 					throw Poco::InvalidAccessException(os.str());
@@ -501,9 +533,11 @@ private:
 				else if(var.type().typeIndex != val->type->typeIndex || (val->arrayLength && !var.isArray()))
 				{
 					std::ostringstream os;
-					os << "OPC::Client::writeValueAttribute(): "
+					os << "OPC::Client::checkTypeSafety(): "
 						"type mismatch for node [" << nodeID.nsIndex() << ", " <<
-						nodeID.id() << "] in type-safe mode.";
+						nodeID.id() << "] in type-safe mode (node/value type=" << var.type().typeIndex <<
+						'/' << val->type->typeIndex << "; "
+						"array=" << var.isArray() << '/' << val->arrayLength << ").";
 					throw Poco::InvalidAccessException(os.str());
 				}
 				else
@@ -536,8 +570,9 @@ private:
 			UA_String uaStr;
 			uaStr.data = (UA_Byte*) strVal.data();
 			uaStr.length = strVal.length();
-			UA_Variant_setScalarCopy(var, &uaStr, &UA_TYPES[UA_TYPES_STRING]);
-			retval = writeValueAttribute(nsIndex, id, var);
+			retval = UA_Variant_setScalarCopy(var, &uaStr, &UA_TYPES[UA_TYPES_STRING]);
+			if(UA_STATUSCODE_GOOD == retval) retval = writeValueAttribute(nsIndex, id, var);
+			else throw Poco::RuntimeException("OPC::Client::writeValue(): " + getError(retval));
 		}
 		else if(isDateTime)
 		{
@@ -546,13 +581,15 @@ private:
 			{
 				dtVal = OPC::DateTime::now();
 			}
-			UA_Variant_setScalarCopy(var, &dtVal, &UA_TYPES[UA_TYPES_DATETIME]);
-			retval = writeValueAttribute(nsIndex, id, var);
+			retval = UA_Variant_setScalarCopy(var, &dtVal, &UA_TYPES[UA_TYPES_DATETIME]);
+			if(UA_STATUSCODE_GOOD == retval) retval = writeValueAttribute(nsIndex, id, var);
+			else throw Poco::RuntimeException("OPC::Client::writeValue(): " + getError(retval));
 		}
 		else
 		{
-			UA_Variant_setScalarCopy(var, &value, &UA_TYPES[getUAType(value)]);
-			retval = writeValueAttribute(nsIndex, id, var);
+			retval = UA_Variant_setScalarCopy(var, &value, &UA_TYPES[getUAType(value)]);
+			if(UA_STATUSCODE_GOOD == retval) retval = writeValueAttribute(nsIndex, id, var);
+			else throw Poco::RuntimeException("OPC::Client::writeValue(): " + getError(retval));
 		}
 
 		if(retval != UA_STATUSCODE_GOOD)
@@ -603,8 +640,8 @@ private:
 		}
 	}
 
-	UA_Client*       _pClient;
-	Poco::Logger&    _logger;
+	UA_Client*       _pClient = nullptr;
+	Poco::Logger*    _pLogger = nullptr;
 	std::string      _url;
 	StringList       _endpointURLs;
 	UA_BrowseRequest _browseReq;
