@@ -8,7 +8,7 @@ global objects and functions, which give scripts access to the features of macch
 
 These are described in the following, along with example code.
 
-Furthermore, macchina.io supports a simple module system for JavaScript that allows a 
+Furthermore, macchina.io supports a simple module system for JavaScript that allows a
 script to import a "module", typically containing re-usable code. The module system is
 based on the modules specification from CommonJS.
 
@@ -20,25 +20,25 @@ This document assumes you are already familiar with JavaScript and its concepts.
 An important question is how to actually get JavaScript code into macchina.io.
 In general, all JavaScript code executed within macchina.io must be contained
 in bundles. There are different ways to create a bundle and deploy it into
-a macchina.io server. The easiest way is to use the <*Playground*> app in the web 
+a macchina.io server. The easiest way is to use the <*Playground*> app in the web
 user interface. It provides a browser-based editor that allows you to create and
 edit JavaScript scripts, as well as to execute them in macchina.io. This is great
-for trying out things very quickly. The Playground can also be used to create 
+for trying out things very quickly. The Playground can also be used to create
 and download a complete bundle containing the script. This bundle can then be deployed
 to a macchina.io based device, either by placing it on the filesystem (in one
 of the directories configured as bundle repositories), or by installing them using
 the web based <*Bundle*> utility.
 
 To learn more about bundles, please refer to the Open Service Platform documentation,
-specifically the [[00100-OSPOverview.html OSP Overview]] and 
+specifically the [[00100-OSPOverview.html OSP Overview]] and
 [[00200-OSPBundles.html OSP Bundles]] documents.
 
 In macchina.io, there are two ways that JavaScript code can be executed.
 The first is by placing one or more scripts in a bundle, and by creating one or
 more JavaScript extensions in the bundle. The extension basically tells
-macchina.io which scripts to automatically run when the bundle is started. 
-Every script referenced in a JavaScript extension runs in its own thread. 
-Different scripts can also share code, by placing code in modules and importing 
+macchina.io which scripts to automatically run when the bundle is started.
+Every script referenced in a JavaScript extension runs in its own thread.
+Different scripts can also share code, by placing code in modules and importing
 them via the <[require()]> function.
 See the following section on modules for more information.
 
@@ -55,7 +55,7 @@ Each script is executed in its own thread. Optionally, the extension point can
 also specify a limit to the JavaScript heap, thus preventing the script from using
 too much memory. A list of search paths can also be given.
 
-By convention, extensions are specified using an XML file named "extensions.xml", located 
+By convention, extensions are specified using an XML file named "extensions.xml", located
 in the root directory of a bundle.
 
 Here's an example what the "extensions.xml" looks like to run a script in a file
@@ -122,13 +122,13 @@ Manifest-Version, Bundle-RunLevel, or Bundle-LazyStart (unless you
 are already familiar enough with OSP to know what you're doing).
 
 By convention, the symbolic name of a bundle (the name used internally)
-is written in reverse domain name notation, to ensure bundle names 
+is written in reverse domain name notation, to ensure bundle names
 are unique, even if bundles come from different vendors.
 
 For more detailed information regarding the bundle manifest, please refer
 to the [[00200-OSPBundles.html OSP Bundles]] manual.
 
-We've already shown the content of the "extensions.xml" file for the bundle. 
+We've already shown the content of the "extensions.xml" file for the bundle.
 Here it is again for reference:
 
     <extensions>
@@ -143,11 +143,11 @@ Finally, here is a simple "Hello, world!" script for "main.js":
 
 The easiest way to get such a bundle file is to use the Playground's "Export Bundle"
 button. This will download a ".bndl" file. You can use an unzip tool like <*unzip*>
-on Linux or OS X to extract the files contained in the bundle. 
-Use this as a starting point for your own bundles. 
+on Linux or OS X to extract the files contained in the bundle.
+Use this as a starting point for your own bundles.
 
 Please make sure that when creating a bundle manually using the <*zip*> tool that
-there is no top-level directory in the Zip file. The "META-INF" directory and 
+there is no top-level directory in the Zip file. The "META-INF" directory and
 "extensions.xml" file must be at the top-level of the Zip archive. Furthermore, the
 name of the bundle file must conform to the convention "<*<symbolic-name>_<version>.bndl*>",
 e.g. "com.my-company.my-first-bundle_1.0.0.bndl".
@@ -158,22 +158,22 @@ as in the following:
     $ zip -r ../com.my-company.my-first-bundle_1.0.0.bndl *
 ----
 
-For creating bundles, macchina.io provides the [[00210-OSPBundleCreator.html Bundle Creator]] 
-(<*bundle*>) tool from the Open Service Platform. While creating bundles manually using 
-<*zip*> is fine for simple bundles, using the <*bundle*> tool makes it easier to create 
-more complex bundle that have dependencies upon other bundle, and which need to collect 
+For creating bundles, macchina.io provides the [[00210-OSPBundleCreator.html Bundle Creator]]
+(<*bundle*>) tool from the Open Service Platform. While creating bundles manually using
+<*zip*> is fine for simple bundles, using the <*bundle*> tool makes it easier to create
+more complex bundle that have dependencies upon other bundle, and which need to collect
 files from different source directories.
 
 
 !!!JavaScript Servlets and Server Pages
 
-Scripts can also be executed in order to serve web requests. macchina.io uses the 
-[[01000-OSPWeb.html Open Service Platform Web Server]], which gets all content it 
+Scripts can also be executed in order to serve web requests. macchina.io uses the
+[[01000-OSPWeb.html Open Service Platform Web Server]], which gets all content it
 serves from bundles. To make the web server execute server-side JavaScript, that
 script must be in a file with extension ".jss" or ".jssp", and the file must be
-accessible through the web server. There is an important difference between 
-".jss" and ".jssp" files. The former contain a so-called "JavaScript Servlet", 
-while the latter contain a "JavaScript Server Page". 
+accessible through the web server. There is an important difference between
+".jss" and ".jssp" files. The former contain a so-called "JavaScript Servlet",
+while the latter contain a "JavaScript Server Page".
 
 
 !!Servlets
@@ -205,7 +205,7 @@ can have embedded JavaScript code using special directives. Such a server page w
 be compiled into a servlet script when first requested, and then works exactly
 like a servlet.
 
-Here's a simple example for a server page: 
+Here's a simple example for a server page:
 
     <%
         var now = new DateTime();
@@ -226,7 +226,7 @@ As you can see, the special directive:
     <% <script> %>
 ----
 
-is used to enclose JavaScript code. 
+is used to enclose JavaScript code.
 
 The special directive:
 
@@ -299,10 +299,10 @@ the value of the <*Content-Type*> HTTP response header.
 
 macchina.io supports JavaScript modules. This allows a script to import another script,
 with the imported script being encapsulated within a "module" and thus not polluting
-the global namespace. 
+the global namespace.
 
 A script can import another module using the <[require()]> function, specifying either
-a relative path to the script (i.e., in the same bundle, or to a list of search paths/URIs) 
+a relative path to the script (i.e., in the same bundle, or to a list of search paths/URIs)
 or a complete URI. This may even be used to download scripts from a web server, using a HTTP URI.
 
 For <[require()]> to work, a module must follow certain conventions:
@@ -314,7 +314,7 @@ For <[require()]> to work, a module must follow certain conventions:
     object. The <[module.exports]> object is the only object available to
     importers of the module.
   - The name of the resource containing the module must have the extension ".js".
-    
+
 Here's a quick example. Say we want to write a function that looks for a temperature
 sensor, and returns the sensor object, if one if found:
 
@@ -329,14 +329,14 @@ sensor, and returns the sensor object, if one if found:
 ----
 
 You find that this is a useful function, and you want to use it in different scripts.
-Now you could copy and paste the function into every script where you need it. 
+Now you could copy and paste the function into every script where you need it.
 For obvious reasons, code sharing by copy-and-paste is a bad idea, so you decide to
 make the function reusable in the form of a module.
 
 To create a re-usable module that exports the <*findTemperatureSensor()*> function,
 the code needs to be changed as follows:
 
-    exports.findTemperatureSensor = function() 
+    exports.findTemperatureSensor = function()
         {
             var temperatureRefs = serviceRegistry.find('io.macchina.physicalQuantity == "temperature"');
             if (temperatureRefs.length > 0)
@@ -356,8 +356,8 @@ we need this function in a script, we can write:
 
 Instead of adding properties to the <[exports]> object, we can also export an entire
 object. However, this cannot be done by assigning an object to the <[exports]> object.
-The <[exports]> object is basically just a reference to the <[exports]> property in 
-the global <[module]> object. If we assign an object directly to <[exports]>, 
+The <[exports]> object is basically just a reference to the <[exports]> property in
+the global <[module]> object. If we assign an object directly to <[exports]>,
 the global <[exports]> variable will now reference the object we've assigned. However,
 the <[exports]> property in the <[module]> object will still have its old value. Since
 it is the <[exports]> property in the <[module]> object that counts, this will not work.
@@ -368,7 +368,7 @@ Say, we now want to extend our "sensors.js" module to include support for an amb
 light sensor. We can do this as follows:
 
     module.exports = {
-        findTemperatureSensor: function() 
+        findTemperatureSensor: function()
             {
                 var temperatureRefs = serviceRegistry.find('io.macchina.physicalQuantity == "temperature"');
                 if (temperatureRefs.length > 0)
@@ -376,7 +376,7 @@ light sensor. We can do this as follows:
                 else
                     return null;
             },
-        
+
         findAmbientLightSensor: function()
             {
                 var ambientLightRefs = serviceRegistry.find('io.macchina.physicalQuantity == "illuminance"');
@@ -384,8 +384,8 @@ light sensor. We can do this as follows:
                     return ambientLightRefs[0].instance();
                 else
                     return null;
-            }  
-    }; 
+            }
+    };
 ----
 
 Note that <[require()]> will make sure that every module is actually loaded and executed
@@ -544,11 +544,11 @@ Executes the given shell command using the system's default shell.
 Returns the output of the command.
 
 Example:
-    
+
     var files = system.exec('ls');
 ----
 
-Note: be careful when passing strings obtained from HTML forms 
+Note: be careful when passing strings obtained from HTML forms
 to <[system.exec()]> as command arguments. Always check such strings
 for validity before using their values.
 
@@ -561,7 +561,7 @@ Sleeps the current thread for the given period, in milliseconds.
 !!!The uri Object
 
 The global <[uri]> object allows a script to load a string or Buffer from a URI.
-The URI can refer to a local file, a bundle resource ("bndl://"), 
+The URI can refer to a local file, a bundle resource ("bndl://"),
 a HTTP(S) or FTP server. It provides two methods, <[loadString()]> and <[loadBuffer()]>.
 
 
@@ -580,7 +580,7 @@ Example:
 !loadBuffer(uri)
 
 Loads a Buffer from the given URI. This can be used to retrieve binary data or
-non-UTF8 text from a resource. 
+non-UTF8 text from a resource.
 
 Example:
 
@@ -689,7 +689,7 @@ Returns <*true*> if the given configuration key exists, otherwise <*false*>.
 
 Sets the configuration value for the given key. Value can be a string, integer,
 floating-point number, boolean or any object that can be JSON-formatted with JSON.stringify().
-An exception is thrown if setting the value for the given key fails 
+An exception is thrown if setting the value for the given key fails
 (e.g., because the configuration is read-only).
 
 !keys([key])
@@ -703,8 +703,8 @@ or an empty key is given.
 Logger objects are used to write diagnostic or log messages to a logger.
 A JavaScript Logger object is always connected to a Logger object from
 the POCO C++ Libraries. JavaScript scripts in macchina.io have access
-to two Logger objects. The global application logger, via the 
-<[application.logger]> object, and a bundle-specific logger, via the 
+to two Logger objects. The global application logger, via the
+<[application.logger]> object, and a bundle-specific logger, via the
 <[logger]> object.
 
 Example:
@@ -715,7 +715,7 @@ Example:
 
 !!Creating Logger Objects
 
-In addition to the bundle-specific and application-global logger objects 
+In addition to the bundle-specific and application-global logger objects
 available through the <[logger]> and <[application.logger]> variables,
 a script can use the <[Logger]> constructor to use other logger instances.
 
@@ -723,15 +723,15 @@ a script can use the <[Logger]> constructor to use other logger instances.
 !Logger(name [, configuration [, reconfigure]])
 
 Creates a new Logger object, using a logger with the given name obtained from the
-POCO C++ Libraries logging framework. If a logger with the given name does not exist, 
-a new logger instance is created. Note that the underlying logger instances are 
+POCO C++ Libraries logging framework. If a logger with the given name does not exist,
+a new logger instance is created. Note that the underlying logger instances are
 shared application-wide.
 
 If a new logger instance is created, the given <[configuration]> object is used to
 configure the logger. If <[reconfigure]> is true (default is false), the configuration
 is also applied to an already existing logger. Otherwise, the configuration is ignored
 and the configuration of an already existing logger is not changed. The <[reconfigure]>
-option should be used judiciously, as reconfiguring an existing logger instance used by 
+option should be used judiciously, as reconfiguring an existing logger instance used by
 other parts of the application may interfere with the workings of the application.
 
 The <[configuration]> object can have the following properties:
@@ -739,7 +739,7 @@ The <[configuration]> object can have the following properties:
   * level: specifies the log level; see Log Levels below.
   * pattern: format pattern; if specified, a FormattingChannel with a PatternFormatter
     is created for the logger. See Format Pattern below for the format of the pattern.
-  * channel: either a string containing the name of a globally configured logging 
+  * channel: either a string containing the name of a globally configured logging
     channel (through the application's configuration files), or an object containing
     properties for creating and configuring a new channel. See Channel Configuration
     below.
@@ -761,7 +761,7 @@ or it can be one of the following strings, representing a priority:
   * trace (8)
 
 Numerical log levels are also available as properties of the <[Logger]> constructor,
-named <[FATAL]>, <[CRITICAL]>, <[ERROR]>, <[WARNING]>, <[NOTICE]>, <[INFORMATION]>, 
+named <[FATAL]>, <[CRITICAL]>, <[ERROR]>, <[WARNING]>, <[NOTICE]>, <[INFORMATION]>,
 <[DEBUG]> and <[TRACE]>.
 
 
@@ -913,9 +913,9 @@ or it can be one of the following strings, representing a priority:
   * information (6)
   * debug (7)
   * trace (8)
-  
+
 Numerical log levels are also available as properties of the <[Logger]> constructor,
-named <[FATAL]>, <[CRITICAL]>, <[ERROR]>, <[WARNING]>, <[NOTICE]>, <[INFORMATION]>, 
+named <[FATAL]>, <[CRITICAL]>, <[ERROR]>, <[WARNING]>, <[NOTICE]>, <[INFORMATION]>,
 <[DEBUG]> and <[TRACE]>.
 
 The message can contain formatting specifiers.
@@ -976,7 +976,7 @@ Example:
         2000);
 ----
 
-Any additional arguments passed after the milliseconds will be passed to the callback 
+Any additional arguments passed after the milliseconds will be passed to the callback
 function.
 
 !setInterval(function, milliseconds [, arg]...)
@@ -1017,7 +1017,7 @@ Example:
         2000);
 ----
 
-Any additional arguments passed after the milliseconds will be passed to the callback 
+Any additional arguments passed after the milliseconds will be passed to the callback
 function.
 
 
@@ -1034,7 +1034,7 @@ Example:
         });
 ----
 
-Any additional arguments passed after the function will be passed to the callback 
+Any additional arguments passed after the function will be passed to the callback
 function. <[setImmediate()]> is equivalent to calling <[setTimeout()]> with 0 milliseconds.
 
 
@@ -1058,10 +1058,10 @@ Example:
         2000);
 ----
 
-Note: Since JavaScript execution is single threaded per script, timer callback 
+Note: Since JavaScript execution is single threaded per script, timer callback
 functions will only run when the script is idle and not currently executing any code.
 
-For compatibility with Browser-based JavaScript and node.js, macchina.io also 
+For compatibility with Browser-based JavaScript and node.js, macchina.io also
 provides <[clearTimeout()]>, <[clearInterval()]> and <[clearImmediate()]>.
 
 !clearTimeout(timeout)
@@ -1093,19 +1093,19 @@ constructor functions, passing a variable number of arguments:
 
   - No arguments: a DateTime/LocalDateTime object for the current system time
     is created.
-  - A single string argument: the date and time is parsed from the given 
+  - A single string argument: the date and time is parsed from the given
     string, which must contain a date and time in one of the standard
-    representations: asctime, HTTP, ISO 8601, various RFC formats or 
+    representations: asctime, HTTP, ISO 8601, various RFC formats or
     sortable format (YYYY-MM-DD HH:MM:SS).
   - Two string arguments: the date and time is parsed from the first string,
-    using the format given in the second string. See the 
+    using the format given in the second string. See the
     [[Poco.DateTimeFormatter.html#13611 Poco::DateTimeFormatter]] class for
     a description of the format string.
   - A JavaScript Date object: date and time are taken from that object.
   - A number representing Julian date.
   - Three to six numbers: year, month, day, and optional hour, minute, second.
     Second may contain fractional seconds.
-    
+
 Examples:
 
 	var dt1 = new DateTime("2015-03-09 11:55:33");
@@ -1190,13 +1190,13 @@ Returns the julian day as a number. The fractional part represents the time.
 
 !timestamp
 
-Returns the number of microseconds between January 1, 1970 and the date/time 
+Returns the number of microseconds between January 1, 1970 and the date/time
 in the DateTime/LocalDateTime object.
 
 
 !epoch
 
-Returns the number of seconds between January 1, 1970 and the date/time 
+Returns the number of seconds between January 1, 1970 and the date/time
 in the DateTime/LocalDateTime object.
 
 
@@ -1280,12 +1280,12 @@ Returns a JavaScript Date object for the stored date/time.
 !!!Buffer Objects
 
 Buffer objects are used to work efficiently with binary data in JavaScript.
-Standard (browser-based) JavaScript has no efficient way for handling binary data. 
+Standard (browser-based) JavaScript has no efficient way for handling binary data.
 macchina.io provides Buffer objects to handle continuous blocks of memory containing
 arbitrary (binary) data.
 
 A Buffer object contains a variable-size, continuous block of memory, located on the
-(C++) heap. The size of the block can change during the lifetime of a Buffer object. 
+(C++) heap. The size of the block can change during the lifetime of a Buffer object.
 In order to avoid frequent resizing and re-allocation of the memory block, the Buffer
 object differentiates between the physical and logical size of the block.
 The physical size, or capacity, of the block is the number of bytes actually allocated on the heap.
@@ -1319,7 +1319,7 @@ No memory for the buffer's content will be allocated.
 
 !Buffer(capacity)
 
-Creates an empty (zero-size) Buffer with the given capacity in bytes. 
+Creates an empty (zero-size) Buffer with the given capacity in bytes.
 A block of memory with size given in capacity will be allocated.
 
 
@@ -1332,7 +1332,7 @@ how the contents of the string will be store in the buffer:
     data will be decoded and the raw binary data will be stored in the Buffer. This is
     the default if no encoding is given.
   - Buffer.UTF8: The string will be stored in the Buffer using UTF-8 encoding.
-  - Buffer.UTF16: The string will be stored in the Buffer using UTF-16 encoding (in the 
+  - Buffer.UTF16: The string will be stored in the Buffer using UTF-16 encoding (in the
     hosts native byte order).
   - Buffer.ASCII: The string will be stored in the Buffer using ASCII encoding.
 
@@ -1366,15 +1366,15 @@ of the first byte to copy and <[end]> specifying the offset of the
 byte following the last byte to copy.
 
 Example:
-   
+
     var newBuffer = new Buffer(buffer, 0, buffer.length);
 ----
-   
+
 will copy the entire buffer, while
 
     var newBuffer = new Buffer(buffer, 2, 4);
 ----
-  
+
 will copy two bytes, starting at offset 2.
 
 The given offsets can also be negative, meaning relative to the length of the Buffer.
@@ -1416,15 +1416,15 @@ specifiers are supported:
   - "<" - little endian byte order
   - ">" - big endian byte order
   - "!" - network byte order (big endian)
-  
+
 The byte order specifier is followed by one or more type specifiers. A type specifier
 can be preceded by an optional repeat count. For atomic types, the repeat count
 specifies the number of values that will be packed according to the following type
-specifier. For strings ("c" and "s"), the repeat count specifies the number of bytes 
-reserved for the packed string. If a string exceeds the given length, it will be truncated. 
+specifier. For strings ("c" and "s"), the repeat count specifies the number of bytes
+reserved for the packed string. If a string exceeds the given length, it will be truncated.
 Unused bytes will be zero-filled.
 
-Whitespace characters (Space, TAB, CR, LF) in the format string are ignored. However, there 
+Whitespace characters (Space, TAB, CR, LF) in the format string are ignored. However, there
 must not be a whitespace character between length and type specifier.
 
 The following type specifiers are supported:
@@ -1432,7 +1432,7 @@ The following type specifiers are supported:
     Specifier    Native C/C++ Type              Size    Notes
     -------------------------------------------------------------------------------------
     x            -                              1       Padding Byte (set to 0 in pack())
-    c, s         char[repeat]                   repeat  UTF-8 encoded 
+    c, s         char[repeat]                   repeat  UTF-8 encoded
     b            int8_t (signed char)           1
     B            uint8_t (unsigned char)        1
     ?            bool                           1       0 = false, 1 = true
@@ -1534,8 +1534,8 @@ This will fill the buffer with the following content:
     4        31
     5        144
 ----
- 
-  
+
+
 !unpack(format)
 
 Unpacks values from the buffer according to the byte order and types found in the format
@@ -1655,7 +1655,7 @@ For other types of content, use the <[buffer]> property.
 The request content, as Buffer object.
 Using the <[buffer]> property, content that is not UTF-8 text can be handled.
 
-Note: setting the <[buffer]> property will also affect the <[content]> property 
+Note: setting the <[buffer]> property will also affect the <[content]> property
 (and vice-versa), since both use the same underlying data.
 
 
@@ -1760,7 +1760,7 @@ For other types of content, use the <[buffer]> property.
 The response content, as Buffer object.
 Using the <[buffer]> property, content that is not UTF-8 text can be handled.
 
-Note: setting the <[buffer]> property will also affect the <[content]> property 
+Note: setting the <[buffer]> property will also affect the <[content]> property
 (and vice-versa), since both use the same underlying data.
 
 
@@ -1851,7 +1851,7 @@ access to the session object for the current request.
 
 Note: Currently there is no way to create a session object from JavaScript.
 In macchina.io, a session object is created when a user logs in to the web
-interface. 
+interface.
 
 
 !!session Properties
@@ -1872,7 +1872,7 @@ is authenticated.
 
 !authenticated
 
-Returns true if the session is authenticated, otherwise false. 
+Returns true if the session is authenticated, otherwise false.
 A session is authenticated if the user has successfully signed in.
 
 
@@ -1995,7 +1995,7 @@ are stored in a string.
 !getBinaryResource(path)
 
 Returns a Buffer containing the contents of the file stored in the bundle with the
-given path. 
+given path.
 
 
 !getLocalizedResource(path [, language])
@@ -2026,17 +2026,17 @@ The <[serviceRegistry]> object supports the following methods:
 
 !find(query)
 
-Looks up the service with the properties specified in the query. 
+Looks up the service with the properties specified in the query.
 Returns an array of ServiceRef objects containing references to
 all services matching the query.
 
 To obtain the actual service object, the <[instance()]> method of
 the corresponding ServiceRef object must be called.
 
-The query language is similar to JavaScript or C++ expressions and supports comparison (==, !=, 
-<, <=, >, >=), regular expression matching (=~) and logical and/or operations 
-(&&, ||). 
-Subexpressions can be grouped with parenthesis. The data types string, integer, float and boolean are 
+The query language is similar to JavaScript or C++ expressions and supports comparison (==, !=,
+<, <=, >, >=), regular expression matching (=~) and logical and/or operations
+(&&, ||).
+Subexpressions can be grouped with parenthesis. The data types string, integer, float and boolean are
 supported. The simplified syntax for the query language is given in the following.
 
   expr          ::= andExpr ["||" andExpr]
@@ -2072,7 +2072,7 @@ the corresponding ServiceRef object must be called.
 
 !!!ServiceRef Objects
 
-ServiceRef objects have a single method, <[instance()]>, which returns the 
+ServiceRef objects have a single method, <[instance()]>, which returns the
 underlying service object. Note that not all service objects are accessible
 from JavaScript. Only service objects implemented using the Remoting-based
 bridging mechanism are accessible from JavaScript. An attempt to call
@@ -2085,6 +2085,8 @@ in an exception.
 DBSession and RecordSet objects provide access to the SQLite database engine that comes with
 macchina.io.
 
+As of the 0.7.0 release, the Data object has been moved into a separate module (and bundle). So you'll have to import that module.
+
 Here's a short example showing the DBSession and RecordSet objects being used
 to periodically log sensor data in a SQLite database.
 
@@ -2095,7 +2097,8 @@ to periodically log sensor data in a SQLite database.
         temperatureSensor = temperatureRefs[0].instance();
     }
 
-    var dbSession = new DBSession('SQLite', bundle.persistentDirectory + 'temperature.db');
+    var data = require('data');
+    var dbSession = new data.Session('SQLite', bundle.persistentDirectory + 'temperature.db');
 
     dbSession.execute('CREATE TABLE IF NOT EXISTS temperature ( \
         timestamp TIMESTAMP, \
@@ -2127,13 +2130,13 @@ and:
 ----
 
 The first expression will result in a string object ("Mon Mar 09 2015 21:30:50 GMT+0100 (CET)"),
-while the second expression will result in a Date object, as one would expect. 
-When storing Date objects in an SQLite database make sure you're using a Date object 
-and not a "stringified" date. Otherwise extracting dates from the database will 
-produce wrong results, as the JavaScript-produced date string is not supported by 
+while the second expression will result in a Date object, as one would expect.
+When storing Date objects in an SQLite database make sure you're using a Date object
+and not a "stringified" date. Otherwise extracting dates from the database will
+produce wrong results, as the JavaScript-produced date string is not supported by
 SQLite, which internally uses ISO 8601.
 
-Once you have data in a database, you may also want to get it out again. 
+Once you have data in a database, you may also want to get it out again.
 Following sample shows the code for a servlet that returns the last 100
 data samples as a JSON document.
 
@@ -2147,7 +2150,7 @@ data samples as a JSON document.
 ----
 
 
-!!Creating a DBSession 
+!!Creating a DBSession
 
 A DBSession object is created by calling the constructor function with two
 arguments. The first argument is the connector name, which for macchina.io always
@@ -2182,7 +2185,7 @@ Returns true if a transaction is active, otherwise false.
 
 !pageSize (r/w)
 
-The result page size for queries. 
+The result page size for queries.
 
 The page size specifies how many rows are transferred at a time when
 delivering a query result. The larger the page size, the more memory
@@ -2295,7 +2298,7 @@ The following type names can be reported:
   - Time
   - BLOB
   - CLOB
-  
+
 
 !getLength(column)
 
@@ -2328,7 +2331,7 @@ Returns true if successful, or false if no more rows are available.
 !movePrevious()
 
 Moves the current row to the previous row in the record set.
-Returns true if successful, or false if the current row already 
+Returns true if successful, or false if the current row already
 is the first row.
 
 
@@ -2346,5 +2349,5 @@ anymore.
 !toJSON()
 
 Converts the rows in the record set into a JSON document containing an array
-of objects, each one representing a row. Column names are used as property names 
+of objects, each one representing a row. Column names are used as property names
 in the objects.
