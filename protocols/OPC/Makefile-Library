@@ -8,7 +8,7 @@
 
 include $(POCO_BASE)/build/rules/global
 
-objects = open62541 UALogger Client Server ClientWrapper Types TypeCache
+objects = Client ClientWrapper DateTime open62541 Server String Types TypeCache UALogger Variant
 
 target         = IoTOPC
 target_version = 1

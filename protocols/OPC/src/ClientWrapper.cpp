@@ -200,7 +200,7 @@ void ClientWrapper::read(const v8::FunctionCallbackInfo<v8::Value>& args)
 				if (ti == typeid(IoT::OPC::DateTime))
 				{
 					v8::Local<v8::String> ret = v8::String::NewFromUtf8(v8::Isolate::GetCurrent(),
-						val.convert<IoT::OPC::DateTime>().toString().c_str());
+						val.extract<IoT::OPC::DateTime>().toString().c_str());
 					args.GetReturnValue().Set(ret); return;
 				}
 				else if (val.isNumeric())
@@ -261,7 +261,6 @@ void ClientWrapper::write(const v8::FunctionCallbackInfo<v8::Value>& args)
 		ClientHolder* pClientHolder = Wrapper::unwrapNative<ClientHolder>(args);
 		if(pClientHolder)
 		{
-			Client& client = pClientHolder->client();
 			if (args.Length() >= 3)
 			{
 				int nsIndex = 0;

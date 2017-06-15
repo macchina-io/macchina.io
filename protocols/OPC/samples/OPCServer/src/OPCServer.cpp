@@ -12,6 +12,7 @@
 
 
 #include "IoT/OPC/Server.h"
+#include "IoT/OPC/DateTime.h"
 #include "Poco/Dynamic/Var.h"
 #include <iostream>
 

@@ -5,7 +5,7 @@
 //
 // Library: OPC
 // Package: OPC
-// Module:  Node
+// Module:  Types
 //
 // Definitions of the OPC standard types classes as specified in
 // in OPC UA Part 3, 8. Standard Data Types.
@@ -16,12 +16,11 @@
 //
 
 
-#ifndef IoT_OPC_Node_INCLUDED
-#define IoT_OPC_Node_INCLUDED
+#ifndef IoT_OPC_Types_INCLUDED
+#define IoT_OPC_Types_INCLUDED
 
 
 #include "IoT/OPC/OPC.h"
-#include "Poco/DateTime.h"
 #include "Poco/Types.h"
 #include "Poco/UUID.h"
 #include "Poco/StringTokenizer.h"
@@ -33,6 +32,7 @@
 
 namespace IoT {
 namespace OPC {
+
 
 extern const Poco::UInt16 OPC_STANDARD_PORT;
 
@@ -63,180 +63,6 @@ typedef unsigned char Byte;
 
 typedef UA_String String;
 typedef UA_ByteString ByteString;
-
-
-class OPC_API UAString
-	/// A string conversion utility class with value semantics.
-	/// It can be constructed from std::string and provides
-	/// implicit conversion to/from UA_String.
-{
-public:
-	UAString();
-		/// Creates the UAString.
-
-	UAString(const UAString& from);
-		/// Copy-constructs the UAString.
-
-	UAString(const std::string& from);
-		/// Creates the UAString from std::string.
-
-	~UAString();
-		/// Destroys the UAString.
-
-	UAString& operator = (const std::string& from);
-		/// Asignment operator.
-
-	UAString& operator = (const UAString& from);
-		/// Asignment operator.
-
-	operator const String&();
-		/// Cast operator.
-
-	operator std::string();
-		/// Cast operator.
-
-	std::size_t length() const
-	{
-		return _to.length;
-	}
-
-	const unsigned char* data() const
-	{
-		return _to.data;
-	}
-
-private:
-	void allocate(const unsigned char* data, std::size_t length);
-	void release();
-
-	String _to;
-};
-
-class OPC_API STDString
-	/// A string conversion utility class with value semantics.
-	/// It can be constructed from UA_String and provides
-	/// implicit conversion to/from std::string.
-{
-public:
-	STDString(const String& from);
-		/// Creates the STDString.
-
-	STDString(const STDString& from);
-		/// Copy-constructs the STDString.
-
-	~STDString();
-		/// Destroys the STDString.
-
-	STDString& operator = (const STDString& from);
-		/// Asignment operator.
-
-	operator const std::string&();
-		/// Cast operator.
-
-	operator const String&();
-		/// Cast operator.
-
-	std::size_t length() const
-	{
-		return _toUA.length;
-	}
-
-	const unsigned char* data() const
-	{
-		return _toUA.data;
-	}
-
-private:
-	void assign(const char* data, std::size_t length);
-
-	std::string _to;
-	String      _toUA;
-};
-
-
-class Variant
-{
-public:
-	Variant();
-
-	~Variant();
-
-	operator UA_Variant*();
-
-	operator const UA_Variant*() const;
-
-	operator UA_Variant&();
-
-	bool hasData() const;
-
-	const UA_DataType& type() const;
-
-	bool isArray() const;
-
-private:
-	Variant(const Variant&);
-	Variant& operator = (const Variant&);
-
-	UA_Variant* _pVariant;
-};
-
-
-class DateTime: public Poco::DateTime
-	/// This Built-in DataType defines an instance in time.
-	/// It is implemented as an extension of Poco:DateTime, with addition 
-	/// of nanoseconds.
-{
-public:
-	DateTime();
-		/// Creates the DateTime.
-
-	DateTime(int year, int month, int day,
-		int hour = 0, int minute = 0, int second = 0, 
-		int millisecond = 0, int microsecond = 0, int nanosecond = 0);
-		/// Creates the DateTime.
-
-	DateTime(Poco::UInt64 ts);
-		/// Creates the DateTime.
-
-	DateTime(UA_DateTimeStruct uDTS);
-		/// Creates the DateTime.
-
-	DateTime(const std::string& str);
-
-	DateTime(const Poco::DateTime& dt);
-		/// Copy-constructs the DateTime.
-
-	~DateTime();
-		/// Destroys the DateTime.
-
-	DateTime& operator = (const DateTime& dt);
-		/// Assignment operator.
-
-	DateTime& operator = (Poco::UInt64 ts);
-		/// Assignment operator.
-
-	DateTime& operator = (const Poco::DateTime& dt);
-		/// Assignment operator.
-
-	DateTime& operator = (const std::string& str);
-		/// Assignment operator.
-
-	int nanosecond() const;
-		/// Returns the nanosecond (0 to 999)
-
-	static DateTime fromString(const std::string& from);
-
-	std::string toString() const;
-		/// Returns the DateTime as string.
-
-	static Poco::Int64 now();
-		/// Returns current DateTime as timestamp.
-
-private:
-	static void printNumber(Poco::UInt16 n, char* pos, size_t digits);
-
-	Poco::UInt16 _nanosecond;
-};
 
 
 typedef double Double;
@@ -313,16 +139,16 @@ public:
 	NodeID();
 		/// Creates a null NodeID.
 
-	NodeID(int nsIndex, UInt32 value);
+	NodeID(int nsIndex, UInt32 id);
 		/// Creates a NodeID of numeric type.
 
-	NodeID(int nsIndex, const std::string& value);
+	NodeID(int nsIndex, const std::string& id);
 		/// Creates a NodeID of string type.
 
-	NodeID(int nsIndex, const Poco::UUID& value);
+	NodeID(int nsIndex, const Poco::UUID& id);
 		/// Creates a NodeID of string type.
 
-	NodeID(int nsIndex, const ByteStringType& value);
+	NodeID(int nsIndex, const ByteStringType& id);
 		/// Creates a NodeID of string type.
 
 	NodeID(const NodeID& other);
@@ -396,8 +222,6 @@ private:
 
 	Type           _nodeId;
 	ByteStringType _buf;
-
-	friend class VariableNode;
 };
 
 
@@ -650,130 +474,4 @@ inline int getUAType(const Poco::DateTime&)
 } } // namespace IoT::OPC
 
 
-namespace Poco {
-namespace Dynamic {
-
-
-template <>
-class VarHolderImpl<IoT::OPC::DateTime>: public VarHolder
-{
-public:
-	VarHolderImpl(const IoT::OPC::DateTime& val): _val(val)
-	{
-	}
-
-	~VarHolderImpl()
-	{
-	}
-
-	const std::type_info& type() const
-	{
-		return typeid(IoT::OPC::DateTime);
-	}
-
-	void convert(Int8& /*val*/) const
-	{
-		throw BadCastException();
-	}
-
-	void convert(Int16& /*val*/) const
-	{
-		throw BadCastException();
-	}
-
-	void convert(Int32& /*val*/) const
-	{
-		throw BadCastException();
-	}
-
-	void convert(Int64& val) const
-	{
-		throw BadCastException(); // TODO
-		//val = _val.timestamp().epochMicroseconds();
-	}
-
-	void convert(UInt64& val) const
-	{
-		throw BadCastException(); // TODO
-		//val = _val.timestamp().epochMicroseconds();
-	}
-
-	void convert(std::string& val) const
-	{
-		val = _val.toString();
-	}
-
-	void convert(IoT::OPC::DateTime& val) const
-	{
-		val = _val;
-	}
-
-	void convert(LocalDateTime& ldt) const
-	{
-		ldt = _val;
-	}
-
-	void convert(Timestamp& ts) const
-	{
-		throw BadCastException(); // TODO
-		//ts = _val.timestamp();
-	}
-
-	VarHolder* clone(Placeholder<VarHolder>* pVarHolder = 0) const
-	{
-		return cloneHolder(pVarHolder, _val);
-	}
-
-	const IoT::OPC::DateTime& value() const
-	{
-		return _val;
-	}
-
-	bool isArray() const
-	{
-		return false;
-	}
-
-	bool isStruct() const
-	{
-		return false;
-	}
-
-	bool isInteger() const
-	{
-		return false;
-	}
-
-	bool isSigned() const
-	{
-		return false;
-	}
-
-	bool isNumeric() const
-	{
-		return false;
-	}
-
-	bool isBoolean() const
-	{
-		return false;
-	}
-
-	bool isString() const
-	{
-		return false;
-	}
-
-private:
-	VarHolderImpl();
-	VarHolderImpl(const VarHolderImpl&);
-	VarHolderImpl& operator = (const VarHolderImpl&);
-
-	IoT::OPC::DateTime _val;
-};
-
-
-} } // namespace Poco::Dynamic
-
-
-#endif // IoT_OPC_Node_INCLUDED
+#endif // IoT_OPC_Types_INCLUDED

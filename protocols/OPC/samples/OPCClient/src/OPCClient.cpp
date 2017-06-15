@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 {
 	try
 	{
-		Client cli("localhost", Message::PRIO_TRACE);
+		Client cli("localhost"/*, OPC_STANDARD_PORT, Message::PRIO_TRACE*/);
 		cli.printEndpointURLs(std::cout);
 		cli.connect();
 

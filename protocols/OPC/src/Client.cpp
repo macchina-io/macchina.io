@@ -54,14 +54,16 @@ const int Client::OPC_TYPE_STRING = UA_TYPES_STRING;
 const int Client::OPC_TYPE_DATETIME = UA_TYPES_DATETIME;
 
 
-Client::Client(const std::string& server, Poco::Message::Priority prio): _pClient(nullptr),
-	_pLogger(&Poco::Logger::create("IoT_OPC_Client",
-			Poco::AutoPtr<Poco::ConsoleChannel>(new Poco::ConsoleChannel),
-			prio)),
-	_typeSafe(true),
-	_server(server),
-	_port(OPC_STANDARD_PORT),
-	_proto("opc.tcp")
+Client::Client(const std::string& server,
+	int port,
+	Poco::Message::Priority prio): _pClient(nullptr),
+		_pLogger(&Poco::Logger::create("IoT_OPC_Client",
+				Poco::AutoPtr<Poco::ConsoleChannel>(new Poco::ConsoleChannel),
+				prio)),
+		_typeSafe(true),
+		_server(server),
+		_port(port),
+		_proto("opc.tcp")
 {
 	init(true);
 }

@@ -22,6 +22,9 @@
 #include "IoT/OPC/OPC.h"
 #include "IoT/OPC/Types.h"
 #include "IoT/OPC/TypeCache.h"
+#include "IoT/OPC/DateTime.h"
+#include "IoT/OPC/String.h"
+#include "IoT/OPC/Variant.h"
 #include "Poco/Logger.h"
 #include "Poco/Message.h"
 #include "Poco/ConsoleChannel.h"
@@ -87,6 +90,7 @@ public:
 	static const int OPC_TYPE_DATETIME;
 
 	Client(const std::string& server,
+		int port = OPC_STANDARD_PORT,
 		Poco::Message::Priority prio = Poco::Message::PRIO_INFORMATION);
 		/// Creates the Client.
 
@@ -272,7 +276,7 @@ public:
 						for(std::vector<UA_DateTime>::const_iterator it = dt.begin(),
 							end = dt.end(); it != end; ++it)
 						{
-							odt.push_back(*it);
+							odt.push_back(OPC::DateTime(*it));
 						}
 						return odt;
 					}

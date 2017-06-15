@@ -19,6 +19,7 @@
 #include "Poco/UUID.h"
 #include "Poco/Dynamic/Var.h"
 #include "Poco/Exception.h"
+#include <ctime>
 #include <iostream>
 
 
@@ -240,8 +241,6 @@ void OPCTest::testStringNodeID()
 {
 	const char* cstr = "abc.123.xyz";
 	NodeID nodeID(1, cstr);
-	UA_DataType dt;
-	UA_new(&dt);
 	assert(!nodeID.isNumeric());
 	assert(nodeID.isString());
 	assert(!nodeID.isByteString());
@@ -439,42 +438,38 @@ void OPCTest::testDataTypeMember()
 void OPCTest::testDateTime()
 {
 	IoT::OPC::DateTime dt;
-	assert(0 == dt.nanosecond());
-	Poco::DateTime pdt;
-	dt = pdt;
-	assert(dt.year() == pdt.year());
-	assert(dt.month() == pdt.month());
-	assert(dt.day() == pdt.day());
-	assert(dt.minute() == pdt.minute());
-	assert(dt.second() == pdt.second());
-	assert(dt.millisecond() == pdt.millisecond());
-	assert(dt.microsecond() == pdt.microsecond());
-	assert(dt.nanosecond() == 0);
+	std::string str = dt.toString();
 
-	UA_DateTimeStruct uaDT = UA_DateTime_toStruct(UA_DateTime_now());
-	IoT::OPC::DateTime oDT(uaDT);
-	assert(oDT.year() == uaDT.year);
-	assert(oDT.month() == uaDT.month);
-	assert(oDT.day() == uaDT.day);
-	assert(oDT.minute() == uaDT.min);
-	assert(oDT.second() == uaDT.sec);
-	assert(oDT.millisecond() == uaDT.milliSec);
-	assert(oDT.microsecond() == uaDT.microSec);
-	assert(oDT.nanosecond() == uaDT.nanoSec);
+	IoT::OPC::DateTime dt2(str);
+	assert(dt == dt2);
 
-	assert(IoT::OPC::DateTime::fromString(oDT.toString()) == oDT);
+	IoT::OPC::DateTime dt3(dt.timestamp());
+	assert(dt == dt3);
 
-	IoT::OPC::DateTime sDT(oDT.toString());
-	assert(sDT == oDT);
+	str = "05/26/2017 23:06:54.812.795.100";
+	IoT::OPC::DateTime sDT(str);
+	assert(sDT.toString() == str);
+	assert(sDT.year() == 2017);
+	assert(sDT.month() == 5);
+	assert(sDT.day() == 26);
+	assert(sDT.hour() == 23);
+	assert(sDT.minute() == 6);
+	assert(sDT.second() == 54);
+	assert(sDT.millisecond() == 812);
+	assert(sDT.microsecond() == 795);
+	assert(sDT.nanosecond() == 100);
 
-	std::string str = "05/26/2017 23:06:54.812.795.123";
+	str = "05/26/2017 23:06:54.812.795.500";
 	sDT = str;
 	assert(sDT.toString() == str);
-	assert(sDT.nanosecond() == 123);
 
-	Var vDT = oDT;
-	assert(vDT.convert<IoT::OPC::DateTime>() == oDT);
-	assert(vDT.toString() == oDT.toString());
+	str = "05/26/2017 23:06:54.812.795.900";
+	sDT = str;
+	assert(sDT.toString() == str);
+
+	Var vDT = sDT;
+	assert(vDT.extract<IoT::OPC::DateTime>() == sDT);
+	assert(vDT.toString() == sDT.toString());
 }
 
 
@@ -579,7 +574,7 @@ void OPCTest::testClient()
 		nID = 5;
 		assert(client.readTimestampByID(nsIndex, nID) == ts);
 		varVal = client.read(nsIndex, nID);
-		assert(varVal == IoT::OPC::DateTime(ts));
+		assert(varVal == ts);
 		try
 		{
 			client.write(nsIndex, nID, 1.2, true);
@@ -591,7 +586,7 @@ void OPCTest::testClient()
 		client.write(nsIndex, nID, ts, true);
 		assert(client.readTimestampByID(nsIndex, nID) == ts);
 		varVal = client.read(nsIndex, nID);
-		assert(varVal == IoT::OPC::DateTime(ts));
+		assert(varVal == ts);
 
 		client.writeCurrentDateTimeByID(nsIndex, nID);
 		assert(client.readTimestampByID(nsIndex, nID) > ts);
