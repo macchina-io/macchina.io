@@ -594,8 +594,11 @@ int MQTTClientImpl::onMessageArrived(void* context, char* topicName, int topicLe
 		event.handled = false;
 	}
 	
- 	MQTTClient_freeMessage(&message);
-    MQTTClient_free(topicName);
+	if (event.handled)
+	{
+		MQTTClient_freeMessage(&message);
+		MQTTClient_free(topicName);
+    }
 	
 	return event.handled;
 }
