@@ -98,6 +98,11 @@ public:
 	Poco::Int64 timestamp() const;
 		/// Returns the timestamp (epoch 1/1/1601, 100 ns resolution).
 
+	static Poco::Int64 fromUnixEpoch(Poco::Int64 ts, Poco::Int64 scale = 1000L)
+	{
+		return ts * scale * 10 + UA_DATETIME_UNIX_EPOCH;
+	}
+
 	int year() const;
 	int month() const;
 	int day() const;

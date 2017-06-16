@@ -47,3 +47,13 @@ log(idx.toString() + ': [' + str + ']');
 
 idx = 5;
 log(idx.toString() + ': [' + opc.read(nsIdx, idx) + ']');
+
+var date = new Date;
+log("Write current DateTime: " + date);
+opc.write(nsIdx, idx, date);
+log(idx.toString() + ': [' + opc.read(nsIdx, idx) + ']');
+
+date = Date.now();
+log("Write current timestamp: " + date);
+opc.write(nsIdx, idx, date);
+log(idx.toString() + ': [' + opc.read(nsIdx, idx) + ']');
