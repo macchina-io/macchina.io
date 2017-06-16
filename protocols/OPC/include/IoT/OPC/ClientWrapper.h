@@ -24,7 +24,6 @@
 #include "Poco/JS/Core/Wrapper.h"
 #include "IoT/OPC/Client.h"
 #include "Poco/Dynamic/Var.h"
-#include "Poco/LocalDateTime.h"
 #include <iostream>
 
 
@@ -137,18 +136,16 @@ private:
 						case UA_TYPES_DOUBLE: { pClientHolder->writeFloat<double>(args[idx], nsIndex, id); break; }
 						case UA_TYPES_DATETIME:
 						{
-							Poco::LocalDateTime ldt;
-							Poco::Int64 tzd = ldt.tzd() * UA_SEC_TO_DATETIME;
-							Poco::Int64 ts = tzd;
+							Poco::Int64 ts = 0;
 							std::unique_ptr<IoT::OPC::DateTime> pDT;
 							if(args[idx]->IsDate()) // Date object
 							{
-								ts += IoT::OPC::DateTime::fromUnixEpoch(round(v8::Handle<v8::Date>::Cast(args[idx])->ValueOf()));
+								ts = IoT::OPC::DateTime::fromUnixEpoch(round(v8::Handle<v8::Date>::Cast(args[idx])->ValueOf()));
 								pDT.reset(new IoT::OPC::DateTime(ts));
 							}
 							else if (args[idx]->IsNumber()) // timestamp
 							{
-								ts += IoT::OPC::DateTime::fromUnixEpoch(round(args[idx]->NumberValue()));
+								ts = IoT::OPC::DateTime::fromUnixEpoch(round(args[idx]->NumberValue()));
 								pDT.reset(new IoT::OPC::DateTime(ts));
 							}
 							else

@@ -16,7 +16,7 @@ log('Connected.');
 // retrieve and log server date/time
 log('Server DateTime: [' + opc.serverDateTime() + ']');
 
-// read and log some values by name
+// read/write and log some values by name
 var nsIdx = 1;
 var name = "the.int.answer";
 var i = opc.read(nsIdx, name);
@@ -32,7 +32,7 @@ nsIdx = 2;
 name = "the.double.answer";
 log(name + ': [' + opc.read(nsIdx, name) + ']');
 
-// read and log some values by index
+// read/write and log some values by index
 var idx = 3;
 log(idx.toString() + ': [' + opc.read(nsIdx, idx) + ']');
 
@@ -56,4 +56,6 @@ log(idx.toString() + ': [' + opc.read(nsIdx, idx) + ']');
 date = Date.now();
 log("Write current timestamp: " + date);
 opc.write(nsIdx, idx, date);
-log(idx.toString() + ': [' + opc.read(nsIdx, idx) + ']');
+date = opc.read(nsIdx, idx);
+log("Read " + Object.prototype.toString.call(date));
+log(idx.toString() + ': [' + date.valueOf() + "] => " + date);

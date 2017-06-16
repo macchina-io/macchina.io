@@ -98,10 +98,17 @@ public:
 	Poco::Int64 timestamp() const;
 		/// Returns the timestamp (epoch 1/1/1601, 100 ns resolution).
 
-	static Poco::Int64 fromUnixEpoch(Poco::Int64 ts, Poco::Int64 scale = 1000L)
-	{
-		return ts * scale * 10 + UA_DATETIME_UNIX_EPOCH;
-	}
+	static Poco::Int64 fromUnixEpoch(Poco::Int64 ts, Poco::Int64 scale = 1000L);
+		/// Returns ts (expected to be an Unix epoch-based timestamp) as OPC
+		/// timestamp.
+		///
+		/// Default scale is milliseconds and can be modified through the
+		/// optional `scale` argument.
+
+	Poco::Int64 toUnixEpoch(Poco::Int64 scale = 1000L) const;
+		/// Returns the current value of this object as Unix epoch-based timestamp.
+		/// the returned timestamp is in milliseconds by default. Scale can be
+		/// modified through the optional `scale` argument.
 
 	int year() const;
 	int month() const;
@@ -129,6 +136,18 @@ private:
 inline Poco::Int64 DateTime::timestamp() const
 {
 	return _uaDT;
+}
+
+
+inline Poco::Int64 DateTime::fromUnixEpoch(Poco::Int64 ts, Poco::Int64 scale)
+{
+	return ts * scale * 10 + UA_DATETIME_UNIX_EPOCH;
+}
+
+
+inline Poco::Int64 DateTime::toUnixEpoch(Poco::Int64 scale) const
+{
+	return round((double) (_uaDT - UA_DATETIME_UNIX_EPOCH) / (scale * 10));
 }
 
 

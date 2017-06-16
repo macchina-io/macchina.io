@@ -199,8 +199,8 @@ void ClientWrapper::read(const v8::FunctionCallbackInfo<v8::Value>& args)
 				const std::type_info& ti = val.type();
 				if (ti == typeid(IoT::OPC::DateTime))
 				{
-					v8::Local<v8::String> ret = v8::String::NewFromUtf8(v8::Isolate::GetCurrent(),
-						val.extract<IoT::OPC::DateTime>().toString().c_str());
+					Poco::Int64 ts = val.extract<IoT::OPC::DateTime>().toUnixEpoch();
+					v8::Local<v8::Date> ret = v8::Date::New(v8::Isolate::GetCurrent(),ts).As<v8::Date>();
 					args.GetReturnValue().Set(ret); return;
 				}
 				else if (val.isNumeric())
