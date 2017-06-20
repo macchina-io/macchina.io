@@ -1553,6 +1553,12 @@ Example:
 HTTPRequest objects are used to either send a HTTP or HTTPS request to a web server,
 or to obtain information about the HTTP request in a servlet or server page.
 
+As of the 0.7.0 release, the HTTPRequest object has been moved into a separate
+<*net*> module, available through the <*com.appinf.osp.js.net*> bundle.
+
+You'll have to import the <*net*> module in your script before being able to
+use the HTTPRequest object.
+
 To send a HTTP request, create a new HTTPRequest object, using the <[HTTPRequest]>
 constructor function. The constructor takes three optional arguments,
 a request method (e.g., "GET"), a URI (e.g., "http://macchina.io") and the
@@ -1566,7 +1572,8 @@ of the result via a callback function.
 
 Here is an example for a synchronous request:
 
-    var request = new HTTPRequest('GET', 'http://macchina.io');
+    var net = require('net');
+    var request = new net.HTTPRequest('GET', 'http://macchina.io');
     var response = request.send();
     logger.information(response.status, " ", response.reason);
     logger.information(response.contentType);
@@ -1575,7 +1582,8 @@ Here is an example for a synchronous request:
 
 And here's the same example, with the request sent asynchronously:
 
-    var request = new HTTPRequest('GET', 'http://macchina.io');
+    var net = require('net');
+    var request = new net.HTTPRequest('GET', 'http://macchina.io');
     var response = request.send(
         function (result) {
             if (result.error)
@@ -1597,7 +1605,8 @@ requests using any other HTTP methods.
 
 Here's a sample how to post some JSON to a Hue base station to control a smart bulb:
 
-    var request = new HTTPRequest('PUT', 'http://192.168.178.151/api/newdeveloper/lights/1/state');
+    var net = require('net');
+    var request = new net.HTTPRequest('PUT', 'http://192.168.178.151/api/newdeveloper/lights/1/state');
     request.content = JSON.stringify({on: true, bri: 100, hue: 46920, sat: 255});
     request.contentType = 'application/json';
     request.timeout = 10.0;
@@ -2080,14 +2089,18 @@ bridging mechanism are accessible from JavaScript. An attempt to call
 in an exception.
 
 
-!!!DBSession and RecordSet Objects
+!!!Database Session and RecordSet Objects
 
-DBSession and RecordSet objects provide access to the SQLite database engine that comes with
+Database Session and RecordSet objects provide access to the SQLite database engine that comes with
 macchina.io.
 
-As of the 0.7.0 release, the Data object has been moved into a separate module (and bundle). So you'll have to import that module.
+As of the 0.7.0 release, the Database Session and RecordSet objects have been moved into 
+a separate <*data*> module which is available through the <*com.appinf.osp.js.data*> bundle.
 
-Here's a short example showing the DBSession and RecordSet objects being used
+You'll have to import the <*data*> module in your script before being able to
+use the Database Session and RecordSet objects.
+
+Here's a short example showing the Database Session and RecordSet objects being used
 to periodically log sensor data in a SQLite database.
 
     var temperatureSensor;
@@ -2116,7 +2129,7 @@ to periodically log sensor data in a SQLite database.
         60000);
 ----
 
-This sample shows how to create a DBSession object connected to a SQLite database,
+This sample shows how to create a Database Session object connected to a SQLite database,
 create a table if it does not yet exist, and how to insert rows into the table.
 
 Note: there is a subtle, but important difference in JavaScript between:
@@ -2140,7 +2153,8 @@ Once you have data in a database, you may also want to get it out again.
 Following sample shows the code for a servlet that returns the last 100
 data samples as a JSON document.
 
-    var dbSession = new DBSession('SQLite', bundle.persistentDirectory + 'temperature.db');
+    var data = require('data');
+    var dbSession = new data.Session('SQLite', bundle.persistentDirectory + 'temperature.db');
     dbSession.pageSize = 100;
 
     var recordSet = dbSession.execute('SELECT timestamp, temperature FROM temperature ORDER BY timestamp DESC');
@@ -2150,16 +2164,16 @@ data samples as a JSON document.
 ----
 
 
-!!Creating a DBSession
+!!Creating a Database Session
 
-A DBSession object is created by calling the constructor function with two
+A Database Session object is created by calling the constructor function with two
 arguments. The first argument is the connector name, which for macchina.io always
 is "SQLite". The second argument is the path to the SQLite database file.
 
 
-!!DBSession Properties
+!!Database Session Properties
 
-DBSession objects have the following properties:
+Database Session objects have the following properties:
 
 !connector (ro)
 
@@ -2195,9 +2209,9 @@ Defaults to 256. Setting this to 0
 will result in an unlimited page size, which is not recommended.
 
 
-!!DBSession Methods
+!!Database Session Methods
 
-The following methods are supported by DBSession objects:
+The following methods are supported by Database Session objects:
 
 !begin()
 
@@ -2230,7 +2244,7 @@ Returns a RecordSet object.
 
 !!!RecordSet Objects
 
-RecordSet objects are returned by the <[execute()]> method of DBSession objects.
+RecordSet objects are returned by the <[execute()]> method of Database Session objects.
 A RecordSet contains the result of a SQL query. For non-query statements, the
 record set will be empty.
 
