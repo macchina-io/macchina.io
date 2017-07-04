@@ -25,14 +25,14 @@ int main(int argc, char** argv)
 {
 	try
 	{
-		Client cli("localhost"/*, OPC_STANDARD_PORT, Message::PRIO_TRACE*/);
+		Client cli("localhost", 55000/*, OPC_STANDARD_PORT, Message::PRIO_TRACE*/);
 		cli.printEndpointURLs(std::cout);
 		cli.connect();
 
 		std::cout << "Server DateTime is: [" << cli.readServerDateTimeStr() << ']' << std::endl << std::endl;
 		std::cout << "Server objects:" << std::endl;
 		cli.printServerObjects(std::cout);
-
+/*
 		std::cout << std::endl  << "Object values:" << std::endl;
 
 		int nsIndex = 1;
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 
 		id = 5;
 		std::cout << "Node [" << nsIndex << ", " << id << "]: " << cli.readStrDateTimeByID(nsIndex, 5) << std::endl;
-	}
+*/	}
 	catch(Poco::Exception& ex)
 	{
 		std::cout << ex.displayText() << std::endl;

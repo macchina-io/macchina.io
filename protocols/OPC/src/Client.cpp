@@ -235,7 +235,9 @@ void Client::getDateTime(IoT::OPC::DateTime& dt)
 	if(retval != UA_STATUSCODE_GOOD ||
 			!UA_Variant_hasScalarType(&value, &UA_TYPES[OPC_TYPE_DATETIME]))
 	{
-		throw RuntimeException("Error in getDateTime(): " +  getError(retval));
+		std::ostringstream os;
+		os << "Error in getDateTime(): " << retval << " (" << getError(retval) << ')';
+		throw RuntimeException(os.str());
 	}
 	dt = *(UA_DateTime*)value.data;
 	UA_Variant_deleteMembers(&value);
@@ -344,7 +346,8 @@ void Client::cacheTypes()
 			if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
 			{
 				int nodeID = ref->nodeId.nodeId.identifier.numeric;
-				if(getValueNodeType(nsIndex, nodeID, var))
+				UA_StatusCode retval;
+				if(getValueNodeType(nsIndex, nodeID, var, retval))
 				{
 					std::ostringstream os;
 					os << "Caching Node: (" << nsIndex << ", " << nodeID << "), TYPE: ";
@@ -353,12 +356,19 @@ void Client::cacheTypes()
 					_pLogger->trace(os.str());
 					_nodeTypeCache.add(IntNodeID(nsIndex, nodeID), var.type().typeIndex, var.isArray());
 				}
+				else if(UA_STATUSCODE_BADATTRIBUTEIDINVALID != retval)
+				{
+					std::ostringstream os;
+					os << "Node (" << nsIndex << ", " << nodeID << ") : " << std::hex << getError(retval);
+					_pLogger->error(os.str());
+				}
 			}
 			else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
 			{
 				UA_String nodeID = ref->nodeId.nodeId.identifier.string;
 				std::string nID = std::string((char*) nodeID.data, nodeID.length);
-				if(getValueNodeType(nsIndex, nID, var))
+				UA_StatusCode retval;
+				if(getValueNodeType(nsIndex, nID, var, retval))
 				{
 					std::ostringstream os;
 					os << "Caching Node: (" << nsIndex << ", " << nID << "), TYPE: ";
@@ -366,6 +376,12 @@ void Client::cacheTypes()
 					else { os << var.type().typeIndex << std::endl; }
 					_pLogger->trace(os.str());
 					_nodeTypeCache.add(StringNodeID(nsIndex, nID), var.type().typeIndex, var.isArray());
+				}
+				else if(UA_STATUSCODE_BADATTRIBUTEIDINVALID != retval)
+				{
+					std::ostringstream os;
+					os << "Node (" << nsIndex << ", " << nID << ") : " << getError(retval);
+					_pLogger->error(os.str());
 				}
 			}
 			// TODO: distinguish further types
@@ -383,6 +399,7 @@ void Client::printBrowse(std::ostream& os, int type, std::vector<int> colWidths)
 	if(colWidths.size() < 4) colWidths.push_back(36);
 	if(colWidths.size() < 5) colWidths.push_back(36);
 	UA_BrowseResponse bResp = browse(type);
+	os << "Found " << bResp.resultsSize << " results." << std::endl;
 	os << std::setw(colWidths.at(0)) << "[NAMESPACE]" << std::setw(colWidths.at(1)) << "[NODEID]" <<
 		std::setw(colWidths.at(2)) << "[BROWSE NAME]" << std::setw(colWidths.at(3)) << "[DISPLAY NAME]" <<
 		std::setw(colWidths.at(3)) << "[VALUE]" << std::endl;
@@ -390,6 +407,7 @@ void Client::printBrowse(std::ostream& os, int type, std::vector<int> colWidths)
 	os << line << std::endl;
 	for (size_t i = 0; i < bResp.resultsSize; ++i)
 	{
+		os << "Found " << bResp.results[i].referencesSize << " references." << std::endl;
 		for (size_t j = 0; j < bResp.results[i].referencesSize; ++j)
 		{
 			UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
@@ -397,32 +415,61 @@ void Client::printBrowse(std::ostream& os, int type, std::vector<int> colWidths)
 			UA_String bName = ref->browseName.name;
 			UA_String dName = ref->displayName.text;
 			OPC::Variant var;
+			UA_StatusCode retval;
 			if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
 			{
 				int nodeID = ref->nodeId.nodeId.identifier.numeric;
-				getValueNodeType(nsIndex, nodeID, var);
-				//os << "TYPE: [" << getValueNodeType(nsIndex, nodeID) << ']' << std::endl;
-				os << std::setw(colWidths.at(0)) << nsIndex
-					<< std::setw(colWidths.at(1)) << nodeID
-					<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
-					<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
-					<< std::setw(colWidths.at(4)) << (var.hasData() ?
-						read(nsIndex, nodeID).toString() : std::string("N/A"))
-					<< std::endl;
+				if(getValueNodeType(nsIndex, nodeID, var, retval))
+				{
+					//os << "Found node [" << nodeID << "]" << std::endl;// TYPE: [" << var.type().typeIndex << ']' << std::endl;
+					os << std::setw(colWidths.at(0)) << nsIndex
+						<< std::setw(colWidths.at(1)) << nodeID
+						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
+						<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
+						<< std::setw(colWidths.at(4)) << (var.hasData() ?
+							read(nsIndex, nodeID).toString() : std::string("N/A"))
+						<< std::endl;
+				}
+				else
+				{
+					/*std::ostringstream ostr;
+					ostr << "Node (" << nsIndex << ", " << nodeID << ") : " << getError(retval);
+					_pLogger->error(ostr.str());*/
+					os << std::setw(colWidths.at(0)) << nsIndex
+						<< std::setw(colWidths.at(1)) << nodeID
+						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
+						<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
+						<< std::setw(colWidths.at(4)) << "N/A"
+						<< std::endl;
+				}
 			}
 			else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
 			{
 				UA_String nodeID = ref->nodeId.nodeId.identifier.string;
 				std::string nID = std::string((char*) nodeID.data, nodeID.length);
-				getValueNodeType(nsIndex, nID, var);
-				//os << "TYPE: [" << getValueNodeType(nsIndex, nID) << ']' << std::endl;
-				os << std::setw(colWidths.at(0)) << nsIndex << std::setw(11)
-					<< std::setw(colWidths.at(1)) << nID
-					<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
-					<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
-					<< std::setw(colWidths.at(4)) << (var.hasData() ?
-						read(nsIndex, nID).toString() : std::string("N/A"))
-					<< std::endl;
+				if(getValueNodeType(nsIndex, nID, var, retval))
+				{
+					//os << "Found Node [" << nID << "]" << std::endl;// TYPE: [" << var.type().typeIndex << ']' << std::endl;
+					os << std::setw(colWidths.at(0)) << nsIndex << std::setw(11)
+						<< std::setw(colWidths.at(1)) << nID
+						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
+						<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
+						<< std::setw(colWidths.at(4)) << (var.hasData() ?
+							read(nsIndex, nID).toString() : std::string("N/A"))
+						<< std::endl;
+				}
+				else
+				{
+					/*std::ostringstream ostr;
+					ostr << "Node (" << nsIndex << ", " << nID << ") : " << getError(retval);
+					_pLogger->error(ostr.str());*/
+					os << std::setw(colWidths.at(0)) << nsIndex << std::setw(11)
+						<< std::setw(colWidths.at(1)) << nID
+						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
+						<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
+						<< std::setw(colWidths.at(4)) << "N/A"
+						<< std::endl;
+				}
 			}
 			// TODO: distinguish further types
 		}

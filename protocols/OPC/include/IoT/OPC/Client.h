@@ -391,8 +391,8 @@ public:
 		/// Prints the list of server endpoint URLs.
 
 	void printServerObjects(std::ostream& os);
-		/// Prints all the server objects (with values
-		/// for value attribute objects) to the provided stream.
+		/// Prints all the server objects (with values for
+		/// value attribute objects) to the provided stream.
 
 private:
 
@@ -417,15 +417,16 @@ private:
 		if(!_nodeTypeCache.has(N(nsIndex, id)))
 		{
 			OPC::Variant var;
-			if(getValueNodeType(nsIndex, id, var))
+			UA_StatusCode retval;
+			if(getValueNodeType(nsIndex, id, var, retval))
 			{
 				_nodeTypeCache.add(N(nsIndex, id), var.type().typeIndex, var.isArray());
 			}
 			else
 			{
 				std::ostringstream os;
-				os << "Node (" << nsIndex << ", " << id << ") not found.";
-				throw Poco::NotFoundException(os.str());
+				os << "Node (" << nsIndex << ", " << id << ") error: " << getError(retval);
+				throw Poco::RuntimeException(os.str());
 			}
 		}
 
@@ -433,14 +434,10 @@ private:
 	}
 
 	template <typename I>
-	bool getValueNodeType(int nsIndex, const I& id, OPC::Variant& val) const
+	bool getValueNodeType(int nsIndex, const I& id, OPC::Variant& val, UA_StatusCode& retval) const
 	{
-		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
-		if(retval == UA_STATUSCODE_GOOD)
-		{
-			return true;
-		}
-		return false;
+		retval = readValueAttribute(nsIndex, id, val);
+		return (retval == UA_STATUSCODE_GOOD);
 	}
 
 	UA_StatusCode readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, UA_Variant* val) const;
@@ -525,28 +522,38 @@ private:
 			if(!_nodeTypeCache.has(nodeID, val->type->typeIndex, val->arrayLength))
 			{
 				OPC::Variant var;
-				getValueNodeType(nodeID.nsIndex(), nodeID.id(), var);
-				if(!var.hasData())
+				UA_StatusCode retval;
+				if(getValueNodeType(nodeID.nsIndex(), nodeID.id(), var, retval))
 				{
-					std::ostringstream os;
-					os << "OPC::Client::checkTypeSafety(): "
-						"write to a non-existing or non-value node [" << nodeID.nsIndex() << ", " <<
-						nodeID.id() << "] attempted.";
-					throw Poco::InvalidAccessException(os.str());
-				}
-				else if(var.type().typeIndex != val->type->typeIndex || (val->arrayLength && !var.isArray()))
-				{
-					std::ostringstream os;
-					os << "OPC::Client::checkTypeSafety(): "
-						"type mismatch for node [" << nodeID.nsIndex() << ", " <<
-						nodeID.id() << "] in type-safe mode (node/value type=" << var.type().typeIndex <<
-						'/' << val->type->typeIndex << "; "
-						"array=" << var.isArray() << '/' << val->arrayLength << ").";
-					throw Poco::InvalidAccessException(os.str());
+					if(!var.hasData())
+					{
+						std::ostringstream os;
+						os << "OPC::Client::checkTypeSafety(): "
+							"write to a non-existing or non-value node [" << nodeID.nsIndex() << ", " <<
+							nodeID.id() << "] attempted.";
+						throw Poco::InvalidAccessException(os.str());
+					}
+					else if(var.type().typeIndex != val->type->typeIndex || (val->arrayLength && !var.isArray()))
+					{
+						std::ostringstream os;
+						os << "OPC::Client::checkTypeSafety(): "
+							"type mismatch for node [" << nodeID.nsIndex() << ", " <<
+							nodeID.id() << "] in type-safe mode (node/value type=" << var.type().typeIndex <<
+							'/' << val->type->typeIndex << "; "
+							"array=" << var.isArray() << '/' << val->arrayLength << ").";
+						throw Poco::InvalidAccessException(os.str());
+					}
+					else
+					{
+						_nodeTypeCache.add(nodeID, var.type().typeIndex, var.isArray());
+					}
 				}
 				else
 				{
-					_nodeTypeCache.add(nodeID, var.type().typeIndex, var.isArray());
+					std::ostringstream os;
+					os << "Can not determine value node type for node ID " << nodeID.toString() <<
+						", error: " << getError(retval);
+					_pLogger->error(os.str());
 				}
 			}
 		}
