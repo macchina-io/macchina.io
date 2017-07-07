@@ -119,7 +119,6 @@ Client& Client::operator = (Client& other)
 
 Client::~Client()
 {
-	UA_BrowseRequest_deleteMembers(&_browseReq);
 	disconnect();
 	UA_Client_delete(_pClient);
 }
@@ -135,11 +134,6 @@ void Client::init(bool doConnect)
 		throw IllegalStateException("OPC client not ready");
 	setURL(_server, _port, _proto);
 	getEndpointURLs();
-	UA_BrowseRequest_init(&_browseReq);
-	_browseReq.requestedMaxReferencesPerNode = 0;
-	_browseReq.nodesToBrowse = UA_BrowseDescription_new();
-	_browseReq.nodesToBrowseSize = 1;
-	_browseReq.nodesToBrowse[0].resultMask = UA_BROWSERESULTMASK_ALL; // return everything
 	if(doConnect) connect(_user, _pass);
 	if(_typeSafe) cacheTypes();
 }
@@ -268,8 +262,9 @@ UA_StatusCode Client::readValueAttribute(int nsIndex, const Poco::Dynamic::Var& 
 	}
 	else
 	{
-		return UA_Client_readValueAttribute(_pClient, UA_NODEID_NUMERIC(nsIndex, id), val);
+		return UA_Client_readValueAttribute(_pClient, UA_NODEID_NUMERIC(nsIndex, id.convert<Poco::UInt32>()), val);
 	}
+	//TODO: guid and bytestring
 }
 
 
@@ -324,157 +319,28 @@ UA_StatusCode Client::writeTypedArray(OPC::Variant& var, int nsIndex, const int&
 // browsing/caching
 //
 
-UA_BrowseResponse Client::browse(int type)
+
+UA_BrowseResponse Client::browse(const BrowseDescVec& desc)
 {
-	_browseReq.nodesToBrowse[0].nodeId = UA_NODEID_NUMERIC(0, type);
-	return UA_Client_Service_browse(_pClient, _browseReq);
+	UA_BrowseRequest browseReq;
+	UA_BrowseRequest_init(&browseReq);
+	if(desc.size())
+	{
+		browseReq.requestedMaxReferencesPerNode = 0;
+		browseReq.nodesToBrowse = const_cast<UA_BrowseDescription*>(&desc[0]);
+		browseReq.nodesToBrowseSize = desc.size();
+	}
+	UA_BrowseResponse bResp = UA_Client_Service_browse(_pClient, browseReq);
+	return bResp;
 }
 
 
-void Client::cacheTypes()
+UA_BrowseDescription Client::getBrowseDesc(UA_NodeId id, UA_UInt32 mask)
 {
-	_nodeTypeCache.clear();
-	UA_BrowseResponse bResp = browse(UA_NS0ID_OBJECTSFOLDER);
-	for (size_t i = 0; i < bResp.resultsSize; ++i)
-	{
-		for (size_t j = 0; j < bResp.results[i].referencesSize; ++j)
-		{
-			UA_ReferenceDescription* ref = &(bResp.results[i].references[j]);
-			poco_check_ptr(ref);
-			int nsIndex = ref->browseName.namespaceIndex;
-			OPC::Variant var;
-			if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
-			{
-				int nodeID = ref->nodeId.nodeId.identifier.numeric;
-				UA_StatusCode retval;
-				if(getValueNodeType(nsIndex, nodeID, var, retval))
-				{
-					std::ostringstream os;
-					os << "Caching Node: (" << nsIndex << ", " << nodeID << "), TYPE: ";
-					if(var.isArray()) { os << "[" << var.type().typeIndex << ']' << std::endl; }
-					else { os << var.type().typeIndex << std::endl; }
-					_pLogger->trace(os.str());
-					_nodeTypeCache.add(IntNodeID(nsIndex, nodeID), var.type().typeIndex, var.isArray());
-				}
-				else if(UA_STATUSCODE_BADATTRIBUTEIDINVALID != retval)
-				{
-					std::ostringstream os;
-					os << "Node (" << nsIndex << ", " << nodeID << ") : " << std::hex << getError(retval);
-					_pLogger->error(os.str());
-				}
-			}
-			else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
-			{
-				UA_String nodeID = ref->nodeId.nodeId.identifier.string;
-				std::string nID = std::string((char*) nodeID.data, nodeID.length);
-				UA_StatusCode retval;
-				if(getValueNodeType(nsIndex, nID, var, retval))
-				{
-					std::ostringstream os;
-					os << "Caching Node: (" << nsIndex << ", " << nID << "), TYPE: ";
-					if(var.isArray()) { os << "[" << var.type().typeIndex << ']' << std::endl; }
-					else { os << var.type().typeIndex << std::endl; }
-					_pLogger->trace(os.str());
-					_nodeTypeCache.add(StringNodeID(nsIndex, nID), var.type().typeIndex, var.isArray());
-				}
-				else if(UA_STATUSCODE_BADATTRIBUTEIDINVALID != retval)
-				{
-					std::ostringstream os;
-					os << "Node (" << nsIndex << ", " << nID << ") : " << getError(retval);
-					_pLogger->error(os.str());
-				}
-			}
-			// TODO: distinguish further types
-		}
-	}
-	UA_BrowseResponse_deleteMembers(&bResp);
-}
-
-
-void Client::printBrowse(std::ostream& os, int type, std::vector<int> colWidths)
-{
-	if(colWidths.size() < 1) colWidths.push_back(11);
-	if(colWidths.size() < 2) colWidths.push_back(20);
-	if(colWidths.size() < 3) colWidths.push_back(36);
-	if(colWidths.size() < 4) colWidths.push_back(36);
-	if(colWidths.size() < 5) colWidths.push_back(36);
-	UA_BrowseResponse bResp = browse(type);
-	os << "Found " << bResp.resultsSize << " results." << std::endl;
-	os << std::setw(colWidths.at(0)) << "[NAMESPACE]" << std::setw(colWidths.at(1)) << "[NODEID]" <<
-		std::setw(colWidths.at(2)) << "[BROWSE NAME]" << std::setw(colWidths.at(3)) << "[DISPLAY NAME]" <<
-		std::setw(colWidths.at(3)) << "[VALUE]" << std::endl;
-	std::string line(std::accumulate(colWidths.begin(), colWidths.end(), 0), '-');
-	os << line << std::endl;
-	for (size_t i = 0; i < bResp.resultsSize; ++i)
-	{
-		os << "Found " << bResp.results[i].referencesSize << " references." << std::endl;
-		for (size_t j = 0; j < bResp.results[i].referencesSize; ++j)
-		{
-			UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
-			int nsIndex = ref->browseName.namespaceIndex;
-			UA_String bName = ref->browseName.name;
-			UA_String dName = ref->displayName.text;
-			OPC::Variant var;
-			UA_StatusCode retval;
-			if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
-			{
-				int nodeID = ref->nodeId.nodeId.identifier.numeric;
-				if(getValueNodeType(nsIndex, nodeID, var, retval))
-				{
-					//os << "Found node [" << nodeID << "]" << std::endl;// TYPE: [" << var.type().typeIndex << ']' << std::endl;
-					os << std::setw(colWidths.at(0)) << nsIndex
-						<< std::setw(colWidths.at(1)) << nodeID
-						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
-						<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
-						<< std::setw(colWidths.at(4)) << (var.hasData() ?
-							read(nsIndex, nodeID).toString() : std::string("N/A"))
-						<< std::endl;
-				}
-				else
-				{
-					/*std::ostringstream ostr;
-					ostr << "Node (" << nsIndex << ", " << nodeID << ") : " << getError(retval);
-					_pLogger->error(ostr.str());*/
-					os << std::setw(colWidths.at(0)) << nsIndex
-						<< std::setw(colWidths.at(1)) << nodeID
-						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
-						<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
-						<< std::setw(colWidths.at(4)) << "N/A"
-						<< std::endl;
-				}
-			}
-			else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
-			{
-				UA_String nodeID = ref->nodeId.nodeId.identifier.string;
-				std::string nID = std::string((char*) nodeID.data, nodeID.length);
-				if(getValueNodeType(nsIndex, nID, var, retval))
-				{
-					//os << "Found Node [" << nID << "]" << std::endl;// TYPE: [" << var.type().typeIndex << ']' << std::endl;
-					os << std::setw(colWidths.at(0)) << nsIndex << std::setw(11)
-						<< std::setw(colWidths.at(1)) << nID
-						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
-						<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
-						<< std::setw(colWidths.at(4)) << (var.hasData() ?
-							read(nsIndex, nID).toString() : std::string("N/A"))
-						<< std::endl;
-				}
-				else
-				{
-					/*std::ostringstream ostr;
-					ostr << "Node (" << nsIndex << ", " << nID << ") : " << getError(retval);
-					_pLogger->error(ostr.str());*/
-					os << std::setw(colWidths.at(0)) << nsIndex << std::setw(11)
-						<< std::setw(colWidths.at(1)) << nID
-						<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
-						<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
-						<< std::setw(colWidths.at(4)) << "N/A"
-						<< std::endl;
-				}
-			}
-			// TODO: distinguish further types
-		}
-	}
-	UA_BrowseResponse_deleteMembers(&bResp);
+	UA_BrowseDescription desc = {0};
+	desc.resultMask = mask;
+	desc.nodeId = id;
+	return desc;
 }
 
 

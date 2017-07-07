@@ -50,6 +50,8 @@ public:
 
 	bool hasData() const;
 
+	bool hasType() const;
+
 	const UA_DataType& type() const;
 
 	bool isArray() const;

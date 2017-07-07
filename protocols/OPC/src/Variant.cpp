@@ -63,6 +63,12 @@ bool Variant::hasData() const
 }
 
 
+bool Variant::hasType() const
+{
+	return _pVariant && _pVariant->type;
+}
+
+
 const UA_DataType& Variant::type() const
 {
 	poco_check_ptr(_pVariant);
