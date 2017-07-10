@@ -256,15 +256,17 @@ Poco::DateTime Client::readServerDateTime()
 
 UA_StatusCode Client::readValueAttribute(int nsIndex, const Poco::Dynamic::Var& id, UA_Variant* val) const
 {
+	UA_StatusCode retval;
 	if(id.isString())
 	{
-		return UA_Client_readValueAttribute(_pClient, UA_NODEID_STRING(nsIndex, const_cast<char*>(id.toString().c_str())), val);
+		retval = UA_Client_readValueAttribute(_pClient, UA_NODEID_STRING(nsIndex, const_cast<char*>(id.toString().c_str())), val);
 	}
 	else
 	{
-		return UA_Client_readValueAttribute(_pClient, UA_NODEID_NUMERIC(nsIndex, id.convert<Poco::UInt32>()), val);
+		retval = UA_Client_readValueAttribute(_pClient, UA_NODEID_NUMERIC(nsIndex, id.convert<Poco::UInt32>()), val);
 	}
 	//TODO: guid and bytestring
+	return retval;
 }
 
 

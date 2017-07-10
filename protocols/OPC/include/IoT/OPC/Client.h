@@ -219,89 +219,96 @@ public:
 		UA_StatusCode retval = readValueAttribute(nsIndex, id, val);
 		if(retval == UA_STATUSCODE_GOOD)
 		{
-			UInt16 type = val.type().typeIndex;
-			if(UA_Variant_isScalar(val))
+			if (val.hasType() && val.hasData())
 			{
-				switch(type)
+				UInt16 type = val.type().typeIndex;
+				if(UA_Variant_isScalar(val))
 				{
-					case UA_TYPES_BOOLEAN:  { bool         value; return getValue(val, value); }
-					case UA_TYPES_SBYTE:    { Poco::Int8   value; return getValue(val, value); }
-					case UA_TYPES_BYTE:     { Poco::UInt8  value; return getValue(val, value); }
-					case UA_TYPES_INT16:    { Poco::Int16  value; return getValue(val, value); }
-					case UA_TYPES_UINT16:   { Poco::UInt16 value; return getValue(val, value); }
-					case UA_TYPES_INT32:    { Poco::Int32  value; return getValue(val, value); }
-					case UA_TYPES_UINT32:   { Poco::UInt32 value; return getValue(val, value); }
-					case UA_TYPES_INT64:    { Poco::Int64  value; return getValue(val, value); }
-					case UA_TYPES_UINT64:   { Poco::UInt64 value; return getValue(val, value); }
-					case UA_TYPES_FLOAT:    { float        value; return getValue(val, value); }
-					case UA_TYPES_DOUBLE:   { double       value; return getValue(val, value); }
-					case UA_TYPES_DATETIME:
+					switch(type)
 					{
-						UA_DateTime dt;
-						getValue(val, dt);
-						OPC::DateTime odt(dt);
-						return odt;
+						case UA_TYPES_BOOLEAN:  { bool         value; return getValue(val, value); }
+						case UA_TYPES_SBYTE:    { Poco::Int8   value; return getValue(val, value); }
+						case UA_TYPES_BYTE:     { Poco::UInt8  value; return getValue(val, value); }
+						case UA_TYPES_INT16:    { Poco::Int16  value; return getValue(val, value); }
+						case UA_TYPES_UINT16:   { Poco::UInt16 value; return getValue(val, value); }
+						case UA_TYPES_INT32:    { Poco::Int32  value; return getValue(val, value); }
+						case UA_TYPES_UINT32:   { Poco::UInt32 value; return getValue(val, value); }
+						case UA_TYPES_INT64:    { Poco::Int64  value; return getValue(val, value); }
+						case UA_TYPES_UINT64:   { Poco::UInt64 value; return getValue(val, value); }
+						case UA_TYPES_FLOAT:    { float        value; return getValue(val, value); }
+						case UA_TYPES_DOUBLE:   { double       value; return getValue(val, value); }
+						case UA_TYPES_DATETIME:
+						{
+							UA_DateTime dt;
+							getValue(val, dt);
+							OPC::DateTime odt(dt);
+							return odt;
+						}
+						case UA_TYPES_STRING:
+						{
+							std::string value;
+							UA_String uaStr;
+							getValue(val, uaStr);
+							value = STDString(uaStr);
+							return value;
+						}
+						default:
+							_pLogger->warning("Type not supported:" + Poco::NumberFormatter::format(type));
 					}
-					case UA_TYPES_STRING:
+				}
+				else
+				{
+					switch(type)
 					{
-						std::string value;
-						UA_String uaStr;
-						getValue(val, uaStr);
-						value = STDString(uaStr);
-						return value;
+						case UA_TYPES_BOOLEAN:  { std::vector<bool> value;         return getArrayValue(val, value); }
+						case UA_TYPES_SBYTE:    { std::vector<Poco::Int8> value;   return getArrayValue(val, value); }
+						case UA_TYPES_BYTE:     { std::vector<Poco::UInt8> value;  return getArrayValue(val, value); }
+						case UA_TYPES_INT16:    { std::vector<Poco::Int16> value;  return getArrayValue(val, value); }
+						case UA_TYPES_UINT16:   { std::vector<Poco::UInt16> value; return getArrayValue(val, value); }
+						case UA_TYPES_INT32:    { std::vector<Poco::Int32> value;  return getArrayValue(val, value); }
+						case UA_TYPES_UINT32:   { std::vector<Poco::UInt32> value; return getArrayValue(val, value); }
+						case UA_TYPES_INT64:    { std::vector<Poco::Int64> value;  return getArrayValue(val, value); }
+						case UA_TYPES_UINT64:   { std::vector<Poco::UInt64> value; return getArrayValue(val, value); }
+						case UA_TYPES_FLOAT:    { std::vector<float> value;        return getArrayValue(val, value); }
+						case UA_TYPES_DOUBLE:   { std::vector<double> value;       return getArrayValue(val, value); }
+						case UA_TYPES_DATETIME:
+						{
+							std::vector<UA_DateTime> dt;
+							getArrayValue(val, dt);
+							std::vector<OPC::DateTime> odt;
+							for(std::vector<UA_DateTime>::const_iterator it = dt.begin(),
+								end = dt.end(); it != end; ++it)
+							{
+								odt.push_back(OPC::DateTime(*it));
+							}
+							return odt;
+						}
+						case UA_TYPES_STRING:
+						{
+							std::vector<UA_String> uaStr;
+							getArrayValue(val, uaStr);
+							std::vector<std::string> values;
+							for(std::vector<UA_String>::const_iterator it = uaStr.begin(),
+								end = uaStr.end(); it != end; ++it)
+							{
+								values.push_back(STDString(*it));
+							}
+							return values;
+						}
+						default:
+							_pLogger->warning("Type not supported:" + Poco::NumberFormatter::format(type));
 					}
-					default:
-						_pLogger->warning("Type not supported:" + Poco::NumberFormatter::format(type));
 				}
 			}
 			else
 			{
-				switch(type)
-				{
-					case UA_TYPES_BOOLEAN:  { std::vector<bool> value;         return getArrayValue(val, value); }
-					case UA_TYPES_SBYTE:    { std::vector<Poco::Int8> value;   return getArrayValue(val, value); }
-					case UA_TYPES_BYTE:     { std::vector<Poco::UInt8> value;  return getArrayValue(val, value); }
-					case UA_TYPES_INT16:    { std::vector<Poco::Int16> value;  return getArrayValue(val, value); }
-					case UA_TYPES_UINT16:   { std::vector<Poco::UInt16> value; return getArrayValue(val, value); }
-					case UA_TYPES_INT32:    { std::vector<Poco::Int32> value;  return getArrayValue(val, value); }
-					case UA_TYPES_UINT32:   { std::vector<Poco::UInt32> value; return getArrayValue(val, value); }
-					case UA_TYPES_INT64:    { std::vector<Poco::Int64> value;  return getArrayValue(val, value); }
-					case UA_TYPES_UINT64:   { std::vector<Poco::UInt64> value; return getArrayValue(val, value); }
-					case UA_TYPES_FLOAT:    { std::vector<float> value;        return getArrayValue(val, value); }
-					case UA_TYPES_DOUBLE:   { std::vector<double> value;       return getArrayValue(val, value); }
-					case UA_TYPES_DATETIME:
-					{
-						std::vector<UA_DateTime> dt;
-						getArrayValue(val, dt);
-						std::vector<OPC::DateTime> odt;
-						for(std::vector<UA_DateTime>::const_iterator it = dt.begin(),
-							end = dt.end(); it != end; ++it)
-						{
-							odt.push_back(OPC::DateTime(*it));
-						}
-						return odt;
-					}
-					case UA_TYPES_STRING:
-					{
-						std::vector<UA_String> uaStr;
-						getArrayValue(val, uaStr);
-						std::vector<std::string> values;
-						for(std::vector<UA_String>::const_iterator it = uaStr.begin(),
-							end = uaStr.end(); it != end; ++it)
-						{
-							values.push_back(STDString(*it));
-						}
-						return values;
-					}
-					default:
-						_pLogger->warning("Type not supported:" + Poco::NumberFormatter::format(type));
-				}
+				return Poco::Dynamic::Var();
 			}
 		}
 		else
 		{
 			std::ostringstream os;
-			os << "Error in OPC::Client::readValueAttribute(" << id << "): " << getError(retval);
+			os << "Error in OPC::Client::read(" << id << "): " << getError(retval);
 			throw Poco::RuntimeException(os.str());
 		}
 		return 0;
@@ -404,15 +411,16 @@ private:
 	UA_BrowseDescription getBrowseDesc(UA_NodeId id, UA_UInt32 mask = UA_BROWSERESULTMASK_ALL);
 	UA_BrowseResponse browse(const BrowseDescVec& desc);
 
-	UA_NodeId getNodeID(Poco::UInt32 nsIndex, const std::string& id)
-	{
-		return UA_NODEID_STRING(nsIndex, const_cast<char*>(id.c_str()));
-	}
-
-	UA_NodeId getNodeID(Poco::UInt32 nsIndex, Poco::UInt32 id)
-	{
-		return UA_NODEID_NUMERIC(nsIndex, id);
-	}
+	UA_NodeId getNodeID(Poco::UInt32 nsIndex, const std::string& id);
+	UA_NodeId getNodeID(Poco::UInt32 nsIndex, Poco::UInt32 id);
+	static bool isObject(UA_NodeClass cls);
+	static bool isVariable(UA_NodeClass cls);
+	static bool isMethod(UA_NodeClass cls);
+	static bool isObjectType(UA_NodeClass cls);
+	static bool isVariableType(UA_NodeClass cls);
+	static bool isReference(UA_NodeClass cls);
+	static bool isDatatype(UA_NodeClass cls);
+	static bool isView(UA_NodeClass cls);
 
 	template <typename T = Poco::UInt32>
 	void cacheTypes(Poco::UInt32 nsIndex = 0,
@@ -427,46 +435,54 @@ private:
 			for (size_t j = 0; j < bResp.results[i].referencesSize; ++j)
 			{
 				UA_ReferenceDescription* ref = &(bResp.results[i].references[j]);
-				poco_check_ptr(ref);
-				int nsIndex = ref->browseName.namespaceIndex;
-				OPC::Variant var;
-				if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
+				if(ref && ref->isForward && (isObject(ref->nodeClass) || isVariable(ref->nodeClass) || isView(ref->nodeClass)))
 				{
-					int nodeID = ref->nodeId.nodeId.identifier.numeric;
+					int nsIndex = ref->browseName.namespaceIndex;
+					bool hasData = isVariable(ref->nodeClass);
 					UA_StatusCode retval;
-					if(getValueNodeType(nsIndex, nodeID, var, retval))
+					OPC::Variant var;
+					if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
 					{
-						cacheNode<int, IntNodeID>(nsIndex, nodeID, var);
+						int nodeID = ref->nodeId.nodeId.identifier.numeric;
+						if (hasData)
+						{
+							if (getValueNodeType(nsIndex, nodeID, var, retval))
+							{
+								cacheNode<int, IntNodeID>(nsIndex, nodeID, var);
+							}
+							else if (UA_STATUSCODE_BADATTRIBUTEIDINVALID != retval)
+							{
+								std::ostringstream os;
+								os << "Node (" << nsIndex << ", " << nodeID << ") : " << std::hex << getError(retval);
+								_pLogger->error(os.str());
+							}
+						}
+						else
+						{
+							cacheTypes(nsIndex, nodeID);
+						}
 					}
-					else if(UA_STATUSCODE_BADATTRIBUTEIDINVALID != retval)
+					else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
 					{
-						std::ostringstream os;
-						os << "Node (" << nsIndex << ", " << nodeID << ") : " << std::hex << getError(retval);
-						_pLogger->error(os.str());
-					}
-					else
-					{
-						cacheTypes(nsIndex, nodeID);
-					}
-				}
-				else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
-				{
-					UA_String nodeID = ref->nodeId.nodeId.identifier.string;
-					std::string nID = std::string((char*) nodeID.data, nodeID.length);
-					UA_StatusCode retval;
-					if(getValueNodeType(nsIndex, nID, var, retval))
-					{
-						cacheNode<std::string, StringNodeID>(nsIndex, nID, var);
-					}
-					else if(UA_STATUSCODE_BADATTRIBUTEIDINVALID != retval)
-					{
-						std::ostringstream os;
-						os << "Node (" << nsIndex << ", " << nID << ") : " << getError(retval);
-						_pLogger->error(os.str());
-					}
-					else
-					{
-						cacheTypes(nsIndex, nID);
+						UA_String nodeID = ref->nodeId.nodeId.identifier.string;
+						std::string nID = std::string((char*) nodeID.data, nodeID.length);
+						if (hasData)
+						{
+							if (getValueNodeType(nsIndex, nID, var, retval))
+							{
+								cacheNode<std::string, StringNodeID>(nsIndex, nID, var);
+							}
+							else if (UA_STATUSCODE_BADATTRIBUTEIDINVALID != retval)
+							{
+								std::ostringstream os;
+								os << "Node (" << nsIndex << ", " << nID << ") : " << getError(retval);
+								_pLogger->error(os.str());
+							}
+						}
+						else
+						{
+							cacheTypes(nsIndex, nID);
+						}
 					}
 				}
 				// TODO: distinguish further types
@@ -482,6 +498,7 @@ private:
 		}
 		UA_BrowseResponse_deleteMembers(&bResp);
 	}
+
 
 	template <typename T = Poco::UInt32>
 	void printBrowse(std::ostream& os, Poco::UInt32 nsIndex = 0,
@@ -511,62 +528,72 @@ private:
 			for (size_t j = 0; j < bResp.results[i].referencesSize; ++j)
 			{
 				UA_ReferenceDescription *ref = &(bResp.results[i].references[j]);
-				int nsIndex = ref->browseName.namespaceIndex;
-				UA_String bName = ref->browseName.name;
-				UA_String dName = ref->displayName.text;
-				OPC::Variant var;
-				UA_StatusCode retval;
-				if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
+				if(ref && ref->isForward && (isObject(ref->nodeClass) || isVariable(ref->nodeClass) || isView(ref->nodeClass)))
 				{
-					int nodeID = ref->nodeId.nodeId.identifier.numeric;
-					if(getValueNodeType(nsIndex, nodeID, var, retval))
+					int nsIndex = ref->browseName.namespaceIndex;
+					UA_String bName = ref->browseName.name;
+					UA_String dName = ref->displayName.text;
+					bool hasData = isVariable(ref->nodeClass);
+					Poco::Dynamic::Var value;
+					if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_NUMERIC)
 					{
+						int nodeID = ref->nodeId.nodeId.identifier.numeric;
 						os << std::setw(colWidths.at(0)) << nsIndex
 							<< std::setw(colWidths.at(1)) << nodeID
 							<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
 							<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
-							<< std::setw(colWidths.at(4)) << (var.hasData() ?
-								read(nsIndex, nodeID).toString() : std::string("N/A"))
-							<< std::endl;
+							<< std::setw(colWidths.at(4));
+
+						if(hasData)
+						{
+							try
+							{
+								value = read(nsIndex, nodeID);
+							}
+							catch (Poco::Exception& ex)
+							{
+								value = ex.displayText();
+							}
+							os << (!value.isEmpty() ? value.toString() : std::string("null"))
+								<< std::endl;
+						}
+						else
+						{
+							os << "N/A" << std::endl;
+							printBrowse(os, nsIndex, nodeID, colWidths, false);
+						}
 					}
-					else
+					else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
 					{
-						os << std::setw(colWidths.at(0)) << nsIndex
-							<< std::setw(colWidths.at(1)) << nodeID
-							<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
-							<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
-							<< std::setw(colWidths.at(4)) << "N/A"
-							<< std::endl;
-						printBrowse(os, nsIndex, nodeID, colWidths, false);
-					}
-				}
-				else if (ref->nodeId.nodeId.identifierType == UA_NODEIDTYPE_STRING)
-				{
-					UA_String nodeID = ref->nodeId.nodeId.identifier.string;
-					std::string nID = std::string((char*) nodeID.data, nodeID.length);
-					if(getValueNodeType(nsIndex, nID, var, retval))
-					{
+						UA_String nodeID = ref->nodeId.nodeId.identifier.string;
+						std::string nID = std::string((char*) nodeID.data, nodeID.length);
 						os << std::setw(colWidths.at(0)) << nsIndex << std::setw(11)
 							<< std::setw(colWidths.at(1)) << nID
 							<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
 							<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
-							<< std::setw(colWidths.at(4)) << (var.hasData() ?
-								read(nsIndex, nID).toString() : std::string("N/A"))
-							<< std::endl;
+							<< std::setw(colWidths.at(4));
+
+						if(hasData)
+						{
+							try
+							{
+								value = read(nsIndex, nID);
+							}
+							catch (Poco::Exception& ex)
+							{
+								value = ex.displayText();
+							}
+							os << (!value.isEmpty() ? value.toString() : std::string("null")) << std::endl;
+						}
+						else
+						{
+							os  << "N/A" << std::endl;
+							printBrowse(os, nsIndex, nID, colWidths, false);
+						}
 					}
-					else
-					{
-						os << std::setw(colWidths.at(0)) << nsIndex << std::setw(11)
-							<< std::setw(colWidths.at(1)) << nID
-							<< std::setw(colWidths.at(2)) << std::string((char*) bName.data, bName.length)
-							<< std::setw(colWidths.at(3)) << std::string((char*) dName.data, dName.length)
-							<< std::setw(colWidths.at(4)) << "N/A"
-							<< std::endl;
-						printBrowse(os, nsIndex, nID, colWidths, false);
-					}
+					// TODO: distinguish further types
 				}
-				// TODO: distinguish further types
-			}
+			} // end if isForward
 		}
 		UA_BrowseResponse_deleteMembers(&bResp);
 	}
@@ -850,6 +877,7 @@ private:
 	std::string _user;
 	std::string _pass;
 	std::string _proto;
+	int _indent = -1;
 };
 
 
@@ -1276,6 +1304,70 @@ inline void Client::writeCurrentDateTimeByName(int nsIndex, const std::string& n
 inline void Client::writeCurrentDateTimeByID(int nsIndex, int id)
 {
 	writeValue(nsIndex, id, (Int64) -1, true);
+}
+
+
+//
+// browsing
+//
+
+inline UA_NodeId Client::getNodeID(Poco::UInt32 nsIndex, const std::string& id)
+{
+	return UA_NODEID_STRING(nsIndex, const_cast<char*>(id.c_str()));
+}
+
+
+inline UA_NodeId Client::getNodeID(Poco::UInt32 nsIndex, Poco::UInt32 id)
+{
+	return UA_NODEID_NUMERIC(nsIndex, id);
+}
+
+
+inline bool Client::isObject(UA_NodeClass cls)
+{
+	return cls & UA_NODECLASS_OBJECT;
+}
+
+
+inline bool Client::isVariable(UA_NodeClass cls)
+{
+	return cls & UA_NODECLASS_VARIABLE;
+}
+
+
+inline bool Client::isMethod(UA_NodeClass cls)
+{
+	return cls & UA_NODECLASS_METHOD;
+}
+
+
+inline bool Client::isObjectType(UA_NodeClass cls)
+{
+	return cls & UA_NODECLASS_OBJECTTYPE;
+}
+
+
+inline bool Client::isVariableType(UA_NodeClass cls)
+{
+	return cls & UA_NODECLASS_VARIABLETYPE;
+}
+
+
+inline bool Client::isReference(UA_NodeClass cls)
+{
+	return cls & UA_NODECLASS_REFERENCETYPE;
+}
+
+
+inline bool Client::isDatatype(UA_NodeClass cls)
+{
+	return cls & UA_NODECLASS_DATATYPE;
+}
+
+
+inline bool Client::isView(UA_NodeClass cls)
+{
+	return cls & UA_NODECLASS_VIEW;
 }
 
 
