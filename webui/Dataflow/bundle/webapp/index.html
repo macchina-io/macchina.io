@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html lang="en" ng-app="dataflowApp">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>macchina.io - Dataflow Editor</title>
+    <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
+    <link rel="icon" href="/images/favicon.ico">
+    <script type="text/javascript" src="/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/angular/angular.min.js"></script>
+    <script type="text/javascript" src="/macchina/dataflow/js/app.js"></script>
+    <script type="text/javascript" src="/macchina/dataflow/js/controllers.js"></script>
+  </head>
+  <body ng-controller="SessionCtrl">
+    <header>
+      <div class="headercontainer">
+        <div class="header">
+          <h1>
+          <a href="/"><img src="/images/headerlogo.png" alt="macchina.io"></a>Dataflow Editor
+          </h1>
+        </div>
+      </div>
+    </header>
+    <div class="contentcontainer">
+      <div class="content" ng-controller="DataflowCtrl">
+        <nav>
+          <div class="usernav">
+            <!--<div class="navigation">
+            </div>-->
+            <div class="username">
+              <i class="fa fa-user"></i>
+              &nbsp;
+              {{session.username}}
+              &nbsp;
+              <a id="logoutLink" href="#" onclick="document.logout.submit()">Sign out</a>
+           </div>
+           <form method="post" name="logout" action="/">
+             <input type="hidden" name="action" value="logout">
+           </form>
+           <div style="clear: both;"></div>
+         </div>
+        </nav>
+        <!--<div class="groupbox">
+          <pre id="editor"></pre>
+        </div>-->
+        <!--<div ng-controller="DataflowCtrl"></div>-->
+        <!--<div style="height:100%;">-->
+        <div>
+          <iframe id="editor" style="height: 100%; width: 100%; scrolling: 'auto'" src="/macchina/dataflow/mxIndex.html"></iframe>
+        </div>
+        <!--</div>-->
+        <!--<div ng-include="/macchina/dataflow/mxIndex.html"></div>-->
+        <!--<div ng-controller="DataflowCtrl" class="groupbox">
+          <table class="list" style="width: 100%">
+            <thead>
+              <tr>
+                <th ng-click="setOrderBy('name')" class="list-sortable">Name</th>
+                <th ng-click="setOrderBy('symbolicName')" class="list-sortable">Symbolic Name</th>
+                <th ng-click="setOrderBy('id')" class="list-sortable">ID</th>
+                <th ng-click="setOrderBy('physicalQuantity')" class="list-sortable">Physical Quantity</th>
+                <th>State/Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="device in devices | orderBy:orderBy track by $index" ng-class-even="'even'" ng-class-odd="'odd'">
+                <td>{{device.name}}</td>
+                <td>{{device.symbolicName}}</td>
+                <td>{{device.id}}</td>
+                <td>{{device.physicalQuantity}}</td>
+                <td>{{device.displayValue}}</td>
+              </tr>
+            </tbody>  
+          </table>
+        </div>-->
+      </div>
+    </div>
+  </body>
+</html>

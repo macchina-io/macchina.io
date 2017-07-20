@@ -15,12 +15,12 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
       copyright: ""
     };
 
-	$scope.resizeEditor = function() {
-      var newSize = $(window).height() - 140;
-      if (newSize < 200) newSize = 200;
-      $("#editor").height(newSize);
-      if ($scope.editor) $scope.editor.resize();
-	}
+    $scope.resizeEditor = function() {
+        var newSize = $(window).height() - 140;
+        if (newSize < 200) newSize = 200;
+        $("#editor").height(newSize);
+        if ($scope.editor) $scope.editor.resize();
+    }
 
     $scope.resizeEditor();
 
