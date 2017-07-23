@@ -1,0 +1,24 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io Dataflow Runner bundle
+#
+
+BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
+
+include $(POCO_BASE)/build/rules/global
+
+INCLUDE += -I../Engine/include
+INCLUDE += -I../XML/include
+
+objects = BundleActivator
+
+target         = io.macchina.dataflow.runner
+target_version = 1
+target_libs    = IoTDataflowRunner IoTDataflowXML IoTDataflowEngine PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
+
+postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles Runner.bndlspec
+
+include $(POCO_BASE)/build/rules/dylib

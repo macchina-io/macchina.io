@@ -16,9 +16,9 @@
 #define IoT_Dataflow_Dataflow_INCLUDED
 
 
+#include "IoT/Dataflow/Engine/Engine.h"
+#include "IoT/Dataflow/Engine/AttributedObject.h"
 #include "IoT/Dataflow/Engine/Node.h"
-#include "IoT/Dataflow/Engine/Inlet.h"
-#include "IoT/Dataflow/Engine/Outlet.h"
 #include "IoT/Dataflow/Engine/Scheduler.h"
 #include "Poco/SharedPtr.h"
 
@@ -28,7 +28,7 @@ namespace Dataflow {
 namespace Engine {
 
 
-class IoTDataflowEngine_API Dataflow
+class IoTDataflowEngine_API Dataflow: public AttributedObject
 	/// The Dataflow class contains a collection of Nodes, as well as a Scheduler.
 {
 public:
