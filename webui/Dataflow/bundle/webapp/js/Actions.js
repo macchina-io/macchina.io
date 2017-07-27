@@ -26,6 +26,11 @@ Actions.prototype.init = function()
 
 	// File actions
 	this.addAction('new...', function() { window.open(ui.getUrl()); });
+	/*
+	The original example 'open' works, but is opening files in new window and
+	it depends on the new window initialization to work; it was replaced with
+	modified 'import' code.
+
 	this.addAction('open...', function()
 	{
 		window.openNew = true;
@@ -33,6 +38,47 @@ Actions.prototype.init = function()
 		
 		ui.openFile();
 	});
+	*/
+	this.addAction('open...', function()
+	{
+		window.openNew = false;
+		window.openKey = 'open';
+
+		// Closes dialog after open
+		window.openFile = new OpenFile(mxUtils.bind(this, function()
+		{
+			ui.hideDialog();
+		}));
+
+		graph.selectAll(null, true);
+		deleteCells(true);
+		window.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
+		{
+			try
+			{
+				var doc = mxUtils.parseXml(xml);
+				var model = new mxGraphModel();
+				var codec = new mxCodec(doc);
+				codec.decode(doc.documentElement, model);
+
+				var children = model.getChildren(model.getChildAt(model.getRoot(), 0));
+				editor.graph.setSelectionCells(editor.graph.importCells(children));
+				editor.graph.clearSelection();;
+				editor.filename = filename;
+				ui.setStatusText(filename);
+			}
+			catch (e)
+			{
+				mxUtils.alert(mxResources.get('invalidOrMissingFile') + ': ' + e.message);
+			}
+		}));
+
+		// Removes openFile if dialog is closed
+		ui.showDialog(new OpenDialog(this).container, 320, 220, true, true, function()
+		{
+			window.openFile = null;
+		});
+	}).isEnabled = isGraphEnabled;
 	this.addAction('import...', function()
 	{
 		window.openNew = false;

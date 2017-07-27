@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Open Diagram</title>
+	<link rel="stylesheet" type="text/css" href="styles/grapheditor.css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<script type="text/javascript">
+
+	// Hides this dialog
+	function hideWindow(cancel)
+	{
+		window.parent.openFile.cancel(cancel);
+	}
+
+	// Enables/disables 'Open' button, based on the select list content.
+	function fileChanged()
+	{
+		var form = window.openForm || document.getElementById('openForm');
+		var openButton = document.getElementById('openButton');
+		
+		if (form.upfile.value.length > 0)
+		{
+			openButton.removeAttribute('disabled');
+		}
+		else
+		{
+			openButton.setAttribute('disabled', 'disabled');
+		}
+	}
+
+	function main()
+	{
+		var openButton = document.getElementById('openButton');
+		openButton.value = window.parent.mxResources.get(window.parent.openKey || 'open');
+		var cancelButton = document.getElementById('cancelButton');
+		cancelButton.value = window.parent.mxResources.get('cancel');
+		var form = window.openForm || document.getElementById('openForm');
+
+		var url = window.parent.LIST_URL;
+		try {
+			window.parent.mxUtils.get(url, function(req) {
+				var str = req.getText();
+				var flist = JSON.parse(str);
+				for (var i = 0; i < flist.files.length; ++i) {
+					var opt = document.createElement('option');
+					var file = flist.files[i];
+					opt.value = file.name;
+					opt.innerHTML = file.date + "&ensp;" + file.name;
+					form.upfile.appendChild(opt);
+				}
+			})
+		}
+		catch (ex) {
+			mxUtils.alert('Cannot load ' + url + ': '+ex);
+		}
+
+		form.setAttribute('action', window.parent.OPEN_URL);
+	};
+</script>
+<body onload="main();">
+<!--
+	NOTE: File is loaded via JS injection into the iframe (see DataflowRequestHandler
+		  on the server side), which in turn sets the file contents in the parent window.
+		  The parent window asks its opener if any file contents are available or waits
+		  for the contents to become available.
+-->
+<form method="POST" enctype="multipart/form-data" action="" name="openForm"
+	id="openForm" onsubmit="return true;" accept-charset="UTF-8">
+	<table style="width:100%;">
+		<tr>
+			<td style="height:40px;vertical-align:middle;font-size:9pt;" colspan = "2">
+				<label>Select file to open:</label>
+			</td>
+		</tr>
+		<tr>
+			<td style="height:40px;vertical-align:top;text-align:center;">
+				<select name="upfile" size = "5" onchange="fileChanged()" colspan = "2">
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td style="vertical-align:middle;text-align:center;white-space:nowrap;">
+				<input type="button" id="cancelButton" class="geBtn" value="Cancel" onclick="hideWindow(true);">
+				<input type="submit" id="openButton" class="geBtn gePrimaryBtn" value="Open" disabled="disabled">
+			</td>
+		</tr>
+	</table>
+</form>
+</body>
+</html>

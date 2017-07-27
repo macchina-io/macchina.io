@@ -26,8 +26,6 @@
       <div class="content" ng-controller="DataflowCtrl">
         <nav>
           <div class="usernav">
-            <!--<div class="navigation">
-            </div>-->
             <div class="username">
               <i class="fa fa-user"></i>
               &nbsp;
@@ -41,38 +39,9 @@
            <div style="clear: both;"></div>
          </div>
         </nav>
-        <!--<div class="groupbox">
-          <pre id="editor"></pre>
-        </div>-->
-        <!--<div ng-controller="DataflowCtrl"></div>-->
-        <!--<div style="height:100%;">-->
-        <div>
+       <div>
           <iframe id="editor" style="height: 100%; width: 100%; scrolling: 'auto'" src="/macchina/dataflow/mxIndex.html"></iframe>
         </div>
-        <!--</div>-->
-        <!--<div ng-include="/macchina/dataflow/mxIndex.html"></div>-->
-        <!--<div ng-controller="DataflowCtrl" class="groupbox">
-          <table class="list" style="width: 100%">
-            <thead>
-              <tr>
-                <th ng-click="setOrderBy('name')" class="list-sortable">Name</th>
-                <th ng-click="setOrderBy('symbolicName')" class="list-sortable">Symbolic Name</th>
-                <th ng-click="setOrderBy('id')" class="list-sortable">ID</th>
-                <th ng-click="setOrderBy('physicalQuantity')" class="list-sortable">Physical Quantity</th>
-                <th>State/Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="device in devices | orderBy:orderBy track by $index" ng-class-even="'even'" ng-class-odd="'odd'">
-                <td>{{device.name}}</td>
-                <td>{{device.symbolicName}}</td>
-                <td>{{device.id}}</td>
-                <td>{{device.physicalQuantity}}</td>
-                <td>{{device.displayValue}}</td>
-              </tr>
-            </tbody>  
-          </table>
-        </div>-->
       </div>
     </div>
   </body>

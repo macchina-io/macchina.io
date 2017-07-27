@@ -449,7 +449,6 @@ mxXmlRequest.prototype.simulate = function(doc, target)
 	}
 	
 	doc.body.appendChild(form);
-	alert(form.innerHTML);
 	form.submit();
 	
 	if (form.parentNode != null)
@@ -458,7 +457,7 @@ mxXmlRequest.prototype.simulate = function(doc, target)
 	}
 
 	if (old != null)
-	{		
+	{
 		window.onbeforeunload = old;
 	}
 };

@@ -17,6 +17,7 @@
 #include "Poco/Net/HTTPRequestHandler.h"
 #include "Poco/OSP/Web/WebRequestHandlerFactory.h"
 #include "Poco/OSP/BundleContext.h"
+#include "Poco/DateTime.h"
 #include "Poco/Mutex.h"
 
 
@@ -37,7 +38,20 @@ public:
 	static const std::string DATAFLOW_PROPERTIES;
 
 protected:
+	struct FileInfo
+	{
+		bool _isDirectory;
+		bool _canRead;
+		bool _canWrite;
+		Poco::DateTime _lastModified;
+		std::string _name;
+	};
+
+	typedef std::vector<FileInfo> FileList;
+
 	void handleExport(Poco::OSP::Bundle::Ptr pBundle, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
+	FileList listFiles(const std::string& dir);
+	std::string lastFile(const std::string& dir);
 
 	Poco::OSP::BundleContext::Ptr context() const
 	{
@@ -45,8 +59,9 @@ protected:
 	}
 
 private:
+
 	Poco::OSP::BundleContext::Ptr _pContext;
-	
+	Poco::Path _graphDir;
 	static Poco::FastMutex _mutex;
 };
 

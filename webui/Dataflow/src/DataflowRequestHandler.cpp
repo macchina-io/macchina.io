@@ -28,10 +28,13 @@
 #include "Poco/Timestamp.h"
 #include "Poco/DateTimeFormatter.h"
 #include "Poco/DateTimeFormat.h"
+#include "Poco/DirectoryIterator.h"
 #include "Poco/Format.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/URI.h"
 #include "Utility.h"
+#include <sstream>
+#include <fstream>
 #include <iostream>
 
 namespace IoT {
@@ -44,8 +47,14 @@ Poco::FastMutex DataflowRequestHandler::_mutex;
 
 
 DataflowRequestHandler::DataflowRequestHandler(Poco::OSP::BundleContext::Ptr pContext):
-	_pContext(pContext)
+	_pContext(pContext),
+	_graphDir(context()->persistentDirectory())
 {
+	Poco::Path p("graph/");
+	_graphDir.append(p);
+	p.makeDirectory();
+	Poco::File f(_graphDir);
+	if(!f.exists()) f.createDirectories();
 }
 
 
@@ -75,24 +84,99 @@ void DataflowRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 		return;
 	}
 
-	Poco::Path p(request.getURI(), Poco::Path::PATH_UNIX);
+	Poco::Path p(Poco::URI(request.getURI()).getPath(), Poco::Path::PATH_UNIX);
 	std::string action = p.getBaseName();
-	std::string error;
+	std::string err;
 	std::string file, xml;
 	try
 	{
 		Poco::Net::HTMLForm form(request, request.stream());
-		if (action == "open")
+		if (action == "list") // list files
 		{
-			//context()->logger().information("Open: " + form["filename"]);
-			/*Poco::Net::NameValueCollection::ConstIterator it = form.begin();
-			Poco::Net::NameValueCollection::ConstIterator end = form.end();
-			for (; it != end; ++it)
+			FileList files = listFiles(_graphDir.toString());
+			FileList::iterator it = files.begin();
+			FileList::iterator end = files.end();
+			std::string ret("{\"files\":[");
+			if (it != end)
 			{
-				std::cout << it->first << ": " << it->second << std::endl;
-			}*/
+				for (;;)
+				{
+					ret.append("{\"name\":").append(Utility::jsonize(it->_name)).
+						append(",\"date\":").
+						append(Utility::jsonize(Poco::DateTimeFormatter::format(it->_lastModified,
+								Poco::DateTimeFormat::SORTABLE_FORMAT))).
+						append(1, '}');
+					if (++it == end) break;
+					ret.append(1, ',');
+				}
+			}
+			ret.append("]}");
+			response.setContentType("application/json");
+			response.setChunkedTransferEncoding(true);
+			response.send() << ret;
+			return;
 		}
-		else if (action == "save")
+		else if (action == "open") // open file
+		{
+			std::string file(_graphDir.toString());
+			std::string fname;
+			if (!form.has("upfile"))
+			{
+				// check if file name is in the URI guery
+				Poco::URI uri(request.getURI());
+				typedef Poco::URI::QueryParameters QParams;
+				QParams params = uri.getQueryParameters();
+				QParams::const_iterator it = params.begin();
+				QParams::const_iterator end = params.end();
+				for (; it != end; ++it)
+				{
+					std::cout << it->first << ':' << it->second << std::endl;
+					if (it->first == "upfile")
+					{
+						fname = it->second;
+					}
+				}
+				if (fname.empty()) // last ditch attempt - send the newest file found
+				{
+					fname = lastFile(file);
+					if (!fname.empty())
+					{
+						file.append(fname);
+					}
+					else
+					{
+						throw Poco::NotFoundException("File open requested "
+							"but no file name provided and no saved files found.");
+					}
+				}
+			}
+			else
+			{
+				fname = form["upfile"];
+				file.append(fname);
+			}
+			context()->logger().information("Open: " + file);
+			Poco::FileInputStream fis(file);
+			response.setContentType("text/html");
+			response.setChunkedTransferEncoding(true);
+			std::ostream& ros = response.send();
+			ros << "<html>" << std::endl;
+			ros << "<head>" << std::endl;
+			ros << "</head>" << std::endl;
+			ros << "<body>" << std::endl;
+			ros << "<script type=\"text/javascript\">" << std::endl;
+
+			std::ifstream f(file);
+			std::string str((std::istreambuf_iterator<char>(f)),
+				std::istreambuf_iterator<char>());
+			Poco::URI::encode(str, "", xml);
+			ros << "window.parent.openFile.setData(decodeURIComponent('" << xml << "'), '" << fname << "');";
+			ros << "</script>" << std::endl;
+			ros << "</body>" << std::endl;
+			ros << "</html>" << std::endl;
+			return;
+		}
+		else if (action == "save") // save file
 		{
 			if (form.has("filename") && form.has("xml"))
 			{
@@ -100,24 +184,69 @@ void DataflowRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 				context()->logger().information("Save: " + file);
 				Poco::URI::decode(form["xml"], xml, false);
 				context()->logger().debug("XML: " + xml);
-				Poco::Path path = context()->persistentDirectory();
+				Poco::Path path = _graphDir;
 				path.setFileName(file);
 				Poco::FileOutputStream fos(path.toString(), std::ios_base::trunc);
 				poco_assert (fos.good());
 				fos << "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" << std::endl;
 				fos << xml;
+				response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
+				response.send();
+				return;
+			}
+			else
+			{
+				throw Poco::NotFoundException("Save requested but file name not found.");
 			}
 		}
 	}
 	catch (Poco::Exception& exc)
 	{
-		error = exc.displayText();
-		context()->logger().log(exc);
+		err = exc.displayText();
+		context()->logger().error(err);
 	}
-	
+	catch (std::exception& exc)
+	{
+		err = exc.what();
+		context()->logger().error(err);
+	}
+
 	response.setContentType("application/json");
 	response.setChunkedTransferEncoding(true);
-	response.send() << "{\"error\":" << Utility::jsonize(error) << "}";
+	response.send() << "{\"error\":" << Utility::jsonize(err) << "}";
+}
+
+std::string DataflowRequestHandler::lastFile(const std::string& dir)
+{
+	std::string file;
+	Poco::DateTime last(1970, 1, 1);
+	Poco::DirectoryIterator it(dir);
+	Poco::DirectoryIterator end;
+	while (it != end)
+	{
+		if (!it->isDirectory() && (it->getLastModified() > last.timestamp()))
+		{
+			file = Poco::Path(it->path()).getFileName();
+			last = it->getLastModified();
+		}
+		++it;
+	}
+	return file;
+}
+
+DataflowRequestHandler::FileList DataflowRequestHandler::listFiles(const std::string& dir)
+{
+	FileList list;
+	Poco::DirectoryIterator it(dir);
+	Poco::DirectoryIterator end;
+	while (it != end)
+	{
+		Poco::Path p(it->path());
+		list.push_back({it->isDirectory(), it->canRead(), it->canWrite(),
+			it->getLastModified(), p.getFileName()});
+		++it;
+	}
+	return list;
 }
 
 

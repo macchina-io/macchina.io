@@ -2855,6 +2855,11 @@ EditorUi.prototype.createUi = function()
 	
 	if (footer != null)
 	{
+		footer.style.margin = "0px";
+		footer.style.width = "100%";
+		footer.style.height = "100%";
+		footer.style.borderWidth = "0px";
+		footer.name = 'statusIframe';
 		this.footerContainer.appendChild(footer);
 		this.container.appendChild(this.footerContainer);
 	}
@@ -2947,7 +2952,17 @@ EditorUi.prototype.createFormat = function(container)
  */
 EditorUi.prototype.createFooter = function()
 {
-	return this.createDiv('geFooter');
+	return this.createIframe('geFooter');
+};
+
+/**
+ * Creates the actual toolbar for the toolbar container.
+ */
+EditorUi.prototype.createIframe = function(classname)
+{
+	var elt = document.createElement('iframe');
+	elt.className = classname;
+	return elt;
 };
 
 /**
@@ -3267,9 +3282,8 @@ EditorUi.prototype.save = function(name)
 			{
 				if (xml.length < MAX_REQUEST_SIZE)
 				{
-					//alert(SAVE_URL + '?filename=' + encodeURIComponent(name) + '&xml=' + encodeURIComponent(xml));
 					new mxXmlRequest(SAVE_URL, 'filename=' + encodeURIComponent(name) +
-						'&xml=' + encodeURIComponent(xml)).simulate(document, '_blank');
+						'&xml=' + encodeURIComponent(xml)).simulate(document, 'statusIframe');
 				}
 				else
 				{
