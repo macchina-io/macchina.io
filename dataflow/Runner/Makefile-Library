@@ -1,0 +1,21 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for macchina.io Dataflow Runner 
+#
+
+include $(POCO_BASE)/build/rules/global
+
+INCLUDE += -I../Engine/include
+INCLUDE += -I../XML/include
+
+objects = NodeFactoryService CoreNodeFactoryService NodeFactory DataflowExtensionPoint \
+	OutputNode
+
+target         = IoTDataflowRunner
+target_version = 1
+target_libs    = IoTDataflowXML IoTDataflowEngine PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

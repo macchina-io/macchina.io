@@ -1,0 +1,26 @@
+<bundlespec>
+	<manifest>
+    	<name>macchina.io Dataflow Runner</name>
+		<symbolicName>io.macchina.dataflow.runner</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2017, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>IoT::Dataflow::Runner::BundleActivator</class>
+			<library>io.macchina.dataflow.runner</library>
+		</activator>
+		<lazyStart>false</lazyStart>
+		<runLevel>610</runLevel>
+	</manifest>
+	<code>
+		bin/*.dll,
+		bin/*.pdb,
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+    	../../lib/${osName}/${osArch}/libIoTDataflow*.1.dylib,
+    	../../lib/${osName}/${osArch}/libIoTDataflow*.so.1
+	</code>
+	<files>
+		bundle/*
+	</files>
+</bundlespec>
