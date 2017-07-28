@@ -1,8 +1,14 @@
 /**
  * Copyright (c) 2006-2012, JGraph Ltd
+ *
+ * Modified for macchina.io
+ * Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
+ * All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ *
  */
 /**
- * Construcs a new sidebar for the given editor.
+ * Construcs a new macchina.io dataflow sidebar for the given editor.
  */
 function Sidebar(editorUi, container)
 {
@@ -88,12 +94,13 @@ function Sidebar(editorUi, container)
  */
 Sidebar.prototype.init = function()
 {
-	var dir = STENCIL_PATH;
-	
+	//var dir = STENCIL_PATH;
+
 	this.addSearchPalette(true);
-	this.addGeneralPalette(true);
+	this.addDataflowPalette(false);
+	/*this.addGeneralPalette(true);
 	this.addMiscPalette(false);
-	/*this.addAdvancedPalette(false);
+	this.addAdvancedPalette(false);
 	this.addBasicPalette(dir);
 	this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
 		';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2');
@@ -1128,6 +1135,82 @@ Sidebar.prototype.createAdvancedShapes = function()
 			return sb.createVertexTemplateFromCells([sb.cloneCell(field, 'List Item')], field.geometry.width, field.geometry.height, 'List Item');
 		})
 	];
+};
+
+/**
+ * Adds the macchina.io palettes to the sidebar.
+ */
+Sidebar.prototype.addDataflowPalette = function(expand)
+{
+	// Default tags
+	var dt = 'dataflow ';
+
+	var fns = [
+		this.createVertexTemplateEntry('html=1;', 110, 50, 'Inlet', 'Inlet', null, null, dt + 'port inlet instance'),
+		this.createVertexTemplateEntry('html=1;', 110, 50, 'Outlet', 'Outlet', null, null, dt + 'port outlet instance')
+	];
+
+	this.addPaletteFunctions('ports', mxResources.get('ports'), expand || false, fns);
+
+	fns = [
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Add', 'Add', null, null, dt + 'arithmetic add addition node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Sub', 'Subtract', null, null, dt + 'arithmetic sub subtract subtraction node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Mul', 'Multiply', null, null, dt + 'arithmetic mul multiply multiplication node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Mod', 'Modulo', null, null, dt + 'arithmetic mod modulo node instance'),
+	];
+
+	this.addPaletteFunctions('arithmetic', mxResources.get('arithmetic'), expand || false, fns);
+	
+	fns = [
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '>', 'Greater Then', null, null, dt + 'relational greater node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '>=', 'Greater Then or Equal', null, null, dt + 'relational greater equal node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '<', 'Less Then', null, null, dt + 'relational less node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '<=', 'Less Then or Equal', null, null, dt + 'relational less equal node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '==', 'Equal', null, null, dt + 'relational equal node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '!=', 'Not Equal', null, null, dt + 'relational not equal node instance')
+	];
+
+	this.addPaletteFunctions('relational', mxResources.get('relational'), expand || false, fns);
+	
+	fns = [
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '~', 'NOT', null, null, dt + 'logical not node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '&', 'AND', null, null, dt + 'logical and node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '|', 'OR', null, null, dt + 'logical or node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '^', 'XOR', null, null, dt + 'logical xor exlcusive or node instance')
+	];
+
+	this.addPaletteFunctions('logical', mxResources.get('logical'), expand || false, fns);
+	
+	fns = [
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Stopwatch', 'Stopwatch', null, null, dt + 'timing stopwatch time node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Clock', 'Clock', null, null, dt + 'timing clock time node instance')
+	];
+
+	this.addPaletteFunctions('timing', mxResources.get('timing'), expand || false, fns);
+	
+	fns = [
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Threshold', 'Threshold', null, null, dt + 'flow threshold node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Gate', 'Gate', null, null, dt + 'flow gate node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Splitter', 'Splitter', null, null, dt + 'flow splitter node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Cast', 'Cast', null, null, dt + 'flow cast node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Change Trigger', 'Change Trigger', null, null, dt + 'flow change trigger node instance')
+	];
+
+	this.addPaletteFunctions('flow', mxResources.get('flow'), expand || false, fns);
+	
+	fns = [
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Constant', 'Constant', null, null, dt + 'computation constant node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Scale', 'Scale', null, null, dt + 'computation scale node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Max', 'Maximum', null, null, dt + 'computation max maximum node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Min', 'Minimum', null, null, dt + 'computation min minimum node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Avg', 'Average', null, null, dt + 'computation avg average node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Count', 'Count', null, null, dt + 'computation count node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Abs', 'Absolute', null, null, dt + 'computation abs absolute node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Delta', 'Delta', null, null, dt + 'computation delta difference node instance'),
+		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Acc', 'Accumulate', null, null, dt + 'computation acc accumulate node instance')
+	];
+
+	this.addPaletteFunctions('computation', mxResources.get('computation'), expand || false, fns);
 };
 
 /**

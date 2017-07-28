@@ -3296,6 +3296,7 @@ EditorUi.prototype.save = function(name)
 
 			this.editor.setModified(false);
 			this.editor.setFilename(name);
+			this.setStatusText(name);
 			this.updateDocumentTitle();
 		}
 		catch (e)

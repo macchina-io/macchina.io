@@ -310,3 +310,13 @@ writingDirection=Textrichtung
 zoom=Zoom
 zoomIn=Hineinzoomen
 zoomOut=Herauszoomen
+
+
+# Resources for macchina.io dataflow
+arithmetic=Arithmetik
+ports=Ports
+relational=Relationalen
+logical=Logisch
+timing=Timing
+flow=fließen
+computation=Berechnung

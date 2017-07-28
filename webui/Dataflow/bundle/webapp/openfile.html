@@ -7,6 +7,19 @@
 </head>
 <script type="text/javascript">
 
+	// Handles form-submit by preparing to process response
+	function handleSubmit()
+	{
+		/*TODO: allow editor iframe detaching into new window
+		var form = window.openForm || document.getElementById('openForm');
+		if(form.newWindow.checked)
+		{
+			window.parent.open(window.parent.location.href);
+			return false;
+		}*/
+		return true;
+	};
+
 	// Hides this dialog
 	function hideWindow(cancel)
 	{
@@ -66,7 +79,7 @@
 		  for the contents to become available.
 -->
 <form method="POST" enctype="multipart/form-data" action="" name="openForm"
-	id="openForm" onsubmit="return true;" accept-charset="UTF-8">
+	id="openForm" onsubmit="return handleSubmit();" accept-charset="UTF-8">
 	<table style="width:100%;">
 		<tr>
 			<td style="height:40px;vertical-align:middle;font-size:9pt;" colspan = "2">
@@ -77,6 +90,14 @@
 			<td style="height:40px;vertical-align:top;text-align:center;">
 				<select name="upfile" size = "5" onchange="fileChanged()" colspan = "2">
 				</select>
+			</td>
+		</tr>
+		<tr>
+			<td style="height:40px;vertical-align:top;text-align:center;font-size:9pt;">
+				<!-- TODO: hidden for now, see handleSubmit() above
+				<input type="checkbox" name="newWindow">Open in new window
+				-->
+				</input>
 			</td>
 		</tr>
 		<tr>
