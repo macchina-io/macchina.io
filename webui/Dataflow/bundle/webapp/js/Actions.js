@@ -65,6 +65,7 @@ Actions.prototype.init = function()
 				editor.graph.setSelectionCells(editor.graph.importCells(children));
 				editor.graph.clearSelection();;
 				editor.filename = filename;
+				editor.setModified(false);
 				ui.setStatusText(filename);
 			}
 			catch (e)
