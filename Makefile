@@ -83,6 +83,7 @@ clean all:
 	$(MAKE) -C devices $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C services $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C webui $(MAKECMDGOALS) $(MAKEARGS)
+	$(MAKE) -C dataflow $(MAKECMDGOALS) $(MAKEARGS)
 
 # Host tools only
 hosttools:
