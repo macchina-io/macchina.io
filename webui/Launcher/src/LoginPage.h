@@ -1,7 +1,7 @@
 //
 // LoginPage.h
 //
-// This file has been generated from LoginPage.cpsp on 2015-02-21 16:34:20.
+// This file has been generated from LoginPage.cpsp on 2017-07-29 17:26:46.
 //
 
 
@@ -28,6 +28,11 @@ public:
 
 protected:
 	Poco::OSP::BundleContext::Ptr context() const
+	{
+		return _pContext;
+	}
+
+	Poco::OSP::BundleContext::Ptr c() const
 	{
 		return _pContext;
 	}
