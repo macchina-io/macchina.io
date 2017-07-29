@@ -102,8 +102,16 @@ protected:
 	void initialize(Application& self)
 	{
 		loadConfiguration(); // load default configuration files, if present
+		
+		int defaultThreadPoolCapacity = config().getInt("poco.threadPool.default.capacity", 32);
+		int defaultThreadPoolCapacityDelta = defaultThreadPoolCapacity - Poco::ThreadPool::defaultPool().capacity();
+		if (defaultThreadPoolCapacityDelta > 0)
+		{
+			Poco::ThreadPool::defaultPool().addCapacity(defaultThreadPoolCapacityDelta);
+		}
+		
 		ServerApplication::initialize(self);
-		logger().information(Poco::format("System information: %s (%s) on %s, %u CPUs.",	
+		logger().information(Poco::format("System information: %s (%s) on %s, %u CPU core(s).",	
 			Poco::Environment::osDisplayName(),
 			Poco::Environment::osVersion(),
 			Poco::Environment::osArchitecture(),
