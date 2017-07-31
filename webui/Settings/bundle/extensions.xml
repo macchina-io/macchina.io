@@ -1,0 +1,5 @@
+<extensions>
+  <extension point="io.macchina.web.launcher" title="Settings" path="/macchina/settings" icon="/macchina/settings/images/appicon.png"/>
+  <extension point="osp.web.server.directory" path="/macchina/settings" resource="webapp" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.requesthandler" methods="GET, HEAD, POST" pattern="/macchina/settings/properties.json" class="IoT::Web::Settings::SettingsRequestHandlerFactory" library="io.macchina.webui.settings" allowSpecialization="owner" hidden="true"/>
+</extensions>
