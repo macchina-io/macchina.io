@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="/angular-ui-tree" resource="angular-ui-tree" allowSpecialization="none" hidden="true"/>
+</extensions>
