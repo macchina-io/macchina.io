@@ -3,7 +3,7 @@
 #
 # $Id$
 #
-# Makefile for macchina.io bundle administration utility
+# Makefile for macchina.io Playground app
 #
 
 BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
