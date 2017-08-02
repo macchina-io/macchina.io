@@ -98,7 +98,7 @@ Sidebar.prototype.init = function()
 
 	this.addSearchPalette(true);
 	this.addDataflowPalette(false);
-	this.addGeneralPalette(true);
+	/*this.addGeneralPalette(true);
 	this.addMiscPalette(false);
 	this.addAdvancedPalette(false);
 	this.addBasicPalette(dir);
@@ -115,7 +115,7 @@ Sidebar.prototype.init = function()
 		 'Piggy_Bank', 'Graph', 'Safe', 'Shopping_Cart', 'Suit1', 'Suit2', 'Suit3', 'Pilot1',
 		 'Worker1', 'Soldier1', 'Doctor1', 'Tech1', 'Security1', 'Telesales1'], null,
 		 {'Wireless_Router_N': 'wireless router switch wap wifi access point wlan',
-		  'Router_Icon': 'router switch'});
+		  'Router_Icon': 'router switch'});*/
 };
 
 /**
