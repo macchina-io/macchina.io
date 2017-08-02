@@ -1,0 +1,142 @@
+<shapes name="mxgraph.dataflow">
+
+<shape name="Default Inlet" h="97" w="97" aspect="fixed" strokewidth="inherit">
+    <connections>
+        <constraint x="50" y="0" perimeter="0" name="N"/>
+    </connections>
+    <background>
+        <path>
+            <move x="0" y="0"/>
+            <line x="25" y="25"/>
+            <line x="50" y="0"/>
+            <close/>
+        </path>
+    </background>
+    <foreground>
+    <fillstroke/>
+    </foreground>
+</shape>
+
+<shape name="Default Outlet" h="97" w="97" aspect="fixed" strokewidth="inherit">
+    <connections>
+        <constraint x="50" y="0" perimeter="0" name="N"/>
+    </connections>
+    <background>
+        <path>
+            <move x="0" y="0"/>
+            <line x="25" y="25"/>
+            <line x="50" y="0"/>
+            <close/>
+        </path>
+    </background>
+    <foreground>
+    <fillstroke/>
+    </foreground>
+</shape>
+
+<shape aspect="fixed" h="99" name="Clock Tick" strokewidth="inherit" w="99">
+    <connections>
+        <constraint name="N" perimeter="0" x="0.5" y="0"/>
+        <constraint name="S" perimeter="0" x="0.5" y="1"/>
+        <constraint name="W" perimeter="0" x="0" y="0.5"/>
+        <constraint name="E" perimeter="0" x="1" y="0.5"/>
+        <constraint name="NW" perimeter="0" x="0.145" y="0.145"/>
+        <constraint name="SW" perimeter="0" x="0.145" y="0.855"/>
+        <constraint name="NE" perimeter="0" x="0.855" y="0.145"/>
+        <constraint name="SE" perimeter="0" x="0.855" y="0.855"/>
+    </connections>
+    <background>
+        <ellipse h="99" w="99" x="0" y="0"/>
+    </background>
+    <foreground>
+        <fillstroke/>
+        <ellipse h="78" w="78" x="10.5" y="10.5"/>
+        <stroke/>
+        <path>
+            <move x="49.5" y="49.5"/>
+            <line x="51.5" y="16"/>
+            <move x="49.5" y="49.5"/>
+            <line x="71.5" y="49.5"/>
+            <move x="49.5" y="10.5"/>
+            <line x="49.5" y="15.5"/>
+            <move x="69" y="15.6"/>
+            <line x="66.2" y="20.5"/>
+            <move x="83.2" y="29.8"/>
+            <line x="78.3" y="32.8"/>
+            <move x="88.5" y="49.5"/>
+            <line x="83.5" y="49.5"/>
+            <move x="83.2" y="69.2"/>
+            <line x="78.3" y="66.2"/>
+            <move x="30" y="15.6"/>
+            <line x="32.8" y="20.5"/>
+            <move x="69" y="83.4"/>
+            <line x="66.2" y="78.5"/>
+            <move x="49.5" y="83.5"/>
+            <line x="49.5" y="88.5"/>
+            <move x="30" y="83.4"/>
+            <line x="32.8" y="78.5"/>
+            <move x="15.8" y="69.2"/>
+            <line x="20.7" y="66.2"/>
+            <move x="10.5" y="49.5"/>
+            <line x="15.5" y="49.5"/>
+            <move x="15.8" y="29.8"/>
+            <line x="20.7" y="32.8"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
+<shape aspect="fixed" h="99" name="Stopwatch Elapsed" strokewidth="inherit" w="99">
+    <connections>
+        <constraint name="N" perimeter="0" x="0.5" y="0"/>
+        <constraint name="S" perimeter="0" x="0.5" y="1"/>
+        <constraint name="W" perimeter="0" x="0" y="0.5"/>
+        <constraint name="E" perimeter="0" x="1" y="0.5"/>
+        <constraint name="NW" perimeter="0" x="0.145" y="0.145"/>
+        <constraint name="SW" perimeter="0" x="0.145" y="0.855"/>
+        <constraint name="NE" perimeter="0" x="0.855" y="0.145"/>
+        <constraint name="SE" perimeter="0" x="0.855" y="0.855"/>
+    </connections>
+    <background>
+        <!--<ellipse h="99" w="99" x="0" y="0"/>-->
+        <ellipse h="78" w="78" x="10.5" y="10.5"/>
+    </background>
+    <foreground>
+        <fillstroke />
+        <ellipse h="78" w="78" x="10.5" y="10.5"/>
+        <stroke/>
+        <path>
+            <move x="49.5" y="49.5"/>
+            <line x="55.5" y="12"/>
+            <move x="50" y="15"/>
+            <line x="50" y="0"/>
+            <move x="42.5" y="0"/>
+            <line x="57.5" y="0"/>
+            <move x="49.5" y="10.5"/>
+            <line x="49.5" y="15.5"/>
+            <move x="69" y="15.6"/>
+            <line x="66.2" y="20.5"/>
+            <move x="83.2" y="29.8"/>
+            <line x="78.3" y="32.8"/>
+            <move x="88.5" y="49.5"/>
+            <line x="83.5" y="49.5"/>
+            <move x="83.2" y="69.2"/>
+            <line x="78.3" y="66.2"/>
+            <move x="30" y="15.6"/>
+            <line x="32.8" y="20.5"/>
+            <move x="69" y="83.4"/>
+            <line x="66.2" y="78.5"/>
+            <move x="49.5" y="83.5"/>
+            <line x="49.5" y="88.5"/>
+            <move x="30" y="83.4"/>
+            <line x="32.8" y="78.5"/>
+            <move x="15.8" y="69.2"/>
+            <line x="20.7" y="66.2"/>
+            <move x="10.5" y="49.5"/>
+            <line x="15.5" y="49.5"/>
+            <move x="15.8" y="29.8"/>
+            <line x="20.7" y="32.8"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
+</shapes>
