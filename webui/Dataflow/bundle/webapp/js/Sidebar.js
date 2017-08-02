@@ -94,11 +94,11 @@ function Sidebar(editorUi, container)
  */
 Sidebar.prototype.init = function()
 {
-	//var dir = STENCIL_PATH;
+	var dir = STENCIL_PATH;
 
 	this.addSearchPalette(true);
 	this.addDataflowPalette(false);
-	/*this.addGeneralPalette(true);
+	this.addGeneralPalette(true);
 	this.addMiscPalette(false);
 	this.addAdvancedPalette(false);
 	this.addBasicPalette(dir);
@@ -115,7 +115,7 @@ Sidebar.prototype.init = function()
 		 'Piggy_Bank', 'Graph', 'Safe', 'Shopping_Cart', 'Suit1', 'Suit2', 'Suit3', 'Pilot1',
 		 'Worker1', 'Soldier1', 'Doctor1', 'Tech1', 'Security1', 'Telesales1'], null,
 		 {'Wireless_Router_N': 'wireless router switch wap wifi access point wlan',
-		  'Router_Icon': 'router switch'});*/
+		  'Router_Icon': 'router switch'});
 };
 
 /**
@@ -1142,15 +1142,11 @@ Sidebar.prototype.createAdvancedShapes = function()
  */
 Sidebar.prototype.addDataflowPalette = function(expand)
 {
+	// Avoids having to bind all functions to "this"
+	var sb = this;
+
 	// Default tags
 	var dt = 'dataflow ';
-
-	var fns = [
-		this.createVertexTemplateEntry('html=1;', 110, 50, 'Inlet', 'Inlet', null, null, dt + 'port inlet instance'),
-		this.createVertexTemplateEntry('html=1;', 110, 50, 'Outlet', 'Outlet', null, null, dt + 'port outlet instance')
-	];
-
-	this.addPaletteFunctions('ports', mxResources.get('ports'), expand || false, fns);
 
 	fns = [
 		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Add', 'Add', null, null, dt + 'arithmetic add addition node instance'),
@@ -1160,7 +1156,7 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 	];
 
 	this.addPaletteFunctions('arithmetic', mxResources.get('arithmetic'), expand || false, fns);
-	
+
 	fns = [
 		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '>', 'Greater Then', null, null, dt + 'relational greater node instance'),
 		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '>=', 'Greater Then or Equal', null, null, dt + 'relational greater equal node instance'),
@@ -1171,7 +1167,7 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 	];
 
 	this.addPaletteFunctions('relational', mxResources.get('relational'), expand || false, fns);
-	
+
 	fns = [
 		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '~', 'NOT', null, null, dt + 'logical not node instance'),
 		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, '&', 'AND', null, null, dt + 'logical and node instance'),
@@ -1180,14 +1176,74 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 	];
 
 	this.addPaletteFunctions('logical', mxResources.get('logical'), expand || false, fns);
-	
+
 	fns = [
-		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Stopwatch', 'Stopwatch', null, null, dt + 'timing stopwatch time node instance'),
-		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Clock', 'Clock', null, null, dt + 'timing clock time node instance')
+		this.addEntry(this.getTagsForStencil('mxgraph.dataflow', 'stopwatch_elapsed', 'attached').join(' '), function()
+		{
+			var cell = new mxCell('Stopwatch', new mxGeometry(0, 0, 120, 80), 'html=1;whiteSpace=wrap;rounded=1;');
+			cell.vertex = true;
+			cell.connectable = false;
+			var cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.stopwatch_elapsed;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1.vertex = true;
+			cell1.geometry.relative = true;
+			cell1.geometry.offset = new mxPoint(-40, -15);
+			cell.insert(cell1);
+
+			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1.vertex = true;
+			cell1.geometry.relative = true;
+			cell1.geometry.offset = new mxPoint(-110, -85);
+			cell.insert(cell1);
+
+			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1.vertex = true;
+			cell1.geometry.relative = true;
+			cell1.geometry.offset = new mxPoint(-67.5, -85);
+			cell.insert(cell1);
+
+			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1.vertex = true;
+			cell1.geometry.relative = true;
+			cell1.geometry.offset = new mxPoint(-25, -85);
+			cell.insert(cell1);
+
+			return sb.createVertexTemplateFromCells([cell], 120, 95, 'Stopwatch elapsed outlet');
+		}),
+		this.addEntry(this.getTagsForStencil('mxgraph.dataflow', 'clock_tick', 'attached').join(' '), function()
+		{
+			var cell = new mxCell('Clock', new mxGeometry(0, 0, 120, 80), 'html=1;whiteSpace=wrap;rounded=1;');
+			cell.vertex = true;
+			cell.connectable = false;
+			var cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.clock_tick;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1.vertex = true;
+			cell1.geometry.relative = true;
+			cell1.geometry.offset = new mxPoint(-40, -15);
+			cell.insert(cell1);
+
+			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1.vertex = true;
+			cell1.geometry.relative = true;
+			cell1.geometry.offset = new mxPoint(-110, -85);
+			cell.insert(cell1);
+
+			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1.vertex = true;
+			cell1.geometry.relative = true;
+			cell1.geometry.offset = new mxPoint(-67.5, -85);
+			cell.insert(cell1);
+
+			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1.vertex = true;
+			cell1.geometry.relative = true;
+			cell1.geometry.offset = new mxPoint(-25, -85);
+			cell.insert(cell1);
+
+			return sb.createVertexTemplateFromCells([cell], 120, 95, 'Clock tick outlet');
+		})
 	];
 
 	this.addPaletteFunctions('timing', mxResources.get('timing'), expand || false, fns);
-	
+
 	fns = [
 		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Threshold', 'Threshold', null, null, dt + 'flow threshold node instance'),
 		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Gate', 'Gate', null, null, dt + 'flow gate node instance'),
@@ -1197,9 +1253,21 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 	];
 
 	this.addPaletteFunctions('flow', mxResources.get('flow'), expand || false, fns);
-	
+
 	fns = [
-		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Constant', 'Constant', null, null, dt + 'computation constant node instance'),
+		this.addEntry(this.getTagsForStencil('mxgraph.dataflow', 'default_outlet', 'attached').join(' '), function()
+		{
+			var cell = new mxCell('Constant', new mxGeometry(0, 0, 120, 80), 'html=1;whiteSpace=wrap;rounded=1;');
+			cell.vertex = true;
+			cell.connectable = false;
+			var cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_outlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1.vertex = true;
+			cell1.geometry.relative = true;
+			cell1.geometry.offset = new mxPoint(-40, -2.5);
+			cell.insert(cell1);
+
+			return sb.createVertexTemplateFromCells([cell], 120, 95/*, 'Clock tick outlet'*/);
+		}),
 		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Scale', 'Scale', null, null, dt + 'computation scale node instance'),
 		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Max', 'Maximum', null, null, dt + 'computation max maximum node instance'),
 		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Min', 'Minimum', null, null, dt + 'computation min minimum node instance'),
@@ -1211,6 +1279,24 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 	];
 
 	this.addPaletteFunctions('computation', mxResources.get('computation'), expand || false, fns);
+
+	fns = [
+		this.addEntry(this.getTagsForStencil('mxgraph.dataflow', 'default_inlet', 'attached').join(' '), function()
+		{
+			var cell = new mxCell('Output', new mxGeometry(0, 0, 120, 80), 'html=1;whiteSpace=wrap;rounded=1;');
+			cell.vertex = true;
+			cell.connectable = false;
+			var cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1.vertex = true;
+			cell1.geometry.relative = true;
+			cell1.geometry.offset = new mxPoint(-67.5, -85);
+			cell.insert(cell1);
+
+			return sb.createVertexTemplateFromCells([cell], 120, 95/*, 'Clock tick outlet'*/);
+		})
+	];
+
+	this.addPaletteFunctions('output', mxResources.get('output'), expand || false, fns);
 };
 
 /**

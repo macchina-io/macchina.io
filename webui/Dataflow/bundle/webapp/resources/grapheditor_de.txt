@@ -320,3 +320,4 @@ logical=Logisch
 timing=Timing
 flow=fließen
 computation=Berechnung
+output=Ausgabe

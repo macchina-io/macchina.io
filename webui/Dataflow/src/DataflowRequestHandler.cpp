@@ -32,9 +32,13 @@
 #include "Poco/Format.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/URI.h"
+#include "Poco/DOM/DOMParser.h"
+#include "Poco/DOM/DOMWriter.h"
+#include "Poco/SAX/InputSource.h"
 #include "Utility.h"
 #include <sstream>
 #include <fstream>
+#include <map>
 #include <iostream>
 
 namespace IoT {
@@ -136,6 +140,7 @@ void DataflowRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 						fname = it->second;
 					}
 				}
+				/*
 				if (fname.empty()) // last ditch attempt - send the newest file found
 				{
 					fname = lastFile(file);
@@ -148,7 +153,7 @@ void DataflowRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 						throw Poco::NotFoundException("File open requested "
 							"but no file name provided and no saved files found.");
 					}
-				}
+				}*/
 			}
 			else
 			{
@@ -183,12 +188,16 @@ void DataflowRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 				file = form["filename"];
 				context()->logger().information("Save: " + file);
 				Poco::URI::decode(form["xml"], xml, false);
-				context()->logger().debug("XML: " + xml);
+				//context()->logger().debug("XML: " + xml);
+
 				Poco::Path path = _graphDir;
 				path.setFileName(file);
+
+				saveDataflow(path, xml);
+
 				Poco::FileOutputStream fos(path.toString(), std::ios_base::trunc);
 				poco_assert (fos.good());
-				fos << "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" << std::endl;
+				//fos << "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" << std::endl;
 				fos << xml;
 				response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
 				response.send();
@@ -215,6 +224,97 @@ void DataflowRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 	response.setChunkedTransferEncoding(true);
 	response.send() << "{\"error\":" << Utility::jsonize(err) << "}";
 }
+
+
+void DataflowRequestHandler::saveDataflow(const Poco::Path& path, const std::string& xml)
+{
+	std::istringstream istr(xml);
+	Poco::XML::InputSource src(istr);
+	try
+	{
+		Poco::XML::AutoPtr<Poco::XML::Document> pDFDoc = new Poco::XML::Document;
+		Poco::XML::AutoPtr<Poco::XML::Element> pDataflow = pDFDoc->createElement("dataflow");
+		pDFDoc->appendChild(pDataflow);
+
+		Poco::XML::DOMParser parser;
+		Poco::XML::AutoPtr<Poco::XML::Document> pMXDoc = parser.parse(&src);
+		
+		Poco::XML::NodeIterator it(pMXDoc, Poco::XML::NodeFilter::SHOW_ALL);
+		Poco::XML::Node* pNode = it.nextNode();
+		NodeHandler nh(pDFDoc, pDataflow);
+		while (pNode)
+		{
+			std::cout << pNode->nodeName() << ":" << pNode->nodeValue() << std::endl;
+			Poco::XML::AutoPtr<Poco::XML::Element> pDFNode = pDFDoc->createElement("node");
+			pDataflow->appendChild(pDFNode);
+			Poco::XML::NamedNodeMap* pAttrs = pNode->attributes();
+			if (pAttrs)
+			{
+				if (pNode->nodeName() == "object") // node
+				{
+					for (int i = 0; i < pAttrs->length(); ++i)
+					{
+						Poco::XML::Node* pAttr = pAttrs->item(i);
+						if (pAttr)
+						{
+							std::cout << '\t' << pAttr->nodeName() << ":" << pAttr->nodeValue() << std::endl;
+							if (pAttr->nodeName() == "name")
+							{
+								// custom "name" attribute becomes Dataflow "id"
+								pDFNode->setAttribute("id", pAttr->nodeValue());
+							}
+							else if (pAttr->nodeName() == "id")
+							{
+								// mx "id" attribute becomes Dataflow "mxId"
+								pDFNode->setAttribute("mxId", pAttr->nodeValue());
+							}
+							else // the rest attributes are all taken verbatim
+							{
+								pDFNode->setAttribute(pAttr->nodeName(), pAttr->nodeValue());
+							}
+						}
+					}
+				}
+				else if (pNode->nodeName() == "mxCell") // look for connector
+				{
+					int source = -1, target = -1;
+					for (int i = 0; i < pAttrs->length(); ++i)
+					{
+						Poco::XML::Node* pAttr = pAttrs->item(i);
+						if (pAttr)
+						{
+							std::cout << '\t' << pAttr->nodeName() << ":" << pAttr->nodeValue() << std::endl;
+							if (pAttr->nodeName() == "source") // used to detect connector
+							{
+								source = Poco::NumberParser::parse(pAttr->nodeValue());
+							}
+							else if (pAttr->nodeName() == "target") // used to detect connector
+							{
+								target = Poco::NumberParser::parse(pAttr->nodeValue());
+							}
+						}
+					}
+					if (source != -1 && target != -1) // connector found
+					{
+						nh.add(source, target);
+					}
+				}
+			}
+			pNode = it.nextNode();
+		}
+		nh.resolve();
+
+		Poco::FileOutputStream fos(Poco::replace(path.toString(), ".xml", ".dfl"), std::ios_base::trunc);
+		poco_assert (fos.good());
+		Poco::XML::DOMWriter writer;
+		writer.writeNode(fos, pDFDoc);
+	}
+	catch (Poco::Exception& exc)
+	{
+		std::cerr << exc.displayText() << std::endl;
+	}
+}
+
 
 std::string DataflowRequestHandler::lastFile(const std::string& dir)
 {
