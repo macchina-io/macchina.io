@@ -1,0 +1,5 @@
+<dataflow>
+	<node type="core.timing.clock" id="clock" interval="100" enable="true"/>
+	<node type="sample.output" id="output"/>
+	<connection from="clock" outlet="ticks" to="output" inlet="input"/>
+</dataflow>

@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="io.macchina.dataflow" source="clockDataflow.xml"/>
+</extensions>

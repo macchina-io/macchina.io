@@ -1,0 +1,5 @@
+<dataflow>
+	<node type="core.timing.clock" id="clock" interval="1000" enable="true"/>
+	<node type="io.macchina.dataflow.output" id="output"/>
+	<connection from="clock" outlet="ticks" to="output" inlet="input"/>
+</dataflow>

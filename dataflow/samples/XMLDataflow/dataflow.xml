@@ -1,0 +1,7 @@
+<dataflow>
+	<node type="sample.sensor" id="sensor"/>
+	<node type="core.computation.acc" id="acc"/>
+	<node type="sample.output" id="output"/>
+	<connection from="sensor" outlet="output" to="acc" inlet="input"/>
+	<connection from="acc" outlet="output" to="output" inlet="input"/>
+</dataflow>
