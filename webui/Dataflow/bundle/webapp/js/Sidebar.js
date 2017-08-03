@@ -1183,25 +1183,25 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 			var cell = new mxCell('Stopwatch', new mxGeometry(0, 0, 120, 80), 'html=1;whiteSpace=wrap;rounded=1;');
 			cell.vertex = true;
 			cell.connectable = false;
-			var cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.stopwatch_elapsed;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			var cell1 = new mxCell('timestamp', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.stopwatch_elapsed;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
 			cell1.geometry.offset = new mxPoint(-40, -15);
 			cell.insert(cell1);
 
-			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1 = new mxCell('enable', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
 			cell1.geometry.offset = new mxPoint(-120, -95);
 			cell.insert(cell1);
 
-			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1 = new mxCell('start', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
 			cell1.geometry.offset = new mxPoint(-75, -95);
 			cell.insert(cell1);
 
-			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1 = new mxCell('stop', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
 			cell1.geometry.offset = new mxPoint(-30, -95);
@@ -1214,25 +1214,25 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 			var cell = new mxCell('Clock', new mxGeometry(0, 0, 120, 80), 'html=1;whiteSpace=wrap;rounded=1;');
 			cell.vertex = true;
 			cell.connectable = false;
-			var cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.clock_tick;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			var cell1 = new mxCell('ticks', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.clock_tick;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=top;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
 			cell1.geometry.offset = new mxPoint(-40, -15);
 			cell.insert(cell1);
 
-			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1 = new mxCell('enable', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
 			cell1.geometry.offset = new mxPoint(-120, -95);
 			cell.insert(cell1);
 
-			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1 = new mxCell('reset', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
 			cell1.geometry.offset = new mxPoint(-75, -95);
 			cell.insert(cell1);
 
-			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			cell1 = new mxCell('interval', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
 			cell1.geometry.offset = new mxPoint(-30, -95);
@@ -1260,7 +1260,7 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 			var cell = new mxCell('Constant', new mxGeometry(0, 0, 120, 80), 'html=1;whiteSpace=wrap;rounded=1;');
 			cell.vertex = true;
 			cell.connectable = false;
-			var cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_outlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			var cell1 = new mxCell('output', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_outlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
 			cell1.geometry.offset = new mxPoint(-40, -14);
@@ -1286,7 +1286,7 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 			var cell = new mxCell('Output', new mxGeometry(0, 0, 120, 80), 'html=1;whiteSpace=wrap;rounded=1;');
 			cell.vertex = true;
 			cell.connectable = false;
-			var cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
+			var cell1 = new mxCell('input', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=top;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
 			cell1.geometry.offset = new mxPoint(-75, -95);
