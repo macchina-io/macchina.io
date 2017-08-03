@@ -1192,22 +1192,22 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-110, -85);
+			cell1.geometry.offset = new mxPoint(-120, -95);
 			cell.insert(cell1);
 
 			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-67.5, -85);
+			cell1.geometry.offset = new mxPoint(-75, -95);
 			cell.insert(cell1);
 
 			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-25, -85);
+			cell1.geometry.offset = new mxPoint(-30, -95);
 			cell.insert(cell1);
 
-			return sb.createVertexTemplateFromCells([cell], 120, 95, 'Stopwatch elapsed outlet');
+			return sb.createVertexTemplateFromCells([cell], 120, 95);
 		}),
 		this.addEntry(this.getTagsForStencil('mxgraph.dataflow', 'clock_tick', 'attached').join(' '), function()
 		{
@@ -1223,22 +1223,22 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-110, -85);
+			cell1.geometry.offset = new mxPoint(-120, -95);
 			cell.insert(cell1);
 
 			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-67.5, -85);
+			cell1.geometry.offset = new mxPoint(-75, -95);
 			cell.insert(cell1);
 
 			cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-25, -85);
+			cell1.geometry.offset = new mxPoint(-30, -95);
 			cell.insert(cell1);
 
-			return sb.createVertexTemplateFromCells([cell], 120, 95, 'Clock tick outlet');
+			return sb.createVertexTemplateFromCells([cell], 120, 95);
 		})
 	];
 
@@ -1263,10 +1263,10 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 			var cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_outlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-40, -2.5);
+			cell1.geometry.offset = new mxPoint(-40, -14);
 			cell.insert(cell1);
 
-			return sb.createVertexTemplateFromCells([cell], 120, 95/*, 'Clock tick outlet'*/);
+			return sb.createVertexTemplateFromCells([cell], 120, 95);
 		}),
 		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Scale', 'Scale', null, null, dt + 'computation scale node instance'),
 		this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 110, 50, 'Max', 'Maximum', null, null, dt + 'computation max maximum node instance'),
@@ -1289,7 +1289,7 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 			var cell1 = new mxCell('', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;');
 			cell1.vertex = true;
 			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-67.5, -85);
+			cell1.geometry.offset = new mxPoint(-75, -95);
 			cell.insert(cell1);
 
 			return sb.createVertexTemplateFromCells([cell], 120, 95/*, 'Clock tick outlet'*/);
