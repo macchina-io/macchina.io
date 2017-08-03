@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>macchina.io - Settings</title>
+	<link rel="stylesheet" href="css/styles.css" type="text/css">
+	<link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
+	<link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
+	<link rel="stylesheet" href="/angular-ui-tree/angular-ui-tree.min.css" type="text/css"/>
+	<script type="text/javascript" src="/angular/angular.js"></script>
+	<script type="text/javascript" src="/angular-ui-tree/angular-ui-tree.min.js"></script>
+	<script src="js/services.js"></script>
+	<script src="js/controllers.js"></script>
+	<script src="js/app.js"></script>
+	<script type="text/javascript" src="/jquery/jquery.min.js"></script>
+</head>
+
+<!--body ng-controller="SessionCtrl"-->
+<body ng-app="settingsApp" ng-controller="SettingsCtrl">
+	<header>
+	  <div class="headercontainer">
+		<div class="header">
+		  <h1>
+		  <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io"></a>Settings
+		  </h1>
+		</div>
+	  </div>
+	</header>
+
+	<!--div ng-controller="SettingsCtrl"-->
+	<!-- Nested node template -->
+	<script type="text/ng-template" id="nodes_renderer.html">
+		<div ui-tree-handle id={{node.id+idDOMOffset}} ng-click="selectNode(this)" class="tree-node tree-node-content">
+			<a class="btn btn-success btn-xs" title="Expand/collapse" ng-if="node.nodes && node.nodes.length > 0" data-nodrag ng-click="toggleNode(this)">
+				<span class="fa" ng-class="{'fa-chevron-right': collapsed, 'fa-chevron-down': !collapsed}"></span>
+			</a> 
+			<a class="btn btn-success btn-xs" ng-if="!node.nodes || node.nodes.length == 0" data-nodrag ng-click="toggleNode(this)">
+				<span class="fa fa-minus"></span>
+			</a> 
+			<span title="{{fullName(this)}}">{{node.title}}</span>
+			<a class="pull-right btn btn-danger btn-xs" title="Remove node" data-nodrag ng-click="deleteNode(this)">
+				<span class="fa fa-remove"></span>
+			</a>
+			<a class="pull-right btn btn-primary btn-xs" title="Add child node" ng-if="node.value == null" data-nodrag ng-click="addNode(this)" style="margin-right: 8px;">
+				<span class="fa fa-plus"></span>
+			</a>
+			<a class="pull-right btn btn-primary btn-xs" title="Add value" ng-if="node.value == null && (node.nodes == null || node.nodes.length == 0)" data-nodrag ng-click="addNodeValue(this)">
+				<span class="fa fa-pencil"></span>
+			</a> 
+		</div>
+		<textarea ng-if="node.value != null" rows="3" 
+			ng-model="node.value" ng-focus="onNodeValueFocus(this)" ng-blur="onNodeValueBlur(this)"
+			id={{node.id+idDOMOffset}}>{{node.value}}</textarea>
+		<ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
+			<li ng-repeat="node in node.nodes" ui-tree-node data-collapsed="true" ng-include="'nodes_renderer.html'">
+			</li>
+		</ol>
+	</script>
+    
+    <div class="contentcontainer">
+      <div class="content">
+        <nav>
+          <div class="usernav">
+            <div class="navigation">
+              <ul>
+                <li ng-show="true">
+                  <i class="fa fa-upload"></i> <a ng-click="save()">Save</a>
+                </li>
+                <li ng-show="true">
+                  <i class="fa fa-plus-square-o"></i> <a ng-click="addNode(null)">Add</a>
+                </li>
+                <li ng-show="true">
+                  <i class="fa fa-files-o"></i> <a ng-click="duplicateNode()">Duplicate</a>
+                </li>
+                <li ng-show="true">
+                  <i class="fa fa-exchange"></i> <a ng-click="renameNode()">Rename</a>
+                </li>
+                <li>
+                  <i class="fa fa-caret-square-o-down"></i> <a ng-click="expandAll()">Expand all</a>
+                </li>
+                 <li>
+                  <i class="fa fa-caret-square-o-right"></i> <a ng-click="collapseAll()">Collapse all</a>
+                </li>
+              </ul>
+            </div>
+            
+            <div class="username" ng-controller="SessionCtrl">
+				<i class="fa fa-user"></i>
+				&nbsp;
+				{{session.username}}
+				&nbsp;
+				<a id="logoutLink" href="#" onclick="document.logout.submit()">Sign out</a>
+			</div>
+			<form method="post" name="logout" action="/">
+				<input type="hidden" name="action" value="logout">
+			</form>
+			<div style="clear: both;"></div>
+          </div>
+        </nav>
+        <div class="error" ng-if="error != ''">
+          {{error}}
+        </div>
+    <div>  
+    
+	<!-- The tree -->
+    <div ui-tree id="tree-root" data-nodrop-enabled="true" data-drag-enabled="false">
+    	<ol ui-tree-nodes ng-model="data">
+        	<li ng-repeat="node in data" ui-tree-node data-collapsed="true" ng-include="'nodes_renderer.html'"></li>
+        </ol>
+    </div>
+    
+	<div id="modalBackground" class="modalBackground"></div>
+	<div id="addNodePopup" class="popupWindow">
+	  <h1>Add Node</h1>
+	  <form id="addNodeForm" name="addNodeForm" novalidate>
+		<table>
+		  <tr class="even">
+			<th><label>Name</label></th>
+			<td>
+			  <input type="text" name="name" ng-model="newNodeName" size="40" maxlength="64" required ng-pattern="'[-_a-zA-Z0-9]+'">
+			</td>
+            <td>
+              <span ng-show="addNodeForm.name.$invalid"><i class="fa fa-exclamation-triangle"></i></span>
+            </td>
+		  </tr>
+		  <tr class="even">
+			<th><label>Value</label></th>
+			<td>
+			  <input type="text" name="value" ng-model="newNodeValue" size="40" maxlength="256">
+			</td>
+			<td></td>
+		  </tr>
+		  <tr>
+			<td></td>
+			<td style="text-align: right">
+			  <a href="#" ng-click="hideAddNodePopup()">Cancel</a>
+			  &nbsp;
+			  <button type="button" ng-disabled="addNodeForm.$invalid" ng-click="completeAddNode()">Add</button>
+			</td>
+			<td></td>
+		  <tr>
+		</table>
+	  </form>
+	</div>
+	
+	<div id="renameNodePopup" class="popupWindow">
+	  <h1>Rename Node</h1>
+	  <form id="renameNodeForm" name="renameNodeForm" novalidate>
+		<table>
+		  <tr class="even">
+			<th><label>Name</label></th>
+			<td>
+			  <input type="text" name="name" ng-model="newNodeName" size="40" maxlength="64" required ng-pattern="'[-_a-zA-Z0-9]+'">
+			</td>
+            <td>
+              <span ng-show="renameNodeForm.name.$invalid"><i class="fa fa-exclamation-triangle"></i></span>
+            </td>
+		  </tr>
+          <tr>
+			<td></td>
+			<td style="text-align: right">
+			  <a href="#" ng-click="hideRenameNodePopup()">Cancel</a>
+			  &nbsp;
+			  <button type="button" ng-disabled="renameNodeForm.$invalid" ng-click="completeRenameNode()">Rename</button>
+			</td>
+			<td></td>
+		  <tr>
+		</table>
+	  </form>
+	</div>
+
+	<div id="duplicateNodePopup" class="popupWindow">
+	  <h1>Duplicate Node</h1>
+	  <form id="duplicateNodeForm" name="duplicateNodeForm" novalidate>
+		<table>
+		  <tr class="even">
+			<th><label>Name</label></th>
+			<td>
+			  <input type="text" name="name" ng-model="newNodeName" size="40" maxlength="64" required ng-pattern="'[-_a-zA-Z0-9]+'">
+            </td>
+            <td>
+              <span ng-show="duplicateNodeForm.name.$invalid"><i class="fa fa-exclamation-triangle"></i></span>
+            </td>
+		  </tr>
+          <tr>
+			<td></td>
+			<td style="text-align: right">
+			  <a href="#" ng-click="hideDuplicateNodePopup()">Cancel</a>
+			  &nbsp;
+			  <button type="button" ng-disabled="duplicateNodeForm.$invalid" ng-click="completeDuplicateNode()">Duplicate</button>
+			</td>
+			<td></td>
+		  <tr>
+		</table>
+	  </form>
+	</div>
+
+  </div>
+</div>
+</body>
+</html>
+

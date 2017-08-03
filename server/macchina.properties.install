@@ -9,6 +9,12 @@ osp.web.sessionManager.cookiePersistence = transient
 
 
 #
+# Settings
+#
+macchina.settings.path = ${application.configDir}settings.properties
+
+
+#
 # Authentication
 #
 # Note: Password for user "admin" is "admin".

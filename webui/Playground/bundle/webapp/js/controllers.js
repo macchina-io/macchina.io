@@ -136,6 +136,7 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
     $scope.showExport = function() {
       $('#modalBackground').css("display", "block");
       $('#exportPopup').css("display", "block");
+      $('#exportForm input[name=name]').focus();
       $(document).on('keyup.exportPopup',
         function(e) {
           if (e.keyCode == 27) 

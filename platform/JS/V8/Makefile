@@ -15,10 +15,10 @@ export LINKFLAGS
 V8VERSION = 3.28.4
 GYPREVISION = 1831
 V8BASE = v8-$(V8VERSION)
-ifdef V8_NOSNAPSHOT
-V8SNAPSHOT = snapshot=off
-else
+ifdef V8_SNAPSHOT
 V8SNAPSHOT = snapshot=on
+else
+V8SNAPSHOT = snapshot=off
 endif
 V8FLAGS = library=shared i18nsupport=off werror=no $(V8SNAPSHOT) $(V8_EXTRA_FLAGS)
 
