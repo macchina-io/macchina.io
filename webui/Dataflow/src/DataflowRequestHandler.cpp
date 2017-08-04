@@ -34,6 +34,7 @@
 #include "Poco/URI.h"
 #include "Poco/DOM/DOMParser.h"
 #include "Poco/DOM/DOMWriter.h"
+#include "Poco/DOM/NodeList.h"
 #include "Poco/SAX/InputSource.h"
 #include "Utility.h"
 #include <sstream>
@@ -140,20 +141,6 @@ void DataflowRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 						fname = it->second;
 					}
 				}
-				/*
-				if (fname.empty()) // last ditch attempt - send the newest file found
-				{
-					fname = lastFile(file);
-					if (!fname.empty())
-					{
-						file.append(fname);
-					}
-					else
-					{
-						throw Poco::NotFoundException("File open requested "
-							"but no file name provided and no saved files found.");
-					}
-				}*/
 			}
 			else
 			{
@@ -197,7 +184,6 @@ void DataflowRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 
 				Poco::FileOutputStream fos(path.toString(), std::ios_base::trunc);
 				poco_assert (fos.good());
-				//fos << "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" << std::endl;
 				fos << xml;
 				response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
 				response.send();
@@ -238,71 +224,234 @@ void DataflowRequestHandler::saveDataflow(const Poco::Path& path, const std::str
 
 		Poco::XML::DOMParser parser;
 		Poco::XML::AutoPtr<Poco::XML::Document> pMXDoc = parser.parse(&src);
-		
+
 		Poco::XML::NodeIterator it(pMXDoc, Poco::XML::NodeFilter::SHOW_ALL);
-		Poco::XML::Node* pNode = it.nextNode();
-		NodeHandler nh(pDFDoc, pDataflow);
-		while (pNode)
+		Poco::XML::Node* pMXNode = it.nextNode();
+		PortMap ports;
+		NodeMap nodes;
+		while (pMXNode)
 		{
-			std::cout << pNode->nodeName() << ":" << pNode->nodeValue() << std::endl;
-			Poco::XML::AutoPtr<Poco::XML::Element> pDFNode = pDFDoc->createElement("node");
-			pDataflow->appendChild(pDFNode);
-			Poco::XML::NamedNodeMap* pAttrs = pNode->attributes();
+			Poco::XML::AutoPtr<Poco::XML::Element> pDFNode;
+			Poco::XML::NamedNodeMap* pAttrs = pMXNode->attributes();
 			if (pAttrs)
 			{
-				if (pNode->nodeName() == "object") // node
+				if (pMXNode->nodeName() == "object")
 				{
-					for (int i = 0; i < pAttrs->length(); ++i)
+					Poco::XML::Node* pAttr = pAttrs->getNamedItem("type");
+					if (pAttr)
 					{
-						Poco::XML::Node* pAttr = pAttrs->item(i);
-						if (pAttr)
+						std::string type = pAttr->nodeValue();
+						if (type == "node")
 						{
-							std::cout << '\t' << pAttr->nodeName() << ":" << pAttr->nodeValue() << std::endl;
-							if (pAttr->nodeName() == "name")
+							Poco::XML::Node* pName = pAttrs->getNamedItem("name");
+							if (pName)
 							{
-								// custom "name" attribute becomes Dataflow "id"
-								pDFNode->setAttribute("id", pAttr->nodeValue());
+								std::cout << "Found " << pAttr->nodeName() << ": " << pName->nodeValue() << std::endl;
+								pDFNode = pDFDoc->createElement("node");
+								pDFNode->setAttribute("id", pName->nodeValue());
+								pAttr = pAttrs->getNamedItem("id");
+								if (pAttr)
+								{
+									nodes[Poco::NumberParser::parse(pAttr->nodeValue())] = pName->nodeValue();
+								}
+								else
+								{
+									throw Poco::IllegalStateException("Node without id: " + pName->nodeValue());
+								}
+								pAttr = pAttrs->getNamedItem("nodeType");
+								if (pAttr)
+								{
+									pDFNode->setAttribute("type", pAttr->nodeValue());
+								}
+								else
+								{
+									throw Poco::IllegalStateException("Node without dataflow type: " + pName->nodeValue());
+								}
+								// add any leftover attributes verbatim
+								for (int i = 0; i < pAttrs->length(); ++i)
+								{
+									pAttr = pAttrs->item(i);
+									if (pAttr && pAttr->nodeName() != "label"
+											  && pAttr->nodeName() != "name"
+											  && pAttr->nodeName() != "id"
+											  && pAttr->nodeName() != "type"
+											  && pAttr->nodeName() != "nodeType")
+									{
+										pDFNode->setAttribute(pAttr->nodeName(), pAttr->nodeValue());
+									}
+								}
+								pDataflow->appendChild(pDFNode);
 							}
-							else if (pAttr->nodeName() == "id")
+							else
 							{
-								// mx "id" attribute becomes Dataflow "mxId"
-								pDFNode->setAttribute("mxId", pAttr->nodeValue());
-							}
-							else // the rest attributes are all taken verbatim
-							{
-								pDFNode->setAttribute(pAttr->nodeName(), pAttr->nodeValue());
+								throw Poco::IllegalStateException("Node without a name detected.");
 							}
 						}
-					}
-				}
-				else if (pNode->nodeName() == "mxCell") // look for connector
-				{
-					int source = -1, target = -1;
-					for (int i = 0; i < pAttrs->length(); ++i)
-					{
-						Poco::XML::Node* pAttr = pAttrs->item(i);
-						if (pAttr)
+						else if(type == "inlet" || type == "outlet")
 						{
-							std::cout << '\t' << pAttr->nodeName() << ":" << pAttr->nodeValue() << std::endl;
-							if (pAttr->nodeName() == "source") // used to detect connector
+							Port port;
+
+							Poco::XML::Node* pA = pAttrs->getNamedItem("name");
+							if (pA)
 							{
-								source = Poco::NumberParser::parse(pAttr->nodeValue());
+								port._name = pA->nodeValue();
 							}
-							else if (pAttr->nodeName() == "target") // used to detect connector
+							else
 							{
-								target = Poco::NumberParser::parse(pAttr->nodeValue());
+								throw Poco::IllegalStateException("Port without a name detected.");
+							}
+
+							pA = pAttrs->getNamedItem("type");
+							if (pA)
+							{
+								std::string portType = pA->nodeValue();
+								if (portType == "inlet")
+								{
+									port._type = PORT_TYPE_INLET;
+								}
+								else if (portType == "outlet")
+								{
+									port._type = PORT_TYPE_OUTLET;
+								}
+								else
+								{
+									throw Poco::IllegalStateException("Port with unknown type (" +
+										portType + ") detected.");
+								}
+							}
+							else
+							{
+								throw Poco::IllegalStateException("Port without a type detected.");
+							}
+
+							pA = pAttrs->getNamedItem("id");
+							if (pA)
+							{
+								port._id = Poco::NumberParser::parse(pA->nodeValue());
+							}
+							else
+							{
+								throw Poco::IllegalStateException("Port without an Id detected.");
+							}
+
+							Poco::XML::AutoPtr<Poco::XML::NodeList> pChildren = pMXNode->childNodes();
+							if (pChildren)
+							{
+								for (int i = 0; i < pChildren->length(); ++i)
+								{
+									Poco::XML::Node* pChild = pChildren->item(i);
+									if (pChild->nodeName() == "mxCell")
+									{
+										Poco::XML::NamedNodeMap* pAt = pChild->attributes();
+										if (pAt)
+										{
+											pA = pAt->getNamedItem("parent");
+											if (pA)
+											{
+												port._parentId = pA->nodeValue();
+											}
+											else
+											{
+												std::ostringstream os;
+												os << "Port (id: " << port._id << ") without a parent Id detected.";
+												throw Poco::IllegalStateException(os.str());
+											}
+										}
+										else
+										{
+											std::ostringstream os;
+											os << "Port (id: " << port._id << ") child without attributes detected.";
+											throw Poco::IllegalStateException(os.str());
+										}
+										break;
+									}
+								}
+							}
+							else
+							{
+								throw Poco::IllegalStateException("Port without children detected.");
+							}
+
+							// optional datatype, defaults to empty string
+							pA = pAttrs->getNamedItem("dataType");
+							port._dataType = pA ? pA->nodeValue() : Poco::XML::XMLString("string");
+							pA = pAttrs->getNamedItem("value");
+							port._value = pA ? pA->nodeValue() : Poco::XML::XMLString();
+
+							ports.insert(PortMap::value_type(port._id, port));
+						}
+						else if (type == "connection")
+						{
+							std::cout << "Found " << pAttr->nodeValue() << std::endl;
+							Poco::XML::AutoPtr<Poco::XML::NodeList> pChildren = pMXNode->childNodes();
+							if (pChildren)
+							{
+								for (int i = 0; i < pChildren->length(); ++i)
+								{
+									Poco::XML::Node* pChild = pChildren->item(i);
+									if (pChild->nodeName() == "mxCell")
+									{
+										std::string id;
+										Poco::XML::Node* pIdAttr = pAttrs->getNamedItem("id");
+										if (pIdAttr)
+										{
+											id = pIdAttr->nodeValue();
+										}
+										Poco::XML::NamedNodeMap* pA = pChild->attributes();
+										if (pA)
+										{
+											Poco::XML::Node* pSource = pA->getNamedItem("source");
+											Poco::XML::Node* pTarget = pA->getNamedItem("target");
+											if (!pSource || !pTarget)
+											{
+												context()->logger().warning("Connection without source or target detected, id: " + id);
+											}
+											else
+											{
+												// source/target are used as temporary values for from/to and
+												// will be replaced with node/port later when ports are resolved,
+												// where conection from/to are matched with ports parentIds
+												pDFNode = pDFDoc->createElement("connection");
+												pDFNode->setAttribute("from", pSource->nodeValue());
+												pDFNode->setAttribute("outlet", "");
+												pDFNode->setAttribute("to", pTarget->nodeValue());
+												pDFNode->setAttribute("inlet", "");
+												pDataflow->appendChild(pDFNode);
+											}
+										}
+										else
+										{
+											throw Poco::IllegalStateException("Connection without attributes detected.");
+										}
+										break;
+									}
+								}
+							}
+							else
+							{
+								throw Poco::IllegalStateException("Connection object without children detected.");
 							}
 						}
-					}
-					if (source != -1 && target != -1) // connector found
-					{
-						nh.add(source, target);
+						else
+						{
+							context()->logger().warning("Unknown object type: " + pAttr->nodeValue() + ", ignoring.");
+						}
 					}
 				}
 			}
-			pNode = it.nextNode();
+			pMXNode = it.nextNode();
 		}
-		nh.resolve();
+
+		// additional pass - replace from/to with ports' parents names, and fill in ports names
+		ConnectionFilter connectionFilter;
+		Poco::XML::NodeIterator cIt(pDFDoc, Poco::XML::NodeFilter::SHOW_ALL, &connectionFilter);
+		Poco::XML::Node* pCNode = cIt.nextNode();
+		while (pCNode)
+		{
+			assignParentId(nodes, ports, pCNode, "from");
+			assignParentId(nodes, ports, pCNode, "to");
+			pCNode = cIt.nextNode();
+		}
 
 		Poco::FileOutputStream fos(Poco::replace(path.toString(), ".xml", ".dfl"), std::ios_base::trunc);
 		poco_assert (fos.good());
@@ -312,6 +461,37 @@ void DataflowRequestHandler::saveDataflow(const Poco::Path& path, const std::str
 	catch (Poco::Exception& exc)
 	{
 		std::cerr << exc.displayText() << std::endl;
+	}
+}
+
+
+void DataflowRequestHandler::assignParentId(const NodeMap& nodes, const PortMap& ports,
+	Poco::XML::Node* pCNode, const std::string& name)
+{
+	Poco::XML::NamedNodeMap* pAttrs = pCNode->attributes();
+	Poco::XML::Node* pAttr = pAttrs->getNamedItem(name);
+	if (pAttr)
+	{
+		PortMap::const_iterator pmIt = ports.find(Poco::NumberParser::parse(pAttr->nodeValue()));
+		if (pmIt != ports.end())
+		{
+			NodeMap::const_iterator nmIt = nodes.find(Poco::NumberParser::parse(pmIt->second._parentId));
+			if (nmIt != nodes.end())
+			{
+				pAttr->setNodeValue(nmIt->second);
+			}
+			if (name == "from") pAttr = pAttrs->getNamedItem("outlet");
+			else if (name == "to") pAttr = pAttrs->getNamedItem("inlet");
+			pAttr->setNodeValue(pmIt->second._name);
+		}
+		else
+		{
+			throw Poco::IllegalStateException("Port " + pAttr->nodeValue() + " not found in ports map.");
+		}
+	}
+	else
+	{
+		throw Poco::IllegalStateException("Connection object without '" + name + "' attribute detected.");
 	}
 }
 
