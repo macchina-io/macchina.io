@@ -114,6 +114,9 @@ private:
 	};
 
 	void assignParentId(const NodeMap& nodes, const PortMap& ports, Poco::XML::Node* pCNode, const std::string& name);
+	void assignNodeProperties(const NodeMap& nodes, const PortMap& ports, Poco::XML::Node* pDNode);
+	std::string getNodeId(const NodeMap& nodes, const std::string& mxId);
+		/// Translates mxGraph node Id (integer) to the dataflow one (string)
 
 	Poco::OSP::BundleContext::Ptr _pContext;
 	Poco::Path _graphDir;

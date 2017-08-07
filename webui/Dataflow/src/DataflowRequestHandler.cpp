@@ -35,6 +35,7 @@
 #include "Poco/DOM/DOMParser.h"
 #include "Poco/DOM/DOMWriter.h"
 #include "Poco/DOM/NodeList.h"
+#include "Poco/DOM/Attr.h"
 #include "Poco/SAX/InputSource.h"
 #include "Utility.h"
 #include <sstream>
@@ -442,15 +443,29 @@ void DataflowRequestHandler::saveDataflow(const Poco::Path& path, const std::str
 			pMXNode = it.nextNode();
 		}
 
-		// additional pass - replace from/to with ports' parents names, and fill in ports names
-		ConnectionFilter connectionFilter;
-		Poco::XML::NodeIterator cIt(pDFDoc, Poco::XML::NodeFilter::SHOW_ALL, &connectionFilter);
-		Poco::XML::Node* pCNode = cIt.nextNode();
-		while (pCNode)
+		// additional passes
+
+		// replace from/to with ports' parents names, and fill in ports names
 		{
-			assignParentId(nodes, ports, pCNode, "from");
-			assignParentId(nodes, ports, pCNode, "to");
-			pCNode = cIt.nextNode();
+			ConnectionFilter connectionFilter;
+			Poco::XML::NodeIterator cIt(pDFDoc, Poco::XML::NodeFilter::SHOW_ALL, &connectionFilter);
+			Poco::XML::Node* pCNode = cIt.nextNode();
+			while (pCNode)
+			{
+				assignParentId(nodes, ports, pCNode, "from");
+				assignParentId(nodes, ports, pCNode, "to");
+				pCNode = cIt.nextNode();
+			}
+		}
+
+		// add properties from ports to dataflow nodes
+		DFNodeFilter nodeFilter;
+		Poco::XML::NodeIterator nIt(pDFDoc, Poco::XML::NodeFilter::SHOW_ALL, &nodeFilter);
+		Poco::XML::Node* pDNode = nIt.nextNode();
+		while (pDNode)
+		{
+			assignNodeProperties(nodes, ports, pDNode);
+			pDNode = nIt.nextNode();
 		}
 
 		Poco::FileOutputStream fos(Poco::replace(path.toString(), ".xml", ".dfl"), std::ios_base::trunc);
@@ -465,21 +480,28 @@ void DataflowRequestHandler::saveDataflow(const Poco::Path& path, const std::str
 }
 
 
+std::string DataflowRequestHandler::getNodeId(const NodeMap& nodes, const std::string& mxId)
+{
+	NodeMap::const_iterator nmIt = nodes.find(Poco::NumberParser::parse(mxId));
+	if (nmIt != nodes.end())
+	{
+		return nmIt->second;
+	}
+	throw Poco::NotFoundException("Node Id " + mxId + " not found.");
+}
+
+
 void DataflowRequestHandler::assignParentId(const NodeMap& nodes, const PortMap& ports,
 	Poco::XML::Node* pCNode, const std::string& name)
 {
-	Poco::XML::NamedNodeMap* pAttrs = pCNode->attributes();
+	Poco::XML::AutoPtr<Poco::XML::NamedNodeMap> pAttrs = pCNode->attributes();
 	Poco::XML::Node* pAttr = pAttrs->getNamedItem(name);
 	if (pAttr)
 	{
 		PortMap::const_iterator pmIt = ports.find(Poco::NumberParser::parse(pAttr->nodeValue()));
 		if (pmIt != ports.end())
 		{
-			NodeMap::const_iterator nmIt = nodes.find(Poco::NumberParser::parse(pmIt->second._parentId));
-			if (nmIt != nodes.end())
-			{
-				pAttr->setNodeValue(nmIt->second);
-			}
+			pAttr->setNodeValue(getNodeId(nodes, pmIt->second._parentId));
 			if (name == "from") pAttr = pAttrs->getNamedItem("outlet");
 			else if (name == "to") pAttr = pAttrs->getNamedItem("inlet");
 			pAttr->setNodeValue(pmIt->second._name);
@@ -492,6 +514,35 @@ void DataflowRequestHandler::assignParentId(const NodeMap& nodes, const PortMap&
 	else
 	{
 		throw Poco::IllegalStateException("Connection object without '" + name + "' attribute detected.");
+	}
+}
+
+
+void DataflowRequestHandler::assignNodeProperties(const NodeMap& nodes, const PortMap& ports, Poco::XML::Node* pDNode)
+{
+	Poco::XML::AutoPtr<Poco::XML::NamedNodeMap> pAttrs = pDNode->attributes();
+	Poco::XML::Node* pAttr = pAttrs->getNamedItem("id");
+	if (pAttr)
+	{
+		PortMap::const_iterator pmIt = ports.begin();
+		PortMap::const_iterator pmEnd = ports.end();
+		for (; pmIt != pmEnd; ++pmIt)
+		{
+			if (getNodeId(nodes, pmIt->second._parentId) == pAttr->nodeValue() &&
+				!pmIt->second._value.empty() &&
+				pmIt->second._name != "type" &&
+				pmIt->second._name != "name" &&
+				pmIt->second._name != "id")
+			{
+				Poco::XML::AutoPtr<Poco::XML::Attr> pA = pDNode->ownerDocument()->createAttribute(pmIt->second._name);
+				pA->setValue(pmIt->second._value);
+				pAttrs->setNamedItem(pA);
+			}
+		}
+	}
+	else
+	{
+		throw Poco::IllegalStateException("A node without 'id' attribute detected.");
 	}
 }
 
