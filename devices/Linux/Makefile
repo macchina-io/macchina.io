@@ -6,9 +6,13 @@
 # Makefile for macchina.io Linux Devices Bundle
 #
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-
 include $(POCO_BASE)/build/rules/global
+
+ifneq (,$(findstring debug,$(DEFAULT_TARGET)))
+	BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundled
+else
+	BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
+endif
 
 INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 
