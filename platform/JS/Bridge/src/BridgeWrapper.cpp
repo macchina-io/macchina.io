@@ -512,6 +512,15 @@ void BridgeWrapper::getProperty(v8::Local<v8::String> property, const v8::Proper
 			}
 			info.GetReturnValue().Set(function);
 		}
+		else if (prop == "toJSON")
+		{
+			v8::Local<v8::Function> function = v8::Function::New(info.GetIsolate(), toJSON);
+			if (!function.IsEmpty())
+			{
+				function->SetName(property);
+			}
+			info.GetReturnValue().Set(function);
+		}
 		else if (prop == "$sub")
 		{
 			BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(info);
@@ -678,6 +687,19 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 			returnException(args, "Invalid argument: First argument to on() must be property name");
 		}
 	}
+}
+
+
+void BridgeWrapper::toJSON(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::HandleScope scope(args.GetIsolate());
+	BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(args);
+	const std::string& uri = pHolder->uri();
+
+	v8::Local<v8::Object> object = v8::Object::New(args.GetIsolate());
+	object->Set(v8::String::NewFromUtf8(args.GetIsolate(), "$uri"), v8::String::NewFromUtf8(args.GetIsolate(), uri.c_str(), v8::String::kNormalString, static_cast<int>(uri.size())));
+
+	args.GetReturnValue().Set(object);
 }
 
 
