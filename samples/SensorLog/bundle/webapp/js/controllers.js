@@ -20,7 +20,7 @@ sensorLogControllers.controller('sensorLogCtrl', ['$scope', '$http', '$interval'
         // Split timestamp and data into separate arrays
         var labels = [], data = [];
         results.forEach(function(packet) {
-          labels.push(moment(1000*packet.timestamp).format('HH:mm:ss'));
+          labels.push(moment(packet.timestamp).format('HH:mm:ss'));
           data.push(packet.value);
           since = packet.timestamp;
         });
@@ -114,10 +114,10 @@ sensorLogControllers.controller('sensorLogCtrl', ['$scope', '$http', '$interval'
                 var timestamp = results[i]['timestamp'];
                 var value = results[i]['value'];
                 var labels = chart.data.labels;
-                labels.shift(); 
-                labels.push(moment(1000*timestamp).format('HH:mm:ss'));
+                if (labels.length >= params.points) labels.shift(); 
+                labels.push(moment(timestamp).format('HH:mm:ss'));
                 var data = chart.data.datasets[0].data;
-                data.shift();
+                if (data.length >= params.points) data.shift();
                 data.push(value);
                 chart.update();
                 since = timestamp;

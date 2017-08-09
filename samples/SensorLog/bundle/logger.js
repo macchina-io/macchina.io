@@ -7,7 +7,7 @@ var db = require('database');
 
 db.session.execute('PRAGMA journal_mode=WAL');
 db.session.execute('CREATE TABLE IF NOT EXISTS sensorlog ( \
-	timestamp INTEGER, \
+	timestamp LONG, \
 	sensor VARCHAR, \
 	value FLOAT \
 	)');
@@ -15,22 +15,23 @@ db.session.execute('CREATE TABLE IF NOT EXISTS sensorlog ( \
 setInterval(
 	function()
 	{
+		var ts = Math.floor(DateTime().timestamp/1000);
 		for (var id in sensors)
 		{
 			var sensor = sensors[id].sensor;
 
 			db.session.execute('INSERT INTO sensorlog VALUES (?, ?, ?)',
-				DateTime().epoch,
+				ts,
 				id,
 				sensor.value());
 		}
 	},
-	db.logIntervalSeconds*1000);
+	db.interval);
 
 setInterval(
 	function()
 	{
-		var cutoffTime = DateTime().epoch - db.keepDataSeconds;
+		var cutoffTime = DateTime().timestamp/1000 - 1000*db.retain;
 		db.session.execute('DELETE FROM datalog WHERE timestamp < ?', cutoffTime);
 	},
-	db.keepDataSeconds*1000);
+	db.retain*1000);

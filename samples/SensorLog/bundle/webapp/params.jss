@@ -5,7 +5,8 @@
 //
 
 var params = {
-	refresh: application.config.getInt('sensorlog.refresh', 5000)
+	refresh: application.config.getInt('sensorlog.chart.refresh', 5000),
+	points: application.config.getInt('sensorlog.chart.points', 20)
 };
 
 response.contentType = 'application/json';
