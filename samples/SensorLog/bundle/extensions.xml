@@ -1,0 +1,6 @@
+<extensions>
+  <extension point="io.macchina.web.launcher" title="Sensor Log" path="/sensorlog" icon="/sensorlog/images/appicon.png" permission=""/>
+  <extension point="com.appinf.osp.js" script="logger.js"/>
+  <extension point="com.appinf.osp.js" script="notifier.js"/>
+  <extension point="osp.web.server.directory" path="/sensorlog" resource="webapp" index="index.html" allowSpecialization="none" hidden="false" description="SensorLog"/>
+</extensions>
