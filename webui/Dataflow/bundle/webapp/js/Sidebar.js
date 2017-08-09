@@ -1140,6 +1140,23 @@ Sidebar.prototype.createAdvancedShapes = function()
 /**
  * Adds the macchina.io palettes to the sidebar.
  */
+Sidebar.prototype.createNode = function(name, x, y)
+{
+	var cell = new mxCell(name, new mxGeometry(0, 0, x, y), 'html=1;whiteSpace=wrap;rounded=1;');
+	cell.vertex = true;
+	cell.connectable = false;
+	return cell;
+ }
+
+Sidebar.prototype.createPort = function(name, type, x, y)
+{
+	var cell = new mxCell(name, new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.' + type + ';perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
+	cell.vertex = true;
+	cell.geometry.relative = true;
+	cell.geometry.offset = new mxPoint(x, y);
+	return cell;
+}
+
 Sidebar.prototype.addDataflowPalette = function(expand)
 {
 	// Avoids having to bind all functions to "this"
@@ -1180,63 +1197,22 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 	fns = [
 		this.addEntry(this.getTagsForStencil('mxgraph.dataflow', 'stopwatch_elapsed', 'attached').join(' '), function()
 		{
-			var cell = new mxCell('Stopwatch', new mxGeometry(0, 0, 120, 80), 'html=1;whiteSpace=wrap;rounded=1;');
-			cell.vertex = true;
-			cell.connectable = false;
-			var cell1 = new mxCell('timestamp', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.stopwatch_elapsed;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
-			cell1.vertex = true;
-			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-40, -15);
-			cell.insert(cell1);
-
-			cell1 = new mxCell('enable', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
-			cell1.vertex = true;
-			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-120, -95);
-			cell.insert(cell1);
-
-			cell1 = new mxCell('start', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
-			cell1.vertex = true;
-			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-75, -95);
-			cell.insert(cell1);
-
-			cell1 = new mxCell('stop', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
-			cell1.vertex = true;
-			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-30, -95);
-			cell.insert(cell1);
+			var cell = sb.createNode('Stopwatch', 120, 80);
+			cell.insert(sb.createPort('timestamp', 'stopwatch_elapsed', -40, -15));
+			cell.insert(sb.createPort('enable', 'default_inlet', -120, -95));
+			cell.insert(sb.createPort('start', 'default_inlet', -75, -95));
+			cell.insert(sb.createPort('stop', 'default_inlet', -30, -95));
 
 			return sb.createVertexTemplateFromCells([cell], 120, 95);
 		}),
 		this.addEntry(this.getTagsForStencil('mxgraph.dataflow', 'clock_tick', 'attached').join(' '), function()
 		{
-			var cell = new mxCell('Clock', new mxGeometry(0, 0, 120, 80), 'html=1;whiteSpace=wrap;rounded=1;');
-			cell.vertex = true;
-			cell.connectable = false;
-			var cell1 = new mxCell('ticks', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.clock_tick;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=top;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
-			cell1.vertex = true;
-			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-40, -15);
-			cell.insert(cell1);
+			var cell = sb.createNode('Clock', 120, 80);
 
-			cell1 = new mxCell('enable', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
-			cell1.vertex = true;
-			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-120, -95);
-			cell.insert(cell1);
-
-			cell1 = new mxCell('reset', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
-			cell1.vertex = true;
-			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-75, -95);
-			cell.insert(cell1);
-
-			cell1 = new mxCell('interval', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_inlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
-			cell1.vertex = true;
-			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-30, -95);
-			cell.insert(cell1);
+			cell.insert(sb.createPort('ticks', 'clock_tick', -40, -15));
+			cell.insert(sb.createPort('enable', 'default_inlet', -120, -95));
+			cell.insert(sb.createPort('reset', 'default_inlet', -75, -95));
+			cell.insert(sb.createPort('interval', 'default_inlet', -30, -95));
 
 			return sb.createVertexTemplateFromCells([cell], 120, 95);
 		})
@@ -1257,14 +1233,8 @@ Sidebar.prototype.addDataflowPalette = function(expand)
 	fns = [
 		this.addEntry(this.getTagsForStencil('mxgraph.dataflow', 'default_outlet', 'attached').join(' '), function()
 		{
-			var cell = new mxCell('Constant', new mxGeometry(0, 0, 120, 80), 'html=1;whiteSpace=wrap;rounded=1;');
-			cell.vertex = true;
-			cell.connectable = false;
-			var cell1 = new mxCell('output', new mxGeometry(1, 1, 30, 30), 'shape=mxgraph.dataflow.default_outlet;perimeter=ellipsePerimeter;html=1;verticalLabelPosition=bottom;noLabel=1;labelBackgroundColor=#ffffff;verticalAlign=top;');
-			cell1.vertex = true;
-			cell1.geometry.relative = true;
-			cell1.geometry.offset = new mxPoint(-40, -14);
-			cell.insert(cell1);
+			var cell = sb.createNode('Constant', 120, 80);
+			cell.insert(sb.createPort('output', 'default_outlet', -40, -14));
 
 			return sb.createVertexTemplateFromCells([cell], 120, 95);
 		}),
