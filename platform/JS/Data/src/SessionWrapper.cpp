@@ -19,6 +19,8 @@
 #include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/Format.h"
 #include "Poco/Version.h"
+#include "Poco/DateTime.h"
+#include "Poco/LocalDateTime.h"
 
 
 #if POCO_VERSION > 0x01050000
@@ -270,6 +272,24 @@ void SessionWrapper::execute(const v8::FunctionCallbackInfo<v8::Value>& args)
 					Poco::Timestamp ts(static_cast<Poco::Timestamp::TimeVal>(millis*1000));
 					Poco::DateTime dateTime(ts);
 					statement , use(pRecordSetHolder->bindValue(dateTime));
+				}
+				else if (args[i]->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::DateTime>(args.GetIsolate(), args[i]))
+				{
+					Poco::DateTime* pDateTime = Wrapper::unwrapNativeObject<Poco::DateTime>(args[i]);
+					if (pDateTime)
+					{
+						statement , use(pRecordSetHolder->bindValue(*pDateTime));
+					}
+					else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::DateTime", i));
+				}
+				else if (args[i]->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::LocalDateTime>(args.GetIsolate(), args[i]))
+				{
+					Poco::LocalDateTime* pLocalDateTime = Wrapper::unwrapNativeObject<Poco::LocalDateTime>(args[i]);
+					if (pLocalDateTime)
+					{
+						statement , use(pRecordSetHolder->bindValue(pLocalDateTime->utc()));
+					}
+					else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::LocalDateTime", i));
 				}
 #endif
 				else
