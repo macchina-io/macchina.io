@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <bundlespec>
   <manifest>
-    <name>Simple Authentication Service for OSP</name>
+    <name>OSP Simple Authentication Service</name>
     <symbolicName>com.appinf.osp.simple-auth</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
