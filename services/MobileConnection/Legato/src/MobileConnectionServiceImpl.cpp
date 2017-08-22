@@ -82,6 +82,7 @@ void MobileConnectionServiceImpl::unlockSIM(const std::string& pin)
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
 	cm("sim", "unlock", pin);
+	_cmCache.remove("sim:status");
 }
 
 
@@ -90,6 +91,7 @@ void MobileConnectionServiceImpl::lockSIM(const std::string& pin)
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
 	cm("sim", "lock", pin);
+	_cmCache.remove("sim:status");
 }
 
 
@@ -98,6 +100,7 @@ void MobileConnectionServiceImpl::enterPIN(const std::string& pin)
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
 	cm("sim", "enterpin", pin);
+	_cmCache.remove("sim:status");
 }
 
 
@@ -133,6 +136,7 @@ void MobileConnectionServiceImpl::setAPN(const std::string& apn)
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
 	cm("data", "apn", apn);
+	_cmCache.remove("data:info");
 }
 
 
