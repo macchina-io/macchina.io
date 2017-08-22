@@ -305,6 +305,7 @@ std::string MobileConnectionServiceImpl::extractValue(const std::string& values,
 	std::string::size_type pos1 = values.find(label);
 	if (pos1 != std::string::npos)
 	{
+		pos1 += label.size();
 		std::string::size_type pos2 = values.find('\n', pos1);
 		if (pos2 != std::string::npos)
 		{

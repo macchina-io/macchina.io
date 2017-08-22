@@ -14,7 +14,7 @@ INCLUDE += -I$(PROJECT_BASE)/services/MobileConnection/include
 
 objects = MobileConnectionServiceImpl BundleActivator
 
-target         = io.macchina.service.mobileconnection.legato
+target         = io.macchina.services.mobileconnection.legato
 target_version = 1
 target_libs    = IoTMobileConnection PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
 
