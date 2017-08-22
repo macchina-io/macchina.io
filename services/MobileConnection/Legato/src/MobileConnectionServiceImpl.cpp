@@ -29,13 +29,31 @@ const std::string MobileConnectionServiceImpl::DEFAULT_CM_PATH("/legato/systems/
 
 MobileConnectionServiceImpl::MobileConnectionServiceImpl(const std::string& cmPath):
 	_cmPath(cmPath),
-	_cmCache(1000)
+	_cmCache(2000)
 {
 }
 
 
 MobileConnectionServiceImpl::~MobileConnectionServiceImpl()
 {
+}
+
+
+std::string MobileConnectionServiceImpl::imei() const
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("info", "all");
+	return extractValue(result, "IMEI");
+}
+
+
+std::string MobileConnectionServiceImpl::deviceName() const
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("info", "all");
+	return extractValue(result, "Device");
 }
 
 
@@ -87,7 +105,7 @@ std::string MobileConnectionServiceImpl::imsi() const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	std::string result = cmCached("sim", "imsi");
+	std::string result = cmCached("sim", "info");
 	return extractValue(result, "IMSI");
 }
 
@@ -96,7 +114,7 @@ std::string MobileConnectionServiceImpl::phoneNumber() const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	std::string result = cmCached("sim", "number");
+	std::string result = cmCached("sim", "info");
 	return extractValue(result, "Phone Number");
 }
 
@@ -105,7 +123,7 @@ std::string MobileConnectionServiceImpl::iccid() const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	std::string result = cmCached("sim", "iccid");
+	std::string result = cmCached("sim", "info");
 	return extractValue(result, "ICCID");
 }
 

@@ -49,6 +49,9 @@ public:
 	virtual void connectData() = 0;
 		/// Establishes the data connection.
 
+	virtual std::string deviceName() const = 0;
+		/// Returns the modem device name.
+
 	virtual void disconnectData() = 0;
 		/// Closes the data connection.
 
@@ -66,6 +69,9 @@ public:
 
 	virtual std::string iccid() const = 0;
 		/// Returns the SIMs ICCID (Integrated Circuit Card Identifier).
+
+	virtual std::string imei() const = 0;
+		/// Returns the IMEI (International Mobile Equipment Identity).
 
 	virtual std::string imsi() const = 0;
 		/// Returns the SIM's IMSI (International Mobile Subscriber Identity).

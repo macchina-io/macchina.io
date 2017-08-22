@@ -48,6 +48,9 @@ public:
 	virtual void connectData();
 		/// Establishes the data connection.
 
+	virtual std::string deviceName() const;
+		/// Returns the modem device name.
+
 	virtual void disconnectData();
 		/// Closes the data connection.
 
@@ -65,6 +68,9 @@ public:
 
 	virtual std::string iccid() const;
 		/// Returns the SIMs ICCID (Integrated Circuit Card Identifier).
+
+	virtual std::string imei() const;
+		/// Returns the IMEI (International Mobile Equipment Identity).
 
 	virtual std::string imsi() const;
 		/// Returns the SIM's IMSI (International Mobile Subscriber Identity).
@@ -147,6 +153,12 @@ inline void MobileConnectionServiceRemoteObject::connectData()
 }
 
 
+inline std::string MobileConnectionServiceRemoteObject::deviceName() const
+{
+	return _pServiceObject->deviceName();
+}
+
+
 inline void MobileConnectionServiceRemoteObject::disconnectData()
 {
 	_pServiceObject->disconnectData();
@@ -180,6 +192,12 @@ inline IoT::MobileConnection::PDPType MobileConnectionServiceRemoteObject::getPD
 inline std::string MobileConnectionServiceRemoteObject::iccid() const
 {
 	return _pServiceObject->iccid();
+}
+
+
+inline std::string MobileConnectionServiceRemoteObject::imei() const
+{
+	return _pServiceObject->imei();
 }
 
 

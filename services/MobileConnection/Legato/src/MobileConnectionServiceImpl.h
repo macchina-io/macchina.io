@@ -44,6 +44,8 @@ public:
 		/// Destroys the MobileConnectionService.
 
 	// MobileConnectionService
+	std::string imei() const;
+	std::string deviceName() const;
 	SIMState simState() const;
 	void unlockSIM(const std::string& pin);
 	void lockSIM(const std::string& pin);

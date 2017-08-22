@@ -104,6 +104,12 @@ public:
 	virtual ~MobileConnectionService();
 		/// Destroys the MobileConnectionService.
 
+	virtual std::string deviceName() const = 0;
+		/// Returns the modem device name.
+
+	virtual std::string imei() const = 0;
+		/// Returns the IMEI (International Mobile Equipment Identity).
+
 	virtual SIMState simState() const = 0;
 		/// Returns the current state of the SIM.
 
