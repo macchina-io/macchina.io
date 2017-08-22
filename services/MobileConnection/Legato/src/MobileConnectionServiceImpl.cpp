@@ -28,7 +28,8 @@ const std::string MobileConnectionServiceImpl::DEFAULT_CM_PATH("/legato/systems/
 
 
 MobileConnectionServiceImpl::MobileConnectionServiceImpl(const std::string& cmPath):
-	_cmPath(cmPath)
+	_cmPath(cmPath),
+	_cmCache(1000)
 {
 }
 
@@ -40,7 +41,9 @@ MobileConnectionServiceImpl::~MobileConnectionServiceImpl()
 
 SIMState MobileConnectionServiceImpl::simState() const
 {
-	std::string result = cm("sim", "status");
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("sim", "status");
 	if (result.find("LE_SIM_INSERTED") != std::string::npos)
 		return MC_SIM_INSERTED;
 	else if (result.find("LE_SIM_ABSENT") != std::string::npos)
@@ -58,58 +61,76 @@ SIMState MobileConnectionServiceImpl::simState() const
 
 void MobileConnectionServiceImpl::unlockSIM(const std::string& pin)
 {
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
 	cm("sim", "unlock", pin);
 }
 
 
 void MobileConnectionServiceImpl::lockSIM(const std::string& pin)
 {
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
 	cm("sim", "lock", pin);
 }
 
 
 void MobileConnectionServiceImpl::enterPIN(const std::string& pin)
 {
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
 	cm("sim", "enterpin", pin);
 }
 
 
 std::string MobileConnectionServiceImpl::imsi() const
 {
-	std::string result = cm("sim", "imsi");
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("sim", "imsi");
 	return extractValue(result, "IMSI");
 }
 
 
 std::string MobileConnectionServiceImpl::phoneNumber() const
 {
-	std::string result = cm("sim", "number");
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("sim", "number");
 	return extractValue(result, "Phone Number");
 }
 
 
 std::string MobileConnectionServiceImpl::iccid() const
 {
-	std::string result = cm("sim", "iccid");
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("sim", "iccid");
 	return extractValue(result, "ICCID");
 }
 
 
 void MobileConnectionServiceImpl::setAPN(const std::string& apn)
 {
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
 	cm("data", "apn", apn);
 }
 
 
 std::string MobileConnectionServiceImpl::getAPN() const
 {
-	std::string result = cm("data", "info");
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("data", "info");
 	return extractValue(result, "APN");
 }
 
 
 void MobileConnectionServiceImpl::setPDPType(PDPType type)
 {
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
 	std::string t;
 	switch (type)
 	{
@@ -128,7 +149,9 @@ void MobileConnectionServiceImpl::setPDPType(PDPType type)
 
 PDPType MobileConnectionServiceImpl::getPDPType() const
 {
-	std::string result = cm("data", "info");
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("data", "info");
 	std::string type = extractValue(result, "PDP Type");
 	if (type == "IPV4")
 		return MC_PDP_IPV4;
@@ -143,6 +166,8 @@ PDPType MobileConnectionServiceImpl::getPDPType() const
 
 void MobileConnectionServiceImpl::authenticate(AuthMethod method, const std::string& username, const std::string& password)
 {
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
 	std::vector<std::string> args;
 	args.push_back("data");
 	args.push_back("auth");
@@ -171,27 +196,35 @@ void MobileConnectionServiceImpl::authenticate(AuthMethod method, const std::str
 
 void MobileConnectionServiceImpl::enableRadio(bool enable)
 {
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
 	cm("radio", enable ? "on" : "off");
 }
 
 
 bool MobileConnectionServiceImpl::isRadioEnabled() const
 {
-	std::string result = cm("radio", "status");
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("radio", "status");
 	return extractValue(result, "Power") == "ON";
 }
 
 
 std::string MobileConnectionServiceImpl::networkOperator() const
 {
-	std::string result = cm("radio", "status");
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("radio", "status");
 	return extractValue(result, "Current Network Operator");
 }
 
 
 RegistrationStatus MobileConnectionServiceImpl::registrationStatus() const
 {
-	std::string result = cm("radio", "status");
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("radio", "status");
 	std::string status = extractValue(result, "Status");
 	if (status.find("LE_MRC_REG_NONE") != std::string::npos)
 		return MC_REG_NONE;
@@ -210,7 +243,9 @@ RegistrationStatus MobileConnectionServiceImpl::registrationStatus() const
 
 RadioAccessTechnology MobileConnectionServiceImpl::radioAccessTechnology() const
 {
-	std::string result = cm("radio", "status");
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("radio", "status");
 	std::string status = extractValue(result, "RAT");
 	if (status.find("LE_MRC_RAT_CDMA") != std::string::npos)
 		return MC_RAT_CDMA;
@@ -229,7 +264,9 @@ RadioAccessTechnology MobileConnectionServiceImpl::radioAccessTechnology() const
 
 int MobileConnectionServiceImpl::signalStrength() const
 {
-	std::string result = cm("radio", "status");
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("radio", "status");
 	std::string status = extractValue(result, "Signal");
 	if (status.find("(0)") != std::string::npos)
 		return 0;
@@ -250,7 +287,9 @@ int MobileConnectionServiceImpl::signalStrength() const
 
 bool MobileConnectionServiceImpl::isDataConnected()
 {
-	std::string result = cm("data", "info");
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::string result = cmCached("data", "info");
 	return extractValue(result, "Connected") == "yes";
 }
 
@@ -262,6 +301,25 @@ void MobileConnectionServiceImpl::connectData()
 
 void MobileConnectionServiceImpl::disconnectData()
 {
+}
+
+
+std::string MobileConnectionServiceImpl::cmCached(const std::string& module, const std::string& command) const
+{
+	std::string key(module);
+	key += ":";
+	key += command;
+	Poco::SharedPtr<std::string> pCached = _cmCache.get(key);
+	if (pCached)
+	{
+		return *pCached;
+	}
+	else
+	{
+		std::string value = cm(module, command);
+		_cmCache.add(key, value);
+		return value;
+	}
 }
 
 

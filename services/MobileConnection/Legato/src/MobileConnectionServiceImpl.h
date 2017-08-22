@@ -17,6 +17,8 @@
 
 
 #include "IoT/MobileConnection/MobileConnectionService.h"
+#include "Poco/ExpireCache.h"
+#include "Poco/Mutex.h"
 #include <vector>
 
 
@@ -67,13 +69,17 @@ public:
 	static const std::string DEFAULT_CM_PATH;
 
 protected:
+	std::string cmCached(const std::string& module, const std::string& command) const;
 	std::string cm(const std::string& module, const std::string& command) const;
 	std::string cm(const std::string& module, const std::string& command, const std::string& arg) const;
 	std::string cm(const std::vector<std::string>& args) const;
 	static std::string extractValue(const std::string& output, const std::string& key);
 
 private:
+	typedef Poco::ExpireCache<std::string, std::string> CMCache;
 	std::string _cmPath;
+	mutable CMCache _cmCache;
+	mutable Poco::FastMutex _mutex;
 };
 
 
