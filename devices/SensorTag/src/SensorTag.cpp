@@ -55,6 +55,7 @@ private:
 
 
 const std::string SensorTagSensor::NAME("SensorTag Sensor");
+const std::string SensorTagSensor::TYPE("io.macchina.sensor");
 const std::string SensorTagSensor::SYMBOLIC_NAME("io.macchina.btle.sensortag");
 
 
@@ -68,8 +69,6 @@ SensorTagSensor::SensorTagSensor(Peripheral::Ptr pPeripheral, const Params& para
 	_valueChangedDelta(0.0),
 	_pEventPolicy(new IoT::Devices::NoModerationPolicy<double>(valueChanged)),
 	_deviceIdentifier(pPeripheral->address()),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME),
 	_physicalQuantity(params.physicalQuantity),
 	_physicalUnit(params.physicalUnit)
 {
@@ -80,6 +79,7 @@ SensorTagSensor::SensorTagSensor(Peripheral::Ptr pPeripheral, const Params& para
 	addProperty("deviceIdentifier", &SensorTagSensor::getDeviceIdentifier);
 	addProperty("symbolicName", &SensorTagSensor::getSymbolicName);
 	addProperty("name", &SensorTagSensor::getName);
+	addProperty("type", &SensorTagSensor::getType);
 	addProperty("physicalQuantity", &SensorTagSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &SensorTagSensor::getPhysicalUnit);
 	
@@ -234,13 +234,19 @@ Poco::Any SensorTagSensor::getDeviceIdentifier(const std::string&) const
 
 Poco::Any SensorTagSensor::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
 }
 
 
 Poco::Any SensorTagSensor::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
+}
+
+
+Poco::Any SensorTagSensor::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 

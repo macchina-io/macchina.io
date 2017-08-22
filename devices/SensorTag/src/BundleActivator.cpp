@@ -104,6 +104,7 @@ public:
 		
 		Properties props;
 		props.set("io.macchina.device", SensorTagSensor::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", SensorTagSensor::TYPE);
 		props.set("io.macchina.physicalQuantity", params.physicalQuantity);
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		
@@ -133,6 +134,7 @@ public:
 		
 		Properties props;
 		props.set("io.macchina.device", SensorTagAccelerometer::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", SensorTagAccelerometer::TYPE);
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pAccelerometerRemoteObject, props);

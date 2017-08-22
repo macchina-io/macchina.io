@@ -55,6 +55,7 @@ public:
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::SerialDevice> ServerHelper;
 		
 		Poco::SharedPtr<IoT::Devices::SerialDevice> pDevice = new SerialDeviceImpl(pSerialPort);
+		std::string type = pDevice->getPropertyString("type");
 		std::string symbolicName = pDevice->getPropertyString("symbolicName");
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
@@ -63,6 +64,7 @@ public:
 		
 		Properties props;
 		props.set("io.macchina.device", symbolicName);
+		props.set("io.macchina.deviceType", type);
 		props.set("io.macchina.serialport.device", pSerialPort->device());
 		
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pDeviceRemoteObject, props);

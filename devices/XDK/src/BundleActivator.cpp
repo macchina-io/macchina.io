@@ -170,6 +170,7 @@ public:
 		
 		Properties props;
 		props.set("io.macchina.device", HighRateSensor::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", HighRateSensor::TYPE);
 		props.set("io.macchina.physicalQuantity", params.physicalQuantity);
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		
@@ -189,6 +190,7 @@ public:
 		ServerHelper::RemoteObjectPtr pAccelerometerRemoteObject = ServerHelper::createRemoteObject(pAccelerometer, oid);
 		Properties props;
 		props.set("io.macchina.device", HighRateAccelerometer::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", HighRateAccelerometer::TYPE);
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pAccelerometerRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
@@ -205,6 +207,7 @@ public:
 		ServerHelper::RemoteObjectPtr pGyroscopeRemoteObject = ServerHelper::createRemoteObject(pGyroscope, oid);
 		Properties props;
 		props.set("io.macchina.device", HighRateGyroscope::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", HighRateGyroscope::TYPE);
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pGyroscopeRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
@@ -221,6 +224,7 @@ public:
 		ServerHelper::RemoteObjectPtr pMagnetometerRemoteObject = ServerHelper::createRemoteObject(pMagnetometer, oid);
 		Properties props;
 		props.set("io.macchina.device", HighRateMagnetometer::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", HighRateMagnetometer::TYPE);
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pMagnetometerRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
@@ -235,6 +239,7 @@ public:
 		ServerHelper::RemoteObjectPtr pButtonRemoteObject = ServerHelper::createRemoteObject(pButton, oid);
 		Properties props;
 		props.set("io.macchina.device", HighRateButton::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", HighRateButton::TYPE);
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pButtonRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
@@ -269,6 +274,7 @@ public:
 		
 		Properties props;
 		props.set("io.macchina.device", XDKSensor::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", XDKSensor::TYPE);
 		props.set("io.macchina.physicalQuantity", params.physicalQuantity);
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		

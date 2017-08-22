@@ -49,6 +49,7 @@ public:
 
 protected:
 	Poco::Any getName(const std::string&) const;
+	Poco::Any getType(const std::string&) const;
 	Poco::Any getSymbolicName(const std::string&) const;
 	Poco::Any getPositionChangedPeriod(const std::string&) const;
 	void setPositionChangedPeriod(const std::string&, const Poco::Any& value);
@@ -67,6 +68,7 @@ protected:
 	int poll(const Poco::Timespan& timeout);
 
 	static const std::string NAME;
+	static const std::string TYPE;
 	static const std::string SYMBOLIC_NAME;
 	static const std::string PATH;
 

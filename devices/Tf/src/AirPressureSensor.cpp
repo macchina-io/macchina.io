@@ -20,7 +20,7 @@ namespace Tf {
 
 
 AirPressureSensor::AirPressureSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.barometer", "Tinkerforge Barometer Bricklet", "AirPressure", IoT::Devices::Sensor::PHYSICAL_UNIT_MBAR),
+	BrickletType("io.macchina.tf.barometer", "Tinkerforge Barometer Bricklet", "io.macchina.sensor", "AirPressure", IoT::Devices::Sensor::PHYSICAL_UNIT_MBAR),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
 	addProperty("displayValue", &AirPressureSensor::getDisplayValue);

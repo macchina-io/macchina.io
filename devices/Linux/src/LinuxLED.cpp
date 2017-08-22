@@ -21,6 +21,7 @@ namespace Linux {
 
 
 const std::string LinuxLED::NAME("Linux LED");
+const std::string LinuxLED::TYPE("io.macchina.led");
 const std::string LinuxLED::SYMBOLIC_NAME("io.macchina.linux.led");
 
 
@@ -49,8 +50,6 @@ LinuxLED::LinuxLED(const std::string& device, Poco::SharedPtr<Poco::Util::Timer>
 	_pTimer(pTimer),
 	_brightnessPath(device),
 	_deviceIdentifier(Poco::Path(device).getFileName()),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME),
 	_maxBrightness(0),
 	_onMilliseconds(0),
 	_offMilliseconds(0)
@@ -59,6 +58,7 @@ LinuxLED::LinuxLED(const std::string& device, Poco::SharedPtr<Poco::Util::Timer>
 	addProperty("deviceIdentifier", &LinuxLED::getDeviceIdentifier);
 	addProperty("symbolicName", &LinuxLED::getSymbolicName);
 	addProperty("name", &LinuxLED::getName);
+	addProperty("type", &LinuxLED::getType);
 	addProperty("blinkOn", &LinuxLED::getBlinkOn, &LinuxLED::setBlinkOn);
 	addProperty("blinkOff", &LinuxLED::getBlinkOff, &LinuxLED::setBlinkOff);
 
@@ -156,13 +156,19 @@ Poco::Any LinuxLED::getDeviceIdentifier(const std::string&) const
 
 Poco::Any LinuxLED::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
+}
+
+
+Poco::Any LinuxLED::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 
 Poco::Any LinuxLED::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
 }
 
 

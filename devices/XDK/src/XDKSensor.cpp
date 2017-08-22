@@ -57,6 +57,7 @@ private:
 
 
 const std::string XDKSensor::NAME("XDK Sensor");
+const std::string XDKSensor::TYPE("io.macchina.sensor");
 const std::string XDKSensor::SYMBOLIC_NAME("io.macchina.btle.xdk");
 
 
@@ -70,8 +71,6 @@ XDKSensor::XDKSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::Sh
 	_valueChangedDelta(0.0),
 	_pEventPolicy(new IoT::Devices::NoModerationPolicy<double>(valueChanged)),
 	_deviceIdentifier(pPeripheral->address()),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME),
 	_physicalQuantity(params.physicalQuantity),
 	_physicalUnit(params.physicalUnit)
 {
@@ -82,6 +81,7 @@ XDKSensor::XDKSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::Sh
 	addProperty("deviceIdentifier", &XDKSensor::getDeviceIdentifier);
 	addProperty("symbolicName", &XDKSensor::getSymbolicName);
 	addProperty("name", &XDKSensor::getName);
+	addProperty("type", &XDKSensor::getType);
 	addProperty("physicalQuantity", &XDKSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &XDKSensor::getPhysicalUnit);
 	
@@ -233,13 +233,19 @@ Poco::Any XDKSensor::getDeviceIdentifier(const std::string&) const
 
 Poco::Any XDKSensor::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
+}
+
+
+Poco::Any XDKSensor::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 
 Poco::Any XDKSensor::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
 }
 
 

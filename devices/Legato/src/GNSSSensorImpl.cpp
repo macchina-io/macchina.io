@@ -28,6 +28,7 @@ namespace Legato {
 
 
 const std::string GNSSSensorImpl::NAME("Legato GNSS Sensor");
+const std::string GNSSSensorImpl::TYPE("io.macchina.gnss");
 const std::string GNSSSensorImpl::SYMBOLIC_NAME("io.macchina.legato.gnss");
 const std::string GNSSSensorImpl::PATH("/dev/nmea");
 
@@ -51,6 +52,7 @@ GNSSSensorImpl::GNSSSensorImpl():
 {
 	addProperty("symbolicName", &GNSSSensorImpl::getSymbolicName);
 	addProperty("name", &GNSSSensorImpl::getName);
+	addProperty("type", &GNSSSensorImpl::getType);
 	addProperty("displayValue", &GNSSSensorImpl::getDisplayValue);
 	addProperty("positionChangedPeriod", &GNSSSensorImpl::getPositionChangedPeriod, &GNSSSensorImpl::setPositionChangedPeriod);
 	addProperty("positionChangedDelta", &GNSSSensorImpl::getPositionChangedDelta, &GNSSSensorImpl::setPositionChangedDelta);
@@ -211,6 +213,12 @@ double GNSSSensorImpl::hdop() const
 Poco::Any GNSSSensorImpl::getName(const std::string&) const
 {
 	return NAME;
+}
+
+
+Poco::Any GNSSSensorImpl::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 

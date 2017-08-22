@@ -22,6 +22,7 @@ namespace XDK {
 
 
 const std::string HighRateButton::NAME("XDK Button");
+const std::string HighRateButton::TYPE("io.macchina.trigger");
 const std::string HighRateButton::SYMBOLIC_NAME("io.macchina.btle.xdk.button");
 
 
@@ -29,9 +30,7 @@ HighRateButton::HighRateButton(Peripheral::Ptr pPeripheral):
 	_pPeripheral(pPeripheral),
 	_enabled(false),
 	_ready(false),
-	_deviceIdentifier(pPeripheral->address()),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME)
+	_deviceIdentifier(pPeripheral->address())
 {
 	addProperty("displayValue", &HighRateButton::getDisplayValue);
 	addProperty("enabled", &HighRateButton::getEnabled, &HighRateButton::setEnabled);
@@ -39,6 +38,7 @@ HighRateButton::HighRateButton(Peripheral::Ptr pPeripheral):
 	addProperty("deviceIdentifier", &HighRateButton::getDeviceIdentifier);
 	addProperty("symbolicName", &HighRateButton::getSymbolicName);
 	addProperty("name", &HighRateButton::getName);
+	addProperty("type", &HighRateButton::getType);
 	
 	_pPeripheral->connected += Poco::delegate(this, &HighRateButton::onConnected);
 	_pPeripheral->disconnected += Poco::delegate(this, &HighRateButton::onDisconnected);
@@ -117,13 +117,19 @@ Poco::Any HighRateButton::getDeviceIdentifier(const std::string&) const
 
 Poco::Any HighRateButton::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
+}
+
+
+Poco::Any HighRateButton::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 
 Poco::Any HighRateButton::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
 }
 
 

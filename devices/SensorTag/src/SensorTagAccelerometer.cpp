@@ -28,6 +28,7 @@ namespace SensorTag {
 
 
 const std::string SensorTagAccelerometer::NAME("SensorTag Accelerometer");
+const std::string SensorTagAccelerometer::TYPE("io.macchina.accelerometer");
 const std::string SensorTagAccelerometer::SYMBOLIC_NAME("io.macchina.btle.sensortag.accelerometer");
 
 
@@ -37,8 +38,6 @@ SensorTagAccelerometer::SensorTagAccelerometer(Peripheral::Ptr pPeripheral, cons
 	_ready(false),
 	_enabled(false),
 	_deviceIdentifier(pPeripheral->address()),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME),
 	_logger(Poco::Logger::get("IoT.SensorTagAccelerometer"))
 {
 	addProperty("displayValue", &SensorTagAccelerometer::getDisplayValue);
@@ -46,6 +45,7 @@ SensorTagAccelerometer::SensorTagAccelerometer(Peripheral::Ptr pPeripheral, cons
 	addProperty("deviceIdentifier", &SensorTagAccelerometer::getDeviceIdentifier);
 	addProperty("symbolicName", &SensorTagAccelerometer::getSymbolicName);
 	addProperty("name", &SensorTagAccelerometer::getName);
+	addProperty("type", &SensorTagAccelerometer::getType);
 	addProperty("enabled", &SensorTagAccelerometer::getEnabled, &SensorTagAccelerometer::setEnabled);
 	addProperty("wakeOnMotion", &SensorTagAccelerometer::getWakeOnMotion, &SensorTagAccelerometer::setWakeOnMotion);
 	addProperty("valueChangedPeriod", &SensorTagAccelerometer::getValueChangedPeriod, &SensorTagAccelerometer::setValueChangedPeriod);
@@ -111,13 +111,19 @@ Poco::Any SensorTagAccelerometer::getDeviceIdentifier(const std::string&) const
 
 Poco::Any SensorTagAccelerometer::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
+}
+
+
+Poco::Any SensorTagAccelerometer::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 
 Poco::Any SensorTagAccelerometer::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
 }
 
 
