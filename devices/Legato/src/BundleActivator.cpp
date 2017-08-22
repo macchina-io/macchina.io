@@ -44,26 +44,28 @@ public:
 	BundleActivator()
 	{
 	}
-	
+
 	~BundleActivator()
 	{
 	}
-	
+
 	void createGNSSSensor()
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::GNSSSensor> ServerHelper;
-		
+
 		Poco::SharedPtr<GNSSSensorImpl> pGNSSSensor = new GNSSSensorImpl;
 		Poco::RemotingNG::Identifiable::ObjectId oid = pGNSSSensor->getPropertyString("symbolicName");
+		std::string type = pGNSSSensor->getPropertyString("type");
 		oid += "#0";
 		ServerHelper::RemoteObjectPtr pGNSSSensorRemoteObject = ServerHelper::createRemoteObject(pGNSSSensor, oid);
-		
+
 		Properties props;
 		props.set("io.macchina.device", oid);
-		
+		props.set("io.macchina.deviceType", type);
+
 		_serviceRef = _pContext->registry().registerService(oid, pGNSSSensorRemoteObject, props);
 	}
-	
+
 	void start(BundleContext::Ptr pContext)
 	{
 		_pContext = pContext;
@@ -80,10 +82,10 @@ public:
 		}
 		catch (Poco::Exception& exc)
 		{
-			pContext->logger().error(Poco::format("Cannot create Legato GNSSSensor: %s", exc.displayText())); 
+			pContext->logger().error(Poco::format("Cannot create Legato GNSSSensor: %s", exc.displayText()));
 		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		_pContext->registry().unregisterService(_serviceRef);
@@ -112,17 +114,17 @@ protected:
 	{
 		return _pPrefs->configuration()->getInt(key, _pContext->thisBundle()->properties().getInt(key, deflt));
 	}
-	
+
 	std::string getStringConfig(const std::string& key)
 	{
 		return _pPrefs->configuration()->getString(key, _pContext->thisBundle()->properties().getString(key));
 	}
-	
+
 	std::string getStringConfig(const std::string& key, const std::string& deflt)
 	{
 		return _pPrefs->configuration()->getString(key, _pContext->thisBundle()->properties().getString(key, deflt));
 	}
-	
+
 private:
 	BundleContext::Ptr _pContext;
 	PreferencesService::Ptr _pPrefs;
