@@ -46,7 +46,7 @@
             <thead>
               <tr>
                 <th ng-click="setOrderBy('name')" class="list-sortable">Name</th>
-                <th ng-click="setOrderBy('symbolicName')" class="list-sortable">Symbolic Name</th>
+                <th ng-click="setOrderBy('type')" class="list-sortable">Type</th>
                 <th ng-click="setOrderBy('id')" class="list-sortable">ID</th>
                 <th ng-click="setOrderBy('physicalQuantity')" class="list-sortable">Physical Quantity</th>
                 <th>State/Value</th>
@@ -54,8 +54,8 @@
             </thead>
             <tbody>
               <tr ng-repeat="device in devices | orderBy:orderBy track by $index" ng-class-even="'even'" ng-class-odd="'odd'">
-                <td>{{device.name}}</td>
-                <td>{{device.symbolicName}}</td>
+                <td><span ng-attr-title="{{device.symbolicName}}">{{device.name}}</span></td>
+                <td>{{device.type}}</td>
                 <td>{{device.id}}</td>
                 <td>{{device.physicalQuantity}}</td>
                 <td>{{device.displayValue}}</td>
