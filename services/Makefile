@@ -13,3 +13,4 @@ clean all:
 	$(MAKE) -C DeviceStatus $(MAKECMDGOALS)
 	$(MAKE) -C NetworkEnvironment $(MAKECMDGOALS)
 	$(MAKE) -C MobileConnection $(MAKECMDGOALS)
+	$(MAKE) -C MobileConnection/Legato $(MAKECMDGOALS)
