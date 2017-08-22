@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>macchina.io Mobile Connection Service</name>
+    <symbolicName>io.macchina.services.mobileconnection</symbolicName>
+    <version>1.0.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2017, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>IoT::MobileConnection::BundleActivator</class>
+      <library>io.macchina.services.mobileconnection</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>000</runLevel>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../${bin}/IoTMobileConnection${64}.dll,
+    ../../${bin}/IoTMobileConnection${64}d.dll,
+    ../../${bin}/IoTMobileConnection${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../lib/${osName}/${osArch}/libIoTMobileConnection.so.*,
+    ../../lib/${osName}/${osArch}/libIoTMobileConnectiond.so.*,
+    ../../lib/${osName}/${osArch}/libIoTMobileConnection.*.dylib,
+    ../../lib/${osName}/${osArch}/libIoTMobileConnectiond.*.dylib
+  </code>
+</bundlespec>
