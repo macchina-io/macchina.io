@@ -1,0 +1,26 @@
+<bundlespec>
+	<manifest>
+    	<name>macchina.io Mobile Connection Service for Legato</name>
+		<symbolicName>io.macchina.services.mobileconnection.legato</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2017, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>IoT::MobileConnection::Legato::BundleActivator</class>
+			<library>io.macchina.services.mobileconnection.legato</library>
+		</activator>
+		<dependency>
+			<symbolicName>io.macchina.services.mobileconnection</symbolicName>
+			<version>[1.0.0, 2.0.0)</version>
+		</dependency>
+		<lazyStart>false</lazyStart>
+		<runLevel>610</runLevel>
+	</manifest>
+	<code>
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+	</code>
+	<files>
+		bundle/*
+	</files>
+</bundlespec>
