@@ -367,6 +367,61 @@ public:
 };
 
 
+class MobileConnectionServiceGetPDPTypeMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		remoting__staticInitBegin(REMOTING__NAMES);
+		static const std::string REMOTING__NAMES[] = {"getPDPType"};
+		remoting__staticInitEnd(REMOTING__NAMES);
+		bool remoting__requestSucceeded = false;
+		try
+		{
+			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			IoT::MobileConnection::MobileConnectionServiceRemoteObject* remoting__pCastedRO = static_cast<IoT::MobileConnection::MobileConnectionServiceRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::MobileConnection::PDPType remoting__return = remoting__pCastedRO->getPDPType();
+			remoting__requestSucceeded = true;
+			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__staticInitBegin(REMOTING__REPLY_NAME);
+			static const std::string REMOTING__REPLY_NAME("getPDPTypeReply");
+			remoting__staticInitEnd(REMOTING__REPLY_NAME);
+			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<int >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+		}
+		catch (Poco::Exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
+			}
+		}
+		catch (std::exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc(e.what());
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+		catch (...)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc("Unknown Exception");
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+	}
+
+};
+
+
 class MobileConnectionServiceIccidMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
@@ -919,6 +974,64 @@ public:
 };
 
 
+class MobileConnectionServiceSetPDPTypeMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		remoting__staticInitBegin(REMOTING__NAMES);
+		static const std::string REMOTING__NAMES[] = {"setPDPType","type"};
+		remoting__staticInitEnd(REMOTING__NAMES);
+		bool remoting__requestSucceeded = false;
+		try
+		{
+			IoT::MobileConnection::PDPType type;
+			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			int remoting__typeTmp;
+			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__typeTmp);
+			type = static_cast<IoT::MobileConnection::PDPType>(remoting__typeTmp);
+			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			IoT::MobileConnection::MobileConnectionServiceRemoteObject* remoting__pCastedRO = static_cast<IoT::MobileConnection::MobileConnectionServiceRemoteObject*>(remoting__pRemoteObject.get());
+			remoting__pCastedRO->setPDPType(type);
+			remoting__requestSucceeded = true;
+			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__staticInitBegin(REMOTING__REPLY_NAME);
+			static const std::string REMOTING__REPLY_NAME("setPDPTypeReply");
+			remoting__staticInitEnd(REMOTING__REPLY_NAME);
+			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+		}
+		catch (Poco::Exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
+			}
+		}
+		catch (std::exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc(e.what());
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+		catch (...)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc("Unknown Exception");
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+	}
+
+};
+
+
 class MobileConnectionServiceSignalStrengthMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
@@ -1095,6 +1208,7 @@ MobileConnectionServiceSkeleton::MobileConnectionServiceSkeleton():
 	addMethodHandler("enableRadio", new IoT::MobileConnection::MobileConnectionServiceEnableRadioMethodHandler);
 	addMethodHandler("enterPIN", new IoT::MobileConnection::MobileConnectionServiceEnterPINMethodHandler);
 	addMethodHandler("getAPN", new IoT::MobileConnection::MobileConnectionServiceGetAPNMethodHandler);
+	addMethodHandler("getPDPType", new IoT::MobileConnection::MobileConnectionServiceGetPDPTypeMethodHandler);
 	addMethodHandler("iccid", new IoT::MobileConnection::MobileConnectionServiceIccidMethodHandler);
 	addMethodHandler("imsi", new IoT::MobileConnection::MobileConnectionServiceImsiMethodHandler);
 	addMethodHandler("isDataConnected", new IoT::MobileConnection::MobileConnectionServiceIsDataConnectedMethodHandler);
@@ -1105,6 +1219,7 @@ MobileConnectionServiceSkeleton::MobileConnectionServiceSkeleton():
 	addMethodHandler("radioAccessTechnology", new IoT::MobileConnection::MobileConnectionServiceRadioAccessTechnologyMethodHandler);
 	addMethodHandler("registrationStatus", new IoT::MobileConnection::MobileConnectionServiceRegistrationStatusMethodHandler);
 	addMethodHandler("setAPN", new IoT::MobileConnection::MobileConnectionServiceSetAPNMethodHandler);
+	addMethodHandler("setPDPType", new IoT::MobileConnection::MobileConnectionServiceSetPDPTypeMethodHandler);
 	addMethodHandler("signalStrength", new IoT::MobileConnection::MobileConnectionServiceSignalStrengthMethodHandler);
 	addMethodHandler("simState", new IoT::MobileConnection::MobileConnectionServiceSimStateMethodHandler);
 	addMethodHandler("unlockSIM", new IoT::MobileConnection::MobileConnectionServiceUnlockSIMMethodHandler);

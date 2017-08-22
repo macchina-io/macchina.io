@@ -32,24 +32,24 @@ namespace MobileConnection {
 enum SIMState
 	/// State of SIM card.
 {
-	MC_SIM_INSERTED, /// SIM is present, but no PIN has been provided yet.
-	MC_SIM_ABSENT,   /// SIM is not present.
-	MC_SIM_READY,    /// SIM is ready.
-	MC_SIM_BLOCKED,  /// SIM is blocked.
-	MC_SIM_BUSY,     /// SIM is busy.
-	MC_SIM_UNKNOWN   /// SIM state is unknown due to an error.
+	MC_SIM_INSERTED,   /// SIM is present, but no PIN has been provided yet.
+	MC_SIM_ABSENT,     /// SIM is not present.
+	MC_SIM_READY,      /// SIM is ready.
+	MC_SIM_BLOCKED,    /// SIM is blocked.
+	MC_SIM_BUSY,       /// SIM is busy.
+	MC_SIM_UNKNOWN     /// SIM state is unknown due to an error.
 };
 
 
 enum RadioAccessTechnology
 	/// Radio technology used to connect to mobile network.
 {
-	MC_RAT_CDMA,     /// CDMA
-	MC_RAT_GSM,      /// GSM
-	MC_RAT_UMTS,     /// UMTS
-	MC_RAT_LTE,      /// LTE
-	MC_RAT_TDSCDMA,  /// CDMA 3G
-	MC_RAT_UNKNOWN   /// Technology unknown due to error.
+	MC_RAT_CDMA,       /// CDMA
+	MC_RAT_GSM,        /// GSM
+	MC_RAT_UMTS,       /// UMTS
+	MC_RAT_LTE,        /// LTE
+	MC_RAT_TDSCDMA,    /// CDMA 3G
+	MC_RAT_UNKNOWN     /// Technology unknown due to error.
 };
 
 
@@ -66,10 +66,21 @@ enum RegistrationStatus
 
 
 enum AuthMethod
+	/// Authentication method for data connection.
 {
-	MC_AUTH_NONE,    /// No authentication
-	MC_AUTH_PAP,     /// PAP authentication
-	MC_AUTH_CHAP     /// CHAP authentication
+	MC_AUTH_NONE,      /// No authentication
+	MC_AUTH_PAP,       /// PAP authentication
+	MC_AUTH_CHAP       /// CHAP authentication
+};
+
+
+enum PDPType
+	/// Packet Data Protocol (PDP) type.
+{
+	MC_PDP_IPV4,       /// IPv4 protocol
+	MC_PDP_IPV6,       /// IPv6 protocol
+	MC_PDP_IPV4V6,     /// Both IPv4 and IPv6 protocols
+	MC_PDP_UNKNOWN     /// PDP type unknown due to an error.
 };
 
 
@@ -119,6 +130,12 @@ public:
 
 	virtual std::string getAPN() const = 0;
 		/// Returns the configured Access Point Name (APN) for the mobile data connection.
+
+	virtual void setPDPType(PDPType type) = 0;
+		/// Sets the PDP Type for the mobile data connection.
+
+	virtual PDPType getPDPType() const = 0;
+		/// Returns the PDP Type for the mobile data connection.
 
 	virtual void authenticate(AuthMethod method, const std::string& username, const std::string& password) = 0;
 		/// Provide the credentials for the mobile data connection.

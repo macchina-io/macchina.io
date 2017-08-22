@@ -60,6 +60,9 @@ public:
 	virtual std::string getAPN() const;
 		/// Returns the configured Access Point Name (APN) for the mobile data connection.
 
+	IoT::MobileConnection::PDPType getPDPType() const;
+		/// Returns the PDP Type for the mobile data connection.
+
 	virtual std::string iccid() const;
 		/// Returns the SIMs ICCID (Integrated Circuit Card Identifier).
 
@@ -99,6 +102,9 @@ public:
 
 	virtual void setAPN(const std::string& apn);
 		/// Sets the Access Point Name (APN) for the mobile data connection.
+
+	virtual void setPDPType(IoT::MobileConnection::PDPType type);
+		/// Sets the PDP Type for the mobile data connection.
 
 	virtual int signalStrength() const;
 		/// Returns the signal strength in a range from 0 to 5
@@ -165,6 +171,12 @@ inline std::string MobileConnectionServiceRemoteObject::getAPN() const
 }
 
 
+inline IoT::MobileConnection::PDPType MobileConnectionServiceRemoteObject::getPDPType() const
+{
+	return _pServiceObject->getPDPType();
+}
+
+
 inline std::string MobileConnectionServiceRemoteObject::iccid() const
 {
 	return _pServiceObject->iccid();
@@ -228,6 +240,12 @@ inline const Poco::RemotingNG::Identifiable::TypeId& MobileConnectionServiceRemo
 inline void MobileConnectionServiceRemoteObject::setAPN(const std::string& apn)
 {
 	_pServiceObject->setAPN(apn);
+}
+
+
+inline void MobileConnectionServiceRemoteObject::setPDPType(IoT::MobileConnection::PDPType type)
+{
+	_pServiceObject->setPDPType(type);
 }
 
 

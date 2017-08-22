@@ -61,6 +61,9 @@ public:
 	virtual std::string getAPN() const = 0;
 		/// Returns the configured Access Point Name (APN) for the mobile data connection.
 
+	virtual IoT::MobileConnection::PDPType getPDPType() const = 0;
+		/// Returns the PDP Type for the mobile data connection.
+
 	virtual std::string iccid() const = 0;
 		/// Returns the SIMs ICCID (Integrated Circuit Card Identifier).
 
@@ -107,6 +110,9 @@ public:
 
 	virtual void setAPN(const std::string& apn) = 0;
 		/// Sets the Access Point Name (APN) for the mobile data connection.
+
+	virtual void setPDPType(IoT::MobileConnection::PDPType type) = 0;
+		/// Sets the PDP Type for the mobile data connection.
 
 	virtual int signalStrength() const = 0;
 		/// Returns the signal strength in a range from 0 to 5
