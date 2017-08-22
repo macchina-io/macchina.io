@@ -33,6 +33,7 @@ public:
 	BrickletImpl(const std::string& symbolicName, const std::string& name, const std::string& type, const std::string physicalQuantity = "", const std::string& physicalUnit = ""):
 		_symbolicName(symbolicName),
 		_name(name),
+		_type(type),
 		_physicalQuantity(physicalQuantity),
 		_physicalUnit(physicalUnit)
 	{

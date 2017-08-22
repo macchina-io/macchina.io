@@ -21,7 +21,7 @@ namespace Tf {
 
 
 GNSSSensor::GNSSSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.gnss", "Tinkerforge GPS Bricklet", ""),
+	BrickletType("io.macchina.tf.gnss", "Tinkerforge GPS Bricklet", "io.macchina.gnss"),
 	_positionAvailable(false)
 {
 	addProperty("displayValue", &GNSSSensor::getDisplayValue);
