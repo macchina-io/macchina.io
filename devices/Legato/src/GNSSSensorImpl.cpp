@@ -48,7 +48,7 @@ GNSSSensorImpl::GNSSSensorImpl():
 	_delta(0),
 	_timeout(30000),
 	_done(false),
-	_logger(Poco::Logger::get("IoT.NMEA.GNSSSensorImpl"))
+	_logger(Poco::Logger::get("IoT.Legato.GNSSSensorImpl"))
 {
 	addProperty("symbolicName", &GNSSSensorImpl::getSymbolicName);
 	addProperty("name", &GNSSSensorImpl::getName);
@@ -92,12 +92,12 @@ void GNSSSensorImpl::run()
 	ggaProcessor.ggaReceived += Poco::delegate(this, &GNSSSensorImpl::onGGAReceived);
 	
 	::write(_fd, "$GPS_START\n", 11);
-	
+
 	while (!done())
 	{
 		try
 		{
-			if (poll(Poco::Timespan(1, 0)))
+			if (poll(Poco::Timespan(1, 0)) > 0)
 			{
 				int n = ::read(_fd, _buffer.begin(), _buffer.size());
 				if (n > 0)
@@ -391,7 +391,7 @@ int GNSSSensorImpl::poll(const Poco::Timespan& timeout)
 	}
 	while (rc < 0 && errno == EINTR);
 	if (rc < 0) throw Poco::IOException("file poll error", strerror(errno));
-	return rc > 0 ? 0 : -1;
+	return rc;
 }
 
 
