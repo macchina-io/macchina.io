@@ -58,7 +58,7 @@ GNSSSensorImpl::GNSSSensorImpl():
 	addProperty("positionChangedDelta", &GNSSSensorImpl::getPositionChangedDelta, &GNSSSensorImpl::setPositionChangedDelta);
 	addProperty("positionTimeout", &GNSSSensorImpl::getPositionTimeout, &GNSSSensorImpl::setPositionTimeout);
 
-	_fd = ::open(PATH.c_str(), O_RDONLY | O_NONBLOCK);
+	_fd = ::open(PATH.c_str(), O_RDONLY);
 	if (_fd == -1) throw Poco::FileNotFoundException(PATH);
 
 	_thread.start(*this);
