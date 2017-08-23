@@ -15,6 +15,8 @@
 #include "Poco/Pipe.h"
 #include "Poco/PipeStream.h"
 #include "Poco/StreamCopier.h"
+#include "Poco/Thread.h"
+#include "Poco/Runnable.h"
 #include "Poco/Exception.h"
 #include "Poco/String.h"
 
@@ -27,9 +29,93 @@ namespace Legato {
 const std::string MobileConnectionServiceImpl::DEFAULT_CM_PATH("/legato/systems/current/bin/cm");
 
 
+class DataConnectionHandler: public Poco::Runnable
+{
+public:
+	DataConnectionHandler(MobileConnectionServiceImpl& mcsImpl, const std::string& cmPath):
+		_mcsImpl(mcsImpl),
+		_cmPath(cmPath),
+		_outputPipe(),
+		_ph(launch(cmPath, _outputPipe)),
+		_logger(Poco::Logger::get("IoT.MobileConnection.Legato.DataConnectionHandler"))
+	{
+		_thread.start(*this);
+	}
+
+	~DataConnectionHandler()
+	{
+		try
+		{
+			stop();
+		}
+		catch (...)
+		{
+		}
+	}
+
+	void stop()
+	{
+		if (_thread.isRunning())
+		{
+			Poco::Process::requestTermination(_ph.id());
+
+			if (!_thread.tryJoin(5000))
+			{
+				_logger.notice("%s not responding to SIGINT, killing.", _cmPath);
+				Poco::Process::kill(_ph);
+				_thread.join();
+			}
+		}
+	}
+
+	void run()
+	{
+		try
+		{
+			Poco::PipeInputStream istr(_outputPipe);
+			std::string line;
+			std::getline(istr, line);
+			_logger.debug("Received status line: %s", line);
+			if (line.find("Connected") != std::string::npos)
+			{
+				_mcsImpl.fireDataConnected();
+			}
+			int ch = istr.get();
+			while (ch != -1) ch = istr.get();
+			int rc = _ph.wait();
+			_logger.debug("DataConnectionHandler: %s exited with %d.", _cmPath, rc);
+
+			_mcsImpl.fireDataDisconnected();
+		}
+		catch (Poco::Exception& exc)
+		{
+			_logger.log(exc);
+		}
+	}
+
+protected:
+	static Poco::ProcessHandle launch(const std::string& cmPath, Poco::Pipe& pipe)
+	{
+		std::vector<std::string> args;
+		args.push_back("data");
+		args.push_back("connect");
+		return Poco::Process::launch(cmPath, args, 0, &pipe, 0);
+	}
+
+private:
+	MobileConnectionServiceImpl& _mcsImpl;
+	std::string _cmPath;
+	Poco::Pipe _outputPipe;
+	Poco::ProcessHandle _ph;
+	Poco::Thread _thread;
+	Poco::Logger& _logger;
+};
+
+
 MobileConnectionServiceImpl::MobileConnectionServiceImpl(const std::string& cmPath):
 	_cmPath(cmPath),
-	_cmCache(2000)
+	_cmCache(2500),
+	_logger(Poco::Logger::get("IoT.MobileConnection.Legato"))
 {
 }
 
@@ -166,6 +252,7 @@ void MobileConnectionServiceImpl::setPDPType(PDPType type)
 		throw Poco::InvalidArgumentException("PDPType");
 	}
 	cm("data", "pdp", t);
+	_cmCache.remove("data:info");
 }
 
 
@@ -221,6 +308,7 @@ void MobileConnectionServiceImpl::enableRadio(bool enable)
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
 	cm("radio", enable ? "on" : "off");
+	_cmCache.remove("radio:status");
 }
 
 
@@ -318,11 +406,21 @@ bool MobileConnectionServiceImpl::isDataConnected()
 
 void MobileConnectionServiceImpl::connectData()
 {
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	if (!_pDataConnectionHandler)
+	{
+		_pDataConnectionHandler = new DataConnectionHandler(*this, _cmPath);
+	}
+	else throw Poco::IllegalStateException("Data connection already in progress");
 }
 
 
 void MobileConnectionServiceImpl::disconnectData()
 {
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	_pDataConnectionHandler = 0;
 }
 
 
@@ -393,6 +491,32 @@ std::string MobileConnectionServiceImpl::extractValue(const std::string& values,
 		}
 	}
 	return value;
+}
+
+
+void MobileConnectionServiceImpl::fireDataConnected()
+{
+	try
+	{
+		_logger.information("Data connection opened.");
+		dataConnected(this);
+	}
+	catch (Poco::Exception&)
+	{
+	}
+}
+
+
+void MobileConnectionServiceImpl::fireDataDisconnected()
+{
+	try
+	{
+		_logger.information("Data connection closed.");
+		dataDisconnected(this);
+	}
+	catch (Poco::Exception&)
+	{
+	}
 }
 
 

@@ -18,6 +18,7 @@
 
 #include "IoT/MobileConnection/MobileConnectionService.h"
 #include "Poco/ExpireCache.h"
+#include "Poco/Logger.h"
 #include "Poco/Mutex.h"
 #include <vector>
 
@@ -25,6 +26,9 @@
 namespace IoT {
 namespace MobileConnection {
 namespace Legato {
+
+
+class DataConnectionHandler;
 
 
 class MobileConnectionServiceImpl: public MobileConnectionService
@@ -76,12 +80,18 @@ protected:
 	std::string cm(const std::string& module, const std::string& command, const std::string& arg) const;
 	std::string cm(const std::vector<std::string>& args) const;
 	static std::string extractValue(const std::string& output, const std::string& key);
+	void fireDataConnected();
+	void fireDataDisconnected();
 
 private:
 	typedef Poco::ExpireCache<std::string, std::string> CMCache;
 	std::string _cmPath;
 	mutable CMCache _cmCache;
+	Poco::SharedPtr<DataConnectionHandler> _pDataConnectionHandler;
+	Poco::Logger& _logger;
 	mutable Poco::FastMutex _mutex;
+
+	friend class DataConnectionHandler;
 };
 
 
