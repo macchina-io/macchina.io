@@ -73,6 +73,11 @@ public:
 		}
 	}
 
+	bool isDead()
+	{
+		return !_thread.isRunning();
+	}
+
 	void run()
 	{
 		try
@@ -414,7 +419,7 @@ void MobileConnectionServiceImpl::connectData()
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	if (!_pDataConnectionHandler)
+	if (!_pDataConnectionHandler || _pDataConnectionHandler->isDead())
 	{
 		_pDataConnectionHandler = new DataConnectionHandler(*this, _cmPath);
 	}
