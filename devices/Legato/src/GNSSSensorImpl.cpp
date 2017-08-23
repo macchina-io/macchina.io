@@ -58,13 +58,17 @@ GNSSSensorImpl::GNSSSensorImpl():
 	addProperty("positionChangedDelta", &GNSSSensorImpl::getPositionChangedDelta, &GNSSSensorImpl::setPositionChangedDelta);
 	addProperty("positionTimeout", &GNSSSensorImpl::getPositionTimeout, &GNSSSensorImpl::setPositionTimeout);
 
-	_fd = ::open(PATH.c_str(), O_RDONLY);
+	_fd = ::open(PATH.c_str(), O_RDONLY | O_NONBLOCK);
 	if (_fd == -1) throw Poco::FileNotFoundException(PATH);
+
+	// set to non-blocking due to issues with /dev/nmea device if GNSS subsystem is not started
+	int flags = fcntl(_fd, F_GETFL, 0);
+	if (flags != -1) fcntl(_fd, F_SETFL, flags | O_NONBLOCK);
 
 	_thread.start(*this);
 }
 
-	
+
 GNSSSensorImpl::~GNSSSensorImpl()
 {
 	try
@@ -87,10 +91,10 @@ void GNSSSensorImpl::run()
 	IoT::GNSS::NMEA::SentenceDecoder nmeaDecoder;
 	nmeaDecoder.sentenceReceived += Poco::delegate(&rmcProcessor, &IoT::GNSS::NMEA::RMCProcessor::processSentence);
 	nmeaDecoder.sentenceReceived += Poco::delegate(&ggaProcessor, &IoT::GNSS::NMEA::GGAProcessor::processSentence);
-	
+
 	rmcProcessor.rmcReceived += Poco::delegate(this, &GNSSSensorImpl::onRMCReceived);
 	ggaProcessor.ggaReceived += Poco::delegate(this, &GNSSSensorImpl::onGGAReceived);
-	
+
 	::write(_fd, "$GPS_START\n", 11);
 
 	while (!done())
@@ -131,7 +135,7 @@ void GNSSSensorImpl::run()
 			Poco::Thread::sleep(200);
 		}
 	}
-	
+
 	::write(_fd, "$GPS_STOP\n", 10);
 }
 
@@ -149,7 +153,7 @@ void GNSSSensorImpl::stop()
 bool GNSSSensorImpl::done()
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	return _done;
 }
 
@@ -300,7 +304,7 @@ void GNSSSensorImpl::onRMCReceived(const IoT::GNSS::NMEA::RMCProcessor::RMC& rmc
 	double period = 0;
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
-		
+
 		delta = _delta;
 		period = _period;
 
@@ -314,7 +318,7 @@ void GNSSSensorImpl::onRMCReceived(const IoT::GNSS::NMEA::RMCProcessor::RMC& rmc
 		_speed    = rmc.speed;
 		_magneticVariation = rmc.magneticVariation.degrees();
 	}
-	
+
 	try
 	{
 		if (_lastPositionUpdate.isElapsed(1000*Poco::Timestamp::TimeVal(period)))
@@ -323,7 +327,7 @@ void GNSSSensorImpl::onRMCReceived(const IoT::GNSS::NMEA::RMCProcessor::RMC& rmc
 			if (!needUpdate)
 			{
 				Poco::Geo::LatLon lastLatLon(
-					Poco::Geo::Angle::fromDegrees(lastPosition.latitude), 
+					Poco::Geo::Angle::fromDegrees(lastPosition.latitude),
 					Poco::Geo::Angle::fromDegrees(lastPosition.longitude));
 				Poco::Geo::LatLon curLatLon(
 					Poco::Geo::Angle::fromDegrees(_position.latitude),
@@ -334,7 +338,7 @@ void GNSSSensorImpl::onRMCReceived(const IoT::GNSS::NMEA::RMCProcessor::RMC& rmc
 			if (needUpdate)
 			{
 				_lastPositionUpdate.update();
-	
+
 				event.position = _position;
 				event.course   = _course;
 				event.speed    = _speed;
@@ -355,7 +359,7 @@ void GNSSSensorImpl::onRMCReceived(const IoT::GNSS::NMEA::RMCProcessor::RMC& rmc
 void GNSSSensorImpl::onGGAReceived(const IoT::GNSS::NMEA::GGAProcessor::GGA& gga)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	_altitude = gga.altitude;
 	_hdop = gga.hdop;
 }
