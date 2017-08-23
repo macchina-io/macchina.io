@@ -61,10 +61,6 @@ GNSSSensorImpl::GNSSSensorImpl():
 	_fd = ::open(PATH.c_str(), O_RDONLY | O_NONBLOCK);
 	if (_fd == -1) throw Poco::FileNotFoundException(PATH);
 
-	// set to non-blocking due to issues with /dev/nmea device if GNSS subsystem is not started
-	int flags = fcntl(_fd, F_GETFL, 0);
-	if (flags != -1) fcntl(_fd, F_SETFL, flags | O_NONBLOCK);
-
 	_thread.start(*this);
 }
 
