@@ -37,6 +37,7 @@ public:
 		_cmPath(cmPath),
 		_outputPipe(),
 		_ph(launch(cmPath, _outputPipe)),
+		_joined(false),
 		_logger(Poco::Logger::get("IoT.MobileConnection.Legato.DataConnectionHandler"))
 	{
 		_thread.start(*this);
@@ -55,9 +56,12 @@ public:
 
 	void stop()
 	{
-		if (_thread.isRunning())
+		if (!_joined)
 		{
-			Poco::Process::requestTermination(_ph.id());
+			if (_thread.isRunning())
+			{
+				Poco::Process::requestTermination(_ph.id());
+			}
 
 			if (!_thread.tryJoin(5000))
 			{
@@ -65,6 +69,7 @@ public:
 				Poco::Process::kill(_ph);
 				_thread.join();
 			}
+			_joined = true;
 		}
 	}
 
@@ -108,6 +113,7 @@ private:
 	Poco::Pipe _outputPipe;
 	Poco::ProcessHandle _ph;
 	Poco::Thread _thread;
+	bool _joined;
 	Poco::Logger& _logger;
 };
 
