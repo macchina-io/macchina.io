@@ -13,7 +13,7 @@ BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
 INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 INCLUDE += -I$(PROJECT_BASE)/devices/GNSS/NMEA/include
 
-objects = GNSSSensorImpl BundleActivator
+objects = GNSSSensorImpl VoltageSensorImpl BundleActivator
 
 target         = io.macchina.legato
 target_version = 1

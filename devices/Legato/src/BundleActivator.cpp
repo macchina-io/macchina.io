@@ -19,7 +19,9 @@
 #include "Poco/OSP/PreferencesService.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "GNSSSensorImpl.h"
+#include "VoltageSensorImpl.h"
 #include "IoT/Devices/GNSSSensorServerHelper.h"
+#include "IoT/Devices/SensorServerHelper.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
 #include "Poco/NumberFormatter.h"
@@ -63,7 +65,26 @@ public:
 		props.set("io.macchina.device", oid);
 		props.set("io.macchina.deviceType", type);
 
-		_serviceRef = _pContext->registry().registerService(oid, pGNSSSensorRemoteObject, props);
+		_serviceRefs.push_back(_pContext->registry().registerService(oid, pGNSSSensorRemoteObject, props));
+	}
+
+	void createVoltageSensor(const std::string& cmPath)
+	{
+		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor> ServerHelper;
+
+		Poco::SharedPtr<VoltageSensorImpl> pVoltageSensor = new VoltageSensorImpl(cmPath);
+		Poco::RemotingNG::Identifiable::ObjectId oid = pVoltageSensor->getPropertyString("symbolicName");
+		std::string type = pVoltageSensor->getPropertyString("type");
+		oid += "#0";
+		ServerHelper::RemoteObjectPtr pVoltageSensorRemoteObject = ServerHelper::createRemoteObject(pVoltageSensor, oid);
+
+		Properties props;
+		props.set("io.macchina.device", oid);
+		props.set("io.macchina.deviceType", type);
+		props.set("io.macchina.physicalQuantity", pVoltageSensor->getPropertyString("physicalQuantity"));
+		props.set("io.macchina.physicalUnit", pVoltageSensor->getPropertyString("physicalUnit"));
+
+		_serviceRefs.push_back(_pContext->registry().registerService(oid, pVoltageSensorRemoteObject, props));
 	}
 
 	void start(BundleContext::Ptr pContext)
@@ -76,9 +97,11 @@ public:
 			if (_pPrefs->configuration()->getBool("legato.gnss.enable", false))
 			{
 				pContext->logger().information("Creating Legato GNSSSensor");
-
 				createGNSSSensor();
 			}
+			pContext->logger().information("Creating Legato Module Power Supply Voltage Sensor");
+			std::string cmPath = getStringConfig("legato.cm.path", "/legato/systems/current/bin/cm");
+			createVoltageSensor(cmPath);
 		}
 		catch (Poco::Exception& exc)
 		{
@@ -88,8 +111,11 @@ public:
 
 	void stop(BundleContext::Ptr pContext)
 	{
-		_pContext->registry().unregisterService(_serviceRef);
-		_serviceRef = 0;
+		for (std::vector<ServiceRef::Ptr>::iterator it = _serviceRefs.begin(); it != _serviceRefs.end(); ++it)
+		{
+			_pContext->registry().unregisterService(*it);
+		}
+		_serviceRefs.clear();
 		_pPrefs = 0;
 		_pContext = 0;
 	}
@@ -128,7 +154,7 @@ protected:
 private:
 	BundleContext::Ptr _pContext;
 	PreferencesService::Ptr _pPrefs;
-	ServiceRef::Ptr _serviceRef;
+	std::vector<ServiceRef::Ptr> _serviceRefs;
 };
 
 
