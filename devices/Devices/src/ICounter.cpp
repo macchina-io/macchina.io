@@ -1,9 +1,9 @@
 //
-// IRotaryEncoder.cpp
+// ICounter.cpp
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  IRotaryEncoder
+// Module:  ICounter
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,44 +15,44 @@
 //
 
 
-#include "IoT/Devices/IRotaryEncoder.h"
+#include "IoT/Devices/ICounter.h"
 
 
 namespace IoT {
 namespace Devices {
 
 
-IRotaryEncoder::IRotaryEncoder():
-	IoT::Devices::ICounter(),
-	buttonStateChanged()
+ICounter::ICounter():
+	IoT::Devices::IDevice(),
+	countChanged()
 {
 }
 
 
-IRotaryEncoder::~IRotaryEncoder()
+ICounter::~ICounter()
 {
 }
 
 
-bool IRotaryEncoder::isA(const std::type_info& otherType) const
+bool ICounter::isA(const std::type_info& otherType) const
 {
 	std::string name(type().name());
 	return name == otherType.name();
 }
 
 
-const Poco::RemotingNG::Identifiable::TypeId& IRotaryEncoder::remoting__typeId()
+const Poco::RemotingNG::Identifiable::TypeId& ICounter::remoting__typeId()
 {
 	remoting__staticInitBegin(REMOTING__TYPE_ID);
-	static const std::string REMOTING__TYPE_ID("IoT.Devices.RotaryEncoder");
+	static const std::string REMOTING__TYPE_ID("IoT.Devices.Counter");
 	remoting__staticInitEnd(REMOTING__TYPE_ID);
 	return REMOTING__TYPE_ID;
 }
 
 
-const std::type_info& IRotaryEncoder::type() const
+const std::type_info& ICounter::type() const
 {
-	return typeid(IRotaryEncoder);
+	return typeid(ICounter);
 }
 
 

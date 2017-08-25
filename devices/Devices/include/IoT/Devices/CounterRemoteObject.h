@@ -1,9 +1,9 @@
 //
-// TriggerRemoteObject.h
+// CounterRemoteObject.h
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  TriggerRemoteObject
+// Module:  CounterRemoteObject
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,11 +15,11 @@
 //
 
 
-#ifndef IoT_Devices_TriggerRemoteObject_INCLUDED
-#define IoT_Devices_TriggerRemoteObject_INCLUDED
+#ifndef IoT_Devices_CounterRemoteObject_INCLUDED
+#define IoT_Devices_CounterRemoteObject_INCLUDED
 
 
-#include "IoT/Devices/ITrigger.h"
+#include "IoT/Devices/ICounter.h"
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/RemoteObject.h"
 #include "Poco/SharedPtr.h"
@@ -29,24 +29,20 @@ namespace IoT {
 namespace Devices {
 
 
-class TriggerRemoteObject: public IoT::Devices::ITrigger, public Poco::RemotingNG::RemoteObject
-	/// The base class for triggers, such as
-	/// push buttons or motion detectors.
-	///
-	/// In addition to the methods defined in this interface,
-	/// a Trigger implementation should expose the following
-	/// properties:
-	///   - displayState (string, optional): The current state of the trigger,
-	///     formatted as string for display purposes.
+class CounterRemoteObject: public IoT::Devices::ICounter, public Poco::RemotingNG::RemoteObject
+	/// A counter counts events.
 {
 public:
-	typedef Poco::AutoPtr<TriggerRemoteObject> Ptr;
+	typedef Poco::AutoPtr<CounterRemoteObject> Ptr;
 
-	TriggerRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Trigger> pServiceObject);
-		/// Creates a TriggerRemoteObject.
+	CounterRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Counter> pServiceObject);
+		/// Creates a CounterRemoteObject.
 
-	virtual ~TriggerRemoteObject();
-		/// Destroys the TriggerRemoteObject.
+	virtual ~CounterRemoteObject();
+		/// Destroys the CounterRemoteObject.
+
+	virtual Poco::Int32 count() const;
+		/// Returns the current value of the counter.
 
 	virtual bool getFeature(const std::string& name) const;
 		/// Returns true if the feature with the given name
@@ -96,6 +92,10 @@ public:
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
+	virtual Poco::Int32 reset();
+		/// Returns the current value of the counter and
+		/// sets the counter to 0.
+
 	virtual void setFeature(const std::string& name, bool enable);
 		/// Enables or disables the feature with the given name.
 		///
@@ -126,95 +126,101 @@ public:
 		/// Which properties are supported is defined by the
 		/// actual device implementation.
 
-	virtual bool state() const;
-		/// Returns the current state of the trigger.
+protected:
+	void event__countChanged(const Poco::Int32& data);
 
 private:
-	Poco::SharedPtr<IoT::Devices::Trigger> _pServiceObject;
+	Poco::SharedPtr<IoT::Devices::Counter> _pServiceObject;
 };
 
 
-inline bool TriggerRemoteObject::getFeature(const std::string& name) const
+inline Poco::Int32 CounterRemoteObject::count() const
+{
+	return _pServiceObject->count();
+}
+
+
+inline bool CounterRemoteObject::getFeature(const std::string& name) const
 {
 	return _pServiceObject->getFeature(name);
 }
 
 
-inline bool TriggerRemoteObject::getPropertyBool(const std::string& name) const
+inline bool CounterRemoteObject::getPropertyBool(const std::string& name) const
 {
 	return _pServiceObject->getPropertyBool(name);
 }
 
 
-inline double TriggerRemoteObject::getPropertyDouble(const std::string& name) const
+inline double CounterRemoteObject::getPropertyDouble(const std::string& name) const
 {
 	return _pServiceObject->getPropertyDouble(name);
 }
 
 
-inline int TriggerRemoteObject::getPropertyInt(const std::string& name) const
+inline int CounterRemoteObject::getPropertyInt(const std::string& name) const
 {
 	return _pServiceObject->getPropertyInt(name);
 }
 
 
-inline std::string TriggerRemoteObject::getPropertyString(const std::string& name) const
+inline std::string CounterRemoteObject::getPropertyString(const std::string& name) const
 {
 	return _pServiceObject->getPropertyString(name);
 }
 
 
-inline bool TriggerRemoteObject::hasFeature(const std::string& name) const
+inline bool CounterRemoteObject::hasFeature(const std::string& name) const
 {
 	return _pServiceObject->hasFeature(name);
 }
 
 
-inline bool TriggerRemoteObject::hasProperty(const std::string& name) const
+inline bool CounterRemoteObject::hasProperty(const std::string& name) const
 {
 	return _pServiceObject->hasProperty(name);
 }
 
 
-inline const Poco::RemotingNG::Identifiable::TypeId& TriggerRemoteObject::remoting__typeId() const
+inline const Poco::RemotingNG::Identifiable::TypeId& CounterRemoteObject::remoting__typeId() const
 {
-	return ITrigger::remoting__typeId();
+	return ICounter::remoting__typeId();
 }
 
 
-inline void TriggerRemoteObject::setFeature(const std::string& name, bool enable)
+inline Poco::Int32 CounterRemoteObject::reset()
+{
+	return _pServiceObject->reset();
+}
+
+
+inline void CounterRemoteObject::setFeature(const std::string& name, bool enable)
 {
 	_pServiceObject->setFeature(name, enable);
 }
 
 
-inline void TriggerRemoteObject::setPropertyBool(const std::string& name, bool value)
+inline void CounterRemoteObject::setPropertyBool(const std::string& name, bool value)
 {
 	_pServiceObject->setPropertyBool(name, value);
 }
 
 
-inline void TriggerRemoteObject::setPropertyDouble(const std::string& name, double value)
+inline void CounterRemoteObject::setPropertyDouble(const std::string& name, double value)
 {
 	_pServiceObject->setPropertyDouble(name, value);
 }
 
 
-inline void TriggerRemoteObject::setPropertyInt(const std::string& name, int value)
+inline void CounterRemoteObject::setPropertyInt(const std::string& name, int value)
 {
 	_pServiceObject->setPropertyInt(name, value);
 }
 
 
-inline void TriggerRemoteObject::setPropertyString(const std::string& name, const std::string& value)
+inline void CounterRemoteObject::setPropertyString(const std::string& name, const std::string& value)
 {
 	_pServiceObject->setPropertyString(name, value);
-}
-
-
-inline bool TriggerRemoteObject::state() const
-{
-	return _pServiceObject->state();
 }
 
 
@@ -222,5 +228,5 @@ inline bool TriggerRemoteObject::state() const
 } // namespace IoT
 
 
-#endif // IoT_Devices_TriggerRemoteObject_INCLUDED
+#endif // IoT_Devices_CounterRemoteObject_INCLUDED
 

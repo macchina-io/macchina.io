@@ -1,9 +1,9 @@
 //
-// IRotaryEncoder.h
+// ICounter.h
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  IRotaryEncoder
+// Module:  ICounter
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,12 +15,12 @@
 //
 
 
-#ifndef IoT_Devices_IRotaryEncoder_INCLUDED
-#define IoT_Devices_IRotaryEncoder_INCLUDED
+#ifndef IoT_Devices_ICounter_INCLUDED
+#define IoT_Devices_ICounter_INCLUDED
 
 
-#include "IoT/Devices/ICounter.h"
-#include "IoT/Devices/RotaryEncoder.h"
+#include "IoT/Devices/Counter.h"
+#include "IoT/Devices/IDevice.h"
 #include "Poco/RemotingNG/Listener.h"
 
 
@@ -28,21 +28,20 @@ namespace IoT {
 namespace Devices {
 
 
-class IRotaryEncoder: public IoT::Devices::ICounter
-	/// A rotary encoder with an optional push button, based
-	/// on the Counter interface.
+class ICounter: public IoT::Devices::IDevice
+	/// A counter counts events.
 {
 public:
-	typedef Poco::AutoPtr<IRotaryEncoder> Ptr;
+	typedef Poco::AutoPtr<ICounter> Ptr;
 
-	IRotaryEncoder();
-		/// Creates a IRotaryEncoder.
+	ICounter();
+		/// Creates a ICounter.
 
-	virtual ~IRotaryEncoder();
-		/// Destroys the IRotaryEncoder.
+	virtual ~ICounter();
+		/// Destroys the ICounter.
 
-	virtual bool buttonState() const = 0;
-		/// Returns the current state of the button.
+	virtual Poco::Int32 count() const = 0;
+		/// Returns the current value of the counter.
 
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
@@ -59,10 +58,14 @@ public:
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();
 		/// Returns the TypeId of the class.
 
+	virtual Poco::Int32 reset() = 0;
+		/// Returns the current value of the counter and
+		/// sets the counter to 0.
+
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const bool > buttonStateChanged;
+	Poco::BasicEvent < const Poco::Int32 > countChanged;
 };
 
 
@@ -70,5 +73,5 @@ public:
 } // namespace IoT
 
 
-#endif // IoT_Devices_IRotaryEncoder_INCLUDED
+#endif // IoT_Devices_ICounter_INCLUDED
 

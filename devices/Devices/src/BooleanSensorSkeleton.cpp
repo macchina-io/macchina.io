@@ -1,9 +1,9 @@
 //
-// RotaryEncoderSkeleton.cpp
+// BooleanSensorSkeleton.cpp
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  RotaryEncoderSkeleton
+// Module:  BooleanSensorSkeleton
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,7 +15,7 @@
 //
 
 
-#include "IoT/Devices/RotaryEncoderSkeleton.h"
+#include "IoT/Devices/BooleanSensorSkeleton.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/MethodHandler.h"
 #include "Poco/RemotingNG/RemotingException.h"
@@ -30,7 +30,7 @@ namespace IoT {
 namespace Devices {
 
 
-class RotaryEncoderGetFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorGetFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
@@ -45,7 +45,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->getFeature(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -87,7 +87,7 @@ public:
 };
 
 
-class RotaryEncoderGetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorGetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
@@ -102,7 +102,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->getPropertyBool(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -144,7 +144,7 @@ public:
 };
 
 
-class RotaryEncoderGetPropertyDoubleMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorGetPropertyDoubleMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
@@ -159,7 +159,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
 			double remoting__return = remoting__pCastedRO->getPropertyDouble(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -201,7 +201,7 @@ public:
 };
 
 
-class RotaryEncoderGetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorGetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
@@ -216,7 +216,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
 			int remoting__return = remoting__pCastedRO->getPropertyInt(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -258,7 +258,7 @@ public:
 };
 
 
-class RotaryEncoderGetPropertyStringMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorGetPropertyStringMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
@@ -273,7 +273,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
 			std::string remoting__return = remoting__pCastedRO->getPropertyString(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -315,7 +315,7 @@ public:
 };
 
 
-class RotaryEncoderHasFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorHasFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
@@ -330,7 +330,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->hasFeature(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -372,7 +372,7 @@ public:
 };
 
 
-class RotaryEncoderHasPropertyMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorHasPropertyMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
@@ -387,7 +387,7 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->hasProperty(name);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -429,7 +429,7 @@ public:
 };
 
 
-class RotaryEncoderSetFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorSetFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
@@ -446,7 +446,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[2], true, remoting__deser, enable);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setFeature(name, enable);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -487,7 +487,7 @@ public:
 };
 
 
-class RotaryEncoderSetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorSetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
@@ -504,7 +504,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setPropertyBool(name, value);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -545,7 +545,7 @@ public:
 };
 
 
-class RotaryEncoderSetPropertyDoubleMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorSetPropertyDoubleMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
@@ -562,7 +562,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			Poco::RemotingNG::TypeDeserializer<double >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setPropertyDouble(name, value);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -603,7 +603,7 @@ public:
 };
 
 
-class RotaryEncoderSetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorSetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
@@ -620,7 +620,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setPropertyInt(name, value);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -661,7 +661,7 @@ public:
 };
 
 
-class RotaryEncoderSetPropertyStringMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorSetPropertyStringMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
@@ -678,7 +678,7 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, name);
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, remoting__deser, value);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setPropertyString(name, value);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -719,135 +719,25 @@ public:
 };
 
 
-class RotaryEncoderCountMethodHandler: public Poco::RemotingNG::MethodHandler
+class BooleanSensorStateMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"count"};
+		static const std::string REMOTING__NAMES[] = {"state"};
 		remoting__staticInitEnd(REMOTING__NAMES);
 		bool remoting__requestSucceeded = false;
 		try
 		{
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
-			Poco::Int32 remoting__return = remoting__pCastedRO->count();
+			IoT::Devices::BooleanSensorRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::BooleanSensorRemoteObject*>(remoting__pRemoteObject.get());
+			bool remoting__return = remoting__pCastedRO->state();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
-			static const std::string REMOTING__REPLY_NAME("countReply");
-			remoting__staticInitEnd(REMOTING__REPLY_NAME);
-			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Poco::Int32 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
-			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-		}
-		catch (Poco::Exception& e)
-		{
-			if (!remoting__requestSucceeded)
-			{
-				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
-			}
-		}
-		catch (std::exception& e)
-		{
-			if (!remoting__requestSucceeded)
-			{
-				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
-				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
-			}
-		}
-		catch (...)
-		{
-			if (!remoting__requestSucceeded)
-			{
-				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
-				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
-			}
-		}
-	}
-
-};
-
-
-class RotaryEncoderResetMethodHandler: public Poco::RemotingNG::MethodHandler
-{
-public:
-	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
-	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"reset"};
-		remoting__staticInitEnd(REMOTING__NAMES);
-		bool remoting__requestSucceeded = false;
-		try
-		{
-			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
-			Poco::Int32 remoting__return = remoting__pCastedRO->reset();
-			remoting__requestSucceeded = true;
-			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			remoting__staticInitBegin(REMOTING__REPLY_NAME);
-			static const std::string REMOTING__REPLY_NAME("resetReply");
-			remoting__staticInitEnd(REMOTING__REPLY_NAME);
-			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Poco::Int32 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
-			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-		}
-		catch (Poco::Exception& e)
-		{
-			if (!remoting__requestSucceeded)
-			{
-				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
-			}
-		}
-		catch (std::exception& e)
-		{
-			if (!remoting__requestSucceeded)
-			{
-				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
-				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
-			}
-		}
-		catch (...)
-		{
-			if (!remoting__requestSucceeded)
-			{
-				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
-				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
-			}
-		}
-	}
-
-};
-
-
-class RotaryEncoderButtonStateMethodHandler: public Poco::RemotingNG::MethodHandler
-{
-public:
-	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
-	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"buttonState"};
-		remoting__staticInitEnd(REMOTING__NAMES);
-		bool remoting__requestSucceeded = false;
-		try
-		{
-			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			IoT::Devices::RotaryEncoderRemoteObject* remoting__pCastedRO = static_cast<IoT::Devices::RotaryEncoderRemoteObject*>(remoting__pRemoteObject.get());
-			bool remoting__return = remoting__pCastedRO->buttonState();
-			remoting__requestSucceeded = true;
-			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			remoting__staticInitBegin(REMOTING__REPLY_NAME);
-			static const std::string REMOTING__REPLY_NAME("buttonStateReply");
+			static const std::string REMOTING__REPLY_NAME("stateReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			Poco::RemotingNG::TypeSerializer<bool >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
@@ -884,34 +774,32 @@ public:
 };
 
 
-RotaryEncoderSkeleton::RotaryEncoderSkeleton():
+BooleanSensorSkeleton::BooleanSensorSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("buttonState", new IoT::Devices::RotaryEncoderButtonStateMethodHandler);
-	addMethodHandler("count", new IoT::Devices::RotaryEncoderCountMethodHandler);
-	addMethodHandler("getFeature", new IoT::Devices::RotaryEncoderGetFeatureMethodHandler);
-	addMethodHandler("getPropertyBool", new IoT::Devices::RotaryEncoderGetPropertyBoolMethodHandler);
-	addMethodHandler("getPropertyDouble", new IoT::Devices::RotaryEncoderGetPropertyDoubleMethodHandler);
-	addMethodHandler("getPropertyInt", new IoT::Devices::RotaryEncoderGetPropertyIntMethodHandler);
-	addMethodHandler("getPropertyString", new IoT::Devices::RotaryEncoderGetPropertyStringMethodHandler);
-	addMethodHandler("hasFeature", new IoT::Devices::RotaryEncoderHasFeatureMethodHandler);
-	addMethodHandler("hasProperty", new IoT::Devices::RotaryEncoderHasPropertyMethodHandler);
-	addMethodHandler("reset", new IoT::Devices::RotaryEncoderResetMethodHandler);
-	addMethodHandler("setFeature", new IoT::Devices::RotaryEncoderSetFeatureMethodHandler);
-	addMethodHandler("setPropertyBool", new IoT::Devices::RotaryEncoderSetPropertyBoolMethodHandler);
-	addMethodHandler("setPropertyDouble", new IoT::Devices::RotaryEncoderSetPropertyDoubleMethodHandler);
-	addMethodHandler("setPropertyInt", new IoT::Devices::RotaryEncoderSetPropertyIntMethodHandler);
-	addMethodHandler("setPropertyString", new IoT::Devices::RotaryEncoderSetPropertyStringMethodHandler);
+	addMethodHandler("getFeature", new IoT::Devices::BooleanSensorGetFeatureMethodHandler);
+	addMethodHandler("getPropertyBool", new IoT::Devices::BooleanSensorGetPropertyBoolMethodHandler);
+	addMethodHandler("getPropertyDouble", new IoT::Devices::BooleanSensorGetPropertyDoubleMethodHandler);
+	addMethodHandler("getPropertyInt", new IoT::Devices::BooleanSensorGetPropertyIntMethodHandler);
+	addMethodHandler("getPropertyString", new IoT::Devices::BooleanSensorGetPropertyStringMethodHandler);
+	addMethodHandler("hasFeature", new IoT::Devices::BooleanSensorHasFeatureMethodHandler);
+	addMethodHandler("hasProperty", new IoT::Devices::BooleanSensorHasPropertyMethodHandler);
+	addMethodHandler("setFeature", new IoT::Devices::BooleanSensorSetFeatureMethodHandler);
+	addMethodHandler("setPropertyBool", new IoT::Devices::BooleanSensorSetPropertyBoolMethodHandler);
+	addMethodHandler("setPropertyDouble", new IoT::Devices::BooleanSensorSetPropertyDoubleMethodHandler);
+	addMethodHandler("setPropertyInt", new IoT::Devices::BooleanSensorSetPropertyIntMethodHandler);
+	addMethodHandler("setPropertyString", new IoT::Devices::BooleanSensorSetPropertyStringMethodHandler);
+	addMethodHandler("state", new IoT::Devices::BooleanSensorStateMethodHandler);
 }
 
 
-RotaryEncoderSkeleton::~RotaryEncoderSkeleton()
+BooleanSensorSkeleton::~BooleanSensorSkeleton()
 {
 }
 
 
-const std::string RotaryEncoderSkeleton::DEFAULT_NS("");
+const std::string BooleanSensorSkeleton::DEFAULT_NS("");
 } // namespace Devices
 } // namespace IoT
 

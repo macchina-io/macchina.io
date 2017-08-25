@@ -1,9 +1,9 @@
 //
-// IRotaryEncoder.h
+// IBooleanSensor.h
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  IRotaryEncoder
+// Module:  IBooleanSensor
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,12 +15,12 @@
 //
 
 
-#ifndef IoT_Devices_IRotaryEncoder_INCLUDED
-#define IoT_Devices_IRotaryEncoder_INCLUDED
+#ifndef IoT_Devices_IBooleanSensor_INCLUDED
+#define IoT_Devices_IBooleanSensor_INCLUDED
 
 
-#include "IoT/Devices/ICounter.h"
-#include "IoT/Devices/RotaryEncoder.h"
+#include "IoT/Devices/BooleanSensor.h"
+#include "IoT/Devices/IDevice.h"
 #include "Poco/RemotingNG/Listener.h"
 
 
@@ -28,21 +28,24 @@ namespace IoT {
 namespace Devices {
 
 
-class IRotaryEncoder: public IoT::Devices::ICounter
-	/// A rotary encoder with an optional push button, based
-	/// on the Counter interface.
+class IBooleanSensor: public IoT::Devices::IDevice
+	/// The base class for two-state sensors measuring
+	/// on/off or open/closed state.
+	///
+	/// In addition to the methods defined in this interface,
+	/// a BooleanSensor implementation should expose the following
+	/// properties:
+	///   - displayState (string, optional): The current state of the trigger,
+	///     formatted as string for display purposes.
 {
 public:
-	typedef Poco::AutoPtr<IRotaryEncoder> Ptr;
+	typedef Poco::AutoPtr<IBooleanSensor> Ptr;
 
-	IRotaryEncoder();
-		/// Creates a IRotaryEncoder.
+	IBooleanSensor();
+		/// Creates a IBooleanSensor.
 
-	virtual ~IRotaryEncoder();
-		/// Destroys the IRotaryEncoder.
-
-	virtual bool buttonState() const = 0;
-		/// Returns the current state of the button.
+	virtual ~IBooleanSensor();
+		/// Destroys the IBooleanSensor.
 
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
@@ -59,10 +62,13 @@ public:
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();
 		/// Returns the TypeId of the class.
 
+	virtual bool state() const = 0;
+		/// Returns the current state of the trigger.
+
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const bool > buttonStateChanged;
+	Poco::BasicEvent < const bool > stateChanged;
 };
 
 
@@ -70,5 +76,5 @@ public:
 } // namespace IoT
 
 
-#endif // IoT_Devices_IRotaryEncoder_INCLUDED
+#endif // IoT_Devices_IBooleanSensor_INCLUDED
 

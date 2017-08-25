@@ -1,9 +1,9 @@
 //
-// IRotaryEncoder.cpp
+// IBooleanSensor.cpp
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  IRotaryEncoder
+// Module:  IBooleanSensor
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,44 +15,44 @@
 //
 
 
-#include "IoT/Devices/IRotaryEncoder.h"
+#include "IoT/Devices/IBooleanSensor.h"
 
 
 namespace IoT {
 namespace Devices {
 
 
-IRotaryEncoder::IRotaryEncoder():
-	IoT::Devices::ICounter(),
-	buttonStateChanged()
+IBooleanSensor::IBooleanSensor():
+	IoT::Devices::IDevice(),
+	stateChanged()
 {
 }
 
 
-IRotaryEncoder::~IRotaryEncoder()
+IBooleanSensor::~IBooleanSensor()
 {
 }
 
 
-bool IRotaryEncoder::isA(const std::type_info& otherType) const
+bool IBooleanSensor::isA(const std::type_info& otherType) const
 {
 	std::string name(type().name());
 	return name == otherType.name();
 }
 
 
-const Poco::RemotingNG::Identifiable::TypeId& IRotaryEncoder::remoting__typeId()
+const Poco::RemotingNG::Identifiable::TypeId& IBooleanSensor::remoting__typeId()
 {
 	remoting__staticInitBegin(REMOTING__TYPE_ID);
-	static const std::string REMOTING__TYPE_ID("IoT.Devices.RotaryEncoder");
+	static const std::string REMOTING__TYPE_ID("IoT.Devices.BooleanSensor");
 	remoting__staticInitEnd(REMOTING__TYPE_ID);
 	return REMOTING__TYPE_ID;
 }
 
 
-const std::type_info& IRotaryEncoder::type() const
+const std::type_info& IBooleanSensor::type() const
 {
-	return typeid(IRotaryEncoder);
+	return typeid(IBooleanSensor);
 }
 
 

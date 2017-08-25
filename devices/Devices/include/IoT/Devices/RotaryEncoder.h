@@ -20,7 +20,7 @@
 #define IoT_Devices_RotaryEncoder_INCLUDED
 
 
-#include "IoT/Devices/Device.h"
+#include "IoT/Devices/Counter.h"
 #include "Poco/BasicEvent.h"
 
 
@@ -29,29 +29,20 @@ namespace Devices {
 
 
 //@ remote
-class IoTDevices_API RotaryEncoder: public Device
-	/// A rotary encoder with an optional push button.
+class IoTDevices_API RotaryEncoder: public Counter
+	/// A rotary encoder with an optional push button, based
+	/// on the Counter interface.
 {
 public:
-	Poco::BasicEvent<const Poco::Int32> countChanged;
-		/// Fired when the counter of the encoder has changed.
-		
 	Poco::BasicEvent<const bool> buttonStateChanged;
 		/// Fired when the button has been pressed or released.
-		
+
 	RotaryEncoder();
 		/// Creates the RotaryEncoder.
-		
+
 	~RotaryEncoder();
 		/// Destroys the RotaryEncoder.
 
-	virtual Poco::Int32 count() const = 0;
-		/// Returns the current value of the counter.
-		
-	virtual Poco::Int32 reset() = 0;
-		/// Returns the current value of the counter and
-		/// sets the counter to 0.
-		
 	virtual bool buttonState() const = 0;
 		/// Returns the current state of the button.
 };

@@ -32,7 +32,8 @@ namespace Devices {
 
 
 class RotaryEncoderServerHelper
-	/// A rotary encoder with an optional push button.
+	/// A rotary encoder with an optional push button, based
+	/// on the Counter interface.
 {
 public:
 	typedef IoT::Devices::RotaryEncoder Service;
