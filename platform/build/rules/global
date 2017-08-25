@@ -197,16 +197,18 @@ COMPONENT := $(shell $(POCO_BASE)/build/script/projname "$(PROJECT_BASE)")
 #
 # Define standard directories
 #
-SRCDIR   = src
-INCDIR   = include
-LIBDIR   = lib/$(OSNAME)/$(OSARCH)
-BINDIR   = bin/$(OSNAME)/$(OSARCH)
-OBJDIR   = obj/$(OSNAME)/$(OSARCH)
-DEPDIR   = .dep/$(OSNAME)/$(OSARCH)
-LIBPATH  = $(POCO_BUILD)/$(LIBDIR)
-BINPATH  = $(POCO_BUILD)/$(COMPONENT)/$(BINDIR)
-OBJPATH  = $(POCO_BUILD)/$(COMPONENT)/$(OBJDIR)
-DEPPATH  = $(POCO_BUILD)/$(COMPONENT)/$(DEPDIR)
+SRCDIR          = src
+INCDIR          = include
+LIBDIR          = lib/$(OSNAME)/$(OSARCH)
+LIBPLATFORMDIR  = platform/lib/$(OSNAME)/$(OSARCH)
+BINDIR          = bin/$(OSNAME)/$(OSARCH)
+OBJDIR          = obj/$(OSNAME)/$(OSARCH)
+DEPDIR          = .dep/$(OSNAME)/$(OSARCH)
+LIBPATH         = $(POCO_BUILD)/$(LIBDIR)
+LIBPLATFORMPATH = $(POCO_BUILD)/$(LIBPLATFORMDIR)
+BINPATH         = $(POCO_BUILD)/$(COMPONENT)/$(BINDIR)
+OBJPATH         = $(POCO_BUILD)/$(COMPONENT)/$(OBJDIR)
+DEPPATH         = $(POCO_BUILD)/$(COMPONENT)/$(DEPDIR)
 
 POCO_HOST_BINDIR    = bin/$(POCO_HOST_OSNAME)/$(POCO_HOST_OSARCH)
 POCO_TARGET_BINDIR  = $(BINDIR)
