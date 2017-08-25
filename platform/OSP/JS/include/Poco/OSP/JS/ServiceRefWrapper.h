@@ -40,6 +40,7 @@ public:
 		
 protected:
 	static void instance(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void toJSON(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getProperty(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	
 	friend class ServiceRegistryWrapper;
