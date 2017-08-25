@@ -130,7 +130,7 @@ Poco::Any VoltageSensorImpl::getPhysicalUnit(const std::string&) const
 
 Poco::Any VoltageSensorImpl::getDisplayValue(const std::string&) const
 {
-	return Poco::NumberFormatter::format(value(), 0, 1);
+	return Poco::NumberFormatter::format(value(), 0, 3);
 }
 
 
