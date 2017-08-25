@@ -24,7 +24,7 @@ namespace IoT {
 namespace Legato {
 
 
-const std::string VoltageSensorImpl::NAME("Legato Voltage Sensor");
+const std::string VoltageSensorImpl::NAME("Legato Power Supply Voltage Sensor");
 const std::string VoltageSensorImpl::TYPE("io.macchina.sensor");
 const std::string VoltageSensorImpl::SYMBOLIC_NAME("io.macchina.legato.voltage");
 const std::string VoltageSensorImpl::PHYSICAL_QUANTITY("voltage");
@@ -70,7 +70,7 @@ double VoltageSensorImpl::value() const
 			{
 				if (Poco::NumberParser::tryParseFloat(output, _voltage))
 				{
-					_voltage /= 100.0;
+					_voltage /= 1000.0;
 				}
 				else
 				{
