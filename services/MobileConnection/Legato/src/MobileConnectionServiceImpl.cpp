@@ -327,8 +327,15 @@ bool MobileConnectionServiceImpl::isRadioEnabled() const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	std::string result = cmCached("radio", "status");
-	return extractValue(result, "Power") == "ON";
+	try
+	{
+		std::string result = cmCached("radio", "status");
+		return extractValue(result, "Power") == "ON";
+	}
+	catch (Poco::Exception&)
+	{
+		return false;
+	}
 }
 
 
