@@ -25,6 +25,7 @@
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
 #include "Poco/NumberFormatter.h"
+#include "Poco/File.h"
 #include <vector>
 
 
@@ -94,18 +95,34 @@ public:
 
 		try
 		{
-			if (_pPrefs->configuration()->getBool("legato.gnss.enable", false))
+			Poco::File nmeaFile("/dev/nmea");
+			if (nmeaFile.exists())
 			{
-				pContext->logger().information("Creating Legato GNSSSensor");
-				createGNSSSensor();
+				if (_pPrefs->configuration()->getBool("legato.gnss.enable", true))
+				{
+					pContext->logger().information("Creating Legato GNSSSensor");
+					createGNSSSensor();
+				}
 			}
-			pContext->logger().information("Creating Legato Module Power Supply Voltage Sensor");
-			std::string cmPath = getStringConfig("legato.cm.path", "/legato/systems/current/bin/cm");
-			createVoltageSensor(cmPath);
 		}
 		catch (Poco::Exception& exc)
 		{
-			pContext->logger().error(Poco::format("Cannot create Legato GNSSSensor: %s", exc.displayText()));
+			pContext->logger().error(Poco::format("Cannot create Legato GNSS Sensor: %s", exc.displayText()));
+		}
+
+		try
+		{
+			std::string cmPath = getStringConfig("legato.cm.path", "/legato/systems/current/bin/cm");
+			Poco::File cmFile(cmPath);
+			if (cmFile.exists() && cmFile.canExecute())
+			{
+				pContext->logger().information("Creating Legato Module Power Supply Voltage Sensor");
+				createVoltageSensor(cmPath);
+			}
+		}
+		catch (Poco::Exception& exc)
+		{
+			pContext->logger().error(Poco::format("Cannot create Legato Voltage Sensor: %s", exc.displayText()));
 		}
 	}
 
