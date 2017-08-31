@@ -1,0 +1,21 @@
+#
+# Makefile
+#
+# $Id$
+#
+# Makefile for IoT MobileConnection Bundle
+#
+
+BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
+
+include $(POCO_BASE)/build/rules/global
+
+objects = BundleActivator
+
+target         = io.macchina.services.mobileconnection
+target_version = 1
+target_libs    = IoTMobileConnection PocoOSP PocoNet PocoUtil PocoJSON PocoXML PocoFoundation
+
+postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles MobileConnection.bndlspec
+
+include $(POCO_BASE)/build/rules/dylib

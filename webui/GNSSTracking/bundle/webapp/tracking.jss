@@ -12,7 +12,7 @@ var trackingData = {
 };
 
 var gnssSensor = null;
-var gnssSensorRefs = serviceRegistry.find('io.macchina.device =~ /.*(gnss|gps).*/');
+var gnssSensorRefs = serviceRegistry.find('io.macchina.deviceType == "io.macchina.gnss"');
 if (gnssSensorRefs.length > 0)
 {
 	trackingData.available = true;

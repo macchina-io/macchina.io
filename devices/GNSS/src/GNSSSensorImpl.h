@@ -49,6 +49,7 @@ public:
 
 protected:
 	Poco::Any getName(const std::string&) const;
+	Poco::Any getType(const std::string&) const;
 	Poco::Any getSymbolicName(const std::string&) const;
 	Poco::Any getDevice(const std::string&) const;
 	Poco::Any getPositionChangedPeriod(const std::string&) const;
@@ -66,6 +67,7 @@ protected:
 	void onGGAReceived(const IoT::GNSS::NMEA::GGAProcessor::GGA& gga);
 
 	static const std::string NAME;
+	static const std::string TYPE;
 	static const std::string SYMBOLIC_NAME;
 
 private:

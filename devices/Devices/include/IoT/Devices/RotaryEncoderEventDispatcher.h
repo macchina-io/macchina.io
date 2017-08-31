@@ -28,7 +28,8 @@ namespace Devices {
 
 
 class RotaryEncoderEventDispatcher: public Poco::RemotingNG::EventDispatcher
-	/// A rotary encoder with an optional push button.
+	/// A rotary encoder with an optional push button, based
+	/// on the Counter interface.
 {
 public:
 	RotaryEncoderEventDispatcher(RotaryEncoderRemoteObject* pRemoteObject, const std::string& protocol);

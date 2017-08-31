@@ -541,7 +541,9 @@ Sets the environment variable with the given name to the given value.
 !exec(command)
 
 Executes the given shell command using the system's default shell.
-Returns the output of the command.
+Returns the output of the command as a String object. The exit
+status of the command is available via the returned object's
+<[exitStatus]> property.
 
 Example:
 
@@ -2094,7 +2096,7 @@ in an exception.
 Database Session and RecordSet objects provide access to the SQLite database engine that comes with
 macchina.io.
 
-As of the 0.7.0 release, the Database Session and RecordSet objects have been moved into 
+As of the 0.7.0 release, the Database Session and RecordSet objects have been moved into
 a separate <*data*> module which is available through the <*com.appinf.osp.js.data*> bundle.
 
 You'll have to import the <*data*> module in your script before being able to

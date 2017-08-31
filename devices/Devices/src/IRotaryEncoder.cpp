@@ -23,9 +23,8 @@ namespace Devices {
 
 
 IRotaryEncoder::IRotaryEncoder():
-	IoT::Devices::IDevice(),
-	buttonStateChanged(),
-	countChanged()
+	IoT::Devices::ICounter(),
+	buttonStateChanged()
 {
 }
 

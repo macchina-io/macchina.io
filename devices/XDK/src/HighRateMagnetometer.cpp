@@ -22,6 +22,7 @@ namespace XDK {
 
 
 const std::string HighRateMagnetometer::NAME("XDK Magnetometer");
+const std::string HighRateMagnetometer::TYPE("io.macchina.magnetometer");
 const std::string HighRateMagnetometer::SYMBOLIC_NAME("io.macchina.btle.xdk.magnetometer");
 
 
@@ -29,9 +30,7 @@ HighRateMagnetometer::HighRateMagnetometer(Peripheral::Ptr pPeripheral):
 	_pPeripheral(pPeripheral),
 	_enabled(false),
 	_ready(false),
-	_deviceIdentifier(pPeripheral->address()),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME)
+	_deviceIdentifier(pPeripheral->address())
 {
 	addProperty("displayValue", &HighRateMagnetometer::getDisplayValue);
 	addProperty("enabled", &HighRateMagnetometer::getEnabled, &HighRateMagnetometer::setEnabled);
@@ -39,6 +38,7 @@ HighRateMagnetometer::HighRateMagnetometer(Peripheral::Ptr pPeripheral):
 	addProperty("deviceIdentifier", &HighRateMagnetometer::getDeviceIdentifier);
 	addProperty("symbolicName", &HighRateMagnetometer::getSymbolicName);
 	addProperty("name", &HighRateMagnetometer::getName);
+	addProperty("type", &HighRateMagnetometer::getType);
 	
 	_pPeripheral->connected += Poco::delegate(this, &HighRateMagnetometer::onConnected);
 	_pPeripheral->disconnected += Poco::delegate(this, &HighRateMagnetometer::onDisconnected);
@@ -117,13 +117,19 @@ Poco::Any HighRateMagnetometer::getDeviceIdentifier(const std::string&) const
 
 Poco::Any HighRateMagnetometer::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
+}
+
+
+Poco::Any HighRateMagnetometer::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 
 Poco::Any HighRateMagnetometer::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
 }
 
 

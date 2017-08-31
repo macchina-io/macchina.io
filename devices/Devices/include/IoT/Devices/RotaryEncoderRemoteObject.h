@@ -30,7 +30,8 @@ namespace Devices {
 
 
 class RotaryEncoderRemoteObject: public IoT::Devices::IRotaryEncoder, public Poco::RemotingNG::RemoteObject
-	/// A rotary encoder with an optional push button.
+	/// A rotary encoder with an optional push button, based
+	/// on the Counter interface.
 {
 public:
 	typedef Poco::AutoPtr<RotaryEncoderRemoteObject> Ptr;
@@ -131,8 +132,6 @@ public:
 
 protected:
 	void event__buttonStateChanged(const bool& data);
-
-	void event__countChanged(const Poco::Int32& data);
 
 private:
 	Poco::SharedPtr<IoT::Devices::RotaryEncoder> _pServiceObject;

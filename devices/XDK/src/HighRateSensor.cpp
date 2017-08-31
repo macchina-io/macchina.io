@@ -21,6 +21,7 @@ namespace XDK {
 
 
 const std::string HighRateSensor::NAME("XDK Sensor");
+const std::string HighRateSensor::TYPE("io.macchina.sensor");
 const std::string HighRateSensor::SYMBOLIC_NAME("io.macchina.btle.xdk");
 
 
@@ -33,8 +34,6 @@ HighRateSensor::HighRateSensor(Peripheral::Ptr pPeripheral, const Params& params
 	_valueChangedDelta(0.0),
 	_pEventPolicy(new IoT::Devices::NoModerationPolicy<double>(valueChanged)),
 	_deviceIdentifier(pPeripheral->address()),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME),
 	_physicalQuantity(params.physicalQuantity),
 	_physicalUnit(params.physicalUnit)
 {
@@ -45,6 +44,7 @@ HighRateSensor::HighRateSensor(Peripheral::Ptr pPeripheral, const Params& params
 	addProperty("deviceIdentifier", &HighRateSensor::getDeviceIdentifier);
 	addProperty("symbolicName", &HighRateSensor::getSymbolicName);
 	addProperty("name", &HighRateSensor::getName);
+	addProperty("type", &HighRateSensor::getType);
 	addProperty("physicalQuantity", &HighRateSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &HighRateSensor::getPhysicalUnit);
 	
@@ -161,13 +161,19 @@ Poco::Any HighRateSensor::getDeviceIdentifier(const std::string&) const
 
 Poco::Any HighRateSensor::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
+}
+
+
+Poco::Any HighRateSensor::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 
 Poco::Any HighRateSensor::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
 }
 
 

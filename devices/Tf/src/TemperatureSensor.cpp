@@ -20,7 +20,7 @@ namespace Tf {
 
 
 TemperatureSensor::TemperatureSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.temperature", "Tinkerforge Temperature Bricklet", "temperature", IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS),
+	BrickletType("io.macchina.tf.temperature", "Tinkerforge Temperature Bricklet", "io.macchina.sensor", "temperature", IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
 	addProperty("displayValue", &TemperatureSensor::getDisplayValue);

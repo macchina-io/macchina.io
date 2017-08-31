@@ -56,6 +56,7 @@ public:
 	bool ready() const;
 
 	static const std::string NAME;
+	static const std::string TYPE;
 	static const std::string SYMBOLIC_NAME;
 
 protected:
@@ -69,6 +70,7 @@ protected:
 	Poco::Any getDisplayValue(const std::string&) const;
 	Poco::Any getDeviceIdentifier(const std::string&) const;
 	Poco::Any getName(const std::string&) const;
+	Poco::Any getType(const std::string&) const;
 	Poco::Any getSymbolicName(const std::string&) const;
 	Poco::Any getPhysicalQuantity(const std::string&) const;
 	Poco::Any getPhysicalUnit(const std::string&) const;
@@ -84,8 +86,6 @@ protected:
 	double _valueChangedDelta;
 	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double> > _pEventPolicy;
 	Poco::Any _deviceIdentifier;
-	Poco::Any _symbolicName;
-	Poco::Any _name;
 	Poco::Any _physicalQuantity;
 	Poco::Any _physicalUnit;
 };
