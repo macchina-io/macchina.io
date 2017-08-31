@@ -16,6 +16,7 @@
 				${MacchinaBase}/services/WebEvent/include/*/*/*.h
 				${MacchinaBase}/services/NetworkEnvironment/include/*/*/*.h
 				${MacchinaBase}/services/DeviceStatus/include/*/*/*.h
+				${MacchinaBase}/services/MobileConnection/include/*/*/*.h
 				${MacchinaBase}/protocols/BtLE/include/*/*/*.h
 				${MacchinaBase}/protocols/MQTT/include/*/*/*.h
 				${MacchinaBase}/protocols/Modbus/include/*/*/*.h
@@ -162,5 +163,5 @@
 				<pattern>%s: [%p] %t</pattern>
 			</console>
 		</channels>
-	</logging>	
+	</logging>
 </AppConfig>
