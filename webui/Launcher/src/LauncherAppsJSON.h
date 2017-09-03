@@ -1,7 +1,7 @@
 //
 // LauncherAppsJSON.h
 //
-// This file has been generated from LauncherAppsJSON.cpsp on 2015-02-23 22:39:49.
+// This file has been generated from LauncherAppsJSON.cpsp on 2017-09-03 11:58:09.
 //
 
 
@@ -28,6 +28,11 @@ public:
 
 protected:
 	Poco::OSP::BundleContext::Ptr context() const
+	{
+		return _pContext;
+	}
+
+	Poco::OSP::BundleContext::Ptr c() const
 	{
 		return _pContext;
 	}

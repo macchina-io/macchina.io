@@ -1,7 +1,7 @@
 //
 // LoginPage.cpp
 //
-// This file has been generated from LoginPage.cpsp on 2017-07-29 17:26:46.
+// This file has been generated from LoginPage.cpsp on 2017-09-03 11:58:09.
 //
 
 
@@ -48,7 +48,7 @@ void LoginPage::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::
 		}
 	}
 	Poco::Net::HTMLForm form(request, request.stream());
-#line 8 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 9 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
 
 std::string message;
 if (session)
@@ -61,10 +61,6 @@ if (session)
 	responseStream << "<!DOCTYPE HTML>\n";
 	responseStream << "";
 	responseStream << "\n";
-	responseStream << "\n";
-	responseStream << "";
-	responseStream << "\n";
-	responseStream << "";
 	responseStream << "\n";
 	responseStream << "";
 	responseStream << "\n";
@@ -86,7 +82,7 @@ if (session)
 	responseStream << "      <div class=\"headercontainer\">\n";
 	responseStream << "        <div class=\"header\">\n";
 	responseStream << "          <h1>\n";
-	responseStream << "          <a href=\"/\"><img src=\"/images/headerlogo.png\" srcset=\"/images/headerlogo-x2.png 2x\" alt=\"macchina.io\"></a>\n";
+	responseStream << "            <a href=\"/\"><img src=\"/images/headerlogo.png\" srcset=\"/images/headerlogo-x2.png 2x\" alt=\"macchina.io\"></a>\n";
 	responseStream << "          </h1>\n";
 	responseStream << "        </div>\n";
 	responseStream << "      </div>\n";
@@ -94,14 +90,16 @@ if (session)
 	responseStream << "    <div class=\"contentcontainer\">\n";
 	responseStream << "      <div class=\"content\">\n";
 	responseStream << "        ";
-#line 37 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 38 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
  if (!message.empty()) { 	responseStream << "\n";
-	responseStream << "          <div class=\"error\">";
-#line 38 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+	responseStream << "          <div class=\"error\">\n";
+	responseStream << "            ";
+#line 40 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
 	responseStream << ( U::htmlize(message) );
-	responseStream << "</div>\n";
+	responseStream << "\n";
+	responseStream << "          </div>\n";
 	responseStream << "        ";
-#line 39 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 42 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
  } 	responseStream << "\n";
 	responseStream << "\n";
 	responseStream << "        <div class=\"loginBox\">\n";
@@ -109,11 +107,15 @@ if (session)
 	responseStream << "            <table>\n";
 	responseStream << "              <tr>\n";
 	responseStream << "                <th id=\"usernameLabelCell\">Username:</th>\n";
-	responseStream << "                <td id=\"usernameInputCell\"><input id=\"usernameInput\" type=\"text\" name=\"username\"></td>\n";
+	responseStream << "                <td id=\"usernameInputCell\">\n";
+	responseStream << "                  <input id=\"usernameInput\" type=\"text\" name=\"username\">\n";
+	responseStream << "                </td>\n";
 	responseStream << "              </tr>\n";
 	responseStream << "              <tr>\n";
 	responseStream << "                <th id=\"passwordLabelCell\">Password:</th>\n";
-	responseStream << "                <td id=\"passwordInputCell\"><input id=\"passwordInput\" type=\"password\" name=\"password\"></td>\n";
+	responseStream << "                <td id=\"passwordInputCell\">\n";
+	responseStream << "                  <input id=\"passwordInput\" type=\"password\" name=\"password\">\n";
+	responseStream << "                </td>\n";
 	responseStream << "              </tr>\n";
 	responseStream << "              <tr>\n";
 	responseStream << "                <td>&nbsp;</td>\n";
@@ -128,12 +130,12 @@ if (session)
 	responseStream << "      </div>\n";
 	responseStream << "    </div>\n";
 	responseStream << "    <script type=\"text/javascript\">\n";
-	responseStream << "        $(document).ready(\n";
-	responseStream << "            function()\n";
-	responseStream << "            {\n";
-	responseStream << "                $('#usernameInput').focus(); \n";
-	responseStream << "            }\n";
-	responseStream << "        );\n";
+	responseStream << "    $(document).ready(\n";
+	responseStream << "      function()\n";
+	responseStream << "      {\n";
+	responseStream << "        $('#usernameInput').focus();\n";
+	responseStream << "      }\n";
+	responseStream << "    );\n";
 	responseStream << "    </script>\n";
 	responseStream << "  </body>\n";
 	responseStream << "</html>\n";
