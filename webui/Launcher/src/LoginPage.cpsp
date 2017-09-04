@@ -1,9 +1,10 @@
 <!DOCTYPE HTML>
 <%@ page class="LoginPage" namespace="IoT::Web::Launcher" session="@websession.id" createSession="false" compressed="true" %>
 
-<%@ impl include="Poco/OSP/ServiceFinder.h" %>
-<%@ impl include="Poco/OSP/PreferencesService.h" %>
-<%@ impl include="Utility.h" %>
+<%@ impl include="Poco/OSP/ServiceFinder.h"
+         include="Poco/OSP/PreferencesService.h"
+         include="Utility.h"
+%>
 
 <%%
 std::string message;
@@ -27,7 +28,7 @@ if (session)
       <div class="headercontainer">
         <div class="header">
           <h1>
-          <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io"></a>
+            <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io"></a>
           </h1>
         </div>
       </div>
@@ -35,7 +36,9 @@ if (session)
     <div class="contentcontainer">
       <div class="content">
         <% if (!message.empty()) { %>
-          <div class="error"><%= U::htmlize(message) %></div>
+          <div class="error">
+            <%= U::htmlize(message) %>
+          </div>
         <% } %>
 
         <div class="loginBox">
@@ -43,11 +46,15 @@ if (session)
             <table>
               <tr>
                 <th id="usernameLabelCell">Username:</th>
-                <td id="usernameInputCell"><input id="usernameInput" type="text" name="username"></td>
+                <td id="usernameInputCell">
+                  <input id="usernameInput" type="text" name="username">
+                </td>
               </tr>
               <tr>
                 <th id="passwordLabelCell">Password:</th>
-                <td id="passwordInputCell"><input id="passwordInput" type="password" name="password"></td>
+                <td id="passwordInputCell">
+                  <input id="passwordInput" type="password" name="password">
+                </td>
               </tr>
               <tr>
                 <td>&nbsp;</td>
@@ -62,12 +69,12 @@ if (session)
       </div>
     </div>
     <script type="text/javascript">
-        $(document).ready(
-            function()
-            {
-                $('#usernameInput').focus(); 
-            }
-        );
+    $(document).ready(
+      function()
+      {
+        $('#usernameInput').focus();
+      }
+    );
     </script>
   </body>
 </html>

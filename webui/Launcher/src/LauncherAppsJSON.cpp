@@ -1,7 +1,7 @@
 //
 // LauncherAppsJSON.cpp
 //
-// This file has been generated from LauncherAppsJSON.cpsp on 2015-02-23 22:39:49.
+// This file has been generated from LauncherAppsJSON.cpsp on 2017-09-03 11:58:09.
 //
 
 
@@ -51,7 +51,7 @@ void LauncherAppsJSON::handleRequest(Poco::Net::HTTPServerRequest& request, Poco
 	if (!(U::isAuthenticated(session, response))) return;
 
 	Poco::Net::HTMLForm form(request, request.stream());
-#line 13 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
+#line 13 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
 
 std::string username = session->getValue<std::string>("username");
 Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth");
@@ -70,45 +70,44 @@ int i = 0;
 	responseStream << "\n";
 	responseStream << "[\n";
 	responseStream << "";
-#line 22 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
+#line 22 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
  for (AppRegistry::AppVec::const_iterator it = apps.begin(); it != apps.end(); ++it) { 	responseStream << "\n";
 	responseStream << "  ";
-#line 23 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
+#line 23 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
  if (it->permission.empty() || pAuthService->authorize(username, it->permission)) { 	responseStream << "\n";
 	responseStream << "    ";
-#line 24 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
+#line 24 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
 	responseStream << ( i++ ? "," : "" );
 	responseStream << "\n";
 	responseStream << "  {\n";
 	responseStream << "    \"id\": ";
-#line 26 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
+#line 26 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
 	responseStream << ( U::jsonize(it->id) );
 	responseStream << ",\n";
 	responseStream << "    \"title\": ";
-#line 27 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
+#line 27 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
 	responseStream << ( U::jsonize(it->title) );
 	responseStream << ",\n";
 	responseStream << "    \"icon\": ";
-#line 28 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
+#line 28 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
 	responseStream << ( U::jsonize(it->icon) );
 	responseStream << ",\n";
 	responseStream << "    \"tooltip\": ";
-#line 29 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
+#line 29 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
 	responseStream << ( U::jsonize(it->tooltip) );
 	responseStream << ",\n";
 	responseStream << "    \"link\": ";
-#line 30 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
+#line 30 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
 	responseStream << ( U::jsonize(it->path) );
 	responseStream << "\n";
 	responseStream << "  }\n";
 	responseStream << "  ";
-#line 32 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
+#line 32 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
  } 	responseStream << "\n";
 	responseStream << "";
-#line 33 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
+#line 33 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
  } 	responseStream << "\n";
 	responseStream << "]\n";
-	responseStream << "\n";
 	responseStream << "";
 	if (_compressResponse) _gzipStream.close();
 }

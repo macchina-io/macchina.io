@@ -5,10 +5,10 @@ cache:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq -y libc6-i386 libc6-dev-i386 lib32stdc++6 lib32z1 sloccount cppcheck 
+  - sudo apt-get install -qq -y gcc-multilib g++-multilib libc6-i386 libc6-dev-i386 lib32stdc++6 lib32z1 sloccount cppcheck
 
 env:
-  global: 
+  global:
     - TEST_NAME=""
 
 before_script:
@@ -20,7 +20,7 @@ matrix:
       compiler: gcc
       language: cpp
       script:
-        - make -s -j2 
+        - make -s -j2
 
     - env:    TEST_NAME="arm-linux-gnueabihf-gcc (target)"
       compiler: gcc
