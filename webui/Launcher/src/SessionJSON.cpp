@@ -1,7 +1,7 @@
 //
 // SessionJSON.cpp
 //
-// This file has been generated from SessionJSON.cpsp on 2017-09-03 11:58:09.
+// This file has been generated from SessionJSON.cpsp on 2017-09-04 17:34:19.
 //
 
 
@@ -41,37 +41,32 @@ void SessionJSON::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net
 	}
 	Poco::Net::HTMLForm form(request, request.stream());
 	std::ostream& responseStream = response.send();
-	responseStream << "";
 	responseStream << "\n";
 	responseStream << "{\n";
-	responseStream << "";
-#line 3 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
+#line 3 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
  if (session) { 	responseStream << "\n";
 	responseStream << "  \"authenticated\": ";
-#line 4 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
+#line 4 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
 	responseStream << ( session->getValue<std::string>("username", "") != "" ? "true" : "false" );
 	responseStream << ",\n";
 	responseStream << "  \"username\": \"";
-#line 5 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
+#line 5 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
 	responseStream << ( session->getValue<std::string>("username", "") );
 	responseStream << "\",\n";
 	responseStream << "  \"message\": \"";
-#line 6 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
+#line 6 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
 	responseStream << ( session->getValue<std::string>("message", "") );
 	responseStream << "\",\n";
 	responseStream << "  \"lastError\": \"";
-#line 7 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
+#line 7 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
 	responseStream << ( session->getValue<std::string>("lastError", "") );
 	responseStream << "\"\n";
-	responseStream << "";
-#line 8 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
+#line 8 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
  } else { 	responseStream << "\n";
 	responseStream << "  \"authenticated\": false\n";
-	responseStream << "";
-#line 10 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
+#line 10 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
  } 	responseStream << "\n";
 	responseStream << "}\n";
-	responseStream << "";
 }
 
 

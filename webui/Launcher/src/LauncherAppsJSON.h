@@ -1,7 +1,7 @@
 //
 // LauncherAppsJSON.h
 //
-// This file has been generated from LauncherAppsJSON.cpsp on 2017-09-03 11:58:09.
+// This file has been generated from LauncherAppsJSON.cpsp on 2017-09-04 17:34:19.
 //
 
 

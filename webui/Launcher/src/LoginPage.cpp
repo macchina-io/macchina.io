@@ -1,7 +1,7 @@
 //
 // LoginPage.cpp
 //
-// This file has been generated from LoginPage.cpsp on 2017-09-03 11:58:09.
+// This file has been generated from LoginPage.cpsp on 2017-09-04 17:34:19.
 //
 
 
@@ -48,7 +48,7 @@ void LoginPage::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::
 		}
 	}
 	Poco::Net::HTMLForm form(request, request.stream());
-#line 9 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 9 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
 
 std::string message;
 if (session)
@@ -59,14 +59,6 @@ if (session)
 	Poco::DeflatingOutputStream _gzipStream(_responseStream, Poco::DeflatingStreamBuf::STREAM_GZIP, 1);
 	std::ostream& responseStream = _compressResponse ? _gzipStream : _responseStream;
 	responseStream << "<!DOCTYPE HTML>\n";
-	responseStream << "";
-	responseStream << "\n";
-	responseStream << "\n";
-	responseStream << "";
-	responseStream << "\n";
-	responseStream << "\n";
-	responseStream << "";
-	responseStream << "\n";
 	responseStream << "\n";
 	responseStream << "<html lang=\"en\">\n";
 	responseStream << "  <head>\n";
@@ -90,18 +82,17 @@ if (session)
 	responseStream << "    <div class=\"contentcontainer\">\n";
 	responseStream << "      <div class=\"content\">\n";
 	responseStream << "        ";
-#line 38 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 38 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
  if (!message.empty()) { 	responseStream << "\n";
 	responseStream << "          <div class=\"error\">\n";
 	responseStream << "            ";
-#line 40 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 40 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
 	responseStream << ( U::htmlize(message) );
 	responseStream << "\n";
 	responseStream << "          </div>\n";
 	responseStream << "        ";
-#line 42 "/Users/guenter/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 42 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
  } 	responseStream << "\n";
-	responseStream << "\n";
 	responseStream << "        <div class=\"loginBox\">\n";
 	responseStream << "          <form method=\"post\" action=\"/\">\n";
 	responseStream << "            <table>\n";
@@ -139,7 +130,6 @@ if (session)
 	responseStream << "    </script>\n";
 	responseStream << "  </body>\n";
 	responseStream << "</html>\n";
-	responseStream << "";
 	if (_compressResponse) _gzipStream.close();
 }
 
