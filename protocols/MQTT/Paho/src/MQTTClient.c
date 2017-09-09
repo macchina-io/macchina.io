@@ -1131,7 +1131,10 @@ static int MQTTClient_connectURI(MQTTClient handle, MQTTClient_connectOptions* o
 	if (MQTTVersion == MQTTVERSION_DEFAULT)
 	{
 		if ((rc = MQTTClient_connectURIVersion(handle, options, serverURI, 4, start, millisecsTimeout)) != MQTTCLIENT_SUCCESS)
+		{
+			start = MQTTClient_start_clock();
 			rc = MQTTClient_connectURIVersion(handle, options, serverURI, 3, start, millisecsTimeout);
+		}
 	}
 	else
 		rc = MQTTClient_connectURIVersion(handle, options, serverURI, MQTTVersion, start, millisecsTimeout);
