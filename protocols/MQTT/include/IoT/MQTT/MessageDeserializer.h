@@ -44,11 +44,12 @@ public:
 	static void deserializeImpl(Deserializer& deser, IoT::MQTT::Message& value)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"payload","qos","retained"};
+		static const std::string REMOTING__NAMES[] = {"binaryPayload","payload","qos","retained"};
 		remoting__staticInitEnd(REMOTING__NAMES);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.payload);
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, deser, value.qos);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[2], false, deser, value.retained);
+		TypeDeserializer<std::vector < char > >::deserialize(REMOTING__NAMES[0], false, deser, value.binaryPayload);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], false, deser, value.payload);
+		TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], true, deser, value.qos);
+		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[3], false, deser, value.retained);
 	}
 
 };

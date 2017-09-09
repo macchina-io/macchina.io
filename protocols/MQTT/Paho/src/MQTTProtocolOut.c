@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 IBM Corp.
+ * Copyright (c) 2009, 2017 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,6 +17,9 @@
  *    Ian Craggs - MQTT 3.1.1 support
  *    Rong Xiang, Ian Craggs - C++ compatibility
  *    Ian Craggs - fix for bug 479376
+ *    Ian Craggs - SNI support
+ *    Ian Craggs - fix for issue #164
+ *    Ian Craggs - fix for issue #179
  *******************************************************************************/
 
 /**
@@ -32,8 +35,8 @@
 #include "StackTrace.h"
 #include "Heap.h"
 
-extern MQTTProtocol state;
 extern ClientStates* bstate;
+
 
 
 /**
@@ -55,7 +58,7 @@ char* MQTTProtocol_addressPort(const char* uri, int* port)
 			colon_pos = NULL;  /* means it was an IPv6 separator, not for host:port */
 	}
 
-	if (colon_pos)
+	if (colon_pos) /* have to strip off the port */
 	{
 		size_t addr_len = colon_pos - uri;
 		buf = malloc(addr_len + 1);
@@ -67,8 +70,15 @@ char* MQTTProtocol_addressPort(const char* uri, int* port)
 
 	len = strlen(buf);
 	if (buf[len - 1] == ']')
-		buf[len - 1] = '\0';
-
+	{
+		if (buf == (char*)uri)
+		{
+			buf = malloc(len);  /* we are stripping off the final ], so length is 1 shorter */
+			MQTTStrncpy(buf, uri, len);
+		}
+		else
+			buf[len - 1] = '\0';
+	}
 	FUNC_EXIT;
 	return buf;
 }
@@ -103,10 +113,10 @@ int MQTTProtocol_connect(const char* ip_address, Clients* aClient, int MQTTVersi
 #if defined(OPENSSL)
 		if (ssl)
 		{
-			if (SSLSocket_setSocketForSSL(&aClient->net, aClient->sslopts) == 1)
+			if (SSLSocket_setSocketForSSL(&aClient->net, aClient->sslopts, addr) == 1)
 			{
 				rc = SSLSocket_connect(aClient->net.ssl, aClient->net.socket);
-				if (rc == -1)
+				if (rc == TCPSOCKET_INTERRUPTED)
 					aClient->connect_state = 2; /* SSL connect called - wait for completion */
 			}
 			else
