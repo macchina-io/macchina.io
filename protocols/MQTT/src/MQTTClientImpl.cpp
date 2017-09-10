@@ -288,6 +288,7 @@ void MQTTClientImpl::connectImpl(const ConnectOptions& options)
 	sslOptions.privateKeyPassword   = options.sslPrivateKeyPassword.empty() ? 0 : options.sslPrivateKeyPassword.c_str();
 	sslOptions.enabledCipherSuites  = options.sslEnabledCipherSuites.empty() ? 0 : options.sslEnabledCipherSuites.c_str();
 	sslOptions.enableServerCertAuth = options.sslEnableServerCertAuth;
+	sslOptions.sslVersion           = options.sslVersion;
 
 	if (_logger.debug())
 	{
