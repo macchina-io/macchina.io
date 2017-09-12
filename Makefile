@@ -86,7 +86,7 @@ clean all:
 	$(MAKE) -C samples $(MAKECMDGOALS) $(MAKEARGS)
 	
 clean_bundles:
-	rm platform/osp/bundles/*.bndl
+	rm platform/OSP/bundles/*.bndl
 	rm */bundles/*.bndl
 
 # Host tools only
