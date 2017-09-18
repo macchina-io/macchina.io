@@ -28,7 +28,7 @@ namespace Linux {
 
 
 class LinuxGPIO: public IoT::Devices::DeviceImpl<IoT::Devices::IO, LinuxGPIO>
-	/// Default implementation for LinuxGPIO using the Macchina.io GPIO class.
+	/// Default implementation for LinuxGPIO using the macchina.io IO class.
 {
 public:
 	typedef Poco::AutoPtr<LinuxGPIO> Ptr;
@@ -60,6 +60,7 @@ public:
         /// Convert string friendly-name to Direction enum
 
 protected:
+	Poco::Any getDisplayValue(const std::string&) const;
 	Poco::Any getName(const std::string&) const;
 	Poco::Any getType(const std::string&) const;
 	Poco::Any getSymbolicName(const std::string&) const;
@@ -72,7 +73,6 @@ protected:
         /// GPIO Logger name
 
 private:
-
     int _pin;
         /// GPIO pin index
     Direction _direction;

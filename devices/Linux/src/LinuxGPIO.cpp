@@ -11,18 +11,16 @@
 
 
 #include "LinuxGPIO.h"
-
-#include <unistd.h>
-#include <poll.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
 #include "Poco/NumberFormatter.h"
 #include "Poco/Format.h"
 #include "Poco/FileStream.h"
 #include "Poco/File.h"
 #include "Poco/Exception.h"
+#include <unistd.h>
+#include <poll.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 
 namespace IoT {
@@ -42,6 +40,7 @@ LinuxGPIO::LinuxGPIO(const int pin, LinuxGPIO::Direction direction):
     _eventActivity(this, &LinuxGPIO::watchInputPin),
     _logger(Poco::Logger::get(LOGGER_NAME))
 {
+	addProperty("displayValue", &LinuxGPIO::getDisplayValue);
 	addProperty("symbolicName", &LinuxGPIO::getSymbolicName);
 	addProperty("name", &LinuxGPIO::getName);
 	addProperty("type", &LinuxGPIO::getType);
@@ -57,6 +56,7 @@ LinuxGPIO::LinuxGPIO(const int pin, LinuxGPIO::Direction direction):
     }
 }
 
+
 LinuxGPIO::~LinuxGPIO()
 {
     if (!_eventActivity.isStopped())
@@ -67,45 +67,64 @@ LinuxGPIO::~LinuxGPIO()
     unexportPin(_pin);
 }
 
+
+Poco::Any LinuxGPIO::getDisplayValue(const std::string&) const
+{
+	std::string value(state() ? "1" : "0");
+	value += " [";
+	value += toString(_direction);
+	value += "]";
+	return value;
+}
+
+
 Poco::Any LinuxGPIO::getName(const std::string&) const
 {
 	return NAME;
 }
+
 
 Poco::Any LinuxGPIO::getType(const std::string&) const
 {
 	return TYPE;
 }
 
+
 Poco::Any LinuxGPIO::getSymbolicName(const std::string&) const
 {
 	return SYMBOLIC_NAME;
 }
+
 
 Poco::Any LinuxGPIO::getDevice(const std::string&) const
 {
 	return Poco::NumberFormatter::format(_pin);
 }
 
+
 Poco::Any LinuxGPIO::getDirection(const std::string&) const
 {
-	return LinuxGPIO::toString(_direction);
+	return toString(_direction);
 }
+
 
 Poco::Any LinuxGPIO::getState(const std::string&) const
 {
 	return state();
 }
 
+
 void LinuxGPIO::setState(const std::string&, const Poco::Any& value)
 {
 	set(Poco::AnyCast<bool>(value));
 }
 
+
 std::string LinuxGPIO::toString(LinuxGPIO::Direction direction)
 {
 	return (direction == LinuxGPIO::DIRECTION_OUT) ? "out" : "in";
 }
+
 
 LinuxGPIO::Direction LinuxGPIO::toDirection(const std::string& direction)
 {
@@ -123,6 +142,7 @@ LinuxGPIO::Direction LinuxGPIO::toDirection(const std::string& direction)
     }
 }
 
+
 template <typename T>
 void LinuxGPIO::writeHelper(const std::string& path, const T& value) const
 {
@@ -132,30 +152,36 @@ void LinuxGPIO::writeHelper(const std::string& path, const T& value) const
     ostr << value << std::endl;
 }
 
+
 std::string LinuxGPIO::pathHelper(const std::string path) const
 {
     return _gpioPath.toString() + path;
 }
+
 
 void LinuxGPIO::exportPin(int pin) const
 {
     writeHelper("/export", pin);
 }
 
+
 void LinuxGPIO::unexportPin(int pin) const
 {
     writeHelper("/unexport", pin);
 }
+
 
 void LinuxGPIO::registerEvent(int pin) const
 {
     writeHelper(Poco::format("/gpio%d/edge", pin), "both");
 }
 
+
 void LinuxGPIO::unregisterEvent(int pin) const
 {
     writeHelper(Poco::format("/gpio%d/edge", pin), "none");
 }
+
 
 void LinuxGPIO::setDirection(int pin, LinuxGPIO::Direction direction) const
 {
@@ -164,11 +190,13 @@ void LinuxGPIO::setDirection(int pin, LinuxGPIO::Direction direction) const
     writeHelper(Poco::format("/gpio%d/direction", pin), strDirection);
 }
 
+
 void LinuxGPIO::set(bool state)
 {
     _logger.debug(Poco::format("Set state %d on gpio %s", state, _pin));
     writeHelper(Poco::format("/gpio%d/value", _pin), state);
 }
+
 
 bool LinuxGPIO::state() const
 {
@@ -181,11 +209,13 @@ bool LinuxGPIO::state() const
     return level;
 }
 
+
 bool LinuxGPIO::canInterrupt()
 {
     Poco::File event_file(pathHelper(Poco::format("/gpio%d/edge", _pin)));
     return event_file.exists();
 }
+
 
 void LinuxGPIO::watchInputPin()
 {
@@ -202,35 +232,43 @@ void LinuxGPIO::watchInputPin()
     const int timeout_ms = 100;
     int last_level = INT_MAX;
 
-    registerEvent(_pin);
+	try
+	{
+		registerEvent(_pin);
 
-	_logger.debug(Poco::format("Watching gpio %d", _pin));
+		_logger.debug(Poco::format("Watching gpio %d", _pin));
 
-    while (!_eventActivity.isStopped())
-    {
-        int result = ::poll(&pollfdset, nfds, timeout_ms);
+		while (!_eventActivity.isStopped())
+		{
+			int result = ::poll(&pollfdset, nfds, timeout_ms);
 
-        if (result < 0)
-        {
-            throw Poco::IOException("file poll error", strerror(errno));
-        }
-        else if (result == 0)
-        {
-            continue;
-        }
-        else if (pollfdset.revents & POLLIN)
-        {
-            const int level = state();
-            if (last_level != level)
-            {
-                _logger.debug(Poco::format("Registered state %d on gpio %d", level, _pin));
-                stateChanged.notify(this, level);
-                last_level = level;
-            }
-        }
-    }
+			if (result < 0)
+			{
+				throw Poco::IOException("file poll error", strerror(errno));
+			}
+			else if (result == 0)
+			{
+				continue;
+			}
+			else if (pollfdset.revents & POLLIN)
+			{
+				const int level = state();
+				if (last_level != level)
+				{
+					_logger.debug(Poco::format("Registered state %d on gpio %d", level, _pin));
+					stateChanged.notify(this, level);
+					last_level = level;
+				}
+			}
+		}
 
-    unregisterEvent(_pin);
+		unregisterEvent(_pin);
+	}
+	catch (Poco::Exception&)
+	{
+		::close(fd);
+		throw;
+	}
     ::close(fd);
 }
 
