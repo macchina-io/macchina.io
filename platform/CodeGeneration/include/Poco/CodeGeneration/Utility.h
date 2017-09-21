@@ -72,6 +72,7 @@ public:
 	static const std::string DIRECTION;
 	static const std::string NAMESPACE;
 	static const std::string MANDATORY;
+	static const std::string OPTIONAL;
 	static const std::string HEADER;
 	static const std::string ACTION;
 	static const std::string REQUEST;
@@ -94,10 +95,10 @@ public:
 	static const std::string VAL_ATTR;
 	static const std::string VAL_ELEM;
 
-	static void writeStdHeader(std::ostream& ostr, 
-		const std::string& fileName, 
-		const std::string& libraryName, 
-		const std::string& packageName, 
+	static void writeStdHeader(std::ostream& ostr,
+		const std::string& fileName,
+		const std::string& libraryName,
+		const std::string& packageName,
 		const std::string& moduleName,
 		const std::string& copyright,
 		bool writeTimestamp = true);
