@@ -53,10 +53,10 @@ struct Packet
 {
 	EndpointAddress source;
 		/// Source endpoint address.
-		
+
 	EndpointAddress destination;
 		/// Destination endpoint address.
-	
+
 	std::vector<char> payload;
 		/// Payload data.
 };
@@ -80,12 +80,12 @@ public:
 
 	virtual EndpointAddress address() const = 0;
 		/// Returns the socket address of this endpoint.
-		
-	//@ $destination = {mandatory = false}
+
+	//@ $destination = {optional}
 	virtual void sendPacket(const std::vector<char>& payload, const EndpointAddress& destination = EndpointAddress()) = 0;
 		/// Sends the given payload to the given destination address.
 		///
-		/// If the endpoint is connected to a default destination address, 
+		/// If the endpoint is connected to a default destination address,
 		/// the destination address can be omitted.
 };
 

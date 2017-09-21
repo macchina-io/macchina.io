@@ -49,7 +49,7 @@ public:
 		/// Returns the new device status.
 
 	IoT::DeviceStatus::DeviceStatus acknowledgeUpTo(Poco::Int64 id);
-		/// Marks all acknowledgeable messages up to (and including) 
+		/// Marks all acknowledgeable messages up to (and including)
 		/// the given ID as acknowledged.
 		///
 		/// Returns the new device status.
@@ -71,14 +71,14 @@ public:
 		/// return maxMessages messages.
 
 	IoT::DeviceStatus::DeviceStatusChange postStatus(const IoT::DeviceStatus::StatusUpdate& statusUpdate);
-		/// Updates the device status. 
+		/// Updates the device status.
 		///
 		/// Returns a DeviceStatusChange structure.
 
 	virtual void postStatusAsync(const IoT::DeviceStatus::StatusUpdate& statusUpdate);
 		/// Updates the device status asynchronously.
 		///
-		/// The actual status update in the database will be done 
+		/// The actual status update in the database will be done
 		/// asynchronously in a separate thread.
 
 	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
@@ -104,7 +104,7 @@ public:
 		/// the current status.
 
 	IoT::DeviceStatus::DeviceStatus statusOfSource(const std::string& source) const;
-		/// Returns the current source-specific device status, considering 
+		/// Returns the current source-specific device status, considering
 		/// only status updates with the given source.
 		///
 		/// Only unacknowledged status updates are considered in determining

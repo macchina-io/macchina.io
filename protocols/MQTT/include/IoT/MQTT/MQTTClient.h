@@ -70,11 +70,11 @@ struct Message
 	}
 #endif
 
-	//@ mandatory=false
+	//@ optional
 	std::string payload;
 		/// The payload of the MQTT message.
 
-	//@ mandatory=false
+	//@ optional
 	std::vector<char> binaryPayload;
 		/// Alternative binary payload, considered if payload is empty.
 
@@ -86,7 +86,7 @@ struct Message
 		///        delivered more than once in some circumstances.
 		///   * 2: Once and one only - the message will be delivered exactly once.
 
-	//@ mandatory=false
+	//@ optional
 	bool retained;
 		/// The retained flag serves two purposes depending on whether the message
 		/// it is associated with is being published or received.
