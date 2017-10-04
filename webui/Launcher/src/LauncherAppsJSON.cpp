@@ -1,7 +1,7 @@
 //
 // LauncherAppsJSON.cpp
 //
-// This file has been generated from LauncherAppsJSON.cpsp on 2015-02-23 22:39:49.
+// This file has been generated from LauncherAppsJSON.cpsp on 2017-09-04 17:34:19.
 //
 
 
@@ -62,14 +62,8 @@ int i = 0;
 	std::ostream& _responseStream = response.send();
 	Poco::DeflatingOutputStream _gzipStream(_responseStream, Poco::DeflatingStreamBuf::STREAM_GZIP, 1);
 	std::ostream& responseStream = _compressResponse ? _gzipStream : _responseStream;
-	responseStream << "";
-	responseStream << "\n";
-	responseStream << "";
-	responseStream << "\n";
-	responseStream << "";
 	responseStream << "\n";
 	responseStream << "[\n";
-	responseStream << "";
 #line 22 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
  for (AppRegistry::AppVec::const_iterator it = apps.begin(); it != apps.end(); ++it) { 	responseStream << "\n";
 	responseStream << "  ";
@@ -104,12 +98,9 @@ int i = 0;
 	responseStream << "  ";
 #line 32 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
  } 	responseStream << "\n";
-	responseStream << "";
 #line 33 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LauncherAppsJSON.cpsp"
  } 	responseStream << "\n";
 	responseStream << "]\n";
-	responseStream << "\n";
-	responseStream << "";
 	if (_compressResponse) _gzipStream.close();
 }
 

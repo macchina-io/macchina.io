@@ -110,7 +110,7 @@ Poco::UInt32 GenUtility::getVariableOrder(const Poco::CppParser::Variable* pVar,
 	Poco::CodeGeneration::CodeGenerator::Properties props;
 	Poco::CodeGeneration::GeneratorEngine::parseProperties(pVar, props);
 	Poco::CodeGeneration::GeneratorEngine::getUInt32Property(props, Poco::CodeGeneration::Utility::ORDER, defValue);
-	
+
 	return defValue;
 }
 
@@ -127,7 +127,7 @@ Poco::UInt32 GenUtility::getParameterOrder(const Poco::CppParser::Function* pFun
 		Poco::CodeGeneration::GeneratorEngine::parseElementProperties(elemStr, elemProps);
 		Poco::CodeGeneration::GeneratorEngine::getUInt32Property(elemProps, Poco::CodeGeneration::Utility::ORDER, defValue);
 	}
-	
+
 	return defValue;
 }
 
@@ -143,9 +143,8 @@ bool GenUtility::getIsMandatory(const Poco::CppParser::Function* pFunc, const Po
 	{
 		Poco::CodeGeneration::CodeGenerator::Properties elemProps;
 		Poco::CodeGeneration::GeneratorEngine::parseElementProperties(elemStr, elemProps);
-		Poco::CodeGeneration::GeneratorEngine::getBoolProperty(elemProps, Poco::CodeGeneration::Utility::MANDATORY, isMandatory);
+		isMandatory = getIsMandatory(elemProps);
 	}
-	
 	return isMandatory;
 }
 
@@ -155,7 +154,21 @@ bool GenUtility::getIsMandatory(const Poco::CppParser::Variable* pVar)
 	bool isMandatory = true;
 	Poco::CodeGeneration::CodeGenerator::Properties props;
 	Poco::CodeGeneration::GeneratorEngine::parseProperties(pVar, props);
-	Poco::CodeGeneration::GeneratorEngine::getBoolProperty(props, Poco::CodeGeneration::Utility::MANDATORY, isMandatory);
+	return getIsMandatory(props);
+}
+
+
+bool GenUtility::getIsMandatory(const Poco::CodeGeneration::CodeGenerator::Properties& props)
+{
+	bool isMandatory = true;
+	if (!Poco::CodeGeneration::GeneratorEngine::getBoolProperty(props, Poco::CodeGeneration::Utility::MANDATORY, isMandatory))
+	{
+		bool isOptional = !isMandatory;
+		if (Poco::CodeGeneration::GeneratorEngine::getBoolProperty(props, Poco::CodeGeneration::Utility::OPTIONAL, isOptional))
+		{
+			isMandatory = !isOptional;
+		}
+	}
 	return isMandatory;
 }
 
@@ -173,7 +186,7 @@ bool GenUtility::getIsInHeader(const Poco::CppParser::Function* pFunc, const Poc
 		Poco::CodeGeneration::GeneratorEngine::parseElementProperties(elemStr, elemProps);
 		Poco::CodeGeneration::GeneratorEngine::getBoolProperty(elemProps, ATTR_HEADER, soapHeader);
 	}
-	
+
 	return soapHeader;
 }
 
@@ -242,7 +255,7 @@ std::string GenUtility::getReturnParameterType(const Poco::CppParser::Function* 
 {
 	if (pFunc->getReturnParameter().empty() || pFunc->getReturnParameter() == Poco::CodeGeneration::Utility::TYPE_VOID)
 		return Poco::CodeGeneration::Utility::TYPE_VOID;
-	
+
 	return pFunc->getReturnParameter();
 }
 
@@ -297,7 +310,7 @@ bool GenUtility::isTemplateType(const std::string& resolvedType)
 
 bool GenUtility::isPtrType(const std::string& type)
 {
-	return type.compare(0, 7, "AutoPtr") == 0 
+	return type.compare(0, 7, "AutoPtr") == 0
 	    || type.compare(0, 13, "Poco::AutoPtr") == 0
 	    || type.compare(0, 9, "SharedPtr") == 0
 	    || type.compare(0, 15, "Poco::SharedPtr") == 0;
@@ -306,14 +319,14 @@ bool GenUtility::isPtrType(const std::string& type)
 
 bool GenUtility::isNullableType(const std::string& type)
 {
-	return type.compare(0, 8, "Nullable") == 0 
+	return type.compare(0, 8, "Nullable") == 0
 	    || type.compare(0, 14, "Poco::Nullable") == 0;
 }
 
 
 bool GenUtility::isOptionalType(const std::string& type)
 {
-	return type.compare(0, 8, "Optional") == 0 
+	return type.compare(0, 8, "Optional") == 0
 	    || type.compare(0, 14, "Poco::Optional") == 0;
 }
 
@@ -388,7 +401,7 @@ bool GenUtility::isAService(const Poco::CppParser::Struct* pStruct)
 
 	Poco::CppParser::Struct::BaseIterator itB = pStruct->baseBegin();
 	Poco::CppParser::Struct::BaseIterator itBEnd = pStruct->baseEnd();
-	
+
 	for (; itB != itBEnd; ++itB)
 	{
 		if (itB->pClass)
@@ -422,7 +435,7 @@ bool GenUtility::hasEvents(const Poco::CppParser::Struct* pStruct)
 			{
 				return true;
 			}
-		}	
+		}
 	}
 	return parentsHaveEvents(pStruct);
 }
@@ -472,7 +485,7 @@ Poco::UInt64 GenUtility::parseExpireTime(const std::string& expireTimeStr)
 
 	// now search for either ms, s(ec), m(in), h(our),
 	// the default is ms
-	
+
 	std::string tmp(expireTimeStr.substr(pos));
 	Poco::toLowerInPlace(tmp);
 	Poco::trimInPlace(tmp);
@@ -510,7 +523,7 @@ void GenUtility::checkFunctionParams(const Poco::CppParser::Function* pFunc)
 bool GenUtility::isOverride(const std::string& funcName, const Poco::CppParser::Struct* pStruct)
 {
 	poco_check_ptr (pStruct);
-	
+
 	Poco::CppParser::Struct::Functions methods;
 	pStruct->methods(Poco::CppParser::Symbol::ACC_PUBLIC, methods);
 	bool isDefinedHere = false;
@@ -522,7 +535,7 @@ bool GenUtility::isOverride(const std::string& funcName, const Poco::CppParser::
 		}
 	}
 	if (!isDefinedHere) return false;
-	
+
 	Poco::CppParser::Struct::FunctionSet inherited;
 	pStruct->inheritedMethods(inherited);
 	for (Poco::CppParser::Struct::FunctionSet::const_iterator it = inherited.begin(); it != inherited.end(); ++it)

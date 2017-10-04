@@ -62,6 +62,7 @@ const std::string Utility::ORDER("order");
 const std::string Utility::DIRECTION("direction");
 const std::string Utility::NAMESPACE("namespace");
 const std::string Utility::MANDATORY("mandatory");
+const std::string Utility::OPTIONAL("optional");
 const std::string Utility::HEADER("header");
 const std::string Utility::ACTION("action");
 const std::string Utility::REQUEST("request");
@@ -178,7 +179,7 @@ void Utility::writeAttributes(std::ostream& out, const Poco::CppParser::Attribut
 	{
 		prefix.append("\t");
 	}
-	
+
 	for (Poco::CppParser::Attributes::Iterator it = attrs.begin(); it != attrs.end(); ++it)
 	{
 		out << prefix << "//@ " << it->first;
@@ -195,7 +196,7 @@ void Utility::writeAttributes(std::ostream& out, const Poco::CppParser::Attribut
 						|| (*itv >= 'A' && *itv <= 'Z')
 						|| (*itv == '_');
 					if (!isAlNum) mustQuote = true;
-					
+
 				}
 			}
 			std::string quote(mustQuote ? "\"" : "");
@@ -208,7 +209,7 @@ void Utility::writeAttributes(std::ostream& out, const Poco::CppParser::Attribut
 
 void Utility::writeClassDeclaration(std::ostream& ostr, const std::string& libName, const Poco::CppParser::Struct* pStruct, bool enableAttributes)
 {
-	if (enableAttributes) 
+	if (enableAttributes)
 	{
 		writeAttributes(ostr, pStruct->attrs(), 0);
 	}
@@ -307,7 +308,7 @@ bool Utility::hasAnyRemoteProperty(const Poco::CppParser::Struct* pStruct)
 		return remote;
 
 	// else check if we find any method that has this property
-	
+
 	Poco::CppParser::Struct::Functions functions;
 	pStruct->methods(Poco::CppParser::Symbol::ACC_PUBLIC, functions);
 	Poco::CppParser::Struct::Functions::const_iterator it = functions.begin();
@@ -499,7 +500,7 @@ std::string Utility::resolveTypeImpl(const Poco::CppParser::NameSpace* pParent, 
 	{
 		return result + type + post;
 	}
-	// Handle the rare case of a recursive data structure. In this case we 
+	// Handle the rare case of a recursive data structure. In this case we
 	// will find a constructor, but we need the class (which is the parent).
 	if (pSym->kind() == Poco::CppParser::Symbol::SYM_FUNCTION && pSym->name() == pParent->name())
 	{
@@ -520,7 +521,7 @@ std::string Utility::resolveParamDecl(const Poco::CppParser::NameSpace* pParent,
 	const std::string& decl = pSym->declaration();
 	// type <space> var
 	std::size_t pos = decl.rfind(' ');
-	
+
 	std::string resType = Utility::resolveType(pParent, decl.substr(0, pos));
 	if (pos != std::string::npos)
 	{
@@ -536,7 +537,7 @@ void Utility::writeNameSpaceBegin(std::ostream& out, const std::string& nameSpac
 	{
 		Poco::StringTokenizer aTok(nameSpace, ":", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
 		int nsCnt = (int)aTok.count();
-		
+
 		for (int i = 0; i < nsCnt; ++i)
 		{
 			out << "namespace " << aTok[i] << " {" << std::endl;
@@ -551,7 +552,7 @@ void Utility::writeNameSpaceEnd(std::ostream& out, const std::string& nameSpace)
 	{
 		Poco::StringTokenizer aTok(nameSpace, ":", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
 		int nsCnt = (int)aTok.count();
-		
+
 		for (int i = 0; i < nsCnt; ++i)
 		{
 			out << "}" << std::endl;

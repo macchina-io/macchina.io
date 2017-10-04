@@ -63,7 +63,7 @@ public:
 	virtual void sendPacket(const std::vector < char >& payload, const IoT::UDP::EndpointAddress& destination = IoT::UDP::EndpointAddress()) = 0;
 		/// Sends the given payload to the given destination address.
 		///
-		/// If the endpoint is connected to a default destination address, 
+		/// If the endpoint is connected to a default destination address,
 		/// the destination address can be omitted.
 
 	const std::type_info& type() const;

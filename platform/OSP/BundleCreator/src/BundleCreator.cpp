@@ -63,7 +63,7 @@ public:
 	{
 		acquire();
 	}
-	
+
 	~FileLock()
 	{
 		try
@@ -74,7 +74,7 @@ public:
 		{
 		}
 	}
-	
+
 protected:
 	void acquire()
 	{
@@ -89,12 +89,12 @@ protected:
 			haveLock = createFile();
 		}
 	}
-	
+
 	void release()
 	{
 		_file.remove();
 	}
-	
+
 	bool createFile()
 	{
 		try
@@ -111,7 +111,7 @@ private:
 	FileLock();
 	FileLock(const FileLock&);
 	FileLock& operator = (const FileLock&);
-	
+
 	File _file;
 };
 
@@ -126,7 +126,8 @@ public:
 		_outputDir(Path::current()),
 		_keep(false),
 		_noDeflate(false),
-		_noFile(false)
+		_noFile(false),
+		_defaultVersion("1.0.0")
 	{
 		makeValidFileName(_osName);
 		makeValidFileName(_osArch);
@@ -189,10 +190,17 @@ protected:
 				.repeatable(false)
 				.argument("<extensions>", false)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleNoDeflate)));
-		
 
 		options.addOption(
-			Option("define", "D", 
+			Option("version", "v", "Specify default bundle version, e.g. \"1.0.0\", to be used "
+				"if the bundle specification file does not have one.")
+				.required(false)
+				.repeatable(false)
+				.argument("<version>")
+				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleVersion)));
+
+		options.addOption(
+			Option("define", "D",
 				"Define a configuration property. A configuration property "
 				"defined with this option can be referenced in the bundle specification "
 				"file, using the following syntax: ${<name>}.")
@@ -201,7 +209,7 @@ protected:
 				.argument("<name>=<value>")
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleDefine)));
 	}
-	
+
 	void handleHelp(const std::string& name, const std::string& value)
 	{
 		_showHelp = true;
@@ -223,17 +231,17 @@ protected:
 		_keep = true;
 		_noFile = true;
 	}
-	
+
 	void handleOSName(const std::string& name, const std::string& value)
 	{
 		_osName = value;
 	}
-	
+
 	void handleOSArch(const std::string& name, const std::string& value)
 	{
 		_osArch = value;
 	}
-	
+
 	void handleNoDeflate(const std::string& name, const std::string& value)
 	{
 		if (value.empty())
@@ -245,6 +253,11 @@ protected:
 			Poco::StringTokenizer tok(value, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 			_storeExtensions.insert(tok.begin(), tok.end());
 		}
+	}
+
+	void handleVersion(const std::string& name, const std::string& value)
+	{
+		_defaultVersion = value;
 	}
 
 	void handleDefine(const std::string& name, const std::string& value)
@@ -328,7 +341,7 @@ private:
 	{
 		File outputDir(_outputDir);
 		outputDir.createDirectories();
-		
+
 		Path outputPath(_outputDir);
 		outputPath.makeDirectory();
 		ManifestInfo mi(loadManifest());
@@ -336,7 +349,7 @@ private:
 		Path bndlPath(outputPath, bndlName);
 
 		File bndlDir(bndlPath);
-		FileLock lock(bndlDir.path());			
+		FileLock lock(bndlDir.path());
 		if (bndlDir.exists())
 		{
 			safeRemove(bndlDir);
@@ -391,7 +404,12 @@ private:
 		bool lazyStart = getBool(PREFIX + "lazyStart", false);
 		std::string runLevel = getString(PREFIX + "runLevel", BundleManifest::DEFAULT_RUNLEVEL);
 		std::string extendsBundle = getString(PREFIX + "extends", "");
-		Poco::OSP::Version version(getString(PREFIX + "version"));
+		std::string versionStr(getString(PREFIX + "version", ""));
+		if (versionStr.empty() || versionStr == "default" || versionStr == "auto")
+		{
+			versionStr = _defaultVersion;
+		}
+		Poco::OSP::Version version(versionStr);
 		ManifestInfo::Dependencies requiredBundles;
 		Poco::UInt32 idx = 0;
 		std::string symName;
@@ -575,7 +593,7 @@ private:
 			it->remove(true);
 		}
 	}
-	
+
 	void copyFile(const File& file, const std::string& destPath) const
 	{
 		if (file.isHidden()) return;
@@ -607,17 +625,17 @@ private:
 			copyFile(*it, destPath);
 		}
 	}
-	
+
 	std::string getString(const std::string& prop)
 	{
 		return config().expand(_ptrCfg->getString(prop));
 	}
-	
+
 	std::string getString(const std::string& prop, const std::string& deflt)
 	{
 		return config().expand(_ptrCfg->getString(prop, deflt));
 	}
-	
+
 	bool getBool(const std::string& prop, bool deflt)
 	{
 		return _ptrCfg->getBool(prop, deflt);
@@ -633,6 +651,7 @@ private:
 	bool _noFile;
 	Poco::AutoPtr<XMLConfiguration> _ptrCfg;
 	std::set<std::string> _storeExtensions;
+	std::string _defaultVersion;
 };
 
 

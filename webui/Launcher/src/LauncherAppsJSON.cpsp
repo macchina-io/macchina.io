@@ -1,7 +1,7 @@
-<%@ page class="LauncherAppsJSON" 
-         namespace="IoT::Web::Launcher" 
-         session="@websession.id" 
-         createSession="false" 
+<%@ page class="LauncherAppsJSON"
+         namespace="IoT::Web::Launcher"
+         session="@websession.id"
+         createSession="false"
          precondition="U::isAuthenticated(session, response)"
          contentType="application/json"
          compressed="true" %>
@@ -32,4 +32,3 @@ int i = 0;
   <% } %>
 <% } %>
 ]
-

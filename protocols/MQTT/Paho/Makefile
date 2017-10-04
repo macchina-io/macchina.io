@@ -11,7 +11,7 @@ include $(POCO_BASE)/build/rules/global
 SYSLIBS += -lssl -lcrypto
 
 ifeq ($(OSNAME),Darwin)
-CFLAGS += -DUSE_NAMED_SEMAPHORES -Wno-deprecated-declarations
+CFLAGS += -DOSX -Wno-deprecated-declarations
 endif
 
 CFLAGS += -DOPENSSL
@@ -40,6 +40,6 @@ objects = \
 
 target         = PahoMQTT
 target_version = 1
-target_libs    = 
+target_libs    =
 
 include $(POCO_BASE)/build/rules/lib

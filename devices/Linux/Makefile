@@ -16,7 +16,7 @@ endif
 
 INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 
-objects = LinuxLED BundleActivator 
+objects = LinuxGPIO LinuxLED BundleActivator
 
 target         = io.macchina.linux
 target_version = 1

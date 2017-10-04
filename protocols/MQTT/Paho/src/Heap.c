@@ -3,11 +3,11 @@
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution. 
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
- * The Eclipse Public License is available at 
+ * The Eclipse Public License is available at
  *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
+ * and the Eclipse Distribution License is available at
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
@@ -30,7 +30,10 @@
 #include "Log.h"
 #include "StackTrace.h"
 #include "Thread.h"
+
+#if defined(HEAP_UNIT_TESTS)
 char* Broker_recordFFDC(char* symptoms);
+#endif /* HEAP_UNIT_TESTS */
 
 #include <memory.h>
 #include <stdlib.h>
@@ -66,7 +69,16 @@ typedef struct
 } storageElement;
 
 static Tree heap;	/**< Tree that holds the allocation records */
-static char* errmsg = "Memory allocation error";
+static const char *errmsg = "Memory allocation error";
+
+
+static size_t Heap_roundup(size_t size);
+static int ptrCompare(void* a, void* b, int value);
+/*static void Heap_check(char* string, void* ptr);*/
+static void checkEyecatchers(char* file, int line, void* p, size_t size);
+static int Internal_heap_unlink(char* file, int line, void* p);
+static void HeapScan(enum LOG_LEVELS log_level);
+
 
 /**
  * Round allocation size up to a multiple of the size of an int.  Apart from possibly reducing fragmentation,
@@ -75,7 +87,7 @@ static char* errmsg = "Memory allocation error";
  * @param size the size actually needed
  * @return the rounded up size
  */
-size_t Heap_roundup(size_t size)
+static size_t Heap_roundup(size_t size)
 {
 	static int multsize = 4*sizeof(int);
 
@@ -91,7 +103,7 @@ size_t Heap_roundup(size_t size)
  * @param b pointer to the memory to free
  * @return boolean indicating whether a and b are equal
  */
-int ptrCompare(void* a, void* b, int value)
+static int ptrCompare(void* a, void* b, int value)
 {
 	a = ((storageElement*)a)->ptr;
 	if (value)
@@ -100,11 +112,10 @@ int ptrCompare(void* a, void* b, int value)
 	return (a > b) ? -1 : (a == b) ? 0 : 1;
 }
 
-
-void Heap_check(char* string, void* ptr)
+/*
+static void Heap_check(char* string, void* ptr)
 {
-	return;
-	/*Node* curnode = NULL;
+	Node* curnode = NULL;
 	storageElement* prev, *s = NULL;
 
 	printf("Heap_check start %p\n", ptr);
@@ -123,8 +134,8 @@ void Heap_check(char* string, void* ptr)
 		else
 			printf("%s: heap order good %d %p %p\n", string, ptrCompare(s, prev, 1), prev->ptr, s->ptr);
 		}
-	}*/
-}
+	}
+}*/
 
 
 /**
@@ -175,17 +186,17 @@ void* mymalloc(char* file, int line, size_t size)
 	state.current_size += size;
 	if (state.current_size > state.max_size)
 		state.max_size = state.current_size;
-	Thread_unlock_mutex(heap_mutex);		
+	Thread_unlock_mutex(heap_mutex);
 	return ((int*)(s->ptr)) + 1;	/* skip start eyecatcher */
 }
 
 
-void checkEyecatchers(char* file, int line, void* p, size_t size)
+static void checkEyecatchers(char* file, int line, void* p, size_t size)
 {
 	int *sp = (int*)p;
 	char *cp = (char*)p;
 	int us;
-	static char* msg = "Invalid %s eyecatcher %d in heap item at file %s line %d";
+	static const char *msg = "Invalid %s eyecatcher %d in heap item at file %s line %d";
 
 	if ((us = *--sp) != eyecatcher)
 		Log(LOG_ERROR, 13, msg, "start", us, file, line);
@@ -203,7 +214,7 @@ void checkEyecatchers(char* file, int line, void* p, size_t size)
  * @param line use the __LINE__ macro to indicate which line this item was allocated at
  * @param p pointer to the item to be removed
  */
-int Internal_heap_unlink(char* file, int line, void* p)
+static int Internal_heap_unlink(char* file, int line, void* p)
 {
 	Node* e = NULL;
 	int rc = 0;
@@ -275,7 +286,7 @@ void *myrealloc(char* file, int line, void* p, size_t size)
 {
 	void* rc = NULL;
 	storageElement* s = NULL;
-	
+
 	Thread_lock_mutex(heap_mutex);
 	s = TreeRemoveKey(&heap, ((int*)p)-1);
 	if (s == NULL)
@@ -333,10 +344,10 @@ void* Heap_findItem(void* p)
  * Scans the heap and reports any items currently allocated.
  * To be used at shutdown if any heap items have not been freed.
  */
-void HeapScan(int log_level)
+static void HeapScan(enum LOG_LEVELS log_level)
 {
 	Node* current = NULL;
-	
+
 	Thread_lock_mutex(heap_mutex);
 	Log(log_level, -1, "Heap scan start, total %d bytes", state.current_size);
 	while ((current = TreeNextElement(&heap, current)) != NULL)
@@ -353,7 +364,7 @@ void HeapScan(int log_level)
 /**
  * Heap initialization.
  */
-int Heap_initialize()
+int Heap_initialize(void)
 {
 	TreeInitializeNoMalloc(&heap, ptrCompare);
 	heap.heap_tracking = 0; /* no recursive heap tracking! */
@@ -364,7 +375,7 @@ int Heap_initialize()
 /**
  * Heap termination.
  */
-void Heap_terminate()
+void Heap_terminate(void)
 {
 	Log(TRACE_MIN, -1, "Maximum heap use was %d bytes", state.max_size);
 	if (state.current_size > 20) /* One log list is freed after this function is called */
@@ -379,7 +390,7 @@ void Heap_terminate()
  * Access to heap state
  * @return pointer to the heap state structure
  */
-heap_info* Heap_get_info()
+heap_info* Heap_get_info(void)
 {
 	return &state;
 }
@@ -431,7 +442,7 @@ int HeapDump(FILE* file)
 
 #if defined(HEAP_UNIT_TESTS)
 
-void Log(int log_level, int msgno, char* format, ...)
+void Log(enum LOG_LEVELS log_level, int msgno, char* format, ...)
 {
 	printf("Log %s", format);
 }
@@ -468,4 +479,4 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-#endif
+#endif /* HEAP_UNIT_TESTS */

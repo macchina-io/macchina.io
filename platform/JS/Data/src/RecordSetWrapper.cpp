@@ -68,6 +68,10 @@ public:
 			{
 				str << vals[i].convert<std::string>();
 			}
+			else if (vals[i].isEmpty())
+			{
+				str << "null";
+			}
 			else
 			{
 				std::string val = Poco::Dynamic::Var::toString(vals[i]);
@@ -123,7 +127,7 @@ void RecordSetHolder::close()
 void RecordSetHolder::assignStatement(Poco::Data::Statement& statement)
 {
 	poco_assert (!_pStatement);
-	
+
 	_pStatement = new Poco::Data::Statement(statement);
 }
 
@@ -131,7 +135,7 @@ void RecordSetHolder::assignStatement(Poco::Data::Statement& statement)
 void RecordSetHolder::updateRecordSet()
 {
 	poco_check_ptr (_pStatement);
-	
+
 	delete _pRecordSet;
 	_pRecordSet = new Poco::Data::RecordSet(*_pStatement);
 }
@@ -185,7 +189,7 @@ v8::Handle<v8::ObjectTemplate> RecordSetWrapper::objectTemplate(v8::Isolate* pIs
 	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
 	return handleScope.Escape(dateTimeTemplate);
 }
-	
+
 
 void RecordSetWrapper::destruct(const v8::WeakCallbackData<v8::Object, RecordSetHolder>& data)
 {
@@ -249,9 +253,9 @@ void RecordSetWrapper::getValue(const v8::FunctionCallbackInfo<v8::Value>& args)
 				if (args[0]->IsNumber())
 				{
 					std::size_t col = args[0]->Uint32Value();
-					std::size_t row = args[1]->Uint32Value(); 
+					std::size_t row = args[1]->Uint32Value();
 					value = pRecordSetHolder->recordSet().value(col, row);
-					type  = pRecordSetHolder->recordSet().columnType(col);		
+					type  = pRecordSetHolder->recordSet().columnType(col);
 				}
 				else
 				{
@@ -309,12 +313,12 @@ void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 			{
 				std::size_t col = args[0]->Uint32Value();
 				type = pRecordSetHolder->recordSet().columnType(col);
-			}	
+			}
 			else
 			{
 				std::string name = toString(args[0]);
 				type = pRecordSetHolder->recordSet().columnType(name);
-			}	
+			}
 			std::string typeString;
 			switch (type)
 			{
