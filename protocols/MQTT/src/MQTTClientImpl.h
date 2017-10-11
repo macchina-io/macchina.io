@@ -45,6 +45,20 @@ public:
 
 	struct ConnectOptions
 	{
+		ConnectOptions():
+			keepAliveInterval(60),
+			retryInterval(30),
+			connectTimeout(30),
+			cleanSession(true),
+			reliable(false),
+			willRetained(false),
+			willQoS(0),
+			mqttVersion(0),
+			sslEnableServerCertAuth(false),
+			sslVersion(0)
+		{
+		}
+
 		int keepAliveInterval;
 			/// Keep-alive interval in seconds.
 
