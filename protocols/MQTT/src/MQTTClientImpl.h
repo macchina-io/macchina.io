@@ -39,7 +39,7 @@ class IoTMQTT_API MQTTClientImpl: public IoT::MQTT::MQTTClient
 public:
 	typedef Poco::SharedPtr<MQTTClientImpl> Ptr;
 
-	struct ConnectOptions
+	struct IoTMQTT_API ConnectOptions
 	{
 		ConnectOptions():
 			keepAliveInterval(60),
