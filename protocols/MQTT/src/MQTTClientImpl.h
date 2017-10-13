@@ -26,11 +26,7 @@
 #include "Poco/Mutex.h"
 #include "Poco/ScopedUnlock.h"
 #include <map>
-
-
-extern "C" {
 #include "MQTTClient.h"
-}
 
 
 namespace IoT {
@@ -49,6 +45,9 @@ public:
 			keepAliveInterval(60),
 			retryInterval(30),
 			connectTimeout(30),
+			initialConnectTimeout(0),
+			connectRetries(0),
+			retryConnectWithExponentialBackoff(false),
 			cleanSession(true),
 			reliable(false),
 			willRetained(false),
@@ -67,6 +66,43 @@ public:
 
 		int connectTimeout;
 			/// Connect timeout in seconds.
+			
+		int initialConnectTimeout;
+			/// If non-zero, and if connectRetries is also non-zero, attempt to connect
+			/// first with this timeout, given in seconds.
+			///
+			/// See also connectRetries.
+			///
+			/// Warning: This is an experimental feature and may be removed in the future.
+			
+		int connectRetries;
+			/// Number of retries if initial connect attempt does not succeed. 
+			/// 
+			/// If greater than zero:
+			///
+			///   - The first connect attempt to the broker will be made using 
+			///     initialConnectTimeout if greater than zero, otherwise connectTimeout.
+			///   - If not successful, additional attempts will be made connecting to
+			///     the broker, again using initialConnectTimeout, if greater than zero,
+			///     or connectTimeout, otherwise. If retryConnectWithExponentialBackoff is
+			///     true, the timeout will be doubled with each successive attempt.
+			///   - The final attempt will be made with such a timeout so that the
+			///     total timeout specified in connectTimeout will not be exceeded.
+			///
+			/// Therefore, connect() will never take longer than the timeout specified
+			/// in connectTimeout.
+			///
+			/// Warning: This is an experimental feature and may be removed in the future.
+			
+		bool retryConnectWithExponentialBackoff;
+			/// If specified, and if both connectRetries and initialConnectTimeout are
+			/// greater than zero, then the connect timeout, starting with 
+			/// initialConnectTimeout, will be doubled after every unsuccessful 
+			/// connection attempt.
+			///
+			/// See also connectRetries.
+			///
+			/// Warning: This is an experimental feature and may be removed in the future.
 
 		bool cleanSession;
 			/// Start with a clean session.
@@ -149,7 +185,9 @@ public:
 		/// and connect options.
 		///
 		/// For File-based persistence, the path should specify a directory.
-		/// For SQLite-based persistence, the path should specify a SQLite database file.
+		/// For Database-based persistence, the path should specify a SQLite database file.
+		///
+		/// Database-based persistence is currently not implemented.
 
 	~MQTTClientImpl();
 		/// Destroys the MQTTClientImpl.

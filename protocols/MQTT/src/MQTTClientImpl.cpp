@@ -290,13 +290,64 @@ void MQTTClientImpl::connectImpl(const ConnectOptions& options)
 	sslOptions.enableServerCertAuth = options.sslEnableServerCertAuth;
 	sslOptions.sslVersion           = options.sslVersion;
 
-	if (_logger.debug())
-	{
-		std::string cleanMsg(options.cleanSession ? " with clean session" : "");
-		_logger.debug("Connecting MQTT client \"%s\" to server \"%s\"%s", _clientId, _serverURI, cleanMsg);
-	}
+	Poco::Timestamp::TimeVal time = 0;
+	Poco::Timestamp::TimeVal timeout = options.connectTimeout*Poco::Timestamp::resolution();
 
-	int rc = MQTTClient_connect(_mqttClient, &connectOptions);
+	int remainingAttempts = options.connectRetries > 0 ? options.connectRetries + 1 : 1;
+	if (options.initialConnectTimeout > 0 && options.connectRetries > 0)
+	{
+		connectOptions.connectTimeout = options.initialConnectTimeout;
+	}
+	
+	int rc = 0;
+	int attempt = 0;
+	while (remainingAttempts > 0)
+	{
+		if (_logger.debug())
+		{
+			std::string cleanMsg(options.cleanSession ? " with clean session" : "");
+			_logger.debug("Connecting MQTT client \"%s\" to server \"%s\"%s (timeout %d seconds).", _clientId, _serverURI, cleanMsg, connectOptions.connectTimeout);
+		}
+
+		attempt++;
+		remainingAttempts--;
+		Poco::Timestamp ts;
+		rc = MQTTClient_connect(_mqttClient, &connectOptions);
+		time += ts.elapsed();
+		if (rc == MQTTCLIENT_SUCCESS) 
+		{
+			remainingAttempts = 0;
+		}
+		else
+		{	
+			Poco::Timestamp::TimeVal remainingTime = timeout - time;
+			int remainingSeconds = (remainingTime + Poco::Timestamp::resolution()/2)/Poco::Timestamp::resolution();
+			if (remainingSeconds > 0 && options.initialConnectTimeout > 0 && options.connectRetries > 0)
+			{
+				if (remainingAttempts == 1)
+				{
+					connectOptions.connectTimeout = remainingSeconds;
+				}
+				else if (options.retryConnectWithExponentialBackoff && connectOptions.connectTimeout < remainingSeconds)
+				{
+					connectOptions.connectTimeout *= 2;
+				}	
+				if (connectOptions.connectTimeout > remainingSeconds)
+				{
+					connectOptions.connectTimeout = remainingSeconds;
+				}
+			}
+			else
+			{
+				remainingAttempts = 0;
+			}
+			if (remainingAttempts > 0)
+			{
+				_logger.notice("Failed to connect at attempt %d: %s (%d) - will retry.", attempt, errorMessage(rc), rc);
+			}
+		}
+	}
+	
 	if (rc != MQTTCLIENT_SUCCESS)
 		throw Poco::IOException(Poco::format("Cannot connect to MQTT server \"%s\"", _serverURI), errorMessage(rc), rc);
 
