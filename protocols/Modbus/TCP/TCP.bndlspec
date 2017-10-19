@@ -1,0 +1,30 @@
+<bundlespec>
+	<manifest>
+    	<name>macchina.io Modbus TCP</name>
+		<symbolicName>io.macchina.modbus.tcp</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2015-2017, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>IoT::Modbus::TCP::BundleActivator</class>
+			<library>io.macchina.modbus.tcp</library>
+		</activator>
+		<dependency>
+			<symbolicName>io.macchina.modbus.core</symbolicName>
+			<version>[1.0.0, 2.0.0)</version>
+		</dependency>
+		<dependency>
+			<symbolicName>poco.net</symbolicName>
+			<version>[1.0.0, 2.0.0)</version>
+		</dependency>
+		<lazyStart>false</lazyStart>
+		<runLevel>610</runLevel>
+	</manifest>
+	<code>
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+	</code>
+	<files>
+		bundle/*
+	</files>
+</bundlespec>
