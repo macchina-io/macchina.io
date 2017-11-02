@@ -22,45 +22,60 @@ namespace Modbus {
 namespace TCP {
 
 
-TCPPort::TCPPort(const Poco::Net::SocketAddress& serverAddress, Poco::Timespan frameTimeout):
-	_pSerialPort(pSerialPort),
-	_frameTimeout(frameTimeout),
-	_byteOrder(byteOrder),
+TCPPort::TCPPort(const Poco::Net::SocketAddress& serverAddress):
+	_serverAddress(serverAddress),
+	_socket(serverAddress),
 	_sendBuffer(MBAP_HEADER_SIZE + MAX_PDU_SIZE),
 	_receiveBuffer(MBAP_HEADER_SIZE + MAX_PDU_SIZE)
 {
 }
 
+
 	
 TCPPort::~TCPPort()
 {
+	try
+	{
+		_socket.close();
+	}
+	catch (...)
+	{
+		poco_unexpected();
+	}
 }
 
 
 Poco::UInt8 TCPPort::receiveFrame(const Poco::Timespan& timeout)
 {
 	int n = _socket.receiveBytes(_receiveBuffer.begin(), MBAP_HEADER_SIZE);
-	
-	std::size_t n = 0;
-	bool frameComplete = false;
-	do
+
+	// A return value of 0 means a graceful shutdown of the connection from the peer.
+	if(n == 0) 
 	{
-		std::size_t rd = _pSerialPort->read(_receiveBuffer.begin() + n, _receiveBuffer.size() - n, _frameTimeout);
-		if (rd == 0) return 0;
-		if (rd == 1 && n == 0 && _receiveBuffer[0] == 0)
-		{
-			// ignore spurious null bytes before frame
-			if (poll(timeout))
-				continue;
-			else
-				throw Poco::TimeoutException();
-		}
-		n += rd;
-		frameComplete = checkFrame(n);
+		throw Poco::Exception("Peer has shutdown the connection.");	
 	}
-	while (!frameComplete && n < _receiveBuffer.size());
+
+	poco_assert(n == MBAP_HEADER_SIZE);
+
+	Poco::MemoryInputStream istr(_receiveBuffer.begin(), _receiveBuffer.size());
+	Poco::BinaryReader binaryReader(istr, Poco::BinaryReader::BIG_ENDIAN_BYTE_ORDER);
+
+	Poco::UInt16 transactionID;
+	Poco::UInt16 protocolID;
+	Poco::UInt16 length;
+	binaryReader >> transactionID >> protocolID >> length;
+
+	n = _socket.receiveBytes(_receiveBuffer.begin() + MBAP_HEADER_SIZE, length);
+
+	// A return value of 0 means a graceful shutdown of the connection from the peer.
+	if(n == 0) 
+	{
+		throw Poco::Exception("Peer has shutdown the connection.");	
+	}
+
+	poco_assert(n == length);
 	
-	return frameComplete ? _receiveBuffer[1] : 0;
+	return (n > 0) ? _receiveBuffer[MBAP_HEADER_SIZE + 1] : 0;
 }
 
 
