@@ -29,7 +29,9 @@
 #include "Poco/Timestamp.h"
 #include "Poco/Buffer.h"
 #include "Poco/BinaryWriter.h"
+#include "Poco/Logger.h"
 #include "Poco/MemoryStream.h"
+#include "Poco/BasicEvent.h"
 
 
 namespace IoT {
@@ -41,15 +43,34 @@ class TCPPort
 	/// This class implements the Modbus TCP protocol over a socket.
 {
 public:
+	Poco::BasicEvent<void> connectionEstablished;
+		/// Fired after the handshake to the port is complete and the
+		/// connection has been established.
+
+	Poco::BasicEvent<void> connectionClosing;	
+		/// Fired when the connection to the port is about to be closed.
+		
+	Poco::BasicEvent<void> connectionClosed;	
+		/// Fired after the connection to the port has been closed.
+
 	TCPPort(const Poco::Net::SocketAddress& serverAddress);
 		/// Creates a TCPPort using the given server address.
+		/// 
+		/// Try connect to underlying socket in constructor.
+		/// If connect failed the TCPPort class try reconnect at the begin
+		/// of every sendFrame() and receiveFrame() function
+		/// to reconnect. If this also fail an IllegalStateException is thrown.
 		
 	~TCPPort();
 		/// Destroys the TCPPort.
+		///
+		/// Try to close the underlying socket.
 
 	template <class Message>
 	void sendFrame(const Message& message)
 		/// Sends a Modbus TCP frame over the wire.
+		///
+		/// Throws an IllegalStateException if the port is not connected.
 	{
 		// We write the PDU before the MBAP header (which comes first in the frame)
 		// since we need to know the size.
@@ -72,12 +93,25 @@ public:
 		poco_assert (mbapStream.good());
 
 		poco_assert (mbapStream.charsWritten() == MBAP_HEADER_SIZE);
+
+		reconnectIfRequired();
 		
-		_socket.sendBytes(_sendBuffer.begin(), pduStream.charsWritten() + MBAP_HEADER_SIZE);
+		try
+		{
+			int n = _socket.sendBytes(_sendBuffer.begin(), pduStream.charsWritten() + MBAP_HEADER_SIZE);
+			poco_assert(n >= 0);
+		}
+		catch (Poco::Exception& exc)
+		{
+			_logger.fatal(Poco::format("Error sending frame to TCP socket: %s", exc.displayText()));
+			disconnect();
+		}
 	}
 	
 	Poco::UInt8 receiveFrame(const Poco::Timespan& timeout);
 		/// Receives the next frame from the wire. Returns the frame's function code.
+		///
+		/// Throws an IllegalStateException if the port is not connected.
 
 	template <class Message>
 	void decodeFrame(Message& message)
@@ -118,14 +152,33 @@ private:
 		MAX_PDU_SIZE = 256
 	};
 
+	enum ConnectionState
+	{
+		STATE_ESTABLISHED,
+			/// The connection is ready.
+
+		STATE_CLOSED
+			/// The connection has been closed.
+	};
+
 	TCPPort();
 	TCPPort(const TCPPort&);
 	TCPPort& operator = (const TCPPort&);
+
+	void connect();
+	void disconnect(const bool active = true);
+
+	void reconnectIfRequired();
+
+	int receiveBytes(void* buffer, int length);
 	
 	Poco::Net::SocketAddress _serverAddress;
 	Poco::Net::StreamSocket _socket;
 	Poco::Buffer<char> _sendBuffer;
 	Poco::Buffer<char> _receiveBuffer;
+
+	ConnectionState _state;
+	Poco::Logger& _logger;
 };
 
 
