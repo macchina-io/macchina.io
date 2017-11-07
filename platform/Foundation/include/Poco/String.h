@@ -1,8 +1,6 @@
 //
 // String.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/String.h#1 $
-//
 // Library: Foundation
 // Package: Core
 // Module:  String
@@ -646,7 +644,7 @@ struct i_char_traits : public std::char_traits<charT>
 		return Ascii::toLower(c1) < Ascii::toLower(c2);
 	}
 
-	static int compare(const charT* s1, const charT* s2, size_t n)
+	static int compare(const charT* s1, const charT* s2, std::size_t n)
 	{
 		for (int i = 0; i < n && s1 && s2; ++i, ++s1, ++s2)
 		{

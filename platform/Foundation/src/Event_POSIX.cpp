@@ -1,8 +1,6 @@
 //
 // Event_POSIX.cpp
 //
-// $Id: //poco/1.4/Foundation/src/Event_POSIX.cpp#3 $
-//
 // Library: Foundation
 // Package: Threading
 // Module:  Event
@@ -27,7 +25,7 @@
 //
 // Note: pthread_cond_timedwait() with CLOCK_MONOTONIC is supported
 // on Linux and QNX, as well as on Android >= 5.0. On Android < 5.0,
-// HAVE_PTHREAD_COND_TIMEDWAIT_MONOTONIC is defined to indicate 
+// HAVE_PTHREAD_COND_TIMEDWAIT_MONOTONIC is defined to indicate
 // availability of non-standard pthread_cond_timedwait_monotonic().
 //
 #ifndef POCO_HAVE_MONOTONIC_PTHREAD_COND_TIMEDWAIT
@@ -102,8 +100,8 @@ EventImpl::~EventImpl()
 void EventImpl::waitImpl()
 {
 	if (pthread_mutex_lock(&_mutex))
-		throw SystemException("wait for event failed (lock)"); 
-	while (!_state) 
+		throw SystemException("wait for event failed (lock)");
+	while (!_state)
 	{
 		if (pthread_cond_wait(&_cond, &_mutex))
 		{
@@ -158,8 +156,8 @@ bool EventImpl::waitImpl(long milliseconds)
 #endif
 
 	if (pthread_mutex_lock(&_mutex) != 0)
-		throw SystemException("wait for event failed (lock)"); 
-	while (!_state) 
+		throw SystemException("wait for event failed (lock)");
+	while (!_state)
 	{
 		if ((rc = pthread_cond_timedwait(&_cond, &_mutex, &abstime)))
 		{
