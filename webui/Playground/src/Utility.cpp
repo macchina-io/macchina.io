@@ -1,8 +1,6 @@
 //
 // Utility.cpp
 //
-// $Id: //my-devices.net/Main/reflector/src/Utility.cpp#14 $
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

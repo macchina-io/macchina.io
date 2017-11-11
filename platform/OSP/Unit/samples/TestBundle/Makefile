@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //projects/SecurePassage/FireMon/poco/OSP/Unit/TestBundle/Makefile#1 $
-#
 # Makefile for TestBundle
 #
 

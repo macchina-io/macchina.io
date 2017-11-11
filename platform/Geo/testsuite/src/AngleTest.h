@@ -1,8 +1,6 @@
 //
 // AngleTest.h
 //
-// $Id$
-//
 // Definition of the AngleTest class.
 //
 // Copyright (c) 2011-2015, Günter Obiltschnig.

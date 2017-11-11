@@ -1,8 +1,6 @@
 //
 // MasterConnection.cpp
 //
-// $Id: //iot/Main/Tf/src/MasterConnection.cpp#2 $
-//
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

@@ -1,8 +1,6 @@
 //
 // WebServerDispatcher.cpp
 //
-// $Id: //poco/1.7/OSP/Web/src/WebServerDispatcher.cpp#1 $
-//
 // Library: OSP/Web
 // Package: Web
 // Module:  WebServerDispatcher

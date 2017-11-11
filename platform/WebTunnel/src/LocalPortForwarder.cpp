@@ -1,8 +1,6 @@
 //
 // LocalPortForwarder.cpp
 //
-// $Id: //poco/1.4/WebTunnel/src/LocalPortForwarder.cpp#12 $
-//
 // Library: WebTunnel
 // Package: WebTunnel
 // Module:  LocalPortForwarder

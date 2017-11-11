@@ -1,8 +1,6 @@
 //
 // XBeePort.h
 //
-// $Id$
-//
 // Library: IoT/XBee
 // Package: XBee
 // Module:  XBeePort

@@ -1,8 +1,6 @@
 //
 // DateTimeWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/DateTimeWrapper.cpp#9 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  DateTimeWrapper

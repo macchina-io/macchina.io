@@ -1,8 +1,6 @@
 //
 // PortReflector.cpp
 //
-// $Id: //poco/1.4/WebTunnel/src/PortReflector.cpp#22 $
-//
 // Library: WebTunnel
 // Package: WebTunnel
 // Module:  PortReflector

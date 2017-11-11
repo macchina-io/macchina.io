@@ -1,8 +1,6 @@
 //
 // Utility.cpp
 //
-// $Id: //poco/1.7/CodeGeneration/src/Utility.cpp#2 $
-//
 // Library: CodeGeneration
 // Package: CodeGeneration
 // Module:  Utility

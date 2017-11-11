@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/RemotingNG/testsuite/Makefile#2 $
-#
 # Makefile for Poco Remoting testsuite
 #
 

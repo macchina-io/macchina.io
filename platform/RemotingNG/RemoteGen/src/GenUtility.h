@@ -1,8 +1,6 @@
 //
 // GenUtility.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/GenUtility.h#2 $
-//
 // Definition of the GenUtility class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

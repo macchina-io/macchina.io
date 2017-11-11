@@ -1,8 +1,6 @@
 //
 // LocalPortForwarder.h
 //
-// $Id: //poco/1.4/WebTunnel/include/Poco/WebTunnel/LocalPortForwarder.h#6 $
-//
 // Library: WebTunnel
 // Package: WebTunnel
 // Module:  LocalPortForwarder

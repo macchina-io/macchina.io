@@ -1,8 +1,6 @@
 //
 // BundleEvents.cpp
 //
-// $Id: //poco/1.7/OSP/src/BundleEvents.cpp#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleEvents

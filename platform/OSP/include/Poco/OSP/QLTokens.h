@@ -1,8 +1,6 @@
 //
 // QLTokens.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/QLTokens.h#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  QLTokens

@@ -1,8 +1,6 @@
 //
 // BundleInstallerService.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/BundleInstallerService.h#1 $
-//
 // Library: OSP
 // Package: BundleInstallerService
 // Module:  BundleInstallerService

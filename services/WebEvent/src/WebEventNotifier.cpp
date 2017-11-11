@@ -1,8 +1,6 @@
 //
 // WebEventNotifier.cpp
 //
-// $Id$
-//
 // Library: IoT/WebEvent
 // Package: WebEventNotifier
 // Module:  WebEventNotifier

@@ -1,8 +1,6 @@
 //
 // Counter.cpp
 //
-// $Id: //iot/Main/Devices/src/Counter.cpp#2 $
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  Counter

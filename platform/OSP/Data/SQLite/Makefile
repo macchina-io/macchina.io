@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/Data/SQLite/Makefile#2 $
-#
 # Makefile for SQLite Bundle
 #
 

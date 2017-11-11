@@ -1,8 +1,6 @@
 //
 // TaggedBinarySerializer.h
 //
-// $Id$
-//
 // Library: JS/Bridge
 // Package: Bridging
 // Module:  TaggedBinarySerializer

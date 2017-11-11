@@ -1,8 +1,6 @@
 //
 // QLParser.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/QLParser.h#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  QLParser

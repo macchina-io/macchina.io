@@ -1,8 +1,6 @@
 //
 // EventFilter.h
 //
-// $Id$
-//
 // Library: RemotingNG
 // Package: ORB
 // Module:  EventFilter

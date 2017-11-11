@@ -1,8 +1,6 @@
 //
 // WebTunnelAgent.cpp
 //
-// $Id: //poco/1.4/WebTunnel/samples/WebTunnelAgent/src/WebTunnelAgent.cpp#9 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

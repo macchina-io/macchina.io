@@ -1,8 +1,6 @@
 //
 // JSExecutor.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/JSExecutor.cpp#7 $
-//
 // Library: JS/Core
 // Package: Execution
 // Module:  JSExecutor

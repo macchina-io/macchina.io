@@ -1,8 +1,6 @@
 //
 // EventFilterTest.h
 //
-// $Id: //poco/1.7/RemotingNG/testsuite/src/EventFilterTest.h#1 $
-//
 // Definition of the EventFilterTest class.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.

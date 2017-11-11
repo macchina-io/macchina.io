@@ -1,8 +1,6 @@
 //
 // BundleFilter.cpp
 //
-// $Id$
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleFilter

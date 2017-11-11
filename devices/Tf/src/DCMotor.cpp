@@ -1,8 +1,6 @@
 //
 // DCMotor.cpp
 //
-// $Id$
-//
 // Copyright (c) 2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

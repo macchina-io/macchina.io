@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/samples/WebEvent/Makefile#2 $
-#
 # Makefile for WebEvent sample
 #
 

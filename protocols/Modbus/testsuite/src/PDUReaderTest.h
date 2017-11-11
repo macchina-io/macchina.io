@@ -1,8 +1,6 @@
 //
 // PDUReaderTest.h
 //
-// $Id$
-//
 // Definition of the PDUReaderTest class.
 //
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.

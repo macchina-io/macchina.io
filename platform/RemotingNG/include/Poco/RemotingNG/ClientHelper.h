@@ -1,8 +1,6 @@
 //
 // ClientHelper.h
 //
-// $Id: //poco/1.6/RemotingNG/include/Poco/RemotingNG/ClientHelper.h#1 $
-//
 // Library: RemotingNG
 // Package: ORB
 // Module:  ClientHelper

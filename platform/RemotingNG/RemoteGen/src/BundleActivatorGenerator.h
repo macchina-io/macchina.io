@@ -1,8 +1,6 @@
 //
 // BundleActivatorGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/BundleActivatorGenerator.h#1 $
-//
 // Definition of the BundleActivatorGenerator class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

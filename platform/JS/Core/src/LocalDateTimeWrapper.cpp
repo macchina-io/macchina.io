@@ -1,8 +1,6 @@
 //
 // LocalDateTimeWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/LocalDateTimeWrapper.cpp#5 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  LocalDateTimeWrapper

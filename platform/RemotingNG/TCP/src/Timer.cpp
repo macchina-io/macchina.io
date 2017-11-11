@@ -1,8 +1,6 @@
 //
 // Timer.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/Timer.cpp#2 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  Timer

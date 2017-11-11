@@ -1,8 +1,6 @@
 //
 // SessionWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Data/src/SessionWrapper.cpp#6 $
-//
 // Library: JS/Data
 // Package: Wrappers
 // Module:  SessionWrapper

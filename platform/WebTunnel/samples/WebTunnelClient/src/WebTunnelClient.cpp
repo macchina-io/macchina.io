@@ -1,8 +1,6 @@
 //
 // WebTunnelClient.cpp
 //
-// $Id: //poco/1.4/WebTunnel/samples/WebTunnelClient/src/WebTunnelClient.cpp#10 $
-//
 // Copyright (c) 2013, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

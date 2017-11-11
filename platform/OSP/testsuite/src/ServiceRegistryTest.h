@@ -1,8 +1,6 @@
 //
 // ServiceRegistryTest.h
 //
-// $Id: //poco/1.7/OSP/testsuite/src/ServiceRegistryTest.h#1 $
-//
 // Definition of the ServiceRegistryTest class.
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.

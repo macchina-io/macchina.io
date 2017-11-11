@@ -1,8 +1,6 @@
 //
 // ServerHelper.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/ServerHelper.h#2 $
-//
 // Library: RemotingNG
 // Package: ORB
 // Module:  ServerHelper

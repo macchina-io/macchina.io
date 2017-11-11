@@ -1,8 +1,6 @@
 //
 // ClientHelperGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/ClientHelperGenerator.h#1 $
-//
 // Definition of the ClientHelperGenerator class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

@@ -1,8 +1,6 @@
 //
 // AirPressureSensor.cpp
 //
-// $Id: //iot/Main/Tf/src/AirPressureSensor.cpp#2 $
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

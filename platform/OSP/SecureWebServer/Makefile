@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/SecureWebServer/Makefile#2 $
-#
 # Makefile for Poco OSP SecureWebServer Bundle
 #
 

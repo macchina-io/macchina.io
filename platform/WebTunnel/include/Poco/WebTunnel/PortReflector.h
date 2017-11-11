@@ -1,8 +1,6 @@
 //
 // PortReflector.h
 //
-// $Id: //poco/1.4/WebTunnel/include/Poco/WebTunnel/PortReflector.h#17 $
-//
 // Library: WebTunnel
 // Package: WebTunnel
 // Module:  PortReflector

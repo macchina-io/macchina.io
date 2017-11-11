@@ -1,8 +1,6 @@
 //
 // CodeCache.cpp
 //
-// $Id: //poco/1.7/OSP/src/CodeCache.cpp#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  CodeCache

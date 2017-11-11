@@ -1,8 +1,6 @@
 //
 // Serializer.h
 //
-// $Id: //poco/1.4/JS/Bridge/include/Poco/JS/Bridge/Serializer.h#5 $
-//
 // Library: JS/Bridge
 // Package: Bridging
 // Module:  Serializer

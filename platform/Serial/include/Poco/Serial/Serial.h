@@ -1,8 +1,6 @@
 //
 // Serial.h
 //
-// $Id$
-//
 // Library: Serial
 // Package: Serial
 // Module:  Serial

@@ -1,8 +1,6 @@
 //
 // BundleCreator.cpp
 //
-// $Id: //poco/1.7/OSP/BundleCreator/src/BundleCreator.cpp#2 $
-//
 // The BundleCreator utility creates a bundle from a bundle specification file.
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.

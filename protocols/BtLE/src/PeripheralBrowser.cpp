@@ -1,8 +1,6 @@
 //
 // PeripheralBrowser.cpp
 //
-// $Id$
-//
 // Library: IoT/BtLE
 // Package: BtLE
 // Module:  PeripheralBrowser

@@ -1,8 +1,6 @@
 //
 // DeviceException.h
 //
-// $Id: //iot/Main/Devices/include/IoT/Devices/DeviceException.h#2 $
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  DeviceException

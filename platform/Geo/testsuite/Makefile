@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/Geo/testsuite/Makefile#1 $
-#
 # Makefile for Poco Geo testsuite
 #
 

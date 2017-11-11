@@ -1,8 +1,6 @@
 //
 // HighRateButton.h
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

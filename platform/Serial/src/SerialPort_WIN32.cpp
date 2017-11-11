@@ -1,8 +1,6 @@
 //
 // SerialPort_WIN32.cpp
 //
-// $Id$
-//
 // Library: Serial
 // Package: Serial
 // Module:  SerialPort

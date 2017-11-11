@@ -1,8 +1,6 @@
 //
 // UDPEndpoint.cpp
 //
-// $Id$
-//
 // Library: IoT/UDP
 // Package: UDPEndpoint
 // Module:  UDPEndpoint

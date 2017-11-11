@@ -1,8 +1,6 @@
 //
 // BundleActivator.cpp
 //
-// $Id: //iot/Main/Tf/src/BundleActivator.cpp#2 $
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

@@ -1,8 +1,6 @@
 //
 // Driver.cpp
 //
-// $Id$
-//
 // Console-based test driver for Poco Geo.
 //
 // Copyright (c) 2011-2015, Günter Obiltschnig.

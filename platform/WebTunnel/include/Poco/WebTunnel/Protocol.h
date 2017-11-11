@@ -1,8 +1,6 @@
 //
 // Protocol.h
 //
-// $Id: //poco/1.4/WebTunnel/include/Poco/WebTunnel/Protocol.h#7 $
-//
 // Library: WebTunnel
 // Package: WebTunnel
 // Module:  Protocol

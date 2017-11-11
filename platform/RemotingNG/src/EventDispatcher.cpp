@@ -1,8 +1,6 @@
 //
 // EventDispatcher.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/EventDispatcher.cpp#3 $
-//
 // Library: RemotingNG
 // Package: ORB
 // Module:  EventDispatcher

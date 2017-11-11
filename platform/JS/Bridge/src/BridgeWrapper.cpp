@@ -1,8 +1,6 @@
 //
 // BridgeWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Bridge/src/BridgeWrapper.cpp#9 $
-//
 // Library: JS/Bridge
 // Package: Bridging
 // Module:  BridgeWrapper

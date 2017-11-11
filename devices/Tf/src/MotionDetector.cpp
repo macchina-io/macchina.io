@@ -1,8 +1,6 @@
 //
 // MotionDetector.cpp
 //
-// $Id: //iot/Main/Tf/src/MotionDetector.cpp#3 $
-//
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

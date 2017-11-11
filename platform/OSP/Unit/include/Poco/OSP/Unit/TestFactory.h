@@ -1,8 +1,6 @@
 //
 // TestFactory.h
 //
-// $Id: //projects/SecurePassage/FireMon/poco/Data/include/Poco/Data/TestFactory.h#1 $
-//
 // Library: OSP/Unit
 // Package: Unit
 // Module:  TestFactory

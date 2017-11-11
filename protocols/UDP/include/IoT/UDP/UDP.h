@@ -1,8 +1,6 @@
 //
 // UDP.h
 //
-// $Id$
-//
 // Library: IoT/UDP
 // Package: UDP
 // Module:  UDP

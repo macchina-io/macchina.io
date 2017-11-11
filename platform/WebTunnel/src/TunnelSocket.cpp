@@ -1,8 +1,6 @@
 //
 // TunnelSocket.cpp
 //
-// $Id: //poco/1.4/WebTunnel/src/TunnelSocket.cpp#2 $
-//
 // Library: WebTunnel
 // Package: WebTunnel
 // Module:  TunnelSocket

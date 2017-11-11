@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/samples/WebEcho/Makefile#2 $
-#
 # Makefile for WebEcho sample
 #
 

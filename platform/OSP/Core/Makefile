@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/Core/Makefile#2 $
-#
 # Makefile for Core Bundle
 #
 

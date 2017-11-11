@@ -1,8 +1,6 @@
 //
 // ServiceRefWrapper.h
 //
-// $Id: //poco/1.4/OSP/JS/src/ServiceRefWrapper.h#3 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //

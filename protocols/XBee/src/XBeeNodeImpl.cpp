@@ -1,8 +1,6 @@
 //
 // XBeeNodeImpl.cpp
 //
-// $Id$
-//
 // Library: IoT/XBee
 // Package: XBeeNode
 // Module:  XBeeNode

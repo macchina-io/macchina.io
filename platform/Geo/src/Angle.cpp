@@ -1,8 +1,6 @@
 //
 // Angle.cpp
 //
-// $Id$
-//
 // Library: Geo
 // Package: Geo
 // Module:  Angle

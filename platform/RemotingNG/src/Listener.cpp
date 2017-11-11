@@ -1,8 +1,6 @@
 //
 // Listener.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/Listener.cpp#3 $
-//
 // Library: RemotingNG
 // Package: Transport
 // Module:  Listener

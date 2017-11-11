@@ -1,8 +1,6 @@
 //
 // TransportFactory.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/TransportFactory.h#1 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  TransportFactory

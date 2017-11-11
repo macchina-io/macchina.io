@@ -1,8 +1,6 @@
 //
 // Authenticator.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/Authenticator.h#3 $
-//
 // Library: RemotingNG
 // Package: Transport
 // Module:  Authenticator

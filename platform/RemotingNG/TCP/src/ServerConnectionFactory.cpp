@@ -1,8 +1,6 @@
 //
 // ServerConnectionFactory.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/ServerConnectionFactory.cpp#1 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  ServerConnectionFactory

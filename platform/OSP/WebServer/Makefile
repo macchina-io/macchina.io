@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/WebServer/Makefile#2 $
-#
 # Makefile for Poco OSP WebServer Bundle
 #
 

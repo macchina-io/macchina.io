@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/JS/V8/Makefile#5 $
-#
 # Makefile for v8 JavaScript engine
 #
 

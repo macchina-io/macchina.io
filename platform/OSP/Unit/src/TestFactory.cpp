@@ -1,8 +1,6 @@
 //
 // TestFactory.cpp
 //
-// $Id: //projects/SecurePassage/FireMon/poco/OSP/Unit/src/TestFactory.cpp#1 $
-//
 // Library: OSP/Unit
 // Package: Unit
 // Module:  TestFactory

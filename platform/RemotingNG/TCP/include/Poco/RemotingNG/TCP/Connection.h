@@ -1,8 +1,6 @@
 //
 // Connection.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Connection.h#3 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  Connection

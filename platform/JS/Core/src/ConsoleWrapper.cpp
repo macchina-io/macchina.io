@@ -1,8 +1,6 @@
 //
 // ConsoleWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/ConsoleWrapper.cpp#5 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  ConsoleWrapper

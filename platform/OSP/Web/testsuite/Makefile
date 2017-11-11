@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/Main/OSP/WebServer/testsuite/Makefile#2 $
-#
 # Makefile for Poco OSPWeb testsuite
 #
 

@@ -1,8 +1,6 @@
 //
 // Listener.cpp
 //
-// $Id: //poco/1.4/JS/Bridge/src/Listener.cpp#3 $
-//
 // Library: JS/Bridge
 // Package: Bridging
 // Module:  Listener

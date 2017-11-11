@@ -1,8 +1,6 @@
 //
 // SentenceDecoder.h
 //
-// $Id$
-//
 // Library: IoT/GNSS/NMEA
 // Package: Decoder
 // Module:  SentenceDecoder

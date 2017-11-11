@@ -1,8 +1,6 @@
 //
 // BlueZGATTClient.h
 //
-// $Id$
-//
 // Library: IoT/BtLE
 // Package: BtLE
 // Module:  BlueZGATTClient

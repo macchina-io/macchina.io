@@ -1,8 +1,6 @@
 //
 // RecordSetWrapper.h
 //
-// $Id: //poco/1.4/JS/Data/include/Poco/JS/Data/RecordSetWrapper.h#6 $
-//
 // Library: JS/Data
 // Package: Wrappers
 // Module:  RecordSetWrapper
