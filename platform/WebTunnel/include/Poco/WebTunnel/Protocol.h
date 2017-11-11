@@ -37,7 +37,7 @@ class WebTunnel_API Protocol
 	///
 	/// Requests the peer to open a TCP connection to the
 	/// specified remote port.
-	/// 
+	///
 	///     0        1        2        3
 	///     +--------+--------+--------+--------+
 	///     | 0x01   | 0x00   | Channel Number  |
@@ -108,7 +108,7 @@ public:
 		WT_OP_CLOSE           = 0x02,  /// Close a channel (uncomfirmed).
 		WT_OP_ERROR           = 0x80   /// General error notification, closes a channel.
 	};
-	
+
 	enum ErrorCodes
 	{
 		WT_ERR_NONE           = 0x00,  /// No error (not used in protocol).
@@ -120,15 +120,15 @@ public:
 		WT_ERR_PROTOCOL       = 0x06,  /// Protocol violation.
 		WT_ERR_CHANNEL_IN_USE = 0x07   /// Channel is already in use.
 	};
-	
+
 	enum
 	{
 		WT_FRAME_MAX_SIZE = 2048,
-		WT_FRAME_HEADER_SIZE = 4 
+		WT_FRAME_HEADER_SIZE = 4
 	};
-	
+
 	static std::size_t writeHeader(char* pBuffer, std::size_t bufferSize, Poco::UInt8 opcode, Poco::UInt8 flags, Poco::UInt16 channel, Poco::UInt16 portOrErrorCode = 0);
-		/// Writes the protocol header to the given buffer, which must be of sufficient size 
+		/// Writes the protocol header to the given buffer, which must be of sufficient size
 		/// (at least 4 or 6 bytes, depending on opcode).
 		///
 		/// Flags are currently unused and should be 0.

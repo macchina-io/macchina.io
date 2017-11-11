@@ -46,16 +46,16 @@ class WebTunnel_API PortReflector
 public:
 	Poco::BasicEvent<const std::string> serverConnected;
 		/// Fired when a server has connected.
-		
+
 	Poco::BasicEvent<const std::string> serverDisconnected;
 		/// Fired when a server has disconnected.
-	
+
 	PortReflector(int threadCount, Poco::Timespan dispatcherTimeout = Poco::Timespan(5000), int maxReadsPerWorker = 10);
 		/// Creates the PortReflector, using the given number of worker threads.
 		///
-		/// The given dispatcherTimeout is used for the SocketDispatcher's main select loop, as well as 
+		/// The given dispatcherTimeout is used for the SocketDispatcher's main select loop, as well as
 		/// by workers to poll if more reads are possible, up to the given maximum number of reads per worker.
-	
+
 	~PortReflector();
 		/// Destroys the PortReflector.
 		///
@@ -74,32 +74,32 @@ public:
 
 	TunnelSocket openTunnelSocket(const std::string& targetId, Poco::UInt16 targetPort);
 		/// Creates and returns a TunnelSocket for the given target and port number.
-		
+
 	void addServerSocket(Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket, const std::string& targetId);
 		/// Adds a server WebSocket connection for forwarding to the given target device.
 		///
 		/// The WebSocket will be managed by the PortReflector until closed by the peer.
-	
+
 	void removeServerSocket(const std::string& targetId);
 		/// Shuts down and removes the WebSocket connection for forwarding to the given
 		// target device.
 
 	int countConnections() const;
 		/// Returns the number of currently active connections.
-		
+
 	void setClientTimeout(Poco::Timespan timeout);
 		/// Sets the timeout for client connections.
-		
+
 	Poco::Timespan getClientTimeout() const;
 		/// Returns the timeout for client connections.
 
 	void setServerTimeout(Poco::Timespan timeout);
 		/// Sets the timeout for server/agent connections.
-		
+
 	Poco::Timespan getServerTimeout() const;
 		/// Returns the timeout for server/agent connections.
 
-protected:		
+protected:
 	enum
 	{
 		MAX_CHANNELS = 256
@@ -112,23 +112,23 @@ protected:
 		CS_DISCONNECTED,
 		CS_ERROR
 	};
-	
+
 	enum TargetState
 	{
 		TS_CONNECTED,
 		TS_DISCONNECTED
 	};
-	
+
 	enum
 	{
 		CONNECT_TIMEOUT = 60000
 	};
-	
+
 	struct ChannelInfo: public Poco::RefCountedObject
 	{
 		typedef Poco::AutoPtr<ChannelInfo> Ptr;
-		
-		ChannelState state; 
+
+		ChannelState state;
 		Poco::Event stateChanged;
 		Poco::UInt16 channel;
 		Poco::SharedPtr<Poco::Net::StreamSocket> pSocket;
@@ -137,11 +137,11 @@ protected:
 		std::string initialMessage;
 	};
 	typedef std::map<Poco::UInt16, ChannelInfo::Ptr> ChannelMap;
-	
+
 	struct TargetInfo: public Poco::RefCountedObject
 	{
 		typedef Poco::AutoPtr<TargetInfo> Ptr;
-		
+
 		std::string id;
 		TargetState state;
 		ChannelMap channelMap;
@@ -150,9 +150,9 @@ protected:
 		Poco::FastMutex webSocketMutex;
 		Poco::FastMutex mutex;
 	};
-	
+
 	typedef std::map<std::string, TargetInfo::Ptr> TargetMap;
-	
+
 	bool multiplexWebSocket(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer);
 	bool multiplexStreamSocket(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer);
 	void multiplexError(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer);
@@ -171,12 +171,12 @@ protected:
 			_buffer(Protocol::WT_FRAME_MAX_SIZE + Protocol::WT_FRAME_HEADER_SIZE)
 		{
 		}
-		
+
 		bool readable(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 		{
 			return _reflector.multiplexWebSocket(dispatcher, socket, _pTargetInfo, _pChannelInfo, _buffer);
 		}
-		
+
 		void exception(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 		{
 			_reflector.multiplexError(dispatcher, socket, _pTargetInfo, _pChannelInfo, _buffer);
@@ -186,7 +186,7 @@ protected:
 		{
 			return _reflector.multiplexTimeout(dispatcher, socket, _pTargetInfo, _pChannelInfo, _buffer);
 		}
-		
+
 	private:
 		PortReflector& _reflector;
 		TargetInfo::Ptr _pTargetInfo;
@@ -204,12 +204,12 @@ protected:
 			_buffer(Protocol::WT_FRAME_MAX_SIZE + Protocol::WT_FRAME_HEADER_SIZE)
 		{
 		}
-		
+
 		bool readable(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 		{
 			return _reflector.multiplexStreamSocket(dispatcher, socket, _pTargetInfo, _pChannelInfo, _buffer);
 		}
-		
+
 		void exception(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 		{
 			_reflector.multiplexError(dispatcher, socket, _pTargetInfo, _pChannelInfo, _buffer);
@@ -219,14 +219,14 @@ protected:
 		{
 			return _reflector.multiplexTimeout(dispatcher, socket, _pTargetInfo, _pChannelInfo, _buffer);
 		}
-		
+
 	private:
 		PortReflector& _reflector;
 		TargetInfo::Ptr _pTargetInfo;
 		ChannelInfo::Ptr _pChannelInfo;
 		Poco::Buffer<char> _buffer;
 	};
-	
+
 	class TunnelDemultiplexer: public SocketDispatcher::SocketHandler
 	{
 	public:
@@ -236,12 +236,12 @@ protected:
 			_buffer(Protocol::WT_FRAME_MAX_SIZE + Protocol::WT_FRAME_HEADER_SIZE)
 		{
 		}
-		
+
 		bool readable(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 		{
 			return _reflector.demultiplex(dispatcher, socket, _pTargetInfo, _buffer);
 		}
-		
+
 		void exception(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 		{
 			_reflector.demultiplexError(dispatcher, socket, _pTargetInfo, _buffer);
@@ -251,13 +251,13 @@ protected:
 		{
 			_reflector.demultiplexTimeout(dispatcher, socket, _pTargetInfo, _buffer);
 		}
-	
+
 	private:
 		PortReflector& _reflector;
 		TargetInfo::Ptr _pTargetInfo;
 		Poco::Buffer<char> _buffer;
 	};
-	
+
 	bool abortTarget(TargetInfo::Ptr pTargetInfo);
 	void removeTarget(TargetInfo::Ptr pTargetInfo);
 	void shutdownChannel(TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo);
@@ -267,7 +267,7 @@ protected:
 	void confirmCloseChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt16 channel, Poco::UInt16 errorCode = Protocol::WT_ERR_NONE);
 	bool forwardData(const char* buffer, std::size_t size, TargetInfo::Ptr pTargetInfo, Poco::UInt16 channel);
 	bool sendInitialMessage(TargetInfo::Ptr pTargetInfo, Poco::UInt16 channel);
-	
+
 	SocketDispatcher _dispatcher;
 	TargetMap _targetMap;
 	Poco::Timespan _clientTimeout;

@@ -48,9 +48,10 @@ public:
 	{
 		RPF_CLOSE_GRACEFUL   = 0, /// Graceful shutdown, initiated by peer.
 		RPF_CLOSE_UNEXPECTED = 1, /// Unexpected shutdown by peer.
-		RPF_CLOSE_ERROR      = 2  /// Close due to socket exception.
+		RPF_CLOSE_ERROR      = 2, /// Close due to socket exception.
+		RPF_CLOSE_TIMEOUT    = 3, /// Close due to timeout.
 	};
-	
+
 	Poco::BasicEvent<const int> webSocketClosed;
 		/// Fired when the web socket has been closed.
 		///
@@ -59,32 +60,32 @@ public:
 		/// enum for values and their meanings.
 
 	RemotePortForwarder(SocketDispatcher& dispatcher, Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket, const Poco::Net::IPAddress& host, const std::set<Poco::UInt16>& ports, Poco::Timespan remoteTimeout = Poco::Timespan(300, 0));
-		/// Creates the RemotePortForwarder, using the given socket dispatcher and web socket, 
+		/// Creates the RemotePortForwarder, using the given socket dispatcher and web socket,
 		/// which is used for tunneling data. Only the port numbers given in ports will
 		/// be forwarded. The web socket must have already been connected to the
 		/// reflector server.
-		
+
 	~RemotePortForwarder();
 		/// Destroys the RemotePortForwarder and closes the web socket connection.
-		
+
 	void stop();
 		/// Stops the RemotePortForwarder.
 
 	void setLocalTimeout(const Poco::Timespan& timeout);
 		/// Sets the timeout for the forwarded local ports.
-		
+
 	const Poco::Timespan& getLocalTimeout() const;
 		/// Returns the timeout for the forwarded local ports.
 
 	void setConnectTimeout(const Poco::Timespan& timeout);
 		/// Sets the timeout for connecting to local ports.
-		
+
 	const Poco::Timespan& getConnectTimeout() const;
 		/// Returns the timeout for connecting to local ports.
 
 	const Poco::Timespan& remoteTimeout() const;
 		/// Returns the timeout for the remote connection.
-		
+
 protected:
 	bool multiplex(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, Poco::UInt16 channel, Poco::Buffer<char>& buffer);
 	void multiplexError(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, Poco::UInt16 channel, Poco::Buffer<char>& buffer);
@@ -98,7 +99,7 @@ protected:
 	void sendResponse(Poco::UInt16 channel, Poco::UInt8 opcode, Poco::UInt16 errorCode);
 	void closeWebSocket(CloseReason reason, bool active);
 	void pingWebSocket();
-	
+
 private:
 	class TunnelMultiplexer: public SocketDispatcher::SocketHandler
 	{
@@ -109,12 +110,12 @@ private:
 			_buffer(Protocol::WT_FRAME_MAX_SIZE + Protocol::WT_FRAME_HEADER_SIZE)
 		{
 		}
-		
+
 		bool readable(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 		{
 			return _forwarder.multiplex(dispatcher, socket, _channel, _buffer);
 		}
-		
+
 		void exception(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 		{
 			_forwarder.multiplexError(dispatcher, socket, _channel, _buffer);
@@ -124,13 +125,13 @@ private:
 		{
 			_forwarder.multiplexTimeout(dispatcher, socket, _channel, _buffer);
 		}
-		
+
 	private:
 		RemotePortForwarder& _forwarder;
 		Poco::UInt16 _channel;
 		Poco::Buffer<char> _buffer;
 	};
-	
+
 	class TunnelDemultiplexer: public SocketDispatcher::SocketHandler
 	{
 	public:
@@ -139,12 +140,12 @@ private:
 			_buffer(Protocol::WT_FRAME_MAX_SIZE + Protocol::WT_FRAME_HEADER_SIZE)
 		{
 		}
-		
+
 		bool readable(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 		{
 			return _forwarder.demultiplex(dispatcher, socket, _buffer);
 		}
-		
+
 		void exception(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 		{
 			_forwarder.demultiplexError(dispatcher, socket, _buffer);
@@ -154,14 +155,14 @@ private:
 		{
 			_forwarder.demultiplexTimeout(dispatcher, socket, _buffer);
 		}
-	
+
 	private:
 		RemotePortForwarder& _forwarder;
 		Poco::Buffer<char> _buffer;
 	};
-		
+
 	typedef std::map<Poco::UInt16, Poco::Net::StreamSocket> ChannelMap;
-	
+
 	SocketDispatcher& _dispatcher;
 	Poco::SharedPtr<Poco::Net::WebSocket> _pWebSocket;
 	Poco::FastMutex _webSocketMutex;
@@ -174,11 +175,11 @@ private:
 	bool _timeoutCount;
 	Poco::FastMutex _mutex;
 	Poco::Logger& _logger;
-	
+
 	RemotePortForwarder();
 	RemotePortForwarder(const RemotePortForwarder&);
 	RemotePortForwarder& operator = (const RemotePortForwarder&);
-	
+
 	friend class TunnelMultiplexer;
 	friend class TunnelDemultiplexer;
 };

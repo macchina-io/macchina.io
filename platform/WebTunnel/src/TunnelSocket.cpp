@@ -20,7 +20,7 @@ namespace Poco {
 namespace WebTunnel {
 
 
-TunnelSocket::TunnelSocket(const Poco::Net::Socket& socket): 
+TunnelSocket::TunnelSocket(const Poco::Net::Socket& socket):
 	Poco::Net::StreamSocket(socket)
 {
 	if (!dynamic_cast<TunnelSocketImpl*>(impl()))
@@ -28,7 +28,7 @@ TunnelSocket::TunnelSocket(const Poco::Net::Socket& socket):
 }
 
 
-TunnelSocket::TunnelSocket(TunnelSocketImpl* pImpl): 
+TunnelSocket::TunnelSocket(TunnelSocketImpl* pImpl):
 	Poco::Net::StreamSocket(pImpl)
 {
 }

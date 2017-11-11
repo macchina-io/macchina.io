@@ -42,7 +42,7 @@ TunnelSocketImpl::~TunnelSocketImpl()
 {
 }
 
-	
+
 int TunnelSocketImpl::sendBytes(const void* buffer, int length, int flags)
 {
 	while (_pChannelInfo->state == PortReflector::CS_CONNECTING)
@@ -55,7 +55,7 @@ int TunnelSocketImpl::sendBytes(const void* buffer, int length, int flags)
 			throw Poco::TimeoutException();
 		}
 	}
-	
+
 	if (_pChannelInfo->state != PortReflector::CS_CONNECTED)
 	{
 		if (_pChannelInfo->state == PortReflector::CS_DISCONNECTED)
@@ -76,7 +76,7 @@ int TunnelSocketImpl::sendBytes(const void* buffer, int length, int flags)
 		}
 		return 0;
 	}
-	
+
 	int sent = 0;
 	try
 	{
@@ -102,7 +102,7 @@ int TunnelSocketImpl::sendBytes(const void* buffer, int length, int flags)
 	return sent;
 }
 
-	
+
 int TunnelSocketImpl::receiveBytes(void* buffer, int length, int)
 {
 	int n = _readBuffer.read(reinterpret_cast<char*>(buffer), length, static_cast<long>(_receiveTimeout.totalMilliseconds()));
@@ -188,7 +188,7 @@ void TunnelSocketImpl::close()
 			_logger.debug("Closing: waiting for channel to be connected...");
 			_pChannelInfo->stateChanged.wait(CONNECT_TIMEOUT);
 		}
-	
+
 		if (_pChannelInfo->state == PortReflector::CS_CONNECTED)
 		{
 			_portReflector.shutdownChannel(_pTargetInfo, _pChannelInfo);
@@ -198,7 +198,7 @@ void TunnelSocketImpl::close()
 	{
 		_logger.warning(Poco::format("Error closing TunnelSocket: %s", exc.displayText()));
 	}
-	
+
 	reset();
 	_pChannelInfo = 0;
 	_pTargetInfo = 0;
@@ -216,7 +216,7 @@ void TunnelSocketImpl::shutdownSend()
 	throw Poco::InvalidAccessException("Cannot shutdownSend() on a TunnelSocketImpl");
 }
 
-	
+
 void TunnelSocketImpl::shutdown()
 {
 	throw Poco::InvalidAccessException("Cannot shutdown() on a TunnelSocketImpl");
@@ -270,5 +270,5 @@ Poco::Timespan TunnelSocketImpl::getReceiveTimeout()
 	return _receiveTimeout;
 }
 
-	
+
 } } // namespace Poco::WebTunnel

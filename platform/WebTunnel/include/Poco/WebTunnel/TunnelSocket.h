@@ -40,7 +40,7 @@ public:
 
 	TunnelSocket(TunnelSocketImpl* pSocketImpl);
 		/// Creates a TunnelSocket with the given TunnelSocketImpl.
-	
+
 	virtual ~TunnelSocket();
 		/// Destroys the StreamSocket.
 
