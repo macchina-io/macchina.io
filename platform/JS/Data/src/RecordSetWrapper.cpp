@@ -17,10 +17,8 @@
 #include "Poco/Data/MetaColumn.h"
 #include "Poco/Data/RowFormatter.h"
 #include "Poco/Version.h"
-#if POCO_VERSION > 0x01050000
 #include "Poco/Data/Date.h"
 #include "Poco/Data/Time.h"
-#endif
 
 
 namespace Poco {
@@ -136,12 +134,6 @@ void RecordSetHolder::updateRecordSet()
 
 	delete _pRecordSet;
 	_pRecordSet = new Poco::Data::RecordSet(*_pStatement);
-}
-
-
-void RecordSetHolder::reserveBindings(std::size_t size)
-{
-	_boundValues.reserve(size);
 }
 
 
@@ -362,7 +354,6 @@ void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 			case Poco::Data::MetaColumn::FDT_UNKNOWN:
 				typeString = "unknown";
 				break;
-#if POCO_VERSION > 0x01050000
 			case Poco::Data::MetaColumn::FDT_TIMESTAMP:
 				typeString = "DateTime";
 				break;
@@ -378,7 +369,6 @@ void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 			case Poco::Data::MetaColumn::FDT_TIME:
 				typeString = "Time";
 				break;
-#endif
 			}
 			returnString(args, typeString);
 			return;
@@ -583,7 +573,6 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 	case Poco::Data::MetaColumn::FDT_STRING:
 		returnString(args, value.convert<std::string>());
 		break;
-#if POCO_VERSION > 0x01050000
 	case Poco::Data::MetaColumn::FDT_TIMESTAMP:
 		{
 			Poco::DateTime dt = value.extract<Poco::DateTime>();
@@ -611,12 +600,9 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 			args.GetReturnValue().Set(jsDate);
 		}
 		break;
-#endif
 	case Poco::Data::MetaColumn::FDT_BLOB:
-#if POCO_VERSION > 0x01050000
 	case Poco::Data::MetaColumn::FDT_CLOB:
 	case Poco::Data::MetaColumn::FDT_WSTRING:
-#endif
 	case Poco::Data::MetaColumn::FDT_UNKNOWN:
 	default:
 		returnException(args, std::string("cannot convert value"));
