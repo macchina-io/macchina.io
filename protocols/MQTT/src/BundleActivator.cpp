@@ -61,7 +61,10 @@ public:
 			MQTTClientImpl::ConnectOptions options;
 			options.keepAliveInterval = getIntConfig(baseConfig + ".keepAliveInterval", 60);
 			options.retryInterval = getIntConfig(baseConfig + ".retryInterval", 30);
-			options.connectTimeout = getIntConfig(baseConfig + ".connectTimeout", 20);
+			options.connectTimeout = getIntConfig(baseConfig + ".connectTimeout", 30);
+			options.initialConnectTimeout = getIntConfig(baseConfig + ".initialConnectTimeout", 0);
+			options.connectRetries = getIntConfig(baseConfig + ".connectRetries", 0);
+			options.retryConnectWithExponentialBackoff = getBoolConfig(baseConfig + ".retryConnectWithExponentialBackoff", false);
 			options.cleanSession = getBoolConfig(baseConfig + ".cleanSession", true);
 			options.reliable = getBoolConfig(baseConfig + ".reliable", false);
 			options.username = getStringConfig(baseConfig + ".username", "");

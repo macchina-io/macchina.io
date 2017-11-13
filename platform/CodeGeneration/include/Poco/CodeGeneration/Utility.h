@@ -29,6 +29,7 @@
 
 #if defined(_WIN32)
 #undef IN
+#undef OPTIONAL
 #endif
 
 
