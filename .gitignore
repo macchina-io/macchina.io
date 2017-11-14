@@ -68,7 +68,6 @@ Thumbs.db
 # VS generated files #
 ######################
 *.obj
-*.exe
 *.pdb
 *.user
 *.aps
@@ -114,3 +113,4 @@ cmake-build/
 # Temporary files #
 ###################
 *.bak
+/nbproject/
