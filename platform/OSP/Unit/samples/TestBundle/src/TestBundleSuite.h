@@ -1,8 +1,6 @@
 //
 // TestBundleSuite.h
 //
-// $Id: //projects/SecurePassage/FireMon/poco/OSP/Unit/TestBundle/src/TestBundleSuite.h#1 $
-//
 // Definition of the TestBundleSuite class.
 //
 // Copyright (c) 2011, Applied Informatics Software Engineering GmbH.

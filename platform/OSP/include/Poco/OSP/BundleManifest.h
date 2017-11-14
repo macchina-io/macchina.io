@@ -1,8 +1,6 @@
 //
 // BundleManifest.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/BundleManifest.h#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleManifest

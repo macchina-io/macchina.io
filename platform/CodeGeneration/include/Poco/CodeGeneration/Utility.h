@@ -1,8 +1,6 @@
 //
 // Utility.h
 //
-// $Id: //poco/1.7/CodeGeneration/include/Poco/CodeGeneration/Utility.h#3 $
-//
 // Library: CodeGeneration
 // Package: CodeGeneration
 // Module:  Utility

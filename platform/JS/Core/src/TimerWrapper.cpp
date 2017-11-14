@@ -1,8 +1,6 @@
 //
 // TimerWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/TimerWrapper.cpp#3 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  TimerWrapper

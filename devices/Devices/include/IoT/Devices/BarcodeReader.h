@@ -1,8 +1,6 @@
 //
 // BarcodeReader.h
 //
-// $Id$
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  BarcodeReader

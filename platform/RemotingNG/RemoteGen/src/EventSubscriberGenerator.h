@@ -1,8 +1,6 @@
 //
 // EventSubscriberGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/EventSubscriberGenerator.h#2 $
-//
 // Definition of the EventSubscriberGenerator class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

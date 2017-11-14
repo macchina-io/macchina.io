@@ -1,8 +1,6 @@
 //
 // SessionWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Data/src/SessionWrapper.cpp#6 $
-//
 // Library: JS/Data
 // Package: Wrappers
 // Module:  SessionWrapper
@@ -23,11 +21,7 @@
 #include "Poco/LocalDateTime.h"
 
 
-#if POCO_VERSION > 0x01050000
 using namespace Poco::Data::Keywords;
-#else
-using namespace Poco::Data;
-#endif
 
 
 namespace Poco {
@@ -92,13 +86,13 @@ v8::Handle<v8::ObjectTemplate> SessionWrapper::objectTemplate(v8::Isolate* pIsol
 	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
 	return handleScope.Escape(dateTimeTemplate);
 }
-	
+
 
 void SessionWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	std::string connector;
 	std::string connectionString;
-	
+
 	if (args.Length() == 2)
 	{
 		connector = toString(args[0]);
@@ -109,7 +103,7 @@ void SessionWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 		returnException(args, std::string("bad arguments: connector and connection string required"));
 		return;
 	}
-	
+
 	SessionHolder* pSessionHolder = 0;
 	try
 	{
@@ -238,7 +232,6 @@ void SessionWrapper::execute(const v8::FunctionCallbackInfo<v8::Value>& args)
 	if (args.Length() > 0)
 	{
 		RecordSetHolder* pRecordSetHolder = new RecordSetHolder;
-		pRecordSetHolder->reserveBindings(static_cast<std::size_t>(args.Length() - 1));
 		try
 		{
 			Poco::Data::Statement statement = (session << toString(args[0]));
@@ -246,39 +239,38 @@ void SessionWrapper::execute(const v8::FunctionCallbackInfo<v8::Value>& args)
 			{
 				if (args[i]->IsString())
 				{
-					statement , use(pRecordSetHolder->bindValue(toString(args[i])));
+					statement.bind(toString(args[i]));
 				}
 				else if (args[i]->IsBoolean())
 				{
-					statement , use(pRecordSetHolder->bindValue(args[i]->BooleanValue()));
+					statement.bind(args[i]->BooleanValue());
 				}
 				else if (args[i]->IsInt32())
 				{
-					statement , use(pRecordSetHolder->bindValue(args[i]->Int32Value()));
+					statement.bind(args[i]->Int32Value());
 				}
 				else if (args[i]->IsUint32())
 				{
-					statement , use(pRecordSetHolder->bindValue(args[i]->Uint32Value()));
+					statement.bind(args[i]->Uint32Value());
 				}
 				else if (args[i]->IsNumber())
 				{
-					statement , use(pRecordSetHolder->bindValue(args[i]->NumberValue()));
+					statement.bind(args[i]->NumberValue());
 				}
-#if POCO_VERSION > 0x01050000
 				else if (args[i]->IsDate())
 				{
 					v8::Local<v8::Date> jsDate = v8::Local<v8::Date>::Cast(args[i]);
 					double millis = jsDate->ValueOf();
 					Poco::Timestamp ts(static_cast<Poco::Timestamp::TimeVal>(millis*1000));
 					Poco::DateTime dateTime(ts);
-					statement , use(pRecordSetHolder->bindValue(dateTime));
+					statement.bind(dateTime);
 				}
 				else if (args[i]->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::DateTime>(args.GetIsolate(), args[i]))
 				{
 					Poco::DateTime* pDateTime = Wrapper::unwrapNativeObject<Poco::DateTime>(args[i]);
 					if (pDateTime)
 					{
-						statement , use(pRecordSetHolder->bindValue(*pDateTime));
+						statement.bind(*pDateTime);
 					}
 					else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::DateTime", i));
 				}
@@ -287,11 +279,10 @@ void SessionWrapper::execute(const v8::FunctionCallbackInfo<v8::Value>& args)
 					Poco::LocalDateTime* pLocalDateTime = Wrapper::unwrapNativeObject<Poco::LocalDateTime>(args[i]);
 					if (pLocalDateTime)
 					{
-						statement , use(pRecordSetHolder->bindValue(pLocalDateTime->utc()));
+						statement.bind(pLocalDateTime->utc());
 					}
 					else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::LocalDateTime", i));
 				}
-#endif
 				else
 				{
 					throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to native type", i));

@@ -1,8 +1,6 @@
 //
 // AngleTest.cpp
 //
-// $Id$
-//
 // Copyright (c) 2011-2015, Günter Obiltschnig.
 //
 // SPDX-License-Identifier:	BSL-1.0

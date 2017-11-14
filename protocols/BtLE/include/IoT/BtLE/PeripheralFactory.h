@@ -1,8 +1,6 @@
 //
 // PeripheralFactory.h
 //
-// $Id$
-//
 // Library: IoT/BtLE
 // Package: BtLE
 // Module:  PeripheralFactory

@@ -1,8 +1,6 @@
 //
 // Serializer.cpp
 //
-// $Id: //poco/1.4/JS/Bridge/src/Serializer.cpp#6 $
-//
 // Library: JS/Bridge
 // Package: Bridging
 // Module:  Serializer

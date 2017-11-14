@@ -1,8 +1,6 @@
 //
 // JSExecutor.h
 //
-// $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/JSExecutor.h#6 $
-//
 // Library: JS/Core
 // Package: Execution
 // Module:  JSExecutor

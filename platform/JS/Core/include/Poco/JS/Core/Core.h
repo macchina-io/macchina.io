@@ -1,8 +1,6 @@
 //
 // Core.h
 //
-// $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/Core.h#4 $
-//
 // Library: JS/Core
 // Package: Core
 // Module:  Core

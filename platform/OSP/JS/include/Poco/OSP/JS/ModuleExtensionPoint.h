@@ -1,8 +1,6 @@
 //
 // ModuleExtensionPoint.h
 //
-// $Id$
-//
 // Library: OSP/JS
 // Package: Module
 // Module:  ModuleExtensionPoint

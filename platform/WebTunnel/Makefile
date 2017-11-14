@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/WebTunnel/Makefile#5 $
-#
 # Makefile for Poco WebTunnel library
 #
 

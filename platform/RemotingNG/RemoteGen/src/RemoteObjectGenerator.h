@@ -1,8 +1,6 @@
 //
 // RemoteObjectGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/RemoteObjectGenerator.h#2 $
-//
 // Definition of the RemoteObjectGenerator class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

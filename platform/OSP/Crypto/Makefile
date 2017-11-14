@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/Crypto/Makefile#2 $
-#
 # Makefile for Crypto Bundle
 #
 

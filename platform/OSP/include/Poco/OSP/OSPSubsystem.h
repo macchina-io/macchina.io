@@ -1,8 +1,6 @@
 //
 // OSPSubsystem.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/OSPSubsystem.h#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  OSPSubsystem

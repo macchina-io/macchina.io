@@ -1,8 +1,6 @@
 //
 // SCRAMClientAuthenticator.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/SCRAMClientAuthenticator.cpp#3 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  SCRAMClientAuthenticator

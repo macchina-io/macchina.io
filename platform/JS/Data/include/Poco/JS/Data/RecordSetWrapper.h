@@ -1,8 +1,6 @@
 //
 // RecordSetWrapper.h
 //
-// $Id: //poco/1.4/JS/Data/include/Poco/JS/Data/RecordSetWrapper.h#6 $
-//
 // Library: JS/Data
 // Package: Wrappers
 // Module:  RecordSetWrapper
@@ -36,46 +34,36 @@ class JSData_API RecordSetHolder
 public:
 	RecordSetHolder();
 		/// Creates the RecordSetHolder.
-		
+
 	~RecordSetHolder();
 		/// Destroys the RecordSetHolder.
 
 	Poco::Data::Statement& statement()
 	{
 		poco_check_ptr (_pStatement);
-		
+
 		return *_pStatement;
 	}
 
 	Poco::Data::RecordSet& recordSet()
 	{
 		poco_check_ptr (_pRecordSet);
-		
+
 		return *_pRecordSet;
 	}
 
 	void assignStatement(Poco::Data::Statement& statement);
 	void updateRecordSet();
-	
-	void reserveBindings(std::size_t size);
-	
-	template <typename T>
-	T& bindValue(const T& value)
-	{
-		_boundValues.push_back(Poco::Any(value));
-		return Poco::RefAnyCast<T>(_boundValues.back());
-	}
-	
+
 	void close();
 	bool isOpen() const
 	{
 		return _pStatement != 0;
 	}
-	
+
 private:
 	Poco::Data::Statement* _pStatement;
 	Poco::Data::RecordSet* _pRecordSet;
-	std::vector<Poco::Any> _boundValues;
 };
 
 
@@ -85,13 +73,13 @@ class JSData_API RecordSetWrapper: public JS::Core::Wrapper
 public:
 	RecordSetWrapper();
 		/// Creates the RecordSetWrapper.
-	
+
 	~RecordSetWrapper();
 		/// Destroys the RecordSetWrapper.
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-		
+
 protected:
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void destruct(const v8::WeakCallbackData<v8::Object, RecordSetHolder>& data);

@@ -1,8 +1,6 @@
 //
 // HTTPResponseWrapper.h
 //
-// $Id: //poco/1.4/JS/Net/include/Poco/JS/Net/HTTPResponseWrapper.h#6 $
-//
 // Library: JS/Net
 // Package: Wrappers
 // Module:  HTTPResponseWrapper

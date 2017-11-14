@@ -1,8 +1,6 @@
 //
 // MQTTClient.h
 //
-// $Id$
-//
 // Library: IoT/MQTT
 // Package: MQTTClient
 // Module:  MQTTClient

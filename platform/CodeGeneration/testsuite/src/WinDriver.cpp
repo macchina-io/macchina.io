@@ -1,8 +1,6 @@
 //
 // WinDriver.cpp
 //
-// $Id: //poco/1.7/CodeGeneration/testsuite/src/WinDriver.cpp#1 $
-//
 // Windows test driver for Poco CodeGeneration.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

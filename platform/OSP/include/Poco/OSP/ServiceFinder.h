@@ -1,8 +1,6 @@
 //
 // ServiceFinder.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/ServiceFinder.h#1 $
-//
 // Library: OSP
 // Package: Service
 // Module:  ServiceFinder

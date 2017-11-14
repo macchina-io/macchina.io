@@ -1,8 +1,6 @@
 //
 // WebTunnelReflector.cpp
 //
-// $Id: //poco/1.4/WebTunnel/samples-internal/WebTunnelReflector/src/WebTunnelReflector.cpp#1 $
-//
 // Copyright (c) 2013, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

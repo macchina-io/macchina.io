@@ -1,8 +1,6 @@
 //
 // Service.cpp
 //
-// $Id: //poco/1.7/OSP/src/Service.cpp#1 $
-//
 // Library: OSP
 // Package: Service
 // Module:  Service

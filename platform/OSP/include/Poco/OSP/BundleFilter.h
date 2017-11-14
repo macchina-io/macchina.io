@@ -1,8 +1,6 @@
 //
 // BundleFilter.h
 //
-// $Id$
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleFilter

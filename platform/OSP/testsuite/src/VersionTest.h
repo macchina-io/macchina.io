@@ -1,8 +1,6 @@
 //
 // VersionTest.h
 //
-// $Id: //poco/1.7/OSP/testsuite/src/VersionTest.h#1 $
-//
 // Definition of the VersionTest class.
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.

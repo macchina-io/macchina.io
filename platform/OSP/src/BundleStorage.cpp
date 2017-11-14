@@ -1,8 +1,6 @@
 //
 // BundleStorage.cpp
 //
-// $Id: //poco/1.7/OSP/src/BundleStorage.cpp#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleStorage

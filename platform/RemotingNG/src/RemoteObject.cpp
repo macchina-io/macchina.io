@@ -1,8 +1,6 @@
 //
 // RemoteObject.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/RemoteObject.cpp#1 $
-//
 // Library: RemotingNG
 // Package: ORB
 // Module:  RemoteObject

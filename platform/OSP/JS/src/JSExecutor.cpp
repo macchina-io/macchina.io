@@ -1,8 +1,6 @@
 //
 // JSExecutor.cpp
 //
-// $Id: //poco/1.4/OSP/JS/src/JSExecutor.cpp#12 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //

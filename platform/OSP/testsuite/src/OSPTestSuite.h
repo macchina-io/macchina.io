@@ -1,8 +1,6 @@
 //
 // OSPTestSuite.h
 //
-// $Id: //poco/1.7/OSP/testsuite/src/OSPTestSuite.h#1 $
-//
 // Definition of the OSPTestSuite class.
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.

@@ -1,8 +1,6 @@
 //
 // SerialPort.cpp
 //
-// $Id$
-//
 // Library: Serial
 // Package: Serial
 // Module:  SerialPort

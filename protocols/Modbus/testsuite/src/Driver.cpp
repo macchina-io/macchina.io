@@ -1,8 +1,6 @@
 //
 // Driver.cpp
 //
-// $Id$
-//
 // Console-based test driver for Modbus.
 //
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.

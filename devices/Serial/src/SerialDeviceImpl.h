@@ -1,8 +1,6 @@
 //
 // SerialDeviceImpl.h
 //
-// $Id$
-//
 // Library: IoT/Serial
 // Package: Serial
 // Module:  SerialDevice

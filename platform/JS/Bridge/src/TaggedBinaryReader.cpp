@@ -1,8 +1,6 @@
 //
 // TaggedBinaryReader.cpp
 //
-// $Id$
-//
 // Library: JS/Bridge
 // Package: Bridging
 // Module:  TaggedBinaryReader

@@ -1,8 +1,6 @@
 //
 // URIWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/URIWrapper.cpp#5 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  URIWrapper

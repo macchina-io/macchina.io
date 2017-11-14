@@ -1,8 +1,6 @@
 //
 // LatLon.h
 //
-// $Id$
-//
 // Library: Geo
 // Package: Geo
 // Module:  LatLon

@@ -1,8 +1,6 @@
 //
 // MobileConnectionService.h
 //
-// $Id$
-//
 // Library: IoT/MobileConnection
 // Package: MobileConnection
 // Module:  MobileConnectionService

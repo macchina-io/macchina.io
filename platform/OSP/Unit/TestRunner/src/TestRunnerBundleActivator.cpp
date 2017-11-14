@@ -1,8 +1,6 @@
 //
 // Extensible.cpp
 //
-// $Id: //projects/SecurePassage/FireMon/poco/OSP/samples/Extensible/src/Extensible.cpp#1 $
-//
 // Copyright (c) 2011, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

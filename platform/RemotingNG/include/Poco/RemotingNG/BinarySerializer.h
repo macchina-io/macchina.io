@@ -1,8 +1,6 @@
 //
 // BinarySerializer.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/BinarySerializer.h#4 $
-//
 // Library: RemotingNG
 // Package: Serialization
 // Module:  BinarySerializer

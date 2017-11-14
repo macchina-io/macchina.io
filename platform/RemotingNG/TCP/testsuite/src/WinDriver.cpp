@@ -1,8 +1,6 @@
 //
 // WinDriver.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/WinDriver.cpp#1 $
-//
 // Windows test driver for Poco RemotingNG SOAP.
 //
 // Copyright (c) 2006-2012, Applied Informatics Software Engineering GmbH.

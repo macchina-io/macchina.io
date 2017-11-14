@@ -1,8 +1,6 @@
 //
 // Gyroscope.cpp
 //
-// $Id$
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  Gyroscope

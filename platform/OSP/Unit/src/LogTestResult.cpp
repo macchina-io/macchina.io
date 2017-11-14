@@ -1,8 +1,6 @@
 //
 // LogTestResult.cpp
 //
-// $Id: //projects/SecurePassage/FireMon/poco/OSP/Unit/src/LogTestResult.cpp#1 $
-//
 // Library: OSP/Unit
 // Package: Unit
 // Module:  LogTestResult

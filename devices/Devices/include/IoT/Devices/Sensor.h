@@ -1,8 +1,6 @@
 //
 // Sensor.h
 //
-// $Id: //iot/Main/Devices/include/IoT/Devices/Sensor.h#2 $
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  Sensor

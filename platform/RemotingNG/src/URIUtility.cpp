@@ -1,8 +1,6 @@
 //
 // URIUtility.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/URIUtility.cpp#1 $
-//
 // Library: RemotingNG
 // Package: RemotingNG
 // Module:  URIUtility

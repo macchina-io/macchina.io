@@ -1,8 +1,6 @@
 //
 // GeneratorEngine.cpp
 //
-// $Id: //poco/1.7/CodeGeneration/src/GeneratorEngine.cpp#1 $
-//
 // Library: CodeGeneration
 // Package: CodeGeneration
 // Module:  GeneratorEngine

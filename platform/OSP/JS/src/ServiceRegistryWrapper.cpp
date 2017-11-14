@@ -1,8 +1,6 @@
 //
 // ServiceRegistryWrapper.cpp
 //
-// $Id: //poco/1.4/OSP/JS/src/ServiceRegistryWrapper.cpp#4 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //

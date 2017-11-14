@@ -1,8 +1,6 @@
 //
 // BooleanSensor.h
 //
-// $Id$
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  BooleanSensor

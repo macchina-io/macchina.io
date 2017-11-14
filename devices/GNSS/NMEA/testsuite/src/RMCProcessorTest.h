@@ -1,8 +1,6 @@
 //
 // RMCProcessorTest.h
 //
-// $Id$
-//
 // Definition of the RMCProcessorTest class.
 //
 // Copyright (c) 2010-2015, Applied Informatics Software Engineering GmbH.

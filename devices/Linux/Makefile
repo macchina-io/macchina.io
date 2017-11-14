@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Makefile for macchina.io Linux Devices Bundle
 #
 

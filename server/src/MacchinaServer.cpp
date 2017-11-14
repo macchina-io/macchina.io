@@ -1,8 +1,6 @@
 //
 // MacchinaServer.cpp
 //
-// $Id$
-//
 // The bundle container application for macchina.io
 //
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.

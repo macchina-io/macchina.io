@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Global Makefile for macchina.io
 #
 

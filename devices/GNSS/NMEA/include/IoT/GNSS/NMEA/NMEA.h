@@ -1,8 +1,6 @@
 //
 // NMEA.h
 //
-// $Id$
-//
 // Library: IoT/GNSS/NMEA
 // Package: NMEA
 // Module:  NMEA

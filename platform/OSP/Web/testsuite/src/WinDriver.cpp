@@ -1,8 +1,6 @@
 //
 // WinDriver.cpp
 //
-// $Id: //poco/1.7/OSP/Web/testsuite/src/WinDriver.cpp#1 $
-//
 // Windows test driver for Poco OSP Web.
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.

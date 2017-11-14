@@ -1,8 +1,6 @@
 //
 // MobileConnectionService.cpp
 //
-// $Id$
-//
 // Library: IoT/MobileConnection
 // Package: MobileConnection
 // Module:  MobileConnectionService

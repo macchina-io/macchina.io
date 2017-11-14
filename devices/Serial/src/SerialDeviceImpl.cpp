@@ -1,8 +1,6 @@
 //
 // SerialDeviceImpl.cpp
 //
-// $Id$
-//
 // Library: IoT/Serial
 // Package: Serial
 // Module:  SerialDevice

@@ -1,8 +1,6 @@
 //
 // WebServerService.h
 //
-// $Id: //poco/1.7/OSP/Web/include/Poco/OSP/Web/WebServerService.h#1 $
-//
 // Library: OSP/Web
 // Package: Web
 // Module:  WebServerService

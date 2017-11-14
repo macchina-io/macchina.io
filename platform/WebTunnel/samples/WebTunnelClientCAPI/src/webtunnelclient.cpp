@@ -1,8 +1,6 @@
 //
 // webtunnelclient.cpp
 //
-// $Id: //poco/1.4/WebTunnel/samples/WebTunnelClientCAPI/src/webtunnelclient.cpp#3 $
-//
 // Copyright (c) 2013, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

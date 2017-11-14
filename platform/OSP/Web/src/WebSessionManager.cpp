@@ -1,8 +1,6 @@
 //
 // WebSessionManager.cpp
 //
-// $Id: //poco/1.7/OSP/Web/src/WebSessionManager.cpp#1 $
-//
 // Library: OSP/Web
 // Package: Web
 // Module:  WebSessionManager

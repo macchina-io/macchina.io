@@ -1,8 +1,6 @@
 //
 // UDPEndpointImpl.h
 //
-// $Id$
-//
 // Library: IoT/UDP
 // Package: UDPEndpoint
 // Module:  UDPEndpoint

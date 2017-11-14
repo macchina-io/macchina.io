@@ -1,8 +1,6 @@
 //
 // BufferWrapper.h
 //
-// $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/BufferWrapper.h#8 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  BufferWrapper

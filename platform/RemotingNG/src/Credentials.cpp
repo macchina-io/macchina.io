@@ -1,8 +1,6 @@
 //
 // Credentials.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/Credentials.cpp#4 $
-//
 // Library: RemotingNG
 // Package: Transport
 // Module:  Credentials

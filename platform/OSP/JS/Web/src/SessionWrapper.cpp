@@ -1,8 +1,6 @@
 //
 // SessionWrapper.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //

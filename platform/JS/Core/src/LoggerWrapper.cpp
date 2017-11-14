@@ -1,8 +1,6 @@
 //
 // LoggerWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/LoggerWrapper.cpp#5 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  LoggerWrapper

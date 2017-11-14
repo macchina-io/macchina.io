@@ -1,8 +1,6 @@
 //
 // PooledIsolate.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/PooledIsolate.cpp#5 $
-//
 // Library: JS/Core
 // Package: Execution
 // Module:  IsolatePool

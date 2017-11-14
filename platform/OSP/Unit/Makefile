@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //projects/SecurePassage/FireMon/poco/OSP/Unit/Makefile#1 $
-#
 # Makefile for Poco OSP Unit Library
 #
 
