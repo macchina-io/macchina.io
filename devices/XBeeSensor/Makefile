@@ -6,16 +6,12 @@
 
 include $(POCO_BASE)/build/rules/global
 
-ifneq (,$(findstring debug,$(DEFAULT_TARGET)))
-	BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundled
-else
-	BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-endif
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 INCLUDE += -I$(PROJECT_BASE)/protocols/XBee/include
 
-objects = XBeeSensor BundleActivator 
+objects = XBeeSensor BundleActivator
 
 target         = io.macchina.xbee.sensor
 target_version = 1
