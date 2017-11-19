@@ -46,6 +46,9 @@
          </div>
         </nav>
 
+		<div class="groupbox" ng-if="!haveSensors">
+          No sensors defined.
+        </div>
         <div class="groupbox" ng-repeat="sensor in sensors">
           <div style="float: left; width: 210px; padding-right: 30px;">
             <p style="text-align: right; font-size: 20px;" ng-style="{'color': sensor.color}">
@@ -61,9 +64,6 @@
 		  <div ng-attr-id="{{'chart_' + sensor.index}}" style="height: 240px; margin-left: 240px;">
 			  <canvas ng-attr-id="{{'chartCanvas_' + sensor.index}}" style="height: 240px; display: block; width: 1033px;" width="1033" height="240"></canvas>
 		  </div>
-        </div>
-		<div id="noSensors" ng-if="!haveSensors">
-          No sensors defined.
         </div>
       </div>
     </div>

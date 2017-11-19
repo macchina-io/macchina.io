@@ -42,7 +42,8 @@
          </div>
         </nav>
         <div ng-controller="DevicesCtrl" class="groupbox">
-          <table class="list" style="width: 100%">
+          <div ng-if="devices.length == 0">No sensors or devices found.</div>
+          <table class="list" style="width: 100%" ng-if="devices.length > 0">
             <thead>
               <tr>
                 <th ng-click="setOrderBy('name')" class="list-sortable">Name</th>
@@ -60,7 +61,7 @@
                 <td>{{device.physicalQuantity}}</td>
                 <td>{{device.displayValue}}</td>
               </tr>
-            </tbody>  
+            </tbody>
           </table>
         </div>
       </div>
