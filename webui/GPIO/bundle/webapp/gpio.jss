@@ -32,7 +32,7 @@ for (var i = 0; i < deviceRefs.length; i++)
 			deviceInfo.state = false;
 		}
 		if (device.hasProperty("displayValue")) {
-			deviceInfo.displayValue = device.getPropertyString("displayValue") + " " + deviceInfo.physicalUnit;
+			deviceInfo.displayValue = device.getPropertyString("displayValue");
 		} else if (device.hasProperty("displayState")) {
 			deviceInfo.displayValue = device.getPropertyString("displayState");
 		} else {
