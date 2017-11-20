@@ -71,6 +71,7 @@ public:
 
 		Properties props;
 		props.set("io.macchina.device", LinuxLED::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", "io.macchina.led");
 
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pLEDRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
@@ -120,6 +121,7 @@ public:
 
 		Properties props;
 		props.set("io.macchina.device", LinuxGPIO::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", "io.macchina.gpio");
 
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pGPIORemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
@@ -159,11 +161,11 @@ public:
 			{
 				std::map<std::string, std::string> gpioMap;
 				Poco::Util::AbstractConfiguration::Keys keys;
-				_pPrefs->configuration()->keys("gpio.pins", keys);
+				_pPrefs->configuration()->keys("linux.gpio.pins", keys);
 
 				for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 				{
-					std::string baseKey = "gpio.pins.";
+					std::string baseKey = "linux.gpio.pins.";
 					baseKey += *it;
 
 					std::string device = _pPrefs->configuration()->getString(baseKey + ".device", "");

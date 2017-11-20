@@ -31,9 +31,9 @@ class IoTDevices_API IO: public Device
 	/// The interface for general purpose input/output (GPIO)
 	/// ports.
 	///
-	/// This class represents a single GPIO pin. 
-	/// Mapping to physical pins is configured when setting up 
-	/// the specific IO implementation class, typically using a 
+	/// This class represents a single GPIO pin.
+	/// Mapping to physical pins is configured when setting up
+	/// the specific IO implementation class, typically using a
 	/// configuration file.
 	///
 	/// Implementations supporting dynamically changing pin directions
@@ -51,10 +51,10 @@ public:
 		/// means.
 		///
 		/// Only a pin configured as input will trigger the event.
-		
+
 	IO();
 		/// Creates the IO.
-		
+
 	~IO();
 		/// Destroys the IO.
 
@@ -63,6 +63,9 @@ public:
 
 	virtual void set(bool state) = 0;
 		/// Sets the state of an output pin to the given state.
+
+	virtual bool toggle() = 0;
+		/// Toggles the state of an output pin and returns the new state.
 };
 
 
