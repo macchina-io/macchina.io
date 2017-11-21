@@ -64,7 +64,7 @@ public:
 		Poco::SharedPtr<SensorTagSensor> pSensor;
 		if (pPeripheral->modelNumber() != "CC2650 SensorTag")
 		{
-			if (params.physicalQuantity == "ambientTemperature")
+			if (params.physicalQuantity == "temperature")
 				pSensor = new SensorTag1IRAmbientTemperatureSensor(pPeripheral, params, _pTimer);
 			else if (params.physicalQuantity == "objectTemperature")
 				pSensor = new SensorTag1IRObjectTemperatureSensor(pPeripheral, params, _pTimer);
@@ -77,7 +77,7 @@ public:
 		}
 		else
 		{
-			if (params.physicalQuantity == "ambientTemperature")
+			if (params.physicalQuantity == "temperature")
 				pSensor = new SensorTag2IRAmbientTemperatureSensor(pPeripheral, params, _pTimer);
 			else if (params.physicalQuantity == "objectTemperature")
 				pSensor = new SensorTag2IRObjectTemperatureSensor(pPeripheral, params, _pTimer);
@@ -163,9 +163,9 @@ public:
 		params.serviceUUID = "f000aa00-0451-4000-b000-000000000000";
 		params.controlUUID = "f000aa02-0451-4000-b000-000000000000";
 		params.dataUUID    = "f000aa01-0451-4000-b000-000000000000";
-		params.physicalQuantity = "ambientTemperature";
+		params.physicalQuantity = "temperature";
 		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS;
-		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".ambientTemperature.pollInterval", 10000);
+		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".temperature.pollInterval", 10000);
 
 		try
 		{
