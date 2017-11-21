@@ -19,7 +19,7 @@ namespace XDK {
 
 const std::string HighRateSensor::NAME("XDK Sensor");
 const std::string HighRateSensor::TYPE("io.macchina.sensor");
-const std::string HighRateSensor::SYMBOLIC_NAME("io.macchina.xdk.high-rate-sensor");
+const std::string HighRateSensor::SYMBOLIC_NAME("io.macchina.xdk");
 
 
 HighRateSensor::HighRateSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params):

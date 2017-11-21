@@ -55,7 +55,7 @@ private:
 
 const std::string XDKSensor::NAME("XDK Sensor");
 const std::string XDKSensor::TYPE("io.macchina.sensor");
-const std::string XDKSensor::SYMBOLIC_NAME("io.macchina.xdk.sensor");
+const std::string XDKSensor::SYMBOLIC_NAME("io.macchina.xdk");
 
 
 XDKSensor::XDKSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
