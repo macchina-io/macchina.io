@@ -15,16 +15,15 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
 const std::string HighRateGyroscope::NAME("XDK Gyroscope");
 const std::string HighRateGyroscope::TYPE("io.macchina.gyroscope");
-const std::string HighRateGyroscope::SYMBOLIC_NAME("io.macchina.btle.xdk.gyroscope");
+const std::string HighRateGyroscope::SYMBOLIC_NAME("io.macchina.xdk.gyroscope");
 
 
-HighRateGyroscope::HighRateGyroscope(Peripheral::Ptr pPeripheral):
+HighRateGyroscope::HighRateGyroscope(BtLE::Peripheral::Ptr pPeripheral):
 	_pPeripheral(pPeripheral),
 	_enabled(false),
 	_ready(false),
@@ -37,14 +36,14 @@ HighRateGyroscope::HighRateGyroscope(Peripheral::Ptr pPeripheral):
 	addProperty("symbolicName", &HighRateGyroscope::getSymbolicName);
 	addProperty("name", &HighRateGyroscope::getName);
 	addProperty("type", &HighRateGyroscope::getType);
-	
+
 	_pPeripheral->connected += Poco::delegate(this, &HighRateGyroscope::onConnected);
 	_pPeripheral->disconnected += Poco::delegate(this, &HighRateGyroscope::onDisconnected);
 
 	init();
 }
 
-	
+
 HighRateGyroscope::~HighRateGyroscope()
 {
 	_pPeripheral->connected -= Poco::delegate(this, &HighRateGyroscope::onConnected);
@@ -163,10 +162,9 @@ void HighRateGyroscope::onConnected()
 void HighRateGyroscope::onDisconnected()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
-	
+
 	_ready = false;
 }
 
 
-} } } // namespace IoT::BtLE::XDK
-
+} } // namespace IoT::XDK

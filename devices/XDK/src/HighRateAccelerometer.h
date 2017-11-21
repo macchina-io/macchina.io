@@ -19,7 +19,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
@@ -28,12 +27,12 @@ class HighRateAccelerometer: public IoT::Devices::DeviceImpl<IoT::Devices::Accel
 public:
 	typedef Poco::SharedPtr<HighRateAccelerometer> Ptr;
 
-	HighRateAccelerometer(Peripheral::Ptr pPeripheral);
+	HighRateAccelerometer(BtLE::Peripheral::Ptr pPeripheral);
 		/// Creates a HighRateAccelerometer.
 
 	~HighRateAccelerometer();
 		/// Destroys the HighRateAccelerometer.
-	
+
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
@@ -62,7 +61,7 @@ protected:
 	void onDisconnected();
 
 protected:
-	mutable Peripheral::Ptr _pPeripheral;
+	mutable BtLE::Peripheral::Ptr _pPeripheral;
 	bool _enabled;
 	bool _ready;
 	IoT::Devices::Acceleration _acceleration;
@@ -70,7 +69,7 @@ protected:
 };
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK
 
 
 #endif // IoT_XDK_HighRateAccelerometer_INCLUDED

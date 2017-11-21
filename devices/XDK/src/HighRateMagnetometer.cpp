@@ -15,16 +15,15 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
 const std::string HighRateMagnetometer::NAME("XDK Magnetometer");
 const std::string HighRateMagnetometer::TYPE("io.macchina.magnetometer");
-const std::string HighRateMagnetometer::SYMBOLIC_NAME("io.macchina.btle.xdk.magnetometer");
+const std::string HighRateMagnetometer::SYMBOLIC_NAME("io.macchina.xdk.magnetometer");
 
 
-HighRateMagnetometer::HighRateMagnetometer(Peripheral::Ptr pPeripheral):
+HighRateMagnetometer::HighRateMagnetometer(BtLE::Peripheral::Ptr pPeripheral):
 	_pPeripheral(pPeripheral),
 	_enabled(false),
 	_ready(false),
@@ -37,14 +36,14 @@ HighRateMagnetometer::HighRateMagnetometer(Peripheral::Ptr pPeripheral):
 	addProperty("symbolicName", &HighRateMagnetometer::getSymbolicName);
 	addProperty("name", &HighRateMagnetometer::getName);
 	addProperty("type", &HighRateMagnetometer::getType);
-	
+
 	_pPeripheral->connected += Poco::delegate(this, &HighRateMagnetometer::onConnected);
 	_pPeripheral->disconnected += Poco::delegate(this, &HighRateMagnetometer::onDisconnected);
 
 	init();
 }
 
-	
+
 HighRateMagnetometer::~HighRateMagnetometer()
 {
 	_pPeripheral->connected -= Poco::delegate(this, &HighRateMagnetometer::onConnected);
@@ -167,5 +166,4 @@ void HighRateMagnetometer::onDisconnected()
 }
 
 
-} } } // namespace IoT::BtLE::XDK
-
+} } // namespace IoT::XDK

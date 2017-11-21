@@ -22,7 +22,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
@@ -36,13 +35,13 @@ public:
 		std::string physicalQuantity;
 		std::string physicalUnit;
 	};
-	
-	HighRateSensor(Peripheral::Ptr pPeripheral, const Params& params);
+
+	HighRateSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params);
 		/// Creates a HighRateSensor.
 
 	~HighRateSensor();
 		/// Destroys the HighRateSensor.
-	
+
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
@@ -77,7 +76,7 @@ protected:
 
 protected:
 	Params _params;
-	mutable Peripheral::Ptr _pPeripheral;
+	mutable BtLE::Peripheral::Ptr _pPeripheral;
 	bool _ready;
 	bool _enabled;
 	double _value;
@@ -89,7 +88,7 @@ protected:
 };
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK
 
 
 #endif // IoT_XDK_HighRateSensor_INCLUDED
