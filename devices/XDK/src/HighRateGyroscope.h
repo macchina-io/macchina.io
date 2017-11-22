@@ -19,7 +19,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
@@ -28,12 +27,12 @@ class HighRateGyroscope: public IoT::Devices::DeviceImpl<IoT::Devices::Gyroscope
 public:
 	typedef Poco::SharedPtr<HighRateGyroscope> Ptr;
 
-	HighRateGyroscope(Peripheral::Ptr pPeripheral);
+	HighRateGyroscope(BtLE::Peripheral::Ptr pPeripheral);
 		/// Creates a HighRateGyroscope.
 
 	~HighRateGyroscope();
 		/// Destroys the HighRateGyroscope.
-	
+
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
@@ -62,7 +61,7 @@ protected:
 	void onDisconnected();
 
 protected:
-	mutable Peripheral::Ptr _pPeripheral;
+	mutable BtLE::Peripheral::Ptr _pPeripheral;
 	bool _enabled;
 	bool _ready;
 	IoT::Devices::Rotation _rotation;
@@ -70,8 +69,7 @@ protected:
 };
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK
 
 
 #endif // IoT_XDK_HighRateGyroscope_INCLUDED
-

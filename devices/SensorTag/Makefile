@@ -13,7 +13,7 @@ INCLUDE += -I$(PROJECT_BASE)/protocols/BtLE/include
 
 objects = SensorTag SensorTagAccelerometer BundleActivator
 
-target         = io.macchina.btle.sensortag
+target         = io.macchina.sensortag
 target_version = 1
 target_libs    = IoTBtLE IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoFoundation
 

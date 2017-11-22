@@ -19,7 +19,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
@@ -28,12 +27,12 @@ class HighRateButton: public IoT::Devices::DeviceImpl<IoT::Devices::Trigger, Hig
 public:
 	typedef Poco::SharedPtr<HighRateButton> Ptr;
 
-	HighRateButton(Peripheral::Ptr pPeripheral);
+	HighRateButton(BtLE::Peripheral::Ptr pPeripheral);
 		/// Creates a HighRateButton.
 
 	~HighRateButton();
 		/// Destroys the HighRateButton.
-	
+
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
@@ -62,7 +61,7 @@ protected:
 	void onDisconnected();
 
 protected:
-	mutable Peripheral::Ptr _pPeripheral;
+	mutable BtLE::Peripheral::Ptr _pPeripheral;
 	bool _enabled;
 	bool _ready;
 	bool _state;
@@ -70,8 +69,7 @@ protected:
 };
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK
 
 
 #endif // IoT_XDK_HighRateButton_INCLUDED
-

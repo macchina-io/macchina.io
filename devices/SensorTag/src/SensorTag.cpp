@@ -18,7 +18,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace SensorTag {
 
 
@@ -30,7 +29,7 @@ public:
 		_logger(Poco::Logger::get("IoT.SensorTag"))
 	{
 	}
-	
+
 	void run()
 	{
 		try
@@ -45,7 +44,7 @@ public:
 			_logger.log(exc);
 		}
 	}
-	
+
 private:
 	SensorTagSensor& _sensor;
 	Poco::Logger& _logger;
@@ -54,10 +53,10 @@ private:
 
 const std::string SensorTagSensor::NAME("SensorTag Sensor");
 const std::string SensorTagSensor::TYPE("io.macchina.sensor");
-const std::string SensorTagSensor::SYMBOLIC_NAME("io.macchina.btle.sensortag");
+const std::string SensorTagSensor::SYMBOLIC_NAME("io.macchina.sensortag");
 
 
-SensorTagSensor::SensorTagSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+SensorTagSensor::SensorTagSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	_params(params),
 	_pPeripheral(pPeripheral),
 	_pTimer(pTimer),
@@ -80,7 +79,7 @@ SensorTagSensor::SensorTagSensor(Peripheral::Ptr pPeripheral, const Params& para
 	addProperty("type", &SensorTagSensor::getType);
 	addProperty("physicalQuantity", &SensorTagSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &SensorTagSensor::getPhysicalUnit);
-	
+
 	_pEventPolicy = new IoT::Devices::NoModerationPolicy<double>(valueChanged);
 
 	_pPeripheral->services();
@@ -91,7 +90,7 @@ SensorTagSensor::SensorTagSensor(Peripheral::Ptr pPeripheral, const Params& para
 	_pPeripheral->disconnected += Poco::delegate(this, &SensorTagSensor::onDisconnected);
 }
 
-	
+
 SensorTagSensor::~SensorTagSensor()
 {
 	_pPeripheral->connected -= Poco::delegate(this, &SensorTagSensor::onConnected);
@@ -125,7 +124,7 @@ bool SensorTagSensor::ready() const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	return _ready && _pPeripheral->isConnected();	
+	return _ready && _pPeripheral->isConnected();
 }
 
 
@@ -297,9 +296,9 @@ void SensorTagSensor::onDisconnected()
 //
 // SensorTag1IRAmbientTemperatureSensor
 //
- 
 
-SensorTag1IRAmbientTemperatureSensor::SensorTag1IRAmbientTemperatureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+
+SensorTag1IRAmbientTemperatureSensor::SensorTag1IRAmbientTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -330,9 +329,9 @@ void SensorTag1IRAmbientTemperatureSensor::poll()
 //
 // SensorTag1IRObjectTemperatureSensor
 //
- 
 
-SensorTag1IRObjectTemperatureSensor::SensorTag1IRObjectTemperatureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+
+SensorTag1IRObjectTemperatureSensor::SensorTag1IRObjectTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -378,9 +377,9 @@ void SensorTag1IRObjectTemperatureSensor::poll()
 //
 // SensorTag2IRAmbientTemperatureSensor
 //
- 
 
-SensorTag2IRAmbientTemperatureSensor::SensorTag2IRAmbientTemperatureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+
+SensorTag2IRAmbientTemperatureSensor::SensorTag2IRAmbientTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -412,9 +411,9 @@ void SensorTag2IRAmbientTemperatureSensor::poll()
 //
 // SensorTag2IRObjectTemperatureSensor
 //
- 
 
-SensorTag2IRObjectTemperatureSensor::SensorTag2IRObjectTemperatureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+
+SensorTag2IRObjectTemperatureSensor::SensorTag2IRObjectTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -448,7 +447,7 @@ void SensorTag2IRObjectTemperatureSensor::poll()
 //
 
 
-SensorTagHumiditySensor::SensorTagHumiditySensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+SensorTagHumiditySensor::SensorTagHumiditySensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -478,7 +477,7 @@ void SensorTagHumiditySensor::poll()
 //
 
 
-SensorTag2LightSensor::SensorTag2LightSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+SensorTag2LightSensor::SensorTag2LightSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -495,7 +494,7 @@ void SensorTag2LightSensor::poll()
 	Poco::UInt16 raw = _pPeripheral->readUInt16(_dataChar.valueHandle);
 	Poco::UInt16 m = raw & 0x0FFF;
 	Poco::UInt16 e = (raw & 0xF000) >> 12;
- 
+
 	update(m*(0.01*std::pow(2.0, e)));
 }
 
@@ -505,7 +504,7 @@ void SensorTag2LightSensor::poll()
 //
 
 
-SensorTag1AirPressureSensor::SensorTag1AirPressureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+SensorTag1AirPressureSensor::SensorTag1AirPressureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -530,10 +529,10 @@ void SensorTag1AirPressureSensor::poll()
 	std::string bytes = _pPeripheral->readString(_dataChar.valueHandle);
 	if (bytes.size() == 6)
 	{
-		Poco::UInt32 raw = static_cast<unsigned char>(bytes[3]) 
-						 + (static_cast<unsigned char>(bytes[4]) << 8) 
+		Poco::UInt32 raw = static_cast<unsigned char>(bytes[3])
+						 + (static_cast<unsigned char>(bytes[4]) << 8)
 						 + (static_cast<unsigned char>(bytes[5]) << 16);
- 
+
 		update(raw/100.0);
 	}
 }
@@ -544,7 +543,7 @@ void SensorTag1AirPressureSensor::poll()
 //
 
 
-SensorTag2AirPressureSensor::SensorTag2AirPressureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+SensorTag2AirPressureSensor::SensorTag2AirPressureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -561,13 +560,13 @@ void SensorTag2AirPressureSensor::poll()
 	std::string bytes = _pPeripheral->readString(_dataChar.valueHandle);
 	if (bytes.size() == 6)
 	{
-		Poco::UInt32 raw = static_cast<unsigned char>(bytes[3]) 
-						 + (static_cast<unsigned char>(bytes[4]) << 8) 
+		Poco::UInt32 raw = static_cast<unsigned char>(bytes[3])
+						 + (static_cast<unsigned char>(bytes[4]) << 8)
 						 + (static_cast<unsigned char>(bytes[5]) << 16);
- 
+
 		update(raw/100.0);
 	}
 }
 
 
-} } } // namespace IoT::BtLE::SensorTag
+} } // namespace IoT::SensorTag
