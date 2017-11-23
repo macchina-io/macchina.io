@@ -133,7 +133,7 @@ public:
 				field.x = x/1000.0; // millitesla
 				field.y = y/1000.0;
 				field.z = z/1000.0;
-				field.r = r/1000.0;
+				field.r = r;
 				_pMagnetometer->update(field);
 			}
 		}

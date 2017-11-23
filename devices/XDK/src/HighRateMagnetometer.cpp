@@ -100,7 +100,7 @@ Poco::Any HighRateMagnetometer::getDisplayValue(const std::string&) const
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	if (_ready && _enabled)
-		return Poco::format("x=%.2f y=%.2f z=%.2f, r=%.2f", _fieldStrength.x, _fieldStrength.y, _fieldStrength.z, _fieldStrength.r);
+		return Poco::format("x=%.4f y=%.4f z=%.4f", _fieldStrength.x, _fieldStrength.y, _fieldStrength.z);
 	else
 		return std::string("n/a");
 }
