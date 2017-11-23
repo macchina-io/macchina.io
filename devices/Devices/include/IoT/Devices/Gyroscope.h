@@ -38,9 +38,9 @@ struct Rotation
 	{
 	}
 
-	double x; 
-	double y;
-	double z;
+	double x; /// x-axis rotation in degrees per second
+	double y; /// y-axis rotation in degrees per second
+	double z; /// z-axis rotation in degrees per second
 };
 
 
@@ -55,13 +55,13 @@ public:
 		/// Actual behavior of this event (e.g., minimum interval
 		/// between fires) are implementation specific
 		/// and can be configured via properties.
-		
+
 	Gyroscope();
 		/// Creates the Gyroscope.
-		
+
 	~Gyroscope();
 		/// Destroys the Gyroscope.
-		
+
 	virtual Rotation rotation() const = 0;
 		/// Returns the most recently measured rotation values.
 };
