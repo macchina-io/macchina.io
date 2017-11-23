@@ -99,7 +99,7 @@ public:
 			{
 				Poco::UInt32 light;
 				reader >> light;
-				_pAmbientLightSensor->update(light/10000.0);
+				_pAmbientLightSensor->update(light/1000.0);
 
 				Poco::UInt8 noise;
 				reader >> noise;
