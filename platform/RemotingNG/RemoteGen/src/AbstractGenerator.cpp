@@ -42,8 +42,8 @@ Poco::BasicEvent<const std::string> AbstractGenerator::EError;
 const std::set<std::string> AbstractGenerator::BUILTIN_TYPES(initBuiltinTypes());
 
 
-AbstractGenerator::AbstractGenerator(Poco::CodeGeneration::CppGenerator& cppGen): 
-	Poco::CodeGeneration::CodeGenerator(cppGen.nameSpace(), cppGen.libraryName(), cppGen.usePocoIncludeStyle(), cppGen.copyright()), 
+AbstractGenerator::AbstractGenerator(Poco::CodeGeneration::CppGenerator& cppGen):
+	Poco::CodeGeneration::CodeGenerator(cppGen.nameSpace(), cppGen.libraryName(), cppGen.usePocoIncludeStyle(), cppGen.copyright()),
 	_cppGen(cppGen),
 	_pStruct(0),
 	_pStructIn(0),
@@ -114,7 +114,7 @@ Poco::CppParser::Function* AbstractGenerator::methodClone(const Poco::CppParser:
 	// note that a decl contains only the string up to method, no params!
 	std::string decl;
 	std::string resRetType = Utility::resolveType(_pStructIn, pFuncOld->getReturnParameter());
-	
+
 	if (resRetType != pFuncOld->getReturnParameter())
 	{
 		const std::string& oldRet = pFuncOld->getReturnParameter();
@@ -138,7 +138,7 @@ Poco::CppParser::Function* AbstractGenerator::methodClone(const Poco::CppParser:
 	{
 		decl.append(pFuncOld->declaration());
 	}
-	
+
 	Poco::CppParser::Function* pFunc = new Poco::CppParser::Function(decl, _pStruct);
 	pFunc->setAccess (pFuncOld->getAccess());
 	addDocumentation(pFuncOld, pFunc);
@@ -155,7 +155,7 @@ Poco::CppParser::Function* AbstractGenerator::methodClone(const Poco::CppParser:
 		if ((*it)->hasDefaultValue())
 		{
 			decl.append(" = ");
-			std::string type = Poco::CodeGeneration::Utility::resolveType(_pStructIn, (*it)->declType());			
+			std::string type = Poco::CodeGeneration::Utility::resolveType(_pStructIn, (*it)->declType());
 			decl.append(type);
 			decl.append("(");
 			Poco::CppParser::Symbol* pSym = Poco::CppParser::NameSpace::root()->lookup(type);
@@ -181,7 +181,7 @@ Poco::CppParser::Function* AbstractGenerator::methodClone(const Poco::CppParser:
 			throw Poco::InvalidArgumentException("Pointer parameters are not supported: " + pFuncOld->nameSpace()->fullName() + "::" + pFuncOld->name() + "::" + (*it)->name());
 
 		Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter(decl, pFunc);
-		
+
 		pFunc->addParameter(pParam);
 	}
 
@@ -256,7 +256,7 @@ void AbstractGenerator::handleParentFunctionsImpl(const Poco::CppParser::Struct*
 
 	Poco::CodeGeneration::CodeGenerator::Properties classProperties;
 	Poco::CodeGeneration::GeneratorEngine::parseProperties(pStruct, classProperties);
-	
+
 	if (!root)
 	{
 		Poco::CppParser::Struct::Functions functions;
@@ -264,10 +264,10 @@ void AbstractGenerator::handleParentFunctionsImpl(const Poco::CppParser::Struct*
 		pStruct->methods(Poco::CppParser::Symbol::ACC_PUBLIC, functions);
 		Poco::CppParser::Struct::Functions::const_iterator it = functions.begin();
 		Poco::CppParser::Struct::Functions::const_iterator itEnd = functions.end();
-		
+
 		for (; it != itEnd; ++it)
 		{
-			CodeGenerator::Properties methodProperties(classProperties); 
+			CodeGenerator::Properties methodProperties(classProperties);
 			Poco::CodeGeneration::GeneratorEngine::parseProperties(*it, methodProperties);
 			std::string signature = (*it)->signature();
 			if (methodSigs.find(signature) == methodSigs.end())
@@ -306,7 +306,7 @@ void AbstractGenerator::typeIdCodeGen(const Poco::CppParser::Function* pFunc, co
 {
 	poco_assert (addParam);
 	AbstractGenerator* pGen = reinterpret_cast<AbstractGenerator*>(addParam);
-	
+
 	gen.writeMethodImplementation("return " + InterfaceGenerator::generateClassName(pGen->_pStructIn) + "::remoting__typeId();");
 }
 
@@ -423,6 +423,8 @@ void AbstractGenerator::handleIncludeTypeSerializers(const std::string& simpleTy
 			rootDir.makeAbsolute();
 			std::string incl = incDir.toString(Poco::Path::PATH_UNIX);
 			std::string root = rootDir.toString(Poco::Path::PATH_UNIX);
+			if (root.size() > incl.size() || root.compare(0, root.size(), incl, 0, root.size()) != 0)
+				throw Poco::InvalidArgumentException("The path specified in <includeRoot> must be a parent of the one in <include>", root);
 			incl = incl.substr(root.size());
 			std::string serType;
 			std::string deserType;
@@ -469,7 +471,7 @@ void AbstractGenerator::handleIncludeTypeSerializers(const std::string& simpleTy
 			handleIncludeFile(deserType+Utility::HFILEEXTENSION, toHFile, writeDirectly);
 			return;
 		}
-		
+
 		// Note: the serializer class will probably not exist yet, so don't search in CppParser root namespace
 		Poco::StringTokenizer tok(resType, "::", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
 		if (tok.count() == 1)
@@ -485,7 +487,7 @@ void AbstractGenerator::handleIncludeTypeSerializers(const std::string& simpleTy
 			--itNS;
 			std::string tmp = *itNS;
 			if (*itClass != "AutoPtr" && *itClass != "SharedPtr" && *itNS != "Poco")
-			{				
+			{
 				if (cfg.hasProperty("RemoteGen.output.include"))
 				{
 					std::string incDir = cfg.getString("RemoteGen.output.include");
@@ -701,6 +703,6 @@ const std::set<std::string> AbstractGenerator::initBuiltinTypes()
 	builtins.insert("Poco::URI");
 	builtins.insert("UUID");
 	builtins.insert("Poco::UUID");
-	
+
 	return builtins;
 }
