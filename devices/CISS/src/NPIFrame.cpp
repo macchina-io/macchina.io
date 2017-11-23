@@ -10,6 +10,7 @@
 
 #include "NPIFrame.h"
 #include <algorithm>
+#include <cstring>
 
 
 namespace IoT {
