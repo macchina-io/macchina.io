@@ -80,9 +80,9 @@ public:
 
 			reader >> x >> y >> z;
 			IoT::Devices::Rotation rot;
-			rot.x = x/1000.0;
-			rot.y = y/1000.0;
-			rot.z = z/1000.0;
+			rot.x = x/10.0;
+			rot.y = y/10.0;
+			rot.z = z/10.0;
 			_pGyroscope->update(rot);
 		}
 	}
