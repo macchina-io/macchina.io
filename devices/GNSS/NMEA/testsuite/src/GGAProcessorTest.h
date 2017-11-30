@@ -1,8 +1,6 @@
 //
 // GGAProcessorTest.h
 //
-// $Id$
-//
 // Definition of the GGAProcessorTest class.
 //
 // Copyright (c) 2010-2015, Applied Informatics Software Engineering GmbH.

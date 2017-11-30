@@ -135,6 +135,7 @@
     <ClInclude Include="include\Poco\OSP\BundleEvents.h"/>
     <ClInclude Include="include\Poco\OSP\BundleFactory.h"/>
     <ClInclude Include="include\Poco\OSP\BundleFile.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleFilter.h"/>
     <ClInclude Include="include\Poco\OSP\BundleLoader.h"/>
     <ClInclude Include="include\Poco\OSP\BundleManifest.h"/>
     <ClInclude Include="include\Poco\OSP\BundleProperties.h"/>
@@ -177,6 +178,7 @@
     <ClCompile Include="src\BundleEvents.cpp"/>
     <ClCompile Include="src\BundleFactory.cpp"/>
     <ClCompile Include="src\BundleFile.cpp"/>
+    <ClCompile Include="src\BundleFilter.cpp"/>
     <ClCompile Include="src\BundleLoader.cpp"/>
     <ClCompile Include="src\BundleManifest.cpp"/>
     <ClCompile Include="src\BundleProperties.cpp"/>

@@ -32,9 +32,9 @@ class IIO: public IoT::Devices::IDevice
 	/// The interface for general purpose input/output (GPIO)
 	/// ports.
 	///
-	/// This class represents a single GPIO pin. 
-	/// Mapping to physical pins is configured when setting up 
-	/// the specific IO implementation class, typically using a 
+	/// This class represents a single GPIO pin.
+	/// Mapping to physical pins is configured when setting up
+	/// the specific IO implementation class, typically using a
 	/// configuration file.
 	///
 	/// Implementations supporting dynamically changing pin directions
@@ -70,6 +70,9 @@ public:
 
 	virtual bool state() const = 0;
 		/// Returns the current state of the pin.
+
+	virtual bool toggle() = 0;
+		/// Toggles the state of an output pin and returns the new state.
 
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.

@@ -1,8 +1,6 @@
 //
 // Listener.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/Listener.cpp#1 $
-//
 // Library: RemotingNG
 // Package: Transport
 // Module:  Listener
@@ -30,6 +28,18 @@ Listener::Listener(const std::string& endPoint): _endPoint(endPoint)
 
 Listener::~Listener()
 {
+}
+
+
+void Listener::setAuthenticator(Authenticator::Ptr pAuthenticator)
+{
+	_pAuthenticator = pAuthenticator;
+}
+
+
+void Listener::setAuthorizer(Authorizer::Ptr pAuthorizer)
+{
+	_pAuthorizer = pAuthorizer;
 }
 
 

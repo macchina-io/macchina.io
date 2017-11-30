@@ -1,8 +1,6 @@
 //
 // ChannelStream.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/ChannelStream.cpp#1 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  ChannelStream

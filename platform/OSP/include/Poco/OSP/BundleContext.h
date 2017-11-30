@@ -1,8 +1,6 @@
 //
 // BundleContext.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/BundleContext.h#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleContext
@@ -22,6 +20,7 @@
 
 #include "Poco/OSP/OSP.h"
 #include "Poco/OSP/Bundle.h"
+#include "Poco/OSP/BundleFilter.h"
 #include "Poco/RefCountedObject.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/Logger.h"
@@ -68,6 +67,11 @@ public:
 	void listBundles(std::vector<Bundle::Ptr>& bundles) const;
 		/// Fills the given vector with all bundles
 		/// known to the OSP framework.
+		
+	void listBundles(std::vector<Bundle::Ptr>& bundles, BundleFilter::Ptr pFilter) const;
+		/// Fills the given vector with all bundles
+		/// known to the OSP framework, filtered by the
+		/// given BundleFilter.
 		
 	ServiceRegistry& registry() const;
 		/// Returns a reference to the ServiceRegistry object, which

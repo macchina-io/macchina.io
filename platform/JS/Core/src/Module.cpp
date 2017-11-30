@@ -1,10 +1,8 @@
 //
 // Module.cpp
 //
-// $Id$
-//
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Execution
 // Module:  Module
 //
 // Copyright (c) 2016, Applied Informatics Software Engineering GmbH.

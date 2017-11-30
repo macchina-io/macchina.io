@@ -1,0 +1,13 @@
+vc.project.guid = 5E34E3A3-6B1B-4B89-BFF1-04D930AFC2CA
+vc.project.name = JSBundle
+vc.project.target = com.appinf.osp.js
+vc.project.type = plugin
+vc.project.pocobase = ..\\..
+vc.project.outdir = .
+vc.project.platforms = Win32, x64
+vc.project.configurations = debug_shared, release_shared
+vc.project.prototype = ${vc.project.name}_vs90.vcproj
+vc.project.compiler.include = ..\\..\\Foundation\\include;..\\..\\XML\\include;..\\..\\JSON\\include;..\\..\\Util\\include;..\\..\\Net\\include;..\\..\\OSP\\include;..\\..\\Zip\\include;..\\..\\Data\\include;..\\..\\RemotingNG\\include;..\\..\\JS\\Core\\include;..\\..\\JS\\Net\\include;..\\..\\JS\\Data\\include;..\\..\\JS\\Bridge\\include;..\\..\\JS\\V8\\include
+vc.project.linker.dependencies = v8.lib
+vc.project.postbuild.debug_shared = bundled /osarch=${project.targetArchitecture} /output=../bundles JS.bndlspec
+vc.project.postbuild.release_shared = bundle /osarch=${project.targetArchitecture} /output=../bundles JS.bndlspec

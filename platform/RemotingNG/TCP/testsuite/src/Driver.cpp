@@ -1,8 +1,6 @@
 //
 // Driver.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/Driver.cpp#2 $
-//
 // Console-based test driver for Poco RemotingNG TCP
 //
 // Copyright (c) 2006-2011, Applied Informatics Software Engineering GmbH.

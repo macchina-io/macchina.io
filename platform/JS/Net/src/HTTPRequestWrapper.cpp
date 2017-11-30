@@ -1,10 +1,8 @@
 //
 // HTTPRequestWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Net/src/HTTPRequestWrapper.cpp#7 $
-//
-// Library: JSNet
-// Package: HTTP
+// Library: JS/Net
+// Package: Wrappers
 // Module:  HTTPRequestWrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
@@ -35,6 +33,8 @@ namespace Poco {
 namespace JS {
 namespace Net {
 
+
+static Poco::AtomicCounter _cnt;
 
 RequestHolder::RequestHolder():
 	_timeout(30, 0)
@@ -106,19 +106,27 @@ v8::Handle<v8::ObjectTemplate> HTTPRequestWrapper::objectTemplate(v8::Isolate* p
 void HTTPRequestWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	RequestHolder* pRequestHolder = new RequestHolderImpl;
+
+	try
+	{	
+		if (args.Length() > 0) 
+			pRequestHolder->request().setMethod(toString(args[0]));
+		if (args.Length() > 1) 
+			pRequestHolder->request().setURI(toString(args[1]));
+		if (args.Length() > 2) 
+			pRequestHolder->request().setVersion(toString(args[2]));
+		else
+			pRequestHolder->request().setVersion(Poco::Net::HTTPMessage::HTTP_1_1);
 	
-	if (args.Length() > 0) 
-		pRequestHolder->request().setMethod(toString(args[0]));
-	if (args.Length() > 1) 
-		pRequestHolder->request().setURI(toString(args[1]));
-	if (args.Length() > 2) 
-		pRequestHolder->request().setVersion(toString(args[2]));
-	else
-		pRequestHolder->request().setVersion(Poco::Net::HTTPMessage::HTTP_1_1);
-	
-	HTTPRequestWrapper wrapper;
-	v8::Persistent<v8::Object>& requestObject(wrapper.wrapNativePersistent(args.GetIsolate(), pRequestHolder));
-	args.GetReturnValue().Set(requestObject);
+		HTTPRequestWrapper wrapper;
+		v8::Persistent<v8::Object>& requestObject(wrapper.wrapNativePersistent(args.GetIsolate(), pRequestHolder));
+		args.GetReturnValue().Set(requestObject);
+	}
+	catch (Poco::Exception& exc)
+	{
+		delete pRequestHolder;
+		returnException(args, exc);
+	}
 }
 
 
@@ -227,7 +235,7 @@ void HTTPRequestWrapper::setTimeout(v8::Local<v8::String> name, v8::Local<v8::Va
 	if (value->IsNumber())
 	{
 		double timeout = value->NumberValue();
-		pRequestHolder->setTimeout(timeout*1000000);
+		pRequestHolder->setTimeout(static_cast<Poco::Timespan::TimeDiff>(timeout*1000000));
 	}
 }
 
@@ -240,9 +248,12 @@ void HTTPRequestWrapper::getCookies(v8::Local<v8::String> name, const v8::Proper
 	Poco::Net::NameValueCollection cookies;
 	pRequestHolder->request().getCookies(cookies);
 	v8::Local<v8::Object> result(v8::Object::New(info.GetIsolate()));
-	for (Poco::Net::NameValueCollection::ConstIterator it = cookies.begin(); it != cookies.end(); ++it)
+	if (!result.IsEmpty())
 	{
-		result->Set(v8::String::NewFromUtf8(info.GetIsolate(), it->first.c_str()), v8::String::NewFromUtf8(info.GetIsolate(),it->second.c_str()));
+		for (Poco::Net::NameValueCollection::ConstIterator it = cookies.begin(); it != cookies.end(); ++it)
+		{
+			result->Set(v8::String::NewFromUtf8(info.GetIsolate(), it->first.c_str()), v8::String::NewFromUtf8(info.GetIsolate(),it->second.c_str()));
+		}
 	}
 	info.GetReturnValue().Set(result);
 }
@@ -262,8 +273,11 @@ void HTTPRequestWrapper::getCredentials(v8::Local<v8::String> name, const v8::Pr
 		{
 			Poco::Net::HTTPBasicCredentials creds(authInfo);
 			v8::Local<v8::Object> result(v8::Object::New(info.GetIsolate()));
-			result->Set(v8::String::NewFromUtf8(info.GetIsolate(), "username"), v8::String::NewFromUtf8(info.GetIsolate(), creds.getUsername().c_str()));
-			result->Set(v8::String::NewFromUtf8(info.GetIsolate(), "password"), v8::String::NewFromUtf8(info.GetIsolate(), creds.getPassword().c_str()));
+			if (!result.IsEmpty())
+			{
+				result->Set(v8::String::NewFromUtf8(info.GetIsolate(), "username"), v8::String::NewFromUtf8(info.GetIsolate(), creds.getUsername().c_str()));
+				result->Set(v8::String::NewFromUtf8(info.GetIsolate(), "password"), v8::String::NewFromUtf8(info.GetIsolate(), creds.getPassword().c_str()));
+			}
 			info.GetReturnValue().Set(result);
 			return;
 		}
@@ -360,7 +374,7 @@ void HTTPRequestWrapper::sendBlocking(const v8::FunctionCallbackInfo<v8::Value>&
 		std::streamsize contentLength = pResponseHolder->response().getContentLength();
 		if (contentLength != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
 		{
-			pResponseHolder->content().reserve(contentLength);
+			pResponseHolder->content().reserve(static_cast<std::size_t>(contentLength));
 		}
 		Poco::StreamCopier::copyToString(istr, pResponseHolder->content());
 		HTTPResponseWrapper wrapper;
@@ -502,7 +516,7 @@ public:
 			std::streamsize contentLength = pResponse->getContentLength();
 			if (contentLength != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
 			{
-				responseBody.reserve(contentLength);
+				responseBody.reserve(static_cast<std::size_t>(contentLength));
 			}
 			Poco::StreamCopier::copyToString(istr, responseBody);
 			if (pTimedJSExecutor)

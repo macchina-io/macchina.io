@@ -1,8 +1,6 @@
 //
 // SerialPort_POSIX.cpp
 //
-// $Id$
-//
 // Library: Serial
 // Package: Serial
 // Module:  SerialPort

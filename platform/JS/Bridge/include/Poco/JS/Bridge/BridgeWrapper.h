@@ -1,10 +1,8 @@
 //
 // BridgeWrapper.h
 //
-// $Id: //poco/1.4/JS/Bridge/include/Poco/JS/Bridge/BridgeWrapper.h#9 $
-//
-// Library: JSBridge
-// Package: Bridge
+// Library: JS/Bridge
+// Package: Bridging
 // Module:  BridgeWrapper
 //
 // Definition of the BridgeWrapper class.
@@ -141,6 +139,7 @@ protected:
 	static void setProperty(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void on(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void toJSON(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 

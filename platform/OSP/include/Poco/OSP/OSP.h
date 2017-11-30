@@ -1,8 +1,6 @@
 //
 // OSP.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/OSP.h#1 $
-//
 // Library: OSP
 // Package: Core
 // Module:  OSP

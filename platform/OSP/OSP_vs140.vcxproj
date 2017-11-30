@@ -37,7 +37,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros"/>
   <PropertyGroup>
-    <_ProjectFileVersion>14.0.23107.0</_ProjectFileVersion>
+    <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_shared|Win32'">PocoOSPd</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='release_shared|Win32'">PocoOSP</TargetName>
   </PropertyGroup>
@@ -123,6 +123,7 @@
     <ClInclude Include="include\Poco\OSP\BundleEvents.h"/>
     <ClInclude Include="include\Poco\OSP\BundleFactory.h"/>
     <ClInclude Include="include\Poco\OSP\BundleFile.h"/>
+    <ClInclude Include="include\Poco\OSP\BundleFilter.h"/>
     <ClInclude Include="include\Poco\OSP\BundleInstallerService.h"/>
     <ClInclude Include="include\Poco\OSP\BundleLoader.h"/>
     <ClInclude Include="include\Poco\OSP\BundleManifest.h"/>
@@ -166,6 +167,7 @@
     <ClCompile Include="src\BundleEvents.cpp"/>
     <ClCompile Include="src\BundleFactory.cpp"/>
     <ClCompile Include="src\BundleFile.cpp"/>
+    <ClCompile Include="src\BundleFilter.cpp"/>
     <ClCompile Include="src\BundleInstallerService.cpp"/>
     <ClCompile Include="src\BundleLoader.cpp"/>
     <ClCompile Include="src\BundleManifest.cpp"/>

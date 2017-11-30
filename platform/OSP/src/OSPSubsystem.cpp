@@ -1,8 +1,6 @@
 //
 // OSPSubsystem.cpp
 //
-// $Id: //poco/1.7/OSP/src/OSPSubsystem.cpp#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  OSPSubsystem
@@ -81,6 +79,7 @@ void OSPSubsystem::initialize(Poco::Util::Application& app)
 	std::string bundleRepository = app.config().getString("osp.bundleRepository", app.config().expand("${application.dir}bundles"));
 	std::string dataPath         = app.config().getString("osp.data", app.config().expand("${application.dir}data"));
 	bool autoUpdateCodeCache     = app.config().getBool("osp.autoUpdateCodeCache", true);
+	bool sharedCodeCache         = app.config().getBool("osp.sharedCodeCache", false);
 
 	if (!_bundles.empty())
 	{
@@ -94,12 +93,14 @@ void OSPSubsystem::initialize(Poco::Util::Application& app)
 		languageTag = LanguageTag(app.config().getString("osp.language"));
 	}
 	
-	_pCodeCache = new CodeCache(codeCache);
+	_pCodeCache = new CodeCache(codeCache, sharedCodeCache);
 	if (_clearCache)
 	{
 		try
 		{
 			app.logger().information("Clearing code cache");
+
+			CodeCache::Lock ccLock(*_pCodeCache);
 			_pCodeCache->clear();
 		}
 		catch (Poco::Exception& exc)

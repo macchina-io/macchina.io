@@ -1,8 +1,6 @@
 //
 // Modbus.h
 //
-// $Id$
-//
 // Library: IoT/Modbus
 // Package: Modbus
 // Module:  Modbus

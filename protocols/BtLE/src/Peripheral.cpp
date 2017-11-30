@@ -1,8 +1,6 @@
 //
 // Peripheral.cpp
 //
-// $Id$
-//
 // Library: IoT/BtLE
 // Package: BtLE
 // Module:  Peripheral

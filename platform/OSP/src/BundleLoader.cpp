@@ -1,8 +1,6 @@
 //
 // BundleLoader.cpp
 //
-// $Id: //poco/1.7/OSP/src/BundleLoader.cpp#2 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleLoader
@@ -40,10 +38,6 @@ using Poco::Environment;
 using Poco::Logger;
 
 
-#define POCO_OSP_STRINGIFY(X) POCO_OSP_STRINGIFY_(X)
-#define POCO_OSP_STRINGIFY_(X) #X
-
-
 namespace Poco {
 namespace OSP {
 
@@ -70,12 +64,12 @@ BundleLoader::BundleLoader(CodeCache& codeCache, BundleFactory::Ptr pBundleFacto
 	_pBundleFactory(pBundleFactory),
 	_pBundleContextFactory(pBundleContextFactory),
 #ifdef POCO_TARGET_OSNAME
-	_osName(POCO_OSP_STRINGIFY(POCO_TARGET_OSNAME)),
+	_osName(POCO_TARGET_OSNAME),
 #else
 	_osName(Environment::osName()),
 #endif
 #ifdef POCO_TARGET_OSARCH
-	_osArch(POCO_OSP_STRINGIFY(POCO_TARGET_OSARCH)),
+	_osArch(POCO_TARGET_OSARCH),
 #else
 	_osArch(Environment::osArchitecture()),
 #endif
@@ -89,6 +83,8 @@ BundleLoader::BundleLoader(CodeCache& codeCache, BundleFactory::Ptr pBundleFacto
 #else
 	makeValidFileName(_osArch);
 #endif
+
+	_logger.debug("os='%s' arch='%s'", _osName, _osArch);
 }
 
 
@@ -219,6 +215,22 @@ void BundleLoader::listBundles(std::vector<Bundle::Ptr>& bundles) const
 }
 
 
+void BundleLoader::listBundles(std::vector<Bundle::Ptr>& bundles, BundleFilter::Ptr pFilter) const
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	bundles.clear();
+	bundles.reserve(_bundles.size());
+	for (BundleMap::const_iterator it = _bundles.begin(); it != _bundles.end(); ++it)
+	{
+		if (pFilter->accept(it->second.pBundle))
+		{
+			bundles.push_back(it->second.pBundle);
+		}
+	}
+}
+
+
 void BundleLoader::resolveAllBundles()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -279,8 +291,18 @@ void BundleLoader::startAllBundles()
 			catch (Poco::Exception& exc)
 			{
 				std::string msg("Failed to start bundle ");
-				msg += (*it)->symbolicName();
-				msg += ": ";
+				if (_lastBundleStarted != (*it)->symbolicName())
+				{
+					msg += _lastBundleStarted;
+					msg += " required by ";
+					msg += (*it)->symbolicName();
+					msg += ": ";
+				}
+				else
+				{
+					msg += (*it)->symbolicName();
+					msg += ": ";
+				}
 				msg += exc.displayText();
 				_logger.error(msg);
 				
@@ -402,6 +424,7 @@ void BundleLoader::startBundle(Bundle* pBundle)
 	if (it != _bundles.end())
 	{
 		startDependencies(pBundle);
+		_lastBundleStarted = pBundle->symbolicName();
 		BundleActivator* pActivator = loadActivator(it->second);
 		if (pActivator)
 		{
@@ -636,6 +659,9 @@ void BundleLoader::installLibraries(Bundle* pBundle)
 {
 	std::vector<std::string> libs;
 	listLibraries(pBundle, libs);
+
+	CodeCache::Lock ccLock(_codeCache);
+
 	for (std::vector<std::string>::iterator it = libs.begin(); it != libs.end(); ++it)
 	{
 		Path p(false);
@@ -684,7 +710,11 @@ void BundleLoader::installLibrary(Bundle* pBundle, const Poco::Path& p, const Po
 	{
 		_logger.debug(std::string("Installing library ") + p.toString(Path::PATH_UNIX));
 	}
+#if __cplusplus < 201103L
 	std::auto_ptr<std::istream> pStream(pBundle->storage().getResource(p.toString(Path::PATH_UNIX)));
+#else
+	std::unique_ptr<std::istream> pStream(pBundle->storage().getResource(p.toString(Path::PATH_UNIX)));
+#endif
 	if (pStream.get())
 	{
 		_codeCache.installLibrary(p.getFileName(), *pStream);
@@ -708,6 +738,9 @@ void BundleLoader::uninstallLibraries(Bundle* pBundle)
 {
 	std::vector<std::string> libs;
 	listLibraries(pBundle, libs);
+	
+	CodeCache::Lock ccLock(_codeCache);
+
 	for (std::vector<std::string>::iterator it = libs.begin(); it != libs.end(); ++it)
 	{
 		if (_logger.debug())

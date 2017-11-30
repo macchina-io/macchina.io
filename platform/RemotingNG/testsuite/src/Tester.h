@@ -1,8 +1,6 @@
 //
 // Tester.h
 //
-// $Id: //poco/1.7/RemotingNG/testsuite/src/Tester.h#2 $
-//
 // Definition of the Tester class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
@@ -266,6 +264,12 @@ public:
 	//@ $s31={namespace="http://www.appinf.com/types"}
 	//@ $s32={direction=out}
 	void testArgNamespace(const Struct3& s31, Struct3& s32);
+	
+	//@ permission="perm1"
+	void testPermission1();
+
+	//@ permission="perm2"
+	void testPermission2();
 	
 	//@ oneway
 	void fireTestEvent(const std::string& arg);

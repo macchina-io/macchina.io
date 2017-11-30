@@ -1,6 +1,6 @@
 <extensions>
   <extension point="io.macchina.web.launcher" title="Playground" path="/macchina/playground" icon="/macchina/playground/images/appicon.png" permission="bundleAdmin"/>
-  <extension point="osp.web.server.directory" path="/macchina/playground" resource="webapp" allowSpecialization="none" hidden="true"/>
+  <extension point="osp.web.server.directory" path="/macchina/playground" resource="webapp" allowSpecialization="none" hidden="true" permission="bundleAdmin" session="${websession.id}"/>
   <extension point="osp.web.server.requesthandler" methods="GET, HEAD, POST" pattern="/macchina/playground/(load|save|run|restart|stop|state|info).json" class="IoT::Web::Playground::SandboxRequestHandlerFactory" library="io.macchina.webui.playground" allowSpecialization="owner" hidden="true"/>
   <extension point="osp.web.server.requesthandler" methods="GET, HEAD" pattern="/macchina/playground/load" class="IoT::Web::Playground::SandboxRequestHandlerFactory" library="io.macchina.webui.playground" allowSpecialization="owner" hidden="true"/>
   <extension point="osp.web.server.requesthandler" methods="POST" pattern="/macchina/playground/export" class="IoT::Web::Playground::SandboxRequestHandlerFactory" library="io.macchina.webui.playground" allowSpecialization="owner" hidden="true"/>

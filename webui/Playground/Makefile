@@ -1,14 +1,12 @@
 #
 # Makefile
 #
-# $Id$
+# Makefile for macchina.io Playground app
 #
-# Makefile for macchina.io bundle administration utility
-#
-
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
 
 include $(POCO_BASE)/build/rules/global
+
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 objects =  \
 	SandboxRequestHandler \

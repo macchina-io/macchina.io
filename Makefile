@@ -1,17 +1,16 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Global Makefile for macchina.io
 #
 
-.PHONY: clean all install_sdk install_runtime install
+.PHONY: clean all clean_bundles install_sdk install_runtime install
 
-TARGET ?= sdk
-INSTALLDIR ?= /usr/local/macchina
+PRODUCT ?= sdk
+DESTDIR ?= /usr/local/macchina
+INSTALLDIR ?= $(DESTDIR)
 
-RUNTIME_LIBS = PocoFoundation PocoXML PocoJSON PocoUtil PocoZip PocoOSP PocoRemotingNG
+RUNTIME_LIBS = PocoFoundation PocoXML PocoJSON PocoUtil PocoZip PocoOSP PocoRemotingNG PocoGeo
 
 MACCHINA_BASE = $(shell pwd)
 POCO_BASE = $(MACCHINA_BASE)/platform
@@ -21,13 +20,13 @@ export MACCHINA_BASE
 export POCO_BASE
 export PROJECT_BASE
 
-ifeq ($(TARGET),sdk)
+ifeq ($(PRODUCT),sdk)
 INSTALL_TARGET = install_sdk
-else ifeq ($(TARGET),runtime)
+else ifeq ($(PRODUCT),runtime)
 INSTALL_TARGET = install_runtime
 MAKEARGS = DEFAULT_TARGET=shared_release
 else
-$(error Invalid TARGET specified: $(TARGET))
+$(error Invalid PRODUCT specified: $(PRODUCT))
 endif
 
 POCO_HOST_OSNAME = $(shell uname)
@@ -82,6 +81,11 @@ clean all:
 	$(MAKE) -C devices $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C services $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C webui $(MAKECMDGOALS) $(MAKEARGS)
+	$(MAKE) -C samples $(MAKECMDGOALS) $(MAKEARGS)
+	
+clean_bundles:
+	rm platform/OSP/bundles/*.bndl
+	rm */bundles/*.bndl
 
 # Host tools only
 hosttools:
@@ -93,6 +97,7 @@ hosttools:
 	$(MAKE) -C platform/Zip
 	$(MAKE) -C platform/OSP 
 	$(MAKE) -C platform/OSP/BundleCreator 
+	$(MAKE) -C platform/OSP/CodeCacheUtility 
 	$(MAKE) -C platform/CppParser 
 	$(MAKE) -C platform/CodeGeneration 
 	$(MAKE) -C platform/RemotingNG

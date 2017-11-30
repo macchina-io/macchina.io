@@ -1,10 +1,8 @@
 //
 // BridgeWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Bridge/src/BridgeWrapper.cpp#9 $
-//
-// Library: JSBridge
-// Package: Bridge
+// Library: JS/Bridge
+// Package: Bridging
 // Module:  BridgeWrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
@@ -18,7 +16,8 @@
 #include "Poco/JS/Bridge/Listener.h"
 #include "Poco/JS/Bridge/Serializer.h"
 #include "Poco/JS/Bridge/Deserializer.h"
-#include "Poco/JS/Bridge/JSONEventSerializer.h"
+#include "Poco/JS/Bridge/TaggedBinarySerializer.h"
+#include "Poco/JS/Bridge/TaggedBinaryReader.h"
 #include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/RemotingNG/ServerTransport.h"
 #include "Poco/RemotingNG/Transport.h"
@@ -30,6 +29,7 @@
 #include "Poco/NumberFormatter.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/Delegate.h"
+#include "Poco/Logger.h"
 #include <sstream>
 
 
@@ -46,35 +46,36 @@ namespace Bridge {
 class Transport: public Poco::RemotingNG::Transport
 {
 public:
-	Transport()
+	Transport():
+		_logger(Poco::Logger::get("JS.Bridge.Transport"))
 	{
 	}
-	
+
 	~Transport()
 	{
 	}
-	
+
 	// Transport
 	const std::string& endPoint() const
 	{
 		return _endPoint;
 	}
-	
+
 	void connect(const std::string& endPoint)
 	{
 		_endPoint = endPoint;
 	}
-	
+
 	void disconnect()
 	{
 		_endPoint.clear();
 	}
-	
+
 	bool connected() const
 	{
 		return !_endPoint.empty();
 	}
-	
+
 	Poco::RemotingNG::Serializer& beginMessage(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 	{
 		poco_assert_dbg (messageType == Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -83,40 +84,42 @@ public:
 		_serializer.setup(*_pStream);
 		return _serializer;
 	}
-	
+
 	void sendMessage(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 	{
 		poco_assert_dbg (messageType == Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 
-		std::string json = _pStream->str();
+		std::string args = _pStream->str();
 		BridgeHolder::Ptr pBridgeHolder = BridgeHolder::find(_endPoint);
 		if (pBridgeHolder)
 		{
-			pBridgeHolder->fireEvent(messageName, json);
+			pBridgeHolder->fireEvent(messageName, args);
 		}
 	}
-	
+
 	Poco::RemotingNG::Serializer& beginRequest(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 	{
+		_logger.error("Cannot deliver event %s in class %s. Event has a non-const argument and is not declared oneway.", messageName, tid);
 		throw Poco::NotImplementedException("beginRequest() not implemented for jsbridge Transport");
 	}
-	
+
 	Poco::RemotingNG::Deserializer& sendRequest(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 	{
 		throw Poco::NotImplementedException("sendRequest() not implemented for jsbridge Transport");
 	}
-	
+
 	void endRequest()
 	{
 		throw Poco::NotImplementedException("endRequest() not implemented for jsbridge Transport");
 	}
-	
+
 	static const std::string PROTOCOL;
-	
+
 private:
 	std::string _endPoint;
 	Poco::SharedPtr<std::stringstream> _pStream;
-	JSONEventSerializer _serializer;
+	TaggedBinarySerializer _serializer;
+	Poco::Logger& _logger;
 };
 
 
@@ -134,11 +137,11 @@ public:
 	TransportFactory()
 	{
 	}
-		
+
 	~TransportFactory()
 	{
 	}
-	
+
 	Poco::RemotingNG::Transport* createTransport()
 	{
 		return new Transport;
@@ -179,12 +182,12 @@ public:
 	{
 		return _deserializer;
 	}
-		
+
 	Serializer& sendReply(Poco::RemotingNG::SerializerBase::MessageType /*messageType*/)
 	{
 		return _serializer;
 	}
-	
+
 	void endRequest()
 	{
 	}
@@ -205,24 +208,36 @@ class EventTask: public Poco::Util::TimerTask
 public:
 	EventTask(Poco::JS::Core::TimedJSExecutor::Ptr pExecutor, v8::Isolate* pIsolate, const v8::Persistent<v8::Object>& jsObject, const std::string& event, const std::string& args):
 		_pExecutor(pExecutor),
+		_pIsolate(pIsolate),
 		_jsObject(pIsolate, jsObject),
 		_event(event),
 		_args(args)
 	{
 	}
-	
+
 	~EventTask()
 	{
 		_jsObject.Reset();
 	}
-	
+
 	void run()
 	{
-		_pExecutor->call(_jsObject, _event, _args);
+		v8::Locker locker(_pIsolate);
+		v8::Isolate::Scope isoScope(_pIsolate);
+		v8::HandleScope handleScope(_pIsolate);
+
+		v8::Local<v8::Context> context(v8::Local<v8::Context>::New(_pIsolate, _pExecutor->scriptContext()));
+		v8::Context::Scope contextScope(context);
+
+		TaggedBinaryReader reader(_pIsolate);
+		std::istringstream istr(_args);
+		v8::Handle<v8::Value> args[] = {reader.read(istr)};
+		_pExecutor->callInContext(_jsObject, _event, 1, args);
 	}
-	
+
 private:
 	Poco::JS::Core::TimedJSExecutor::Ptr _pExecutor;
+	v8::Isolate* _pIsolate;
 	v8::Persistent<v8::Object> _jsObject;
 	std::string _event;
 	std::string _args;
@@ -248,7 +263,7 @@ BridgeHolder::BridgeHolder(v8::Isolate* pIsolate, const std::string& uri):
 	int id = ++_counter;
 	Poco::NumberFormatter::append(_subscriberURI, id);
 	registerHolder();
-	
+
 	_pExecutor->stopped += Poco::delegate(this, &BridgeHolder::onExecutorStopped);
 }
 
@@ -275,8 +290,11 @@ BridgeHolder::~BridgeHolder()
 void BridgeHolder::setPersistent(const v8::Persistent<v8::Object>& jsObject)
 {
 	_persistent.Reset(_pIsolate, jsObject);
-	_persistent.SetWeak(this, BridgeHolder::destruct, v8::WeakCallbackType::kParameter);
-	_persistent.MarkIndependent();
+	if (!_persistent.IsEmpty())
+	{
+		_persistent.SetWeak(this, BridgeHolder::destruct);
+		_persistent.MarkIndependent();
+	}
 }
 
 
@@ -357,7 +375,7 @@ void BridgeHolder::disableEvents()
 void BridgeHolder::registerHolder()
 {
 	Poco::FastMutex::ScopedLock lock(_holderMapMutex);
-	
+
 	_holderMap[_subscriberURI] = this;
 }
 
@@ -365,7 +383,7 @@ void BridgeHolder::registerHolder()
 void BridgeHolder::unregisterHolder()
 {
 	Poco::FastMutex::ScopedLock lock(_holderMapMutex);
-	
+
 	_holderMap.erase(_subscriberURI);
 }
 
@@ -386,13 +404,13 @@ void BridgeHolder::enableEvent(const std::string& event)
 	_handledEvents.insert(event);
 }
 
-	
+
 void BridgeHolder::disableEvent(const std::string& event)
 {
 	_handledEvents.erase(event);
 }
 
-	
+
 bool BridgeHolder::handleEvent(const std::string& event)
 {
 	return _handledEvents.count(event) > 0;
@@ -430,9 +448,9 @@ v8::Handle<v8::ObjectTemplate> BridgeWrapper::objectTemplate(v8::Isolate* pIsola
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
 		objectTemplate->SetInternalFieldCount(1);
-		
+
 		objectTemplate->SetNamedPropertyHandler(getProperty, setProperty);
-	
+
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
@@ -454,10 +472,13 @@ void BridgeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 			returnException(args, "invalid or missing arguments; object URI required");
 			return;
 		}
-		
+
 		BridgeWrapper wrapper;
 		v8::Persistent<v8::Object>& bridgeObject(wrapper.wrapNativePersistent(args.GetIsolate(), pHolder));
-		pHolder->setPersistent(bridgeObject);
+		if (!bridgeObject.IsEmpty())
+		{
+			pHolder->setPersistent(bridgeObject);
+		}
 		args.GetReturnValue().Set(bridgeObject);
 	}
 	catch (Poco::Exception& exc)
@@ -482,7 +503,19 @@ void BridgeWrapper::getProperty(v8::Local<v8::String> property, const v8::Proper
 			// For some reason trying to set this function in the object template leads
 			// to a crash at runtime. Therefore this workaround.
 			v8::Local<v8::Function> function = v8::Function::New(info.GetIsolate(), on);
-			function->SetName(property);
+			if (!function.IsEmpty())
+			{
+				function->SetName(property);
+			}
+			info.GetReturnValue().Set(function);
+		}
+		else if (prop == "toJSON")
+		{
+			v8::Local<v8::Function> function = v8::Function::New(info.GetIsolate(), toJSON);
+			if (!function.IsEmpty())
+			{
+				function->SetName(property);
+			}
 			info.GetReturnValue().Set(function);
 		}
 		else if (prop == "$sub")
@@ -500,7 +533,10 @@ void BridgeWrapper::getProperty(v8::Local<v8::String> property, const v8::Proper
 		else
 		{
 			v8::Local<v8::Function> function = v8::Function::New(info.GetIsolate(), bridgeFunction);
-			function->SetName(property);
+			if (!function.IsEmpty())
+			{
+				function->SetName(property);
+			}
 			info.GetReturnValue().Set(function);
 		}
 	}
@@ -557,7 +593,7 @@ void BridgeWrapper::bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& ar
 			{
 				argsArray->Set(i, args[i]);
 			}
-			
+
 			Poco::RemotingNG::ScopedContext scopedContext;
 			scopedContext.context()->setValue("transport", Transport::PROTOCOL);
 			scopedContext.context()->setValue("uri", pHolder->uri());
@@ -648,6 +684,19 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 			returnException(args, "Invalid argument: First argument to on() must be property name");
 		}
 	}
+}
+
+
+void BridgeWrapper::toJSON(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::HandleScope scope(args.GetIsolate());
+	BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(args);
+	const std::string& uri = pHolder->uri();
+
+	v8::Local<v8::Object> object = v8::Object::New(args.GetIsolate());
+	object->Set(v8::String::NewFromUtf8(args.GetIsolate(), "$uri"), v8::String::NewFromUtf8(args.GetIsolate(), uri.c_str(), v8::String::kNormalString, static_cast<int>(uri.size())));
+
+	args.GetReturnValue().Set(object);
 }
 
 

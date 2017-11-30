@@ -3,11 +3,11 @@
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution. 
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
- * The Eclipse Public License is available at 
+ * The Eclipse Public License is available at
  *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
+ * and the Eclipse Distribution License is available at
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
@@ -25,12 +25,19 @@
 #include <ws2tcpip.h>
 #define MAXHOSTNAMELEN 256
 #if !defined(SSLSOCKET_H)
+#undef EAGAIN
 #define EAGAIN WSAEWOULDBLOCK
+#undef EINTR
 #define EINTR WSAEINTR
+#undef EINPROGRESS
 #define EINPROGRESS WSAEINPROGRESS
+#undef EWOULDBLOCK
 #define EWOULDBLOCK WSAEWOULDBLOCK
+#undef ENOTCONN
 #define ENOTCONN WSAENOTCONN
+#undef ECONNRESET
 #define ECONNRESET WSAECONNRESET
+#undef ETIMEDOUT
 #define ETIMEDOUT WAIT_TIMEOUT
 #endif
 #define ioctl ioctlsocket
@@ -51,6 +58,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/uio.h>
+#define ULONG size_t
 #endif
 
 /** socket operation completed successfully */
@@ -114,7 +122,7 @@ void Socket_outInitialize(void);
 void Socket_outTerminate(void);
 int Socket_getReadySocket(int more_work, struct timeval *tp);
 int Socket_getch(int socket, char* c);
-char *Socket_getdata(int socket, int bytes, int* actual_len);
+char *Socket_getdata(int socket, size_t bytes, size_t* actual_len);
 int Socket_putdatas(int socket, char* buf0, size_t buf0len, int count, char** buffers, size_t* buflens, int* frees);
 void Socket_close(int socket);
 int Socket_new(char* addr, int port, int* socket);

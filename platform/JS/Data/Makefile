@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/JS/Data/Makefile#1 $
-#
 # Makefile for Poco JS Data library
 #
 

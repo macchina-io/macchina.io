@@ -1,8 +1,6 @@
 //
 // BundleActivator.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -79,6 +77,7 @@ public:
 		
 		Properties props;
 		props.set("io.macchina.device", XBeeSensor::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", XBeeSensor::TYPE);
 		props.set("io.macchina.physicalQuantity", params.physicalQuantity);
 		
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pSensorRemoteObject, props);

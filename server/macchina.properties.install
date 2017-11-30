@@ -9,6 +9,12 @@ osp.web.sessionManager.cookiePersistence = transient
 
 
 #
+# Settings
+#
+macchina.settings.path = ${application.configDir}settings.properties
+
+
+#
 # Authentication
 #
 # Note: Password for user "admin" is "admin".
@@ -76,6 +82,14 @@ simulation.sensors.humidity1.mode = random
 
 
 #
+# SensorLog
+#
+sensorlog.sensors.illuminance.id = io.macchina.simulation.sensor#0
+sensorlog.sensors.temperature.id = io.macchina.simulation.sensor#2
+sensorlog.sensors.humidity.query = name == "io.macchina.simulation.sensor#1"
+
+
+#
 # MQTT
 #
 # Create a MQTT client that connects to the MQTT test server
@@ -116,8 +130,8 @@ logging.channels.splitter.channels = console, webconsole
 #
 # NetSSL (OpenSSL) Configuration
 #
-openSSL.server.certificateFile = ${application.configDir}lobo.crt
-openSSL.server.privateKeyFile = ${application.configDir}lobo.key
+openSSL.server.certificateFile = ${application.configDir}macchina.pem
+openSSL.server.privateKeyFile = ${application.configDir}macchina.pem
 openSSL.server.verificationMode = none
 openSSL.server.verificationDepth = 9
 openSSL.server.loadDefaultCAFile = true

@@ -83,6 +83,10 @@ public:
 
 	virtual std::string testOneWayResult() = 0;
 
+	virtual void testPermission1() = 0;
+
+	virtual void testPermission2() = 0;
+
 	virtual Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1) = 0;
 
 	virtual Struct1 testStruct11(const Struct1& s1) = 0;

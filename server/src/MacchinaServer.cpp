@@ -1,8 +1,6 @@
 //
 // MacchinaServer.cpp
 //
-// $Id$
-//
 // The bundle container application for macchina.io
 //
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
@@ -17,11 +15,13 @@
 #include "Poco/Util/OptionSet.h"
 #include "Poco/Util/HelpFormatter.h"
 #include "Poco/Util/AbstractConfiguration.h"
+#include "Poco/Util/PropertyFileConfiguration.h"
 #include "Poco/OSP/OSPSubsystem.h"
 #include "Poco/OSP/ServiceRegistry.h"
 #include "Poco/ErrorHandler.h"
 #include "Poco/Environment.h"
 #include "Poco/Format.h"
+#include "Poco/File.h"
 #include <cstring>
 #include <iostream>
 
@@ -98,16 +98,52 @@ protected:
 	private:
 		MacchinaServer& _app;
 	};
+	
+	std::string loadSettings()
+	{
+		std::string settingsPath = config().getString("macchina.settings.path", "");
+		if (!settingsPath.empty())
+		{
+			Poco::AutoPtr<Poco::Util::PropertyFileConfiguration> pSettings;
+			Poco::File settingsFile(settingsPath);
+			if (settingsFile.exists())
+			{
+				pSettings = new Poco::Util::PropertyFileConfiguration(settingsPath);
+			}
+			else
+			{
+				pSettings = new Poco::Util::PropertyFileConfiguration;
+			}
+			config().add(pSettings, "macchina.settings", Poco::Util::Application::PRIO_DEFAULT, true, true);
+		}
+		return settingsPath;
+	}
 
 	void initialize(Application& self)
 	{
 		loadConfiguration(); // load default configuration files, if present
+		
+		int defaultThreadPoolCapacity = config().getInt("poco.threadPool.default.capacity", 32);
+		int defaultThreadPoolCapacityDelta = defaultThreadPoolCapacity - Poco::ThreadPool::defaultPool().capacity();
+		if (defaultThreadPoolCapacityDelta > 0)
+		{
+			Poco::ThreadPool::defaultPool().addCapacity(defaultThreadPoolCapacityDelta);
+		}
+		
+		std::string settingsPath = loadSettings();
+		
 		ServerApplication::initialize(self);
-		logger().information(Poco::format("System information: %s (%s) on %s, %u CPUs.",	
+		
+		if (!settingsPath.empty())
+		{
+			logger().information("Settings loaded from \"%s\".", settingsPath);
+		}
+		
+		logger().information("System information: %s (%s) on %s, %u CPU core(s).",	
 			Poco::Environment::osDisplayName(),
 			Poco::Environment::osVersion(),
 			Poco::Environment::osArchitecture(),
-			Poco::Environment::processorCount()));
+			Poco::Environment::processorCount());
 	}
 	
 	void defineOptions(OptionSet& options)

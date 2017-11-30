@@ -1,8 +1,6 @@
 //
 // Preferences.cpp
 //
-// $Id: //poco/1.7/OSP/src/Preferences.cpp#1 $
-//
 // Library: OSP
 // Package: PreferencesService
 // Module:  Preferences

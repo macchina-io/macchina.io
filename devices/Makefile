@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Makefile for macchina.io Devices
 #
 
@@ -15,6 +13,8 @@ clean all:
 	$(MAKE) -C Simulation $(MAKECMDGOALS)
 	$(MAKE) -C Linux $(MAKECMDGOALS)
 	$(MAKE) -C XBeeSensor $(MAKECMDGOALS)
+	$(MAKE) -C XDK $(MAKECMDGOALS)
+	$(MAKE) -C CISS $(MAKECMDGOALS)
 	$(MAKE) -C SensorTag $(MAKECMDGOALS)
 	$(MAKE) -C GNSS/NMEA $(MAKECMDGOALS)
 	$(MAKE) -C GNSS $(MAKECMDGOALS)

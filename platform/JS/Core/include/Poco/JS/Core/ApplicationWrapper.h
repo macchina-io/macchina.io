@@ -1,10 +1,8 @@
 //
 // ApplicationWrapper.h
 //
-// $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/ApplicationWrapper.h#3 $
-//
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  ApplicationWrapper
 //
 // Definition of the ApplicationWrapper interface.

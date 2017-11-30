@@ -30,6 +30,8 @@ MQTTClientRemoteObject::MQTTClientRemoteObject(const Poco::RemotingNG::Identifia
 	Poco::RemotingNG::RemoteObject(oid),
 	_pServiceObject(pServiceObject)
 {
+	_pServiceObject->connectionClosed += Poco::delegate(this, &MQTTClientRemoteObject::event__connectionClosed);
+	_pServiceObject->connectionEstablished += Poco::delegate(this, &MQTTClientRemoteObject::event__connectionEstablished);
 	_pServiceObject->connectionLost += Poco::delegate(this, &MQTTClientRemoteObject::event__connectionLost);
 	_pServiceObject->messageArrived += Poco::delegate(this, &MQTTClientRemoteObject::event__messageArrived);
 	_pServiceObject->messageDelivered += Poco::delegate(this, &MQTTClientRemoteObject::event__messageDelivered);
@@ -40,6 +42,8 @@ MQTTClientRemoteObject::~MQTTClientRemoteObject()
 {
 	try
 	{
+		_pServiceObject->connectionClosed -= Poco::delegate(this, &MQTTClientRemoteObject::event__connectionClosed);
+		_pServiceObject->connectionEstablished -= Poco::delegate(this, &MQTTClientRemoteObject::event__connectionEstablished);
 		_pServiceObject->connectionLost -= Poco::delegate(this, &MQTTClientRemoteObject::event__connectionLost);
 		_pServiceObject->messageArrived -= Poco::delegate(this, &MQTTClientRemoteObject::event__messageArrived);
 		_pServiceObject->messageDelivered -= Poco::delegate(this, &MQTTClientRemoteObject::event__messageDelivered);
@@ -67,6 +71,18 @@ void MQTTClientRemoteObject::remoting__enableRemoteEvents(const std::string& pro
 bool MQTTClientRemoteObject::remoting__hasEvents() const
 {
 	return true;
+}
+
+
+void MQTTClientRemoteObject::event__connectionClosed()
+{
+	connectionClosed(this);
+}
+
+
+void MQTTClientRemoteObject::event__connectionEstablished(const IoT::MQTT::ConnectionEstablishedEvent& data)
+{
+	connectionEstablished(this, data);
 }
 
 

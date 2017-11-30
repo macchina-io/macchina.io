@@ -1,8 +1,6 @@
 //
 // BundleActivator.cpp
 //
-// $Id$
-//
 // Copyright (c) 2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -22,8 +20,6 @@
 #include "Poco/LoggingRegistry.h"
 #include "Poco/EventChannel.h"
 #include "Poco/Delegate.h"
-#include "Poco/ActiveMethod.h"
-#include "Poco/ActiveDispatcher.h"
 #include "Poco/ExpireLRUCache.h"
 #include "Poco/ClassLibrary.h"
 
@@ -38,15 +34,13 @@ namespace IoT {
 namespace DeviceStatus {
 
 
-class BundleActivator: public Poco::OSP::BundleActivator, public Poco::ActiveDispatcher
+class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
 	typedef Poco::RemotingNG::ServerHelper<IoT::DeviceStatus::DeviceStatusService> ServerHelper;
+	typedef Poco::ExpireLRUCache<std::string, int> MessageCache;
 
-
-	BundleActivator():
-		postStatusAsync(this, &BundleActivator::postStatusAsyncImpl),
-		_messageCache(128, 30000)
+	BundleActivator()
 	{
 	}
 	
@@ -61,10 +55,14 @@ public:
 		Poco::OSP::PreferencesService::Ptr pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(pContext);
 		
 		int maxAgeHours = pPrefs->configuration()->getInt("deviceStatus.messages.maxAge", 30*24);
+		int messageCacheSize = pPrefs->configuration()->getInt("deviceStatus.messageCache.size", 128);
+		int messageCacheTimeout = pPrefs->configuration()->getInt("deviceStatus.messageCache.timeout", 30000);
 		
-		Poco::SharedPtr<IoT::DeviceStatus::DeviceStatusService> pDeviceStatusService = new DeviceStatusServiceImpl(pContext, maxAgeHours);
+		_pMessageCache = new MessageCache(messageCacheSize, messageCacheTimeout);
+		
+		_pDeviceStatusService = new DeviceStatusServiceImpl(pContext, maxAgeHours);
 		std::string oid("io.macchina.services.devicestatus");
-		ServerHelper::RemoteObjectPtr pDeviceStatusServiceRemoteObject = ServerHelper::createRemoteObject(pDeviceStatusService, oid);		
+		ServerHelper::RemoteObjectPtr pDeviceStatusServiceRemoteObject = ServerHelper::createRemoteObject(_pDeviceStatusService, oid);		
 		_pServiceRef = pContext->registry().registerService(oid, pDeviceStatusServiceRemoteObject, Properties());
 
 		std::string channelName = pPrefs->configuration()->getString("deviceStatus.channel", "");
@@ -156,15 +154,15 @@ protected:
 			text += ": ";
 			text += message.getText();
 			
-			if (!_messageCache.has(text))
+			if (!_pMessageCache->has(text))
 			{
 				StatusUpdate update;
 				update.status = status;
 				update.source = message.getSource();
 				update.text = message.getText();
 
-				postStatusAsync(update);
-				_messageCache.update(text, 0);
+				_pDeviceStatusService->postStatusAsync(update);
+				_pMessageCache->update(text, 0);
 			}
 		}
 		catch (...)
@@ -172,25 +170,12 @@ protected:
 		}
 	}
 
-	void postStatusAsyncImpl(const StatusUpdate& update)
-	{
-		try
-		{
-			_pDeviceStatusService->postStatus(update);
-		}
-		catch (...)
-		{
-		}
-	}
-	
-	Poco::ActiveMethod<void, StatusUpdate, BundleActivator, Poco::ActiveStarter<Poco::ActiveDispatcher> > postStatusAsync;
-
 private:
 	Poco::OSP::BundleContext::Ptr _pContext;
 	Poco::SharedPtr<IoT::DeviceStatus::DeviceStatusService> _pDeviceStatusService;
 	Poco::OSP::ServiceRef::Ptr _pServiceRef;
 	Poco::AutoPtr<Poco::EventChannel> _pEventChannel;
-	Poco::ExpireLRUCache<std::string, int> _messageCache;
+	Poco::SharedPtr<MessageCache> _pMessageCache;
 };
 
 

@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="com.appinf.osp.js.module" module="net" class="Poco::OSP::JS::Net::NetModuleFactory" library="com.appinf.osp.js.net"/>
+</extensions>

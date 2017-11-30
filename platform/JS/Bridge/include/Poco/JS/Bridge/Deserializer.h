@@ -1,10 +1,8 @@
 //
 // Deserializer.h
 //
-// $Id: //poco/1.4/JS/Bridge/include/Poco/JS/Bridge/Deserializer.h#4 $
-//
-// Library: JSBridge
-// Package: Bridge
+// Library: JS/Bridge
+// Package: Bridging
 // Module:  Deserializer
 //
 // Definition of the Deserializer class.

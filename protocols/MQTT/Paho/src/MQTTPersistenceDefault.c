@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 IBM Corp.
+ * Copyright (c) 2009, 2016 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -13,6 +13,7 @@
  * Contributors:
  *    Ian Craggs - initial API and implementation and/or initial documentation
  *    Ian Craggs - async client updates
+ *    Ian Craggs - fix for bug 484496
  *******************************************************************************/
 
 /**
@@ -73,8 +74,8 @@ int pstopen(void **handle, const char* clientID, const char* serverURI, void* co
 	/* Note that serverURI=address:port, but ":" not allowed in Windows directories */
 	perserverURI = malloc(strlen(serverURI) + 1);
 	strcpy(perserverURI, serverURI);
-	ptraux = strstr(perserverURI, ":");
-	*ptraux = '-' ;
+	while ((ptraux = strstr(perserverURI, ":")) != NULL)
+		*ptraux = '-' ;
 
 	/* consider '/'  +  '-'  +  '\0' */
 	clientDir = malloc(strlen(dataDir) + strlen(clientID) + strlen(perserverURI) + 3);
@@ -98,16 +99,17 @@ int pstopen(void **handle, const char* clientID, const char* serverURI, void* co
 	while ( (pToken != NULL) && (rc == 0) )
 	{
 		/* Append the next directory level and try to create it */
-		sprintf( pCrtDirName, "%s/%s", pCrtDirName, pToken );
+		strcat( pCrtDirName, "/" );
+		strcat( pCrtDirName, pToken );
 		rc = pstmkdir( pCrtDirName );
 		pToken = strtok_r( NULL, "\\/", &save_ptr );
 	}
 
 	*handle = clientDir;
 
-	free(perserverURI);
 	free(pTokDirName);
 	free(pCrtDirName);
+	free(perserverURI);
 
 	FUNC_EXIT_RC(rc);
 	return rc;
@@ -148,8 +150,8 @@ int pstput(void* handle, char* key, int bufcount, char* buffers[], int buflens[]
 	char *clientDir = handle;
 	char *file;
 	FILE *fp;
-	int bytesWritten = 0;
-	int bytesTotal = 0;
+	size_t bytesWritten = 0,
+	       bytesTotal = 0;
 	int i;
 
 	FUNC_ENTRY;
@@ -169,14 +171,14 @@ int pstput(void* handle, char* key, int bufcount, char* buffers[], int buflens[]
 		for(i=0; i<bufcount; i++)
 		{
 			bytesTotal += buflens[i];
-			bytesWritten += fwrite( buffers[i], sizeof(char), buflens[i], fp );
+			bytesWritten += fwrite(buffers[i], sizeof(char), buflens[i], fp );
 		}
 		fclose(fp);
 		fp = NULL;
 	} else
 		rc = MQTTCLIENT_PERSISTENCE_ERROR;
 
-	if ( bytesWritten != bytesTotal )
+	if (bytesWritten != bytesTotal)
 	{
 		pstremove(handle, key);
 		rc = MQTTCLIENT_PERSISTENCE_ERROR;
@@ -221,7 +223,7 @@ int pstget(void* handle, char* key, char** buffer, int* buflen)
 		fileLen = ftell(fp);
 		fseek(fp, 0, SEEK_SET);
 		buf=(char *)malloc(fileLen);
-		bytesRead = fread(buf, sizeof(char), fileLen, fp);
+		bytesRead = (int)fread(buf, sizeof(char), fileLen, fp);
 		*buffer = buf;
 		*buflen = bytesRead;
 		if ( bytesRead != fileLen )
@@ -717,8 +719,8 @@ int main (int argc, char *argv[])
 	int rc;
 	char *handle;
 	char *perdir = ".";
-	char *clientID = "TheUTClient";
-	char *serverURI = "127.0.0.1:1883";
+	const char *clientID = "TheUTClient";
+	const char *serverURI = "127.0.0.1:1883";
 
 	char *stem = MSTEM;
 	int msgId, i;

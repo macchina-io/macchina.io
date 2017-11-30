@@ -40,8 +40,13 @@ For the latest stable release, you may want to check out the master branch:
 
 macchina.io uses the build system from the POCO C++ Libraries, which is based on 
 GNU Make. You'll also need a recent version of the GNU C++ compiler (at least
-4.4) or Clang. On Linux systems, make sure you have the OpenSSL headers and libraries
-installed.
+4.4) or Clang. Make sure you have the OpenSSL headers and libraries
+installed, e.g.:
+
+  - on Ubuntu: <[sudo apt-get install libssl-dev]>
+  - on OS X: via [[http://brew.sh Homebrew]]: <[brew install openssl]>
+
+Furthermore, Python is required for building the V8 library.
 
 
 !!Compiling macchina.io
@@ -110,6 +115,14 @@ your target, you can build for the target with the following command (assuming t
 
 Note: unless you intend to debug on the target, it is sufficient to build the
 release configuration only.
+
+With some cross toolchains building the V8 library may fail when building the 
+mksnapshot executable. If this happens, you can disable the V8 snapshot feature
+by building with the variable V8_NOSNAPSHOT defined:
+
+    $ POCO_CONFIG=Yocto LINKMODE=SHARED make -s -j8 DEFAULT_TARGET=shared_release V8_NOSNAPSHOT=1
+----
+
 
 After the build completes, you'll need to copy the following files to the target:
 
@@ -393,6 +406,8 @@ send a SMS message using [[http://www.twilio.com Twilio]]. Note that for this
 example to work, you'll need to have a Twilio account with the ability to send SMS 
 messages.
 
+    var net = require('net');
+    
     function sendSMS(message)
     {
         var username = application.config.getString('twilio.username');
@@ -400,7 +415,7 @@ messages.
         var from = application.config.getString('twilio.from');
         var to = application.config.getString('twilio.to');
 
-        var twilioHttpRequest = new HTTPRequest('POST', 'https://api.twilio.com/2010-04-01/Accounts/' + username + '/SMS/Messages');
+        var twilioHttpRequest = new net.HTTPRequest('POST', 'https://api.twilio.com/2010-04-01/Accounts/' + username + '/SMS/Messages');
         twilioHttpRequest.authenticate(username, password);
         twilioHttpRequest.contentType = 'application/x-www-form-urlencoded';
         twilioHttpRequest.content = 
@@ -451,6 +466,6 @@ lines to the configuration file:
 
 Of course you'll need to replace the placeholders (<*<your_twilio_account_sid>*>, etc.)
 with the proper values from your Twilio account.
-We're using the HTTPRequest class for sending the HTTPS POST request to the Twilio API.
-The HTTPS request is sent asynchronously. We'll notified of the result via the callback
-function we provide to the send() function. 
+We're using the HTTPRequest class from the <*net*> module for sending the HTTPS POST 
+request to the Twilio API. The HTTPS request is sent asynchronously. 
+We'll notified of the result via the callback function we provide to the send() function. 

@@ -1,8 +1,6 @@
 //
 // BundleRepository.cpp
 //
-// $Id: //poco/1.7/OSP/src/BundleRepository.cpp#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleRepository
@@ -59,7 +57,18 @@ BundleRepository::BundleRepository(const std::string& path, BundleLoader& loader
 #endif
 	StringTokenizer tokenizer(path, pathSep, StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
 	_paths.insert(_paths.end(), tokenizer.begin(), tokenizer.end());
-	
+
+	if (_paths.empty())
+		throw Poco::InvalidArgumentException("At least one path must be supplied to a BundleRepository");
+}
+
+
+BundleRepository::BundleRepository(const std::vector<std::string>& paths, BundleLoader& loader, BundleFilter::Ptr pFilter):
+	_paths(paths),
+	_loader(loader),
+	_pFilter(pFilter),
+	_logger(Logger::get("com.osp.BundleRepository"))
+{
 	if (_paths.empty())
 		throw Poco::InvalidArgumentException("At least one path must be supplied to a BundleRepository");
 }
@@ -72,8 +81,6 @@ BundleRepository::~BundleRepository()
 
 void BundleRepository::loadBundles()
 {
-	poco_assert (!_paths.empty());
-
 	BundleMap bundles;
 	for (std::vector<std::string>::const_iterator it = _paths.begin(); it != _paths.end(); ++it)
 	{
@@ -96,9 +103,9 @@ void BundleRepository::loadBundles()
 		_loader.loadBundle(it->second);
 		if (_logger.information())
 		{
-			_logger.information(std::string("Loaded bundle ") 
-				+ it->second->symbolicName() 
-				+ "/" 
+			_logger.information(std::string("Loaded bundle ")
+				+ it->second->symbolicName()
+				+ "/"
 				+ it->second->version().toString());
 		}
 	}
@@ -188,7 +195,7 @@ void BundleRepository::loadBundles(const std::string& path, BundleMap& bundles)
 void BundleRepository::loadBundle(const std::string& path, BundleMap& bundles)
 {
 	Bundle::Ptr pBundle(_loader.createBundle(path));
-	
+
 	if (_pFilter && !_pFilter->accept(pBundle))
 	{
 		std::string msg("Bundle rejected by filter: ");
@@ -198,7 +205,7 @@ void BundleRepository::loadBundle(const std::string& path, BundleMap& bundles)
 		_logger.information(msg);
 		return;
 	}
-	
+
 	const std::string& id = pBundle->symbolicName();
 	BundleMap::iterator it = bundles.find(id);
 	if (it != bundles.end())
@@ -239,30 +246,42 @@ void BundleRepository::loadBundle(const std::string& path, BundleMap& bundles)
 	}
 }
 
-	
+
 Bundle::Ptr BundleRepository::installBundle(std::istream& istr)
 {
 	poco_assert (!_paths.empty());
-	
-	return installBundle(istr, _paths[0], std::string());
+
+	return installBundleImpl(istr, _paths[0], std::string());
+}
+
+
+Bundle::Ptr BundleRepository::installBundle(const std::string& repositoryPath, std::istream& istr)
+{
+	return installBundleImpl(istr, repositoryPath, std::string());
 }
 
 
 Bundle::Ptr BundleRepository::installBundle(std::istream& istr, const std::string& replaceBundle)
 {
 	poco_assert (!_paths.empty());
-	
-	return installBundle(istr, _paths[0], replaceBundle);
+
+	return installBundleImpl(istr, _paths[0], replaceBundle);
 }
 
 
-Bundle::Ptr BundleRepository::installBundle(std::istream& istr, const std::string& path, const std::string& replaceBundle)
+Bundle::Ptr BundleRepository::installBundle(const std::string& repositoryPath, std::istream& istr, const std::string& replaceBundle)
+{
+	return installBundleImpl(istr, repositoryPath, replaceBundle);
+}
+
+
+Bundle::Ptr BundleRepository::installBundleImpl(std::istream& istr, const std::string& path, const std::string& replaceBundle)
 {
 	Path p(path);
 	p.makeDirectory();
 	p.setFileName(tempBundleName());
 
-	File f(p);	
+	File f(p);
 	Poco::FileOutputStream ostr(f.path());
 	if (ostr.good())
 	{
@@ -278,7 +297,7 @@ Bundle::Ptr BundleRepository::installBundle(std::istream& istr, const std::strin
 			newName += pBundle->version().toString();
 			newName += ".bndl";
 			pBundle = 0;
-			
+
 			if (replaceBundle != symbolicName)
 			{
 				Bundle::Ptr pExistingBundle = _loader.findBundle(symbolicName);
@@ -287,22 +306,22 @@ Bundle::Ptr BundleRepository::installBundle(std::istream& istr, const std::strin
 					throw Poco::OSP::BundleInstallException("A bundle with the same symbolic name is already installed", symbolicName);
 				}
 			}
-			
+
 			if (!replaceBundle.empty())
 			{
 				removeBundle(replaceBundle);
 			}
-			
+
 			Path np(p);
-			np.setFileName(newName);		
+			np.setFileName(newName);
 			f.renameTo(np.toString());
 
 			pBundle = _loader.loadBundle(np.toString());
 			if (_logger.information())
 			{
-				_logger.information(std::string("Installed bundle ") 
-					+ pBundle->symbolicName() 
-					+ "/" 
+				_logger.information(std::string("Installed bundle ")
+					+ pBundle->symbolicName()
+					+ "/"
 					+ pBundle->version().toString()
 					+ " to '"
 					+ f.path()
@@ -330,11 +349,11 @@ std::string BundleRepository::tempBundleName() const
 {
 	static FastMutex serialMutex;
 	static unsigned serial(0);
-	
+
 	serialMutex.lock();
 	unsigned n = serial++;
 	serialMutex.unlock();
-	
+
 	std::string name("tmp.bundle-");
 	name += NumberFormatter::format(n);
 	return name;
@@ -350,7 +369,7 @@ void BundleRepository::removeBundle(const std::string& symbolicName)
 		{
 			pBundle->stop();
 		}
-		if (pBundle->state() == Bundle::BUNDLE_RESOLVED 
+		if (pBundle->state() == Bundle::BUNDLE_RESOLVED
 		 || pBundle->state() == Bundle::BUNDLE_INSTALLED)
 		{
 			pBundle->uninstall();

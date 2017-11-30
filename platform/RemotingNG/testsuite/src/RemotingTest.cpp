@@ -1,8 +1,6 @@
 //
 // RemotingTest.cpp
 //
-// $Id: //poco/1.7/RemotingNG/testsuite/src/RemotingTest.cpp#2 $
-//
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -23,6 +21,7 @@
 #include "Poco/RemotingNG/Skeleton.h"
 #include "Poco/RemotingNG/EventSubscriber.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
+#include "Poco/RemotingNG/Authorizer.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/NumberFormatter.h"
@@ -41,10 +40,20 @@ namespace
 	class MockServerTransport: public Poco::RemotingNG::ServerTransport
 	{
 	public:
-		MockServerTransport(std::istream& istr, std::ostream& ostr):
+		MockServerTransport(std::istream& istr, std::ostream& ostr, Poco::RemotingNG::Authorizer::Ptr pAuthorizer):
 			_istr(istr),
-			_ostr(ostr)
+			_ostr(ostr),
+			_pAuthorizer(pAuthorizer)
 		{
+		}
+		
+		bool authorize(const std::string& method, const std::string& permission)
+		{	
+			if (_pAuthorizer)
+			{
+				return _pAuthorizer->authorize(method, permission);
+			}
+			return false;
 		}
 		
 		Poco::RemotingNG::Deserializer& beginRequest()
@@ -68,6 +77,7 @@ namespace
 		std::ostream& _ostr;
 		Poco::RemotingNG::BinarySerializer _serializer;
 		Poco::RemotingNG::BinaryDeserializer _deserializer;
+		Poco::RemotingNG::Authorizer::Ptr _pAuthorizer;
 	};
 	
 	class MockListener: public Poco::RemotingNG::EventListener
@@ -101,7 +111,7 @@ namespace
 
 		void invoke(const std::string& typeId, const std::string& oid, std::istream& istr, std::ostream& ostr)
 		{
-			MockServerTransport transport(istr, ostr);
+			MockServerTransport transport(istr, ostr, getAuthorizer());
 			std::string objectPath(_protocol);
 			objectPath += '/';
 			objectPath += endPoint();
@@ -306,6 +316,27 @@ namespace
 
 	private:
 		MockListener::Ptr _pListener;
+	};
+	
+	class MockAuthorizer: public Poco::RemotingNG::Authorizer
+	{
+	public:
+		MockAuthorizer(const std::string& permission):
+			_permission(permission)
+		{
+		}
+		
+		~MockAuthorizer()
+		{
+		}
+		
+		bool authorize(const std::string& method, const std::string& permission)
+		{
+			return permission == _permission;
+		}
+		
+	private:
+		std::string _permission;
 	};
 }
 
@@ -649,6 +680,13 @@ void RemotingTest::testFilteredEvent()
 }
 
 
+void RemotingTest::testPermissions()
+{
+	ITester::Ptr pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
+	testPermissions(pTester);
+}
+
+
 void RemotingTest::testInt(ITester::Ptr pTester)
 {
 	int i = pTester->testInt1(42);
@@ -943,6 +981,34 @@ void RemotingTest::testStruct1Vec(ITester::Ptr pTester)
 }
 
 
+void RemotingTest::testPermissions(ITester::Ptr pTester)
+{
+	try
+	{
+		pTester->testPermission1();
+		fail("no authorizer - must throw");
+	}
+	catch (Poco::RemotingNG::RemoteException&)
+	{
+	}
+	
+	_pListener->setAuthorizer(new MockAuthorizer("perm1"));
+	pTester->testPermission1();
+	
+	try
+	{
+		pTester->testPermission2();
+		fail("no permission - must throw");
+	}
+	catch (Poco::RemotingNG::RemoteException&)
+	{
+	}
+
+	_pListener->setAuthorizer(new MockAuthorizer("perm2"));
+	pTester->testPermission2();
+}
+
+
 void RemotingTest::onEvent(const void* pSender, std::string& arg)
 {
 	_eventArg = arg;
@@ -985,6 +1051,7 @@ CppUnit::Test* RemotingTest::suite()
 	CppUnit_addTest(pSuite, RemotingTest, testOneWayEvent);
 	CppUnit_addTest(pSuite, RemotingTest, testVoidEvent);
 	CppUnit_addTest(pSuite, RemotingTest, testFilteredEvent);
+	CppUnit_addTest(pSuite, RemotingTest, testPermissions);
 
 	return pSuite;
 }

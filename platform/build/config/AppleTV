@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # AppleTV
 #
 # Build settings for tvOS 9.0 and newer
@@ -65,7 +63,7 @@ SHAREDLIBLINKEXT = .dylib
 #
 # Compiler and Linker Flags
 #
-CFLAGS          = $(OSFLAGS)
+CFLAGS          = $(OSFLAGS) -std=gnu99
 CFLAGS32        =
 CFLAGS64        =
 CXXFLAGS        = $(OSFLAGS) -std=c++11 -stdlib=libc++ -Wall -Wno-sign-compare 
@@ -90,7 +88,7 @@ RELEASEOPT_LINK =
 #
 # System Specific Flags
 #
-SYSFLAGS = -DPOCO_HAVE_IPv6 -DPOCO_NO_FPENVIRONMENT -DPOCO_NO_STAT64 -DPOCO_NO_SHAREDLIBS -DPOCO_NO_NET_IFTYPES -DPOCO_NO_FORK_EXEC
+SYSFLAGS = -DPOCO_HAVE_IPv6 -DPOCO_SOCKETADDRESS_DONT_PREFER_IPV4 -DPOCO_NO_FPENVIRONMENT -DPOCO_NO_STAT64 -DPOCO_NO_SHAREDLIBS -DPOCO_NO_NET_IFTYPES -DPOCO_NO_FORK_EXEC
 
 #
 # System Specific Libraries

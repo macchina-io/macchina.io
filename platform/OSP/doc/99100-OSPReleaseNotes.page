@@ -1,7 +1,47 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2017.2
+
+!!Summary of Changes
+
+  - Bundle Signing now supports SHA-2 hash algorithms.
+  - Improved error reporting in BundleLoader. If a bundle another bundle depends on
+    fails to start, report the name of the failing bundle, not the name of the
+    depending bundle.
+  - BundleCreator: allow specifying the version of the bundle in the command-line
+    arguments.
+  - Web: added support for session-based authentication
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
+!!!Release 2017.1
+
+!!Summary of Changes
+
+  - Refactored AuthAdminService to enable different database backends (e.g., MongoDB) in
+    addition to the existing SQL database backend.
+  - AuthAdminService: added support for SCRAM-SHA-1 authentication over SASL.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2016.2
+
+!!Summary of Changes
 
   - Poco::OSP::BundleEvents: added bundleFailed event if starting a bundle fails
   - Added Poco::OSP::BundleFilter class. This new class allows filtering of bundles
@@ -22,7 +62,9 @@ Open Service Platform
 
 !!!Release 2016.1
 
-  - Poco::OSP::BundleRepository: prevent a bundle from being newly installed if a bundle 
+!!Summary of Changes
+
+  - Poco::OSP::BundleRepository: prevent a bundle from being newly installed if a bundle
     with same symbolic name already exists.
   - Poco::OSP::BundleLoader: allow setting a fixed operating system name and
     architecture at compile time via POCO_TARGET_OSNAME and POCO_TARGET_OSARCH
@@ -30,7 +72,7 @@ Open Service Platform
     of Poco::Environment::osName() and Poco::Environment::osArchitecture().
   - Poco::OSP::Auth::AuthAdminServiceImpl: use transactions consequently in all
     methods modifying the authentication database.
-  - Poco::OSP::Auth::AuthAdminServiceImpl: new configuration setting 
+  - Poco::OSP::Auth::AuthAdminServiceImpl: new configuration setting
     "auth.ldap.localUsers". User accounts that match the regular expression specified
     with this property will never be looked up via LDAP, always via local database only.
 
@@ -44,6 +86,8 @@ Open Service Platform
 
 
 !!!Release 2015.2
+
+!!Summary of Changes
 
   - Allow passing arguments to OSP WebFilterExtensionPoint
 
@@ -93,9 +137,9 @@ Open Service Platform
   - Web Server: Added support for HTTP request logging.
   - OSP Shell: Bundle and service commands have been put into a separate bundle
     (com.appinf.osp.shell.commands).
-  - OSP Shell: Help command now has aliases 'h' and '?' and also supports 
+  - OSP Shell: Help command now has aliases 'h' and '?' and also supports
     "help <command>" syntax.
-  - OSP Core: Code cache is automatically updated with latest shared libraries if a new 
+  - OSP Core: Code cache is automatically updated with latest shared libraries if a new
     version of a bundle is installed. This can be disabled by setting the
     "osp.autoUpdateCodeCache" configuration property to false.
   - OSP Core: When stopping bundles, the bundle's run levels are accounted for.
@@ -121,7 +165,7 @@ Open Service Platform
     delivering asynchronous notifications to browser clients using a WebSocket based on
     a subject-based publish-subscribe mechanism.
     See the WebEvent sample for more information.
-  - The Net bundle now unregisters the Poco::Net::HTTPStreamFactory and Poco::NetFTPStreamFactory 
+  - The Net bundle now unregisters the Poco::Net::HTTPStreamFactory and Poco::NetFTPStreamFactory
     when stopping.
   - The NetSSL_OpenSSL bundle now unregisters the Poco::Net::HTTPSStreamFactory when stopping.
 
@@ -163,7 +207,7 @@ Open Service Platform
   - The OSP web server can now be disabled through the configuration by
     specifying a port number of 0.
   - Poco::OSP::ServiceRegistry::unregisterService() now checks for a null ServiceRef.
-  - The Bundle Creator tool supports a new command-line option (--no-deflate, -N) to 
+  - The Bundle Creator tool supports a new command-line option (--no-deflate, -N) to
     disable compression of bundle file contents.
   - The OSP Web Server now supports gzip content compression for static content in bundles.
 
@@ -180,11 +224,11 @@ Open Service Platform
 
 !!Summary of Changes
 
-  - Poco::OSP::BundleLoader: do not attempt to load bundles from hidden directories 
+  - Poco::OSP::BundleLoader: do not attempt to load bundles from hidden directories
     (such as .svn directories).
   - Poco::OSP::Web::WebServerDispatcher now has improved error handling (more detailed logging
     of server errors).
-  - Poco::OSP::Web::WebServerDispatcher now sets Last-Modified header for static content 
+  - Poco::OSP::Web::WebServerDispatcher now sets Last-Modified header for static content
     served from bundles to enable browser caching of content.
   - Poco::OSP::Web::WebSessionManager now allows setting a default domain
     and path for the session cookie.
@@ -208,33 +252,33 @@ Open Service Platform
     This allows for static registration of bundle activators. This way, parts of
     OSP can also be used on platforms that don't support dynamic loading
     of shared libraries (such as iOS).
-  - Poco::OSP::Web::WebSessionManager: it is now possible to control the domain and 
-    path of the session cookie by including them in the appName (e.g., 
+  - Poco::OSP::Web::WebSessionManager: it is now possible to control the domain and
+    path of the session cookie by including them in the appName (e.g.,
     myCookie@.mydomain.com/path).
   - Added Crypto bundle for deploying POCO Crypto library.
-  - OSP Shell services command now supports --properties option to print service 
+  - OSP Shell services command now supports --properties option to print service
     properties.
-  - OSP Web Server: if a request handler factory now returns a 0 pointer instead of a 
+  - OSP Web Server: if a request handler factory now returns a 0 pointer instead of a
     proper request handler instance, a 404 error is reported.
-  - OSP Web Server: added Poco::OSP::Web::WebServerService. Subclasses of this class 
-    are registered by the standard web server and secure web server bundles and can 
+  - OSP Web Server: added Poco::OSP::Web::WebServerService. Subclasses of this class
+    are registered by the standard web server and secure web server bundles and can
     be used to find port numbers and server params of running web servers.
-  - Web Index bundle no longer responds to arbitrary request URIs, only / and 
-    /index.html (fixes a potential security issue where a request for a 
-    non-existing path would automatically resolve to the Web Index bundle, even 
+  - Web Index bundle no longer responds to arbitrary request URIs, only / and
+    /index.html (fixes a potential security issue where a request for a
+    non-existing path would automatically resolve to the Web Index bundle, even
     if it's not meant to be shown).
-  - Web Info bundle now displays additional information and uses Poco::Net::NetworkInterface 
-    class instead of DNS to enumerate IP addresses (fixes exception with embedded 
+  - Web Info bundle now displays additional information and uses Poco::Net::NetworkInterface
+    class instead of DNS to enumerate IP addresses (fixes exception with embedded
     systems that lack proper DNS configuration).
   - Added convenience methods getValue() and setValue() to Poco::OSP::Web::WebSession.
-  - ServiceRegistry: when registering or unregistering a service, the lock on the 
-    registry is now released before the corresponding event is fired. 
-    This allows registration or deregistration of services from within the event 
+  - ServiceRegistry: when registering or unregistering a service, the lock on the
+    registry is now released before the corresponding event is fired.
+    This allows registration or deregistration of services from within the event
     handler. Previously, this would cause a deadlock.
   - Added Poco::OSP::ServiceFinder utility class template.
   - BundleCreator: added support for extension bundles.
   - OSP: added support for extension bundles.
-  - The path(list) passed to BundleRepository can now include wildcard, 
+  - The path(list) passed to BundleRepository can now include wildcard,
     as well as direct paths to bundles.
 
 !!Known Issues
@@ -244,7 +288,7 @@ Open Service Platform
 !!Incompatible Changes and Possible Transition Issues
 
   - None at this time.
-  
+
 
 !!!Release 2009.2p4
 
@@ -276,7 +320,7 @@ Open Service Platform
 !!Known Issues
 
   - None at this time.
-  
+
 !!Incompatible Changes and Possible Transition Issues
 
   - The Remoting bundles have been renamed from poco.remoting.* to
@@ -303,7 +347,7 @@ Open Service Platform
     for cryptographically signing bundles, as well as for
     verifying the signature of bundles.
 
-    
+
 !!Known Issues
 
   - None at this time.
@@ -364,7 +408,7 @@ Release 1.3 of the POCO C++ Libraries is the first official release supporting t
   - OSP Web: check client IP address when accessing a WebSession
   - BundleCreator: empty dependency version in bundlespec is okay
   - fixed OSP shared library names to match naming conventions
-  - Stopping a Remoting Transport bundle (such as poco.remoting.binary or poco.remoting.soap) 
+  - Stopping a Remoting Transport bundle (such as poco.remoting.binary or poco.remoting.soap)
     before stopping the Remoting bundle will no longer
     crash the application, due to insufficient cleanup when unloading the transport library.
 

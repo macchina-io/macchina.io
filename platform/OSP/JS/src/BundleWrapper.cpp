@@ -1,8 +1,6 @@
 //
 // BundleWrapper.cpp
 //
-// $Id: //poco/1.4/OSP/JS/src/BundleWrapper.cpp#4 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -103,7 +101,11 @@ void BundleWrapper::getResource(const v8::FunctionCallbackInfo<v8::Value>& args)
 	std::string data;
 	try
 	{
+#if __cplusplus < 201103L	
 		std::auto_ptr<std::istream> pStream(pBundle->getResource(name));
+#else
+		std::unique_ptr<std::istream> pStream(pBundle->getResource(name));
+#endif
 		if (pStream.get())
 		{
 			Poco::StreamCopier::copyToString(*pStream, data);
@@ -126,7 +128,11 @@ void BundleWrapper::getBinaryResource(const v8::FunctionCallbackInfo<v8::Value>&
 	std::string data;
 	try
 	{
+#if __cplusplus < 201103L	
 		std::auto_ptr<std::istream> pStream(pBundle->getResource(name));
+#else
+		std::unique_ptr<std::istream> pStream(pBundle->getResource(name));
+#endif
 		if (pStream.get())
 		{
 			Poco::StreamCopier::copyToString(*pStream, data);

@@ -1,8 +1,6 @@
 //
 // Bundle.cpp
 //
-// $Id: //poco/1.7/OSP/src/Bundle.cpp#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  Bundle
@@ -272,7 +270,11 @@ Bundle::Ptr Bundle::extendedBundle() const
 
 void Bundle::loadManifest()
 {
+#if __cplusplus < 201103L
 	std::auto_ptr<std::istream> pStream(_pStorage->getResource(MANIFEST_FILE));
+#else
+	std::unique_ptr<std::istream> pStream(_pStorage->getResource(MANIFEST_FILE));
+#endif
 	if (pStream.get())
 		_pManifest = new BundleManifest(*pStream);
 	else
@@ -297,7 +299,11 @@ void Bundle::loadProperties()
 
 void Bundle::addProperties(const std::string& path)
 {
+#if __cplusplus < 201103L
 	std::auto_ptr<std::istream> pStream(getResource(path));
+#else
+	std::unique_ptr<std::istream> pStream(getResource(path));
+#endif
 	if (pStream.get())
 	{
 		PropertyFileConfiguration* pConfig = new PropertyFileConfiguration(*pStream);

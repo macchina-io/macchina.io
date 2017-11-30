@@ -1,15 +1,14 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/JS/Bridge/Makefile#2 $
-#
 # Makefile for Poco JS Bridge library
 #
 
 include $(POCO_BASE)/build/rules/global
 
 objects = Serializer Deserializer Listener \
-	BridgeWrapper JSONEventSerializer
+	TaggedBinarySerializer TaggedBinaryReader \
+	BridgeWrapper
 
 target         = PocoJSBridge
 target_version = 1

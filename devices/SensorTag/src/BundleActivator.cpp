@@ -1,8 +1,6 @@
 //
 // BundleActivator.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -22,8 +20,7 @@
 #include "Poco/Util/TimerTask.h"
 #include "IoT/Devices/SensorServerHelper.h"
 #include "IoT/Devices/AccelerometerServerHelper.h"
-#include "IoT/BtLE/BlueZGATTClient.h"
-#include "IoT/BtLE/PeripheralImpl.h"
+#include "IoT/BtLE/PeripheralFactory.h"
 #include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
@@ -46,7 +43,6 @@ using Poco::OSP::PreferencesService;
 
 
 namespace IoT {
-namespace BtLE {
 namespace SensorTag {
 
 
@@ -56,19 +52,19 @@ public:
 	BundleActivator()
 	{
 	}
-	
+
 	~BundleActivator()
 	{
 	}
-	
-	void createSensor(Peripheral::Ptr pPeripheral, const SensorTagSensor::Params& params)
+
+	void createSensor(BtLE::Peripheral::Ptr pPeripheral, const SensorTagSensor::Params& params)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor> ServerHelper;
 
 		Poco::SharedPtr<SensorTagSensor> pSensor;
 		if (pPeripheral->modelNumber() != "CC2650 SensorTag")
 		{
-			if (params.physicalQuantity == "ambientTemperature")
+			if (params.physicalQuantity == "temperature")
 				pSensor = new SensorTag1IRAmbientTemperatureSensor(pPeripheral, params, _pTimer);
 			else if (params.physicalQuantity == "objectTemperature")
 				pSensor = new SensorTag1IRObjectTemperatureSensor(pPeripheral, params, _pTimer);
@@ -76,12 +72,12 @@ public:
 				pSensor = new SensorTagHumiditySensor(pPeripheral, params, _pTimer);
 			else if (params.physicalQuantity == "airPressure")
 				pSensor = new SensorTag1AirPressureSensor(pPeripheral, params, _pTimer);
-			else 
+			else
 				throw Poco::InvalidArgumentException("Unknown sensor type", params.physicalQuantity);
 		}
 		else
 		{
-			if (params.physicalQuantity == "ambientTemperature")
+			if (params.physicalQuantity == "temperature")
 				pSensor = new SensorTag2IRAmbientTemperatureSensor(pPeripheral, params, _pTimer);
 			else if (params.physicalQuantity == "objectTemperature")
 				pSensor = new SensorTag2IRObjectTemperatureSensor(pPeripheral, params, _pTimer);
@@ -91,7 +87,7 @@ public:
 				pSensor = new SensorTag2LightSensor(pPeripheral, params, _pTimer);
 			else if (params.physicalQuantity == "airPressure")
 				pSensor = new SensorTag2AirPressureSensor(pPeripheral, params, _pTimer);
-			else 
+			else
 				throw Poco::InvalidArgumentException("Unknown sensor type", params.physicalQuantity);
 		}
 
@@ -102,17 +98,18 @@ public:
 		oid += pPeripheral->address();
 
 		ServerHelper::RemoteObjectPtr pSensorRemoteObject = ServerHelper::createRemoteObject(pSensor, oid);
-		
+
 		Properties props;
 		props.set("io.macchina.device", SensorTagSensor::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", SensorTagSensor::TYPE);
 		props.set("io.macchina.physicalQuantity", params.physicalQuantity);
 		props.set("io.macchina.btle.address", pPeripheral->address());
-		
+
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pSensorRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
 
-	void createAccelerometer(Peripheral::Ptr pPeripheral, const SensorTagAccelerometer::Params& params)
+	void createAccelerometer(BtLE::Peripheral::Ptr pPeripheral, const SensorTagAccelerometer::Params& params)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Accelerometer> ServerHelper;
 
@@ -131,16 +128,17 @@ public:
 		oid += pPeripheral->address();
 
 		ServerHelper::RemoteObjectPtr pAccelerometerRemoteObject = ServerHelper::createRemoteObject(pAccelerometer, oid);
-		
+
 		Properties props;
 		props.set("io.macchina.device", SensorTagAccelerometer::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", SensorTagAccelerometer::TYPE);
 		props.set("io.macchina.btle.address", pPeripheral->address());
-		
+
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pAccelerometerRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
 
-	void createSensors(Peripheral::Ptr pPeripheral, const std::string& baseKey)
+	void createSensors(BtLE::Peripheral::Ptr pPeripheral, const std::string& baseKey)
 	{
 		SensorTagSensor::Params params;
 
@@ -158,24 +156,24 @@ public:
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create SensorTag %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create SensorTag %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// ambient temperature
 		params.serviceUUID = "f000aa00-0451-4000-b000-000000000000";
 		params.controlUUID = "f000aa02-0451-4000-b000-000000000000";
 		params.dataUUID    = "f000aa01-0451-4000-b000-000000000000";
-		params.physicalQuantity = "ambientTemperature";
+		params.physicalQuantity = "temperature";
 		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS;
-		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".ambientTemperature.pollInterval", 10000);
-		
+		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".temperature.pollInterval", 10000);
+
 		try
 		{
 			createSensor(pPeripheral, params);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create SensorTag %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create SensorTag %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// object temperature
@@ -185,14 +183,14 @@ public:
 		params.physicalQuantity = "objectTemperature";
 		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS;
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".objectTemperature.pollInterval", 10000);
-		
+
 		try
 		{
 			createSensor(pPeripheral, params);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create SensorTag %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create SensorTag %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// illuminance
@@ -202,17 +200,17 @@ public:
 		params.physicalQuantity = "illuminance";
 		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_LUX;
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".illuminance.pollInterval", 10000);
-		
+
 		try
 		{
 			if (pPeripheral->modelNumber() == "CC2650 SensorTag")
 			{
 				createSensor(pPeripheral, params);
-			}			
+			}
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create SensorTag %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create SensorTag %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// air pressure
@@ -222,14 +220,14 @@ public:
 		params.physicalQuantity = "airPressure";
 		params.physicalUnit = "hPa";
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".airPressure.pollInterval", 10000);
-		
+
 		try
 		{
 			createSensor(pPeripheral, params);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create SensorTag %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create SensorTag %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// accelerometer
@@ -257,7 +255,7 @@ public:
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create SensorTag Accelerometer: %s", exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create SensorTag Accelerometer: %s", exc.displayText()));
 		}
 	}
 
@@ -266,32 +264,33 @@ public:
 		_pContext = pContext;
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
 		_pTimer = new Poco::Util::Timer;
-	
+
 		Poco::Util::AbstractConfiguration::Keys keys;
-		std::string helperPath = _pPrefs->configuration()->getString("btle.bluez.helper");
 		_pPrefs->configuration()->keys("sensortag.sensors", keys);
+
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "sensortag.sensors.";
 			baseKey += *it;
 
 			std::string address = _pPrefs->configuration()->getString(baseKey + ".address");
-		
+
 			try
-			{	
-				GATTClient::Ptr pGATTClient = new BlueZGATTClient(helperPath);
-				Peripheral::Ptr pPeripheral = new PeripheralImpl(address, pGATTClient);
+			{
+				IoT::BtLE::PeripheralFactory::Ptr pPeripheralFactory = ServiceFinder::find<IoT::BtLE::PeripheralFactory>(pContext);
+				BtLE::Peripheral::Ptr pPeripheral = pPeripheralFactory->createPeripheral(address);
+
 				pPeripheral->connected += Poco::delegate(this, &BundleActivator::onConnected);
-				pPeripheral->disconnected += Poco::delegate(this, &BundleActivator::onDisconnected);	
+				pPeripheral->disconnected += Poco::delegate(this, &BundleActivator::onDisconnected);
 
 				PeripheralInfo info;
 				info.pPeripheral = pPeripheral;
 				info.baseKey = baseKey;
 				info.reconnectDelay = MIN_RECONNECT_DELAY;
 				info.haveSensors = false;
-				_peripherals.push_back(info);		
+				_peripherals.push_back(info);
 
-				pPeripheral->connect(GATTClient::GATT_CONNECT_NOWAIT);
+				pPeripheral->connectAsync();
 			}
 			catch (Poco::Exception& exc)
 			{
@@ -299,7 +298,7 @@ public:
 			}
 		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		_pTimer->cancel(true);
@@ -309,17 +308,32 @@ public:
 			_pContext->registry().unregisterService(*it);
 		}
 		_serviceRefs.clear();
+
+		for (std::vector<PeripheralInfo>::iterator it = _peripherals.begin(); it != _peripherals.end(); ++it)
+		{
+			try
+			{
+				it->pPeripheral->connected -= Poco::delegate(this, &BundleActivator::onConnected);
+				it->pPeripheral->disconnected -= Poco::delegate(this, &BundleActivator::onDisconnected);
+				it->pPeripheral->disconnect();
+			}
+			catch (Poco::Exception& exc)
+			{
+				_pContext->logger().warning("Error disconnecting peripheral %s", it->pPeripheral->address());
+			}
+		}
+
 		_peripherals.clear();
 
 		_pPrefs = 0;
 		_pContext = 0;
 	}
-	
+
 protected:
 	class ReconnectTask: public Poco::Util::TimerTask
 	{
 	public:
-		ReconnectTask(BundleActivator& activator, Peripheral::Ptr pPeripheral):
+		ReconnectTask(BundleActivator& activator, BtLE::Peripheral::Ptr pPeripheral):
 			_bundleActivator(activator),
 			_pPeripheral(pPeripheral)
 		{
@@ -332,7 +346,7 @@ protected:
 
 	private:
 		BundleActivator& _bundleActivator;
-		Peripheral::Ptr _pPeripheral;
+		BtLE::Peripheral::Ptr _pPeripheral;
 	};
 
 	void onConnected(const void* pSender)
@@ -381,19 +395,19 @@ protected:
 		}
 	}
 
-	void connect(Peripheral::Ptr pPeripheral)
+	void connect(BtLE::Peripheral::Ptr pPeripheral)
 	{
 		try
 		{
-			pPeripheral->connect(GATTClient::GATT_CONNECT_NOWAIT);
+			pPeripheral->connectAsync();
 		}
 		catch (Poco::Exception& exc)
 		{
 			_pContext->logger().error(Poco::format("Cannot reconnect to device %s: %s", pPeripheral->address(), exc.displayText()));
 		}
 	}
-	
-	enum 
+
+	enum
 	{
 		MIN_RECONNECT_DELAY = 1000,
 		MAX_RECONNECT_DELAY = 30000
@@ -402,7 +416,7 @@ protected:
 private:
 	struct PeripheralInfo
 	{
-		Peripheral::Ptr pPeripheral;
+		BtLE::Peripheral::Ptr pPeripheral;
 		std::string baseKey;
 		unsigned reconnectDelay;
 		bool haveSensors;
@@ -416,9 +430,9 @@ private:
 };
 
 
-} } } // namespace IoT::BtLE::SensorTag
+} } // namespace IoT::SensorTag
 
 
 POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
-	POCO_EXPORT_CLASS(IoT::BtLE::SensorTag::BundleActivator)
+	POCO_EXPORT_CLASS(IoT::SensorTag::BundleActivator)
 POCO_END_MANIFEST

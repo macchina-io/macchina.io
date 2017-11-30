@@ -1,8 +1,6 @@
 //
 // ModuleFactory.h
 //
-// $Id$
-//
 // Library: OSP/JS
 // Package: Module
 // Module:  ModuleFactory

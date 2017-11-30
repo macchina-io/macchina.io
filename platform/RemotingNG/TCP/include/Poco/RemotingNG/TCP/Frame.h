@@ -1,8 +1,6 @@
 //
 // Frame.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Frame.h#1 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  Frame
@@ -70,20 +68,47 @@ public:
 			///
 			/// The frame has no payload.
 
+		FRAME_TYPE_AUTH = 0x41555448,
+			/// "AUTH" - A Remoting NG authentication request message.
+			///
+			/// Payload:
+			///   - mechanism: string
+			///   - payload: serialized credentials (key-value pairs)
+
+		FRAME_TYPE_AUTC = 0x41555443,
+			/// "AUTC" - A Remoting NG authentication continuation message.
+			/// 
+			/// Payload:
+			///   - conversation ID: UInt32
+			///   - payload: serialized credentials (key-value pairs)
+			
+		FRAME_TYPE_AUTR = 0x41555452,
+			/// "AUTR" - A Remoting NG authentication response message.
+			///
+			/// Payload is:
+			///   - state: UInt8 (0x01 = Done, 0x02 = Continue, 0x80 = Failed)
+			///   - conversation ID: UInt32
+			///   - payload: serialized credentials (key-value pairs)
+			///   - authToken (only if state = Done)
+
 		FRAME_TYPE_REQU = 0x52455155,
 			/// "REQU" - A Remoting NG request message.
+			///
 			/// Payload is serialized request (see Poco::RemotingNG::BinarySerializer).
 
 		FRAME_TYPE_REPL = 0x5245504C,
 			/// "RESP" - A Remoting NG reply message.
+			///
 			/// Payload is serialized reply (see Poco::RemotingNG::BinarySerializer).
 			
 		FRAME_TYPE_EVNT = 0x45564E54,
 			/// "EVNT" - A Remoting NG event message.
+			///
 			/// Payload is serialized event (see Poco::RemotingNG::BinarySerializer).
 			
 		FRAME_TYPE_EVNR = 0x45564E52,
 			/// "EVNR" - A Remoting NG event reply message.
+			///
 			/// Payload is serialized event reply (see Poco::RemotingNG::BinarySerializer).
 			
 		FRAME_TYPE_EVSU = 0x45565355,
@@ -108,6 +133,9 @@ public:
 		FRAME_FLAG_DEFLATE = 0x0008,
 			/// Frame/message payload is compressed using zlib deflate
 			/// algorithm.
+
+		FRAME_FLAG_AUTH    = 0x0010,
+			/// Frame contains authentication token.
 			
 		FRAME_FLAG_EXTHDR  = 0x8000
 			/// Extended header - reserved for future use.
@@ -128,13 +156,17 @@ public:
 	enum Version
 	{
 		PROTO_MAJOR_VERSION = 1,
-		PROTO_MINOR_VERSION = 0
+		PROTO_MINOR_VERSION = 1
 	};
 	
 	enum Capabilities
 	{
-		CAPA_REMOTING_PROTOCOL_1_0 = 0x524D0100 
+		CAPA_REMOTING_PROTOCOL_1_0 = 0x524D0100,
 			/// The endpoint understands the Remoting NG binary protocol, version 1.0
+
+		CAPA_REMOTING_PROTOCOL_1_1 = 0x524D0101,
+			/// The endpoint understands the Remoting NG binary protocol, version 1.1
+			/// (including authentication)
 	};
 
 	Frame(Poco::UInt32 type, Poco::UInt32 channel, Poco::UInt16 flags, Poco::UInt16 bufferSize);

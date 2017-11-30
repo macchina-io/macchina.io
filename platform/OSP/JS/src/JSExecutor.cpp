@@ -1,8 +1,6 @@
 //
 // JSExecutor.cpp
 //
-// $Id: //poco/1.4/OSP/JS/src/JSExecutor.cpp#12 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -16,8 +14,6 @@
 #include "Poco/JS/Core/LoggerWrapper.h"
 #include "Poco/JS/Core/ConsoleWrapper.h"
 #include "Poco/JS/Core/ConfigurationWrapper.h"
-#include "Poco/JS/Net/HTTPRequestWrapper.h"
-#include "Poco/JS/Data/SessionWrapper.h"
 #include "Poco/OSP/BundleEvents.h"
 #include "Poco/Delegate.h"
 #include "Poco/Format.h"
@@ -30,6 +26,7 @@ namespace JS {
 
 std::vector<std::string> JSExecutor::_globalModuleSearchPaths;
 Poco::JS::Core::ModuleRegistry::Ptr JSExecutor::_globalModuleRegistry;
+Poco::UInt64 JSExecutor::_defaultMemoryLimit(1024*1024);
 
 
 JSExecutor::JSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit):
@@ -123,6 +120,18 @@ void JSExecutor::setGlobalModuleSearchPaths(const std::vector<std::string>& sear
 void JSExecutor::setGlobalModuleRegistry(Poco::JS::Core::ModuleRegistry::Ptr pModuleRegistry)
 {
 	_globalModuleRegistry = pModuleRegistry;
+}
+
+
+void JSExecutor::setDefaultMemoryLimit(Poco::UInt64 memoryLimit)
+{
+	_defaultMemoryLimit = memoryLimit;
+}
+
+
+Poco::UInt64 JSExecutor::getDefaultMemoryLimit()
+{
+	return _defaultMemoryLimit;
 }
 
 
@@ -224,7 +233,6 @@ void TimedJSExecutor::onBundleStopped(const void* pSender, Poco::OSP::BundleEven
 	if (ev.bundle() == _pBundle)
 	{
 		TimedJSExecutor::Ptr pThis(this, true);
-		terminate();
 		stop();
 	}
 }

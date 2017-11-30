@@ -1,8 +1,6 @@
 //
 // Properties.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/Properties.h#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  Properties

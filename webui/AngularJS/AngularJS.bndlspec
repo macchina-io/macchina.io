@@ -3,9 +3,9 @@
   <manifest>
     <name>AngularJS for macchina.io</name>
     <symbolicName>io.macchina.webui.angularjs</symbolicName>
-    <version>1.4.3</version>
+    <version>1.4.9</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2015-2016, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2015-2017, Applied Informatics Software Engineering GmbH</copyright>
     <lazyStart>false</lazyStart>
     <runLevel>900</runLevel>
   </manifest>

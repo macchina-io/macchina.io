@@ -1,10 +1,8 @@
 //
 // RecordSetWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Data/src/RecordSetWrapper.cpp#8 $
-//
-// Library: JSData
-// Package: Data
+// Library: JS/Data
+// Package: Wrappers
 // Module:  RecordSetWrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
@@ -19,10 +17,8 @@
 #include "Poco/Data/MetaColumn.h"
 #include "Poco/Data/RowFormatter.h"
 #include "Poco/Version.h"
-#if POCO_VERSION > 0x01050000
 #include "Poco/Data/Date.h"
 #include "Poco/Data/Time.h"
-#endif
 
 
 namespace Poco {
@@ -67,6 +63,10 @@ public:
 			if (vals[i].isNumeric())
 			{
 				str << vals[i].convert<std::string>();
+			}
+			else if (vals[i].isEmpty())
+			{
+				str << "null";
 			}
 			else
 			{
@@ -123,7 +123,7 @@ void RecordSetHolder::close()
 void RecordSetHolder::assignStatement(Poco::Data::Statement& statement)
 {
 	poco_assert (!_pStatement);
-	
+
 	_pStatement = new Poco::Data::Statement(statement);
 }
 
@@ -131,15 +131,9 @@ void RecordSetHolder::assignStatement(Poco::Data::Statement& statement)
 void RecordSetHolder::updateRecordSet()
 {
 	poco_check_ptr (_pStatement);
-	
+
 	delete _pRecordSet;
 	_pRecordSet = new Poco::Data::RecordSet(*_pStatement);
-}
-
-
-void RecordSetHolder::reserveBindings(std::size_t size)
-{
-	_boundValues.reserve(size);
 }
 
 
@@ -185,7 +179,7 @@ v8::Handle<v8::ObjectTemplate> RecordSetWrapper::objectTemplate(v8::Isolate* pIs
 	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
 	return handleScope.Escape(dateTimeTemplate);
 }
-	
+
 
 void RecordSetWrapper::destruct(const v8::WeakCallbackInfo<RecordSetHolder>& data)
 {
@@ -249,9 +243,9 @@ void RecordSetWrapper::getValue(const v8::FunctionCallbackInfo<v8::Value>& args)
 				if (args[0]->IsNumber())
 				{
 					std::size_t col = args[0]->Uint32Value();
-					std::size_t row = args[1]->Uint32Value(); 
+					std::size_t row = args[1]->Uint32Value();
 					value = pRecordSetHolder->recordSet().value(col, row);
-					type  = pRecordSetHolder->recordSet().columnType(col);		
+					type  = pRecordSetHolder->recordSet().columnType(col);
 				}
 				else
 				{
@@ -309,12 +303,12 @@ void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 			{
 				std::size_t col = args[0]->Uint32Value();
 				type = pRecordSetHolder->recordSet().columnType(col);
-			}	
+			}
 			else
 			{
 				std::string name = toString(args[0]);
 				type = pRecordSetHolder->recordSet().columnType(name);
-			}	
+			}
 			std::string typeString;
 			switch (type)
 			{
@@ -360,7 +354,6 @@ void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 			case Poco::Data::MetaColumn::FDT_UNKNOWN:
 				typeString = "unknown";
 				break;
-#if POCO_VERSION > 0x01050000
 			case Poco::Data::MetaColumn::FDT_TIMESTAMP:
 				typeString = "DateTime";
 				break;
@@ -376,7 +369,6 @@ void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 			case Poco::Data::MetaColumn::FDT_TIME:
 				typeString = "Time";
 				break;
-#endif
 			}
 			returnString(args, typeString);
 			return;
@@ -581,7 +573,6 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 	case Poco::Data::MetaColumn::FDT_STRING:
 		returnString(args, value.convert<std::string>());
 		break;
-#if POCO_VERSION > 0x01050000
 	case Poco::Data::MetaColumn::FDT_TIMESTAMP:
 		{
 			Poco::DateTime dt = value.extract<Poco::DateTime>();
@@ -609,12 +600,9 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 			args.GetReturnValue().Set(jsDate);
 		}
 		break;
-#endif
 	case Poco::Data::MetaColumn::FDT_BLOB:
-#if POCO_VERSION > 0x01050000
 	case Poco::Data::MetaColumn::FDT_CLOB:
 	case Poco::Data::MetaColumn::FDT_WSTRING:
-#endif
 	case Poco::Data::MetaColumn::FDT_UNKNOWN:
 	default:
 		returnException(args, std::string("cannot convert value"));

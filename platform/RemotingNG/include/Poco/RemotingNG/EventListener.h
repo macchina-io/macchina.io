@@ -1,8 +1,6 @@
 //
 // EventListener.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/EventListener.h#2 $
-//
 // Library: RemotingNG
 // Package: Transport
 // Module:  EventListener

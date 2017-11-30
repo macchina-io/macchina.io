@@ -1,8 +1,6 @@
 //
 // BundleActivator.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -19,9 +17,11 @@
 #include "Poco/OSP/PreferencesService.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "IoT/Devices/LEDServerHelper.h"
+#include "IoT/Devices/IOServerHelper.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
 #include "Poco/NumberFormatter.h"
+#include "Poco/NumberParser.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/File.h"
 #include "Poco/Path.h"
@@ -29,8 +29,10 @@
 #include "Poco/Format.h"
 #include "Poco/StringTokenizer.h"
 #include "LinuxLED.h"
+#include "LinuxGPIO.h"
 #include <vector>
 #include <set>
+#include <map>
 
 
 using Poco::OSP::BundleContext;
@@ -51,29 +53,30 @@ public:
 	BundleActivator()
 	{
 	}
-	
+
 	~BundleActivator()
 	{
 	}
-	
+
 	void createLED(const std::string& device)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::LED> ServerHelper;
-		
+
 		std::string oid(LinuxLED::SYMBOLIC_NAME);
 		oid += '#';
 		oid += Poco::Path(device).getFileName();
-		
+
 		Poco::SharedPtr<LinuxLED> pLED = new LinuxLED(device, _pTimer);
 		ServerHelper::RemoteObjectPtr pLEDRemoteObject = ServerHelper::createRemoteObject(pLED, oid);
-		
+
 		Properties props;
 		props.set("io.macchina.device", LinuxLED::SYMBOLIC_NAME);
-		
+		props.set("io.macchina.deviceType", "io.macchina.led");
+
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pLEDRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
-	
+
 	void createLEDs(const std::set<std::string>& deviceWhitelist)
 	{
 		Poco::File ledsDir("/sys/class/leds");
@@ -101,13 +104,49 @@ public:
 			}
 		}
 	}
-	
+
+	void createGPIO(const std::string& pin, const std::string& direction)
+	{
+		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::IO> ServerHelper;
+
+		std::string oid(LinuxGPIO::SYMBOLIC_NAME);
+		oid += '#';
+		oid += pin;
+
+		const int pinIndex = Poco::NumberParser::parse(pin);
+		LinuxGPIO::Direction gpioDirection = LinuxGPIO::toDirection(direction);
+
+		Poco::SharedPtr<LinuxGPIO> pGPIO = new LinuxGPIO(pinIndex, gpioDirection);
+		ServerHelper::RemoteObjectPtr pGPIORemoteObject = ServerHelper::createRemoteObject(pGPIO, oid);
+
+		Properties props;
+		props.set("io.macchina.device", LinuxGPIO::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", "io.macchina.gpio");
+
+		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pGPIORemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
+	}
+
+	void createGPIOs(const std::map<std::string, std::string>& deviceWhitelist)
+	{
+		Poco::File gpioDir("/sys/class/gpio");
+		if (gpioDir.exists() && gpioDir.isDirectory())
+		{
+			std::map<std::string, std::string>::const_iterator it = deviceWhitelist.begin();
+			std::map<std::string, std::string>::const_iterator end = deviceWhitelist.end();
+			for (;it != end; ++it)
+			{
+				createGPIO(it->first, it->second);
+			}
+		}
+	}
+
 	void start(BundleContext::Ptr pContext)
 	{
 		_pTimer = new Poco::Util::Timer;
 		_pContext = pContext;
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
-		
+
 		try
 		{
 			if (_pPrefs->configuration()->getBool("linux.leds.enable", true))
@@ -117,13 +156,32 @@ public:
 				std::set<std::string> deviceWhitelist(tok.begin(), tok.end());
 				createLEDs(deviceWhitelist);
 			}
+
+			if (_pPrefs->configuration()->getBool("linux.gpio.enable", true))
+			{
+				std::map<std::string, std::string> gpioMap;
+				Poco::Util::AbstractConfiguration::Keys keys;
+				_pPrefs->configuration()->keys("linux.gpio.pins", keys);
+
+				for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
+				{
+					std::string baseKey = "linux.gpio.pins.";
+					baseKey += *it;
+
+					std::string device = _pPrefs->configuration()->getString(baseKey + ".device", "");
+					std::string direction = _pPrefs->configuration()->getString(baseKey + ".direction", "out");
+					gpioMap[device] = direction;
+				}
+
+				createGPIOs(gpioMap);
+			}
 		}
 		catch (Poco::Exception& exc)
 		{
 			_pContext->logger().log(exc);
 		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		_pTimer->cancel(true);
@@ -138,7 +196,7 @@ public:
 		_pPrefs = 0;
 		_pContext = 0;
 	}
-	
+
 private:
 	Poco::SharedPtr<Poco::Util::Timer> _pTimer;
 	BundleContext::Ptr _pContext;

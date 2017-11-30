@@ -1,8 +1,6 @@
 //
 // SerialDeviceImpl.cpp
 //
-// $Id$
-//
 // Library: IoT/Serial
 // Package: Serial
 // Module:  SerialDevice
@@ -26,6 +24,7 @@ namespace Serial {
 
 
 const std::string SerialDeviceImpl::NAME("Serial Port");
+const std::string SerialDeviceImpl::TYPE("io.macchina.serial");
 const std::string SerialDeviceImpl::SYMBOLIC_NAME("io.macchina.serialport");
 const std::string SerialDeviceImpl::FLOW_NONE("none");
 const std::string SerialDeviceImpl::FLOW_RTSCTS("rtscts");
@@ -38,6 +37,7 @@ SerialDeviceImpl::SerialDeviceImpl(SerialPortPtr pSerialPort):
 {
 	addProperty("symbolicName", &SerialDeviceImpl::getSymbolicName);
 	addProperty("name", &SerialDeviceImpl::getName);
+	addProperty("type", &SerialDeviceImpl::getType);
 	addProperty("baudRate", &SerialDeviceImpl::getBaudRate);
 	addProperty("parameters", &SerialDeviceImpl::getParameters);
 	addProperty("device", &SerialDeviceImpl::getDevice);
@@ -136,6 +136,12 @@ int SerialDeviceImpl::available() const
 Poco::Any SerialDeviceImpl::getName(const std::string&) const
 {
 	return NAME;
+}
+
+
+Poco::Any SerialDeviceImpl::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 

@@ -18,6 +18,7 @@ for (var i = 0; i < deviceRefs.length; i++)
 		var deviceInfo = {};
 		deviceInfo.id = deviceRef.name;
 		deviceInfo.name = device.getPropertyString("name");
+		deviceInfo.type = device.getPropertyString("type");
 		deviceInfo.symbolicName = device.getPropertyString("symbolicName");
 		if (device.hasProperty("physicalQuantity"))
 		{

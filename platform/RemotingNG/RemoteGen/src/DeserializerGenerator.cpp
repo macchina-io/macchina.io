@@ -1,8 +1,6 @@
 //
 // DeserializerGenerator.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/DeserializerGenerator.cpp#1 $
-//
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -60,7 +58,7 @@ std::string DeserializerGenerator::generateClassName(const Poco::CppParser::Stru
 		else
 			pNS = 0;
 	}
-	
+
 	newClassName.append("Deserializer");
 	return newClassName;
 }
@@ -90,12 +88,12 @@ void DeserializerGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 			}
 		}
 	}
-	
+
 	// we create the following class: template <> TypeSerializer<StructInputData>
 	std::string decl("template <>\nclass TypeDeserializer<");
 	decl.append(pStruct->fullName());
 	decl.append(">");
-	
+
 	_pStruct = new Poco::CppParser::Struct(decl, true, _pNs);
 
 	Poco::CppParser::Function* pFuncRef = new Poco::CppParser::Function("static bool deserialize", _pStruct);
@@ -393,8 +391,7 @@ void DeserializerGenerator::prepareDeserializeAttributesCodeGenImpl(const Poco::
 			if (in.second)
 				namespaces.push_back(ns);
 
-			bool mandatory = true;
-			GeneratorEngine::getBoolProperty(attrProps, Utility::MANDATORY, mandatory);
+			bool mandatory = GenUtility::getIsMandatory(attrProps);
 
 			//deser.pushAttribute(ns, name, bool)
 			std::string pushLine(Poco::format("deser.pushAttribute(REMOTING__NAMES%s[", suffix));
@@ -403,17 +400,17 @@ void DeserializerGenerator::prepareDeserializeAttributesCodeGenImpl(const Poco::
 			pushLine.append(Poco::format("], REMOTING__NAMES%s[", suffix));
 			pushLine.append(Poco::NumberFormatter::format(curNamesPos));
 			pushLine.append("], ");
-			
+
 			if (mandatory)
 				pushLine.append("true");
 			else
 				pushLine.append("false");
-			
+
 			pushLine.append(");");
 
 			attrCodeLines.push_back(pushLine);
 		}
-		
+
 		// append the namespaces
 		std::vector<std::string>::const_iterator itNS = namespaces.begin();
 		std::vector<std::string>::const_iterator itNSEnd = namespaces.end();
@@ -482,7 +479,7 @@ void DeserializerGenerator::deserializeAttributesCodeGenImpl(const Poco::CppPars
 			SerializerGenerator::VarGet::const_iterator it = itAttr->second;
 			generateTypeDeserializerLines(pDataType, it, curNamesPos, suffix, attrCodeLines, retUsage);
 		}
-		
+
 		poco_assert_dbg (staticVarNames[staticVarNames.size() -1] == ',');
 		staticVarNames[staticVarNames.size() -1] = '}';
 		staticVarNames.append(";");
@@ -523,6 +520,8 @@ void DeserializerGenerator::handleSuperClassCalls(const Poco::CppParser::Struct*
 			// only call the parent if it has attributes
 			if (hasAttributes(itB->pClass) || !dependsOnAttributes)
 			{
+				handleSuperClassCalls(itB->pClass, generate, dependsOnAttributes, gen);
+
 				std::string suffix = "__";
 				suffix += Poco::replace(Poco::toUpper(itB->pClass->fullName()), ":", "_");
 				gen.writeMethodImplementation("// " + itB->pClass->fullName());
@@ -551,10 +550,10 @@ void DeserializerGenerator::matchVarsWithFunctions(const Poco::CppParser::Struct
 {
 	Poco::CppParser::NameSpace::SymbolTable varsCopy(varsOrig);
 	std::map<std::string, Poco::CppParser::NameSpace::SymbolTable::iterator> varsLower;
-	
+
 	Poco::CppParser::NameSpace::SymbolTable::iterator itO = varsOrig.begin();
 	Poco::CppParser::NameSpace::SymbolTable::iterator itOEnd = varsOrig.end();
-	
+
 	for (; itO != itOEnd; ++itO)
 	{
 		bool ok = (varsLower.insert(std::make_pair(Poco::toLower(itO->first), itO)).second);
@@ -587,19 +586,19 @@ void DeserializerGenerator::matchVarsWithFunctions(const Poco::CppParser::Struct
 	}
 	// search for each variable a matching function
 	// if we don't find one assume that this is deliberate and the user doesn't want to send that member
-	
+
 
 	Poco::CppParser::Struct::Functions::const_iterator it = functs.begin();
 	Poco::CppParser::Struct::Functions::const_iterator itEnd = functs.end();
 	for (; it != itEnd; ++it)
 	{
 		std::string fctName = Poco::toLower((*it)->name());
-		if ( !(*it)->isConst() && 
+		if ( !(*it)->isConst() &&
 			(*it)->countParameters() == 1 &&
 			(*it)->getReturnParameter() == Poco::CodeGeneration::Utility::TYPE_VOID)
 		{
 			std::set<std::string> possibleNames;
-			
+
 			possibleNames.insert(fctName);
 			possibleNames.insert("_"+fctName);
 			possibleNames.insert("m_"+fctName);
@@ -618,7 +617,7 @@ void DeserializerGenerator::matchVarsWithFunctions(const Poco::CppParser::Struct
 				possibleNames.insert(varName.substr(1));
 				possibleNames.insert(varName.substr(1)+"_");
 			}
-			else 
+			else
 			{
 				pos = fctName.find("set");
 				if (pos == 0)
@@ -708,7 +707,7 @@ bool DeserializerGenerator::hasAttributes(const Poco::CppParser::Struct* pClass)
 		{
 			ret |= hasAttributes(itB->pClass);
 		}
-		
+
 	}
 	if (!ret)
 	{
@@ -729,8 +728,7 @@ void DeserializerGenerator::generateTypeDeserializerLines(const Poco::CppParser:
 	const Poco::CppParser::Variable* pVar = it->second.first;
 	CodeGenerator::Properties varProps;
 	GeneratorEngine::parseProperties(pVar, varProps);
-	bool mandatory = true;
-	GeneratorEngine::getBoolProperty(varProps, Utility::MANDATORY, mandatory);
+	bool mandatory = GenUtility::getIsMandatory(varProps);
 
 	std::string declType (Poco::CodeGeneration::Utility::resolveType(pDataType, pVar->declType()));
 	const std::string& origVarName = it->second.first->name();
@@ -769,7 +767,7 @@ void DeserializerGenerator::generateTypeDeserializerLines(const Poco::CppParser:
 	code.append(Poco::format(" >::deserialize(REMOTING__NAMES%s[", suffix));
 	code.append(Poco::NumberFormatter::format(namePos));
 	code.append("], ");
-	
+
 	if (mandatory)
 		code.append("true");
 	else
@@ -806,7 +804,7 @@ void DeserializerGenerator::generateTypeDeserializerLines(const Poco::CppParser:
 		else if (enumMode)
 		{
 			lines.push_back(code);
-			lines.push_back("if (ret) value." + it->second.second->name() + "(" 
+			lines.push_back("if (ret) value." + it->second.second->name() + "("
 				+ "static_cast<" + declType + ">(" + varName + "));");
 		}
 		else

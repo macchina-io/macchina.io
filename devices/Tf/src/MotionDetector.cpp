@@ -1,8 +1,6 @@
 //
 // MotionDetector.cpp
 //
-// $Id: //iot/Main/Tf/src/MotionDetector.cpp#3 $
-//
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -19,7 +17,7 @@ namespace Tf {
 
 
 MotionDetector::MotionDetector(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.motiondetector", "Tinkerforge Motion Detector Bricklet")
+	BrickletType("io.macchina.tf.motiondetector", "Tinkerforge Motion Detector Bricklet", "io.macchina.trigger")
 {
 	addProperty("displayState", &MotionDetector::getDisplayState);
 

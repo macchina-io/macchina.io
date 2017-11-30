@@ -1,9 +1,7 @@
 //
 // Net.h
 //
-// $Id: //poco/1.4/JS/Net/include/Poco/JS/Net/Net.h#3 $
-//
-// Library: JSNet
+// Library: JS/Net
 // Package: Net
 // Module:  Net
 //
@@ -22,7 +20,7 @@
 #define JS_Net_Net_INCLUDED
 
 
-#include "JS/Core.h"
+#include "Poco/JS/Core/Core.h"
 
 
 //

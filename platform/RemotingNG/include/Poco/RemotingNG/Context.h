@@ -1,8 +1,6 @@
 //
 // Context.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/Context.h#1 $
-//
 // Library: RemotingNG
 // Package: Transport
 // Module:  Context
@@ -23,6 +21,7 @@
 #include "Poco/RemotingNG/Identifiable.h"
 #include "Poco/RemotingNG/RemoteObject.h"
 #include "Poco/RemotingNG/Skeleton.h"
+#include "Poco/RemotingNG/Credentials.h"
 #include "Poco/RefCountedObject.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/Any.h"
@@ -113,9 +112,19 @@ public:
 
 	Attributes::const_iterator end() const;
 		/// Returns the end iterator for attributes.
+		
+	const Credentials& getCredentials() const;
+		/// Returns the Credentials associated with the Context.
+		
+	void setCredentials(const Credentials& creds);
+		/// Sets the Credentials associated with the Context.
+		
+	void clearCredentials();
+		/// Clears the Credentials associated with the Context.
 
 private:
 	Attributes _attrs;
+	Credentials _creds;
 	
 	static Poco::ThreadLocal<Ptr> _pContextHolder;
 };
@@ -144,6 +153,12 @@ private:
 //
 // inlines
 //
+inline const Credentials& Context::getCredentials() const
+{
+	return _creds;
+}
+
+
 inline Context::Ptr ScopedContext::context() const
 {
 	return _pContext;

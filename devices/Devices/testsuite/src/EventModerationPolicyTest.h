@@ -1,8 +1,6 @@
 //
 // EventModerationPolicyTest.h
 //
-// $Id$
-//
 // Definition of the EventModerationPolicyTest class.
 //
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.

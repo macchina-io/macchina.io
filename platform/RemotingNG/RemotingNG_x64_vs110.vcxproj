@@ -298,7 +298,10 @@
     <ClInclude Include="include\Poco\RemotingNG\SerializerBase.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TypeDeserializer.h"/>
     <ClInclude Include="include\Poco\RemotingNG\TypeSerializer.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\Authenticator.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\Authorizer.h"/>
     <ClInclude Include="include\Poco\RemotingNG\Context.h"/>
+    <ClInclude Include="include\Poco\RemotingNG\Credentials.h"/>
     <ClInclude Include="include\Poco\RemotingNG\EventListener.h"/>
     <ClInclude Include="include\Poco\RemotingNG\Listener.h"/>
     <ClInclude Include="include\Poco\RemotingNG\ServerTransport.h"/>
@@ -325,7 +328,10 @@
     <ClCompile Include="src\Deserializer.cpp"/>
     <ClCompile Include="src\Serializer.cpp"/>
     <ClCompile Include="src\SerializerBase.cpp"/>
+    <ClCompile Include="src\Authenticator.cpp"/>
+    <ClCompile Include="src\Authorizer.cpp"/>
     <ClCompile Include="src\Context.cpp"/>
+    <ClCompile Include="src\Credentials.cpp"/>
     <ClCompile Include="src\EventListener.cpp"/>
     <ClCompile Include="src\Listener.cpp"/>
     <ClCompile Include="src\ServerTransport.cpp"/>

@@ -1,8 +1,6 @@
 //
 // Connection.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/Connection.cpp#1 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  Connection
@@ -436,7 +434,7 @@ void Connection::sendHELO()
 	Poco::UInt8 majorVersion(Frame::PROTO_MAJOR_VERSION);
 	Poco::UInt8 minorVersion(Frame::PROTO_MINOR_VERSION);
 	Poco::UInt8 flags(0);
-	Poco::UInt8 nCaps(_capabilities.size());
+	Poco::UInt8 nCaps(static_cast<Poco::UInt8>(_capabilities.size()));
 	writer << majorVersion << minorVersion << flags << nCaps;
 	for (std::set<Poco::UInt32>::const_iterator it = _capabilities.begin(); it != _capabilities.end(); ++it)
 	{
@@ -531,7 +529,7 @@ Frame::Ptr Connection::receiveFrame()
 					pFrame->flags(),
 					pFrame->getPayloadSize()));
 				_logger.dump(msg, pFrame->payloadBegin(), pFrame->getPayloadSize());
-		}
+			}
 			return pFrame;
 		}
 		else throw Poco::OutOfMemoryException("No more frames available");

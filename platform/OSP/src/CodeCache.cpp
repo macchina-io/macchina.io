@@ -1,8 +1,6 @@
 //
 // CodeCache.cpp
 //
-// $Id: //poco/1.7/OSP/src/CodeCache.cpp#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  CodeCache
@@ -19,6 +17,7 @@
 #include "Poco/FileStream.h"
 #include "Poco/SharedLibrary.h"
 #include "Poco/StreamCopier.h"
+#include "Poco/SHA1Engine.h"
 
 
 using Poco::File;
@@ -31,9 +30,10 @@ namespace Poco {
 namespace OSP {
 
 
-CodeCache::CodeCache(const std::string& path):
+CodeCache::CodeCache(const std::string& path, bool shared):
 	_path(path)
 {
+	if (shared) _pMutex = new Poco::NamedMutex(mutexName(path));
 	_path.makeDirectory();
 	File dir(path);
 	dir.createDirectories();
@@ -103,6 +103,33 @@ void CodeCache::clear()
 	File dir(_path);
 	dir.remove(true);
 	dir.createDirectories();
+}
+
+
+void CodeCache::lock()
+{
+	if (_pMutex) _pMutex->lock();
+}
+
+	
+void CodeCache::unlock()
+{
+	if (_pMutex) _pMutex->unlock();
+}
+
+
+std::string CodeCache::mutexName(const std::string& path)
+{
+	std::string name("ospcc");
+	Poco::Path p(path);
+	p.makeAbsolute();
+	p.makeDirectory();
+	Poco::SHA1Engine sha1;
+	sha1.update(p.toString());
+	std::string hash = Poco::DigestEngine::digestToHex(sha1.digest());
+	hash.resize(16);
+	name += hash;
+	return name;
 }
 
 

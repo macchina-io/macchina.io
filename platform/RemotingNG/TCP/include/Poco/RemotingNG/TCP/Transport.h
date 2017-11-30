@@ -1,8 +1,6 @@
 //
 // Transport.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/include/Poco/RemotingNG/TCP/Transport.h#1 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  Transport
@@ -23,9 +21,11 @@
 #include "Poco/RemotingNG/TCP/TCP.h"
 #include "Poco/RemotingNG/TCP/Connection.h"
 #include "Poco/RemotingNG/TCP/ChannelStream.h"
+#include "Poco/RemotingNG/TCP/ClientAuthenticator.h"
 #include "Poco/RemotingNG/BinarySerializer.h"
 #include "Poco/RemotingNG/BinaryDeserializer.h"
 #include "Poco/RemotingNG/Transport.h"
+#include "Poco/RemotingNG/Credentials.h"
 #include "Poco/DeflatingStream.h"
 #include "Poco/InflatingStream.h"
 #include "Poco/Timespan.h"
@@ -66,7 +66,19 @@ public:
 		
 	void enableCompression(bool enable);
 		/// Enables or disables zlib deflate compression for requests.
+
+	void setAuthenticator(ClientAuthenticator::Ptr pAuthenticator);
+		/// Sets the ClientAuthenticator to be used for authentication.
 		
+	ClientAuthenticator::Ptr getAuthenticator() const;
+		/// Returns the ClientAuthenticator.
+
+	void setCredentials(const Credentials& credentials);
+		/// Sets the credentials for authentication.
+		
+	const Credentials& getCredentials() const;
+		/// Returns the credentials for authentication.
+	
 	// Poco::RemotingNG::Transport
 	const std::string& endPoint() const;
 	void connect(const std::string& endPoint);
@@ -80,6 +92,8 @@ public:
 
 protected:
 	void setupSerializer(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, Poco::RemotingNG::SerializerBase::MessageType messageType, Poco::UInt16 frameFlags);
+	void authenticate();
+	static bool verifyCredentials(const Credentials& credentials);
 
 private:
 	Transport();
@@ -96,8 +110,12 @@ private:
 	Poco::URI _endPointURI;
 	Poco::Timespan _timeout;
 	bool _compression;
+	ClientAuthenticator::Ptr _pClientAuthenticator;
+	Credentials _credentials;
 	Connection::Ptr _pConnection;
 	Poco::UInt32 _channel;
+	Poco::UInt64 _authToken;
+	Poco::UInt32 _authConnectionId;
 	Poco::SharedPtr<ChannelOutputStream> _pRequestStream;
 	Poco::SharedPtr<ChannelInputStream> _pReplyStream;
 	Poco::SharedPtr<Poco::DeflatingOutputStream> _pDeflatingStream;

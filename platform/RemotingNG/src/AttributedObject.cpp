@@ -1,8 +1,6 @@
 //
 // AttributedObject.h
 //
-// $Id: //poco/1.7/RemotingNG/src/AttributedObject.cpp#1 $
-//
 // Library: RemotingNG
 // Package: ORB
 // Module:  AttributedObject
@@ -85,6 +83,36 @@ bool AttributedObject::hasAttribute(const std::string& name) const
 
 	NameValueMap::const_iterator it = _attributes.find(name);
 	return it != _attributes.end();
+}
+
+
+void AttributedObject::removeAttribute(const std::string& name)
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	_attributes.erase(name);
+}
+
+
+std::vector<std::string> AttributedObject::enumerateAttributes() const
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	std::vector<std::string> result;
+	for (NameValueMap::const_iterator it = _attributes.begin(); it != _attributes.end(); ++it)
+	{
+		result.push_back(it->first);
+	}
+	
+	return result;
+}
+
+
+void AttributedObject::clearAttributes()
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+
+	_attributes.clear();
 }
 
 

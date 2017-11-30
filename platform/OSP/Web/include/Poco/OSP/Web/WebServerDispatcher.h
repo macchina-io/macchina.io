@@ -1,8 +1,6 @@
 //
 // WebServerDispatcher.h
 //
-// $Id: //poco/1.7/OSP/Web/include/Poco/OSP/Web/WebServerDispatcher.h#1 $
-//
 // Library: OSP/Web
 // Package: Web
 // Module:  WebServerDispatcher
@@ -24,6 +22,7 @@
 #include "Poco/OSP/Web/MediaTypeMapper.h"
 #include "Poco/OSP/Web/WebFilter.h"
 #include "Poco/OSP/Web/WebFilterFactory.h"
+#include "Poco/OSP/Web/WebSessionManager.h"
 #include "Poco/OSP/BundleContext.h"
 #include "Poco/OSP/BundleEvent.h"
 #include "Poco/OSP/Service.h"
@@ -84,6 +83,7 @@ public:
 		SpecializationMode mode;       /// specialization mode (does not apply to pattern)
 		std::string        realm;      /// realm if a permission (and thus authentication) is required
 		std::string        permission; /// required permission (empty for none)
+		std::string        session;    /// name of session for session-based authentication
 		bool               secure;     /// path requires secure connection
 	};
 
@@ -132,6 +132,7 @@ public:
 	{
 		std::string description;
 		std::string permission;
+		std::string session;
 		Bundle::Ptr pBundle;
 	};
 	
@@ -228,6 +229,12 @@ protected:
 	bool authorize(Poco::Net::HTTPServerRequest& request, const VirtualPath& vPath, std::string& username) const;
 		/// Authorizes the request.
 
+	bool authorizeSession(Poco::Net::HTTPServerRequest& request, const VirtualPath& vPath, std::string& username) const;
+		/// Authorizes the request using a session-based authentication.
+
+	bool authorizeBasic(Poco::Net::HTTPServerRequest& request, const VirtualPath& vPath, std::string& username) const;
+		/// Authorizes the request using a HTTP Basic Authentication.
+
 	void sendFound(Poco::Net::HTTPServerRequest& request, const std::string& path);
 		/// Sends a 302 Found response.
 
@@ -258,6 +265,9 @@ protected:
 	Poco::OSP::Auth::AuthService::Ptr authService() const;
 		/// Returns a pointer to the auth service, if it is available,
 		/// or null otherwise.
+		
+	WebSessionManager::Ptr sessionManager() const;
+		/// Returns a pointer to the WebSessionManager.
 		
 	std::string formatMessage(const std::string& messageId, const std::string& arg1 = std::string(), const std::string& arg2 = std::string());
 		/// Reads a message from the bundle.properties resource and replaces
@@ -292,12 +302,15 @@ private:
 	std::set<std::string> _compressedMediaTypes;
 	bool _cacheResources;
 	mutable Poco::OSP::Auth::AuthService::Ptr _pAuthService;
+	mutable WebSessionManager::Ptr _pSessionManager;
 	mutable ResourceCache _resourceCache;
 	mutable Poco::FastMutex _resourceCacheMutex;
 	FilterFactoryMap _filterFactoryMap;
 	mutable Poco::FastMutex _filterFactoryMutex;
 	Poco::ThreadPool _threadPool;
 	mutable Poco::FastMutex _mutex;
+	mutable Poco::FastMutex _authServiceMutex;
+	mutable Poco::FastMutex _sessionManagerMutex;
 	Poco::Logger& _accessLogger;
 };
 

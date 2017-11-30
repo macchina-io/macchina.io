@@ -1,9 +1,7 @@
 //
 // XBeeFrame.h
 //
-// $Id$
-//
-// Library: XBee
+// Library: IoT/XBee
 // Package: XBee
 // Module:  XBeeFrame
 //

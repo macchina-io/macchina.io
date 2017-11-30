@@ -1,10 +1,8 @@
 //
 // URIWrapper.h
 //
-// $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/URIWrapper.h#4 $
-//
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  URIWrapper
 //
 // Definition of the URIWrapper interface.

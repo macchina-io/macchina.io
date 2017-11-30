@@ -1,10 +1,8 @@
 //
 // ConfigurationWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/ConfigurationWrapper.cpp#5 $
-//
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  ConfigurationWrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
@@ -15,6 +13,7 @@
 
 
 #include "Poco/JS/Core/ConfigurationWrapper.h"
+#include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/Util/AbstractConfiguration.h"
 
 
@@ -36,17 +35,25 @@ ConfigurationWrapper::~ConfigurationWrapper()
 v8::Handle<v8::ObjectTemplate> ConfigurationWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
-	v8::Local<v8::ObjectTemplate> configurationTemplate = v8::ObjectTemplate::New();
-	configurationTemplate->SetInternalFieldCount(1);
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getInt"), v8::FunctionTemplate::New(pIsolate, getInt));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getDouble"), v8::FunctionTemplate::New(pIsolate, getDouble));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getBool"), v8::FunctionTemplate::New(pIsolate, getBool));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getString"), v8::FunctionTemplate::New(pIsolate, getString));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getObject"), v8::FunctionTemplate::New(pIsolate, getObject));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, has));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "set"), v8::FunctionTemplate::New(pIsolate, set));
-	configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "keys"), v8::FunctionTemplate::New(pIsolate, keys));
-	return handleScope.Escape(configurationTemplate);
+	PooledIsolate* pPooledIso = PooledIsolate::fromIsolate(pIsolate);
+	poco_check_ptr (pPooledIso);
+	v8::Persistent<v8::ObjectTemplate>& pooledConfigurationTemplate(pPooledIso->objectTemplate("Core.Configuration"));
+	if (pooledConfigurationTemplate.IsEmpty())
+	{
+		v8::Local<v8::ObjectTemplate> configurationTemplate = v8::ObjectTemplate::New();
+		configurationTemplate->SetInternalFieldCount(1);
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getInt"), v8::FunctionTemplate::New(pIsolate, getInt));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getDouble"), v8::FunctionTemplate::New(pIsolate, getDouble));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getBool"), v8::FunctionTemplate::New(pIsolate, getBool));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getString"), v8::FunctionTemplate::New(pIsolate, getString));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getObject"), v8::FunctionTemplate::New(pIsolate, getObject));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, has));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "set"), v8::FunctionTemplate::New(pIsolate, set));
+		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "keys"), v8::FunctionTemplate::New(pIsolate, keys));
+		pooledConfigurationTemplate.Reset(pIsolate, configurationTemplate);
+	}
+	v8::Local<v8::ObjectTemplate> localConfigurationTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledConfigurationTemplate);
+	return handleScope.Escape(localConfigurationTemplate);
 }
 	
 
@@ -207,9 +214,15 @@ void ConfigurationWrapper::set(const v8::FunctionCallbackInfo<v8::Value>& args)
 		v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
 		v8::Local<v8::Object> global = context->Global();
 		v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
-		v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
-		v8::Local<v8::Value> argv[1] = {args[1]};
-		value = toString(stringify->Call(json, 1, argv));
+		if (!json.IsEmpty())
+		{
+			v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
+			if (!stringify.IsEmpty())
+			{
+				v8::Local<v8::Value> argv[1] = {args[1]};
+				value = toString(stringify->Call(json, 1, argv));
+			}
+		}
 	}
 	else
 	{
@@ -239,13 +252,16 @@ void ConfigurationWrapper::keys(const v8::FunctionCallbackInfo<v8::Value>& args)
 		Poco::Util::AbstractConfiguration::Keys keys;
 		pConfig->keys(key, keys);
 		v8::Local<v8::Array> keysArray = v8::Array::New(args.GetIsolate(), static_cast<int>(keys.size()));
-		for (unsigned i = 0; i < static_cast<unsigned>(keys.size()); i++)
+		if (!keysArray.IsEmpty())
 		{
-			keysArray->Set(i, v8::String::NewFromUtf8(
-				args.GetIsolate(), 
-				keys[i].c_str(), 
-				v8::String::kNormalString,
-				static_cast<int>(keys[i].length())));
+			for (unsigned i = 0; i < static_cast<unsigned>(keys.size()); i++)
+			{
+				keysArray->Set(i, v8::String::NewFromUtf8(
+					args.GetIsolate(), 
+					keys[i].c_str(), 
+					v8::String::kNormalString,
+					static_cast<int>(keys[i].length())));
+			}
 		}
 		args.GetReturnValue().Set(keysArray);
 	}

@@ -1,18 +1,22 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 IBM Corp.
+ * Copyright (c) 2009, 2017 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution. 
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
- * The Eclipse Public License is available at 
+ * The Eclipse Public License is available at
  *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
+ * and the Eclipse Distribution License is available at
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  *    Ian Craggs - initial implementation and documentation
  *    Ian Craggs - async client updates
+ *    Ian Craggs - fix for bug 484496
+ *    Juergen Kosel, Ian Craggs - fix for issue #135
+ *    Ian Craggs - issue #217
+ *    Ian Craggs - fix for issue #186
  *******************************************************************************/
 
 /**
@@ -39,8 +43,15 @@
 
 #include "Heap.h"
 
+int Socket_setnonblocking(int sock);
+int Socket_error(char* aString, int sock);
+int Socket_addSocket(int newSd);
+int isReady(int socket, fd_set* read_set, fd_set* write_set);
+int Socket_writev(int socket, iobuf* iovecs, int count, unsigned long* bytes);
 int Socket_close_only(int socket);
+int Socket_continueWrite(int socket);
 int Socket_continueWrites(fd_set* pwset);
+char* Socket_getaddrname(struct sockaddr* sa, int sock);
 
 #if defined(WIN32) || defined(WIN64)
 #define iov_len len
@@ -98,7 +109,7 @@ int Socket_error(char* aString, int sock)
 	if (errno != EINTR && errno != EAGAIN && errno != EINPROGRESS && errno != EWOULDBLOCK)
 	{
 		if (strcmp(aString, "shutdown") != 0 || (errno != ENOTCONN && errno != ECONNRESET))
-			Log(TRACE_MINIMUM, -1, "Socket error %s in %s for socket %d", strerror(errno), aString, sock);
+			Log(TRACE_MINIMUM, -1, "Socket error %s(%d) in %s for socket %d", strerror(errno), errno, aString, sock);
 	}
 	FUNC_EXIT_RC(errno);
 	return errno;
@@ -108,7 +119,7 @@ int Socket_error(char* aString, int sock)
 /**
  * Initialize the socket module
  */
-void Socket_outInitialize()
+void Socket_outInitialize(void)
 {
 #if defined(WIN32) || defined(WIN64)
 	WORD    winsockVer = 0x0202;
@@ -137,7 +148,7 @@ void Socket_outInitialize()
 /**
  * Terminate the socket module
  */
-void Socket_outTerminate()
+void Socket_outTerminate(void)
 {
 	FUNC_ENTRY;
 	ListFree(s.connect_pending);
@@ -162,12 +173,22 @@ int Socket_addSocket(int newSd)
 	FUNC_ENTRY;
 	if (ListFindItem(s.clientsds, &newSd, intcompare) == NULL) /* make sure we don't add the same socket twice */
 	{
-		int* pnewSd = (int*)malloc(sizeof(newSd));
-		*pnewSd = newSd;
-		ListAppend(s.clientsds, pnewSd, sizeof(newSd));
-		FD_SET(newSd, &(s.rset_saved));
-		s.maxfdp1 = max(s.maxfdp1, newSd + 1);
-		rc = Socket_setnonblocking(newSd);
+		if (s.clientsds->count >= FD_SETSIZE)
+		{
+			Log(LOG_ERROR, -1, "addSocket: exceeded FD_SETSIZE %d", FD_SETSIZE);
+			rc = SOCKET_ERROR;
+		}
+		else
+		{
+			int* pnewSd = (int*)malloc(sizeof(newSd));
+			*pnewSd = newSd;
+			ListAppend(s.clientsds, pnewSd, sizeof(newSd));
+			FD_SET(newSd, &(s.rset_saved));
+			s.maxfdp1 = max(s.maxfdp1, newSd + 1);
+			rc = Socket_setnonblocking(newSd);
+			if (rc == SOCKET_ERROR)
+				Log(LOG_ERROR, -1, "addSocket: setnonblocking");
+		}
 	}
 	else
 		Log(LOG_ERROR, -1, "addSocket: socket %d already in the list", newSd);
@@ -328,7 +349,7 @@ exit:
  *  @param actual_len the actual number of bytes read
  *  @return completion code
  */
-char *Socket_getdata(int socket, int bytes, int* actual_len)
+char *Socket_getdata(int socket, size_t bytes, size_t* actual_len)
 {
 	int rc;
 	char* buf;
@@ -342,7 +363,7 @@ char *Socket_getdata(int socket, int bytes, int* actual_len)
 
 	buf = SocketBuffer_getQueuedData(socket, bytes, actual_len);
 
-	if ((rc = recv(socket, buf + (*actual_len), (size_t)(bytes - (*actual_len)), 0)) == SOCKET_ERROR)
+	if ((rc = recv(socket, buf + (*actual_len), (int)(bytes - (*actual_len)), 0)) == SOCKET_ERROR)
 	{
 		rc = Socket_error("recv - getdata", socket);
 		if (rc != EAGAIN && rc != EWOULDBLOCK)
@@ -438,7 +459,8 @@ int Socket_putdatas(int socket, char* buf0, size_t buf0len, int count, char** bu
 	unsigned long bytes = 0L;
 	iobuf iovecs[5];
 	int frees1[5];
-	int rc = TCPSOCKET_INTERRUPTED, i, total = buf0len;
+	int rc = TCPSOCKET_INTERRUPTED, i;
+	size_t total = buf0len;
 
 	FUNC_ENTRY;
 	if (!Socket_noPendingWrites(socket))
@@ -452,12 +474,12 @@ int Socket_putdatas(int socket, char* buf0, size_t buf0len, int count, char** bu
 		total += buflens[i];
 
 	iovecs[0].iov_base = buf0;
-	iovecs[0].iov_len = buf0len;
+	iovecs[0].iov_len = (ULONG)buf0len;
 	frees1[0] = 1;
 	for (i = 0; i < count; i++)
 	{
 		iovecs[i+1].iov_base = buffers[i];
-		iovecs[i+1].iov_len = buflens[i];
+		iovecs[i+1].iov_len = (ULONG)buflens[i];
 		frees1[i+1] = frees[i];
 	}
 
@@ -490,7 +512,7 @@ exit:
 /**
  *  Add a socket to the pending write list, so that it is checked for writing in select.  This is used
  *  in connect processing when the TCP connect is incomplete, as we need to check the socket for both
- *  ready to read and write states. 
+ *  ready to read and write states.
  *  @param socket the socket to add
  */
 void Socket_addPendingWrite(int socket)
@@ -600,6 +622,7 @@ int Socket_new(char* addr, int port, int* sock)
 
 	FUNC_ENTRY;
 	*sock = -1;
+	memset(&address6, '\0', sizeof(address6));
 
 	if (addr[0] == '[')
 	  ++addr;
@@ -608,34 +631,30 @@ int Socket_new(char* addr, int port, int* sock)
 	{
 		struct addrinfo* res = result;
 
-		/* prefer ip4 addresses */
 		while (res)
-		{
-			if (res->ai_family == AF_INET)
-			{
-				result = res;
+		{	/* prefer ip4 addresses */
+			if (res->ai_family == AF_INET || res->ai_next == NULL)
 				break;
-			}
 			res = res->ai_next;
 		}
 
-		if (result == NULL)
+		if (res == NULL)
 			rc = -1;
 		else
 #if defined(AF_INET6)
-		if (result->ai_family == AF_INET6)
+		if (res->ai_family == AF_INET6)
 		{
 			address6.sin6_port = htons(port);
 			address6.sin6_family = family = AF_INET6;
-			address6.sin6_addr = ((struct sockaddr_in6*)(result->ai_addr))->sin6_addr;
+			memcpy(&address6.sin6_addr, &((struct sockaddr_in6*)(res->ai_addr))->sin6_addr, sizeof(address6.sin6_addr));
 		}
 		else
 #endif
-		if (result->ai_family == AF_INET)
+		if (res->ai_family == AF_INET)
 		{
 			address.sin_port = htons(port);
 			address.sin_family = family = AF_INET;
-			address.sin_addr = ((struct sockaddr_in*)(result->ai_addr))->sin_addr;
+			address.sin_addr = ((struct sockaddr_in*)(res->ai_addr))->sin_addr;
 		}
 		else
 			rc = -1;
@@ -649,7 +668,7 @@ int Socket_new(char* addr, int port, int* sock)
 		Log(LOG_ERROR, -1, "%s is not a valid IP address", addr);
 	else
 	{
-		*sock =	socket(family, type, 0);
+		*sock =	(int)socket(family, type, 0);
 		if (*sock == INVALID_SOCKET)
 			rc = Socket_error("socket", *sock);
 		else
@@ -663,7 +682,7 @@ int Socket_new(char* addr, int port, int* sock)
 
 			Log(TRACE_MIN, -1, "New socket %d for %s, port %d",	*sock, addr, port);
 			if (Socket_addSocket(*sock) == SOCKET_ERROR)
-				rc = Socket_error("setnonblocking", *sock);
+				rc = Socket_error("addSocket", *sock);
 			else
 			{
 				/* this could complete immmediately, even though we are non-blocking */
@@ -683,6 +702,15 @@ int Socket_new(char* addr, int port, int* sock)
 					Log(TRACE_MIN, 15, "Connect pending");
 				}
 			}
+                        /* Prevent socket leak by closing unusable sockets,
+                         * as reported in
+                         * https://github.com/eclipse/paho.mqtt.c/issues/135
+                         */
+                        if (rc != 0 && (rc != EINPROGRESS) && (rc != EWOULDBLOCK))
+                        {
+                            Socket_close(*sock); /* close socket and remove from our list of sockets */
+                            *sock = -1; /* as initialized before */
+                        }
 		}
 	}
 	FUNC_EXIT_RC(rc);
@@ -713,13 +741,13 @@ int Socket_continueWrite(int socket)
 
 	FUNC_ENTRY;
 	pw = SocketBuffer_getWrite(socket);
-	
+
 #if defined(OPENSSL)
 	if (pw->ssl)
 	{
 		rc = SSLSocket_continueWrite(pw);
 		goto exit;
-	} 	
+	}
 #endif
 
 	for (i = 0; i < pw->count; ++i)
@@ -733,9 +761,9 @@ int Socket_continueWrite(int socket)
 		else if (pw->bytes < curbuflen + pw->iovecs[i].iov_len)
 		{ /* if previously written length is in the middle of the buffer we are currently looking at,
 				add some of the buffer */
-			int offset = pw->bytes - curbuflen;
-			iovecs1[++curbuf].iov_len = pw->iovecs[i].iov_len - offset;
-			iovecs1[curbuf].iov_base = pw->iovecs[i].iov_base + offset;
+			size_t offset = pw->bytes - curbuflen;
+			iovecs1[++curbuf].iov_len = pw->iovecs[i].iov_len - (ULONG)offset;
+			iovecs1[curbuf].iov_base = (char*)pw->iovecs[i].iov_base + offset;
 			break;
 		}
 		curbuflen += pw->iovecs[i].iov_len;
@@ -751,7 +779,7 @@ int Socket_continueWrite(int socket)
 				if (pw->frees[i])
 					free(pw->iovecs[i].iov_base);
 			}
-			Log(TRACE_MIN, -1, "ContinueWrite: partial write now complete for socket %d", socket);		
+			Log(TRACE_MIN, -1, "ContinueWrite: partial write now complete for socket %d", socket);
 		}
 		else
 			Log(TRACE_MIN, -1, "ContinueWrite wrote +%lu bytes on socket %d", bytes, socket);
@@ -789,7 +817,7 @@ int Socket_continueWrites(fd_set* pwset)
 				ListNextElement(s.write_pending, &curpending);
 			}
 			curpending = s.write_pending->current;
-						
+
 			if (writecomplete)
 				(*writecomplete)(socket);
 		}
@@ -822,7 +850,7 @@ char* Socket_getaddrname(struct sockaddr* sa, int sock)
 #if defined(WIN32) || defined(WIN64)
 	int buflen = ADDRLEN*2;
 	wchar_t buf[ADDRLEN*2];
-	if (WSAAddressToString(sa, sizeof(struct sockaddr_in6), NULL, buf, (LPDWORD)&buflen) == SOCKET_ERROR)
+	if (WSAAddressToStringW(sa, sizeof(struct sockaddr_in6), NULL, buf, (LPDWORD)&buflen) == SOCKET_ERROR)
 		Socket_error("WSAAddressToString", sock);
 	else
 		wcstombs(addr_string, buf, sizeof(addr_string));
@@ -868,4 +896,3 @@ int main(int argc, char *argv[])
 }
 
 #endif
-

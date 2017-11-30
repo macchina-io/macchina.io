@@ -1,8 +1,6 @@
 //
 // RemotingTest.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/RemotingTest.h#1 $
-//
 // Definition of the RemotingTest class.
 //
 // Copyright (c) 2006-2012, Applied Informatics Software Engineering GmbH.
@@ -46,6 +44,17 @@ public:
 	void testStruct1Vec();
 	void testOneWay();
 	void testFault();
+	void testAuthenticatedGoodCredentials();
+	void testAuthenticatedNoCredentials();
+	void testAuthenticatedBadCredentials();
+	void testAuthenticatedUpdatedCredentials();
+	void testAuthenticatedGoodSCRAMCredentials();
+	void testAuthenticatedNoSCRAMCredentials();
+	void testAuthenticatedBadSCRAMCredentials();
+	void testAuthenticatedUpdatedSCRAMCredentials();
+	void testAuthenticatedMultipleSCRAMCredentials();
+	void testPermission();
+	void testNoPermission();
 	void testEvent();
 	void testOneWayEvent();
 	void testVoidEvent();

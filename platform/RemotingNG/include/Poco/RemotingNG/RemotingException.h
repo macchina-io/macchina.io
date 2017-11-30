@@ -1,8 +1,6 @@
 //
 // RemotingException.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/RemotingException.h#1 $
-//
 // Library: RemotingNG
 // Package: RemotingNG
 // Module:  RemotingException
@@ -31,12 +29,17 @@ namespace RemotingNG {
 POCO_DECLARE_EXCEPTION(RemotingNG_API, RemotingException, Poco::LogicException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, TransportException, RemotingException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, ProtocolException, RemotingException)
+POCO_DECLARE_EXCEPTION(RemotingNG_API, SecurityException, RemotingException)
+POCO_DECLARE_EXCEPTION(RemotingNG_API, AuthenticationFailedException, SecurityException)
+POCO_DECLARE_EXCEPTION(RemotingNG_API, InvalidCredentialsException, AuthenticationFailedException)
+POCO_DECLARE_EXCEPTION(RemotingNG_API, NoPermissionException, SecurityException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, RemoteException, RemotingException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, SerializerException, RemotingException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, DeserializerException, RemotingException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, UnknownTransportException, RemotingException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, UnknownTypeException, RemotingException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, UnknownObjectException, RemotingException)
+POCO_DECLARE_EXCEPTION(RemotingNG_API, UnknownEventSubscriberException, RemotingException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, ORBDisabledException, RemotingException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, MissingParamException, DeserializerException)
 POCO_DECLARE_EXCEPTION(RemotingNG_API, WrongReplyException, DeserializerException)

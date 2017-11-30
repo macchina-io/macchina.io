@@ -1,8 +1,6 @@
 //
 // BundleDirectory.cpp
 //
-// $Id: //poco/1.7/OSP/src/BundleDirectory.cpp#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleDirectory

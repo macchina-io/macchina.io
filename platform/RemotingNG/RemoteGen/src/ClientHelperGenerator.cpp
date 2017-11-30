@@ -1,8 +1,6 @@
 //
 // ClientHelperGenerator.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/ClientHelperGenerator.cpp#2 $
-//
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

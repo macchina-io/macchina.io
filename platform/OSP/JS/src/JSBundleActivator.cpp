@@ -1,8 +1,6 @@
 //
 // JSBundleActivator.cpp
 //
-// $Id: //poco/1.4/OSP/JS/src/JSBundleActivator.cpp#6 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -88,6 +86,9 @@ public:
 		{
 			v8::V8::SetFlagsFromString(it->data(), it->size());
 		}
+		
+		Poco::UInt64 memoryLimit = _pPrefs->configuration()->getUInt64("osp.js.memoryLimit", 1024*1024);
+		JSExecutor::setDefaultMemoryLimit(memoryLimit);
 		
 		std::string v8Version =  v8::V8::GetVersion();
 		_pContext->logger().information("Using V8 version: %s", v8Version);

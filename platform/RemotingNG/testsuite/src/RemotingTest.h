@@ -1,8 +1,6 @@
 //
 // RemotingTest.h
 //
-// $Id: //poco/1.7/RemotingNG/testsuite/src/RemotingTest.h#2 $
-//
 // Definition of the RemotingTest class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
@@ -48,6 +46,7 @@ public:
 	void testOneWayEvent();
 	void testVoidEvent();
 	void testFilteredEvent();
+	void testPermissions();
 
 	void setUp();
 	void tearDown();
@@ -67,6 +66,7 @@ protected:
 	void testClass1(ITester::Ptr pTester);
 	void testPtr(ITester::Ptr pTester);
 	void testStruct1Vec(ITester::Ptr pTester);
+	void testPermissions(ITester::Ptr pTester);
 	void onEvent(const void* pSender, std::string& arg);
 	void onVoidEvent(const void* pSender);
 	void onFilteredEvent(const int& arg);

@@ -24,6 +24,7 @@ namespace Modbus {
 
 IModbusMaster::IModbusMaster():
 	Poco::OSP::Service(),
+	badFrameReceived(),
 	exceptionReceived(),
 	maskWriteRegisterResponseReceived(),
 	readCoilsResponseReceived(),
@@ -34,6 +35,7 @@ IModbusMaster::IModbusMaster():
 	readInputRegistersResponseReceived(),
 	readWriteMultipleRegistersResponseReceived(),
 	responseReceived(),
+	timeout(),
 	writeMultipleCoilsResponseReceived(),
 	writeMultipleRegistersResponseReceived(),
 	writeSingleCoilResponseReceived(),

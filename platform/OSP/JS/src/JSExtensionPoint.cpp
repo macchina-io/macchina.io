@@ -1,8 +1,6 @@
 //
 // JSExtensionPoint.h
 //
-// $Id: //poco/1.4/OSP/JS/src/JSExtensionPoint.cpp#1 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -41,7 +39,7 @@ JSExtensionPoint::~JSExtensionPoint()
 void JSExtensionPoint::handleExtension(Bundle::ConstPtr pBundle, Poco::XML::Element* pExtensionElem)
 {
 	std::string scriptPath = pExtensionElem->getAttribute("script");
-	Poco::UInt64 memoryLimit = 1024*1024;
+	Poco::UInt64 memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit", JSExecutor::getDefaultMemoryLimit());
 	std::string strMemoryLimit = pExtensionElem->getAttribute("memoryLimit");
 	if (!strMemoryLimit.empty())
 	{
@@ -52,7 +50,11 @@ void JSExtensionPoint::handleExtension(Bundle::ConstPtr pBundle, Poco::XML::Elem
 	std::vector<std::string> moduleSearchPaths(tok.begin(), tok.end());
 	
 	std::string script;
+#if __cplusplus < 201103L
 	std::auto_ptr<std::istream> pStream(pBundle->getResource(scriptPath));
+#else
+	std::unique_ptr<std::istream> pStream(pBundle->getResource(scriptPath));
+#endif
 	Poco::StreamCopier::copyToString(*pStream, script);
 	_pContext->logger().information(Poco::format("Starting script %s from bundle %s.", scriptPath, pBundle->symbolicName()));
 	std::string scriptURI("bndl://");

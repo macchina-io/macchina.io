@@ -33,9 +33,9 @@ class IORemoteObject: public IoT::Devices::IIO, public Poco::RemotingNG::RemoteO
 	/// The interface for general purpose input/output (GPIO)
 	/// ports.
 	///
-	/// This class represents a single GPIO pin. 
-	/// Mapping to physical pins is configured when setting up 
-	/// the specific IO implementation class, typically using a 
+	/// This class represents a single GPIO pin.
+	/// Mapping to physical pins is configured when setting up
+	/// the specific IO implementation class, typically using a
 	/// configuration file.
 	///
 	/// Implementations supporting dynamically changing pin directions
@@ -135,6 +135,9 @@ public:
 	virtual bool state() const;
 		/// Returns the current state of the pin.
 
+	virtual bool toggle();
+		/// Toggles the state of an output pin and returns the new state.
+
 protected:
 	void event__stateChanged(const bool& data);
 
@@ -230,6 +233,12 @@ inline void IORemoteObject::setPropertyString(const std::string& name, const std
 inline bool IORemoteObject::state() const
 {
 	return _pServiceObject->state();
+}
+
+
+inline bool IORemoteObject::toggle()
+{
+	return _pServiceObject->toggle();
 }
 
 

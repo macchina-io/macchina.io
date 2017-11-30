@@ -1,8 +1,6 @@
 //
 // SerializerGenerator.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/SerializerGenerator.cpp#1 $
-//
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -807,6 +805,8 @@ void SerializerGenerator::handleSuperClassCalls(const Poco::CppParser::Struct* p
 			// only call the parent if it has attributes
 			if (hasAttributes(itB->pClass) || !dependsOnAttributes)
 			{
+				handleSuperClassCalls(itB->pClass, generate, dependsOnAttributes, gen);
+
 				std::string suffix = "__";
 				suffix += Poco::replace(Poco::toUpper(itB->pClass->fullName()), ":", "_");
 				gen.writeMethodImplementation("// " + itB->pClass->fullName());

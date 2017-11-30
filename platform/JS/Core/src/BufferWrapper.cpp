@@ -1,10 +1,8 @@
 //
 // BufferWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/BufferWrapper.cpp#9 $
-//
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  BufferWrapper
 //
 // Copyright (c) 2013-2016, Applied Informatics Software Engineering GmbH.
@@ -73,7 +71,7 @@ v8::Handle<v8::ObjectTemplate> BufferWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::EscapableHandleScope handleScope(pIsolate);
 	PooledIsolate* pPooledIso = PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Buffer"));
+	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Core.Buffer"));
 	if (pooledObjectTemplate.IsEmpty())
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
@@ -194,7 +192,7 @@ void BufferWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 		delete pBuffer;
 		returnException(args, exc);
 	}
-	catch (std::exception& exc)
+	catch (std::exception&)
 	{
 		returnException(args, std::string("Out of memory"));
 	}
@@ -233,7 +231,7 @@ void BufferWrapper::setLength(v8::Local<v8::String> name, v8::Local<v8::Value> v
 	{
 		returnException(info, exc);
 	}
-	catch (std::exception& exc)
+	catch (std::exception&)
 	{
 		returnException(info, std::string("Out of memory"));
 	}
@@ -259,7 +257,7 @@ void BufferWrapper::setCapacity(v8::Local<v8::String> name, v8::Local<v8::Value>
 	{
 		returnException(info, exc);
 	}
-	catch (std::exception& exc)
+	catch (std::exception&)
 	{
 		returnException(info, std::string("Out of memory"));
 	}
@@ -333,14 +331,14 @@ void BufferWrapper::fromBase64(const v8::FunctionCallbackInfo<v8::Value>& args)
 			Poco::MemoryOutputStream ostr(pBuffer->begin(), pBuffer->size());
 			Poco::Base64Decoder decoder(istr);
 			Poco::StreamCopier::copyStream(decoder, ostr);
-			pBuffer->resize(ostr.charsWritten());
+			pBuffer->resize(static_cast<std::size_t>(ostr.charsWritten()));
 		}
 	}
 	catch (Poco::Exception& exc)
 	{
 		returnException(args, exc);
 	}
-	catch (std::exception& exc)
+	catch (std::exception&)
 	{
 		returnException(args, std::string("Out of memory"));
 	}
@@ -363,7 +361,7 @@ void BufferWrapper::decodeString(const v8::FunctionCallbackInfo<v8::Value>& args
 	{
 		returnException(args, exc);
 	}
-	catch (std::exception& exc)
+	catch (std::exception&)
 	{
 		returnException(args, std::string("Out of memory"));
 	}
@@ -389,7 +387,7 @@ void BufferWrapper::encodeString(const v8::FunctionCallbackInfo<v8::Value>& args
 	{
 		returnException(args, exc);
 	}
-	catch (std::exception& exc)
+	catch (std::exception&)
 	{
 		returnException(args, std::string("Out of memory"));
 	}
@@ -643,7 +641,7 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		returnException(args, exc);
 	}
-	catch (std::exception& exc)
+	catch (std::exception&)
 	{
 		returnException(args, std::string("Out of memory"));
 	}
@@ -858,7 +856,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		returnException(args, exc);
 	}
-	catch (std::exception& exc)
+	catch (std::exception&)
 	{
 		returnException(args, std::string("Out of memory"));
 	}
@@ -884,7 +882,7 @@ void BufferWrapper::concat(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		returnException(args, exc);
 	}
-	catch (std::exception& exc)
+	catch (std::exception&)
 	{
 		returnException(args, std::string("Out of memory"));
 	}
@@ -938,7 +936,7 @@ void BufferWrapper::slice(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		returnException(args, exc);
 	}
-	catch (std::exception& exc)
+	catch (std::exception&)
 	{
 		returnException(args, std::string("Out of memory"));
 	}
@@ -963,7 +961,7 @@ void BufferWrapper::push(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		returnException(args, exc);
 	}
-	catch (std::exception& exc)
+	catch (std::exception&)
 	{
 		returnException(args, std::string("Out of memory"));
 	}
@@ -998,7 +996,7 @@ void BufferWrapper::makeString(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		returnException(args, exc);
 	}
-	catch (std::exception& exc)
+	catch (std::exception&)
 	{
 		returnException(args, std::string("Out of memory"));
 	}
@@ -1033,7 +1031,7 @@ void BufferWrapper::encode(Buffer* pBuffer, const v8::Local<v8::Value>& str, con
 		Poco::MemoryOutputStream ostr(pBuffer->begin(), pBuffer->size());
 		Poco::Base64Decoder decoder(istr);
 		Poco::StreamCopier::copyStream(decoder, ostr);
-		pBuffer->resize(ostr.charsWritten());
+		pBuffer->resize(static_cast<std::size_t>(ostr.charsWritten()));
 	}
 	else 
 	{

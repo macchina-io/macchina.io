@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html lang="en" ng-app="sensorLogApp">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>macchina.io - Sensor Log</title>
+    <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
+    <link rel="icon" href="/images/favicon.ico">
+    <script src="/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/angular/angular.js"></script>
+	<script type="text/javascript" src='/chartjs/chart.min.js'></script>
+	<script type="text/javascript" src='/momentjs/moment.min.js'></script>
+    <script type="text/javascript" src="/tinycolor/tinycolor.min.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+    <script type="text/javascript" src="js/controllers.js"></script>
+    <script type="text/javascript" src="js/webevent.js"></script>
+  </head>
+  <body ng-controller="SessionCtrl">
+    <header>
+      <div class="headercontainer">
+        <div class="header">
+          <h1>
+          <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io"></a>Sensor Log
+          </h1>
+        </div>
+      </div>
+    </header>
+    <div class="contentcontainer">
+      <div class="content" ng-controller="sensorLogCtrl">
+        <nav>
+          <div class="usernav">
+            <div class="navigation">
+            </div>
+            <div class="username">
+              <i class="fa fa-user"></i>
+              &nbsp;
+              {{session.username}}
+              &nbsp;
+              <a id="logoutLink" href="#" onclick="document.logout.submit()">Sign out</a>
+           </div>
+           <form method="post" name="logout" action="/">
+             <input type="hidden" name="action" value="logout">
+           </form>
+           <div style="clear: both;"></div>
+         </div>
+        </nav>
+
+		<div class="groupbox" ng-if="!haveSensors">
+          No sensors defined.
+        </div>
+        <div class="groupbox" ng-repeat="sensor in sensors">
+          <div style="float: left; width: 210px; padding-right: 30px;">
+            <p style="text-align: right; font-size: 20px;" ng-style="{'color': sensor.color}">
+              {{sensor.title}}
+            </p>
+            <p style="text-align: right; font-size: 80px; line-height: 80px; margin-top: 36px;" ng-style="{'color': sensor.color}">
+              {{sensor.value | number:1}}
+            </p>
+            <p style="text-align: right; font-size: 30px; line-height: 36px; margin-top: 0px;" ng-style="{'color': sensor.color}">
+              {{sensor.physicalUnit}}
+            </p>
+          </div>
+		  <div ng-attr-id="{{'chart_' + sensor.index}}" style="height: 240px; margin-left: 240px;">
+			  <canvas ng-attr-id="{{'chartCanvas_' + sensor.index}}" style="height: 240px; display: block; width: 1033px;" width="1033" height="240"></canvas>
+		  </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

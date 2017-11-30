@@ -1,8 +1,6 @@
 //
 // CodeGenerationTestSuite.h
 //
-// $Id: //poco/1.7/CodeGeneration/testsuite/src/CodeGenerationTestSuite.h#1 $
-//
 // Definition of the CodeGenerationTestSuite class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

@@ -1,10 +1,8 @@
 //
 // JSExecutor.h
 //
-// $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/JSExecutor.h#6 $
-//
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Execution
 // Module:  JSExecutor
 //
 // Definition of the JSExecutor class.
@@ -91,8 +89,13 @@ public:
 		///
 		/// A script context scope for the call must have been set up by the caller.
 
-	void call(v8::Persistent<v8::Object>& jsObject, const std::string& function, const std::string& args);
-		/// Calls a specific function defined in the given object with the given arguments, which must
+	void callInContext(v8::Persistent<v8::Object>& jsObject, const std::string& method, int argc, v8::Handle<v8::Value> argv[]);
+		/// Calls a specific method defined in the given object with the given arguments.
+		///
+		/// A script context scope for the call must have been set up by the caller.
+
+	void call(v8::Persistent<v8::Object>& jsObject, const std::string& method, const std::string& args);
+		/// Calls a specific method defined in the given object with the given arguments, which must
 		/// be given as a JSON string.
 		///
 		/// Sets up a script context scope for the call.
@@ -296,6 +299,7 @@ private:
 	Poco::FastMutex _mutex;
 	
 	friend class RunScriptTask;
+	friend class StopScriptTask;
 	friend class CallFunctionTask;
 };
 

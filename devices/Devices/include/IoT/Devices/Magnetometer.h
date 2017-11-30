@@ -1,8 +1,6 @@
 //
 // Magnetometer.h
 //
-// $Id: //iot/Main/Devices/include/IoT/Devices/Sensor.h#2 $
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  Magnetometer
@@ -32,17 +30,20 @@ namespace Devices {
 //@ serialize
 struct MagneticFieldStrength
 	/// Magnetic field strength values from a three-axis Magnetometer.
+	///
 {
 	MagneticFieldStrength():
 		x(0),
 		y(0),
-		z(0)
+		z(0),
+		r(0)
 	{
 	}
-	
-	double x; 
-	double y;
-	double z;
+
+	double x; /// x-axis field strength in [mT] (millitesla)
+	double y; /// y-axis field strength in [mT] (millitesla)
+	double z; /// z-axis field strength in [mT] (millitesla)
+	double r; /// internal resistance (0 if not available)
 };
 
 
@@ -57,13 +58,13 @@ public:
 		/// Actual behavior of this event (e.g., minimum interval
 		/// between fires) are implementation specific
 		/// and can be configured via properties.
-		
+
 	Magnetometer();
 		/// Creates the Magnetometer.
-		
+
 	~Magnetometer();
 		/// Destroys the Magnetometer.
-		
+
 	virtual MagneticFieldStrength fieldStrength() const = 0;
 		/// Returns the most recently measured field strength values.
 };

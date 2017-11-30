@@ -1,8 +1,6 @@
 //
 // JSServletFilter.cpp
 //
-// $Id: //poco/1.4/OSP/JS/src/JSServletFilter.cpp#1 $
-//
 // Copyright (c) 2013-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -48,7 +46,7 @@ namespace
 JSServletFilter::JSServletFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args, JSServletExecutorCache& cache):
 	_pContext(pContext),
 	_cache(cache),
-	_memoryLimit(1024*1024)
+	_memoryLimit(JSExecutor::getDefaultMemoryLimit())
 {
 	Poco::OSP::Web::WebFilter::Args::const_iterator it = args.find("memoryLimit");
 	if (it != args.end())
@@ -91,7 +89,14 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 			{
 				std::string servlet;
 				preprocess(request, response, scriptURI, resourceStream, servlet);
-				JSServletExecutor::Ptr pExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _moduleSearchPaths, _memoryLimit);
+				
+				Poco::UInt64 memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit", _memoryLimit);
+				
+				std::string moduleSearchPaths = pBundle->properties().getString("osp.js.moduleSearchPaths", "");
+				Poco::StringTokenizer tok(moduleSearchPaths, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+				_moduleSearchPaths.insert(_moduleSearchPaths.begin(), tok.begin(), tok.end());
+
+				JSServletExecutor::Ptr pExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _moduleSearchPaths, memoryLimit);
 				pExecutor->prepareRequest(request, response);
 				pExecutor->run();
 				pExecutorHolder = new JSServletExecutorHolder(pExecutor);

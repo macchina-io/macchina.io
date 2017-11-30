@@ -1,8 +1,6 @@
 //
 // ServiceRef.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/ServiceRef.h#1 $
-//
 // Library: OSP
 // Package: Service
 // Module:  ServiceRef

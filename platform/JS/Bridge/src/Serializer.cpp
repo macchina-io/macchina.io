@@ -1,10 +1,8 @@
 //
 // Serializer.cpp
 //
-// $Id: //poco/1.4/JS/Bridge/src/Serializer.cpp#6 $
-//
-// Library: JSBridge
-// Package: Bridge
+// Library: JS/Bridge
+// Package: Bridging
 // Module:  Serializer
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
@@ -165,13 +163,13 @@ void Serializer::serialize(const std::string& name, unsigned long value)
 #ifndef POCO_LONG_IS_64_BIT
 void Serializer::serialize(const std::string& name, Poco::Int64 value)
 {
-	serializeValue(name, v8::Number::New(_pIsolate, value));
+	serializeValue(name, v8::Number::New(_pIsolate, static_cast<double>(value)));
 }
 
 
 void Serializer::serialize(const std::string& name, Poco::UInt64 value)
 {
-	serializeValue(name, v8::Number::New(_pIsolate, value));
+	serializeValue(name, v8::Number::New(_pIsolate, static_cast<double>(value)));
 }
 #endif
 

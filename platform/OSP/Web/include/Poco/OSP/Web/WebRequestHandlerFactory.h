@@ -1,8 +1,6 @@
 //
 // WebRequestHandlerFactory.h
 //
-// $Id: //poco/1.7/OSP/Web/include/Poco/OSP/Web/WebRequestHandlerFactory.h#1 $
-//
 // Library: OSP/Web
 // Package: Web
 // Module:  WebRequestHandlerFactory

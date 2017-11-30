@@ -1,8 +1,6 @@
 //
 // Tester.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/Tester.h#1 $
-//
 // Definition of the Tester class.
 //
 // Copyright (c) 2009-2012, Applied Informatics Software Engineering GmbH.
@@ -273,6 +271,12 @@ public:
 	void testSynchronizedRemote();
 	
 	void testFault();
+	
+	//@ authenticated
+	void testAuthenticated();
+
+	//@ permission="perm1"
+	void testPermission();
 	
 	//@ oneway
 	void fireTestEvent(const std::string& arg);

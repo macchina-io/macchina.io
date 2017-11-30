@@ -1,10 +1,8 @@
 //
 // HTTPResponseWrapper.h
 //
-// $Id: //poco/1.4/JS/Net/include/Poco/JS/Net/HTTPResponseWrapper.h#6 $
-//
-// Library: JSNet
-// Package: HTTP
+// Library: JS/Net
+// Package: Wrappers
 // Module:  HTTPResponseWrapper
 //
 // Definition of the HTTPResponseWrapper interface.
@@ -20,7 +18,7 @@
 #define JS_Net_HTTPResponseWrapper_INCLUDED
 
 
-#include "Poco/JS/Core/Core.h"
+#include "Poco/JS/Net/Net.h"
 #include "Poco/JS/Core/Wrapper.h"
 #include "Poco/Net/HTTPResponse.h"
 #include "Poco/SharedPtr.h"
@@ -31,7 +29,7 @@ namespace JS {
 namespace Net {
 
 
-class ResponseHolder
+class JSNet_API ResponseHolder
 	/// Base class for ResponseHolder classes.
 {
 public:
@@ -58,7 +56,7 @@ private:
 };
 
 
-class ResponseHolderImpl: public ResponseHolder
+class JSNet_API ResponseHolderImpl: public ResponseHolder
 {
 public:
 	ResponseHolderImpl()
@@ -131,7 +129,7 @@ private:
 };
 
 
-class JSCore_API HTTPResponseWrapper: public JS::Core::Wrapper
+class JSNet_API HTTPResponseWrapper: public JS::Core::Wrapper
 	/// JavaScript wrapper for Poco::HTTPResponse.
 {
 public:

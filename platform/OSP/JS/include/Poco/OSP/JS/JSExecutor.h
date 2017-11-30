@@ -1,8 +1,6 @@
 //
 // JSExecutor.h
 //
-// $Id: //poco/1.4/OSP/JS/src/JSExecutor.h#8 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -65,6 +63,12 @@ public:
 		
 	static Poco::JS::Core::ModuleRegistry::Ptr getGlobalModuleRegistry();
 		/// Returns the global module registry.
+		
+	static void setDefaultMemoryLimit(Poco::UInt64 memoryLimit);
+		/// Sets the global default memory limit for scripts.
+		
+	static Poco::UInt64 getDefaultMemoryLimit();
+		/// Returns the global default memory limit for scripts.
 
 protected:
 	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
@@ -77,10 +81,11 @@ private:
 	
 	static std::vector<std::string> _globalModuleSearchPaths;
 	static Poco::JS::Core::ModuleRegistry::Ptr _globalModuleRegistry;
+	static Poco::UInt64 _defaultMemoryLimit;
 };
 
 
-class TimedJSExecutor: public Poco::JS::Core::TimedJSExecutor
+class OSPJS_API TimedJSExecutor: public Poco::JS::Core::TimedJSExecutor
 	/// An extension of the Poco::JS::Core::TimedJSExecutor for executing JavaScript
 	/// code within an OSP environment.
 	///

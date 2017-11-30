@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Makefile for macchina.io Web UI
 #
 
@@ -13,6 +11,7 @@ clean all:
 	$(MAKE) -C jQuery $(MAKECMDGOALS)
 	$(MAKE) -C AngularJS $(MAKECMDGOALS)
 	$(MAKE) -C AngularFileUpload $(MAKECMDGOALS)
+	$(MAKE) -C AngularUITree $(MAKECMDGOALS)
 	$(MAKE) -C Launcher $(MAKECMDGOALS)
 	$(MAKE) -C SystemInformation $(MAKECMDGOALS)
 	$(MAKE) -C Devices $(MAKECMDGOALS)
@@ -23,3 +22,8 @@ clean all:
 	$(MAKE) -C GNSSTracking $(MAKECMDGOALS)
 	$(MAKE) -C MQTT $(MAKECMDGOALS)
 	$(MAKE) -C Console $(MAKECMDGOALS)
+	$(MAKE) -C Settings $(MAKECMDGOALS)
+	$(MAKE) -C ChartJS $(MAKECMDGOALS)
+	$(MAKE) -C MomentJS $(MAKECMDGOALS)
+	$(MAKE) -C TinyColor $(MAKECMDGOALS)
+	$(MAKE) -C GPIO $(MAKECMDGOALS)

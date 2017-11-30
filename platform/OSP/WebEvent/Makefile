@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/WebEvent/Makefile#1 $
-#
 # Makefile for Poco OSP WebEvent
 #
 

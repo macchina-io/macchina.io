@@ -1,10 +1,8 @@
 //
 // HTTPRequestWrapper.h
 //
-// $Id: //poco/1.4/JS/Net/include/Poco/JS/Net/HTTPRequestWrapper.h#6 $
-//
-// Library: JSNet
-// Package: HTTP
+// Library: JS/Net
+// Package: Wrappers
 // Module:  HTTPRequestWrapper
 //
 // Definition of the HTTPRequestWrapper interface.
@@ -20,7 +18,7 @@
 #define JS_Net_HTTPRequestWrapper_INCLUDED
 
 
-#include "Poco/JS/Core/Core.h"
+#include "Poco/JS/Net/Net.h"
 #include "Poco/JS/Core/Wrapper.h"
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Timespan.h"
@@ -32,7 +30,7 @@ namespace JS {
 namespace Net {
 
 
-class RequestHolder
+class JSNet_API RequestHolder
 	/// Base class for RequestHolder classes.
 {
 public:
@@ -70,7 +68,7 @@ private:
 };
 
 
-class RequestHolderImpl: public RequestHolder
+class JSNet_API RequestHolderImpl: public RequestHolder
 {
 public:
 	RequestHolderImpl()
@@ -143,7 +141,7 @@ private:
 };
 
 
-class JSCore_API HTTPRequestWrapper: public JS::Core::Wrapper
+class JSNet_API HTTPRequestWrapper: public JS::Core::Wrapper
 	/// JavaScript wrapper for Poco::HTTPRequest.
 {
 public:
@@ -156,11 +154,13 @@ public:
 	v8::Handle<v8::FunctionTemplate> constructor(v8::Isolate* pIsolate);
 		/// Creates and returns a V8 FunctionTemplate for the constructor function.
 
+	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
+		/// Constructor function.
+
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
 		
 protected:
-	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getMethod(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void setMethod(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
 	static void getURI(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);

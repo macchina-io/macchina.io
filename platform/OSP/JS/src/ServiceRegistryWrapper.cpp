@@ -1,8 +1,6 @@
 //
 // ServiceRegistryWrapper.cpp
 //
-// $Id: //poco/1.4/OSP/JS/src/ServiceRegistryWrapper.cpp#4 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -53,7 +51,7 @@ void ServiceRegistryWrapper::findByName(const v8::FunctionCallbackInfo<v8::Value
 			if (pServiceRef)
 			{
 				ServiceRefWrapper wrapper;
-				v8::Persistent<v8::Object> serviceRefObject(args.GetIsolate(), wrapper.wrapNativePersistent(args.GetIsolate(), pServiceRef));
+				v8::Persistent<v8::Object>& serviceRefObject(wrapper.wrapNativePersistent(args.GetIsolate(), pServiceRef));
 				args.GetReturnValue().Set(serviceRefObject);
 				return;
 			}
@@ -83,14 +81,17 @@ void ServiceRegistryWrapper::find(const v8::FunctionCallbackInfo<v8::Value>& arg
 			std::string serviceQuery = toString(args[0]);
 			std::vector<Poco::OSP::ServiceRef::Ptr> services;
 			v8::Local<v8::Array> result = v8::Array::New(args.GetIsolate());
-			int i = 0;
-			if (pServiceRegistry->find(serviceQuery, services))
+			if (!result.IsEmpty())
 			{
-				for (std::vector<Poco::OSP::ServiceRef::Ptr>::iterator it = services.begin(); it != services.end(); ++it)
+				int i = 0;
+				if (pServiceRegistry->find(serviceQuery, services))
 				{
-					v8::Persistent<v8::Object>& serviceRefObject(wrapper.wrapNativePersistent(args.GetIsolate(), *it));
-					v8::Local<v8::Object> localServiceRefObject = v8::Local<v8::Object>::New(args.GetIsolate(), serviceRefObject);
-					result->Set(i++, localServiceRefObject);
+					for (std::vector<Poco::OSP::ServiceRef::Ptr>::iterator it = services.begin(); it != services.end(); ++it)
+					{
+						v8::Persistent<v8::Object>& serviceRefObject(wrapper.wrapNativePersistent(args.GetIsolate(), *it));
+						v8::Local<v8::Object> localServiceRefObject = v8::Local<v8::Object>::New(args.GetIsolate(), serviceRefObject);
+						result->Set(i++, localServiceRefObject);
+					}
 				}
 			}
 			args.GetReturnValue().Set(result);

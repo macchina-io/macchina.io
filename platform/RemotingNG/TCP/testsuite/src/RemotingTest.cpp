@@ -1,8 +1,6 @@
 //
 // RemotingTest.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/RemotingTest.cpp#1 $
-//
 // Copyright (c) 2006-2012, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -21,11 +19,19 @@
 #include "Poco/RemotingNG/TCP/Transport.h"
 #include "Poco/RemotingNG/TCP/TransportFactory.h"
 #include "Poco/RemotingNG/TCP/Listener.h"
+#include "Poco/RemotingNG/TCP/PlainClientAuthenticator.h"
+#include "Poco/RemotingNG/TCP/SCRAMClientAuthenticator.h"
+#include "Poco/RemotingNG/TCP/SCRAMAuthenticator.h"
+#include "Poco/RemotingNG/Context.h"
 #include "Poco/RemotingNG/RemotingException.h"
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
 #include "Poco/Net/HTTPRequestHandlerFactory.h"
 #include "Poco/Net/HTTPBasicCredentials.h"
+#include "Poco/MD5Engine.h"
+#include "Poco/SHA1Engine.h"
+#include "Poco/HMACEngine.h"
+#include "Poco/PBKDF2Engine.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/DateTimeFormatter.h"
 #include "Poco/NullStream.h"
@@ -37,6 +43,104 @@
 #include "TesterRemoteObject.h"
 #include "TesterProxy.h"
 #include <sstream>
+
+
+class MockAuthenticator: public Poco::RemotingNG::Authenticator
+{
+public:
+	typedef Poco::AutoPtr<MockAuthenticator> Ptr;
+
+	Poco::RemotingNG::AuthenticateResult authenticate(const Poco::RemotingNG::Credentials& creds, Poco::UInt32 /*conversationID*/)
+	{
+		std::string username = creds.getAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "");
+		std::string password = creds.getAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "");
+		
+		_lastUsername = username;
+		
+		if ((username == "user" && password == "pass") || (username == "admin" && password == "s3cr3t"))
+			return Poco::RemotingNG::AuthenticateResult(Poco::RemotingNG::AuthenticateResult::AUTH_DONE, creds);
+		else
+			return Poco::RemotingNG::AuthenticateResult(Poco::RemotingNG::AuthenticateResult::AUTH_FAILED);
+	}
+	
+	const std::string& lastUsername() const
+	{
+		return _lastUsername;
+	}
+	
+private:
+	std::string _lastUsername;
+};
+
+
+class MockSCRAMAuthenticator: public Poco::RemotingNG::TCP::SCRAMAuthenticator
+{
+public:
+	typedef Poco::AutoPtr<MockSCRAMAuthenticator> Ptr;
+
+	const std::string& lastUsername() const
+	{
+		return _lastUsername;
+	}
+	
+	// SCRAMAuthenticator
+	std::string saltForUser(const std::string& username, int& iterations)
+	{
+		if (username == "user" || username == "admin")
+		{
+			_lastUsername = username;
+			iterations = 1000;
+			return "salt";
+		}
+		else return "";
+	}
+	
+	std::string hashForUser(const std::string& username)
+	{
+		std::string password;
+		if (username == "user")
+		{
+			password = "pass";
+		}
+		else if (username == "admin")
+		{
+			password = "s3cr3t";
+		}
+		else return "";
+		
+		Poco::MD5Engine md5;
+		md5.update(username);
+		md5.update(std::string(":poco:"));
+		md5.update(password);
+		std::string hashedPassword = digestToHexString(md5);
+
+		int iterations;
+		std::string salt = saltForUser(username, iterations);
+		Poco::PBKDF2Engine<Poco::HMACEngine<Poco::SHA1Engine> > pbkdf2(salt, iterations, 20);
+		pbkdf2.update(hashedPassword);
+		return digestToBinaryString(pbkdf2);
+	}
+	
+private:
+	std::string _lastUsername;
+};
+
+
+class MockAuthorizer: public Poco::RemotingNG::Authorizer
+{
+public:
+	bool authorize(const std::string& method, const std::string& permission)
+	{
+		Poco::RemotingNG::Context::Ptr pContext = Poco::RemotingNG::Context::get();
+		
+		const Poco::RemotingNG::Credentials& creds = pContext->getCredentials();
+
+		std::string username = creds.getAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "");
+		std::string password = creds.getAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "");
+		
+		return username == "admin";
+	}
+};
 
 
 bool operator == (const Struct1& s1, const Struct1& s2)
@@ -236,6 +340,8 @@ void RemotingTest::testOneWay()
 	ITester::Ptr pTester = createProxy(_objectURI);
 	pTester->testOneWay("s3cr3t");
 
+	Poco::Thread::sleep(200);
+
 	std::string result = pTester->testOneWayResult();
 	assert (result == "s3cr3t");
 }
@@ -247,10 +353,336 @@ void RemotingTest::testFault()
 	try
 	{
 		pTester->testFault();
+		fail("must throw");
 	}
 	catch (Poco::RemotingNG::RemoteException& exc)
 	{
 		assert (exc.message() == "Application exception: Something went wrong");
+	}
+}
+
+
+void RemotingTest::testAuthenticatedGoodCredentials()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "user");
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "pass");
+	trans.setCredentials(creds);
+	trans.setAuthenticator(new Poco::RemotingNG::TCP::PlainClientAuthenticator);
+	
+	_pListener->setAuthenticator(new MockAuthenticator);
+
+	pTester->testAuthenticated();
+}
+
+
+void RemotingTest::testAuthenticatedBadCredentials()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "user");
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "bad");
+	trans.setCredentials(creds);
+	trans.setAuthenticator(new Poco::RemotingNG::TCP::PlainClientAuthenticator);
+	
+	_pListener->setAuthenticator(new MockAuthenticator);
+
+	try
+	{
+		pTester->testAuthenticated();
+		fail("bad credentials - must throw");
+	}
+	catch (Poco::RemotingNG::AuthenticationFailedException& exc)
+	{
+		assert (exc.message() == "The server refused the provided credentials");
+	}
+}
+
+
+void RemotingTest::testAuthenticatedNoCredentials()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+	
+	_pListener->setAuthenticator(new MockAuthenticator);
+
+	try
+	{
+		pTester->testAuthenticated();
+		fail("no credentials - must throw");
+	}
+	catch (Poco::RemotingNG::RemoteException& exc)
+	{
+		assert (exc.message() == "Authentication failed");
+	}
+}
+
+
+void RemotingTest::testAuthenticatedUpdatedCredentials()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "user");
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "pass");
+	trans.setCredentials(creds);
+	trans.setAuthenticator(new Poco::RemotingNG::TCP::PlainClientAuthenticator);
+
+	MockAuthenticator::Ptr pAuth = new MockAuthenticator;
+	_pListener->setAuthenticator(pAuth);
+
+	pTester->testAuthenticated();
+	
+	assert (pAuth->lastUsername() == "user");
+	
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "admin");
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "s3cr3t");
+	trans.setCredentials(creds);
+	
+	pTester->testAuthenticated();
+	
+	assert (pAuth->lastUsername() == "admin");
+	
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "h@ck3r");
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "dummy");
+	trans.setCredentials(creds);
+
+	try
+	{
+		pTester->testAuthenticated();
+		fail("bad credentials - must throw");
+	}
+	catch (Poco::RemotingNG::AuthenticationFailedException& exc)
+	{
+		assert (exc.message() == "The server refused the provided credentials");
+	}	
+}
+
+
+void RemotingTest::testAuthenticatedGoodSCRAMCredentials()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "user");
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "pass");
+	trans.setCredentials(creds);
+	trans.setAuthenticator(new Poco::RemotingNG::TCP::SCRAMClientAuthenticator);
+	
+	_pListener->setAuthenticator(new MockSCRAMAuthenticator);
+
+	pTester->testAuthenticated();
+}
+
+
+void RemotingTest::testAuthenticatedBadSCRAMCredentials()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "user");
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "bad");
+	trans.setCredentials(creds);
+	trans.setAuthenticator(new Poco::RemotingNG::TCP::SCRAMClientAuthenticator);
+	
+	_pListener->setAuthenticator(new MockSCRAMAuthenticator);
+
+	try
+	{
+		pTester->testAuthenticated();
+		fail("bad credentials - must throw");
+	}
+	catch (Poco::RemotingNG::AuthenticationFailedException& exc)
+	{
+		assert (exc.message() == "The server refused the provided credentials");
+	}
+}
+
+
+void RemotingTest::testAuthenticatedNoSCRAMCredentials()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+	
+	_pListener->setAuthenticator(new MockSCRAMAuthenticator);
+
+	try
+	{
+		pTester->testAuthenticated();
+		fail("no credentials - must throw");
+	}
+	catch (Poco::RemotingNG::RemoteException& exc)
+	{
+		assert (exc.message() == "Authentication failed");
+	}
+}
+
+
+void RemotingTest::testAuthenticatedUpdatedSCRAMCredentials()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "user");
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "pass");
+	trans.setCredentials(creds);
+	trans.setAuthenticator(new Poco::RemotingNG::TCP::SCRAMClientAuthenticator);
+
+	MockSCRAMAuthenticator::Ptr pAuth = new MockSCRAMAuthenticator;
+	_pListener->setAuthenticator(pAuth);
+
+	pTester->testAuthenticated();
+	
+	assert (pAuth->lastUsername() == "user");
+	
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "admin");
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "s3cr3t");
+	trans.setCredentials(creds);
+	
+	pTester->testAuthenticated();
+	
+	assert (pAuth->lastUsername() == "admin");
+	
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "h@ck3r");
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "dummy");
+	trans.setCredentials(creds);
+
+	try
+	{
+		pTester->testAuthenticated();
+		fail("bad credentials - must throw");
+	}
+	catch (Poco::RemotingNG::AuthenticationFailedException& exc)
+	{
+		assert (exc.message() == "The server refused the provided credentials");
+	}	
+}
+
+
+void RemotingTest::testAuthenticatedMultipleSCRAMCredentials()
+{
+	ITester::Ptr pTester1 = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy1 = pTester1.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans1 = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy1->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds1;
+	creds1.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "user");
+	creds1.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "pass");
+	trans1.setCredentials(creds1);
+	trans1.setAuthenticator(new Poco::RemotingNG::TCP::SCRAMClientAuthenticator);
+
+	ITester::Ptr pTester2 = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy2 = pTester2.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans2 = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy2->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds2;
+	creds2.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "admin");
+	creds2.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "s3cr3t");
+	trans2.setCredentials(creds2);
+	trans2.setAuthenticator(new Poco::RemotingNG::TCP::SCRAMClientAuthenticator);
+
+	ITester::Ptr pTester3 = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy3 = pTester3.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans3 = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy3->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds3;
+	creds3.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "h@ck3r");
+	creds3.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "dummy");
+	trans3.setCredentials(creds3);
+	trans3.setAuthenticator(new Poco::RemotingNG::TCP::SCRAMClientAuthenticator);
+
+	MockSCRAMAuthenticator::Ptr pAuth = new MockSCRAMAuthenticator;
+	_pListener->setAuthenticator(pAuth);
+
+	pTester1->testAuthenticated();
+	
+	assert (pAuth->lastUsername() == "user");
+	
+	pTester2->testAuthenticated();
+	
+	assert (pAuth->lastUsername() == "admin");
+
+	try
+	{
+		pTester3->testAuthenticated();
+		fail("bad credentials - must throw");
+	}
+	catch (Poco::RemotingNG::AuthenticationFailedException& exc)
+	{
+		assert (exc.message() == "The server refused the provided credentials");
+	}
+
+	pTester1->testAuthenticated();
+	pTester2->testAuthenticated();
+}
+
+
+void RemotingTest::testPermission()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "admin");
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "s3cr3t");
+	trans.setCredentials(creds);
+	trans.setAuthenticator(new Poco::RemotingNG::TCP::PlainClientAuthenticator);
+	
+	_pListener->setAuthenticator(new MockAuthenticator);
+	_pListener->setAuthorizer(new MockAuthorizer);
+
+	pTester->testPermission();
+}
+
+
+void RemotingTest::testNoPermission()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+	
+	Poco::RemotingNG::Credentials creds;
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "user");
+	creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "pass");
+	trans.setCredentials(creds);
+	trans.setAuthenticator(new Poco::RemotingNG::TCP::PlainClientAuthenticator);
+	
+	_pListener->setAuthenticator(new MockAuthenticator);
+	_pListener->setAuthorizer(new MockAuthorizer);
+
+	try
+	{
+		pTester->testPermission();
+		fail("no permission - must throw");
+	}
+	catch (Poco::RemotingNG::RemoteException& exc)
+	{
+		assert (exc.message() == "No permission: perm1");
 	}
 }
 
@@ -668,6 +1100,17 @@ CppUnit::Test* RemotingTest::suite()
 	CppUnit_addTest(pSuite, RemotingTest, testStruct1Vec);
 	CppUnit_addTest(pSuite, RemotingTest, testOneWay);
 	CppUnit_addTest(pSuite, RemotingTest, testFault);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedGoodCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedBadCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedNoCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedUpdatedCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedGoodSCRAMCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedBadSCRAMCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedNoSCRAMCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedUpdatedSCRAMCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedMultipleSCRAMCredentials);
+	CppUnit_addTest(pSuite, RemotingTest, testPermission);
+	CppUnit_addTest(pSuite, RemotingTest, testNoPermission);
 	CppUnit_addTest(pSuite, RemotingTest, testEvent);
 	CppUnit_addTest(pSuite, RemotingTest, testOneWayEvent);
 
@@ -714,9 +1157,20 @@ CppUnit::Test* RemotingTestCompressed::suite()
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testStruct1Vec);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testOneWay);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testFault);
-	CppUnit_addTest(pSuite, RemotingTest, testEvent);
-	CppUnit_addTest(pSuite, RemotingTest, testOneWayEvent);
-	CppUnit_addTest(pSuite, RemotingTest, testVoidEvent);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedGoodCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedBadCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedNoCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedUpdatedCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedGoodSCRAMCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedBadSCRAMCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedNoSCRAMCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedUpdatedSCRAMCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedMultipleSCRAMCredentials);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testPermission);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testNoPermission);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testEvent);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testOneWayEvent);
+	CppUnit_addTest(pSuite, RemotingTestCompressed, testVoidEvent);
 
 	return pSuite;
 }

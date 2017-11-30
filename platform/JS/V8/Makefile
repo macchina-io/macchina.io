@@ -1,20 +1,23 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/JS/V8/Makefile#5 $
-#
 # Makefile for v8 JavaScript engine
 #
 
 include $(POCO_BASE)/build/rules/global
 
-V8VERSION = 5.2.361.53
+V8VERSION = 6.1.534
 V8BASE = v8
 ifdef V8_NOSNAPSHOT
 V8SNAPSHOT = snapshot=off
 else
 GYPFLAGS=-Dv8_use_external_startup_data=0
 export GYPFLAGS
+
+export CFLAGS
+export CXXFLAGS
+export LINKFLAGS
+
 endif
 V8FLAGS = component=shared_library i18nsupport=off werror=no $(V8SNAPSHOT) $(V8_EXTRA_FLAGS)
 
@@ -40,8 +43,11 @@ V8FLAGS += arm_version=6
 # Workaround for Raspberry Pi
 V8FLAGS += armfpu=vfp armfloatabi=hard armneon=off
 endif
-ifeq ($(findstring mipsel,$(OSARCH)),mipsel)
+ifeq ($(OSARCH),mipsel)
 V8ARCH = mipsel
+endif
+ifeq ($(OSARCH),mips)
+V8ARCH = mips
 endif
 
 $(info Building V8 for arch $(V8ARCH) with flags: $(V8FLAGS))
@@ -71,16 +77,14 @@ default: v8install
 v8base: $(V8BASE)
 
 v8deps: v8base
-	mkdir -p $(V8BASE)/build
 	mkdir -p $(V8BASE)/out
-	touch $(V8BASE)/out/environment
-	
-shared_debug: v8deps 
-	-$(MAKE) -C $(V8BASE) $(V8ARCH).debug $(V8FLAGS) 
+
+shared_debug: v8deps
+	-$(MAKE) -C $(V8BASE) $(V8ARCH).debug $(V8FLAGS)
 
 shared_release: v8deps
-	-$(MAKE) -C $(V8BASE) $(V8ARCH).release $(V8FLAGS) 
-	
+	-$(MAKE) -C $(V8BASE) $(V8ARCH).release $(V8FLAGS)
+
 all_shared: shared_debug shared_release
 
 v8install: $(DEFAULT_TARGET)
@@ -91,7 +95,7 @@ v8install: $(DEFAULT_TARGET)
 	mkdir -p include
 	mkdir -p include/libplatform
 	cp $(V8BASE)/include/*.h include
-	cp $(V8BASE)/include/libplatform/*.h include/libplatform	
+	cp $(V8BASE)/include/libplatform/*.h include/libplatform
 
 clean:
 	-$(MAKE) -C $(V8BASE) clean

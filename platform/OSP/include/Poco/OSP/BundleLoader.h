@@ -1,8 +1,6 @@
 //
 // BundleLoader.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/BundleLoader.h#2 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleLoader
@@ -28,6 +26,7 @@
 #include "Poco/OSP/BundleEvents.h"
 #include "Poco/OSP/BundleActivator.h"
 #include "Poco/OSP/BundleManifest.h"
+#include "Poco/OSP/BundleFilter.h"
 #include "Poco/OSP/LanguageTag.h"
 #include "Poco/BasicEvent.h"
 #include "Poco/ClassLoader.h"
@@ -135,6 +134,11 @@ public:
 	void listBundles(std::vector<Bundle::Ptr>& bundles) const;
 		/// Fills the given vector with all bundles
 		/// known to the loader.
+
+	void listBundles(std::vector<Bundle::Ptr>& bundles, BundleFilter::Ptr pFilter) const;
+		/// Fills the given vector with all bundles
+		/// known to the loader, filtered by the
+		/// given BundleFilter.
 		
 	void resolveAllBundles();
 		/// Resolves all bundles.
@@ -293,6 +297,7 @@ private:
 	BundleMap                 _bundles;
 	BundleIdMap               _bundleIds;
 	BundleSet                 _resolvingBundles;
+	std::string               _lastBundleStarted;
 	Poco::Logger&             _logger;
 	mutable Poco::Mutex       _mutex;
 

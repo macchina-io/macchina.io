@@ -1,8 +1,6 @@
 //
 // DCMotor.cpp
 //
-// $Id$
-//
 // Copyright (c) 2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -20,7 +18,7 @@ namespace Tf {
 
 
 DCMotor::DCMotor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.dc", "Tinkerforge DC Brick")
+	BrickletType("io.macchina.tf.dc", "Tinkerforge DC Brick", "io.macchina.tf.dc")
 {
 	addProperty("displayState", &DCMotor::getDisplayState);
 	addProperty("targetVelocity", &DCMotor::getTargetVelocity, &DCMotor::setTargetVelocity);

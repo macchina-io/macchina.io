@@ -1,8 +1,6 @@
 //
 // TimeClient.cpp
 //
-// $Id: //poco/1.6/RemotingNG/samples/TimeClientTCP/src/TimeClient.cpp#1 $
-//
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

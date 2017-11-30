@@ -1,0 +1,22 @@
+#
+# Makefile
+#
+# Makefile for macchina.io Bluetooth LE bundle
+#
+
+include $(POCO_BASE)/build/rules/global
+
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
+
+INCLUDE += -I$(PROJECT_BASE)/protocols/BtLE/include
+
+objects = BundleActivator \
+	BlueZGATTClient
+
+target         = io.macchina.btle.bluez
+target_version = 1
+target_libs    = IoTBtLE PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
+
+postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../../bundles BlueZ.bndlspec
+
+include $(POCO_BASE)/build/rules/dylib

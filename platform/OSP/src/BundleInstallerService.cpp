@@ -1,8 +1,6 @@
 //
 // BundleInstallerService.cpp
 //
-// $Id: //poco/1.7/OSP/src/BundleInstallerService.cpp#1 $
-//
 // Library: OSP
 // Package: BundleInstallerService
 // Module:  BundleInstallerService
@@ -43,7 +41,11 @@ BundleInstallerService::~BundleInstallerService()
 
 Bundle::Ptr BundleInstallerService::installBundle(const std::string& uri)
 {
+#if __cplusplus < 201103L
 	std::auto_ptr<std::istream> pStream(URIStreamOpener::defaultOpener().open(uri));
+#else
+	std::unique_ptr<std::istream> pStream(URIStreamOpener::defaultOpener().open(uri));
+#endif
 	return _bundleRepository.installBundle(*pStream);
 }
 
@@ -56,7 +58,11 @@ Bundle::Ptr BundleInstallerService::installBundle(std::istream& istr)
 
 Bundle::Ptr BundleInstallerService::replaceBundle(const std::string& symbolicName, const std::string& uri)
 {
+#if __cplusplus < 201103L
 	std::auto_ptr<std::istream> pStream(URIStreamOpener::defaultOpener().open(uri));
+#else
+	std::unique_ptr<std::istream> pStream(URIStreamOpener::defaultOpener().open(uri));
+#endif
 	return _bundleRepository.installBundle(*pStream, symbolicName);
 }
 

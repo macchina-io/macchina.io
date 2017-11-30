@@ -1,8 +1,6 @@
 //
 // NetworkEnvironment.h
 //
-// $Id$
-//
 // Library: IoT/NetworkEnvironment
 // Package: NetworkEnvironment
 // Module:  NetworkEnvironment

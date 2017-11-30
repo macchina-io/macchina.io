@@ -1,8 +1,6 @@
 //
 // RotaryEncoder.cpp
 //
-// $Id: //iot/Main/Devices/src/RotaryEncoder.cpp#2 $
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  RotaryEncoder

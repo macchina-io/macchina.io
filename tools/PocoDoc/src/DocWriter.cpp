@@ -1,8 +1,6 @@
 //
 // DocWriter.cpp
 //
-// $Id: //poco/1.4/PocoDoc/src/DocWriter.cpp#4 $
-//
 // Copyright (c) 2005-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -48,7 +46,8 @@ using namespace Poco::CppParser;
 std::string DocWriter::_language;
 DocWriter::StringMap DocWriter::_strings;
 Poco::Logger* DocWriter::_pLogger(0);
-const std::string DocWriter::RFC_URI("http://www.ietf.org/rfc/rfc");
+const std::string DocWriter::RFC_URI("https://www.ietf.org/rfc/rfc");
+const std::string DocWriter::GITHUB_POCO_URI("https://github.com/pocoproject/poco");
 
 
 DocWriter::DocWriter(const NameSpace::SymbolTable& symbols, const std::string& path, bool prettifyCode, bool noFrames):
@@ -1129,6 +1128,39 @@ void DocWriter::writeText(std::ostream& ostr, std::string::const_iterator begin,
 						writeTargetLink(ostr, uri, token + " " + n, "_blank");
 						nextToken(begin, end, token);
 						continue;
+					}
+				}
+				begin = it;
+			}
+			if (token == "GH")
+			{
+				std::string uri(GITHUB_POCO_URI);
+				std::string::const_iterator it(begin);
+				std::string spc;
+				nextToken(begin, end, spc);
+				if (spc == ":")
+				{
+					std::string proj;
+					nextToken(begin, end, proj);
+					uri = projectURI(proj);
+					nextToken(begin, end, spc);
+				}
+				if (spc == " ")
+				{
+					std::string hash;
+					nextToken(begin, end, hash);
+					if (hash == "#")
+					{
+						std::string n;
+						nextToken(begin, end, n);
+						if (!n.empty() && std::isdigit(n[0]))
+						{
+							uri += "/issues/";
+							uri += n;
+							writeTargetLink(ostr, uri, token + " #" + n, "_blank");
+							nextToken(begin, end, token);
+							continue;
+						}
 					}
 				}
 				begin = it;
@@ -2375,4 +2407,19 @@ void DocWriter::loadStrings(const std::string& language)
 	loadString("This", "This", language);
 	loadString("Types", "Types", language);
 	loadString("Variables", "Variables", language);
+}
+
+
+std::string DocWriter::projectURI(const std::string& proj)
+{
+	Application& app = Application::instance();
+	std::string key("PocoDoc.projects.");
+	key += proj;
+	std::string uri = app.config().getString(key, "");
+	if (uri.empty()) 
+	{
+		app.logger().warning("No project URI found for %s", proj);
+		uri = GITHUB_POCO_URI;
+	}
+	return uri;
 }

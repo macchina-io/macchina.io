@@ -1,8 +1,6 @@
 //
 // AirPressureSensor.h
 //
-// $Id: //iot/Main/Tf/src/AirPressureSensor.h#2 $
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

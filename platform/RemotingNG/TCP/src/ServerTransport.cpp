@@ -1,8 +1,6 @@
 //
 // ServerTransport.cpp
 //
-// $Id: //poco/1.4/RemotingNG/TCP/src/TransportFactory.cpp#1 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  ServerTransport
@@ -19,6 +17,7 @@
 #include "Poco/RemotingNG/TCP/Transport.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/RemotingNG/Context.h"
+#include "Poco/RemotingNG/Authorizer.h"
 
 
 namespace Poco {
@@ -26,10 +25,12 @@ namespace RemotingNG {
 namespace TCP {
 
 
-ServerTransport::ServerTransport(Listener& listener, const Poco::SharedPtr<ChannelInputStream>& pRequestStream, const Poco::SharedPtr<ChannelOutputStream>& pReplyStream, bool compressed):
+ServerTransport::ServerTransport(Listener& listener, CredentialsStore::Ptr pCredentialsStore, const Poco::SharedPtr<ChannelInputStream>& pRequestStream, const Poco::SharedPtr<ChannelOutputStream>& pReplyStream, bool compressed, bool authenticated):
 	_listener(listener),
+	_pCredentialsStore(pCredentialsStore),
 	_pRequestStream(pRequestStream),
 	_pReplyStream(pReplyStream),
+	_authenticated(authenticated),
 	_pInflater(0),
 	_pDeflater(0),
 	_logger(Poco::Logger::get("RemotingNG.TCP.ServerTransport"))
@@ -55,6 +56,23 @@ ServerTransport::~ServerTransport()
 void ServerTransport::waitReady()
 {
 	_ready.wait();
+}
+
+
+bool ServerTransport::authenticate(const std::string& /*method*/)
+{
+	return _authenticated;
+}
+
+
+bool ServerTransport::authorize(const std::string& method, const std::string& permission)
+{
+	Authorizer::Ptr pAuth = _listener.getAuthorizer();
+	if (pAuth)
+	{
+		return pAuth->authorize(method, permission);
+	}
+	return false;
 }
 
 
@@ -98,6 +116,13 @@ void ServerTransport::run()
 		_deserializer.setup(*_pInflater);
 	else
 		_deserializer.setup(*_pRequestStream);
+	
+	Poco::UInt64 authToken(0);
+	if (_authenticated)
+	{
+		authToken = _deserializer.deserializeToken<Poco::UInt64>();
+	}	
+	
 	std::string oid;
 	std::string tid;
 	_deserializer.deserializeEndPoint(oid, tid);
@@ -108,11 +133,29 @@ void ServerTransport::run()
 	path += oid;
 
 	Poco::RemotingNG::ScopedContext scopedContext;
-	scopedContext.context()->setValue("transport", Transport::PROTOCOL);
-	scopedContext.context()->setValue("remoteAddress", _pRequestStream->rdbuf()->connection()->remoteAddress());
-	scopedContext.context()->setValue("localAddress", _pRequestStream->rdbuf()->connection()->localAddress());
-	scopedContext.context()->setValue("id", _pRequestStream->rdbuf()->connection()->id());
-	scopedContext.context()->setValue("uri", path);
+	Context::Ptr pContext = scopedContext.context();
+	pContext->setValue("transport", Transport::PROTOCOL);
+	pContext->setValue("remoteAddress", _pRequestStream->rdbuf()->connection()->remoteAddress());
+	pContext->setValue("localAddress", _pRequestStream->rdbuf()->connection()->localAddress());
+	pContext->setValue("id", _pRequestStream->rdbuf()->connection()->id());
+	pContext->setValue("connection", _pRequestStream->rdbuf()->connection().get());
+	pContext->setValue("uri", path);
+	pContext->clearCredentials();
+	
+	if (_authenticated)
+	{
+		try
+		{
+			scopedContext.context()->setCredentials(_pCredentialsStore->getCredentials(authToken));
+		}
+		catch (Poco::NotFoundException&)
+		{
+			_logger.error("Invalid authentication token");
+			InvalidCredentialsException exc("Authentication token");
+			sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT).serializeFaultMessage("fault", exc);
+			return;
+		}
+	}
 	
 	Poco::RemotingNG::ORB& orb = Poco::RemotingNG::ORB::instance();
 	if (oid.find('#') != std::string::npos)
@@ -129,7 +172,7 @@ void ServerTransport::run()
 		else
 		{
 			_logger.error("Unknown event subscriber: " + path);
-			RemotingException exc("Unknown event subscriber");
+			UnknownEventSubscriberException exc(path);
 			sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT).serializeFaultMessage("fault", exc);
 			endRequest();
 		}
@@ -145,7 +188,7 @@ void ServerTransport::run()
 		if (!serviceFound)
 		{
 			_logger.error("Unknown service object: " + path);
-			RemotingException exc("Unknown service");
+			UnknownObjectException exc(path);
 			sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT).serializeFaultMessage("fault", exc);
 			endRequest();
 		}

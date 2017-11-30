@@ -1,18 +1,16 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Makefile for macchina.io Linux Devices Bundle
 #
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-
 include $(POCO_BASE)/build/rules/global
+
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 
-objects = LinuxLED BundleActivator 
+objects = LinuxGPIO LinuxLED BundleActivator
 
 target         = io.macchina.linux
 target_version = 1

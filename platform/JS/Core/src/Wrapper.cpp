@@ -1,10 +1,8 @@
 //
 // Wrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/Wrapper.cpp#4 $
-//
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  Wrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.

@@ -1,8 +1,6 @@
 //
 // WebTestSuite.h
 //
-// $Id: //poco/1.7/OSP/Web/testsuite/src/WebTestSuite.h#1 $
-//
 // Definition of the WebTestSuite class.
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.

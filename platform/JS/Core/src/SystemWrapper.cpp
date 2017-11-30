@@ -1,10 +1,8 @@
 //
 // SystemWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/SystemWrapper.cpp#5 $
-//
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  SystemWrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
@@ -63,6 +61,8 @@ v8::Handle<v8::ObjectTemplate> SystemWrapper::objectTemplate(v8::Isolate* pIsola
 
 void SystemWrapper::exec(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::EscapableHandleScope handleScope(args.GetIsolate());
+
 	if (args.Length() < 1) return;
 	std::string command = toString(args[0]);
 	std::string output;
@@ -82,8 +82,19 @@ void SystemWrapper::exec(const v8::FunctionCallbackInfo<v8::Value>& args)
 		Poco::ProcessHandle ph(Poco::Process::launch(shell, shellArgs, 0, &outPipe, &outPipe));
 		Poco::PipeInputStream istr(outPipe);
 		Poco::StreamCopier::copyToString(istr, output);
-		ph.wait();
-		returnString(args, output);
+		int rc = ph.wait();
+
+		v8::Local<v8::String> outputString(v8::String::NewFromUtf8(args.GetIsolate(), output.c_str(), v8::String::kNormalString, static_cast<int>(output.length())));
+		v8::Local<v8::Value> outputStringObject = v8::StringObject::New(outputString);
+		if (!outputStringObject.IsEmpty())
+		{
+			v8::Local<v8::Object> outputObject = outputStringObject->ToObject();
+			if (!outputObject.IsEmpty())
+			{
+				outputObject->Set(v8::String::NewFromUtf8(args.GetIsolate(), "exitStatus"), v8::Integer::New(args.GetIsolate(), rc));
+			}
+		}
+		args.GetReturnValue().Set(outputStringObject);
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -97,7 +108,7 @@ void SystemWrapper::sleep(const v8::FunctionCallbackInfo<v8::Value>& args)
 	if (args.Length() < 1) return;
 	if (!args[0]->IsNumber()) return;
 	double millisecs = args[0]->NumberValue();
-	Poco::Thread::sleep(millisecs);
+	Poco::Thread::sleep(static_cast<long>(millisecs));
 }
 
 

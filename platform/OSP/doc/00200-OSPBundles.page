@@ -330,6 +330,12 @@ Since the shared libraries of all bundles eventually end up in a common director
 naming the shared libraries in bundles to avoid name conflicts. Therefore, the naming convention for bundles 
 (reverse domain name) should also be used for shared libraries, if possible.
 
+Starting with release 2016.3, multiple processes on system can share the same code cache directory.
+For this to work, it must be guaranteed that all processes share the same bundle versions.
+Furthermore, the configuration property <[osp.sharedCodeCache]> must be set to true to enable
+locking the code cache during install operations, to prevent conflicts between multiple
+processes simultaneously updating or installing the libraries for the same bundles.
+
 
 !!! The Bundle Activator
 

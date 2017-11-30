@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="JS">
+      <UniqueIdentifier>{dab00da0-1448-4955-a5df-7b076b5e43d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="JS\Header Files">
+      <UniqueIdentifier>{20cb3803-f6a9-46f5-835c-37a24a5165fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="JS\Source Files">
+      <UniqueIdentifier>{5701f369-ba3f-4be1-962e-f7390511b172}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Poco\OSP\JS\BundleWrapper.h">
+      <Filter>JS\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\JS\JS.h">
+      <Filter>JS\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\JS\JSExecutor.h">
+      <Filter>JS\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\JS\JSExtensionPoint.h">
+      <Filter>JS\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\JS\ModuleExtensionPoint.h">
+      <Filter>JS\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\JS\ModuleFactory.h">
+      <Filter>JS\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\JS\ServiceRefWrapper.h">
+      <Filter>JS\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\JS\ServiceRegistryWrapper.h">
+      <Filter>JS\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\BundleWrapper.cpp">
+      <Filter>JS\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JSExecutor.cpp">
+      <Filter>JS\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\JSExtensionPoint.cpp">
+      <Filter>JS\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ModuleExtensionPoint.cpp">
+      <Filter>JS\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ModuleFactory.cpp">
+      <Filter>JS\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServiceRefWrapper.cpp">
+      <Filter>JS\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServiceRegistryWrapper.cpp">
+      <Filter>JS\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

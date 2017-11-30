@@ -1,10 +1,8 @@
 //
 // LoggerWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/LoggerWrapper.cpp#5 $
-//
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Wrappers
 // Module:  LoggerWrapper
 //
 // Copyright (c) 2013-2015, Applied Informatics Software Engineering GmbH.
@@ -16,6 +14,7 @@
 
 #include "Poco/JS/Core/LoggerWrapper.h"
 #include "Poco/JS/Core/BufferWrapper.h"
+#include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/Logger.h"
 #include "Poco/LoggingFactory.h"
 #include "Poco/LoggingRegistry.h"
@@ -61,20 +60,27 @@ v8::Handle<v8::FunctionTemplate> LoggerWrapper::constructor(v8::Isolate* pIsolat
 v8::Handle<v8::ObjectTemplate> LoggerWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
-	v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New();
-	loggerTemplate->SetInternalFieldCount(1);
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "trace"), v8::FunctionTemplate::New(pIsolate, trace));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "debug"), v8::FunctionTemplate::New(pIsolate, debug));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "information"), v8::FunctionTemplate::New(pIsolate, information));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "notice"), v8::FunctionTemplate::New(pIsolate, notice));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "warning"), v8::FunctionTemplate::New(pIsolate, warning));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "error"), v8::FunctionTemplate::New(pIsolate, error));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "critical"), v8::FunctionTemplate::New(pIsolate, critical));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "fatal"), v8::FunctionTemplate::New(pIsolate, fatal));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "log"), v8::FunctionTemplate::New(pIsolate, log));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "dump"), v8::FunctionTemplate::New(pIsolate, dump));
-
-	return handleScope.Escape(loggerTemplate);
+	PooledIsolate* pPooledIso = PooledIsolate::fromIsolate(pIsolate);
+	poco_check_ptr (pPooledIso);
+	v8::Persistent<v8::ObjectTemplate>& pooledLoggerTemplate(pPooledIso->objectTemplate("Core.Logger"));
+	if (pooledLoggerTemplate.IsEmpty())
+	{
+		v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New();
+		loggerTemplate->SetInternalFieldCount(1);
+		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "trace"), v8::FunctionTemplate::New(pIsolate, trace));
+		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "debug"), v8::FunctionTemplate::New(pIsolate, debug));
+		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "information"), v8::FunctionTemplate::New(pIsolate, information));
+		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "notice"), v8::FunctionTemplate::New(pIsolate, notice));
+		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "warning"), v8::FunctionTemplate::New(pIsolate, warning));
+		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "error"), v8::FunctionTemplate::New(pIsolate, error));
+		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "critical"), v8::FunctionTemplate::New(pIsolate, critical));
+		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "fatal"), v8::FunctionTemplate::New(pIsolate, fatal));
+		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "log"), v8::FunctionTemplate::New(pIsolate, log));
+		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "dump"), v8::FunctionTemplate::New(pIsolate, dump));
+		pooledLoggerTemplate.Reset(pIsolate, loggerTemplate);
+	}
+	v8::Local<v8::ObjectTemplate> localLoggerTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledLoggerTemplate);
+	return handleScope.Escape(localLoggerTemplate);
 }
 	
 
@@ -272,13 +278,19 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 									v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
 									v8::Local<v8::Object> global = context->Global();
 									v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
-									v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
-									v8::Local<v8::Value> argv[3] = {
-										args[nextArgIndex], 
-										v8::Null(args.GetIsolate()), 
-										v8::Integer::New(args.GetIsolate(), *it == 'O' ? 4 : 0)
-									};
-									text.append(toString(stringify->Call(json, 3, argv)));
+									if (!json.IsEmpty())
+									{
+										v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
+										if (!stringify.IsEmpty())
+										{
+											v8::Local<v8::Value> argv[3] = {
+												args[nextArgIndex], 
+												v8::Null(args.GetIsolate()), 
+												v8::Integer::New(args.GetIsolate(), *it == 'O' ? 4 : 0)
+											};
+											text.append(toString(stringify->Call(json, 3, argv)));
+										}
+									}
 								}
 								nextArgIndex++;
 								break;
@@ -386,14 +398,20 @@ void LoggerWrapper::dump(const v8::FunctionCallbackInfo<v8::Value>& args)
 			v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
 			v8::Local<v8::Object> global = context->Global();
 			v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
-			v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
-			v8::Local<v8::Value> argv[3] = {
-				args[1], 
-				v8::Null(args.GetIsolate()), 
-				v8::Integer::New(args.GetIsolate(), 4)
-			};
-			message += "\n";
-			message += toString(stringify->Call(json, 3, argv));
+			if (!json.IsEmpty())
+			{
+				v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
+				if (!stringify.IsEmpty())
+				{
+					v8::Local<v8::Value> argv[3] = {
+						args[1], 
+						v8::Null(args.GetIsolate()), 
+						v8::Integer::New(args.GetIsolate(), 4)
+					};
+					message += "\n";
+					message += toString(stringify->Call(json, 3, argv));
+				}
+			}
 			Poco::Message msg(pLogger->name(), message, static_cast<Poco::Message::Priority>(prio));
 			pLogger->log(msg);
 		}

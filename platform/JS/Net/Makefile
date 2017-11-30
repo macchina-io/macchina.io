@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/JS/Net/Makefile#2 $
-#
 # Makefile for Poco JS Net library
 #
 

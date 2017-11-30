@@ -1,8 +1,6 @@
 //
 // BundleContext.cpp
 //
-// $Id: //poco/1.7/OSP/src/BundleContext.cpp#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleContext
@@ -71,6 +69,12 @@ Bundle::ConstPtr BundleContext::findBundle(int id) const
 void BundleContext::listBundles(std::vector<Bundle::Ptr>& bundles) const
 {
 	_loader.listBundles(bundles);
+}
+
+
+void BundleContext::listBundles(std::vector<Bundle::Ptr>& bundles, BundleFilter::Ptr pFilter) const
+{
+	_loader.listBundles(bundles, pFilter);
 }
 
 

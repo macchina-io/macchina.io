@@ -1,8 +1,6 @@
 //
 // Device.h
 //
-// $Id: //iot/Main/Devices/include/IoT/Devices/Device.h#2 $
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  Device
@@ -36,9 +34,25 @@ class IoTDevices_API Device
 	///
 	/// Every implementation of Device should expose the
 	/// following properties:
-	///   - symbolicName (string): A name in reverse DNS notation
-	///     that identifies the device type (e.g., "io.macchina.serialport").
+	///   - symbolicName: A name in reverse DNS notation that identifies the
+	///     specific implementation of the device type.
+	///   - type (string): A name in reverse DNS notation
+	///     that identifies the generic device type (e.g., "io.macchina.serial").
 	///   - name (string): A human-readable device type (e.g., "Serial Port").
+	///
+	/// The following generic device types are currently defined:
+	///   - io.macchina.accelerometer (Accelerometer)
+	///   - io.macchina.barcode (BarcodeReader)
+	///   - io.macchina.gnss (GNSSSensor)
+	///   - io.macchina.gyroscope (Gyroscope)
+	///   - io.macchina.io (IO)
+	///   - io.macchina.led (LED)
+	///   - io.macchina.magnetometer (Magnetometer)
+	///   - io.macchina.rotary (RotaryEncoder)
+	///   - io.macchina.sensor (Sensor)
+	///   - io.macchina.serial (SerialDevice)
+	///   - io.macchina.switch (Switch)
+	///   - io.macchina.trigger (Trigger)
 {
 public:
 	Device();

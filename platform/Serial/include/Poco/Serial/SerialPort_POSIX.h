@@ -1,8 +1,6 @@
 //
 // SerialPort_POSIX.h
 //
-// $Id$
-//
 // Library: Serial
 // Package: Serial
 // Module:  SerialPort

@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <bundlespec>
   <manifest>
-    <name>Simple Authentication Service for OSP</name>
+    <name>OSP Simple Authentication Service</name>
     <symbolicName>com.appinf.osp.simple-auth</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2007-2016, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2007-2017, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>SimpleAuthBundleActivator</class>
       <library>com.appinf.osp.simple-auth</library>

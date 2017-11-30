@@ -48,7 +48,14 @@ class IModbusMaster: public Poco::OSP::Service
 	/// Note that asynchronous and synchronous (blocking) mode cannot be used
 	/// simultaneously. Calling one of the asynchronous request methods will enable
 	/// asynchronous mode. Calling one of the synchronous request methods will
-	/// disable asynchronous mode.
+	/// disable asynchronous mode. Switching to synchronous mode while a response
+	/// to an asynchronous request is pending will lead to undefined results,
+	/// including possible mismatch of requests and responses.
+	///
+	/// In asynchronous operation, requests are associated with a transaction ID,
+	/// to tell apart multiple concurrent transactions. Transaction IDs are not guaranteed
+	/// to be unique for subsequent requests. In fact, for Modbus RTU, which does not
+	/// allow multiple simultaneous requests, the transaction ID will always be zero.
 {
 public:
 	typedef Poco::AutoPtr<IModbusMaster> Ptr;
@@ -61,6 +68,12 @@ public:
 
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
+
+	virtual void maskWriteRegister(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, Poco::UInt16 andMask, Poco::UInt16 orMask) = 0;
+		/// Sends a Mask Write register request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
 
 	virtual std::vector < bool > readCoils(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfCoils) = 0;
 		/// Sends a Read Coils request to the device and waits for the response.
@@ -80,6 +93,12 @@ public:
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
 		/// Throws a ModbusException if the device responds with an exception message.
 
+	virtual std::vector < Poco::UInt16 > readFIFOQueue(Poco::UInt8 slaveAddress, Poco::UInt16 fifoPointerAddress) = 0;
+		/// Sends a Read FIFO Queue request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
 	virtual std::vector < Poco::UInt16 > readHoldingRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfRegisters) = 0;
 		/// Sends a Read Holding Registers request to the device and waits for the response.
 		///
@@ -88,6 +107,12 @@ public:
 
 	virtual std::vector < Poco::UInt16 > readInputRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfRegisters) = 0;
 		/// Sends a Read Input Registers request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
+	virtual std::vector < Poco::UInt16 > readWriteMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 writeStartingAddress, std::vector < Poco::UInt16 > writeValues, Poco::UInt16 readStartingAddress, Poco::UInt8 nOfReadRegisters) = 0;
+		/// Sends a Read/Write Multiple registers request to the device and waits for the response.
 		///
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
 		/// Throws a ModbusException if the device responds with an exception message.
@@ -104,55 +129,71 @@ public:
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();
 		/// Returns the TypeId of the class.
 
-	virtual void sendMaskWriteRegisterRequest(const IoT::Modbus::MaskWriteRegisterRequest& request) = 0;
+	virtual Poco::UInt16 sendMaskWriteRegisterRequest(const IoT::Modbus::MaskWriteRegisterRequest& request) = 0;
 		/// Sends a Mask Write Register request.
 		///
 		/// A response from the device will be reported via the
 		/// maskWriteRegisterResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadCoilsRequest(const IoT::Modbus::ReadCoilsRequest& request) = 0;
+	virtual Poco::UInt16 sendReadCoilsRequest(const IoT::Modbus::ReadCoilsRequest& request) = 0;
 		/// Sends a Read Coils request.
 		///
 		/// A response from the device will be reported via the
 		/// readCoilsResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadDiscreteInputsRequest(const IoT::Modbus::ReadDiscreteInputsRequest& request) = 0;
+	virtual Poco::UInt16 sendReadDiscreteInputsRequest(const IoT::Modbus::ReadDiscreteInputsRequest& request) = 0;
 		/// Sends a Read Discrete Inputs request.
 		///
 		/// A response from the device will be reported via the
 		/// readDiscreteInputsResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadExceptionStatusRequest(const IoT::Modbus::ReadExceptionStatusRequest& request) = 0;
+	virtual Poco::UInt16 sendReadExceptionStatusRequest(const IoT::Modbus::ReadExceptionStatusRequest& request) = 0;
 		/// Sends a Read Exception Status request.
 		///
 		/// A response from the device will be reported via the
 		/// readExceptionStatusResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadFIFOQueueRequest(const IoT::Modbus::ReadFIFOQueueRequest& request) = 0;
+	virtual Poco::UInt16 sendReadFIFOQueueRequest(const IoT::Modbus::ReadFIFOQueueRequest& request) = 0;
 		/// Sends a Read FIFO Queue request.
 		///
 		/// A response from the device will be reported via the
 		/// readFIFOQueueResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadHoldingRegistersRequest(const IoT::Modbus::ReadHoldingRegistersRequest& request) = 0;
+	virtual Poco::UInt16 sendReadHoldingRegistersRequest(const IoT::Modbus::ReadHoldingRegistersRequest& request) = 0;
 		/// Sends a Read Holding Registers request.
 		///
 		/// A response from the device will be reported via the
 		/// readHoldingRegistersResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadInputRegistersRequest(const IoT::Modbus::ReadInputRegistersRequest& request) = 0;
+	virtual Poco::UInt16 sendReadInputRegistersRequest(const IoT::Modbus::ReadInputRegistersRequest& request) = 0;
 		/// Sends a Read Input Registers request.
 		///
 		/// A response from the device will be reported via the
 		/// readInputRegistersResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendReadWriteMultipleRegistersRequest(const IoT::Modbus::ReadWriteMultipleRegistersRequest& request) = 0;
+	virtual Poco::UInt16 sendReadWriteMultipleRegistersRequest(const IoT::Modbus::ReadWriteMultipleRegistersRequest& request) = 0;
 		/// Sends a Read Write Multiple Registers request.
 		///
 		/// A response from the device will be reported via the
 		/// readWriteMultipleRegistersResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendRequest(const IoT::Modbus::GenericMessage& message) = 0;
+	virtual Poco::UInt16 sendRequest(const IoT::Modbus::GenericMessage& message) = 0;
 		/// Sends a generic Modbus message.
 		///
 		/// The caller is responsible for correct formatting of the
@@ -163,33 +204,55 @@ public:
 		///
 		/// A response from the device will be reported via the responseReceived event 
 		/// or a more specific event if the response message type is supported.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendWriteMultipleCoilsRequest(const IoT::Modbus::WriteMultipleCoilsRequest& request) = 0;
+	virtual Poco::UInt16 sendWriteMultipleCoilsRequest(const IoT::Modbus::WriteMultipleCoilsRequest& request) = 0;
 		/// Sends a Write Multiple Coils request.
 		///
 		/// A response from the device will be reported via the
 		/// writeMultipleCoilsResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendWriteMultipleRegistersRequest(const IoT::Modbus::WriteMultipleRegistersRequest& request) = 0;
+	virtual Poco::UInt16 sendWriteMultipleRegistersRequest(const IoT::Modbus::WriteMultipleRegistersRequest& request) = 0;
 		/// Sends a Write Multiple Registers request.
 		///
 		/// A response from the device will be reported via the
 		/// writeMultipleRegistersResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendWriteSingleCoilRequest(const IoT::Modbus::WriteSingleCoilRequest& request) = 0;
+	virtual Poco::UInt16 sendWriteSingleCoilRequest(const IoT::Modbus::WriteSingleCoilRequest& request) = 0;
 		/// Sends a Write Single Coil request.
 		///
 		/// A response from the device will be reported via the
 		/// writeSingleCoilResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
-	virtual void sendWriteSingleRegisterRequest(const IoT::Modbus::WriteSingleRegisterRequest& request) = 0;
+	virtual Poco::UInt16 sendWriteSingleRegisterRequest(const IoT::Modbus::WriteSingleRegisterRequest& request) = 0;
 		/// Sends a Write Single Register request.
 		///
 		/// A response from the device will be reported via the
 		/// writeSingleRegisterResponseReceived event.
+		///
+		/// Returns the transaction ID for the request.
 
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
+
+	virtual void writeMultipleCoils(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector < bool > values) = 0;
+		/// Sends a Write Multiple Coils request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
+
+	virtual void writeMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector < Poco::UInt16 > values) = 0;
+		/// Sends a Write Multiple Registers request to the device and waits for the response.
+		///
+		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
+		/// Throws a ModbusException if the device responds with an exception message.
 
 	virtual void writeSingleCoil(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, bool value) = 0;
 		/// Sends a Write Single Coils request to the device and waits for the response.
@@ -203,20 +266,22 @@ public:
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
 		/// Throws a ModbusException if the device responds with an exception message.
 
+	Poco::BasicEvent < void > badFrameReceived;
 	Poco::BasicEvent < const ModbusExceptionMessage > exceptionReceived;
-	Poco::BasicEvent < MaskWriteRegisterResponse > maskWriteRegisterResponseReceived;
-	Poco::BasicEvent < ReadCoilsResponse > readCoilsResponseReceived;
-	Poco::BasicEvent < ReadDiscreteInputsRequest > readDiscreteInputsResponseReceived;
-	Poco::BasicEvent < ReadExceptionStatusResponse > readExceptionStatusResponseReceived;
-	Poco::BasicEvent < ReadFIFOQueueResponse > readFIFOQueueResponseReceived;
-	Poco::BasicEvent < ReadHoldingRegistersResponse > readHoldingRegistersResponseReceived;
-	Poco::BasicEvent < ReadInputRegistersResponse > readInputRegistersResponseReceived;
-	Poco::BasicEvent < ReadWriteMultipleRegistersResponse > readWriteMultipleRegistersResponseReceived;
+	Poco::BasicEvent < const MaskWriteRegisterResponse > maskWriteRegisterResponseReceived;
+	Poco::BasicEvent < const ReadCoilsResponse > readCoilsResponseReceived;
+	Poco::BasicEvent < const ReadDiscreteInputsResponse > readDiscreteInputsResponseReceived;
+	Poco::BasicEvent < const ReadExceptionStatusResponse > readExceptionStatusResponseReceived;
+	Poco::BasicEvent < const ReadFIFOQueueResponse > readFIFOQueueResponseReceived;
+	Poco::BasicEvent < const ReadHoldingRegistersResponse > readHoldingRegistersResponseReceived;
+	Poco::BasicEvent < const ReadInputRegistersResponse > readInputRegistersResponseReceived;
+	Poco::BasicEvent < const ReadWriteMultipleRegistersResponse > readWriteMultipleRegistersResponseReceived;
 	Poco::BasicEvent < const GenericMessage > responseReceived;
-	Poco::BasicEvent < WriteMultipleCoilsResponse > writeMultipleCoilsResponseReceived;
-	Poco::BasicEvent < WriteMultipleRegistersResponse > writeMultipleRegistersResponseReceived;
-	Poco::BasicEvent < WriteSingleCoilResponse > writeSingleCoilResponseReceived;
-	Poco::BasicEvent < WriteSingleRegisterResponse > writeSingleRegisterResponseReceived;
+	Poco::BasicEvent < const Poco::UInt16 > timeout;
+	Poco::BasicEvent < const WriteMultipleCoilsResponse > writeMultipleCoilsResponseReceived;
+	Poco::BasicEvent < const WriteMultipleRegistersResponse > writeMultipleRegistersResponseReceived;
+	Poco::BasicEvent < const WriteSingleCoilResponse > writeSingleCoilResponseReceived;
+	Poco::BasicEvent < const WriteSingleRegisterResponse > writeSingleRegisterResponseReceived;
 };
 
 

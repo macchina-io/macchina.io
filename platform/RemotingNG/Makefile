@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/RemotingNG/Makefile#1 $
-#
 # Makefile for Poco Remoting NG
 #
 
@@ -14,6 +12,7 @@ objects = SerializerBase Serializer Deserializer \
 	BinarySerializer BinaryDeserializer \
 	Transport TransportFactory TransportFactoryManager \
 	ServerTransport Listener Context \
+	Authorizer Authenticator Credentials \
 	Proxy ProxyFactory ProxyFactoryManager \
 	Identifiable RemoteObject Skeleton MethodHandler \
 	EventDispatcher EventListener EventSubscriber \

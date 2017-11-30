@@ -1,8 +1,6 @@
 //
 // DeviceStatusServiceImpl.cpp
 //
-// $Id$
-//
 // Library: IoT/DeviceStatus
 // Package: DeviceStatusServiceImpl
 // Module:  DeviceStatusServiceImpl
@@ -31,6 +29,7 @@ namespace DeviceStatus {
 DeviceStatusServiceImpl::DeviceStatusServiceImpl(Poco::OSP::BundleContext::Ptr pContext, int maxAge):
 	_pContext(pContext),
 	_maxAge(maxAge),
+	_postStatusAsync(this, &DeviceStatusServiceImpl::postStatusAsyncImpl),
 	_logger(Poco::Logger::get("IoT.DeviceStatus"))
 {
 	Poco::Path path(pContext->persistentDirectory());
@@ -46,6 +45,7 @@ DeviceStatusServiceImpl::DeviceStatusServiceImpl(Poco::OSP::BundleContext::Ptr p
 		"    status INTEGER,"
 		"    text VARCHAR(1024),"
 		"    timestamp DATETIME,"
+		"    acknowledgeable BOOLEAN,"
 		"    acknowledged BOOLEAN"
 		")", now;
 		
@@ -69,48 +69,63 @@ DeviceStatus DeviceStatusServiceImpl::status() const
 }
 
 
+DeviceStatus DeviceStatusServiceImpl::statusOfSource(const std::string& source) const
+{
+	Poco::FastMutex::ScopedLock lock(_mutex);
+	
+	int status(DEVICE_STATUS_OK);
+	(*_pSession) << "SELECT MAX(status) FROM messages WHERE source = ? AND NOT acknowledged", useRef(source), into(status), now;
+	
+	return static_cast<DeviceStatus>(status);
+}
+
+
 DeviceStatusChange DeviceStatusServiceImpl::postStatus(const StatusUpdate& statusUpdate)
 {
-	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+	int previousStatus(DEVICE_STATUS_OK);
+	int currentStatus(DEVICE_STATUS_OK);
 
 	StatusMessage message;
-	message.messageClass = statusUpdate.messageClass;
-	message.source       = statusUpdate.source;
-	message.status       = statusUpdate.status;
-	message.text         = statusUpdate.text;
-	message.acknowledged = false;
+	message.messageClass    = statusUpdate.messageClass;
+	message.source          = statusUpdate.source;
+	message.status          = statusUpdate.status;
+	message.text            = statusUpdate.text;
+	message.acknowledgeable = statusUpdate.acknowledgeable;
+	message.acknowledged    = false;
 	
-	Poco::Data::Transaction xa(*_pSession, &_logger);
-
-	int previousStatus(DEVICE_STATUS_OK);
-	(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
-		into(previousStatus), 
-		now;
-		
-	if (!message.messageClass.empty())
+	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
 	{
-		(*_pSession) << "DELETE FROM messages WHERE messageClass = ?", use(message.messageClass), now;
-	}
-	
-	(*_pSession) << "INSERT INTO messages VALUES (NULL, ?, ?, ?, ?, ?, ?)",
-		use(message.messageClass), 
-		use(message.source),
-		use(message.status), 
-		use(message.text), 
-		use(message.timestamp),
-		use(message.acknowledged),
-		now;
+		Poco::Data::Transaction xa(*_pSession, &_logger);
 
-	int currentStatus(DEVICE_STATUS_OK);
-	(*_pSession) << "SELECT MAX(id), MAX(status) FROM messages WHERE NOT acknowledged", 
-		into(message.id),
-		into(currentStatus), 
-		now;
+		(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
+			into(previousStatus), 
+			now;
 		
-	cleanup();
+		if (!message.messageClass.empty())
+		{
+			(*_pSession) << "DELETE FROM messages WHERE messageClass = ?", use(message.messageClass), now;
+		}
 	
-	xa.commit();
-	lock.unlock();
+		(*_pSession) << "INSERT INTO messages VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)",
+			use(message.messageClass), 
+			use(message.source),
+			use(message.status), 
+			use(message.text), 
+			use(message.timestamp),
+			use(message.acknowledgeable),
+			use(message.acknowledged),
+			now;
+
+		(*_pSession) << "SELECT MAX(id), MAX(status) FROM messages WHERE NOT acknowledged", 
+			into(message.id),
+			into(currentStatus), 
+			now;
+		
+		cleanup();
+	
+		xa.commit();
+	}
+	lock.unlock();	
 	
 	DeviceStatusChange change;
 	change.previousStatus = static_cast<DeviceStatus>(previousStatus);
@@ -127,27 +142,48 @@ DeviceStatusChange DeviceStatusServiceImpl::postStatus(const StatusUpdate& statu
 }
 
 
-DeviceStatus DeviceStatusServiceImpl::clearStatus(const std::string& id)
+void DeviceStatusServiceImpl::postStatusAsync(const StatusUpdate& statusUpdate)
 {
-	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+	_postStatusAsync(statusUpdate);
+}
 
-	Poco::Data::Transaction xa(*_pSession, &_logger);
 
+void DeviceStatusServiceImpl::postStatusAsyncImpl(const StatusUpdate& statusUpdate)
+{
+	try
+	{
+		postStatus(statusUpdate);
+	}
+	catch (Poco::Exception& exc)
+	{
+		_logger.error("Asynchronous status update failed: %s", exc.displayText());
+	}
+}
+
+
+DeviceStatus DeviceStatusServiceImpl::clearStatus(const std::string& messageClass)
+{
 	int previousStatus(DEVICE_STATUS_OK);
-	(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
-		into(previousStatus), 
-		now;
-
-	(*_pSession) << "DELETE FROM messages WHERE messageClass = ?",
-		useRef(id),
-		now;
-
 	int currentStatus(DEVICE_STATUS_OK);
-	(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
-		into(currentStatus), 
-		now;
+
+	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+	{
+		Poco::Data::Transaction xa(*_pSession, &_logger);
+
+		(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
+			into(previousStatus), 
+			now;
+
+		(*_pSession) << "DELETE FROM messages WHERE messageClass = ?",
+			useRef(messageClass),
+			now;
+
+		(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
+			into(currentStatus), 
+			now;
 	
-	xa.commit();
+		xa.commit();
+	}
 	lock.unlock();
 
 	if (currentStatus != previousStatus)
@@ -162,27 +198,66 @@ DeviceStatus DeviceStatusServiceImpl::clearStatus(const std::string& id)
 }
 
 
-DeviceStatus DeviceStatusServiceImpl::acknowledge(int id)
+DeviceStatus DeviceStatusServiceImpl::clearStatusOfSource(const std::string& source)
 {
-	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
-
-	Poco::Data::Transaction xa(*_pSession, &_logger);
-
 	int previousStatus(DEVICE_STATUS_OK);
-	(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
-		into(previousStatus), 
-		now;
-
-	(*_pSession) << "UPDATE messages SET acknowledged = 1 WHERE id = ?",
-		use(id),
-		now;
-
 	int currentStatus(DEVICE_STATUS_OK);
-	(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
-		into(currentStatus), 
-		now;
+
+	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+	{
+		Poco::Data::Transaction xa(*_pSession, &_logger);
+
+		(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
+			into(previousStatus), 
+			now;
+
+		(*_pSession) << "DELETE FROM messages WHERE source = ?",
+			useRef(source),
+			now;
+
+		(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
+			into(currentStatus), 
+			now;
 	
-	xa.commit();
+		xa.commit();
+	}	
+	lock.unlock();
+
+	if (currentStatus != previousStatus)
+	{
+		DeviceStatusChange change;
+		change.previousStatus = static_cast<DeviceStatus>(previousStatus);
+		change.currentStatus = static_cast<DeviceStatus>(currentStatus);
+		statusChanged(this, change);
+	}
+	
+	return static_cast<DeviceStatus>(currentStatus);
+}
+
+
+DeviceStatus DeviceStatusServiceImpl::acknowledge(Poco::Int64 id)
+{
+	int previousStatus(DEVICE_STATUS_OK);
+	int currentStatus(DEVICE_STATUS_OK);
+
+	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+	{
+		Poco::Data::Transaction xa(*_pSession, &_logger);
+
+		(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
+			into(previousStatus), 
+			now;
+
+		(*_pSession) << "UPDATE messages SET acknowledged = 1 WHERE id = ? AND acknowledgeable",
+			use(id),
+			now;
+
+		(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
+			into(currentStatus), 
+			now;
+	
+		xa.commit();
+	}	
 	lock.unlock();
 
 	if (currentStatus != previousStatus)
@@ -197,27 +272,66 @@ DeviceStatus DeviceStatusServiceImpl::acknowledge(int id)
 }
 
 
-DeviceStatus DeviceStatusServiceImpl::remove(int id)
+DeviceStatus DeviceStatusServiceImpl::acknowledgeUpTo(Poco::Int64 id)
 {
-	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
-
-	Poco::Data::Transaction xa(*_pSession, &_logger);
-
 	int previousStatus(DEVICE_STATUS_OK);
-	(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
-		into(previousStatus), 
-		now;
-
-	(*_pSession) << "DELETE FROM messages WHERE id = ?",
-		use(id),
-		now;
-
 	int currentStatus(DEVICE_STATUS_OK);
-	(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
-		into(currentStatus), 
-		now;
+
+	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+	{
+		Poco::Data::Transaction xa(*_pSession, &_logger);
+
+		(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
+			into(previousStatus), 
+			now;
+
+		(*_pSession) << "UPDATE messages SET acknowledged = 1 WHERE id <= ? AND acknowledgeable",
+			use(id),
+			now;
+
+		(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
+			into(currentStatus), 
+			now;
 	
-	xa.commit();
+		xa.commit();
+	}	
+	lock.unlock();
+
+	if (currentStatus != previousStatus)
+	{
+		DeviceStatusChange change;
+		change.previousStatus = static_cast<DeviceStatus>(previousStatus);
+		change.currentStatus = static_cast<DeviceStatus>(currentStatus);
+		statusChanged(this, change);
+	}
+
+	return static_cast<DeviceStatus>(currentStatus);
+}
+
+
+DeviceStatus DeviceStatusServiceImpl::remove(Poco::Int64 id)
+{
+	int previousStatus(DEVICE_STATUS_OK);
+	int currentStatus(DEVICE_STATUS_OK);
+
+	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+	{
+		Poco::Data::Transaction xa(*_pSession, &_logger);
+
+		(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
+			into(previousStatus), 
+			now;
+
+		(*_pSession) << "DELETE FROM messages WHERE id = ?",
+			use(id),
+			now;
+
+		(*_pSession) << "SELECT MAX(status) FROM messages WHERE NOT acknowledged", 
+			into(currentStatus), 
+			now;
+	
+		xa.commit();
+	}
 	lock.unlock();
 
 	if (currentStatus != previousStatus)
@@ -234,12 +348,12 @@ DeviceStatus DeviceStatusServiceImpl::remove(int id)
 
 std::vector<StatusMessage> DeviceStatusServiceImpl::messages(int maxMessages) const
 {
-	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+	Poco::ScopedLock<Poco::FastMutex> lock(_mutex);
 
 	StatusMessage message;
 	int status;
 	Poco::Data::Statement select = ((*_pSession) <<
-		"SELECT id, messageClass, source, status, text, timestamp, acknowledged"
+		"SELECT id, messageClass, source, status, text, timestamp, acknowledgeable, acknowledged"
 		"  FROM messages"
 		"  ORDER BY timestamp DESC, id DESC",
 		into(message.id),
@@ -248,6 +362,7 @@ std::vector<StatusMessage> DeviceStatusServiceImpl::messages(int maxMessages) co
 		into(status),
 		into(message.text),
 		into(message.timestamp),
+		into(message.acknowledgeable),
 		into(message.acknowledged),
 		limit(1));
 	
@@ -266,7 +381,7 @@ std::vector<StatusMessage> DeviceStatusServiceImpl::messages(int maxMessages) co
 
 void DeviceStatusServiceImpl::reset()
 {
-	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+	Poco::ScopedLock<Poco::FastMutex> lock(_mutex);
 
 	(*_pSession) << "DELETE FROM messages", now;	
 }

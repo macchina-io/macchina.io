@@ -1,8 +1,6 @@
 //
 // ServiceRegistry.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/ServiceRegistry.h#1 $
-//
 // Library: OSP
 // Package: Service
 // Module:  ServiceRegistry

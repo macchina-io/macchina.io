@@ -142,20 +142,179 @@ interfaces. Fixed-size integer types, such as Poco::Int32 provide a safer
 alternative. 
 
 
-!!!Using The TCP Transport With SSL/TLS
+!!!Authentication and Authorization
+
+The TCP Transport supports two authentication methods out of the box: 
+Plain and SCRAM-SHA-1. 
+
+The Plain authentication mechanism, implemented in the
+Poco::RemotingNG::TCP::PlainClientAuthenticator class, simply transfers
+all attributes of the Poco::RemotingNG::Credentials object passed to the
+Transport on to the server. On the server-side, a suitable application-provided
+Poco::RemotingNG::Authenticator subclass must validate these credentials.
+Since credentials are transmitted in clear text, this mechanism should only be
+used over a secure TLS connection.
+
+The SCRAM-SHA-1 (Salted Challenge Response Authentication Mechanism with SHA-1) 
+authentication mechanism, implemented in the Poco::RemotingNG::TCP::SCRAMClientAuthenticator 
+class, is a highly secure multi-step challenge-response authentication mechanism.
+It uses the PBKDF2 algorithm from the Public-Key Cryptography Standards (PKCS)
+and has the following features:
+
+    - The password is never transmitted in plain text, only a hash of the
+      password is transmitted from client to server.
+    - The server does not need to store the passwords in plain text (or
+      encrypted); salted hashes of the passwords are sufficient.
+    - The protocol allows for authenticating the client against the server
+      and also authenticating the server against the client.
+
+In order to enable authentication between a client
+and a server, the following steps must be performed:
+
+  - On the client, a Poco::RemotingNG::ClientAuthenticator instance must
+    be registered with the Transport. Furthermore, valid Credentials must be
+    passed to the Transport.
+  - On the server side, a Poco::RemotingNG::Authenticator instance must
+    be registered with the Listener. If authorization is also required,
+    a Poco::RemotingNG::Authorizer instance must be registered
+    with the Listener as well.
+
+Generally, suitable Poco::RemotingNG::Authenticator and Poco::RemotingNG::Authorizer 
+implementations must be provided by the application, as Remoting NG has no built
+in user credentials and permissions database.
+
+
+!!Plain Authentication
+
+The following examples show how to enable Plain authentication with the TCP Transport.
+
+!Client
+
+To enable Plain authentication on the client, a Poco::RemotingNG::TCP::PlainClientAuthenticator
+must be registered with the Transport, and Credentials must be supplied.
+
+    Poco::RemotingNG::Proxy::Ptr pProxy = pService.cast<Poco::RemotingNG::Proxy>();
+    Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+    
+    trans.setAuthenticator(new Poco::RemotingNG::TCP::PlainClientAuthenticator);
+    
+    Poco::RemotingNG::Credentials creds;
+    creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "user");
+    creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "s3cr3t");
+    trans.setCredentials(creds);
+----
+
+!Server
+
+To enable Plain authentication on the server, a Poco::RemotingNG::Authenticator
+must be registered with the Listener.
+
+    Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener("localhost:9999");
+    pListener->setAuthenticator(new SimpleAuthenticator);
+----
+
+The <[SimpleAuthenticator]> class referenced in the example must be provided by the
+application. A very simplistic implementation could look like this:
+
+    using Poco::RemotingNG::AuthenticateResult;
+    using Poco::RemotingNG::Credentials;
+    
+    class SimpleAuthenticator: public Poco::RemotingNG::Authenticator
+    {
+    public:
+        AuthenticateResult authenticate(const Credentials& creds, Poco::UInt32 /*conversationID*/)
+        {
+            std::string username = creds.getAttribute(Credentials::ATTR_USERNAME, "");
+            std::string password = creds.getAttribute(Credentials::ATTR_PASSWORD, "");
+        
+            if (username == "user" && password == "s3cr3t")
+                return AuthenticateResult(AuthenticateResult::AUTH_DONE, creds);
+            else
+                return AuthenticateResult(AuthenticateResult::AUTH_FAILED);
+        }
+    };
+----
+
+A typical implementation would look up the username in a database and compare a hash
+of the provided password with the one stored in the database.
+
+
+!!SCRAM-SHA-1 Authentication
+
+The following examples show how to enable SCRAM-SHA-1 authentication with the TCP Transport.
+
+!Client
+
+To enable SCRAM-SHA-1 authentication on the client, a Poco::RemotingNG::TCP::SCRAMClientAuthenticator
+must be registered with the Transport, and Credentials must be supplied.
+
+    Poco::RemotingNG::Proxy::Ptr pProxy = pService.cast<Poco::RemotingNG::Proxy>();
+    Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+    
+    trans.setAuthenticator(new Poco::RemotingNG::TCP::SCRAMClientAuthenticator);
+    
+    Poco::RemotingNG::Credentials creds;
+    creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_USERNAME, "user");
+    creds.setAttribute(Poco::RemotingNG::Credentials::ATTR_PASSWORD, "s3cr3t");
+    trans.setCredentials(creds);
+----
+
+!Server
+
+To enable SCRAM-SHA-1 authentication on the server, a Poco::RemotingNG::TCP::SCRAMAuthenticator
+subclass must be provided and registered with the Listener.
+
+    Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener("localhost:9999");
+    pListener->setAuthenticator(new MySCRAMAuthenticator);
+----
+
+The <[MySCRAMAuthenticator]> class referenced in the example must be provided by the
+application. It must implement two virtual methods defined by Poco::RemotingNG::TCP::SCRAMAuthenticator:
+
+  - hashForUser(): Returns the PBKDF2-hashed password for the given user.
+  - saltForUser(): Returns the salt for hashing the given user's password, 
+    as well as the number of iterations for the PBKDF2 algorithm.
+
+See the Poco::RemotingNG::TCP::SCRAMAuthenticator class documentation for more information.
+
+Note that passwords must be hashed in a specific way for use with Poco::RemotingNG::TCP::SCRAMAuthenticator.
+The following code sample shows how to hash a password. The resulting has can be stored
+in a database and must be returned by Poco::RemotingNG::TCP::SCRAMAuthenticator::hashForUser().
+
+In the first step, a MD5 hash of the password is generated, salted with a fixed string.
+
+    Poco::MD5Engine md5;
+    md5.update(username);
+    md5.update(std::string(":poco:"));
+    md5.update(password);
+    std::string hashedPassword = SCRAMAuthenticator::digestToHexString(md5);
+----
+
+In the second step, the MD5 hash is again hashed with the PBKDF2 algorithm.
+
+    int iterations;
+    std::string salt = saltForUser(username, iterations);
+    
+    Poco::PBKDF2Engine<Poco::HMACEngine<Poco::SHA1Engine> > pbkdf2(salt, iterations, 20);
+    pbkdf2.update(hashedPassword);
+    return SCRAMAuthenticator::digestToBinaryString(pbkdf2);
+----
+
+
+!!!Using The TCP Transport With TLS
 
 The TCP Transport normally uses a plain TCP socket connection between the
 client and the server. To make the TCP Transport use a secure
-SSL/TLS socket connection, the following steps must be performed.
+TLS socket connection, the following steps must be performed.
 
 
-!!SSL/TLS On The Server Side
+!!TLS On The Server Side
 
 On the server side, the listener must be created using a
 Poco::Net::SecureServerSocket.
 
     Poco::Net::SecureServerSocket serverSocket(10001);
-    Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener("localhost:10001", serverSocket);
+    Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener("localhost:10001", serverSocket, 0);
     std::string listener = Poco::RemotingNG::ORB::instance().registerListener(pListener);
 
     st::string uri = Sample::TimeServiceServerHelper::registerObject(
@@ -166,7 +325,7 @@ Poco::Net::SecureServerSocket.
 ----
 
 
-!!SSL/TLS On The Client Side
+!!TLS On The Client Side
 
 On the client side, a Poco::RemotingNG::TCP::ConnectionManager must be created 
 with a user-supplied socket factory (Poco::RemotingNG::TCP::SocketFactory) that,

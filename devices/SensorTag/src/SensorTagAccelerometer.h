@@ -1,8 +1,6 @@
 //
 // SensorTagAccelerometer.h
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -22,7 +20,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace SensorTag {
 
 
@@ -39,13 +36,13 @@ public:
 		std::string notifUUID;
 		std::string dataUUID;
 	};
-	
-	SensorTagAccelerometer(Peripheral::Ptr pPeripheral, const Params& params);
+
+	SensorTagAccelerometer(BtLE::Peripheral::Ptr pPeripheral, const Params& params);
 		/// Creates a SensorTagAccelerometer.
 
 	~SensorTagAccelerometer();
 		/// Destroys the SensorTagAccelerometer.
-	
+
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
@@ -53,6 +50,7 @@ public:
 	IoT::Devices::Acceleration acceleration() const;
 
 	static const std::string NAME;
+	static const std::string TYPE;
 	static const std::string SYMBOLIC_NAME;
 
 protected:
@@ -62,6 +60,7 @@ protected:
 	Poco::Any getDisplayValue(const std::string&) const;
 	Poco::Any getDeviceIdentifier(const std::string&) const;
 	Poco::Any getName(const std::string&) const;
+	Poco::Any getType(const std::string&) const;
 	Poco::Any getSymbolicName(const std::string&) const;
 	virtual Poco::Any getEnabled(const std::string&) const = 0;
 	virtual void setEnabled(const std::string&, const Poco::Any& value) = 0;
@@ -73,21 +72,19 @@ protected:
 	virtual void setValueChangedPeriod(const std::string&, const Poco::Any& value) = 0;
 	void onConnected();
 	void onDisconnected();
-	void onNotificationReceived(const GATTClient::Notification& nf);
+	void onNotificationReceived(const BtLE::Notification& nf);
 
 protected:
 	Params _params;
-	mutable Peripheral::Ptr _pPeripheral;
-	Characteristic _controlChar;
-	Characteristic _dataChar;
-	Characteristic _periodChar;
+	mutable BtLE::Peripheral::Ptr _pPeripheral;
+	BtLE::Characteristic _controlChar;
+	BtLE::Characteristic _dataChar;
+	BtLE::Characteristic _periodChar;
 	Poco::UInt16 _notifHandle;
 	bool _ready;
 	bool _enabled;
 	IoT::Devices::Acceleration _acceleration;
 	Poco::Any _deviceIdentifier;
-	Poco::Any _symbolicName;
-	Poco::Any _name;
 	Poco::Logger& _logger;
 };
 
@@ -95,7 +92,7 @@ protected:
 class SensorTag1Accelerometer: public SensorTagAccelerometer
 {
 public:
-	SensorTag1Accelerometer(Peripheral::Ptr pPeripheral, const Params& params);
+	SensorTag1Accelerometer(BtLE::Peripheral::Ptr pPeripheral, const Params& params);
 		/// Creates a SensorTag2Accelerometer.
 
 	~SensorTag1Accelerometer();
@@ -118,7 +115,7 @@ protected:
 class SensorTag2Accelerometer: public SensorTagAccelerometer
 {
 public:
-	SensorTag2Accelerometer(Peripheral::Ptr pPeripheral, const Params& params);
+	SensorTag2Accelerometer(BtLE::Peripheral::Ptr pPeripheral, const Params& params);
 		/// Creates a SensorTag2Accelerometer.
 
 	~SensorTag2Accelerometer();
@@ -142,7 +139,7 @@ private:
 };
 
 
-} } } // namespace IoT::BtLE::SensorTag
+} } // namespace IoT::SensorTag
 
 
 #endif // IoT_SensorTag_SensorTagAccelerometer_INCLUDED

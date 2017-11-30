@@ -31,6 +31,9 @@
 #include "Heap.h"
 
 
+static MQTTPersistence_qEntry* MQTTPersistence_restoreQueueEntry(char* buffer, size_t buflen);
+static void MQTTPersistence_insertInSeqOrder(List* list, MQTTPersistence_qEntry* qEntry, size_t size);
+
 /**
  * Creates a ::MQTTClient_persistence structure representing a persistence implementation.
  * @param persistence the ::MQTTClient_persistence structure.
@@ -184,9 +187,13 @@ int MQTTPersistence_restore(Clients *c)
 		while (rc == 0 && i < nkeys)
 		{
 			if (strncmp(msgkeys[i], PERSISTENCE_COMMAND_KEY, strlen(PERSISTENCE_COMMAND_KEY)) == 0)
+			{
 				;
+			}
 			else if (strncmp(msgkeys[i], PERSISTENCE_QUEUE_KEY, strlen(PERSISTENCE_QUEUE_KEY)) == 0)
+			{
 				;
+			}
 			else if ((rc = c->persistence->pget(c->phandle, msgkeys[i], &buffer, &buflen)) == 0)
 			{
 				MQTTPacket* pack = MQTTPersistence_restorePacket(buffer, buflen);
@@ -350,13 +357,13 @@ int MQTTPersistence_put(int socket, char* buf0, size_t buf0len, int count,
 	{
 		key = malloc(MESSAGE_FILENAME_LENGTH + 1);
 		nbufs = 1 + count;
-		lens = (int *) malloc(nbufs * sizeof(int));
+		lens = (int *)malloc(nbufs * sizeof(int));
 		bufs = (char **)malloc(nbufs * sizeof(char *));
-		lens[0] = buf0len;
+		lens[0] = (int)buf0len;
 		bufs[0] = buf0;
 		for (i = 0; i < count; i++)
 		{
-			lens[i+1] = buflens[i];
+			lens[i+1] = (int)buflens[i];
 			bufs[i+1] = buffers[i];
 		}
 
@@ -472,7 +479,7 @@ int MQTTPersistence_unpersistQueueEntry(Clients* client, MQTTPersistence_qEntry*
 	char key[PERSISTENCE_MAX_KEY_LENGTH + 1];
 	
 	FUNC_ENTRY;
-	sprintf(key, "%s%d", PERSISTENCE_QUEUE_KEY, qe->seqno);
+	sprintf(key, "%s%u", PERSISTENCE_QUEUE_KEY, qe->seqno);
 	if ((rc = client->persistence->premove(client->phandle, key)) != 0)
 		Log(LOG_ERROR, 0, "Error %d removing qEntry from persistence", rc);
 	FUNC_EXIT_RC(rc);
@@ -512,7 +519,7 @@ int MQTTPersistence_persistQueueEntry(Clients* aclient, MQTTPersistence_qEntry* 
 	lens[bufindex++] = sizeof(qe->msg->msgid);
 						
 	bufs[bufindex] = qe->topicName;
-	lens[bufindex++] = strlen(qe->topicName) + 1;
+	lens[bufindex++] = (int)strlen(qe->topicName) + 1;
 				
 	bufs[bufindex] = &qe->topicLen;
 	lens[bufindex++] = sizeof(qe->topicLen);			
@@ -531,7 +538,7 @@ int MQTTPersistence_persistQueueEntry(Clients* aclient, MQTTPersistence_qEntry* 
 }
 
 
-MQTTPersistence_qEntry* MQTTPersistence_restoreQueueEntry(char* buffer, size_t buflen)
+static MQTTPersistence_qEntry* MQTTPersistence_restoreQueueEntry(char* buffer, size_t buflen)
 {
 	MQTTPersistence_qEntry* qe = NULL;
 	char* ptr = buffer;
@@ -564,7 +571,7 @@ MQTTPersistence_qEntry* MQTTPersistence_restoreQueueEntry(char* buffer, size_t b
 	qe->msg->msgid = *(int*)ptr;
 	ptr += sizeof(int);
 	
-	data_size = strlen(ptr) + 1;	
+	data_size = (int)strlen(ptr) + 1;	
 	qe->topicName = malloc(data_size);
 	strcpy(qe->topicName, ptr);
 	ptr += data_size;
@@ -577,7 +584,7 @@ MQTTPersistence_qEntry* MQTTPersistence_restoreQueueEntry(char* buffer, size_t b
 }
 
 
-void MQTTPersistence_insertInSeqOrder(List* list, MQTTPersistence_qEntry* qEntry, size_t size)
+static void MQTTPersistence_insertInSeqOrder(List* list, MQTTPersistence_qEntry* qEntry, size_t size)
 {
 	ListElement* index = NULL;
 	ListElement* current = NULL;
@@ -615,7 +622,9 @@ int MQTTPersistence_restoreMessageQueue(Clients* c)
 			int buflen;
 					
 			if (strncmp(msgkeys[i], PERSISTENCE_QUEUE_KEY, strlen(PERSISTENCE_QUEUE_KEY)) != 0)
+			{
 				;
+			}
 			else if ((rc = c->persistence->pget(c->phandle, msgkeys[i], &buffer, &buflen)) == 0)
 			{
 				MQTTPersistence_qEntry* qe = MQTTPersistence_restoreQueueEntry(buffer, buflen);
@@ -630,7 +639,9 @@ int MQTTPersistence_restoreMessageQueue(Clients* c)
 				}
 			}
 			if (msgkeys[i])
+			{
 				free(msgkeys[i]);
+			}
 			i++;
 		}
 		if (msgkeys != NULL)

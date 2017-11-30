@@ -1,14 +1,12 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/samples/Greeter/Makefile#2 $
-#
 # Makefile for Greeter
 #
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-
 include $(POCO_BASE)/build/rules/global
+
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 objects = Greeter
 

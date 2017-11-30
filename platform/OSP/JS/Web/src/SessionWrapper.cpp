@@ -1,8 +1,6 @@
 //
 // SessionWrapper.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -14,6 +12,7 @@
 #include "Poco/OSP/ServiceRegistry.h"
 #include "Poco/OSP/ServiceFinder.h"
 #include "Poco/OSP/Auth/AuthService.h"
+#include "Poco/JS/Core/PooledIsolate.h"
 
 
 namespace Poco {
@@ -35,20 +34,28 @@ SessionWrapper::~SessionWrapper()
 v8::Handle<v8::ObjectTemplate> SessionWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
-	v8::Local<v8::ObjectTemplate> bundleTemplate = v8::ObjectTemplate::New();
-	bundleTemplate->SetInternalFieldCount(1);
-	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "id"), id);
-	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "username"), username);
-	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "authenticated"), authenticated);
-	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "csrfToken"), csrfToken);
-	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "clientAddress"), clientAddress);
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "setInt"), v8::FunctionTemplate::New(pIsolate, setInt));
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getInt"), v8::FunctionTemplate::New(pIsolate, getInt));
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "setString"), v8::FunctionTemplate::New(pIsolate, setString));
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getString"), v8::FunctionTemplate::New(pIsolate, getString));
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "erase"), v8::FunctionTemplate::New(pIsolate, erase));
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "authorize"), v8::FunctionTemplate::New(pIsolate, authorize));
-	return handleScope.Escape(bundleTemplate);
+	Poco::JS::Core::PooledIsolate* pPooledIso = Poco::JS::Core::PooledIsolate::fromIsolate(pIsolate);
+	poco_check_ptr (pPooledIso);
+	v8::Persistent<v8::ObjectTemplate>& pooledSessionTemplate(pPooledIso->objectTemplate("Web.Session"));
+	if (pooledSessionTemplate.IsEmpty())
+	{
+		v8::Local<v8::ObjectTemplate> sessionTemplate = v8::ObjectTemplate::New();
+		sessionTemplate->SetInternalFieldCount(1);
+		sessionTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "id"), id);
+		sessionTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "username"), username);
+		sessionTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "authenticated"), authenticated);
+		sessionTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "csrfToken"), csrfToken);
+		sessionTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "clientAddress"), clientAddress);
+		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "setInt"), v8::FunctionTemplate::New(pIsolate, setInt));
+		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getInt"), v8::FunctionTemplate::New(pIsolate, getInt));
+		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "setString"), v8::FunctionTemplate::New(pIsolate, setString));
+		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getString"), v8::FunctionTemplate::New(pIsolate, getString));
+		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "erase"), v8::FunctionTemplate::New(pIsolate, erase));
+		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "authorize"), v8::FunctionTemplate::New(pIsolate, authorize));
+		pooledSessionTemplate.Reset(pIsolate, sessionTemplate);
+	}
+	v8::Local<v8::ObjectTemplate> localSessionTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledSessionTemplate);
+	return handleScope.Escape(localSessionTemplate);
 }
 
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 IBM Corp.
+ * Copyright (c) 2009, 2017 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -13,6 +13,7 @@
  * Contributors:
  *    Ian Craggs - initial API and implementation and/or initial documentation
  *    Ian Craggs, Allan Stockdill-Mander - SSL updates
+ *    Ian Craggs - fix for issue #244
  *******************************************************************************/
 
 /**
@@ -53,6 +54,13 @@ static List* queues;
  */
 static List writes;
 
+
+int socketcompare(void* a, void* b);
+void SocketBuffer_newDefQ(void);
+void SocketBuffer_freeDefQ(void);
+int pending_socketcompare(void* a, void* b);
+
+
 /**
  * List callback function for comparing socket_queues by socket
  * @param a first integer value
@@ -73,7 +81,8 @@ void SocketBuffer_newDefQ(void)
 	def_queue = malloc(sizeof(socket_queue));
 	def_queue->buflen = 1000;
 	def_queue->buf = malloc(def_queue->buflen);
-	def_queue->socket = def_queue->index = def_queue->buflen = def_queue->datalen = 0;
+	def_queue->socket = def_queue->index = 0;
+	def_queue->buflen = def_queue->datalen = 0;
 }
 
 
@@ -130,7 +139,10 @@ void SocketBuffer_cleanup(int socket)
 		ListRemove(queues, queues->current->content);
 	}
 	if (def_queue->socket == socket)
-		def_queue->socket = def_queue->index = def_queue->headerlen = def_queue->datalen = 0;
+	{
+		def_queue->socket = def_queue->index = 0;
+		def_queue->headerlen = def_queue->datalen = 0;
+	}
 	FUNC_EXIT;
 }
 
@@ -142,7 +154,7 @@ void SocketBuffer_cleanup(int socket)
  * @param actual_len the actual length returned
  * @return the actual data
  */
-char* SocketBuffer_getQueuedData(int socket, int bytes, int* actual_len)
+char* SocketBuffer_getQueuedData(int socket, size_t bytes, size_t* actual_len)
 {
 	socket_queue* queue = NULL;
 
@@ -215,7 +227,7 @@ exit:
  * @param socket the socket to get queued data for
  * @param actual_len the actual length of data that was read
  */
-void SocketBuffer_interrupted(int socket, int actual_len)
+void SocketBuffer_interrupted(int socket, size_t actual_len)
 {
 	socket_queue* queue = NULL;
 
@@ -225,6 +237,11 @@ void SocketBuffer_interrupted(int socket, int actual_len)
 	else /* new saved queue */
 	{
 		queue = def_queue;
+		/* if SocketBuffer_queueChar() has not yet been called, then the socket number
+		  in def_queue will not have been set.  Issue #244.
+		  If actual_len == 0 then we may not need to do anything - I'll leave that 
+		  optimization for another time. */
+		queue->socket = socket; 
 		ListAppend(queues, def_queue, sizeof(socket_queue)+def_queue->buflen);
 		SocketBuffer_newDefQ();
 	}
@@ -249,7 +266,8 @@ char* SocketBuffer_complete(int socket)
 		def_queue = queue;
 		ListDetach(queues, queue);
 	}
-	def_queue->socket = def_queue->index = def_queue->headerlen = def_queue->datalen = 0;
+	def_queue->socket = def_queue->index = 0;
+	def_queue->headerlen = def_queue->datalen = 0;
 	FUNC_EXIT;
 	return def_queue->buf;
 }
@@ -271,7 +289,8 @@ void SocketBuffer_queueChar(int socket, char c)
 	else if (def_queue->socket == 0)
 	{
 		def_queue->socket = socket;
-		def_queue->index = def_queue->datalen = 0;
+		def_queue->index = 0;
+		def_queue->datalen = 0;
 	}
 	else if (def_queue->socket != socket)
 	{
@@ -302,9 +321,9 @@ void SocketBuffer_queueChar(int socket, char c)
  * @param bytes actual data length that was written
  */
 #if defined(OPENSSL)
-void SocketBuffer_pendingWrite(int socket, SSL* ssl, int count, iobuf* iovecs, int* frees, int total, int bytes)
+void SocketBuffer_pendingWrite(int socket, SSL* ssl, int count, iobuf* iovecs, int* frees, size_t total, size_t bytes)
 #else
-void SocketBuffer_pendingWrite(int socket, int count, iobuf* iovecs, int* frees, int total, int bytes)
+void SocketBuffer_pendingWrite(int socket, int count, iobuf* iovecs, int* frees, size_t total, size_t bytes)
 #endif
 {
 	int i = 0;

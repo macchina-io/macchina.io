@@ -1,8 +1,6 @@
 //
 // Bundle.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/Bundle.h#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  Bundle

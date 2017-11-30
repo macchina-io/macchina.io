@@ -1,8 +1,6 @@
 //
 // WebServerDispatcher.cpp
 //
-// $Id: //poco/1.7/OSP/Web/src/WebServerDispatcher.cpp#1 $
-//
 // Library: OSP/Web
 // Package: Web
 // Module:  WebServerDispatcher
@@ -16,6 +14,7 @@
 
 #include "Poco/OSP/Web/WebServerDispatcher.h"
 #include "Poco/OSP/Web/MediaTypeMapper.h"
+#include "Poco/OSP/Web/WebSession.h"
 #include "Poco/OSP/BundleEvent.h"
 #include "Poco/OSP/BundleEvents.h"
 #include "Poco/OSP/ServiceRegistry.h"
@@ -224,6 +223,7 @@ void WebServerDispatcher::listVirtualPaths(PathInfoMap& paths) const
 			PathInfo info;
 			info.description = it->second.description;
 			info.permission  = it->second.security.permission;
+			info.session     = it->second.security.session;
 			info.pBundle     = it->second.pOwnerBundle;
 			paths[it->first] = info;
 		}
@@ -286,7 +286,11 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 					{
 						RequestHandlerFactoryPtr pFactory(vPath.pFactory);
 						lock.unlock();
+#if __cplusplus < 201103L
 						std::auto_ptr<HTTPRequestHandler> pHandler(pFactory->createRequestHandler(request));
+#else
+						std::unique_ptr<HTTPRequestHandler> pHandler(pFactory->createRequestHandler(request));
+#endif
 						try
 						{
 							if (pHandler.get())
@@ -328,10 +332,13 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 			}
 			else
 			{
-				if (vPath.security.realm.empty())
-					response.requireAuthentication(vPath.path);
-				else
-					response.requireAuthentication(vPath.security.realm);
+				if (vPath.security.session.empty())
+				{
+					if (vPath.security.realm.empty())
+						response.requireAuthentication(vPath.path);
+					else
+						response.requireAuthentication(vPath.security.realm);
+				}
 				std::string vpath(vPath.path);
 				lock.unlock();
 				sendNotAuthorized(request, vpath);
@@ -426,7 +433,11 @@ void WebServerDispatcher::sendResource(Poco::Net::HTTPServerRequest& request, co
 	Poco::Net::HTTPServerResponse& response(request.response());
 	std::string mediaType;
 	std::string resolvedPath;
+#if __cplusplus < 201103L
 	std::auto_ptr<std::istream> pResourceStream(findResource(pBundle, resBase, resPath, index, mediaType, resolvedPath, canCache));
+#else
+	std::unique_ptr<std::istream> pResourceStream(findResource(pBundle, resBase, resPath, index, mediaType, resolvedPath, canCache));
+#endif
 	if (pResourceStream.get())
 	{
 		response.setContentType(mediaType);
@@ -687,7 +698,11 @@ std::istream* WebServerDispatcher::getCachedResource(Bundle::ConstPtr pBundle, c
 		else
 		{
 			lockWithUnlock.unlock();
+#if __cplusplus < 201103L
 			std::auto_ptr<std::istream> pResourceStream(pBundle->getResource(path));
+#else
+			std::unique_ptr<std::istream> pResourceStream(pBundle->getResource(path));
+#endif
 			if (pResourceStream.get())
 			{
 				std::string cachedData;
@@ -753,30 +768,80 @@ bool WebServerDispatcher::authorize(Poco::Net::HTTPServerRequest& request, const
 	}
 	else
 	{
-		if (request.hasCredentials())
+		if (!vPath.security.session.empty())
 		{
-			AuthService::Ptr pAuthService = authService();
-			if (pAuthService)
+			return authorizeSession(request, vPath, username);
+		}
+		else if (request.hasCredentials())
+		{
+			return authorizeBasic(request, vPath, username);
+		}
+	}
+	return false;
+}
+
+
+bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request, const VirtualPath& vPath, std::string& username) const
+{
+	WebSessionManager::Ptr pSessionManager = sessionManager();
+	if (pSessionManager)
+	{
+		WebSession::Ptr pSession = pSessionManager->find(vPath.security.session, request);
+		if (pSession)
+		{
+			username = pSession->getValue<std::string>("username", "");
+			if (!username.empty())
 			{
-				HTTPBasicCredentials cred(request);
-				username = cred.getUsername();
-				if (pAuthService->authenticate(username, cred.getPassword()))
+				AuthService::Ptr pAuthService = authService();
+				if (pAuthService->authorize(username, vPath.security.permission))
 				{
-					if (pAuthService->authorize(username, vPath.security.permission))
-					{
-						return true;
-					}
-					else
-					{
-						_pContext->logger().warning(Poco::format("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI()));
-					}
+					return true;
 				}
 				else
 				{
-					_pContext->logger().warning(Poco::format("User %s failed authentication.", username));
-				}	
+					_pContext->logger().warning(Poco::format("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI()));
+				}
+			}
+			else
+			{
+				_pContext->logger().warning(Poco::format("Failed to authorize user for path %s because session is not authenticated.", request.getURI()));
 			}
 		}
+		else
+		{
+			_pContext->logger().warning(Poco::format("Failed to authorize user for path %s because no session is available.", request.getURI()));
+		}
+	}
+	else 
+	{
+		_pContext->logger().warning(Poco::format("Failed to authorize user for path %s via session because no WebSessionManager is available.", request.getURI()));
+	}
+	return false;
+}
+
+
+bool WebServerDispatcher::authorizeBasic(Poco::Net::HTTPServerRequest& request, const VirtualPath& vPath, std::string& username) const
+{
+	AuthService::Ptr pAuthService = authService();
+	if (pAuthService)
+	{
+		HTTPBasicCredentials cred(request);
+		username = cred.getUsername();
+		if (pAuthService->authenticate(username, cred.getPassword()))
+		{
+			if (pAuthService->authorize(username, vPath.security.permission))
+			{
+				return true;
+			}
+			else
+			{
+				_pContext->logger().warning(Poco::format("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI()));
+			}
+		}
+		else
+		{
+			_pContext->logger().warning(Poco::format("User %s failed authentication.", username));
+		}	
 	}
 	return false;
 }
@@ -881,6 +946,8 @@ std::string WebServerDispatcher::htmlize(const std::string& str)
 
 Poco::OSP::Auth::AuthService::Ptr WebServerDispatcher::authService() const
 {	
+	Poco::FastMutex::ScopedLock lock(_authServiceMutex);
+	
 	if (!_pAuthService && !_authServiceName.empty())
 	{
 		if (!_authServiceName.empty())
@@ -898,9 +965,22 @@ Poco::OSP::Auth::AuthService::Ptr WebServerDispatcher::authService() const
 				_pContext->logger().warning(msg);
 			}
 		}
-
 	}
 	return _pAuthService;
+}
+
+
+WebSessionManager::Ptr WebServerDispatcher::sessionManager() const
+{
+	Poco::FastMutex::ScopedLock lock(_sessionManagerMutex);
+
+	Poco::OSP::ServiceRef::Ptr pWebSessionManagerRef = _pContext->registry().findByName(Poco::OSP::Web::WebSessionManager::SERVICE_NAME);
+	if (pWebSessionManagerRef)
+	{
+		_pSessionManager = pWebSessionManagerRef->castedInstance<Poco::OSP::Web::WebSessionManager>();
+	}
+	
+	return _pSessionManager;
 }
 
 

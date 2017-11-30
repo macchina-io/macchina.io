@@ -1,8 +1,6 @@
 //
 // SentenceDecoderTest.h
 //
-// $Id$
-//
 // Definition of the SentenceDecoderTest class.
 //
 // Copyright (c) 2010-2015, Applied Informatics Software Engineering GmbH.

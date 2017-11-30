@@ -1,10 +1,8 @@
 //
 // PooledIsolate.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/PooledIsolate.cpp#5 $
-//
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Execution
 // Module:  IsolatePool
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.

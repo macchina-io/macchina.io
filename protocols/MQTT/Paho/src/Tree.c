@@ -33,6 +33,24 @@
 #include "Heap.h"
 
 
+int isRed(Node* aNode);
+int isBlack(Node* aNode);
+int TreeWalk(Node* curnode, int depth);
+int TreeMaxDepth(Tree *aTree);
+void TreeRotate(Tree* aTree, Node* curnode, int direction, int index);
+Node* TreeBAASub(Tree* aTree, Node* curnode, int which, int index);
+void TreeBalanceAfterAdd(Tree* aTree, Node* curnode, int index);
+void* TreeAddByIndex(Tree* aTree, void* content, size_t size, int index);
+Node* TreeFindIndex1(Tree* aTree, void* key, int index, int value);
+Node* TreeFindContentIndex(Tree* aTree, void* key, int index);
+Node* TreeMinimum(Node* curnode);
+Node* TreeSuccessor(Node* curnode);
+Node* TreeNextElementIndex(Tree* aTree, Node* curnode, int index);
+Node* TreeBARSub(Tree* aTree, Node* curnode, int which, int index);
+void TreeBalanceAfterRemove(Tree* aTree, Node* curnode, int index);
+void* TreeRemoveIndex(Tree* aTree, void* content, int index);
+
+
 void TreeInitializeNoMalloc(Tree* aTree, int(*compare)(void*, void*, int))
 {
 	memset(aTree, '\0', sizeof(Tree));
@@ -189,7 +207,7 @@ void TreeBalanceAfterAdd(Tree* aTree, Node* curnode, int index)
  * @param content the list item content itself
  * @param size the size of the element
  */
-void* TreeAddByIndex(Tree* aTree, void* content, int size, int index)
+void* TreeAddByIndex(Tree* aTree, void* content, size_t size, int index)
 {
 	Node* curparent = NULL;
 	Node* curnode = aTree->index[index].root;
@@ -249,7 +267,7 @@ void* TreeAddByIndex(Tree* aTree, void* content, int size, int index)
 }
 
 
-void* TreeAdd(Tree* aTree, void* content, int size)
+void* TreeAdd(Tree* aTree, void* content, size_t size)
 {
 	void* rc = NULL;
 	int i;
@@ -399,7 +417,7 @@ void* TreeRemoveNodeIndex(Tree* aTree, Node* curnode, int index)
 {
 	Node* redundant = curnode;
 	Node* curchild = NULL;
-	int size = curnode->size;
+	size_t size = curnode->size;
 	void* content = curnode->content;
 
 	/* if the node to remove has 0 or 1 children, it can be removed without involving another node */

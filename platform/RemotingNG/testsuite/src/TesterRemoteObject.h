@@ -78,6 +78,10 @@ public:
 
 	std::string testOneWayResult();
 
+	void testPermission1();
+
+	void testPermission2();
+
 	Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1);
 
 	Struct1 testStruct11(const Struct1& s1);
@@ -259,6 +263,18 @@ inline void TesterRemoteObject::testOneWay(const std::string& arg)
 inline std::string TesterRemoteObject::testOneWayResult()
 {
 	return _pServiceObject->testOneWayResult();
+}
+
+
+inline void TesterRemoteObject::testPermission1()
+{
+	_pServiceObject->testPermission1();
+}
+
+
+inline void TesterRemoteObject::testPermission2()
+{
+	_pServiceObject->testPermission2();
 }
 
 

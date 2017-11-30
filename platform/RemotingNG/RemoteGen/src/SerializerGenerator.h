@@ -1,8 +1,6 @@
 //
 // SerializerGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/SerializerGenerator.h#1 $
-//
 // Definition of the SerializerGenerator class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

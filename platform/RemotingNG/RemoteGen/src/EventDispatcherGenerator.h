@@ -1,8 +1,6 @@
 //
 // EventDispatcherGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/EventDispatcherGenerator.h#1 $
-//
 // Definition of the EventDispatcherGenerator class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
@@ -91,7 +89,6 @@ public:
 	static void writeTypeDeserializers(const Poco::CppParser::Function* pFunc, 
 		const OrderedParameters& params, 
 		const std::map<std::string, const Poco::CppParser::Parameter*>& outParams, 
-		bool useCache, 
 		const std::string& indentation,
 		CodeGenerator& gen);
 
@@ -117,24 +114,21 @@ private:
 
 	static std::string generateRetParamName(const Poco::CppParser::Function* pFunc);
 
-	static std::string generateFunctResultName(const Poco::CppParser::Function* pFunc);
-
-	static void writeCachingBlock(const Poco::CppParser::Function* pFunc, CodeGenerator& gen, bool cacheCanExpire);
 	static void writeSerializingBlock(const Poco::CppParser::Function* pFunc, const OrderedParameters& attrs, const OrderedParameters& elems, const std::map<std::string, int>& nsIdx, CodeGenerator& gen, bool isOneWay, bool isEvent);
 	static void writeTypeSerializer(const Poco::CppParser::Function* pFunc, const OrderedParameters& params, bool isAttr, int funcNsIdx, CodeGenerator& gen);
-	static void writeDeserializingBlock(const Poco::CppParser::Function* pFunc, const OrderedParameters& attrs, const OrderedParameters& elems, CodeGenerator& gen, bool isOneWay, bool useCache, bool cacheCanExpire, Poco::UInt64 expireTime, bool isEvent);
+	static void writeDeserializingBlock(const Poco::CppParser::Function* pFunc, const OrderedParameters& attrs, const OrderedParameters& elems, CodeGenerator& gen, bool isOneWay, bool isEvent);
 		/// expireTime is in microsec
 
 	static void writeDeserializeReturnParam(const Poco::CppParser::Function* pFunc, CodeGenerator& gen);
 
 	void checkForEventMembers(const Poco::CppParser::Struct* pStruct);
+	void checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct);
 		/// checks if the class or any parent contains public BasicEvents
 
 	void methodStartImpl(Poco::CppParser::Function* pFunc, const CodeGenerator::Properties& methodProperties);
 	
 
 private:
-	bool _cacheVariableSet;
 	std::vector<std::string> _boolsToInit;
 	std::vector<std::string> _events;
 	std::vector<std::string> _outerEventFunctions;

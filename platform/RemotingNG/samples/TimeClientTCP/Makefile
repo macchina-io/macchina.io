@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.6/RemotingNG/samples/TimeClientTCP/Makefile#1 $
-#
 # Makefile for RemotingNG TimeClient sample
 #
 

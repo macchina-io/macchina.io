@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="osp.web.server.directory" path="/chartjs" resource="chartjs" allowSpecialization="none" hidden="true"/>
+</extensions>

@@ -17,7 +17,7 @@
       <div class="headercontainer">
         <div class="header">
           <h1>
-          <a href="/"><img src="/images/headerlogo.png" alt="macchina.io"></a>Sensors &amp; Devices
+          <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io"></a>Sensors &amp; Devices
           </h1>
         </div>
       </div>
@@ -42,11 +42,12 @@
          </div>
         </nav>
         <div ng-controller="DevicesCtrl" class="groupbox">
-          <table class="list" style="width: 100%">
+          <div ng-if="devices.length == 0">No sensors or devices found.</div>
+          <table class="list" style="width: 100%" ng-if="devices.length > 0">
             <thead>
               <tr>
                 <th ng-click="setOrderBy('name')" class="list-sortable">Name</th>
-                <th ng-click="setOrderBy('symbolicName')" class="list-sortable">Symbolic Name</th>
+                <th ng-click="setOrderBy('type')" class="list-sortable">Type</th>
                 <th ng-click="setOrderBy('id')" class="list-sortable">ID</th>
                 <th ng-click="setOrderBy('physicalQuantity')" class="list-sortable">Physical Quantity</th>
                 <th>State/Value</th>
@@ -54,13 +55,13 @@
             </thead>
             <tbody>
               <tr ng-repeat="device in devices | orderBy:orderBy track by $index" ng-class-even="'even'" ng-class-odd="'odd'">
-                <td>{{device.name}}</td>
-                <td>{{device.symbolicName}}</td>
+                <td><span ng-attr-title="{{device.symbolicName}}">{{device.name}}</span></td>
+                <td>{{device.type}}</td>
                 <td>{{device.id}}</td>
                 <td>{{device.physicalQuantity}}</td>
                 <td>{{device.displayValue}}</td>
               </tr>
-            </tbody>  
+            </tbody>
           </table>
         </div>
       </div>

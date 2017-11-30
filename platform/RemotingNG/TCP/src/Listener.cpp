@@ -1,8 +1,6 @@
 //
 // Listener.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/Listener.cpp#4 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  Listener
@@ -51,7 +49,10 @@ public:
 					flags |= Frame::FRAME_FLAG_DEFLATE;
 				pReplyStream = new ChannelOutputStream(pConnection, Frame::FRAME_TYPE_EVNR, pFrame->channel(), flags);
 			}
-			ServerTransport::Ptr pServerTransport = new ServerTransport(*_pListener, pRequestStream, pReplyStream, (pFrame->flags() & Frame::FRAME_FLAG_DEFLATE) != 0);
+			ServerTransport::Ptr pServerTransport = new ServerTransport(
+				*_pListener, 0, pRequestStream, pReplyStream, 
+				(pFrame->flags() & Frame::FRAME_FLAG_DEFLATE) != 0, 
+				false);
 			_pListener->connectionManager().threadPool().start(*pServerTransport);
 			Poco::Thread::yield();
 			pServerTransport->waitReady();
@@ -286,7 +287,7 @@ void Listener::EventSubscription::run()
 		pConnection->pushFrameHandler(new EventFrameHandler(Listener::Ptr(&_listener, true)));
 		pConnection->setAttribute("EventFrameHandler", "");
 	}
-	Frame::Ptr pFrame = new Frame(isCancelled() ? Frame::FRAME_TYPE_EVUN : Frame::FRAME_TYPE_EVSU, 0, Frame::FRAME_FLAG_EOM, Frame::FRAME_HEADER_SIZE + _suri.size());
+	Frame::Ptr pFrame = new Frame(isCancelled() ? Frame::FRAME_TYPE_EVUN : Frame::FRAME_TYPE_EVSU, 0, Frame::FRAME_FLAG_EOM, static_cast<Poco::UInt16>(Frame::FRAME_HEADER_SIZE + _suri.size()));
 	_suri.copy(pFrame->payloadBegin(), _suri.size());
 	pFrame->setPayloadSize(static_cast<Poco::UInt16>(_suri.size()));
 	pConnection->sendFrame(pFrame);

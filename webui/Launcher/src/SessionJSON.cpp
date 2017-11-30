@@ -1,7 +1,7 @@
 //
 // SessionJSON.cpp
 //
-// This file has been generated from SessionJSON.cpsp on 2015-02-20 12:17:59.
+// This file has been generated from SessionJSON.cpsp on 2017-09-04 17:34:19.
 //
 
 
@@ -41,37 +41,32 @@ void SessionJSON::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net
 	}
 	Poco::Net::HTMLForm form(request, request.stream());
 	std::ostream& responseStream = response.send();
-	responseStream << "";
 	responseStream << "\n";
 	responseStream << "{\n";
-	responseStream << "";
 #line 3 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
  if (session) { 	responseStream << "\n";
-	responseStream << "\t\"authenticated\": ";
+	responseStream << "  \"authenticated\": ";
 #line 4 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
 	responseStream << ( session->getValue<std::string>("username", "") != "" ? "true" : "false" );
 	responseStream << ",\n";
-	responseStream << "\t\"username\": \"";
+	responseStream << "  \"username\": \"";
 #line 5 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
 	responseStream << ( session->getValue<std::string>("username", "") );
 	responseStream << "\",\n";
-	responseStream << "\t\"message\": \"";
+	responseStream << "  \"message\": \"";
 #line 6 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
 	responseStream << ( session->getValue<std::string>("message", "") );
 	responseStream << "\",\n";
-	responseStream << "\t\"lastError\": \"";
+	responseStream << "  \"lastError\": \"";
 #line 7 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
 	responseStream << ( session->getValue<std::string>("lastError", "") );
 	responseStream << "\"\n";
-	responseStream << "";
 #line 8 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
  } else { 	responseStream << "\n";
-	responseStream << "\t \"authenticated\": false\n";
-	responseStream << "";
+	responseStream << "  \"authenticated\": false\n";
 #line 10 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/SessionJSON.cpsp"
  } 	responseStream << "\n";
 	responseStream << "}\n";
-	responseStream << "";
 }
 
 

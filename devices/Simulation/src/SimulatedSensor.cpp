@@ -1,8 +1,6 @@
 //
 // SimulatedSensor.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -94,6 +92,7 @@ private:
 
 
 const std::string SimulatedSensor::NAME("Simulated Sensor");
+const std::string SimulatedSensor::TYPE("io.macchina.sensor");
 const std::string SimulatedSensor::SYMBOLIC_NAME("io.macchina.simulation.sensor");
 
 
@@ -103,8 +102,6 @@ SimulatedSensor::SimulatedSensor(const Params& params, Poco::Util::Timer& timer)
 	_valueChangedDelta(0.0),
 	_pEventPolicy(new IoT::Devices::NoModerationPolicy<double>(valueChanged)),
 	_deviceIdentifier(params.id),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME),
 	_physicalQuantity(params.physicalQuantity),
 	_physicalUnit(params.physicalUnit),
 	_timer(timer)
@@ -115,6 +112,7 @@ SimulatedSensor::SimulatedSensor(const Params& params, Poco::Util::Timer& timer)
 	addProperty("deviceIdentifier", &SimulatedSensor::getDeviceIdentifier);
 	addProperty("symbolicName", &SimulatedSensor::getSymbolicName);
 	addProperty("name", &SimulatedSensor::getName);
+	addProperty("type", &SimulatedSensor::getType);
 	addProperty("physicalQuantity", &SimulatedSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &SimulatedSensor::getPhysicalUnit);
 	
@@ -222,13 +220,19 @@ Poco::Any SimulatedSensor::getDeviceIdentifier(const std::string&) const
 
 Poco::Any SimulatedSensor::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
+}
+
+
+Poco::Any SimulatedSensor::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 
 Poco::Any SimulatedSensor::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
 }
 
 

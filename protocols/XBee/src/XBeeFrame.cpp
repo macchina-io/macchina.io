@@ -1,9 +1,7 @@
 //
 // XBeeFrame.cpp
 //
-// $Id$
-//
-// Library: XBee
+// Library: IoT/XBee
 // Package: XBee
 // Module:  XBeeFrame
 //
@@ -42,13 +40,13 @@ XBeeFrame::XBeeFrame(FrameType frameType, const std::string& data):
 	init(frameType, data.data(), data.length());
 }
 
-	
+
 XBeeFrame::XBeeFrame(const XBeeFrame& other):
 	_frame(other._frame)
 {
 }
 
-	
+
 XBeeFrame::~XBeeFrame()
 {
 }
@@ -57,7 +55,7 @@ XBeeFrame::~XBeeFrame()
 void XBeeFrame::init(FrameType frameType, const char* data, std::size_t length)
 {
 	poco_assert (length <= XBEE_MAX_DATA_LENGTH);
-	
+
 	_frame[0] = XBEE_FRAME_START_DELIM;
 	std::size_t fullLength = length + 1;
 	_frame[1] = static_cast<char>(fullLength >> 8);
@@ -79,7 +77,7 @@ XBeeFrame& XBeeFrame::operator = (const XBeeFrame& other)
 	return *this;
 }
 
-	
+
 void XBeeFrame::swap(XBeeFrame& other)
 {
 	std::swap(_frame, other._frame);
@@ -101,7 +99,7 @@ XBeeFrame::ReadStatus XBeeFrame::read(XBeeFrame& frame, const char* buffer, std:
 				{
 					if (i + 2 + dataSize + 1 < size) // 2 length bytes + data + checksum
 					{
-						XBeeFrame tempFrame(static_cast<FrameType>(buffer[i + 3]), buffer + 4, dataSize - 1);
+						XBeeFrame tempFrame(static_cast<FrameType>(buffer[i + 3]), buffer + i + 4, dataSize - 1);
 						if (tempFrame.checksum() == static_cast<unsigned char>(buffer[i + 2 + dataSize + 1]))
 						{
 							frame.swap(tempFrame);
@@ -122,7 +120,7 @@ XBeeFrame::ReadStatus XBeeFrame::read(XBeeFrame& frame, const char* buffer, std:
 void XBeeFrame::escape()
 {
 	if (_frame.empty()) return;
-	
+
 	std::vector<char> escapedFrame;
 	escapedFrame.reserve(_frame.size()*4/3);
 	std::vector<char>::const_iterator it = _frame.begin();

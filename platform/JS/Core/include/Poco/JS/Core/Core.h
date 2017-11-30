@@ -1,10 +1,8 @@
 //
 // Core.h
 //
-// $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/Core.h#4 $
-//
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Core
 // Module:  Core
 //
 // Basic definitions for the Poco JS Core library.

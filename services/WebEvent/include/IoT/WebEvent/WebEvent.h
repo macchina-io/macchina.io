@@ -1,8 +1,6 @@
 //
 // WebEvent.h
 //
-// $Id$
-//
 // Library: IoT/WebEvents
 // Package: WebEvent
 // Module:  WebEvent

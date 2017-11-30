@@ -53,12 +53,6 @@ public:
 	static Poco::AutoPtr<IoT::Devices::TriggerRemoteObject> createRemoteObject(Poco::SharedPtr<IoT::Devices::Trigger> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates and returns a RemoteObject wrapper for the given IoT::Devices::Trigger instance.
 
-	static void enableEvents(const std::string& uri, const std::string& protocol);
-		/// Enables remote events for the RemoteObject identified by the given URI.
-		///
-		/// Events will be delivered using the Transport for the given protocol.
-		/// Can be called multiple times for the same URI with different protocols.
-
 	static std::string registerObject(Poco::SharedPtr<IoT::Devices::Trigger> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId);
 		/// Creates a RemoteObject wrapper for the given IoT::Devices::Trigger instance
 		/// and registers it with the ORB and the Listener instance
@@ -81,8 +75,6 @@ public:
 private:
 	static Poco::AutoPtr<IoT::Devices::TriggerRemoteObject> createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::Trigger> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid);
 
-	void enableEventsImpl(const std::string& uri, const std::string& protocol);
-
 	static TriggerServerHelper& instance();
 		/// Returns a static instance of the helper class.
 
@@ -101,12 +93,6 @@ private:
 inline Poco::AutoPtr<IoT::Devices::TriggerRemoteObject> TriggerServerHelper::createRemoteObject(Poco::SharedPtr<IoT::Devices::Trigger> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
 	return TriggerServerHelper::instance().createRemoteObjectImpl(pServiceObject, oid);
-}
-
-
-inline void TriggerServerHelper::enableEvents(const std::string& uri, const std::string& protocol)
-{
-	TriggerServerHelper::instance().enableEventsImpl(uri, protocol);
 }
 
 

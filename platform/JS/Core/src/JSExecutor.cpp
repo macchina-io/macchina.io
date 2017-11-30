@@ -1,10 +1,8 @@
 //
 // JSExecutor.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/JSExecutor.cpp#7 $
-//
-// Library: JSCore
-// Package: JSCore
+// Library: JS/Core
+// Package: Execution
 // Module:  JSExecutor
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
@@ -305,6 +303,36 @@ void JSExecutor::callInContext(v8::Handle<v8::Function>& function, v8::Handle<v8
 }
 
 
+void JSExecutor::callInContext(v8::Persistent<v8::Object>& jsObject, const std::string& method, int argc, v8::Handle<v8::Value> argv[])
+{
+	ScopedRunningCounter src(_running);
+
+	attachToCurrentThread();
+
+	v8::Isolate* pIsolate = _pooledIso.isolate();
+
+	v8::Local<v8::String> jsMethod = v8::String::NewFromUtf8(pIsolate, method.c_str());
+
+	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(pIsolate, jsObject));
+
+	if (localObject->Has(jsMethod))
+	{
+		v8::Local<v8::Value> jsValue = localObject->Get(jsMethod);
+		if (jsValue->IsFunction())
+		{
+			v8::Local<v8::Function> jsFunction = v8::Local<v8::Function>::Cast(jsValue);
+		
+			v8::TryCatch tryCatch;			
+			jsFunction->Call(localObject, argc, argv);
+			if (tryCatch.HasCaught())
+			{
+				reportError(tryCatch);
+			}
+		}
+	}
+}
+
+
 void JSExecutor::call(v8::Persistent<v8::Object>& jsObject, const std::string& method, const std::string& args)
 {
 	ScopedRunningCounter src(_running);
@@ -432,7 +460,11 @@ void JSExecutor::includeScript(const std::string& uri)
 	v8::Context::Scope contextScope(context);
 
 	Poco::URI includeURI(_sourceURI, uri);
+#if __cplusplus < 201103L
 	std::auto_ptr<std::istream> istr(Poco::URIStreamOpener::defaultOpener().open(includeURI));
+#else
+	std::unique_ptr<std::istream> istr(Poco::URIStreamOpener::defaultOpener().open(includeURI));
+#endif
 	std::string source;
 	Poco::StreamCopier::copyToString(*istr, source);
 
@@ -789,6 +821,8 @@ Poco::SharedPtr<std::istream> JSExecutor::resolveModule(const std::string& uri, 
 class RunScriptTask: public Poco::Util::TimerTask
 {
 public:
+	typedef Poco::AutoPtr<RunScriptTask> Ptr;
+
 	RunScriptTask(TimedJSExecutor* pExecutor):
 		_pExecutor(pExecutor, true)
 	{
@@ -801,6 +835,42 @@ public:
 	
 private:
 	TimedJSExecutor::Ptr _pExecutor;
+};
+
+
+//
+// StopScriptTask
+//
+
+
+class StopScriptTask: public Poco::Util::TimerTask
+{
+public:
+	typedef Poco::AutoPtr<StopScriptTask> Ptr;
+
+	StopScriptTask(TimedJSExecutor* pExecutor):
+		_pExecutor(pExecutor, true)
+	{
+	}
+	
+	void run()
+	{
+		_pExecutor->_timer.cancel(false);
+		_stopped.set();
+	}
+	
+	void wait()
+	{
+		_pExecutor->terminate();
+		while (!_stopped.tryWait(200))
+		{
+			_pExecutor->terminate();
+		}
+	}
+	
+private:
+	TimedJSExecutor::Ptr _pExecutor;
+	Poco::Event _stopped;
 };
 
 
@@ -940,15 +1010,19 @@ void TimedJSExecutor::schedule(Poco::Util::TimerTask::Ptr pTask, const Poco::Clo
 
 void TimedJSExecutor::stop()
 {
-	terminate();
-
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		if (_stopped) return;
 
 		_stopped = true;
 	}
 
-	_timer.cancel(true);
+	StopScriptTask::Ptr pStopTask = new StopScriptTask(this);
+	_timer.schedule(pStopTask, Poco::Clock());
+	pStopTask->wait();
+	pStopTask = 0;
+
 	stopped(this);
 
 	cleanup();
@@ -1012,7 +1086,7 @@ void TimedJSExecutor::setTimeout(const v8::FunctionCallbackInfo<v8::Value>& args
 	
 	CallFunctionTask::Ptr pTask = new CallFunctionTask(args.GetIsolate(), pThis, function, argsArray);
 	Poco::Timestamp ts;
-	ts += millisecs*1000;
+	ts += static_cast<Poco::Timestamp::TimeDiff>(millisecs*1000);
 	pThis->_timer.schedule(pTask, ts);
 	TimerWrapper wrapper;
 	v8::Persistent<v8::Object> timerObject(args.GetIsolate(), wrapper.wrapNativePersistent(args.GetIsolate(), pTask));
@@ -1045,7 +1119,7 @@ void TimedJSExecutor::setInterval(const v8::FunctionCallbackInfo<v8::Value>& arg
 	TimedJSExecutor* pThis = static_cast<TimedJSExecutor*>(pCurrentExecutor);
 	
 	CallFunctionTask::Ptr pTask = new CallFunctionTask(args.GetIsolate(), pThis, function, argsArray);
-	pThis->_timer.scheduleAtFixedRate(pTask, millisecs, millisecs);
+	pThis->_timer.scheduleAtFixedRate(pTask, static_cast<long>(millisecs), static_cast<long>(millisecs));
 	TimerWrapper wrapper;
 	v8::Persistent<v8::Object> timerObject(args.GetIsolate(), wrapper.wrapNativePersistent(args.GetIsolate(), pTask));
 	args.GetReturnValue().Set(timerObject);

@@ -1,8 +1,6 @@
 //
 // VersionRange.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/VersionRange.h#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  VersionRange

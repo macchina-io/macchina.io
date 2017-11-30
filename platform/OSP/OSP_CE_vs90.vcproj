@@ -263,6 +263,8 @@
 				<File
 					RelativePath=".\include\Poco\OSP\BundleFile.h"/>
 				<File
+					RelativePath=".\include\Poco\OSP\BundleFilter.h"/>
+				<File
 					RelativePath=".\include\Poco\OSP\BundleLoader.h"/>
 				<File
 					RelativePath=".\include\Poco\OSP\BundleManifest.h"/>
@@ -293,6 +295,8 @@
 					RelativePath=".\src\BundleFactory.cpp"/>
 				<File
 					RelativePath=".\src\BundleFile.cpp"/>
+				<File
+					RelativePath=".\src\BundleFilter.cpp"/>
 				<File
 					RelativePath=".\src\BundleLoader.cpp"/>
 				<File

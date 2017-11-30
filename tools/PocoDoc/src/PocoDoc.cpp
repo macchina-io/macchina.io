@@ -1,8 +1,6 @@
 //
 // PocoDoc.cpp
 //
-// $Id: //poco/1.4/PocoDoc/src/PocoDoc.cpp#2 $
-//
 // Copyright (c) 2005-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //

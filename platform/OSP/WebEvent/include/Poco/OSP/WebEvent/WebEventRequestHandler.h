@@ -1,8 +1,6 @@
 //
 // WebEventRequestHandler.h
 //
-// $Id: //poco/1.7/OSP/WebEvent/include/Poco/OSP/WebEvent/WebEventRequestHandler.h#1 $
-//
 // Library: OSP/WebEvent
 // Package: WebEvent
 // Module:  WebEventRequestHandler
@@ -42,7 +40,7 @@ public:
 	WebEventRequestHandler(WebEventServiceImpl::Ptr pWebEventServiceImpl, Poco::OSP::BundleContext::Ptr pContext);
 		/// Creates the WebEventRequestHandler.
 		
-	WebEventRequestHandler();
+	~WebEventRequestHandler();
 		/// Destroys the WebEventRequestHandler.
 		
 	void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);

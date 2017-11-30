@@ -1,8 +1,6 @@
 //
 // SimulatedGNSSSensor.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -28,7 +26,8 @@ namespace Simulation {
 
 
 const std::string SimulatedGNSSSensor::NAME("GNSS Sensor Simulation (GPX)");
-const std::string SimulatedGNSSSensor::SYMBOLIC_NAME("io.macchina.gnss.gpx");
+const std::string SimulatedGNSSSensor::TYPE("io.macchina.gnss");
+const std::string SimulatedGNSSSensor::SYMBOLIC_NAME("io.macchina.simulation.gnss");
 
 
 class PositionUpdate: public Poco::Util::TimerTask
@@ -198,6 +197,7 @@ SimulatedGNSSSensor::SimulatedGNSSSensor(const Params& params):
 {
 	addProperty("symbolicName", &SimulatedGNSSSensor::getSymbolicName);
 	addProperty("name", &SimulatedGNSSSensor::getName);
+	addProperty("type", &SimulatedGNSSSensor::getType);
 	addProperty("displayValue", &SimulatedGNSSSensor::getDisplayValue);
 	addProperty("positionChangedPeriod", &SimulatedGNSSSensor::getPositionChangedPeriod, &SimulatedGNSSSensor::setPositionChangedPeriod);
 	addProperty("positionChangedDelta", &SimulatedGNSSSensor::getPositionChangedDelta, &SimulatedGNSSSensor::setPositionChangedDelta);
@@ -282,6 +282,12 @@ double SimulatedGNSSSensor::hdop() const
 Poco::Any SimulatedGNSSSensor::getName(const std::string&) const
 {
 	return NAME;
+}
+
+
+Poco::Any SimulatedGNSSSensor::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 

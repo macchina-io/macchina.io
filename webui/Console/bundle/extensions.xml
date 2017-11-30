@@ -1,5 +1,5 @@
 <extensions>
   <extension point="io.macchina.web.launcher" title="Console" path="/macchina/console" icon="/macchina/console/images/appicon.png" permission="bundleAdmin"/>
   <extension point="osp.web.server.requesthandler" methods="GET, HEAD" path="/macchina/console/messages" class="IoT::Web::Console::ConsoleRequestHandlerFactory" library="io.macchina.webui.console" allowSpecialization="owner" hidden="true"/>
-  <extension point="osp.web.server.directory" path="/macchina/console" resource="webapp" allowSpecialization="owner" hidden="true"/>
+  <extension point="osp.web.server.directory" path="/macchina/console" resource="webapp" allowSpecialization="owner" hidden="true" permission="bundleAdmin" session="${websession.id}"/>
 </extensions>

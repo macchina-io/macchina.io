@@ -1,8 +1,6 @@
 //
 // EventSubscriberGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/EventSubscriberGenerator.h#2 $
-//
 // Definition of the EventSubscriberGenerator class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
@@ -57,6 +55,8 @@ public:
 private:
 	void checkForEventMembers(const Poco::CppParser::Struct* pStruct, std::vector<const Poco::CppParser::Function*>& eventFunctions);
 		/// checks if the class or any parent contains public BasicEvents
+
+	void checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct, std::vector<const Poco::CppParser::Function*>& eventFunctions);
 
 	void generateEventFunction(const Poco::CppParser::Function* pFunc, const CodeGenerator::Properties& properties);
 

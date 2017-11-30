@@ -1,10 +1,8 @@
 //
 // HTTPResponseWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Net/src/HTTPResponseWrapper.cpp#6 $
-//
-// Library: JSNet
-// Package: HTTP
+// Library: JS/Net
+// Package: Wrappers
 // Module:  HTTPResponseWrapper
 //
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
@@ -110,15 +108,23 @@ v8::Handle<v8::ObjectTemplate> HTTPResponseWrapper::objectTemplate(v8::Isolate* 
 	v8::Local<v8::ObjectTemplate> responseTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
 	return handleScope.Escape(responseTemplate);
 }
-	
+
 
 void HTTPResponseWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	ResponseHolder* pResponseHolder = new ResponseHolderImpl();
-	HTTPResponseWrapper wrapper;
-	v8::Persistent<v8::Object> responseObject(args.GetIsolate(), wrapper.wrapNative(args.GetIsolate(), pResponseHolder));
-	responseObject.SetWeak(pResponseHolder, destruct, v8::WeakCallbackType::kParameter);
-	args.GetReturnValue().Set(responseObject);
+	try
+	{
+		HTTPResponseWrapper wrapper;
+		v8::Persistent<v8::Object> responseObject(args.GetIsolate(), wrapper.wrapNative(args.GetIsolate(), pResponseHolder));
+		responseObject.SetWeak(pResponseHolder, destruct, v8::WeakCallbackType::kParameter);
+		args.GetReturnValue().Set(responseObject);
+	}
+	catch (Poco::Exception& exc)
+	{
+		delete pResponseHolder;
+		returnException(args, exc);
+	}
 }
 
 

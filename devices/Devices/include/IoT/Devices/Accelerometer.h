@@ -1,8 +1,6 @@
 //
 // Accelerometer.h
 //
-// $Id: //iot/Main/Devices/include/IoT/Devices/Sensor.h#2 $
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  Accelerometer
@@ -40,9 +38,9 @@ struct Acceleration
 	{
 	}
 
-	double x; 
-	double y;
-	double z;
+	double x; /// x-axis acceleration in [g]
+	double y; /// y-axis acceleration in [g]
+	double z; /// z-axis acceleration in [g]
 };
 
 
@@ -57,13 +55,13 @@ public:
 		/// Actual behavior of this event (e.g., minimum interval
 		/// between fires) are implementation specific
 		/// and can be configured via properties.
-		
+
 	Accelerometer();
 		/// Creates the Accelerometer.
-		
+
 	~Accelerometer();
 		/// Destroys the Accelerometer.
-		
+
 	virtual Acceleration acceleration() const = 0;
 		/// Returns the most recently measured acceleration values.
 };

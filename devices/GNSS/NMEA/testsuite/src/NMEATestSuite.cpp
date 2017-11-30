@@ -1,8 +1,6 @@
 //
 // NMEATestSuite.cpp
 //
-// $Id$
-//
 // Copyright (c) 2010-2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

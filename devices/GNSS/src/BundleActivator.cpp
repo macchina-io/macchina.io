@@ -1,8 +1,6 @@
 //
 // BundleActivator.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -54,11 +52,13 @@ public:
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::GNSSSensor> ServerHelper;
 		
 		Poco::SharedPtr<GNSSSensorImpl> pGNSSSensor = new GNSSSensorImpl(pSerialPort);
+		std::string type = pGNSSSensor->getPropertyString("type");
 		Poco::RemotingNG::Identifiable::ObjectId oid = pGNSSSensor->getPropertyString("symbolicName");
 		oid += "#0";
 		ServerHelper::RemoteObjectPtr pGNSSSensorRemoteObject = ServerHelper::createRemoteObject(pGNSSSensor, oid);
 		
 		Properties props;
+		props.set("io.macchina.deviceType", type);
 		props.set("io.macchina.device", oid);
 		props.set("io.macchina.serialport.device", pSerialPort->device());
 		

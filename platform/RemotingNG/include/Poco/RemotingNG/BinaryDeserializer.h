@@ -1,8 +1,6 @@
 //
 // BinaryDeserializer.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/BinaryDeserializer.h#1 $
-//
 // Library: RemotingNG
 // Package: Serialization
 // Module:  BinaryDeserializer
@@ -49,6 +47,16 @@ public:
 	void deserializeEndPoint(std::string& oid, std::string& tid);
 		/// Serializes the object and type ID of the service object.
 
+	template <typename T>
+	T deserializeToken()
+		/// Deserializes the given value, which must be a type directly supported
+		/// by Poco::BinaryReader.
+	{
+		T t;
+		(*this->_pReader) >> t;
+		return t;
+	}
+
 	// Deserializer
 	SerializerBase::MessageType findMessage(std::string& name);
 	void deserializeMessageBegin(const std::string& name, SerializerBase::MessageType type);
@@ -87,7 +95,11 @@ private:
 	bool checkStream();
 	void findMessageImpl();
 
+#if __cplusplus < 201103L
 	typedef std::auto_ptr<Poco::BinaryReader> BinaryReaderPtr;
+#else
+	typedef std::unique_ptr<Poco::BinaryReader> BinaryReaderPtr;
+#endif
 	typedef std::pair<int, int> LengthLevelPair;
 	typedef std::stack<LengthLevelPair> LevelLengthVec;
 

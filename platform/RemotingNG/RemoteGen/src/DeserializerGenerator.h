@@ -1,8 +1,6 @@
 //
 // DeserializerGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/DeserializerGenerator.h#1 $
-//
 // Definition of the DeserializerGenerator class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

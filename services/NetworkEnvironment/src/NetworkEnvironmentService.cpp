@@ -1,8 +1,6 @@
 //
 // NetworkEnvironmentService.cpp
 //
-// $Id$
-//
 // Library: IoT/NetworkEnvironment
 // Package: NetworkEnvironment
 // Module:  NetworkEnvironmentService

@@ -1,6 +1,6 @@
 'use strict';
 
-var devicesApp = angular.module('playgroundApp', [
+var playgroundApp = angular.module('playgroundApp', [
   'playgroundControllers',
   'playgroundServices'
 ]);

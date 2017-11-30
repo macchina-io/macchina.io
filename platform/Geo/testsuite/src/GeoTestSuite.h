@@ -1,8 +1,6 @@
 //
 // GeoTestSuite.h
 //
-// $Id$
-//
 // Definition of the GeoTestSuite class.
 //
 // Copyright (c) 2011-2015, Günter Obiltschnig.

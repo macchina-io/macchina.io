@@ -5,21 +5,13 @@
     <symbolicName>com.appinf.osp.js</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2013-2016, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2013-2017, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>Poco::OSP::JS::JSBundleActivator</class>
       <library>com.appinf.osp.js</library>
     </activator>
     <lazyStart>false</lazyStart>
     <runLevel>600</runLevel>
-    <dependency>
-      <symbolicName>poco.net</symbolicName>
-      <version>[1.7.0, 2.0.0)</version>
-    </dependency>
-    <dependency>
-      <symbolicName>poco.data</symbolicName>
-      <version>[1.7.0, 2.0.0)</version>
-    </dependency>
   </manifest>
   <files>
   	bundle/*

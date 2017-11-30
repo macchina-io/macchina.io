@@ -1,8 +1,6 @@
 //
 // WebBundleActivator.cpp
 //
-// $Id: //poco/1.7/OSP/Web/src/WebBundleActivator.cpp#1 $
-//
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -63,7 +61,11 @@ public:
 	void start(BundleContext::Ptr pContext)
 	{
 		MediaTypeMapper::Ptr pMediaTypeMapper = new MediaTypeMapper;
+#if __cplusplus < 201103L
 		std::auto_ptr<std::istream> pStream(pContext->thisBundle()->getResource("mime.types"));
+#else
+		std::unique_ptr<std::istream> pStream(pContext->thisBundle()->getResource("mime.types"));
+#endif
 		if (pStream.get())
 		{
 			pMediaTypeMapper->load(*pStream);

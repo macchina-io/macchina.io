@@ -1,8 +1,6 @@
 //
 // BundleActivator.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -44,11 +42,11 @@ public:
 	BundleActivator()
 	{
 	}
-	
+
 	~BundleActivator()
 	{
 	}
-	
+
 	void createClient(const std::string& baseConfig, const std::string& id)
 	{
 		std::string serverURI = getStringConfig(baseConfig + ".serverURI", "");
@@ -61,7 +59,10 @@ public:
 			MQTTClientImpl::ConnectOptions options;
 			options.keepAliveInterval = getIntConfig(baseConfig + ".keepAliveInterval", 60);
 			options.retryInterval = getIntConfig(baseConfig + ".retryInterval", 30);
-			options.connectTimeout = getIntConfig(baseConfig + ".connectTimeout", 20);
+			options.connectTimeout = getIntConfig(baseConfig + ".connectTimeout", 30);
+			options.initialConnectTimeout = getIntConfig(baseConfig + ".initialConnectTimeout", 0);
+			options.connectRetries = getIntConfig(baseConfig + ".connectRetries", 0);
+			options.retryConnectWithExponentialBackoff = getBoolConfig(baseConfig + ".retryConnectWithExponentialBackoff", false);
 			options.cleanSession = getBoolConfig(baseConfig + ".cleanSession", true);
 			options.reliable = getBoolConfig(baseConfig + ".reliable", false);
 			options.username = getStringConfig(baseConfig + ".username", "");
@@ -74,34 +75,44 @@ public:
 			options.willTopic = getStringConfig(baseConfig + ".will.topic", "");
 			options.willMessage = getStringConfig(baseConfig + ".will.message", "");
 			options.willRetained = getBoolConfig(baseConfig + ".will.retained", false);
-		
+
 			options.sslTrustStore = getStringConfig(baseConfig + ".ssl.trustStore", "");
 			options.sslKeyStore = getStringConfig(baseConfig + ".ssl.keyStore", "");
 			options.sslPrivateKey = getStringConfig(baseConfig + ".ssl.privateKey", "");
 			options.sslPrivateKeyPassword = getStringConfig(baseConfig + ".ssl.privateKeyPassword", "");
 			options.sslEnabledCipherSuites = getStringConfig(baseConfig + ".ssl.enabledCipherSuites", "");
 			options.sslEnableServerCertAuth = getBoolConfig(baseConfig + ".ssl.enableServerCertAuth", false);
-		
+			options.sslVersion = 0;
+			std::string sslVersion = getStringConfig(baseConfig + ".ssl.version", "");
+			if (Poco::icompare(sslVersion, "default") == 0)
+				options.sslVersion = 0;
+			else if (Poco::icompare(sslVersion, "tls1.0") == 0)
+				options.sslVersion = 1;
+			else if (Poco::icompare(sslVersion, "tls1.1") == 0)
+				options.sslVersion = 2;
+			else if (Poco::icompare(sslVersion, "tls1.2") == 0)
+				options.sslVersion = 3;
+
 			MQTTClientImpl::Ptr pMQTTClient = new MQTTClientImpl(serverURI, clientId, persistence, persistencePath, options);
 			std::string oid(Poco::format("io.macchina.mqtt.client#%z", _clients.size()));
 			ServerHelper::RemoteObjectPtr pMQTTClientRemoteObject = ServerHelper::createRemoteObject(pMQTTClient, oid);
 			Poco::OSP::Properties props;
 			props.set("io.macchina.protocol", "io.macchina.mqtt");
-			props.set("io.macchina.mqtt.clientId", clientId);	
-			props.set("io.macchina.mqtt.serverURI", serverURI);	
+			props.set("io.macchina.mqtt.clientId", clientId);
+			props.set("io.macchina.mqtt.serverURI", serverURI);
 			props.set("io.macchina.mqtt.id", id);
 			Poco::OSP::ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pMQTTClientRemoteObject, props);
-			
+
 			_clients.push_back(pMQTTClient);
 			_serviceRefs.push_back(pServiceRef);
 		}
 	}
-	
+
 	void start(BundleContext::Ptr pContext)
 	{
 		_pContext = pContext;
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
-		
+
 		Poco::Util::AbstractConfiguration::Keys keys;
 		_pPrefs->configuration()->keys("mqtt.clients", keys);
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
@@ -111,7 +122,7 @@ public:
 			createClient(baseKey, *it);
 		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		for (std::vector<Poco::OSP::ServiceRef::Ptr>::iterator it = _serviceRefs.begin(); it != _serviceRefs.end(); ++it)
@@ -131,7 +142,7 @@ public:
 			}
 		}
 		_clients.clear();
-		
+
 		ServerHelper::shutdown();
 	}
 
@@ -155,17 +166,17 @@ protected:
 	{
 		return _pPrefs->configuration()->getInt(key, _pContext->thisBundle()->properties().getInt(key, deflt));
 	}
-	
+
 	std::string getStringConfig(const std::string& key)
 	{
 		return _pPrefs->configuration()->getString(key, _pContext->thisBundle()->properties().getString(key));
 	}
-	
+
 	std::string getStringConfig(const std::string& key, const std::string& deflt)
 	{
 		return _pPrefs->configuration()->getString(key, _pContext->thisBundle()->properties().getString(key, deflt));
 	}
-	
+
 private:
 	BundleContext::Ptr _pContext;
 	PreferencesService::Ptr _pPrefs;

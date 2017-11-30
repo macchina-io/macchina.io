@@ -1,8 +1,6 @@
 //
 // OSPSubsystem.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/OSPSubsystem.h#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  OSPSubsystem
@@ -47,15 +45,20 @@ class OSP_API OSPSubsystem: public Poco::Util::Subsystem
 	/// for specification of additional bundle repositories.
 	///
 	/// The following configuration properties are used:
-	///   - osp.bundleRepository: list of directories containing bundles
-	///                           (defaults to ${application.dir}bundles)
-	///   - osp.codeCache:        location of code cache directory
-	///                           (defaults to ${application.dir}codeCache)
-	///   - osp.language:         language used for localization (overrides
-	///                           the system default)
-	///   - osp.data              the directory where temporary and persistent
-	///                           data for bundles is stored (defaults to
-	///                           ${application.dir}data)
+	///   - osp.bundleRepository:    list of directories containing bundles
+	///                              (defaults to ${application.dir}bundles)
+	///   - osp.codeCache:           location of code cache directory
+	///                              (defaults to ${application.dir}codeCache)
+	///   - osp.autoUpdateCodeCache: automatically update shared libraries in codeCache
+	///                              with newer versions found in bundles
+	///   - osp.sharedCodeCache:     allow using the same code cache directory for
+	///                              multiple processes, causing certain operations
+	///                              to be guarded by a global lock
+	///   - osp.language:            language used for localization (overrides
+	///                              the system default)
+	///   - osp.data                 the directory where temporary and persistent
+	///                              data for bundles is stored (defaults to
+	///                              ${application.dir}data)
 	///
 	/// The following configuration properties are set:
 	///   - osp.version: OSP Version from osp.core bundle (only if osp.core bundle is present)

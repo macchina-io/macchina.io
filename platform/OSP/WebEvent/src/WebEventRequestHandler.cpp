@@ -1,8 +1,6 @@
 //
 // WebEventRequestHandler.cpp
 //
-// $Id: //poco/1.7/OSP/WebEvent/src/WebEventRequestHandler.cpp#1 $
-//
 // Library: OSP/WebEvent
 // Package: WebEvent
 // Module:  WebEventRequestHandler
@@ -35,7 +33,7 @@ WebEventRequestHandler::WebEventRequestHandler(WebEventServiceImpl::Ptr pWebEven
 }
 
 	
-WebEventRequestHandler::WebEventRequestHandler()
+WebEventRequestHandler::~WebEventRequestHandler()
 {
 }
 

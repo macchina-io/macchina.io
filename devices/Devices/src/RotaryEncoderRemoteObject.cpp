@@ -31,7 +31,6 @@ RotaryEncoderRemoteObject::RotaryEncoderRemoteObject(const Poco::RemotingNG::Ide
 	_pServiceObject(pServiceObject)
 {
 	_pServiceObject->buttonStateChanged += Poco::delegate(this, &RotaryEncoderRemoteObject::event__buttonStateChanged);
-	_pServiceObject->countChanged += Poco::delegate(this, &RotaryEncoderRemoteObject::event__countChanged);
 }
 
 
@@ -40,7 +39,6 @@ RotaryEncoderRemoteObject::~RotaryEncoderRemoteObject()
 	try
 	{
 		_pServiceObject->buttonStateChanged -= Poco::delegate(this, &RotaryEncoderRemoteObject::event__buttonStateChanged);
-		_pServiceObject->countChanged -= Poco::delegate(this, &RotaryEncoderRemoteObject::event__countChanged);
 	}
 	catch (...)
 	{
@@ -71,12 +69,6 @@ bool RotaryEncoderRemoteObject::remoting__hasEvents() const
 void RotaryEncoderRemoteObject::event__buttonStateChanged(const bool& data)
 {
 	buttonStateChanged(this, data);
-}
-
-
-void RotaryEncoderRemoteObject::event__countChanged(const Poco::Int32& data)
-{
-	countChanged(this, data);
 }
 
 

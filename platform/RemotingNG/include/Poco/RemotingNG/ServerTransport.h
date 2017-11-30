@@ -1,8 +1,6 @@
 //
 // ServerTransport.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/ServerTransport.h#1 $
-//
 // Library: RemotingNG
 // Package: Transport
 // Module:  ServerTransport
@@ -51,6 +49,41 @@ public:
 
 	virtual ~ServerTransport();
 		/// Destroys the ServerTransport.
+		
+	virtual bool authenticate(const std::string& method);
+		/// Verify that the request is properly authenticated.
+		///
+		/// This method is called if the method or its class has
+		/// the @authenticated attribute set to true, or if it
+		/// has a @permission attribute set to a non-empty permission.
+		///
+		/// An implementation should check whether the current request
+		/// contains valid authentication information. 
+		/// Typically, an implementation will obtain the Credentials object
+		/// for the request, obtain the Authenticator from the Listener, 
+		/// and call its authenticate() method to check the credentials.
+		///
+		/// Returns true if the request is properly authenticated, otherwise
+		/// false.
+		///
+		/// The default implementation simply returns true.
+	
+	virtual bool authorize(const std::string& method, const std::string& permission);
+		/// Verify that an authenticated user has the given permission, which is required
+		/// to invoke the given method. 
+		///
+		/// The given permission will be the the one specified with the @permission 
+		/// attribute for the respective remote method. If no @permission attribute
+		/// has been specified for a remote method, or the permission is an empty
+		/// string, this method will not be called.
+		///
+		/// An implementation should obtain the Authorizer object from the Listener,
+		/// and call the Authorizer's authorize() method to authorize the
+		/// method call.
+		///
+		/// Returns true if authorization is successful, otherwise false.
+		///
+		/// The default implementation simply returns true.
 
 	virtual Deserializer& beginRequest() = 0;
 		/// Prepare a Deserializer for reading the request message.

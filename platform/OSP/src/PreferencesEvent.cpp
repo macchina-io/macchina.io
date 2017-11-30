@@ -1,8 +1,6 @@
 //
 // PreferencesEvent.cpp
 //
-// $Id: //poco/1.7/OSP/src/PreferencesEvent.cpp#1 $
-//
 // Library: OSP
 // Package: PreferencesService
 // Module:  PreferencesEvent

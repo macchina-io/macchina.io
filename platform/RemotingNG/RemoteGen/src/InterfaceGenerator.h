@@ -1,8 +1,6 @@
 //
 // InterfaceGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/InterfaceGenerator.h#1 $
-//
 // Definition of the InterfaceGenerator class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

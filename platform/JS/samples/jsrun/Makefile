@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/JS/samples/runjs/Makefile#1 $
-#
 # Makefile for jsrun
 #
 
