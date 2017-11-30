@@ -4,6 +4,7 @@
 
 #include <cstring>
 #include <fstream>
+#include <memory>
 #include <vector>
 
 #include "test/cctest/interpreter/bytecode-expectations-printer.h"
@@ -12,8 +13,6 @@
 #include "include/v8.h"
 
 #include "src/base/logging.h"
-#include "src/base/smart-pointers.h"
-#include "src/compiler.h"
 #include "src/interpreter/interpreter.h"
 
 #ifdef V8_OS_POSIX
@@ -41,13 +40,11 @@ class ProgramOptions final {
         read_from_stdin_(false),
         rebaseline_(false),
         wrap_(true),
-        execute_(true),
+        module_(false),
         top_level_(false),
         do_expressions_(false),
-        ignition_generators_(false),
-        verbose_(false),
-        const_pool_type_(
-            BytecodeExpectationsPrinter::ConstantPoolType::kMixed) {}
+        async_iteration_(false),
+        verbose_(false) {}
 
   bool Validate() const;
   void UpdateFromHeader(std::istream& stream);   // NOLINT
@@ -62,15 +59,12 @@ class ProgramOptions final {
   }
   bool rebaseline() const { return rebaseline_; }
   bool wrap() const { return wrap_; }
-  bool execute() const { return execute_; }
+  bool module() const { return module_; }
   bool top_level() const { return top_level_; }
   bool do_expressions() const { return do_expressions_; }
-  bool ignition_generators() const { return ignition_generators_; }
+  bool async_iteration() const { return async_iteration_; }
   bool verbose() const { return verbose_; }
   bool suppress_runtime_errors() const { return rebaseline_ && !verbose_; }
-  BytecodeExpectationsPrinter::ConstantPoolType const_pool_type() const {
-    return const_pool_type_;
-  }
   std::vector<std::string> input_filenames() const { return input_filenames_; }
   std::string output_filename() const { return output_filename_; }
   std::string test_function_name() const { return test_function_name_; }
@@ -82,26 +76,14 @@ class ProgramOptions final {
   bool read_from_stdin_;
   bool rebaseline_;
   bool wrap_;
-  bool execute_;
+  bool module_;
   bool top_level_;
   bool do_expressions_;
-  bool ignition_generators_;
+  bool async_iteration_;
   bool verbose_;
-  BytecodeExpectationsPrinter::ConstantPoolType const_pool_type_;
   std::vector<std::string> input_filenames_;
   std::string output_filename_;
   std::string test_function_name_;
-};
-
-class ArrayBufferAllocator final : public v8::ArrayBuffer::Allocator {
- public:
-  void* Allocate(size_t length) override {
-    void* data = AllocateUninitialized(length);
-    if (data != nullptr) memset(data, 0, length);
-    return data;
-  }
-  void* AllocateUninitialized(size_t length) override { return malloc(length); }
-  void Free(void* data, size_t) override { free(data); }
 };
 
 class V8InitializationScope final {
@@ -113,38 +95,12 @@ class V8InitializationScope final {
   v8::Isolate* isolate() const { return isolate_; }
 
  private:
-  v8::base::SmartPointer<v8::Platform> platform_;
+  std::unique_ptr<v8::Platform> platform_;
+  std::unique_ptr<v8::ArrayBuffer::Allocator> allocator_;
   v8::Isolate* isolate_;
 
   DISALLOW_COPY_AND_ASSIGN(V8InitializationScope);
 };
-
-BytecodeExpectationsPrinter::ConstantPoolType ParseConstantPoolType(
-    const char* type_string) {
-  if (strcmp(type_string, "number") == 0) {
-    return BytecodeExpectationsPrinter::ConstantPoolType::kNumber;
-  } else if (strcmp(type_string, "string") == 0) {
-    return BytecodeExpectationsPrinter::ConstantPoolType::kString;
-  } else if (strcmp(type_string, "mixed") == 0) {
-    return BytecodeExpectationsPrinter::ConstantPoolType::kMixed;
-  }
-  return BytecodeExpectationsPrinter::ConstantPoolType::kUnknown;
-}
-
-const char* ConstantPoolTypeToString(
-    BytecodeExpectationsPrinter::ConstantPoolType type) {
-  switch (type) {
-    case BytecodeExpectationsPrinter::ConstantPoolType::kNumber:
-      return "number";
-    case BytecodeExpectationsPrinter::ConstantPoolType::kMixed:
-      return "mixed";
-    case BytecodeExpectationsPrinter::ConstantPoolType::kString:
-      return "string";
-    default:
-      UNREACHABLE();
-      return nullptr;
-  }
-}
 
 bool ParseBoolean(const char* string) {
   if (strcmp(string, "yes") == 0) {
@@ -153,7 +109,6 @@ bool ParseBoolean(const char* string) {
     return false;
   } else {
     UNREACHABLE();
-    return false;
   }
 }
 
@@ -174,15 +129,14 @@ bool CollectGoldenFiles(std::vector<std::string>* golden_file_list,
   DIR* directory = opendir(directory_path);
   if (!directory) return false;
 
-  dirent entry_buffer;
-  dirent* entry;
-
-  while (readdir_r(directory, &entry_buffer, &entry) == 0 && entry) {
+  dirent* entry = readdir(directory);
+  while (entry) {
     if (StrEndsWith(entry->d_name, ".golden")) {
       std::string golden_filename(kGoldenFilesPath);
       golden_filename += entry->d_name;
       golden_file_list->push_back(golden_filename);
     }
+    entry = readdir(directory);
   }
 
   closedir(directory);
@@ -201,22 +155,20 @@ ProgramOptions ProgramOptions::FromCommandLine(int argc, char** argv) {
       options.print_help_ = true;
     } else if (strcmp(argv[i], "--raw-js") == 0) {
       options.read_raw_js_snippet_ = true;
-    } else if (strncmp(argv[i], "--pool-type=", 12) == 0) {
-      options.const_pool_type_ = ParseConstantPoolType(argv[i] + 12);
     } else if (strcmp(argv[i], "--stdin") == 0) {
       options.read_from_stdin_ = true;
     } else if (strcmp(argv[i], "--rebaseline") == 0) {
       options.rebaseline_ = true;
     } else if (strcmp(argv[i], "--no-wrap") == 0) {
       options.wrap_ = false;
-    } else if (strcmp(argv[i], "--no-execute") == 0) {
-      options.execute_ = false;
+    } else if (strcmp(argv[i], "--module") == 0) {
+      options.module_ = true;
     } else if (strcmp(argv[i], "--top-level") == 0) {
       options.top_level_ = true;
     } else if (strcmp(argv[i], "--do-expressions") == 0) {
       options.do_expressions_ = true;
-    } else if (strcmp(argv[i], "--ignition-generators") == 0) {
-      options.ignition_generators_ = true;
+    } else if (strcmp(argv[i], "--async-iteration") == 0) {
+      options.async_iteration_ = true;
     } else if (strcmp(argv[i], "--verbose") == 0) {
       options.verbose_ = true;
     } else if (strncmp(argv[i], "--output=", 9) == 0) {
@@ -253,12 +205,6 @@ ProgramOptions ProgramOptions::FromCommandLine(int argc, char** argv) {
 bool ProgramOptions::Validate() const {
   if (parsing_failed_) return false;
   if (print_help_) return true;
-
-  if (const_pool_type_ ==
-      BytecodeExpectationsPrinter::ConstantPoolType::kUnknown) {
-    REPORT_ERROR("Unknown constant pool type.");
-    return false;
-  }
 
   if (!read_from_stdin_ && input_filenames_.empty()) {
     REPORT_ERROR("No input file specified.");
@@ -297,6 +243,12 @@ bool ProgramOptions::Validate() const {
     return false;
   }
 
+  if (module_ && (!top_level_ || wrap_)) {
+    REPORT_ERROR(
+        "The flag --module currently requires --top-level and --no-wrap.");
+    return false;
+  }
+
   return true;
 }
 
@@ -309,10 +261,8 @@ void ProgramOptions::UpdateFromHeader(std::istream& stream) {
   }
 
   while (std::getline(stream, line)) {
-    if (line.compare(0, 11, "pool type: ") == 0) {
-      const_pool_type_ = ParseConstantPoolType(line.c_str() + 11);
-    } else if (line.compare(0, 9, "execute: ") == 0) {
-      execute_ = ParseBoolean(line.c_str() + 9);
+    if (line.compare(0, 8, "module: ") == 0) {
+      module_ = ParseBoolean(line.c_str() + 8);
     } else if (line.compare(0, 6, "wrap: ") == 0) {
       wrap_ = ParseBoolean(line.c_str() + 6);
     } else if (line.compare(0, 20, "test function name: ") == 0) {
@@ -321,8 +271,8 @@ void ProgramOptions::UpdateFromHeader(std::istream& stream) {
       top_level_ = ParseBoolean(line.c_str() + 11);
     } else if (line.compare(0, 16, "do expressions: ") == 0) {
       do_expressions_ = ParseBoolean(line.c_str() + 16);
-    } else if (line.compare(0, 21, "ignition generators: ") == 0) {
-      ignition_generators_ = ParseBoolean(line.c_str() + 21);
+    } else if (line.compare(0, 17, "async iteration: ") == 0) {
+      async_iteration_ = ParseBoolean(line.c_str() + 17);
     } else if (line == "---") {
       break;
     } else if (line.empty()) {
@@ -336,36 +286,34 @@ void ProgramOptions::UpdateFromHeader(std::istream& stream) {
 
 void ProgramOptions::PrintHeader(std::ostream& stream) const {  // NOLINT
   stream << "---"
-            "\npool type: "
-         << ConstantPoolTypeToString(const_pool_type_)
-         << "\nexecute: " << BooleanToString(execute_)
          << "\nwrap: " << BooleanToString(wrap_);
 
   if (!test_function_name_.empty()) {
     stream << "\ntest function name: " << test_function_name_;
   }
 
+  if (module_) stream << "\nmodule: yes";
   if (top_level_) stream << "\ntop level: yes";
   if (do_expressions_) stream << "\ndo expressions: yes";
-  if (ignition_generators_) stream << "\nignition generators: yes";
+  if (async_iteration_) stream << "\nasync iteration: yes";
 
   stream << "\n\n";
 }
 
 V8InitializationScope::V8InitializationScope(const char* exec_path)
     : platform_(v8::platform::CreateDefaultPlatform()) {
-  i::FLAG_ignition = true;
+  i::FLAG_stress_fullcodegen = false;
   i::FLAG_always_opt = false;
   i::FLAG_allow_natives_syntax = true;
 
-  v8::V8::InitializeICU();
+  v8::V8::InitializeICUDefaultLocation(exec_path);
   v8::V8::InitializeExternalStartupData(exec_path);
   v8::V8::InitializePlatform(platform_.get());
   v8::V8::Initialize();
 
-  ArrayBufferAllocator allocator;
   v8::Isolate::CreateParams create_params;
-  create_params.array_buffer_allocator = &allocator;
+  allocator_.reset(v8::ArrayBuffer::Allocator::NewDefaultAllocator());
+  create_params.array_buffer_allocator = allocator_.get();
 
   isolate_ = v8::Isolate::New(create_params);
 }
@@ -443,17 +391,16 @@ void GenerateExpectationsFile(std::ostream& stream,  // NOLINT
   v8::Local<v8::Context> context = v8::Context::New(platform.isolate());
   v8::Context::Scope context_scope(context);
 
-  BytecodeExpectationsPrinter printer(platform.isolate(),
-                                      options.const_pool_type());
+  BytecodeExpectationsPrinter printer(platform.isolate());
   printer.set_wrap(options.wrap());
-  printer.set_execute(options.execute());
+  printer.set_module(options.module());
   printer.set_top_level(options.top_level());
   if (!options.test_function_name().empty()) {
     printer.set_test_function_name(options.test_function_name());
   }
 
   if (options.do_expressions()) i::FLAG_harmony_do_expressions = true;
-  if (options.ignition_generators()) i::FLAG_ignition_generators = true;
+  if (options.async_iteration()) i::FLAG_harmony_async_iteration = true;
 
   stream << "#\n# Autogenerated by generate-bytecode-expectations.\n#\n\n";
   options.PrintHeader(stream);
@@ -462,6 +409,7 @@ void GenerateExpectationsFile(std::ostream& stream,  // NOLINT
   }
 
   i::FLAG_harmony_do_expressions = false;
+  i::FLAG_harmony_async_iteration = false;
 }
 
 bool WriteExpectationsFile(const std::vector<std::string>& snippet_list,
@@ -501,12 +449,12 @@ void PrintUsage(const char* exec_path) {
          "  --stdin   Read from standard input instead of file.\n"
          "  --rebaseline  Rebaseline input snippet file.\n"
          "  --no-wrap     Do not wrap the snippet in a function.\n"
-         "  --no-execute  Do not execute after compilation.\n"
+         "  --module      Compile as JavaScript module.\n"
          "  --test-function-name=foo  "
          "Specify the name of the test function.\n"
          "  --top-level   Process top level code, not the top-level function.\n"
          "  --do-expressions  Enable harmony_do_expressions flag.\n"
-         "  --ignition-generators  Enable ignition_generators flag.\n"
+         "  --async-iteration  Enable harmony_async_iteration flag.\n"
          "  --output=file.name\n"
          "      Specify the output file. If not specified, output goes to "
          "stdout.\n"
@@ -514,9 +462,9 @@ void PrintUsage(const char* exec_path) {
          "      Specify the type of the entries in the constant pool "
          "(default: mixed).\n"
          "\n"
-         "When using --rebaseline, flags --no-wrap, --no-execute, "
-         "--test-function-name\nand --pool-type will be overridden by the "
-         "options specified in the input file\nheader.\n\n"
+         "When using --rebaseline, flags --no-wrap, --test-function-name \n"
+         "and --pool-type will be overridden by the options specified in \n"
+         "the input file header.\n\n"
          "Each raw JavaScript file is interpreted as a single snippet.\n\n"
          "This tool is intended as a help in writing tests.\n"
          "Please, DO NOT blindly copy and paste the output "

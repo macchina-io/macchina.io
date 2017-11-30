@@ -2,6 +2,7 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
+#include "src/objects-inl.h"
 #include "src/wasm/wasm-external-refs.h"
 #include "test/cctest/cctest.h"
 #include "test/cctest/compiler/codegen-tester.h"
@@ -239,6 +240,12 @@ TEST(RunCallWord64Popcnt) {
   BufferedRawMachineAssemblerTester<uint32_t> m;
   ExternalReference ref = ExternalReference::wasm_word64_popcnt(m.isolate());
   TestExternalReference(&m, ref, wasm::word64_popcnt_wrapper, uint64_t(1774));
+}
+
+TEST(RunCallFloat64Pow) {
+  BufferedRawMachineAssemblerTester<int32_t> m;
+  ExternalReference ref = ExternalReference::wasm_float64_pow(m.isolate());
+  TestExternalReference(&m, ref, wasm::float64_pow_wrapper, 1.5, 1.5);
 }
 }  // namespace compiler
 }  // namespace internal

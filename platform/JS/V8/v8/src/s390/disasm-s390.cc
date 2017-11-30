@@ -37,6 +37,8 @@
 namespace v8 {
 namespace internal {
 
+const auto GetRegConfig = RegisterConfiguration::Crankshaft;
+
 //------------------------------------------------------------------------------
 
 // Decoder decodes and disassembles instructions into an output buffer.
@@ -111,7 +113,7 @@ void Decoder::PrintRegister(int reg) {
 
 // Print the double FP register name according to the active name converter.
 void Decoder::PrintDRegister(int reg) {
-  Print(DoubleRegister::from_code(reg).ToString());
+  Print(GetRegConfig()->GetDoubleRegisterName(reg));
 }
 
 // Print SoftwareInterrupt codes. Factoring this out reduces the complexity of
@@ -186,7 +188,6 @@ int Decoder::FormatRegister(Instruction* instr, const char* format) {
   }
 
   UNREACHABLE();
-  return -1;
 }
 
 int Decoder::FormatFloatingRegister(Instruction* instr, const char* format) {
@@ -220,7 +221,6 @@ int Decoder::FormatFloatingRegister(Instruction* instr, const char* format) {
     return 2;
   }
   UNREACHABLE();
-  return -1;
 }
 
 // FormatOption takes a formatting string and interprets it based on
@@ -302,7 +302,6 @@ int Decoder::FormatOption(Instruction* instr, const char* format) {
   }
 
   UNREACHABLE();
-  return -1;
 }
 
 int Decoder::FormatMask(Instruction* instr, const char* format) {
@@ -454,7 +453,6 @@ int Decoder::FormatImmediate(Instruction* instr, const char* format) {
   }
 
   UNREACHABLE();
-  return -1;
 }
 
 // Format takes a formatting string for a whole instruction and prints it into
@@ -560,6 +558,9 @@ bool Decoder::DecodeTwoByte(Instruction* instr) {
     case BKPT:
       Format(instr, "bkpt");
       break;
+    case LPR:
+      Format(instr, "lpr\t'r1, 'r2");
+      break;
     default:
       return false;
   }
@@ -635,6 +636,9 @@ bool Decoder::DecodeFourByte(Instruction* instr) {
     case LM:
       Format(instr, "lm\t'r1,'r2,'d1('r3)");
       break;
+    case CS:
+      Format(instr, "cs\t'r1,'r2,'d1('r3)");
+      break;
     case SLL:
       Format(instr, "sll\t'r1,'d1('r3)");
       break;
@@ -707,6 +711,9 @@ bool Decoder::DecodeFourByte(Instruction* instr) {
     case XGRK:
       Format(instr, "xgrk\t'r5,'r6,'r3");
       break;
+    case CGFR:
+      Format(instr, "cgfr\t'r5,'r6");
+      break;
     case CGR:
       Format(instr, "cgr\t'r5,'r6");
       break;
@@ -715,6 +722,15 @@ bool Decoder::DecodeFourByte(Instruction* instr) {
       break;
     case LLGFR:
       Format(instr, "llgfr\t'r5,'r6");
+      break;
+    case POPCNT_Z:
+      Format(instr, "popcnt\t'r5,'r6");
+      break;
+    case LLGCR:
+      Format(instr, "llgcr\t'r5,'r6");
+      break;
+    case LLCR:
+      Format(instr, "llcr\t'r5,'r6");
       break;
     case LBR:
       Format(instr, "lbr\t'r5,'r6");
@@ -734,6 +750,12 @@ bool Decoder::DecodeFourByte(Instruction* instr) {
     case LTEBR:
       Format(instr, "ltebr\t'f5,'f6");
       break;
+    case LRVR:
+      Format(instr, "lrvr\t'r5,'r6");
+      break;
+    case LRVGR:
+      Format(instr, "lrvgr\t'r5,'r6");
+      break;
     case LGR:
       Format(instr, "lgr\t'r5,'r6");
       break;
@@ -752,6 +774,9 @@ bool Decoder::DecodeFourByte(Instruction* instr) {
     case MSR:
       Format(instr, "msr\t'r5,'r6");
       break;
+    case MSRKC:
+      Format(instr, "msrkc\t'r5,'r6,'r3");
+      break;
     case LGBR:
       Format(instr, "lgbr\t'r5,'r6");
       break;
@@ -761,8 +786,17 @@ bool Decoder::DecodeFourByte(Instruction* instr) {
     case MSGR:
       Format(instr, "msgr\t'r5,'r6");
       break;
+    case MSGRKC:
+      Format(instr, "msgrkc\t'r5,'r6,'r3");
+      break;
     case DSGR:
       Format(instr, "dsgr\t'r5,'r6");
+      break;
+    case DSGFR:
+      Format(instr, "dsgfr\t'r5,'r6");
+      break;
+    case MSGFR:
+      Format(instr, "msgfr\t'r5,'r6");
       break;
     case LZDR:
       Format(instr, "lzdr\t'f5");
@@ -811,6 +845,12 @@ bool Decoder::DecodeFourByte(Instruction* instr) {
       break;
     case LLGHR:
       Format(instr, "llghr\t'r5,'r6");
+      break;
+    case LOCR:
+      Format(instr, "locr\t'm1,'r5,'r6");
+      break;
+    case LOCGR:
+      Format(instr, "locgr\t'm1,'r5,'r6");
       break;
     case LNGR:
       Format(instr, "lngr\t'r5,'r6");
@@ -893,6 +933,9 @@ bool Decoder::DecodeFourByte(Instruction* instr) {
     case LDGR:
       Format(instr, "ldgr\t'f5,'r6");
       break;
+    case MS:
+      Format(instr, "ms\t'r1,'d1('r2d,'r3)");
+      break;
     case STE:
       Format(instr, "ste\t'f1,'d1('r2d,'r3)");
       break;
@@ -910,6 +953,9 @@ bool Decoder::DecodeFourByte(Instruction* instr) {
       break;
     case CEFBR:
       Format(instr, "cefbr\t'f5,'m2,'r6");
+      break;
+    case CELFBR:
+      Format(instr, "celfbr\t'f5,'m2,'r6");
       break;
     case CGEBR:
       Format(instr, "cgebr\t'r5,'m2,'f6");
@@ -934,6 +980,12 @@ bool Decoder::DecodeFourByte(Instruction* instr) {
       break;
     case CLFDBR:
       Format(instr, "clfdbr\t'r5,'m2,'f6");
+      break;
+    case CLFEBR:
+      Format(instr, "clfebr\t'r5,'m2,'f6");
+      break;
+    case CLGEBR:
+      Format(instr, "clgebr\t'r5,'m2,'f6");
       break;
     case CLGDBR:
       Format(instr, "clgdbr\t'r5,'m2,'f6");
@@ -977,6 +1029,9 @@ bool Decoder::DecodeFourByte(Instruction* instr) {
     case LCDBR:
       Format(instr, "lcdbr\t'f5,'f6");
       break;
+    case LCEBR:
+      Format(instr, "lcebr\t'f5,'f6");
+      break;
     case STH:
       Format(instr, "sth\t'r1,'d1('r2d,'r3)");
       break;
@@ -1007,6 +1062,12 @@ bool Decoder::DecodeFourByte(Instruction* instr) {
       Format(instr, "trap4");
       break;
     }
+    case LPGR:
+      Format(instr, "lpgr\t'r5,'r6");
+      break;
+    case LPGFR:
+      Format(instr, "lpgfr\t'r5,'r6");
+      break;
     default:
       return false;
   }
@@ -1023,6 +1084,15 @@ bool Decoder::DecodeSixByte(Instruction* instr) {
 
   Opcode opcode = instr->S390OpcodeValue();
   switch (opcode) {
+    case DUMY:
+      Format(instr, "dumy\t'r1, 'd2 ( 'r2d, 'r3 )");
+      break;
+#define DECODE_VRR_C_INSTRUCTIONS(name, opcode_name, opcode_value) \
+  case opcode_name:                                                \
+    Format(instr, #name "\t'f1,'f2,'f3");                          \
+    break;
+      S390_VRR_C_OPCODE_LIST(DECODE_VRR_C_INSTRUCTIONS)
+#undef DECODE_VRR_C_INSTRUCTIONS
     case LLILF:
       Format(instr, "llilf\t'r1,'i7");
       break;
@@ -1031,6 +1101,9 @@ bool Decoder::DecodeSixByte(Instruction* instr) {
       break;
     case AFI:
       Format(instr, "afi\t'r1,'i7");
+      break;
+    case AIH:
+      Format(instr, "aih\t'r1,'i7");
       break;
     case ASI:
       Format(instr, "asi\t'd2('r3),'ic");
@@ -1053,6 +1126,12 @@ bool Decoder::DecodeSixByte(Instruction* instr) {
     case CLFI:
       Format(instr, "clfi\t'r1,'i7");
       break;
+    case CLIH:
+      Format(instr, "clih\t'r1,'i7");
+      break;
+    case CIH:
+      Format(instr, "cih\t'r1,'i2");
+      break;
     case CFI:
       Format(instr, "cfi\t'r1,'i2");
       break;
@@ -1067,6 +1146,9 @@ bool Decoder::DecodeSixByte(Instruction* instr) {
       break;
     case IIHF:
       Format(instr, "iihf\t'r1,'i7");
+      break;
+    case LGFI:
+      Format(instr, "lgfi\t'r1,'i7");
       break;
     case IILF:
       Format(instr, "iilf\t'r1,'i7");
@@ -1113,11 +1195,23 @@ bool Decoder::DecodeSixByte(Instruction* instr) {
     case RISBGN:
       Format(instr, "risbgn\t'r1,'r2,'i9,'ia,'ib");
       break;
+    case LOCG:
+      Format(instr, "locg\t'm2,'r1,'d2('r3)");
+      break;
+    case LOC:
+      Format(instr, "loc\t'm2,'r1,'d2('r3)");
+      break;
     case LMY:
       Format(instr, "lmy\t'r1,'r2,'d2('r3)");
       break;
     case LMG:
       Format(instr, "lmg\t'r1,'r2,'d2('r3)");
+      break;
+    case CSY:
+      Format(instr, "csy\t'r1,'r2,'d2('r3)");
+      break;
+    case CSG:
+      Format(instr, "csg\t'r1,'r2,'d2('r3)");
       break;
     case STMY:
       Format(instr, "stmy\t'r1,'r2,'d2('r3)");
@@ -1184,6 +1278,15 @@ bool Decoder::DecodeSixByte(Instruction* instr) {
       break;
     case LB:
       Format(instr, "lb\t'r1,'d2('r2d,'r3)");
+      break;
+    case LRVH:
+      Format(instr, "lrvh\t'r1,'d2('r2d,'r3)");
+      break;
+    case LRV:
+      Format(instr, "lrv\t'r1,'d2('r2d,'r3)");
+      break;
+    case LRVG:
+      Format(instr, "lrvg\t'r1,'d2('r2d,'r3)");
       break;
     case LG:
       Format(instr, "lg\t'r1,'d2('r2d,'r3)");
@@ -1257,6 +1360,15 @@ bool Decoder::DecodeSixByte(Instruction* instr) {
     case STY:
       Format(instr, "sty\t'r1,'d2('r2d,'r3)");
       break;
+    case STRVH:
+      Format(instr, "strvh\t'r1,'d2('r2d,'r3)");
+      break;
+    case STRV:
+      Format(instr, "strv\t'r1,'d2('r2d,'r3)");
+      break;
+    case STRVG:
+      Format(instr, "strvg\t'r1,'d2('r2d,'r3)");
+      break;
     case STG:
       Format(instr, "stg\t'r1,'d2('r2d,'r3)");
       break;
@@ -1305,6 +1417,27 @@ bool Decoder::DecodeSixByte(Instruction* instr) {
     case LEY:
       Format(instr, "ley\t'f1,'d2('r2d,'r3)");
       break;
+    case MSG:
+      Format(instr, "msg\t'r1,'d2('r2d,'r3)");
+      break;
+    case DSG:
+      Format(instr, "dsg\t'r1,'d2('r2d,'r3)");
+      break;
+    case DSGF:
+      Format(instr, "dsgf\t'r1,'d2('r2d,'r3)");
+      break;
+    case MSGF:
+      Format(instr, "msgf\t'r1,'d2('r2d,'r3)");
+      break;
+    case MSY:
+      Format(instr, "msy\t'r1,'d2('r2d,'r3)");
+      break;
+    case MSC:
+      Format(instr, "msc\t'r1,'d2('r2d,'r3)");
+      break;
+    case MSGC:
+      Format(instr, "msgc\t'r1,'d2('r2d,'r3)");
+      break;
     case STEY:
       Format(instr, "stey\t'f1,'d2('r2d,'r3)");
       break;
@@ -1312,19 +1445,40 @@ bool Decoder::DecodeSixByte(Instruction* instr) {
       Format(instr, "stdy\t'f1,'d2('r2d,'r3)");
       break;
     case ADB:
-      Format(instr, "adb\t'r1,'d1('r2d, 'r3)");
+      Format(instr, "adb\t'f1,'d1('r2d, 'r3)");
+      break;
+    case AEB:
+      Format(instr, "aeb\t'f1,'d1('r2d, 'r3)");
+      break;
+    case CDB:
+      Format(instr, "cdb\t'f1,'d1('r2d, 'r3)");
+      break;
+    case CEB:
+      Format(instr, "ceb\t'f1,'d1('r2d, 'r3)");
       break;
     case SDB:
       Format(instr, "sdb\t'r1,'d1('r2d, 'r3)");
       break;
+    case SEB:
+      Format(instr, "seb\t'r1,'d1('r2d, 'r3)");
+      break;
     case MDB:
       Format(instr, "mdb\t'r1,'d1('r2d, 'r3)");
+      break;
+    case MEEB:
+      Format(instr, "meeb\t'r1,'d1('r2d, 'r3)");
       break;
     case DDB:
       Format(instr, "ddb\t'r1,'d1('r2d, 'r3)");
       break;
+    case DEB:
+      Format(instr, "deb\t'r1,'d1('r2d, 'r3)");
+      break;
     case SQDB:
       Format(instr, "sqdb\t'r1,'d1('r2d, 'r3)");
+      break;
+    case PFD:
+      Format(instr, "pfd\t'm1,'d2('r2d,'r3)");
       break;
     default:
       return false;
@@ -1357,7 +1511,7 @@ int Decoder::InstructionDecode(byte* instr_ptr) {
 namespace disasm {
 
 const char* NameConverter::NameOfAddress(byte* addr) const {
-  v8::internal::SNPrintF(tmp_buffer_, "%p", addr);
+  v8::internal::SNPrintF(tmp_buffer_, "%p", static_cast<void*>(addr));
   return tmp_buffer_.start();
 }
 
@@ -1366,7 +1520,7 @@ const char* NameConverter::NameOfConstant(byte* addr) const {
 }
 
 const char* NameConverter::NameOfCPURegister(int reg) const {
-  return v8::internal::Register::from_code(reg).ToString();
+  return v8::internal::GetRegConfig()->GetGeneralRegisterName(reg);
 }
 
 const char* NameConverter::NameOfByteCPURegister(int reg) const {
@@ -1378,7 +1532,6 @@ const char* NameConverter::NameOfXMMRegister(int reg) const {
   // S390 does not have XMM register
   // TODO(joransiu): Consider update this for Vector Regs
   UNREACHABLE();
-  return "noxmmreg";
 }
 
 const char* NameConverter::NameInCode(byte* addr) const {
@@ -1411,7 +1564,7 @@ void Disassembler::Disassemble(FILE* f, byte* begin, byte* end) {
     buffer[0] = '\0';
     byte* prev_pc = pc;
     pc += d.InstructionDecode(buffer, pc);
-    v8::internal::PrintF(f, "%p    %08x      %s\n", prev_pc,
+    v8::internal::PrintF(f, "%p    %08x      %s\n", static_cast<void*>(prev_pc),
                          *reinterpret_cast<int32_t*>(prev_pc), buffer.start());
   }
 }

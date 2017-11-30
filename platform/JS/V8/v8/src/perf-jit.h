@@ -66,11 +66,13 @@ class PerfJitLogger : public CodeEventLogger {
   void LogWriteBytes(const char* bytes, int size);
   void LogWriteHeader();
   void LogWriteDebugInfo(Code* code, SharedFunctionInfo* shared);
+  void LogWriteUnwindingInfo(Code* code);
 
   static const uint32_t kElfMachIA32 = 3;
   static const uint32_t kElfMachX64 = 62;
   static const uint32_t kElfMachARM = 40;
   static const uint32_t kElfMachMIPS = 10;
+  static const uint32_t kElfMachARM64 = 183;
 
   uint32_t GetElfMach() {
 #if V8_TARGET_ARCH_IA32
@@ -81,11 +83,21 @@ class PerfJitLogger : public CodeEventLogger {
     return kElfMachARM;
 #elif V8_TARGET_ARCH_MIPS
     return kElfMachMIPS;
+#elif V8_TARGET_ARCH_ARM64
+    return kElfMachARM64;
 #else
     UNIMPLEMENTED();
     return 0;
 #endif
   }
+
+#if V8_TARGET_ARCH_32_BIT
+  static const int kElfHeaderSize = 0x34;
+#elif V8_TARGET_ARCH_64_BIT
+  static const int kElfHeaderSize = 0x40;
+#else
+#error Unknown target architecture pointer size
+#endif
 
   // Per-process singleton file. We assume that there is one main isolate;
   // to determine when it goes away, we keep reference count.

@@ -151,8 +151,8 @@ void AddressToTraceMap::Clear() {
 void AddressToTraceMap::Print() {
   PrintF("[AddressToTraceMap (%" PRIuS "): \n", ranges_.size());
   for (RangeMap::iterator it = ranges_.begin(); it != ranges_.end(); ++it) {
-    PrintF("[%p - %p] => %u\n", it->second.start, it->first,
-        it->second.trace_node_id);
+    PrintF("[%p - %p] => %u\n", static_cast<void*>(it->second.start),
+           static_cast<void*>(it->first), it->second.trace_node_id);
   }
   PrintF("]\n");
 }
@@ -190,12 +190,10 @@ void AllocationTracker::DeleteFunctionInfo(FunctionInfo** info) {
     delete *info;
 }
 
-
-AllocationTracker::AllocationTracker(
-    HeapObjectsMap* ids, StringsStorage* names)
+AllocationTracker::AllocationTracker(HeapObjectsMap* ids, StringsStorage* names)
     : ids_(ids),
       names_(names),
-      id_to_function_info_index_(HashMap::PointersMatch),
+      id_to_function_info_index_(),
       info_index_for_other_state_(0) {
   FunctionInfo* info = new FunctionInfo();
   info->name = "(root)";
@@ -254,14 +252,13 @@ void AllocationTracker::AllocationEvent(Address addr, int size) {
 
 
 static uint32_t SnapshotObjectIdHash(SnapshotObjectId id) {
-  return ComputeIntegerHash(static_cast<uint32_t>(id),
-                            v8::internal::kZeroHashSeed);
+  return ComputeIntegerHash(static_cast<uint32_t>(id));
 }
 
 
 unsigned AllocationTracker::AddFunctionInfo(SharedFunctionInfo* shared,
                                             SnapshotObjectId id) {
-  HashMap::Entry* entry = id_to_function_info_index_.LookupOrInsert(
+  base::HashMap::Entry* entry = id_to_function_info_index_.LookupOrInsert(
       reinterpret_cast<void*>(id), SnapshotObjectIdHash(id));
   if (entry->value == NULL) {
     FunctionInfo* info = new FunctionInfo();
@@ -304,8 +301,7 @@ AllocationTracker::UnresolvedLocation::UnresolvedLocation(
     Script* script, int start, FunctionInfo* info)
     : start_position_(start),
       info_(info) {
-  script_ = Handle<Script>::cast(
-      script->GetIsolate()->global_handles()->Create(script));
+  script_ = script->GetIsolate()->global_handles()->Create(script);
   GlobalHandles::MakeWeak(reinterpret_cast<Object**>(script_.location()), this,
                           &HandleWeakScript, v8::WeakCallbackType::kParameter);
 }

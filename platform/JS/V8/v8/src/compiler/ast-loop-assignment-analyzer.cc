@@ -3,8 +3,9 @@
 // found in the LICENSE file.
 
 #include "src/compiler/ast-loop-assignment-analyzer.h"
-#include "src/compiler.h"
-#include "src/parsing/parser.h"
+#include "src/ast/scopes.h"
+#include "src/compilation-info.h"
+#include "src/objects-inl.h"
 
 namespace v8 {
 namespace internal {
@@ -55,8 +56,6 @@ void ALAA::Exit(IterationStatement* loop) {
 
 void ALAA::VisitVariableDeclaration(VariableDeclaration* leaf) {}
 void ALAA::VisitFunctionDeclaration(FunctionDeclaration* leaf) {}
-void ALAA::VisitImportDeclaration(ImportDeclaration* leaf) {}
-void ALAA::VisitExportDeclaration(ExportDeclaration* leaf) {}
 void ALAA::VisitEmptyStatement(EmptyStatement* leaf) {}
 void ALAA::VisitContinueStatement(ContinueStatement* leaf) {}
 void ALAA::VisitBreakStatement(BreakStatement* leaf) {}
@@ -124,7 +123,7 @@ void ALAA::VisitTryFinallyStatement(TryFinallyStatement* stmt) {
 void ALAA::VisitClassLiteral(ClassLiteral* e) {
   VisitIfNotNull(e->extends());
   VisitIfNotNull(e->constructor());
-  ZoneList<ObjectLiteralProperty*>* properties = e->properties();
+  ZoneList<ClassLiteralProperty*>* properties = e->properties();
   for (int i = 0; i < properties->length(); i++) {
     Visit(properties->at(i)->key());
     Visit(properties->at(i)->value());
@@ -150,12 +149,11 @@ void ALAA::VisitObjectLiteral(ObjectLiteral* e) {
 
 void ALAA::VisitArrayLiteral(ArrayLiteral* e) { VisitExpressions(e->values()); }
 
+void ALAA::VisitYield(Yield* e) { Visit(e->expression()); }
 
-void ALAA::VisitYield(Yield* stmt) {
-  Visit(stmt->generator_object());
-  Visit(stmt->expression());
-}
+void ALAA::VisitYieldStar(YieldStar* e) { Visit(e->expression()); }
 
+void ALAA::VisitAwait(Await* e) { Visit(e->expression()); }
 
 void ALAA::VisitThrow(Throw* stmt) { Visit(stmt->exception()); }
 
@@ -203,6 +201,9 @@ void ALAA::VisitSpread(Spread* e) { UNREACHABLE(); }
 
 void ALAA::VisitEmptyParentheses(EmptyParentheses* e) { UNREACHABLE(); }
 
+void ALAA::VisitGetIterator(GetIterator* e) { UNREACHABLE(); }
+
+void ALAA::VisitImportCallExpression(ImportCallExpression* e) { UNREACHABLE(); }
 
 void ALAA::VisitCaseClause(CaseClause* cc) {
   if (!cc->is_default()) Visit(cc->label());
@@ -222,8 +223,7 @@ void ALAA::VisitSloppyBlockFunctionStatement(
 void ALAA::VisitTryCatchStatement(TryCatchStatement* stmt) {
   Visit(stmt->try_block());
   Visit(stmt->catch_block());
-  // TODO(turbofan): are catch variables well-scoped?
-  AnalyzeAssignment(stmt->variable());
+  AnalyzeAssignment(stmt->scope()->catch_variable());
 }
 
 
@@ -254,10 +254,12 @@ void ALAA::VisitForStatement(ForStatement* loop) {
 
 
 void ALAA::VisitForInStatement(ForInStatement* loop) {
+  Expression* l = loop->each();
   Enter(loop);
-  Visit(loop->each());
+  Visit(l);
   Visit(loop->subject());
   Visit(loop->body());
+  if (l->IsVariableProxy()) AnalyzeAssignment(l->AsVariableProxy()->var());
   Exit(loop);
 }
 
@@ -299,17 +301,15 @@ void ALAA::AnalyzeAssignment(Variable* var) {
   }
 }
 
-
-int ALAA::GetVariableIndex(Scope* scope, Variable* var) {
+int ALAA::GetVariableIndex(DeclarationScope* scope, Variable* var) {
   CHECK(var->IsStackAllocated());
   if (var->is_this()) return 0;
   if (var->IsParameter()) return 1 + var->index();
   return 1 + scope->num_parameters() + var->index();
 }
 
-
-int LoopAssignmentAnalysis::GetAssignmentCountForTesting(Scope* scope,
-                                                         Variable* var) {
+int LoopAssignmentAnalysis::GetAssignmentCountForTesting(
+    DeclarationScope* scope, Variable* var) {
   int count = 0;
   int var_index = AstLoopAssignmentAnalyzer::GetVariableIndex(scope, var);
   for (size_t i = 0; i < list_.size(); i++) {

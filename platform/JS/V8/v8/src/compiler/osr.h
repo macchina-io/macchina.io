@@ -5,7 +5,7 @@
 #ifndef V8_COMPILER_OSR_H_
 #define V8_COMPILER_OSR_H_
 
-#include "src/zone.h"
+#include "src/zone/zone.h"
 
 // TurboFan structures OSR graphs in a way that separates almost all phases of
 // compilation from OSR implementation details. This is accomplished with
@@ -92,10 +92,6 @@ class Linkage;
 class OsrHelper {
  public:
   explicit OsrHelper(CompilationInfo* info);
-  // Only for testing.
-  OsrHelper(size_t parameter_count, size_t stack_slot_count)
-      : parameter_count_(parameter_count),
-        stack_slot_count_(stack_slot_count) {}
 
   // Deconstructs the artificial {OsrNormalEntry} and rewrites the graph so
   // that only the path corresponding to {OsrLoopEntry} remains.

@@ -27,11 +27,12 @@
 //
 // Tests of profiles generator and utilities.
 
-#include "src/v8.h"
-
 #include "include/v8-profiler.h"
+#include "src/api.h"
+#include "src/objects-inl.h"
 #include "src/profiler/cpu-profiler.h"
 #include "src/profiler/profile-generator-inl.h"
+#include "src/v8.h"
 #include "test/cctest/cctest.h"
 #include "test/cctest/profiler-extension.h"
 
@@ -51,17 +52,17 @@ TEST(ProfileNodeFindOrAddChild) {
   CcTest::InitializeVM();
   ProfileTree tree(CcTest::i_isolate());
   ProfileNode* node = tree.root();
-  CodeEntry entry1(i::Logger::FUNCTION_TAG, "aaa");
+  CodeEntry entry1(i::CodeEventListener::FUNCTION_TAG, "aaa");
   ProfileNode* childNode1 = node->FindOrAddChild(&entry1);
   CHECK(childNode1);
   CHECK_EQ(childNode1, node->FindOrAddChild(&entry1));
-  CodeEntry entry2(i::Logger::FUNCTION_TAG, "bbb");
+  CodeEntry entry2(i::CodeEventListener::FUNCTION_TAG, "bbb");
   ProfileNode* childNode2 = node->FindOrAddChild(&entry2);
   CHECK(childNode2);
   CHECK_NE(childNode1, childNode2);
   CHECK_EQ(childNode1, node->FindOrAddChild(&entry1));
   CHECK_EQ(childNode2, node->FindOrAddChild(&entry2));
-  CodeEntry entry3(i::Logger::FUNCTION_TAG, "ccc");
+  CodeEntry entry3(i::CodeEventListener::FUNCTION_TAG, "ccc");
   ProfileNode* childNode3 = node->FindOrAddChild(&entry3);
   CHECK(childNode3);
   CHECK_NE(childNode1, childNode3);
@@ -77,15 +78,15 @@ TEST(ProfileNodeFindOrAddChildForSameFunction) {
   const char* aaa = "aaa";
   ProfileTree tree(CcTest::i_isolate());
   ProfileNode* node = tree.root();
-  CodeEntry entry1(i::Logger::FUNCTION_TAG, aaa);
+  CodeEntry entry1(i::CodeEventListener::FUNCTION_TAG, aaa);
   ProfileNode* childNode1 = node->FindOrAddChild(&entry1);
   CHECK(childNode1);
   CHECK_EQ(childNode1, node->FindOrAddChild(&entry1));
   // The same function again.
-  CodeEntry entry2(i::Logger::FUNCTION_TAG, aaa);
+  CodeEntry entry2(i::CodeEventListener::FUNCTION_TAG, aaa);
   CHECK_EQ(childNode1, node->FindOrAddChild(&entry2));
   // Now with a different security token.
-  CodeEntry entry3(i::Logger::FUNCTION_TAG, aaa);
+  CodeEntry entry3(i::CodeEventListener::FUNCTION_TAG, aaa);
   CHECK_EQ(childNode1, node->FindOrAddChild(&entry3));
 }
 
@@ -122,9 +123,9 @@ class ProfileTreeTestHelper {
 
 TEST(ProfileTreeAddPathFromEnd) {
   CcTest::InitializeVM();
-  CodeEntry entry1(i::Logger::FUNCTION_TAG, "aaa");
-  CodeEntry entry2(i::Logger::FUNCTION_TAG, "bbb");
-  CodeEntry entry3(i::Logger::FUNCTION_TAG, "ccc");
+  CodeEntry entry1(i::CodeEventListener::FUNCTION_TAG, "aaa");
+  CodeEntry entry2(i::CodeEventListener::FUNCTION_TAG, "bbb");
+  CodeEntry entry3(i::CodeEventListener::FUNCTION_TAG, "ccc");
   ProfileTree tree(CcTest::i_isolate());
   ProfileTreeTestHelper helper(&tree);
   CHECK(!helper.Walk(&entry1));
@@ -187,7 +188,7 @@ TEST(ProfileTreeCalculateTotalTicks) {
   empty_tree.root()->IncrementSelfTicks();
   CHECK_EQ(1u, empty_tree.root()->self_ticks());
 
-  CodeEntry entry1(i::Logger::FUNCTION_TAG, "aaa");
+  CodeEntry entry1(i::CodeEventListener::FUNCTION_TAG, "aaa");
   CodeEntry* e1_path[] = {&entry1};
   std::vector<CodeEntry*> e1_path_vec(e1_path, e1_path + arraysize(e1_path));
 
@@ -201,7 +202,7 @@ TEST(ProfileTreeCalculateTotalTicks) {
   CHECK_EQ(1u, single_child_tree.root()->self_ticks());
   CHECK_EQ(1u, node1->self_ticks());
 
-  CodeEntry entry2(i::Logger::FUNCTION_TAG, "bbb");
+  CodeEntry entry2(i::CodeEventListener::FUNCTION_TAG, "bbb");
   CodeEntry* e2_e1_path[] = {&entry2, &entry1};
   std::vector<CodeEntry*> e2_e1_path_vec(e2_e1_path,
                                          e2_e1_path + arraysize(e2_e1_path));
@@ -227,7 +228,7 @@ TEST(ProfileTreeCalculateTotalTicks) {
 
   CodeEntry* e2_path[] = {&entry2};
   std::vector<CodeEntry*> e2_path_vec(e2_path, e2_path + arraysize(e2_path));
-  CodeEntry entry3(i::Logger::FUNCTION_TAG, "ccc");
+  CodeEntry entry3(i::CodeEventListener::FUNCTION_TAG, "ccc");
   CodeEntry* e3_path[] = {&entry3};
   std::vector<CodeEntry*> e3_path_vec(e3_path, e3_path + arraysize(e3_path));
 
@@ -277,10 +278,10 @@ static inline i::Address ToAddress(int n) {
 
 TEST(CodeMapAddCode) {
   CodeMap code_map;
-  CodeEntry entry1(i::Logger::FUNCTION_TAG, "aaa");
-  CodeEntry entry2(i::Logger::FUNCTION_TAG, "bbb");
-  CodeEntry entry3(i::Logger::FUNCTION_TAG, "ccc");
-  CodeEntry entry4(i::Logger::FUNCTION_TAG, "ddd");
+  CodeEntry entry1(i::CodeEventListener::FUNCTION_TAG, "aaa");
+  CodeEntry entry2(i::CodeEventListener::FUNCTION_TAG, "bbb");
+  CodeEntry entry3(i::CodeEventListener::FUNCTION_TAG, "ccc");
+  CodeEntry entry4(i::CodeEventListener::FUNCTION_TAG, "ddd");
   code_map.AddCode(ToAddress(0x1500), &entry1, 0x200);
   code_map.AddCode(ToAddress(0x1700), &entry2, 0x100);
   code_map.AddCode(ToAddress(0x1900), &entry3, 0x50);
@@ -307,8 +308,8 @@ TEST(CodeMapAddCode) {
 
 TEST(CodeMapMoveAndDeleteCode) {
   CodeMap code_map;
-  CodeEntry entry1(i::Logger::FUNCTION_TAG, "aaa");
-  CodeEntry entry2(i::Logger::FUNCTION_TAG, "bbb");
+  CodeEntry entry1(i::CodeEventListener::FUNCTION_TAG, "aaa");
+  CodeEntry entry2(i::CodeEventListener::FUNCTION_TAG, "bbb");
   code_map.AddCode(ToAddress(0x1500), &entry1, 0x200);
   code_map.AddCode(ToAddress(0x1700), &entry2, 0x100);
   CHECK_EQ(&entry1, code_map.FindEntry(ToAddress(0x1500)));
@@ -316,7 +317,7 @@ TEST(CodeMapMoveAndDeleteCode) {
   code_map.MoveCode(ToAddress(0x1500), ToAddress(0x1700));  // Deprecate bbb.
   CHECK(!code_map.FindEntry(ToAddress(0x1500)));
   CHECK_EQ(&entry1, code_map.FindEntry(ToAddress(0x1700)));
-  CodeEntry entry3(i::Logger::FUNCTION_TAG, "ccc");
+  CodeEntry entry3(i::CodeEventListener::FUNCTION_TAG, "ccc");
   code_map.AddCode(ToAddress(0x1750), &entry3, 0x100);
   CHECK(!code_map.FindEntry(ToAddress(0x1700)));
   CHECK_EQ(&entry3, code_map.FindEntry(ToAddress(0x1750)));
@@ -344,12 +345,15 @@ class TestSetup {
 
 TEST(RecordTickSample) {
   TestSetup test_setup;
-  CpuProfilesCollection profiles(CcTest::heap());
+  i::Isolate* isolate = CcTest::i_isolate();
+  CpuProfilesCollection profiles(isolate);
+  CpuProfiler profiler(isolate);
+  profiles.set_cpu_profiler(&profiler);
   profiles.StartProfiling("", false);
   ProfileGenerator generator(&profiles);
-  CodeEntry* entry1 = profiles.NewCodeEntry(i::Logger::FUNCTION_TAG, "aaa");
-  CodeEntry* entry2 = profiles.NewCodeEntry(i::Logger::FUNCTION_TAG, "bbb");
-  CodeEntry* entry3 = profiles.NewCodeEntry(i::Logger::FUNCTION_TAG, "ccc");
+  CodeEntry* entry1 = new CodeEntry(i::Logger::FUNCTION_TAG, "aaa");
+  CodeEntry* entry2 = new CodeEntry(i::Logger::FUNCTION_TAG, "bbb");
+  CodeEntry* entry3 = new CodeEntry(i::Logger::FUNCTION_TAG, "ccc");
   generator.code_map()->AddCode(ToAddress(0x1500), entry1, 0x200);
   generator.code_map()->AddCode(ToAddress(0x1700), entry2, 0x100);
   generator.code_map()->AddCode(ToAddress(0x1900), entry3, 0x50);
@@ -397,6 +401,10 @@ TEST(RecordTickSample) {
   ProfileNode* node4 = top_down_test_helper.Walk(entry1, entry3, entry1);
   CHECK(node4);
   CHECK_EQ(entry1, node4->entry());
+
+  delete entry1;
+  delete entry2;
+  delete entry3;
 }
 
 
@@ -410,12 +418,15 @@ static void CheckNodeIds(ProfileNode* node, unsigned* expectedId) {
 
 TEST(SampleIds) {
   TestSetup test_setup;
-  CpuProfilesCollection profiles(CcTest::heap());
+  i::Isolate* isolate = CcTest::i_isolate();
+  CpuProfilesCollection profiles(isolate);
+  CpuProfiler profiler(isolate);
+  profiles.set_cpu_profiler(&profiler);
   profiles.StartProfiling("", true);
   ProfileGenerator generator(&profiles);
-  CodeEntry* entry1 = profiles.NewCodeEntry(i::Logger::FUNCTION_TAG, "aaa");
-  CodeEntry* entry2 = profiles.NewCodeEntry(i::Logger::FUNCTION_TAG, "bbb");
-  CodeEntry* entry3 = profiles.NewCodeEntry(i::Logger::FUNCTION_TAG, "ccc");
+  CodeEntry* entry1 = new CodeEntry(i::Logger::FUNCTION_TAG, "aaa");
+  CodeEntry* entry2 = new CodeEntry(i::Logger::FUNCTION_TAG, "bbb");
+  CodeEntry* entry3 = new CodeEntry(i::Logger::FUNCTION_TAG, "ccc");
   generator.code_map()->AddCode(ToAddress(0x1500), entry1, 0x200);
   generator.code_map()->AddCode(ToAddress(0x1700), entry2, 0x100);
   generator.code_map()->AddCode(ToAddress(0x1900), entry3, 0x50);
@@ -456,15 +467,22 @@ TEST(SampleIds) {
   for (int i = 0; i < 3; i++) {
     CHECK_EQ(expected_id[i], profile->sample(i)->id());
   }
+
+  delete entry1;
+  delete entry2;
+  delete entry3;
 }
 
 
 TEST(NoSamples) {
   TestSetup test_setup;
-  CpuProfilesCollection profiles(CcTest::heap());
+  i::Isolate* isolate = CcTest::i_isolate();
+  CpuProfilesCollection profiles(isolate);
+  CpuProfiler profiler(isolate);
+  profiles.set_cpu_profiler(&profiler);
   profiles.StartProfiling("", false);
   ProfileGenerator generator(&profiles);
-  CodeEntry* entry1 = profiles.NewCodeEntry(i::Logger::FUNCTION_TAG, "aaa");
+  CodeEntry* entry1 = new CodeEntry(i::Logger::FUNCTION_TAG, "aaa");
   generator.code_map()->AddCode(ToAddress(0x1500), entry1, 0x200);
 
   // We are building the following calls tree:
@@ -481,6 +499,8 @@ TEST(NoSamples) {
   CHECK_EQ(3u, nodeId - 1);
 
   CHECK_EQ(0, profile->samples_count());
+
+  delete entry1;
 }
 
 
@@ -498,22 +518,22 @@ TEST(RecordStackTraceAtStartProfiling) {
   // This test does not pass with inlining enabled since inlined functions
   // don't appear in the stack trace.
   i::FLAG_turbo_inlining = false;
-  i::FLAG_use_inlining = false;
 
   v8::HandleScope scope(CcTest::isolate());
   v8::Local<v8::Context> env = CcTest::NewContext(PROFILER_EXTENSION);
   v8::Context::Scope context_scope(env);
+  std::unique_ptr<i::CpuProfiler> iprofiler(
+      new i::CpuProfiler(CcTest::i_isolate()));
+  i::ProfilerExtension::set_profiler(iprofiler.get());
 
-  CpuProfiler* profiler = CcTest::i_isolate()->cpu_profiler();
-  CHECK_EQ(0, profiler->GetProfilesCount());
   CompileRun(
       "function c() { startProfiling(); }\n"
       "function b() { c(); }\n"
       "function a() { b(); }\n"
       "a();\n"
       "stopProfiling();");
-  CHECK_EQ(1, profiler->GetProfilesCount());
-  CpuProfile* profile = profiler->GetProfile(0);
+  CHECK_EQ(1, iprofiler->GetProfilesCount());
+  CpuProfile* profile = iprofiler->GetProfile(0);
   const ProfileTree* topDown = profile->top_down();
   const ProfileNode* current = topDown->root();
   const_cast<ProfileNode*>(current)->Print(0);
@@ -544,7 +564,9 @@ TEST(RecordStackTraceAtStartProfiling) {
 
 
 TEST(Issue51919) {
-  CpuProfilesCollection collection(CcTest::heap());
+  CpuProfilesCollection collection(CcTest::i_isolate());
+  CpuProfiler profiler(CcTest::i_isolate());
+  collection.set_cpu_profiler(&profiler);
   i::EmbeddedVector<char*,
       CpuProfilesCollection::kMaxSimultaneousProfiles> titles;
   for (int i = 0; i < CpuProfilesCollection::kMaxSimultaneousProfiles; ++i) {
@@ -574,15 +596,13 @@ TEST(ProfileNodeScriptId) {
   // This test does not pass with inlining enabled since inlined functions
   // don't appear in the stack trace.
   i::FLAG_turbo_inlining = false;
-  i::FLAG_use_inlining = false;
 
   v8::HandleScope scope(CcTest::isolate());
   v8::Local<v8::Context> env = CcTest::NewContext(PROFILER_EXTENSION);
   v8::Context::Scope context_scope(env);
+  std::unique_ptr<CpuProfiler> iprofiler(new CpuProfiler(CcTest::i_isolate()));
+  i::ProfilerExtension::set_profiler(iprofiler.get());
 
-  v8::CpuProfiler* profiler = env->GetIsolate()->GetCpuProfiler();
-  i::CpuProfiler* iprofiler = reinterpret_cast<i::CpuProfiler*>(profiler);
-  CHECK_EQ(0, iprofiler->GetProfilesCount());
   v8::Local<v8::Script> script_a =
       v8_compile(v8_str("function a() { startProfiling(); }\n"));
   script_a->Run(v8::Isolate::GetCurrent()->GetCurrentContext())
@@ -618,15 +638,11 @@ TEST(ProfileNodeScriptId) {
   CHECK_EQ(script_a->GetUnboundScript()->GetId(), current->GetScriptId());
 }
 
-
-
-
 static const char* line_number_test_source_existing_functions =
 "function foo_at_the_first_line() {\n"
 "}\n"
 "foo_at_the_first_line();\n"
 "function lazy_func_at_forth_line() {}\n";
-
 
 static const char* line_number_test_source_profile_time_functions =
 "// Empty first line\n"
@@ -636,26 +652,19 @@ static const char* line_number_test_source_profile_time_functions =
 "bar_at_the_second_line();\n"
 "function lazy_func_at_6th_line() {}";
 
-int GetFunctionLineNumber(LocalContext* env, const char* name) {
-  CpuProfiler* profiler = CcTest::i_isolate()->cpu_profiler();
-  CodeMap* code_map = profiler->generator()->code_map();
+int GetFunctionLineNumber(CpuProfiler& profiler, LocalContext& env,
+                          const char* name) {
+  CodeMap* code_map = profiler.generator()->code_map();
   i::Handle<i::JSFunction> func = i::Handle<i::JSFunction>::cast(
       v8::Utils::OpenHandle(*v8::Local<v8::Function>::Cast(
-          (*(*env))
-              ->Global()
-              ->Get(v8::Isolate::GetCurrent()->GetCurrentContext(),
-                    v8_str(name))
-              .ToLocalChecked())));
+          env->Global()->Get(env.local(), v8_str(name)).ToLocalChecked())));
   CodeEntry* func_entry = code_map->FindEntry(func->abstract_code()->address());
   if (!func_entry)
     FATAL(name);
   return func_entry->line_number();
 }
 
-
 TEST(LineNumber) {
-  i::FLAG_use_inlining = false;
-
   CcTest::InitializeVM();
   LocalContext env;
   i::Isolate* isolate = CcTest::i_isolate();
@@ -665,42 +674,51 @@ TEST(LineNumber) {
 
   CompileRun(line_number_test_source_existing_functions);
 
-  CpuProfiler* profiler = isolate->cpu_profiler();
-  profiler->StartProfiling("LineNumber");
+  CpuProfiler profiler(isolate);
+  profiler.StartProfiling("LineNumber");
 
   CompileRun(line_number_test_source_profile_time_functions);
 
-  profiler->processor()->StopSynchronously();
+  profiler.processor()->StopSynchronously();
 
-  bool is_lazy = i::FLAG_lazy && !(i::FLAG_ignition && i::FLAG_ignition_eager);
-  CHECK_EQ(1, GetFunctionLineNumber(&env, "foo_at_the_first_line"));
+  bool is_lazy = i::FLAG_lazy;
+  CHECK_EQ(1, GetFunctionLineNumber(profiler, env, "foo_at_the_first_line"));
   CHECK_EQ(is_lazy ? 0 : 4,
-           GetFunctionLineNumber(&env, "lazy_func_at_forth_line"));
-  CHECK_EQ(2, GetFunctionLineNumber(&env, "bar_at_the_second_line"));
+           GetFunctionLineNumber(profiler, env, "lazy_func_at_forth_line"));
+  CHECK_EQ(2, GetFunctionLineNumber(profiler, env, "bar_at_the_second_line"));
   CHECK_EQ(is_lazy ? 0 : 6,
-           GetFunctionLineNumber(&env, "lazy_func_at_6th_line"));
+           GetFunctionLineNumber(profiler, env, "lazy_func_at_6th_line"));
 
-  profiler->StopProfiling("LineNumber");
+  profiler.StopProfiling("LineNumber");
 }
 
-
-
 TEST(BailoutReason) {
+  i::FLAG_allow_natives_syntax = true;
+  i::FLAG_always_opt = false;
+  i::FLAG_opt = true;
   v8::HandleScope scope(CcTest::isolate());
   v8::Local<v8::Context> env = CcTest::NewContext(PROFILER_EXTENSION);
   v8::Context::Scope context_scope(env);
+  std::unique_ptr<CpuProfiler> iprofiler(new CpuProfiler(CcTest::i_isolate()));
+  i::ProfilerExtension::set_profiler(iprofiler.get());
 
-  v8::CpuProfiler* profiler = env->GetIsolate()->GetCpuProfiler();
-  i::CpuProfiler* iprofiler = reinterpret_cast<i::CpuProfiler*>(profiler);
   CHECK_EQ(0, iprofiler->GetProfilesCount());
-  v8::Local<v8::Script> script =
-      v8_compile(v8_str("function Debugger() {\n"
-                        "  debugger;\n"
-                        "  startProfiling();\n"
-                        "}\n"
-                        "Debugger();\n"
-                        "stopProfiling();"));
-  script->Run(v8::Isolate::GetCurrent()->GetCurrentContext()).ToLocalChecked();
+  v8::Local<v8::Function> function = CompileRun(
+                                         "function Debugger() {\n"
+                                         "  startProfiling();\n"
+                                         "}"
+                                         "Debugger")
+                                         .As<v8::Function>();
+  i::Handle<i::JSFunction> i_function =
+      i::Handle<i::JSFunction>::cast(v8::Utils::OpenHandle(*function));
+  // Set a high deopt count to trigger bail out.
+  i_function->shared()->set_opt_count(i::FLAG_max_deopt_count + 1);
+  i_function->shared()->set_deopt_count(i::FLAG_max_deopt_count + 1);
+
+  CompileRun(
+      "%OptimizeFunctionOnNextCall(Debugger);"
+      "Debugger();"
+      "stopProfiling()");
   CHECK_EQ(1, iprofiler->GetProfilesCount());
   const v8::CpuProfile* profile = i::ProfilerExtension::last_profile;
   CHECK(profile);
@@ -710,11 +728,11 @@ TEST(BailoutReason) {
   // The tree should look like this:
   //  (root)
   //   ""
-  //     kDebuggerStatement
+  //     kDeoptimizedTooManyTimes
   current = PickChild(current, "");
   CHECK(const_cast<v8::CpuProfileNode*>(current));
 
   current = PickChild(current, "Debugger");
   CHECK(const_cast<v8::CpuProfileNode*>(current));
-  CHECK(!strcmp("DebuggerStatement", current->GetBailoutReason()));
+  CHECK(!strcmp("Deoptimized too many times", current->GetBailoutReason()));
 }

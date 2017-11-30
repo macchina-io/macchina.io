@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Flags: --expose-wasm
+// Flags: --validate-asm --allow-natives-syntax
 
 function WrapInAsmModule(func) {
   function MODULE_NAME(stdlib) {
@@ -26,31 +26,28 @@ function WrapInAsmModule(func) {
   return eval("(" + source + ")");
 }
 
-function RunThreeWayTest(asmfunc, expect) {
+function RunAsmJsTest(asmfunc, expect) {
   var asm_source = asmfunc.toString();
   var nonasm_source = asm_source.replace(new RegExp("use asm"), "");
   var stdlib = {Math: Math};
 
-  var js_module = eval("(" + nonasm_source + ")")(stdlib);
   print("Testing " + asmfunc.name + " (js)...");
+  var js_module = eval("(" + nonasm_source + ")")(stdlib);
   expect(js_module);
 
   print("Testing " + asmfunc.name + " (asm.js)...");
   var asm_module = asmfunc(stdlib);
+  assertTrue(%IsAsmWasmCode(asmfunc));
   expect(asm_module);
-
-  print("Testing " + asmfunc.name + " (wasm)...");
-  var wasm_module = Wasm.instantiateModuleFromAsm(asm_source, stdlib);
-  expect(wasm_module);
 }
 
-const fround = Math.fround;
-const Math_ceil = Math.ceil;
-const Math_floor = Math.floor;
-const Math_sqrt = Math.sqrt;
-const Math_abs = Math.abs;
-const Math_min = Math.min;
-const Math_max = Math.max;
+var fround = Math.fround;
+var Math_ceil = Math.ceil;
+var Math_floor = Math.floor;
+var Math_sqrt = Math.sqrt;
+var Math_abs = Math.abs;
+var Math_min = Math.min;
+var Math_max = Math.max;
 
 function f32_add(a, b) {
   a = fround(a);
@@ -162,6 +159,11 @@ function f32_gteq(a, b) {
   return 0;
 }
 
+function f32_neg(a) {
+  a = fround(a);
+  return fround(-a);
+}
+
 
 var inputs = [
   0, 1, 2, 3, 4,
@@ -214,11 +216,12 @@ var funcs = [
   f32_lteq,
   f32_gt,
   f32_gteq,
+  f32_neg,
 ];
 
 (function () {
   for (func of funcs) {
-    RunThreeWayTest(WrapInAsmModule(func), function (module) {
+    RunAsmJsTest(WrapInAsmModule(func), function (module) {
       if (func.length == 1) {
         for (a of inputs) {
           assertEquals(func(a), module.main(a));

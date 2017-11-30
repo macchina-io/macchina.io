@@ -6,6 +6,7 @@
 
 #include "src/api.h"
 #include "src/debug/debug.h"
+#include "src/heap/heap-inl.h"
 #include "src/profiler/allocation-tracker.h"
 #include "src/profiler/heap-snapshot-generator-inl.h"
 #include "src/profiler/sampling-heap-profiler.h"
@@ -16,9 +17,8 @@ namespace internal {
 HeapProfiler::HeapProfiler(Heap* heap)
     : ids_(new HeapObjectsMap(heap)),
       names_(new StringsStorage(heap)),
-      is_tracking_object_moves_(false) {
-}
-
+      is_tracking_object_moves_(false),
+      get_retainer_infos_callback_(nullptr) {}
 
 static void DeleteHeapSnapshot(HeapSnapshot** snapshot_ptr) {
   delete *snapshot_ptr;
@@ -34,7 +34,7 @@ HeapProfiler::~HeapProfiler() {
 void HeapProfiler::DeleteAllSnapshots() {
   snapshots_.Iterate(DeleteHeapSnapshot);
   snapshots_.Clear();
-  names_.Reset(new StringsStorage(heap()));
+  names_.reset(new StringsStorage(heap()));
 }
 
 
@@ -61,6 +61,19 @@ v8::RetainedObjectInfo* HeapProfiler::ExecuteWrapperClassCallback(
       class_id, Utils::ToLocal(Handle<Object>(wrapper)));
 }
 
+void HeapProfiler::SetGetRetainerInfosCallback(
+    v8::HeapProfiler::GetRetainerInfosCallback callback) {
+  get_retainer_infos_callback_ = callback;
+}
+
+v8::HeapProfiler::RetainerInfos HeapProfiler::GetRetainerInfos(
+    Isolate* isolate) {
+  v8::HeapProfiler::RetainerInfos infos;
+  if (get_retainer_infos_callback_ != nullptr)
+    infos =
+        get_retainer_infos_callback_(reinterpret_cast<v8::Isolate*>(isolate));
+  return infos;
+}
 
 HeapSnapshot* HeapProfiler::TakeSnapshot(
     v8::ActivityControl* control,
@@ -90,14 +103,14 @@ bool HeapProfiler::StartSamplingHeapProfiler(
   if (sampling_heap_profiler_.get()) {
     return false;
   }
-  sampling_heap_profiler_.Reset(new SamplingHeapProfiler(
+  sampling_heap_profiler_.reset(new SamplingHeapProfiler(
       heap(), names_.get(), sample_interval, stack_depth, flags));
   return true;
 }
 
 
 void HeapProfiler::StopSamplingHeapProfiler() {
-  sampling_heap_profiler_.Reset(nullptr);
+  sampling_heap_profiler_.reset();
 }
 
 
@@ -115,7 +128,7 @@ void HeapProfiler::StartHeapObjectsTracking(bool track_allocations) {
   is_tracking_object_moves_ = true;
   DCHECK(!is_tracking_allocations());
   if (track_allocations) {
-    allocation_tracker_.Reset(new AllocationTracker(ids_.get(), names_.get()));
+    allocation_tracker_.reset(new AllocationTracker(ids_.get(), names_.get()));
     heap()->DisableInlineAllocation();
     heap()->isolate()->debug()->feature_tracker()->Track(
         DebugFeatureTracker::kAllocationTracking);
@@ -132,7 +145,7 @@ SnapshotObjectId HeapProfiler::PushHeapObjectsStats(OutputStream* stream,
 void HeapProfiler::StopHeapObjectsTracking() {
   ids_->StopHeapObjectsTracking();
   if (is_tracking_allocations()) {
-    allocation_tracker_.Reset(NULL);
+    allocation_tracker_.reset();
     heap()->EnableInlineAllocation();
   }
 }
@@ -170,7 +183,7 @@ SnapshotObjectId HeapProfiler::GetSnapshotObjectId(Handle<Object> obj) {
 void HeapProfiler::ObjectMoveEvent(Address from, Address to, int size) {
   base::LockGuard<base::Mutex> guard(&profiler_mutex_);
   bool known_object = ids_->MoveObject(from, to, size);
-  if (!known_object && !allocation_tracker_.is_empty()) {
+  if (!known_object && allocation_tracker_) {
     allocation_tracker_->address_to_trace()->MoveObject(from, to, size);
   }
 }
@@ -178,7 +191,7 @@ void HeapProfiler::ObjectMoveEvent(Address from, Address to, int size) {
 
 void HeapProfiler::AllocationEvent(Address addr, int size) {
   DisallowHeapAllocation no_allocation;
-  if (!allocation_tracker_.is_empty()) {
+  if (allocation_tracker_) {
     allocation_tracker_->AllocationEvent(addr, size);
   }
 }
@@ -187,14 +200,6 @@ void HeapProfiler::AllocationEvent(Address addr, int size) {
 void HeapProfiler::UpdateObjectSizeEvent(Address addr, int size) {
   ids_->UpdateObjectSize(addr, size);
 }
-
-
-void HeapProfiler::SetRetainedObjectInfo(UniqueId id,
-                                         RetainedObjectInfo* info) {
-  // TODO(yurus, marja): Don't route this information through GlobalHandles.
-  heap()->isolate()->global_handles()->SetRetainedObjectInfo(id, info);
-}
-
 
 Handle<HeapObject> HeapProfiler::FindHeapObjectById(SnapshotObjectId id) {
   HeapObject* object = NULL;
@@ -214,7 +219,7 @@ Handle<HeapObject> HeapProfiler::FindHeapObjectById(SnapshotObjectId id) {
 
 
 void HeapProfiler::ClearHeapObjectMap() {
-  ids_.Reset(new HeapObjectsMap(heap()));
+  ids_.reset(new HeapObjectsMap(heap()));
   if (!is_tracking_allocations()) is_tracking_object_moves_ = false;
 }
 

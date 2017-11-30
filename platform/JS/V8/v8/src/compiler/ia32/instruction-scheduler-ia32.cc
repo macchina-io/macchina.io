@@ -28,8 +28,6 @@ int InstructionScheduler::GetTargetInstructionFlags(
     case kIA32Imul:
     case kIA32ImulHigh:
     case kIA32UmulHigh:
-    case kIA32Idiv:
-    case kIA32Udiv:
     case kIA32Not:
     case kIA32Neg:
     case kIA32Shl:
@@ -51,8 +49,6 @@ int InstructionScheduler::GetTargetInstructionFlags(
     case kSSEFloat32Sub:
     case kSSEFloat32Mul:
     case kSSEFloat32Div:
-    case kSSEFloat32Max:
-    case kSSEFloat32Min:
     case kSSEFloat32Abs:
     case kSSEFloat32Neg:
     case kSSEFloat32Sqrt:
@@ -63,7 +59,9 @@ int InstructionScheduler::GetTargetInstructionFlags(
     case kSSEFloat64Mul:
     case kSSEFloat64Div:
     case kSSEFloat64Mod:
+    case kSSEFloat32Max:
     case kSSEFloat64Max:
+    case kSSEFloat32Min:
     case kSSEFloat64Min:
     case kSSEFloat64Abs:
     case kSSEFloat64Neg:
@@ -84,27 +82,46 @@ int InstructionScheduler::GetTargetInstructionFlags(
     case kSSEFloat64InsertLowWord32:
     case kSSEFloat64InsertHighWord32:
     case kSSEFloat64LoadLowWord32:
+    case kSSEFloat64SilenceNaN:
     case kAVXFloat32Add:
     case kAVXFloat32Sub:
     case kAVXFloat32Mul:
     case kAVXFloat32Div:
-    case kAVXFloat32Max:
-    case kAVXFloat32Min:
     case kAVXFloat64Add:
     case kAVXFloat64Sub:
     case kAVXFloat64Mul:
     case kAVXFloat64Div:
-    case kAVXFloat64Max:
-    case kAVXFloat64Min:
     case kAVXFloat64Abs:
     case kAVXFloat64Neg:
     case kAVXFloat32Abs:
     case kAVXFloat32Neg:
     case kIA32BitcastFI:
     case kIA32BitcastIF:
+    case kIA32I32x4Splat:
+    case kIA32I32x4ExtractLane:
+    case kSSEI32x4ReplaceLane:
+    case kAVXI32x4ReplaceLane:
+    case kSSEI32x4Add:
+    case kAVXI32x4Add:
+    case kSSEI32x4Sub:
+    case kAVXI32x4Sub:
+    case kIA32I16x8Splat:
+    case kIA32I16x8ExtractLane:
+    case kSSEI16x8ReplaceLane:
+    case kAVXI16x8ReplaceLane:
+    case kIA32I8x16Splat:
+    case kIA32I8x16ExtractLane:
+    case kSSEI8x16ReplaceLane:
+    case kAVXI8x16ReplaceLane:
       return (instr->addressing_mode() == kMode_None)
           ? kNoOpcodeFlags
           : kIsLoadOperation | kHasSideEffect;
+
+    case kIA32Idiv:
+    case kIA32Udiv:
+      return (instr->addressing_mode() == kMode_None)
+                 ? kMayNeedDeoptOrTrapCheck
+                 : kMayNeedDeoptOrTrapCheck | kIsLoadOperation | kHasSideEffect;
 
     case kIA32Movsxbl:
     case kIA32Movzxbl:
@@ -127,11 +144,6 @@ int InstructionScheduler::GetTargetInstructionFlags(
     case kIA32Poke:
       return kHasSideEffect;
 
-    case kIA32Xchgb:
-    case kIA32Xchgw:
-    case kIA32Xchgl:
-      return kIsLoadOperation | kHasSideEffect;
-
 #define CASE(Name) case k##Name:
     COMMON_ARCH_OPCODE_LIST(CASE)
 #undef CASE
@@ -140,13 +152,76 @@ int InstructionScheduler::GetTargetInstructionFlags(
   }
 
   UNREACHABLE();
-  return kNoOpcodeFlags;
 }
 
 
 int InstructionScheduler::GetInstructionLatency(const Instruction* instr) {
-  // TODO(all): Add instruction cost modeling.
-  return 1;
+  // Basic latency modeling for ia32 instructions. They have been determined
+  // in an empirical way.
+  switch (instr->arch_opcode()) {
+    case kCheckedLoadInt8:
+    case kCheckedLoadUint8:
+    case kCheckedLoadInt16:
+    case kCheckedLoadUint16:
+    case kCheckedLoadWord32:
+    case kCheckedLoadFloat32:
+    case kCheckedLoadFloat64:
+    case kCheckedStoreWord8:
+    case kCheckedStoreWord16:
+    case kCheckedStoreWord32:
+    case kCheckedStoreFloat32:
+    case kCheckedStoreFloat64:
+    case kSSEFloat64Mul:
+      return 5;
+    case kIA32Imul:
+    case kIA32ImulHigh:
+      return 5;
+    case kSSEFloat32Cmp:
+    case kSSEFloat64Cmp:
+      return 9;
+    case kSSEFloat32Add:
+    case kSSEFloat32Sub:
+    case kSSEFloat32Abs:
+    case kSSEFloat32Neg:
+    case kSSEFloat64Add:
+    case kSSEFloat64Sub:
+    case kSSEFloat64Max:
+    case kSSEFloat64Min:
+    case kSSEFloat64Abs:
+    case kSSEFloat64Neg:
+      return 5;
+    case kSSEFloat32Mul:
+      return 4;
+    case kSSEFloat32ToFloat64:
+    case kSSEFloat64ToFloat32:
+      return 6;
+    case kSSEFloat32Round:
+    case kSSEFloat64Round:
+    case kSSEFloat32ToInt32:
+    case kSSEFloat64ToInt32:
+      return 8;
+    case kSSEFloat32ToUint32:
+      return 21;
+    case kSSEFloat64ToUint32:
+      return 15;
+    case kIA32Idiv:
+      return 33;
+    case kIA32Udiv:
+      return 26;
+    case kSSEFloat32Div:
+      return 35;
+    case kSSEFloat64Div:
+      return 63;
+    case kSSEFloat32Sqrt:
+    case kSSEFloat64Sqrt:
+      return 25;
+    case kSSEFloat64Mod:
+      return 50;
+    case kArchTruncateDoubleToI:
+      return 9;
+    default:
+      return 1;
+  }
 }
 
 }  // namespace compiler

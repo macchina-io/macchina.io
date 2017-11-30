@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "src/isolate.h"
 #include "test/cctest/compiler/function-tester.h"
 
 namespace v8 {
@@ -9,6 +10,7 @@ namespace internal {
 namespace compiler {
 
 TEST(TerminateAtMethodEntry) {
+  FLAG_stress_fullcodegen = false;
   FunctionTester T("(function(a,b) { return 23; })");
 
   T.CheckCall(T.Val(23));

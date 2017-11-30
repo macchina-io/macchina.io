@@ -2,6 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "src/api.h"
+#include "src/contexts.h"
+#include "src/flags.h"
+#include "src/objects-inl.h"
+#include "src/objects.h"
 #include "test/cctest/compiler/function-tester.h"
 
 namespace v8 {
@@ -32,7 +37,7 @@ TEST(SimpleCall2) {
 
 TEST(ConstCall) {
   FunctionTester T("(function(foo,a) { return foo(a,3); })");
-  FunctionTester U("(function(a,b) { return a + b; })");
+  FunctionTester U("(function (a,b) { return a + b; })");
 
   T.CheckCall(T.Val(6), U.function, T.Val(3));
   T.CheckCall(T.Val(6.1), U.function, T.Val(3.1));
@@ -44,7 +49,7 @@ TEST(ConstCall) {
 
 TEST(ConstCall2) {
   FunctionTester T("(function(foo,a) { return foo(a,\"3\"); })");
-  FunctionTester U("(function(a,b) { return a + b; })");
+  FunctionTester U("(function (a,b) { return a + b; })");
 
   T.CheckCall(T.Val("33"), U.function, T.Val(3));
   T.CheckCall(T.Val("3.13"), U.function, T.Val(3.1));
@@ -199,54 +204,6 @@ TEST(CallEval) {
       "})();");
 
   T.CheckCall(T.Val(42), T.Val("x"), T.undefined());
-}
-
-
-TEST(ContextLoadedFromActivation) {
-  const char* script =
-      "var x = 42;"
-      "(function() {"
-      "  return function () { return x };"
-      "})()";
-
-  // Disable context specialization.
-  FunctionTester T(script);
-  v8::Local<v8::Context> context = v8::Context::New(CcTest::isolate());
-  v8::Context::Scope scope(context);
-  v8::Local<v8::Value> value = CompileRun(script);
-  i::Handle<i::Object> ofun = v8::Utils::OpenHandle(*value);
-  i::Handle<i::JSFunction> jsfun = Handle<JSFunction>::cast(ofun);
-  jsfun->set_code(T.function->code());
-  jsfun->set_shared(T.function->shared());
-  CHECK(context->Global()
-            ->Set(context, v8_str("foo"), v8::Utils::CallableToLocal(jsfun))
-            .FromJust());
-  CompileRun("var x = 24;");
-  ExpectInt32("foo();", 24);
-}
-
-
-TEST(BuiltinLoadedFromActivation) {
-  const char* script =
-      "var x = 42;"
-      "(function() {"
-      "  return function () { return this; };"
-      "})()";
-
-  // Disable context specialization.
-  FunctionTester T(script);
-  v8::Local<v8::Context> context = v8::Context::New(CcTest::isolate());
-  v8::Context::Scope scope(context);
-  v8::Local<v8::Value> value = CompileRun(script);
-  i::Handle<i::Object> ofun = v8::Utils::OpenHandle(*value);
-  i::Handle<i::JSFunction> jsfun = Handle<JSFunction>::cast(ofun);
-  jsfun->set_code(T.function->code());
-  jsfun->set_shared(T.function->shared());
-  CHECK(context->Global()
-            ->Set(context, v8_str("foo"), v8::Utils::CallableToLocal(jsfun))
-            .FromJust());
-  CompileRun("var x = 24;");
-  ExpectObject("foo()", context->Global());
 }
 
 }  // namespace compiler

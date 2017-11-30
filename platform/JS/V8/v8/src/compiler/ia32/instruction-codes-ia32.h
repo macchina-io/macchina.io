@@ -48,8 +48,6 @@ namespace compiler {
   V(SSEFloat32Sub)                 \
   V(SSEFloat32Mul)                 \
   V(SSEFloat32Div)                 \
-  V(SSEFloat32Max)                 \
-  V(SSEFloat32Min)                 \
   V(SSEFloat32Abs)                 \
   V(SSEFloat32Neg)                 \
   V(SSEFloat32Sqrt)                \
@@ -60,7 +58,9 @@ namespace compiler {
   V(SSEFloat64Mul)                 \
   V(SSEFloat64Div)                 \
   V(SSEFloat64Mod)                 \
+  V(SSEFloat32Max)                 \
   V(SSEFloat64Max)                 \
+  V(SSEFloat32Min)                 \
   V(SSEFloat64Min)                 \
   V(SSEFloat64Abs)                 \
   V(SSEFloat64Neg)                 \
@@ -81,18 +81,15 @@ namespace compiler {
   V(SSEFloat64InsertLowWord32)     \
   V(SSEFloat64InsertHighWord32)    \
   V(SSEFloat64LoadLowWord32)       \
+  V(SSEFloat64SilenceNaN)          \
   V(AVXFloat32Add)                 \
   V(AVXFloat32Sub)                 \
   V(AVXFloat32Mul)                 \
   V(AVXFloat32Div)                 \
-  V(AVXFloat32Max)                 \
-  V(AVXFloat32Min)                 \
   V(AVXFloat64Add)                 \
   V(AVXFloat64Sub)                 \
   V(AVXFloat64Mul)                 \
   V(AVXFloat64Div)                 \
-  V(AVXFloat64Max)                 \
-  V(AVXFloat64Min)                 \
   V(AVXFloat64Abs)                 \
   V(AVXFloat64Neg)                 \
   V(AVXFloat32Abs)                 \
@@ -114,9 +111,22 @@ namespace compiler {
   V(IA32PushFloat64)               \
   V(IA32Poke)                      \
   V(IA32StackCheck)                \
-  V(IA32Xchgb)                     \
-  V(IA32Xchgw)                     \
-  V(IA32Xchgl)
+  V(IA32I32x4Splat)                \
+  V(IA32I32x4ExtractLane)          \
+  V(SSEI32x4ReplaceLane)           \
+  V(AVXI32x4ReplaceLane)           \
+  V(SSEI32x4Add)                   \
+  V(AVXI32x4Add)                   \
+  V(SSEI32x4Sub)                   \
+  V(AVXI32x4Sub)                   \
+  V(IA32I16x8Splat)                \
+  V(IA32I16x8ExtractLane)          \
+  V(SSEI16x8ReplaceLane)           \
+  V(AVXI16x8ReplaceLane)           \
+  V(IA32I8x16Splat)                \
+  V(IA32I8x16ExtractLane)          \
+  V(SSEI8x16ReplaceLane)           \
+  V(AVXI8x16ReplaceLane)
 
 // Addressing modes represent the "shape" of inputs to an instruction.
 // Many instructions support multiple addressing modes. Addressing modes

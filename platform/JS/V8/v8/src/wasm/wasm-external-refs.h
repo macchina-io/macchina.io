@@ -58,6 +58,15 @@ uint32_t word64_ctz_wrapper(uint64_t* input);
 uint32_t word32_popcnt_wrapper(uint32_t* input);
 
 uint32_t word64_popcnt_wrapper(uint64_t* input);
+
+void float64_pow_wrapper(double* param0, double* param1);
+
+typedef void (*WasmTrapCallbackForTesting)();
+
+void set_trap_callback_for_testing(WasmTrapCallbackForTesting callback);
+
+void call_trap_callback_for_testing();
+
 }  // namespace wasm
 }  // namespace internal
 }  // namespace v8

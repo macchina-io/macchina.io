@@ -29,17 +29,10 @@
 [ALWAYS, {
   # TODO(jochen): The following test is flaky.
   'overrides/caching': [PASS, FAIL],
-
-  # BUG(v8:3454).
-  'date-format/parse-MMMdy': [FAIL],
-  'date-format/parse-mdyhms': [FAIL],
-  'number-format/parse-decimal': [FAIL],
-  'number-format/parse-percent': [FAIL],
 }],  # ALWAYS
 
-['arch == arm64 and mode == debug and simulator_run == True', {
-  # Ignition.
-  'date-format/timezone': [PASS, ['no_snap and mode == debug', NO_IGNITION]],
-  'number-format/check-digit-ranges': [PASS, ['no_snap and mode == debug', NO_IGNITION]],
-}],  # 'arch == arm64 and mode == debug and simulator_run == True'
+['variant == wasm_traps', {
+  '*': [SKIP],
+}],  # variant == wasm_traps
+
 ]

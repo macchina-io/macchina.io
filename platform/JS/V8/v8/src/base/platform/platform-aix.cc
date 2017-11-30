@@ -29,43 +29,47 @@
 #undef MAP_TYPE
 
 #include "src/base/macros.h"
+#include "src/base/platform/platform-posix.h"
 #include "src/base/platform/platform.h"
-
 
 namespace v8 {
 namespace base {
 
 
-static inline void* mmapHelper(size_t len, int prot, int flags, int fildes,
-                               off_t off) {
-  void* addr = OS::GetRandomMmapAddr();
-  return mmap(addr, len, prot, flags, fildes, off);
-}
+class AIXTimezoneCache : public PosixTimezoneCache {
+  const char* LocalTimezone(double time) override;
 
+  double LocalTimeOffset() override;
 
-const char* OS::LocalTimezone(double time, TimezoneCache* cache) {
+  ~AIXTimezoneCache() override {}
+};
+
+const char* AIXTimezoneCache::LocalTimezone(double time) {
   if (std::isnan(time)) return "";
   time_t tv = static_cast<time_t>(floor(time / msPerSecond));
-  struct tm* t = localtime(&tv);  // NOLINT(runtime/threadsafe_fn)
+  struct tm tm;
+  struct tm* t = localtime_r(&tv, &tm);
   if (NULL == t) return "";
   return tzname[0];  // The location of the timezone string on AIX.
 }
 
-
-double OS::LocalTimeOffset(TimezoneCache* cache) {
+double AIXTimezoneCache::LocalTimeOffset() {
   // On AIX, struct tm does not contain a tm_gmtoff field.
   time_t utc = time(NULL);
   DCHECK(utc != -1);
-  struct tm* loc = localtime(&utc);  // NOLINT(runtime/threadsafe_fn)
+  struct tm tm;
+  struct tm* loc = localtime_r(&utc, &tm);
   DCHECK(loc != NULL);
   return static_cast<double>((mktime(loc) - utc) * msPerSecond);
 }
 
+TimezoneCache* OS::CreateTimezoneCache() { return new AIXTimezoneCache(); }
 
-void* OS::Allocate(const size_t requested, size_t* allocated, bool executable) {
+void* OS::Allocate(const size_t requested, size_t* allocated,
+                   OS::MemoryPermission access, void* hint) {
   const size_t msize = RoundUp(requested, getpagesize());
-  int prot = PROT_READ | PROT_WRITE | (executable ? PROT_EXEC : 0);
-  void* mbase = mmapHelper(msize, prot, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  int prot = GetProtectionFromMemoryPermission(access);
+  void* mbase = mmap(hint, msize, prot, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
   if (mbase == MAP_FAILED) return NULL;
   *allocated = msize;
@@ -128,19 +132,16 @@ static const int kMmapFdOffset = 0;
 
 VirtualMemory::VirtualMemory() : address_(NULL), size_(0) {}
 
+VirtualMemory::VirtualMemory(size_t size, void* hint)
+    : address_(ReserveRegion(size, hint)), size_(size) {}
 
-VirtualMemory::VirtualMemory(size_t size)
-    : address_(ReserveRegion(size)), size_(size) {}
-
-
-VirtualMemory::VirtualMemory(size_t size, size_t alignment)
+VirtualMemory::VirtualMemory(size_t size, size_t alignment, void* hint)
     : address_(NULL), size_(0) {
   DCHECK((alignment % OS::AllocateAlignment()) == 0);
   size_t request_size =
       RoundUp(size + alignment, static_cast<intptr_t>(OS::AllocateAlignment()));
-  void* reservation =
-      mmapHelper(request_size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, kMmapFd,
-                 kMmapFdOffset);
+  void* reservation = mmap(hint, request_size, PROT_NONE,
+                           MAP_PRIVATE | MAP_ANONYMOUS, kMmapFd, kMmapFdOffset);
   if (reservation == MAP_FAILED) return;
 
   uint8_t* base = static_cast<uint8_t*>(reservation);
@@ -178,10 +179,6 @@ VirtualMemory::~VirtualMemory() {
   }
 }
 
-
-bool VirtualMemory::IsReserved() { return address_ != NULL; }
-
-
 void VirtualMemory::Reset() {
   address_ = NULL;
   size_ = 0;
@@ -203,10 +200,9 @@ bool VirtualMemory::Guard(void* address) {
   return true;
 }
 
-
-void* VirtualMemory::ReserveRegion(size_t size) {
-  void* result = mmapHelper(size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS,
-                            kMmapFd, kMmapFdOffset);
+void* VirtualMemory::ReserveRegion(size_t size, void* hint) {
+  void* result = mmap(hint, size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS,
+                      kMmapFd, kMmapFdOffset);
 
   if (result == MAP_FAILED) return NULL;
 
@@ -215,13 +211,8 @@ void* VirtualMemory::ReserveRegion(size_t size) {
 
 
 bool VirtualMemory::CommitRegion(void* base, size_t size, bool is_executable) {
-#if defined(__native_client__)
-  // The Native Client port of V8 uses an interpreter,
-  // so code pages don't need PROT_EXEC.
-  int prot = PROT_READ | PROT_WRITE;
-#else
   int prot = PROT_READ | PROT_WRITE | (is_executable ? PROT_EXEC : 0);
-#endif
+
   if (mprotect(base, size, prot) == -1) return false;
 
   return true;
@@ -230,6 +221,11 @@ bool VirtualMemory::CommitRegion(void* base, size_t size, bool is_executable) {
 
 bool VirtualMemory::UncommitRegion(void* base, size_t size) {
   return mprotect(base, size, PROT_NONE) != -1;
+}
+
+bool VirtualMemory::ReleasePartialRegion(void* base, size_t size,
+                                         void* free_start, size_t free_size) {
+  return munmap(free_start, free_size) == 0;
 }
 
 

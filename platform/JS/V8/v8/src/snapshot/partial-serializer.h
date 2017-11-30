@@ -11,47 +11,37 @@
 namespace v8 {
 namespace internal {
 
+class StartupSerializer;
+
 class PartialSerializer : public Serializer {
  public:
-  PartialSerializer(Isolate* isolate, Serializer* startup_snapshot_serializer,
-                    SnapshotByteSink* sink);
+  PartialSerializer(Isolate* isolate, StartupSerializer* startup_serializer,
+                    v8::SerializeEmbedderFieldsCallback callback);
 
   ~PartialSerializer() override;
 
   // Serialize the objects reachable from a single object pointer.
-  void Serialize(Object** o);
+  void Serialize(Object** o, bool include_global_proxy);
+
+  bool can_be_rehashed() const { return can_be_rehashed_; }
 
  private:
-  class PartialCacheIndexMap : public AddressMapBase {
-   public:
-    PartialCacheIndexMap() : map_(HashMap::PointersMatch) {}
-
-    static const int kInvalidIndex = -1;
-
-    // Lookup object in the map. Return its index if found, or create
-    // a new entry with new_index as value, and return kInvalidIndex.
-    int LookupOrInsert(HeapObject* obj, int new_index) {
-      HashMap::Entry* entry = LookupEntry(&map_, obj, false);
-      if (entry != NULL) return GetValue(entry);
-      SetValue(LookupEntry(&map_, obj, true), static_cast<uint32_t>(new_index));
-      return kInvalidIndex;
-    }
-
-   private:
-    HashMap map_;
-
-    DISALLOW_COPY_AND_ASSIGN(PartialCacheIndexMap);
-  };
-
   void SerializeObject(HeapObject* o, HowToCode how_to_code,
                        WhereToPoint where_to_point, int skip) override;
 
-  int PartialSnapshotCacheIndex(HeapObject* o);
   bool ShouldBeInThePartialSnapshotCache(HeapObject* o);
 
-  Serializer* startup_serializer_;
-  PartialCacheIndexMap partial_cache_index_map_;
-  int next_partial_cache_index_;
+  void SerializeEmbedderFields();
+
+  void CheckRehashability(HeapObject* table);
+
+  StartupSerializer* startup_serializer_;
+  List<JSObject*> embedder_field_holders_;
+  v8::SerializeEmbedderFieldsCallback serialize_embedder_fields_;
+  GlobalDictionary* rehashable_global_dictionary_;
+  // Indicates whether we only serialized hash tables that we can rehash.
+  // TODO(yangguo): generalize rehashing, and remove this flag.
+  bool can_be_rehashed_;
   DISALLOW_COPY_AND_ASSIGN(PartialSerializer);
 };
 

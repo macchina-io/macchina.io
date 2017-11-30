@@ -5,16 +5,17 @@
 #ifndef V8_PARSING_FUNC_NAME_INFERRER_H_
 #define V8_PARSING_FUNC_NAME_INFERRER_H_
 
-#include "src/handles.h"
-#include "src/zone.h"
+#include "src/zone/zone.h"
 
 namespace v8 {
 namespace internal {
 
+class AstConsString;
 class AstRawString;
-class AstString;
 class AstValueFactory;
 class FunctionLiteral;
+
+enum class InferName { kYes, kNo };
 
 // FuncNameInferrer is a stateful class that is used to perform name
 // inference for anonymous functions during static analysis of source code.
@@ -71,6 +72,8 @@ class FuncNameInferrer : public ZoneObject {
     }
   }
 
+  void RemoveAsyncKeywordFromEnd();
+
   // Infers a function name and leaves names collection state.
   void Infer() {
     DCHECK(IsOpen());
@@ -102,11 +105,7 @@ class FuncNameInferrer : public ZoneObject {
   Zone* zone() const { return zone_; }
 
   // Constructs a full name in dotted notation from gathered names.
-  const AstString* MakeNameFromStack();
-
-  // A helper function for MakeNameFromStack.
-  const AstString* MakeNameFromStackHelper(int pos,
-                                               const AstString* prev);
+  const AstConsString* MakeNameFromStack();
 
   // Performs name inferring for added functions.
   void InferFunctionsNames();

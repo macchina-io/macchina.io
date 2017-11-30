@@ -25,7 +25,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Flags: --allow-natives-syntax --promise-extra
+// Flags: --allow-natives-syntax
 
 // Make sure we don't rely on functions patchable by monkeys.
 var call = Function.prototype.call.call.bind(Function.prototype.call)
@@ -34,6 +34,9 @@ var defineProperty = Object.defineProperty;
 var numberPrototype = Number.prototype;
 var symbolIterator = Symbol.iterator;
 
+function assertUnreachable() {
+  %AbortJS("Failure: unreachable");
+}
 
 (function() {
   // Test before clearing global (fails otherwise)
@@ -81,6 +84,12 @@ for (var i in globals) {
   if (globals[i]) clearProp(this, globals[i])
 }
 
+
+function defer(constructor) {
+  var resolve, reject;
+  var promise = new constructor((res, rej) => { resolve = res; reject = rej });
+  return { promise, resolve, reject };
+}
 
 var asyncAssertsExpected = 0;
 
@@ -141,7 +150,7 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  (new Promise(function() { throw 5 })).chain(
+  (new Promise(function() { throw 5 })).then(
     assertUnreachable,
     function(r) { assertAsync(r === 5, "new-throw") }
   )
@@ -149,29 +158,21 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  Promise.accept(5);
-  Promise.accept(5).chain(undefined, assertUnreachable).chain(
-    function(x) { assertAsync(x === 5, "resolved/chain-nohandler") },
+  Promise.resolve(5);
+  Promise.resolve(5).then(undefined, assertUnreachable).then(
+    function(x) { assertAsync(x === 5, "resolved/then-nohandler") },
     assertUnreachable
   )
   assertAsyncRan()
 })();
 
 (function() {
-  Promise.reject(5).chain(assertUnreachable, undefined).chain(
-    assertUnreachable,
-    function(r) { assertAsync(r === 5, "rejected/chain-nohandler") }
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  Promise.accept(5).then(undefined, assertUnreachable).chain(
+  Promise.resolve(5).then(undefined, assertUnreachable).then(
     function(x) { assertAsync(x === 5, "resolved/then-nohandler-undefined") },
     assertUnreachable
   )
   assertAsyncRan()
-  Promise.accept(6).then(null, assertUnreachable).chain(
+  Promise.resolve(6).then(null, assertUnreachable).then(
     function(x) { assertAsync(x === 6, "resolved/then-nohandler-null") },
     assertUnreachable
   )
@@ -179,34 +180,9 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  Promise.reject(5).then(assertUnreachable, undefined).chain(
-    assertUnreachable,
-    function(r) { assertAsync(r === 5, "rejected/then-nohandler-undefined") }
-  )
-  assertAsyncRan()
-  Promise.reject(6).then(assertUnreachable, null).chain(
-    assertUnreachable,
-    function(r) { assertAsync(r === 6, "rejected/then-nohandler-null") }
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  // Note: Chain now has then-style semantics, here and in future tests.
-  p3.chain(
-    function(x) { assertAsync(x === 5, "resolved/chain") },
-    assertUnreachable
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
+  var p1 = Promise.resolve(5)
+  var p2 = Promise.resolve(p1)
+  var p3 = Promise.resolve(p2)
   p3.then(
     function(x) { assertAsync(x === 5, "resolved/then") },
     assertUnreachable
@@ -216,19 +192,8 @@ function assertAsyncDone(iteration) {
 
 (function() {
   var p1 = Promise.reject(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.chain(
-    assertUnreachable,
-    function(x) { assertAsync(x === 5, "rejected/chain") }
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.reject(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
+  var p2 = Promise.resolve(p1)
+  var p3 = Promise.resolve(p2)
   p3.then(
     assertUnreachable,
     function(x) { assertAsync(x === 5, "rejected/then") }
@@ -237,87 +202,21 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.chain(function(x) { return x }, assertUnreachable).chain(
-    function(x) { assertAsync(x === 5, "resolved/chain/chain") },
+  var p1 = Promise.resolve(5)
+  var p2 = Promise.resolve(p1)
+  var p3 = Promise.resolve(p2)
+  p3.then(function(x) { return x }, assertUnreachable).then(
+    function(x) { assertAsync(x === 5, "resolved/then/then") },
     assertUnreachable
   )
   assertAsyncRan()
 })();
 
 (function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.chain(function(x) { return x }, assertUnreachable).then(
-    function(x) { assertAsync(x === 5, "resolved/chain/then") },
-    assertUnreachable
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.chain(function(x) { return 6 }, assertUnreachable).chain(
-    function(x) { assertAsync(x === 6, "resolved/chain/chain2") },
-    assertUnreachable
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.chain(function(x) { return 6 }, assertUnreachable).then(
-    function(x) { assertAsync(x === 6, "resolved/chain/then2") },
-    assertUnreachable
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.then(function(x) { return x + 1 }, assertUnreachable).chain(
-    function(x) { assertAsync(x === 6, "resolved/then/chain") },
-    assertUnreachable
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.then(function(x) { return x + 1 }, assertUnreachable).then(
-    function(x) { assertAsync(x === 6, "resolved/then/then") },
-    assertUnreachable
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.then(function(x){ return Promise.accept(x+1) }, assertUnreachable).chain(
-    function(x) { assertAsync(x === 6, "resolved/then/chain2") },
-    assertUnreachable
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.then(function(x) { return Promise.accept(x+1) }, assertUnreachable).then(
+  var p1 = Promise.resolve(5)
+  var p2 = Promise.resolve(p1)
+  var p3 = Promise.resolve(p2)
+  p3.then(function(x){ return Promise.resolve(x+1) }, assertUnreachable).then(
     function(x) { assertAsync(x === 6, "resolved/then/then2") },
     assertUnreachable
   )
@@ -325,42 +224,9 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.chain(function(x) { throw 6 }, assertUnreachable).chain(
-    assertUnreachable,
-    function(x) { assertAsync(x === 6, "resolved/chain-throw/chain") }
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.chain(function(x) { throw 6 }, assertUnreachable).then(
-    assertUnreachable,
-    function(x) { assertAsync(x === 6, "resolved/chain-throw/then") }
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.then(function(x) { throw 6 }, assertUnreachable).chain(
-    assertUnreachable,
-    function(x) { assertAsync(x === 6, "resolved/then-throw/chain") }
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
+  var p1 = Promise.resolve(5)
+  var p2 = Promise.resolve(p1)
+  var p3 = Promise.resolve(p2)
   p3.then(function(x) { throw 6 }, assertUnreachable).then(
     assertUnreachable,
     function(x) { assertAsync(x === 6, "resolved/then-throw/then") }
@@ -369,20 +235,53 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var p1 = Promise.accept(5)
+  var p1 = Promise.resolve(5)
+  var p2 = Promise.resolve(p1)
+  var p3 = Promise.resolve(p2)
+  p3.then(function(x) { throw 6 }, assertUnreachable).then(
+    assertUnreachable,
+    function(x) { assertAsync(x === 6, "resolved/then-throw/then") }
+  )
+  assertAsyncRan()
+})();
+
+(function() {
+  var p1 = Promise.resolve(5)
+  var p2 = Promise.resolve(p1)
+  var p3 = Promise.resolve(p2)
+  p3.then(function(x) { throw 6 }, assertUnreachable).then(
+    assertUnreachable,
+    function(x) { assertAsync(x === 6, "resolved/then-throw/then") }
+  )
+  assertAsyncRan()
+})();
+
+(function() {
+  var p1 = Promise.resolve(5)
+  var p2 = Promise.resolve(p1)
+  var p3 = Promise.resolve(p2)
+  p3.then(function(x) { throw 6 }, assertUnreachable).then(
+    assertUnreachable,
+    function(x) { assertAsync(x === 6, "resolved/then-throw/then") }
+  )
+  assertAsyncRan()
+})();
+
+(function() {
+  var p1 = Promise.resolve(5)
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.accept(p2)
-  p3.chain(
-    function(x) { assertAsync(x === 5, "resolved/thenable/chain") },
+  var p3 = Promise.resolve(p2)
+  p3.then(
+    function(x) { assertAsync(x === 5, "resolved/thenable/then") },
     assertUnreachable
   )
   assertAsyncRan()
 })();
 
 (function() {
-  var p1 = Promise.accept(5)
+  var p1 = Promise.resolve(5)
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.accept(p2)
+  var p3 = Promise.resolve(p2)
   p3.then(
     function(x) { assertAsync(x === 5, "resolved/thenable/then") },
     assertUnreachable
@@ -393,18 +292,7 @@ function assertAsyncDone(iteration) {
 (function() {
   var p1 = Promise.reject(5)
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.accept(p2)
-  p3.chain(
-    assertUnreachable,
-    function(x) { assertAsync(x === 5, "rejected/thenable/chain") }
-  )
-  assertAsyncRan()
-})();
-
-(function() {
-  var p1 = Promise.reject(5)
-  var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.accept(p2)
+  var p3 = Promise.resolve(p2)
   p3.then(
     assertUnreachable,
     function(x) { assertAsync(x === 5, "rejected/thenable/then") }
@@ -413,20 +301,18 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred = Promise.defer()
-  var p1 = deferred.promise
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.chain(
-    function(x) { assertAsync(x === 5, "chain/resolve") },
-    assertUnreachable
+  var p1 = Promise.reject(5)
+  var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
+  var p3 = Promise.resolve(p2)
+  p3.then(
+    assertUnreachable,
+    function(x) { assertAsync(x === 5, "rejected/thenable/then") }
   )
-  deferred.resolve(5)
   assertAsyncRan()
 })();
 
 (function() {
-  var deferred = Promise.defer()
+  var deferred = defer(Promise)
   var p1 = deferred.promise
   var p2 = Promise.resolve(p1)
   var p3 = Promise.resolve(p2)
@@ -439,23 +325,23 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred = Promise.defer()
+  var deferred = defer(Promise)
   var p1 = deferred.promise
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
-  p3.chain(
-    assertUnreachable,
-    function(x) { assertAsync(x === 5, "chain/reject") }
+  var p2 = Promise.resolve(p1)
+  var p3 = Promise.resolve(p2)
+  p3.then(
+    function(x) { assertAsync(x === 5, "then/resolve") },
+    assertUnreachable
   )
-  deferred.reject(5)
+  deferred.resolve(5)
   assertAsyncRan()
 })();
 
 (function() {
-  var deferred = Promise.defer()
+  var deferred = defer(Promise)
   var p1 = deferred.promise
-  var p2 = Promise.accept(p1)
-  var p3 = Promise.accept(p2)
+  var p2 = Promise.resolve(p1)
+  var p3 = Promise.resolve(p2)
   p3.then(
     assertUnreachable,
     function(x) { assertAsync(x === 5, "then/reject") }
@@ -465,7 +351,20 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred = Promise.defer()
+  var deferred = defer(Promise)
+  var p1 = deferred.promise
+  var p2 = Promise.resolve(p1)
+  var p3 = Promise.resolve(p2)
+  p3.then(
+    assertUnreachable,
+    function(x) { assertAsync(x === 5, "then/reject") }
+  )
+  deferred.reject(5)
+  assertAsyncRan()
+})();
+
+(function() {
+  var deferred = defer(Promise)
   var p1 = deferred.promise
   var p2 = p1.then(1, 2)
   p2.then(
@@ -477,7 +376,7 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred = Promise.defer()
+  var deferred = defer(Promise)
   var p1 = deferred.promise
   var p2 = p1.then(1, 2)
   p2.then(
@@ -489,23 +388,10 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred = Promise.defer()
+  var deferred = defer(Promise)
   var p1 = deferred.promise
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.accept(p2)
-  p3.chain(
-    function(x) { assertAsync(x === 5, "chain/resolve/thenable") },
-    assertUnreachable
-  )
-  deferred.resolve(5)
-  assertAsyncRan()
-})();
-
-(function() {
-  var deferred = Promise.defer()
-  var p1 = deferred.promise
-  var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.accept(p2)
+  var p3 = Promise.resolve(p2)
   p3.then(
     function(x) { assertAsync(x === 5, "then/resolve/thenable") },
     assertUnreachable
@@ -515,23 +401,23 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred = Promise.defer()
+  var deferred = defer(Promise)
   var p1 = deferred.promise
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.accept(p2)
-  p3.chain(
-    assertUnreachable,
-    function(x) { assertAsync(x === 5, "chain/reject/thenable") }
+  var p3 = Promise.resolve(p2)
+  p3.then(
+    function(x) { assertAsync(x === 5, "then/resolve/thenable") },
+    assertUnreachable
   )
-  deferred.reject(5)
+  deferred.resolve(5)
   assertAsyncRan()
 })();
 
 (function() {
-  var deferred = Promise.defer()
+  var deferred = defer(Promise)
   var p1 = deferred.promise
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var p3 = Promise.accept(p2)
+  var p3 = Promise.resolve(p2)
   p3.then(
     assertUnreachable,
     function(x) { assertAsync(x === 5, "then/reject/thenable") }
@@ -541,22 +427,22 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var deferred = Promise.defer()
-  var p3 = deferred.promise
-  p3.chain(
-    function(x) { assertAsync(x === 5, "chain/resolve2") },
-    assertUnreachable
+  var deferred = defer(Promise)
+  var p1 = deferred.promise
+  var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
+  var p3 = Promise.resolve(p2)
+  p3.then(
+    assertUnreachable,
+    function(x) { assertAsync(x === 5, "then/reject/thenable") }
   )
-  deferred.resolve(p2)
+  deferred.reject(5)
   assertAsyncRan()
 })();
 
 (function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var deferred = Promise.defer()
+  var p1 = Promise.resolve(5)
+  var p2 = Promise.resolve(p1)
+  var deferred = defer(Promise)
   var p3 = deferred.promise
   p3.then(
     function(x) { assertAsync(x === 5, "then/resolve2") },
@@ -567,22 +453,22 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var deferred = Promise.defer()
+  var p1 = Promise.resolve(5)
+  var p2 = Promise.resolve(p1)
+  var deferred = defer(Promise)
   var p3 = deferred.promise
-  p3.chain(
-    assertUnreachable,
-    function(x) { assertAsync(x === 5, "chain/reject2") }
+  p3.then(
+    function(x) { assertAsync(x === 5, "then/resolve2") },
+    assertUnreachable
   )
-  deferred.reject(5)
+  deferred.resolve(p2)
   assertAsyncRan()
 })();
 
 (function() {
-  var p1 = Promise.accept(5)
-  var p2 = Promise.accept(p1)
-  var deferred = Promise.defer()
+  var p1 = Promise.resolve(5)
+  var p2 = Promise.resolve(p1)
+  var deferred = defer(Promise)
   var p3 = deferred.promise
   p3.then(
     assertUnreachable,
@@ -593,22 +479,22 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var p1 = Promise.accept(5)
-  var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var deferred = Promise.defer()
+  var p1 = Promise.resolve(5)
+  var p2 = Promise.resolve(p1)
+  var deferred = defer(Promise)
   var p3 = deferred.promise
-  p3.chain(
-    function(x) { assertAsync(x === 5, "chain/resolve/thenable2") },
-    assertUnreachable
+  p3.then(
+    assertUnreachable,
+    function(x) { assertAsync(x === 5, "then/reject2") }
   )
-  deferred.resolve(p2)
+  deferred.reject(5)
   assertAsyncRan()
 })();
 
 (function() {
-  var p1 = Promise.accept(5)
+  var p1 = Promise.resolve(5)
   var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
-  var deferred = Promise.defer()
+  var deferred = defer(Promise)
   var p3 = deferred.promise
   p3.then(
     function(x) { assertAsync(x === 5, "then/resolve/thenable2") },
@@ -619,19 +505,22 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var p1 = Promise.accept(0)
-  var p2 = p1.chain(function(x) { return p2 }, assertUnreachable)
-  p2.chain(
-    assertUnreachable,
-    function(r) { assertAsync(r instanceof TypeError, "cyclic/chain") }
+  var p1 = Promise.resolve(5)
+  var p2 = {then: function(onResolve, onReject) { onResolve(p1) }}
+  var deferred = defer(Promise)
+  var p3 = deferred.promise
+  p3.then(
+    function(x) { assertAsync(x === 5, "then/resolve/thenable2") },
+    assertUnreachable
   )
+  deferred.resolve(p2)
   assertAsyncRan()
 })();
 
 (function() {
-  var p1 = Promise.accept(0)
+  var p1 = Promise.resolve(0)
   var p2 = p1.then(function(x) { return p2 }, assertUnreachable)
-  p2.chain(
+  p2.then(
     assertUnreachable,
     function(r) { assertAsync(r instanceof TypeError, "cyclic/then") }
   )
@@ -639,18 +528,17 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred = Promise.defer()
-  var p = deferred.promise
-  deferred.resolve(p)
-  p.chain(
+  var p1 = Promise.resolve(0)
+  var p2 = p1.then(function(x) { return p2 }, assertUnreachable)
+  p2.then(
     assertUnreachable,
-    function(r) { assertAsync(r instanceof TypeError, "cyclic/deferred/then") }
+    function(r) { assertAsync(r instanceof TypeError, "cyclic/then") }
   )
   assertAsyncRan()
 })();
 
 (function() {
-  var deferred = Promise.defer()
+  var deferred = defer(Promise)
   var p = deferred.promise
   deferred.resolve(p)
   p.then(
@@ -661,7 +549,18 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  Promise.all([]).chain(
+  var deferred = defer(Promise)
+  var p = deferred.promise
+  deferred.resolve(p)
+  p.then(
+    assertUnreachable,
+    function(r) { assertAsync(r instanceof TypeError, "cyclic/deferred/then") }
+  )
+  assertAsyncRan()
+})();
+
+(function() {
+  Promise.all([]).then(
     function(x) { assertAsync(x.length === 0, "all/resolve/empty") },
     assertUnreachable
   )
@@ -670,7 +569,7 @@ function assertAsyncDone(iteration) {
 
 (function() {
   function testPromiseAllNonIterable(value) {
-    Promise.all(value).chain(
+    Promise.all(value).then(
         assertUnreachable,
         function(r) {
           assertAsync(r instanceof TypeError, 'all/non iterable');
@@ -684,14 +583,14 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred = Promise.defer();
+  var deferred = defer(Promise);
   var p = deferred.promise;
   function* f() {
     yield 1;
     yield p;
     yield 3;
   }
-  Promise.all(f()).chain(
+  Promise.all(f()).then(
       function(x) {
         assertAsync(x.length === 3, "all/resolve/iterable");
         assertAsync(x[0] === 1, "all/resolve/iterable/0");
@@ -708,13 +607,13 @@ function assertAsyncDone(iteration) {
 
 
 (function() {
-  var deferred1 = Promise.defer()
+  var deferred1 = defer(Promise)
   var p1 = deferred1.promise
-  var deferred2 = Promise.defer()
+  var deferred2 = defer(Promise)
   var p2 = deferred2.promise
-  var deferred3 = Promise.defer()
+  var deferred3 = defer(Promise)
   var p3 = deferred3.promise
-  Promise.all([p1, p2, p3]).chain(
+  Promise.all([p1, p2, p3]).then(
     function(x) {
       assertAsync(x.length === 3, "all/resolve")
       assertAsync(x[0] === 1, "all/resolve/0")
@@ -733,11 +632,11 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred = Promise.defer()
+  var deferred = defer(Promise)
   var p1 = deferred.promise
-  var p2 = Promise.accept(2)
-  var p3 = Promise.defer().promise
-  Promise.all([p1, p2, p3]).chain(
+  var p2 = Promise.resolve(2)
+  var p3 = defer(Promise).promise
+  Promise.all([p1, p2, p3]).then(
     assertUnreachable,
     assertUnreachable
   )
@@ -745,13 +644,13 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred1 = Promise.defer()
+  var deferred1 = defer(Promise)
   var p1 = deferred1.promise
-  var deferred2 = Promise.defer()
+  var deferred2 = defer(Promise)
   var p2 = deferred2.promise
-  var deferred3 = Promise.defer()
+  var deferred3 = defer(Promise)
   var p3 = deferred3.promise
-  Promise.all([p1, p2, p3]).chain(
+  Promise.all([p1, p2, p3]).then(
     assertUnreachable,
     function(x) { assertAsync(x === 2, "all/reject") }
   )
@@ -786,7 +685,7 @@ function assertAsyncDone(iteration) {
     configurable: true
   });
 
-  Promise.all(3).chain(
+  Promise.all(3).then(
       function(x) {
         assertAsync(x.length === 3, "all/iterable/number/length");
         assertAsync(x[0] === 0, "all/iterable/number/0");
@@ -807,17 +706,17 @@ function assertAsyncDone(iteration) {
 
 
 (function() {
-  Promise.race([]).chain(
+  Promise.race([]).then(
     assertUnreachable,
     assertUnreachable
   )
 })();
 
 (function() {
-  var p1 = Promise.accept(1)
-  var p2 = Promise.accept(2)
-  var p3 = Promise.accept(3)
-  Promise.race([p1, p2, p3]).chain(
+  var p1 = Promise.resolve(1)
+  var p2 = Promise.resolve(2)
+  var p3 = Promise.resolve(3)
+  Promise.race([p1, p2, p3]).then(
     function(x) { assertAsync(x === 1, "resolved/one") },
     assertUnreachable
   )
@@ -825,10 +724,10 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var p1 = Promise.accept(1)
-  var p2 = Promise.accept(2)
-  var p3 = Promise.accept(3)
-  Promise.race([0, p1, p2, p3]).chain(
+  var p1 = Promise.resolve(1)
+  var p2 = Promise.resolve(2)
+  var p3 = Promise.resolve(3)
+  Promise.race([0, p1, p2, p3]).then(
     function(x) { assertAsync(x === 0, "resolved-const/one") },
     assertUnreachable
   )
@@ -836,13 +735,13 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred1 = Promise.defer()
+  var deferred1 = defer(Promise)
   var p1 = deferred1.promise
-  var deferred2 = Promise.defer()
+  var deferred2 = defer(Promise)
   var p2 = deferred2.promise
-  var deferred3 = Promise.defer()
+  var deferred3 = defer(Promise)
   var p3 = deferred3.promise
-  Promise.race([p1, p2, p3]).chain(
+  Promise.race([p1, p2, p3]).then(
     function(x) { assertAsync(x === 3, "one/resolve") },
     assertUnreachable
   )
@@ -852,11 +751,11 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred = Promise.defer()
+  var deferred = defer(Promise)
   var p1 = deferred.promise
-  var p2 = Promise.accept(2)
-  var p3 = Promise.defer().promise
-  Promise.race([p1, p2, p3]).chain(
+  var p2 = Promise.resolve(2)
+  var p3 = defer(Promise).promise
+  Promise.race([p1, p2, p3]).then(
     function(x) { assertAsync(x === 2, "resolved/one") },
     assertUnreachable
   )
@@ -865,13 +764,13 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred1 = Promise.defer()
+  var deferred1 = defer(Promise)
   var p1 = deferred1.promise
-  var deferred2 = Promise.defer()
+  var deferred2 = defer(Promise)
   var p2 = deferred2.promise
-  var deferred3 = Promise.defer()
+  var deferred3 = defer(Promise)
   var p3 = deferred3.promise
-  Promise.race([p1, p2, p3]).chain(
+  Promise.race([p1, p2, p3]).then(
     function(x) { assertAsync(x === 3, "one/resolve/reject") },
     assertUnreachable
   )
@@ -881,13 +780,13 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred1 = Promise.defer()
+  var deferred1 = defer(Promise)
   var p1 = deferred1.promise
-  var deferred2 = Promise.defer()
+  var deferred2 = defer(Promise)
   var p2 = deferred2.promise
-  var deferred3 = Promise.defer()
+  var deferred3 = defer(Promise)
   var p3 = deferred3.promise
-  Promise.race([p1, p2, p3]).chain(
+  Promise.race([p1, p2, p3]).then(
     assertUnreachable,
     function(x) { assertAsync(x === 3, "one/reject/resolve") }
   )
@@ -899,7 +798,7 @@ function assertAsyncDone(iteration) {
 
 (function() {
   function testPromiseRaceNonIterable(value) {
-    Promise.race(value).chain(
+    Promise.race(value).then(
         assertUnreachable,
         function(r) {
           assertAsync(r instanceof TypeError, 'race/non iterable');
@@ -914,18 +813,18 @@ function assertAsyncDone(iteration) {
 
 
 (function() {
-  var deferred1 = Promise.defer()
+  var deferred1 = defer(Promise)
   var p1 = deferred1.promise
-  var deferred2 = Promise.defer()
+  var deferred2 = defer(Promise)
   var p2 = deferred2.promise
-  var deferred3 = Promise.defer()
+  var deferred3 = defer(Promise)
   var p3 = deferred3.promise
   function* f() {
     yield p1;
     yield p2;
     yield p3;
   }
-  Promise.race(f()).chain(
+  Promise.race(f()).then(
     function(x) { assertAsync(x === 3, "race/iterable/resolve/reject") },
     assertUnreachable
   )
@@ -935,18 +834,18 @@ function assertAsyncDone(iteration) {
 })();
 
 (function() {
-  var deferred1 = Promise.defer()
+  var deferred1 = defer(Promise)
   var p1 = deferred1.promise
-  var deferred2 = Promise.defer()
+  var deferred2 = defer(Promise)
   var p2 = deferred2.promise
-  var deferred3 = Promise.defer()
+  var deferred3 = defer(Promise)
   var p3 = deferred3.promise
   function* f() {
     yield p1;
     yield p2;
     yield p3;
   }
-  Promise.race(f()).chain(
+  Promise.race(f()).then(
     assertUnreachable,
     function(x) { assertAsync(x === 3, "race/iterable/reject/resolve") }
   )
@@ -980,7 +879,7 @@ function assertAsyncDone(iteration) {
     configurable: true
   });
 
-  Promise.race(3).chain(
+  Promise.race(3).then(
       function(x) {
         assertAsync(x === 0, "race/iterable/number");
       },
@@ -1014,18 +913,18 @@ function assertAsyncDone(iteration) {
   }
 
   MyPromise.prototype.__proto__ = Promise.prototype
-  MyPromise.prototype.chain = function(resolve, reject) {
+  MyPromise.prototype.then = function(resolve, reject) {
     log += "c"
-    return call(this.__proto__.__proto__.chain, this, resolve, reject)
+    return call(this.__proto__.__proto__.then, this, resolve, reject)
   }
 
   log = ""
   var p1 = new MyPromise(function(resolve, reject) { resolve(1) })
   var p2 = new MyPromise(function(resolve, reject) { reject(2) })
-  var d3 = MyPromise.defer()
+  var d3 = defer(MyPromise)
   assertTrue(d3.promise instanceof Promise, "subclass/instance")
   assertTrue(d3.promise instanceof MyPromise, "subclass/instance-my3")
-  assertTrue(log === "nx1nr2dn", "subclass/create")
+  assertTrue(log === "nx1nr2n", "subclass/create")
 
   log = ""
   var p4 = MyPromise.resolve(4)
@@ -1038,21 +937,21 @@ function assertAsyncDone(iteration) {
   assertTrue(log === "nx4nr5x3", "subclass/resolve")
 
   log = ""
-  var d6 = MyPromise.defer()
-  d6.promise.chain(function(x) {
+  var d6 = defer(MyPromise)
+  d6.promise.then(function(x) {
     return new Promise(function(resolve) { resolve(x) })
-  }).chain(function() {})
+  }).then(function() {})
   d6.resolve(6)
-  assertTrue(log === "dncncnx6", "subclass/chain")
+  assertTrue(log === "ncncnx6", "subclass/then")
 
   log = ""
-  Promise.all([11, Promise.accept(12), 13, MyPromise.accept(14), 15, 16])
+  Promise.all([11, Promise.resolve(12), 13, MyPromise.resolve(14), 15, 16])
 
   assertTrue(log === "nx14", "subclass/all/arg")
 
   log = ""
-  MyPromise.all([21, Promise.accept(22), 23, MyPromise.accept(24), 25, 26])
-  assertTrue(log === "nx24nnx21nnx[object Promise]nnx23nnnx25nnx26n",
+  MyPromise.all([21, Promise.resolve(22), 23, MyPromise.resolve(24), 25, 26])
+  assertTrue(log === "nx24nnx21cnnx[object Promise]cnnx23cncnnx25cnnx26cn",
              "subclass/all/self")
 })();
 
@@ -1086,7 +985,7 @@ function assertAsyncDone(iteration) {
   var promise = new Promise(function(res) { resolve = res; });
   resolve({ then() { thenCalled = true; throw new Error(); } });
   assertLater(function() { return thenCalled; }, "resolve-with-thenable");
-});
+})();
 
 (function() {
   var calledWith;

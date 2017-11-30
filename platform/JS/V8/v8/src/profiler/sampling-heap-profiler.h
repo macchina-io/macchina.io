@@ -7,6 +7,7 @@
 
 #include <deque>
 #include <map>
+#include <memory>
 #include <set>
 #include "include/v8-profiler.h"
 #include "src/heap/heap.h"
@@ -141,8 +142,8 @@ class SamplingHeapProfiler {
 
   Isolate* const isolate_;
   Heap* const heap_;
-  base::SmartPointer<SamplingAllocationObserver> new_space_observer_;
-  base::SmartPointer<SamplingAllocationObserver> other_spaces_observer_;
+  std::unique_ptr<SamplingAllocationObserver> new_space_observer_;
+  std::unique_ptr<SamplingAllocationObserver> other_spaces_observer_;
   StringsStorage* const names_;
   AllocationNode profile_root_;
   std::set<Sample*> samples_;
@@ -151,6 +152,8 @@ class SamplingHeapProfiler {
   v8::HeapProfiler::SamplingFlags flags_;
 
   friend class SamplingAllocationObserver;
+
+  DISALLOW_COPY_AND_ASSIGN(SamplingHeapProfiler);
 };
 
 class SamplingAllocationObserver : public AllocationObserver {
@@ -169,8 +172,11 @@ class SamplingAllocationObserver : public AllocationObserver {
   void Step(int bytes_allocated, Address soon_object, size_t size) override {
     USE(heap_);
     DCHECK(heap_->gc_state() == Heap::NOT_IN_GC);
-    DCHECK(soon_object);
-    profiler_->SampleObject(soon_object, size);
+    if (soon_object) {
+      // TODO(ofrobots): it would be better to sample the next object rather
+      // than skipping this sample epoch if soon_object happens to be null.
+      profiler_->SampleObject(soon_object, size);
+    }
   }
 
   intptr_t GetNextStepSize() override { return GetNextSampleInterval(rate_); }

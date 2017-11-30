@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Flags: --expose-wasm
+// Flags: --validate-asm --allow-natives-syntax
 
 function WrapInAsmModule(func) {
   function MODULE_NAME(stdlib) {
@@ -23,22 +23,19 @@ function WrapInAsmModule(func) {
   return eval("(" + source + ")");
 }
 
-function RunThreeWayTest(asmfunc, expect) {
+function RunAsmJsTest(asmfunc, expect) {
   var asm_source = asmfunc.toString();
   var nonasm_source = asm_source.replace(new RegExp("use asm"), "");
   var stdlib = {Math: Math};
 
-  var js_module = eval("(" + nonasm_source + ")")(stdlib);
   print("Testing " + asmfunc.name + " (js)...");
+  var js_module = eval("(" + nonasm_source + ")")(stdlib);
   expect(js_module);
 
   print("Testing " + asmfunc.name + " (asm.js)...");
   var asm_module = asmfunc(stdlib);
+  assertTrue(%IsAsmWasmCode(asmfunc));
   expect(asm_module);
-
-  print("Testing " + asmfunc.name + " (wasm)...");
-  var wasm_module = Wasm.instantiateModuleFromAsm(asm_source, stdlib);
-  expect(wasm_module);
 }
 
 const imul = Math.imul;
@@ -67,13 +64,13 @@ function i32_mul(a, b) {
 function i32_div(a, b) {
   a = a | 0;
   b = b | 0;
-  return (a / b) | 0;
+  return ((a | 0) / (b | 0)) | 0;
 }
 
 function i32_mod(a, b) {
   a = a | 0;
   b = b | 0;
-  return (a % b) | 0;
+  return ((a | 0) % (b | 0)) | 0;
 }
 
 function i32_and(a, b) {
@@ -183,6 +180,16 @@ function i32_abs(a) {
   return Math_abs(a | 0) | 0;
 }
 
+function i32_neg(a) {
+  a = a | 0;
+  return (-a) | 0;
+}
+
+function i32_invert(a) {
+  a = a | 0;
+  return (~a) | 0;
+}
+
 var inputs = [
   0, 1, 2, 3, 4,
   10, 20, 30, 31, 32, 33, 100, 2000,
@@ -229,12 +236,14 @@ var funcs = [
   i32_gteq,
   i32_min,
   i32_max,
-  i32_abs
+  i32_abs,
+  i32_neg,
+  i32_invert,
 ];
 
 (function () {
   for (func of funcs) {
-    RunThreeWayTest(WrapInAsmModule(func), function (module) {
+    RunAsmJsTest(WrapInAsmModule(func), function (module) {
       if (func.length == 1) {
         for (a of inputs) {
           assertEquals(func(a), module.main(a));

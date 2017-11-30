@@ -30,6 +30,7 @@
 #include "src/v8.h"
 
 #include "src/debug/liveedit.h"
+#include "src/objects-inl.h"
 #include "test/cctest/cctest.h"
 
 
@@ -95,8 +96,8 @@ void CompareStringsOneWay(const char* s1, const char* s2,
                           int expected_diff_parameter = -1) {
   StringCompareInput input(s1, s2);
 
-  v8::base::AccountingAllocator allocator;
-  Zone zone(&allocator);
+  v8::internal::AccountingAllocator allocator;
+  Zone zone(&allocator, ZONE_NAME);
 
   DiffChunkStruct* first_chunk;
   ListDiffOutputWriter writer(&first_chunk, &zone);

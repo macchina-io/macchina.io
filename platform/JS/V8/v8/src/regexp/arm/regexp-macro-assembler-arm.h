@@ -86,7 +86,6 @@ class RegExpMacroAssemblerARM: public NativeRegExpMacroAssembler {
   virtual void WriteCurrentPositionToRegister(int reg, int cp_offset);
   virtual void ClearRegisters(int reg_from, int reg_to);
   virtual void WriteStackPointerToRegister(int reg);
-  virtual bool CanReadUnaligned();
 
   // Called from RegExp if the stack-guard is triggered.
   // If the code object is relocated, the return address is fixed before
@@ -104,9 +103,8 @@ class RegExpMacroAssemblerARM: public NativeRegExpMacroAssembler {
   static const int kStoredRegisters = kFramePointer;
   // Return address (stored from link register, read into pc on return).
   static const int kReturnAddress = kStoredRegisters + 8 * kPointerSize;
-  static const int kSecondaryReturnAddress = kReturnAddress + kPointerSize;
   // Stack parameters placed by caller.
-  static const int kRegisterOutput = kSecondaryReturnAddress + kPointerSize;
+  static const int kRegisterOutput = kReturnAddress + kPointerSize;
   static const int kNumOutputRegisters = kRegisterOutput + kPointerSize;
   static const int kStackHighEnd = kNumOutputRegisters + kPointerSize;
   static const int kDirectCall = kStackHighEnd + kPointerSize;
@@ -142,7 +140,7 @@ class RegExpMacroAssemblerARM: public NativeRegExpMacroAssembler {
 
 
   // Generate a call to CheckStackGuardState.
-  void CallCheckStackGuardState(Register scratch);
+  void CallCheckStackGuardState();
 
   // The ebp-relative location of a regexp register.
   MemOperand register_location(int register_index);

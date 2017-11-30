@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Flags: --expose-wasm
+// Flags: --validate-asm --allow-natives-syntax
 
 function WrapInAsmModule(func) {
   function MODULE_NAME(stdlib) {
@@ -34,22 +34,19 @@ function WrapInAsmModule(func) {
   return eval("(" + source + ")");
 }
 
-function RunThreeWayTest(asmfunc, expect) {
+function RunAsmJsTest(asmfunc, expect) {
   var asm_source = asmfunc.toString();
   var nonasm_source = asm_source.replace(new RegExp("use asm"), "");
   var stdlib = {Math: Math};
 
-  var js_module = eval("(" + nonasm_source + ")")(stdlib);
   print("Testing " + asmfunc.name + " (js)...");
+  var js_module = eval("(" + nonasm_source + ")")(stdlib);
   expect(js_module);
 
   print("Testing " + asmfunc.name + " (asm.js)...");
   var asm_module = asmfunc(stdlib);
+  assertTrue(%IsAsmWasmCode(asmfunc));
   expect(asm_module);
-
-  print("Testing " + asmfunc.name + " (wasm)...");
-  var wasm_module = Wasm.instantiateModuleFromAsm(asm_source, stdlib);
-  expect(wasm_module);
 }
 
 const Math_ceil = Math.ceil;
@@ -208,21 +205,25 @@ function f64_tan(a) {
   return +Math_tan(+a);
 }
 
-function f64_exp(a, b) {
+function f64_exp(a) {
   a = +a;
-  b = +b;
-  return +Math_exp(+a, +b);
+  return +Math_exp(+a);
 }
 
-function f64_log(a, b) {
+function f64_log(a) {
   a = +a;
-  b = +b;
-  return +Math_log(+a, +b);
+  return +Math_log(+a);
 }
 
-function f64_atan2(a) {
+function f64_atan2(a, b) {
   a = +a;
-  return +Math_atan2(+a);
+  b = +b;
+  return +Math_atan2(+a, +b);
+}
+
+function f64_neg(a) {
+  a = +a;
+  return +(-a);
 }
 
 
@@ -275,22 +276,23 @@ var funcs = [
   f64_floor,
 // TODO(bradnelson) f64_sqrt,
   f64_abs,
+  f64_neg,
 // TODO(bradnelson) f64_min is wrong for -0
 // TODO(bradnelson) f64_max is wrong for -0
-// TODO(bradnelson) f64_acos,
-// TODO(bradnelson) f64_asin,
-// TODO(bradnelson) f64_atan,
-// TODO(bradnelson) f64_cos,
-// TODO(bradnelson) f64_sin,
-// TODO(bradnelson) f64_tan,
-// TODO(bradnelson) f64_exp,
-// TODO(bradnelson) f64_log,
-// TODO(bradnelson) f64_atan2,
+  f64_acos,
+  f64_asin,
+  f64_atan,
+  f64_cos,
+  f64_sin,
+  f64_tan,
+  f64_exp,
+  f64_log,
+  f64_atan2,
 ];
 
 (function () {
   for (func of funcs) {
-    RunThreeWayTest(WrapInAsmModule(func), function (module) {
+    RunAsmJsTest(WrapInAsmModule(func), function (module) {
       if (func.length == 1) {
         for (a of inputs) {
           assertEquals(func(a), module.main(a));

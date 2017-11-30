@@ -77,7 +77,6 @@ class RegExpMacroAssemblerS390 : public NativeRegExpMacroAssembler {
   virtual void WriteCurrentPositionToRegister(int reg, int cp_offset);
   virtual void ClearRegisters(int reg_from, int reg_to);
   virtual void WriteStackPointerToRegister(int reg);
-  virtual bool CanReadUnaligned();
 
   // Called from RegExp if the stack-guard is triggered.
   // If the code object is relocated, the return address is fixed before
@@ -98,8 +97,7 @@ class RegExpMacroAssemblerS390 : public NativeRegExpMacroAssembler {
   static const int kCaptureArraySize = kCallerFrame;
   static const int kStackAreaBase = kCallerFrame + kPointerSize;
   // kDirectCall again
-  static const int kSecondaryReturnAddress = kStackAreaBase + 2 * kPointerSize;
-  static const int kIsolate = kSecondaryReturnAddress + kPointerSize;
+  static const int kIsolate = kStackAreaBase + 2 * kPointerSize;
 
   // Below the frame pointer.
   // Register parameters stored by setup code.

@@ -6,8 +6,8 @@
 
 #include "src/v8.h"
 
+#include "src/interpreter/bytecode-register.h"
 #include "src/interpreter/bytecodes.h"
-#include "test/unittests/interpreter/bytecode-utils.h"
 #include "test/unittests/test-utils.h"
 
 namespace v8 {
@@ -88,76 +88,21 @@ TEST(OperandScaling, ScalableAndNonScalable) {
     CHECK_EQ(Bytecodes::Size(Bytecode::kCallRuntime, operand_scale),
              1 + 2 + 2 * scale);
     CHECK_EQ(Bytecodes::Size(Bytecode::kCreateObjectLiteral, operand_scale),
-             1 + 2 * scale + 1);
+             1 + 2 * scale + 1 + 1 * scale);
     CHECK_EQ(Bytecodes::Size(Bytecode::kTestIn, operand_scale), 1 + scale);
   }
 }
 
-TEST(Bytecodes, HasAnyRegisterOperands) {
-  CHECK_EQ(Bytecodes::NumberOfRegisterOperands(Bytecode::kAdd), 1);
-  CHECK_EQ(Bytecodes::NumberOfRegisterOperands(Bytecode::kCall), 2);
-  CHECK_EQ(Bytecodes::NumberOfRegisterOperands(Bytecode::kCallRuntime), 1);
-  CHECK_EQ(Bytecodes::NumberOfRegisterOperands(Bytecode::kCallRuntimeForPair),
-           2);
-  CHECK_EQ(Bytecodes::NumberOfRegisterOperands(Bytecode::kDeletePropertyStrict),
-           1);
-  CHECK_EQ(Bytecodes::NumberOfRegisterOperands(Bytecode::kForInPrepare), 1);
-  CHECK_EQ(Bytecodes::NumberOfRegisterOperands(Bytecode::kInc), 0);
-  CHECK_EQ(Bytecodes::NumberOfRegisterOperands(Bytecode::kJumpIfTrue), 0);
-  CHECK_EQ(Bytecodes::NumberOfRegisterOperands(Bytecode::kNew), 2);
-  CHECK_EQ(Bytecodes::NumberOfRegisterOperands(Bytecode::kToName), 0);
-}
-
-TEST(Bytecodes, RegisterOperandBitmaps) {
-  CHECK_EQ(Bytecodes::GetRegisterOperandBitmap(Bytecode::kAdd), 1);
-  CHECK_EQ(Bytecodes::GetRegisterOperandBitmap(Bytecode::kCallRuntimeForPair),
-           10);
-  CHECK_EQ(Bytecodes::GetRegisterOperandBitmap(Bytecode::kStar), 1);
-  CHECK_EQ(Bytecodes::GetRegisterOperandBitmap(Bytecode::kMov), 3);
-  CHECK_EQ(Bytecodes::GetRegisterOperandBitmap(Bytecode::kTestIn), 1);
-  CHECK_EQ(Bytecodes::GetRegisterOperandBitmap(Bytecode::kForInPrepare), 1);
-  CHECK_EQ(Bytecodes::GetRegisterOperandBitmap(Bytecode::kForInDone), 3);
-  CHECK_EQ(Bytecodes::GetRegisterOperandBitmap(Bytecode::kForInNext), 7);
-}
-
 TEST(Bytecodes, RegisterOperands) {
   CHECK(Bytecodes::IsRegisterOperandType(OperandType::kReg));
+  CHECK(Bytecodes::IsRegisterOperandType(OperandType::kRegPair));
   CHECK(Bytecodes::IsRegisterInputOperandType(OperandType::kReg));
+  CHECK(Bytecodes::IsRegisterInputOperandType(OperandType::kRegPair));
+  CHECK(Bytecodes::IsRegisterInputOperandType(OperandType::kRegList));
   CHECK(!Bytecodes::IsRegisterOutputOperandType(OperandType::kReg));
   CHECK(!Bytecodes::IsRegisterInputOperandType(OperandType::kRegOut));
   CHECK(Bytecodes::IsRegisterOutputOperandType(OperandType::kRegOut));
-
-#define IS_REGISTER_OPERAND_TYPE(Name, _) \
-  CHECK(Bytecodes::IsRegisterOperandType(OperandType::k##Name));
-  REGISTER_OPERAND_TYPE_LIST(IS_REGISTER_OPERAND_TYPE)
-#undef IS_REGISTER_OPERAND_TYPE
-
-#define IS_NOT_REGISTER_OPERAND_TYPE(Name, _) \
-  CHECK(!Bytecodes::IsRegisterOperandType(OperandType::k##Name));
-  NON_REGISTER_OPERAND_TYPE_LIST(IS_NOT_REGISTER_OPERAND_TYPE)
-#undef IS_NOT_REGISTER_OPERAND_TYPE
-
-#define IS_REGISTER_INPUT_OPERAND_TYPE(Name, _) \
-  CHECK(Bytecodes::IsRegisterInputOperandType(OperandType::k##Name));
-  REGISTER_INPUT_OPERAND_TYPE_LIST(IS_REGISTER_INPUT_OPERAND_TYPE)
-#undef IS_REGISTER_INPUT_OPERAND_TYPE
-
-#define IS_NOT_REGISTER_INPUT_OPERAND_TYPE(Name, _) \
-  CHECK(!Bytecodes::IsRegisterInputOperandType(OperandType::k##Name));
-  NON_REGISTER_OPERAND_TYPE_LIST(IS_NOT_REGISTER_INPUT_OPERAND_TYPE);
-  REGISTER_OUTPUT_OPERAND_TYPE_LIST(IS_NOT_REGISTER_INPUT_OPERAND_TYPE)
-#undef IS_NOT_REGISTER_INPUT_OPERAND_TYPE
-
-#define IS_REGISTER_OUTPUT_OPERAND_TYPE(Name, _) \
-  CHECK(Bytecodes::IsRegisterOutputOperandType(OperandType::k##Name));
-  REGISTER_OUTPUT_OPERAND_TYPE_LIST(IS_REGISTER_OUTPUT_OPERAND_TYPE)
-#undef IS_REGISTER_OUTPUT_OPERAND_TYPE
-
-#define IS_NOT_REGISTER_OUTPUT_OPERAND_TYPE(Name, _) \
-  CHECK(!Bytecodes::IsRegisterOutputOperandType(OperandType::k##Name));
-  NON_REGISTER_OPERAND_TYPE_LIST(IS_NOT_REGISTER_OUTPUT_OPERAND_TYPE)
-  REGISTER_INPUT_OPERAND_TYPE_LIST(IS_NOT_REGISTER_OUTPUT_OPERAND_TYPE)
-#undef IS_NOT_REGISTER_INPUT_OPERAND_TYPE
+  CHECK(Bytecodes::IsRegisterOutputOperandType(OperandType::kRegOutPair));
 }
 
 TEST(Bytecodes, DebugBreakExistForEachBytecode) {
@@ -171,72 +116,6 @@ TEST(Bytecodes, DebugBreakExistForEachBytecode) {
   }
   BYTECODE_LIST(CHECK_DEBUG_BREAK_SIZE)
 #undef CHECK_DEBUG_BREAK_SIZE
-}
-
-TEST(Bytecodes, DecodeBytecodeAndOperands) {
-  struct BytecodesAndResult {
-    const uint8_t bytecode[32];
-    const size_t length;
-    int parameter_count;
-    const char* output;
-  };
-
-  const BytecodesAndResult cases[] = {
-      {{B(LdaSmi), U8(1)}, 2, 0, "            LdaSmi [1]"},
-      {{B(Wide), B(LdaSmi), U16(1000)}, 4, 0, "      LdaSmi.Wide [1000]"},
-      {{B(ExtraWide), B(LdaSmi), U32(100000)},
-       6,
-       0,
-       "LdaSmi.ExtraWide [100000]"},
-      {{B(LdaSmi), U8(-1)}, 2, 0, "            LdaSmi [-1]"},
-      {{B(Wide), B(LdaSmi), U16(-1000)}, 4, 0, "      LdaSmi.Wide [-1000]"},
-      {{B(ExtraWide), B(LdaSmi), U32(-100000)},
-       6,
-       0,
-       "LdaSmi.ExtraWide [-100000]"},
-      {{B(Star), R8(5)}, 2, 0, "            Star r5"},
-      {{B(Wide), B(Star), R16(136)}, 4, 0, "      Star.Wide r136"},
-      {{B(Wide), B(Call), R16(134), R16(135), U16(2), U16(177)},
-       10,
-       0,
-       "Call.Wide r134, r135, #2, [177]"},
-      {{B(Ldar),
-        static_cast<uint8_t>(Register::FromParameterIndex(2, 3).ToOperand())},
-       2,
-       3,
-       "            Ldar a1"},
-      {{B(Wide), B(CreateObjectLiteral), U16(513), U16(1027), U8(165)},
-       7,
-       0,
-       "CreateObjectLiteral.Wide [513], [1027], #165"},
-      {{B(ExtraWide), B(JumpIfNull), U32(123456789)},
-       6,
-       0,
-       "JumpIfNull.ExtraWide [123456789]"},
-  };
-
-  for (size_t i = 0; i < arraysize(cases); ++i) {
-    // Generate reference string by prepending formatted bytes.
-    std::stringstream expected_ss;
-    std::ios default_format(nullptr);
-    default_format.copyfmt(expected_ss);
-    // Match format of Bytecodes::Decode() for byte representations.
-    expected_ss.fill('0');
-    expected_ss.flags(std::ios::right | std::ios::hex);
-    for (size_t b = 0; b < cases[i].length; b++) {
-      expected_ss << std::setw(2) << static_cast<uint32_t>(cases[i].bytecode[b])
-                  << ' ';
-    }
-    expected_ss.copyfmt(default_format);
-    expected_ss << cases[i].output;
-
-    // Generate decoded byte output.
-    std::stringstream actual_ss;
-    Bytecodes::Decode(actual_ss, cases[i].bytecode, cases[i].parameter_count);
-
-    // Compare.
-    CHECK_EQ(actual_ss.str(), expected_ss.str());
-  }
 }
 
 TEST(Bytecodes, DebugBreakForPrefixBytecodes) {
@@ -254,47 +133,47 @@ TEST(Bytecodes, PrefixMappings) {
   }
 }
 
-TEST(Bytecodes, OperandScales) {
-  CHECK_EQ(Bytecodes::OperandSizesToScale(OperandSize::kByte),
-           OperandScale::kSingle);
-  CHECK_EQ(Bytecodes::OperandSizesToScale(OperandSize::kShort),
-           OperandScale::kDouble);
-  CHECK_EQ(Bytecodes::OperandSizesToScale(OperandSize::kQuad),
-           OperandScale::kQuadruple);
-  CHECK_EQ(
-      Bytecodes::OperandSizesToScale(OperandSize::kShort, OperandSize::kShort,
-                                     OperandSize::kShort, OperandSize::kShort),
-      OperandScale::kDouble);
-  CHECK_EQ(
-      Bytecodes::OperandSizesToScale(OperandSize::kQuad, OperandSize::kShort,
-                                     OperandSize::kShort, OperandSize::kShort),
-      OperandScale::kQuadruple);
-  CHECK_EQ(
-      Bytecodes::OperandSizesToScale(OperandSize::kShort, OperandSize::kQuad,
-                                     OperandSize::kShort, OperandSize::kShort),
-      OperandScale::kQuadruple);
-  CHECK_EQ(
-      Bytecodes::OperandSizesToScale(OperandSize::kShort, OperandSize::kShort,
-                                     OperandSize::kQuad, OperandSize::kShort),
-      OperandScale::kQuadruple);
-  CHECK_EQ(
-      Bytecodes::OperandSizesToScale(OperandSize::kShort, OperandSize::kShort,
-                                     OperandSize::kShort, OperandSize::kQuad),
-      OperandScale::kQuadruple);
+TEST(Bytecodes, ScaleForSignedOperand) {
+  CHECK(Bytecodes::ScaleForSignedOperand(0) == OperandScale::kSingle);
+  CHECK(Bytecodes::ScaleForSignedOperand(kMaxInt8) == OperandScale::kSingle);
+  CHECK(Bytecodes::ScaleForSignedOperand(kMinInt8) == OperandScale::kSingle);
+  CHECK(Bytecodes::ScaleForSignedOperand(kMaxInt8 + 1) ==
+        OperandScale::kDouble);
+  CHECK(Bytecodes::ScaleForSignedOperand(kMinInt8 - 1) ==
+        OperandScale::kDouble);
+  CHECK(Bytecodes::ScaleForSignedOperand(kMaxInt16) == OperandScale::kDouble);
+  CHECK(Bytecodes::ScaleForSignedOperand(kMinInt16) == OperandScale::kDouble);
+  CHECK(Bytecodes::ScaleForSignedOperand(kMaxInt16 + 1) ==
+        OperandScale::kQuadruple);
+  CHECK(Bytecodes::ScaleForSignedOperand(kMinInt16 - 1) ==
+        OperandScale::kQuadruple);
+  CHECK(Bytecodes::ScaleForSignedOperand(kMaxInt) == OperandScale::kQuadruple);
+  CHECK(Bytecodes::ScaleForSignedOperand(kMinInt) == OperandScale::kQuadruple);
 }
 
-TEST(Bytecodes, SizesForSignedOperands) {
-  CHECK(Bytecodes::SizeForSignedOperand(0) == OperandSize::kByte);
-  CHECK(Bytecodes::SizeForSignedOperand(kMaxInt8) == OperandSize::kByte);
-  CHECK(Bytecodes::SizeForSignedOperand(kMinInt8) == OperandSize::kByte);
-  CHECK(Bytecodes::SizeForSignedOperand(kMaxInt8 + 1) == OperandSize::kShort);
-  CHECK(Bytecodes::SizeForSignedOperand(kMinInt8 - 1) == OperandSize::kShort);
-  CHECK(Bytecodes::SizeForSignedOperand(kMaxInt16) == OperandSize::kShort);
-  CHECK(Bytecodes::SizeForSignedOperand(kMinInt16) == OperandSize::kShort);
-  CHECK(Bytecodes::SizeForSignedOperand(kMaxInt16 + 1) == OperandSize::kQuad);
-  CHECK(Bytecodes::SizeForSignedOperand(kMinInt16 - 1) == OperandSize::kQuad);
-  CHECK(Bytecodes::SizeForSignedOperand(kMaxInt) == OperandSize::kQuad);
-  CHECK(Bytecodes::SizeForSignedOperand(kMinInt) == OperandSize::kQuad);
+TEST(Bytecodes, ScaleForUnsignedOperands) {
+  // int overloads
+  CHECK(Bytecodes::ScaleForUnsignedOperand(0) == OperandScale::kSingle);
+  CHECK(Bytecodes::ScaleForUnsignedOperand(kMaxUInt8) == OperandScale::kSingle);
+  CHECK(Bytecodes::ScaleForUnsignedOperand(kMaxUInt8 + 1) ==
+        OperandScale::kDouble);
+  CHECK(Bytecodes::ScaleForUnsignedOperand(kMaxUInt16) ==
+        OperandScale::kDouble);
+  CHECK(Bytecodes::ScaleForUnsignedOperand(kMaxUInt16 + 1) ==
+        OperandScale::kQuadruple);
+  // size_t overloads
+  CHECK(Bytecodes::ScaleForUnsignedOperand(static_cast<size_t>(0)) ==
+        OperandScale::kSingle);
+  CHECK(Bytecodes::ScaleForUnsignedOperand(static_cast<size_t>(kMaxUInt8)) ==
+        OperandScale::kSingle);
+  CHECK(Bytecodes::ScaleForUnsignedOperand(
+            static_cast<size_t>(kMaxUInt8 + 1)) == OperandScale::kDouble);
+  CHECK(Bytecodes::ScaleForUnsignedOperand(static_cast<size_t>(kMaxUInt16)) ==
+        OperandScale::kDouble);
+  CHECK(Bytecodes::ScaleForUnsignedOperand(
+            static_cast<size_t>(kMaxUInt16 + 1)) == OperandScale::kQuadruple);
+  CHECK(Bytecodes::ScaleForUnsignedOperand(static_cast<size_t>(kMaxUInt32)) ==
+        OperandScale::kQuadruple);
 }
 
 TEST(Bytecodes, SizesForUnsignedOperands) {
@@ -320,6 +199,126 @@ TEST(Bytecodes, SizesForUnsignedOperands) {
   CHECK(Bytecodes::SizeForUnsignedOperand(static_cast<size_t>(kMaxUInt32)) ==
         OperandSize::kQuad);
 }
+
+// Helper macros to generate a check for if a bytecode is in a macro list of
+// bytecodes. We can use these to exhaustively test a check over all bytecodes,
+// both those that should pass and those that should fail the check.
+#define OR_IS_BYTECODE(Name, ...) || bytecode == Bytecode::k##Name
+#define IN_BYTECODE_LIST(BYTECODE, LIST) \
+  ([](Bytecode bytecode) { return false LIST(OR_IS_BYTECODE); }(BYTECODE))
+
+TEST(Bytecodes, IsJump) {
+#define TEST_BYTECODE(Name, ...)                                 \
+  if (IN_BYTECODE_LIST(Bytecode::k##Name, JUMP_BYTECODE_LIST)) { \
+    EXPECT_TRUE(Bytecodes::IsJump(Bytecode::k##Name));           \
+  } else {                                                       \
+    EXPECT_FALSE(Bytecodes::IsJump(Bytecode::k##Name));          \
+  }
+
+  BYTECODE_LIST(TEST_BYTECODE)
+#undef TEST_BYTECODE
+}
+
+TEST(Bytecodes, IsForwardJump) {
+#define TEST_BYTECODE(Name, ...)                                         \
+  if (IN_BYTECODE_LIST(Bytecode::k##Name, JUMP_FORWARD_BYTECODE_LIST)) { \
+    EXPECT_TRUE(Bytecodes::IsForwardJump(Bytecode::k##Name));            \
+  } else {                                                               \
+    EXPECT_FALSE(Bytecodes::IsForwardJump(Bytecode::k##Name));           \
+  }
+
+  BYTECODE_LIST(TEST_BYTECODE)
+#undef TEST_BYTECODE
+}
+
+TEST(Bytecodes, IsConditionalJump) {
+#define TEST_BYTECODE(Name, ...)                                             \
+  if (IN_BYTECODE_LIST(Bytecode::k##Name, JUMP_CONDITIONAL_BYTECODE_LIST)) { \
+    EXPECT_TRUE(Bytecodes::IsConditionalJump(Bytecode::k##Name));            \
+  } else {                                                                   \
+    EXPECT_FALSE(Bytecodes::IsConditionalJump(Bytecode::k##Name));           \
+  }
+
+  BYTECODE_LIST(TEST_BYTECODE)
+#undef TEST_BYTECODE
+}
+
+TEST(Bytecodes, IsUnconditionalJump) {
+#define TEST_BYTECODE(Name, ...)                                               \
+  if (IN_BYTECODE_LIST(Bytecode::k##Name, JUMP_UNCONDITIONAL_BYTECODE_LIST)) { \
+    EXPECT_TRUE(Bytecodes::IsUnconditionalJump(Bytecode::k##Name));            \
+  } else {                                                                     \
+    EXPECT_FALSE(Bytecodes::IsUnconditionalJump(Bytecode::k##Name));           \
+  }
+
+  BYTECODE_LIST(TEST_BYTECODE)
+#undef TEST_BYTECODE
+}
+
+TEST(Bytecodes, IsJumpImmediate) {
+#define TEST_BYTECODE(Name, ...)                                           \
+  if (IN_BYTECODE_LIST(Bytecode::k##Name, JUMP_IMMEDIATE_BYTECODE_LIST)) { \
+    EXPECT_TRUE(Bytecodes::IsJumpImmediate(Bytecode::k##Name));            \
+  } else {                                                                 \
+    EXPECT_FALSE(Bytecodes::IsJumpImmediate(Bytecode::k##Name));           \
+  }
+
+  BYTECODE_LIST(TEST_BYTECODE)
+#undef TEST_BYTECODE
+}
+
+TEST(Bytecodes, IsJumpConstant) {
+#define TEST_BYTECODE(Name, ...)                                          \
+  if (IN_BYTECODE_LIST(Bytecode::k##Name, JUMP_CONSTANT_BYTECODE_LIST)) { \
+    EXPECT_TRUE(Bytecodes::IsJumpConstant(Bytecode::k##Name));            \
+  } else {                                                                \
+    EXPECT_FALSE(Bytecodes::IsJumpConstant(Bytecode::k##Name));           \
+  }
+
+  BYTECODE_LIST(TEST_BYTECODE)
+#undef TEST_BYTECODE
+}
+
+TEST(Bytecodes, IsConditionalJumpImmediate) {
+#define TEST_BYTECODE(Name, ...)                                             \
+  if (IN_BYTECODE_LIST(Bytecode::k##Name, JUMP_CONDITIONAL_BYTECODE_LIST) && \
+      IN_BYTECODE_LIST(Bytecode::k##Name, JUMP_IMMEDIATE_BYTECODE_LIST)) {   \
+    EXPECT_TRUE(Bytecodes::IsConditionalJumpImmediate(Bytecode::k##Name));   \
+  } else {                                                                   \
+    EXPECT_FALSE(Bytecodes::IsConditionalJumpImmediate(Bytecode::k##Name));  \
+  }
+
+  BYTECODE_LIST(TEST_BYTECODE)
+#undef TEST_BYTECODE
+}
+
+TEST(Bytecodes, IsConditionalJumpConstant) {
+#define TEST_BYTECODE(Name, ...)                                             \
+  if (IN_BYTECODE_LIST(Bytecode::k##Name, JUMP_CONDITIONAL_BYTECODE_LIST) && \
+      IN_BYTECODE_LIST(Bytecode::k##Name, JUMP_CONSTANT_BYTECODE_LIST)) {    \
+    EXPECT_TRUE(Bytecodes::IsConditionalJumpConstant(Bytecode::k##Name));    \
+  } else {                                                                   \
+    EXPECT_FALSE(Bytecodes::IsConditionalJumpConstant(Bytecode::k##Name));   \
+  }
+
+  BYTECODE_LIST(TEST_BYTECODE)
+#undef TEST_BYTECODE
+}
+
+TEST(Bytecodes, IsJumpIfToBoolean) {
+#define TEST_BYTECODE(Name, ...)                                            \
+  if (IN_BYTECODE_LIST(Bytecode::k##Name, JUMP_TO_BOOLEAN_BYTECODE_LIST)) { \
+    EXPECT_TRUE(Bytecodes::IsJumpIfToBoolean(Bytecode::k##Name));           \
+  } else {                                                                  \
+    EXPECT_FALSE(Bytecodes::IsJumpIfToBoolean(Bytecode::k##Name));          \
+  }
+
+  BYTECODE_LIST(TEST_BYTECODE)
+#undef TEST_BYTECODE
+}
+
+#undef OR_IS_BYTECODE
+#undef IN_BYTECODE_LIST
 
 TEST(OperandScale, PrefixesRequired) {
   CHECK(!Bytecodes::OperandScaleRequiresPrefixBytecode(OperandScale::kSingle));
@@ -356,15 +355,6 @@ TEST(AccumulatorUse, SampleBytecodes) {
   CHECK(Bytecodes::WritesAccumulator(Bytecode::kAdd));
   CHECK_EQ(Bytecodes::GetAccumulatorUse(Bytecode::kAdd),
            AccumulatorUse::kReadWrite);
-}
-
-TEST(AccumulatorUse, AccumulatorUseToString) {
-  std::set<std::string> names;
-  names.insert(Bytecodes::AccumulatorUseToString(AccumulatorUse::kNone));
-  names.insert(Bytecodes::AccumulatorUseToString(AccumulatorUse::kRead));
-  names.insert(Bytecodes::AccumulatorUseToString(AccumulatorUse::kWrite));
-  names.insert(Bytecodes::AccumulatorUseToString(AccumulatorUse::kReadWrite));
-  CHECK_EQ(names.size(), 4);
 }
 
 }  // namespace interpreter

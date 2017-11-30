@@ -18,20 +18,17 @@ function makeSelect(type, args, which) {
     return function() {
       var val = +arguments[which];
       print("  " + val);
-      if (type == kAstI32) return val | 0;
-      if (type == kAstF32) return Math.fround(val);
-      if (type == kAstF64) return val;
+      if (type == kWasmI32) return val | 0;
+      if (type == kWasmF32) return Math.fround(val);
+      if (type == kWasmF64) return val;
       return undefined;
     }
   }
 
   var builder = new WasmModuleBuilder();
-  var sig = new Array();
-  sig.push(args);
-  for (var i = 0; i < args; i++) sig.push(type);
-  sig.push(1);
-  sig.push(type);
-  builder.addFunction("select", sig)
+  var params = [];
+  for (var i = 0; i < args; i++) params.push(type);
+  builder.addFunction("select", makeSig(params, [type]))
     .addBody([kExprGetLocal, which])
     .exportFunc();
 
@@ -45,7 +42,7 @@ const inputs = [
 (function TestInt1() {
   print("i32 1(0)...");
   var C = function(v) { return v | 0; }
-  var select1 = makeSelect(kAstI32, 1, 0);
+  var select1 = makeSelect(kWasmI32, 1, 0);
 
   for (val of inputs) {
     assertEquals(C(val), select1(val));
@@ -61,7 +58,7 @@ const inputs = [
 (function TestInt2() {
   print("i32 2(0)...");
   var C = function(v) { return v | 0; }
-  var select = makeSelect(kAstI32, 2, 0);
+  var select = makeSelect(kWasmI32, 2, 0);
 
   for (val of inputs) {
     assertEquals(C(val), select(val, WRONG1));
@@ -75,7 +72,7 @@ const inputs = [
   }
 
   print("i32 2(1)...");
-  var select = makeSelect(kAstI32, 2, 1);
+  var select = makeSelect(kWasmI32, 2, 1);
 
   for (val of inputs) {
     assertEquals(C(val), select(WRONG1, val));
@@ -93,7 +90,7 @@ const inputs = [
 (function TestInt3() {
   print("i32 3(0)...");
   var C = function(v) { return v | 0; }
-  var select = makeSelect(kAstI32, 3, 0);
+  var select = makeSelect(kWasmI32, 3, 0);
 
   for (val of inputs) {
     assertEquals(C(val), select(val, WRONG1, WRONG2));
@@ -107,7 +104,7 @@ const inputs = [
   }
 
   print("i32 3(1)...");
-  var select = makeSelect(kAstI32, 3, 1);
+  var select = makeSelect(kWasmI32, 3, 1);
 
   for (val of inputs) {
     assertEquals(val | 0, select(WRONG1, val, WRONG2));
@@ -121,7 +118,7 @@ const inputs = [
   }
 
   print("i32 3(2)...");
-  var select = makeSelect(kAstI32, 3, 2);
+  var select = makeSelect(kWasmI32, 3, 2);
 
   for (val of inputs) {
     assertEquals(C(val), select(WRONG1, WRONG2, val));
@@ -138,7 +135,7 @@ const inputs = [
 (function TestFloat32_1() {
   print("f32 1(0)...");
   var C = function(v) { return Math.fround(v); }
-  var select1 = makeSelect(kAstF32, 1, 0);
+  var select1 = makeSelect(kWasmF32, 1, 0);
 
   for (val of inputs) {
     assertEquals(C(val), select1(val));
@@ -154,7 +151,7 @@ const inputs = [
 (function TestFloat32_2() {
   print("f32 2(0)...");
   var C = function(v) { return Math.fround(v); }
-  var select = makeSelect(kAstF32, 2, 0);
+  var select = makeSelect(kWasmF32, 2, 0);
 
   for (val of inputs) {
     assertEquals(C(val), select(val, WRONG1));
@@ -168,7 +165,7 @@ const inputs = [
   }
 
   print("f32 2(1)...");
-  var select = makeSelect(kAstF32, 2, 1);
+  var select = makeSelect(kWasmF32, 2, 1);
 
   for (val of inputs) {
     assertEquals(C(val), select(WRONG1, val));
@@ -186,7 +183,7 @@ const inputs = [
 (function TestFloat32_2() {
   print("f32 3(0)...");
   var C = function(v) { return Math.fround(v); }
-  var select = makeSelect(kAstF32, 3, 0);
+  var select = makeSelect(kWasmF32, 3, 0);
 
   for (val of inputs) {
     assertEquals(C(val), select(val, WRONG1, WRONG2));
@@ -200,7 +197,7 @@ const inputs = [
   }
 
   print("f32 3(1)...");
-  var select = makeSelect(kAstF32, 3, 1);
+  var select = makeSelect(kWasmF32, 3, 1);
 
   for (val of inputs) {
     assertEquals(C(val), select(WRONG1, val, WRONG2));
@@ -214,7 +211,7 @@ const inputs = [
   }
 
   print("f32 3(2)...");
-  var select = makeSelect(kAstF32, 3, 2);
+  var select = makeSelect(kWasmF32, 3, 2);
 
   for (val of inputs) {
     assertEquals(C(val), select(WRONG1, WRONG2, val));
@@ -232,7 +229,7 @@ const inputs = [
 (function TestFloat64_1() {
   print("f64 1(0)...");
   var C = function(v) { return +v; }
-  var select1 = makeSelect(kAstF64, 1, 0);
+  var select1 = makeSelect(kWasmF64, 1, 0);
 
   for (val of inputs) {
     assertEquals(C(val), select1(val));
@@ -248,7 +245,7 @@ const inputs = [
 (function TestFloat64_2() {
   print("f64 2(0)...");
   var C = function(v) { return +v; }
-  var select = makeSelect(kAstF64, 2, 0);
+  var select = makeSelect(kWasmF64, 2, 0);
 
   for (val of inputs) {
     assertEquals(C(val), select(val, WRONG1));
@@ -262,7 +259,7 @@ const inputs = [
   }
 
   print("f64 2(1)...");
-  var select = makeSelect(kAstF64, 2, 1);
+  var select = makeSelect(kWasmF64, 2, 1);
 
   for (val of inputs) {
     assertEquals(C(val), select(WRONG1, val));
@@ -280,7 +277,7 @@ const inputs = [
 (function TestFloat64_2() {
   print("f64 3(0)...");
   var C = function(v) { return +v; }
-  var select = makeSelect(kAstF64, 3, 0);
+  var select = makeSelect(kWasmF64, 3, 0);
 
   for (val of inputs) {
     assertEquals(C(val), select(val, WRONG1, WRONG2));
@@ -294,7 +291,7 @@ const inputs = [
   }
 
   print("f64 3(1)...");
-  var select = makeSelect(kAstF64, 3, 1);
+  var select = makeSelect(kWasmF64, 3, 1);
 
   for (val of inputs) {
     assertEquals(C(val), select(WRONG1, val, WRONG2));
@@ -308,7 +305,7 @@ const inputs = [
   }
 
   print("f64 3(2)...");
-  var select = makeSelect(kAstF64, 3, 2);
+  var select = makeSelect(kWasmF64, 3, 2);
 
   for (val of inputs) {
     assertEquals(C(val), select(WRONG1, WRONG2, val));

@@ -9,13 +9,14 @@
 #include "src/compiler/graph.h"
 #include "src/compiler/machine-operator.h"
 #include "src/compiler/node-marker.h"
-#include "src/zone-containers.h"
+#include "src/globals.h"
+#include "src/zone/zone-containers.h"
 
 namespace v8 {
 namespace internal {
 namespace compiler {
 
-class Int64Lowering {
+class V8_EXPORT_PRIVATE Int64Lowering {
  public:
   Int64Lowering(Graph* graph, MachineOperatorBuilder* machine,
                 CommonOperatorBuilder* common, Zone* zone,
@@ -25,6 +26,11 @@ class Int64Lowering {
 
   static int GetParameterCountAfterLowering(
       Signature<MachineRepresentation>* signature);
+
+  // Determine whether the given type is i64 and has to be passed via two
+  // parameters on the given machine.
+  static bool IsI64AsTwoParameters(MachineOperatorBuilder* machine,
+                                   MachineRepresentation type);
 
  private:
   enum class State : uint8_t { kUnvisited, kOnStack, kVisited };
@@ -43,7 +49,7 @@ class Int64Lowering {
   void PrepareReplacements(Node* node);
   void PushNode(Node* node);
   void LowerNode(Node* node);
-  bool DefaultLowering(Node* node);
+  bool DefaultLowering(Node* node, bool low_word_only = false);
   void LowerComparison(Node* node, const Operator* signed_op,
                        const Operator* unsigned_op);
   void PrepareProjectionReplacements(Node* node);
@@ -54,6 +60,7 @@ class Int64Lowering {
   bool HasReplacementHigh(Node* node);
   Node* GetReplacementHigh(Node* node);
   void PreparePhiReplacement(Node* phi);
+  void GetIndexNodes(Node* index, Node*& index_low, Node*& index_high);
 
   struct NodeState {
     Node* node;

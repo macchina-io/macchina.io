@@ -43,41 +43,77 @@
     'v8_enable_i18n_support%': 1,
     'v8_deprecation_warnings': 1,
     'v8_imminent_deprecation_warnings': 1,
+    'v8_check_microtasks_scopes_consistency': 'true',
     'msvs_multi_core_compile%': '1',
     'mac_deployment_target%': '10.7',
     'release_extra_cflags%': '',
     'variables': {
       'variables': {
         'variables': {
-          'conditions': [
-            ['OS=="linux" or OS=="freebsd" or OS=="openbsd" or \
-               OS=="netbsd" or OS=="mac" or OS=="qnx" or OS=="aix"', {
-              # This handles the Unix platforms we generally deal with.
-              # Anything else gets passed through, which probably won't work
-              # very well; such hosts should pass an explicit target_arch
-              # to gyp.
-              'host_arch%': '<!pymod_do_main(detect_v8_host_arch)',
-            }, {
-              # OS!="linux" and OS!="freebsd" and OS!="openbsd" and
-              # OS!="netbsd" and OS!="mac" and OS!="aix"
-              'host_arch%': 'ia32',
-            }],
-          ],
+          'variables': {
+            'conditions': [
+              ['OS=="linux" or OS=="freebsd" or OS=="openbsd" or \
+                 OS=="netbsd" or OS=="mac" or OS=="qnx" or OS=="aix"', {
+                # This handles the Unix platforms we generally deal with.
+                # Anything else gets passed through, which probably won't work
+                # very well; such hosts should pass an explicit target_arch
+                # to gyp.
+                'host_arch%': '<!pymod_do_main(detect_v8_host_arch)',
+              }, {
+                # OS!="linux" and OS!="freebsd" and OS!="openbsd" and
+                # OS!="netbsd" and OS!="mac" and OS!="aix"
+                'host_arch%': 'ia32',
+              }],
+            ],
+          },
+          'host_arch%': '<(host_arch)',
+          'target_arch%': '<(host_arch)',
+
+          # By default we build against a stable sysroot image to avoid
+          # depending on the packages installed on the local machine. Set this
+          # to 0 to build against locally installed headers and libraries (e.g.
+          # if packaging for a linux distro)
+          'use_sysroot%': 1,
         },
         'host_arch%': '<(host_arch)',
-        'target_arch%': '<(host_arch)',
+        'target_arch%': '<(target_arch)',
+        'use_sysroot%': '<(use_sysroot)',
         'base_dir%': '<!(cd <(DEPTH) && python -c "import os; print os.getcwd()")',
 
         # Instrument for code coverage and use coverage wrapper to exclude some
         # files. Uses gcov if clang=0 is set explicitly. Otherwise,
         # sanitizer_coverage must be set too.
         'coverage%': 0,
+
+        # Default sysroot if no sysroot can be provided.
+        'sysroot%': '',
+
+        'conditions': [
+          # The system root for linux builds.
+          ['OS=="linux" and use_sysroot==1', {
+            'conditions': [
+              ['target_arch=="arm"', {
+                'sysroot%': '<!(cd <(DEPTH) && pwd -P)/build/linux/debian_jessie_arm-sysroot',
+              }],
+              ['target_arch=="x64"', {
+                'sysroot%': '<!(cd <(DEPTH) && pwd -P)/build/linux/debian_jessie_amd64-sysroot',
+              }],
+              ['target_arch=="ia32"', {
+                'sysroot%': '<!(cd <(DEPTH) && pwd -P)/build/linux/debian_jessie_i386-sysroot',
+              }],
+              ['target_arch=="mipsel"', {
+                'sysroot%': '<!(cd <(DEPTH) && pwd -P)/build/linux/debian_jessie_mips-sysroot',
+              }],
+            ],
+          }], # OS=="linux" and use_sysroot==1
+        ],
       },
       'base_dir%': '<(base_dir)',
       'host_arch%': '<(host_arch)',
       'target_arch%': '<(target_arch)',
       'v8_target_arch%': '<(target_arch)',
       'coverage%': '<(coverage)',
+      'sysroot%': '<(sysroot)',
       'asan%': 0,
       'lsan%': 0,
       'msan%': 0,
@@ -86,14 +122,19 @@
       # also controls coverage granularity (1 for function-level, 2 for
       # block-level, 3 for edge-level).
       'sanitizer_coverage%': 0,
+
+      # Use dynamic libraries instrumented by one of the sanitizers
+      # instead of the standard system libraries. Set this flag to download
+      # prebuilt binaries from GCS.
+      'use_prebuilt_instrumented_libraries%': 0,
+
       # Use libc++ (buildtools/third_party/libc++ and
       # buildtools/third_party/libc++abi) instead of stdlibc++ as standard
       # library. This is intended to be used for instrumented builds.
       'use_custom_libcxx%': 0,
 
       'clang_dir%': '<(base_dir)/third_party/llvm-build/Release+Asserts',
-
-      'use_lto%': 0,
+      'make_clang_dir%': '<(base_dir)/third_party/llvm-build/Release+Asserts',
 
       # Control Flow Integrity for virtual calls and casts.
       # See http://clang.llvm.org/docs/ControlFlowIntegrity.html
@@ -112,10 +153,10 @@
       'use_goma%': 0,
       'gomadir%': '',
 
-      # Check if valgrind directories are present.
-      'has_valgrind%': '<!pymod_do_main(has_valgrind)',
-
       'test_isolation_mode%': 'noop',
+
+      # By default, use ICU data file (icudtl.dat).
+      'icu_use_data_file_flag%': 1,
 
       'conditions': [
         # Set default gomadir.
@@ -134,7 +175,7 @@
         # are using a custom toolchain and need to control -B in ldflags.
         # Do not use 32-bit gold on 32-bit hosts as it runs out address space
         # for component=static_library builds.
-        ['(OS=="linux" or OS=="android") and (target_arch=="x64" or target_arch=="arm" or (target_arch=="ia32" and host_arch=="x64"))', {
+        ['((OS=="linux" or OS=="android") and (target_arch=="x64" or target_arch=="arm" or (target_arch=="ia32" and host_arch=="x64"))) or (OS=="linux" and target_arch=="mipsel")', {
           'linux_use_bundled_gold%': 1,
         }, {
           'linux_use_bundled_gold%': 0,
@@ -143,6 +184,7 @@
     },
     'base_dir%': '<(base_dir)',
     'clang_dir%': '<(clang_dir)',
+    'make_clang_dir%': '<(make_clang_dir)',
     'host_arch%': '<(host_arch)',
     'host_clang%': '<(host_clang)',
     'target_arch%': '<(target_arch)',
@@ -155,16 +197,17 @@
     'msan%': '<(msan)',
     'tsan%': '<(tsan)',
     'sanitizer_coverage%': '<(sanitizer_coverage)',
+    'use_prebuilt_instrumented_libraries%': '<(use_prebuilt_instrumented_libraries)',
     'use_custom_libcxx%': '<(use_custom_libcxx)',
     'linux_use_bundled_gold%': '<(linux_use_bundled_gold)',
-    'use_lto%': '<(use_lto)',
     'cfi_vptr%': '<(cfi_vptr)',
     'cfi_diag%': '<(cfi_diag)',
     'cfi_blacklist%': '<(cfi_blacklist)',
     'test_isolation_mode%': '<(test_isolation_mode)',
     'fastbuild%': '<(fastbuild)',
     'coverage%': '<(coverage)',
-    'has_valgrind%': '<(has_valgrind)',
+    'sysroot%': '<(sysroot)',
+    'icu_use_data_file_flag%': '<(icu_use_data_file_flag)',
 
     # Add a simple extras solely for the purpose of the cctests
     'v8_extra_library_files': ['../test/cctest/test-extra.js'],
@@ -219,14 +262,14 @@
         # goma doesn't support PDB yet.
         'fastbuild%': 1,
       }],
-      ['((v8_target_arch=="ia32" or v8_target_arch=="x64" or v8_target_arch=="x87") and \
+      ['((v8_target_arch=="ia32" or v8_target_arch=="x64") and \
         (OS=="linux" or OS=="mac")) or (v8_target_arch=="ppc64" and OS=="linux")', {
         'v8_enable_gdbjit%': 1,
       }, {
         'v8_enable_gdbjit%': 0,
       }],
       ['(OS=="linux" or OS=="mac") and (target_arch=="ia32" or target_arch=="x64") and \
-        (v8_target_arch!="x87" and v8_target_arch!="x32")', {
+        v8_target_arch!="x32"', {
         'clang%': 1,
       }, {
         'clang%': 0,
@@ -247,9 +290,6 @@
         # the C++ standard library is used.
         'use_custom_libcxx%': 1,
       }],
-      ['cfi_vptr==1', {
-        'use_lto%': 1,
-      }],
       ['OS=="android"', {
         # Location of Android NDK.
         'variables': {
@@ -258,12 +298,15 @@
             # because it is used at different levels in the GYP files.
             'android_ndk_root%': '<(base_dir)/third_party/android_tools/ndk/',
             'android_host_arch%': "<!(uname -m | sed -e 's/i[3456]86/x86/')",
+            # Version of the NDK. Used to ensure full rebuilds on NDK rolls.
+            'android_ndk_version%': 'r12b',
             'host_os%': "<!(uname -s | sed -e 's/Linux/linux/;s/Darwin/mac/')",
             'os_folder_name%': "<!(uname -s | sed -e 's/Linux/linux/;s/Darwin/darwin/')",
           },
 
           # Copy conditionally-set variables out one scope.
           'android_ndk_root%': '<(android_ndk_root)',
+          'android_ndk_version%': '<(android_ndk_version)',
           'host_os%': '<(host_os)',
           'os_folder_name%': '<(os_folder_name)',
 
@@ -308,11 +351,15 @@
         },
 
         # Copy conditionally-set variables out one scope.
+        'android_ndk_version%': '<(android_ndk_version)',
         'android_target_arch%': '<(android_target_arch)',
         'android_target_platform%': '<(android_target_platform)',
         'android_toolchain%': '<(android_toolchain)',
         'arm_version%': '<(arm_version)',
         'host_os%': '<(host_os)',
+
+        # Print to stdout on Android.
+        'v8_android_log_stdout%': 1,
 
         'conditions': [
           ['android_ndk_root==""', {
@@ -382,16 +429,16 @@
     # fpxx - compatibility mode, it chooses fp32 or fp64 depending on runtime
     #        detection
     'mips_fpu_mode%': 'fp32',
-
-    # Indicates if gcmole tools are downloaded by a hook.
-    'gcmole%': 0,
   },
   'target_defaults': {
     'variables': {
       'v8_code%': '<(v8_code)',
       'clang_warning_flags': [
+        '-Wsign-compare',
         # TODO(thakis): https://crbug.com/604888
         '-Wno-undefined-var-template',
+        # TODO(yangguo): issue 5258
+        '-Wno-nonportable-include-path',
       ],
       'conditions':[
         ['OS=="android"', {
@@ -436,7 +483,9 @@
     },
     'conditions':[
       ['clang==0', {
-        'cflags+': ['-Wno-sign-compare',],
+        'cflags+': [
+          '-Wno-uninitialized',
+        ],
       }],
       ['clang==1 or host_clang==1', {
         # This is here so that all files get recompiled after a clang roll and
@@ -445,26 +494,6 @@
         # things when their commandline changes). Nothing should ever read this
         # define.
         'defines': ['CR_CLANG_REVISION=<!(python <(DEPTH)/tools/clang/scripts/update.py --print-revision)'],
-        'conditions': [
-          ['host_clang==1', {
-            'target_conditions': [
-              ['_toolset=="host"', {
-                'cflags+': [
-                  '-Wno-format-pedantic',
-                 ],
-              }],
-           ],
-          }],
-          ['clang==1', {
-            'target_conditions': [
-              ['_toolset=="target"', {
-                'cflags+': [
-                  '-Wno-format-pedantic',
-                 ],
-              }],
-           ],
-          }],
-        ],
       }],
       ['clang==1 and target_arch=="ia32"', {
         'cflags': ['-mstack-alignment=16', '-mstackrealign'],
@@ -622,6 +651,11 @@
               }],
             ],
           }],
+          ['use_prebuilt_instrumented_libraries==1', {
+            'dependencies': [
+              '<(DEPTH)/third_party/instrumented_libraries/instrumented_libraries.gyp:prebuilt_instrumented_libraries',
+            ],
+          }],
           ['use_custom_libcxx==1', {
             'dependencies': [
               '<(DEPTH)/buildtools/third_party/libc++/libc++.gyp:libcxx_proxy',
@@ -639,20 +673,31 @@
               }],
             ],
           }],
-          ['linux_use_bundled_gold==1 and not (clang==0 and use_lto==1)', {
+          ['linux_use_bundled_gold==1', {
             # Put our binutils, which contains gold in the search path. We pass
             # the path to gold to the compiler. gyp leaves unspecified what the
             # cwd is when running the compiler, so the normal gyp path-munging
             # fails us. This hack gets the right path.
-            #
-            # Disabled when using GCC LTO because GCC also uses the -B search
-            # path at link time to find "as", and our bundled "as" can only
-            # target x86.
             'ldflags': [
               # Note, Chromium allows ia32 host arch as well, we limit this to
               # x64 in v8.
               '-B<(base_dir)/third_party/binutils/Linux_x64/Release/bin',
             ],
+          }],
+          ['sysroot!="" and clang==1', {
+            'target_conditions': [
+              ['_toolset=="target"', {
+                'variables': {
+                  'ld_paths': ['<!(<(DEPTH)/build/linux/sysroot_ld_path.sh <(sysroot))'],
+                },
+                'cflags': [
+                  '--sysroot=<(sysroot)',
+                ],
+                'ldflags': [
+                  '--sysroot=<(sysroot)',
+                  '<!(<(base_dir)/gypfiles/sysroot_ld_flags.sh <@(ld_paths))',
+                ],
+              }]]
           }],
         ],
       },
@@ -707,7 +752,6 @@
           '-Wall',
           '<(werror)',
           '-Wno-unused-parameter',
-          '-Wno-long-long',
           '-pthread',
           '-pedantic',
           '-Wmissing-field-initializers',
@@ -729,6 +773,15 @@
               '-pedantic' ,
               # Don't warn about unrecognized command line option.
               '-Wno-gnu-zero-variadic-macro-arguments',
+            ],
+            'cflags' : [
+              # Disable gcc warnings for optimizations based on the assumption
+              # that signed overflow does not occur. Generates false positives
+              # (see http://crbug.com/v8/6341).
+              "-Wno-strict-overflow",
+              # Don't rely on strict aliasing; v8 does weird pointer casts all
+              # over the place.
+              '-fno-strict-aliasing',
             ],
           }],
           [ 'clang==1 and (v8_target_arch=="x64" or v8_target_arch=="arm64" \
@@ -804,7 +857,7 @@
             ],
           }],
         ],
-        'msvs_cygwin_dirs': ['<(DEPTH)/third_party/cygwin'],
+        'msvs_cygwin_shell': 0,
         'msvs_disabled_warnings': [
           # C4091: 'typedef ': ignored on left of 'X' when no variable is
           #                    declared.
@@ -959,10 +1012,6 @@
                   # pattern.
                   '-Wno-missing-field-initializers',
 
-                  # Many files use intrinsics without including this header.
-                  # TODO(hans): Fix those files, or move this to sub-GYPs.
-                  '/FIIntrin.h',
-
                   # TODO(hans): Make this list shorter eventually, http://crbug.com/504657
                   '-Qunused-arguments',  # http://crbug.com/504658
                   '-Wno-microsoft-enum-value',  # http://crbug.com/505296
@@ -1063,7 +1112,6 @@
       'target_defaults': {
         'defines': [
           'ANDROID',
-          'V8_ANDROID_LOG_STDOUT',
         ],
         'configurations': {
           'Release': {
@@ -1100,6 +1148,7 @@
               'HAVE_OFF64_T',
               'HAVE_SYS_UIO_H',
               'ANDROID_BINSIZE_HACK', # Enable temporary hacks to reduce binsize.
+              'ANDROID_NDK_VERSION=<(android_ndk_version)',
             ],
             'ldflags!': [
               '-pthread',  # Not supported by Android toolchain.
@@ -1158,7 +1207,7 @@
                   '-L<(android_libcpp_libs)/arm64-v8a',
                 ],
               }],
-              ['target_arch=="ia32" or target_arch=="x87"', {
+              ['target_arch=="ia32"', {
                 # The x86 toolchain currently has problems with stack-protector.
                 'cflags!': [
                   '-fstack-protector',
@@ -1353,108 +1402,6 @@
           ],
         }],
       ],
-    }],
-    ['use_lto==1', {
-      'target_defaults': {
-        'target_conditions': [
-          ['_toolset=="target"', {
-            'cflags': [
-              '-flto',
-            ],
-          }],
-        ],
-      },
-    }],
-    ['use_lto==1 and clang==0', {
-      'target_defaults': {
-        'target_conditions': [
-          ['_toolset=="target"', {
-            'cflags': [
-              '-ffat-lto-objects',
-            ],
-          }],
-        ],
-      },
-    }],
-    ['use_lto==1 and clang==1', {
-      'target_defaults': {
-        'target_conditions': [
-          ['_toolset=="target"', {
-            'arflags': [
-              '--plugin', '<(clang_dir)/lib/LLVMgold.so',
-            ],
-            # Apply a lower optimization level with lto. Chromium does this
-            # for non-official builds only - a differentiation that doesn't
-            # exist in v8.
-            'ldflags': [
-              '-Wl,--plugin-opt,O1',
-            ],
-          }],
-        ],
-      },
-    }],
-    ['use_lto==1 and clang==0', {
-      'target_defaults': {
-        'target_conditions': [
-          ['_toolset=="target"', {
-            'ldflags': [
-              '-flto=32',
-            ],
-          }],
-        ],
-      },
-    }],
-    ['use_lto==1 and clang==1', {
-      'target_defaults': {
-        'target_conditions': [
-          ['_toolset=="target"', {
-            'ldflags': [
-              '-flto',
-            ],
-          }],
-        ],
-      },
-    }],
-    ['cfi_diag==1', {
-      'target_defaults': {
-        'target_conditions': [
-          ['_toolset=="target"', {
-            'cflags': [
-              '-fno-sanitize-trap=cfi',
-              '-fno-sanitize-recover=cfi',
-            ],
-            'cflags_cc!': [
-              '-fno-rtti',
-            ],
-            'cflags!': [
-              '-fno-rtti',
-            ],
-            'ldflags': [
-              '-fno-sanitize-trap=cfi',
-              '-fno-sanitize-recover=cfi',
-            ],
-          }],
-        ],
-      },
-    }],
-    ['cfi_vptr==1', {
-      'target_defaults': {
-        'target_conditions': [
-          ['_toolset=="target"', {
-            'cflags': [
-              '-fsanitize=cfi-vcall',
-              '-fsanitize=cfi-derived-cast',
-              '-fsanitize=cfi-unrelated-cast',
-              '-fsanitize-blacklist=<(cfi_blacklist)',
-            ],
-            'ldflags': [
-              '-fsanitize=cfi-vcall',
-              '-fsanitize=cfi-derived-cast',
-              '-fsanitize=cfi-unrelated-cast',
-            ],
-          }],
-        ],
-      },
     }],
   ],
 }

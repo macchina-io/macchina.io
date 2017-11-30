@@ -3,8 +3,6 @@
 #
 
 ---
-pool type: mixed
-execute: yes
 wrap: yes
 
 ---
@@ -13,15 +11,15 @@ snippet: "
 "
 frame size: 1
 parameter count: 1
-bytecode array length: 8
+bytecode array length: 9
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(35),
-                B(Star), R(0),
-  /*   46 S> */ B(Return),
+  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(3), U8(41), R(0),
+                B(Ldar), R(0),
+  /*   45 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
+  FIXED_ARRAY_TYPE,
 ]
 handlers: [
 ]
@@ -32,15 +30,15 @@ snippet: "
 "
 frame size: 1
 parameter count: 1
-bytecode array length: 8
+bytecode array length: 9
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(1),
-                B(Star), R(0),
-  /*   71 S> */ B(Return),
+  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(3), U8(41), R(0),
+                B(Ldar), R(0),
+  /*   70 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
+  FIXED_ARRAY_TYPE,
 ]
 handlers: [
 ]
@@ -51,21 +49,19 @@ snippet: "
 "
 frame size: 2
 parameter count: 1
-bytecode array length: 20
+bytecode array length: 17
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   42 S> */ B(LdaSmi), U8(1),
-  /*   42 E> */ B(Star), R(0),
-  /*   45 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(1),
-                B(Star), R(1),
-  /*   75 E> */ B(Ldar), R(0),
-                B(StoreICSloppy), R(1), U8(1), U8(1),
+  /*   42 S> */ B(LdaSmi), I8(1),
+                B(Star), R(0),
+  /*   45 S> */ B(CreateObjectLiteral), U8(0), U8(3), U8(41), R(1),
+  /*   75 E> */ B(StaNamedOwnProperty), R(1), U8(1), U8(4),
                 B(Ldar), R(1),
-  /*   80 S> */ B(Return),
+  /*   79 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
+  FIXED_ARRAY_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["val"],
 ]
 handlers: [
 ]
@@ -74,26 +70,22 @@ handlers: [
 snippet: "
   var a = 1; return { val: a, val: a + 1 };
 "
-frame size: 3
+frame size: 2
 parameter count: 1
-bytecode array length: 26
+bytecode array length: 20
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   42 S> */ B(LdaSmi), U8(1),
-  /*   42 E> */ B(Star), R(0),
-  /*   45 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(1),
-                B(Star), R(1),
-  /*   59 E> */ B(Ldar), R(0),
-  /*   67 E> */ B(Star), R(2),
-                B(LdaSmi), U8(1),
-                B(Add), R(2),
-                B(StoreICSloppy), R(1), U8(1), U8(1),
+  /*   42 S> */ B(LdaSmi), I8(1),
+                B(Star), R(0),
+  /*   45 S> */ B(CreateObjectLiteral), U8(0), U8(4), U8(41), R(1),
+  /*   69 E> */ B(AddSmi), I8(1), U8(3),
+                B(StaNamedOwnProperty), R(1), U8(1), U8(5),
                 B(Ldar), R(1),
-  /*   76 S> */ B(Return),
+  /*   75 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
+  FIXED_ARRAY_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["val"],
 ]
 handlers: [
 ]
@@ -107,17 +99,16 @@ parameter count: 1
 bytecode array length: 17
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(1),
-                B(Star), R(0),
-                B(CreateClosure), U8(1), U8(0),
-                B(StoreICSloppy), R(0), U8(2), U8(1),
+  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(4), U8(41), R(0),
+                B(CreateClosure), U8(1), U8(3), U8(2),
+                B(StaNamedOwnProperty), R(0), U8(2), U8(5),
                 B(Ldar), R(0),
-  /*   67 S> */ B(Return),
+  /*   66 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
-  InstanceType::SHARED_FUNCTION_INFO_TYPE,
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
+  FIXED_ARRAY_TYPE,
+  SHARED_FUNCTION_INFO_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["func"],
 ]
 handlers: [
 ]
@@ -131,17 +122,16 @@ parameter count: 1
 bytecode array length: 17
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(1),
-                B(Star), R(0),
-                B(CreateClosure), U8(1), U8(0),
-                B(StoreICSloppy), R(0), U8(2), U8(1),
+  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(4), U8(41), R(0),
+                B(CreateClosure), U8(1), U8(3), U8(2),
+                B(StaNamedOwnProperty), R(0), U8(2), U8(5),
                 B(Ldar), R(0),
-  /*   68 S> */ B(Return),
+  /*   67 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
-  InstanceType::SHARED_FUNCTION_INFO_TYPE,
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
+  FIXED_ARRAY_TYPE,
+  SHARED_FUNCTION_INFO_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["func"],
 ]
 handlers: [
 ]
@@ -155,25 +145,24 @@ parameter count: 1
 bytecode array length: 33
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(1),
-                B(Star), R(0),
-                B(Mov), R(0), R(1),
+  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(4), U8(41), R(0),
                 B(LdaConstant), U8(1),
                 B(Star), R(2),
-                B(CreateClosure), U8(2), U8(0),
+                B(CreateClosure), U8(2), U8(3), U8(2),
                 B(Star), R(3),
                 B(LdaNull),
                 B(Star), R(4),
                 B(LdaZero),
                 B(Star), R(5),
+                B(Mov), R(0), R(1),
                 B(CallRuntime), U16(Runtime::kDefineAccessorPropertyUnchecked), R(1), U8(5),
-                B(Ldar), R(0),
-  /*   68 S> */ B(Return),
+                B(Ldar), R(1),
+  /*   67 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
-  InstanceType::SHARED_FUNCTION_INFO_TYPE,
+  FIXED_ARRAY_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["a"],
+  SHARED_FUNCTION_INFO_TYPE,
 ]
 handlers: [
 ]
@@ -184,29 +173,28 @@ snippet: "
 "
 frame size: 6
 parameter count: 1
-bytecode array length: 35
+bytecode array length: 36
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(1),
-                B(Star), R(0),
-                B(Mov), R(0), R(1),
+  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(5), U8(41), R(0),
                 B(LdaConstant), U8(1),
                 B(Star), R(2),
-                B(CreateClosure), U8(2), U8(0),
+                B(CreateClosure), U8(2), U8(3), U8(2),
                 B(Star), R(3),
-                B(CreateClosure), U8(3), U8(0),
+                B(CreateClosure), U8(3), U8(4), U8(2),
                 B(Star), R(4),
                 B(LdaZero),
                 B(Star), R(5),
+                B(Mov), R(0), R(1),
                 B(CallRuntime), U16(Runtime::kDefineAccessorPropertyUnchecked), R(1), U8(5),
-                B(Ldar), R(0),
-  /*  102 S> */ B(Return),
+                B(Ldar), R(1),
+  /*  101 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
-  InstanceType::SHARED_FUNCTION_INFO_TYPE,
-  InstanceType::SHARED_FUNCTION_INFO_TYPE,
+  FIXED_ARRAY_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["a"],
+  SHARED_FUNCTION_INFO_TYPE,
+  SHARED_FUNCTION_INFO_TYPE,
 ]
 handlers: [
 ]
@@ -220,25 +208,24 @@ parameter count: 1
 bytecode array length: 33
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(1),
-                B(Star), R(0),
-                B(Mov), R(0), R(1),
+  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(4), U8(41), R(0),
                 B(LdaConstant), U8(1),
                 B(Star), R(2),
                 B(LdaNull),
                 B(Star), R(3),
-                B(CreateClosure), U8(2), U8(0),
+                B(CreateClosure), U8(2), U8(3), U8(2),
                 B(Star), R(4),
                 B(LdaZero),
                 B(Star), R(5),
+                B(Mov), R(0), R(1),
                 B(CallRuntime), U16(Runtime::kDefineAccessorPropertyUnchecked), R(1), U8(5),
-                B(Ldar), R(0),
-  /*   74 S> */ B(Return),
+                B(Ldar), R(1),
+  /*   73 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
-  InstanceType::SHARED_FUNCTION_INFO_TYPE,
+  FIXED_ARRAY_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["b"],
+  SHARED_FUNCTION_INFO_TYPE,
 ]
 handlers: [
 ]
@@ -249,26 +236,24 @@ snippet: "
 "
 frame size: 6
 parameter count: 1
-bytecode array length: 33
+bytecode array length: 31
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   42 S> */ B(LdaSmi), U8(1),
-  /*   42 E> */ B(Star), R(0),
-  /*   45 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(1),
-                B(Star), R(1),
-                B(Mov), R(1), R(2),
-                B(LdaSmi), U8(1),
+  /*   42 S> */ B(LdaSmi), I8(1),
+                B(Star), R(0),
+  /*   45 S> */ B(CreateObjectLiteral), U8(0), U8(3), U8(41), R(1),
+                B(LdaSmi), I8(1),
                 B(Star), R(3),
-  /*   57 E> */ B(Ldar), R(0),
-                B(Star), R(4),
                 B(LdaZero),
                 B(Star), R(5),
-                B(CallRuntime), U16(Runtime::kSetProperty), R(2), U8(4),
-                B(Ldar), R(1),
-  /*   62 S> */ B(Return),
+                B(Mov), R(1), R(2),
+                B(Mov), R(0), R(4),
+  /*   57 E> */ B(CallRuntime), U16(Runtime::kSetProperty), R(2), U8(4),
+                B(Ldar), R(2),
+  /*   61 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
+  FIXED_ARRAY_TYPE,
 ]
 handlers: [
 ]
@@ -277,22 +262,17 @@ handlers: [
 snippet: "
   return { __proto__: null };
 "
-frame size: 3
+frame size: 1
 parameter count: 1
-bytecode array length: 21
+bytecode array length: 9
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(35),
-                B(Star), R(0),
-                B(Mov), R(0), R(1),
-                B(LdaNull),
-                B(Star), R(2),
-                B(CallRuntime), U16(Runtime::kInternalSetPrototype), R(1), U8(2),
+  /*   34 S> */ B(CreateObjectLiteral), U8(0), U8(3), U8(57), R(0),
                 B(Ldar), R(0),
-  /*   62 S> */ B(Return),
+  /*   61 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
+  FIXED_ARRAY_TYPE,
 ]
 handlers: [
 ]
@@ -301,32 +281,23 @@ handlers: [
 snippet: "
   var a = 'test'; return { [a]: 1 };
 "
-frame size: 7
+frame size: 3
 parameter count: 1
-bytecode array length: 37
+bytecode array length: 22
 bytecodes: [
   /*   30 E> */ B(StackCheck),
   /*   42 S> */ B(LdaConstant), U8(0),
-  /*   42 E> */ B(Star), R(0),
-  /*   50 S> */ B(CreateObjectLiteral), U8(1), U8(0), U8(35),
-                B(Star), R(1),
-                B(Mov), R(1), R(2),
-  /*   60 E> */ B(Ldar), R(0),
-                B(ToName),
-                B(Star), R(3),
-                B(LdaSmi), U8(1),
-                B(Star), R(4),
-                B(LdaZero),
-                B(Star), R(5),
-                B(LdaZero),
-                B(Star), R(6),
-                B(CallRuntime), U16(Runtime::kDefineDataPropertyInLiteral), R(2), U8(5),
+                B(Star), R(0),
+  /*   50 S> */ B(CreateObjectLiteral), U8(1), U8(3), U8(41), R(1),
+  /*   60 E> */ B(ToName), R(2),
+                B(LdaSmi), I8(1),
+                B(StaDataPropertyInLiteral), R(1), R(2), U8(0), U8(4),
                 B(Ldar), R(1),
-  /*   69 S> */ B(Return),
+  /*   68 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
-  InstanceType::FIXED_ARRAY_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["test"],
+  FIXED_ARRAY_TYPE,
 ]
 handlers: [
 ]
@@ -335,35 +306,25 @@ handlers: [
 snippet: "
   var a = 'test'; return { val: a, [a]: 1 };
 "
-frame size: 7
+frame size: 3
 parameter count: 1
-bytecode array length: 43
+bytecode array length: 26
 bytecodes: [
   /*   30 E> */ B(StackCheck),
   /*   42 S> */ B(LdaConstant), U8(0),
-  /*   42 E> */ B(Star), R(0),
-  /*   50 S> */ B(CreateObjectLiteral), U8(1), U8(0), U8(1),
-                B(Star), R(1),
-  /*   64 E> */ B(Ldar), R(0),
-                B(StoreICSloppy), R(1), U8(2), U8(1),
-                B(Mov), R(1), R(2),
-  /*   68 E> */ B(Ldar), R(0),
-                B(ToName),
-                B(Star), R(3),
-                B(LdaSmi), U8(1),
-                B(Star), R(4),
-                B(LdaZero),
-                B(Star), R(5),
-                B(LdaZero),
-                B(Star), R(6),
-                B(CallRuntime), U16(Runtime::kDefineDataPropertyInLiteral), R(2), U8(5),
+                B(Star), R(0),
+  /*   50 S> */ B(CreateObjectLiteral), U8(1), U8(3), U8(41), R(1),
+  /*   64 E> */ B(StaNamedOwnProperty), R(1), U8(2), U8(4),
+  /*   68 E> */ B(ToName), R(2),
+                B(LdaSmi), I8(1),
+                B(StaDataPropertyInLiteral), R(1), R(2), U8(0), U8(6),
                 B(Ldar), R(1),
-  /*   77 S> */ B(Return),
+  /*   76 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
-  InstanceType::FIXED_ARRAY_TYPE,
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["test"],
+  FIXED_ARRAY_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["val"],
 ]
 handlers: [
 ]
@@ -372,37 +333,27 @@ handlers: [
 snippet: "
   var a = 'test'; return { [a]: 1, __proto__: {} };
 "
-frame size: 7
+frame size: 5
 parameter count: 1
-bytecode array length: 53
+bytecode array length: 38
 bytecodes: [
   /*   30 E> */ B(StackCheck),
   /*   42 S> */ B(LdaConstant), U8(0),
-  /*   42 E> */ B(Star), R(0),
-  /*   50 S> */ B(CreateObjectLiteral), U8(1), U8(1), U8(35),
-                B(Star), R(1),
+                B(Star), R(0),
+  /*   50 S> */ B(CreateObjectLiteral), U8(1), U8(4), U8(41), R(1),
+  /*   60 E> */ B(ToName), R(2),
+                B(LdaSmi), I8(1),
+                B(StaDataPropertyInLiteral), R(1), R(2), U8(0), U8(5),
+                B(CreateObjectLiteral), U8(1), U8(3), U8(41), R(4),
                 B(Mov), R(1), R(2),
-  /*   60 E> */ B(Ldar), R(0),
-                B(ToName),
-                B(Star), R(3),
-                B(LdaSmi), U8(1),
-                B(Star), R(4),
-                B(LdaZero),
-                B(Star), R(5),
-                B(LdaZero),
-                B(Star), R(6),
-                B(CallRuntime), U16(Runtime::kDefineDataPropertyInLiteral), R(2), U8(5),
-                B(Mov), R(1), R(2),
-                B(CreateObjectLiteral), U8(1), U8(0), U8(35),
-                B(Star), R(4),
-                B(Star), R(3),
+                B(Mov), R(4), R(3),
                 B(CallRuntime), U16(Runtime::kInternalSetPrototype), R(2), U8(2),
-                B(Ldar), R(1),
-  /*   84 S> */ B(Return),
+                B(Ldar), R(2),
+  /*   83 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
-  InstanceType::FIXED_ARRAY_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["test"],
+  FIXED_ARRAY_TYPE,
 ]
 handlers: [
 ]
@@ -411,52 +362,42 @@ handlers: [
 snippet: "
   var n = 'name'; return { [n]: 'val', get a() { }, set a(b) {} };
 "
-frame size: 7
+frame size: 6
 parameter count: 1
-bytecode array length: 77
+bytecode array length: 61
 bytecodes: [
   /*   30 E> */ B(StackCheck),
   /*   42 S> */ B(LdaConstant), U8(0),
-  /*   42 E> */ B(Star), R(0),
-  /*   50 S> */ B(CreateObjectLiteral), U8(1), U8(0), U8(35),
-                B(Star), R(1),
-                B(Mov), R(1), R(2),
-  /*   60 E> */ B(Ldar), R(0),
-                B(ToName),
-                B(Star), R(3),
+                B(Star), R(0),
+  /*   50 S> */ B(CreateObjectLiteral), U8(1), U8(5), U8(41), R(1),
+  /*   60 E> */ B(ToName), R(2),
                 B(LdaConstant), U8(2),
-                B(Star), R(4),
-                B(LdaZero),
-                B(Star), R(5),
-                B(LdaZero),
-                B(Star), R(6),
-                B(CallRuntime), U16(Runtime::kDefineDataPropertyInLiteral), R(2), U8(5),
-                B(Mov), R(1), R(2),
+                B(StaDataPropertyInLiteral), R(1), R(2), U8(0), U8(6),
                 B(LdaConstant), U8(3),
                 B(Star), R(3),
-                B(CreateClosure), U8(4), U8(0),
+                B(CreateClosure), U8(4), U8(3), U8(2),
                 B(Star), R(4),
                 B(LdaZero),
                 B(Star), R(5),
+                B(Mov), R(1), R(2),
                 B(CallRuntime), U16(Runtime::kDefineGetterPropertyUnchecked), R(2), U8(4),
-                B(Mov), R(1), R(2),
                 B(LdaConstant), U8(3),
                 B(Star), R(3),
-                B(CreateClosure), U8(5), U8(0),
+                B(CreateClosure), U8(5), U8(4), U8(2),
                 B(Star), R(4),
                 B(LdaZero),
                 B(Star), R(5),
                 B(CallRuntime), U16(Runtime::kDefineSetterPropertyUnchecked), R(2), U8(4),
-                B(Ldar), R(1),
-  /*   99 S> */ B(Return),
+                B(Ldar), R(2),
+  /*   98 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
-  InstanceType::FIXED_ARRAY_TYPE,
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
-  InstanceType::SHARED_FUNCTION_INFO_TYPE,
-  InstanceType::SHARED_FUNCTION_INFO_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["name"],
+  FIXED_ARRAY_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["val"],
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["a"],
+  SHARED_FUNCTION_INFO_TYPE,
+  SHARED_FUNCTION_INFO_TYPE,
 ]
 handlers: [
 ]

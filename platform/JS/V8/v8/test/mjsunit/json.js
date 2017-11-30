@@ -234,7 +234,9 @@ TestInvalid('"Garbage""After string"');
 
 function TestStringify(expected, input) {
   assertEquals(expected, JSON.stringify(input));
-  assertEquals(expected, JSON.stringify(input, null, 0));
+  assertEquals(expected, JSON.stringify(input, (key, value) => value));
+  assertEquals(JSON.stringify(input, null, "="),
+               JSON.stringify(input, (key, value) => value, "="));
 }
 
 TestStringify("true", true);
@@ -325,6 +327,7 @@ assertEquals('{"x":5}', JSON.stringify({x:5,y:6}, ['x']));
 assertEquals('{\n "a": "b",\n "c": "d"\n}',
              JSON.stringify({a:"b",c:"d"}, null, 1));
 assertEquals('{"y":6,"x":5}', JSON.stringify({x:5,y:6}, ['y', 'x']));
+assertEquals('{"y":6,"x":5}', JSON.stringify({x:5,y:6}, ['y', 'x', 'x', 'y']));
 
 // toJSON get string keys.
 var checker = {};
@@ -451,8 +454,8 @@ var counter = { get toJSON() { getCount++;
 // RegExps are not callable, so they are stringified as objects.
 TestStringify('{}', /regexp/);
 TestStringify('42', counter);
-assertEquals(2, getCount);
-assertEquals(2, callCount);
+assertEquals(4, getCount);
+assertEquals(4, callCount);
 
 var oddball2 = Object(42);
 var oddball3 = Object("foo");
@@ -518,3 +521,6 @@ reviver = function(p, v) {
   return p === "" ? v : 42;
 }
 assertEquals({a: 0, b: 1}, JSON.parse('{"a":0,"b":1}', reviver));
+
+reviver = (k, v) => (v === Infinity) ? "inf" : v;
+assertEquals('{"":"inf"}', JSON.stringify({"":Infinity}, reviver));

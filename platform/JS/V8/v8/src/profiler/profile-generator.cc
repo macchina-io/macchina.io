@@ -4,14 +4,15 @@
 
 #include "src/profiler/profile-generator.h"
 
-#include "src/ast/scopeinfo.h"
 #include "src/base/adapters.h"
 #include "src/debug/debug.h"
 #include "src/deoptimizer.h"
 #include "src/global-handles.h"
+#include "src/objects-inl.h"
+#include "src/profiler/cpu-profiler.h"
 #include "src/profiler/profile-generator-inl.h"
-#include "src/profiler/tick-sample.h"
-#include "src/splay-tree-inl.h"
+#include "src/tracing/trace-event.h"
+#include "src/tracing/traced-value.h"
 #include "src/unicode.h"
 
 namespace v8 {
@@ -48,6 +49,41 @@ const char* const CodeEntry::kEmptyResourceName = "";
 const char* const CodeEntry::kEmptyBailoutReason = "";
 const char* const CodeEntry::kNoDeoptReason = "";
 
+const char* const CodeEntry::kProgramEntryName = "(program)";
+const char* const CodeEntry::kIdleEntryName = "(idle)";
+const char* const CodeEntry::kGarbageCollectorEntryName = "(garbage collector)";
+const char* const CodeEntry::kUnresolvedFunctionName = "(unresolved function)";
+
+base::LazyDynamicInstance<CodeEntry, CodeEntry::ProgramEntryCreateTrait>::type
+    CodeEntry::kProgramEntry = LAZY_DYNAMIC_INSTANCE_INITIALIZER;
+
+base::LazyDynamicInstance<CodeEntry, CodeEntry::IdleEntryCreateTrait>::type
+    CodeEntry::kIdleEntry = LAZY_DYNAMIC_INSTANCE_INITIALIZER;
+
+base::LazyDynamicInstance<CodeEntry, CodeEntry::GCEntryCreateTrait>::type
+    CodeEntry::kGCEntry = LAZY_DYNAMIC_INSTANCE_INITIALIZER;
+
+base::LazyDynamicInstance<CodeEntry,
+                          CodeEntry::UnresolvedEntryCreateTrait>::type
+    CodeEntry::kUnresolvedEntry = LAZY_DYNAMIC_INSTANCE_INITIALIZER;
+
+CodeEntry* CodeEntry::ProgramEntryCreateTrait::Create() {
+  return new CodeEntry(Logger::FUNCTION_TAG, CodeEntry::kProgramEntryName);
+}
+
+CodeEntry* CodeEntry::IdleEntryCreateTrait::Create() {
+  return new CodeEntry(Logger::FUNCTION_TAG, CodeEntry::kIdleEntryName);
+}
+
+CodeEntry* CodeEntry::GCEntryCreateTrait::Create() {
+  return new CodeEntry(Logger::BUILTIN_TAG,
+                       CodeEntry::kGarbageCollectorEntryName);
+}
+
+CodeEntry* CodeEntry::UnresolvedEntryCreateTrait::Create() {
+  return new CodeEntry(Logger::FUNCTION_TAG,
+                       CodeEntry::kUnresolvedFunctionName);
+}
 
 CodeEntry::~CodeEntry() {
   delete line_info_;
@@ -60,23 +96,18 @@ CodeEntry::~CodeEntry() {
 
 
 uint32_t CodeEntry::GetHash() const {
-  uint32_t hash = ComputeIntegerHash(tag(), v8::internal::kZeroHashSeed);
+  uint32_t hash = ComputeIntegerHash(tag());
   if (script_id_ != v8::UnboundScript::kNoScriptId) {
-    hash ^= ComputeIntegerHash(static_cast<uint32_t>(script_id_),
-                               v8::internal::kZeroHashSeed);
-    hash ^= ComputeIntegerHash(static_cast<uint32_t>(position_),
-                               v8::internal::kZeroHashSeed);
+    hash ^= ComputeIntegerHash(static_cast<uint32_t>(script_id_));
+    hash ^= ComputeIntegerHash(static_cast<uint32_t>(position_));
   } else {
     hash ^= ComputeIntegerHash(
-        static_cast<uint32_t>(reinterpret_cast<uintptr_t>(name_prefix_)),
-        v8::internal::kZeroHashSeed);
+        static_cast<uint32_t>(reinterpret_cast<uintptr_t>(name_prefix_)));
     hash ^= ComputeIntegerHash(
-        static_cast<uint32_t>(reinterpret_cast<uintptr_t>(name_)),
-        v8::internal::kZeroHashSeed);
+        static_cast<uint32_t>(reinterpret_cast<uintptr_t>(name_)));
     hash ^= ComputeIntegerHash(
-        static_cast<uint32_t>(reinterpret_cast<uintptr_t>(resource_name_)),
-        v8::internal::kZeroHashSeed);
-    hash ^= ComputeIntegerHash(line_number_, v8::internal::kZeroHashSeed);
+        static_cast<uint32_t>(reinterpret_cast<uintptr_t>(resource_name_)));
+    hash ^= ComputeIntegerHash(line_number_);
   }
   return hash;
 }
@@ -94,7 +125,7 @@ bool CodeEntry::IsSameFunctionAs(CodeEntry* entry) const {
 
 
 void CodeEntry::SetBuiltinId(Builtins::Name id) {
-  bit_field_ = TagField::update(bit_field_, Logger::BUILTIN_TAG);
+  bit_field_ = TagField::update(bit_field_, CodeEventListener::BUILTIN_TAG);
   bit_field_ = BuiltinIdField::update(bit_field_, id);
 }
 
@@ -107,11 +138,8 @@ int CodeEntry::GetSourceLine(int pc_offset) const {
 }
 
 void CodeEntry::AddInlineStack(int pc_offset,
-                               std::vector<CodeEntry*>& inline_stack) {
-  // It's better to use std::move to place the vector into the map,
-  // but it's not supported by the current stdlibc++ on MacOS.
-  inline_locations_.insert(std::make_pair(pc_offset, std::vector<CodeEntry*>()))
-      .first->second.swap(inline_stack);
+                               std::vector<CodeEntry*> inline_stack) {
+  inline_locations_.insert(std::make_pair(pc_offset, std::move(inline_stack)));
 }
 
 const std::vector<CodeEntry*>* CodeEntry::GetInlineStack(int pc_offset) const {
@@ -120,12 +148,9 @@ const std::vector<CodeEntry*>* CodeEntry::GetInlineStack(int pc_offset) const {
 }
 
 void CodeEntry::AddDeoptInlinedFrames(
-    int deopt_id, std::vector<DeoptInlinedFrame>& inlined_frames) {
-  // It's better to use std::move to place the vector into the map,
-  // but it's not supported by the current stdlibc++ on MacOS.
-  deopt_inlined_frames_
-      .insert(std::make_pair(deopt_id, std::vector<DeoptInlinedFrame>()))
-      .first->second.swap(inlined_frames);
+    int deopt_id, std::vector<CpuProfileDeoptFrame> inlined_frames) {
+  deopt_inlined_frames_.insert(
+      std::make_pair(deopt_id, std::move(inlined_frames)));
 }
 
 bool CodeEntry::HasDeoptInlinedFramesFor(int deopt_id) const {
@@ -145,19 +170,12 @@ CpuProfileDeoptInfo CodeEntry::GetDeoptInfo() {
 
   CpuProfileDeoptInfo info;
   info.deopt_reason = deopt_reason_;
-  DCHECK_NE(Deoptimizer::DeoptInfo::kNoDeoptId, deopt_id_);
+  DCHECK_NE(kNoDeoptimizationId, deopt_id_);
   if (deopt_inlined_frames_.find(deopt_id_) == deopt_inlined_frames_.end()) {
     info.stack.push_back(CpuProfileDeoptFrame(
-        {script_id_, position_ + deopt_position_.position()}));
+        {script_id_, static_cast<size_t>(std::max(0, position()))}));
   } else {
-    size_t deopt_position = deopt_position_.raw();
-    // Copy stack of inlined frames where the deopt happened.
-    std::vector<DeoptInlinedFrame>& frames = deopt_inlined_frames_[deopt_id_];
-    for (DeoptInlinedFrame& inlined_frame : base::Reversed(frames)) {
-      info.stack.push_back(CpuProfileDeoptFrame(
-          {inlined_frame.script_id, deopt_position + inlined_frame.position}));
-      deopt_position = 0;  // Done with innermost frame.
-    }
+    info.stack = deopt_inlined_frames_[deopt_id_];
   }
   return info;
 }
@@ -170,19 +188,19 @@ void ProfileNode::CollectDeoptInfo(CodeEntry* entry) {
 
 
 ProfileNode* ProfileNode::FindChild(CodeEntry* entry) {
-  HashMap::Entry* map_entry = children_.Lookup(entry, CodeEntryHash(entry));
+  base::HashMap::Entry* map_entry =
+      children_.Lookup(entry, CodeEntryHash(entry));
   return map_entry != NULL ?
       reinterpret_cast<ProfileNode*>(map_entry->value) : NULL;
 }
 
 
 ProfileNode* ProfileNode::FindOrAddChild(CodeEntry* entry) {
-  HashMap::Entry* map_entry =
+  base::HashMap::Entry* map_entry =
       children_.LookupOrInsert(entry, CodeEntryHash(entry));
   ProfileNode* node = reinterpret_cast<ProfileNode*>(map_entry->value);
-  if (node == NULL) {
-    // New node added.
-    node = new ProfileNode(tree_, entry);
+  if (!node) {
+    node = new ProfileNode(tree_, entry, this);
     map_entry->value = node;
     children_list_.Add(node);
   }
@@ -194,7 +212,7 @@ void ProfileNode::IncrementLineTicks(int src_line) {
   if (src_line == v8::CpuProfileNode::kNoLineNumberInfo) return;
   // Increment a hit counter of a certain source line.
   // Add a new source line if not found.
-  HashMap::Entry* e =
+  base::HashMap::Entry* e =
       line_ticks_.LookupOrInsert(reinterpret_cast<void*>(src_line), src_line);
   DCHECK(e);
   e->value = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(e->value) + 1);
@@ -212,7 +230,7 @@ bool ProfileNode::GetLineTicks(v8::CpuProfileNode::LineTick* entries,
 
   v8::CpuProfileNode::LineTick* entry = entries;
 
-  for (HashMap::Entry* p = line_ticks_.Start(); p != NULL;
+  for (base::HashMap::Entry *p = line_ticks_.Start(); p != NULL;
        p = line_ticks_.Next(p), entry++) {
     entry->line =
         static_cast<unsigned int>(reinterpret_cast<uintptr_t>(p->key));
@@ -250,8 +268,7 @@ void ProfileNode::Print(int indent) {
     base::OS::Print("%*s bailed out due to '%s'\n", indent + 10, "",
                     bailout_reason);
   }
-  for (HashMap::Entry* p = children_.Start();
-       p != NULL;
+  for (base::HashMap::Entry* p = children_.Start(); p != NULL;
        p = children_.Next(p)) {
     reinterpret_cast<ProfileNode*>(p->value)->Print(indent + 2);
   }
@@ -269,15 +286,13 @@ class DeleteNodesCallback {
   void AfterChildTraversed(ProfileNode*, ProfileNode*) { }
 };
 
-
 ProfileTree::ProfileTree(Isolate* isolate)
-    : root_entry_(Logger::FUNCTION_TAG, "(root)"),
+    : root_entry_(CodeEventListener::FUNCTION_TAG, "(root)"),
       next_node_id_(1),
-      root_(new ProfileNode(this, &root_entry_)),
+      root_(new ProfileNode(this, &root_entry_, nullptr)),
       isolate_(isolate),
       next_function_id_(1),
       function_ids_(ProfileNode::CodeEntriesMatch) {}
-
 
 ProfileTree::~ProfileTree() {
   DeleteNodesCallback cb;
@@ -287,7 +302,7 @@ ProfileTree::~ProfileTree() {
 
 unsigned ProfileTree::GetFunctionId(const ProfileNode* node) {
   CodeEntry* code_entry = node->entry();
-  HashMap::Entry* entry =
+  base::HashMap::Entry* entry =
       function_ids_.LookupOrInsert(code_entry, code_entry->GetHash());
   if (!entry->value) {
     entry->value = reinterpret_cast<void*>(next_function_id_++);
@@ -366,12 +381,22 @@ void ProfileTree::TraverseDepthFirst(Callback* callback) {
   }
 }
 
+using v8::tracing::TracedValue;
 
-CpuProfile::CpuProfile(Isolate* isolate, const char* title, bool record_samples)
+CpuProfile::CpuProfile(CpuProfiler* profiler, const char* title,
+                       bool record_samples)
     : title_(title),
       record_samples_(record_samples),
       start_time_(base::TimeTicks::HighResolutionNow()),
-      top_down_(isolate) {}
+      top_down_(profiler->isolate()),
+      profiler_(profiler),
+      streaming_next_sample_(0) {
+  auto value = TracedValue::Create();
+  value->SetDouble("startTime",
+                   (start_time_ - base::TimeTicks()).InMicroseconds());
+  TRACE_EVENT_SAMPLE_WITH_ID1(TRACE_DISABLED_BY_DEFAULT("v8.cpu_profiler"),
+                              "Profile", this, "data", std::move(value));
+}
 
 void CpuProfile::AddPath(base::TimeTicks timestamp,
                          const std::vector<CodeEntry*>& path, int src_line,
@@ -382,93 +407,145 @@ void CpuProfile::AddPath(base::TimeTicks timestamp,
     timestamps_.Add(timestamp);
     samples_.Add(top_frame_node);
   }
+  const int kSamplesFlushCount = 100;
+  const int kNodesFlushCount = 10;
+  if (samples_.length() - streaming_next_sample_ >= kSamplesFlushCount ||
+      top_down_.pending_nodes_count() >= kNodesFlushCount) {
+    StreamPendingTraceEvents();
+  }
 }
 
+namespace {
 
-void CpuProfile::CalculateTotalTicksAndSamplingRate() {
+void BuildNodeValue(const ProfileNode* node, TracedValue* value) {
+  const CodeEntry* entry = node->entry();
+  value->BeginDictionary("callFrame");
+  value->SetString("functionName", entry->name());
+  if (*entry->resource_name()) {
+    value->SetString("url", entry->resource_name());
+  }
+  value->SetInteger("scriptId", entry->script_id());
+  if (entry->line_number()) {
+    value->SetInteger("lineNumber", entry->line_number() - 1);
+  }
+  if (entry->column_number()) {
+    value->SetInteger("columnNumber", entry->column_number() - 1);
+  }
+  value->EndDictionary();
+  value->SetInteger("id", node->id());
+  if (node->parent()) {
+    value->SetInteger("parent", node->parent()->id());
+  }
+  const char* deopt_reason = entry->bailout_reason();
+  if (deopt_reason && deopt_reason[0] && strcmp(deopt_reason, "no reason")) {
+    value->SetString("deoptReason", deopt_reason);
+  }
+}
+
+}  // namespace
+
+void CpuProfile::StreamPendingTraceEvents() {
+  std::vector<const ProfileNode*> pending_nodes = top_down_.TakePendingNodes();
+  if (pending_nodes.empty() && !samples_.length()) return;
+  auto value = TracedValue::Create();
+
+  if (!pending_nodes.empty() || streaming_next_sample_ != samples_.length()) {
+    value->BeginDictionary("cpuProfile");
+    if (!pending_nodes.empty()) {
+      value->BeginArray("nodes");
+      for (auto node : pending_nodes) {
+        value->BeginDictionary();
+        BuildNodeValue(node, value.get());
+        value->EndDictionary();
+      }
+      value->EndArray();
+    }
+    if (streaming_next_sample_ != samples_.length()) {
+      value->BeginArray("samples");
+      for (int i = streaming_next_sample_; i < samples_.length(); ++i) {
+        value->AppendInteger(samples_[i]->id());
+      }
+      value->EndArray();
+    }
+    value->EndDictionary();
+  }
+  if (streaming_next_sample_ != samples_.length()) {
+    value->BeginArray("timeDeltas");
+    base::TimeTicks lastTimestamp =
+        streaming_next_sample_ ? timestamps_[streaming_next_sample_ - 1]
+                               : start_time();
+    for (int i = streaming_next_sample_; i < timestamps_.length(); ++i) {
+      value->AppendInteger(
+          static_cast<int>((timestamps_[i] - lastTimestamp).InMicroseconds()));
+      lastTimestamp = timestamps_[i];
+    }
+    value->EndArray();
+    DCHECK(samples_.length() == timestamps_.length());
+    streaming_next_sample_ = samples_.length();
+  }
+
+  TRACE_EVENT_SAMPLE_WITH_ID1(TRACE_DISABLED_BY_DEFAULT("v8.cpu_profiler"),
+                              "ProfileChunk", this, "data", std::move(value));
+}
+
+void CpuProfile::FinishProfile() {
   end_time_ = base::TimeTicks::HighResolutionNow();
+  StreamPendingTraceEvents();
+  auto value = TracedValue::Create();
+  value->SetDouble("endTime", (end_time_ - base::TimeTicks()).InMicroseconds());
+  TRACE_EVENT_SAMPLE_WITH_ID1(TRACE_DISABLED_BY_DEFAULT("v8.cpu_profiler"),
+                              "ProfileChunk", this, "data", std::move(value));
 }
-
 
 void CpuProfile::Print() {
   base::OS::Print("[Top down]:\n");
   top_down_.Print();
 }
 
-
-CodeMap::~CodeMap() {}
-
-
-const CodeMap::CodeTreeConfig::Key CodeMap::CodeTreeConfig::kNoKey = NULL;
-
-
 void CodeMap::AddCode(Address addr, CodeEntry* entry, unsigned size) {
   DeleteAllCoveredCode(addr, addr + size);
-  CodeTree::Locator locator;
-  tree_.Insert(addr, &locator);
-  locator.set_value(CodeEntryInfo(entry, size));
+  code_map_.insert({addr, CodeEntryInfo(entry, size)});
 }
-
 
 void CodeMap::DeleteAllCoveredCode(Address start, Address end) {
-  List<Address> to_delete;
-  Address addr = end - 1;
-  while (addr >= start) {
-    CodeTree::Locator locator;
-    if (!tree_.FindGreatestLessThan(addr, &locator)) break;
-    Address start2 = locator.key(), end2 = start2 + locator.value().size;
-    if (start2 < end && start < end2) to_delete.Add(start2);
-    addr = start2 - 1;
+  auto left = code_map_.upper_bound(start);
+  if (left != code_map_.begin()) {
+    --left;
+    if (left->first + left->second.size <= start) ++left;
   }
-  for (int i = 0; i < to_delete.length(); ++i) tree_.Remove(to_delete[i]);
+  auto right = left;
+  while (right != code_map_.end() && right->first < end) ++right;
+  code_map_.erase(left, right);
 }
-
 
 CodeEntry* CodeMap::FindEntry(Address addr) {
-  CodeTree::Locator locator;
-  if (tree_.FindGreatestLessThan(addr, &locator)) {
-    // locator.key() <= addr. Need to check that addr is within entry.
-    const CodeEntryInfo& entry = locator.value();
-    if (addr < (locator.key() + entry.size)) {
-      return entry.entry;
-    }
-  }
-  return NULL;
+  auto it = code_map_.upper_bound(addr);
+  if (it == code_map_.begin()) return nullptr;
+  --it;
+  Address end_address = it->first + it->second.size;
+  return addr < end_address ? it->second.entry : nullptr;
 }
-
 
 void CodeMap::MoveCode(Address from, Address to) {
   if (from == to) return;
-  CodeTree::Locator locator;
-  if (!tree_.Find(from, &locator)) return;
-  CodeEntryInfo entry = locator.value();
-  tree_.Remove(from);
-  AddCode(to, entry.entry, entry.size);
+  auto it = code_map_.find(from);
+  if (it == code_map_.end()) return;
+  CodeEntryInfo info = it->second;
+  code_map_.erase(it);
+  AddCode(to, info.entry, info.size);
 }
-
-
-void CodeMap::CodeTreePrinter::Call(
-    const Address& key, const CodeMap::CodeEntryInfo& value) {
-  base::OS::Print("%p %5d %s\n", key, value.size, value.entry->name());
-}
-
 
 void CodeMap::Print() {
-  CodeTreePrinter printer;
-  tree_.ForEach(&printer);
+  for (auto it = code_map_.begin(); it != code_map_.end(); ++it) {
+    base::OS::Print("%p %5d %s\n", static_cast<void*>(it->first),
+                    it->second.size, it->second.entry->name());
+  }
 }
 
-
-CpuProfilesCollection::CpuProfilesCollection(Heap* heap)
-    : function_and_resource_names_(heap),
-      isolate_(heap->isolate()),
+CpuProfilesCollection::CpuProfilesCollection(Isolate* isolate)
+    : resource_names_(isolate->heap()),
+      profiler_(nullptr),
       current_profiles_semaphore_(1) {}
-
-
-static void DeleteCodeEntry(CodeEntry** entry_ptr) {
-  delete *entry_ptr;
-}
-
 
 static void DeleteCpuProfile(CpuProfile** profile_ptr) {
   delete *profile_ptr;
@@ -478,7 +555,6 @@ static void DeleteCpuProfile(CpuProfile** profile_ptr) {
 CpuProfilesCollection::~CpuProfilesCollection() {
   finished_profiles_.Iterate(DeleteCpuProfile);
   current_profiles_.Iterate(DeleteCpuProfile);
-  code_entries_.Iterate(DeleteCodeEntry);
 }
 
 
@@ -497,7 +573,7 @@ bool CpuProfilesCollection::StartProfiling(const char* title,
       return true;
     }
   }
-  current_profiles_.Add(new CpuProfile(isolate_, title, record_samples));
+  current_profiles_.Add(new CpuProfile(profiler_, title, record_samples));
   current_profiles_semaphore_.Signal();
   return true;
 }
@@ -505,7 +581,7 @@ bool CpuProfilesCollection::StartProfiling(const char* title,
 
 CpuProfile* CpuProfilesCollection::StopProfiling(const char* title) {
   const int title_len = StrLength(title);
-  CpuProfile* profile = NULL;
+  CpuProfile* profile = nullptr;
   current_profiles_semaphore_.Wait();
   for (int i = current_profiles_.length() - 1; i >= 0; --i) {
     if (title_len == 0 || strcmp(current_profiles_[i]->title(), title) == 0) {
@@ -515,8 +591,8 @@ CpuProfile* CpuProfilesCollection::StopProfiling(const char* title) {
   }
   current_profiles_semaphore_.Signal();
 
-  if (profile == NULL) return NULL;
-  profile->CalculateTotalTicksAndSamplingRate();
+  if (!profile) return nullptr;
+  profile->FinishProfile();
   finished_profiles_.Add(profile);
   return profile;
 }
@@ -555,43 +631,8 @@ void CpuProfilesCollection::AddPathToCurrentProfiles(
   current_profiles_semaphore_.Signal();
 }
 
-
-CodeEntry* CpuProfilesCollection::NewCodeEntry(
-    Logger::LogEventsAndTags tag, const char* name, const char* name_prefix,
-    const char* resource_name, int line_number, int column_number,
-    JITLineInfoTable* line_info, Address instruction_start) {
-  CodeEntry* code_entry =
-      new CodeEntry(tag, name, name_prefix, resource_name, line_number,
-                    column_number, line_info, instruction_start);
-  code_entries_.Add(code_entry);
-  return code_entry;
-}
-
-
-const char* const ProfileGenerator::kProgramEntryName =
-    "(program)";
-const char* const ProfileGenerator::kIdleEntryName =
-    "(idle)";
-const char* const ProfileGenerator::kGarbageCollectorEntryName =
-    "(garbage collector)";
-const char* const ProfileGenerator::kUnresolvedFunctionName =
-    "(unresolved function)";
-
-
 ProfileGenerator::ProfileGenerator(CpuProfilesCollection* profiles)
-    : profiles_(profiles),
-      program_entry_(
-          profiles->NewCodeEntry(Logger::FUNCTION_TAG, kProgramEntryName)),
-      idle_entry_(
-          profiles->NewCodeEntry(Logger::FUNCTION_TAG, kIdleEntryName)),
-      gc_entry_(
-          profiles->NewCodeEntry(Logger::BUILTIN_TAG,
-                                 kGarbageCollectorEntryName)),
-      unresolved_entry_(
-          profiles->NewCodeEntry(Logger::FUNCTION_TAG,
-                                 kUnresolvedFunctionName)) {
-}
-
+    : profiles_(profiles) {}
 
 void ProfileGenerator::RecordTickSample(const TickSample& sample) {
   std::vector<CodeEntry*> entries;
@@ -607,30 +648,27 @@ void ProfileGenerator::RecordTickSample(const TickSample& sample) {
   int src_line = v8::CpuProfileNode::kNoLineNumberInfo;
   bool src_line_not_found = true;
 
-  if (sample.pc != NULL) {
-    if (sample.has_external_callback && sample.state == EXTERNAL &&
-        sample.top_frame_type == StackFrame::EXIT) {
+  if (sample.pc != nullptr) {
+    if (sample.has_external_callback && sample.state == EXTERNAL) {
       // Don't use PC when in external callback code, as it can point
       // inside callback's code, and we will erroneously report
       // that a callback calls itself.
-      entries.push_back(code_map_.FindEntry(sample.external_callback_entry));
+      entries.push_back(FindEntry(sample.external_callback_entry));
     } else {
-      CodeEntry* pc_entry = code_map_.FindEntry(sample.pc);
+      CodeEntry* pc_entry = FindEntry(sample.pc);
       // If there is no pc_entry we're likely in native code.
       // Find out, if top of stack was pointing inside a JS function
       // meaning that we have encountered a frameless invocation.
-      if (!pc_entry && (sample.top_frame_type == StackFrame::JAVA_SCRIPT ||
-                        sample.top_frame_type == StackFrame::INTERPRETED ||
-                        sample.top_frame_type == StackFrame::OPTIMIZED)) {
-        pc_entry = code_map_.FindEntry(sample.tos);
+      if (!pc_entry && !sample.has_external_callback) {
+        pc_entry = FindEntry(sample.tos);
       }
       // If pc is in the function code before it set up stack frame or after the
       // frame was destroyed SafeStackFrameIterator incorrectly thinks that
       // ebp contains return address of the current function and skips caller's
       // frame. Check for this case and just skip such samples.
       if (pc_entry) {
-        int pc_offset =
-            static_cast<int>(sample.pc - pc_entry->instruction_start());
+        int pc_offset = static_cast<int>(reinterpret_cast<Address>(sample.pc) -
+                                         pc_entry->instruction_start());
         src_line = pc_entry->GetSourceLine(pc_offset);
         if (src_line == v8::CpuProfileNode::kNoLineNumberInfo) {
           src_line = pc_entry->line_number();
@@ -646,22 +684,20 @@ void ProfileGenerator::RecordTickSample(const TickSample& sample) {
           // In the latter case we know the caller for sure but in the
           // former case we don't so we simply replace the frame with
           // 'unresolved' entry.
-          if (sample.top_frame_type == StackFrame::JAVA_SCRIPT) {
-            entries.push_back(unresolved_entry_);
+          if (!sample.has_external_callback) {
+            entries.push_back(CodeEntry::unresolved_entry());
           }
         }
       }
     }
 
-    for (const Address *stack_pos = sample.stack,
-                       *stack_end = stack_pos + sample.frames_count;
-         stack_pos != stack_end; ++stack_pos) {
-      CodeEntry* entry = code_map_.FindEntry(*stack_pos);
-
+    for (unsigned i = 0; i < sample.frames_count; ++i) {
+      Address stack_pos = reinterpret_cast<Address>(sample.stack[i]);
+      CodeEntry* entry = FindEntry(stack_pos);
       if (entry) {
         // Find out if the entry has an inlining stack associated.
         int pc_offset =
-            static_cast<int>(*stack_pos - entry->instruction_start());
+            static_cast<int>(stack_pos - entry->instruction_start());
         const std::vector<CodeEntry*>* inline_stack =
             entry->GetInlineStack(pc_offset);
         if (inline_stack) {
@@ -700,11 +736,14 @@ void ProfileGenerator::RecordTickSample(const TickSample& sample) {
                                       sample.update_stats);
 }
 
+CodeEntry* ProfileGenerator::FindEntry(void* address) {
+  return code_map_.FindEntry(reinterpret_cast<Address>(address));
+}
 
 CodeEntry* ProfileGenerator::EntryForVMState(StateTag tag) {
   switch (tag) {
     case GC:
-      return gc_entry_;
+      return CodeEntry::gc_entry();
     case JS:
     case COMPILER:
     // DOM events handlers are reported as OTHER / EXTERNAL entries.
@@ -712,9 +751,9 @@ CodeEntry* ProfileGenerator::EntryForVMState(StateTag tag) {
     // one bucket.
     case OTHER:
     case EXTERNAL:
-      return program_entry_;
+      return CodeEntry::program_entry();
     case IDLE:
-      return idle_entry_;
+      return CodeEntry::idle_entry();
     default: return NULL;
   }
 }

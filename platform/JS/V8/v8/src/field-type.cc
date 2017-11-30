@@ -5,15 +5,17 @@
 #include "src/field-type.h"
 
 #include "src/handles-inl.h"
+#include "src/objects-inl.h"
 #include "src/ostreams.h"
-#include "src/types.h"
 
 namespace v8 {
 namespace internal {
 
 // static
 FieldType* FieldType::None() {
-  return reinterpret_cast<FieldType*>(Smi::FromInt(0));
+  // Do not Smi::kZero here or for Any(), as that may translate
+  // as `nullptr` which is not a valid value for `this`.
+  return reinterpret_cast<FieldType*>(Smi::FromInt(2));
 }
 
 // static
@@ -68,13 +70,6 @@ bool FieldType::NowIs(FieldType* other) {
 }
 
 bool FieldType::NowIs(Handle<FieldType> other) { return NowIs(*other); }
-
-Type* FieldType::Convert(Zone* zone) {
-  if (IsAny()) return Type::Any();
-  if (IsNone()) return Type::None();
-  DCHECK(IsClass());
-  return Type::Class(AsClass(), zone);
-}
 
 void FieldType::PrintTo(std::ostream& os) {
   if (IsAny()) {

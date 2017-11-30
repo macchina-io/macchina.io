@@ -3,8 +3,6 @@
 #
 
 ---
-pool type: number
-execute: yes
 wrap: yes
 
 ---
@@ -16,27 +14,24 @@ snippet: "
   }
   return ld_a;
 "
-frame size: 2
+frame size: 1
 parameter count: 1
-bytecode array length: 31
+bytecode array length: 28
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   45 S> */ B(LdaSmi), U8(1),
-  /*   45 E> */ B(Star), R(0),
+  /*   45 S> */ B(LdaSmi), I8(1),
+                B(Star), R(0),
   /*   48 E> */ B(StackCheck),
   /*   64 S> */ B(Ldar), R(0),
-                B(Star), R(1),
-  /*   78 E> */ B(Ldar), R(0),
-                B(Add), R(1),
-  /*   69 E> */ B(Star), R(0),
-  /*   86 S> */ B(Star), R(1),
-                B(LdaSmi), U8(10),
-  /*   95 E> */ B(TestGreaterThan), R(1),
+  /*   76 E> */ B(Add), R(0), U8(3),
+                B(Star), R(0),
+  /*   86 S> */ B(LdaSmi), I8(10),
+  /*   95 E> */ B(TestGreaterThan), R(0), U8(4),
                 B(JumpIfFalse), U8(4),
-  /*  101 S> */ B(Jump), U8(4),
-                B(Jump), U8(-21),
+  /*  101 S> */ B(Jump), U8(5),
+                B(JumpLoop), U8(17), I8(0),
   /*  110 S> */ B(Ldar), R(0),
-  /*  123 S> */ B(Return),
+  /*  122 S> */ B(Return),
 ]
 constant pool: [
 ]
@@ -52,26 +47,22 @@ snippet: "
   } while(false);
   return ld_a;
 "
-frame size: 2
+frame size: 1
 parameter count: 1
-bytecode array length: 29
+bytecode array length: 23
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   45 S> */ B(LdaSmi), U8(1),
-  /*   45 E> */ B(Star), R(0),
+  /*   45 S> */ B(LdaSmi), I8(1),
+                B(Star), R(0),
   /*   48 E> */ B(StackCheck),
-  /*   55 S> */ B(Ldar), R(0),
-                B(Star), R(1),
-  /*   69 E> */ B(Ldar), R(0),
-                B(Add), R(1),
-  /*   60 E> */ B(Star), R(0),
-  /*   77 S> */ B(Star), R(1),
-                B(LdaSmi), U8(10),
-  /*   86 E> */ B(TestGreaterThan), R(1),
+  /*   67 S> */ B(Add), R(0), U8(3),
+                B(Star), R(0),
+  /*   77 S> */ B(LdaSmi), I8(10),
+  /*   86 E> */ B(TestGreaterThan), R(0), U8(4),
                 B(JumpIfFalse), U8(4),
   /*   92 S> */ B(Jump), U8(2),
   /*  118 S> */ B(Ldar), R(0),
-  /*  131 S> */ B(Return),
+  /*  130 S> */ B(Return),
 ]
 constant pool: [
 ]
@@ -84,18 +75,16 @@ snippet: "
     ld_a = ld_a + ld_a;
     return ld_a;
 "
-frame size: 2
+frame size: 1
 parameter count: 1
-bytecode array length: 14
+bytecode array length: 11
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   45 S> */ B(LdaSmi), U8(1),
-  /*   45 E> */ B(Star), R(0),
-  /*   50 S> */ B(Star), R(1),
-  /*   64 E> */ B(Ldar), R(0),
-                B(Add), R(1),
-  /*   55 E> */ B(Star), R(0),
-  /*   85 S> */ B(Return),
+  /*   45 S> */ B(LdaSmi), I8(1),
+                B(Star), R(0),
+  /*   62 S> */ B(Add), R(0), U8(3),
+                B(Star), R(0),
+  /*   84 S> */ B(Return),
 ]
 constant pool: [
 ]

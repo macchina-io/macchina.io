@@ -5,7 +5,8 @@
 #ifndef V8_SIGNATURE_H_
 #define V8_SIGNATURE_H_
 
-#include "src/zone.h"
+#include "src/base/iterator.h"
+#include "src/zone/zone.h"
 
 namespace v8 {
 namespace internal {
@@ -14,7 +15,8 @@ namespace internal {
 template <typename T>
 class Signature : public ZoneObject {
  public:
-  Signature(size_t return_count, size_t parameter_count, T* reps)
+  constexpr Signature(size_t return_count, size_t parameter_count,
+                      const T* reps)
       : return_count_(return_count),
         parameter_count_(parameter_count),
         reps_(reps) {}
@@ -30,6 +32,28 @@ class Signature : public ZoneObject {
   T GetReturn(size_t index = 0) const {
     DCHECK(index < return_count_);
     return reps_[index];
+  }
+
+  // Iteration support.
+  base::iterator_range<const T*> parameters() const {
+    return {reps_ + return_count_, reps_ + return_count_ + parameter_count_};
+  }
+  base::iterator_range<const T*> returns() const {
+    return {reps_, reps_ + return_count_};
+  }
+  base::iterator_range<const T*> all() const {
+    return {reps_, reps_ + return_count_ + parameter_count_};
+  }
+
+  bool Equals(const Signature* that) const {
+    if (this == that) return true;
+    if (this->parameter_count() != that->parameter_count()) return false;
+    if (this->return_count() != that->return_count()) return false;
+    size_t size = this->return_count() + this->parameter_count();
+    for (size_t i = 0; i < size; i++) {
+      if (this->reps_[i] != that->reps_[i]) return false;
+    }
+    return true;
   }
 
   // For incrementally building signatures.
@@ -71,7 +95,7 @@ class Signature : public ZoneObject {
  protected:
   size_t return_count_;
   size_t parameter_count_;
-  T* reps_;
+  const T* reps_;
 };
 
 }  // namespace internal

@@ -32,6 +32,7 @@
 #include "src/base/platform/platform.h"
 #include "src/factory.h"
 #include "src/macro-assembler.h"
+#include "src/objects-inl.h"
 #include "test/cctest/cctest.h"
 
 namespace i = v8::internal;
@@ -55,7 +56,10 @@ using i::carry;
 using i::greater;
 using i::greater_equal;
 using i::kIntSize;
+using i::kFloatSize;
+using i::kDoubleSize;
 using i::kPointerSize;
+using i::kSimd128Size;
 using i::kSmiTagMask;
 using i::kSmiValueSize;
 using i::less_equal;
@@ -79,6 +83,22 @@ using i::rdi;
 using i::rdx;
 using i::rsi;
 using i::rsp;
+using i::xmm0;
+using i::xmm1;
+using i::xmm2;
+using i::xmm3;
+using i::xmm4;
+using i::xmm5;
+using i::xmm6;
+using i::xmm7;
+using i::xmm8;
+using i::xmm9;
+using i::xmm10;
+using i::xmm11;
+using i::xmm12;
+using i::xmm13;
+using i::xmm14;
+using i::xmm15;
 using i::times_pointer_size;
 
 // Test the x64 assembler by compiling some simple functions into
@@ -157,7 +177,7 @@ TEST(SmiMove) {
   EntryCode(masm);
   Label exit;
 
-  TestMoveSmi(masm, &exit, 1, Smi::FromInt(0));
+  TestMoveSmi(masm, &exit, 1, Smi::kZero);
   TestMoveSmi(masm, &exit, 2, Smi::FromInt(127));
   TestMoveSmi(masm, &exit, 3, Smi::FromInt(128));
   TestMoveSmi(masm, &exit, 4, Smi::FromInt(255));
@@ -176,7 +196,7 @@ TEST(SmiMove) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -270,7 +290,7 @@ TEST(SmiCompare) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -296,7 +316,7 @@ TEST(Integer32ToSmi) {
   __ movq(rax, Immediate(1));  // Test number.
   __ movl(rcx, Immediate(0));
   __ Integer32ToSmi(rcx, rcx);
-  __ Set(rdx, reinterpret_cast<intptr_t>(Smi::FromInt(0)));
+  __ Set(rdx, reinterpret_cast<intptr_t>(Smi::kZero));
   __ cmpq(rcx, rdx);
   __ j(not_equal, &exit);
 
@@ -333,7 +353,7 @@ TEST(Integer32ToSmi) {
   __ movq(rax, Immediate(6));  // Test number.
   __ movl(rcx, Immediate(0));
   __ Integer32ToSmi(r8, rcx);
-  __ Set(rdx, reinterpret_cast<intptr_t>(Smi::FromInt(0)));
+  __ Set(rdx, reinterpret_cast<intptr_t>(Smi::kZero));
   __ cmpq(r8, rdx);
   __ j(not_equal, &exit);
 
@@ -372,7 +392,7 @@ TEST(Integer32ToSmi) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -441,7 +461,7 @@ TEST(Integer64PlusConstantToSmi) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -614,7 +634,7 @@ TEST(SmiCheck) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -698,7 +718,7 @@ TEST(SmiNeg) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -919,7 +939,7 @@ TEST(SmiAdd) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -1136,7 +1156,7 @@ TEST(SmiSub) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -1222,7 +1242,7 @@ TEST(SmiMul) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -1337,7 +1357,7 @@ TEST(SmiDiv) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -1445,7 +1465,7 @@ TEST(SmiMod) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -1520,7 +1540,7 @@ TEST(SmiIndex) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -1591,7 +1611,7 @@ TEST(SmiSelectNonSmi) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -1670,7 +1690,7 @@ TEST(SmiAnd) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -1751,7 +1771,7 @@ TEST(SmiOr) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -1832,7 +1852,7 @@ TEST(SmiXor) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -1892,7 +1912,7 @@ TEST(SmiNot) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -1985,7 +2005,7 @@ TEST(SmiShiftLeft) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -2089,7 +2109,7 @@ TEST(SmiShiftLogicalRight) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -2156,7 +2176,7 @@ TEST(SmiShiftArithmeticRight) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -2220,7 +2240,7 @@ TEST(PositiveSmiTimesPowerOfTwoToInteger64) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -2574,7 +2594,7 @@ TEST(OperandOffset) {
 
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
@@ -2722,11 +2742,165 @@ TEST(LoadAndStoreWithRepresentation) {
   __ ret(0);
 
   CodeDesc desc;
-  masm->GetCode(&desc);
+  masm->GetCode(isolate, &desc);
   // Call the function from C++.
   int result = FUNCTION_CAST<F0>(buffer)();
   CHECK_EQ(0, result);
 }
 
+void TestFloat32x4Abs(MacroAssembler* masm, Label* exit, float x, float y,
+                      float z, float w) {
+  __ subq(rsp, Immediate(kSimd128Size));
+
+  __ Move(xmm1, x);
+  __ Movss(Operand(rsp, 0 * kFloatSize), xmm1);
+  __ Move(xmm2, y);
+  __ Movss(Operand(rsp, 1 * kFloatSize), xmm2);
+  __ Move(xmm3, z);
+  __ Movss(Operand(rsp, 2 * kFloatSize), xmm3);
+  __ Move(xmm4, w);
+  __ Movss(Operand(rsp, 3 * kFloatSize), xmm4);
+  __ Movups(xmm0, Operand(rsp, 0));
+
+  __ Absps(xmm0);
+  __ Movups(Operand(rsp, 0), xmm0);
+
+  __ incq(rax);
+  __ Move(xmm1, fabsf(x));
+  __ Ucomiss(xmm1, Operand(rsp, 0 * kFloatSize));
+  __ j(not_equal, exit);
+  __ incq(rax);
+  __ Move(xmm2, fabsf(y));
+  __ Ucomiss(xmm2, Operand(rsp, 1 * kFloatSize));
+  __ j(not_equal, exit);
+  __ incq(rax);
+  __ Move(xmm3, fabsf(z));
+  __ Ucomiss(xmm3, Operand(rsp, 2 * kFloatSize));
+  __ j(not_equal, exit);
+  __ incq(rax);
+  __ Move(xmm4, fabsf(w));
+  __ Ucomiss(xmm4, Operand(rsp, 3 * kFloatSize));
+  __ j(not_equal, exit);
+
+  __ addq(rsp, Immediate(kSimd128Size));
+}
+
+void TestFloat32x4Neg(MacroAssembler* masm, Label* exit, float x, float y,
+                      float z, float w) {
+  __ subq(rsp, Immediate(kSimd128Size));
+
+  __ Move(xmm1, x);
+  __ Movss(Operand(rsp, 0 * kFloatSize), xmm1);
+  __ Move(xmm2, y);
+  __ Movss(Operand(rsp, 1 * kFloatSize), xmm2);
+  __ Move(xmm3, z);
+  __ Movss(Operand(rsp, 2 * kFloatSize), xmm3);
+  __ Move(xmm4, w);
+  __ Movss(Operand(rsp, 3 * kFloatSize), xmm4);
+  __ Movups(xmm0, Operand(rsp, 0));
+
+  __ Negps(xmm0);
+  __ Movups(Operand(rsp, 0), xmm0);
+
+  __ incq(rax);
+  __ Move(xmm1, -x);
+  __ Ucomiss(xmm1, Operand(rsp, 0 * kFloatSize));
+  __ j(not_equal, exit);
+  __ incq(rax);
+  __ Move(xmm2, -y);
+  __ Ucomiss(xmm2, Operand(rsp, 1 * kFloatSize));
+  __ j(not_equal, exit);
+  __ incq(rax);
+  __ Move(xmm3, -z);
+  __ Ucomiss(xmm3, Operand(rsp, 2 * kFloatSize));
+  __ j(not_equal, exit);
+  __ incq(rax);
+  __ Move(xmm4, -w);
+  __ Ucomiss(xmm4, Operand(rsp, 3 * kFloatSize));
+  __ j(not_equal, exit);
+
+  __ addq(rsp, Immediate(kSimd128Size));
+}
+
+void TestFloat64x2Abs(MacroAssembler* masm, Label* exit, double x, double y) {
+  __ subq(rsp, Immediate(kSimd128Size));
+
+  __ Move(xmm1, x);
+  __ Movsd(Operand(rsp, 0 * kDoubleSize), xmm1);
+  __ Move(xmm2, y);
+  __ Movsd(Operand(rsp, 1 * kDoubleSize), xmm2);
+  __ movupd(xmm0, Operand(rsp, 0));
+
+  __ Abspd(xmm0);
+  __ movupd(Operand(rsp, 0), xmm0);
+
+  __ incq(rax);
+  __ Move(xmm1, fabs(x));
+  __ Ucomisd(xmm1, Operand(rsp, 0 * kDoubleSize));
+  __ j(not_equal, exit);
+  __ incq(rax);
+  __ Move(xmm2, fabs(y));
+  __ Ucomisd(xmm2, Operand(rsp, 1 * kDoubleSize));
+  __ j(not_equal, exit);
+
+  __ addq(rsp, Immediate(kSimd128Size));
+}
+
+void TestFloat64x2Neg(MacroAssembler* masm, Label* exit, double x, double y) {
+  __ subq(rsp, Immediate(kSimd128Size));
+
+  __ Move(xmm1, x);
+  __ Movsd(Operand(rsp, 0 * kDoubleSize), xmm1);
+  __ Move(xmm2, y);
+  __ Movsd(Operand(rsp, 1 * kDoubleSize), xmm2);
+  __ movupd(xmm0, Operand(rsp, 0));
+
+  __ Negpd(xmm0);
+  __ movupd(Operand(rsp, 0), xmm0);
+
+  __ incq(rax);
+  __ Move(xmm1, -x);
+  __ Ucomisd(xmm1, Operand(rsp, 0 * kDoubleSize));
+  __ j(not_equal, exit);
+  __ incq(rax);
+  __ Move(xmm2, -y);
+  __ Ucomisd(xmm2, Operand(rsp, 1 * kDoubleSize));
+  __ j(not_equal, exit);
+
+  __ addq(rsp, Immediate(kSimd128Size));
+}
+
+TEST(SIMDMacros) {
+  // Allocate an executable page of memory.
+  size_t actual_size;
+  byte* buffer = static_cast<byte*>(v8::base::OS::Allocate(
+      Assembler::kMinimalBufferSize * 2, &actual_size, true));
+  CHECK(buffer);
+  Isolate* isolate = CcTest::i_isolate();
+  HandleScope handles(isolate);
+  MacroAssembler assembler(isolate, buffer, static_cast<int>(actual_size),
+                           v8::internal::CodeObjectRequired::kYes);
+
+  MacroAssembler* masm = &assembler;
+  EntryCode(masm);
+  Label exit;
+
+  __ xorq(rax, rax);
+  TestFloat32x4Abs(masm, &exit, 1.5, -1.5, 0.5, -0.5);
+  TestFloat32x4Neg(masm, &exit, 1.5, -1.5, 0.5, -0.5);
+  TestFloat64x2Abs(masm, &exit, 1.75, -1.75);
+  TestFloat64x2Neg(masm, &exit, 1.75, -1.75);
+
+  __ xorq(rax, rax);  // Success.
+  __ bind(&exit);
+  ExitCode(masm);
+  __ ret(0);
+
+  CodeDesc desc;
+  masm->GetCode(isolate, &desc);
+  // Call the function from C++.
+  int result = FUNCTION_CAST<F0>(buffer)();
+  CHECK_EQ(0, result);
+}
 
 #undef __

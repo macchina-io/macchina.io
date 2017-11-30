@@ -3,25 +3,21 @@
 #
 
 ---
-pool type: mixed
-execute: yes
 wrap: yes
 
 ---
 snippet: "
   var a = 1; a += 2;
 "
-frame size: 2
+frame size: 1
 parameter count: 1
-bytecode array length: 15
+bytecode array length: 12
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   42 S> */ B(LdaSmi), U8(1),
-  /*   42 E> */ B(Star), R(0),
-  /*   45 S> */ B(Star), R(1),
-                B(LdaSmi), U8(2),
-                B(Add), R(1),
-  /*   47 E> */ B(Star), R(0),
+  /*   42 S> */ B(LdaSmi), I8(1),
+                B(Star), R(0),
+  /*   45 S> */ B(AddSmi), I8(2), U8(3),
+                B(Star), R(0),
                 B(LdaUndefined),
   /*   53 S> */ B(Return),
 ]
@@ -34,17 +30,15 @@ handlers: [
 snippet: "
   var a = 1; a /= 2;
 "
-frame size: 2
+frame size: 1
 parameter count: 1
-bytecode array length: 15
+bytecode array length: 12
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   42 S> */ B(LdaSmi), U8(1),
-  /*   42 E> */ B(Star), R(0),
-  /*   45 S> */ B(Star), R(1),
-                B(LdaSmi), U8(2),
-                B(Div), R(1),
-  /*   47 E> */ B(Star), R(0),
+  /*   42 S> */ B(LdaSmi), I8(1),
+                B(Star), R(0),
+  /*   45 S> */ B(DivSmi), I8(2), U8(3),
+                B(Star), R(0),
                 B(LdaUndefined),
   /*   53 S> */ B(Return),
 ]
@@ -57,26 +51,22 @@ handlers: [
 snippet: "
   var a = { val: 2 }; a.name *= 2;
 "
-frame size: 3
+frame size: 2
 parameter count: 1
-bytecode array length: 27
+bytecode array length: 22
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   42 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(1),
-                B(Star), R(1),
-  /*   42 E> */ B(Star), R(0),
-  /*   54 S> */ B(Star), R(1),
-                B(LoadIC), R(1), U8(1), U8(1),
-                B(Star), R(2),
-                B(LdaSmi), U8(2),
-                B(Mul), R(2),
-  /*   61 E> */ B(StoreICSloppy), R(1), U8(1), U8(3),
+  /*   42 S> */ B(CreateObjectLiteral), U8(0), U8(3), U8(41), R(1),
+                B(Mov), R(1), R(0),
+  /*   54 S> */ B(LdaNamedProperty), R(1), U8(1), U8(4),
+                B(MulSmi), I8(2), U8(6),
+  /*   61 E> */ B(StaNamedPropertySloppy), R(1), U8(1), U8(7),
                 B(LdaUndefined),
   /*   67 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
-  InstanceType::ONE_BYTE_INTERNALIZED_STRING_TYPE,
+  FIXED_ARRAY_TYPE,
+  ONE_BYTE_INTERNALIZED_STRING_TYPE ["name"],
 ]
 handlers: [
 ]
@@ -85,27 +75,23 @@ handlers: [
 snippet: "
   var a = { 1: 2 }; a[1] ^= 2;
 "
-frame size: 4
+frame size: 3
 parameter count: 1
-bytecode array length: 30
+bytecode array length: 25
 bytecodes: [
   /*   30 E> */ B(StackCheck),
-  /*   42 S> */ B(CreateObjectLiteral), U8(0), U8(0), U8(1),
-                B(Star), R(1),
-  /*   42 E> */ B(Star), R(0),
-  /*   52 S> */ B(Star), R(1),
-                B(LdaSmi), U8(1),
+  /*   42 S> */ B(CreateObjectLiteral), U8(0), U8(3), U8(41), R(1),
+                B(Mov), R(1), R(0),
+  /*   52 S> */ B(LdaSmi), I8(1),
                 B(Star), R(2),
-                B(KeyedLoadIC), R(1), U8(1),
-                B(Star), R(3),
-                B(LdaSmi), U8(2),
-                B(BitwiseXor), R(3),
-  /*   57 E> */ B(KeyedStoreICSloppy), R(1), R(2), U8(3),
+                B(LdaKeyedProperty), R(1), U8(4),
+                B(BitwiseXorSmi), I8(2), U8(6),
+  /*   57 E> */ B(StaKeyedPropertySloppy), R(1), R(2), U8(7),
                 B(LdaUndefined),
   /*   63 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::FIXED_ARRAY_TYPE,
+  FIXED_ARRAY_TYPE,
 ]
 handlers: [
 ]
@@ -114,26 +100,24 @@ handlers: [
 snippet: "
   var a = 1; (function f() { return a; }); a |= 24;
 "
-frame size: 2
+frame size: 1
 parameter count: 1
-bytecode array length: 30
+bytecode array length: 22
 bytecodes: [
-                B(CallRuntime), U16(Runtime::kNewFunctionContext), R(closure), U8(1),
+                B(CreateFunctionContext), U8(1),
                 B(PushContext), R(0),
   /*   30 E> */ B(StackCheck),
-  /*   42 S> */ B(LdaSmi), U8(1),
-  /*   42 E> */ B(StaContextSlot), R(context), U8(4),
-  /*   45 S> */ B(CreateClosure), U8(0), U8(0),
-  /*   75 S> */ B(LdaContextSlot), R(context), U8(4),
-                B(Star), R(1),
-                B(LdaSmi), U8(24),
-                B(BitwiseOr), R(1),
-  /*   77 E> */ B(StaContextSlot), R(context), U8(4),
+  /*   42 S> */ B(LdaSmi), I8(1),
+  /*   42 E> */ B(StaCurrentContextSlot), U8(4),
+  /*   45 S> */ B(CreateClosure), U8(0), U8(3), U8(2),
+  /*   75 S> */ B(LdaCurrentContextSlot), U8(4),
+                B(BitwiseOrSmi), I8(24), U8(4),
+  /*   77 E> */ B(StaCurrentContextSlot), U8(4),
                 B(LdaUndefined),
   /*   84 S> */ B(Return),
 ]
 constant pool: [
-  InstanceType::SHARED_FUNCTION_INFO_TYPE,
+  SHARED_FUNCTION_INFO_TYPE,
 ]
 handlers: [
 ]

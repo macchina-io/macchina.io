@@ -2,8 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Flags: --allow-natives-syntax --harmony-regexp-subclass
-// Flags: --expose-gc
+// Flags: --allow-natives-syntax --expose-gc
 
 "use strict";
 
@@ -921,7 +920,6 @@ function TestMapSetSubclassing(container, is_map) {
   assertEquals(["match", "tostring"], log);
   // TODO(littledan): Is the RegExp constructor correct to create
   // the internal slots and do these type checks this way?
-  assertEquals("biep", %_RegExpSource(o));
   assertThrows(() => Object.getOwnPropertyDescriptor(RegExp.prototype,
                                                      'source').get(o),
                TypeError);

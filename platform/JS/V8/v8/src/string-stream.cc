@@ -4,7 +4,11 @@
 
 #include "src/string-stream.h"
 
+#include <memory>
+
 #include "src/handles-inl.h"
+#include "src/log.h"
+#include "src/objects-inl.h"
 #include "src/prototype.h"
 
 namespace v8 {
@@ -186,15 +190,15 @@ void StringStream::PrintObject(Object* o) {
     HeapObject* ho = HeapObject::cast(o);
     DebugObjectCache* debug_object_cache = ho->GetIsolate()->
         string_stream_debug_object_cache();
-    for (int i = 0; i < debug_object_cache->length(); i++) {
+    for (size_t i = 0; i < debug_object_cache->size(); i++) {
       if ((*debug_object_cache)[i] == o) {
-        Add("#%d#", i);
+        Add("#%d#", static_cast<int>(i));
         return;
       }
     }
-    if (debug_object_cache->length() < kMentionedObjectCacheMaxSize) {
-      Add("#%d#", debug_object_cache->length());
-      debug_object_cache->Add(HeapObject::cast(o));
+    if (debug_object_cache->size() < kMentionedObjectCacheMaxSize) {
+      Add("#%d#", static_cast<int>(debug_object_cache->size()));
+      debug_object_cache->push_back(HeapObject::cast(o));
     } else {
       Add("@%p", o);
     }
@@ -202,59 +206,11 @@ void StringStream::PrintObject(Object* o) {
 }
 
 
-void StringStream::Add(const char* format) {
-  Add(CStrVector(format));
-}
-
-
-void StringStream::Add(Vector<const char> format) {
-  Add(format, Vector<FmtElm>::empty());
-}
-
-
-void StringStream::Add(const char* format, FmtElm arg0) {
-  const char argc = 1;
-  FmtElm argv[argc] = { arg0 };
-  Add(CStrVector(format), Vector<FmtElm>(argv, argc));
-}
-
-
-void StringStream::Add(const char* format, FmtElm arg0, FmtElm arg1) {
-  const char argc = 2;
-  FmtElm argv[argc] = { arg0, arg1 };
-  Add(CStrVector(format), Vector<FmtElm>(argv, argc));
-}
-
-
-void StringStream::Add(const char* format, FmtElm arg0, FmtElm arg1,
-                       FmtElm arg2) {
-  const char argc = 3;
-  FmtElm argv[argc] = { arg0, arg1, arg2 };
-  Add(CStrVector(format), Vector<FmtElm>(argv, argc));
-}
-
-
-void StringStream::Add(const char* format, FmtElm arg0, FmtElm arg1,
-                       FmtElm arg2, FmtElm arg3) {
-  const char argc = 4;
-  FmtElm argv[argc] = { arg0, arg1, arg2, arg3 };
-  Add(CStrVector(format), Vector<FmtElm>(argv, argc));
-}
-
-
-void StringStream::Add(const char* format, FmtElm arg0, FmtElm arg1,
-                       FmtElm arg2, FmtElm arg3, FmtElm arg4) {
-  const char argc = 5;
-  FmtElm argv[argc] = { arg0, arg1, arg2, arg3, arg4 };
-  Add(CStrVector(format), Vector<FmtElm>(argv, argc));
-}
-
-
-base::SmartArrayPointer<const char> StringStream::ToCString() const {
+std::unique_ptr<char[]> StringStream::ToCString() const {
   char* str = NewArray<char>(length_ + 1);
   MemCopy(str, buffer_, length_);
   str[length_] = '\0';
-  return base::SmartArrayPointer<const char>(str);
+  return std::unique_ptr<char[]>(str);
 }
 
 
@@ -288,16 +244,16 @@ Handle<String> StringStream::ToString(Isolate* isolate) {
 void StringStream::ClearMentionedObjectCache(Isolate* isolate) {
   isolate->set_string_stream_current_security_token(NULL);
   if (isolate->string_stream_debug_object_cache() == NULL) {
-    isolate->set_string_stream_debug_object_cache(new DebugObjectCache(0));
+    isolate->set_string_stream_debug_object_cache(new DebugObjectCache());
   }
-  isolate->string_stream_debug_object_cache()->Clear();
+  isolate->string_stream_debug_object_cache()->clear();
 }
 
 
 #ifdef DEBUG
 bool StringStream::IsMentionedObjectCacheClear(Isolate* isolate) {
   return object_print_mode_ == kPrintObjectConcise ||
-         isolate->string_stream_debug_object_cache()->length() == 0;
+         isolate->string_stream_debug_object_cache()->size() == 0;
 }
 #endif
 
@@ -348,7 +304,8 @@ void StringStream::PrintUsingMap(JSObject* js_object) {
   DescriptorArray* descs = map->instance_descriptors();
   for (int i = 0; i < real_size; i++) {
     PropertyDetails details = descs->GetDetails(i);
-    if (details.type() == DATA) {
+    if (details.location() == kField) {
+      DCHECK_EQ(kData, details.kind());
       Object* key = descs->GetKey(i);
       if (key->IsString() || key->IsNumber()) {
         int len = 3;
@@ -378,14 +335,14 @@ void StringStream::PrintUsingMap(JSObject* js_object) {
 
 
 void StringStream::PrintFixedArray(FixedArray* array, unsigned int limit) {
-  Heap* heap = array->GetHeap();
+  Isolate* isolate = array->GetIsolate();
   for (unsigned int i = 0; i < 10 && i < limit; i++) {
     Object* element = array->get(i);
-    if (element != heap->the_hole_value()) {
-      for (int len = 1; len < 18; len++)
-        Put(' ');
-      Add("%d: %o\n", i, array->get(i));
+    if (element->IsTheHole(isolate)) continue;
+    for (int len = 1; len < 18; len++) {
+      Put(' ');
     }
+    Add("%d: %o\n", i, array->get(i));
   }
   if (limit >= 10) {
     Add("                  ...\n");
@@ -420,9 +377,9 @@ void StringStream::PrintMentionedObjectCache(Isolate* isolate) {
   DebugObjectCache* debug_object_cache =
       isolate->string_stream_debug_object_cache();
   Add("==== Key         ============================================\n\n");
-  for (int i = 0; i < debug_object_cache->length(); i++) {
+  for (size_t i = 0; i < debug_object_cache->size(); i++) {
     HeapObject* printee = (*debug_object_cache)[i];
-    Add(" #%d# %p: ", i, printee);
+    Add(" #%d# %p: ", static_cast<int>(i), printee);
     printee->ShortPrint(this);
     Add("\n");
     if (printee->IsJSObject()) {
@@ -432,7 +389,7 @@ void StringStream::PrintMentionedObjectCache(Isolate* isolate) {
       PrintUsingMap(JSObject::cast(printee));
       if (printee->IsJSArray()) {
         JSArray* array = JSArray::cast(printee);
-        if (array->HasFastObjectElements()) {
+        if (array->HasObjectElements()) {
           unsigned int limit = FixedArray::cast(array->elements())->length();
           unsigned int length =
             static_cast<uint32_t>(JSArray::cast(array)->length()->Number());
@@ -527,19 +484,20 @@ void StringStream::PrintPrototype(JSFunction* fun, Object* receiver) {
   Object* name = fun->shared()->name();
   bool print_name = false;
   Isolate* isolate = fun->GetIsolate();
-  if (receiver->IsNull() || receiver->IsUndefined() || receiver->IsJSProxy()) {
+  if (receiver->IsNullOrUndefined(isolate) || receiver->IsTheHole(isolate) ||
+      receiver->IsJSProxy()) {
     print_name = true;
-  } else {
+  } else if (isolate->context() != nullptr) {
     if (!receiver->IsJSObject()) {
-      receiver = receiver->GetRootMap(isolate)->prototype();
+      receiver = receiver->GetPrototypeChainRootMap(isolate)->prototype();
     }
 
     for (PrototypeIterator iter(isolate, JSObject::cast(receiver),
-                                PrototypeIterator::START_AT_RECEIVER);
+                                kStartAtReceiver);
          !iter.IsAtEnd(); iter.Advance()) {
       if (iter.GetCurrent()->IsJSProxy()) break;
       Object* key = iter.GetCurrent<JSObject>()->SlowReverseLookup(fun);
-      if (!key->IsUndefined()) {
+      if (!key->IsUndefined(isolate)) {
         if (!name->IsString() ||
             !key->IsString() ||
             !String::cast(name)->Equals(String::cast(key))) {

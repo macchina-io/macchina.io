@@ -38,7 +38,10 @@ class SnapshotByteSource final {
 
   void Advance(int by) { position_ += by; }
 
-  void CopyRaw(byte* to, int number_of_bytes);
+  void CopyRaw(byte* to, int number_of_bytes) {
+    memcpy(to, data_ + position_, number_of_bytes);
+    position_ += number_of_bytes;
+  }
 
   inline int GetInt() {
     // This way of decoding variable-length encoded integers does not
@@ -94,7 +97,7 @@ class SnapshotByteSink {
   void PutRaw(const byte* data, int number_of_bytes, const char* description);
   int Position() { return data_.length(); }
 
-  const List<byte>& data() const { return data_; }
+  const List<byte>* data() const { return &data_; }
 
  private:
   List<byte> data_;

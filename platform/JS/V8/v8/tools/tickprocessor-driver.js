@@ -64,6 +64,9 @@ if (params.sourceMap) {
 var tickProcessor = new TickProcessor(
   new (entriesProviders[params.platform])(params.nm, params.targetRootFS),
   params.separateIc,
+  params.separateBytecodes,
+  params.separateBuiltins,
+  params.separateStubs,
   params.callGraphSize,
   params.ignoreUnknown,
   params.stateFilter,
@@ -72,6 +75,8 @@ var tickProcessor = new TickProcessor(
   sourceMap,
   params.timedRange,
   params.pairwiseTimedRange,
-  params.onlySummary);
+  params.onlySummary,
+  params.runtimeTimerFilter,
+  params.preprocessJson);
 tickProcessor.processLogFile(params.logFileName);
 tickProcessor.printStatistics();

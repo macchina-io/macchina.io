@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <memory>
 #include "src/api.h"
+#include "src/base/ieee754.h"
 #include "src/base/utils/random-number-generator.h"
 #include "src/frames-inl.h"
 #include "src/heap/heap.h"
@@ -27,7 +28,7 @@ intptr_t SamplingAllocationObserver::GetNextSampleInterval(uint64_t rate) {
     return static_cast<intptr_t>(rate);
   }
   double u = random_->NextDouble();
-  double next = (-std::log(u)) * rate;
+  double next = (-base::ieee754::log(u)) * rate;
   return next < kPointerSize
              ? kPointerSize
              : (next > INT_MAX ? INT_MAX : static_cast<intptr_t>(next));
@@ -64,7 +65,7 @@ SamplingHeapProfiler::SamplingHeapProfiler(
       stack_depth_(stack_depth),
       rate_(rate),
       flags_(flags) {
-  CHECK_GT(rate_, 0);
+  CHECK_GT(rate_, 0u);
   heap->new_space()->AddAllocationObserver(new_space_observer_.get());
   AllSpaces spaces(heap);
   for (Space* space = spaces.next(); space != nullptr; space = spaces.next()) {
@@ -258,8 +259,8 @@ v8::AllocationProfile::Node* SamplingHeapProfiler::TranslateAllocationNode(
 
 v8::AllocationProfile* SamplingHeapProfiler::GetAllocationProfile() {
   if (flags_ & v8::HeapProfiler::kSamplingForceGC) {
-    isolate_->heap()->CollectAllGarbage(Heap::kNoGCFlags,
-                                        "SamplingHeapProfiler");
+    isolate_->heap()->CollectAllGarbage(
+        Heap::kNoGCFlags, GarbageCollectionReason::kSamplingProfiler);
   }
   // To resolve positions to line/column numbers, we will need to look up
   // scripts. Build a map to allow fast mapping from script id to script.

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "src/objects-inl.h"
 #include "test/cctest/compiler/function-tester.h"
 
 namespace v8 {
@@ -386,6 +387,7 @@ TEST(PropertyKeyedDelete) {
 
 
 TEST(GlobalLoad) {
+  FLAG_stress_fullcodegen = false;
   FunctionTester T("(function() { return g; })");
 
   T.CheckThrows(T.undefined(), T.undefined());
@@ -395,6 +397,7 @@ TEST(GlobalLoad) {
 
 
 TEST(GlobalStoreStrict) {
+  FLAG_stress_fullcodegen = false;
   FunctionTester T("(function(a,b) { 'use strict'; g = a + b; return g; })");
 
   T.CheckThrows(T.Val(22), T.Val(11));

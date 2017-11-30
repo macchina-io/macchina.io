@@ -26,7 +26,7 @@
 
 
 #include "src/allocation.h"
-#include "src/compiler.h"
+#include "src/ast/ast-traversal-visitor.h"
 
 namespace v8 {
 namespace internal {
@@ -38,7 +38,8 @@ namespace internal {
 // in order to analyze whether function code may be safely patched (with new
 // code successfully reading existing data from function scopes). The Tracker
 // also collects compiled function codes.
-class LiveEditFunctionTracker : public AstTraversalVisitor {
+class LiveEditFunctionTracker
+    : public AstTraversalVisitor<LiveEditFunctionTracker> {
  public:
   // Traverses the entire AST, and records information about all
   // FunctionLiterals for further use by LiveEdit code patching. The collected
@@ -46,8 +47,9 @@ class LiveEditFunctionTracker : public AstTraversalVisitor {
   static Handle<JSArray> Collect(FunctionLiteral* node, Handle<Script> script,
                                  Zone* zone, Isolate* isolate);
 
-  virtual ~LiveEditFunctionTracker() {}
-  void VisitFunctionLiteral(FunctionLiteral* node) override;
+ protected:
+  friend AstTraversalVisitor<LiveEditFunctionTracker>;
+  void VisitFunctionLiteral(FunctionLiteral* node);
 
  private:
   LiveEditFunctionTracker(Handle<Script> script, Zone* zone, Isolate* isolate);
@@ -70,23 +72,7 @@ class LiveEditFunctionTracker : public AstTraversalVisitor {
 
 class LiveEdit : AllStatic {
  public:
-  // Describes how exactly a frame has been dropped from stack.
-  enum FrameDropMode {
-    // No frame has been dropped.
-    FRAMES_UNTOUCHED,
-    // The top JS frame had been calling debug break slot stub. Patch the
-    // address this stub jumps to in the end.
-    FRAME_DROPPED_IN_DEBUG_SLOT_CALL,
-    // The top JS frame had been calling some C++ function. The return address
-    // gets patched automatically.
-    FRAME_DROPPED_IN_DIRECT_CALL,
-    FRAME_DROPPED_IN_RETURN_CALL,
-    CURRENTLY_SET_MODE
-  };
-
   static void InitializeThreadLocal(Debug* debug);
-
-  static bool SetAfterBreakTarget(Debug* debug);
 
   MUST_USE_RESULT static MaybeHandle<JSArray> GatherCompileInfo(
       Handle<Script> script,
@@ -95,7 +81,10 @@ class LiveEdit : AllStatic {
   static void ReplaceFunctionCode(Handle<JSArray> new_compile_info_array,
                                   Handle<JSArray> shared_info_array);
 
-  static void FunctionSourceUpdated(Handle<JSArray> shared_info_array);
+  static void FixupScript(Handle<Script> script, int max_function_literal_id);
+
+  static void FunctionSourceUpdated(Handle<JSArray> shared_info_array,
+                                    int new_function_literal_id);
 
   // Updates script field in FunctionSharedInfo.
   static void SetFunctionScript(Handle<JSValue> function_wrapper,
@@ -155,40 +144,6 @@ class LiveEdit : AllStatic {
 
   // Architecture-specific constant.
   static const bool kFrameDropperSupported;
-
-  /**
-   * Defines layout of a stack frame that supports padding. This is a regular
-   * internal frame that has a flexible stack structure. LiveEdit can shift
-   * its lower part up the stack, taking up the 'padding' space when additional
-   * stack memory is required.
-   * Such frame is expected immediately above the topmost JavaScript frame.
-   *
-   * Stack Layout:
-   *   --- Top
-   *   LiveEdit routine frames
-   *   ---
-   *   C frames of debug handler
-   *   ---
-   *   ...
-   *   ---
-   *      An internal frame that has n padding words:
-   *      - any number of words as needed by code -- upper part of frame
-   *      - padding size: a Smi storing n -- current size of padding
-   *      - padding: n words filled with kPaddingValue in form of Smi
-   *      - 3 context/type words of a regular InternalFrame
-   *      - fp
-   *   ---
-   *      Topmost JavaScript frame
-   *   ---
-   *   ...
-   *   --- Bottom
-   */
-  // A number of words that should be reserved on stack for the LiveEdit use.
-  // Stored on stack in form of Smi.
-  static const int kFramePaddingInitialSize = 1;
-  // A value that padding words are filled with (in form of Smi). Going
-  // bottom-top, the first word not having this value is a counter word.
-  static const int kFramePaddingValue = kFramePaddingInitialSize + 1;
 };
 
 
@@ -289,11 +244,8 @@ class FunctionInfoWrapper : public JSArrayBasedStruct<FunctionInfoWrapper> {
   }
 
   void SetInitialProperties(Handle<String> name, int start_position,
-                            int end_position, int param_num, int literal_count,
-                            int parent_index);
-
-  void SetFunctionCode(Handle<Code> function_code,
-                       Handle<HeapObject> code_scope_info);
+                            int end_position, int param_num, int parent_index,
+                            int function_literal_id);
 
   void SetFunctionScopeInfo(Handle<Object> scope_info_array) {
     this->SetField(kFunctionScopeInfoOffset_, scope_info_array);
@@ -301,19 +253,11 @@ class FunctionInfoWrapper : public JSArrayBasedStruct<FunctionInfoWrapper> {
 
   void SetSharedFunctionInfo(Handle<SharedFunctionInfo> info);
 
-  int GetLiteralCount() {
-    return this->GetSmiValueField(kLiteralNumOffset_);
-  }
+  Handle<SharedFunctionInfo> GetSharedFunctionInfo();
 
   int GetParentIndex() {
     return this->GetSmiValueField(kParentIndexOffset_);
   }
-
-  Handle<Code> GetFunctionCode();
-
-  MaybeHandle<TypeFeedbackVector> GetFeedbackVector();
-
-  Handle<Object> GetCodeScopeInfo();
 
   int GetStartPosition() {
     return this->GetSmiValueField(kStartPositionOffset_);
@@ -326,13 +270,11 @@ class FunctionInfoWrapper : public JSArrayBasedStruct<FunctionInfoWrapper> {
   static const int kStartPositionOffset_ = 1;
   static const int kEndPositionOffset_ = 2;
   static const int kParamNumOffset_ = 3;
-  static const int kCodeOffset_ = 4;
-  static const int kCodeScopeInfoOffset_ = 5;
-  static const int kFunctionScopeInfoOffset_ = 6;
-  static const int kParentIndexOffset_ = 7;
-  static const int kSharedFunctionInfoOffset_ = 8;
-  static const int kLiteralNumOffset_ = 9;
-  static const int kSize_ = 10;
+  static const int kFunctionScopeInfoOffset_ = 4;
+  static const int kParentIndexOffset_ = 5;
+  static const int kSharedFunctionInfoOffset_ = 6;
+  static const int kFunctionLiteralIdOffset_ = 7;
+  static const int kSize_ = 8;
 
   friend class JSArrayBasedStruct<FunctionInfoWrapper>;
 };

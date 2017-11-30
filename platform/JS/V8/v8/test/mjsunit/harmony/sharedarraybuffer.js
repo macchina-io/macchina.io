@@ -70,13 +70,6 @@ function TestByteLengthNotWritable() {
 
 TestByteLengthNotWritable();
 
-function TestArrayBufferNoSlice() {
-  var sab = new SharedArrayBuffer(10);
-  assertEquals(undefined, sab.slice);
-}
-
-TestArrayBufferNoSlice();
-
 // Typed arrays using SharedArrayBuffers
 
 // TODO(binji): how many of these tests are necessary if there are no new
@@ -572,3 +565,31 @@ for(i = 0; i < typedArrayConstructors.length; i++) {
   assertThrows(function(i) { typedArrayConstructors[i](); }.bind(this, i),
                TypeError);
 }
+
+// byteLength from prototype can be overwritten
+var s = new SharedArrayBuffer(10);
+assertEquals(10, s.byteLength);
+Object.defineProperty(s, 'byteLength', {value: 42});
+assertEquals(42, s.byteLength);
+
+// byteLength on incompatible type (shared vs. regular ArrayBuffer)
+var desc = Object.getOwnPropertyDescriptor(ArrayBuffer.prototype, 'byteLength');
+s = new SharedArrayBuffer(10);
+Object.defineProperty(s, 'byteLength', desc);
+assertThrows(function() {s.byteLength}, TypeError);
+
+desc = Object.getOwnPropertyDescriptor(SharedArrayBuffer.prototype,
+  'byteLength');
+var a = new ArrayBuffer(10);
+Object.defineProperty(a, 'byteLength', desc);
+assertThrows(function() {a.byteLength}, TypeError);
+
+// test SharedArrayBuffer species getter
+assertSame(SharedArrayBuffer[Symbol.species], SharedArrayBuffer);
+var desc = Object.getOwnPropertyDescriptor(SharedArrayBuffer, Symbol.species);
+assertEquals("function", typeof desc.get);
+assertEquals("get [Symbol.species]", desc.get.name);
+assertEquals(0, desc.get.length);
+assertEquals("undefined", typeof desc.set);
+assertTrue(desc.configurable);
+assertFalse(desc.enumerable);

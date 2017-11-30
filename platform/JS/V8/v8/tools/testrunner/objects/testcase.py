@@ -29,23 +29,25 @@
 from . import output
 
 class TestCase(object):
-  def __init__(self, suite, path, variant='default', flags=None,
+  def __init__(self, suite, path, variant=None, flags=None,
                override_shell=None):
     self.suite = suite        # TestSuite object
     self.path = path          # string, e.g. 'div-mod', 'test-api/foo'
     self.flags = flags or []  # list of strings, flags specific to this test
     self.variant = variant    # name of the used testing variant
     self.override_shell = override_shell
-    self.outcomes = set([])
+    self.outcomes = frozenset([])
     self.output = None
     self.id = None  # int, used to map result back to TestCase instance
     self.duration = None  # assigned during execution
     self.run = 1  # The nth time this test is executed.
+    self.env = {}
 
   def CopyAddingFlags(self, variant, flags):
     copy = TestCase(self.suite, self.path, variant, self.flags + flags,
                     self.override_shell)
     copy.outcomes = self.outcomes
+    copy.env = self.env
     return copy
 
   def PackTask(self):
@@ -56,16 +58,17 @@ class TestCase(object):
     assert self.id is not None
     return [self.suitename(), self.path, self.variant, self.flags,
             self.override_shell, list(self.outcomes or []),
-            self.id]
+            self.id, self.env]
 
   @staticmethod
   def UnpackTask(task):
     """Creates a new TestCase object based on packed task data."""
     # For the order of the fields, refer to PackTask() above.
     test = TestCase(str(task[0]), task[1], task[2], task[3], task[4])
-    test.outcomes = set(task[5])
+    test.outcomes = frozenset(task[5])
     test.id = task[6]
     test.run = 1
+    test.env = task[7]
     return test
 
   def SetSuiteObject(self, suites):
@@ -108,3 +111,6 @@ class TestCase(object):
         (self.suite.name, self.path, self.flags),
         (other.suite.name, other.path, other.flags),
     )
+
+  def __str__(self):
+    return "[%s/%s  %s]" % (self.suite.name, self.path, self.flags)

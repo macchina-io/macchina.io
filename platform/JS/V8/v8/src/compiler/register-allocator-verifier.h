@@ -5,13 +5,14 @@
 #ifndef V8_REGISTER_ALLOCATOR_VERIFIER_H_
 #define V8_REGISTER_ALLOCATOR_VERIFIER_H_
 
-#include "src/zone-containers.h"
+#include "src/compiler/instruction.h"
+#include "src/zone/zone-containers.h"
 
 namespace v8 {
 namespace internal {
 namespace compiler {
 
-class InstructionOperand;
+class InstructionBlock;
 class InstructionSequence;
 
 // The register allocator validator traverses instructions in the instruction
@@ -89,7 +90,7 @@ class PendingAssessment final : public Assessment {
   DISALLOW_COPY_AND_ASSIGN(PendingAssessment);
 };
 
-// FinalAssessmens are associated to operands that we know to be a certain
+// FinalAssessments are associated to operands that we know to be a certain
 // virtual register.
 class FinalAssessment final : public Assessment {
  public:
@@ -166,7 +167,7 @@ class RegisterAllocatorVerifier final : public ZoneObject {
   RegisterAllocatorVerifier(Zone* zone, const RegisterConfiguration* config,
                             const InstructionSequence* sequence);
 
-  void VerifyAssignment();
+  void VerifyAssignment(const char* caller_info);
   void VerifyGapMoves();
 
  private:
@@ -175,13 +176,12 @@ class RegisterAllocatorVerifier final : public ZoneObject {
     kImmediate,
     kRegister,
     kFixedRegister,
-    kDoubleRegister,
-    kFixedDoubleRegister,
+    kFPRegister,
+    kFixedFPRegister,
     kSlot,
-    kDoubleSlot,
     kFixedSlot,
     kNone,
-    kNoneDouble,
+    kNoneFP,
     kExplicit,
     kSameAsFirst,
     kRegisterAndSlot
@@ -189,7 +189,9 @@ class RegisterAllocatorVerifier final : public ZoneObject {
 
   struct OperandConstraint {
     ConstraintType type_;
-    int value_;  // subkind index when relevant
+    // Constant or immediate value, register code, slot index, or slot size
+    // when relevant.
+    int value_;
     int spilled_slot_;
     int virtual_register_;
   };
@@ -255,6 +257,8 @@ class RegisterAllocatorVerifier final : public ZoneObject {
   Constraints constraints_;
   ZoneMap<RpoNumber, BlockAssessments*> assessments_;
   ZoneMap<RpoNumber, DelayedAssessments*> outstanding_assessments_;
+  // TODO(chromium:725559): remove after we understand this bug's root cause.
+  const char* caller_info_ = nullptr;
 
   DISALLOW_COPY_AND_ASSIGN(RegisterAllocatorVerifier);
 };

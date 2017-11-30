@@ -7,7 +7,7 @@
 
 #include "src/objects.h"
 #include "src/regexp/regexp-ast.h"
-#include "src/zone.h"
+#include "src/zone/zone.h"
 
 namespace v8 {
 namespace internal {
@@ -174,7 +174,7 @@ class RegExpParser BASE_EMBEDDED {
   bool ParseHexEscape(int length, uc32* value);
   bool ParseUnicodeEscape(uc32* value);
   bool ParseUnlimitedLengthHexNumber(int max_value, uc32* value);
-  bool ParsePropertyClass(ZoneList<CharacterRange>* result);
+  bool ParsePropertyClass(ZoneList<CharacterRange>* result, bool negate);
 
   uc32 ParseOctalLiteral();
 
@@ -199,6 +199,7 @@ class RegExpParser BASE_EMBEDDED {
   int captures_started() { return captures_started_; }
   int position() { return next_pos_ - 1; }
   bool failed() { return failed_; }
+  bool dotall() const { return dotall_; }
   bool ignore_case() const { return ignore_case_; }
   bool multiline() const { return multiline_; }
   bool unicode() const { return unicode_; }
@@ -222,13 +223,15 @@ class RegExpParser BASE_EMBEDDED {
     RegExpParserState(RegExpParserState* previous_state,
                       SubexpressionType group_type,
                       RegExpLookaround::Type lookaround_type,
-                      int disjunction_capture_index, bool ignore_case,
+                      int disjunction_capture_index,
+                      const ZoneVector<uc16>* capture_name, bool ignore_case,
                       bool unicode, Zone* zone)
         : previous_state_(previous_state),
           builder_(new (zone) RegExpBuilder(zone, ignore_case, unicode)),
           group_type_(group_type),
           lookaround_type_(lookaround_type),
-          disjunction_capture_index_(disjunction_capture_index) {}
+          disjunction_capture_index_(disjunction_capture_index),
+          capture_name_(capture_name) {}
     // Parser state of containing expression, if any.
     RegExpParserState* previous_state() { return previous_state_; }
     bool IsSubexpression() { return previous_state_ != NULL; }
@@ -242,9 +245,16 @@ class RegExpParser BASE_EMBEDDED {
     // Also the capture index of this sub-expression itself, if group_type
     // is CAPTURE.
     int capture_index() { return disjunction_capture_index_; }
+    // The name of the current sub-expression, if group_type is CAPTURE. Only
+    // used for named captures.
+    const ZoneVector<uc16>* capture_name() { return capture_name_; }
+
+    bool IsNamedCapture() const { return capture_name_ != nullptr; }
 
     // Check whether the parser is inside a capture group with the given index.
     bool IsInsideCaptureGroup(int index);
+    // Check whether the parser is inside a capture group with the given name.
+    bool IsInsideCaptureGroup(const ZoneVector<uc16>* name);
 
    private:
     // Linked list implementation of stack of states.
@@ -257,10 +267,35 @@ class RegExpParser BASE_EMBEDDED {
     RegExpLookaround::Type lookaround_type_;
     // Stored disjunction's capture index (if any).
     int disjunction_capture_index_;
+    // Stored capture name (if any).
+    const ZoneVector<uc16>* capture_name_;
   };
 
   // Return the 1-indexed RegExpCapture object, allocate if necessary.
   RegExpCapture* GetCapture(int index);
+
+  // Creates a new named capture at the specified index. Must be called exactly
+  // once for each named capture. Fails if a capture with the same name is
+  // encountered.
+  bool CreateNamedCaptureAtIndex(const ZoneVector<uc16>* name, int index);
+
+  // Parses the name of a capture group (?<name>pattern). The name must adhere
+  // to IdentifierName in the ECMAScript standard.
+  const ZoneVector<uc16>* ParseCaptureGroupName();
+
+  bool ParseNamedBackReference(RegExpBuilder* builder,
+                               RegExpParserState* state);
+
+  // After the initial parsing pass, patch corresponding RegExpCapture objects
+  // into all RegExpBackReferences. This is done after initial parsing in order
+  // to avoid complicating cases in which references comes before the capture.
+  void PatchNamedBackReferences();
+
+  Handle<FixedArray> CreateCaptureNameMap();
+
+  // Returns true iff the pattern contains named captures. May call
+  // ScanForCaptures to look ahead at the remaining pattern.
+  bool HasNamedCaptures();
 
   Isolate* isolate() { return isolate_; }
   Zone* zone() const { return zone_; }
@@ -278,19 +313,22 @@ class RegExpParser BASE_EMBEDDED {
   Zone* zone_;
   Handle<String>* error_;
   ZoneList<RegExpCapture*>* captures_;
+  ZoneList<RegExpCapture*>* named_captures_;
+  ZoneList<RegExpBackReference*>* named_back_references_;
   FlatStringReader* in_;
   uc32 current_;
+  bool dotall_;
   bool ignore_case_;
   bool multiline_;
   bool unicode_;
   int next_pos_;
   int captures_started_;
-  // The capture count is only valid after we have scanned for captures.
-  int capture_count_;
+  int capture_count_;  // Only valid after we have scanned for captures.
   bool has_more_;
   bool simple_;
   bool contains_anchor_;
   bool is_scanned_for_captures_;
+  bool has_named_captures_;  // Only valid after we have scanned for captures.
   bool failed_;
 };
 

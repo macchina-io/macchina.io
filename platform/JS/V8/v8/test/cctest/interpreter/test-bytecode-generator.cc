@@ -6,10 +6,10 @@
 
 #include "src/v8.h"
 
-#include "src/compiler.h"
 #include "src/interpreter/bytecode-array-iterator.h"
 #include "src/interpreter/bytecode-generator.h"
 #include "src/interpreter/interpreter.h"
+#include "src/objects-inl.h"
 #include "test/cctest/cctest.h"
 #include "test/cctest/interpreter/bytecode-expectations-printer.h"
 #include "test/cctest/test-feedback-vector.h"
@@ -57,12 +57,13 @@ namespace interpreter {
 #define REPEAT_64_UNIQUE_VARS() REPEAT_32_UNIQUE_VARS() REPEAT_32_UNIQUE_VARS()
 #define REPEAT_128_UNIQUE_VARS() REPEAT_64_UNIQUE_VARS() REPEAT_64_UNIQUE_VARS()
 
-#define REPEAT_249_UNIQUE_VARS() \
+#define REPEAT_250_UNIQUE_VARS() \
   REPEAT_128_UNIQUE_VARS()       \
   REPEAT_64_UNIQUE_VARS()        \
   REPEAT_32_UNIQUE_VARS()        \
   REPEAT_16_UNIQUE_VARS()        \
   REPEAT_8_UNIQUE_VARS()         \
+  UNIQUE_VAR()                   \
   UNIQUE_VAR()
 
 static const char* kGoldenFileDirectory =
@@ -71,10 +72,9 @@ static const char* kGoldenFileDirectory =
 class InitializedIgnitionHandleScope : public InitializedHandleScope {
  public:
   InitializedIgnitionHandleScope() {
-    i::FLAG_ignition = true;
+    i::FLAG_stress_fullcodegen = false;
     i::FLAG_always_opt = false;
     i::FLAG_allow_natives_syntax = true;
-    CcTest::i_isolate()->interpreter()->Initialize();
   }
 };
 
@@ -151,12 +151,9 @@ bool CompareTexts(const std::string& generated, const std::string& expected) {
   } while (true);
 }
 
-using ConstantPoolType = BytecodeExpectationsPrinter::ConstantPoolType;
-
 TEST(PrimitiveReturnStatements) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "",
 
@@ -177,6 +174,8 @@ TEST(PrimitiveReturnStatements) {
       "return +127;\n",
 
       "return -128;\n",
+
+      "return 2.0;\n",
   };
 
   CHECK(CompareTexts(BuildActual(printer, snippets),
@@ -185,32 +184,53 @@ TEST(PrimitiveReturnStatements) {
 
 TEST(PrimitiveExpressions) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "var x = 0; return x;\n",
 
       "var x = 0; return x + 3;\n",
 
+      "var x = 0; return 3 + x;\n",
+
       "var x = 0; return x - 3;\n",
+
+      "var x = 0; return 3 - x;\n",
 
       "var x = 4; return x * 3;\n",
 
+      "var x = 4; return 3 * x;\n",
+
       "var x = 4; return x / 3;\n",
+
+      "var x = 4; return 3 / x;\n",
 
       "var x = 4; return x % 3;\n",
 
+      "var x = 4; return 3 % x;\n",
+
       "var x = 1; return x | 2;\n",
+
+      "var x = 1; return 2 | x;\n",
 
       "var x = 1; return x ^ 2;\n",
 
+      "var x = 1; return 2 ^ x;\n",
+
       "var x = 1; return x & 2;\n",
+
+      "var x = 1; return 2 & x;\n",
 
       "var x = 10; return x << 3;\n",
 
+      "var x = 10; return 3 << x;\n",
+
       "var x = 10; return x >> 3;\n",
 
+      "var x = 10; return 3 >> x;\n",
+
       "var x = 10; return x >>> 3;\n",
+
+      "var x = 10; return 3 >>> x;\n",
 
       "var x = 0; return (x, 3);\n",
   };
@@ -221,8 +241,7 @@ TEST(PrimitiveExpressions) {
 
 TEST(LogicalExpressions) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "var x = 0; return x || 3;\n",
 
@@ -265,8 +284,7 @@ TEST(LogicalExpressions) {
 
 TEST(Parameters) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -292,8 +310,7 @@ TEST(Parameters) {
 
 TEST(IntegerConstants) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "return 12345678;\n",
 
@@ -308,8 +325,7 @@ TEST(IntegerConstants) {
 
 TEST(HeapNumberConstants) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "return 1.2;\n",
 
@@ -328,8 +344,7 @@ TEST(HeapNumberConstants) {
 
 TEST(StringConstants) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "return \"This is a string\";\n",
 
@@ -344,8 +359,7 @@ TEST(StringConstants) {
 
 TEST(PropertyLoads) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -388,8 +402,7 @@ TEST(PropertyLoads) {
 
 TEST(PropertyStores) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -454,8 +467,7 @@ TEST(PropertyStores) {
 
 TEST(PropertyCall) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -474,6 +486,9 @@ TEST(PropertyCall) {
       REPEAT_127(" a.func;\n")  //
       " return a.func(); }\n"
       "f(" FUNC_ARG ")",
+
+      "function f(a) { return a.func(1).func(2).func(3); }\n"
+      "f(new (function Obj() { this.func = function(a) { return this; }})())",
   };
 
   CHECK(CompareTexts(BuildActual(printer, snippets),
@@ -482,8 +497,7 @@ TEST(PropertyCall) {
 
 TEST(LoadGlobal) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -515,8 +529,7 @@ TEST(LoadGlobal) {
 
 TEST(StoreGlobal) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -560,8 +573,7 @@ TEST(StoreGlobal) {
 
 TEST(CallGlobal) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -581,8 +593,7 @@ TEST(CallGlobal) {
 
 TEST(CallRuntime) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -606,8 +617,7 @@ TEST(CallRuntime) {
 
 TEST(IfConditions) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -702,6 +712,17 @@ TEST(IfConditions) {
     "  }\n"
     "};\n"
     "f();\n",
+
+    "function f(a, b) {\n"
+    "  if (a == b || a < 0) {\n"
+    "    return 1;\n"
+    "  } else if (a > 0 && b > 0) {\n"
+    "    return 0;\n"
+    "  } else {\n"
+    "    return -1;\n"
+    "  }\n"
+    "};\n"
+    "f(-1, 1);\n",
   };
 
   CHECK(CompareTexts(BuildActual(printer, snippets),
@@ -710,11 +731,9 @@ TEST(IfConditions) {
 
 TEST(DeclareGlobals) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
-  printer.set_execute(false);
   printer.set_top_level(true);
 
   const char* snippets[] = {
@@ -735,8 +754,7 @@ TEST(DeclareGlobals) {
 
 TEST(BreakableBlocks) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
 
   const char* snippets[] = {
       "var x = 0;\n"
@@ -782,8 +800,7 @@ TEST(BreakableBlocks) {
 
 TEST(BasicLoops) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "var x = 0;\n"
       "while (false) { x = 99; break; continue; }\n"
@@ -936,8 +953,7 @@ TEST(BasicLoops) {
 
 TEST(JumpsRequiringConstantWideOperands) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
     REPEAT_256("var x = 0.1;\n")
     REPEAT_32("var x = 0.2;\n")
@@ -956,8 +972,7 @@ TEST(JumpsRequiringConstantWideOperands) {
 
 TEST(UnaryOperators) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "var x = 0;\n"
       "while (x != 10) {\n"
@@ -994,8 +1009,7 @@ TEST(UnaryOperators) {
 
 TEST(Typeof) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1015,10 +1029,84 @@ TEST(Typeof) {
                      LoadGolden("Typeof.golden")));
 }
 
+TEST(CompareTypeOf) {
+  InitializedIgnitionHandleScope scope;
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+
+  const char* snippets[] = {
+      "return typeof(1) === 'number';\n",
+
+      "return 'string' === typeof('foo');\n",
+
+      "return typeof(true) == 'boolean';\n",
+
+      "return 'string' === typeof(undefined);\n",
+
+      "return 'unknown' === typeof(undefined);\n",
+  };
+
+  CHECK(CompareTexts(BuildActual(printer, snippets),
+                     LoadGolden("CompareTypeOf.golden")));
+}
+
+TEST(CompareNil) {
+  InitializedIgnitionHandleScope scope;
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+
+  const char* snippets[] = {
+      "var a = 1;\n"
+      "return a === null;\n",
+
+      "var a = undefined;\n"
+      "return undefined === a;\n",
+
+      "var a = undefined;\n"
+      "return undefined !== a;\n",
+
+      "var a = 2;\n"
+      "return a != null;\n",
+
+      "var a = undefined;\n"
+      "return undefined == a;\n",
+
+      "var a = undefined;\n"
+      "return undefined === a ? 1 : 2;\n",
+
+      "var a = 0;\n"
+      "return null == a ? 1 : 2;\n",
+
+      "var a = 0;\n"
+      "return undefined !== a ? 1 : 2;\n",
+
+      "var a = 0;\n"
+      "return a === null ? 1 : 2;\n",
+
+      "var a = 0;\n"
+      "if (a === null) {\n"
+      "  return 1;\n"
+      "} else {\n"
+      "  return 2;\n"
+      "}\n",
+
+      "var a = 0;\n"
+      "if (a != undefined) {\n"
+      "  return 1;\n"
+      "}\n",
+
+      "var a = undefined;\n"
+      "var b = 0;\n"
+      "while (a !== undefined) {\n"
+      "  b++;\n"
+      "}\n",
+  };
+
+  CHECK(CompareTexts(BuildActual(printer, snippets),
+                     LoadGolden("CompareNil.golden")));
+}
+
 TEST(Delete) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
 
   const char* snippets[] = {
       "var a = {x:13, y:14}; return delete a.x;\n",
@@ -1043,8 +1131,7 @@ TEST(Delete) {
 
 TEST(GlobalDelete) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1081,8 +1168,7 @@ TEST(GlobalDelete) {
 
 TEST(FunctionLiterals) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
 
   const char* snippets[] = {
       "return function(){ }\n",
@@ -1098,8 +1184,7 @@ TEST(FunctionLiterals) {
 
 TEST(RegExpLiterals) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
 
   const char* snippets[] = {
       "return /ab+d/;\n",
@@ -1115,8 +1200,7 @@ TEST(RegExpLiterals) {
 
 TEST(RegExpLiteralsWide) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
 
   const char* snippets[] = {
       "var a;"                   //
@@ -1130,8 +1214,7 @@ TEST(RegExpLiteralsWide) {
 
 TEST(ArrayLiterals) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
 
   const char* snippets[] = {
       "return [ 1, 2 ];\n",
@@ -1149,8 +1232,7 @@ TEST(ArrayLiterals) {
 
 TEST(ArrayLiteralsWide) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
 
   const char* snippets[] = {
       "var a;"                   //
@@ -1164,8 +1246,7 @@ TEST(ArrayLiteralsWide) {
 
 TEST(ObjectLiterals) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
 
   const char* snippets[] = {
       "return { };\n",
@@ -1205,8 +1286,7 @@ TEST(ObjectLiterals) {
 
 TEST(ObjectLiteralsWide) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "var a;"                   //
       REPEAT_256("\na = 1.23;")  //
@@ -1219,11 +1299,9 @@ TEST(ObjectLiteralsWide) {
 
 TEST(TopLevelObjectLiterals) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
-  printer.set_execute(false);
   printer.set_top_level(true);
 
   const char* snippets[] = {
@@ -1236,8 +1314,7 @@ TEST(TopLevelObjectLiterals) {
 
 TEST(TryCatch) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
 
   const char* snippets[] = {
       "try { return 1; } catch(e) { return 2; }\n",
@@ -1253,8 +1330,7 @@ TEST(TryCatch) {
 
 TEST(TryFinally) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "var a = 1;\n"
       "try { a = 2; } finally { a = 3; }\n",
@@ -1273,8 +1349,7 @@ TEST(TryFinally) {
 
 TEST(Throw) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "throw 1;\n",
 
@@ -1289,8 +1364,7 @@ TEST(Throw) {
 
 TEST(CallNew) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1324,8 +1398,7 @@ TEST(ContextVariables) {
   STATIC_ASSERT(Context::MIN_CONTEXT_SLOTS + 3 + 249 == 256);
 
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
     "var a; return function() { a = 1; };\n",
 
@@ -1340,7 +1413,7 @@ TEST(ContextVariables) {
     "{ let b = 2; return function() { a + b; }; }\n",
 
     "'use strict';\n"
-    REPEAT_249_UNIQUE_VARS()
+    REPEAT_250_UNIQUE_VARS()
     "eval();\n"
     "var b = 100;\n"
     "return b\n",
@@ -1352,8 +1425,7 @@ TEST(ContextVariables) {
 
 TEST(ContextParameters) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1373,8 +1445,7 @@ TEST(ContextParameters) {
 
 TEST(OuterContextVariables) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1404,8 +1475,7 @@ TEST(OuterContextVariables) {
 
 TEST(CountOperators) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "var a = 1; return ++a;\n",
 
@@ -1436,8 +1506,7 @@ TEST(CountOperators) {
 
 TEST(GlobalCountOperators) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1465,8 +1534,7 @@ TEST(GlobalCountOperators) {
 
 TEST(CompoundExpressions) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "var a = 1; a += 2;\n",
 
@@ -1485,8 +1553,7 @@ TEST(CompoundExpressions) {
 
 TEST(GlobalCompoundExpressions) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1506,8 +1573,7 @@ TEST(GlobalCompoundExpressions) {
 
 TEST(CreateArguments) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1531,8 +1597,7 @@ TEST(CreateArguments) {
 
 TEST(CreateRestParameter) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1552,8 +1617,7 @@ TEST(CreateRestParameter) {
 
 TEST(ForIn) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "for (var p in null) {}\n",
 
@@ -1583,8 +1647,7 @@ TEST(ForIn) {
 
 TEST(ForOf) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "for (var p of [0, 1, 2]) {}\n",
 
@@ -1606,12 +1669,16 @@ TEST(ForOf) {
 
 TEST(Conditional) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "return 1 ? 2 : 3;\n",
 
       "return 1 ? 2 ? 3 : 4 : 5;\n",
+
+      "return 0 < 1 ? 2 : 3;\n",
+
+      "var x = 0;\n"
+      "return x ? 2 : 3;\n",
   };
 
   CHECK(CompareTexts(BuildActual(printer, snippets),
@@ -1620,8 +1687,7 @@ TEST(Conditional) {
 
 TEST(Switch) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
     "var a = 1;\n"
     "switch(a) {\n"
@@ -1688,8 +1754,7 @@ TEST(Switch) {
 
 TEST(BasicBlockToBoolean) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "var a = 1; if (a || a < 0) { return 1; }\n",
 
@@ -1704,8 +1769,7 @@ TEST(BasicBlockToBoolean) {
 
 TEST(DeadCodeRemoval) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "return; var a = 1; a();\n",
 
@@ -1722,8 +1786,7 @@ TEST(DeadCodeRemoval) {
 
 TEST(ThisFunction) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1741,8 +1804,7 @@ TEST(ThisFunction) {
 
 TEST(NewTarget) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
 
   const char* snippets[] = {
       "return new.target;\n",
@@ -1756,8 +1818,7 @@ TEST(NewTarget) {
 
 TEST(RemoveRedundantLdar) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "var ld_a = 1;\n"          // This test is to check Ldar does not
       "while(true) {\n"          // get removed if the preceding Star is
@@ -1782,10 +1843,57 @@ TEST(RemoveRedundantLdar) {
                      LoadGolden("RemoveRedundantLdar.golden")));
 }
 
+TEST(GenerateTestUndetectable) {
+  InitializedIgnitionHandleScope scope;
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+  const char* snippets[] = {
+      "var obj_a = {val:1};\n"
+      "var b = 10;\n"
+      "if (obj_a == null) { b = 20;}\n"
+      "return b;\n",
+
+      "var obj_a = {val:1};\n"
+      "var b = 10;\n"
+      "if (obj_a == undefined) { b = 20;}\n"
+      "return b;\n",
+
+      "var obj_a = {val:1};\n"
+      "var b = 10;\n"
+      "if (obj_a != null) { b = 20;}\n"
+      "return b;\n",
+
+      "var obj_a = {val:1};\n"
+      "var b = 10;\n"
+      "if (obj_a != undefined) { b = 20;}\n"
+      "return b;\n",
+
+      "var obj_a = {val:1};\n"
+      "var b = 10;\n"
+      "if (obj_a === null) { b = 20;}\n"
+      "return b;\n",
+
+      "var obj_a = {val:1};\n"
+      "var b = 10;\n"
+      "if (obj_a === undefined) { b = 20;}\n"
+      "return b;\n",
+
+      "var obj_a = {val:1};\n"
+      "var b = 10;\n"
+      "if (obj_a !== null) { b = 20;}\n"
+      "return b;\n",
+
+      "var obj_a = {val:1};\n"
+      "var b = 10;\n"
+      "if (obj_a !== undefined) { b = 20;}\n"
+      "return b;\n"};
+
+  CHECK(CompareTexts(BuildActual(printer, snippets),
+                     LoadGolden("GenerateTestUndetectable.golden")));
+}
+
 TEST(AssignmentsInBinaryExpression) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "var x = 0, y = 1;\n"
       "return (x = 2, y = 3, x = 4, y = 5);\n",
@@ -1825,8 +1933,7 @@ TEST(AssignmentsInBinaryExpression) {
 
 TEST(Eval) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "return eval('1;');\n",
   };
@@ -1837,16 +1944,32 @@ TEST(Eval) {
 
 TEST(LookupSlot) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+  printer.set_test_function_name("f");
 
+  // clang-format off
   const char* snippets[] = {
       "eval('var x = 10;'); return x;\n",
 
       "eval('var x = 10;'); return typeof x;\n",
 
       "x = 20; return eval('');\n",
+
+      "var x = 20;\n"
+      "f = function(){\n"
+      "  eval('var x = 10');\n"
+      "  return x;\n"
+      "}\n"
+      "f();\n",
+
+      "x = 20;\n"
+      "f = function(){\n"
+      "  eval('var x = 10');\n"
+      "  return x;\n"
+      "}\n"
+      "f();\n"
   };
+  // clang-format on
 
   CHECK(CompareTexts(BuildActual(printer, snippets),
                      LoadGolden("LookupSlot.golden")));
@@ -1854,8 +1977,7 @@ TEST(LookupSlot) {
 
 TEST(CallLookupSlot) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "g = function(){}; eval(''); return g();\n",
   };
@@ -1868,8 +1990,7 @@ TEST(CallLookupSlot) {
 
 TEST(LookupSlotInEval) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1898,8 +2019,7 @@ TEST(LookupSlotInEval) {
 
 TEST(LookupSlotWideInEval) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1934,8 +2054,7 @@ TEST(LookupSlotWideInEval) {
 
 TEST(DeleteLookupSlotInEval) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
@@ -1971,8 +2090,7 @@ TEST(WideRegisters) {
   std::string prologue(os.str());
 
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kNumber);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "x0 = x127;\n"
       "return x0;\n",
@@ -2014,8 +2132,7 @@ TEST(WideRegisters) {
 
 TEST(ConstVariable) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "const x = 10;\n",
 
@@ -2032,8 +2149,7 @@ TEST(ConstVariable) {
 
 TEST(LetVariable) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "let x = 10;\n",
 
@@ -2052,8 +2168,7 @@ TEST(ConstVariableContextSlot) {
   // TODO(mythria): Add tests for initialization of this via super calls.
   // TODO(mythria): Add tests that walk the context chain.
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "const x = 10; function f1() {return x;}\n",
 
@@ -2070,8 +2185,7 @@ TEST(ConstVariableContextSlot) {
 
 TEST(LetVariableContextSlot) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "let x = 10; function f1() {return x;}\n",
 
@@ -2091,8 +2205,7 @@ TEST(DoExpression) {
   FLAG_harmony_do_expressions = true;
 
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "var a = do { }; return a;\n",
 
@@ -2109,8 +2222,7 @@ TEST(DoExpression) {
 
 TEST(WithStatement) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "with ({x:42}) { return x; }\n",
   };
@@ -2121,8 +2233,7 @@ TEST(WithStatement) {
 
 TEST(DoDebugger) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kString);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "debugger;\n",
   };
@@ -2133,8 +2244,7 @@ TEST(DoDebugger) {
 
 TEST(ClassDeclarations) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   const char* snippets[] = {
       "class Person {\n"
       "  constructor(name) { this.name = name; }\n"
@@ -2156,6 +2266,9 @@ TEST(ClassDeclarations) {
       "var count = 0;\n"
       "class C { constructor() { count++; }}\n"
       "return new C();\n",
+
+      "(class {})\n"
+      "class E { static name () {}}\n",
   };
 
   CHECK(CompareTexts(BuildActual(printer, snippets),
@@ -2164,8 +2277,7 @@ TEST(ClassDeclarations) {
 
 TEST(ClassAndSuperClass) {
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("test");
   const char* snippets[] = {
@@ -2222,27 +2334,346 @@ TEST(ClassAndSuperClass) {
 }
 
 TEST(Generators) {
-  bool old_flag = FLAG_ignition_generators;
-  FLAG_ignition_generators = true;
-
   InitializedIgnitionHandleScope scope;
-  BytecodeExpectationsPrinter printer(CcTest::isolate(),
-                                      ConstantPoolType::kMixed);
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
   printer.set_wrap(false);
   printer.set_test_function_name("f");
 
   const char* snippets[] = {
-      "function* f() { }\n",
+      "function* f() { }\n"
+      "f();\n",
 
-      "function* f() { yield 42 }\n",
+      "function* f() { yield 42 }\n"
+      "f();\n",
 
-      "function* f() { for (let x of [42]) yield x }\n",
+      "function* f() { for (let x of [42]) yield x }\n"
+      "f();\n",
+
+      "function* g() { yield 42 }\n"
+      "function* f() { yield* g() }\n"
+      "f();\n",
   };
 
   CHECK(CompareTexts(BuildActual(printer, snippets),
                      LoadGolden("Generators.golden")));
+}
 
-  FLAG_ignition_generators = old_flag;
+TEST(AsyncGenerators) {
+  bool old_flag = i::FLAG_harmony_async_iteration;
+  i::FLAG_harmony_async_iteration = true;
+  InitializedIgnitionHandleScope scope;
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+  printer.set_wrap(false);
+  printer.set_test_function_name("f");
+
+  const char* snippets[] = {
+      "async function* f() { }\n"
+      "f();\n",
+
+      "async function* f() { yield 42 }\n"
+      "f();\n",
+
+      "async function* f() { for (let x of [42]) yield x }\n"
+      "f();\n",
+
+      "function* g() { yield 42 }\n"
+      "async function* f() { yield* g() }\n"
+      "f();\n",
+  };
+
+  CHECK(CompareTexts(BuildActual(printer, snippets),
+                     LoadGolden("AsyncGenerators.golden")));
+  i::FLAG_harmony_async_iteration = old_flag;
+}
+
+TEST(Modules) {
+  InitializedIgnitionHandleScope scope;
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+  printer.set_wrap(false);
+  printer.set_module(true);
+  printer.set_top_level(true);
+
+  const char* snippets[] = {
+      "import \"bar\";\n",
+
+      "import {foo} from \"bar\";\n",
+
+      "import {foo as goo} from \"bar\";\n"
+      "goo(42);\n"
+      "{ let x; { goo(42) } };\n",
+
+      "export var foo = 42;\n"
+      "foo++;\n"
+      "{ let x; { foo++ } };\n",
+
+      "export let foo = 42;\n"
+      "foo++;\n"
+      "{ let x; { foo++ } };\n",
+
+      "export const foo = 42;\n"
+      "foo++;\n"
+      "{ let x; { foo++ } };\n",
+
+      "export default (function () {});\n",
+
+      "export default (class {});\n",
+
+      "export {foo as goo} from \"bar\"\n",
+
+      "export * from \"bar\"\n",
+
+      "import * as foo from \"bar\"\n"
+      "foo.f(foo, foo.x);\n",
+  };
+
+  CHECK(CompareTexts(BuildActual(printer, snippets),
+                     LoadGolden("Modules.golden")));
+}
+
+TEST(SuperCallAndSpread) {
+  InitializedIgnitionHandleScope scope;
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+  printer.set_wrap(false);
+  printer.set_test_function_name("test");
+  const char* snippets[] = {
+      "var test;\n"
+      "(function() {\n"
+      "  class A {\n"
+      "    constructor(...args) { this.baseArgs = args; }\n"
+      "  }\n"
+      "  class B extends A {}\n"
+      "  test = new B(1, 2, 3).constructor;\n"
+      "})();\n",
+
+      "var test;\n"
+      "(function() {\n"
+      "  class A {\n"
+      "    constructor(...args) { this.baseArgs = args; }\n"
+      "  }\n"
+      "  class B extends A {\n"
+      "    constructor(...args) { super(1, ...args); }\n"
+      "  }\n"
+      "  test = new B(1, 2, 3).constructor;\n"
+      "})();\n",
+
+      "var test;\n"
+      "(function() {\n"
+      "  class A {\n"
+      "    constructor(...args) { this.baseArgs = args; }\n"
+      "  }\n"
+      "  class B extends A {\n"
+      "    constructor(...args) { super(1, ...args, 1); }\n"
+      "  }\n"
+      "  test = new B(1, 2, 3).constructor;\n"
+      "})();\n",
+  };
+
+  CHECK(CompareTexts(BuildActual(printer, snippets),
+                     LoadGolden("SuperCallAndSpread.golden")));
+}
+
+TEST(CallAndSpread) {
+  InitializedIgnitionHandleScope scope;
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+  const char* snippets[] = {"Math.max(...[1, 2, 3]);\n",
+                            "Math.max(0, ...[1, 2, 3]);\n",
+                            "Math.max(0, ...[1, 2, 3], 4);\n"};
+
+  CHECK(CompareTexts(BuildActual(printer, snippets),
+                     LoadGolden("CallAndSpread.golden")));
+}
+
+TEST(NewAndSpread) {
+  InitializedIgnitionHandleScope scope;
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+  const char* snippets[] = {
+      "class A { constructor(...args) { this.args = args; } }\n"
+      "new A(...[1, 2, 3]);\n",
+
+      "class A { constructor(...args) { this.args = args; } }\n"
+      "new A(0, ...[1, 2, 3]);\n",
+
+      "class A { constructor(...args) { this.args = args; } }\n"
+      "new A(0, ...[1, 2, 3], 4);\n"};
+
+  CHECK(CompareTexts(BuildActual(printer, snippets),
+                     LoadGolden("NewAndSpread.golden")));
+}
+
+TEST(ForAwaitOf) {
+  bool old_flag = i::FLAG_harmony_async_iteration;
+  i::FLAG_harmony_async_iteration = true;
+  InitializedIgnitionHandleScope scope;
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+  printer.set_wrap(false);
+  printer.set_test_function_name("f");
+
+  const char* snippets[] = {
+      "async function f() {\n"
+      "  for await (let x of [1, 2, 3]) {}\n"
+      "}\n"
+      "f();\n",
+
+      "async function f() {\n"
+      "  for await (let x of [1, 2, 3]) { return x; }\n"
+      "}\n"
+      "f();\n",
+
+      "async function f() {\n"
+      "  for await (let x of [10, 20, 30]) {\n"
+      "    if (x == 10) continue;\n"
+      "    if (x == 20) break;\n"
+      "  }\n"
+      "}\n"
+      "f();\n",
+
+      "async function f() {\n"
+      "  var x = { 'a': 1, 'b': 2 };\n"
+      "  for (x['a'] of [1,2,3]) { return x['a']; }\n"
+      "}\n"
+      "f();\n"};
+
+  CHECK(CompareTexts(BuildActual(printer, snippets),
+                     LoadGolden("ForAwaitOf.golden")));
+
+  i::FLAG_harmony_async_iteration = old_flag;
+}
+
+TEST(StandardForLoop) {
+  InitializedIgnitionHandleScope scope;
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+  printer.set_wrap(false);
+  printer.set_test_function_name("f");
+
+  const char* snippets[] = {
+      "function f() {\n"
+      "  for (let x = 0; x < 10; ++x) { let y = x; }\n"
+      "}\n"
+      "f();\n",
+
+      "function f() {\n"
+      "  for (let x = 0; x < 10; ++x) { eval('1'); }\n"
+      "}\n"
+      "f();\n",
+
+      "function f() {\n"
+      "  for (let x = 0; x < 10; ++x) { (function() { return x; })(); }\n"
+      "}\n"
+      "f();\n",
+
+      "function f() {\n"
+      "  for (let { x, y } = { x: 0, y: 3 }; y > 0; --y) { let z = x + y; }\n"
+      "}\n"
+      "f();\n",
+
+      "function* f() {\n"
+      "  for (let x = 0; x < 10; ++x) { let y = x; }\n"
+      "}\n"
+      "f();\n",
+
+      "function* f() {\n"
+      "  for (let x = 0; x < 10; ++x) yield x;\n"
+      "}\n"
+      "f();\n",
+
+      "async function f() {\n"
+      "  for (let x = 0; x < 10; ++x) { let y = x; }\n"
+      "}\n"
+      "f();\n",
+
+      "async function f() {\n"
+      "  for (let x = 0; x < 10; ++x) await x;\n"
+      "}\n"
+      "f();\n"};
+
+  CHECK(CompareTexts(BuildActual(printer, snippets),
+                     LoadGolden("StandardForLoop.golden")));
+}
+
+TEST(ForOfLoop) {
+  InitializedIgnitionHandleScope scope;
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+  printer.set_wrap(false);
+  printer.set_test_function_name("f");
+
+  const char* snippets[] = {
+      "function f(arr) {\n"
+      "  for (let x of arr) { let y = x; }\n"
+      "}\n"
+      "f([1, 2, 3]);\n",
+
+      "function f(arr) {\n"
+      "  for (let x of arr) { eval('1'); }\n"
+      "}\n"
+      "f([1, 2, 3]);\n",
+
+      "function f(arr) {\n"
+      "  for (let x of arr) { (function() { return x; })(); }\n"
+      "}\n"
+      "f([1, 2, 3]);\n",
+
+      "function f(arr) {\n"
+      "  for (let { x, y } of arr) { let z = x + y; }\n"
+      "}\n"
+      "f([{ x: 0, y: 3 }, { x: 1, y: 9 }, { x: -12, y: 17 }]);\n",
+
+      "function* f(arr) {\n"
+      "  for (let x of arr) { let y = x; }\n"
+      "}\n"
+      "f([1, 2, 3]);\n",
+
+      "function* f(arr) {\n"
+      "  for (let x of arr) yield x;\n"
+      "}\n"
+      "f([1, 2, 3]);\n",
+
+      "async function f(arr) {\n"
+      "  for (let x of arr) { let y = x; }\n"
+      "}\n"
+      "f([1, 2, 3]);\n",
+
+      "async function f(arr) {\n"
+      "  for (let x of arr) await x;\n"
+      "}\n"
+      "f([1, 2, 3]);\n"};
+
+  CHECK(CompareTexts(BuildActual(printer, snippets),
+                     LoadGolden("ForOfLoop.golden")));
+}
+
+TEST(StringConcat) {
+  InitializedIgnitionHandleScope scope;
+  BytecodeExpectationsPrinter printer(CcTest::isolate());
+
+  const char* snippets[] = {
+      "var a = 1;\n"
+      "var b = 2;\n"
+      "return a + b + 'string';\n",
+
+      "var a = 1;\n"
+      "var b = 2;\n"
+      "return 'string' + a + b;\n",
+
+      "var a = 1;\n"
+      "var b = 2;\n"
+      "return a + 'string' + b;\n",
+
+      "var a = 1;\n"
+      "var b = 2;\n"
+      "return 'foo' + a + 'bar' + b + 'baz' + 1;\n",
+
+      "var a = 1;\n"
+      "var b = 2;\n"
+      "return (a + 'string') + ('string' + b);\n",
+
+      "var a = 1;\n"
+      "var b = 2;\n"
+      "function foo(a, b) { };\n"
+      "return 'string' + foo(a, b) + a + b;\n",
+  };
+
+  CHECK(CompareTexts(BuildActual(printer, snippets),
+                     LoadGolden("StringConcat.golden")));
 }
 
 }  // namespace interpreter

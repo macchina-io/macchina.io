@@ -58,12 +58,9 @@ TIMEOUT_SCALEFACTOR = {"debug"   : 4,
                        "release" : 1 }
 
 MODE_FLAGS = {
-    "debug"   : ["--nohard-abort", "--nodead-code-elimination",
-                 "--nofold-constants", "--enable-slow-asserts",
-                 "--debug-code", "--verify-heap",
-                 "--noconcurrent-recompilation"],
-    "release" : ["--nohard-abort", "--nodead-code-elimination",
-                 "--nofold-constants", "--noconcurrent-recompilation"]}
+    "debug"   : ["--nohard-abort", "--enable-slow-asserts",
+                 "--verify-heap", "--noconcurrent-recompilation"],
+    "release" : ["--nohard-abort", "--noconcurrent-recompilation"]}
 
 SUPPORTED_ARCHS = ["android_arm",
                    "android_ia32",
@@ -74,16 +71,12 @@ SUPPORTED_ARCHS = ["android_arm",
                    "s390",
                    "s390x",
                    "mipsel",
-                   "nacl_ia32",
-                   "nacl_x64",
                    "x64"]
 # Double the timeout for these:
 SLOW_ARCHS = ["android_arm",
               "android_ia32",
               "arm",
-              "mipsel",
-              "nacl_ia32",
-              "nacl_x64"]
+              "mipsel"]
 MAX_DEOPT = 1000000000
 DISTRIBUTION_MODES = ["smooth", "random"]
 
@@ -398,8 +391,6 @@ def Execute(arch, mode, args, options, suites, workspace):
     "deopt_fuzzer": True,
     "gc_stress": False,
     "gcov_coverage": False,
-    "ignition": False,
-    "ignition_turbofan": False,
     "isolates": options.isolates,
     "mode": mode,
     "no_i18n": False,
@@ -412,6 +403,7 @@ def Execute(arch, mode, args, options, suites, workspace):
     "novfp3": False,
     "predictable": False,
     "byteorder": sys.byteorder,
+    "no_harness": False,
   }
   all_tests = []
   num_tests = 0

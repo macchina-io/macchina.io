@@ -8,8 +8,10 @@
 #include <iosfwd>
 
 #include "src/field-index.h"
+#include "src/machine-type.h"
 #include "src/objects.h"
-#include "src/zone-containers.h"
+#include "src/objects/map.h"
+#include "src/zone/zone-containers.h"
 
 namespace v8 {
 namespace internal {
@@ -17,74 +19,80 @@ namespace internal {
 // Forward declarations.
 class CompilationDependencies;
 class Factory;
-class TypeCache;
-
 
 namespace compiler {
 
+// Forward declarations.
+class Type;
+class TypeCache;
+
 // Whether we are loading a property or storing to a property.
-enum class AccessMode { kLoad, kStore };
+// For a store during literal creation, do not walk up the prototype chain.
+enum class AccessMode { kLoad, kStore, kStoreInLiteral };
 
 std::ostream& operator<<(std::ostream&, AccessMode);
 
-
 // Mapping of transition source to transition target.
 typedef std::vector<std::pair<Handle<Map>, Handle<Map>>> MapTransitionList;
-
 
 // This class encapsulates all information required to access a certain element.
 class ElementAccessInfo final {
  public:
   ElementAccessInfo();
-  ElementAccessInfo(Type* receiver_type, ElementsKind elements_kind,
-                    MaybeHandle<JSObject> holder);
+  ElementAccessInfo(MapHandles const& receiver_maps,
+                    ElementsKind elements_kind);
 
-  MaybeHandle<JSObject> holder() const { return holder_; }
   ElementsKind elements_kind() const { return elements_kind_; }
-  Type* receiver_type() const { return receiver_type_; }
+  MapHandles const& receiver_maps() const { return receiver_maps_; }
   MapTransitionList& transitions() { return transitions_; }
   MapTransitionList const& transitions() const { return transitions_; }
 
  private:
   ElementsKind elements_kind_;
-  MaybeHandle<JSObject> holder_;
-  Type* receiver_type_;
+  MapHandles receiver_maps_;
   MapTransitionList transitions_;
 };
-
-
-// Additional checks that need to be perform for data field accesses.
-enum class FieldCheck : uint8_t {
-  // No additional checking needed.
-  kNone,
-  // Check that the [[ViewedArrayBuffer]] of {JSArrayBufferView}s
-  // was not neutered.
-  kJSArrayBufferViewBufferNotNeutered,
-};
-
 
 // This class encapsulates all information required to access a certain
 // object property, either on the object itself or on the prototype chain.
 class PropertyAccessInfo final {
  public:
-  enum Kind { kInvalid, kNotFound, kDataConstant, kDataField };
+  enum Kind {
+    kInvalid,
+    kNotFound,
+    kDataConstant,
+    kDataField,
+    kDataConstantField,
+    kAccessorConstant
+  };
 
-  static PropertyAccessInfo NotFound(Type* receiver_type,
+  static PropertyAccessInfo NotFound(MapHandles const& receiver_maps,
                                      MaybeHandle<JSObject> holder);
-  static PropertyAccessInfo DataConstant(Type* receiver_type,
+  static PropertyAccessInfo DataConstant(MapHandles const& receiver_maps,
                                          Handle<Object> constant,
                                          MaybeHandle<JSObject> holder);
   static PropertyAccessInfo DataField(
-      Type* receiver_type, FieldIndex field_index, Type* field_type,
-      FieldCheck field_check = FieldCheck::kNone,
+      PropertyConstness constness, MapHandles const& receiver_maps,
+      FieldIndex field_index, MachineRepresentation field_representation,
+      Type* field_type, MaybeHandle<Map> field_map = MaybeHandle<Map>(),
       MaybeHandle<JSObject> holder = MaybeHandle<JSObject>(),
       MaybeHandle<Map> transition_map = MaybeHandle<Map>());
+  static PropertyAccessInfo AccessorConstant(MapHandles const& receiver_maps,
+                                             Handle<Object> constant,
+                                             MaybeHandle<JSObject> holder);
 
   PropertyAccessInfo();
+
+  bool Merge(PropertyAccessInfo const* that, AccessMode access_mode,
+             Zone* zone) WARN_UNUSED_RESULT;
 
   bool IsNotFound() const { return kind() == kNotFound; }
   bool IsDataConstant() const { return kind() == kDataConstant; }
   bool IsDataField() const { return kind() == kDataField; }
+  // TODO(ishell): rename to IsDataConstant() once constant field tracking
+  // is done.
+  bool IsDataConstantField() const { return kind() == kDataConstantField; }
+  bool IsAccessorConstant() const { return kind() == kAccessorConstant; }
 
   bool HasTransitionMap() const { return !transition_map().is_null(); }
 
@@ -92,28 +100,34 @@ class PropertyAccessInfo final {
   MaybeHandle<JSObject> holder() const { return holder_; }
   MaybeHandle<Map> transition_map() const { return transition_map_; }
   Handle<Object> constant() const { return constant_; }
-  FieldCheck field_check() const { return field_check_; }
   FieldIndex field_index() const { return field_index_; }
   Type* field_type() const { return field_type_; }
-  Type* receiver_type() const { return receiver_type_; }
+  MachineRepresentation field_representation() const {
+    return field_representation_;
+  }
+  MaybeHandle<Map> field_map() const { return field_map_; }
+  MapHandles const& receiver_maps() const { return receiver_maps_; }
 
  private:
-  PropertyAccessInfo(MaybeHandle<JSObject> holder, Type* receiver_type);
-  PropertyAccessInfo(MaybeHandle<JSObject> holder, Handle<Object> constant,
-                     Type* receiver_type);
   PropertyAccessInfo(MaybeHandle<JSObject> holder,
+                     MapHandles const& receiver_maps);
+  PropertyAccessInfo(Kind kind, MaybeHandle<JSObject> holder,
+                     Handle<Object> constant, MapHandles const& receiver_maps);
+  PropertyAccessInfo(Kind kind, MaybeHandle<JSObject> holder,
                      MaybeHandle<Map> transition_map, FieldIndex field_index,
-                     FieldCheck field_check, Type* field_type,
-                     Type* receiver_type);
+                     MachineRepresentation field_representation,
+                     Type* field_type, MaybeHandle<Map> field_map,
+                     MapHandles const& receiver_maps);
 
   Kind kind_;
-  Type* receiver_type_;
+  MapHandles receiver_maps_;
   Handle<Object> constant_;
   MaybeHandle<Map> transition_map_;
   MaybeHandle<JSObject> holder_;
   FieldIndex field_index_;
-  FieldCheck field_check_;
+  MachineRepresentation field_representation_;
   Type* field_type_;
+  MaybeHandle<Map> field_map_;
 };
 
 
@@ -125,17 +139,18 @@ class AccessInfoFactory final {
 
   bool ComputeElementAccessInfo(Handle<Map> map, AccessMode access_mode,
                                 ElementAccessInfo* access_info);
-  bool ComputeElementAccessInfos(MapHandleList const& maps,
-                                 AccessMode access_mode,
+  bool ComputeElementAccessInfos(MapHandles const& maps, AccessMode access_mode,
                                  ZoneVector<ElementAccessInfo>* access_infos);
   bool ComputePropertyAccessInfo(Handle<Map> map, Handle<Name> name,
                                  AccessMode access_mode,
                                  PropertyAccessInfo* access_info);
-  bool ComputePropertyAccessInfos(MapHandleList const& maps, Handle<Name> name,
+  bool ComputePropertyAccessInfos(MapHandles const& maps, Handle<Name> name,
                                   AccessMode access_mode,
                                   ZoneVector<PropertyAccessInfo>* access_infos);
 
  private:
+  bool ConsolidateElementLoad(MapHandles const& maps,
+                              ElementAccessInfo* access_info);
   bool LookupSpecialFieldAccessor(Handle<Map> map, Handle<Name> name,
                                   PropertyAccessInfo* access_info);
   bool LookupTransition(Handle<Map> map, Handle<Name> name,

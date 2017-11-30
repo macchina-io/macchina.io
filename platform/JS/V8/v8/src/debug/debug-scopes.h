@@ -11,6 +11,8 @@
 namespace v8 {
 namespace internal {
 
+class ParseInfo;
+
 // Iterate over the actual scopes visible from a stack frame or from a closure.
 // The iteration proceeds from the innermost visible nested scope outwards.
 // All scopes are backed by an actual context except the local scope,
@@ -43,16 +45,12 @@ class ScopeIterator {
                 Option options = DEFAULT);
 
   ScopeIterator(Isolate* isolate, Handle<JSFunction> function);
+  ScopeIterator(Isolate* isolate, Handle<JSGeneratorObject> generator);
 
   MUST_USE_RESULT MaybeHandle<JSObject> MaterializeScopeDetails();
 
   // More scopes?
-  bool Done() {
-    DCHECK(!failed_);
-    return context_.is_null();
-  }
-
-  bool Failed() { return failed_; }
+  bool Done() { return context_.is_null(); }
 
   // Move to the next scope.
   void Next();
@@ -95,24 +93,29 @@ class ScopeIterator {
   };
 
   Isolate* isolate_;
-  FrameInspector* const frame_inspector_;
+  FrameInspector* const frame_inspector_ = nullptr;
+  Handle<JSGeneratorObject> generator_;
   Handle<Context> context_;
   List<ExtendedScopeInfo> nested_scope_chain_;
   Handle<StringSet> non_locals_;
   bool seen_script_scope_;
-  bool failed_;
 
   inline JavaScriptFrame* GetFrame() {
     return frame_inspector_->GetArgumentsFrame();
   }
 
-  inline Handle<JSFunction> GetFunction() {
-    return Handle<JSFunction>::cast(frame_inspector_->GetFunction());
-  }
+  Handle<Context> GetContext();
+  Handle<JSFunction> GetFunction();
+  int GetSourcePosition();
 
-  void RetrieveScopeChain(Scope* scope);
+  void MaterializeStackLocals(Handle<JSObject> local_scope,
+                              Handle<ScopeInfo> scope_info);
 
-  void CollectNonLocals(Scope* scope);
+  void TryParseAndRetrieveScopes(ScopeIterator::Option option);
+
+  void RetrieveScopeChain(DeclarationScope* scope);
+
+  void CollectNonLocals(ParseInfo* info, DeclarationScope* scope);
 
   void UnwrapEvaluationContext();
 
@@ -134,13 +137,14 @@ class ScopeIterator {
                               Handle<Object> new_value);
   bool SetCatchVariableValue(Handle<String> variable_name,
                              Handle<Object> new_value);
+  bool SetModuleVariableValue(Handle<String> variable_name,
+                              Handle<Object> new_value);
 
   // Helper functions.
-  bool SetParameterValue(Handle<ScopeInfo> scope_info, JavaScriptFrame* frame,
+  bool SetParameterValue(Handle<ScopeInfo> scope_info,
                          Handle<String> parameter_name,
                          Handle<Object> new_value);
   bool SetStackVariableValue(Handle<ScopeInfo> scope_info,
-                             JavaScriptFrame* frame,
                              Handle<String> variable_name,
                              Handle<Object> new_value);
   bool SetContextVariableValue(Handle<ScopeInfo> scope_info,
@@ -151,9 +155,12 @@ class ScopeIterator {
   void CopyContextLocalsToScopeObject(Handle<ScopeInfo> scope_info,
                                       Handle<Context> context,
                                       Handle<JSObject> scope_object);
+  void CopyModuleVarsToScopeObject(Handle<ScopeInfo> scope_info,
+                                   Handle<Context> context,
+                                   Handle<JSObject> scope_object);
   void CopyContextExtensionToScopeObject(Handle<Context> context,
                                          Handle<JSObject> scope_object,
-                                         KeyCollectionType type);
+                                         KeyCollectionMode mode);
 
   // Get the chain of nested scopes within this scope for the source statement
   // position. The scopes will be added to the list from the outermost scope to

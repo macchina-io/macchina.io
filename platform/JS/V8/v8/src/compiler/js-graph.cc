@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "src/code-stubs.h"
 #include "src/compiler/js-graph.h"
+
+#include "src/code-stubs.h"
 #include "src/compiler/node-properties.h"
 #include "src/compiler/typer.h"
+#include "src/objects-inl.h"
 
 namespace v8 {
 namespace internal {
@@ -24,18 +26,70 @@ Node* JSGraph::AllocateInOldSpaceStubConstant() {
                 HeapConstant(isolate()->builtins()->AllocateInOldSpace()));
 }
 
-Node* JSGraph::CEntryStubConstant(int result_size) {
-  if (result_size == 1) {
-    return CACHED(kCEntryStubConstant,
-                  HeapConstant(CEntryStub(isolate(), 1).GetCode()));
-  }
-  return HeapConstant(CEntryStub(isolate(), result_size).GetCode());
+Node* JSGraph::ArrayConstructorStubConstant() {
+  return CACHED(kArrayConstructorStubConstant,
+                HeapConstant(ArrayConstructorStub(isolate()).GetCode()));
 }
 
+Node* JSGraph::ToNumberBuiltinConstant() {
+  return CACHED(kToNumberBuiltinConstant,
+                HeapConstant(isolate()->builtins()->ToNumber()));
+}
+
+Node* JSGraph::CEntryStubConstant(int result_size, SaveFPRegsMode save_doubles,
+                                  ArgvMode argv_mode, bool builtin_exit_frame) {
+  if (save_doubles == kDontSaveFPRegs && argv_mode == kArgvOnStack) {
+    DCHECK(result_size >= 1 && result_size <= 3);
+    if (!builtin_exit_frame) {
+      CachedNode key;
+      if (result_size == 1) {
+        key = kCEntryStub1Constant;
+      } else if (result_size == 2) {
+        key = kCEntryStub2Constant;
+      } else {
+        DCHECK(result_size == 3);
+        key = kCEntryStub3Constant;
+      }
+      return CACHED(
+          key, HeapConstant(CEntryStub(isolate(), result_size, save_doubles,
+                                       argv_mode, builtin_exit_frame)
+                                .GetCode()));
+    }
+    CachedNode key = builtin_exit_frame
+                         ? kCEntryStub1WithBuiltinExitFrameConstant
+                         : kCEntryStub1Constant;
+    return CACHED(key,
+                  HeapConstant(CEntryStub(isolate(), result_size, save_doubles,
+                                          argv_mode, builtin_exit_frame)
+                                   .GetCode()));
+  }
+  CEntryStub stub(isolate(), result_size, save_doubles, argv_mode,
+                  builtin_exit_frame);
+  return HeapConstant(stub.GetCode());
+}
 
 Node* JSGraph::EmptyFixedArrayConstant() {
   return CACHED(kEmptyFixedArrayConstant,
                 HeapConstant(factory()->empty_fixed_array()));
+}
+
+Node* JSGraph::EmptyStringConstant() {
+  return CACHED(kEmptyStringConstant, HeapConstant(factory()->empty_string()));
+}
+
+Node* JSGraph::FixedArrayMapConstant() {
+  return CACHED(kFixedArrayMapConstant,
+                HeapConstant(factory()->fixed_array_map()));
+}
+
+Node* JSGraph::PropertyArrayMapConstant() {
+  return CACHED(kPropertyArrayMapConstant,
+                HeapConstant(factory()->property_array_map()));
+}
+
+Node* JSGraph::FixedDoubleArrayMapConstant() {
+  return CACHED(kFixedDoubleArrayMapConstant,
+                HeapConstant(factory()->fixed_double_array_map()));
 }
 
 Node* JSGraph::HeapNumberMapConstant() {
@@ -82,11 +136,13 @@ Node* JSGraph::ZeroConstant() {
   return CACHED(kZeroConstant, NumberConstant(0.0));
 }
 
-
 Node* JSGraph::OneConstant() {
   return CACHED(kOneConstant, NumberConstant(1.0));
 }
 
+Node* JSGraph::MinusOneConstant() {
+  return CACHED(kMinusOneConstant, NumberConstant(-1.0));
+}
 
 Node* JSGraph::NaNConstant() {
   return CACHED(kNaNConstant,
@@ -108,15 +164,15 @@ Node* JSGraph::Constant(Handle<Object> value) {
   // canonicalized node can be used.
   if (value->IsNumber()) {
     return Constant(value->Number());
-  } else if (value->IsUndefined()) {
+  } else if (value->IsUndefined(isolate())) {
     return UndefinedConstant();
-  } else if (value->IsTrue()) {
+  } else if (value->IsTrue(isolate())) {
     return TrueConstant();
-  } else if (value->IsFalse()) {
+  } else if (value->IsFalse(isolate())) {
     return FalseConstant();
-  } else if (value->IsNull()) {
+  } else if (value->IsNull(isolate())) {
     return NullConstant();
-  } else if (value->IsTheHole()) {
+  } else if (value->IsTheHole(isolate())) {
     return TheHoleConstant();
   } else {
     return HeapConstant(Handle<HeapObject>::cast(value));
@@ -137,6 +193,11 @@ Node* JSGraph::Constant(int32_t value) {
   return NumberConstant(value);
 }
 
+Node* JSGraph::Constant(uint32_t value) {
+  if (value == 0) return ZeroConstant();
+  if (value == 1) return OneConstant();
+  return NumberConstant(value);
+}
 
 Node* JSGraph::Int32Constant(int32_t value) {
   Node** loc = cache_.FindInt32Constant(value);
@@ -156,7 +217,8 @@ Node* JSGraph::Int64Constant(int64_t value) {
 }
 
 Node* JSGraph::RelocatableInt32Constant(int32_t value, RelocInfo::Mode rmode) {
-  Node** loc = cache_.FindRelocatableInt32Constant(value);
+  Node** loc = cache_.FindRelocatableInt32Constant(
+      value, static_cast<RelocInfoMode>(rmode));
   if (*loc == nullptr) {
     *loc = graph()->NewNode(common()->RelocatableInt32Constant(value, rmode));
   }
@@ -164,7 +226,8 @@ Node* JSGraph::RelocatableInt32Constant(int32_t value, RelocInfo::Mode rmode) {
 }
 
 Node* JSGraph::RelocatableInt64Constant(int64_t value, RelocInfo::Mode rmode) {
-  Node** loc = cache_.FindRelocatableInt64Constant(value);
+  Node** loc = cache_.FindRelocatableInt64Constant(
+      value, static_cast<RelocInfoMode>(rmode));
   if (*loc == nullptr) {
     *loc = graph()->NewNode(common()->RelocatableInt64Constant(value, rmode));
   }
@@ -204,6 +267,13 @@ Node* JSGraph::Float64Constant(double value) {
   return *loc;
 }
 
+Node* JSGraph::PointerConstant(intptr_t value) {
+  Node** loc = cache_.FindPointerConstant(value);
+  if (*loc == nullptr) {
+    *loc = graph()->NewNode(common()->PointerConstant(value));
+  }
+  return *loc;
+}
 
 Node* JSGraph::ExternalConstant(ExternalReference reference) {
   Node** loc = cache_.FindExternalConstant(reference);
@@ -218,21 +288,18 @@ Node* JSGraph::ExternalConstant(Runtime::FunctionId function_id) {
   return ExternalConstant(ExternalReference(function_id, isolate()));
 }
 
-
-Node* JSGraph::EmptyFrameState() {
-  Node* empty_frame_state = cached_nodes_[kEmptyFrameState];
-  if (!empty_frame_state || empty_frame_state->IsDead()) {
-    Node* state_values = graph()->NewNode(common()->StateValues(0));
-    empty_frame_state = graph()->NewNode(
-        common()->FrameState(BailoutId::None(),
-                             OutputFrameStateCombine::Ignore(), nullptr),
-        state_values, state_values, state_values, NoContextConstant(),
-        UndefinedConstant(), graph()->start());
-    cached_nodes_[kEmptyFrameState] = empty_frame_state;
-  }
-  return empty_frame_state;
+Node* JSGraph::EmptyStateValues() {
+  return CACHED(kEmptyStateValues, graph()->NewNode(common()->StateValues(
+                                       0, SparseInputMask::Dense())));
 }
 
+Node* JSGraph::SingleDeadTypedStateValues() {
+  return CACHED(kSingleDeadTypedStateValues,
+                graph()->NewNode(common()->TypedStateValues(
+                    new (graph()->zone()->New(sizeof(ZoneVector<MachineType>)))
+                        ZoneVector<MachineType>(0, graph()->zone()),
+                    SparseInputMask(SparseInputMask::kEndMarker << 1))));
+}
 
 Node* JSGraph::Dead() {
   return CACHED(kDead, graph()->NewNode(common()->Dead()));

@@ -7,8 +7,9 @@
 
 #include <stdio.h>
 #include <iosfwd>
+#include <memory>
 
-#include "src/base/smart-pointers.h"
+#include "src/globals.h"
 
 namespace v8 {
 namespace internal {
@@ -23,8 +24,9 @@ class RegisterAllocationData;
 class Schedule;
 class SourcePositionTable;
 
-base::SmartArrayPointer<const char> GetVisualizerLogFileName(
-    CompilationInfo* info, const char* phase, const char* suffix);
+std::unique_ptr<char[]> GetVisualizerLogFileName(CompilationInfo* info,
+                                                 const char* phase,
+                                                 const char* suffix);
 
 struct AsJSON {
   AsJSON(const Graph& g, SourcePositionTable* p) : graph(g), positions(p) {}
@@ -32,15 +34,14 @@ struct AsJSON {
   const SourcePositionTable* positions;
 };
 
-std::ostream& operator<<(std::ostream& os, const AsJSON& ad);
+V8_EXPORT_PRIVATE std::ostream& operator<<(std::ostream& os, const AsJSON& ad);
 
 struct AsRPO {
   explicit AsRPO(const Graph& g) : graph(g) {}
   const Graph& graph;
 };
 
-std::ostream& operator<<(std::ostream& os, const AsRPO& ad);
-
+V8_EXPORT_PRIVATE std::ostream& operator<<(std::ostream& os, const AsRPO& ad);
 
 struct AsC1VCompilation {
   explicit AsC1VCompilation(const CompilationInfo* info) : info_(info) {}

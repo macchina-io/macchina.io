@@ -30,19 +30,26 @@
 #include "src/v8.h"
 
 #include "src/ast/ast.h"
+#include "src/isolate.h"
+#include "src/objects-inl.h"
+#include "src/zone/accounting-allocator.h"
 #include "test/cctest/cctest.h"
 
 using namespace v8::internal;
 
 TEST(List) {
+  v8::V8::Initialize();
+  Isolate* isolate = CcTest::i_isolate();
+
   List<AstNode*>* list = new List<AstNode*>(0);
   CHECK_EQ(0, list->length());
 
-  v8::base::AccountingAllocator allocator;
-  Zone zone(&allocator);
-  AstValueFactory value_factory(&zone, 0);
-  AstNodeFactory factory(&value_factory);
-  AstNode* node = factory.NewEmptyStatement(RelocInfo::kNoPosition);
+  v8::internal::AccountingAllocator allocator;
+  Zone zone(&allocator, ZONE_NAME);
+  AstValueFactory value_factory(&zone, isolate->ast_string_constants(),
+                                isolate->heap()->HashSeed());
+  AstNodeFactory factory(&value_factory, &zone);
+  AstNode* node = factory.NewEmptyStatement(kNoSourcePosition);
   list->Add(node);
   CHECK_EQ(1, list->length());
   CHECK_EQ(node, list->at(0));

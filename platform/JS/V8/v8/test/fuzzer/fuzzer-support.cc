@@ -27,26 +27,16 @@ void DeleteFuzzerSupport() {
 
 }  // namespace
 
-class FuzzerSupport::ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
- public:
-  virtual void* Allocate(size_t length) {
-    void* data = AllocateUninitialized(length);
-    return data == NULL ? data : memset(data, 0, length);
-  }
-  virtual void* AllocateUninitialized(size_t length) { return malloc(length); }
-  virtual void Free(void* data, size_t) { free(data); }
-};
-
 FuzzerSupport::FuzzerSupport(int* argc, char*** argv) {
   v8::internal::FLAG_expose_gc = true;
   v8::V8::SetFlagsFromCommandLine(argc, *argv, true);
-  v8::V8::InitializeICU();
+  v8::V8::InitializeICUDefaultLocation((*argv)[0]);
   v8::V8::InitializeExternalStartupData((*argv)[0]);
   platform_ = v8::platform::CreateDefaultPlatform();
   v8::V8::InitializePlatform(platform_);
   v8::V8::Initialize();
 
-  allocator_ = new ArrayBufferAllocator;
+  allocator_ = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
   v8::Isolate::CreateParams create_params;
   create_params.array_buffer_allocator = allocator_;
   isolate_ = v8::Isolate::New(create_params);
@@ -56,12 +46,14 @@ FuzzerSupport::FuzzerSupport(int* argc, char*** argv) {
     v8::HandleScope handle_scope(isolate_);
     context_.Reset(isolate_, v8::Context::New(isolate_));
   }
+
+  v8::platform::EnsureEventLoopInitialized(platform_, isolate_);
 }
 
 FuzzerSupport::~FuzzerSupport() {
   {
     v8::Isolate::Scope isolate_scope(isolate_);
-    while (v8::platform::PumpMessageLoop(platform_, isolate_)) /* empty */
+    while (PumpMessageLoop()) /* empty */
       ;
 
     v8::HandleScope handle_scope(isolate_);
@@ -85,7 +77,7 @@ FuzzerSupport::~FuzzerSupport() {
 // static
 FuzzerSupport* FuzzerSupport::Get() { return g_fuzzer_support; }
 
-v8::Isolate* FuzzerSupport::GetIsolate() { return isolate_; }
+v8::Isolate* FuzzerSupport::GetIsolate() const { return isolate_; }
 
 v8::Local<v8::Context> FuzzerSupport::GetContext() {
   v8::Isolate::Scope isolate_scope(isolate_);
@@ -93,6 +85,11 @@ v8::Local<v8::Context> FuzzerSupport::GetContext() {
   v8::Local<v8::Context> context =
       v8::Local<v8::Context>::New(isolate_, context_);
   return handle_scope.Escape(context);
+}
+
+bool FuzzerSupport::PumpMessageLoop(
+    v8::platform::MessageLoopBehavior behavior) {
+  return v8::platform::PumpMessageLoop(platform_, isolate_, behavior);
 }
 
 }  // namespace v8_fuzzer

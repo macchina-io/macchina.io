@@ -8,13 +8,13 @@
 assertThrows(function() {
   let x = 1;
   eval('var x');
-}, TypeError);
+}, SyntaxError);
 
 // If the eval is in its own block scope, throws
 assertThrows(function() {
   let y = 1;
   { eval('var y'); }
-}, TypeError);
+}, SyntaxError);
 
 // If the let is in its own block scope, with the eval, throws
 assertThrows(function() {
@@ -22,7 +22,7 @@ assertThrows(function() {
     let x = 1;
     eval('var x');
   }
-}, TypeError);
+}, SyntaxError);
 
 // Legal if the let is no longer visible
 assertDoesNotThrow(function() {
@@ -37,13 +37,13 @@ assertDoesNotThrow(function() {
 assertThrows(function() {
   const x = 1;
   eval('var x');
-}, TypeError);
+}, SyntaxError);
 
 // If the eval is in its own block scope, throws
 assertThrows(function() {
   const y = 1;
   { eval('var y'); }
-}, TypeError);
+}, SyntaxError);
 
 // If the const is in its own block scope, with the eval, throws
 assertThrows(function() {
@@ -51,7 +51,7 @@ assertThrows(function() {
     const x = 1;
     eval('var x');
   }
-}, TypeError);
+}, SyntaxError);
 
 // Legal if the const is no longer visible
 assertDoesNotThrow(function() {
@@ -60,6 +60,23 @@ assertDoesNotThrow(function() {
   }
   eval('var x');
 });
+
+// The same should work for lexical function declarations:
+// If the const is in its own block scope, with the eval, throws
+assertThrows(function() {
+  {
+    function x() {}
+    eval('var x');
+  }
+}, SyntaxError);
+
+// If the eval is in its own block scope, throws
+assertThrows(function() {
+  {
+    function y() {}
+    { eval('var y'); }
+  }
+}, SyntaxError);
 
 // In global scope
 let caught = false;
@@ -124,8 +141,6 @@ try {
 }
 assertTrue(caught);
 
-// TODO(littledan): Hoisting x out of the block should be
-// prevented in this case BUG(v8:4479)
 caught = false
 try {
   (function() {
@@ -137,5 +152,4 @@ try {
 } catch (e) {
   caught = true;
 }
-// TODO(littledan): switch to assertTrue when bug is fixed
-assertTrue(caught);
+assertFalse(caught);

@@ -10,7 +10,6 @@
 #include "src/code-stubs.h"
 #include "src/log.h"
 #include "src/macro-assembler.h"
-#include "src/profiler/cpu-profiler.h"
 #include "src/regexp/regexp-macro-assembler.h"
 #include "src/regexp/regexp-stack.h"
 #include "src/regexp/s390/regexp-macro-assembler-s390.h"
@@ -40,8 +39,7 @@ namespace internal {
  * Each call to a public method should retain this convention.
  *
  * The stack will have the following structure:
- *  - fp[112] Isolate* isolate   (address of the current isolate)
- *  - fp[108] secondary link/return address used by native call.
+ *  - fp[108] Isolate* isolate   (address of the current isolate)
  *  - fp[104] direct_call        (if 1, direct call from JavaScript code,
  *                                if 0, call through the runtime system).
  *  - fp[100] stack_area_base    (high end of the memory area to use as
@@ -84,16 +82,13 @@ namespace internal {
  *              Address start,
  *              Address end,
  *              int* capture_output_array,
+ *              int num_capture_registers,
  *              byte* stack_area_base,
- *              Address secondary_return_address,  // Only used by native call.
- *              bool direct_call = false)
+ *              bool direct_call = false,
+ *              Isolate* isolate);
  * The call is performed by NativeRegExpMacroAssembler::Execute()
  * (in regexp-macro-assembler.cc) via the CALL_GENERATED_REGEXP_CODE macro
  * in s390/simulator-s390.h.
- * When calling as a non-direct call (i.e., from C++ code), the return address
- * area is overwritten with the LR register by the RegExp code. When doing a
- * direct call from generated code, the return address is placed there by
- * the calling code, as in a normal exit frame.
  */
 
 #define __ ACCESS_MASM(masm_)
@@ -325,11 +320,11 @@ void RegExpMacroAssemblerS390::CheckNotBackReferenceIgnoreCase(
       __ SubP(r3, r3, r6);
     }
 // Isolate.
-#ifdef V8_I18N_SUPPORT
+#ifdef V8_INTL_SUPPORT
     if (unicode) {
       __ LoadImmP(r5, Operand::Zero());
     } else  // NOLINT
-#endif      // V8_I18N_SUPPORT
+#endif      // V8_INTL_SUPPORT
     {
       __ mov(r5, Operand(ExternalReference::isolate_address(isolate())));
     }
@@ -377,7 +372,7 @@ void RegExpMacroAssemblerS390::CheckNotBackReference(int start_reg,
     __ LoadP(r5, MemOperand(frame_pointer(), kStringStartMinusOne));
     __ AddP(r5, r5, r3);
     __ CmpP(current_input_offset(), r5);
-    BranchOrBacktrack(lt, on_no_match);
+    BranchOrBacktrack(le, on_no_match);
   } else {
     __ AddP(r0, r3, current_input_offset());
     BranchOrBacktrack(gt, on_no_match, cr0);
@@ -933,7 +928,7 @@ Handle<HeapObject> RegExpMacroAssemblerS390::GetCode(Handle<String> source) {
   }
 
   CodeDesc code_desc;
-  masm_->GetCode(&code_desc);
+  masm_->GetCode(isolate(), &code_desc);
   Handle<Code> code = isolate()->factory()->NewCode(
       code_desc, Code::ComputeFlags(Code::REGEXP), masm_->CodeObject());
   PROFILE(masm_->isolate(),
@@ -1227,23 +1222,54 @@ void RegExpMacroAssemblerS390::CallCFunctionUsingStub(
   __ mov(code_pointer(), Operand(masm_->CodeObject()));
 }
 
-bool RegExpMacroAssemblerS390::CanReadUnaligned() {
-  return CpuFeatures::IsSupported(UNALIGNED_ACCESSES) && !slow_safe();
-}
 
 void RegExpMacroAssemblerS390::LoadCurrentCharacterUnchecked(int cp_offset,
                                                              int characters) {
-  DCHECK(characters == 1);
   if (mode_ == LATIN1) {
-    __ LoadlB(current_character(),
-              MemOperand(current_input_offset(), end_of_input_address(),
-                         cp_offset * char_size()));
+    // using load reverse for big-endian platforms
+    if (characters == 4) {
+#if V8_TARGET_LITTLE_ENDIAN
+      __ LoadlW(current_character(),
+                MemOperand(current_input_offset(), end_of_input_address(),
+                           cp_offset * char_size()));
+#else
+      __ LoadLogicalReversedWordP(current_character(),
+                MemOperand(current_input_offset(), end_of_input_address(),
+                           cp_offset * char_size()));
+#endif
+    } else if (characters == 2) {
+#if V8_TARGET_LITTLE_ENDIAN
+      __ LoadLogicalHalfWordP(current_character(),
+                MemOperand(current_input_offset(), end_of_input_address(),
+                           cp_offset * char_size()));
+#else
+      __ LoadLogicalReversedHalfWordP(current_character(),
+                MemOperand(current_input_offset(), end_of_input_address(),
+                           cp_offset * char_size()));
+#endif
+    } else {
+      DCHECK(characters == 1);
+      __ LoadlB(current_character(),
+                MemOperand(current_input_offset(), end_of_input_address(),
+                           cp_offset * char_size()));
+    }
   } else {
     DCHECK(mode_ == UC16);
-    __ LoadLogicalHalfWordP(
-        current_character(),
-        MemOperand(current_input_offset(), end_of_input_address(),
-                   cp_offset * char_size()));
+    if (characters == 2) {
+      __ LoadlW(current_character(),
+                MemOperand(current_input_offset(), end_of_input_address(),
+                           cp_offset * char_size()));
+#if !V8_TARGET_LITTLE_ENDIAN
+      // need to swap the order of the characters for big-endian platforms
+      __ rll(current_character(), current_character(), Operand(16));
+#endif
+    } else {
+      DCHECK(characters == 1);
+      __ LoadLogicalHalfWordP(
+          current_character(),
+                MemOperand(current_input_offset(), end_of_input_address(),
+                           cp_offset * char_size()));
+    }
   }
 }
 

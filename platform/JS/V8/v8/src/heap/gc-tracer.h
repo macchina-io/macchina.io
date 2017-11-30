@@ -7,49 +7,14 @@
 
 #include "src/base/compiler-specific.h"
 #include "src/base/platform/platform.h"
+#include "src/base/ring-buffer.h"
 #include "src/counters.h"
 #include "src/globals.h"
+#include "src/heap/heap.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"  // nogncheck
 
 namespace v8 {
 namespace internal {
-
-template <typename T>
-class RingBuffer {
- public:
-  RingBuffer() { Reset(); }
-  static const int kSize = 10;
-  void Push(const T& value) {
-    if (count_ == kSize) {
-      elements_[start_++] = value;
-      if (start_ == kSize) start_ = 0;
-    } else {
-      DCHECK_EQ(start_, 0);
-      elements_[count_++] = value;
-    }
-  }
-
-  int Count() const { return count_; }
-
-  template <typename Callback>
-  T Sum(Callback callback, const T& initial) const {
-    int j = start_ + count_ - 1;
-    if (j >= kSize) j -= kSize;
-    T result = initial;
-    for (int i = 0; i < count_; i++) {
-      result = callback(result, elements_[j]);
-      if (--j == -1) j += kSize;
-    }
-    return result;
-  }
-
-  void Reset() { start_ = count_ = 0; }
-
- private:
-  T elements_[kSize];
-  int start_;
-  int count_;
-  DISALLOW_COPY_AND_ASSIGN(RingBuffer);
-};
 
 typedef std::pair<uint64_t, double> BytesAndDuration;
 
@@ -59,54 +24,90 @@ inline BytesAndDuration MakeBytesAndDuration(uint64_t bytes, double duration) {
 
 enum ScavengeSpeedMode { kForAllObjects, kForSurvivedObjects };
 
-#define TRACER_SCOPES(F)                           \
-  F(EXTERNAL_WEAK_GLOBAL_HANDLES)                  \
-  F(MC_CLEAR)                                      \
-  F(MC_CLEAR_CODE_FLUSH)                           \
-  F(MC_CLEAR_DEPENDENT_CODE)                       \
-  F(MC_CLEAR_GLOBAL_HANDLES)                       \
-  F(MC_CLEAR_MAPS)                                 \
-  F(MC_CLEAR_SLOTS_BUFFER)                         \
-  F(MC_CLEAR_STORE_BUFFER)                         \
-  F(MC_CLEAR_STRING_TABLE)                         \
-  F(MC_CLEAR_WEAK_CELLS)                           \
-  F(MC_CLEAR_WEAK_COLLECTIONS)                     \
-  F(MC_CLEAR_WEAK_LISTS)                           \
-  F(MC_EVACUATE)                                   \
-  F(MC_EVACUATE_CANDIDATES)                        \
-  F(MC_EVACUATE_CLEAN_UP)                          \
-  F(MC_EVACUATE_COPY)                              \
-  F(MC_EVACUATE_UPDATE_POINTERS)                   \
-  F(MC_EVACUATE_UPDATE_POINTERS_TO_EVACUATED)      \
-  F(MC_EVACUATE_UPDATE_POINTERS_TO_NEW)            \
-  F(MC_EVACUATE_UPDATE_POINTERS_WEAK)              \
-  F(MC_EXTERNAL_EPILOGUE)                          \
-  F(MC_EXTERNAL_PROLOGUE)                          \
-  F(MC_FINISH)                                     \
-  F(MC_INCREMENTAL_FINALIZE)                       \
-  F(MC_INCREMENTAL_EXTERNAL_EPILOGUE)              \
-  F(MC_INCREMENTAL_EXTERNAL_PROLOGUE)              \
-  F(MC_MARK)                                       \
-  F(MC_MARK_FINISH_INCREMENTAL)                    \
-  F(MC_MARK_PREPARE_CODE_FLUSH)                    \
-  F(MC_MARK_ROOTS)                                 \
-  F(MC_MARK_WEAK_CLOSURE)                          \
-  F(MC_MARK_WEAK_CLOSURE_EPHEMERAL)                \
-  F(MC_MARK_WEAK_CLOSURE_WEAK_HANDLES)             \
-  F(MC_MARK_WEAK_CLOSURE_WEAK_ROOTS)               \
-  F(MC_MARK_WEAK_CLOSURE_HARMONY)                  \
-  F(MC_SWEEP)                                      \
-  F(MC_SWEEP_CODE)                                 \
-  F(MC_SWEEP_MAP)                                  \
-  F(MC_SWEEP_OLD)                                  \
-  F(SCAVENGER_CODE_FLUSH_CANDIDATES)               \
-  F(SCAVENGER_EXTERNAL_EPILOGUE)                   \
-  F(SCAVENGER_EXTERNAL_PROLOGUE)                   \
-  F(SCAVENGER_OBJECT_GROUPS)                       \
-  F(SCAVENGER_OLD_TO_NEW_POINTERS)                 \
-  F(SCAVENGER_ROOTS)                               \
-  F(SCAVENGER_SCAVENGE)                            \
-  F(SCAVENGER_SEMISPACE)                           \
+#define INCREMENTAL_SCOPES(F)                                      \
+  /* MC_INCREMENTAL is the top-level incremental marking scope. */ \
+  F(MC_INCREMENTAL)                                                \
+  F(MC_INCREMENTAL_SWEEPING)                                       \
+  F(MC_INCREMENTAL_WRAPPER_PROLOGUE)                               \
+  F(MC_INCREMENTAL_WRAPPER_TRACING)                                \
+  F(MC_INCREMENTAL_FINALIZE)                                       \
+  F(MC_INCREMENTAL_FINALIZE_BODY)                                  \
+  F(MC_INCREMENTAL_EXTERNAL_EPILOGUE)                              \
+  F(MC_INCREMENTAL_EXTERNAL_PROLOGUE)
+
+#define TRACER_SCOPES(F)                            \
+  INCREMENTAL_SCOPES(F)                             \
+  F(HEAP_EPILOGUE)                                  \
+  F(HEAP_EPILOGUE_REDUCE_NEW_SPACE)                 \
+  F(HEAP_EXTERNAL_EPILOGUE)                         \
+  F(HEAP_EXTERNAL_PROLOGUE)                         \
+  F(HEAP_EXTERNAL_WEAK_GLOBAL_HANDLES)              \
+  F(HEAP_PROLOGUE)                                  \
+  F(MC_CLEAR)                                       \
+  F(MC_CLEAR_DEPENDENT_CODE)                        \
+  F(MC_CLEAR_MAPS)                                  \
+  F(MC_CLEAR_SLOTS_BUFFER)                          \
+  F(MC_CLEAR_STORE_BUFFER)                          \
+  F(MC_CLEAR_STRING_TABLE)                          \
+  F(MC_CLEAR_WEAK_CELLS)                            \
+  F(MC_CLEAR_WEAK_COLLECTIONS)                      \
+  F(MC_CLEAR_WEAK_LISTS)                            \
+  F(MC_EPILOGUE)                                    \
+  F(MC_EVACUATE)                                    \
+  F(MC_EVACUATE_CANDIDATES)                         \
+  F(MC_EVACUATE_CLEAN_UP)                           \
+  F(MC_EVACUATE_COPY)                               \
+  F(MC_EVACUATE_EPILOGUE)                           \
+  F(MC_EVACUATE_PROLOGUE)                           \
+  F(MC_EVACUATE_REBALANCE)                          \
+  F(MC_EVACUATE_UPDATE_POINTERS)                    \
+  F(MC_EVACUATE_UPDATE_POINTERS_SLOTS)              \
+  F(MC_EVACUATE_UPDATE_POINTERS_TO_NEW_ROOTS)       \
+  F(MC_EVACUATE_UPDATE_POINTERS_WEAK)               \
+  F(MC_FINISH)                                      \
+  F(MC_MARK)                                        \
+  F(MC_MARK_FINISH_INCREMENTAL)                     \
+  F(MC_MARK_ROOTS)                                  \
+  F(MC_MARK_WEAK_CLOSURE)                           \
+  F(MC_MARK_WEAK_CLOSURE_EPHEMERAL)                 \
+  F(MC_MARK_WEAK_CLOSURE_WEAK_HANDLES)              \
+  F(MC_MARK_WEAK_CLOSURE_WEAK_ROOTS)                \
+  F(MC_MARK_WEAK_CLOSURE_HARMONY)                   \
+  F(MC_MARK_WRAPPER_EPILOGUE)                       \
+  F(MC_MARK_WRAPPER_PROLOGUE)                       \
+  F(MC_MARK_WRAPPER_TRACING)                        \
+  F(MC_PROLOGUE)                                    \
+  F(MC_SWEEP)                                       \
+  F(MC_SWEEP_CODE)                                  \
+  F(MC_SWEEP_MAP)                                   \
+  F(MC_SWEEP_OLD)                                   \
+  F(MINOR_MC)                                       \
+  F(MINOR_MC_CLEAR)                                 \
+  F(MINOR_MC_CLEAR_STRING_TABLE)                    \
+  F(MINOR_MC_CLEAR_WEAK_LISTS)                      \
+  F(MINOR_MC_EVACUATE)                              \
+  F(MINOR_MC_EVACUATE_CLEAN_UP)                     \
+  F(MINOR_MC_EVACUATE_COPY)                         \
+  F(MINOR_MC_EVACUATE_EPILOGUE)                     \
+  F(MINOR_MC_EVACUATE_PROLOGUE)                     \
+  F(MINOR_MC_EVACUATE_REBALANCE)                    \
+  F(MINOR_MC_EVACUATE_UPDATE_POINTERS)              \
+  F(MINOR_MC_EVACUATE_UPDATE_POINTERS_SLOTS)        \
+  F(MINOR_MC_EVACUATE_UPDATE_POINTERS_TO_NEW_ROOTS) \
+  F(MINOR_MC_EVACUATE_UPDATE_POINTERS_WEAK)         \
+  F(MINOR_MC_MARK)                                  \
+  F(MINOR_MC_MARK_GLOBAL_HANDLES)                   \
+  F(MINOR_MC_MARK_SEED)                             \
+  F(MINOR_MC_MARK_ROOTS)                            \
+  F(MINOR_MC_MARK_WEAK)                             \
+  F(MINOR_MC_MARKING_DEQUE)                         \
+  F(MINOR_MC_RESET_LIVENESS)                        \
+  F(MINOR_MC_SWEEPING)                              \
+  F(SCAVENGER_EVACUATE)                             \
+  F(SCAVENGER_OLD_TO_NEW_POINTERS)                  \
+  F(SCAVENGER_ROOTS)                                \
+  F(SCAVENGER_SCAVENGE)                             \
+  F(SCAVENGER_SEMISPACE)                            \
   F(SCAVENGER_WEAK)
 
 #define TRACE_GC(tracer, scope_id)                             \
@@ -117,16 +118,42 @@ enum ScavengeSpeedMode { kForAllObjects, kForSurvivedObjects };
 
 // GCTracer collects and prints ONE line after each garbage collector
 // invocation IFF --trace_gc is used.
-// TODO(ernstm): Unit tests.
-class GCTracer {
+class V8_EXPORT_PRIVATE GCTracer {
  public:
+  struct IncrementalMarkingInfos {
+    IncrementalMarkingInfos() : duration(0), longest_step(0), steps(0) {}
+
+    void Update(double duration) {
+      steps++;
+      this->duration += duration;
+      if (duration > longest_step) {
+        longest_step = duration;
+      }
+    }
+
+    void ResetCurrentCycle() {
+      duration = 0;
+      longest_step = 0;
+      steps = 0;
+    }
+
+    double duration;
+    double longest_step;
+    int steps;
+  };
+
   class Scope {
    public:
     enum ScopeId {
 #define DEFINE_SCOPE(scope) scope,
       TRACER_SCOPES(DEFINE_SCOPE)
 #undef DEFINE_SCOPE
-          NUMBER_OF_SCOPES
+          NUMBER_OF_SCOPES,
+
+      FIRST_INCREMENTAL_SCOPE = MC_INCREMENTAL,
+      LAST_INCREMENTAL_SCOPE = MC_INCREMENTAL_EXTERNAL_PROLOGUE,
+      NUMBER_OF_INCREMENTAL_SCOPES =
+          LAST_INCREMENTAL_SCOPE - FIRST_INCREMENTAL_SCOPE + 1
     };
 
     Scope(GCTracer* tracer, ScopeId scope);
@@ -149,13 +176,12 @@ class GCTracer {
       SCAVENGER = 0,
       MARK_COMPACTOR = 1,
       INCREMENTAL_MARK_COMPACTOR = 2,
-      START = 3
+      MINOR_MARK_COMPACTOR = 3,
+      START = 4
     };
 
-    // Default constructor leaves the event uninitialized.
-    Event() {}
-
-    Event(Type type, const char* gc_reason, const char* collector_reason);
+    Event(Type type, GarbageCollectionReason gc_reason,
+          const char* collector_reason);
 
     // Returns a string describing the event type.
     const char* TypeName(bool short_name) const;
@@ -163,7 +189,7 @@ class GCTracer {
     // Type of event
     Type type;
 
-    const char* gc_reason;
+    GarbageCollectionReason gc_reason;
     const char* collector_reason;
 
     // Timestamp set in the constructor.
@@ -176,75 +202,43 @@ class GCTracer {
     bool reduce_memory;
 
     // Size of objects in heap set in constructor.
-    intptr_t start_object_size;
+    size_t start_object_size;
 
     // Size of objects in heap set in destructor.
-    intptr_t end_object_size;
+    size_t end_object_size;
 
     // Size of memory allocated from OS set in constructor.
-    intptr_t start_memory_size;
+    size_t start_memory_size;
 
     // Size of memory allocated from OS set in destructor.
-    intptr_t end_memory_size;
+    size_t end_memory_size;
 
     // Total amount of space either wasted or contained in one of free lists
     // before the current GC.
-    intptr_t start_holes_size;
+    size_t start_holes_size;
 
     // Total amount of space either wasted or contained in one of free lists
     // after the current GC.
-    intptr_t end_holes_size;
+    size_t end_holes_size;
 
     // Size of new space objects in constructor.
-    intptr_t new_space_object_size;
-    // Size of survived new space objects in desctructor.
-    intptr_t survived_new_space_object_size;
+    size_t new_space_object_size;
 
-    // Number of incremental marking steps since creation of tracer.
-    // (value at start of event)
-    int cumulative_incremental_marking_steps;
+    // Size of survived new space objects in destructor.
+    size_t survived_new_space_object_size;
 
-    // Incremental marking steps since
-    // - last event for SCAVENGER events
-    // - last INCREMENTAL_MARK_COMPACTOR event for INCREMENTAL_MARK_COMPACTOR
-    // events
-    int incremental_marking_steps;
+    // Bytes marked incrementally for INCREMENTAL_MARK_COMPACTOR
+    size_t incremental_marking_bytes;
 
-    // Bytes marked since creation of tracer (value at start of event).
-    intptr_t cumulative_incremental_marking_bytes;
-
-    // Bytes marked since
-    // - last event for SCAVENGER events
-    // - last INCREMENTAL_MARK_COMPACTOR event for INCREMENTAL_MARK_COMPACTOR
-    // events
-    intptr_t incremental_marking_bytes;
-
-    // Cumulative duration of incremental marking steps since creation of
-    // tracer. (value at start of event)
-    double cumulative_incremental_marking_duration;
-
-    // Duration of incremental marking steps since
-    // - last event for SCAVENGER events
-    // - last INCREMENTAL_MARK_COMPACTOR event for INCREMENTAL_MARK_COMPACTOR
-    // events
+    // Duration of incremental marking steps for INCREMENTAL_MARK_COMPACTOR.
     double incremental_marking_duration;
-
-    // Cumulative pure duration of incremental marking steps since creation of
-    // tracer. (value at start of event)
-    double cumulative_pure_incremental_marking_duration;
-
-    // Duration of pure incremental marking steps since
-    // - last event for SCAVENGER events
-    // - last INCREMENTAL_MARK_COMPACTOR event for INCREMENTAL_MARK_COMPACTOR
-    // events
-    double pure_incremental_marking_duration;
-
-    // Longest incremental marking step since start of marking.
-    // (value at start of event)
-    double longest_incremental_marking_step;
 
     // Amounts of time spent in different scopes during GC.
     double scopes[Scope::NUMBER_OF_SCOPES];
+
+    // Holds details for incremental marking scopes.
+    IncrementalMarkingInfos
+        incremental_marking_scopes[Scope::NUMBER_OF_INCREMENTAL_SCOPES];
   };
 
   static const int kThroughputTimeFrameMs = 5000;
@@ -252,11 +246,14 @@ class GCTracer {
   explicit GCTracer(Heap* heap);
 
   // Start collecting data.
-  void Start(GarbageCollector collector, const char* gc_reason,
+  void Start(GarbageCollector collector, GarbageCollectionReason gc_reason,
              const char* collector_reason);
 
   // Stop collecting data and print results.
   void Stop(GarbageCollector collector);
+
+  void NotifyYoungGenerationHandling(
+      YoungGenerationHandling young_generation_handling);
 
   // Sample and accumulate bytes allocated since the last GC.
   void SampleAllocation(double current_ms, size_t new_space_counter_bytes,
@@ -267,34 +264,12 @@ class GCTracer {
 
   void AddContextDisposalTime(double time);
 
-  void AddCompactionEvent(double duration, intptr_t live_bytes_compacted);
+  void AddCompactionEvent(double duration, size_t live_bytes_compacted);
 
   void AddSurvivalRatio(double survival_ratio);
 
   // Log an incremental marking step.
-  void AddIncrementalMarkingStep(double duration, intptr_t bytes);
-
-  void AddIncrementalMarkingFinalizationStep(double duration);
-
-  // Log time spent in marking.
-  void AddMarkingTime(double duration) {
-    cumulative_marking_duration_ += duration;
-  }
-
-  // Time spent in marking.
-  double cumulative_marking_duration() const {
-    return cumulative_marking_duration_;
-  }
-
-  // Log time spent in sweeping on main thread.
-  void AddSweepingTime(double duration) {
-    cumulative_sweeping_duration_ += duration;
-  }
-
-  // Time spent in sweeping on main thread.
-  double cumulative_sweeping_duration() const {
-    return cumulative_sweeping_duration_;
-  }
+  void AddIncrementalMarkingStep(double duration, size_t bytes);
 
   // Compute the average incremental marking speed in bytes/millisecond.
   // Returns 0 if no events have been recorded.
@@ -365,14 +340,41 @@ class GCTracer {
   // Discard all recorded survival events.
   void ResetSurvivalEvents();
 
+  void NotifyIncrementalMarkingStart();
+
+  V8_INLINE void AddScopeSample(Scope::ScopeId scope, double duration) {
+    DCHECK(scope < Scope::NUMBER_OF_SCOPES);
+    if (scope >= Scope::FIRST_INCREMENTAL_SCOPE &&
+        scope <= Scope::LAST_INCREMENTAL_SCOPE) {
+      incremental_marking_scopes_[scope - Scope::FIRST_INCREMENTAL_SCOPE]
+          .Update(duration);
+    } else {
+      current_.scopes[scope] += duration;
+    }
+  }
+
+ private:
+  FRIEND_TEST(GCTracer, AverageSpeed);
+  FRIEND_TEST(GCTracerTest, AllocationThroughput);
+  FRIEND_TEST(GCTracerTest, NewSpaceAllocationThroughput);
+  FRIEND_TEST(GCTracerTest, NewSpaceAllocationThroughputWithProvidedTime);
+  FRIEND_TEST(GCTracerTest, OldGenerationAllocationThroughputWithProvidedTime);
+  FRIEND_TEST(GCTracerTest, RegularScope);
+  FRIEND_TEST(GCTracerTest, IncrementalMarkingDetails);
+  FRIEND_TEST(GCTracerTest, IncrementalScope);
+  FRIEND_TEST(GCTracerTest, IncrementalMarkingSpeed);
+
   // Returns the average speed of the events in the buffer.
   // If the buffer is empty, the result is 0.
   // Otherwise, the result is between 1 byte/ms and 1 GB/ms.
-  static double AverageSpeed(const RingBuffer<BytesAndDuration>& buffer);
-  static double AverageSpeed(const RingBuffer<BytesAndDuration>& buffer,
+  static double AverageSpeed(const base::RingBuffer<BytesAndDuration>& buffer);
+  static double AverageSpeed(const base::RingBuffer<BytesAndDuration>& buffer,
                              const BytesAndDuration& initial, double time_ms);
 
- private:
+  void ResetForTesting();
+  void ResetIncrementalMarkingCounters();
+  void RecordIncrementalMarkingSpeed(size_t bytes, double duration);
+
   // Print one detailed trace line in name=value format.
   // TODO(ernstm): Move to Heap.
   void PrintNVP() const;
@@ -385,27 +387,12 @@ class GCTracer {
   // it can be included in later crash dumps.
   void PRINTF_FORMAT(2, 3) Output(const char* format, ...) const;
 
-  void ClearMarkCompactStatistics() {
-    cumulative_incremental_marking_steps_ = 0;
-    cumulative_incremental_marking_bytes_ = 0;
-    cumulative_incremental_marking_duration_ = 0;
-    cumulative_pure_incremental_marking_duration_ = 0;
-    longest_incremental_marking_step_ = 0;
-    cumulative_incremental_marking_finalization_steps_ = 0;
-    cumulative_incremental_marking_finalization_duration_ = 0;
-    longest_incremental_marking_finalization_step_ = 0;
-    cumulative_marking_duration_ = 0;
-    cumulative_sweeping_duration_ = 0;
-  }
-
   double TotalExternalTime() const {
-    return current_.scopes[Scope::EXTERNAL_WEAK_GLOBAL_HANDLES] +
-           current_.scopes[Scope::MC_EXTERNAL_EPILOGUE] +
-           current_.scopes[Scope::MC_EXTERNAL_PROLOGUE] +
+    return current_.scopes[Scope::HEAP_EXTERNAL_WEAK_GLOBAL_HANDLES] +
+           current_.scopes[Scope::HEAP_EXTERNAL_EPILOGUE] +
+           current_.scopes[Scope::HEAP_EXTERNAL_PROLOGUE] +
            current_.scopes[Scope::MC_INCREMENTAL_EXTERNAL_EPILOGUE] +
-           current_.scopes[Scope::MC_INCREMENTAL_EXTERNAL_PROLOGUE] +
-           current_.scopes[Scope::SCAVENGER_EXTERNAL_EPILOGUE] +
-           current_.scopes[Scope::SCAVENGER_EXTERNAL_PROLOGUE];
+           current_.scopes[Scope::MC_INCREMENTAL_EXTERNAL_PROLOGUE];
   }
 
   // Pointer to the heap that owns this tracer.
@@ -418,49 +405,23 @@ class GCTracer {
   // Previous tracer event.
   Event previous_;
 
-  // Previous INCREMENTAL_MARK_COMPACTOR event.
-  Event previous_incremental_mark_compactor_event_;
+  // Size of incremental marking steps (in bytes) accumulated since the end of
+  // the last mark compact GC.
+  size_t incremental_marking_bytes_;
 
-  // Cumulative number of incremental marking steps since creation of tracer.
-  int cumulative_incremental_marking_steps_;
+  // Duration of incremental marking steps since the end of the last mark-
+  // compact event.
+  double incremental_marking_duration_;
 
-  // Cumulative size of incremental marking steps (in bytes) since creation of
-  // tracer.
-  intptr_t cumulative_incremental_marking_bytes_;
+  double incremental_marking_start_time_;
 
-  // Cumulative duration of incremental marking steps since creation of tracer.
-  double cumulative_incremental_marking_duration_;
+  double recorded_incremental_marking_speed_;
 
-  // Cumulative duration of pure incremental marking steps since creation of
-  // tracer.
-  double cumulative_pure_incremental_marking_duration_;
+  // Incremental scopes carry more information than just the duration. The infos
+  // here are merged back upon starting/stopping the GC tracer.
+  IncrementalMarkingInfos
+      incremental_marking_scopes_[Scope::NUMBER_OF_INCREMENTAL_SCOPES];
 
-  // Longest incremental marking step since start of marking.
-  double longest_incremental_marking_step_;
-
-  // Cumulative number of incremental marking finalization steps since creation
-  // of tracer.
-  int cumulative_incremental_marking_finalization_steps_;
-
-  // Cumulative duration of incremental marking finalization steps since
-  // creation of tracer.
-  double cumulative_incremental_marking_finalization_duration_;
-
-  // Longest incremental marking finalization step since start of marking.
-  double longest_incremental_marking_finalization_step_;
-
-  // Total marking time.
-  // This timer is precise when run with --print-cumulative-gc-stat
-  double cumulative_marking_duration_;
-
-  // Total sweeping time on the main thread.
-  // This timer is precise when run with --print-cumulative-gc-stat
-  // TODO(hpayer): Account for sweeping time on sweeper threads. Add a
-  // different field for that.
-  // TODO(hpayer): This timer right now just holds the sweeping time
-  // of the initial atomic sweeping pause. Make sure that it accumulates
-  // all sweeping operations performed on the main thread.
-  double cumulative_sweeping_duration_;
 
   // Timestamp and allocation counter at the last sampled allocation event.
   double allocation_time_ms_;
@@ -480,16 +441,15 @@ class GCTracer {
   // Separate timer used for --runtime_call_stats
   RuntimeCallTimer timer_;
 
-  RingBuffer<BytesAndDuration> recorded_incremental_marking_steps_;
-  RingBuffer<BytesAndDuration> recorded_scavenges_total_;
-  RingBuffer<BytesAndDuration> recorded_scavenges_survived_;
-  RingBuffer<BytesAndDuration> recorded_compactions_;
-  RingBuffer<BytesAndDuration> recorded_mark_compacts_;
-  RingBuffer<BytesAndDuration> recorded_incremental_mark_compacts_;
-  RingBuffer<BytesAndDuration> recorded_new_generation_allocations_;
-  RingBuffer<BytesAndDuration> recorded_old_generation_allocations_;
-  RingBuffer<double> recorded_context_disposal_times_;
-  RingBuffer<double> recorded_survival_ratios_;
+  base::RingBuffer<BytesAndDuration> recorded_minor_gcs_total_;
+  base::RingBuffer<BytesAndDuration> recorded_minor_gcs_survived_;
+  base::RingBuffer<BytesAndDuration> recorded_compactions_;
+  base::RingBuffer<BytesAndDuration> recorded_incremental_mark_compacts_;
+  base::RingBuffer<BytesAndDuration> recorded_mark_compacts_;
+  base::RingBuffer<BytesAndDuration> recorded_new_generation_allocations_;
+  base::RingBuffer<BytesAndDuration> recorded_old_generation_allocations_;
+  base::RingBuffer<double> recorded_context_disposal_times_;
+  base::RingBuffer<double> recorded_survival_ratios_;
 
   DISALLOW_COPY_AND_ASSIGN(GCTracer);
 };

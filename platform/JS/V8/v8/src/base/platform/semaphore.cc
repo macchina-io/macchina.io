@@ -73,24 +73,7 @@ bool Semaphore::WaitFor(const TimeDelta& rel_time) {
 #elif V8_OS_POSIX
 
 Semaphore::Semaphore(int count) {
-  // The sem_init() does not check for alignment of the native handle.
-  // Unaligned native handle can later cause a failure in semaphore signal.
-  // Check the alignment here to catch the failure earlier.
-  // Context: crbug.com/605349.
-#if V8_OS_AIX
-  // On aix sem_t is of type int
-  const uintptr_t kSemaphoreAlignmentMask = sizeof(int) - 1;
-#else
-  const uintptr_t kSemaphoreAlignmentMask = sizeof(void*) - 1;
-#endif
-  CHECK_EQ(
-      0, reinterpret_cast<uintptr_t>(&native_handle_) &
-      kSemaphoreAlignmentMask);
   DCHECK(count >= 0);
-#if V8_LIBC_GLIBC
-  // sem_init in glibc prior to 2.1 does not zero out semaphores.
-  memset(&native_handle_, 0, sizeof(native_handle_));
-#endif
   int result = sem_init(&native_handle_, 0, count);
   DCHECK_EQ(0, result);
   USE(result);
@@ -105,6 +88,9 @@ Semaphore::~Semaphore() {
 
 void Semaphore::Signal() {
   int result = sem_post(&native_handle_);
+  // This check may fail with <libc-2.21, which we use on the try bots, if the
+  // semaphore is destroyed while sem_post is still executed. A work around is
+  // to extend the lifetime of the semaphore.
   CHECK_EQ(0, result);
 }
 
@@ -121,17 +107,6 @@ void Semaphore::Wait() {
 
 
 bool Semaphore::WaitFor(const TimeDelta& rel_time) {
-#if V8_OS_NACL
-  // PNaCL doesn't support sem_timedwait, do ugly busy waiting.
-  ElapsedTimer timer;
-  timer.Start();
-  do {
-    int result = sem_trywait(&native_handle_);
-    if (result == 0) return true;
-    DCHECK(errno == EAGAIN || errno == EINTR);
-  } while (!timer.HasExpired(rel_time));
-  return false;
-#else
   // Compute the time for end of timeout.
   const Time time = Time::NowFromSystemTime() + rel_time;
   const struct timespec ts = time.ToTimespec();
@@ -155,7 +130,6 @@ bool Semaphore::WaitFor(const TimeDelta& rel_time) {
     DCHECK_EQ(-1, result);
     DCHECK_EQ(EINTR, errno);
   }
-#endif
 }
 
 #elif V8_OS_WIN

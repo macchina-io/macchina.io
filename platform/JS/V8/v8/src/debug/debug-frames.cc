@@ -5,99 +5,100 @@
 #include "src/debug/debug-frames.h"
 
 #include "src/frames-inl.h"
+#include "src/wasm/wasm-interpreter.h"
+#include "src/wasm/wasm-objects.h"
 
 namespace v8 {
 namespace internal {
 
-FrameInspector::FrameInspector(JavaScriptFrame* frame,
-                               int inlined_jsframe_index, Isolate* isolate)
-    : frame_(frame), deoptimized_frame_(NULL), isolate_(isolate) {
-  has_adapted_arguments_ = frame_->has_adapted_arguments();
-  is_bottommost_ = inlined_jsframe_index == 0;
+FrameInspector::FrameInspector(StandardFrame* frame, int inlined_frame_index,
+                               Isolate* isolate)
+    : frame_(frame),
+      frame_summary_(FrameSummary::Get(frame, inlined_frame_index)),
+      isolate_(isolate) {
+  JavaScriptFrame* js_frame =
+      frame->is_java_script() ? javascript_frame() : nullptr;
+  DCHECK(js_frame || frame->is_wasm());
+  has_adapted_arguments_ = js_frame && js_frame->has_adapted_arguments();
+  is_bottommost_ = inlined_frame_index == 0;
   is_optimized_ = frame_->is_optimized();
   is_interpreted_ = frame_->is_interpreted();
+
   // Calculate the deoptimized frame.
-  if (frame->is_optimized()) {
-    // TODO(turbofan): Revisit once we support deoptimization.
-    if (frame->LookupCode()->is_turbofanned() &&
-        frame->function()->shared()->asm_function() &&
-        !FLAG_turbo_asm_deoptimization) {
+  if (is_optimized_) {
+    DCHECK(js_frame != nullptr);
+    // TODO(turbofan): Deoptimization from AstGraphBuilder is not supported.
+    if (js_frame->LookupCode()->is_turbofanned() &&
+        !js_frame->function()->shared()->HasBytecodeArray()) {
       is_optimized_ = false;
       return;
     }
 
-    deoptimized_frame_ = Deoptimizer::DebuggerInspectableFrame(
-        frame, inlined_jsframe_index, isolate);
+    deoptimized_frame_.reset(Deoptimizer::DebuggerInspectableFrame(
+        js_frame, inlined_frame_index, isolate));
+  } else if (frame_->is_wasm_interpreter_entry()) {
+    wasm_interpreted_frame_ =
+        frame_summary_.AsWasm()
+            .wasm_instance()
+            ->debug_info()
+            ->GetInterpretedFrame(frame_->fp(), inlined_frame_index);
+    DCHECK(wasm_interpreted_frame_);
   }
 }
-
 
 FrameInspector::~FrameInspector() {
-  // Get rid of the calculated deoptimized frame if any.
-  if (deoptimized_frame_ != NULL) {
-    Deoptimizer::DeleteDebuggerInspectableFrame(deoptimized_frame_, isolate_);
-  }
+  // Destructor needs to be defined in the .cc file, because it instantiates
+  // std::unique_ptr destructors but the types are not known in the header.
 }
-
 
 int FrameInspector::GetParametersCount() {
-  return is_optimized_ ? deoptimized_frame_->parameters_count()
-                       : frame_->ComputeParametersCount();
+  if (is_optimized_) return deoptimized_frame_->parameters_count();
+  if (wasm_interpreted_frame_)
+    return wasm_interpreted_frame_->GetParameterCount();
+  return frame_->ComputeParametersCount();
 }
 
-Handle<Object> FrameInspector::GetFunction() {
-  return is_optimized_ ? deoptimized_frame_->GetFunction()
-                       : handle(frame_->function(), isolate_);
+Handle<Script> FrameInspector::GetScript() {
+  return Handle<Script>::cast(frame_summary_.script());
+}
+
+Handle<JSFunction> FrameInspector::GetFunction() {
+  return frame_summary_.AsJavaScript().function();
 }
 
 Handle<Object> FrameInspector::GetParameter(int index) {
-  return is_optimized_ ? deoptimized_frame_->GetParameter(index)
-                       : handle(frame_->GetParameter(index), isolate_);
+  if (is_optimized_) return deoptimized_frame_->GetParameter(index);
+  // TODO(clemensh): Handle wasm_interpreted_frame_.
+  return handle(frame_->GetParameter(index), isolate_);
 }
 
 Handle<Object> FrameInspector::GetExpression(int index) {
-  // TODO(turbofan): Revisit once we support deoptimization.
-  if (frame_->LookupCode()->is_turbofanned() &&
-      frame_->function()->shared()->asm_function() &&
-      !FLAG_turbo_asm_deoptimization) {
+  // TODO(turbofan): Deoptimization from AstGraphBuilder is not supported.
+  if (frame_->is_java_script() &&
+      javascript_frame()->LookupCode()->is_turbofanned() &&
+      !javascript_frame()->function()->shared()->HasBytecodeArray()) {
     return isolate_->factory()->undefined_value();
   }
   return is_optimized_ ? deoptimized_frame_->GetExpression(index)
                        : handle(frame_->GetExpression(index), isolate_);
 }
 
-
 int FrameInspector::GetSourcePosition() {
-  if (is_optimized_) {
-    return deoptimized_frame_->GetSourcePosition();
-  } else if (is_interpreted_) {
-    InterpretedFrame* frame = reinterpret_cast<InterpretedFrame*>(frame_);
-    BytecodeArray* bytecode_array = frame->GetBytecodeArray();
-    return bytecode_array->SourcePosition(frame->GetBytecodeOffset());
-  } else {
-    Code* code = frame_->LookupCode();
-    int offset = static_cast<int>(frame_->pc() - code->instruction_start());
-    return code->SourcePosition(offset);
-  }
+  return frame_summary_.SourcePosition();
 }
 
-
-bool FrameInspector::IsConstructor() {
-  return is_optimized_ && !is_bottommost_
-             ? deoptimized_frame_->HasConstructStub()
-             : frame_->IsConstructor();
-}
+bool FrameInspector::IsConstructor() { return frame_summary_.is_constructor(); }
 
 Handle<Object> FrameInspector::GetContext() {
   return is_optimized_ ? deoptimized_frame_->GetContext()
                        : handle(frame_->context(), isolate_);
 }
 
-
 // To inspect all the provided arguments the frame might need to be
 // replaced with the arguments frame.
-void FrameInspector::SetArgumentsFrame(JavaScriptFrame* frame) {
+void FrameInspector::SetArgumentsFrame(StandardFrame* frame) {
   DCHECK(has_adapted_arguments_);
+  DCHECK(frame->is_arguments_adaptor());
   frame_ = frame;
   is_optimized_ = frame_->is_optimized();
   is_interpreted_ = frame_->is_interpreted();
@@ -123,7 +124,7 @@ void FrameInspector::MaterializeStackLocals(Handle<JSObject> target,
         i < GetParametersCount()
             ? GetParameter(i)
             : Handle<Object>::cast(isolate_->factory()->undefined_value());
-    DCHECK(!value->IsTheHole());
+    DCHECK(!value->IsTheHole(isolate_));
 
     JSObject::SetOwnPropertyIgnoreAttributes(target, name, value, NONE).Check();
   }
@@ -135,8 +136,12 @@ void FrameInspector::MaterializeStackLocals(Handle<JSObject> target,
     Handle<Object> value = GetExpression(scope_info->StackLocalIndex(i));
     // TODO(yangguo): We convert optimized out values to {undefined} when they
     // are passed to the debugger. Eventually we should handle them somehow.
-    if (value->IsTheHole()) value = isolate_->factory()->undefined_value();
-    if (value->IsOptimizedOut()) value = isolate_->factory()->undefined_value();
+    if (value->IsTheHole(isolate_)) {
+      value = isolate_->factory()->undefined_value();
+    }
+    if (value->IsOptimizedOut(isolate_)) {
+      value = isolate_->factory()->undefined_value();
+    }
     JSObject::SetOwnPropertyIgnoreAttributes(target, name, value, NONE).Check();
   }
 }
@@ -152,10 +157,8 @@ void FrameInspector::MaterializeStackLocals(Handle<JSObject> target,
 
 void FrameInspector::UpdateStackLocalsFromMaterializedObject(
     Handle<JSObject> target, Handle<ScopeInfo> scope_info) {
-  if (is_optimized_) {
-    // Optimized frames are not supported. Simply give up.
-    return;
-  }
+  // Optimized frames and wasm frames are not supported. Simply give up.
+  if (is_optimized_ || frame_->is_wasm()) return;
 
   HandleScope scope(isolate_);
 
@@ -166,10 +169,10 @@ void FrameInspector::UpdateStackLocalsFromMaterializedObject(
     if (ScopeInfo::VariableIsSynthetic(*name)) continue;
     if (ParameterIsShadowedByContextLocal(scope_info, name)) continue;
 
-    DCHECK(!frame_->GetParameter(i)->IsTheHole());
+    DCHECK(!javascript_frame()->GetParameter(i)->IsTheHole(isolate_));
     Handle<Object> value =
         Object::GetPropertyOrElement(target, name).ToHandleChecked();
-    frame_->SetParameterValue(i, *value);
+    javascript_frame()->SetParameterValue(i, *value);
   }
 
   // Stack locals.
@@ -177,7 +180,7 @@ void FrameInspector::UpdateStackLocalsFromMaterializedObject(
     Handle<String> name(scope_info->StackLocalName(i));
     if (ScopeInfo::VariableIsSynthetic(*name)) continue;
     int index = scope_info->StackLocalIndex(i);
-    if (frame_->GetExpression(index)->IsTheHole()) continue;
+    if (frame_->GetExpression(index)->IsTheHole(isolate_)) continue;
     Handle<Object> value =
         Object::GetPropertyOrElement(target, name).ToHandleChecked();
     frame_->SetExpression(index, *value);
@@ -194,9 +197,8 @@ bool FrameInspector::ParameterIsShadowedByContextLocal(
                                      &maybe_assigned_flag) != -1;
 }
 
-
-SaveContext* DebugFrameHelper::FindSavedContextForFrame(
-    Isolate* isolate, JavaScriptFrame* frame) {
+SaveContext* DebugFrameHelper::FindSavedContextForFrame(Isolate* isolate,
+                                                        StandardFrame* frame) {
   SaveContext* save = isolate->save_context();
   while (save != NULL && !save->IsBelowFrame(frame)) {
     save = save->prev();
@@ -205,8 +207,7 @@ SaveContext* DebugFrameHelper::FindSavedContextForFrame(
   return save;
 }
 
-
-int DebugFrameHelper::FindIndexedNonNativeFrame(JavaScriptFrameIterator* it,
+int DebugFrameHelper::FindIndexedNonNativeFrame(StackTraceFrameIterator* it,
                                                 int index) {
   int count = -1;
   for (; !it->done(); it->Advance()) {
@@ -214,7 +215,7 @@ int DebugFrameHelper::FindIndexedNonNativeFrame(JavaScriptFrameIterator* it,
     it->frame()->Summarize(&frames);
     for (int i = frames.length() - 1; i >= 0; i--) {
       // Omit functions from native and extension scripts.
-      if (!frames[i].function()->shared()->IsSubjectToDebugging()) continue;
+      if (!frames[i].is_subject_to_debugging()) continue;
       if (++count == index) return i;
     }
   }

@@ -29,11 +29,13 @@
 
 #include "src/v8.h"
 
+#include "src/heap/heap-inl.h"
 #include "src/heap/heap.h"
 #include "test/cctest/cctest.h"
 
 using namespace v8;
 
+namespace {
 
 enum Expectations {
   EXPECT_RESULT,
@@ -143,7 +145,7 @@ void DeclarationContext::Check(const char* source, int get, int set, int query,
   InitializeIfNeeded();
   // A retry after a GC may pollute the counts, so perform gc now
   // to avoid that.
-  CcTest::heap()->CollectGarbage(v8::internal::NEW_SPACE);
+  CcTest::CollectGarbage(v8::internal::NEW_SPACE);
   HandleScope scope(CcTest::isolate());
   TryCatch catcher(CcTest::isolate());
   catcher.SetVerbose(true);
@@ -174,7 +176,7 @@ void DeclarationContext::Check(const char* source, int get, int set, int query,
     }
   }
   // Clean slate for the next test.
-  CcTest::heap()->CollectAllAvailableGarbage();
+  CcTest::CollectAllAvailableGarbage();
 }
 
 
@@ -223,6 +225,7 @@ v8::Local<Integer> DeclarationContext::Query(Local<Name> key) {
   return v8::Local<Integer>();
 }
 
+}  // namespace
 
 // Test global declaration of a property the interceptor doesn't know
 // about and doesn't handle.
@@ -246,9 +249,7 @@ TEST(Unknown) {
   { DeclarationContext context;
     context.Check("function x() { }; x",
                   1,  // access
-                  0,
-                  0,
-                  EXPECT_RESULT);
+                  1, 1, EXPECT_RESULT);
   }
 }
 
@@ -282,9 +283,7 @@ TEST(Absent) {
   { AbsentPropertyContext context;
     context.Check("function x() { }; x",
                   1,  // access
-                  0,
-                  0,
-                  EXPECT_RESULT);
+                  1, 1, EXPECT_RESULT);
   }
 
   { AbsentPropertyContext context;
@@ -352,9 +351,7 @@ TEST(Appearing) {
   { AppearingPropertyContext context;
     context.Check("function x() { }; x",
                   1,  // access
-                  0,
-                  0,
-                  EXPECT_RESULT);
+                  1, 1, EXPECT_RESULT);
   }
 }
 
@@ -483,11 +480,7 @@ TEST(ExistsInHiddenPrototype) {
   }
 
   { ExistsInHiddenPrototypeContext context;
-    context.Check("function x() { }; x",
-                  0,
-                  0,
-                  0,
-                  EXPECT_RESULT);
+    context.Check("function x() { }; x", 0, 1, 1, EXPECT_RESULT);
   }
 }
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright 2016 the V8 project authors. All rights reserved.
 # Copyright 2015 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -43,7 +44,7 @@ def main(args):
 class MetaBuildWrapper(object):
   def __init__(self):
     self.chromium_src_dir = CHROMIUM_SRC_DIR
-    self.default_config = os.path.join(self.chromium_src_dir, 'tools', 'mb',
+    self.default_config = os.path.join(self.chromium_src_dir, 'infra', 'mb',
                                        'mb_config.pyl')
     self.executable = sys.executable
     self.platform = sys.platform
@@ -192,7 +193,7 @@ class MetaBuildWrapper(object):
     subp.add_argument('-f', '--config-file', metavar='PATH',
                       default=self.default_config,
                       help='path to config file '
-                          '(default is //tools/mb/mb_config.pyl)')
+                          '(default is //infra/mb/mb_config.pyl)')
     subp.set_defaults(func=self.CmdValidate)
 
     subp = subps.add_parser('audit',
@@ -200,7 +201,7 @@ class MetaBuildWrapper(object):
     subp.add_argument('-f', '--config-file', metavar='PATH',
                       default=self.default_config,
                       help='path to config file '
-                          '(default is //tools/mb/mb_config.pyl)')
+                          '(default is //infra/mb/mb_config.pyl)')
     subp.add_argument('-i', '--internal', action='store_true',
                       help='check internal masters also')
     subp.add_argument('-m', '--master', action='append',
@@ -373,29 +374,6 @@ class MetaBuildWrapper(object):
     for mixin in self.mixins:
       if not mixin in referenced_mixins:
         errs.append('Unreferenced mixin "%s".' % mixin)
-
-    # If we're checking the Chromium config, check that the 'chromium' bots
-    # which build public artifacts do not include the chrome_with_codecs mixin.
-    if self.args.config_file == self.default_config:
-      if 'chromium' in self.masters:
-        for builder in self.masters['chromium']:
-          config = self.masters['chromium'][builder]
-          def RecurseMixins(current_mixin):
-            if current_mixin == 'chrome_with_codecs':
-              errs.append('Public artifact builder "%s" can not contain the '
-                          '"chrome_with_codecs" mixin.' % builder)
-              return
-            if not 'mixins' in self.mixins[current_mixin]:
-              return
-            for mixin in self.mixins[current_mixin]['mixins']:
-              RecurseMixins(mixin)
-
-          for mixin in self.configs[config]:
-            RecurseMixins(mixin)
-      else:
-        errs.append('Missing "chromium" master. Please update this '
-                    'proprietary codecs check with the name of the master '
-                    'responsible for public build artifacts.')
 
     if errs:
       raise MBErr(('mb config file %s has problems:' % self.args.config_file) +
@@ -799,7 +777,13 @@ class MetaBuildWrapper(object):
       self.WriteFile(gn_runtime_deps_path, '\n'.join(gn_labels) + '\n')
       cmd.append('--runtime-deps-list-file=%s' % gn_runtime_deps_path)
 
-    ret, _, _ = self.Run(cmd)
+    # Override msvs infra environment variables.
+    # TODO(machenbach): Remove after GYP_MSVS_VERSION is removed on infra side.
+    env = {}
+    env.update(os.environ)
+    env['GYP_MSVS_VERSION'] = '2015'
+
+    ret, _, _ = self.Run(cmd, env=env)
     if ret:
         # If `gn gen` failed, we should exit early rather than trying to
         # generate isolates. Run() will have already logged any error output.
@@ -1030,7 +1014,6 @@ class MetaBuildWrapper(object):
                  + logdog_command + test_cmdline)
     elif use_x11 and test_type == 'windowed_test_launcher':
       extra_files = [
-          'xdisplaycheck',
           '../../testing/test_env.py',
           '../../testing/xvfb.py',
       ]
