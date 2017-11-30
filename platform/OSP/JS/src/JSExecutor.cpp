@@ -55,12 +55,6 @@ JSExecutor::~JSExecutor()
 void JSExecutor::setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
 {
 	Poco::JS::Core::JSExecutor::setupGlobalObjectTemplate(global, pIsolate);
-
-	Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
-	global->Set(v8::String::NewFromUtf8(pIsolate, "HTTPRequest"), httpRequestWrapper.constructor(pIsolate));
-	
-	Poco::JS::Data::SessionWrapper sessionWrapper;
-	global->Set(v8::String::NewFromUtf8(pIsolate, "DBSession"), sessionWrapper.constructor(pIsolate));
 }
 
 
@@ -172,12 +166,6 @@ TimedJSExecutor::~TimedJSExecutor()
 void TimedJSExecutor::setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
 {
 	Poco::JS::Core::TimedJSExecutor::setupGlobalObjectTemplate(global, pIsolate);
-
-	Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
-	global->Set(v8::String::NewFromUtf8(pIsolate, "HTTPRequest"), httpRequestWrapper.constructor(pIsolate));
-	
-	Poco::JS::Data::SessionWrapper sessionWrapper;
-	global->Set(v8::String::NewFromUtf8(pIsolate, "DBSession"), sessionWrapper.constructor(pIsolate));
 }
 
 

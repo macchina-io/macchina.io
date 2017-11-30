@@ -292,7 +292,7 @@ void BridgeHolder::setPersistent(const v8::Persistent<v8::Object>& jsObject)
 	_persistent.Reset(_pIsolate, jsObject);
 	if (!_persistent.IsEmpty())
 	{
-		_persistent.SetWeak(this, BridgeHolder::destruct);
+		_persistent.SetWeak(this, BridgeHolder::destruct, v8::WeakCallbackType::kParameter);
 		_persistent.MarkIndependent();
 	}
 }

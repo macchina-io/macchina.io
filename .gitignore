@@ -114,3 +114,8 @@ cmake-build/
 # Temporary files #
 ###################
 *.bak
+
+# V8 build #
+############
+platform/JS/V8/out/
+
