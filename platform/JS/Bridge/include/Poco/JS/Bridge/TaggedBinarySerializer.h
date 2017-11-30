@@ -27,8 +27,8 @@ namespace JS {
 namespace Bridge {
 
 
-class JSBridge_API TaggedBinarySerializer: public Poco::RemotingNG::BinarySerializer
-	/// An extension of the BinarySerializer that adds type tags and names to the stream.
+class JSBridge_API TaggedBinarySerializer: public Poco::RemotingNG::Serializer
+	/// An variation of the BinarySerializer that adds type tags and names to the stream.
 {
 public:
 	enum TypeTag
@@ -60,21 +60,23 @@ public:
 		TYPE_TAG_STRING         = 0x70,
 		TYPE_TAG_BUFFER         = 0x71
 	};
-	
+
 	enum ContainerType
 	{
 		CONT_MESSAGE,
 		CONT_STRUCT,
 		CONT_SEQUENCE
 	};
-	
+
 	TaggedBinarySerializer();
-		/// Creates the Serializer. 
+		/// Creates the TaggedBinarySerializer.
 
 	~TaggedBinarySerializer();
-		/// Destroys the Serializer.
+		/// Destroys the TaggedBinarySerializer.
 
 	// Poco::RemotingNG::Serializer
+	void resetImpl();
+	void setupImpl(std::ostream& ostr);
 	void serializeMessageBegin(const std::string& name, Poco::RemotingNG::SerializerBase::MessageType type);
 	void serializeMessageEnd(const std::string& name, Poco::RemotingNG::SerializerBase::MessageType type);
 	void serializeFaultMessage(const std::string& name, Poco::Exception& exc);
@@ -108,10 +110,10 @@ public:
 protected:
 	void serializeTypeTag(TypeTag tag);
 		/// Serializes a TypeTag.
-		
+
 	void serializeName(const std::string& name);
 		/// Serializes a name.
-		
+
 private:
 	TaggedBinarySerializer(const TaggedBinarySerializer&);
 	TaggedBinarySerializer& operator = (const TaggedBinarySerializer&);
@@ -127,7 +129,7 @@ private:
 //
 inline void TaggedBinarySerializer::serializeTypeTag(TypeTag tag)
 {
-	serializeToken(static_cast<Poco::UInt8>(tag));
+	_serializer.serializeToken(static_cast<Poco::UInt8>(tag));
 }
 
 
@@ -135,7 +137,7 @@ inline void TaggedBinarySerializer::serializeName(const std::string& name)
 {
 	if (_containerStack.back() != CONT_SEQUENCE)
 	{
-		serializeToken(name);
+		_serializer.serializeToken(name);
 	}
 }
 

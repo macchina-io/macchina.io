@@ -26,19 +26,19 @@ TaggedBinaryReader::TaggedBinaryReader(v8::Isolate* pIsolate):
 	_containerStack.reserve(32);
 }
 
-	
+
 TaggedBinaryReader::~TaggedBinaryReader()
 {
 }
 
-	
+
 v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 {
 	Poco::RemotingNG::BinaryDeserializer deserializer;
 	deserializer.setup(istream);
 
 	std::vector<std::string> names;
-	
+
 	std::string messageName;
 	Poco::RemotingNG::SerializerBase::MessageType messageType = deserializer.findMessage(messageName);
 	deserializer.deserializeMessageBegin(messageName, messageType);
