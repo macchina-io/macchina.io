@@ -20,7 +20,7 @@ matrix:
       compiler: gcc
       language: cpp
       script:
-        - make -s -j2
+        - make -s -j2 DEFAULT_TARGET=shared_release
 
     - env:    TEST_NAME="arm-linux-gnueabihf-gcc (target)"
       compiler: gcc
@@ -29,7 +29,7 @@ matrix:
         - curl https://macchina.io/files/travis/ti-am335x-sdk.tgz >ti-am335x-sdk.tgz
         - tar xfz ti-am335x-sdk.tgz
         - make -s -j2 hosttools DEFAULT_TARGET=shared_release
-        - export PATH=$PATH:`pwd`/ti-am335x-sdk/linux-devkit/sysroots/i686-arago-linux/usr/bin; POCO_CONFIG=Arago make -s -j2 DEFAULT_TARGET=shared_release V8_NOSNAPSHOT=1
+        - export PATH=$PATH:`pwd`/ti-am335x-sdk/linux-devkit/sysroots/i686-arago-linux/usr/bin; POCO_CONFIG=Arago make -s -j2 DEFAULT_TARGET=shared_release
 
     # QA jobs for code analytics and metrics
     # static code analysis with cppcheck (we can add --enable=all later)
