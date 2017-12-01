@@ -23,11 +23,12 @@ namespace Core {
 
 
 PooledIsolate::PooledIsolate(Poco::UInt64 memoryLimit):
-	_pIsolate(0)
+	_pIsolate(0),
+	_pArrayBufferAllocator(v8::ArrayBuffer::Allocator::NewDefaultAllocator())
 {
 	v8::Isolate::CreateParams params;
 	params.constraints.ConfigureDefaults(memoryLimit, memoryLimit);
-	params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+	params.array_buffer_allocator = _pArrayBufferAllocator;
 	_pIsolate = v8::Isolate::New(params);
 	if (!_pIsolate) throw JSException("Cannot create isolate");
 	_pIsolate->SetData(0, this);
@@ -45,6 +46,7 @@ PooledIsolate::~PooledIsolate()
 	{
 		poco_unexpected();
 	}
+	delete _pArrayBufferAllocator;
 }
 
 

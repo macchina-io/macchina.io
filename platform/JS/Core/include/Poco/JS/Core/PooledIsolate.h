@@ -39,13 +39,13 @@ public:
 
 	~PooledIsolate();
 		/// Destroys the PooledIsolate.
-		
+
 	v8::Isolate* isolate() const;
 		/// Returns the underlying v8::Isolate.
-		
+
 	static PooledIsolate* fromIsolate(v8::Isolate* pIsolate);
 		/// Returns the PooledIsolate for the given Isolate.
-		
+
 	v8::Persistent<v8::ObjectTemplate>& objectTemplate(const std::string& name);
 		/// Returns the persistent handle for the object template with the given name.
 
@@ -53,19 +53,19 @@ private:
 	PooledIsolate();
 	PooledIsolate(const PooledIsolate&);
 	PooledIsolate& operator = (const PooledIsolate&);
-	
+
 	class JSCore_API OTHolder
 	{
 	public:
 		OTHolder()
 		{
 		}
-		
+
 		OTHolder(const OTHolder& other)
 		{
 			_ot.Reset(v8::Isolate::GetCurrent(), other._ot);
 		}
-		
+
 		~OTHolder()
 		{
 			_ot.Reset();
@@ -79,19 +79,20 @@ private:
 			}
 			return *this;
 		}
-				
+
 		v8::Persistent<v8::ObjectTemplate>& content()
 		{
 			return _ot;
 		}
-		
+
 	private:
 		v8::Persistent<v8::ObjectTemplate> _ot;
 	};
 
 	typedef std::map<std::string, OTHolder> OTMap;
-	
+
 	v8::Isolate* _pIsolate;
+	v8::ArrayBuffer::Allocator* _pArrayBufferAllocator;
 	OTMap _objectTemplates;
 };
 
