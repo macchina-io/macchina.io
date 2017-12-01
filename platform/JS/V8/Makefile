@@ -68,6 +68,10 @@ ifeq ($(findstring clang,$(CXX)),clang)
 GYPFLAGS += -Dclang=1
 endif
 
+ifeq ($(POCO_HOST_OSNAME),Linux)
+v8targetlibdir = lib.target/
+endif
+
 # Reduce linker memory usage on ARM systems
 ifeq ($(findstring armv7,$(POCO_HOST_OSARCH)),armv7)
 LINK += -Xlinker --hash-size=31 -Xlinker --reduce-memory-overhead
@@ -90,12 +94,12 @@ shared_release: v8deps
 all_shared: shared_debug shared_release
 
 v8install: $(DEFAULT_TARGET)
-	if [ -d out/Release ] ; then cp out/Release/libv8$(SHAREDLIBLINKEXT) $(LIBPATH) ; fi
-	if [ -d out/Release ] ; then cp out/Release/libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH) ; fi
-	if [ -d out/Release ] ; then cp out/Release/libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH) ; fi
-	if [ -d out/Debug ] ; then cp out/Debug/libv8$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8d$(SHAREDLIBLINKEXT) ; fi
-	if [ -d out/Debug ] ; then cp out/Debug/libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8_libbased$(SHAREDLIBLINKEXT) ; fi
-	if [ -d out/Debug ] ; then cp out/Debug/libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8_libplatformd$(SHAREDLIBLINKEXT) ; fi
+	if [ -d out/Release ] ; then cp out/Release/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH) ; fi
+	if [ -d out/Release ] ; then cp out/Release/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH) ; fi
+	if [ -d out/Release ] ; then cp out/Release/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH) ; fi
+	if [ -d out/Debug ] ; then cp out/Debug/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8d$(SHAREDLIBLINKEXT) ; fi
+	if [ -d out/Debug ] ; then cp out/Debug/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8_libbased$(SHAREDLIBLINKEXT) ; fi
+	if [ -d out/Debug ] ; then cp out/Debug/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8_libplatformd$(SHAREDLIBLINKEXT) ; fi
 	mkdir -p include
 	mkdir -p include/libplatform
 	cp $(V8BASE)/include/*.h include
