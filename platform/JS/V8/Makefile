@@ -35,6 +35,7 @@ V8ARCH = ia32
 endif
 ifeq ($(findstring arm,$(OSARCH)),arm)
 V8ARCH = arm
+GYPFLAGS += -Darm_fpu=default
 endif
 ifeq ($(findstring armv7,$(OSARCH)),armv7)
 GYPFLAGS += -Darm_version=7
