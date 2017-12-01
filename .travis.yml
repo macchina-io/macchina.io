@@ -22,7 +22,7 @@ matrix:
       script:
         - sudo apt-get install -qq -y gcc-4.9 g++-4.9
         - export CC="gcc-4.9"
-        - export CXX="g++-4.9 -std=c++11"
+        - export CXX="g++-4.9"
         - $CXX --version
         - make -s -j2 DEFAULT_TARGET=shared_release
 
