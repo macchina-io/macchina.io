@@ -4,6 +4,7 @@ cache:
  - apt
 
 before_install:
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get update -qq
   - sudo apt-get install -qq -y gcc-multilib g++-multilib libc6-i386 libc6-dev-i386 lib32stdc++6 lib32z1 sloccount cppcheck
 
@@ -18,7 +19,6 @@ matrix:
   include:
     - env:    TEST_NAME="gcc (host)"
       compiler: gcc
-      language: cpp
       script:
         - sudo apt-get install -qq -y gcc-4.9 g++-4.9
         - export CC="gcc-4.9"
