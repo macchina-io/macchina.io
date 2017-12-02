@@ -36,7 +36,7 @@ ConsoleWrapper::~ConsoleWrapper()
 v8::Handle<v8::ObjectTemplate> ConsoleWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
-	v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New();
+	v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New(pIsolate);
 	loggerTemplate->SetInternalFieldCount(1);
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "trace"), v8::FunctionTemplate::New(pIsolate, trace));
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "assert"), v8::FunctionTemplate::New(pIsolate, assert));
@@ -48,7 +48,7 @@ v8::Handle<v8::ObjectTemplate> ConsoleWrapper::objectTemplate(v8::Isolate* pIsol
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "dump"), v8::FunctionTemplate::New(pIsolate, dump));
 	return handleScope.Escape(loggerTemplate);
 }
-	
+
 
 void ConsoleWrapper::trace(const v8::FunctionCallbackInfo<v8::Value>& args)
 {

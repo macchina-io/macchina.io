@@ -52,7 +52,7 @@ v8::Handle<v8::FunctionTemplate> LoggerWrapper::constructor(v8::Isolate* pIsolat
 	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "CRITICAL"), v8::Integer::New(pIsolate, 2));
 	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "FATAL"), v8::Integer::New(pIsolate, 1));
 	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isLogger"), v8::FunctionTemplate::New(pIsolate, isLogger));
-	
+
 	return handleScope.Escape(funcTemplate);
 }
 
@@ -65,7 +65,7 @@ v8::Handle<v8::ObjectTemplate> LoggerWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::Persistent<v8::ObjectTemplate>& pooledLoggerTemplate(pPooledIso->objectTemplate("Core.Logger"));
 	if (pooledLoggerTemplate.IsEmpty())
 	{
-		v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New();
+		v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New(pIsolate);
 		loggerTemplate->SetInternalFieldCount(1);
 		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "trace"), v8::FunctionTemplate::New(pIsolate, trace));
 		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "debug"), v8::FunctionTemplate::New(pIsolate, debug));
@@ -82,7 +82,7 @@ v8::Handle<v8::ObjectTemplate> LoggerWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::Local<v8::ObjectTemplate> localLoggerTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledLoggerTemplate);
 	return handleScope.Escape(localLoggerTemplate);
 }
-	
+
 
 void LoggerWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
@@ -93,34 +93,34 @@ void LoggerWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		if (args.Length() > 1 && !args[1]->IsObject())
 			throw Poco::InvalidArgumentException("Second argument must be configuration object");
-	
+
 		std::string loggerName;
 		if (args.Length() > 0)
 		{
 			loggerName = toString(args[0]);
 		}
-		
+
 		bool isExistingLogger = Poco::Logger::has(loggerName) != 0;
 		bool reconfigure = args.Length() > 2 && args[2]->BooleanValue();
-		
+
 		pLogger = &Poco::Logger::get(loggerName);
-		
+
 		if ((!isExistingLogger || reconfigure) && args.Length() > 1 && args[1]->IsObject())
 		{
 			v8::Local<v8::String> levelProp = v8::String::NewFromUtf8(args.GetIsolate(), "level");
 			v8::Local<v8::String> patternProp = v8::String::NewFromUtf8(args.GetIsolate(), "pattern");
 			v8::Local<v8::String> channelProp = v8::String::NewFromUtf8(args.GetIsolate(), "channel");
 			v8::Local<v8::String> classProp = v8::String::NewFromUtf8(args.GetIsolate(), "class");
-			
-			v8::Local<v8::Object> config = args[1].As<v8::Object>();			
+
+			v8::Local<v8::Object> config = args[1].As<v8::Object>();
 			Poco::AutoPtr<Poco::Channel> pChannel;
-			
+
 			if (config->Has(levelProp))
 			{
 				std::string level = toString(config->Get(levelProp));
 				pLogger->setLevel(level);
 			}
-						
+
 			if (config->Has(channelProp))
 			{
 				v8::Local<v8::Value> channelArg = config->Get(channelProp);
@@ -134,7 +134,7 @@ void LoggerWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 					}
 					else throw Poco::NotFoundException("Missing channel configuration property", "class");
 					pChannel = Poco::LoggingFactory::defaultFactory().createChannel(channelClass);
-					
+
 					v8::Local<v8::Array> channelProps = channelConfig->GetOwnPropertyNames();
 					for (unsigned i = 0; i < channelProps->Length(); i++)
 					{
@@ -152,7 +152,7 @@ void LoggerWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 					pChannel.assign(Poco::LoggingRegistry::defaultRegistry().channelForName(channelName), true);
 				}
 			}
-			
+
 			if (config->Has(patternProp))
 			{
 				std::string pattern = toString(config->Get(patternProp));
@@ -162,7 +162,7 @@ void LoggerWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 			pLogger->setChannel(pChannel);
 		}
-		
+
 		LoggerWrapper wrapper;
 		v8::Local<v8::Object> loggerObject(wrapper.wrapNative(args.GetIsolate(), pLogger));
 		args.GetReturnValue().Set(loggerObject);
@@ -222,7 +222,7 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 			{
 				std::string fmt(toString(args[nextArgIndex]));
 				nextArgIndex++;
-				std::string::const_iterator it = fmt.begin(); 
+				std::string::const_iterator it = fmt.begin();
 				while (it != fmt.end())
 				{
 					if (*it == '%')
@@ -274,7 +274,7 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 							case 'O':
 								if (nextArgIndex < args.Length())
 								{
-									// use built-in JSON.stringify() 
+									// use built-in JSON.stringify()
 									v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
 									v8::Local<v8::Object> global = context->Global();
 									v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
@@ -284,8 +284,8 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 										if (!stringify.IsEmpty())
 										{
 											v8::Local<v8::Value> argv[3] = {
-												args[nextArgIndex], 
-												v8::Null(args.GetIsolate()), 
+												args[nextArgIndex],
+												v8::Null(args.GetIsolate()),
 												v8::Integer::New(args.GetIsolate(), *it == 'O' ? 4 : 0)
 											};
 											text.append(toString(stringify->Call(json, 3, argv)));
@@ -394,7 +394,7 @@ void LoggerWrapper::dump(const v8::FunctionCallbackInfo<v8::Value>& args)
 		}
 		else
 		{
-			// use built-in JSON.stringify() 
+			// use built-in JSON.stringify()
 			v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
 			v8::Local<v8::Object> global = context->Global();
 			v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
@@ -404,8 +404,8 @@ void LoggerWrapper::dump(const v8::FunctionCallbackInfo<v8::Value>& args)
 				if (!stringify.IsEmpty())
 				{
 					v8::Local<v8::Value> argv[3] = {
-						args[1], 
-						v8::Null(args.GetIsolate()), 
+						args[1],
+						v8::Null(args.GetIsolate()),
 						v8::Integer::New(args.GetIsolate(), 4)
 					};
 					message += "\n";

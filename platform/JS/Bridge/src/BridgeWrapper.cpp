@@ -446,7 +446,7 @@ v8::Handle<v8::ObjectTemplate> BridgeWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Bridge.Bridge"));
 	if (pooledObjectTemplate.IsEmpty())
 	{
-		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
+		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
 
 		objectTemplate->SetNamedPropertyHandler(getProperty, setProperty);
@@ -493,7 +493,11 @@ void BridgeWrapper::getProperty(v8::Local<v8::String> property, const v8::Proper
 	v8::Local<v8::Object> object = info.Holder();
 	if (object->HasRealNamedProperty(property))
 	{
-		info.GetReturnValue().Set(object->GetRealNamedProperty(property));
+		v8::MaybeLocal<v8::Value> prop = object->GetRealNamedProperty(info.GetIsolate()->GetCurrentContext(), property);
+		if (!prop.IsEmpty())
+		{
+			info.GetReturnValue().Set(prop.ToLocalChecked());
+		}
 	}
 	else
 	{
@@ -546,7 +550,7 @@ void BridgeWrapper::getProperty(v8::Local<v8::String> property, const v8::Proper
 void BridgeWrapper::setProperty(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	v8::Local<v8::Object> object = info.Holder();
-	object->ForceSet(name, value);
+	object->ForceSet(info.GetIsolate()->GetCurrentContext(), name, value);
 	if (value->IsFunction())
 	{
 		BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(info);
@@ -643,7 +647,7 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 			v8::Local<v8::String> name = v8::Local<v8::String>::Cast(args[0]);
 			if (args.Length() >= 2 && args[1]->IsFunction())
 			{
-				object->ForceSet(name, args[1]);
+				object->ForceSet(args.GetIsolate()->GetCurrentContext(), name, args[1]);
 				BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(args);
 				try
 				{
@@ -658,7 +662,7 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 			}
 			else if (args.Length() >= 2 && args[1]->IsNull())
 			{
-				object->ForceSet(name, args[1]);
+				object->ForceSet(args.GetIsolate()->GetCurrentContext(), name, args[1]);
 				BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(args);
 				try
 				{
@@ -676,12 +680,16 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 			}
 			else
 			{
-				args.GetReturnValue().Set(object->GetRealNamedProperty(name));
+				v8::MaybeLocal<v8::Value> prop = object->GetRealNamedProperty(args.GetIsolate()->GetCurrentContext(), name);
+				if (!prop.IsEmpty())
+				{
+					args.GetReturnValue().Set(prop.ToLocalChecked());
+				}
 			}
 		}
 		else
 		{
-			returnException(args, "Invalid argument: First argument to on() must be property name");
+			returnException(args, "Invalid argument: First argument to on() must be event name");
 		}
 	}
 }

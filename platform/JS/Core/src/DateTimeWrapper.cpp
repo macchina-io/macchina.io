@@ -56,7 +56,7 @@ v8::Handle<v8::ObjectTemplate> DateTimeWrapper::objectTemplate(v8::Isolate* pIso
 	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Core.DateTime"));
 	if (pooledObjectTemplate.IsEmpty())
 	{
-		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
+		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "year"), year);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "month"), month);
@@ -87,7 +87,7 @@ v8::Handle<v8::ObjectTemplate> DateTimeWrapper::objectTemplate(v8::Isolate* pIso
 	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
 	return handleScope.Escape(dateTimeTemplate);
 }
-	
+
 
 void DateTimeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
@@ -358,7 +358,7 @@ void DateTimeWrapper::format(const v8::FunctionCallbackInfo<v8::Value>& args)
 		format = Poco::DateTimeFormat::ISO8601_FORMAT;
 	try
 	{
-		returnString(args, Poco::DateTimeFormatter::format(*pDateTime, format));	
+		returnString(args, Poco::DateTimeFormatter::format(*pDateTime, format));
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -372,7 +372,7 @@ void DateTimeWrapper::local(const v8::FunctionCallbackInfo<v8::Value>& args)
 	v8::HandleScope scope(args.GetIsolate());
 	Poco::DateTime* pDateTime = Wrapper::unwrapNative<Poco::DateTime>(args);
 	Poco::LocalDateTime* pLocalDateTime = 0;
-	try	
+	try
 	{
 		pLocalDateTime = new Poco::LocalDateTime(*pDateTime);
 		LocalDateTimeWrapper wrapper;

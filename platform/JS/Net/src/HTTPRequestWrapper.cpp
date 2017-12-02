@@ -36,6 +36,7 @@ namespace Net {
 
 static Poco::AtomicCounter _cnt;
 
+
 RequestHolder::RequestHolder():
 	_timeout(30, 0)
 {
@@ -71,7 +72,7 @@ v8::Handle<v8::ObjectTemplate> HTTPRequestWrapper::objectTemplate(v8::Isolate* p
 	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Net.HTTPRequest"));
 	if (pooledObjectTemplate.IsEmpty())
 	{
-		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
+		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "method"), getMethod, setMethod);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "uri"), getURI, setURI);
@@ -95,29 +96,29 @@ v8::Handle<v8::ObjectTemplate> HTTPRequestWrapper::objectTemplate(v8::Isolate* p
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getHeader"), v8::FunctionTemplate::New(pIsolate, getHeader));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "setHeader"), v8::FunctionTemplate::New(pIsolate, setHeader));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "addHeader"), v8::FunctionTemplate::New(pIsolate, addHeader));
-		
+
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> requestTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
 	return handleScope.Escape(requestTemplate);
 }
-	
+
 
 void HTTPRequestWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	RequestHolder* pRequestHolder = new RequestHolderImpl;
 
 	try
-	{	
-		if (args.Length() > 0) 
+	{
+		if (args.Length() > 0)
 			pRequestHolder->request().setMethod(toString(args[0]));
-		if (args.Length() > 1) 
+		if (args.Length() > 1)
 			pRequestHolder->request().setURI(toString(args[1]));
-		if (args.Length() > 2) 
+		if (args.Length() > 2)
 			pRequestHolder->request().setVersion(toString(args[2]));
 		else
 			pRequestHolder->request().setVersion(Poco::Net::HTTPMessage::HTTP_1_1);
-	
+
 		HTTPRequestWrapper wrapper;
 		v8::Persistent<v8::Object>& requestObject(wrapper.wrapNativePersistent(args.GetIsolate(), pRequestHolder));
 		args.GetReturnValue().Set(requestObject);
@@ -244,7 +245,7 @@ void HTTPRequestWrapper::getCookies(v8::Local<v8::String> name, const v8::Proper
 {
 	v8::HandleScope handleScope(info.GetIsolate());
 	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(info);
-	
+
 	Poco::Net::NameValueCollection cookies;
 	pRequestHolder->request().getCookies(cookies);
 	v8::Local<v8::Object> result(v8::Object::New(info.GetIsolate()));
@@ -263,7 +264,7 @@ void HTTPRequestWrapper::getCredentials(v8::Local<v8::String> name, const v8::Pr
 {
 	v8::HandleScope handleScope(info.GetIsolate());
 	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(info);
-	
+
 	if (pRequestHolder->request().hasCredentials())
 	{
 		std::string scheme;
@@ -402,16 +403,16 @@ public:
 		_function(pIsolate, function)
 	{
 	}
-	
+
 	~AsyncRequestCompletionTask()
 	{
 		_function.Reset();
 	}
-	
+
 	void run()
 	{
 		poco_assert (_pIsolate == _pExecutor->isolate());
-		
+
 		v8::Locker locker(_pIsolate);
 		v8::Isolate::Scope isoScope(_pIsolate);
 		v8::HandleScope handleScope(_pIsolate);
@@ -430,9 +431,9 @@ public:
 
 		v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(_pIsolate, _function));
 		v8::Local<v8::Value> receiver(v8::Null(_pIsolate));
-		_pExecutor->callInContext(localFunction, receiver, 1, reinterpret_cast<v8::Handle<v8::Value>*>(&statusObject)); 
+		_pExecutor->callInContext(localFunction, receiver, 1, reinterpret_cast<v8::Handle<v8::Value>*>(&statusObject));
 	}
-	
+
 private:
 	v8::Isolate* _pIsolate;
 	Poco::JS::Core::JSExecutor::Ptr _pExecutor;
@@ -452,12 +453,12 @@ public:
 		_function(pIsolate, function)
 	{
 	}
-	
+
 	~AsyncRequestFailedTask()
 	{
 		_function.Reset();
 	}
-	
+
 	void run()
 	{
 		poco_assert (_pIsolate == _pExecutor->isolate());
@@ -475,9 +476,9 @@ public:
 
 		v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(_pIsolate, _function));
 		v8::Local<v8::Value> receiver(v8::Null(_pIsolate));
-		_pExecutor->callInContext(localFunction, receiver, 1, reinterpret_cast<v8::Handle<v8::Value>*>(&statusObject)); 
+		_pExecutor->callInContext(localFunction, receiver, 1, reinterpret_cast<v8::Handle<v8::Value>*>(&statusObject));
 	}
-	
+
 private:
 	v8::Isolate* _pIsolate;
 	Poco::JS::Core::JSExecutor::Ptr _pExecutor;
@@ -498,12 +499,12 @@ public:
 		_function(pIsolate, function)
 	{
 	}
-	
+
 	~AsyncRequest()
 	{
 		_function.Reset();
 	}
-	
+
 	void run()
 	{
 		Poco::JS::Core::TimedJSExecutor::Ptr pTimedJSExecutor = _pExecutor.cast<Poco::JS::Core::TimedJSExecutor>();
@@ -537,7 +538,7 @@ public:
 		}
 		delete this;
 	}
-	
+
 private:
 	v8::Isolate* _pIsolate;
 	Poco::JS::Core::JSExecutor::Ptr _pExecutor;
@@ -568,7 +569,7 @@ void HTTPRequestWrapper::sendAsync(const v8::FunctionCallbackInfo<v8::Value>& ar
 			pRequest->setContentLength(pRequestHolder->content().length());
 		}
 		pCS->setTimeout(pRequestHolder->getTimeout());
-		
+
 		Poco::JS::Core::JSExecutor::Ptr pExecutor = Poco::JS::Core::JSExecutor::current();
 		AsyncRequest* pAsyncRequest = new AsyncRequest(args.GetIsolate(), pExecutor, pCS, pRequest, pRequestHolder->content(), function);
 		try

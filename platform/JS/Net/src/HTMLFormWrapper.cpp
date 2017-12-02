@@ -40,7 +40,7 @@ v8::Handle<v8::ObjectTemplate> HTMLFormWrapper::objectTemplate(v8::Isolate* pIso
 	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Net.HTMLForm"));
 	if (pooledObjectTemplate.IsEmpty())
 	{
-		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
+		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, hasField));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "get"), v8::FunctionTemplate::New(pIsolate, getField));
@@ -84,7 +84,11 @@ void HTMLFormWrapper::getProperty(v8::Local<v8::String> property, const v8::Prop
 	v8::Local<v8::Object> object = info.Holder();
 	if (object->HasRealNamedProperty(property))
 	{
-		info.GetReturnValue().Set(object->GetRealNamedProperty(property));
+		v8::MaybeLocal<v8::Value> prop = object->GetRealNamedProperty(info.GetIsolate()->GetCurrentContext(), property);
+		if (!prop.IsEmpty())
+		{
+			info.GetReturnValue().Set(prop.ToLocalChecked());
+		}
 	}
 	else
 	{

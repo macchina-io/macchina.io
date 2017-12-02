@@ -39,7 +39,7 @@ v8::Handle<v8::ObjectTemplate> SessionWrapper::objectTemplate(v8::Isolate* pIsol
 	v8::Persistent<v8::ObjectTemplate>& pooledSessionTemplate(pPooledIso->objectTemplate("Web.Session"));
 	if (pooledSessionTemplate.IsEmpty())
 	{
-		v8::Local<v8::ObjectTemplate> sessionTemplate = v8::ObjectTemplate::New();
+		v8::Local<v8::ObjectTemplate> sessionTemplate = v8::ObjectTemplate::New(pIsolate);
 		sessionTemplate->SetInternalFieldCount(1);
 		sessionTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "id"), id);
 		sessionTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "username"), username);
@@ -156,7 +156,7 @@ void SessionWrapper::getInt(const v8::FunctionCallbackInfo<v8::Value>& args)
 void SessionWrapper::setInt(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 2) return;
-	
+
 	std::string name = toString(args[0]);
 	int value = args[1]->Int32Value();
 
@@ -206,7 +206,7 @@ void SessionWrapper::getString(const v8::FunctionCallbackInfo<v8::Value>& args)
 void SessionWrapper::setString(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 2) return;
-	
+
 	std::string name = toString(args[0]);
 	std::string value = toString(args[1]);
 
@@ -227,7 +227,7 @@ void SessionWrapper::setString(const v8::FunctionCallbackInfo<v8::Value>& args)
 void SessionWrapper::erase(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
-	
+
 	std::string name = toString(args[0]);
 
 	SessionHolder* pHolder = Poco::JS::Core::Wrapper::unwrapNative<SessionHolder>(args);

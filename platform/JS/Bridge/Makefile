@@ -6,6 +6,8 @@
 
 include $(POCO_BASE)/build/rules/global
 
+CXXFLAGS += -DV8_DEPRECATION_WARNINGS=1
+
 objects = Serializer Deserializer Listener \
 	TaggedBinarySerializer TaggedBinaryReader \
 	BridgeWrapper

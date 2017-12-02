@@ -6,6 +6,8 @@
 
 include $(POCO_BASE)/build/rules/global
 
+CXXFLAGS += -DV8_DEPRECATION_WARNINGS=1
+
 objects = SessionWrapper RecordSetWrapper
 
 target         = PocoJSData

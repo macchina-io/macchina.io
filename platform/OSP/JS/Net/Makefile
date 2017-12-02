@@ -8,6 +8,8 @@ include $(POCO_BASE)/build/rules/global
 
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
+CXXFLAGS += -DV8_DEPRECATION_WARNINGS=1
+
 objects = NetModule
 
 target         = com.appinf.osp.js.net
