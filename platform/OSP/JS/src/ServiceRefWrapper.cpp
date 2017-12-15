@@ -79,7 +79,7 @@ void ServiceRefWrapper::instance(const v8::FunctionCallbackInfo<v8::Value>& args
 	{
 		if (pServiceRef->properties().has("jsbridge"))
 		{
-			pHolder = new Poco::JS::Bridge::BridgeHolder(args.GetIsolate(), pServiceRef->properties().get("jsbridge"));
+			pHolder = new Poco::JS::Bridge::BridgeHolder(pServiceRef->properties().get("jsbridge"));
 			Poco::JS::Bridge::BridgeWrapper wrapper;
 			v8::Persistent<v8::Object>& bridgeObject(wrapper.wrapNativePersistent(args.GetIsolate(), pHolder));
 			pHolder->setPersistent(bridgeObject);

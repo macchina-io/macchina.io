@@ -312,6 +312,8 @@ void JSExecutor::callInContext(v8::Persistent<v8::Object>& jsObject, const std::
 
 	v8::Isolate* pIsolate = _pooledIso.isolate();
 
+	v8::HandleScope handleScope(pIsolate);
+
 	v8::Local<v8::String> jsMethod = v8::String::NewFromUtf8(pIsolate, method.c_str());
 
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(pIsolate, jsObject));

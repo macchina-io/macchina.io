@@ -26,6 +26,7 @@
 #include "Poco/RemotingNG/Context.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/Util/TimerTask.h"
+#include "Poco/MemoryStream.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/Delegate.h"
@@ -206,10 +207,9 @@ private:
 class EventTask: public Poco::Util::TimerTask
 {
 public:
-	EventTask(Poco::JS::Core::TimedJSExecutor::Ptr pExecutor, v8::Isolate* pIsolate, const v8::Persistent<v8::Object>& jsObject, const std::string& event, const std::string& args):
+	EventTask(Poco::JS::Core::TimedJSExecutor::Ptr pExecutor, v8::Persistent<v8::Object>& jsObject, const std::string& event, const std::string& args):
 		_pExecutor(pExecutor),
-		_pIsolate(pIsolate),
-		_jsObject(pIsolate, jsObject),
+		_jsObject(jsObject),
 		_event(event),
 		_args(args)
 	{
@@ -217,28 +217,31 @@ public:
 
 	~EventTask()
 	{
-		_jsObject.Reset();
 	}
 
 	void run()
 	{
-		v8::Locker locker(_pIsolate);
-		v8::Isolate::Scope isoScope(_pIsolate);
-		v8::HandleScope handleScope(_pIsolate);
+		v8::Isolate* pIsolate = _pExecutor->isolate();
 
-		v8::Local<v8::Context> context(v8::Local<v8::Context>::New(_pIsolate, _pExecutor->scriptContext()));
+		v8::Locker locker(pIsolate);
+		v8::Isolate::Scope isoScope(pIsolate);
+			v8::HandleScope handleScope(pIsolate);
+
+		v8::Local<v8::Context> context(v8::Local<v8::Context>::New(pIsolate, _pExecutor->scriptContext()));
 		v8::Context::Scope contextScope(context);
 
-		TaggedBinaryReader reader(_pIsolate);
-		std::istringstream istr(_args);
-		v8::Handle<v8::Value> args[] = {reader.read(istr)};
-		_pExecutor->callInContext(_jsObject, _event, 1, args);
+		{
+			TaggedBinaryReader reader(pIsolate);
+			Poco::MemoryInputStream istr(_args.data(), _args.size());
+			v8::Handle<v8::Value> args[1];
+			args[0] = v8::Local<v8::Object>::New(pIsolate, reader.read(istr));
+			_pExecutor->callInContext(_jsObject, _event, 1, args);
+		}
 	}
 
 private:
 	Poco::JS::Core::TimedJSExecutor::Ptr _pExecutor;
-	v8::Isolate* _pIsolate;
-	v8::Persistent<v8::Object> _jsObject;
+	v8::Persistent<v8::Object>& _jsObject;
 	std::string _event;
 	std::string _args;
 };
@@ -254,8 +257,7 @@ BridgeHolder::HolderMap BridgeHolder::_holderMap;
 Poco::FastMutex BridgeHolder::_holderMapMutex;
 
 
-BridgeHolder::BridgeHolder(v8::Isolate* pIsolate, const std::string& uri):
-	_pIsolate(pIsolate),
+BridgeHolder::BridgeHolder(const std::string& uri):
 	_pExecutor(Poco::JS::Core::JSExecutor::current()),
 	_uri(uri)
 {
@@ -289,7 +291,7 @@ BridgeHolder::~BridgeHolder()
 
 void BridgeHolder::setPersistent(const v8::Persistent<v8::Object>& jsObject)
 {
-	_persistent.Reset(_pIsolate, jsObject);
+	_persistent.Reset(_pExecutor->isolate(), jsObject);
 	if (!_persistent.IsEmpty())
 	{
 		_persistent.SetWeak(this, BridgeHolder::destruct, v8::WeakCallbackType::kParameter);
@@ -319,7 +321,7 @@ void BridgeHolder::fireEvent(const std::string& event, const std::string& args)
 		Poco::JS::Core::TimedJSExecutor::Ptr pTimedExecutor = _pExecutor.cast<Poco::JS::Core::TimedJSExecutor>();
 		if (pTimedExecutor)
 		{
-			EventTask::Ptr pEventTask = new EventTask(pTimedExecutor, _pIsolate, _persistent, event, args);
+			EventTask::Ptr pEventTask = new EventTask(pTimedExecutor, _persistent, event, args);
 			pTimedExecutor->schedule(pEventTask);
 		}
 	}
@@ -465,7 +467,7 @@ void BridgeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		if (args.Length() == 1)
 		{
-			pHolder = new BridgeHolder(args.GetIsolate(), toString(args[0]));
+			pHolder = new BridgeHolder(toString(args[0]));
 		}
 		else
 		{
@@ -490,6 +492,7 @@ void BridgeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void BridgeWrapper::getProperty(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
+	v8::HandleScope scope(info.GetIsolate());
 	v8::Local<v8::Object> object = info.Holder();
 	if (object->HasRealNamedProperty(property))
 	{
@@ -616,7 +619,7 @@ void BridgeWrapper::bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& ar
 			}
 			else
 			{
-				v8::Local<v8::Object> returnObject = serializer.jsValue();
+				v8::Local<v8::Object> returnObject(v8::Local<v8::Object>::New(args.GetIsolate(), serializer.jsValue()));
 				v8::Local<v8::String> returnParam = v8::String::NewFromUtf8(args.GetIsolate(), Poco::RemotingNG::SerializerBase::RETURN_PARAM.c_str(), v8::String::kNormalString, Poco::RemotingNG::SerializerBase::RETURN_PARAM.size());
 				if (serializer.totalSerialized() == 1 && returnObject->Has(returnParam))
 				{
@@ -639,6 +642,7 @@ void BridgeWrapper::bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& ar
 
 void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::HandleScope scope(args.GetIsolate());
 	v8::Local<v8::Object> object = args.Holder();
 	if (args.Length() >= 1)
 	{
