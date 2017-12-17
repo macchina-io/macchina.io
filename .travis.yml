@@ -1,3 +1,5 @@
+dist: trusty
+sudo: required
 language: cpp
 
 cache:
@@ -19,6 +21,7 @@ matrix:
   include:
     - env:    TEST_NAME="gcc (host)"
       compiler: gcc
+      language: cpp
       script:
         - sudo apt-get install -qq -y gcc-4.9 g++-4.9
         - export CC="gcc-4.9"
