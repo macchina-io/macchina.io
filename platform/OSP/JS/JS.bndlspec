@@ -49,16 +49,10 @@
     ../../lib/${osName}/${osArch}/libPocoOSPJS.*.dylib
     ../../lib/${osName}/${osArch}/libPocoOSPJSd.*.dylib
     ../../lib/${osName}/${osArch}/libv8.so
-    ../../lib/${osName}/${osArch}/libv8d.so
     ../../lib/${osName}/${osArch}/libv8_libbase.so
-    ../../lib/${osName}/${osArch}/libv8_libbased.so
     ../../lib/${osName}/${osArch}/libv8_libplatform.so
-    ../../lib/${osName}/${osArch}/libv8_libplatformd.so
     ../../lib/${osName}/${osArch}/libv8.dylib
-    ../../lib/${osName}/${osArch}/libv8d.dylib
     ../../lib/${osName}/${osArch}/libv8_libbase.dylib
-    ../../lib/${osName}/${osArch}/libv8_libbased.dylib
     ../../lib/${osName}/${osArch}/libv8_libplatform.dylib
-    ../../lib/${osName}/${osArch}/libv8_libplatformd.dylib
   </code>
 </bundlespec>

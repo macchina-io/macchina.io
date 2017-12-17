@@ -6,10 +6,7 @@
 
 include $(POCO_BASE)/build/rules/global
 
-.PHONY: v8deps
-
-V8VERSION = 6.1.534
-V8BASE = v8
+.PHONY: v8deps install_headers
 
 GYPFLAGS = -Dcomponent=shared_library -Dlinux_use_bundled_binutils=0 \
 	-Dlinux_use_bundled_gold=0 -Dlinux_use_gold_flags=0 -Dv8_enable_backtrace=0 -Ddcheck_always_on=0 \
@@ -79,32 +76,32 @@ LINK += -Xlinker --hash-size=31 -Xlinker --reduce-memory-overhead
 export LINK
 endif
 
-default: v8install
+default: shared_release
 
 v8deps: out/Makefile
 
 out/Makefile:
 	 tools/gyp/gyp $(GYPFLAGS) --generator-output=$(POCO_BASE)/JS/V8/out -Goutput_dir=$(POCO_BASE)/JS/V8/out -f make -Icommon.gypi --depth=. v8/src/v8.gyp
 
-shared_debug: v8deps
+shared_debug: v8deps install_headers
 	$(MAKE) -C out BUILDTYPE=Debug CFLAGS="$(CFLAGS) $(SHAREDOPT_CC)" CXXFLAGS="$(CXXFLAGS) $(SHAREDOPT_CXX)" v8 v8_libplatform
+	cp out/Debug/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
+	cp out/Debug/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)
+	cp out/Debug/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)
 
-shared_release: v8deps
+shared_release: v8deps install_headers
 	$(MAKE) -C out BUILDTYPE=Release CFLAGS="$(CFLAGS) $(SHAREDOPT_CC)" CXXFLAGS="$(CXXFLAGS) $(SHAREDOPT_CXX)" v8 v8_libplatform
+	cp out/Release/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
+	cp out/Release/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)
+	cp out/Release/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)
 
 all_shared: shared_debug shared_release
 
-v8install: $(DEFAULT_TARGET)
-	if [ -d out/Release ] ; then cp out/Release/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH) ; fi
-	if [ -d out/Release ] ; then cp out/Release/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH) ; fi
-	if [ -d out/Release ] ; then cp out/Release/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH) ; fi
-	if [ -d out/Debug ] ; then cp out/Debug/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8d$(SHAREDLIBLINKEXT) ; fi
-	if [ -d out/Debug ] ; then cp out/Debug/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8_libbased$(SHAREDLIBLINKEXT) ; fi
-	if [ -d out/Debug ] ; then cp out/Debug/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8_libplatformd$(SHAREDLIBLINKEXT) ; fi
+install_headers:
 	mkdir -p include
 	mkdir -p include/libplatform
-	cp $(V8BASE)/include/*.h include
-	cp $(V8BASE)/include/libplatform/*.h include/libplatform
+	cp v8/include/*.h include
+	cp v8/include/libplatform/*.h include/libplatform
 
 clean:
 	$(RM) out

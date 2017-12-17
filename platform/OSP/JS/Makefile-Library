@@ -18,6 +18,7 @@ objects = JSExecutor \
 
 target         = PocoOSPJS
 target_version = 3
-target_libs    = PocoJSBridge PocoJSCore PocoOSP PocoUtil PocoXML PocoFoundation v8
+target_libs    = PocoJSBridge PocoJSCore PocoOSP PocoUtil PocoXML PocoFoundation
+ext_libs       = v8 v8_libplatform v8_libbase
 
 include $(POCO_BASE)/build/rules/lib
