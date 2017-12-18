@@ -3,7 +3,7 @@
   <manifest>
     <name>POCO Net Library</name>
     <symbolicName>poco.net</symbolicName>
-    <version>1.8.0</version>
+    <version>1.8.1</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2007-2017, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
