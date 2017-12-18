@@ -14,9 +14,6 @@ include $(POCO_BASE)/build/rules/dylib
 
 all:
 	$(shell mkdir -p ../bundles)
-	$(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles SensorLog.bndlspec
-	$(BUNDLE_TOOL) -o../bundles SensorLog.bndlspec
-
-
+	$(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -o../bundles SensorLog.bndlspec
 
 clean:
