@@ -40,7 +40,7 @@ v8::Handle<v8::ObjectTemplate> ConfigurationWrapper::objectTemplate(v8::Isolate*
 	v8::Persistent<v8::ObjectTemplate>& pooledConfigurationTemplate(pPooledIso->objectTemplate("Core.Configuration"));
 	if (pooledConfigurationTemplate.IsEmpty())
 	{
-		v8::Local<v8::ObjectTemplate> configurationTemplate = v8::ObjectTemplate::New();
+		v8::Local<v8::ObjectTemplate> configurationTemplate = v8::ObjectTemplate::New(pIsolate);
 		configurationTemplate->SetInternalFieldCount(1);
 		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getInt"), v8::FunctionTemplate::New(pIsolate, getInt));
 		configurationTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getDouble"), v8::FunctionTemplate::New(pIsolate, getDouble));
@@ -55,7 +55,7 @@ v8::Handle<v8::ObjectTemplate> ConfigurationWrapper::objectTemplate(v8::Isolate*
 	v8::Local<v8::ObjectTemplate> localConfigurationTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledConfigurationTemplate);
 	return handleScope.Escape(localConfigurationTemplate);
 }
-	
+
 
 void ConfigurationWrapper::getInt(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
@@ -69,7 +69,7 @@ void ConfigurationWrapper::getInt(const v8::FunctionCallbackInfo<v8::Value>& arg
 		{
 			args.GetReturnValue().Set(pConfig->getInt(key, args[1]->Int32Value()));
 		}
-		else 
+		else
 		{
 			args.GetReturnValue().Set(pConfig->getInt(key));
 		}
@@ -93,7 +93,7 @@ void ConfigurationWrapper::getDouble(const v8::FunctionCallbackInfo<v8::Value>& 
 		{
 			args.GetReturnValue().Set(pConfig->getDouble(key, args[1]->NumberValue()));
 		}
-		else 
+		else
 		{
 			args.GetReturnValue().Set(pConfig->getDouble(key));
 		}
@@ -117,7 +117,7 @@ void ConfigurationWrapper::getBool(const v8::FunctionCallbackInfo<v8::Value>& ar
 		{
 			args.GetReturnValue().Set(pConfig->getBool(key, args[1]->BooleanValue()));
 		}
-		else 
+		else
 		{
 			args.GetReturnValue().Set(pConfig->getBool(key));
 		}
@@ -141,7 +141,7 @@ void ConfigurationWrapper::getString(const v8::FunctionCallbackInfo<v8::Value>& 
 		{
 			returnString(args, (pConfig->getString(key, toString(args[1]))));
 		}
-		else 
+		else
 		{
 			returnString(args, (pConfig->getString(key)));
 		}
@@ -165,13 +165,13 @@ void ConfigurationWrapper::getObject(const v8::FunctionCallbackInfo<v8::Value>& 
 		{
 			args.GetReturnValue().Set(args[1]);
 		}
-		else 
+		else
 		{
 			std::string json = pConfig->getString(key);
 			v8::Local<v8::String> jsonString = v8::String::NewFromUtf8(args.GetIsolate(), json.c_str());
-			v8::Local<v8::Value> value = v8::JSON::Parse(jsonString);
+			v8::MaybeLocal<v8::Value> value = v8::JSON::Parse(args.GetIsolate(), jsonString);
 			if (!value.IsEmpty())
-				args.GetReturnValue().Set(value);
+				args.GetReturnValue().Set(value.ToLocalChecked());
 			else
 				throw Poco::DataFormatException(std::string("Invalid JSON in configuration property ") + key, json);
 		}
@@ -207,10 +207,10 @@ void ConfigurationWrapper::set(const v8::FunctionCallbackInfo<v8::Value>& args)
 	Poco::Util::AbstractConfiguration* pConfig = Wrapper::unwrapNative<Poco::Util::AbstractConfiguration>(args);
 	std::string key = toString(args[0]);
 	std::string value;
-	
+
 	if (args[1]->IsObject())
 	{
-		// use built-in JSON.stringify() 
+		// use built-in JSON.stringify()
 		v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
 		v8::Local<v8::Object> global = context->Global();
 		v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
@@ -257,8 +257,8 @@ void ConfigurationWrapper::keys(const v8::FunctionCallbackInfo<v8::Value>& args)
 			for (unsigned i = 0; i < static_cast<unsigned>(keys.size()); i++)
 			{
 				keysArray->Set(i, v8::String::NewFromUtf8(
-					args.GetIsolate(), 
-					keys[i].c_str(), 
+					args.GetIsolate(),
+					keys[i].c_str(),
 					v8::String::kNormalString,
 					static_cast<int>(keys[i].length())));
 			}
@@ -268,7 +268,7 @@ void ConfigurationWrapper::keys(const v8::FunctionCallbackInfo<v8::Value>& args)
 	catch (Poco::Exception& exc)
 	{
 		returnException(args, exc);
-	}	
+	}
 }
 
 

@@ -26,6 +26,7 @@
 #include "Poco/RemotingNG/Context.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/Util/TimerTask.h"
+#include "Poco/MemoryStream.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/Delegate.h"
@@ -50,32 +51,32 @@ public:
 		_logger(Poco::Logger::get("JS.Bridge.Transport"))
 	{
 	}
-	
+
 	~Transport()
 	{
 	}
-	
+
 	// Transport
 	const std::string& endPoint() const
 	{
 		return _endPoint;
 	}
-	
+
 	void connect(const std::string& endPoint)
 	{
 		_endPoint = endPoint;
 	}
-	
+
 	void disconnect()
 	{
 		_endPoint.clear();
 	}
-	
+
 	bool connected() const
 	{
 		return !_endPoint.empty();
 	}
-	
+
 	Poco::RemotingNG::Serializer& beginMessage(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 	{
 		poco_assert_dbg (messageType == Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -84,7 +85,7 @@ public:
 		_serializer.setup(*_pStream);
 		return _serializer;
 	}
-	
+
 	void sendMessage(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 	{
 		poco_assert_dbg (messageType == Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -96,25 +97,25 @@ public:
 			pBridgeHolder->fireEvent(messageName, args);
 		}
 	}
-	
+
 	Poco::RemotingNG::Serializer& beginRequest(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 	{
 		_logger.error("Cannot deliver event %s in class %s. Event has a non-const argument and is not declared oneway.", messageName, tid);
 		throw Poco::NotImplementedException("beginRequest() not implemented for jsbridge Transport");
 	}
-	
+
 	Poco::RemotingNG::Deserializer& sendRequest(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 	{
 		throw Poco::NotImplementedException("sendRequest() not implemented for jsbridge Transport");
 	}
-	
+
 	void endRequest()
 	{
 		throw Poco::NotImplementedException("endRequest() not implemented for jsbridge Transport");
 	}
-	
+
 	static const std::string PROTOCOL;
-	
+
 private:
 	std::string _endPoint;
 	Poco::SharedPtr<std::stringstream> _pStream;
@@ -137,11 +138,11 @@ public:
 	TransportFactory()
 	{
 	}
-		
+
 	~TransportFactory()
 	{
 	}
-	
+
 	Poco::RemotingNG::Transport* createTransport()
 	{
 		return new Transport;
@@ -182,12 +183,12 @@ public:
 	{
 		return _deserializer;
 	}
-		
+
 	Serializer& sendReply(Poco::RemotingNG::SerializerBase::MessageType /*messageType*/)
 	{
 		return _serializer;
 	}
-	
+
 	void endRequest()
 	{
 	}
@@ -206,39 +207,41 @@ private:
 class EventTask: public Poco::Util::TimerTask
 {
 public:
-	EventTask(Poco::JS::Core::TimedJSExecutor::Ptr pExecutor, v8::Isolate* pIsolate, const v8::Persistent<v8::Object>& jsObject, const std::string& event, const std::string& args):
+	EventTask(Poco::JS::Core::TimedJSExecutor::Ptr pExecutor, v8::Persistent<v8::Object>& jsObject, const std::string& event, const std::string& args):
 		_pExecutor(pExecutor),
-		_pIsolate(pIsolate),
-		_jsObject(pIsolate, jsObject),
+		_jsObject(jsObject),
 		_event(event),
 		_args(args)
 	{
 	}
-	
+
 	~EventTask()
 	{
-		_jsObject.Reset();
 	}
-	
+
 	void run()
 	{
-		v8::Locker locker(_pIsolate);
-		v8::Isolate::Scope isoScope(_pIsolate);
-		v8::HandleScope handleScope(_pIsolate);
+		v8::Isolate* pIsolate = _pExecutor->isolate();
 
-		v8::Local<v8::Context> context(v8::Local<v8::Context>::New(_pIsolate, _pExecutor->scriptContext()));
+		v8::Locker locker(pIsolate);
+		v8::Isolate::Scope isoScope(pIsolate);
+			v8::HandleScope handleScope(pIsolate);
+
+		v8::Local<v8::Context> context(v8::Local<v8::Context>::New(pIsolate, _pExecutor->scriptContext()));
 		v8::Context::Scope contextScope(context);
 
-		TaggedBinaryReader reader(_pIsolate);
-		std::istringstream istr(_args);
-		v8::Handle<v8::Value> args[] = {reader.read(istr)};
-		_pExecutor->callInContext(_jsObject, _event, 1, args);
+		{
+			TaggedBinaryReader reader(pIsolate);
+			Poco::MemoryInputStream istr(_args.data(), _args.size());
+			v8::Handle<v8::Value> args[1];
+			args[0] = v8::Local<v8::Object>::New(pIsolate, reader.read(istr));
+			_pExecutor->callInContext(_jsObject, _event, 1, args);
+		}
 	}
-	
+
 private:
 	Poco::JS::Core::TimedJSExecutor::Ptr _pExecutor;
-	v8::Isolate* _pIsolate;
-	v8::Persistent<v8::Object> _jsObject;
+	v8::Persistent<v8::Object>& _jsObject;
 	std::string _event;
 	std::string _args;
 };
@@ -254,8 +257,7 @@ BridgeHolder::HolderMap BridgeHolder::_holderMap;
 Poco::FastMutex BridgeHolder::_holderMapMutex;
 
 
-BridgeHolder::BridgeHolder(v8::Isolate* pIsolate, const std::string& uri):
-	_pIsolate(pIsolate),
+BridgeHolder::BridgeHolder(const std::string& uri):
 	_pExecutor(Poco::JS::Core::JSExecutor::current()),
 	_uri(uri)
 {
@@ -263,7 +265,7 @@ BridgeHolder::BridgeHolder(v8::Isolate* pIsolate, const std::string& uri):
 	int id = ++_counter;
 	Poco::NumberFormatter::append(_subscriberURI, id);
 	registerHolder();
-	
+
 	_pExecutor->stopped += Poco::delegate(this, &BridgeHolder::onExecutorStopped);
 }
 
@@ -289,10 +291,10 @@ BridgeHolder::~BridgeHolder()
 
 void BridgeHolder::setPersistent(const v8::Persistent<v8::Object>& jsObject)
 {
-	_persistent.Reset(_pIsolate, jsObject);
+	_persistent.Reset(_pExecutor->isolate(), jsObject);
 	if (!_persistent.IsEmpty())
 	{
-		_persistent.SetWeak(this, BridgeHolder::destruct);
+		_persistent.SetWeak(this, BridgeHolder::destruct, v8::WeakCallbackType::kParameter);
 		_persistent.MarkIndependent();
 	}
 }
@@ -319,7 +321,7 @@ void BridgeHolder::fireEvent(const std::string& event, const std::string& args)
 		Poco::JS::Core::TimedJSExecutor::Ptr pTimedExecutor = _pExecutor.cast<Poco::JS::Core::TimedJSExecutor>();
 		if (pTimedExecutor)
 		{
-			EventTask::Ptr pEventTask = new EventTask(pTimedExecutor, _pIsolate, _persistent, event, args);
+			EventTask::Ptr pEventTask = new EventTask(pTimedExecutor, _persistent, event, args);
 			pTimedExecutor->schedule(pEventTask);
 		}
 	}
@@ -338,9 +340,8 @@ BridgeHolder::Ptr BridgeHolder::find(const std::string& subscriberURI)
 }
 
 
-void BridgeHolder::destruct(const v8::WeakCallbackData<v8::Object, BridgeHolder>& data)
+void BridgeHolder::destruct(const v8::WeakCallbackInfo<BridgeHolder>& data)
 {
-	data.GetValue().Clear();
 	data.GetParameter()->clear();
 }
 
@@ -376,7 +377,7 @@ void BridgeHolder::disableEvents()
 void BridgeHolder::registerHolder()
 {
 	Poco::FastMutex::ScopedLock lock(_holderMapMutex);
-	
+
 	_holderMap[_subscriberURI] = this;
 }
 
@@ -384,7 +385,7 @@ void BridgeHolder::registerHolder()
 void BridgeHolder::unregisterHolder()
 {
 	Poco::FastMutex::ScopedLock lock(_holderMapMutex);
-	
+
 	_holderMap.erase(_subscriberURI);
 }
 
@@ -405,13 +406,13 @@ void BridgeHolder::enableEvent(const std::string& event)
 	_handledEvents.insert(event);
 }
 
-	
+
 void BridgeHolder::disableEvent(const std::string& event)
 {
 	_handledEvents.erase(event);
 }
 
-	
+
 bool BridgeHolder::handleEvent(const std::string& event)
 {
 	return _handledEvents.count(event) > 0;
@@ -447,11 +448,11 @@ v8::Handle<v8::ObjectTemplate> BridgeWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Bridge.Bridge"));
 	if (pooledObjectTemplate.IsEmpty())
 	{
-		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
+		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
-		
+
 		objectTemplate->SetNamedPropertyHandler(getProperty, setProperty);
-	
+
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
@@ -466,14 +467,14 @@ void BridgeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		if (args.Length() == 1)
 		{
-			pHolder = new BridgeHolder(args.GetIsolate(), toString(args[0]));
+			pHolder = new BridgeHolder(toString(args[0]));
 		}
 		else
 		{
 			returnException(args, "invalid or missing arguments; object URI required");
 			return;
 		}
-		
+
 		BridgeWrapper wrapper;
 		v8::Persistent<v8::Object>& bridgeObject(wrapper.wrapNativePersistent(args.GetIsolate(), pHolder));
 		if (!bridgeObject.IsEmpty())
@@ -491,10 +492,15 @@ void BridgeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void BridgeWrapper::getProperty(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
+	v8::HandleScope scope(info.GetIsolate());
 	v8::Local<v8::Object> object = info.Holder();
 	if (object->HasRealNamedProperty(property))
 	{
-		info.GetReturnValue().Set(object->GetRealNamedProperty(property));
+		v8::MaybeLocal<v8::Value> prop = object->GetRealNamedProperty(info.GetIsolate()->GetCurrentContext(), property);
+		if (!prop.IsEmpty())
+		{
+			info.GetReturnValue().Set(prop.ToLocalChecked());
+		}
 	}
 	else
 	{
@@ -547,7 +553,7 @@ void BridgeWrapper::getProperty(v8::Local<v8::String> property, const v8::Proper
 void BridgeWrapper::setProperty(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	v8::Local<v8::Object> object = info.Holder();
-	object->ForceSet(name, value);
+	object->ForceSet(info.GetIsolate()->GetCurrentContext(), name, value);
 	if (value->IsFunction())
 	{
 		BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(info);
@@ -594,7 +600,7 @@ void BridgeWrapper::bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& ar
 			{
 				argsArray->Set(i, args[i]);
 			}
-			
+
 			Poco::RemotingNG::ScopedContext scopedContext;
 			scopedContext.context()->setValue("transport", Transport::PROTOCOL);
 			scopedContext.context()->setValue("uri", pHolder->uri());
@@ -613,7 +619,7 @@ void BridgeWrapper::bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& ar
 			}
 			else
 			{
-				v8::Local<v8::Object> returnObject = serializer.jsValue();
+				v8::Local<v8::Object> returnObject(v8::Local<v8::Object>::New(args.GetIsolate(), serializer.jsValue()));
 				v8::Local<v8::String> returnParam = v8::String::NewFromUtf8(args.GetIsolate(), Poco::RemotingNG::SerializerBase::RETURN_PARAM.c_str(), v8::String::kNormalString, Poco::RemotingNG::SerializerBase::RETURN_PARAM.size());
 				if (serializer.totalSerialized() == 1 && returnObject->Has(returnParam))
 				{
@@ -636,6 +642,7 @@ void BridgeWrapper::bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& ar
 
 void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::HandleScope scope(args.GetIsolate());
 	v8::Local<v8::Object> object = args.Holder();
 	if (args.Length() >= 1)
 	{
@@ -644,7 +651,7 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 			v8::Local<v8::String> name = v8::Local<v8::String>::Cast(args[0]);
 			if (args.Length() >= 2 && args[1]->IsFunction())
 			{
-				object->ForceSet(name, args[1]);
+				object->ForceSet(args.GetIsolate()->GetCurrentContext(), name, args[1]);
 				BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(args);
 				try
 				{
@@ -659,7 +666,7 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 			}
 			else if (args.Length() >= 2 && args[1]->IsNull())
 			{
-				object->ForceSet(name, args[1]);
+				object->ForceSet(args.GetIsolate()->GetCurrentContext(), name, args[1]);
 				BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(args);
 				try
 				{
@@ -677,12 +684,16 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 			}
 			else
 			{
-				args.GetReturnValue().Set(object->GetRealNamedProperty(name));
+				v8::MaybeLocal<v8::Value> prop = object->GetRealNamedProperty(args.GetIsolate()->GetCurrentContext(), name);
+				if (!prop.IsEmpty())
+				{
+					args.GetReturnValue().Set(prop.ToLocalChecked());
+				}
 			}
 		}
 		else
 		{
-			returnException(args, "Invalid argument: First argument to on() must be property name");
+			returnException(args, "Invalid argument: First argument to on() must be event name");
 		}
 	}
 }

@@ -19,11 +19,76 @@
 #include "Poco/JS/Bridge/Bridge.h"
 #include "Poco/RemotingNG/Serializer.h"
 #include "v8.h"
+#include "v8-util.h"
 
 
 namespace Poco {
 namespace JS {
 namespace Bridge {
+
+
+template <typename V>
+class PersistentValueStack
+	/// A helper class to keep a stack of JavaScript objects.
+{
+public:
+	explicit PersistentValueStack(v8::Isolate* pIsolate): _pIsolate(pIsolate)
+	{
+	}
+
+	~PersistentValueStack()
+	{
+		clear();
+	}
+
+	void push(const v8::Local<V>& value)
+	{
+		_vector.emplace_back(_pIsolate, value);
+	}
+
+	bool empty() const
+	{
+		return _vector.empty();
+	}
+
+	std::size_t size() const
+	{
+		return _vector.size();
+	}
+
+	void clear()
+	{
+		_vector.clear();
+	}
+
+	void pop()
+	{
+     	_vector.pop_back();
+	}
+
+	v8::Global<V>& front()
+	{
+		return _vector.front();
+	}
+
+	const v8::Global<V>& front() const
+	{
+		return _vector.front();
+	}
+
+	v8::Global<V>& back()
+	{
+		return _vector.back();
+	}
+
+	const v8::Global<V>& back() const
+	{
+		return _vector.back();
+	}
+
+	v8::Isolate* _pIsolate;
+	std::vector<v8::Global<V>> _vector;
+};
 
 
 class JSBridge_API Serializer: public Poco::RemotingNG::Serializer
@@ -36,7 +101,7 @@ public:
 	~Serializer();
 		/// Destroys the Serializer.
 		
-	v8::Local<v8::Object> jsValue() const;
+	const v8::Global<v8::Object>& jsValue() const;
 		/// Returns the resulting JavaScript object.
 		
 	Poco::Exception* exception() const;
@@ -79,7 +144,7 @@ public:
 	void serialize(const std::string& name, char value);
 	void serialize(const std::string& name, const std::string& value);
 	void serialize(const std::string& name, const std::vector<char>& value);
-	void serializeValue(const std::string& name, v8::Local<v8::Value> value);
+	void serializeValue(const std::string& name, const v8::Local<v8::Value>& value);
 
 protected:
 	void resetImpl();
@@ -87,7 +152,7 @@ protected:
 	
 private:
 	v8::Isolate* _pIsolate;
-	std::vector<v8::Local<v8::Object> > _jsObjectStack;
+	PersistentValueStack<v8::Object> _jsObjectStack;
 	std::vector<int> _jsIndexStack;
 	std::string _messageName;
 	Poco::Exception* _pException;
@@ -98,7 +163,7 @@ private:
 //
 // inlines
 //
-inline v8::Local<v8::Object> Serializer::jsValue() const
+inline const v8::Global<v8::Object>& Serializer::jsValue() const
 {
 	poco_assert (!_jsObjectStack.empty());
 

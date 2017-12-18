@@ -33,11 +33,11 @@ public:
 		v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("OSP.Data"));
 		if (pooledObjectTemplate.IsEmpty())
 		{
-			v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
+			v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 			objectTemplate->SetInternalFieldCount(1);
 
 			objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "Session"), v8::FunctionTemplate::New(pIsolate, Poco::JS::Data::SessionWrapper::construct));
-		
+
 			pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 		}
 		v8::Local<v8::ObjectTemplate> dataTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);

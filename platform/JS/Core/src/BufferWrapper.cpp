@@ -74,7 +74,7 @@ v8::Handle<v8::ObjectTemplate> BufferWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Core.Buffer"));
 	if (pooledObjectTemplate.IsEmpty())
 	{
-		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
+		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "length"), getLength, setLength);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "capacity"), getCapacity, setCapacity);
@@ -96,7 +96,7 @@ v8::Handle<v8::ObjectTemplate> BufferWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::Local<v8::ObjectTemplate> bufferTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
 	return handleScope.Escape(bufferTemplate);
 }
-	
+
 
 void BufferWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
@@ -118,7 +118,7 @@ void BufferWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 					encoding = ENCODING_BASE64;
 
 				pBuffer = new Buffer(0);
-				encode(pBuffer, args[0], encoding);			
+				encode(pBuffer, args[0], encoding);
 			}
 			else if (args[0]->IsArray())
 			{
@@ -139,10 +139,10 @@ void BufferWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 				if (Wrapper::isWrapper<Buffer>(args.GetIsolate(), args[0]))
 				{
 					Buffer* pArgBuffer = Wrapper::unwrapNativeObject<Buffer>(args[0]);
-					
+
 					Poco::Int32 begin = 0;
 					Poco::Int32 end = static_cast<Poco::Int32>(pArgBuffer->size());
-					
+
 					if (args.Length() > 0)
 					{
 						if (args[1]->IsNumber())
@@ -354,7 +354,7 @@ void BufferWrapper::decodeString(const v8::FunctionCallbackInfo<v8::Value>& args
 			encoding = toString(args[0]);
 		else
 			encoding = ENCODING_UTF8;
-			
+
 		decode(args, encoding);
 	}
 	catch (Poco::Exception& exc)
@@ -380,7 +380,7 @@ void BufferWrapper::encodeString(const v8::FunctionCallbackInfo<v8::Value>& args
 			encoding = toString(args[1]);
 		else
 			encoding = ENCODING_UTF8;
-		
+
 		encode(pBuffer, args[0], encoding);
 	}
 	catch (Poco::Exception& exc)
@@ -397,12 +397,12 @@ void BufferWrapper::encodeString(const v8::FunctionCallbackInfo<v8::Value>& args
 void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 2) return;
-	
+
 	Buffer* pBuffer = Wrapper::unwrapNative<Buffer>(args);
 	try
 	{
 		if (!args[1]->IsArray()) throw Poco::InvalidArgumentException("Second argument to pack() must be array");
-	
+
 		v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[1]);
 		std::string format(toString(args[0]));
 		std::size_t size = calculatePackBufferSize(format);
@@ -461,7 +461,8 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					std::string utf8;
 					std::size_t size = std::abs(repeat);
-					if (array->Has(index))
+					v8::Maybe<bool> hasIndex = array->Has(args.GetIsolate()->GetCurrentContext(), index);
+					if (hasIndex.IsJust() && hasIndex.FromJust())
 					{
 						utf8 = toString(array->Get(index));
 					}
@@ -475,7 +476,8 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				for (int i = 0; i < std::abs(repeat); i++)
 				{
 					Poco::Int8 v = 0;
-					if (array->Has(index))
+					v8::Maybe<bool> hasIndex = array->Has(args.GetIsolate()->GetCurrentContext(), index);
+					if (hasIndex.IsJust() && hasIndex.FromJust())
 					{
 						v = static_cast<Poco::Int8>(array->Get(index)->Int32Value());
 					}
@@ -488,7 +490,8 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				for (int i = 0; i < std::abs(repeat); i++)
 				{
 					Poco::UInt8 v = 0;
-					if (array->Has(index))
+					v8::Maybe<bool> hasIndex = array->Has(args.GetIsolate()->GetCurrentContext(), index);
+					if (hasIndex.IsJust() && hasIndex.FromJust())
 					{
 						v = static_cast<Poco::UInt8>(array->Get(index)->Uint32Value());
 					}
@@ -501,7 +504,8 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				for (int i = 0; i < std::abs(repeat); i++)
 				{
 					bool v = false;
-					if (array->Has(index))
+					v8::Maybe<bool> hasIndex = array->Has(args.GetIsolate()->GetCurrentContext(), index);
+					if (hasIndex.IsJust() && hasIndex.FromJust())
 					{
 						v = array->Get(index)->BooleanValue();
 					}
@@ -514,7 +518,8 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				for (int i = 0; i < std::abs(repeat); i++)
 				{
 					Poco::Int16 v = 0;
-					if (array->Has(index))
+					v8::Maybe<bool> hasIndex = array->Has(args.GetIsolate()->GetCurrentContext(), index);
+					if (hasIndex.IsJust() && hasIndex.FromJust())
 					{
 						v = static_cast<Poco::Int16>(array->Get(index)->Int32Value());
 					}
@@ -527,7 +532,8 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				for (int i = 0; i < std::abs(repeat); i++)
 				{
 					Poco::UInt16 v = 0;
-					if (array->Has(index))
+					v8::Maybe<bool> hasIndex = array->Has(args.GetIsolate()->GetCurrentContext(), index);
+					if (hasIndex.IsJust() && hasIndex.FromJust())
 					{
 						v = static_cast<Poco::UInt16>(array->Get(index)->Uint32Value());
 					}
@@ -541,7 +547,8 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				for (int i = 0; i < std::abs(repeat); i++)
 				{
 					Poco::Int32 v = 0;
-					if (array->Has(index))
+					v8::Maybe<bool> hasIndex = array->Has(args.GetIsolate()->GetCurrentContext(), index);
+					if (hasIndex.IsJust() && hasIndex.FromJust())
 					{
 						v = array->Get(index)->Int32Value();
 					}
@@ -555,7 +562,8 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				for (int i = 0; i < std::abs(repeat); i++)
 				{
 					Poco::UInt32 v = 0;
-					if (array->Has(index))
+					v8::Maybe<bool> hasIndex = array->Has(args.GetIsolate()->GetCurrentContext(), index);
+					if (hasIndex.IsJust() && hasIndex.FromJust())
 					{
 						v = array->Get(index)->Uint32Value();
 					}
@@ -568,7 +576,8 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				for (int i = 0; i < std::abs(repeat); i++)
 				{
 					Poco::Int64 v = 0;
-					if (array->Has(index))
+					v8::Maybe<bool> hasIndex = array->Has(args.GetIsolate()->GetCurrentContext(), index);
+					if (hasIndex.IsJust() && hasIndex.FromJust())
 					{
 						v = static_cast<Poco::Int64>(array->Get(index)->IntegerValue());
 					}
@@ -581,7 +590,8 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				for (int i = 0; i < std::abs(repeat); i++)
 				{
 					Poco::UInt64 v = 0;
-					if (array->Has(index))
+					v8::Maybe<bool> hasIndex = array->Has(args.GetIsolate()->GetCurrentContext(), index);
+					if (hasIndex.IsJust() && hasIndex.FromJust())
 					{
 						v = static_cast<Poco::UInt64>(array->Get(index)->IntegerValue());
 					}
@@ -594,7 +604,8 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				for (int i = 0; i < std::abs(repeat); i++)
 				{
 					float v = 0.0f;
-					if (array->Has(index))
+					v8::Maybe<bool> hasIndex = array->Has(args.GetIsolate()->GetCurrentContext(), index);
+					if (hasIndex.IsJust() && hasIndex.FromJust())
 					{
 						v = static_cast<float>(array->Get(index)->NumberValue());
 					}
@@ -607,7 +618,8 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				for (int i = 0; i < std::abs(repeat); i++)
 				{
 					double v = 0.0;
-					if (array->Has(index))
+					v8::Maybe<bool> hasIndex = array->Has(args.GetIsolate()->GetCurrentContext(), index);
+					if (hasIndex.IsJust() && hasIndex.FromJust())
 					{
 						v = array->Get(index)->NumberValue();
 					}
@@ -651,7 +663,7 @@ void BufferWrapper::pack(const v8::FunctionCallbackInfo<v8::Value>& args)
 void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
-	
+
 	Buffer* pBuffer = Wrapper::unwrapNative<Buffer>(args);
 	try
 	{
@@ -925,9 +937,9 @@ void BufferWrapper::slice(const v8::FunctionCallbackInfo<v8::Value>& args)
 			}
 			else throw Poco::InvalidArgumentException("End index of slice() must be an integer");
 		}
-		
+
 		Buffer* pNewBuffer = new Buffer(pBuffer->begin() + begin, end - begin);
-		
+
 		BufferWrapper wrapper;
 		v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(args.GetIsolate(), pNewBuffer));
 		args.GetReturnValue().Set(bufferObject);
@@ -989,7 +1001,7 @@ void BufferWrapper::makeString(const v8::FunctionCallbackInfo<v8::Value>& args)
 			encoding = toString(args[0]);
 		else
 			encoding = ENCODING_BASE64;
-			
+
 		decode(args, encoding);
 	}
 	catch (Poco::Exception& exc)
@@ -1033,7 +1045,7 @@ void BufferWrapper::encode(Buffer* pBuffer, const v8::Local<v8::Value>& str, con
 		Poco::StreamCopier::copyStream(decoder, ostr);
 		pBuffer->resize(static_cast<std::size_t>(ostr.charsWritten()));
 	}
-	else 
+	else
 	{
 		v8::String::Value utf16(str);
 		if (utf16.length() > 0)
@@ -1058,11 +1070,11 @@ void BufferWrapper::decode(const v8::FunctionCallbackInfo<v8::Value>& args, cons
 	Buffer* pBuffer = Wrapper::unwrapNative<Buffer>(args);
 	if (Poco::icompare(encoding, ENCODING_UTF8) == 0)
 	{
-		args.GetReturnValue().Set(v8::String::NewFromUtf8(args.GetIsolate(), pBuffer->begin(), v8::String::kNormalString, static_cast<int>(pBuffer->size())));	
+		args.GetReturnValue().Set(v8::String::NewFromUtf8(args.GetIsolate(), pBuffer->begin(), v8::String::kNormalString, static_cast<int>(pBuffer->size())));
 	}
 	else if (Poco::icompare(encoding, ENCODING_UTF16) == 0)
 	{
-		args.GetReturnValue().Set(v8::String::NewFromTwoByte(args.GetIsolate(), reinterpret_cast<Poco::UInt16*>(pBuffer->begin()), v8::String::kNormalString, static_cast<int>(pBuffer->size()/2)));	
+		args.GetReturnValue().Set(v8::String::NewFromTwoByte(args.GetIsolate(), reinterpret_cast<Poco::UInt16*>(pBuffer->begin()), v8::String::kNormalString, static_cast<int>(pBuffer->size()/2)));
 	}
 	else if (Poco::icompare(encoding, ENCODING_BASE64) == 0)
 	{
@@ -1074,14 +1086,14 @@ void BufferWrapper::decode(const v8::FunctionCallbackInfo<v8::Value>& args, cons
 		encoder.close();
 		returnString(args, ostr.str());
 	}
-	else 
+	else
 	{
 		Poco::UTF16Encoding utf8Encoding;
 		Poco::TextEncoding& sourceEncoding = Poco::TextEncoding::byName(encoding);
 		Poco::TextConverter converter(sourceEncoding, utf8Encoding);
 		std::string result;
 		converter.convert(pBuffer->begin(), pBuffer->size(), result);
-		args.GetReturnValue().Set(v8::String::NewFromUtf8(args.GetIsolate(), result.data(), v8::String::kNormalString, static_cast<int>(result.size())));	
+		args.GetReturnValue().Set(v8::String::NewFromUtf8(args.GetIsolate(), result.data(), v8::String::kNormalString, static_cast<int>(result.size())));
 	}
 }
 

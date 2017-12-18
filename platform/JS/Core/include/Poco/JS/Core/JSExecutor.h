@@ -168,17 +168,22 @@ public:
 		/// Runs the script.
 
 protected:
-	virtual void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
-		/// Register global JavaScript objects. Can be overridded by subclasses,
-		/// but overrides must call the base class method.
+	virtual void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
+		/// Set up global JavaScript objects in the global object template. 
+		/// Can be overridded by subclasses, but overrides must call the base class method.
+		///
+		/// Note that only other object templates or function templates, as
+		/// well as primitive values may be added to the global object template.
+		/// Non-primitive types such as objects or arrays must be registered
+		/// in setupGlobalObject().
 		///
 		/// Called before initial compilation of the script.
 
-	virtual void updateGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
-		/// Updates global JavaScript objects. Can be overridded by subclasses,
-		/// but overrides must call the base class method.
+	virtual void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate);
+		/// Sets up the script's global object by adding properties to it. 
+		/// Can be overridded by subclasses, but overrides must call the base class method.
 		///
-		/// Called before each execution of the script.
+		/// Called before initial compilation of the script, after setupGlobalObjectTemplate().
 
 	virtual void handleError(const ErrorInfo& errorInfo);
 		/// Called when the JavaScript terminates with an error.
@@ -233,9 +238,8 @@ protected:
 	Poco::URI _sourceURI;
 	std::vector<std::string> _moduleSearchPaths;
 	std::vector<ModuleRegistry::Ptr> _moduleRegistries;
-	Poco::UInt64 _memoryLimit;
 	Poco::JS::Core::PooledIsolate _pooledIso;
-	v8::Persistent<v8::ObjectTemplate> _globalObject;
+	v8::Persistent<v8::ObjectTemplate> _globalObjectTemplate;
 	v8::Persistent<v8::Context> _globalContext;
 	v8::Persistent<v8::Context> _scriptContext;
 	v8::Persistent<v8::Script> _script;
@@ -283,7 +287,7 @@ protected:
 	Poco::Util::Timer& timer();	
 		/// Returns the executor's timer.
 
-	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
+	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
 	static void setImmediate(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void setTimeout(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void setInterval(const v8::FunctionCallbackInfo<v8::Value>& args);

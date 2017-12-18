@@ -43,7 +43,7 @@ class JSBridge_API BridgeHolder: public Poco::RefCountedObject
 public:
 	typedef Poco::AutoPtr<BridgeHolder> Ptr;
 	
-	BridgeHolder(v8::Isolate* pIsolate, const std::string& uri);
+	BridgeHolder(const std::string& uri);
 		/// Creates the BridgeHolder.
 		
 	~BridgeHolder();
@@ -92,12 +92,11 @@ protected:
 	void unregisterHolder();
 	void disableEvents();
 	
-	static void destruct(const v8::WeakCallbackData<v8::Object, BridgeHolder>& data);
+	static void destruct(const v8::WeakCallbackInfo<BridgeHolder>& data);
 
 private:
 	typedef std::map<std::string, BridgeHolder*> HolderMap;
 
-	v8::Isolate* _pIsolate;
 	Poco::JS::Core::JSExecutor::Ptr _pExecutor;
 	std::string _uri;
 	std::string _subscriberURI;

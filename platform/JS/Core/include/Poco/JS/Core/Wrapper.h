@@ -75,7 +75,7 @@ class JSCore_API WeakPersistentWrapperRegistry
 	///
 	/// The V8 engine won't properly garbage-collect any remaining objects when a script's
 	/// context is disposed. This is not an issue for pure JavaScript objects, as they
-	/// reside in the JavaScript heap, which will eventually be freed when the Isolate 
+	/// reside in the JavaScript heap, which will eventually be freed when the Isolate
 	/// is disposed. This is, however, an issue for wrapped, heap-allocated native
 	/// objects. If they're not garbage collected, the destructors of the wrapped
 	/// C++ objects will never be called.
@@ -90,26 +90,26 @@ public:
 
 	WeakPersistentWrapperRegistry();
 		/// Creates a new WeakPersistentWrapperRegistry.
-		
+
 	~WeakPersistentWrapperRegistry();
 		/// Destroys the WeakPersistentWrapperRegistry and
 		/// deletes any WeakPersistentWrapper instances still registered.
-		
+
 	void registerWrapper(WeakPersistentWrapperBase* pWrapper);
 		/// Registers a WeakPersistentWrapper instance.
-		
+
 	void unregisterWrapper(WeakPersistentWrapperBase* pWrapper);
 		/// Unregisters a WeakPersistentWrapper instance.
-		
+
 	static WeakPersistentWrapperRegistry& forIsolate(v8::Isolate* pIsolate);
 		/// Returns the WeakPersistentWrapperRegistry for the given Isolate.
 		/// If no WeakPersistentWrapperRegistry for that Isolate exists, a new
 		/// one is created, otherwise the existing instance is returned.
-		
+
 	static void cleanupIsolate(v8::Isolate* pIsolate);
 		/// Destroys the WeakPersistentWrapperRegistry instance for the
 		/// given Isolate, if one exists.
-		
+
 protected:
 	void cleanup();
 		/// Deletes all registered wrappers.
@@ -117,7 +117,7 @@ protected:
 private:
 	typedef std::set<WeakPersistentWrapperBase*> WrapperSet;
 	typedef std::map<v8::Isolate*, WeakPersistentWrapperRegistry::Ptr> RegistryMap;
-	
+
 	WrapperSet _wrappers;
 
 	static RegistryMap _registry;
@@ -142,7 +142,7 @@ public:
 
 		WeakPersistentWrapperRegistry::forIsolate(_pIsolate).registerWrapper(this);
 	}
-	
+
 	~WeakPersistentWrapper()
 	{
 		WeakPersistentWrapperRegistry::forIsolate(_pIsolate).unregisterWrapper(this);
@@ -154,18 +154,17 @@ public:
 		}
 		RP::release(_pNative);
 	}
-	
+
 	v8::Persistent<v8::Object>& persistent()
 	{
 		return _persistent;
 	}
-	
-	static void destruct(const v8::WeakCallbackData<v8::Object, WeakPersistentWrapper>& data)
+
+	static void destruct(const v8::WeakCallbackInfo<WeakPersistentWrapper>& info)
 	{
-		data.GetValue().Clear();
-		delete data.GetParameter();
+		delete info.GetParameter();
 	}
-	
+
 private:
 	WeakPersistentWrapper();
 	WeakPersistentWrapper(const WeakPersistentWrapper&);
@@ -202,7 +201,10 @@ public:
 			v8::Local<v8::External> ext = v8::External::New(pIsolate, pNative);
 			poco_assert (wrapper->InternalFieldCount() > 0);
 			wrapper->SetInternalField(0, ext);
-			wrapper->SetHiddenValue(v8::String::NewFromUtf8(pIsolate, "Poco::nativeType"), v8::String::NewFromUtf8(pIsolate, typeid(T).name()));
+			wrapper->SetPrivate(
+				pIsolate->GetCurrentContext(),
+				v8::Private::New(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")),
+				v8::String::NewFromUtf8(pIsolate, typeid(T).name()));
 		}
 		return handleScope.Escape(wrapper);
 	}
@@ -220,11 +222,11 @@ public:
 	v8::Persistent<v8::Object>& wrapNativePersistent(v8::Isolate* pIsolate, T* pNative)
 	{
 		typedef WeakPersistentWrapper<T*, Internal::DeletePolicy<T*> > WPW;
-		
+
 		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative), pNative);
 		if (!pWPW->persistent().IsEmpty())
 		{
-			pWPW->persistent().SetWeak(pWPW, WPW::destruct);
+			pWPW->persistent().SetWeak(pWPW, WPW::destruct, v8::WeakCallbackType::kParameter);
 			pWPW->persistent().MarkIndependent();
 		}
 		return pWPW->persistent();
@@ -234,11 +236,11 @@ public:
 	v8::Persistent<v8::Object>& wrapNativePersistent(v8::Isolate* pIsolate, Poco::SharedPtr<T> pNative)
 	{
 		typedef WeakPersistentWrapper<Poco::SharedPtr<T>, Internal::NoReleasePolicy<Poco::SharedPtr<T> > > WPW;
-		
+
 		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative.get()), pNative);
 		if (!pWPW->persistent().IsEmpty())
 		{
-			pWPW->persistent().SetWeak(pWPW, WPW::destruct);
+			pWPW->persistent().SetWeak(pWPW, WPW::destruct, v8::WeakCallbackType::kParameter);
 			pWPW->persistent().MarkIndependent();
 		}
 		return pWPW->persistent();
@@ -248,11 +250,11 @@ public:
 	v8::Persistent<v8::Object>& wrapNativePersistent(v8::Isolate* pIsolate, Poco::AutoPtr<T> pNative)
 	{
 		typedef WeakPersistentWrapper<Poco::AutoPtr<T>, Internal::NoReleasePolicy<Poco::AutoPtr<T> > > WPW;
-		
+
 		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative.get()), pNative);
 		if (!pWPW->persistent().IsEmpty())
 		{
-			pWPW->persistent().SetWeak(pWPW, WPW::destruct);
+			pWPW->persistent().SetWeak(pWPW, WPW::destruct, v8::WeakCallbackType::kParameter);
 			pWPW->persistent().MarkIndependent();
 		}
 		return pWPW->persistent();
@@ -274,8 +276,8 @@ public:
 	template <typename T>
 	static T* unwrapNativeObject(const v8::Local<v8::Value>& value)
 	{
-		if (!value.IsEmpty() && value->IsObject())	
-		{	
+		if (!value.IsEmpty() && value->IsObject())
+		{
 			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
 			if (object->InternalFieldCount() > 0)
 			{
@@ -290,17 +292,21 @@ public:
 	template <typename T>
 	static T* safeUnwrapNative(v8::Isolate* pIsolate, v8::Local<v8::Value>& value)
 	{
-		if (!value.IsEmpty() && value->IsObject())	
-		{	
+		if (!value.IsEmpty() && value->IsObject())
+		{
 			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
 			if (object->InternalFieldCount() > 0)
 			{
-				v8::Local<v8::Value> nativeType = object->GetHiddenValue(v8::String::NewFromUtf8(pIsolate, "Poco::nativeType"));
-				if (!nativeType.IsEmpty() && nativeType->IsString() && toString(nativeType) == typeid(T).name())
+				v8::MaybeLocal<v8::Value> maybeNativeType = object->GetPrivate(pIsolate->GetCurrentContext(), v8::Private::New(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")));
+				if (!maybeNativeType.IsEmpty())
 				{
-					v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(object->GetInternalField(0));
-					void* pRaw = wrap->Value();
-					return static_cast<T*>(pRaw);
+					v8::Local<v8::Value> nativeType = maybeNativeType.ToLocalChecked();
+					if (nativeType->IsString() && toString(nativeType) == typeid(T).name())
+					{
+						v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(object->GetInternalField(0));
+						void* pRaw = wrap->Value();
+						return static_cast<T*>(pRaw);
+					}
 				}
 			}
 		}
@@ -315,28 +321,32 @@ public:
 			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
 			if (object->InternalFieldCount() > 0)
 			{
-				v8::Local<v8::Value> nativeType = object->GetHiddenValue(v8::String::NewFromUtf8(pIsolate, "Poco::nativeType"));
-				if (!nativeType.IsEmpty() && nativeType->IsString())
+				v8::MaybeLocal<v8::Value> maybeNativeType = object->GetPrivate(pIsolate->GetCurrentContext(), v8::Private::New(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")));
+				if (!maybeNativeType.IsEmpty())
 				{
-					return toString(nativeType) == typeid(T).name();
+					v8::Local<v8::Value> nativeType = maybeNativeType.ToLocalChecked();
+					if (nativeType->IsString())
+					{
+						return toString(nativeType) == typeid(T).name();
+					}
 				}
 			}
 		}
 		return false;
 	}
-	
+
 	static std::string toString(v8::Local<v8::Value> value);
-	
+
 	template <typename T>
 	static void returnString(const T& info, const std::string& value)
 	{
 		info.GetReturnValue().Set(v8::String::NewFromUtf8(
-			info.GetIsolate(), 
-			value.c_str(), 
+			info.GetIsolate(),
+			value.c_str(),
 			v8::String::kNormalString,
 			static_cast<int>(value.length())));
 	}
-	
+
 	template <typename T>
 	static void returnException(const T& info, const Poco::Exception& exc)
 	{
@@ -345,14 +355,14 @@ public:
 			info.GetIsolate()->ThrowException(
 				v8::Exception::Error(
 					v8::String::NewFromUtf8(
-						info.GetIsolate(), 
-						displayText.c_str(), 
+						info.GetIsolate(),
+						displayText.c_str(),
 						v8::String::kNormalString,
 						static_cast<int>(displayText.length())
 					)
 				)
 			)
-		);				
+		);
 	}
 
 	template <typename T>
@@ -362,14 +372,14 @@ public:
 			info.GetIsolate()->ThrowException(
 				v8::Exception::Error(
 					v8::String::NewFromUtf8(
-						info.GetIsolate(), 
-						displayText.c_str(), 
+						info.GetIsolate(),
+						displayText.c_str(),
 						v8::String::kNormalString,
 						static_cast<int>(displayText.length())
 					)
 				)
 			)
-		);				
+		);
 	}
 
 private:

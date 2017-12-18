@@ -52,9 +52,15 @@ JSExecutor::~JSExecutor()
 }
 
 
-void JSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
+void JSExecutor::setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
 {
-	Poco::JS::Core::JSExecutor::registerGlobals(global, pIsolate);
+	Poco::JS::Core::JSExecutor::setupGlobalObjectTemplate(global, pIsolate);
+}
+
+
+void JSExecutor::setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate)
+{
+	Poco::JS::Core::JSExecutor::setupGlobalObject(global, pIsolate);
 
 	BundleWrapper bundleWrapper;
 	v8::Local<v8::Object> bundleObject = bundleWrapper.wrapNative(pIsolate, const_cast<Poco::OSP::Bundle*>(_pBundle.get()));
@@ -157,10 +163,16 @@ TimedJSExecutor::~TimedJSExecutor()
 }
 
 
-void TimedJSExecutor::registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
+void TimedJSExecutor::setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
 {
-	Poco::JS::Core::TimedJSExecutor::registerGlobals(global, pIsolate);
-	
+	Poco::JS::Core::TimedJSExecutor::setupGlobalObjectTemplate(global, pIsolate);
+}
+
+
+void TimedJSExecutor::setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate)
+{
+	Poco::JS::Core::JSExecutor::setupGlobalObject(global, pIsolate);
+
 	BundleWrapper bundleWrapper;
 	v8::Local<v8::Object> bundleObject = bundleWrapper.wrapNative(pIsolate, const_cast<Poco::OSP::Bundle*>(_pBundle.get()));
 	bundleObject->Set(v8::String::NewFromUtf8(pIsolate, "temporaryDirectory"), v8::String::NewFromUtf8(pIsolate, _pContext->temporaryDirectory().toString().c_str()));

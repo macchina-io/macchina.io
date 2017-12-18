@@ -79,7 +79,7 @@ v8::Handle<v8::ObjectTemplate> HTTPResponseWrapper::objectTemplate(v8::Isolate* 
 	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Net.HTTPResponse"));
 	if (pooledObjectTemplate.IsEmpty())
 	{
-		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
+		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "status"), getStatus, setStatus);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "reason"), getReason, setReason);
@@ -108,7 +108,7 @@ v8::Handle<v8::ObjectTemplate> HTTPResponseWrapper::objectTemplate(v8::Isolate* 
 	v8::Local<v8::ObjectTemplate> responseTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
 	return handleScope.Escape(responseTemplate);
 }
-	
+
 
 void HTTPResponseWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
@@ -117,7 +117,7 @@ void HTTPResponseWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& a
 	{
 		HTTPResponseWrapper wrapper;
 		v8::Persistent<v8::Object> responseObject(args.GetIsolate(), wrapper.wrapNative(args.GetIsolate(), pResponseHolder));
-		responseObject.SetWeak(pResponseHolder, destruct);
+		responseObject.SetWeak(pResponseHolder, destruct, v8::WeakCallbackType::kParameter);
 		args.GetReturnValue().Set(responseObject);
 	}
 	catch (Poco::Exception& exc)
@@ -128,7 +128,7 @@ void HTTPResponseWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& a
 }
 
 
-void HTTPResponseWrapper::destruct(const v8::WeakCallbackData<v8::Object, ResponseHolder>& data)
+void HTTPResponseWrapper::destruct(const v8::WeakCallbackInfo<ResponseHolder>& data)
 {
 	delete data.GetParameter();
 }

@@ -23,6 +23,7 @@ namespace Bridge {
 
 Serializer::Serializer(v8::Isolate* pIsolate):
 	_pIsolate(pIsolate),
+	_jsObjectStack(pIsolate),
 	_pException(0),
 	_totalSerialized(0)
 {
@@ -38,7 +39,7 @@ Serializer::~Serializer()
 void Serializer::serializeMessageBegin(const std::string& name, SerializerBase::MessageType /*type*/)
 {
 	_messageName = name;
-	_jsObjectStack.push_back(v8::Object::New(_pIsolate));
+	_jsObjectStack.push(v8::Object::New(_pIsolate));
 	_jsIndexStack.push_back(-1);
 }
 
@@ -56,16 +57,15 @@ void Serializer::serializeFaultMessage(const std::string& name, Poco::Exception&
 
 void Serializer::serializeStructBegin(const std::string& name)
 {
-	v8::Local<v8::Object> object = v8::Object::New(_pIsolate);
-	_jsObjectStack.push_back(object);
+	_jsObjectStack.push(v8::Object::New(_pIsolate));
 	_jsIndexStack.push_back(-1);
 }
 
 
 void Serializer::serializeStructEnd(const std::string& name)
 {
-	v8::Local<v8::Object> object = _jsObjectStack.back();
-	_jsObjectStack.pop_back();
+	v8::Local<v8::Object> object(v8::Local<v8::Object>::New(_pIsolate, _jsObjectStack.back()));
+	_jsObjectStack.pop();
 	_jsIndexStack.pop_back();
 	serializeValue(name, object);
 }
@@ -74,15 +74,15 @@ void Serializer::serializeStructEnd(const std::string& name)
 void Serializer::serializeSequenceBegin(const std::string& name, Poco::UInt32 length)
 {
 	v8::Local<v8::Object> object = v8::Array::New(_pIsolate, length);
-	_jsObjectStack.push_back(object);
+	_jsObjectStack.push(object);
 	_jsIndexStack.push_back(0);
 }
 
 
 void Serializer::serializeSequenceEnd(const std::string& name)
 {
-	v8::Local<v8::Object> object = _jsObjectStack.back();
-	_jsObjectStack.pop_back();
+	v8::Local<v8::Object> object(v8::Local<v8::Object>::New(_pIsolate, _jsObjectStack.back()));
+	_jsObjectStack.pop();
 	_jsIndexStack.pop_back();
 	serializeValue(name, object);
 }
@@ -214,15 +214,18 @@ void Serializer::serialize(const std::string& name, const std::vector<char>& val
 }
 
 
-void Serializer::serializeValue(const std::string& name, v8::Local<v8::Value> value)
+void Serializer::serializeValue(const std::string& name, const v8::Local<v8::Value>& value)
 {
+	v8::Local<v8::Object> object(v8::Local<v8::Object>::New(_pIsolate, _jsObjectStack.back()));
 	if (_jsIndexStack.back() == -1)
 	{
-		_jsObjectStack.back()->Set(v8::String::NewFromUtf8(_pIsolate, name.c_str(), v8::String::kNormalString, static_cast<int>(name.size())), value);
+		object->Set(
+			v8::String::NewFromUtf8(_pIsolate, name.c_str(), v8::String::kNormalString, static_cast<int>(name.size())),
+			value);
 	}
 	else
 	{
-		_jsObjectStack.back()->Set(_jsIndexStack.back()++, value);
+		object->Set(_jsIndexStack.back()++, value);
 	}
 	if (_jsObjectStack.size() == 1) _totalSerialized++;
 }

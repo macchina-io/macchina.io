@@ -12,7 +12,8 @@ objects = JSBundleActivator
 
 target         = com.appinf.osp.js
 target_version = 1
-target_libs    = PocoOSPJS PocoJSBridge PocoJSCore PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation v8
+target_libs    = PocoOSPJS PocoJSBridge PocoJSCore PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
+ext_libs       = v8 v8_libplatform v8_libbase
 
 postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles JS.bndlspec
 

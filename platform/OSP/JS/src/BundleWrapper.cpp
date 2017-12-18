@@ -34,7 +34,7 @@ BundleWrapper::~BundleWrapper()
 v8::Handle<v8::ObjectTemplate> BundleWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
-	v8::Local<v8::ObjectTemplate> bundleTemplate = v8::ObjectTemplate::New();
+	v8::Local<v8::ObjectTemplate> bundleTemplate = v8::ObjectTemplate::New(pIsolate);
 	bundleTemplate->SetInternalFieldCount(1);
 	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "name"), name);
 	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "symbolicName"), symbolicName);
@@ -101,7 +101,7 @@ void BundleWrapper::getResource(const v8::FunctionCallbackInfo<v8::Value>& args)
 	std::string data;
 	try
 	{
-#if __cplusplus < 201103L	
+#if __cplusplus < 201103L
 		std::auto_ptr<std::istream> pStream(pBundle->getResource(name));
 #else
 		std::unique_ptr<std::istream> pStream(pBundle->getResource(name));
@@ -128,7 +128,7 @@ void BundleWrapper::getBinaryResource(const v8::FunctionCallbackInfo<v8::Value>&
 	std::string data;
 	try
 	{
-#if __cplusplus < 201103L	
+#if __cplusplus < 201103L
 		std::auto_ptr<std::istream> pStream(pBundle->getResource(name));
 #else
 		std::unique_ptr<std::istream> pStream(pBundle->getResource(name));
@@ -169,7 +169,7 @@ void BundleWrapper::getLocalizedResource(const v8::FunctionCallbackInfo<v8::Valu
 		{
 			pStream = pBundle->getLocalizedResource(name);
 		}
-		
+
 		if (pStream)
 		{
 			Poco::StreamCopier::copyToString(*pStream, data);
@@ -203,7 +203,7 @@ void BundleWrapper::getLocalizedBinaryResource(const v8::FunctionCallbackInfo<v8
 		{
 			pStream = pBundle->getLocalizedResource(name);
 		}
-		
+
 		if (pStream)
 		{
 			Poco::StreamCopier::copyToString(*pStream, data);

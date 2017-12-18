@@ -13,7 +13,8 @@
 
 
 #include "Poco/JS/Core/PooledIsolate.h"
-#include "Poco/Exception.h"
+#include "Poco/JS/Core/JSException.h"
+#include <cstdlib>
 
 
 namespace Poco {
@@ -21,9 +22,15 @@ namespace JS {
 namespace Core {
 
 
-PooledIsolate::PooledIsolate():
-	_pIsolate(v8::Isolate::New())
+PooledIsolate::PooledIsolate(Poco::UInt64 memoryLimit):
+	_pIsolate(0),
+	_pArrayBufferAllocator(v8::ArrayBuffer::Allocator::NewDefaultAllocator())
 {
+	v8::Isolate::CreateParams params;
+	params.constraints.ConfigureDefaults(memoryLimit, memoryLimit);
+	params.array_buffer_allocator = _pArrayBufferAllocator;
+	_pIsolate = v8::Isolate::New(params);
+	if (!_pIsolate) throw JSException("Cannot create isolate");
 	_pIsolate->SetData(0, this);
 }
 
@@ -39,9 +46,10 @@ PooledIsolate::~PooledIsolate()
 	{
 		poco_unexpected();
 	}
+	delete _pArrayBufferAllocator;
 }
 
-	
+
 PooledIsolate* PooledIsolate::fromIsolate(v8::Isolate* pIsolate)
 {
 	void* pData = pIsolate->GetData(0);

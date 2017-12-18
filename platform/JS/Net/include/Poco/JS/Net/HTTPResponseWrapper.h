@@ -147,7 +147,7 @@ public:
 		
 protected:
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
-	static void destruct(const v8::WeakCallbackData<v8::Object, ResponseHolder>& data);
+	static void destruct(const v8::WeakCallbackInfo<ResponseHolder>& data);
 	static void getStatus(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void setStatus(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
 	static void getReason(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);

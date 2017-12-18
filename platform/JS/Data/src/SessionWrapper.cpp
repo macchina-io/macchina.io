@@ -67,7 +67,7 @@ v8::Handle<v8::ObjectTemplate> SessionWrapper::objectTemplate(v8::Isolate* pIsol
 	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Data.Session"));
 	if (pooledObjectTemplate.IsEmpty())
 	{
-		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
+		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "connector"), getConnector);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "connectionString"), getConnectionString);

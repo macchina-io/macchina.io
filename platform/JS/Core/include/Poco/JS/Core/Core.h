@@ -55,4 +55,20 @@
 #endif
 
 
+namespace Poco {
+namespace JS {
+namespace Core {
+
+
+void JSCore_API initialize();
+	/// Initializes the JavaScript engine.
+
+
+void JSCore_API uninitialize();
+	/// Uninitialize the JavaScript engine.
+	
+
+} } } // namespace Poco::JS::Core
+
+
 #endif // JS_Core_Core_INCLUDED

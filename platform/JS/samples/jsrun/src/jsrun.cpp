@@ -52,9 +52,20 @@ public:
 	}
 	
 protected:
-	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
+	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate)
 	{
-		Base::registerGlobals(global, pIsolate);
+		Base::setupGlobalObjectTemplate(global, pIsolate);
+
+		Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
+		global->Set(v8::String::NewFromUtf8(pIsolate, "HTTPRequest"), httpRequestWrapper.constructor(pIsolate));
+	
+		Poco::JS::Data::SessionWrapper sessionWrapper;
+		global->Set(v8::String::NewFromUtf8(pIsolate, "DBSession"), sessionWrapper.constructor(pIsolate));
+	}
+	
+	void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate)
+	{
+		Base::setupGlobalObject(global, pIsolate);
 	
 		Poco::JS::Core::ConfigurationWrapper configurationWrapper;
 		v8::Local<v8::Object> configurationObject = configurationWrapper.wrapNative(pIsolate, &Application::instance().config());
@@ -68,12 +79,6 @@ protected:
 		v8::Local<v8::Object> consoleObject = consoleWrapper.wrapNative(pIsolate, &Poco::Logger::get("console"));
 		global->Set(v8::String::NewFromUtf8(pIsolate, "console"), consoleObject);
 
-		Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
-		global->Set(v8::String::NewFromUtf8(pIsolate, "HTTPRequest"), httpRequestWrapper.constructor(pIsolate));
-	
-		Poco::JS::Data::SessionWrapper sessionWrapper;
-		global->Set(v8::String::NewFromUtf8(pIsolate, "DBSession"), sessionWrapper.constructor(pIsolate));
-		
 		v8::Local<v8::Array> args = v8::Array::New(pIsolate, static_cast<int>(_args.size()));
 		for (unsigned i = 0; i < _args.size(); i++)
 		{
@@ -110,6 +115,8 @@ protected:
 		Poco::Net::initializeSSL();
 		Poco::Net::HTTPSStreamFactory::registerFactory();
 		Poco::Net::HTTPSSessionInstantiator::registerInstantiator();
+		
+		Poco::JS::Core::initialize();
 	}
 	
 	void uninitialize()
@@ -124,6 +131,8 @@ protected:
 		Poco::Net::HTTPSSessionInstantiator::unregisterInstantiator();
 		Poco::Net::HTTPSStreamFactory::unregisterFactory();
 		Poco::Net::uninitializeSSL();
+		
+		Poco::JS::Core::uninitialize();
 	}
 	
 	void defineOptions(OptionSet& options)

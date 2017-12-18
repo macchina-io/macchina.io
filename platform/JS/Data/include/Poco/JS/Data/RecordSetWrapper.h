@@ -82,7 +82,7 @@ public:
 
 protected:
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
-	static void destruct(const v8::WeakCallbackData<v8::Object, RecordSetHolder>& data);
+	static void destruct(const v8::WeakCallbackInfo<RecordSetHolder>& data);
 
 	static void getColumnCount(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void getRowCount(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);

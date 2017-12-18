@@ -40,7 +40,7 @@ v8::Handle<v8::ObjectTemplate> ServiceRefWrapper::objectTemplate(v8::Isolate* pI
 	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("OSP.ServiceRef"));
 	if (pooledObjectTemplate.IsEmpty())
 	{
-		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
+		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
 		objectTemplate->SetNamedPropertyHandler(getProperty);
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "instance"), v8::FunctionTemplate::New(pIsolate, instance));
@@ -79,7 +79,7 @@ void ServiceRefWrapper::instance(const v8::FunctionCallbackInfo<v8::Value>& args
 	{
 		if (pServiceRef->properties().has("jsbridge"))
 		{
-			pHolder = new Poco::JS::Bridge::BridgeHolder(args.GetIsolate(), pServiceRef->properties().get("jsbridge"));
+			pHolder = new Poco::JS::Bridge::BridgeHolder(pServiceRef->properties().get("jsbridge"));
 			Poco::JS::Bridge::BridgeWrapper wrapper;
 			v8::Persistent<v8::Object>& bridgeObject(wrapper.wrapNativePersistent(args.GetIsolate(), pHolder));
 			pHolder->setPersistent(bridgeObject);
@@ -100,12 +100,12 @@ void ServiceRefWrapper::toJSON(const v8::FunctionCallbackInfo<v8::Value>& args)
 	v8::HandleScope scope(args.GetIsolate());
 	Poco::OSP::ServiceRef* pServiceRef = Poco::JS::Core::Wrapper::unwrapNative<Poco::OSP::ServiceRef>(args);
 	const Poco::OSP::Properties& props = pServiceRef->properties();
-	
+
 	try
 	{
 		std::vector<std::string> keys;
 		props.keys(keys);
-		
+
 		v8::Local<v8::Object> object = v8::Object::New(args.GetIsolate());
 
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
@@ -116,7 +116,7 @@ void ServiceRefWrapper::toJSON(const v8::FunctionCallbackInfo<v8::Value>& args)
 				v8::String::NewFromUtf8(args.GetIsolate(), value.c_str(), v8::String::kNormalString, static_cast<int>(value.size()))
 			);
 		}
-		
+
 		args.GetReturnValue().Set(object);
 	}
 	catch (Poco::Exception& exc)

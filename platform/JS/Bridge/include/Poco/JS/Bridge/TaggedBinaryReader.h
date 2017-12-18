@@ -42,7 +42,7 @@ public:
 	~TaggedBinaryReader();
 		/// Destroys the TaggedBinaryReader.
 		
-	v8::Local<v8::Object> read(std::istream& istream);
+	const v8::Global<v8::Object>& read(std::istream& istream);
 		/// Reads a JavaScript object from the given stream.
 
 protected:
