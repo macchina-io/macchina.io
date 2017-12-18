@@ -6,7 +6,7 @@
 
 include $(POCO_BASE)/build/rules/global
 
-.PHONY: v8deps install_headers
+.PHONY: v8deps
 
 GYPFLAGS = -Dcomponent=shared_library -Dlinux_use_bundled_binutils=0 \
 	-Dlinux_use_bundled_gold=0 -Dlinux_use_gold_flags=0 -Dv8_enable_backtrace=0 -Ddcheck_always_on=0 \
@@ -78,18 +78,18 @@ endif
 
 default: shared_release
 
-v8deps: out/Makefile
+v8deps: out/Makefile include/v8.h
 
 out/Makefile:
 	 tools/gyp/gyp $(GYPFLAGS) --generator-output=$(POCO_BASE)/JS/V8/out -Goutput_dir=$(POCO_BASE)/JS/V8/out -f make -Icommon.gypi --depth=. v8/src/v8.gyp
 
-shared_debug: v8deps install_headers
+shared_debug: v8deps
 	$(MAKE) -C out BUILDTYPE=Debug CFLAGS="$(CFLAGS) $(SHAREDOPT_CC)" CXXFLAGS="$(CXXFLAGS) $(SHAREDOPT_CXX)" v8 v8_libplatform
 	cp out/Debug/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
 	cp out/Debug/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)
 	cp out/Debug/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)
 
-shared_release: v8deps install_headers
+shared_release: v8deps
 	$(MAKE) -C out BUILDTYPE=Release CFLAGS="$(CFLAGS) $(SHAREDOPT_CC)" CXXFLAGS="$(CXXFLAGS) $(SHAREDOPT_CXX)" v8 v8_libplatform
 	cp out/Release/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
 	cp out/Release/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)
@@ -97,7 +97,7 @@ shared_release: v8deps install_headers
 
 all_shared: shared_debug shared_release
 
-install_headers:
+include/v8.h: v8/include/v8.h
 	mkdir -p include
 	mkdir -p include/libplatform
 	cp v8/include/*.h include
