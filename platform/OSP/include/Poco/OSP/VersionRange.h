@@ -35,7 +35,10 @@ class OSP_API VersionRange
 public:
 	VersionRange();
 		/// Creates an empty VersionRange.
-		
+
+	explicit VersionRange(const Version& ver);
+		/// Creates a VersionRange matching only a specific Version.
+
 	VersionRange(const Version& lower, bool includeLower, const Version& upper, bool includeUpper);
 		/// Creates the VersionRange.
 
@@ -47,31 +50,34 @@ public:
 
 	VersionRange& operator = (const VersionRange& range);
 		/// Assigns another VersionRange.
-		
+
+	VersionRange& operator = (const Version& ver);
+		/// Assigns a single Version.
+
 	void swap(VersionRange& range);
 		/// Swaps the VersionRange with another one.
 
 	const Version& lowerBound() const;
 		/// Returns the lower bound of the interval.
-		
+
 	const Version& upperBound() const;
 		/// Returns the upper bound of the interval.
-		
+
 	bool includeLower() const;
 		/// Returns true iff the lower bound lies within the interval.
-		
+
 	bool includeUpper() const;
 		/// Returns true iff the upper bound lies within the interval.
-		
+
 	bool isInRange(const Version& version) const;
 		/// Returns true iff the version lies within the range.
-		
+
 	bool isEmpty() const;
 		/// Returns true iff the version range is empty.
-	
+
 	std::string toString() const;
 		/// Returns a string representation of the version range.
-		
+
 private:
 	Version _lower;
 	Version _upper;
@@ -88,19 +94,19 @@ inline const Version& VersionRange::lowerBound() const
 	return _lower;
 }
 
-	
+
 inline const Version& VersionRange::upperBound() const
 {
 	return _upper;
 }
 
-	
+
 inline bool VersionRange::includeLower() const
 {
 	return _includeLower;
 }
 
-	
+
 inline bool VersionRange::includeUpper() const
 {
 	return _includeUpper;

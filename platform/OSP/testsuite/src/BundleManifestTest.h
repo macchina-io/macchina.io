@@ -38,6 +38,14 @@ public:
 	void testRequired7();
 	void testRequired8();
 	void testRequired9();
+	void testRequiredModule1();
+	void testRequiredModule2();
+	void testRequiredModule3();
+	void testRequiredModule4();
+	void testProvidedModule1();
+	void testProvidedModule2();
+	void testProvidedModule3();
+	void testProvidedModule4();
 
 	void setUp();
 	void tearDown();

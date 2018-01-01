@@ -25,6 +25,13 @@ public:
 	};
 	typedef std::vector<Dependency> Dependencies;
 
+	struct ProvidedModule
+	{
+		std::string symbolicName;
+		std::string version;
+	};
+	typedef std::vector<ProvidedModule> ProvidedModules;
+
 	ManifestInfo(const std::string& name,
 		const std::string& symbolicName,
 		const Poco::OSP::Version& version,
@@ -33,6 +40,8 @@ public:
 		const std::string& activatorClass,
 		const std::string& activatorLibrary,
 		const Dependencies& requiredBundles,
+		const Dependencies& requiredModules,
+		const ProvidedModules& providedModules,
 		bool lazyStart,
 		const std::string& runLevel,
 		const std::string& extendsBundle);
@@ -47,6 +56,8 @@ public:
 	const std::string& activatorClass() const;
 	const std::string& activatorLibrary() const;
 	const Dependencies& requiredBundles() const;
+	const Dependencies& requiredModules() const;
+	const ProvidedModules& providedModules() const;
 	bool lazyStart() const;
 	const std::string& runLevel() const;
 	const std::string& extendsBundle() const;
@@ -60,6 +71,8 @@ private:
 	std::string  _activatorClass;
 	std::string  _activatorLibrary;
 	Dependencies _requiredBundles;
+	Dependencies _requiredModules;
+	ProvidedModules _providedModules;
 	bool         _lazyStart;
 	std::string  _runLevel;
 	std::string  _extendsBundle;
@@ -114,6 +127,18 @@ inline const std::string& ManifestInfo::activatorLibrary() const
 inline const ManifestInfo::Dependencies& ManifestInfo::requiredBundles() const
 {
 	return _requiredBundles;
+}
+
+
+inline const ManifestInfo::Dependencies& ManifestInfo::requiredModules() const
+{
+	return _requiredModules;
+}
+
+
+inline const ManifestInfo::ProvidedModules& ManifestInfo::providedModules() const
+{
+	return _providedModules;
 }
 
 
