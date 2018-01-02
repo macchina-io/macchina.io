@@ -463,7 +463,7 @@ Bundle::ModuleProviders BundleLoader::resolveModules(Bundle* pBundle) const
 			msg += itd->symbolicName;
 			msg += ", version ";
 			msg += itd->versions.toString();
-			msg += " requested by bundle ";
+			msg += " required by bundle ";
 			msg += pBundle->symbolicName();
 			msg += " not available";
 			throw BundleResolveException(msg);
