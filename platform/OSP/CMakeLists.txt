@@ -1,26 +1,50 @@
-set(LIBNAME "OSP")
-set(POCO_LIBNAME "Poco${LIBNAME}")
 
-# Sources
-file(GLOB SRCS_G "src/*.cpp")
-POCO_SOURCES_AUTO( SRCS ${SRCS_G})
-
-# Headers
-file(GLOB_RECURSE HDRS_G "include/*.h" )
-POCO_HEADERS_AUTO( SRCS ${HDRS_G})
-
-add_library( "${LIBNAME}" ${LIB_MODE} ${SRCS} )
-add_library( "${POCO_LIBNAME}" ALIAS "${LIBNAME}")
-
-target_link_libraries( "${LIBNAME}" Zip Util XML Foundation )
-target_include_directories( "${LIBNAME}"
+add_library(PocoOSP SHARED
+    src/BundleLoader.cpp
+    src/Preferences.cpp
+    src/BundleFactory.cpp
+    src/BundleEvents.cpp
+    src/BundleProperties.cpp
+    src/BundleFile.cpp
+    src/Properties.cpp
+    src/PreferencesEvent.cpp
+    src/CodeCache.cpp
+    src/BundleInstallerService.cpp
+    src/BundleStreamFactory.cpp
+    src/BundleDirectory.cpp
+    src/OSPSubsystem.cpp
+    src/BundleManifest.cpp
+    src/ServiceRef.cpp
+    src/SystemEvents.cpp
+    src/PreferencesService.cpp
+    src/BundleStorage.cpp
+    src/Bundle.cpp
+    src/BundleEvent.cpp
+    src/VersionRange.cpp
+    src/LanguageTag.cpp
+    src/BundleRepository.cpp
+    src/ServiceRegistry.cpp
+    src/ServiceFactory.cpp
+    src/QLExpr.cpp
+    src/OSPException.cpp
+    src/BundleContextFactory.cpp
+    src/ServiceEvent.cpp
+    src/Configuration.cpp
+    src/Version.cpp
+    src/BundleContext.cpp
+    src/QLParser.cpp
+    src/ExtensionPoint.cpp
+    src/ExtensionPointService.cpp
+    src/BundleFilter.cpp
+    src/QLTokens.cpp
+    src/Service.cpp
+    src/AuthService.cpp
+    src/BundleActivator.cpp
+)
+target_link_libraries(PocoOSP PocoZip PocoUtil PocoXML PocoFoundation )
+target_include_directories(PocoOSP
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
-target_compile_definitions("${LIBNAME}" PUBLIC ${LIB_MODE_DEFINITIONS})
-
-POCO_INSTALL("${LIBNAME}")
-POCO_GENERATE_PACKAGE("${LIBNAME}")
- 

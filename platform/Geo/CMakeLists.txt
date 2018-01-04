@@ -1,32 +1,14 @@
-#  
-# objects = Angle LatLon
-# 
-# target         = PocoGeo
-# target_version = 1
-# target_libs    = PocoFoundation
 
-set(LIBNAME "Geo")
-set(POCO_LIBNAME "Poco${LIBNAME}")
+add_library(PocoGeo  
+    src/LatLon.cpp                                                                                                                                                                                                                        
+    src/Angle.cpp
+)
 
-# Sources
-file(GLOB SRCS_G "src/*.cpp")
-POCO_SOURCES_AUTO( SRCS ${SRCS_G})
-
-# Headers
-file(GLOB_RECURSE HDRS_G "include/*.h" )
-POCO_HEADERS_AUTO( SRCS ${HDRS_G})
-
-add_library( "${LIBNAME}" ${LIB_MODE} ${SRCS} )
-add_library( "${POCO_LIBNAME}" ALIAS "${LIBNAME}")
-
-target_link_libraries( "${LIBNAME}" Foundation )
-target_include_directories( "${LIBNAME}"
+target_link_libraries(PocoGeo Foundation )
+target_include_directories(PocoGeo
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
+    PRIVATE 
+        src
     )
-target_compile_definitions("${LIBNAME}" PUBLIC ${LIB_MODE_DEFINITIONS})
-
-POCO_INSTALL("${LIBNAME}")
-POCO_GENERATE_PACKAGE("${LIBNAME}")

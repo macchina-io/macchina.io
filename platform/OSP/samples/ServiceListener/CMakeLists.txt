@@ -1,5 +1,5 @@
 
-find_package(macchina.ioOSP)
+find_package(MacchinaOSP)
  
 add_library(com.appinf.osp.samples.servicelistener SHARED src/ServiceListener.cpp)
 target_include_directories(com.appinf.osp.samples.servicelistener PUBLIC include)

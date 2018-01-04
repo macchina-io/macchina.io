@@ -1,7 +1,7 @@
  
-find_package(macchina.ioOSP)
+find_package(MacchinaOSP)
 
-set(BUNDLE_LIBRARY 
+add_library(PocoOSPWeb SHARED 
     src/MediaTypeMapper.cpp 
     src/WebServerDispatcher.cpp
     src/WebServerRequestHandlerFactory.cpp
@@ -15,12 +15,12 @@ set(BUNDLE_LIBRARY
     src/WebFilterFactory.cpp
     src/WebFilterExtensionPoint.cpp
 )
-
-add_library(PocoOSPWeb SHARED ${BUNDLE_LIBRARY})
 target_link_libraries(PocoOSPWeb  PocoOSP PocoNet PocoUtil PocoXML PocoFoundation)
 target_include_directories(PocoOSPWeb PUBLIC include)
 
-add_library(osp.web SHARED src/WebBundleActivator.cpp)
+add_library(osp.web SHARED 
+    src/WebBundleActivator.cpp
+)
 target_link_libraries(osp.web PocoOSPWeb)
  
 create_bundle(TARGET osp.web SPEC_FILE WebBundle.bndlspec)

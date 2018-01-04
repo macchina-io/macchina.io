@@ -1,16 +1,5 @@
-set(POCO_EXENAME "ccutil")
 
-# Sources
-file(GLOB SRCS_G "src/*.cpp")
-POCO_SOURCES_AUTO( SRCS ${SRCS_G})
-
-add_executable( "${POCO_EXENAME}" ${SRCS} )
-target_link_libraries( "${POCO_EXENAME}" PocoOSP PocoZip PocoUtil PocoXML PocoFoundation)
-
-install(
-    TARGETS "${POCO_EXENAME}" EXPORT "${POCO_EXENAME}Targets"
-    LIBRARY DESTINATION lib${LIB_SUFFIX}
-    ARCHIVE DESTINATION lib${LIB_SUFFIX}
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-    )
+add_executable(ccutil 
+    src/CCUtility.cpp
+)
+target_link_libraries(ccutil PocoOSP PocoZip PocoUtil PocoXML PocoFoundation)

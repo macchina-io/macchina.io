@@ -1,0 +1,179 @@
+#
+# OSP Configuration
+#
+osp.codeCache          = ${application.dir}codeCache
+osp.bundleRepository   = ${application.configDir}bundles
+osp.data               = ${application.configDir}data
+osp.web.cacheResources = true
+osp.web.sessionManager.cookiePersistence = transient
+
+# Note: unofficial list of V8 options can be found here:
+# https://github.com/thlorenz/v8-flags/blob/master/flags-0.11.md
+osp.js.v8.flags = --harmony;--use-strict
+
+
+#
+# Settings
+#
+macchina.settings.path = ${application.configDir}settings.properties
+
+
+#
+# Authentication
+#
+# Note: Password for user "admin" is "admin".
+auth.simple.admin.passwordHash = 21232f297a57a5a743894a0e4a801fc3
+
+
+#
+# Serial Ports
+#
+#serial.ports.1.device = /dev/tty.usbserial
+#serial.ports.1.params = 8N1
+#serial.ports.1.speed = 57600
+
+
+#
+# Simulated Sensors
+#
+
+# A temperature sensor that starts with a value of
+# 20 °C and increments every second by 0.2 °C.
+# After 100 cycles, the temperature will reset to the
+# starting value.
+simulation.sensors.temperature1.physicalQuantity = temperature
+simulation.sensors.temperature1.physicalUnit = °C
+simulation.sensors.temperature1.initialValue = 20
+simulation.sensors.temperature1.delta = 0.2
+simulation.sensors.temperature1.cycles = 100
+simulation.sensors.temperature1.updateRate = 1
+simulation.sensors.temperature1.mode = linear
+
+# Another temperature sensor that starts with a value of
+# 25 °C and changes every 10 seconds by a random
+# value between 0 and +/- 0.5 °C.
+# After 100 cycles, the temperature will reset to the
+# starting value.
+simulation.sensors.temperature2.physicalQuantity = temperature
+simulation.sensors.temperature2.physicalUnit = °C
+simulation.sensors.temperature2.initialValue = 25
+simulation.sensors.temperature2.delta = 0.5
+simulation.sensors.temperature2.cycles = 100
+simulation.sensors.temperature2.updateRate = 0.1
+simulation.sensors.temperature2.mode = random
+
+# An ambient light sensor that updates every 2 seconds.
+#simulation.sensors.ambientLight1.physicalQuantity = illuminance
+#simulation.sensors.ambientLight1.physicalUnit = lx
+#simulation.sensors.ambientLight1.initialValue = 100
+#simulation.sensors.ambientLight1.delta = 5
+#simulation.sensors.ambientLight1.cycles = 100
+#simulation.sensors.ambientLight1.updateRate = 0.5
+#simulation.sensors.ambientLight1.mode = linear
+
+# A humidity sensor that updates every 5 seconds.
+simulation.sensors.humidity1.physicalQuantity = humidity
+simulation.sensors.humidity1.physicalUnit = %RH
+simulation.sensors.humidity1.initialValue = 40
+simulation.sensors.humidity1.delta = 0.5
+simulation.sensors.humidity1.cycles = 20
+simulation.sensors.humidity1.updateRate = 0.2
+simulation.sensors.humidity1.mode = random
+
+# GNSS Simulation
+#simulation.gnss.gpxPath = track.gpx
+#simulation.gnss.speedUp = 10.0
+
+webui.gnsstracking.refresh = 2
+
+
+#
+# SensorLog
+#
+sensorlog.sensors.illuminance.id = io.macchina.simulation.sensor#0
+sensorlog.sensors.temperature.id = io.macchina.simulation.sensor#2
+sensorlog.sensors.humidity.query = name == "io.macchina.simulation.sensor#1"
+
+
+#
+# MQTT
+#
+# Create a MQTT client that connects to the MQTT test server
+# provided by the Eclipse IoT project.
+mqtt.clients.eclipse.serverURI = tcp://iot.eclipse.org:1883
+mqtt.clients.eclipse.clientId = macchina.io
+
+#mqtt.clients.aws-iot.serverURI = ssl://data.iot.us-west-2.amazonaws.com:8883
+#mqtt.clients.aws-iot.clientId = macchina
+#mqtt.clients.aws-iot.ssl.trustStore = ${application.configDir}aws-root.crt
+#mqtt.clients.aws-iot.ssl.keyStore = ${application.configDir}aws.crt
+#mqtt.clients.aws-iot.ssl.privateKey = ${application.configDir}aws.key
+#mqtt.clients.aws-iot.ssl.enabledCipherSuites = ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH
+
+
+#
+# XBee
+#
+#xbee.ports.1.device = /dev/tty.usbserial-000013FA
+#xbee.ports.1.speed = 115200
+#xbee.sensors.lth.id = 0013A20040A4D7F7
+
+
+#
+# WebTunnel
+#
+webtunnel.enable = false
+webtunnel.reflectorURI = https://reflector.my-devices.net
+webtunnel.deviceName = ${system.nodeName}
+webtunnel.domain = 3100ef24-e395-4726-9951-84a6cb7a1c11
+webtunnel.deviceId = 3100ef24-e395-4726-9951-${system.nodeId}
+webtunnel.username = ${webtunnel.deviceId}@${webtunnel.domain}
+webtunnel.password =
+
+
+#
+# Logging Configuration
+#
+# See <http://pocoproject.org/slides/110-Logging.pdf> and
+# <http://pocoproject.org/slides/185-LoggingConfiguration.pdf>
+# for more information.
+#
+logging.loggers.root.channel = splitter
+logging.loggers.root.level = information
+
+logging.loggers.remoting.name = RemotingNG
+logging.loggers.remoting.level = notice
+
+logging.channels.file.class = FileChannel
+logging.channels.file.pattern = %Y-%m-%d %H:%M:%S.%i [%p] %s<%I>: %t
+logging.channels.file.path = ${application.dir}${application.baseName}.log
+logging.channels.file.rotation = daily
+logging.channels.file.archive = number
+logging.channels.file.purgeCount = 10
+
+logging.channels.console.class = ColorConsoleChannel
+logging.channels.console.pattern = %Y-%m-%d %H:%M:%S.%i [%p] %s<%I>: %t
+
+logging.channels.webconsole.class = EventChannel
+
+logging.channels.splitter.class = SplitterChannel
+logging.channels.splitter.channels = console, webconsole, file
+
+
+#
+# NetSSL (OpenSSL) Configuration
+#
+openSSL.server.certificateFile = ${application.configDir}macchina.pem
+openSSL.server.privateKeyFile = ${application.configDir}macchina.pem
+openSSL.server.verificationMode = none
+openSSL.server.verificationDepth = 9
+openSSL.server.loadDefaultCAFile = true
+openSSL.server.caConfig = ${application.configDir}rootcert.pem
+openSSL.server.cipherList = ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS
+openSSL.server.disableProtocols = sslv2,sslv3
+openSSL.server.invalidCertificateHandler.name = AcceptCertificateHandler
+openSSL.client.verificationMode = none
+openSSL.client.verificationDepth = 9
+openSSL.client.loadDefaultCAFile = false
+openSSL.client.caConfig = ${application.configDir}rootcert.pem
+openSSL.client.invalidCertificateHandler.name = RejectCertificateHandler

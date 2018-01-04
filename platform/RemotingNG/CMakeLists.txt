@@ -1,49 +1,45 @@
-# SHAREDOPT_CXX   += -DRemotingNG_EXPORTS
-# 
-# objects = SerializerBase Serializer Deserializer \
-# 	BinarySerializer BinaryDeserializer \
-# 	Transport TransportFactory TransportFactoryManager \
-# 	ServerTransport Listener Context \
-# 	Authorizer Authenticator Credentials \
-# 	Proxy ProxyFactory ProxyFactoryManager \
-# 	Identifiable RemoteObject Skeleton MethodHandler \
-# 	EventDispatcher EventListener EventSubscriber \
-# 	ORB \
-# 	AttributedObject RemotingException URIUtility
-# 
-# target         = PocoRemotingNG
-# target_version = $(LIBVERSION)
-# target_libs    = PocoFoundation $(POCO_LICENSING)
 
-set(LIBNAME "RemotingNG")
-set(POCO_LIBNAME "Poco${LIBNAME}")
+add_library(PocoRemotingNG 
+    src/URIUtility.cpp
+    src/Serializer.cpp
+    src/EventListener.cpp
+    src/Proxy.cpp
+    src/Listener.cpp
+    src/ServerTransport.cpp
+    src/EventSubscriber.cpp
+    src/ProxyFactory.cpp
+    src/AttributedObject.cpp
+    src/Context.cpp
+    src/Authenticator.cpp
+    src/RemoteObject.cpp
+    src/Transport.cpp
+    src/Deserializer.cpp
+    src/BinaryDeserializer.cpp
+    src/MethodHandler.cpp
+    src/BinarySerializer.cpp
+    src/TransportFactoryManager.cpp
+    src/ORB.cpp
+    src/ProxyFactoryManager.cpp
+    src/EventDispatcher.cpp
+    src/Skeleton.cpp
+    src/Credentials.cpp
+    src/RemotingException.cpp
+    src/SerializerBase.cpp
+    src/TransportFactory.cpp
+    src/Identifiable.cpp
+    src/Authorizer.cpp
+)
 
-# Sources
-file(GLOB SRCS_G "src/*.cpp")
-POCO_SOURCES_AUTO( SRCS ${SRCS_G})
+target_compile_definitions(PocoRemotingNG PUBLIC RemotingNG_EXPORTS)
 
-# Headers
-file(GLOB_RECURSE HDRS_G "include/*.h" )
-POCO_HEADERS_AUTO( SRCS ${HDRS_G})
+target_link_libraries(PocoRemotingNG Foundation )
 
-add_library( "${LIBNAME}" ${LIB_MODE} ${SRCS} )
-add_library( "${POCO_LIBNAME}" ALIAS "${LIBNAME}")
-set_target_properties( "${LIBNAME}"
-    PROPERTIES
-    VERSION ${SHARED_LIBRARY_VERSION} SOVERSION ${SHARED_LIBRARY_VERSION}
-    OUTPUT_NAME ${POCO_LIBNAME}
-    DEFINE_SYMBOL RemotingNG_EXPORTS
-    )
-
-target_link_libraries( "${LIBNAME}" Foundation )
-target_include_directories( "${LIBNAME}"
+target_include_directories(PocoRemotingNG
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
+    PRIVATE 
+        src
     )
-target_compile_definitions("${LIBNAME}" PUBLIC ${LIB_MODE_DEFINITIONS})
 
-POCO_INSTALL("${LIBNAME}")
-POCO_GENERATE_PACKAGE("${LIBNAME}")
-
+add_library(Poco::RemotingNG ALIAS PocoRemotingNG)
