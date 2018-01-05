@@ -16,7 +16,7 @@ To know what to do, the Bundle Creator Tool needs a bundle specification file as
 input. A bundle specification file usually has the extension <[.bndlspec]>, although
 this is not mandatory.
 
-The bundle specification file contains the necessary information to build the 
+The bundle specification file contains the necessary information to build the
 bundle's manifest, a list of all shared libraries that become part of the bundle,
 and a list of all resource and data files that become part of the bundle.
 A simple XML file format is used.
@@ -109,7 +109,7 @@ file.
 ! The activator Element
 
 The <[activator]> element specifies the name of the class implementing
-the bundle's activator in the <[class]> sub element, and optionally the name 
+the bundle's activator in the <[class]> sub element, and optionally the name
 of the shared library containing the bundle activator in the <[library]>
 subelement. The extension of the shared library (e.g., <[.dll]> or
 <[.so]> must be omitted from the library name.
@@ -136,6 +136,26 @@ to function. The symbolic name of a required bundle is specified in the
 specified in the <[version]> sub element.
 
 The <[dependency]> element can occur zero or more times.
+
+
+! The module Element
+
+The <[module]> element specifies the modules that this bundle provides.
+The symbolic name of a provided module is specified in the
+<[symbolicName]> sub element. The provided version of the module is
+specified in the <[version]> sub element.
+
+The <[module]> element can occur zero or more times.
+
+
+! The module-dependency Element
+
+The <[module-dependency]> element specifies the modules that this bundle requires
+to function. The symbolic name of a required module is specified in the
+<[symbolicName]> sub element. The required version of the module is
+specified in the <[version]> sub element.
+
+The <[module-dependency]> element can occur zero or more times.
 
 
 ! The extends Element
@@ -198,17 +218,17 @@ the <[postbuild]> Make variable, as shown below.
 
 
     BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(BINDIR)/bundle
-    
+
     include $(POCO_BASE)/build/rules/global
-    
+
     objects = Greeter
-    
+
     target         = com.appinf.osp.samples.greeter
     target_version = 1
     target_libs    = PocoOSP PocoUtil PocoXML PocoFoundation
-    
+
     postbuild      = $(BUNDLE_TOOL) -o../bundles Greeter.bndlspec
-    
+
     include $(POCO_BASE)/build/rules/dylib
 ----
 
@@ -242,16 +262,16 @@ the target system(s) can be kept in parallel. To support cross-compiling a bundl
 Makefile for building a bundle using the POCO build system must be modified as follows:
 
     BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/bin/$(POCO_HOST_OSNAME)/$(POCO_HOST_OSARCH)/bundle
-    
+
     include $(POCO_BASE)/build/rules/global
-    
+
     objects = Greeter
-    
+
     target         = com.appinf.osp.samples.greeter
     target_version = 1
     target_libs    = PocoOSP PocoUtil PocoXML PocoFoundation
-    
+
     postbuild      = $(BUNDLE_TOOL) -o../bundles Greeter.bndlspec -a$(OSARCH)
-    
+
     include $(POCO_BASE)/build/rules/dylib
 ----
