@@ -54,7 +54,7 @@ Unlike bundles, where only the highest version of a bundle is loaded at run-time
 multiple versions of a module can coexist in an application.
 
 
-!! Resolving Modules
+!!! Resolving Modules
 
 Modules are resolved during the normal bundle resolving procedure. The following
 steps are thus performed when resolving a bundle:
