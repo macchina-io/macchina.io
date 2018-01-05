@@ -65,7 +65,6 @@ public:
 		Bundle::Ptr             pBundle;
 		BundleContext::Ptr      pContext;
 		ActivatorClassLoaderPtr pClassLoader;
-
 	};
 	typedef std::map<std::string, BundleInfo> BundleMap;
 	typedef std::set<Bundle*> BundleSet;
