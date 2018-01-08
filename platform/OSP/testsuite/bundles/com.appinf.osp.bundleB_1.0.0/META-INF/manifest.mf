@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-Name: OSP Sample Bundle B
+Bundle-SymbolicName: com.appinf.osp.bundleB
+Bundle-Version: 1.0.0
+Bundle-Vendor: Applied Informatics
+Bundle-Copyright: (c) 2017, Applied Informatics Software Engineering GmbH
+Bundle-RunLevel: 100
+Require-Module: com.appinf.osp.module1;module-version=1.0.0
+Provide-Module: com.appinf.osp.module2;module-version=1.0.0

@@ -118,7 +118,7 @@ Bundle::ConstPtr BundleLoader::findBundle(int id) const
 		return Bundle::Ptr();
 }
 
-	
+
 Bundle::Ptr BundleLoader::createBundle(const std::string& path)
 {
 	return _pBundleFactory->createBundle(*this, path);
@@ -150,11 +150,11 @@ void BundleLoader::loadBundle(Bundle::Ptr pBundle)
 		info.pContext = _pBundleContextFactory->createBundleContext(*this, pBundle, _events);
 		_bundles[symbolicName] = info;
 		_bundleIds[pBundle->id()] = pBundle;
-		
+
 		BundleEvent loadedEvent(pBundle, BundleEvent::EV_BUNDLE_LOADED);
 		_events.bundleLoaded(this, loadedEvent);
 	}
-	else 
+	else
 	{
 		std::string msg(symbolicName);
 		msg += " version ";
@@ -250,7 +250,7 @@ void BundleLoader::resolveAllBundles()
 				msg += ": ";
 				msg += exc.displayText();
 				_logger.error(msg);
-				
+
 				BundleError error;
 				error.pBundle = it->second.pBundle;
 				error.targetState = Bundle::BUNDLE_RESOLVED;
@@ -279,7 +279,7 @@ void BundleLoader::startAllBundles()
 	std::vector<Bundle::Ptr> bundles;
 	listBundles(bundles);
 	std::sort(bundles.begin(), bundles.end(), RunLevelLess());
-	
+
 	for (std::vector<Bundle::Ptr>::iterator it = bundles.begin(); it != bundles.end(); ++it)
 	{
 		if ((*it)->state() == Bundle::BUNDLE_RESOLVED && !(*it)->lazyStart())
@@ -305,7 +305,7 @@ void BundleLoader::startAllBundles()
 				}
 				msg += exc.displayText();
 				_logger.error(msg);
-				
+
 				BundleError error;
 				error.pBundle = *it;
 				error.targetState = Bundle::BUNDLE_ACTIVE;
@@ -330,7 +330,7 @@ void BundleLoader::stopAllBundles()
 	}
 }
 
-	
+
 void BundleLoader::unloadAllBundles()
 {
 	std::vector<Bundle::Ptr> bundles;
@@ -344,8 +344,8 @@ void BundleLoader::unloadAllBundles()
 		unloadBundle(*it);
 	}
 }
-	
-	
+
+
 void BundleLoader::resolveBundle(Bundle* pBundle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -360,25 +360,34 @@ void BundleLoader::resolveBundle(Bundle* pBundle)
 	_resolvingBundles.insert(pBundle);
 	try
 	{
-		const BundleManifest::Dependencies& deps = pBundle->requiredBundles();
-		for (BundleManifest::Dependencies::const_iterator it = deps.begin(); it != deps.end(); ++it)
+		Bundle::ModuleProviders providers = resolveModules(pBundle);
+		if (!providers.empty())
 		{
-			resolveDependency(pBundle, *it);
+			resolveProviders(pBundle, providers);
 		}
+
+		const BundleManifest::Dependencies& deps = pBundle->requiredBundles();
+		if (!deps.empty())
+		{
+			resolveDependencies(pBundle, deps);
+		}
+
+		std::swap(providers, pBundle->_moduleProviders);
 	}
 	catch (...)
 	{
 		_resolvingBundles.erase(pBundle);
+		pBundle->clearResolvedDependencies();
 		throw;
 	}
 	_resolvingBundles.erase(pBundle);
-	
+
 	if (_logger.debug())
 	{
 		_logger.debug(std::string("Installing libraries for ") + pBundle->symbolicName());
 	}
 	installLibraries(pBundle);
-	
+
 	if (pBundle->isExtensionBundle())
 	{
 		Bundle::Ptr pExtendedBundle = pBundle->extendedBundle();
@@ -403,14 +412,88 @@ void BundleLoader::resolveBundle(Bundle* pBundle)
 			_logger.warning("Bundle " + pBundle->symbolicName() + " cannot extend unknown bundle " + pBundle->manifest().extendedBundle() + ".");
 		}
 	}
-	
+
 	if (_logger.information())
 	{
 		_logger.information(std::string("Bundle ") + pBundle->symbolicName() + " resolved");
 	}
 }
 
-	
+
+void BundleLoader::resolveDependencies(Bundle* pBundle, const BundleManifest::Dependencies& deps)
+{
+	if (_logger.debug())
+	{
+		_logger.debug("Resolving dependencies for bundle %s", pBundle->symbolicName());
+	}
+
+	for (BundleManifest::Dependencies::const_iterator it = deps.begin(); it != deps.end(); ++it)
+	{
+		resolveDependency(pBundle, *it);
+	}
+}
+
+
+Bundle::ModuleProviders BundleLoader::resolveModules(Bundle* pBundle) const
+{
+	if (_logger.debug())
+	{
+		_logger.debug("Resolving modules for bundle %s", pBundle->symbolicName());
+	}
+
+	Bundle::ModuleProviders providers;
+	const BundleManifest::Dependencies& moduleDeps = pBundle->requiredModules();
+	for (BundleManifest::Dependencies::const_iterator itd = moduleDeps.begin(); itd != moduleDeps.end(); ++itd)
+	{
+		Bundle::ModuleProvider provider;
+		provider.module = *itd;
+		for (BundleMap::const_iterator itb = _bundles.begin(); itb != _bundles.end(); ++itb)
+		{
+			if (isProvidingModule(itb->second.pBundle, *itd))
+			{
+				Bundle::ResolvedDependency dep;
+				dep.symbolicName = itb->first;
+				dep.version = itb->second.pBundle->version();
+				provider.bundles.push_back(dep);
+			}
+		}
+		if (provider.bundles.empty())
+		{
+			std::string msg("Module ");
+			msg += itd->symbolicName;
+			msg += ", version ";
+			msg += itd->versions.toString();
+			msg += " required by bundle ";
+			msg += pBundle->symbolicName();
+			msg += " not available";
+			throw BundleResolveException(msg);
+		}
+		providers.push_back(provider);
+	}
+	return providers;
+}
+
+
+void BundleLoader::resolveProviders(Bundle* pBundle, const Bundle::ModuleProviders& providers)
+{
+	if (_logger.debug())
+	{
+		_logger.debug("Resolving module providers for bundle %s", pBundle->symbolicName());
+	}
+
+	for (Bundle::ModuleProviders::const_iterator itp = providers.begin(); itp != providers.end(); ++itp)
+	{
+		for (Bundle::ResolvedDependencies::const_iterator itb = itp->bundles.begin(); itb != itp->bundles.end(); ++itb)
+		{
+			BundleManifest::Dependency dep;
+			dep.symbolicName = itb->symbolicName;
+			dep.versions = itb->version;
+			resolveDependency(pBundle, dep);
+		}
+	}
+}
+
+
 void BundleLoader::startBundle(Bundle* pBundle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -439,7 +522,7 @@ void BundleLoader::startBundle(Bundle* pBundle)
 	else throw BundleException("The bundle loader does not know the bundle", pBundle->symbolicName());
 }
 
-	
+
 void BundleLoader::stopBundle(Bundle* pBundle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -466,7 +549,7 @@ void BundleLoader::stopBundle(Bundle* pBundle)
 	else throw BundleException("The bundle loader does not know the bundle", pBundle->symbolicName());
 }
 
-	
+
 void BundleLoader::uninstallBundle(Bundle* pBundle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -484,17 +567,17 @@ void BundleLoader::uninstallBundle(Bundle* pBundle)
 			pExtendedBundle->removeExtensionBundle(pBundle);
 		}
 	}
-		
+
 	BundleMap::iterator it = _bundles.find(pBundle->symbolicName());
 	if (it != _bundles.end())
 	{
 		unloadActivator(it->second);
 	}
 	uninstallLibraries(pBundle);
-	
+
 	File bundleFile(pBundle->path());
 	bundleFile.remove(true);
-	
+
 	BundleEvent unloadedEvent(pBundle, BundleEvent::EV_BUNDLE_UNLOADED);
 	if (it != _bundles.end())
 	{
@@ -502,7 +585,7 @@ void BundleLoader::uninstallBundle(Bundle* pBundle)
 	}
 	_bundleIds.erase(pBundle->id());
 	_events.bundleUnloaded(this, unloadedEvent);
-	
+
 	if (_logger.information())
 	{
 		_logger.information(std::string("Bundle ") + pBundle->symbolicName() + " uninstalled");
@@ -544,8 +627,13 @@ void BundleLoader::resolveDependency(Bundle* pBundle, const BundleManifest::Depe
 					throw BundleResolveException(msg);
 				}
 			}
+
+			Bundle::ResolvedDependency resolvedDep;
+			resolvedDep.symbolicName = pDepBundle->symbolicName();
+			resolvedDep.version = pDepBundle->version();
+			pBundle->addResolvedDependency(resolvedDep);
 		}
-		else 
+		else
 		{
 			std::string msg(dependency.symbolicName);
 			msg += ", requested: ";
@@ -567,11 +655,11 @@ bool BundleLoader::isResolving(Bundle* pBundle) const
 
 void BundleLoader::startDependencies(Bundle* pBundle)
 {
-	const BundleManifest::Dependencies& deps = pBundle->requiredBundles();
-	for (BundleManifest::Dependencies::const_iterator it = deps.begin(); it != deps.end(); ++it)
+	const Bundle::ResolvedDependencies& deps = pBundle->resolvedDependencies();
+	for (Bundle::ResolvedDependencies::const_iterator it = deps.begin(); it != deps.end(); ++it)
 	{
 		Bundle::Ptr pDepBundle(findBundle(it->symbolicName));
-		if (pDepBundle)
+		if (pDepBundle && pDepBundle->version() == it->version)
 		{
 			if (!pDepBundle->isActive())
 			{
@@ -598,7 +686,7 @@ BundleActivator* BundleLoader::loadActivator(BundleInfo& bundleInfo)
 			pActivator = it->second->createInstance();
 			bundleInfo.pBundle->setActivator(pActivator);
 		}
-	}	
+	}
 #else
 	if (!bundleInfo.pClassLoader)
 	{
@@ -738,7 +826,7 @@ void BundleLoader::uninstallLibraries(Bundle* pBundle)
 {
 	std::vector<std::string> libs;
 	listLibraries(pBundle, libs);
-	
+
 	CodeCache::Lock ccLock(_codeCache);
 
 	for (std::vector<std::string>::iterator it = libs.begin(); it != libs.end(); ++it)
@@ -780,18 +868,18 @@ void BundleLoader::sortBundles(std::vector<Bundle::Ptr>& bundles) const
 	listBundles(remaining);
 	// account for run level
 	std::sort(remaining.begin(), remaining.end(), RunLevelLess());
-	
+
 	std::set<std::string> sorted;
 	while (!remaining.empty())
 	{
 		std::vector<Bundle::Ptr>::iterator it = remaining.begin();
 		while (it != remaining.end())
-		{	
+		{
 			bool hasDeps = false;
 			if ((*it)->isResolved())
 			{
-				const BundleManifest::Dependencies& deps = (*it)->requiredBundles();
-				for (BundleManifest::Dependencies::const_iterator itDep = deps.begin(); itDep != deps.end(); ++itDep)
+				const Bundle::ResolvedDependencies& deps = (*it)->resolvedDependencies();
+				for (Bundle::ResolvedDependencies::const_iterator itDep = deps.begin(); itDep != deps.end(); ++itDep)
 				{
 					if (sorted.find(itDep->symbolicName) == sorted.end())
 					{
@@ -826,6 +914,18 @@ void BundleLoader::makeValidFileName(std::string& name)
 	{
 		if (!std::isalnum(*it)) *it = '_';
 	}
+}
+
+
+bool BundleLoader::isProvidingModule(Bundle::Ptr pBundle, const BundleManifest::Dependency& module)
+{
+	Bundle::Modules modules = pBundle->providedModules();
+	for (Bundle::Modules::const_iterator it = modules.begin(); it != modules.end(); ++it)
+	{
+		if (module.symbolicName == it->symbolicName && module.versions.isInRange(it->version))
+			return true;
+	}
+	return false;
 }
 
 

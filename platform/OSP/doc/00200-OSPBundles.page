@@ -3,9 +3,9 @@ Open Service Platform
 
 !!! Bundles Overview
 
-Bundles are the unit of deployment in OSP. A bundle is a directory containing all files that make up a 
-bundle, in a well-defined directory hierarchy. These files can be configuration files, shared libraries, 
-HTML files, etc. For easier deployment, a bundle can be packed into a Zip  file. The format of a bundle is 
+Bundles are the unit of deployment in OSP. A bundle is a directory containing all files that make up a
+bundle, in a well-defined directory hierarchy. These files can be configuration files, shared libraries,
+HTML files, etc. For easier deployment, a bundle can be packed into a Zip  file. The format of a bundle is
 loosely based on the format of OSGi bundles; however, there are some differences.
 
 The following figure gives an overview of the general directory layout for a bundle.
@@ -17,21 +17,21 @@ The following figure gives an overview of the general directory layout for a bun
 
 !! Bundle Naming
 
-The name of a bundle must conform to certain conventions. Bundle names must be unique across 
-different vendors. To ensure this, the bundle name employs the reverse domain name scheme known 
-for example from Java namespaces. The name consists of a number of parts, separated by periods. 
-The first part is the top-level domain of the vendor (e.g., "com"). The second part is the domain 
-name of the company (e.g., "appinf"). The remaining parts can be freely specified by the vendor, 
-and usually include a product name, subsystem name, module name, etc. There is no limit to the 
-number of parts in a name, although for practical purposes, a bundle name should not consist of 
-more than five parts. For maximum portability across different platforms, a name part must not 
-contain any characters other than upper- and lowercase alphabetic characters 
-('A' - 'Z'), digits ('0' - '9') and dash ('-'). 
+The name of a bundle must conform to certain conventions. Bundle names must be unique across
+different vendors. To ensure this, the bundle name employs the reverse domain name scheme known
+for example from Java namespaces. The name consists of a number of parts, separated by periods.
+The first part is the top-level domain of the vendor (e.g., "com"). The second part is the domain
+name of the company (e.g., "appinf"). The remaining parts can be freely specified by the vendor,
+and usually include a product name, subsystem name, module name, etc. There is no limit to the
+number of parts in a name, although for practical purposes, a bundle name should not consist of
+more than five parts. For maximum portability across different platforms, a name part must not
+contain any characters other than upper- and lowercase alphabetic characters
+('A' - 'Z'), digits ('0' - '9') and dash ('-').
 
 Appended to the bundle name, separated with an underscore, is the version designation of the
-bundle. The version designation consists of a major version number, minor version number and 
-revision number, separated by a period. Appended to the revision number, separated by a period 
-can be an optional vendor specific release designation that must conform to the same naming 
+bundle. The version designation consists of a major version number, minor version number and
+revision number, separated by a period. Appended to the revision number, separated by a period
+can be an optional vendor specific release designation that must conform to the same naming
 rules as a name part.
 
   name-version     ::= bundle-name "_" bundle-version
@@ -47,57 +47,57 @@ rules as a name part.
   digit            ::= '0' .. '9'
 ----
 
-Bundle names in the <[osp.*]> namespace are reserved for use by OSP. 
+Bundle names in the <[osp.*]> namespace are reserved for use by OSP.
 
 
 !! Bundle Versioning
 
-Every bundle has a version specification consisting of a major version number, a minor version number, 
-a revision number, and an optional release designation. When comparing versions, only major version, 
+Every bundle has a version specification consisting of a major version number, a minor version number,
+a revision number, and an optional release designation. When comparing versions, only major version,
 minor version and revision number are significant; the release designation is ignored.
 
-If multiple versions of a bundle are installed, only the highest version of a bundle will be considered. 
+If multiple versions of a bundle are installed, only the highest version of a bundle will be considered.
 All other versions will be ignored.
 
 
 !! Bundle Directory Layout
 
-Every bundle has one mandatory subdirectory named <[META-INF]>. 
-This directory contains the bundle's Manifest file (<[manifest.mf]>) and, optionally, a few other files 
-(e.g., for signed bundles). A bundle containing executable binary code in the form of shared 
-libraries also has a directory named <[bin]>, with subdirectories therein containing the platform-specific 
-shared libraries. A bundle can contain code for multiple platforms and the subdirectories under <[bin]> 
-reflect this. For every supported operating system, there is a directory named after the operating system. 
+Every bundle has one mandatory subdirectory named <[META-INF]>.
+This directory contains the bundle's Manifest file (<[manifest.mf]>) and, optionally, a few other files
+(e.g., for signed bundles). A bundle containing executable binary code in the form of shared
+libraries also has a directory named <[bin]>, with subdirectories therein containing the platform-specific
+shared libraries. A bundle can contain code for multiple platforms and the subdirectories under <[bin]>
+reflect this. For every supported operating system, there is a directory named after the operating system.
 Under the operating system directory, there is a directory for each supported processor architecture.
 
-The name of the operating system directory is derived from the name returned by Poco::Environment::osName(), 
-by replacing whitespace characters with underscore characters. The name of the processor architecture directory 
-is derived from the name returned by Poco::Environment::osArchitecture(), by replacing whitespace characters 
+The name of the operating system directory is derived from the name returned by Poco::Environment::osName(),
+by replacing whitespace characters with underscore characters. The name of the processor architecture directory
+is derived from the name returned by Poco::Environment::osArchitecture(), by replacing whitespace characters
 with underscore characters.
 
-The shared library files should follow the same naming convention as bundles. During startup of OSP, 
-the shared libraries for the current platform from all installed bundles will be copied into a common cache 
-directory, so extra care must be taken to prevent the shared libraries from one bundle overwriting the shared 
+The shared library files should follow the same naming convention as bundles. During startup of OSP,
+the shared libraries for the current platform from all installed bundles will be copied into a common cache
+directory, so extra care must be taken to prevent the shared libraries from one bundle overwriting the shared
 libraries from another one.
 
 
 !! Bundle Files
 
-Bundles stored in a Zip file have the same name as the top-most bundle directory, with the extension 
-<[.bndl]> appended. (e.g., <[com.appinf.osp.sample_1.0.0.bndl]>). The top-most bundle directory is not 
-represented in the Zip file, only its subdirectories and files (e.g., <[META-INF]>, <[bin]>, 
+Bundles stored in a Zip file have the same name as the top-most bundle directory, with the extension
+<[.bndl]> appended. (e.g., <[com.appinf.osp.sample_1.0.0.bndl]>). The top-most bundle directory is not
+represented in the Zip file, only its subdirectories and files (e.g., <[META-INF]>, <[bin]>,
 <[bundle.properties]>) are.
 
 
 !! Extension Bundles
 
 An extension bundle is a special kind of bundle that "donates" all of its resources and properties
-to another bundle -- the bundle it extends. Extension bundles have two main uses: providing 
+to another bundle -- the bundle it extends. Extension bundles have two main uses: providing
 additional localized resources to another bundle and overriding a bundle's configuration
 properties.
 
-After an extension bundle has been resolved, every request for a resource 
-(Poco::OSP::Bundle::getResource() and Poco::OSP::Bundle::getLocalizedResource()) to the 
+After an extension bundle has been resolved, every request for a resource
+(Poco::OSP::Bundle::getResource() and Poco::OSP::Bundle::getLocalizedResource()) to the
 extended bundle will look for the requested resource in the extension bundle if the
 resource cannot be found in the extended bundle. Furthermore, the properties defined
 in the extension bundle will override the properties defined in the extended bundle.
@@ -105,7 +105,7 @@ in the extension bundle will override the properties defined in the extended bun
 
 !!! The Bundle Manifest
 
-The bundle manifest contains information about a bundle that allows the bundle management machinery of 
+The bundle manifest contains information about a bundle that allows the bundle management machinery of
 OSP to load a bundle into an application. Examples for information stored in the manifest are:
 
   * the bundle's name
@@ -114,9 +114,9 @@ OSP to load a bundle into an application. Examples for information stored in the
   * a list of bundles that must be available for the bundle to run
   * the class name and library name where the bundle's <[BundleActivator]> class can be found
 
-The bundle manifest is contained in a UTF-8 encoded text file that conforms to the file format 
-specified by the Poco::Util::PropertyFileConfiguration class in the Util library . 
-The name of the file is <[manifest.mf]> and the file is always located in the <[META-INF]> directory. 
+The bundle manifest is contained in a UTF-8 encoded text file that conforms to the file format
+specified by the Poco::Util::PropertyFileConfiguration class in the Util library .
+The name of the file is <[manifest.mf]> and the file is always located in the <[META-INF]> directory.
 Following is an example for a manifest file.
 
   # This is a sample manifest file
@@ -129,15 +129,15 @@ Following is an example for a manifest file.
   Bundle-Activator: OSP::Sample::BundleActivator
 ----
 
-A property value in a manifest file can contain references to the bundle's properties (stored in 
-<[bundle.properties]> and its localized variants). A list of currently defined manifest 
+A property value in a manifest file can contain references to the bundle's properties (stored in
+<[bundle.properties]> and its localized variants). A list of currently defined manifest
 properties is given in the next sections. If a property is not recognized by OSP, it is ignored.
 
 !! Manifest Properties
 
 ! Manifest-Version
 
-This property specifies the version of the file format of the manifest file. 
+This property specifies the version of the file format of the manifest file.
 Currently, this is always <["1.0"]>. This property is required.
 
   manifest-version ::= digit+ "." digit+
@@ -146,19 +146,19 @@ Currently, this is always <["1.0"]>. This property is required.
 
 ! Bundle-Name
 
-This property contains the human-readable name of the bundle. It is only used for display 
+This property contains the human-readable name of the bundle. It is only used for display
 purposes and can be an arbitrary UTF8-encoded string.
 
 
 ! Bundle-Vendor
 
-This property contains the name of the organization or company that created the bundle. 
+This property contains the name of the organization or company that created the bundle.
 It is only used for display purposes and can be an arbitrary UTF-8 encoded string.
 
 
 ! Bundle-Copyright
 
-This property contains copyright information for the bundle. It is only used for display 
+This property contains copyright information for the bundle. It is only used for display
 purposes and can be an arbitrary UTF-8 encoded string.
 
 
@@ -174,8 +174,8 @@ The version of the bundle. This property is required.
 
 ! Bundle-Activator
 
-The fully-qualified name of the class implementing the Poco::OSP::BundleActivator interface for this bundle. 
-Optionally, the name of the shared library containing the class can be specified. If no shared library name 
+The fully-qualified name of the class implementing the Poco::OSP::BundleActivator interface for this bundle.
+Optionally, the name of the shared library containing the class can be specified. If no shared library name
 is specified, the name of the library is assumed to be the same as the name of the bundle.
 
   bundle-activator ::= class-name [";" "library" "=" library-name]
@@ -188,9 +188,9 @@ is specified, the name of the library is assumed to be the same as the name of t
 
 ! Require-Bundle
 
-A list of bundles that must be available for this bundle to run. Both the name and the possible versions of 
-required bundles can be specified. It is possible to specify either a list of required versions, or an 
-interval of required versions. 
+A list of bundles that must be available for this bundle to run. Both the name and the possible versions of
+required bundles can be specified. It is possible to specify either a specific version, or an
+interval of supported versions.
 
   require-bundle   ::= req-name-version ("," req-name-version)
   req-name-version ::= bundle-name [";" "bundle-version" "=" req-version]
@@ -199,18 +199,18 @@ interval of required versions.
   part-version     ::= major ["." minor ["." revision]]
 ----
 
-If only a single version number is given, the version of the bundle must be at least the given version. 
-If no version number is given, any version of the bundle can be used. An interval can be, mathematically 
-speaking, open, closed or half-closed. The open interval (1.0.0,1.1.0) means any version greater than 1.0.0 
-and less than 1.1.0. The closed interval [1.0.0,1.1.0] means any version greater than or equal to 1.0.0, 
-and less than, or equal to 1.1.0. The half-closed interval [1.0.0,1.1.0) means any version greater than 
+If only a single version number is given, the version of the bundle must be at least the given version.
+If no version number is given, any version of the bundle can be used. An interval can be, mathematically
+speaking, open, closed or half-closed. The open interval (1.0.0,1.1.0) means any version greater than 1.0.0
+and less than 1.1.0. The closed interval [1.0.0,1.1.0] means any version greater than or equal to 1.0.0,
+and less than, or equal to 1.1.0. The half-closed interval [1.0.0,1.1.0) means any version greater than
 or equal to 1.0.0 and less than 1.1.0.
 
 
 ! Bundle-LazyStart
 
-This property specifies whether the bundle should be started automatically at application startup. 
-The default is false, which means the bundle will be automatically started. If set to true, the bundle 
+This property specifies whether the bundle should be started automatically at application startup.
+The default is false, which means the bundle will be automatically started. If set to true, the bundle
 will be started whenever another bundle depending on it is also started, or when it is started explicitly.
 
     bundle-lazyStart ::= "true" | "false"
@@ -219,11 +219,11 @@ will be started whenever another bundle depending on it is also started, or when
 
 ! Bundle-RunLevel
 
-The Bundle-RunLevel property specifies the run level in which the bundle should be started. 
-Its value is used by the bundle loader to start bundles in a certain order. A run level is specified 
-in the form <*nnn-description*>, where <*nnn*> is a three-digit string denoting the order, and 
-<*description*> is an optional textual description of the run level. When starting bundles, the bundle 
-loader sorts bundles by their run level. A simple string comparison is used for sorting, so the specified 
+The Bundle-RunLevel property specifies the run level in which the bundle should be started.
+Its value is used by the bundle loader to start bundles in a certain order. A run level is specified
+in the form <*nnn-description*>, where <*nnn*> is a three-digit string denoting the order, and
+<*description*> is an optional textual description of the run level. When starting bundles, the bundle
+loader sorts bundles by their run level. A simple string comparison is used for sorting, so the specified
 format for run level strings should be strictly followed to avoid surprises.
 
 Run levels 000 to 099 are reserved for use by OSP.
@@ -244,11 +244,43 @@ given in this property.
 
 After an extension bundle has been successfully resolved, all of its resources and properties
 will transparently become available to the extended bundle. The two main uses for extension
-bundles are providing additional localized resources to the extended bundle, and overriding the 
+bundles are providing additional localized resources to the extended bundle, and overriding the
 configuration properties of the extended bundle through the extension bundle.
 
 A bundle can be extended by more than one extension bundles; however, an extension bundle
 can only extend one bundle.
+
+
+! Require-Module
+
+A list of modules that must be provided by other bundles for this bundle to run.
+Both the name and the possible versions of required modules can be specified.
+It is possible to specify either a specific version, or an
+interval of possible versions.
+
+  require-module       ::= req-mod-name-version ("," req-mod-name-version)
+  req-mod-name-version ::= module-name [";" "module-version" "=" req-version]
+  req-version          ::= part-version | interval
+  interval             ::= ("[" | "(") part-version "," part-version ("]" | ")")
+  part-version         ::= major ["." minor ["." revision]]
+----
+
+If only a single version number is given, the version of the module must be at least the given version.
+If no version number is given, any version of the module can be used. An interval can be, mathematically
+speaking, open, closed or half-closed. The open interval (1.0.0,1.1.0) means any version greater than 1.0.0
+and less than 1.1.0. The closed interval [1.0.0,1.1.0] means any version greater than or equal to 1.0.0,
+and less than, or equal to 1.1.0. The half-closed interval [1.0.0,1.1.0) means any version greater than
+or equal to 1.0.0 and less than 1.1.0.
+
+
+! Provide-Module
+
+A list of modules (and their specific version numbers) that are provided by this bundle.
+
+  provide-module       ::= pro-mod-name-version ("," pro-mod-name-version)
+  pro-mod-name-version ::= module-name ";" "module-version" "=" pro-version
+  pro-version          ::= major ["." minor ["." revision]]
+----
 
 
 !!! The Bundle Class
@@ -258,22 +290,22 @@ In the OSP framework, a bundle is represented by the Poco::OSP::Bundle class.
 
 !! Resource Localization
 
-The Poco::OSP::Bundle class supports resource localization/internationalization for resources obtained with the 
-Poco::OSP::Bundle::getLocalizedResource() member function. Resource localization can be done on two levels -- 
-language and country. 
-The first level of localization is the language. For a given language, a number of countries can be defined. 
-For example, if the language is English, two possible countries would be United States and United Kingdom. 
-If the language is German, the countries could be Austria, Germany and Switzerland. Localization is optional. 
-Also, localization for a certain country is optional. If a resource for a certain country cannot be found, the 
-default resource for the country's language is taken. If the resource for a certain language cannot be found, the 
+The Poco::OSP::Bundle class supports resource localization/internationalization for resources obtained with the
+Poco::OSP::Bundle::getLocalizedResource() member function. Resource localization can be done on two levels --
+language and country.
+The first level of localization is the language. For a given language, a number of countries can be defined.
+For example, if the language is English, two possible countries would be United States and United Kingdom.
+If the language is German, the countries could be Austria, Germany and Switzerland. Localization is optional.
+Also, localization for a certain country is optional. If a resource for a certain country cannot be found, the
+default resource for the country's language is taken. If the resource for a certain language cannot be found, the
 global default resource is taken.
 
-Localized resources are stored in a certain directory hierarchy within a bundle. For every supported language, 
-there is a directory having the name of the specific ISO 639 language code (e.g., "en" for English, "de" for German) 
-within the bundle directory. Under  a language directory can be directories corresponding to supported countries. 
+Localized resources are stored in a certain directory hierarchy within a bundle. For every supported language,
+there is a directory having the name of the specific ISO 639 language code (e.g., "en" for English, "de" for German)
+within the bundle directory. Under  a language directory can be directories corresponding to supported countries.
 These directories are named using ISO 3166 two-letter country codes (e.g., "AT" for Austria, "US" for United States, etc.).
 
-The following figure shows a sample directory hierarchy for a localized bundle. 
+The following figure shows a sample directory hierarchy for a localized bundle.
 The resource named <[bundle.properties]> is localized for different languages and countries --
 German/Austria, German/Germany and various English countries.
 
@@ -281,31 +313,31 @@ German/Austria, German/Germany and various English countries.
 <img src="images/OSPResourceLoc.png" width="241" height="200" alt="OSP Bundle Localization" border="0">
 %>
 
-If the resource <[bundle.properties]> is requested from the bundle, and the globally selected localization is 
-German/Austria, the file <[de/AT/bundle.properties]> will be taken. 
-If the localization is German/Switzerland, the file <[de/bundle.properties]> will be taken, since there is no 
-<[de/CH/bundle.properties]> file available. If the localization is French/France, the file 
+If the resource <[bundle.properties]> is requested from the bundle, and the globally selected localization is
+German/Austria, the file <[de/AT/bundle.properties]> will be taken.
+If the localization is German/Switzerland, the file <[de/bundle.properties]> will be taken, since there is no
+<[de/CH/bundle.properties]> file available. If the localization is French/France, the file
 <[bundle.properties]> will be taken, since there neither is a localization for France, nor for French.
 
 The lookup algorithm for localized resources can be summarized as follows:
 
-First, look for the file at <*<bundle-path>/<langugage>/<country>/<resource>*>. 
-If the file cannot be found there, look for <*<bundle-path>/<language>/<resource>*>. If the file again cannot be found there, 
+First, look for the file at <*<bundle-path>/<langugage>/<country>/<resource>*>.
+If the file cannot be found there, look for <*<bundle-path>/<language>/<resource>*>. If the file again cannot be found there,
 look for <*<bundle-path>/<resource>*>. If the file still cannot be found, the resource does not exist and an exception is thrown.
 
 
 !! Bundle Lifecycle
 
-The Bundle class also controls a bundle's lifecycle. 
-At startup, OSP looks for bundles at various places. For every bundle that is found, a Poco::OSP::Bundle object is created. 
-The initial state of a bundle is <*installed*>. Once all bundles have been found, OSP tries to resolve each bundle. 
-Resolving a bundle means checking whether all required bundles of a bundle are available. 
-Every bundle that has been successfully resolved enters the <*resolved*> state. A resolved bundle will eventually be started. 
-A bundle that is started is first put into <*starting*> state. Then, all required bundles are started as well. 
-Once all required bundles have entered <*active*> state, the bundle's activator is invoked. When the activator completes, 
-the bundle is finally put into <*active*> state. Eventually, at least at shutdown time, the bundle will be stopped. 
-Stopping a bundle means putting the bundle into <*stopping*> state, invoking the bundle's activator, then putting the 
-bundle into <*resolved*> state. At shutdown, OSP ensures that all bundles are shutdown in the correct order. 
+The Bundle class also controls a bundle's lifecycle.
+At startup, OSP looks for bundles at various places. For every bundle that is found, a Poco::OSP::Bundle object is created.
+The initial state of a bundle is <*installed*>. Once all bundles have been found, OSP tries to resolve each bundle.
+Resolving a bundle means checking whether all required bundles of a bundle are available.
+Every bundle that has been successfully resolved enters the <*resolved*> state. A resolved bundle will eventually be started.
+A bundle that is started is first put into <*starting*> state. Then, all required bundles are started as well.
+Once all required bundles have entered <*active*> state, the bundle's activator is invoked. When the activator completes,
+the bundle is finally put into <*active*> state. Eventually, at least at shutdown time, the bundle will be stopped.
+Stopping a bundle means putting the bundle into <*stopping*> state, invoking the bundle's activator, then putting the
+bundle into <*resolved*> state. At shutdown, OSP ensures that all bundles are shutdown in the correct order.
 A bundle in <*resolved*> or <*installed*> state can be uninstalled, which means it is completely removed from the system.
 
 <%
@@ -315,19 +347,19 @@ A bundle in <*resolved*> or <*installed*> state can be uninstalled, which means 
 
 !! The Code Cache
 
-Shared libraries provided by a bundle are never loaded from the bundle directly. For bundles stored in a Zip file, 
-this would not be possible anyway. After a bundle has been successfully resolved, all shared libraries of the bundle 
-(for the current operating system and hardware architecture) are copied to a special <*code cache*> directory 
-(unless they have already been copied, of course). This ensures, that the operating system's dynamic linker is able to 
-find all required shared libraries in a certain place. The shared libraries of a bundle remain in the code cache until 
+Shared libraries provided by a bundle are never loaded from the bundle directly. For bundles stored in a Zip file,
+this would not be possible anyway. After a bundle has been successfully resolved, all shared libraries of the bundle
+(for the current operating system and hardware architecture) are copied to a special <*code cache*> directory
+(unless they have already been copied, of course). This ensures, that the operating system's dynamic linker is able to
+find all required shared libraries in a certain place. The shared libraries of a bundle remain in the code cache until
 the bundle is uninstalled, or the code cache directory is cleared by request of an user or administrator.
 
 Starting with release 2014.1, the shared libraries in the code cache are automatically updated if a new
 version of a bundle is installed. This behavior can be disabled by setting the <[osp.autoUpdateCodeCache]> configuration
 property to <[false]> in the global application configuration.
 
-Since the shared libraries of all bundles eventually end up in a common directory, great care must be taken when 
-naming the shared libraries in bundles to avoid name conflicts. Therefore, the naming convention for bundles 
+Since the shared libraries of all bundles eventually end up in a common directory, great care must be taken when
+naming the shared libraries in bundles to avoid name conflicts. Therefore, the naming convention for bundles
 (reverse domain name) should also be used for shared libraries, if possible.
 
 Starting with release 2016.3, multiple processes on system can share the same code cache directory.
@@ -339,9 +371,9 @@ processes simultaneously updating or installing the libraries for the same bundl
 
 !!! The Bundle Activator
 
-The bundle activator (Poco::OSP::BundleActivator) class is the code entry point for every bundle 
-contributing executable code and  requiring special actions upon startup or shutdown. 
-The interface BundleActivator is shown below. 
+The bundle activator (Poco::OSP::BundleActivator) class is the code entry point for every bundle
+contributing executable code and  requiring special actions upon startup or shutdown.
+The interface BundleActivator is shown below.
 Every class acting as bundle activator for a bundle must be derived from this class.
 
     class BundleActivator
@@ -360,7 +392,7 @@ Every class acting as bundle activator for a bundle must be derived from this cl
             /// The BundleContext object passed as argument is valid
             /// through the entire lifetime of the bundle (until
             /// stop() returns) and can be stored for later reference.
-        
+
         virtual void stop(BundleContext::Ptr pContext) = 0;
             /// Called during the "stopping" phase of the bundle.
             ///
@@ -371,38 +403,38 @@ Every class acting as bundle activator for a bundle must be derived from this cl
        };
 ----
 
-The bundle activator is the only class loaded from the bundle by the OSP framework. 
-Usually, no other dynamic class loading mechanism is needed, since the class loader is responsible for 
+The bundle activator is the only class loaded from the bundle by the OSP framework.
+Usually, no other dynamic class loading mechanism is needed, since the class loader is responsible for
 registering all services provided by the bundle with the service registry.
 
-If a bundle does not provide a bundle activator, there is no way for the bundle to provide services to 
-other bundles via the service registry. The only thing the bundle can do is providing common code in 
+If a bundle does not provide a bundle activator, there is no way for the bundle to provide services to
+other bundles via the service registry. The only thing the bundle can do is providing common code in
 shared libraries to other bundles.
 
 
 !!! The Bundle Context
 
-The bundle context (Poco::OSP::BundleContext) gives the bundle activator access to the bundle's runtime environment. 
-Via the bundle context, the bundle activator can obtain a pointer to the bundle object, 
-to system-wide configuration properties, and to the service registry. 
+The bundle context (Poco::OSP::BundleContext) gives the bundle activator access to the bundle's runtime environment.
+Via the bundle context, the bundle activator can obtain a pointer to the bundle object,
+to system-wide configuration properties, and to the service registry.
 The bundle context can also be used to find other bundles in the system.
 
-The bundle context is valid during the entire lifetime of the bundle 
-(until the bundle activator's <[stop()]> member function completes), 
+The bundle context is valid during the entire lifetime of the bundle
+(until the bundle activator's <[stop()]> member function completes),
 and the bundle activator can store it internally for later use.
 
 
 !! Bundle Events
 
-A bundle can opt in to be notified about state changes in other installed bundles by subscribing to the 
-various events offered by Poco::OSP::BundleEvents object returned by Poco::OSP::BundleContext::events(). 
+A bundle can opt in to be notified about state changes in other installed bundles by subscribing to the
+various events offered by Poco::OSP::BundleEvents object returned by Poco::OSP::BundleContext::events().
 The POCO events framework is used for all OSP events.
 
 
 !! Logging
 
-The OSP framework supplies the bundle activator with a Poco::Logger object which the bundle activator 
-can use to emit log messages. The bundle should use this logger rather than defining its own. 
+The OSP framework supplies the bundle activator with a Poco::Logger object which the bundle activator
+can use to emit log messages. The bundle should use this logger rather than defining its own.
 The logger's name is <[osp.bundle.<*bundle-name*>]>, where <*bundle-name*> is the symbolic name of the bundle.
 
 

@@ -68,27 +68,27 @@ public:
 	};
 	typedef std::map<std::string, BundleInfo> BundleMap;
 	typedef std::set<Bundle*> BundleSet;
-	
+
 	struct BundleError
 	{
 		Bundle::Ptr pBundle;
 		Bundle::State targetState;
 		Poco::Exception* pException;
 	};
-	
+
 	Poco::BasicEvent<const BundleError> bundleError;
 		/// Fired when an error occurs while resolving
 		/// or starting a bundle.
 
 	BundleLoader(CodeCache& codeCache, BundleFactory::Ptr pBundleFactory, BundleContextFactory::Ptr pBundleContextFactory, const std::string& osName, const std::string& osArch, bool autoUpdateCodeCache = true);
 		/// Creates the BundleLoader.
-	
+
 	BundleLoader(CodeCache& codeCache, BundleFactory::Ptr pBundleFactory, BundleContextFactory::Ptr pBundleContextFactory, bool autoUpdateCodeCache = true);
 		/// Creates the BundleLoader.
 
 	~BundleLoader();
 		/// Destroys the BundleLoader.
-		
+
 	Bundle::ConstPtr findBundle(const std::string& symbolicName) const;
 		/// Returns the Bundle object for the bundle with
 		/// the given symbolic name, or NULL if the
@@ -98,14 +98,14 @@ public:
 		/// Returns the Bundle object for the bundle with
 		/// the given ID, or NULL if the
 		/// bundle does not exist.
-		
+
 	Bundle::Ptr createBundle(const std::string& path);
 		/// Loads a bundle from the given path.
 		///
 		/// A new Bundle object is created for the bundle,
 		/// and the Bundle's state is BUNDLE_INSTALLED.
 		/// The bundle is not added to the bundle map.
-	
+
 	Bundle::Ptr loadBundle(const std::string& path);
 		/// Loads a bundle from the given path.
 		/// A new Bundle object is created for the bundle,
@@ -139,13 +139,13 @@ public:
 		/// Fills the given vector with all bundles
 		/// known to the loader, filtered by the
 		/// given BundleFilter.
-		
+
 	void resolveAllBundles();
 		/// Resolves all bundles.
 		///
 		/// If a bundle cannot be resolved, an error is logged
 		/// and the loader will continue to resolve other bundles.
-	
+
 	void startAllBundles();
 		/// Starts all bundles, ordered by their run level.
 		/// If a bundle has the lazyStart property set,
@@ -158,30 +158,30 @@ public:
 		/// If a bundle cannot be started, an error will be
 		/// logged, and the loader will continue to load
 		/// other bundles.
-	
+
 	void stopAllBundles();
 		/// Stops all bundles.
 		///
 		/// Bundles are stopped in order of their depedencies.
-		
+
 	void unloadAllBundles();
 		/// Stops and unloads all bundles.
 
 	BundleEvents& events();
 		/// Returns a reference to the BundleEvents
 		/// object.
-		
+
 	const std::string& osName() const;
 		/// Returns the name of the operating system.
-	
+
 	const std::string& osArchitecture() const;
 		/// Returns the name of the hardware architecture.
-		
+
 	std::string pathForLibrary(const std::string& libraryName);
 		/// Returns the full path for the library with the given
 		/// libraryName. If libraryName is the empty string,
 		/// return the path to the code cache directory.
-		
+
 	BundleContext::Ptr contextForBundle(Bundle::ConstPtr pBundle) const;
 		/// Returns the BundleContext for the given bundle.
 
@@ -203,7 +203,7 @@ public:
 		/// This is only useful on platforms that do not support loading of shared libraries
 		/// (such as the iPhone, where, although shared libraries are supported by the system,
 		/// application distribution policies disallow loading of shared libraries).
-		
+
 	template <class BA>
 	void registerBundleActivator(const std::string& className)
 	{
@@ -214,38 +214,47 @@ public:
 protected:
 	void resolveBundle(Bundle* pBundle);
 		/// Resolves the given bundle.
-		
+
+	Bundle::ModuleProviders resolveModules(Bundle* pBundle) const;
+		/// Determines the bundles providing the required modules.
+
+	void resolveDependencies(Bundle* pBundle, const BundleManifest::Dependencies& deps);
+		/// Resolves all direct dependencies of the given bundle.
+
+	void resolveProviders(Bundle* pBundle, const Bundle::ModuleProviders& providers);
+		/// Resolves the module providers for the given bundle.
+
 	void startBundle(Bundle* pBundle);
 		/// Starts the given bundle.
-		
+
 	void stopBundle(Bundle* pBundle);
 		/// Stops the given bundle.
-		
+
 	void uninstallBundle(Bundle* pBundle);
 		/// Uninstalls the given bundle.
-	
+
 	void resolveDependency(Bundle* pBundle, const BundleManifest::Dependency& dependency);
 		/// Resolves a single dependency of a bundle.
-	
+
 	bool isResolving(Bundle* pBundle) const;
 		/// Returns true iff the given bundle
 		/// is currently being resolved.
-		
+
 	void startDependencies(Bundle* pBundle);
 		/// Starts all bundles that the given
 		/// bundle requires to run.
-		
+
 	BundleActivator* loadActivator(BundleInfo& bundleInfo);
 		/// Loads the activator for the given bundle,
 		/// unless it has already been loaded.
 
 	void unloadActivator(BundleInfo& bundleInfo);
 		/// Unloads the activator for the given bundle.
-		
+
 	void installLibraries(Bundle* pBundle);
 		/// Copies all shared libraries in the bundle
 		/// (for the current platform) to the code cache.
-		
+
 	void uninstallLibraries(Bundle* pBundle);
 		/// Removes all shared libraries belonging
 		/// to the given bundle from the code cache.
@@ -258,11 +267,11 @@ protected:
 	const std::string& libraryNameFor(Bundle* pBundle);
 		/// Returns the library name for the library
 		/// containing the activator for the given bundle.
-		
+
 	void listLibraries(Bundle* pBundle, std::vector<std::string>& list);
 		/// Lists all shared libraries contained in the bundle
 		/// for the current platform.
-		
+
 	void sortBundles(std::vector<Bundle::Ptr>& bundles) const;
 		/// Sorts all bundles topologically, based on
 		/// their dependencies.
@@ -279,13 +288,16 @@ protected:
 		/// Replaces all non alphanumeric characters in name
 		/// with an underscore.
 
+	static bool isProvidingModule(Bundle::Ptr pBundle, const BundleManifest::Dependency& module);
+		/// Checks whether the given bundle provides the given module.
+
 private:
 	BundleLoader();
 	BundleLoader(const BundleLoader&);
 	BundleLoader& operator = (const BundleLoader&);
 
 	typedef std::map<int, Bundle::Ptr> BundleIdMap;
-	
+
 	int                       _nextBundleId;
 	CodeCache&                _codeCache;
 	bool                      _autoUpdateCodeCache;
@@ -306,7 +318,7 @@ private:
 
 	BundleActivatorFactoryMap _bundleActivatorFactories;
 #endif
-	
+
 	friend class Bundle;
 };
 

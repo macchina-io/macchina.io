@@ -59,29 +59,29 @@ void BundleTest::testLoadOne()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("en", "US");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
 	BundleLoader loader(cc, pBundleFactory, pBundleContextFactory);
 
 	Bundle::Ptr pBundle = loader.createBundle(findBundle("com.appinf.osp.bundle1_1.0.0"));
-	
+
 	assert (pBundle->name() == "OSP Sample Bundle 1");
 	assert (pBundle->symbolicName() == "com.appinf.osp.bundle1");
 	assert (pBundle->version() == Version("1.0.0"));
 	assert (pBundle->vendor() == "Applied Informatics");
 	assert (pBundle->copyright() == "(c) 2007, Applied Informatics Software Engineering GmbH");
-	
+
 	assert (pBundle->state() == Bundle::BUNDLE_INSTALLED);
 	assert (!pBundle->isResolved());
 	assert (!pBundle->isStarted());
 	assert (!pBundle->isActive());
-	
+
 	assert (pBundle->activatorClass() == "");
 	assert (pBundle->activatorLibrary() == "");
 	assertNull (pBundle->activator());
-	
+
 	loader.events().bundleLoaded    += Delegate<BundleTest, BundleEvent>(this, &BundleTest::handleEvent);
 	loader.events().bundleResolving += Delegate<BundleTest, BundleEvent>(this, &BundleTest::handleEvent);
 	loader.events().bundleResolved  += Delegate<BundleTest, BundleEvent>(this, &BundleTest::handleEvent);
@@ -90,13 +90,13 @@ void BundleTest::testLoadOne()
 	loader.events().bundleStopping  += Delegate<BundleTest, BundleEvent>(this, &BundleTest::handleStoppingEvent);
 	loader.events().bundleStopped   += Delegate<BundleTest, BundleEvent>(this, &BundleTest::handleStoppedEvent);
 	loader.events().bundleUnloaded  += Delegate<BundleTest, BundleEvent>(this, &BundleTest::handleEvent);
-	
+
 	_events.clear();
 	loader.loadBundle(pBundle);
 	assert (_events.size() == 1);
 	assert (_events[0].bundle() == pBundle);
 	assert (_events[0].what() == BundleEvent::EV_BUNDLE_LOADED);
-	
+
 	try
 	{
 		pBundle->start();
@@ -105,7 +105,7 @@ void BundleTest::testLoadOne()
 	catch (Poco::OSP::BundleStateException&)
 	{
 	}
-	
+
 	try
 	{
 		pBundle->stop();
@@ -114,11 +114,11 @@ void BundleTest::testLoadOne()
 	catch (Poco::OSP::BundleStateException&)
 	{
 	}
-	
+
 	_events.clear();
 
 	pBundle->resolve();
-	
+
 	assert (pBundle->state() == Bundle::BUNDLE_RESOLVED);
 	assert (pBundle->isResolved());
 
@@ -138,23 +138,23 @@ void BundleTest::testLoadOne()
 	}
 
 	_events.clear();
-	
+
 	pBundle->start();
-	
+
 	assert (pBundle->state() == Bundle::BUNDLE_ACTIVE);
 	assert (pBundle->isStarted());
 	assert (pBundle->isActive());
-	
+
 	assert (_events.size() == 2);
 	assert (_events[0].bundle() == pBundle);
 	assert (_events[0].what() == BundleEvent::EV_BUNDLE_STARTING);
 	assert (_events[1].bundle() == pBundle);
 	assert (_events[1].what() == BundleEvent::EV_BUNDLE_STARTED);
-	
+
 	_events.clear();
-	
+
 	pBundle->stop();
-	
+
 	assert (pBundle->state() == Bundle::BUNDLE_RESOLVED);
 	assert (!pBundle->isStarted());
 	assert (!pBundle->isActive());
@@ -179,7 +179,7 @@ void BundleTest::testVersionConflict()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("en", "US");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -187,7 +187,7 @@ void BundleTest::testVersionConflict()
 
 	Bundle::Ptr pBundle100 = loader.createBundle(findBundle("com.appinf.osp.bundle1_1.0.0"));
 	Bundle::Ptr pBundle091 = loader.createBundle(findBundle("com.appinf.osp.bundle1_0.9.1"));
-	
+
 	loader.loadBundle(pBundle100);
 	try
 	{
@@ -205,7 +205,7 @@ void BundleTest::testProperties()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("en", "US");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -234,7 +234,7 @@ void BundleTest::testPropertiesLocalization1()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("de", "AT");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -249,7 +249,7 @@ void BundleTest::testPropertiesLocalization1()
 	assert (pBundle->copyright() == "(c) 2007, Applied Informatics Software Engineering GmbH");
 
 	assert (pBundle->properties().getString("greeting") == "Servus!");
-	
+
 	std::auto_ptr<std::istream> pStream(pBundle->getLocalizedResource("lang.txt"));
 	assert (pStream.get() != 0);
 	std::string s;
@@ -263,7 +263,7 @@ void BundleTest::testPropertiesLocalization2()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("de", "DE");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -292,7 +292,7 @@ void BundleTest::testBundleFile()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("de", "DE");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -321,7 +321,7 @@ void BundleTest::testResolve()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("de", "DE");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -331,7 +331,7 @@ void BundleTest::testResolve()
 	Bundle::Ptr pBundle2 = loader.createBundle(findBundle("com.appinf.osp.bundle2_1.0.0"));
 	Bundle::Ptr pBundle3 = loader.createBundle(findBundle("com.appinf.osp.bundle3_1.0.0"));
 	Bundle::Ptr pBundle4 = loader.createBundle(findBundle("com.appinf.osp.bundle4_1.0.0"));
-	
+
 	loader.loadBundle(pBundle1);
 	loader.loadBundle(pBundle3);
 	loader.loadBundle(pBundle4);
@@ -349,14 +349,14 @@ void BundleTest::testResolve()
 	assert (pBundle1->isResolved());
 	assert (!pBundle2->isResolved());
 	assert (!pBundle3->isResolved());
-	
+
 	loader.loadBundle(pBundle2);
 	pBundle3->resolve();
-	
+
 	assert (pBundle1->isResolved());
 	assert (pBundle2->isResolved());
 	assert (pBundle3->isResolved());
-	
+
 	// bundle4 requires bundle1, bundle2 v2.0.0
 	try
 	{
@@ -367,7 +367,7 @@ void BundleTest::testResolve()
 	{
 	}
 	assert (!pBundle4->isResolved());
-	
+
 	// bundle5 has cyclic dependency
 	Bundle::Ptr pBundle5 = loader.createBundle(findBundle("com.appinf.osp.bundle5_1.0.0"));
 	Bundle::Ptr pBundle6 = loader.createBundle(findBundle("com.appinf.osp.bundle6_1.0.0"));
@@ -376,7 +376,7 @@ void BundleTest::testResolve()
 	loader.loadBundle(pBundle5);
 	loader.loadBundle(pBundle6);
 	loader.loadBundle(pBundle7);
-	
+
 	try
 	{
 		pBundle5->resolve();
@@ -388,9 +388,113 @@ void BundleTest::testResolve()
 	// bundle8 requires bundle3
 	Bundle::Ptr pBundle8 = loader.createBundle(findBundle("com.appinf.osp.bundle8_1.0.0"));
 	loader.loadBundle(pBundle8);
-	
+
 	pBundle8->resolve();
 	assert (pBundle8->isResolved());
+}
+
+
+void BundleTest::testResolveModules()
+{
+	CodeCache cc("codeCache");
+	ServiceRegistry reg;
+	LanguageTag lang("de", "DE");
+
+	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
+	Poco::OSP::SystemEvents systemEvents;
+	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
+	BundleLoader loader(cc, pBundleFactory, pBundleContextFactory);
+
+	Bundle::Ptr pBundle1 = loader.createBundle(findBundle("com.appinf.osp.bundleA_1.0.0"));
+	Bundle::Ptr pBundle2 = loader.createBundle(findBundle("com.appinf.osp.bundleB_1.0.0"));
+	Bundle::Ptr pBundle3 = loader.createBundle(findBundle("com.appinf.osp.bundleC_1.0.0"));
+	Bundle::Ptr pBundle4 = loader.createBundle(findBundle("com.appinf.osp.bundleD_1.0.0"));
+	Bundle::Ptr pBundle5 = loader.createBundle(findBundle("com.appinf.osp.bundleE_1.0.0"));
+	Bundle::Ptr pBundle6 = loader.createBundle(findBundle("com.appinf.osp.bundleF_1.0.0"));
+
+	loader.loadBundle(pBundle2);
+
+	// bundle2 requires module provided by bundle1
+	try
+	{
+		pBundle2->resolve();
+		fail("bundle has unsatisfied module dependency - must throw");
+	}
+	catch (Poco::OSP::BundleResolveException&)
+	{
+	}
+
+	assert (!pBundle1->isResolved());
+	assert (!pBundle2->isResolved());
+
+	loader.loadBundle(pBundle1);
+	pBundle2->resolve();
+
+	assert (pBundle1->isResolved());
+	assert (pBundle2->isResolved());
+
+	assert (pBundle1->resolvedDependencies().empty());
+	assert (pBundle2->resolvedDependencies().size() == 1);
+	assert (pBundle2->resolvedDependencies()[0].symbolicName == "com.appinf.osp.bundleA");
+
+	const Bundle::ModuleProviders& provs2 = pBundle2->moduleProviders();
+	assert (provs2.size() == 1);
+	assert (provs2[0].module.symbolicName == "com.appinf.osp.module1");
+	assert (provs2[0].bundles.size() == 1);
+	assert (provs2[0].bundles[0].symbolicName == "com.appinf.osp.bundleA");
+
+	loader.loadBundle(pBundle3);
+	pBundle3->resolve();
+	assert (pBundle3->isResolved());
+
+	assert (pBundle3->resolvedDependencies().size() == 1);
+	assert (pBundle3->resolvedDependencies()[0].symbolicName == "com.appinf.osp.bundleB");
+
+	const Bundle::ModuleProviders& provs3 = pBundle3->moduleProviders();
+	assert (provs3.size() == 1);
+	assert (provs3[0].module.symbolicName == "com.appinf.osp.module2");
+	assert (provs3[0].bundles.size() == 1);
+	assert (provs3[0].bundles[0].symbolicName == "com.appinf.osp.bundleB");
+
+	loader.loadBundle(pBundle5);
+	// bundle5 requires module provided by bundle4
+	try
+	{
+		pBundle5->resolve();
+		fail("bundle has unsatisfied module dependency - must throw");
+	}
+	catch (Poco::OSP::BundleResolveException&)
+	{
+	}
+
+	loader.loadBundle(pBundle4);
+	pBundle5->resolve();
+	assert (pBundle4->isResolved());
+	assert (pBundle5->isResolved());
+
+	assert (pBundle5->resolvedDependencies().size() == 2);
+	assert (pBundle5->resolvedDependencies()[0].symbolicName == "com.appinf.osp.bundleA");
+	assert (pBundle5->resolvedDependencies()[1].symbolicName == "com.appinf.osp.bundleD");
+
+	const Bundle::ModuleProviders& provs5 = pBundle5->moduleProviders();
+	assert (provs5.size() == 2);
+	assert (provs5[0].module.symbolicName == "com.appinf.osp.module1");
+	assert (provs5[0].bundles.size() == 1);
+	assert (provs5[0].bundles[0].symbolicName == "com.appinf.osp.bundleA");
+	assert (provs5[1].module.symbolicName == "com.appinf.osp.module3");
+	assert (provs5[1].bundles.size() == 1);
+	assert (provs5[1].bundles[0].symbolicName == "com.appinf.osp.bundleD");
+
+	loader.loadBundle(pBundle6);
+	// bundle6 requires module provided by bundle2, but in different version
+	try
+	{
+		pBundle6->resolve();
+		fail("bundle has unsatisfied module dependency (version) - must throw");
+	}
+	catch (Poco::OSP::BundleResolveException&)
+	{
+	}
 }
 
 
@@ -399,7 +503,7 @@ void BundleTest::testStart()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("en", "US");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -409,21 +513,21 @@ void BundleTest::testStart()
 	Bundle::Ptr pBundle2 = loader.createBundle(findBundle("com.appinf.osp.bundle2_1.0.0"));
 	Bundle::Ptr pBundle3 = loader.createBundle(findBundle("com.appinf.osp.bundle3_1.0.0"));
 	Bundle::Ptr pBundle8 = loader.createBundle(findBundle("com.appinf.osp.bundle8_1.0.0"));
-	
+
 	loader.loadBundle(pBundle1);
 	loader.loadBundle(pBundle2);
 	loader.loadBundle(pBundle3);
 	loader.loadBundle(pBundle8);
-	
+
 	pBundle8->resolve();
-	
+
 	assert (pBundle1->isResolved());
 	assert (pBundle2->isResolved());
 	assert (pBundle3->isResolved());
 	assert (pBundle8->isResolved());
-	
+
 	pBundle8->start();
-	
+
 	assert (pBundle1->isActive());
 	assert (pBundle2->isActive());
 	assert (pBundle3->isActive());
@@ -436,7 +540,7 @@ void BundleTest::testActivator()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("en", "US");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -444,11 +548,11 @@ void BundleTest::testActivator()
 
 	Bundle::Ptr pBundle9 = loader.createBundle(findBundle("com.appinf.osp.bundle9_1.0.0"));
 	loader.loadBundle(pBundle9);
-	
+
 	pBundle9->resolve();
 	pBundle9->start();
 	pBundle9->stop();
-	
+
 	loader.unloadBundle(pBundle9);
 }
 
@@ -458,7 +562,7 @@ void BundleTest::testStopAll()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("en", "US");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -468,12 +572,12 @@ void BundleTest::testStopAll()
 	Bundle::Ptr pBundle2 = loader.createBundle(findBundle("com.appinf.osp.bundle2_1.0.0"));
 	Bundle::Ptr pBundle3 = loader.createBundle(findBundle("com.appinf.osp.bundle3_1.0.0"));
 	Bundle::Ptr pBundle8 = loader.createBundle(findBundle("com.appinf.osp.bundle8_1.0.0"));
-	
+
 	loader.loadBundle(pBundle1);
 	loader.loadBundle(pBundle2);
 	loader.loadBundle(pBundle3);
 	loader.loadBundle(pBundle8);
-	
+
 	pBundle8->resolve();
 	pBundle8->start();
 
@@ -483,7 +587,7 @@ void BundleTest::testStopAll()
 	assert (pBundle8->isActive());
 
 	loader.stopAllBundles();
-	
+
 	assert (pBundle1->state() == Bundle::BUNDLE_RESOLVED);
 	assert (pBundle2->state() == Bundle::BUNDLE_RESOLVED);
 	assert (pBundle3->state() == Bundle::BUNDLE_RESOLVED);
@@ -496,7 +600,7 @@ void BundleTest::testResolveStartStopUnloadAll()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("en", "US");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -508,14 +612,14 @@ void BundleTest::testResolveStartStopUnloadAll()
 	Bundle::Ptr pBundle4 = loader.createBundle(findBundle("com.appinf.osp.bundle4_1.0.0"));
 	Bundle::Ptr pBundle8 = loader.createBundle(findBundle("com.appinf.osp.bundle8_1.0.0"));
 	Bundle::Ptr pBundle9 = loader.createBundle(findBundle("com.appinf.osp.bundle9_1.0.0"));
-	
+
 	loader.loadBundle(pBundle1);
 	loader.loadBundle(pBundle2);
 	loader.loadBundle(pBundle3);
 	loader.loadBundle(pBundle4);
 	loader.loadBundle(pBundle8);
 	loader.loadBundle(pBundle9);
-	
+
 	loader.resolveAllBundles();
 
 	assert (pBundle1->isResolved());
@@ -535,14 +639,14 @@ void BundleTest::testResolveStartStopUnloadAll()
 	assert (pBundle9->isActive());
 
 	loader.stopAllBundles();
-	
+
 	assert (pBundle1->state() == Bundle::BUNDLE_RESOLVED);
 	assert (pBundle2->state() == Bundle::BUNDLE_RESOLVED);
 	assert (pBundle3->state() == Bundle::BUNDLE_RESOLVED);
 	assert (pBundle4->state() == Bundle::BUNDLE_INSTALLED);
 	assert (pBundle8->state() == Bundle::BUNDLE_RESOLVED);
 	assert (pBundle9->state() == Bundle::BUNDLE_RESOLVED);
-	
+
 	loader.unloadAllBundles();
 }
 
@@ -552,7 +656,7 @@ void BundleTest::testExtensionBundle()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("fr", "FR");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -560,18 +664,18 @@ void BundleTest::testExtensionBundle()
 
 	Bundle::Ptr pBundle2 = loader.createBundle(findBundle("com.appinf.osp.bundle2_1.0.0"));
 	Bundle::Ptr pBundleX = loader.createBundle(findBundle("com.appinf.osp.bundleX_1.0.0"));
-	
+
 	loader.loadBundle(pBundle2);
 	loader.loadBundle(pBundleX);
 
 	pBundle2->resolve();
-	
+
 	assert (pBundle2->properties().getString("someProperty") == "someValue");
-	
+
 	pBundleX->resolve();
-	
+
 	assert (pBundle2->properties().getString("someProperty") == "overriddenValue");
-	
+
 	assert (pBundleX->isExtensionBundle());
 	assert (!pBundle2->isExtensionBundle());
 	assert (pBundleX->extendedBundle() == pBundle2);
@@ -584,12 +688,12 @@ void BundleTest::testExtensionBundle()
 	std::string s;
 	*pStream >> s;
 	assert (s == "fr-FR");
-	
+
 	std::auto_ptr<std::istream> pStream2(pBundle2->getLocalizedResource("lang.txt", LanguageTag("de", "AT")));
 	assert (pStream2.get() != 0);
 	*pStream2 >> s;
 	assert (s == "de-AT");
-	
+
 	loader.unloadBundle(pBundleX);
 	assert (pBundle2->properties().getString("greeting") == "Hello, world!");
 }
@@ -600,7 +704,7 @@ void BundleTest::setUp()
 	Poco::AutoPtr<Poco::Channel> pChannel(new Poco::ConsoleChannel);
 	Logger::root().setChannel(pChannel);
 	Logger::root().setLevel(Poco::Message::PRIO_DEBUG);
-	
+
 	CodeCache cc("codeCache");
 	cc.clear();
 }
@@ -686,6 +790,7 @@ CppUnit::Test* BundleTest::suite()
 	CppUnit_addTest(pSuite, BundleTest, testPropertiesLocalization2);
 	CppUnit_addTest(pSuite, BundleTest, testBundleFile);
 	CppUnit_addTest(pSuite, BundleTest, testResolve);
+	CppUnit_addTest(pSuite, BundleTest, testResolveModules);
 	CppUnit_addTest(pSuite, BundleTest, testStart);
 	CppUnit_addTest(pSuite, BundleTest, testActivator);
 	CppUnit_addTest(pSuite, BundleTest, testStopAll);

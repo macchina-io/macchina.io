@@ -27,10 +27,11 @@ Build Status
 Prerequisites
 -------------
 
-  - GNU Make
-  - GNU C++ (g++) on Linux or Clang++ on macOS
+  - GNU Make 3.81 or newer
+  - Linux: GNU C++ (g++) 4.9 or newer; alternatively Clang++ 3.4 or newer
+  - macOS: Clang++ (Apple LLVM) 8.0 or newer
   - OpenSSL headers and libraries (on macOS, via [Homebrew](http://brew.sh): `brew install openssl`)
-  - Python (for building V8)
+  - Python 2.7 (for building V8)
 
 
 Getting Started

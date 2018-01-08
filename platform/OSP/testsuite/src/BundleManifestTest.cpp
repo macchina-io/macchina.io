@@ -12,6 +12,7 @@
 #include "CppUnit/TestCaller.h"
 #include "CppUnit/TestSuite.h"
 #include "Poco/OSP/BundleManifest.h"
+#include "Poco/OSP/OSPException.h"
 #include <sstream>
 
 
@@ -369,6 +370,177 @@ void BundleManifestTest::testRequired9()
 }
 
 
+void BundleManifestTest::testRequiredModule1()
+{
+	std::string manifestData(
+		"Manifest-Version: 1.0\n"
+		"Bundle-Name: Sample Bundle\n"
+		"Bundle-SymbolicName: com.appinf.osp.sample\n"
+		"Bundle-Version: 1.0.2-b1\n"
+		"Require-Module: com.appinf.osp.module1"
+	);
+	std::istringstream istr(manifestData);
+	BundleManifest::Ptr pManifest(new BundleManifest(istr));
+	assert (pManifest->requiredModules().size() == 1);
+	assert (pManifest->requiredModules()[0].symbolicName == "com.appinf.osp.module1");
+	assert (pManifest->requiredModules()[0].versions.isEmpty());
+}
+
+
+void BundleManifestTest::testRequiredModule2()
+{
+	std::string manifestData(
+		"Manifest-Version: 1.0\n"
+		"Bundle-Name: Sample Bundle\n"
+		"Bundle-SymbolicName: com.appinf.osp.sample\n"
+		"Bundle-Version: 1.0.2-b1\n"
+		"Require-Module: com.appinf.osp.module1;module-version=1.1"
+	);
+	std::istringstream istr(manifestData);
+	BundleManifest::Ptr pManifest(new BundleManifest(istr));
+	assert (pManifest->requiredModules().size() == 1);
+	assert (pManifest->requiredModules()[0].symbolicName == "com.appinf.osp.module1");
+	assert (pManifest->requiredModules()[0].versions.lowerBound().major() == 1);
+	assert (pManifest->requiredModules()[0].versions.lowerBound().minor() == 1);
+	assert (pManifest->requiredModules()[0].versions.lowerBound().revision() == 0);
+	assert (pManifest->requiredModules()[0].versions.upperBound() == pManifest->requiredModules()[0].versions.lowerBound());
+	assert (pManifest->requiredModules()[0].versions.includeLower());
+	assert (pManifest->requiredModules()[0].versions.includeUpper());
+}
+
+
+void BundleManifestTest::testRequiredModule3()
+{
+	std::string manifestData(
+		"Manifest-Version: 1.0\n"
+		"Bundle-Name: Sample Bundle\n"
+		"Bundle-SymbolicName: com.appinf.osp.sample\n"
+		"Bundle-Version: 1.0.2-b1\n"
+		"Require-Module: com.appinf.osp.module1 ; module-version = 1.1"
+	);
+	std::istringstream istr(manifestData);
+	BundleManifest::Ptr pManifest(new BundleManifest(istr));
+	assert (pManifest->requiredModules().size() == 1);
+	assert (pManifest->requiredModules()[0].symbolicName == "com.appinf.osp.module1");
+	assert (pManifest->requiredModules()[0].versions.lowerBound().major() == 1);
+	assert (pManifest->requiredModules()[0].versions.lowerBound().minor() == 1);
+	assert (pManifest->requiredModules()[0].versions.lowerBound().revision() == 0);
+	assert (pManifest->requiredModules()[0].versions.upperBound() == pManifest->requiredModules()[0].versions.lowerBound());
+	assert (pManifest->requiredModules()[0].versions.includeLower());
+	assert (pManifest->requiredModules()[0].versions.includeUpper());
+}
+
+
+void BundleManifestTest::testRequiredModule4()
+{
+	std::string manifestData(
+		"Manifest-Version: 1.0\n"
+		"Bundle-Name: Sample Bundle\n"
+		"Bundle-SymbolicName: com.appinf.osp.sample\n"
+		"Bundle-Version: 1.0.2-b1\n"
+		"Require-Module: com.appinf.osp.module1, com.appinf.osp.module2; module-version=1.2.3"
+	);
+	std::istringstream istr(manifestData);
+	BundleManifest::Ptr pManifest(new BundleManifest(istr));
+	assert (pManifest->requiredModules().size() == 2);
+	assert (pManifest->requiredModules()[0].symbolicName == "com.appinf.osp.module1");
+	assert (pManifest->requiredModules()[0].versions.isEmpty());
+	assert (pManifest->requiredModules()[1].symbolicName == "com.appinf.osp.module2");
+	assert (pManifest->requiredModules()[1].versions.lowerBound().major() == 1);
+	assert (pManifest->requiredModules()[1].versions.lowerBound().minor() == 2);
+	assert (pManifest->requiredModules()[1].versions.lowerBound().revision() == 3);
+	assert (pManifest->requiredModules()[1].versions.upperBound() == pManifest->requiredModules()[1].versions.lowerBound());
+	assert (pManifest->requiredModules()[1].versions.includeLower());
+	assert (pManifest->requiredModules()[1].versions.includeUpper());
+}
+
+
+void BundleManifestTest::testProvidedModule1()
+{
+	std::string manifestData(
+		"Manifest-Version: 1.0\n"
+		"Bundle-Name: Sample Bundle\n"
+		"Bundle-SymbolicName: com.appinf.osp.sample\n"
+		"Bundle-Version: 1.0.2-b1\n"
+		"Provide-Module: com.appinf.osp.module1; module-version=1.0"
+	);
+	std::istringstream istr(manifestData);
+	BundleManifest::Ptr pManifest(new BundleManifest(istr));
+	assert (pManifest->providedModules().size() == 1);
+	assert (pManifest->providedModules()[0].symbolicName == "com.appinf.osp.module1");
+	assert (pManifest->providedModules()[0].version.major() == 1);
+	assert (pManifest->providedModules()[0].version.minor() == 0);
+	assert (pManifest->providedModules()[0].version.revision() == 0);
+}
+
+
+void BundleManifestTest::testProvidedModule2()
+{
+	std::string manifestData(
+		"Manifest-Version: 1.0\n"
+		"Bundle-Name: Sample Bundle\n"
+		"Bundle-SymbolicName: com.appinf.osp.sample\n"
+		"Bundle-Version: 1.0.2-b1\n"
+		"Provide-Module: com.appinf.osp.module1;module-version=1.0,com.appinf.osp.module2;module-version=2.1.3"
+	);
+	std::istringstream istr(manifestData);
+	BundleManifest::Ptr pManifest(new BundleManifest(istr));
+	assert (pManifest->providedModules().size() == 2);
+	assert (pManifest->providedModules()[0].symbolicName == "com.appinf.osp.module1");
+	assert (pManifest->providedModules()[0].version.major() == 1);
+	assert (pManifest->providedModules()[0].version.minor() == 0);
+	assert (pManifest->providedModules()[0].version.revision() == 0);
+	assert (pManifest->providedModules()[1].symbolicName == "com.appinf.osp.module2");
+	assert (pManifest->providedModules()[1].version.major() == 2);
+	assert (pManifest->providedModules()[1].version.minor() == 1);
+	assert (pManifest->providedModules()[1].version.revision() == 3);
+}
+
+
+void BundleManifestTest::testProvidedModule3()
+{
+	std::string manifestData(
+		"Manifest-Version: 1.0\n"
+		"Bundle-Name: Sample Bundle\n"
+		"Bundle-SymbolicName: com.appinf.osp.sample\n"
+		"Bundle-Version: 1.0.2-b1\n"
+		"Provide-Module: com.appinf.osp.module1 ; module-version = 1.0, com.appinf.osp.module2; module-version = 2.1.3"
+	);
+	std::istringstream istr(manifestData);
+	BundleManifest::Ptr pManifest(new BundleManifest(istr));
+	assert (pManifest->providedModules().size() == 2);
+	assert (pManifest->providedModules()[0].symbolicName == "com.appinf.osp.module1");
+	assert (pManifest->providedModules()[0].version.major() == 1);
+	assert (pManifest->providedModules()[0].version.minor() == 0);
+	assert (pManifest->providedModules()[0].version.revision() == 0);
+	assert (pManifest->providedModules()[1].symbolicName == "com.appinf.osp.module2");
+	assert (pManifest->providedModules()[1].version.major() == 2);
+	assert (pManifest->providedModules()[1].version.minor() == 1);
+	assert (pManifest->providedModules()[1].version.revision() == 3);
+}
+
+
+void BundleManifestTest::testProvidedModule4()
+{
+	std::string manifestData(
+		"Manifest-Version: 1.0\n"
+		"Bundle-Name: Sample Bundle\n"
+		"Bundle-SymbolicName: com.appinf.osp.sample\n"
+		"Bundle-Version: 1.0.2-b1\n"
+		"Provide-Module: com.appinf.osp.module1"
+	);
+	try
+	{
+		std::istringstream istr(manifestData);
+		BundleManifest::Ptr pManifest(new BundleManifest(istr));
+		fail("no module version specified - must throw");
+	}
+	catch (Poco::OSP::ManifestException&)
+	{
+	}
+}
+
+
 void BundleManifestTest::setUp()
 {
 }
@@ -397,6 +569,14 @@ CppUnit::Test* BundleManifestTest::suite()
 	CppUnit_addTest(pSuite, BundleManifestTest, testRequired7);
 	CppUnit_addTest(pSuite, BundleManifestTest, testRequired8);
 	CppUnit_addTest(pSuite, BundleManifestTest, testRequired9);
+	CppUnit_addTest(pSuite, BundleManifestTest, testRequiredModule1);
+	CppUnit_addTest(pSuite, BundleManifestTest, testRequiredModule2);
+	CppUnit_addTest(pSuite, BundleManifestTest, testRequiredModule3);
+	CppUnit_addTest(pSuite, BundleManifestTest, testRequiredModule4);
+	CppUnit_addTest(pSuite, BundleManifestTest, testProvidedModule1);
+	CppUnit_addTest(pSuite, BundleManifestTest, testProvidedModule2);
+	CppUnit_addTest(pSuite, BundleManifestTest, testProvidedModule3);
+	CppUnit_addTest(pSuite, BundleManifestTest, testProvidedModule4);
 
 	return pSuite;
 }

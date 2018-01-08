@@ -26,7 +26,16 @@ VersionRange::VersionRange():
 {
 }
 
-	
+
+VersionRange::VersionRange(const Version& ver):
+	_lower(ver),
+	_upper(ver),
+	_includeLower(true),
+	_includeUpper(true)
+{
+}
+
+
 VersionRange::VersionRange(const Version& lower, bool includeLower, const Version& upper, bool includeUpper):
 	_lower(lower),
 	_upper(upper),
@@ -58,7 +67,15 @@ VersionRange& VersionRange::operator = (const VersionRange& range)
 	return *this;
 }
 
-	
+
+VersionRange& VersionRange::operator = (const Version& ver)
+{
+	VersionRange tmp(ver);
+	swap(tmp);
+	return *this;
+}
+
+
 void VersionRange::swap(VersionRange& range)
 {
 	using std::swap;
