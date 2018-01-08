@@ -7,10 +7,7 @@
 .PHONY: clean all
 
 include $(POCO_BASE)/build/rules/global
-
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
-
-include $(POCO_BASE)/build/rules/dylib
 
 all:
 	$(shell mkdir -p ../bundles)
