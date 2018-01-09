@@ -23,6 +23,7 @@
 #include "IoT/Dataflow/Engine/Engine.h"
 #include "IoT/Dataflow/Engine/Port.h"
 #include "IoT/Dataflow/Engine/FastEvent.h"
+#include <typeinfo>
 
 
 namespace IoT {

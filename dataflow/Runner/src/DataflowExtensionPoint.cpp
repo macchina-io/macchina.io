@@ -18,6 +18,7 @@
 #include "IoT/Dataflow/Runner/NodeFactory.h"
 #include "IoT/Dataflow/XML/Parser.h"
 #include "Poco/OSP/BundleEvents.h"
+#include <memory>
 
 
 namespace IoT {
