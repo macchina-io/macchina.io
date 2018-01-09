@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.6/RemotingNG/samples/PizzeriaClient/Makefile#1 $
-#
 # Makefile for RemotingNG PizzeriaClient sample.
 #
 

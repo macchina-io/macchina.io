@@ -1,8 +1,6 @@
 //
 // WebTunnelSSH.cpp
 //
-// $Id: //poco/1.4/WebTunnel/samples/WebTunnelSSH/src/WebTunnelSSH.cpp#3 $
-//
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

@@ -1,8 +1,6 @@
 //
 // JSServletExecutor.cpp
 //
-// $Id: //poco/1.4/OSP/JS/src/JSServletExecutor.cpp#2 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //

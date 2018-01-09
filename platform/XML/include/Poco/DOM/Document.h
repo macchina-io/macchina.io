@@ -1,8 +1,6 @@
 //
 // Document.h
 //
-// $Id: //poco/1.4/XML/include/Poco/DOM/Document.h#2 $
-//
 // Library: XML
 // Package: DOM
 // Module:  DOM
@@ -98,10 +96,10 @@ public:
 		/// Resumes all events suspended with suspendEvent();
 
 	bool eventsSuspended() const;
-		/// Returns true if events are suspeded.
+		/// Returns true if events are suspended.
 
 	bool events() const;
-		/// Returns true if events are not suspeded.
+		/// Returns true if events are not suspended.
 
 	const DocumentType* doctype() const;
 		/// The Document Type Declaration (see DocumentType) associated with this document.

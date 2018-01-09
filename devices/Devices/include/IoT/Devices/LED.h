@@ -1,8 +1,6 @@
 //
 // LED.h
 //
-// $Id$
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  LED

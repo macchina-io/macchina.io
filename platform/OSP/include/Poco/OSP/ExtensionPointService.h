@@ -1,8 +1,6 @@
 //
 // ExtensionPointService.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/ExtensionPointService.h#1 $
-//
 // Library: OSP
 // Package: ExtensionPointService
 // Module:  ExtensionPointService

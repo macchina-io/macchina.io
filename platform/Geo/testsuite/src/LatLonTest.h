@@ -1,8 +1,6 @@
 //
 // LatLonTest.h
 //
-// $Id$
-//
 // Definition of the LatLonTest class.
 //
 // Copyright (c) 2011-2015, Günter Obiltschnig.

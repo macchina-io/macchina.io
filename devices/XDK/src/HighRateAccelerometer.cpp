@@ -1,8 +1,6 @@
 //
 // HighRateAccelerometer.cpp
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -17,21 +15,19 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
 const std::string HighRateAccelerometer::NAME("XDK Accelerometer");
-const std::string HighRateAccelerometer::SYMBOLIC_NAME("io.macchina.btle.xdk.accelerometer");
+const std::string HighRateAccelerometer::TYPE("io.macchina.accelerometer");
+const std::string HighRateAccelerometer::SYMBOLIC_NAME("io.macchina.xdk.accelerometer");
 
 
-HighRateAccelerometer::HighRateAccelerometer(Peripheral::Ptr pPeripheral):
+HighRateAccelerometer::HighRateAccelerometer(BtLE::Peripheral::Ptr pPeripheral):
 	_pPeripheral(pPeripheral),
 	_enabled(false),
 	_ready(false),
-	_deviceIdentifier(pPeripheral->address()),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME)
+	_deviceIdentifier(pPeripheral->address())
 {
 	addProperty("displayValue", &HighRateAccelerometer::getDisplayValue);
 	addProperty("enabled", &HighRateAccelerometer::getEnabled, &HighRateAccelerometer::setEnabled);
@@ -39,14 +35,15 @@ HighRateAccelerometer::HighRateAccelerometer(Peripheral::Ptr pPeripheral):
 	addProperty("deviceIdentifier", &HighRateAccelerometer::getDeviceIdentifier);
 	addProperty("symbolicName", &HighRateAccelerometer::getSymbolicName);
 	addProperty("name", &HighRateAccelerometer::getName);
-	
+	addProperty("type", &HighRateAccelerometer::getType);
+
 	_pPeripheral->connected += Poco::delegate(this, &HighRateAccelerometer::onConnected);
 	_pPeripheral->disconnected += Poco::delegate(this, &HighRateAccelerometer::onDisconnected);
 
 	init();
 }
 
-	
+
 HighRateAccelerometer::~HighRateAccelerometer()
 {
 	_pPeripheral->connected -= Poco::delegate(this, &HighRateAccelerometer::onConnected);
@@ -117,13 +114,19 @@ Poco::Any HighRateAccelerometer::getDeviceIdentifier(const std::string&) const
 
 Poco::Any HighRateAccelerometer::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
+}
+
+
+Poco::Any HighRateAccelerometer::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 
 Poco::Any HighRateAccelerometer::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
 }
 
 
@@ -164,5 +167,4 @@ void HighRateAccelerometer::onDisconnected()
 }
 
 
-} } } // namespace IoT::BtLE::XDK
-
+} } // namespace IoT::XDK

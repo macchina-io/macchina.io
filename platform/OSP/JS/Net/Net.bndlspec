@@ -26,5 +26,9 @@
     ${bin}/*.pdb
     bin/${osName}/${osArch}/*.so
     bin/${osName}/${osArch}/*.dylib
+    ../../../lib/${osName}/${osArch}/libPocoJSNet.so.*
+    ../../../lib/${osName}/${osArch}/libPocoJSNetd.so.*
+    ../../../lib/${osName}/${osArch}/libPocoJSNet.*.dylib
+    ../../../lib/${osName}/${osArch}/libPocoJSNetd.*.dylib
   </code>
 </bundlespec>

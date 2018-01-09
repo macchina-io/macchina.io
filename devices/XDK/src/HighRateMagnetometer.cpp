@@ -1,8 +1,6 @@
 //
 // HighRateMagnetometer.cpp
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -17,21 +15,19 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
 const std::string HighRateMagnetometer::NAME("XDK Magnetometer");
-const std::string HighRateMagnetometer::SYMBOLIC_NAME("io.macchina.btle.xdk.magnetometer");
+const std::string HighRateMagnetometer::TYPE("io.macchina.magnetometer");
+const std::string HighRateMagnetometer::SYMBOLIC_NAME("io.macchina.xdk.magnetometer");
 
 
-HighRateMagnetometer::HighRateMagnetometer(Peripheral::Ptr pPeripheral):
+HighRateMagnetometer::HighRateMagnetometer(BtLE::Peripheral::Ptr pPeripheral):
 	_pPeripheral(pPeripheral),
 	_enabled(false),
 	_ready(false),
-	_deviceIdentifier(pPeripheral->address()),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME)
+	_deviceIdentifier(pPeripheral->address())
 {
 	addProperty("displayValue", &HighRateMagnetometer::getDisplayValue);
 	addProperty("enabled", &HighRateMagnetometer::getEnabled, &HighRateMagnetometer::setEnabled);
@@ -39,14 +35,15 @@ HighRateMagnetometer::HighRateMagnetometer(Peripheral::Ptr pPeripheral):
 	addProperty("deviceIdentifier", &HighRateMagnetometer::getDeviceIdentifier);
 	addProperty("symbolicName", &HighRateMagnetometer::getSymbolicName);
 	addProperty("name", &HighRateMagnetometer::getName);
-	
+	addProperty("type", &HighRateMagnetometer::getType);
+
 	_pPeripheral->connected += Poco::delegate(this, &HighRateMagnetometer::onConnected);
 	_pPeripheral->disconnected += Poco::delegate(this, &HighRateMagnetometer::onDisconnected);
 
 	init();
 }
 
-	
+
 HighRateMagnetometer::~HighRateMagnetometer()
 {
 	_pPeripheral->connected -= Poco::delegate(this, &HighRateMagnetometer::onConnected);
@@ -103,7 +100,7 @@ Poco::Any HighRateMagnetometer::getDisplayValue(const std::string&) const
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	if (_ready && _enabled)
-		return Poco::format("x=%.2f y=%.2f z=%.2f, r=%.2f", _fieldStrength.x, _fieldStrength.y, _fieldStrength.z, _fieldStrength.r);
+		return Poco::format("x=%.3f y=%.3f z=%.3f", _fieldStrength.x, _fieldStrength.y, _fieldStrength.z);
 	else
 		return std::string("n/a");
 }
@@ -117,13 +114,19 @@ Poco::Any HighRateMagnetometer::getDeviceIdentifier(const std::string&) const
 
 Poco::Any HighRateMagnetometer::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
+}
+
+
+Poco::Any HighRateMagnetometer::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 
 Poco::Any HighRateMagnetometer::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
 }
 
 
@@ -163,5 +166,4 @@ void HighRateMagnetometer::onDisconnected()
 }
 
 
-} } } // namespace IoT::BtLE::XDK
-
+} } // namespace IoT::XDK

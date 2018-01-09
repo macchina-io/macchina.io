@@ -25,9 +25,9 @@
     ../../${bin}/IoTUDP${64}d.pdb,
     bin/${osName}/${osArch}/*.so,
     bin/${osName}/${osArch}/*.dylib,
-    ../../lib/${osName}/${osArch}/IoTUDP.so.*,
-    ../../lib/${osName}/${osArch}/IoTUDPd.so.*,
-    ../../lib/${osName}/${osArch}/IoTUDP.*.dylib,
-    ../../lib/${osName}/${osArch}/IoTUDPd.*.dylib
+    ../../lib/${osName}/${osArch}/libIoTUDP.so.*,
+    ../../lib/${osName}/${osArch}/libIoTUDPd.so.*,
+    ../../lib/${osName}/${osArch}/libIoTUDP.*.dylib,
+    ../../lib/${osName}/${osArch}/libIoTUDPd.*.dylib
   </code>
 </bundlespec>

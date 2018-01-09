@@ -1,8 +1,6 @@
 //
 // Wrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/Wrapper.cpp#4 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  Wrapper

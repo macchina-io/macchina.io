@@ -1,8 +1,6 @@
 //
 // Environment_WIN32U.cpp
 //
-// $Id: //poco/1.4/Foundation/src/Environment_WIN32U.cpp#2 $
-//
 // Library: Foundation
 // Package: Core
 // Module:  Environment
@@ -23,6 +21,7 @@
 #include "Poco/UnWindows.h"
 #include <winsock2.h>
 #include <wincrypt.h>
+#include <ws2ipdef.h>
 #include <iphlpapi.h>
 
 

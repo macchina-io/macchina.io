@@ -1,8 +1,6 @@
 //
 // BundleInstallHandler.h
 //
-// $Id: //poco/1.7/OSP/BundleAdmin/src/BundleInstallHandler.h#1 $
-//
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

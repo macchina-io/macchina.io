@@ -1,8 +1,6 @@
 //
 // BundleInfoHandler.h
 //
-// $Id: //poco/1.7/OSP/BundleAdmin/src/BundleInfoHandler.h#1 $
-//
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -27,13 +25,15 @@ public:
 
 	~BundleInfoHandler();
 		/// Destroys the BundleInfoHandler.
-		
+
 	void run();
-	
+
 protected:
 	typedef std::vector<Poco::OSP::Bundle::Ptr> BundleVec;
-	
+
 	void dependencies(Poco::OSP::Bundle::Ptr pBundle);
+	void modules(Poco::OSP::Bundle::Ptr pBundle);
+	void provided(Poco::OSP::Bundle::Ptr pBundle);
 	void actions(Poco::OSP::Bundle::Ptr pBundle);
 	bool performAction(Poco::OSP::Bundle::Ptr pBundle, const std::string& action);
 	void confirmUninstall(Poco::OSP::Bundle::Ptr pBundle);

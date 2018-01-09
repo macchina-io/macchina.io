@@ -1,8 +1,6 @@
 //
 // RTUPort.cpp
 //
-// $Id$
-//
 // Library: IoT/Modbus
 // Package: ModbusMaster
 // Module:  RTUPort

@@ -23,8 +23,8 @@ namespace Devices {
 
 
 ITrigger::ITrigger():
-	IoT::Devices::IDevice(),
-	stateChanged()
+	IoT::Devices::IBooleanSensor()
+
 {
 }
 

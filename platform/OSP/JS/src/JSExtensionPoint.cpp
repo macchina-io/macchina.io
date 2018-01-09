@@ -1,8 +1,6 @@
 //
 // JSExtensionPoint.h
 //
-// $Id: //poco/1.4/OSP/JS/src/JSExtensionPoint.cpp#1 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //

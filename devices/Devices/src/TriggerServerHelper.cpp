@@ -16,7 +16,6 @@
 
 
 #include "IoT/Devices/TriggerServerHelper.h"
-#include "IoT/Devices/TriggerEventDispatcher.h"
 #include "IoT/Devices/TriggerSkeleton.h"
 #include "Poco/RemotingNG/URIUtility.h"
 #include "Poco/SingletonHolder.h"
@@ -55,18 +54,6 @@ void TriggerServerHelper::shutdown()
 Poco::AutoPtr<IoT::Devices::TriggerRemoteObject> TriggerServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::Trigger> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
 	return new TriggerRemoteObject(oid, pServiceObject);
-}
-
-
-void TriggerServerHelper::enableEventsImpl(const std::string& uri, const std::string& protocol)
-{
-	Poco::RemotingNG::Identifiable::Ptr pIdentifiable = _pORB->findObject(uri);
-	Poco::AutoPtr<TriggerRemoteObject> pRemoteObject = pIdentifiable.cast<TriggerRemoteObject>();
-	if (pRemoteObject)
-	{
-		pRemoteObject->remoting__enableRemoteEvents(protocol);
-	}
-	else throw Poco::NotFoundException("remote object", uri);
 }
 
 

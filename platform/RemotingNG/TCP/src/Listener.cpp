@@ -1,8 +1,6 @@
 //
 // Listener.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/Listener.cpp#6 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  Listener

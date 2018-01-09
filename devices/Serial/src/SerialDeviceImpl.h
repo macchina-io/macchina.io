@@ -1,8 +1,6 @@
 //
 // SerialDeviceImpl.h
 //
-// $Id$
-//
 // Library: IoT/Serial
 // Package: Serial
 // Module:  SerialDevice
@@ -60,6 +58,7 @@ public:
 	
 protected:
 	Poco::Any getName(const std::string&) const;
+	Poco::Any getType(const std::string&) const;
 	Poco::Any getSymbolicName(const std::string&) const;
 	Poco::Any getDevice(const std::string&) const;
 	Poco::Any getBaudRate(const std::string&) const;
@@ -81,6 +80,7 @@ protected:
 	void run();
 	
 	static const std::string NAME;
+	static const std::string TYPE;
 	static const std::string SYMBOLIC_NAME;
 	static const std::string FLOW_NONE;
 	static const std::string FLOW_RTSCTS;

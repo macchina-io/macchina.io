@@ -1,8 +1,6 @@
 //
 // BundleInfoHandler.cpp
 //
-// $Id: //poco/1.7/OSP/BundleAdmin/src/BundleInfoHandler.cpp#1 $
-//
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -32,11 +30,11 @@ BundleInfoHandler::~BundleInfoHandler()
 {
 }
 
-	
+
 void BundleInfoHandler::run()
 {
 	std::string symbolicName = form().get("symbolicName");
-	
+
 	Bundle::Ptr pBundle = context()->findBundle(symbolicName);
 	if (pBundle)
 	{
@@ -62,6 +60,8 @@ void BundleInfoHandler::run()
 		endList();
 		actions(pBundle);
 		dependencies(pBundle);
+		modules(pBundle);
+		provided(pBundle);
 		endPage();
 	}
 	else
@@ -85,7 +85,7 @@ void BundleInfoHandler::dependencies(Poco::OSP::Bundle::Ptr pBundle)
 	headerCell(text("bundle"));
 	headerCell(text("version"));
 	endRow();
-	
+
 	bool even = true;
 	for (BundleManifest::Dependencies::const_iterator it = deps.begin(); it != deps.end(); ++it)
 	{
@@ -94,6 +94,60 @@ void BundleInfoHandler::dependencies(Poco::OSP::Bundle::Ptr pBundle)
 		linkBundle(it->symbolicName);
 		endCell();
 		cell(it->versions.toString());
+		endRow();
+		even = !even;
+	}
+	endTable();
+}
+
+
+void BundleInfoHandler::modules(Poco::OSP::Bundle::Ptr pBundle)
+{
+	const BundleManifest::Dependencies& deps = pBundle->requiredModules();
+
+	if (deps.empty()) return;
+
+	heading(text("modules"));
+
+	beginTable();
+	beginRow(true);
+	headerCell(text("module"));
+	headerCell(text("version"));
+	endRow();
+
+	bool even = true;
+	for (BundleManifest::Dependencies::const_iterator it = deps.begin(); it != deps.end(); ++it)
+	{
+		beginRow(even);
+		cell(it->symbolicName);
+		cell(it->versions.toString());
+		endRow();
+		even = !even;
+	}
+	endTable();
+}
+
+
+void BundleInfoHandler::provided(Poco::OSP::Bundle::Ptr pBundle)
+{
+	const Bundle::Modules& mods = pBundle->providedModules();
+
+	if (mods.empty()) return;
+
+	heading(text("provided"));
+
+	beginTable();
+	beginRow(true);
+	headerCell(text("module"));
+	headerCell(text("version"));
+	endRow();
+
+	bool even = true;
+	for (Bundle::Modules::const_iterator it = mods.begin(); it != mods.end(); ++it)
+	{
+		beginRow(even);
+		cell(it->symbolicName);
+		cell(it->version.toString());
 		endRow();
 		even = !even;
 	}
@@ -205,7 +259,7 @@ void BundleInfoHandler::confirmStop(Poco::OSP::Bundle::Ptr pBundle, const Bundle
 	headerCell(text("bundle"));
 	headerCell(text("version"));
 	endRow();
-	
+
 	bool even = true;
 	for (BundleVec::const_iterator it = dependingBundles.begin(); it != dependingBundles.end(); ++it)
 	{

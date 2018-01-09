@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <bundlespec>
   <manifest>
-    <name>SensorLog</name>
+    <name>Sensor Log</name>
     <symbolicName>io.macchina.samples.sensorlog</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>

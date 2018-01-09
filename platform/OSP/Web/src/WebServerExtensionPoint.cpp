@@ -1,8 +1,6 @@
 //
 // WebServerExtensionPoint.cpp
 //
-// $Id: //poco/1.7/OSP/Web/src/WebServerExtensionPoint.cpp#1 $
-//
 // Library: OSP/Web
 // Package: Web
 // Module:  WebServerExtensionPoint

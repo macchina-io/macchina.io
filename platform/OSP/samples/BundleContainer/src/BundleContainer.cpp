@@ -1,8 +1,6 @@
 //
 // BundleContainer.cpp
 //
-// $Id: //poco/1.7/OSP/samples/BundleContainer/src/BundleContainer.cpp#1 $
-//
 // This sample demonstrates the OSP framework.
 //
 // Copyright (c) 2007-2016, Applied Informatics Software Engineering GmbH.

@@ -1,8 +1,6 @@
 //
 // HighRateSensor.cpp
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -16,15 +14,15 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
 const std::string HighRateSensor::NAME("XDK Sensor");
-const std::string HighRateSensor::SYMBOLIC_NAME("io.macchina.btle.xdk");
+const std::string HighRateSensor::TYPE("io.macchina.sensor");
+const std::string HighRateSensor::SYMBOLIC_NAME("io.macchina.xdk");
 
 
-HighRateSensor::HighRateSensor(Peripheral::Ptr pPeripheral, const Params& params):
+HighRateSensor::HighRateSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params):
 	_params(params),
 	_pPeripheral(pPeripheral),
 	_ready(false),
@@ -33,8 +31,6 @@ HighRateSensor::HighRateSensor(Peripheral::Ptr pPeripheral, const Params& params
 	_valueChangedDelta(0.0),
 	_pEventPolicy(new IoT::Devices::NoModerationPolicy<double>(valueChanged)),
 	_deviceIdentifier(pPeripheral->address()),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME),
 	_physicalQuantity(params.physicalQuantity),
 	_physicalUnit(params.physicalUnit)
 {
@@ -45,9 +41,10 @@ HighRateSensor::HighRateSensor(Peripheral::Ptr pPeripheral, const Params& params
 	addProperty("deviceIdentifier", &HighRateSensor::getDeviceIdentifier);
 	addProperty("symbolicName", &HighRateSensor::getSymbolicName);
 	addProperty("name", &HighRateSensor::getName);
+	addProperty("type", &HighRateSensor::getType);
 	addProperty("physicalQuantity", &HighRateSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &HighRateSensor::getPhysicalUnit);
-	
+
 	_pEventPolicy = new IoT::Devices::NoModerationPolicy<double>(valueChanged);
 
 	_pPeripheral->connected += Poco::delegate(this, &HighRateSensor::onConnected);
@@ -56,7 +53,7 @@ HighRateSensor::HighRateSensor(Peripheral::Ptr pPeripheral, const Params& params
 	init();
 }
 
-	
+
 HighRateSensor::~HighRateSensor()
 {
 	_pPeripheral->connected -= Poco::delegate(this, &HighRateSensor::onConnected);
@@ -84,7 +81,7 @@ bool HighRateSensor::ready() const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	return _ready && _pPeripheral->isConnected();	
+	return _ready && _pPeripheral->isConnected();
 }
 
 
@@ -161,13 +158,19 @@ Poco::Any HighRateSensor::getDeviceIdentifier(const std::string&) const
 
 Poco::Any HighRateSensor::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
+}
+
+
+Poco::Any HighRateSensor::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 
 Poco::Any HighRateSensor::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
 }
 
 
@@ -220,4 +223,4 @@ void HighRateSensor::onDisconnected()
 }
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK

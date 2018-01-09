@@ -1,0 +1,20 @@
+#
+# Makefile-Library
+#
+# Makefile for IoT MobileConnection Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = IMobileConnectionService \
+	MobileConnectionService \
+	MobileConnectionServiceEventDispatcher \
+	MobileConnectionServiceRemoteObject \
+	MobileConnectionServiceServerHelper \
+	MobileConnectionServiceSkeleton
+
+target         = IoTMobileConnection
+target_version = 1
+target_libs    = PocoRemotingNG PocoOSP PocoZip PocoUtil PocoJSON PocoXML PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

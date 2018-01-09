@@ -28,7 +28,8 @@ namespace Devices {
 
 
 class RotaryEncoderSkeleton: public Poco::RemotingNG::Skeleton
-	/// A rotary encoder with an optional push button.
+	/// A rotary encoder with an optional push button, based
+	/// on the Counter interface.
 {
 public:
 	RotaryEncoderSkeleton();

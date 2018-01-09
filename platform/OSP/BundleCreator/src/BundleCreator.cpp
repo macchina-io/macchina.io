@@ -1,8 +1,6 @@
 //
 // BundleCreator.cpp
 //
-// $Id: //poco/1.7/OSP/BundleCreator/src/BundleCreator.cpp#2 $
-//
 // The BundleCreator utility creates a bundle from a bundle specification file.
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
@@ -21,6 +19,8 @@
 #include "Poco/OSP/OSPSubsystem.h"
 #include "Poco/OSP/ServiceRegistry.h"
 #include "Poco/OSP/BundleManifest.h"
+#include "Poco/OSP/VersionRange.h"
+#include "Poco/OSP/Version.h"
 #include "Poco/Zip/Compress.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/Environment.h"
@@ -48,11 +48,14 @@ using Poco::Util::OptionCallback;
 using Poco::OSP::OSPSubsystem;
 using Poco::OSP::ServiceRegistry;
 using Poco::OSP::BundleManifest;
+using Poco::OSP::VersionRange;
+using Poco::OSP::Version;
 using Poco::Zip::Compress;
 using Poco::File;
 using Poco::Path;
 using Poco::DirectoryIterator;
 using Poco::FileOutputStream;
+using Poco::FileInputStream;
 
 
 class FileLock
@@ -63,7 +66,7 @@ public:
 	{
 		acquire();
 	}
-	
+
 	~FileLock()
 	{
 		try
@@ -74,11 +77,12 @@ public:
 		{
 		}
 	}
-	
+
 protected:
 	void acquire()
 	{
 		Poco::Random rnd;
+		rnd.seed();
 		int attempts = 0;
 		bool haveLock = createFile();
 		while (!haveLock)
@@ -89,12 +93,12 @@ protected:
 			haveLock = createFile();
 		}
 	}
-	
+
 	void release()
 	{
 		_file.remove();
 	}
-	
+
 	bool createFile()
 	{
 		try
@@ -111,7 +115,7 @@ private:
 	FileLock();
 	FileLock(const FileLock&);
 	FileLock& operator = (const FileLock&);
-	
+
 	File _file;
 };
 
@@ -126,7 +130,8 @@ public:
 		_outputDir(Path::current()),
 		_keep(false),
 		_noDeflate(false),
-		_noFile(false)
+		_noFile(false),
+		_defaultVersion("1.0.0")
 	{
 		makeValidFileName(_osName);
 		makeValidFileName(_osArch);
@@ -189,10 +194,17 @@ protected:
 				.repeatable(false)
 				.argument("<extensions>", false)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleNoDeflate)));
-		
 
 		options.addOption(
-			Option("define", "D", 
+			Option("version", "v", "Specify default bundle version, e.g. \"1.0.0\", to be used "
+				"if the bundle specification file does not have one.")
+				.required(false)
+				.repeatable(false)
+				.argument("<version>")
+				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleVersion)));
+
+		options.addOption(
+			Option("define", "D",
 				"Define a configuration property. A configuration property "
 				"defined with this option can be referenced in the bundle specification "
 				"file, using the following syntax: ${<name>}.")
@@ -201,7 +213,7 @@ protected:
 				.argument("<name>=<value>")
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleDefine)));
 	}
-	
+
 	void handleHelp(const std::string& name, const std::string& value)
 	{
 		_showHelp = true;
@@ -223,17 +235,17 @@ protected:
 		_keep = true;
 		_noFile = true;
 	}
-	
+
 	void handleOSName(const std::string& name, const std::string& value)
 	{
 		_osName = value;
 	}
-	
+
 	void handleOSArch(const std::string& name, const std::string& value)
 	{
 		_osArch = value;
 	}
-	
+
 	void handleNoDeflate(const std::string& name, const std::string& value)
 	{
 		if (value.empty())
@@ -245,6 +257,11 @@ protected:
 			Poco::StringTokenizer tok(value, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 			_storeExtensions.insert(tok.begin(), tok.end());
 		}
+	}
+
+	void handleVersion(const std::string& name, const std::string& value)
+	{
+		_defaultVersion = value;
 	}
 
 	void handleDefine(const std::string& name, const std::string& value)
@@ -328,7 +345,7 @@ private:
 	{
 		File outputDir(_outputDir);
 		outputDir.createDirectories();
-		
+
 		Path outputPath(_outputDir);
 		outputPath.makeDirectory();
 		ManifestInfo mi(loadManifest());
@@ -336,7 +353,7 @@ private:
 		Path bndlPath(outputPath, bndlName);
 
 		File bndlDir(bndlPath);
-		FileLock lock(bndlDir.path());			
+		FileLock lock(bndlDir.path());
 		if (bndlDir.exists())
 		{
 			safeRemove(bndlDir);
@@ -391,7 +408,12 @@ private:
 		bool lazyStart = getBool(PREFIX + "lazyStart", false);
 		std::string runLevel = getString(PREFIX + "runLevel", BundleManifest::DEFAULT_RUNLEVEL);
 		std::string extendsBundle = getString(PREFIX + "extends", "");
-		Poco::OSP::Version version(getString(PREFIX + "version"));
+		std::string versionStr(getString(PREFIX + "version", ""));
+		if (versionStr.empty() || versionStr == "default" || versionStr == "auto")
+		{
+			versionStr = _defaultVersion;
+		}
+		Poco::OSP::Version version(versionStr);
 		ManifestInfo::Dependencies requiredBundles;
 		Poco::UInt32 idx = 0;
 		std::string symName;
@@ -412,13 +434,67 @@ private:
 				ManifestInfo::Dependency dep;
 				dep.symbolicName = symName;
 				if (!versionRange.empty())
+				{
 					dep.versions = versionRange;
+				}
 				requiredBundles.push_back(dep);
 			}
 		}
 		while (!symName.empty());
 
-		return ManifestInfo(name, symbolicName, version, vendor, copyright, activatorClass, activatorLibrary, requiredBundles, lazyStart, runLevel, extendsBundle);
+		ManifestInfo::Dependencies requiredModules;
+		idx = 0;
+		do
+		{
+			std::string path(PREFIX+"module-dependency[");
+			path.append(Poco::NumberFormatter::format(idx++));
+			path.append("].");
+			symName = path + "symbolicName";
+			versionRange = path + "version";
+			symName = getString(symName, "");
+			versionRange = getString(versionRange, "");
+			Poco::trimInPlace(symName);
+			Poco::trimInPlace(versionRange);
+			if (!symName.empty())
+			{
+				ManifestInfo::Dependency dep;
+				dep.symbolicName = symName;
+				if (!versionRange.empty())
+				{
+					dep.versions = versionRange;
+				}
+				requiredModules.push_back(dep);
+			}
+		}
+		while (!symName.empty());
+
+		ManifestInfo::ProvidedModules providedModules;
+		idx = 0;
+		do
+		{
+			std::string path(PREFIX+"module[");
+			path.append(Poco::NumberFormatter::format(idx++));
+			path.append("].");
+			symName = path + "symbolicName";
+			versionRange = path + "version";
+			symName = getString(symName, "");
+			versionRange = getString(versionRange, "");
+			Poco::trimInPlace(symName);
+			Poco::trimInPlace(versionRange);
+			if (!symName.empty())
+			{
+				ManifestInfo::ProvidedModule mod;
+				mod.symbolicName = symName;
+				if (!versionRange.empty())
+				{
+					mod.version = versionRange;
+				}
+				providedModules.push_back(mod);
+			}
+		}
+		while (!symName.empty());
+
+		return ManifestInfo(name, symbolicName, version, vendor, copyright, activatorClass, activatorLibrary, requiredBundles, requiredModules, providedModules, lazyStart, runLevel, extendsBundle);
 	}
 
 	void saveManifest(const ManifestInfo& info, std::ostream& out)
@@ -445,6 +521,7 @@ private:
 		if (!info.extendsBundle().empty())
 			out << BundleManifest::EXTENDS_BUNDLE << ": " << info.extendsBundle() << std::endl;
 		out << BundleManifest::BUNDLE_LAZYSTART << ": " << (info.lazyStart()?"true":"false") << std::endl;
+
 		const ManifestInfo::Dependencies& deps = info.requiredBundles();
 		//Require-Bundle: com.appinf.osp.bundle1;bundle-version=[1.0,2.0), com.appinf.osp.bundle2
 		if (!deps.empty())
@@ -461,7 +538,47 @@ private:
 				}
 				out << it->symbolicName;
 				if (!it->versions.empty())
-					out << ";" << Poco::toLower(BundleManifest::BUNDLE_VERSION) << "=" << it->versions;
+					out << ";bundle-version=" << it->versions;
+			}
+			out << std::endl;
+		}
+
+		const ManifestInfo::Dependencies& moduleDeps = info.requiredModules();
+		//Require-Module: com.appinf.osp.module1;module-version=[1.0,2.0), com.appinf.osp.module2
+		if (!moduleDeps.empty())
+		{
+			out << BundleManifest::REQUIRE_MODULE << ": ";
+			std::string empty(BundleManifest::REQUIRE_MODULE.size()+2, ' ');
+			ManifestInfo::Dependencies::const_iterator it = moduleDeps.begin();
+			ManifestInfo::Dependencies::const_iterator itEnd = moduleDeps.end();
+			for (; it != itEnd; ++it)
+			{
+				if (it != moduleDeps.begin())
+				{
+					out << ", \\" << std::endl << empty;
+				}
+				out << it->symbolicName;
+				if (!it->versions.empty())
+					out << ";module-version=" << it->versions;
+			}
+			out << std::endl;
+		}
+
+		const ManifestInfo::ProvidedModules& modules = info.providedModules();
+		//Provide-Module: com.appinf.osp.module1;module-version=1.0.0
+		if (!modules.empty())
+		{
+			out << BundleManifest::PROVIDE_MODULE << ": ";
+			std::string empty(BundleManifest::PROVIDE_MODULE.size()+2, ' ');
+			ManifestInfo::ProvidedModules::const_iterator it = modules.begin();
+			ManifestInfo::ProvidedModules::const_iterator itEnd = modules.end();
+			for (; it != itEnd; ++it)
+			{
+				if (it != modules.begin())
+				{
+					out << ", \\" << std::endl << empty;
+				}
+				out << it->symbolicName << ";module-version=" << it->version;
 			}
 			out << std::endl;
 		}
@@ -528,6 +645,9 @@ private:
 		FileOutputStream out(manifest.toString());
 		saveManifest(mi, out);
 		out.close();
+		// verify
+		FileInputStream in(manifest.toString());
+		BundleManifest::Ptr pManifest = new BundleManifest(in);
 	}
 
 	void handleOther(const Path& root)
@@ -575,7 +695,7 @@ private:
 			it->remove(true);
 		}
 	}
-	
+
 	void copyFile(const File& file, const std::string& destPath) const
 	{
 		if (file.isHidden()) return;
@@ -607,17 +727,17 @@ private:
 			copyFile(*it, destPath);
 		}
 	}
-	
+
 	std::string getString(const std::string& prop)
 	{
 		return config().expand(_ptrCfg->getString(prop));
 	}
-	
+
 	std::string getString(const std::string& prop, const std::string& deflt)
 	{
 		return config().expand(_ptrCfg->getString(prop, deflt));
 	}
-	
+
 	bool getBool(const std::string& prop, bool deflt)
 	{
 		return _ptrCfg->getBool(prop, deflt);
@@ -633,6 +753,7 @@ private:
 	bool _noFile;
 	Poco::AutoPtr<XMLConfiguration> _ptrCfg;
 	std::set<std::string> _storeExtensions;
+	std::string _defaultVersion;
 };
 
 

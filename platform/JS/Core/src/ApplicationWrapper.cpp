@@ -1,8 +1,6 @@
 //
 // ApplicationWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/ApplicationWrapper.cpp#3 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  ApplicationWrapper
@@ -39,7 +37,7 @@ ApplicationWrapper::~ApplicationWrapper()
 v8::Handle<v8::ObjectTemplate> ApplicationWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
-	v8::Local<v8::ObjectTemplate> applicationTemplate = v8::ObjectTemplate::New();
+	v8::Local<v8::ObjectTemplate> applicationTemplate = v8::ObjectTemplate::New(pIsolate);
 	applicationTemplate->SetInternalFieldCount(1);
 	applicationTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "name"), name);
 	applicationTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "startTime"), startTime);

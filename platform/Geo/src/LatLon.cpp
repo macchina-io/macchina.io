@@ -1,8 +1,6 @@
 //
 // LatLon.cpp
 //
-// $Id$
-//
 // Library: Geo
 // Package: Geo
 // Module:  LatLon

@@ -1,8 +1,6 @@
 //
 // LocalPortForwarder.h
 //
-// $Id: //poco/1.4/WebTunnel/include/Poco/WebTunnel/LocalPortForwarder.h#6 $
-//
 // Library: WebTunnel
 // Package: WebTunnel
 // Module:  LocalPortForwarder
@@ -46,7 +44,7 @@ class WebTunnel_API WebSocketFactory
 	/// to create a Poco::Net::HTTPClientSession instance for connecting to
 	/// the given URI.
 {
-public:	
+public:
 	typedef Poco::SharedPtr<WebSocketFactory> Ptr;
 
 	WebSocketFactory();
@@ -73,15 +71,15 @@ public:
 		/// Creates the DefaultWebSocketFactory with no credentials.
 
 	DefaultWebSocketFactory(const std::string& username, const std::string& password, Poco::Timespan timeout = Poco::Timespan(30, 0));
-		/// Creates the DefaultWebSocketFactory using the given username 
+		/// Creates the DefaultWebSocketFactory using the given username
 		/// and password.
-		
+
 	~DefaultWebSocketFactory();
 		/// Destroys the DefaultWebSocketFactory.
 
 	// WebSocketFactory
 	Poco::Net::WebSocket* createWebSocket(const Poco::URI& uri, Poco::Net::HTTPRequest& request, Poco::Net::HTTPResponse& response);
-	
+
 private:
 	std::string _username;
 	std::string _password;
@@ -95,25 +93,25 @@ class WebTunnel_API LocalPortForwarder
 {
 public:
 	LocalPortForwarder(Poco::UInt16 localPort, Poco::UInt16 remotePort, const Poco::URI& remoteURI, WebSocketFactory::Ptr pWebSocketFactory);
-		/// Creates a LocalPortForwarder, using the given localPort to 
+		/// Creates a LocalPortForwarder, using the given localPort to
 		/// forward to the given remotePort on the remote system, using a WebSocket
-		/// connected to remoteURI. 
+		/// connected to remoteURI.
 		///
-		/// If localPort is 0, an ephemeral port number is used. This is recommended, 
-		/// as it avoids conflicts with already used port numbers. The localPort() member 
+		/// If localPort is 0, an ephemeral port number is used. This is recommended,
+		/// as it avoids conflicts with already used port numbers. The localPort() member
 		/// function can be used to obtain the actual port number.
 		///
 		/// The forwarding socket is always bound to the localhost interface
 		/// for security reasons.
 
 	LocalPortForwarder(const Poco::Net::SocketAddress& localAddress, Poco::UInt16 remotePort, const Poco::URI& remoteURI, Poco::Net::TCPServerParams::Ptr pServerParams, WebSocketFactory::Ptr pWebSocketFactory);
-		/// Creates a LocalPortForwarder, using the given local address to 
+		/// Creates a LocalPortForwarder, using the given local address to
 		/// forward to the given remotePort on the remote system, using a WebSocket
-		/// connected to remoteURI. 
+		/// connected to remoteURI.
 		///
-		/// If the port number given in localAddress is 0, an ephemeral port number 
-		/// is used. This is recommended, as it avoids conflicts with already used 
-		/// port numbers. The localPort() member function can be used to obtain 
+		/// If the port number given in localAddress is 0, an ephemeral port number
+		/// is used. This is recommended, as it avoids conflicts with already used
+		/// port numbers. The localPort() member function can be used to obtain
 		/// the actual port number.
 		///
 		/// The forwarding socket is bound to the address given in localAddress,
@@ -128,28 +126,28 @@ public:
 
 	Poco::UInt16 localPort() const;
 		/// Returns the local port number.
-		
+
 	Poco::UInt16 remotePort() const;
 		/// Returns the remote port number.
-		
+
 	const Poco::URI& remoteURI() const;
 		/// Returns the remote host name.
-		
+
 	void setLocalTimeout(Poco::Timespan timeout);
 		/// Sets the timeout for the local connection.
-		
+
 	Poco::Timespan getLocalTimeout() const;
 		/// Returns the timeout for the local connection.
 
 	void setRemoteTimeout(Poco::Timespan timeout);
 		/// Sets the timeout for the remote WebSocket connection.
-		
+
 	Poco::Timespan getRemoteTimeout() const;
 		/// Returns the timeout for the remote WebSocket connection.
-		
+
 protected:
 	void forward(Poco::Net::StreamSocket& socket);
-	
+
 private:
 	Poco::Net::SocketAddress _localAddr;
 	Poco::UInt16 _remotePort;
@@ -166,11 +164,11 @@ private:
 	LocalPortForwarder();
 	LocalPortForwarder(const LocalPortForwarder&);
 	LocalPortForwarder& operator = (const LocalPortForwarder&);
-	
+
 	static const std::string SEC_WEBSOCKET_PROTOCOL;
 	static const std::string X_WEBTUNNEL_REMOTEPORT;
 	static const std::string WEBTUNNEL_PROTOCOL;
-	
+
 	friend class LocalPortForwarderConnection;
 };
 

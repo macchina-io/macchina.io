@@ -1,8 +1,6 @@
 //
 // Net.h
 //
-// $Id: //poco/1.4/JS/Net/include/Poco/JS/Net/Net.h#3 $
-//
 // Library: JS/Net
 // Package: Net
 // Module:  Net

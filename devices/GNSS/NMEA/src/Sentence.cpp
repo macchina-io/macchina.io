@@ -1,8 +1,6 @@
 //
 // Sentence.cpp
 //
-// $Id$
-//
 // Library: IoT/GNSS/NMEA
 // Package: Decoder
 // Module:  Sentence

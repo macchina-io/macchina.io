@@ -1,11 +1,11 @@
 <%@ page class="SessionJSON" namespace="IoT::Web::Launcher" session="@websession.id" createSession="false" contentType="application/json" compressed="false" %>
 {
 <% if (session) { %>
-	"authenticated": <%= session->getValue<std::string>("username", "") != "" ? "true" : "false" %>,
-	"username": "<%= session->getValue<std::string>("username", "") %>",
-	"message": "<%= session->getValue<std::string>("message", "") %>",
-	"lastError": "<%= session->getValue<std::string>("lastError", "") %>"
+  "authenticated": <%= session->getValue<std::string>("username", "") != "" ? "true" : "false" %>,
+  "username": "<%= session->getValue<std::string>("username", "") %>",
+  "message": "<%= session->getValue<std::string>("message", "") %>",
+  "lastError": "<%= session->getValue<std::string>("lastError", "") %>"
 <% } else { %>
-	 "authenticated": false
+  "authenticated": false
 <% } %>
 }

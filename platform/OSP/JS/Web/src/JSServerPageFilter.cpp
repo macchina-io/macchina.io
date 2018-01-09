@@ -1,8 +1,6 @@
 //
 // JSServerPageFilter.cpp
 //
-// $Id: //poco/1.4/OSP/JS/src/JSServerPageFilter.cpp#1 $
-//
 // Copyright (c) 2013-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //

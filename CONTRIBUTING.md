@@ -17,19 +17,25 @@ Before writing any code, please read the
 * [C++ Coding Style Guide](http://www.appinf.com/download/CppCodingStyleGuide.pdf) and
 * [Git branching model](http://nvie.com/posts/a-successful-git-branching-model/)
 
+We require all contributors to sign our
+[Contributor License Agreement](https://github.com/macchina-io/legal/blob/master/ContributorAgreement.md)
+(CLA). When submitting a pull request you will be asked to sign the CLA via
+[CLA Assistant](https://cla-assistant.io). Our CLA is based on the
+[Apache Individual Contributor License Agreement V2.0](https://www.apache.org/licenses/icla.pdf).
+
 [Pull requests](https://help.github.com/articles/using-pull-requests/) are our favorite channel for code contributions and the quickest way to get your fix or feature upstreamed and released. Here's a quick guide.
 
-1. [Fork](https://help.github.com/articles/fork-a-repo/) the [macchina.io](https://github.com/macchina-io/macchina.io) repo
+1. [Fork](https://help.github.com/articles/fork-a-repo/) the [macchina.io](https://github.com/macchina-io/macchina.io) repo.
 
 2. Keep your repo [synced](https://help.github.com/articles/syncing-a-fork/) with the upstream to ensure smooth progress (i.e. that your changes do not interfere or conflict with someone elses's work). Note that the [develop](https://github.com/macchina-io/macchina.io/tree/develop) branch is where most of the ongoing development happens. For new features or libraries, create a new branch with a descriptive camel-cased name. See the mentioned [branching model](http://nvie.com/posts/a-successful-git-branching-model/) for details.
 
-3. Write the code changes; make sure they compile
+3. Write the code changes; make sure they compile.
 
-4. Write the tests (if applicable, and it is in most cases); make sure they pass
+4. Write the tests (if applicable, and it is in most cases); make sure they pass.
 
-5. Test your changes (preferably at least on major platforms - Linux, Windows, Mac)
+5. Test your changes (preferably at least on major platforms - Linux, Windows, Mac).
 
-6. Send [pull request](https://help.github.com/articles/using-pull-requests/) with a descriptive and clear commit message
+6. Send [pull request](https://help.github.com/articles/using-pull-requests/) with a descriptive and clear commit message. You'll also have to sign our CLA unless you've already done so.
 
 At this point, it's our turn; if you've done everything well, we may just thank you and merge your request. Otherwise, we may provide some comments or suggestions to steer the contribution in the right direction.
 
@@ -37,9 +43,9 @@ At this point, it's our turn; if you've done everything well, we may just thank 
 
 ## Contributing Mini-FAQ
 ---
-**Q:** Is there any type of contributing license agreement that I have to sign to contribute new features to macchina.io?
+**Q:** Is there any type of contributing license agreement (CLA) that I have to sign to contribute new features to macchina.io?
 
-**A:** Currently, you are not required to sign a contributing license agreement. What we require is that you put all your contributions under the [Apache 2.0 License](https://spdx.org/licenses/Apache-2.0). Also, for contributions that go into existing libraries, you are requested, for reasons of maintaining consistency, to assign the copyright to **"Applied Informatics Software Engineering GmbH and Contributors"**, by putting the corresponding license header in your source file (see the existing source files). If you want to contribute a complete library, you are free to keep the copyright to yourself, if you want, as long as you put the sources under the Apache 2.0 license used by macchina.io.
+**A:** Yes, as part of submitting a pull request we require you to sign our [CLA](https://github.com/macchina-io/legal/blob/master/ContributorAgreement.md), which is based on the widely used [Apache Individual Contributor License Agreement V2.0](https://www.apache.org/licenses/icla.pdf).
 
 ---
 

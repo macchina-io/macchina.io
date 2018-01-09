@@ -1,8 +1,6 @@
 //
 // Bundle.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/Bundle.h#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  Bundle
@@ -55,6 +53,10 @@ class OSP_API Bundle: public Poco::RefCountedObject
 public:
 	typedef Poco::AutoPtr<Bundle> Ptr;
 	typedef const Ptr ConstPtr;
+	typedef BundleManifest::Dependency Dependency;
+	typedef BundleManifest::Dependencies Dependencies;
+	typedef BundleManifest::Module Module;
+	typedef BundleManifest::Modules Modules;
 
 	enum State
 	{
@@ -65,7 +67,21 @@ public:
 		BUNDLE_ACTIVE,
 		BUNDLE_STOPPING
 	};
-	
+
+	struct ResolvedDependency
+	{
+		std::string symbolicName;
+		Version version;
+	};
+	typedef std::vector<ResolvedDependency> ResolvedDependencies;
+
+	struct ModuleProvider
+	{
+		Dependency module;
+		std::vector<ResolvedDependency> bundles;
+	};
+	typedef std::vector<ModuleProvider> ModuleProviders;
+
 	int id() const;
 		/// Returns the internal ID of the bundle.
 		///
@@ -80,40 +96,40 @@ public:
 
 	State state() const;
 		/// Returns the current state of the bundle.
-		
+
 	const std::string& stateString() const;
 		/// Returns the current state of the bundle as a string.
-		
+
 	bool isResolved() const;
 		/// Returns true iff the bundle has been successfully
 		/// resolved.
 		///
 		/// In other words, the bundle's state must be one of
 		/// BUNDLE_RESOLVED, BUNDLE_STARTING, BUNDLE_ACTIVE, BUNDLE_STOPPED.
-		
+
 	bool isActive() const;
 		/// Returns true iff the bundle's state is BUNDLE_ACTIVE.
-		
+
 	bool isStarted() const;
 		/// Returns true iff the bundle's state is BUNDLE_STARTING,
 		/// BUNDLE_ACTIVE or BUNDLE_STOPPING.
-	
+
 	std::string path() const;
 		/// Returns the path to the bundle's directory
 		/// or archive file.
-		
+
 	const std::string& name() const;
 		/// Returns the bundle's name.
 		///
 		/// If the name contains a reference to a property,
 		/// (${<property>}) the reference is expanded first.
-		
+
 	const std::string& symbolicName() const;
 		/// Returns the symbolic name of the bundle.
-		
+
 	const Version& version() const;
 		/// Returns the bundle's version.
-		
+
 	const std::string& vendor() const;
 		/// Returns the bundle's vendor name, or
 		/// an empty string if no vendor name
@@ -121,7 +137,7 @@ public:
 		///
 		/// If the vendor string contains a reference to a property,
 		/// (${<property>}) the reference is expanded first.
-		
+
 	const std::string& copyright() const;
 		/// Returns the bundle's copyright information,
 		/// or an empty string if no copyright information
@@ -129,32 +145,32 @@ public:
 		///
 		/// If the copyright string contains a reference to a property,
 		/// (${<property>}) the reference is expanded first.
-		
+
 	const std::string& activatorClass() const;
 		/// Returns the class name of the bundle's activator,
 		/// or an empty string if the manifest does not
 		/// specify an activator.
-		
+
 	const std::string& activatorLibrary() const;
 		/// Returns the name of the library containing
 		/// the bundle's activator class, or an empty string
 		/// if the manifest does not specify an activator library.
-		
+
 	BundleActivator* activator() const;
 		/// If the bundle is active and has an activator,
 		/// returns a pointer to the bundle's activator.
 		/// Otherwise, returns NULL.
-	
+
 	bool lazyStart() const;
 		/// Returns true whether lazy start has been specified for
 		/// the bundle.
-		
+
 	const std::string& runLevel() const;
 		/// Returns the bundle's run level.
-		/// 
+		///
 		/// If the bundle does not specify a run level,
-		/// returns the default "999-user".	
-		
+		/// returns the default "999-user".
+
 	bool isExtensionBundle() const;
 		/// Returns true iff the bundle is an extension bundle.
 		///
@@ -163,10 +179,10 @@ public:
 		/// that all properties defined in the extension
 		/// bundle will become properties of the extended
 		/// bundle. Also, all resources of the extension
-		/// bundle will become available through 
+		/// bundle will become available through
 		/// getResource() and getLocalizedResource() on
 		/// the extended bundle.
-		
+
 	Bundle::Ptr extendedBundle() const;
 		/// If the bundle is an extension bundle, returns
 		/// the extended bundle, or in other words,
@@ -175,12 +191,12 @@ public:
 		/// Returns a null pointer if the bundle is not
 		/// an extension bundle, or the extended bundle
 		/// has not been loaded.
-	
+
 	const Poco::Util::AbstractConfiguration& properties() const;
 		/// Returns the bundle's properties, which are
 		/// obtained from the bundle's "bundle.properties"
 		/// file (and its optional localizations).
-		
+
 	std::istream* getResource(const std::string& name) const;
 		/// Creates and returns an input stream for reading
 		/// the bundle's (non-localized) resource with the given
@@ -227,7 +243,7 @@ public:
 		/// puts the bundle in BUNDLE_RESOLVED state.
 		///
 		/// Throws an exception if the bundle cannot be resolved.
-		
+
 	void start();
 		/// Starts the bundle. The bundle's state must be
 		/// BUNDLE_RESOLVED.
@@ -235,28 +251,47 @@ public:
 		/// Puts the bundle in BUNDLE_STARTING state, loads
 		/// the bundle's activator and invokes it, and
 		/// finally puts the bundle in BUNDLE_RUNNING state.
-		
+
 	void stop();
 		/// Stops the bundle. The bundle's state must be
 		/// BUNDLE_ACTIVE. Puts the bundle into BUNDLE_STOPPING
 		/// state, stops the bundle activator and finally puts
 		/// the bundle into BUNDLE_RESOLVED state.
-		
+
 	void uninstall();
 		/// Uninstalls the bundle. The bundle must be in
-		/// BUNDLE_INSTALLED or BUNDLE_RESOLVED state. 
+		/// BUNDLE_INSTALLED or BUNDLE_RESOLVED state.
 		/// The bundle is also removed from the bundle repository.
 
-	const BundleManifest::Dependencies& requiredBundles() const;
+	const ResolvedDependencies& resolvedDependencies() const;
+		/// Returns a vector containing information about all
+		/// bundles explicitly (through Require-Bundle) or
+		/// implicitly (through Require-Module) required by
+		/// this bundle.
+
+	const Dependencies& requiredBundles() const;
 		/// Returns a vector containing information about
 		/// all bundles required by this bundle.
-		
+
+	const Dependencies& requiredModules() const;
+		/// Returns a vector containing information about
+		/// all modules required by this bundle.
+
+	const Modules& providedModules() const;
+		/// Returns a vector containing information about
+		/// all modules provided by this bundle.
+
+	const ModuleProviders& moduleProviders() const;
+		/// Returns a vector of all required modules, with
+		/// information about the bundles providing each
+		/// module.
+
 	const BundleManifest& manifest() const;
 		/// Returns a reference to the BundleManifest object.
-		
+
 	const LanguageTag& language() const;
 		/// Returns the language used for localization.
-		
+
 	static const std::string MANIFEST_FILE;
 	static const std::string PROPERTIES_FILE;
 	static const std::string BUNDLE_INSTALLED_STRING;
@@ -270,23 +305,23 @@ public:
 protected:
 	void loadManifest();
 		/// Loads the bundle's manifest file.
-		
+
 	void loadProperties();
 		/// Loads the bundle's properties.
-	
+
 	void addProperties(const std::string& path);
 		/// Adds the properties from the property file
 		/// specified by path to the bundle's properties.
 
 	BundleEvents& events();
 		/// Returns a reference to the BundleEvents object.
-		
+
 	BundleStorage& storage();
 		/// Returns a reference to the BundleStorage object.
 
 	void setActivator(BundleActivator* pActivator);
 		/// Sets the BundleActivator.
-		
+
 	void addExtensionBundle(Bundle* pExtensionBundle);
 		/// Adds an extension bundle.
 		///
@@ -295,22 +330,29 @@ protected:
 		/// that all properties defined in the extension
 		/// bundle will become properties of the extended
 		/// bundle. Also, all resources of the extension
-		/// bundle will become available through 
+		/// bundle will become available through
 		/// getResource() and getLocalizedResource() on
 		/// the extended bundle.
-		
+
 	void removeExtensionBundle(Bundle* pExtensionBundle);
 		/// Removes an extension bundle.
 		///
 		/// The resources and properties of the extension bundle
 		/// will no longer be available to the extended bundle.
 
+	void addResolvedDependency(const ResolvedDependency& dependency);
+		/// Adds a dependency to the vector of resolved dependencies,
+		/// unless it's already been added before.
+
+	void clearResolvedDependencies();
+		/// Clears the vector of resolved dependencies.
+
 	Bundle(int id, BundleLoader& loader, BundleStorage::Ptr pStorage, const LanguageTag& language);
 		/// Creates the Bundle and reads the manifest
 		/// using the given BundleStorage object.
 		///
 		/// The bundle takes ownership of the BundleStorage object.
-		
+
 	~Bundle();
 		/// Destroys the Bundle.
 
@@ -332,7 +374,9 @@ private:
 	BundleActivator*        _pActivator;
 	std::set<Bundle::Ptr>   _extensionBundles;
 	mutable Poco::FastMutex _extensionBundlesMutex;
-	
+	ResolvedDependencies    _resolvedDependencies;
+	ModuleProviders         _moduleProviders;
+
 	friend class BundleLoader;
 	friend class BundleFactory;
 };
@@ -448,9 +492,33 @@ inline const Poco::Util::AbstractConfiguration& Bundle::properties() const
 }
 
 
-inline const BundleManifest::Dependencies& Bundle::requiredBundles() const
+inline const Bundle::Dependencies& Bundle::requiredBundles() const
 {
 	return _pManifest->requiredBundles();
+}
+
+
+inline const Bundle::Dependencies& Bundle::requiredModules() const
+{
+	return _pManifest->requiredModules();
+}
+
+
+inline const Bundle::Modules& Bundle::providedModules() const
+{
+	return _pManifest->providedModules();
+}
+
+
+inline const Bundle::ResolvedDependencies& Bundle::resolvedDependencies() const
+{
+	return _resolvedDependencies;
+}
+
+
+inline const Bundle::ModuleProviders& Bundle::moduleProviders() const
+{
+	return _moduleProviders;
 }
 
 

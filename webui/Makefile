@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Makefile for macchina.io Web UI
 #
 
@@ -29,3 +27,4 @@ clean all:
 	$(MAKE) -C MomentJS $(MAKECMDGOALS)
 	$(MAKE) -C TinyColor $(MAKECMDGOALS)
 	$(MAKE) -C Dataflow $(MAKECMDGOALS)
+	$(MAKE) -C GPIO $(MAKECMDGOALS)

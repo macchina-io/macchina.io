@@ -1,8 +1,6 @@
 //
 // ORB.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/ORB.cpp#3 $
-//
 // Library: RemotingNG
 // Package: ORB
 // Module:  ORB

@@ -19,7 +19,7 @@
 #define IoT_Devices_IRotaryEncoder_INCLUDED
 
 
-#include "IoT/Devices/IDevice.h"
+#include "IoT/Devices/ICounter.h"
 #include "IoT/Devices/RotaryEncoder.h"
 #include "Poco/RemotingNG/Listener.h"
 
@@ -28,8 +28,9 @@ namespace IoT {
 namespace Devices {
 
 
-class IRotaryEncoder: public IoT::Devices::IDevice
-	/// A rotary encoder with an optional push button.
+class IRotaryEncoder: public IoT::Devices::ICounter
+	/// A rotary encoder with an optional push button, based
+	/// on the Counter interface.
 {
 public:
 	typedef Poco::AutoPtr<IRotaryEncoder> Ptr;
@@ -42,9 +43,6 @@ public:
 
 	virtual bool buttonState() const = 0;
 		/// Returns the current state of the button.
-
-	virtual Poco::Int32 count() const = 0;
-		/// Returns the current value of the counter.
 
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
@@ -61,15 +59,10 @@ public:
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();
 		/// Returns the TypeId of the class.
 
-	virtual Poco::Int32 reset() = 0;
-		/// Returns the current value of the counter and
-		/// sets the counter to 0.
-
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
 	Poco::BasicEvent < const bool > buttonStateChanged;
-	Poco::BasicEvent < const Poco::Int32 > countChanged;
 };
 
 

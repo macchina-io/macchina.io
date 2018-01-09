@@ -1,8 +1,6 @@
 //
 // LanguageTag.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/LanguageTag.h#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  LanguageTag

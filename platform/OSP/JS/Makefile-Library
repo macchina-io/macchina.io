@@ -1,12 +1,12 @@
 #
 # Makefile-Library
 #
-# $Id: //poco/1.7/OSP/Web/Makefile-Library#1 $
-#
 # Makefile for Poco OSPWeb Library
 #
 
 include $(POCO_BASE)/build/rules/global
+
+CXXFLAGS += -DV8_DEPRECATION_WARNINGS=1
 
 objects = JSExecutor \
 	JSExtensionPoint \
@@ -14,10 +14,11 @@ objects = JSExecutor \
 	ServiceRegistryWrapper \
 	ServiceRefWrapper \
 	ModuleFactory \
-	ModuleExtensionPoint 
+	ModuleExtensionPoint
 
 target         = PocoOSPJS
 target_version = 3
-target_libs    = PocoJSBridge PocoJSCore PocoOSP PocoUtil PocoXML PocoFoundation v8
+target_libs    = PocoJSBridge PocoJSCore PocoOSP PocoUtil PocoXML PocoFoundation
+ext_libs       = v8 v8_libplatform v8_libbase
 
 include $(POCO_BASE)/build/rules/lib

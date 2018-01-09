@@ -1,8 +1,6 @@
 //
 // Devices.h
 //
-// $Id: //iot/Main/Devices/include/IoT/Devices/Devices.h#2 $
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  Devices

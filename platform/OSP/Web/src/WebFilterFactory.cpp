@@ -1,8 +1,6 @@
 //
 // WebFilterFactory.cpp
 //
-// $Id: //poco/1.7/OSP/Web/src/WebFilterFactory.cpp#1 $
-//
 // Library: OSP/Web
 // Package: Web
 // Module:  WebFilterFactory

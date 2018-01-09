@@ -1,8 +1,6 @@
 //
 // HighRateSensor.h
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -24,7 +22,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
@@ -38,13 +35,13 @@ public:
 		std::string physicalQuantity;
 		std::string physicalUnit;
 	};
-	
-	HighRateSensor(Peripheral::Ptr pPeripheral, const Params& params);
+
+	HighRateSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params);
 		/// Creates a HighRateSensor.
 
 	~HighRateSensor();
 		/// Destroys the HighRateSensor.
-	
+
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
@@ -56,6 +53,7 @@ public:
 	bool ready() const;
 
 	static const std::string NAME;
+	static const std::string TYPE;
 	static const std::string SYMBOLIC_NAME;
 
 protected:
@@ -69,6 +67,7 @@ protected:
 	Poco::Any getDisplayValue(const std::string&) const;
 	Poco::Any getDeviceIdentifier(const std::string&) const;
 	Poco::Any getName(const std::string&) const;
+	Poco::Any getType(const std::string&) const;
 	Poco::Any getSymbolicName(const std::string&) const;
 	Poco::Any getPhysicalQuantity(const std::string&) const;
 	Poco::Any getPhysicalUnit(const std::string&) const;
@@ -77,21 +76,19 @@ protected:
 
 protected:
 	Params _params;
-	mutable Peripheral::Ptr _pPeripheral;
+	mutable BtLE::Peripheral::Ptr _pPeripheral;
 	bool _ready;
 	bool _enabled;
 	double _value;
 	double _valueChangedDelta;
 	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double> > _pEventPolicy;
 	Poco::Any _deviceIdentifier;
-	Poco::Any _symbolicName;
-	Poco::Any _name;
 	Poco::Any _physicalQuantity;
 	Poco::Any _physicalUnit;
 };
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK
 
 
 #endif // IoT_XDK_HighRateSensor_INCLUDED

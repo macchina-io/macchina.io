@@ -1,8 +1,6 @@
 //
 // MQTTClient.cpp
 //
-// $Id$
-//
 // Library: IoT/MQTT
 // Package: MQTTClient
 // Module:  MQTTClient

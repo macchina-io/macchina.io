@@ -1,8 +1,6 @@
 //
 // TestCaller.h
 //
-// $Id: //projects/SecurePassage/FireMon/poco/OSP/Unit/include/Poco/OSP/Unit/TestCaller.h#1 $
-//
 // Library: OSP/Unit
 // Package: Unit
 // Module:  TestCaller

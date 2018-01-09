@@ -1,8 +1,6 @@
 //
 // LinuxLED.h
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -43,12 +41,14 @@ public:
 	void blink(int onMilliseconds, int offMilliseconds);
 
 	static const std::string NAME;
+	static const std::string TYPE;
 	static const std::string SYMBOLIC_NAME;
 
 protected:
 	Poco::Any getDisplayValue(const std::string&) const;
 	Poco::Any getDeviceIdentifier(const std::string&) const;
 	Poco::Any getName(const std::string&) const;
+	Poco::Any getType(const std::string&) const;
 	Poco::Any getSymbolicName(const std::string&) const;
 	Poco::Any getBlinkOn(const std::string&) const;
 	void setBlinkOn(const std::string&, const Poco::Any& value);
@@ -61,8 +61,6 @@ private:
 	Poco::SharedPtr<Poco::Util::Timer> _pTimer;
 	std::string _brightnessPath;
 	Poco::Any _deviceIdentifier;
-	Poco::Any _symbolicName;
-	Poco::Any _name;
 	int _maxBrightness;
 	int _onMilliseconds;
 	int _offMilliseconds;

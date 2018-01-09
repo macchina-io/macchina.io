@@ -77,12 +77,12 @@ public:
 	virtual void disconnect(int timeout);
 		/// Disconnects from the server.
 		///
-		/// In order to allow the client time to complete handling of messages that are 
-		/// in-flight when this function is called, a timeout period is specified (in milliseconds). 
-		/// When the timeout period has expired, the client disconnects even if there 
-		/// are still outstanding message acknowledgements. The next time the client 
-		/// connects to the same server, any QoS 1 or 2 messages which have not completed 
-		/// will be retried depending on the clean session settings for both the previous 
+		/// In order to allow the client time to complete handling of messages that are
+		/// in-flight when this function is called, a timeout period is specified (in milliseconds).
+		/// When the timeout period has expired, the client disconnects even if there
+		/// are still outstanding message acknowledgements. The next time the client
+		/// connects to the same server, any QoS 1 or 2 messages which have not completed
+		/// will be retried depending on the clean session settings for both the previous
 		/// and the new connection.
 
 	const std::string& id() const;
@@ -119,8 +119,8 @@ public:
 		/// Returns statistics about published and received topics and message counts.
 
 	virtual void subscribe(const std::string& topic, int qos);
-		/// This function attempts to subscribe the client to a single topic, 
-		/// which may contain wildcards. This call also specifies the Quality of service 
+		/// This function attempts to subscribe the client to a single topic,
+		/// which may contain wildcards. This call also specifies the Quality of service
 		/// requested for the subscription.
 		///
 		/// Throws a Poco::IOException if there was a problem registering the
@@ -144,7 +144,7 @@ public:
 		/// subscription.
 
 	virtual void unsubscribeMany(const std::vector < std::string >& topics);
-		/// This function attempts to remove existing subscriptions to a list of 
+		/// This function attempts to remove existing subscriptions to a list of
 		/// topics made by the specified client.
 		///
 		/// Throws a Poco::IOException if there was a problem removing the

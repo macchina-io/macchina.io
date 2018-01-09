@@ -1,7 +1,7 @@
 //
 // SessionJSON.h
 //
-// This file has been generated from SessionJSON.cpsp on 2015-02-20 12:17:59.
+// This file has been generated from SessionJSON.cpsp on 2017-09-04 17:34:19.
 //
 
 
@@ -28,6 +28,11 @@ public:
 
 protected:
 	Poco::OSP::BundleContext::Ptr context() const
+	{
+		return _pContext;
+	}
+
+	Poco::OSP::BundleContext::Ptr c() const
 	{
 		return _pContext;
 	}

@@ -1,8 +1,6 @@
 //
 // BundleRequestHandler.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -79,7 +77,7 @@ void BundleRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, 
 	{
 		pBundle = context()->findBundle(form.get("symbolicName"));
 	}
-		
+
 	if (!pBundle)
 	{
 		response.setContentLength(0);
@@ -91,7 +89,7 @@ void BundleRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, 
 	response.setChunkedTransferEncoding(true);
 	response.setContentType("application/json");
 	std::ostream& ostr = response.send();
-	
+
 	ostr
 		<< "{"
 		<< "\"id\":" << pBundle->id() << ","
@@ -109,7 +107,7 @@ void BundleRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, 
 	for (Poco::OSP::BundleManifest::Dependencies::const_iterator itDep = deps.begin(); itDep != deps.end(); ++itDep)
 	{
 		if (itDep != deps.begin()) ostr << ",";
-		ostr 
+		ostr
 			<< "{"
 			<< "\"symbolicName\":" << Utility::jsonize(itDep->symbolicName) << ","
 			<< "\"versions\":" << Utility::jsonize(itDep->versions.toString())
@@ -124,7 +122,7 @@ void BundleRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, 
 	for (BundleVec::const_iterator itDep = depending.begin(); itDep != depending.end(); ++itDep)
 	{
 		if (itDep != depending.begin()) ostr << ",";
-		ostr 
+		ostr
 			<< "{"
 			<< "\"symbolicName\":" << Utility::jsonize((*itDep)->symbolicName()) << ","
 			<< "\"versions\":" << Utility::jsonize((*itDep)->version().toString())
@@ -132,7 +130,40 @@ void BundleRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, 
 	}
 
 	ostr
+		<< "],"
+		<< "\"modules\": {";
+
+	ostr << "\"provides\": [";
+
+	const Poco::OSP::Bundle::Modules& mods = pBundle->providedModules();
+	for (Poco::OSP::Bundle::Modules::const_iterator itMod = mods.begin(); itMod != mods.end(); ++itMod)
+	{
+		if (itMod != mods.begin()) ostr << ",";
+		ostr
+			<< "{"
+			<< "\"symbolicName\":" << Utility::jsonize(itMod->symbolicName) << ","
+			<< "\"version\":" << Utility::jsonize(itMod->version.toString())
+			<< "}";
+	}
+
+	ostr
+		<< "],"
+		<< "\"requires\": [";
+
+	const Poco::OSP::BundleManifest::Dependencies& modDeps = pBundle->requiredModules();
+	for (Poco::OSP::BundleManifest::Dependencies::const_iterator itModDep = modDeps.begin(); itModDep != modDeps.end(); ++itModDep)
+	{
+		if (itModDep != modDeps.begin()) ostr << ",";
+		ostr
+			<< "{"
+			<< "\"symbolicName\":" << Utility::jsonize(itModDep->symbolicName) << ","
+			<< "\"versions\":" << Utility::jsonize(itModDep->versions.toString())
+			<< "}";
+	}
+
+	ostr
 		<< "]"
+		<< "}"
 		<< "}";
 }
 

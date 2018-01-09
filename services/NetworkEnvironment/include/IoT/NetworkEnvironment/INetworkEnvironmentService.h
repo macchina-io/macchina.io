@@ -49,7 +49,7 @@ public:
 		/// interfaces that are down.
 
 	virtual std::string findActiveNetworkInterface(IoT::NetworkEnvironment::IPVersion ipVersion) = 0;
-		/// Finds and returns the name of the first active network interface that 
+		/// Finds and returns the name of the first active network interface that
 		/// supports the given IP protocol version.
 		///
 		/// Throws a Poco::NotFoundException if no suitable network interface is found.

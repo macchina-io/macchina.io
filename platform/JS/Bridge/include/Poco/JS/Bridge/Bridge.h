@@ -1,8 +1,6 @@
 //
 // Bridge.h
 //
-// $Id: //poco/1.4/JS/Bridge/include/Poco/JS/Bridge/Bridge.h#3 $
-//
 // Library: JS/Bridge
 // Package: Bridging
 // Module:  Bridge

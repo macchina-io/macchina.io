@@ -1,8 +1,6 @@
 //
 // ProxyFactoryManager.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/ProxyFactoryManager.cpp#1 $
-//
 // Library: RemotingNG
 // Package: ORB
 // Module:  ProxyFactoryManager

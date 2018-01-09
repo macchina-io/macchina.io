@@ -1,8 +1,6 @@
 //
 // XBeeNode.h
 //
-// $Id$
-//
 // Library: IoT/XBee
 // Package: XBeeNode
 // Module:  XBeeNode

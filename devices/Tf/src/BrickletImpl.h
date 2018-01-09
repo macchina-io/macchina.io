@@ -1,8 +1,6 @@
 //
 // BrickletImpl.h
 //
-// $Id: //iot/Main/Tf/src/BrickletImpl.h#2 $
-//
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -30,9 +28,10 @@ public:
 	typedef BrickletImpl BrickletType;
 	typedef Super        SuperType;
 
-	BrickletImpl(const std::string& symbolicName, const std::string& name, const std::string physicalQuantity = "", const std::string& physicalUnit = ""):
+	BrickletImpl(const std::string& symbolicName, const std::string& name, const std::string& type, const std::string physicalQuantity = "", const std::string& physicalUnit = ""):
 		_symbolicName(symbolicName),
 		_name(name),
+		_type(type),
 		_physicalQuantity(physicalQuantity),
 		_physicalUnit(physicalUnit)
 	{
@@ -44,6 +43,7 @@ public:
 		this->addProperty("deviceIdentifier", &BrickletImpl::getDeviceIdentifier);
 		this->addProperty("symbolicName", &BrickletImpl::getSymbolicName);
 		this->addProperty("name", &BrickletImpl::getName);
+		this->addProperty("type", &BrickletImpl::getType);
 		this->addProperty("physicalQuantity", &BrickletImpl::getPhysicalQuantity);
 		this->addProperty("physicalUnit", &BrickletImpl::getPhysicalUnit);
 	}
@@ -98,6 +98,11 @@ protected:
 		return _name;
 	}
 
+	Poco::Any getType(const std::string&) const
+	{
+		return _type;
+	}
+
 	Poco::Any getSymbolicName(const std::string&) const
 	{
 		return _symbolicName;
@@ -122,6 +127,7 @@ private:
 	Poco::Any _deviceIdentifier;
 	Poco::Any _symbolicName;
 	Poco::Any _name;
+	Poco::Any _type;
 	Poco::Any _physicalQuantity;
 	Poco::Any _physicalUnit;
 };

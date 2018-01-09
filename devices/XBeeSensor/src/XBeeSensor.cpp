@@ -1,8 +1,6 @@
 //
 // XBeeSensor.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -21,6 +19,7 @@ namespace Sensor {
 
 
 const std::string XBeeSensor::NAME("XBee Sensor");
+const std::string XBeeSensor::TYPE("io.macchina.sensor");
 const std::string XBeeSensor::SYMBOLIC_NAME("io.macchina.xbee.sensor");
 
 
@@ -33,8 +32,6 @@ XBeeSensor::XBeeSensor(IXBeeNode::Ptr pXBeeNode, Params params):
 	_valueChangedDelta(0.0),
 	_pEventPolicy(new IoT::Devices::NoModerationPolicy<double>(valueChanged)),
 	_deviceIdentifier(params.id),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME),
 	_physicalQuantity(params.physicalQuantity),
 	_physicalUnit(params.physicalUnit)
 {
@@ -43,6 +40,7 @@ XBeeSensor::XBeeSensor(IXBeeNode::Ptr pXBeeNode, Params params):
 	addProperty("deviceIdentifier", &XBeeSensor::getDeviceIdentifier);
 	addProperty("symbolicName", &XBeeSensor::getSymbolicName);
 	addProperty("name", &XBeeSensor::getName);
+	addProperty("type", &XBeeSensor::getType);
 	addProperty("physicalQuantity", &XBeeSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &XBeeSensor::getPhysicalUnit);
 	
@@ -116,13 +114,19 @@ Poco::Any XBeeSensor::getDeviceIdentifier(const std::string&) const
 
 Poco::Any XBeeSensor::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
+}
+
+
+Poco::Any XBeeSensor::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 
 Poco::Any XBeeSensor::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
 }
 
 

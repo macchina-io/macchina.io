@@ -1,8 +1,6 @@
 //
 // SimulatedGNSSSensor.h
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -61,10 +59,12 @@ public:
 	double hdop() const;
 	
 	static const std::string NAME;
+	static const std::string TYPE;
 	static const std::string SYMBOLIC_NAME;
 
 protected:
 	Poco::Any getName(const std::string&) const;
+	Poco::Any getType(const std::string&) const;
 	Poco::Any getSymbolicName(const std::string&) const;
 	Poco::Any getGPXPath(const std::string&) const;
 	Poco::Any getPositionChangedPeriod(const std::string&) const;

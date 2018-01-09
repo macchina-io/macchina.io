@@ -1,8 +1,6 @@
 //
 // SystemWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/SystemWrapper.cpp#5 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  SystemWrapper
@@ -42,7 +40,7 @@ SystemWrapper::~SystemWrapper()
 v8::Handle<v8::ObjectTemplate> SystemWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
-	v8::Local<v8::ObjectTemplate> systemTemplate = v8::ObjectTemplate::New();
+	v8::Local<v8::ObjectTemplate> systemTemplate = v8::ObjectTemplate::New(pIsolate);
 	systemTemplate->SetInternalFieldCount(1);
 	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osName"), osName);
 	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osDisplayName"), osDisplayName);
@@ -63,6 +61,8 @@ v8::Handle<v8::ObjectTemplate> SystemWrapper::objectTemplate(v8::Isolate* pIsola
 
 void SystemWrapper::exec(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::EscapableHandleScope handleScope(args.GetIsolate());
+
 	if (args.Length() < 1) return;
 	std::string command = toString(args[0]);
 	std::string output;
@@ -82,8 +82,19 @@ void SystemWrapper::exec(const v8::FunctionCallbackInfo<v8::Value>& args)
 		Poco::ProcessHandle ph(Poco::Process::launch(shell, shellArgs, 0, &outPipe, &outPipe));
 		Poco::PipeInputStream istr(outPipe);
 		Poco::StreamCopier::copyToString(istr, output);
-		ph.wait();
-		returnString(args, output);
+		int rc = ph.wait();
+
+		v8::Local<v8::String> outputString(v8::String::NewFromUtf8(args.GetIsolate(), output.c_str(), v8::String::kNormalString, static_cast<int>(output.length())));
+		v8::Local<v8::Value> outputStringObject = v8::StringObject::New(outputString);
+		if (!outputStringObject.IsEmpty())
+		{
+			v8::Local<v8::Object> outputObject = outputStringObject->ToObject();
+			if (!outputObject.IsEmpty())
+			{
+				outputObject->Set(v8::String::NewFromUtf8(args.GetIsolate(), "exitStatus"), v8::Integer::New(args.GetIsolate(), rc));
+			}
+		}
+		args.GetReturnValue().Set(outputStringObject);
 	}
 	catch (Poco::Exception& exc)
 	{

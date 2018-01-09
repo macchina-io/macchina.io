@@ -1,8 +1,6 @@
 //
 // TCPTestSuite.h
 //
-// $Id: //poco/1.7/RemotingNG/TCP/testsuite/src/TCPTestSuite.h#1 $
-//
 // Definition of the TCPTestSuite class.
 //
 // Copyright (c) 2006-2012, Applied Informatics Software Engineering GmbH.

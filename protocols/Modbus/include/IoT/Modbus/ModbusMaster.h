@@ -1,8 +1,6 @@
 //
 // ModbusMaster.h
 //
-// $Id$
-//
 // Library: IoT/Modbus
 // Package: ModbusMaster
 // Module:  ModbusMaster

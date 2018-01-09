@@ -1,8 +1,6 @@
 //
 // BundleActivator.cpp
 //
-// $Id: //iot/Main/Tf/src/BundleActivator.cpp#2 $
-//
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -117,6 +115,7 @@ public:
 		
 		Poco::SharedPtr<D> pDevice = new D(_pMasterConnection, uid);
 		std::string symbolicName = pDevice->getPropertyString("symbolicName");
+		std::string type = pDevice->getPropertyString("type");
 		std::string physicalQuantity = pDevice->getPropertyString("physicalQuantity");
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
@@ -125,6 +124,7 @@ public:
 		
 		Properties props;
 		props.set("io.macchina.device", symbolicName);
+		props.set("io.macchina.deviceType", type);
 		props.set("io.macchina.tf.uid", uid);
 		if (!physicalQuantity.empty())
 		{

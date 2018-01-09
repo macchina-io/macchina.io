@@ -1,8 +1,6 @@
 //
 // Peripheral.h
 //
-// $Id$
-//
 // Library: IoT/BtLE
 // Package: BtLE
 // Module:  Peripheral

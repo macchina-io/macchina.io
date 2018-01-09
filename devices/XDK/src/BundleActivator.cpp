@@ -1,8 +1,6 @@
 //
 // BundleActivator.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -52,7 +50,6 @@ using Poco::OSP::PreferencesService;
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
@@ -62,7 +59,7 @@ public:
 	BundleActivator()
 	{
 	}
-	
+
 	~BundleActivator()
 	{
 	}
@@ -78,18 +75,18 @@ public:
 			IoT::Devices::Acceleration acc;
 			acc.x = x/1000.0;
 			acc.y = y/1000.0;
-			acc.z = z/1000.0;	
+			acc.z = z/1000.0;
 			_pAccelerometer->update(acc);
 
 			reader >> x >> y >> z;
 			IoT::Devices::Rotation rot;
-			rot.x = x/1000.0;
-			rot.y = y/1000.0;
-			rot.z = z/1000.0;	
+			rot.x = x/10.0;
+			rot.y = y/10.0;
+			rot.z = z/10.0;
 			_pGyroscope->update(rot);
 		}
 	}
-	
+
 	void handleLowPrioData(const std::string& data)
 	{
 		if (data.size() == 20)
@@ -102,27 +99,27 @@ public:
 			{
 				Poco::UInt32 light;
 				reader >> light;
-				_pAmbientLightSensor->update(light/10000.0);
-				
+				_pAmbientLightSensor->update(light/1000.0);
+
 				Poco::UInt8 noise;
 				reader >> noise;
 				_pNoiseSensor->update(noise*1.0);
-				
+
 				Poco::UInt32 pressure;
 				reader >> pressure;
 				_pAirPressureSensor->update(pressure/100.0);
-				
+
 				Poco::Int32 temperature;
 				reader >> temperature;
 				_pTemperatureSensor->update(temperature/1000.0);
-				
+
 				Poco::UInt32 humidity;
 				reader >> humidity;
 				_pHumiditySensor->update(humidity*1.0);
-				
+
 				Poco::UInt8 cardDetect;
 				reader >> cardDetect;
-				
+
 				Poco::UInt8 buttons;
 				reader >> buttons;
 				_pButton1->update((buttons & 0x01) != 0);
@@ -135,13 +132,13 @@ public:
 				IoT::Devices::MagneticFieldStrength field;
 				field.x = x/1000.0; // millitesla
 				field.y = y/1000.0;
-				field.z = z/1000.0;	
-				field.r = r/1000.0;
+				field.z = z/1000.0;
+				field.r = r;
 				_pMagnetometer->update(field);
 			}
 		}
 	}
-	
+
 	void handleHighRateNotification(const void* sender, const IoT::BtLE::Notification& nf)
 	{
 		if (nf.handle == 0x34)
@@ -153,8 +150,8 @@ public:
 			handleLowPrioData(nf.data);
 		}
 	}
-	
-	Poco::SharedPtr<HighRateSensor> createHighRateSensor(Peripheral::Ptr pPeripheral, const HighRateSensor::Params& params)
+
+	Poco::SharedPtr<HighRateSensor> createHighRateSensor(BtLE::Peripheral::Ptr pPeripheral, const HighRateSensor::Params& params)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor> ServerHelper;
 
@@ -167,19 +164,20 @@ public:
 		oid += pPeripheral->address();
 
 		ServerHelper::RemoteObjectPtr pSensorRemoteObject = ServerHelper::createRemoteObject(pSensor, oid);
-		
+
 		Properties props;
 		props.set("io.macchina.device", HighRateSensor::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", HighRateSensor::TYPE);
 		props.set("io.macchina.physicalQuantity", params.physicalQuantity);
 		props.set("io.macchina.btle.address", pPeripheral->address());
-		
+
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pSensorRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
-		
+
 		return pSensor;
 	}
 
-	Poco::SharedPtr<HighRateAccelerometer> createHighRateAccelerometer(Peripheral::Ptr pPeripheral)
+	Poco::SharedPtr<HighRateAccelerometer> createHighRateAccelerometer(BtLE::Peripheral::Ptr pPeripheral)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Accelerometer> ServerHelper;
 		Poco::SharedPtr<HighRateAccelerometer> pAccelerometer = new HighRateAccelerometer(pPeripheral);
@@ -189,13 +187,14 @@ public:
 		ServerHelper::RemoteObjectPtr pAccelerometerRemoteObject = ServerHelper::createRemoteObject(pAccelerometer, oid);
 		Properties props;
 		props.set("io.macchina.device", HighRateAccelerometer::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", HighRateAccelerometer::TYPE);
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pAccelerometerRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 		return pAccelerometer;
 	}
 
-	Poco::SharedPtr<HighRateGyroscope> createHighRateGyroscope(Peripheral::Ptr pPeripheral)
+	Poco::SharedPtr<HighRateGyroscope> createHighRateGyroscope(BtLE::Peripheral::Ptr pPeripheral)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Gyroscope> ServerHelper;
 		Poco::SharedPtr<HighRateGyroscope> pGyroscope = new HighRateGyroscope(pPeripheral);
@@ -205,13 +204,14 @@ public:
 		ServerHelper::RemoteObjectPtr pGyroscopeRemoteObject = ServerHelper::createRemoteObject(pGyroscope, oid);
 		Properties props;
 		props.set("io.macchina.device", HighRateGyroscope::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", HighRateGyroscope::TYPE);
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pGyroscopeRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 		return pGyroscope;
 	}
-	
-	Poco::SharedPtr<HighRateMagnetometer> createHighRateMagnetometer(Peripheral::Ptr pPeripheral)
+
+	Poco::SharedPtr<HighRateMagnetometer> createHighRateMagnetometer(BtLE::Peripheral::Ptr pPeripheral)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Magnetometer> ServerHelper;
 		Poco::SharedPtr<HighRateMagnetometer> pMagnetometer = new HighRateMagnetometer(pPeripheral);
@@ -221,13 +221,14 @@ public:
 		ServerHelper::RemoteObjectPtr pMagnetometerRemoteObject = ServerHelper::createRemoteObject(pMagnetometer, oid);
 		Properties props;
 		props.set("io.macchina.device", HighRateMagnetometer::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", HighRateMagnetometer::TYPE);
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pMagnetometerRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 		return pMagnetometer;
 	}
 
-	Poco::SharedPtr<HighRateButton> createHighRateButton(Peripheral::Ptr pPeripheral, int id)
+	Poco::SharedPtr<HighRateButton> createHighRateButton(BtLE::Peripheral::Ptr pPeripheral, int id)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Trigger> ServerHelper;
 		Poco::SharedPtr<HighRateButton> pButton = new HighRateButton(pPeripheral);
@@ -235,13 +236,14 @@ public:
 		ServerHelper::RemoteObjectPtr pButtonRemoteObject = ServerHelper::createRemoteObject(pButton, oid);
 		Properties props;
 		props.set("io.macchina.device", HighRateButton::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", HighRateButton::TYPE);
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pButtonRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 		return pButton;
 	}
-	
-	void createSensor(Peripheral::Ptr pPeripheral, const XDKSensor::Params& params)
+
+	void createSensor(BtLE::Peripheral::Ptr pPeripheral, const XDKSensor::Params& params)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor> ServerHelper;
 
@@ -256,7 +258,7 @@ public:
 			pSensor = new XDKAirPressureSensor(pPeripheral, params, _pTimer);
 		else if (params.physicalQuantity == "soundLevel")
 			pSensor = new XDKNoiseSensor(pPeripheral, params, _pTimer);
-		else 
+		else
 			throw Poco::InvalidArgumentException("Unknown sensor type", params.physicalQuantity);
 
 		std::string oid(XDKSensor::SYMBOLIC_NAME);
@@ -266,17 +268,18 @@ public:
 		oid += pPeripheral->address();
 
 		ServerHelper::RemoteObjectPtr pSensorRemoteObject = ServerHelper::createRemoteObject(pSensor, oid);
-		
+
 		Properties props;
 		props.set("io.macchina.device", XDKSensor::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", XDKSensor::TYPE);
 		props.set("io.macchina.physicalQuantity", params.physicalQuantity);
 		props.set("io.macchina.btle.address", pPeripheral->address());
-		
+
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pSensorRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
 
-	void createHighRateSensors(Peripheral::Ptr pPeripheral, const std::string& baseKey)
+	void createHighRateSensors(BtLE::Peripheral::Ptr pPeripheral, const std::string& baseKey)
 	{
 		HighRateSensor::Params params;
 
@@ -290,61 +293,61 @@ public:
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// temperature
 		params.physicalQuantity = "temperature";
 		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS;
-		
+
 		try
 		{
 			_pTemperatureSensor = createHighRateSensor(pPeripheral, params);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// air pressure
 		params.physicalQuantity = "airPressure";
 		params.physicalUnit = "hPa";
-		
+
 		try
 		{
 			_pAirPressureSensor = createHighRateSensor(pPeripheral, params);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// illuminance
 		params.physicalQuantity = "illuminance";
 		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_LUX;
-		
+
 		try
 		{
 			_pAmbientLightSensor = createHighRateSensor(pPeripheral, params);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// noise
 		params.physicalQuantity = "soundLevel";
 		params.physicalUnit = "dB SPL";
-		
+
 		try
 		{
 			_pNoiseSensor = createHighRateSensor(pPeripheral, params);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
-		
+
 		// acceleration
 		try
 		{
@@ -388,19 +391,19 @@ public:
 
 		pPeripheral->notificationReceived += Poco::delegate(this, &BundleActivator::handleHighRateNotification);
 	}
-	
-	void enableHighRateSensors(Peripheral::Ptr pPeripheral)
+
+	void enableHighRateSensors(BtLE::Peripheral::Ptr pPeripheral)
 	{
 		pPeripheral->services();
 		// turn off built-in sensor fusion - send raw accelerometer data
-		Characteristic fusionChar = pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d5-7ada-11e4-82f8-0800200c9a66");
+		BtLE::Characteristic fusionChar = pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d5-7ada-11e4-82f8-0800200c9a66");
 		pPeripheral->writeUInt8(fusionChar.valueHandle, 0, true);
 		// turn on high-rate data
-		Characteristic controlChar = pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
+		BtLE::Characteristic controlChar = pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
 		pPeripheral->writeUInt8(controlChar.valueHandle, 1, true);
 	}
 
-	void createSensors(Peripheral::Ptr pPeripheral, const std::string& baseKey)
+	void createSensors(BtLE::Peripheral::Ptr pPeripheral, const std::string& baseKey)
 	{
 		XDKSensor::Params params;
 
@@ -417,7 +420,7 @@ public:
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// temperature
@@ -426,14 +429,14 @@ public:
 		params.physicalQuantity = "temperature";
 		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS;
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".ambientTemperature.pollInterval", 10000);
-		
+
 		try
 		{
 			createSensor(pPeripheral, params);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// air pressure
@@ -442,14 +445,14 @@ public:
 		params.physicalQuantity = "airPressure";
 		params.physicalUnit = "hPa";
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".airPressure.pollInterval", 10000);
-		
+
 		try
 		{
 			createSensor(pPeripheral, params);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// illuminance
@@ -458,14 +461,14 @@ public:
 		params.physicalQuantity = "illuminance";
 		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_LUX;
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".illuminance.pollInterval", 10000);
-		
+
 		try
 		{
 			createSensor(pPeripheral, params);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 
 		// noise
@@ -474,14 +477,14 @@ public:
 		params.physicalQuantity = "soundLevel";
 		params.physicalUnit = "dB SPL";
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".noise.pollInterval", 10000);
-		
+
 		try
 		{
 			createSensor(pPeripheral, params);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText())); 
+			_pContext->logger().error(Poco::format("Cannot create XDK %s Sensor: %s", params.physicalQuantity, exc.displayText()));
 		}
 	}
 
@@ -490,33 +493,33 @@ public:
 		_pContext = pContext;
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
 		_pTimer = new Poco::Util::Timer;
-	
+
 		_useHighRateService = _pPrefs->configuration()->getBool("xdk.useHighRateDataService", true);
 
 		Poco::Util::AbstractConfiguration::Keys keys;
 		_pPrefs->configuration()->keys("xdk.sensors", keys);
-		
+
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "xdk.sensors.";
 			baseKey += *it;
 
 			std::string address = _pPrefs->configuration()->getString(baseKey + ".address");
-		
+
 			try
 			{
 				IoT::BtLE::PeripheralFactory::Ptr pPeripheralFactory = ServiceFinder::find<IoT::BtLE::PeripheralFactory>(pContext);
-				Peripheral::Ptr pPeripheral = pPeripheralFactory->createPeripheral(address);
+				BtLE::Peripheral::Ptr pPeripheral = pPeripheralFactory->createPeripheral(address);
 
 				pPeripheral->connected += Poco::delegate(this, &BundleActivator::onConnected);
-				pPeripheral->disconnected += Poco::delegate(this, &BundleActivator::onDisconnected);	
+				pPeripheral->disconnected += Poco::delegate(this, &BundleActivator::onDisconnected);
 
 				PeripheralInfo info;
 				info.pPeripheral = pPeripheral;
 				info.baseKey = baseKey;
 				info.reconnectDelay = MIN_RECONNECT_DELAY;
 				info.haveSensors = false;
-				_peripherals.push_back(info);		
+				_peripherals.push_back(info);
 
 				pPeripheral->connectAsync();
 			}
@@ -526,7 +529,7 @@ public:
 			}
 		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		for (std::vector<PeripheralInfo>::iterator it = _peripherals.begin(); it != _peripherals.end(); ++it)
@@ -539,7 +542,7 @@ public:
 
 				if (it->pPeripheral->isConnected())
 				{
-					Characteristic controlChar = it->pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
+					BtLE::Characteristic controlChar = it->pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
 					it->pPeripheral->writeUInt8(controlChar.valueHandle, 0, true);
 				}
 			}
@@ -573,12 +576,12 @@ public:
 		_pPrefs = 0;
 		_pContext = 0;
 	}
-	
+
 protected:
 	class ReconnectTask: public Poco::Util::TimerTask
 	{
 	public:
-		ReconnectTask(BundleActivator& activator, Peripheral::Ptr pPeripheral):
+		ReconnectTask(BundleActivator& activator, BtLE::Peripheral::Ptr pPeripheral):
 			_bundleActivator(activator),
 			_pPeripheral(pPeripheral)
 		{
@@ -591,7 +594,7 @@ protected:
 
 	private:
 		BundleActivator& _bundleActivator;
-		Peripheral::Ptr _pPeripheral;
+		BtLE::Peripheral::Ptr _pPeripheral;
 	};
 
 	void onConnected(const void* pSender)
@@ -646,7 +649,7 @@ protected:
 		}
 	}
 
-	void connect(Peripheral::Ptr pPeripheral)
+	void connect(BtLE::Peripheral::Ptr pPeripheral)
 	{
 		try
 		{
@@ -657,8 +660,8 @@ protected:
 			_pContext->logger().error(Poco::format("Cannot reconnect to device %s: %s", pPeripheral->address(), exc.displayText()));
 		}
 	}
-	
-	enum 
+
+	enum
 	{
 		MIN_RECONNECT_DELAY = 1000,
 		MAX_RECONNECT_DELAY = 30000
@@ -667,7 +670,7 @@ protected:
 private:
 	struct PeripheralInfo
 	{
-		Peripheral::Ptr pPeripheral;
+		BtLE::Peripheral::Ptr pPeripheral;
 		std::string baseKey;
 		unsigned reconnectDelay;
 		bool haveSensors;
@@ -693,9 +696,9 @@ private:
 };
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK
 
 
 POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
-	POCO_EXPORT_CLASS(IoT::BtLE::XDK::BundleActivator)
+	POCO_EXPORT_CLASS(IoT::XDK::BundleActivator)
 POCO_END_MANIFEST

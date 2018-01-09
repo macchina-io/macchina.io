@@ -1,8 +1,6 @@
 //
 // Properties.cpp
 //
-// $Id: //poco/1.7/OSP/src/Properties.cpp#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  Properties

@@ -1,8 +1,6 @@
 //
 // Version.cpp
 //
-// $Id: //poco/1.7/OSP/src/Version.cpp#1 $
-//
 // Library: OSP
 // Package: Core
 // Module:  Version

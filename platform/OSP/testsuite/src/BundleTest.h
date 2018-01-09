@@ -1,8 +1,6 @@
 //
 // BundleTest.h
 //
-// $Id: //poco/1.7/OSP/testsuite/src/BundleTest.h#1 $
-//
 // Definition of the BundleTest class.
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
@@ -35,6 +33,7 @@ public:
 	void testPropertiesLocalization2();
 	void testBundleFile();
 	void testResolve();
+	void testResolveModules();
 	void testStart();
 	void testActivator();
 	void testStopAll();
@@ -48,7 +47,7 @@ public:
 
 protected:
 	std::string findBundle(const std::string& name);
-	
+
 	void handleEvent(const void* sender, Poco::OSP::BundleEvent& event);
 	void handleStartingEvent(const void* sender, Poco::OSP::BundleEvent& event);
 	void handleStartedEvent(const void* sender, Poco::OSP::BundleEvent& event);

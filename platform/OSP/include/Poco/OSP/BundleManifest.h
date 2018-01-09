@@ -1,8 +1,6 @@
 //
 // BundleManifest.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/BundleManifest.h#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleManifest
@@ -41,66 +39,81 @@ class OSP_API BundleManifest: public Poco::RefCountedObject
 public:
 	typedef Poco::AutoPtr<BundleManifest> Ptr;
 	typedef const Ptr ConstPtr;
-	
+
 	struct Dependency
 	{
 		std::string  symbolicName;
 		VersionRange versions;
 	};
 	typedef std::vector<Dependency> Dependencies;
-	
+
+    struct Module
+    {
+    	std::string symbolicName;
+    	Version version;
+    };
+    typedef std::vector<Module> Modules;
+
 	BundleManifest(std::istream& istr);
 		/// Creates the BundleManifest by parsing the
 		/// META-INF/manifest.mf file.
-	
+
 	const std::string& name() const;
 		/// Returns the name of the bundle.
-		
+
 	const std::string& symbolicName() const;
 		/// Returns the symbolic name of the bundle.
-		
+
 	const Version& version() const;
 		/// Returns the version of the bundle.
-		
+
 	const std::string& vendor() const;
 		/// Returns the bundle's vendor name, or
 		/// an empty string if no vendor name
 		/// has been specified in the pManifest->
-		
+
 	const std::string& copyright() const;
 		/// Returns the bundle's copyright information,
 		/// or an empty string if no copyright information
 		/// has been specified in the pManifest->
-		
+
 	const std::string& activatorClass() const;
 		/// Returns the class name of the bundle's activator,
 		/// or an empty string if the manifest does not
 		/// specify an activator.
-		
+
 	const std::string& activatorLibrary() const;
 		/// Returns the name of the library containing
 		/// the bundle's activator class, or an empty string
 		/// if the manifest does not specify an activator library.
-		
+
 	const Dependencies& requiredBundles() const;
 		/// Returns a vector containing information about
 		/// all bundles required by this bundle.
-		
+
+	const Dependencies& requiredModules() const;
+		/// Returns a vector containing information about
+		/// all modules required by this bundle.
+
+	const Modules& providedModules() const;
+		/// Returns a vector containing information about
+		/// all modules provided by this bundle.
+
 	bool lazyStart() const;
 		/// Returns true if lazy startup has been specified for
 		/// the bundle.
-		
+
 	const std::string& runLevel() const;
 		/// Returns the bundle's run level.
-		/// 
+		///
 		/// If the bundle does not specify a run level,
 		/// returns the default "999-user".
-		
+
 	const std::string& extendedBundle() const;
 		/// Returns the name of the bundle this
 		/// bundle extends, or an empty string
 		/// if the bundle is not an extension bundle.
-		
+
 	Poco::Util::AbstractConfiguration& rawManifest() const;
 		/// Returns a reference to the configuration containing
 		/// the raw manifest data.
@@ -114,6 +127,8 @@ public:
 	static const std::string BUNDLE_VERSION;
 	static const std::string BUNDLE_ACTIVATOR;
 	static const std::string REQUIRE_BUNDLE;
+	static const std::string REQUIRE_MODULE;
+	static const std::string PROVIDE_MODULE;
 	static const std::string EXTENDS_BUNDLE;
 	static const std::string BUNDLE_LAZYSTART;
 	static const std::string BUNDLE_RUNLEVEL;
@@ -123,12 +138,22 @@ public:
 protected:
 	void parseManifest();
 		/// Parses the bundle's manifest file.
-		
+
 	void parseActivator(const std::string& activator);
 		/// Parses the Bundle-Activator property.
-		
+
 	void parseRequiredBundles(const std::string& requiredBundles);
 		/// Parses the Required-Bundles property.
+
+	void parseRequiredModules(const std::string& requiredModules);
+		/// Parses the Required-Modules property.
+
+	void parseProvidedModules(const std::string& providedModules);
+		/// Parses the Provided-Modules property.
+
+	void parseRequiredItems(const std::string& requiredItems, const std::string& what, const std::string& versionKeyword, Dependencies& dependencies);
+		/// Parses the Required-Bundles or Required-Modules property and stored
+		/// result in dependencies.
 
 	~BundleManifest();
 		/// Destroys the BundleManifest.
@@ -137,7 +162,7 @@ private:
 	BundleManifest();
 	BundleManifest(const BundleManifest&);
 	BundleManifest& operator = (const BundleManifest&);
-	
+
 	std::string  _name;
 	std::string  _symbolicName;
 	Version      _version;
@@ -146,6 +171,8 @@ private:
 	std::string  _activatorClass;
 	std::string  _activatorLibrary;
 	Dependencies _requiredBundles;
+	Dependencies _requiredModules;
+	Modules      _providedModules;
 	std::string  _extendedBundle;
 	bool         _lazyStart;
 	std::string  _runLevel;
@@ -202,6 +229,18 @@ inline const std::string& BundleManifest::activatorLibrary() const
 inline const BundleManifest::Dependencies& BundleManifest::requiredBundles() const
 {
 	return _requiredBundles;
+}
+
+
+inline const BundleManifest::Dependencies& BundleManifest::requiredModules() const
+{
+	return _requiredModules;
+}
+
+
+inline const BundleManifest::Modules& BundleManifest::providedModules() const
+{
+	return _providedModules;
 }
 
 

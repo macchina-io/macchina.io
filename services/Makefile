@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Makefile for macchina.io Services
 #
 
@@ -12,3 +10,5 @@ clean all:
 	$(MAKE) -C WebEvent $(MAKECMDGOALS)
 	$(MAKE) -C DeviceStatus $(MAKECMDGOALS)
 	$(MAKE) -C NetworkEnvironment $(MAKECMDGOALS)
+	$(MAKE) -C MobileConnection $(MAKECMDGOALS)
+	$(MAKE) -C MobileConnection/Legato $(MAKECMDGOALS)

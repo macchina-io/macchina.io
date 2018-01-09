@@ -1,8 +1,6 @@
 //
 // JS.h
 //
-// $Id: //poco/1.7/OSP/JS/include/Poco/OSP/JS/JS.h#1 $
-//
 // Library: OSP/JS
 // Package: JS
 // Module:  JS

@@ -1,8 +1,6 @@
 //
 // ApplicationWrapper.h
 //
-// $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/ApplicationWrapper.h#3 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  ApplicationWrapper

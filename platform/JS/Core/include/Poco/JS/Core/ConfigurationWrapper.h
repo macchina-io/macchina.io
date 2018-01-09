@@ -1,8 +1,6 @@
 //
 // ConfigurationWrapper.h
 //
-// $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/ConfigurationWrapper.h#4 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  ConfigurationWrapper

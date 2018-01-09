@@ -1,8 +1,6 @@
 //
 // HighRateAccelerometer.h
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -21,7 +19,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
@@ -30,12 +27,12 @@ class HighRateAccelerometer: public IoT::Devices::DeviceImpl<IoT::Devices::Accel
 public:
 	typedef Poco::SharedPtr<HighRateAccelerometer> Ptr;
 
-	HighRateAccelerometer(Peripheral::Ptr pPeripheral);
+	HighRateAccelerometer(BtLE::Peripheral::Ptr pPeripheral);
 		/// Creates a HighRateAccelerometer.
 
 	~HighRateAccelerometer();
 		/// Destroys the HighRateAccelerometer.
-	
+
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
@@ -46,6 +43,7 @@ public:
 	IoT::Devices::Acceleration acceleration() const;
 
 	static const std::string NAME;
+	static const std::string TYPE;
 	static const std::string SYMBOLIC_NAME;
 
 protected:
@@ -57,22 +55,21 @@ protected:
 	Poco::Any getDisplayValue(const std::string&) const;
 	Poco::Any getDeviceIdentifier(const std::string&) const;
 	Poco::Any getName(const std::string&) const;
+	Poco::Any getType(const std::string&) const;
 	Poco::Any getSymbolicName(const std::string&) const;
 	void onConnected();
 	void onDisconnected();
 
 protected:
-	mutable Peripheral::Ptr _pPeripheral;
+	mutable BtLE::Peripheral::Ptr _pPeripheral;
 	bool _enabled;
 	bool _ready;
 	IoT::Devices::Acceleration _acceleration;
 	Poco::Any _deviceIdentifier;
-	Poco::Any _symbolicName;
-	Poco::Any _name;
 };
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK
 
 
 #endif // IoT_XDK_HighRateAccelerometer_INCLUDED

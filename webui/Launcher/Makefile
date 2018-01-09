@@ -1,15 +1,13 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Makefile for macchina.io web application launcher bundle
 #
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-PAGECOMPILER = $(POCO_BASE)/PageCompiler/$(POCO_HOST_BINDIR)/cpspc
-
 include $(POCO_BASE)/build/rules/global
+
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
+include $(POCO_BASE)/PageCompiler/PageCompiler.make
 
 objects =  \
 	LoginPage \
@@ -30,6 +28,6 @@ postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -
 include $(POCO_BASE)/build/rules/dylib
 
 # Rule for runnning PageCompiler
-src/%.cpp: src/%.cpsp 
+src/%.cpp: src/%.cpsp
 	@echo "** Compiling Page" $<
-	$(SET_LD_LIBRARY_PATH) $(PAGECOMPILER) --OSP $<
+	$(SET_LD_LIBRARY_PATH) $(PAGE_COMPILER) --OSP $<

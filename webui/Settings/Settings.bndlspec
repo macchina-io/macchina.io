@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <bundlespec>
   <manifest>
-    <name>macchina.io Settings Web Interface</name>
+    <name>macchina.io Settings</name>
     <symbolicName>io.macchina.webui.settings</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>

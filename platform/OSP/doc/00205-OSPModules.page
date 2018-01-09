@@ -1,0 +1,73 @@
+OSP Modules
+Open Service Platform
+
+!!! Modules Overview
+
+Modules are "virtual" entities in OSP that are used to group specific features like
+services, extension points and other resources. Typically, a module represents a
+specific service or group of related services. Bundles can declare which modules they
+provide and which modules they require from other bundles.
+
+Modules thus allow a bundle to declare dependencies on specific feature sets,
+without having to declare dependencies on a specific bundle names (such as with
+the <[Require-Bundle]> manifest property).
+
+The OSP core framework implementation itself makes no assumptions as to what a module
+represents, or which modules are provided. However, some add-on OSP bundles define
+and provide modules for their clients.
+
+The modules provided and required by a bundle are declared in the bundle manifest,
+using the <[Provide-Module]> and <[Require-Module]> manifest properties.
+
+!! Module Naming
+
+The name of a module must conform to certain conventions, quite similar to bundle names.
+Module names must be unique across different vendors. To ensure this, the module
+name employs the same reverse domain name scheme as bundle names.
+The name consists of a number of parts, separated by periods. The
+first part is the top-level domain of the vendor (e.g., "com"). The second part
+is the domain name of the company (e.g., "appinf"). The remaining parts can be
+freely specified by the vendor, and usually include a product name, subsystem
+name, module name, etc. There is no limit to the number of parts in a name,
+although for practical purposes, a module name should not consist of more than
+five parts. For maximum portability across different platforms, a name part must
+not contain any characters other than upper- and lowercase alphabetic characters
+('A' - 'Z'), digits ('0' - '9') and dash ('-').
+
+  module-name      ::= module-id ("." module-id)*
+  module-id        ::= module-char+
+  module-char      ::= letter | digit | "-"
+  letter           ::= 'A' .. 'Z' | 'a' .. 'z'
+  digit            ::= '0' .. '9'
+----
+
+Module names in the <[osp.*]> namespace are reserved for use by OSP.
+
+
+!! Module Versioning
+
+Every module has a version specification consisting of a major version number, a minor version number,
+a revision number, and an optional release designation. When comparing versions, only major version,
+minor version and revision number are significant; the release designation is ignored.
+
+Unlike bundles, where only the highest version of a bundle is loaded at run-time,
+multiple versions of a module can coexist in an application.
+
+
+!!! Resolving Modules
+
+Modules are resolved during the normal bundle resolving procedure. The following
+steps are thus performed when resolving a bundle:
+
+  1. Determine the modules required by a bundle from the <[Require-Module]> manifest
+     property.
+  2. Find the bundles providing these modules and add them to the list of the
+     resolving bundle's dependencies. If for a specific module no providing bundle can
+     be found, resolving fails and the bundle remains in <*installed*> state.
+  3. Resolve all providing bundles. If resolving a providing bundle fails, the
+     top-level module-requiring bundle fails to resolve as well and remains in
+     <*installed*> state.
+  4. Resolve all direct bundle dependencies from the <[Require-Bundle]> manifest
+     property.
+
+

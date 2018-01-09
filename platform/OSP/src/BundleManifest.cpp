@@ -1,8 +1,6 @@
 //
 // BundleManifest.cpp
 //
-// $Id: //poco/1.7/OSP/src/BundleManifest.cpp#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleManifest
@@ -16,6 +14,7 @@
 
 #include "Poco/OSP/BundleManifest.h"
 #include "Poco/OSP/OSPException.h"
+#include "Poco/Format.h"
 #include <memory>
 #include <algorithm>
 #include <cctype>
@@ -34,6 +33,8 @@ const std::string BundleManifest::BUNDLE_SYMBOLICNAME("Bundle-SymbolicName");
 const std::string BundleManifest::BUNDLE_VERSION("Bundle-Version");
 const std::string BundleManifest::BUNDLE_ACTIVATOR("Bundle-Activator");
 const std::string BundleManifest::REQUIRE_BUNDLE("Require-Bundle");
+const std::string BundleManifest::REQUIRE_MODULE("Require-Module");
+const std::string BundleManifest::PROVIDE_MODULE("Provide-Module");
 const std::string BundleManifest::EXTENDS_BUNDLE("Extends-Bundle");
 const std::string BundleManifest::BUNDLE_LAZYSTART("Bundle-LazyStart");
 const std::string BundleManifest::BUNDLE_RUNLEVEL("Bundle-RunLevel");
@@ -42,7 +43,7 @@ const std::string BundleManifest::DEFAULT_RUNLEVEL("999-user");
 
 
 BundleManifest::BundleManifest(std::istream& istr):
-	_lazyStart(false),	
+	_lazyStart(false),
 	_pManifest(new Poco::Util::PropertyFileConfiguration(istr))
 {
 	parseManifest();
@@ -59,7 +60,7 @@ void BundleManifest::parseManifest()
 	std::string manifestVersion = _pManifest->getString(MANIFEST_VERSION);
 	if (manifestVersion != VERSION)
 		throw ManifestException("Unsupported manifest version", manifestVersion);
-	
+
 	_name           = _pManifest->getString(BUNDLE_NAME);
 	_symbolicName   = _pManifest->getString(BUNDLE_SYMBOLICNAME);
 	_version        = _pManifest->getString(BUNDLE_VERSION);
@@ -68,9 +69,11 @@ void BundleManifest::parseManifest()
 	_lazyStart      = _pManifest->getBool(BUNDLE_LAZYSTART, false);
 	_runLevel       = _pManifest->getString(BUNDLE_RUNLEVEL, DEFAULT_RUNLEVEL);
 	_extendedBundle = _pManifest->getString(EXTENDS_BUNDLE, "");
-	
+
 	parseActivator(_pManifest->getString(BUNDLE_ACTIVATOR, ""));
 	parseRequiredBundles(_pManifest->getString(REQUIRE_BUNDLE, ""));
+	parseRequiredModules(_pManifest->getString(REQUIRE_MODULE, ""));
+	parseProvidedModules(_pManifest->getString(PROVIDE_MODULE, ""));
 }
 
 
@@ -78,10 +81,10 @@ void BundleManifest::parseActivator(const std::string& activator)
 {
 	std::string clazz;
 	std::string library;
-	
+
 	std::string::const_iterator it(activator.begin());
 	std::string::const_iterator end(activator.end());
-	
+
 	while (it != end && std::isspace(*it)) ++it;
 	while (it != end && !std::isspace(*it) && *it != ';') clazz += *it++;
 	while (it != end && std::isspace(*it)) ++it;
@@ -110,9 +113,21 @@ void BundleManifest::parseActivator(const std::string& activator)
 
 void BundleManifest::parseRequiredBundles(const std::string& requiredBundles)
 {
-	std::string::const_iterator it(requiredBundles.begin());
-	std::string::const_iterator end(requiredBundles.end());
-	
+	parseRequiredItems(requiredBundles, REQUIRE_BUNDLE, "bundle-version", _requiredBundles);
+}
+
+
+void BundleManifest::parseRequiredModules(const std::string& requiredModules)
+{
+	parseRequiredItems(requiredModules, REQUIRE_MODULE, "module-version", _requiredModules);
+}
+
+
+void BundleManifest::parseRequiredItems(const std::string& requiredItems, const std::string& what, const std::string& versionKeyword, Dependencies& dependencies)
+{
+	std::string::const_iterator it(requiredItems.begin());
+	std::string::const_iterator end(requiredItems.end());
+
 	while (it != end)
 	{
 		while (it != end && std::isspace(*it)) ++it;
@@ -129,11 +144,11 @@ void BundleManifest::parseRequiredBundles(const std::string& requiredBundles)
 				while (it != end && std::isspace(*it)) ++it;
 				std::string keyword;
 				while (it != end && !std::isspace(*it) && *it != '=') keyword += *it++;
-				if (keyword != "bundle-version") throw ManifestException(REQUIRE_BUNDLE, "Unknown keyword following bundle name");
+				if (keyword != versionKeyword) throw ManifestException(what, "Unknown keyword following item name");
 				while (it != end && std::isspace(*it)) ++it;
-				if (it == end || *it != '=') throw ManifestException(REQUIRE_BUNDLE, "The bundle-version keyword must be followed by '='");
+				if (it == end || *it != '=') throw ManifestException(what, Poco::format("The %s keyword must be followed by '='", versionKeyword));
 				++it;
-				while (it != end && std::isspace(*it)) ++it;	
+				while (it != end && std::isspace(*it)) ++it;
 				if (it != end)
 				{
 					if (*it == '(' || *it == '[')
@@ -159,7 +174,7 @@ void BundleManifest::parseRequiredBundles(const std::string& requiredBundles)
 								Version upper(upperStr);
 								dependency.versions = VersionRange(lower, includeLower, upper, includeUpper);
 							}
-							else throw ManifestException(REQUIRE_BUNDLE, "Invalid version range specified");
+							else throw ManifestException(what, "Invalid version range specified");
 						}
 					}
 					else
@@ -170,9 +185,52 @@ void BundleManifest::parseRequiredBundles(const std::string& requiredBundles)
 						dependency.versions = VersionRange(version, true, version, true);
 					}
 				}
-				else throw ManifestException(REQUIRE_BUNDLE, "The bundle-version keyword must be followed by a version or version range");
+				else throw ManifestException(what, Poco::format("The %s keyword must be followed by a version or version range", versionKeyword));
 			}
-			_requiredBundles.push_back(dependency);
+			dependencies.push_back(dependency);
+		}
+		if (it != end && *it == ',') ++it;
+	}
+}
+
+
+void BundleManifest::parseProvidedModules(const std::string& providedModules)
+{
+	std::string::const_iterator it(providedModules.begin());
+	std::string::const_iterator end(providedModules.end());
+
+	while (it != end)
+	{
+		while (it != end && std::isspace(*it)) ++it;
+		std::string name;
+		while (it != end && !std::isspace(*it) && *it != ',' && *it != ';') name += *it++;
+		if (!name.empty())
+		{
+			Module module;
+			module.symbolicName = name;
+			while (it != end && std::isspace(*it)) ++it;
+			if (it != end && *it == ';')
+			{
+				++it;
+				while (it != end && std::isspace(*it)) ++it;
+				std::string keyword;
+				while (it != end && !std::isspace(*it) && *it != '=') keyword += *it++;
+				if (keyword != "module-version") throw ManifestException(PROVIDE_MODULE, "Unknown keyword following module name");
+				while (it != end && std::isspace(*it)) ++it;
+				if (it == end || *it != '=') throw ManifestException(PROVIDE_MODULE, "The module-version keyword must be followed by '='");
+				++it;
+				while (it != end && std::isspace(*it)) ++it;
+				if (it != end)
+				{
+					std::string versionStr;
+					while (it != end && !std::isspace(*it) && *it != ',') versionStr += *it++;
+					Version version(versionStr);
+					module.version = version;
+				}
+				else throw ManifestException(PROVIDE_MODULE, "The module-version keyword must be followed by a version");
+			}
+			else throw ManifestException(PROVIDE_MODULE, "No module-version specified");
+			_providedModules.push_back(module);
 		}
 		if (it != end && *it == ',') ++it;
 	}

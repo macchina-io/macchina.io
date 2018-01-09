@@ -1,8 +1,6 @@
 //
 // File_WIN32U.cpp
 //
-// $Id: //poco/1.4/Foundation/src/File_WINCE.cpp#1 $
-//
 // Library: Foundation
 // Package: Filesystem
 // Module:  File
@@ -298,6 +296,12 @@ void FileImpl::renameToImpl(const std::string& path)
 	convertPath(path, upath);
 	if (MoveFileW(_upath.c_str(), upath.c_str()) == 0)
 		handleLastErrorImpl(_path);
+}
+
+
+void FileImpl::linkToImpl(const std::string& path, int type) const
+{
+	throw Poco::NotImplementedException("File::linkTo() is not available on this platform");
 }
 
 

@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/RemotingNG/TCP/testsuite/Makefile#1 $
-#
 # Makefile for Poco RemotingNG TCP Transport testsuite
 #
 

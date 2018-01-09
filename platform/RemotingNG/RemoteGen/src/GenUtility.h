@@ -1,8 +1,6 @@
 //
 // GenUtility.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/GenUtility.h#2 $
-//
 // Definition of the GenUtility class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
@@ -20,6 +18,7 @@
 #include "Poco/CppParser/Function.h"
 #include "Poco/CppParser/Variable.h"
 #include "Poco/CppParser/Struct.h"
+#include "Poco/CodeGeneration/GeneratorEngine.h"
 #include "Poco/Exception.h"
 #include <vector>
 
@@ -52,6 +51,8 @@ public:
 	static bool getIsMandatory(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Parameter* pParam);
 
 	static bool getIsMandatory(const Poco::CppParser::Variable* pVar);
+
+	static bool getIsMandatory(const Poco::CodeGeneration::CodeGenerator::Properties& props);
 
 	static bool getIsInHeader(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Parameter* pParam);
 
@@ -116,7 +117,7 @@ public:
 
 	static void checkFunctionParams(const Poco::CppParser::Function* pFunction);
 		/// Checks for unnamed parameters.
-		
+
 	static bool isOverride(const std::string& funcName, const Poco::CppParser::Struct* pStruct);
 		/// Returns true if the function with the given name is an overrided virtual function.
 
@@ -130,7 +131,7 @@ private:
 	static const std::string ATTR_NAME;
 	static const std::string ATTR_REPLYNAME;
 	static const std::string VAL_REQUEST;
-	static const std::string VAL_REPLY;	
+	static const std::string VAL_REPLY;
 
 	enum
 	{

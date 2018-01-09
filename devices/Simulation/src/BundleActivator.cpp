@@ -1,8 +1,6 @@
 //
 // BundleActivator.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -63,6 +61,7 @@ public:
 		
 		Properties props;
 		props.set("io.macchina.device", SimulatedSensor::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", SimulatedSensor::TYPE);
 		if (!params.physicalQuantity.empty())
 		{
 			props.set("io.macchina.physicalQuantity", params.physicalQuantity);
@@ -81,6 +80,7 @@ public:
 		
 		Properties props;
 		props.set("io.macchina.device", SimulatedGNSSSensor::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType", SimulatedGNSSSensor::TYPE);
 		
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(params.id, pGNSSSensorRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);

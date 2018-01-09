@@ -1,8 +1,6 @@
 //
 // LanguageTag.cpp
 //
-// $Id: //poco/1.7/OSP/src/LanguageTag.cpp#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  LanguageTag

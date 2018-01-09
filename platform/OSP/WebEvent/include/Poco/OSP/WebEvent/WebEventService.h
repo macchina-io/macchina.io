@@ -1,8 +1,6 @@
 //
 // WebEventService.h
 //
-// $Id: //poco/1.7/OSP/WebEvent/include/Poco/OSP/WebEvent/WebEventService.h#1 $
-//
 // Library: OSP/WebEvent
 // Package: WebEvent
 // Module:  WebEventService

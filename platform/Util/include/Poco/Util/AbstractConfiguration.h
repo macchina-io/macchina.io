@@ -1,8 +1,6 @@
 //
 // AbstractConfiguration.h
 //
-// $Id: //poco/1.4/Util/include/Poco/Util/AbstractConfiguration.h#2 $
-//
 // Library: Util
 // Package: Configuration
 // Module:  AbstractConfiguration
@@ -302,7 +300,7 @@ public:
 		/// Creates a view (see ConfigurationView) into the configuration.
 	
 	std::string expand(const std::string& value) const;
-		/// Replaces all occurences of ${<property>} in value with the
+		/// Replaces all occurrences of ${<property>} in value with the
 		/// value of the <property>. If <property> does not exist,
 		/// nothing is changed.
 		///

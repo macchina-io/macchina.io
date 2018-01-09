@@ -1,8 +1,6 @@
 //
 // CoreTest.h
 //
-// $Id: //projects/SecurePassage/FireMon/poco/OSP/Unit/TestBundle/src/BundleTest.h#1 $
-//
 // Definition of the BundleTest class.
 //
 // Copyright (c) 2011, Applied Informatics Software Engineering GmbH.

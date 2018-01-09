@@ -1,8 +1,6 @@
 //
 // RMCProcessor.h
 //
-// $Id$
-//
 // Library: IoT/GNSS/NMEA
 // Package: Sentences
 // Module:  RMCProcessor

@@ -1,8 +1,6 @@
 //
 // AmbientLightSensor.cpp
 //
-// $Id: //iot/Main/Tf/src/AmbientLightSensor.cpp#2 $
-//
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -20,7 +18,7 @@ namespace Tf {
 
 
 AmbientLightSensor::AmbientLightSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.ambientlight", "Tinkerforge Ambient Light Bricklet", "illuminance", IoT::Devices::Sensor::PHYSICAL_UNIT_LUX),
+	BrickletType("io.macchina.tf.ambientlight", "Tinkerforge Ambient Light Bricklet", "io.macchina.sensor", "illuminance", IoT::Devices::Sensor::PHYSICAL_UNIT_LUX),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
 	addProperty("displayValue", &AmbientLightSensor::getDisplayValue);

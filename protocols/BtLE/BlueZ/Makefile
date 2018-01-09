@@ -1,14 +1,12 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Makefile for macchina.io Bluetooth LE bundle
 #
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-
 include $(POCO_BASE)/build/rules/global
+
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 INCLUDE += -I$(PROJECT_BASE)/protocols/BtLE/include
 

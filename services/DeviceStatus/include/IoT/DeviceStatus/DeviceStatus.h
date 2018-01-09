@@ -1,8 +1,6 @@
 //
 // DeviceStatus.h
 //
-// $Id$
-//
 // Library: IoT/DeviceStatuss
 // Package: DeviceStatus
 // Module:  DeviceStatus

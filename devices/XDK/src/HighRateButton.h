@@ -1,8 +1,6 @@
 //
 // HighRateButton.h
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -21,7 +19,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
@@ -30,12 +27,12 @@ class HighRateButton: public IoT::Devices::DeviceImpl<IoT::Devices::Trigger, Hig
 public:
 	typedef Poco::SharedPtr<HighRateButton> Ptr;
 
-	HighRateButton(Peripheral::Ptr pPeripheral);
+	HighRateButton(BtLE::Peripheral::Ptr pPeripheral);
 		/// Creates a HighRateButton.
 
 	~HighRateButton();
 		/// Destroys the HighRateButton.
-	
+
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
@@ -46,6 +43,7 @@ public:
 	bool state() const;
 
 	static const std::string NAME;
+	static const std::string TYPE;
 	static const std::string SYMBOLIC_NAME;
 
 protected:
@@ -57,23 +55,21 @@ protected:
 	Poco::Any getDisplayValue(const std::string&) const;
 	Poco::Any getDeviceIdentifier(const std::string&) const;
 	Poco::Any getName(const std::string&) const;
+	Poco::Any getType(const std::string&) const;
 	Poco::Any getSymbolicName(const std::string&) const;
 	void onConnected();
 	void onDisconnected();
 
 protected:
-	mutable Peripheral::Ptr _pPeripheral;
+	mutable BtLE::Peripheral::Ptr _pPeripheral;
 	bool _enabled;
 	bool _ready;
 	bool _state;
 	Poco::Any _deviceIdentifier;
-	Poco::Any _symbolicName;
-	Poco::Any _name;
 };
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK
 
 
 #endif // IoT_XDK_HighRateButton_INCLUDED
-

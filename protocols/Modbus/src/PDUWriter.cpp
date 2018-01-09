@@ -1,8 +1,6 @@
 //
 // PDUWriter.cpp
 //
-// $Id$
-//
 // Library: IoT/Modbus
 // Package: ModbusMaster
 // Module:  PDUWriter

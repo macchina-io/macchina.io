@@ -1,8 +1,6 @@
 //
 // WebServerBundleActivator.cpp
 //
-// $Id: //poco/Main/OSP/samples/ServiceListener/src/ServiceListener.cpp#1 $
-//
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

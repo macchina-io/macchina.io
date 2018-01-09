@@ -1,8 +1,6 @@
 //
 // BundleContextFactory.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/BundleContextFactory.h#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  BundleContextFactory

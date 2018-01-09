@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/WebTunnel/samples/WebTunnelClientCAPI/Makefile#1 $
-#
 # Makefile for Poco WebTunnel client C library
 #
 

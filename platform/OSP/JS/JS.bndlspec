@@ -44,21 +44,15 @@
     ../../lib/${osName}/${osArch}/libPocoJSBridged.so.*
     ../../lib/${osName}/${osArch}/libPocoJSBridge.*.dylib
     ../../lib/${osName}/${osArch}/libPocoJSBridged.*.dylib
-    ../../lib/${osName}/${osArch}/libPocoJSNet.so.*
-    ../../lib/${osName}/${osArch}/libPocoJSNetd.so.*
-    ../../lib/${osName}/${osArch}/libPocoJSNet.*.dylib
-    ../../lib/${osName}/${osArch}/libPocoJSNetd.*.dylib
-    ../../lib/${osName}/${osArch}/libPocoJSData.so.*
-    ../../lib/${osName}/${osArch}/libPocoJSDatad.so.*
-    ../../lib/${osName}/${osArch}/libPocoJSData.*.dylib
-    ../../lib/${osName}/${osArch}/libPocoJSDatad.*.dylib
     ../../lib/${osName}/${osArch}/libPocoOSPJS.so.*
     ../../lib/${osName}/${osArch}/libPocoOSPJSd.so.*
     ../../lib/${osName}/${osArch}/libPocoOSPJS.*.dylib
     ../../lib/${osName}/${osArch}/libPocoOSPJSd.*.dylib
     ../../lib/${osName}/${osArch}/libv8.so
-    ../../lib/${osName}/${osArch}/libv8d.so
+    ../../lib/${osName}/${osArch}/libv8_libbase.so
+    ../../lib/${osName}/${osArch}/libv8_libplatform.so
     ../../lib/${osName}/${osArch}/libv8.dylib
-    ../../lib/${osName}/${osArch}/libv8d.dylib
+    ../../lib/${osName}/${osArch}/libv8_libbase.dylib
+    ../../lib/${osName}/${osArch}/libv8_libplatform.dylib
   </code>
 </bundlespec>

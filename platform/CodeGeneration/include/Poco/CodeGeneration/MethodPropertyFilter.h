@@ -1,8 +1,6 @@
 //
 // MethodPropertyFilter.h
 //
-// $Id: //poco/1.7/CodeGeneration/include/Poco/CodeGeneration/MethodPropertyFilter.h#1 $
-//
 // Library: CodeGeneration
 // Package: CodeGeneration
 // Module:  MethodPropertyFilter

@@ -17,7 +17,6 @@
 
 #include "IoT/Devices/TriggerRemoteObject.h"
 #include "IoT/Devices/TriggerEventDispatcher.h"
-#include "Poco/Delegate.h"
 #include "Poco/RemotingNG/ORB.h"
 
 
@@ -30,7 +29,6 @@ TriggerRemoteObject::TriggerRemoteObject(const Poco::RemotingNG::Identifiable::O
 	Poco::RemotingNG::RemoteObject(oid),
 	_pServiceObject(pServiceObject)
 {
-	_pServiceObject->stateChanged += Poco::delegate(this, &TriggerRemoteObject::event__stateChanged);
 }
 
 
@@ -38,7 +36,6 @@ TriggerRemoteObject::~TriggerRemoteObject()
 {
 	try
 	{
-		_pServiceObject->stateChanged -= Poco::delegate(this, &TriggerRemoteObject::event__stateChanged);
 	}
 	catch (...)
 	{
@@ -63,12 +60,6 @@ void TriggerRemoteObject::remoting__enableRemoteEvents(const std::string& protoc
 bool TriggerRemoteObject::remoting__hasEvents() const
 {
 	return true;
-}
-
-
-void TriggerRemoteObject::event__stateChanged(const bool& data)
-{
-	stateChanged(this, data);
 }
 
 

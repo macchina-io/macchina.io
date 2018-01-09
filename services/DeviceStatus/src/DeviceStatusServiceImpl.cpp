@@ -1,8 +1,6 @@
 //
 // DeviceStatusServiceImpl.cpp
 //
-// $Id$
-//
 // Library: IoT/DeviceStatus
 // Package: DeviceStatusServiceImpl
 // Module:  DeviceStatusServiceImpl

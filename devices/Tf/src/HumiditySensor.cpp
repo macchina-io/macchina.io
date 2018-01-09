@@ -1,8 +1,6 @@
 //
 // HumiditySensor.cpp
 //
-// $Id: //iot/Main/Tf/src/HumiditySensor.cpp#2 $
-//
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -20,7 +18,7 @@ namespace Tf {
 
 
 HumiditySensor::HumiditySensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.humidity", "Tinkerforge Humidity Bricklet", "humidity", "%RH"),
+	BrickletType("io.macchina.tf.humidity", "Tinkerforge Humidity Bricklet", "io.macchina.sensor", "humidity", "%RH"),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
 	addProperty("displayValue", &HumiditySensor::getDisplayValue);

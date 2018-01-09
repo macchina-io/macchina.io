@@ -1,8 +1,6 @@
 //
 // HighRateGyroscope.cpp
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -17,21 +15,19 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
 const std::string HighRateGyroscope::NAME("XDK Gyroscope");
-const std::string HighRateGyroscope::SYMBOLIC_NAME("io.macchina.btle.xdk.gyroscope");
+const std::string HighRateGyroscope::TYPE("io.macchina.gyroscope");
+const std::string HighRateGyroscope::SYMBOLIC_NAME("io.macchina.xdk.gyroscope");
 
 
-HighRateGyroscope::HighRateGyroscope(Peripheral::Ptr pPeripheral):
+HighRateGyroscope::HighRateGyroscope(BtLE::Peripheral::Ptr pPeripheral):
 	_pPeripheral(pPeripheral),
 	_enabled(false),
 	_ready(false),
-	_deviceIdentifier(pPeripheral->address()),
-	_symbolicName(SYMBOLIC_NAME),
-	_name(NAME)
+	_deviceIdentifier(pPeripheral->address())
 {
 	addProperty("displayValue", &HighRateGyroscope::getDisplayValue);
 	addProperty("enabled", &HighRateGyroscope::getEnabled, &HighRateGyroscope::setEnabled);
@@ -39,14 +35,15 @@ HighRateGyroscope::HighRateGyroscope(Peripheral::Ptr pPeripheral):
 	addProperty("deviceIdentifier", &HighRateGyroscope::getDeviceIdentifier);
 	addProperty("symbolicName", &HighRateGyroscope::getSymbolicName);
 	addProperty("name", &HighRateGyroscope::getName);
-	
+	addProperty("type", &HighRateGyroscope::getType);
+
 	_pPeripheral->connected += Poco::delegate(this, &HighRateGyroscope::onConnected);
 	_pPeripheral->disconnected += Poco::delegate(this, &HighRateGyroscope::onDisconnected);
 
 	init();
 }
 
-	
+
 HighRateGyroscope::~HighRateGyroscope()
 {
 	_pPeripheral->connected -= Poco::delegate(this, &HighRateGyroscope::onConnected);
@@ -117,13 +114,19 @@ Poco::Any HighRateGyroscope::getDeviceIdentifier(const std::string&) const
 
 Poco::Any HighRateGyroscope::getName(const std::string&) const
 {
-	return _name;
+	return NAME;
+}
+
+
+Poco::Any HighRateGyroscope::getType(const std::string&) const
+{
+	return TYPE;
 }
 
 
 Poco::Any HighRateGyroscope::getSymbolicName(const std::string&) const
 {
-	return _symbolicName;
+	return SYMBOLIC_NAME;
 }
 
 
@@ -159,10 +162,9 @@ void HighRateGyroscope::onConnected()
 void HighRateGyroscope::onDisconnected()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
-	
+
 	_ready = false;
 }
 
 
-} } } // namespace IoT::BtLE::XDK
-
+} } // namespace IoT::XDK

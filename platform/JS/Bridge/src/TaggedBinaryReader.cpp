@@ -1,8 +1,6 @@
 //
 // TaggedBinaryReader.cpp
 //
-// $Id$
-//
 // Library: JS/Bridge
 // Package: Bridging
 // Module:  TaggedBinaryReader
@@ -28,19 +26,19 @@ TaggedBinaryReader::TaggedBinaryReader(v8::Isolate* pIsolate):
 	_containerStack.reserve(32);
 }
 
-	
+
 TaggedBinaryReader::~TaggedBinaryReader()
 {
 }
 
-	
-v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
+
+const v8::Global<v8::Object>& TaggedBinaryReader::read(std::istream& istream)
 {
 	Poco::RemotingNG::BinaryDeserializer deserializer;
 	deserializer.setup(istream);
 
 	std::vector<std::string> names;
-	
+
 	std::string messageName;
 	Poco::RemotingNG::SerializerBase::MessageType messageType = deserializer.findMessage(messageName);
 	deserializer.deserializeMessageBegin(messageName, messageType);
@@ -64,6 +62,7 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 				_containerStack.push_back(TaggedBinarySerializer::CONT_STRUCT);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_STRUCT_END:
 			{
 				_containerStack.pop_back();
@@ -72,6 +71,7 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 				names.pop_back();
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_SEQUENCE_BEGIN:
 			{
 				name = deserializeName(deserializer);
@@ -82,6 +82,7 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 				_containerStack.push_back(TaggedBinarySerializer::CONT_SEQUENCE);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_SEQUENCE_END:
 			{
 				_containerStack.pop_back();
@@ -90,6 +91,7 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 				names.pop_back();
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_NULLABLE_BEGIN:
 			{
 				name = deserializeName(deserializer);
@@ -99,6 +101,7 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 				_serializer.serializeNullableBegin(name, isNull);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_NULLABLE_END:
 			{
 				deserializer.deserializeNullableEnd(names.back());
@@ -106,6 +109,7 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 				names.pop_back();
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_OPTIONAL_BEGIN:
 			{
 				name = deserializeName(deserializer);
@@ -115,6 +119,7 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 				_serializer.serializeOptionalBegin(name, isSpecified);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_OPTIONAL_END:
 			{
 				deserializer.deserializeOptionalEnd(names.back());
@@ -122,86 +127,103 @@ v8::Local<v8::Object> TaggedBinaryReader::read(std::istream& istream)
 				names.pop_back();
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_INT8:
 			{
 				read<Poco::Int8>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_UINT8:
 			{
 				read<Poco::UInt8>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_INT16:
 			{
 				read<Poco::Int16>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_UINT16:
 			{
 				read<Poco::UInt16>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_INT32:
 			{
 				read<Poco::Int32>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_UINT32:
 			{
 				read<Poco::UInt32>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_LONG:
 			{
 				read<long>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_ULONG:
 			{
 				read<unsigned long>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_INT64:
 			{
 				read<Poco::Int64>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_UINT64:
 			{
 				read<Poco::UInt64>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_FLOAT:
 			{
 				read<float>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_DOUBLE:
 			{
 				read<double>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_BOOL:
 			{
 				read<bool>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_CHAR:
 			{
 				read<char>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_STRING:
 			{
 				read<std::string>(deserializer);
 			}
 			break;
+
 		case TaggedBinarySerializer::TYPE_TAG_BUFFER:
 			{
 				read<std::vector<char> >(deserializer);
 			}
 			break;
+
 		default:
 			throw Poco::RemotingNG::DeserializerException("Invalid type tag encountered during deserialization of", names.back());
 		}

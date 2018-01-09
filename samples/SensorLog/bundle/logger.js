@@ -32,6 +32,6 @@ setInterval(
 	function()
 	{
 		var cutoffTime = DateTime().timestamp/1000 - 1000*db.retain;
-		db.session.execute('DELETE FROM datalog WHERE timestamp < ?', cutoffTime);
+		db.session.execute('DELETE FROM sensorlog WHERE timestamp < ?', cutoffTime);
 	},
 	db.retain*1000);

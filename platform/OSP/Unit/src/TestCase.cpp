@@ -1,8 +1,6 @@
 //
 // TestCase.cpp
 //
-// $Id: //projects/SecurePassage/FireMon/poco/OSP/Unit/src/TestCase.cpp#1 $
-//
 // Library: OSP/Unit
 // Package: Unit
 // Module:  TestCase
