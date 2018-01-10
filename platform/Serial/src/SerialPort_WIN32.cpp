@@ -44,110 +44,118 @@ void SerialPortImpl::openImpl(const std::string& device, int baudRate, const std
 	std::wstring wdevice;
 	Poco::UnicodeConverter::toUTF16(device, wdevice);
 	if (wdevice[wdevice.size() - 1] != L':') wdevice += L':';
-	
+
 	_handle = CreateFileW(wdevice.c_str(), GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	if (_handle == INVALID_HANDLE_VALUE) throw Poco::IOException("cannot open serial port " + device);
-	
-	DCB dcb = {0};
-	dcb.DCBlength = sizeof(dcb);
-	if (!GetCommState(_handle, &dcb)) throw Poco::IOException("cannot get serial port configuration for " + device);
 
-	switch (parameters[0])
+	try
 	{
-	case '5': dcb.ByteSize = 5; break;
-	case '6': dcb.ByteSize = 6; break;
-	case '7': dcb.ByteSize = 7; break;
-	case '8': dcb.ByteSize = 8; break;
-	default: throw Poco::InvalidArgumentException("invalid character size", parameters);
-	}
-	
-	switch (parameters[1])
-	{
-	case 'N':
-	case 'n':
-		dcb.Parity = NOPARITY; 
-		break;
-	case 'E':
-	case 'e':
-		dcb.Parity = EVENPARITY;
-		break;
-	case 'o':
-	case 'O':
-		dcb.Parity = ODDPARITY;
-		break;
-	case 'm':
-	case 'M':
-		dcb.Parity = MARKPARITY;
-		break;
-	case 's':
-	case 'S':
-		dcb.Parity = SPACEPARITY;
-		break;
-	default: throw Poco::InvalidArgumentException("invalid parity setting", parameters);
-	}
-	
-	switch (parameters[2])
-	{
-	case '1':
-		dcb.StopBits = ONESTOPBIT;
-		break;
-	case '2':
-		dcb.StopBits = TWOSTOPBITS;
-		break;
-	case '5':
-		dcb.StopBits = ONE5STOPBITS;
-		break;
-	default: throw Poco::InvalidArgumentException("invalid number of stop bits", parameters);
-	}
-	
-	switch (flowControl)
-	{
-	case FLOW_NONE:
-		dcb.fOutxCtsFlow = FALSE;
-		dcb.fOutxDsrFlow = FALSE;
-		dcb.fOutX        = FALSE;
-		dcb.fInX         = FALSE;
-		dcb.fRtsControl  = RTS_CONTROL_DISABLE;
-		break;
-	case FLOW_RTSCTS:
-		dcb.fOutxCtsFlow = TRUE;
-		dcb.fOutxDsrFlow = TRUE;
-		dcb.fOutX        = FALSE;
-		dcb.fInX         = FALSE;
-		dcb.fRtsControl  = RTS_CONTROL_HANDSHAKE;
-		break;
-	}
+		DCB dcb = {0};
+		dcb.DCBlength = sizeof(dcb);
+		if (!GetCommState(_handle, &dcb)) throw Poco::IOException("cannot get serial port configuration for " + device);
 
-	DWORD speed = dcb.BaudRate;
-	switch (baudRate)
-	{
-	case     -1:   break;
-	case    110:   speed =    CBR_110; break;
-	case    300:   speed =    CBR_300; break;
-	case    600:   speed =    CBR_600; break;
-	case   1200:   speed =   CBR_1200; break;
-	case   2400:   speed =   CBR_2400; break;
-	case   4800:   speed =   CBR_4800; break;
-	case   9600:   speed =   CBR_9600; break;
-	case  14400:   speed =  CBR_14400; break;
-	case  19200:   speed =  CBR_19200; break;
-	case  38400:   speed =  CBR_38400; break;
-	case  57600:   speed =  CBR_57600; break;
-	case 115200:   speed = CBR_115200; break;
-	default: throw Poco::InvalidArgumentException(format("unsupported serial line speed: %d", baudRate));
+		switch (parameters[0])
+		{
+		case '5': dcb.ByteSize = 5; break;
+		case '6': dcb.ByteSize = 6; break;
+		case '7': dcb.ByteSize = 7; break;
+		case '8': dcb.ByteSize = 8; break;
+		default: throw Poco::InvalidArgumentException("invalid character size", parameters);
+		}
+
+		switch (parameters[1])
+		{
+		case 'N':
+		case 'n':
+			dcb.Parity = NOPARITY;
+			break;
+		case 'E':
+		case 'e':
+			dcb.Parity = EVENPARITY;
+			break;
+		case 'o':
+		case 'O':
+			dcb.Parity = ODDPARITY;
+			break;
+		case 'm':
+		case 'M':
+			dcb.Parity = MARKPARITY;
+			break;
+		case 's':
+		case 'S':
+			dcb.Parity = SPACEPARITY;
+			break;
+		default: throw Poco::InvalidArgumentException("invalid parity setting", parameters);
+		}
+
+		switch (parameters[2])
+		{
+		case '1':
+			dcb.StopBits = ONESTOPBIT;
+			break;
+		case '2':
+			dcb.StopBits = TWOSTOPBITS;
+			break;
+		case '5':
+			dcb.StopBits = ONE5STOPBITS;
+			break;
+		default: throw Poco::InvalidArgumentException("invalid number of stop bits", parameters);
+		}
+
+		switch (flowControl)
+		{
+		case FLOW_NONE:
+			dcb.fOutxCtsFlow = FALSE;
+			dcb.fOutxDsrFlow = FALSE;
+			dcb.fOutX        = FALSE;
+			dcb.fInX         = FALSE;
+			dcb.fRtsControl  = RTS_CONTROL_DISABLE;
+			break;
+		case FLOW_RTSCTS:
+			dcb.fOutxCtsFlow = TRUE;
+			dcb.fOutxDsrFlow = TRUE;
+			dcb.fOutX        = FALSE;
+			dcb.fInX         = FALSE;
+			dcb.fRtsControl  = RTS_CONTROL_HANDSHAKE;
+			break;
+		}
+
+		DWORD speed = dcb.BaudRate;
+		switch (baudRate)
+		{
+		case     -1:   break;
+		case    110:   speed =    CBR_110; break;
+		case    300:   speed =    CBR_300; break;
+		case    600:   speed =    CBR_600; break;
+		case   1200:   speed =   CBR_1200; break;
+		case   2400:   speed =   CBR_2400; break;
+		case   4800:   speed =   CBR_4800; break;
+		case   9600:   speed =   CBR_9600; break;
+		case  14400:   speed =  CBR_14400; break;
+		case  19200:   speed =  CBR_19200; break;
+		case  38400:   speed =  CBR_38400; break;
+		case  57600:   speed =  CBR_57600; break;
+		case 115200:   speed = CBR_115200; break;
+		default: throw Poco::InvalidArgumentException(format("unsupported serial line speed: %d", baudRate));
+		}
+		dcb.BaudRate = speed;
+		if (!SetCommState(_handle, &dcb))
+			throw Poco::IOException("error setting serial port parameters on serial port " + device);
+
+		COMMTIMEOUTS cto;
+		cto.ReadIntervalTimeout         = CHARACTER_TIMEOUT;
+		cto.ReadTotalTimeoutConstant    = MAXDWORD;
+		cto.ReadTotalTimeoutMultiplier  = 0;
+		cto.WriteTotalTimeoutConstant   = MAXDWORD;
+		cto.WriteTotalTimeoutMultiplier = 0;
+		if (!SetCommTimeouts(_handle, &cto))
+			throw Poco::IOException("error setting serial port timeouts on serial port " + device);
 	}
-	dcb.BaudRate = speed;
-	if (!SetCommState(_handle, &dcb))
-		throw Poco::IOException("error setting serial port parameters on serial port " + device);
-		
-	COMMTIMEOUTS cto;
-	cto.ReadIntervalTimeout         = CHARACTER_TIMEOUT;
-	cto.ReadTotalTimeoutConstant    = MAXDWORD;
-	cto.ReadTotalTimeoutMultiplier  = 0;
-	cto.WriteTotalTimeoutConstant   = MAXDWORD;
-	cto.WriteTotalTimeoutMultiplier = 0;
-	if (!SetCommTimeouts(_handle, &cto))
-		throw Poco::IOException("error setting serial port timeouts on serial port " + device);
+	catch (...)
+	{
+		closeImpl();
+		throw;
+	}
 }
 
 
@@ -189,7 +197,7 @@ int SerialPortImpl::pollImpl(char* buffer, std::size_t size, const Poco::Timespa
 	COMMTIMEOUTS prevCTO;
 	if (!GetCommTimeouts(_handle, &prevCTO))
 		throw Poco::IOException("error getting serial port timeouts");
-		
+
 	COMMTIMEOUTS cto;
 	cto.ReadIntervalTimeout         = CHARACTER_TIMEOUT;
 	cto.ReadTotalTimeoutConstant    = static_cast<DWORD>(timeout.totalMilliseconds());
@@ -198,9 +206,9 @@ int SerialPortImpl::pollImpl(char* buffer, std::size_t size, const Poco::Timespa
 	cto.WriteTotalTimeoutMultiplier = 0;
 	if (!SetCommTimeouts(_handle, &cto))
 		throw Poco::IOException("error setting serial port timeouts on serial port");
-	
+
 	try
-	{	
+	{
 		DWORD bytesRead = 0;
 		if (!ReadFile(_handle, buffer, size, &bytesRead, NULL))
 			throw Poco::IOException("failed to read from serial port");
