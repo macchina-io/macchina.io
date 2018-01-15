@@ -55,7 +55,7 @@ public:
 		CISS_SENSOR_GYROSCOPE      = 0x82,
 		CISS_SENSOR_ENVIRONMENTAL  = 0x83,
 		CISS_SENSOR_LIGHT          = 0x84,
-		CISS_SENSOR_MICROPHONE     = 0x85
+		CISS_SENSOR_NOISE          = 0x85
 	};
 
 	enum
@@ -95,17 +95,20 @@ public:
 		/// Sets the sampling interval in milliseconds for environmental sensors;
 		/// an interval of 0 disables sampling.
 
+	void setAccelerometerRange(Poco::UInt8 rangeInGs);
+		/// Sets the accelerometer range in G's.
+
 	Poco::SharedPtr<Sensor> temperature() const;
-		/// Returns the temperature sensor;
+		/// Returns the temperature sensor.
 
 	Poco::SharedPtr<Sensor> humidity() const;
-		/// Returns the humidity sensor;
+		/// Returns the humidity sensor.
 
 	Poco::SharedPtr<Sensor> pressure() const;
-		/// Returns the pressure sensor;
+		/// Returns the pressure sensor.
 
 	Poco::SharedPtr<Sensor> light() const;
-		/// Returns the light sensor;
+		/// Returns the light sensor.
 
 	Poco::SharedPtr<Accelerometer> accelerometer() const;
 		/// Returns the Accelerometer.
@@ -136,6 +139,7 @@ private:
 	Poco::SharedPtr<Sensor> _pHumidity;
 	Poco::SharedPtr<Sensor> _pPressure;
 	Poco::SharedPtr<Sensor> _pLight;
+	Poco::SharedPtr<Sensor> _pNoise;
 	Poco::SharedPtr<Accelerometer> _pAccelerometer;
 	Poco::SharedPtr<Magnetometer> _pMagnetometer;
 	Poco::SharedPtr<Gyroscope> _pGyroscope;

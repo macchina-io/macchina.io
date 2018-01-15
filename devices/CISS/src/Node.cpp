@@ -167,9 +167,6 @@ void Node::setSamplingInterval(Poco::UInt8 sensorId, Poco::UInt32 interval)
 
 void Node::setEnvironmentalSamplingInterval(Poco::UInt8 sensorId, Poco::UInt16 interval)
 {
-	_logger.warning("Setting environmental sample rate is currently unsupported by CISS firmware.");
-
-#if 0
 	if (_logger.debug())
 	{
 		_logger.debug("Setting environmental sampling interval to %hu ms.", interval);
@@ -179,14 +176,37 @@ void Node::setEnvironmentalSamplingInterval(Poco::UInt8 sensorId, Poco::UInt16 i
 	Poco::MemoryOutputStream ostr(payload, sizeof(payload));
 	Poco::BinaryWriter writer(ostr, Poco::BinaryWriter::LITTLE_ENDIAN_BYTE_ORDER);
 
-	writer << sensorId << static_cast<Poco::UInt8>(0x02) << interval;
+	writer << sensorId << static_cast<Poco::UInt8>(0x02) << static_cast<Poco::UInt16>(interval/1000);
 	NPIFrame frame(payload, sizeof(payload));
 
 	Poco::FastMutex::ScopedLock lock(_mutex);
 	_pPort->sendFrame(frame);
 	_responseReceived.wait(CISS_COMMAND_TIMEOUT);
 	if (!_lastCommandOK) throw Poco::IOException("Failed to set sampling interval");
-#endif
+}
+
+
+void Node::setAccelerometerRange(Poco::UInt8 rangeInGs)
+{
+	if (_logger.debug())
+	{
+		_logger.debug("Setting accelerometer range to %u G.", static_cast<unsigned>(rangeInGs));
+	}
+
+	if (rangeInGs != 2 && rangeInGs != 4 && rangeInGs != 8 && rangeInGs != 16)
+		throw Poco::InvalidArgumentException("Accelerometer range must be 2,4,8 or 16");
+
+	char payload[6];
+	Poco::MemoryOutputStream ostr(payload, sizeof(payload));
+	Poco::BinaryWriter writer(ostr, Poco::BinaryWriter::LITTLE_ENDIAN_BYTE_ORDER);
+
+	writer << static_cast<Poco::UInt8>(CISS_SENSOR_ACCELEROMETER) << static_cast<Poco::UInt8>(0x04) << rangeInGs;
+	NPIFrame frame(payload, sizeof(payload));
+
+	Poco::FastMutex::ScopedLock lock(_mutex);
+	_pPort->sendFrame(frame);
+	_responseReceived.wait(CISS_COMMAND_TIMEOUT);
+	if (!_lastCommandOK) throw Poco::IOException("Failed to set accelerometer range");
 }
 
 
@@ -254,7 +274,7 @@ void Node::handleFrame(const NPIFrame& frame)
 
 		case CISS_STREAM_TEMPERATURE:
 			{
-				Poco::UInt16 value;
+				Poco::Int16 value;
 				reader >> value;
 				_pTemperature->update(value/10.0);
 			}

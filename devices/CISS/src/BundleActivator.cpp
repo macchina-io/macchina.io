@@ -185,13 +185,15 @@ public:
 				_pNode->setEnvironmentalSamplingInterval(Node::CISS_SENSOR_ENVIRONMENTAL,
 					_pPrefs->configuration()->getInt(baseKey + ".environmental.samplingInterval", 1000));
 
-				_pNode->accelerometer()->enable(_pPrefs->configuration()->getBool(baseKey + ".accelerometer.enable", true));
-				_pNode->magnetometer()->enable(_pPrefs->configuration()->getBool(baseKey + ".magnetometer.enable", true));
-				_pNode->gyroscope()->enable(_pPrefs->configuration()->getBool(baseKey + ".gyroscope.enable", true));
 				_pNode->temperature()->enable(_pPrefs->configuration()->getBool(baseKey + ".temperature.enable", true));
 				_pNode->humidity()->enable(_pPrefs->configuration()->getBool(baseKey + ".humidity.enable", true));
 				_pNode->pressure()->enable(_pPrefs->configuration()->getBool(baseKey + ".pressure.enable", true));
 				_pNode->light()->enable(_pPrefs->configuration()->getBool(baseKey + ".light.enable", true));
+
+				_pNode->setAccelerometerRange(static_cast<Poco::UInt8>(_pPrefs->configuration()->getInt(baseKey + ".accelerometer.range", 16)));
+				_pNode->accelerometer()->enable(_pPrefs->configuration()->getBool(baseKey + ".accelerometer.enable", true));
+				_pNode->magnetometer()->enable(_pPrefs->configuration()->getBool(baseKey + ".magnetometer.enable", true));
+				_pNode->gyroscope()->enable(_pPrefs->configuration()->getBool(baseKey + ".gyroscope.enable", true));
 			}
 			catch (Poco::Exception& exc)
 			{

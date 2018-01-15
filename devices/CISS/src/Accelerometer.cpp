@@ -26,6 +26,7 @@ const std::string Accelerometer::SYMBOLIC_NAME("io.macchina.ciss.accelerometer")
 
 Accelerometer::Accelerometer(Node& node):
 	_node(node),
+	_range(16),
 	_samplingInterval(0),
 	_enabled(false),
 	_ready(false),
@@ -33,6 +34,7 @@ Accelerometer::Accelerometer(Node& node):
 {
 	addProperty("displayValue", &Accelerometer::getDisplayValue);
 	addProperty("enabled", &Accelerometer::getEnabled, &Accelerometer::setEnabled);
+	addProperty("range", &Accelerometer::getRange, &Accelerometer::setRange);
 	addProperty("samplingInterval", &Accelerometer::getSamplingInterval, &Accelerometer::setSamplingInterval);
 	addProperty("connected", &Accelerometer::getConnected);
 	addProperty("deviceIdentifier", &Accelerometer::getDeviceIdentifier);
@@ -84,6 +86,29 @@ Poco::Any Accelerometer::getEnabled(const std::string&) const
 void Accelerometer::setEnabled(const std::string&, const Poco::Any& value)
 {
 	enable(Poco::AnyCast<bool>(value));
+}
+
+
+Poco::Any Accelerometer::getRange(const std::string&) const
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	return _range;
+}
+
+
+void Accelerometer::setRange(const std::string&, const Poco::Any& value)
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	int range = Poco::AnyCast<int>(value);
+	if (range < 4 || range > 16) throw Poco::InvalidArgumentException("range");
+
+	if (range != _range)
+	{
+		_node.setAccelerometerRange(static_cast<Poco::UInt8>(_range));
+		_range = range;
+	}
 }
 
 

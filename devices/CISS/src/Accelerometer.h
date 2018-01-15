@@ -62,6 +62,8 @@ protected:
 	Poco::Any getConnected(const std::string&) const;
 	Poco::Any getEnabled(const std::string&) const;
 	void setEnabled(const std::string&, const Poco::Any& value);
+	Poco::Any getRange(const std::string&) const;
+	void setRange(const std::string&, const Poco::Any& value);
 	Poco::Any getDisplayValue(const std::string&) const;
 	Poco::Any getDeviceIdentifier(const std::string&) const;
 	Poco::Any getName(const std::string&) const;
@@ -70,6 +72,7 @@ protected:
 
 protected:
 	Node& _node;
+	int _range;
 	int _samplingInterval;
 	bool _enabled;
 	bool _ready;
