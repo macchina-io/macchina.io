@@ -41,9 +41,9 @@ void SerialPortImpl::openImpl(const std::string& device, int baudRate, const std
 {
 	if (device.empty()) throw Poco::InvalidArgumentException("no device specified");
 
+	std::string fixedDeviceName = (device[0] == '\\')? device: "\\\\.\\" + device;
 	std::wstring wdevice;
-	Poco::UnicodeConverter::toUTF16(device, wdevice);
-	if (wdevice[wdevice.size() - 1] != L':') wdevice += L':';
+	Poco::UnicodeConverter::toUTF16(fixedDeviceName, wdevice);
 
 	_handle = CreateFileW(wdevice.c_str(), GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	if (_handle == INVALID_HANDLE_VALUE) throw Poco::IOException("cannot open serial port " + device);
