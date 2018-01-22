@@ -190,10 +190,10 @@ public:
 				_pNode->pressure()->enable(_pPrefs->configuration()->getBool(baseKey + ".pressure.enable", true));
 				_pNode->light()->enable(_pPrefs->configuration()->getBool(baseKey + ".light.enable", true));
 
-				_pNode->setAccelerometerRange(static_cast<Poco::UInt8>(_pPrefs->configuration()->getInt(baseKey + ".accelerometer.range", 16)));
-				_pNode->accelerometer()->enable(_pPrefs->configuration()->getBool(baseKey + ".accelerometer.enable", true));
-				_pNode->magnetometer()->enable(_pPrefs->configuration()->getBool(baseKey + ".magnetometer.enable", true));
 				_pNode->gyroscope()->enable(_pPrefs->configuration()->getBool(baseKey + ".gyroscope.enable", true));
+				_pNode->magnetometer()->enable(_pPrefs->configuration()->getBool(baseKey + ".magnetometer.enable", true));
+				_pNode->accelerometer()->enable(_pPrefs->configuration()->getBool(baseKey + ".accelerometer.enable", true));
+				_pNode->setAccelerometerRange(static_cast<Poco::UInt8>(_pPrefs->configuration()->getInt(baseKey + ".accelerometer.range", 16)));
 			}
 			catch (Poco::Exception& exc)
 			{
