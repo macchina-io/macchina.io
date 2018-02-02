@@ -161,7 +161,7 @@ as in the following:
 For creating bundles, macchina.io provides the [[00210-OSPBundleCreator.html Bundle Creator]]
 (<*bundle*>) tool from the Open Service Platform. While creating bundles manually using
 <*zip*> is fine for simple bundles, using the <*bundle*> tool makes it easier to create
-more complex bundle that have dependencies upon other bundle, and which need to collect
+more complex bundles that have dependencies on other bundles, and that need to collect
 files from different source directories.
 
 
@@ -275,6 +275,11 @@ Arbitrary JavaScript code fragments can be included using the Scriptlet directiv
 
 Another JSSP file or resource can be included into the current file using the Include
 Directive.
+
+    <%@ include file="<uri>" %>
+----
+
+Alternatively, this can also be written as:
 
     <%@ include page="<uri>" %>
 ----
@@ -550,9 +555,9 @@ Example:
     var files = system.exec('ls');
 ----
 
-Note: be careful when passing strings obtained from HTML forms
+Note: be careful when passing strings obtained from HTML forms or other external inputs
 to <[system.exec()]> as command arguments. Always check such strings
-for validity before using their values.
+for validity before using their values to avoid potential command injection attacks.
 
 
 !sleep(milliseconds)
