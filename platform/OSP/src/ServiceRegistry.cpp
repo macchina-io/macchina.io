@@ -52,14 +52,14 @@ ServiceRef::Ptr ServiceRegistry::registerService(const std::string& name, Servic
 		pServiceRef->properties().set(PROP_NAME, name);
 		pServiceRef->properties().set(PROP_TYPE, std::string(pService->type().name()));
 		_services[name] = pServiceRef;
-		
+
 		lock.unlock();
-		
+
 		ServiceEvent registeredEvent(pServiceRef, ServiceEvent::EV_SERVICE_REGISTERED);
 		serviceRegistered(this, registeredEvent);
-		
+
 		_logger.information(std::string("Service registered: ") + name);
-		
+
 		return pServiceRef;
 	}
 	else throw Poco::ExistsException(name);
@@ -75,11 +75,11 @@ void ServiceRegistry::unregisterService(const std::string& name)
 	{
 		ServiceEvent unregisteredEvent(it->second, ServiceEvent::EV_SERVICE_UNREGISTERED);
 		_services.erase(it);
-		
+
 		lock.unlock();
-		
+
 		serviceUnregistered(this, unregisteredEvent);
-		
+
 		_logger.information(std::string("Service unregistered: ") + name);
 	}
 	else throw Poco::NotFoundException(name);
@@ -111,16 +111,22 @@ std::size_t ServiceRegistry::find(const std::string& query, std::vector<ServiceR
 {
 	QLParser parser(query);
 	QLExpr::Ptr pExpr(parser.parse());
-	
+
+	return find(*pExpr, results);
+}
+
+
+std::size_t ServiceRegistry::find(const QLExpr& expr, std::vector<ServiceRef::Ptr>& results) const
+{
 	results.clear();
-	
+
 	FastMutex::ScopedLock lock(_mutex);
 
 	std::size_t count(0);
 	for (ServiceMap::const_iterator it = _services.begin(); it != _services.end(); ++it)
 	{
 		ServiceRef::Ptr pService(it->second);
-		if (pExpr->evaluate(pService->properties()))
+		if (expr.evaluate(pService->properties()))
 		{
 			results.push_back(pService);
 			++count;

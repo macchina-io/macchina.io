@@ -10,6 +10,7 @@
 
 #include "ServiceTestSuite.h"
 #include "ServiceRegistryTest.h"
+#include "ServiceListenerTest.h"
 
 
 CppUnit::Test* ServiceTestSuite::suite()
@@ -17,6 +18,7 @@ CppUnit::Test* ServiceTestSuite::suite()
 	CppUnit::TestSuite* pSuite = new CppUnit::TestSuite("ServiceTestSuite");
 
 	pSuite->addTest(ServiceRegistryTest::suite());
+	pSuite->addTest(ServiceListenerTest::suite());
 
 	return pSuite;
 }

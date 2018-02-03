@@ -10,7 +10,7 @@ objects = BundleDirectoryTest BundleTest OSPCoreTestSuite TestBundle \
 	BundleFileTest Driver OSPTestSuite VersionRangeTest \
 	BundleManifestTest OSPBundleTestSuite OSPUtilTestSuite VersionTest \
 	BundleRepositoryTest PropertiesTest QLParserTest ServiceRegistryTest \
-	ServiceTestSuite BundleStreamFactoryTest
+	ServiceListenerTest ServiceTestSuite BundleStreamFactoryTest
 
 target         = testrunner
 target_version = 1
