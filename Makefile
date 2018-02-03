@@ -4,7 +4,7 @@
 # Global Makefile for macchina.io
 #
 
-.PHONY: clean all clean_bundles install_sdk install_runtime install
+.PHONY: clean all clean_bundles install_sdk install_runtime install docs
 
 PRODUCT ?= sdk
 DESTDIR ?= /usr/local/macchina
@@ -82,27 +82,27 @@ clean all:
 	$(MAKE) -C services $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C webui $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C samples $(MAKECMDGOALS) $(MAKEARGS)
-	
+
 clean_bundles:
 	rm platform/OSP/bundles/*.bndl
 	rm */bundles/*.bndl
 
 # Host tools only
 hosttools:
-	$(MAKE) -C platform/Foundation 
-	$(MAKE) -C platform/XML 
-	$(MAKE) -C platform/JSON 
-	$(MAKE) -C platform/Util 
+	$(MAKE) -C platform/Foundation
+	$(MAKE) -C platform/XML
+	$(MAKE) -C platform/JSON
+	$(MAKE) -C platform/Util
 	$(MAKE) -C platform/Net
 	$(MAKE) -C platform/Zip
-	$(MAKE) -C platform/OSP 
-	$(MAKE) -C platform/OSP/BundleCreator 
-	$(MAKE) -C platform/OSP/CodeCacheUtility 
-	$(MAKE) -C platform/CppParser 
-	$(MAKE) -C platform/CodeGeneration 
+	$(MAKE) -C platform/OSP
+	$(MAKE) -C platform/OSP/BundleCreator
+	$(MAKE) -C platform/OSP/CodeCacheUtility
+	$(MAKE) -C platform/CppParser
+	$(MAKE) -C platform/CodeGeneration
 	$(MAKE) -C platform/RemotingNG
-	$(MAKE) -C platform/RemotingNG/RemoteGen 
-	$(MAKE) -C platform/PageCompiler 
+	$(MAKE) -C platform/RemotingNG/RemoteGen
+	$(MAKE) -C platform/PageCompiler
 	$(MAKE) -C platform/PageCompiler/File2Page
 
 install: $(INSTALL_TARGET)
@@ -112,7 +112,7 @@ install_sdk:
 	mkdir -p $(INSTALLDIR)/include
 	mkdir -p $(INSTALLDIR)/lib
 	mkdir -p $(INSTALLDIR)/lib/bundles
-	mkdir -p $(INSTALLDIR)/bin	
+	mkdir -p $(INSTALLDIR)/bin
 	mkdir -p $(INSTALLDIR)/etc
 	$(MAKE) -C platform install INSTALLDIR=$(INSTALLDIR)
 	cp -Rf devices/*/include/* $(INSTALLDIR)/include
@@ -126,13 +126,13 @@ install_sdk:
 	rm -f $(INSTALLDIR)/bin/*$(LIBEXT)
 	cp $(MACCHINA_BASE)/server/macchina.properties.install $(INSTALLDIR)/etc/macchina.properties
 	cp $(MACCHINA_BASE)/server/rootcert.pem $(INSTALLDIR)/etc
-	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc	
+	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc
 
 install_runtime:
 	mkdir -p $(INSTALLDIR)
 	mkdir -p $(INSTALLDIR)/lib
 	mkdir -p $(INSTALLDIR)/lib/bundles
-	mkdir -p $(INSTALLDIR)/bin	
+	mkdir -p $(INSTALLDIR)/bin
 	mkdir -p $(INSTALLDIR)/etc
 	find $(MACCHINA_BASE)/server/bin/$(OSNAME)/$(OSARCH) -perm -700 -type f -name macchina -exec cp -f {} $(INSTALLDIR)/bin \;
 	for lib in $(RUNTIME_LIBS) ; do \
@@ -143,3 +143,7 @@ install_runtime:
 	cp $(MACCHINA_BASE)/server/macchina.properties.install $(INSTALLDIR)/etc/macchina.properties
 	cp $(MACCHINA_BASE)/server/rootcert.pem $(INSTALLDIR)/etc
 	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc
+
+docs: hosttools
+	$(MAKE) -C tools/PocoDoc
+	tools/PocoDoc/bin/$(POCO_HOST_OSNAME)/$(POCO_HOST_OSARCH)/PocoDoc --config=tools/PocoDoc/cfg/macchina.xml
