@@ -143,7 +143,7 @@ Finally, here is a simple "Hello, world!" script for "main.js":
 
 The easiest way to get such a bundle file is to use the Playground's "Export Bundle"
 button. This will download a ".bndl" file. You can use an unzip tool like <*unzip*>
-on Linux or OS X to extract the files contained in the bundle.
+on Linux or macOS to extract the files contained in the bundle.
 Use this as a starting point for your own bundles.
 
 Please make sure that when creating a bundle manually using the <*zip*> tool that
@@ -158,11 +158,98 @@ as in the following:
     $ zip -r ../com.my-company.my-first-bundle_1.0.0.bndl *
 ----
 
+
+!!Creating a JavaScript Bundle With The BundleCreator Tool
+
 For creating bundles, macchina.io provides the [[00210-OSPBundleCreator.html Bundle Creator]]
 (<*bundle*>) tool from the Open Service Platform. While creating bundles manually using
 <*zip*> is fine for simple bundles, using the <*bundle*> tool makes it easier to create
 more complex bundles that have dependencies on other bundles, and that need to collect
 files from different source directories.
+
+For the Bundle Creator tool, it's necessary to describe the metadata and contents of
+the bundle in a so-called bundle specification file (".bndlspec"). Furthermore,
+it's good practice to not invoke the Bundle Creator directly, but through a <*Makefile*>.
+
+The recommended directory layout for a JavaScript bundle is thus:
+
+    / (bundle project root directory)
+        Makefile
+        MyFirstBundle.bndlspec
+        bundle/
+        	main.js
+----
+
+!The Bundle Specification File
+
+The bundle specification file (<*MyFirstBundle.bndlspec*>) looks like this:
+
+    <?xml version="1.0"?>
+    <bundlespec>
+      <manifest>
+        <name>My First Bundle</name>
+        <symbolicName>com.my-company.my-first-bundle</symbolicName>
+        <version>1.0.0</version>
+        <vendor>My Company</vendor>
+        <copyright>(c) 2015, My Company</copyright>
+        <lazyStart>false</lazyStart>
+        <runLevel>900</runLevel>
+        <dependency>
+          <symbolicName>com.appinf.osp.js</symbolicName>
+          <version>[1.0.0,2.0.0)</version>
+        </dependency>
+      </manifest>
+      <code>
+      </code>
+      <files>
+        bundle/*
+      </files>
+    </bundlespec>
+----
+
+Note that the bundle specification declares a dependency on the <*com.appinf.osp.js*>
+bundle, which contains the JavaScript runtime.
+
+For a detailed description of the bundle specification file format, please see the
+[[00210-OSPBundleCreator.html Bundle Creator]] documentation.
+
+!The Makefile
+
+The Makefile for the bundle makes use of macchina.io build system based on GNU Make.
+It looks as follows:
+
+    .PHONY: all
+
+    include $(POCO_BASE)/build/rules/global
+    include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
+
+    all:
+    	$(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) MyFirstBundle.bndlspec
+----
+
+It first includes the global build system settings, and then definitions for
+invoking the Bundle Creator tool. Finally, it defines a target that builds
+the bundle by running the Bundle Creator.
+
+Before invoking the Makefile via GNU Make, the environment variables <[POCO_BASE]>
+and <*PROJECT_BASE*> must be defined. <[POCO_BASE]> must contain the <*absolute*> path of the
+<*platform*> directory within the macchina.io source tree. <[PROJECT_BASE]> must
+contain the <*absolute*> path to the parent directory of your project. If your
+<*MyFirstBundle*> directory is in <*/home/user/projects/MyFirstBundle*>, then
+<[PROJECT_BASE]> must be set to <*/home/user/projects*>.
+
+!Building
+
+Assuming you are in the your <*MyFirstBundle*> project directory, run the following
+commands to build the bundle:
+
+   $ export POCO_BASE=/path/to/macchina.io/platform
+   $ export PROJECT_BASE=/home/user/projects
+   $ make
+----
+
+After running <*make*>, the bundle file <*com.my-company.my-first-bundle_1.0.0.bndl*>
+will be created in the current directory.
 
 
 !!!JavaScript Servlets and Server Pages
@@ -481,7 +568,7 @@ The following read-only properties and methods are available:
 !osName
 
 This property contains the name of the operating system,
-typically "Linux" or "Darwin" (OS X).
+typically "Linux" or "Darwin" (macOS).
 
 
 !osDisplayName
