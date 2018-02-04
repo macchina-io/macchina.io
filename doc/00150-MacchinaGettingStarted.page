@@ -297,6 +297,30 @@ It should contain something like:
     2015-03-07 13:12:31.688 [Information] osp.bundle.io.macchina.webui.playground.sandbox<28>: Current temperature: 26.999999999999975
 ----
 
+In addition to querying the service registry directly for a specific kind of sensor or,
+more generally, service, a program can also be notified if a service that matches a query
+is registered with the service registry. This is done using a ServiceListener, and it's
+specifically useful for services that may appear or disappear at any time.
+
+The following short sample shows the usage of the ServiceListener.
+
+    var listener = serviceRegistry.createListener(
+        'io.macchina.physicalQuantity == "temperature"',
+        function (ref) {
+            console.log("Temperature sensor registered: %O", ref);
+            var sensor = ref.instance();
+            console.log("Current temperature: %f", sensor.value());
+        },
+        function (ref) {
+            console.log("Temperature sensor unregistered: %O", ref);
+        });
+----
+
+The <*createListener()*> method of the serviceRegistry object takes a query expression
+(like <*find()*>) and two callback functions. The first one will called after a
+matching service has been registered. The second one will be called after the
+service has been unregistered.
+
 
 !!Periodically Querying Sensor Data
 

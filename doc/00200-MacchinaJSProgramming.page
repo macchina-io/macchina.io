@@ -2173,14 +2173,36 @@ To obtain the actual service object, the <[instance()]> method of
 the corresponding ServiceRef object must be called.
 
 
+!createListener(query, registeredCallback, unregisteredCallback)
+
+Creates and returns a new ServiceListener object that listens for status changes
+of services matching the given query. The query language is the same as for
+<[find()]>. Two callback functions must be provided as arguments. The first one
+will be called when a new service matching the query is registered. It will also be
+called after calling <[createListener()]> for already registered services matching
+the query. The second callback function will be called when a service matching
+the query is unregistered. Both callback functions will receive a ServiceRef object
+representing the respective service as argument.
+
+
+!!!ServiceListener Objects
+
+ServiceListener objects only expose a single method, <[dispose()]>. It can be used
+to tell the ServiceListener that it's no longer needed and should stop listening
+for service status changes. After calling <[dispose()]>, the callback functions
+will no longer be called.
+
+
 !!!ServiceRef Objects
 
-ServiceRef objects have a single method, <[instance()]>, which returns the
+ServiceRef objects have two methods. The first one, <[instance()]>, returns the
 underlying service object. Note that not all service objects are accessible
 from JavaScript. Only service objects implemented using the Remoting-based
 bridging mechanism are accessible from JavaScript. An attempt to call
 <[instance()]> for a service object not accessible from JavaScript will result
 in an exception.
+The second method is <[equals()]>, which takes nother ServiceRef object as argument
+and returns true if both refer to the same service, otherwise false.
 
 
 !!!Database Session and RecordSet Objects
