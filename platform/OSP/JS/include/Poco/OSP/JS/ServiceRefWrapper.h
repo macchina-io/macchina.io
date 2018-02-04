@@ -29,18 +29,19 @@ class OSPJS_API ServiceRefWrapper: public Poco::JS::Core::Wrapper
 public:
 	ServiceRefWrapper();
 		/// Creates the ServiceRefWrapper.
-	
+
 	~ServiceRefWrapper();
 		/// Destroys the ServiceRefWrapper.
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-		
+
 protected:
 	static void instance(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void toJSON(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void equals(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getProperty(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
-	
+
 	friend class ServiceRegistryWrapper;
 };
 

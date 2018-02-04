@@ -82,7 +82,7 @@ private:
 	ServiceRegistry& _registry;
 	std::set<ServiceRef::Ptr> _refs;
 	QLExpr::Ptr _pExpr;
-	mutable Poco::FastMutex _mutex;
+	Poco::FastMutex _mutex;
 
 	friend class ServiceRegistry;
 };

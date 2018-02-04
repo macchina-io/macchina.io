@@ -44,6 +44,7 @@ v8::Handle<v8::ObjectTemplate> ServiceRefWrapper::objectTemplate(v8::Isolate* pI
 		objectTemplate->SetInternalFieldCount(1);
 		objectTemplate->SetNamedPropertyHandler(getProperty);
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "instance"), v8::FunctionTemplate::New(pIsolate, instance));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "equals"), v8::FunctionTemplate::New(pIsolate, equals));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toJSON"), v8::FunctionTemplate::New(pIsolate, toJSON));
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
@@ -123,6 +124,22 @@ void ServiceRefWrapper::toJSON(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		returnException(args, exc);
 	}
+}
+
+
+void ServiceRefWrapper::equals(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	bool result = false;
+	if (args.Length() > 0 && args[0]->IsObject())
+	{
+		if (Wrapper::isWrapper<Poco::OSP::ServiceRef>(args.GetIsolate(), args[0]))
+		{
+			Poco::OSP::ServiceRef* pThisServiceRef = Poco::JS::Core::Wrapper::unwrapNative<Poco::OSP::ServiceRef>(args);
+			Poco::OSP::ServiceRef* pOtherServiceRef = Poco::JS::Core::Wrapper::unwrapNativeObject<Poco::OSP::ServiceRef>(args[0]);
+			result = pThisServiceRef == pOtherServiceRef;
+		}
+	}
+	args.GetReturnValue().Set(result);
 }
 
 

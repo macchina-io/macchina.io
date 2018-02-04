@@ -12,6 +12,7 @@ objects = JSExecutor \
 	JSExtensionPoint \
 	BundleWrapper \
 	ServiceRegistryWrapper \
+	ServiceListenerWrapper \
 	ServiceRefWrapper \
 	ModuleFactory \
 	ModuleExtensionPoint
