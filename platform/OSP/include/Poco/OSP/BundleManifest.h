@@ -103,6 +103,15 @@ public:
 		/// Returns true if lazy startup has been specified for
 		/// the bundle.
 
+	bool preventUninstall() const;
+		/// Returns true if the bundle must not be uninstalled
+		/// at run-time.
+		///
+		/// This is mostly useful for bundles that cannot be
+		/// cleanly stopped. An example are bundles that
+		/// contain third-party libraries that, once loaded,
+		/// cannot be unloaded cleanly.
+
 	const std::string& runLevel() const;
 		/// Returns the bundle's run level.
 		///
@@ -131,6 +140,7 @@ public:
 	static const std::string PROVIDE_MODULE;
 	static const std::string EXTENDS_BUNDLE;
 	static const std::string BUNDLE_LAZYSTART;
+	static const std::string BUNDLE_PREVENTUNINSTALL;
 	static const std::string BUNDLE_RUNLEVEL;
 	static const std::string BUNDLE_CERTIFICATE;
 	static const std::string DEFAULT_RUNLEVEL;
@@ -175,6 +185,7 @@ private:
 	Modules      _providedModules;
 	std::string  _extendedBundle;
 	bool         _lazyStart;
+	bool         _preventUninstall;
 	std::string  _runLevel;
 
 	Poco::AutoPtr<Poco::Util::PropertyFileConfiguration> _pManifest;
@@ -247,6 +258,12 @@ inline const BundleManifest::Modules& BundleManifest::providedModules() const
 inline bool BundleManifest::lazyStart() const
 {
 	return _lazyStart;
+}
+
+
+inline bool BundleManifest::preventUninstall() const
+{
+	return _preventUninstall;
 }
 
 

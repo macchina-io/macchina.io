@@ -24,6 +24,7 @@ ManifestInfo::ManifestInfo(const std::string& name,
 	const Dependencies& requiredModules,
 	const ProvidedModules& providedModules,
 	bool lazyStart,
+	bool preventUninstall,
 	const std::string& runLevel,
 	const std::string& extendsBundle):
 	_name(name),
@@ -37,6 +38,7 @@ ManifestInfo::ManifestInfo(const std::string& name,
 	_requiredModules(requiredModules),
 	_providedModules(providedModules),
 	_lazyStart(lazyStart),
+	_preventUninstall(preventUninstall),
 	_runLevel(runLevel),
 	_extendsBundle(extendsBundle)
 {

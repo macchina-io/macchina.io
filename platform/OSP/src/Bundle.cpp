@@ -241,6 +241,7 @@ void Bundle::stop()
 void Bundle::uninstall()
 {
 	if (_state != BUNDLE_INSTALLED && _state != BUNDLE_RESOLVED) throw BundleStateException("uninstall() requires INSTALLED or RESOLVED state");
+	if (_pManifest->preventUninstall()) throw BundleUninstallException("bundle manifest prevents uninstall");
 
 	BundleEvent uninstallingEvent(this, BundleEvent::EV_BUNDLE_UNINSTALLING);
 	events().bundleUninstalling(this, uninstallingEvent);

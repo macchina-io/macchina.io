@@ -217,6 +217,16 @@ will be started whenever another bundle depending on it is also started, or when
 ----
 
 
+! Bundle-PreventUninstall
+
+This optional property specifies whether the bundle should prevent being uninstalled at run-time.
+This is mostly useful for bundles that cannot be cleanly stopped. An example are bundles that
+contain (third-party) shared libraries that, once loaded cannot be unloaded cleanly.
+
+    bundle-preventUninstall ::= "true" | "false"
+----
+
+
 ! Bundle-RunLevel
 
 The Bundle-RunLevel property specifies the run level in which the bundle should be started.

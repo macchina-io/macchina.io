@@ -123,6 +123,12 @@ enabled for the bundle. It is optional. Valid values are <[true]> or
 <[false]>.
 
 
+! The preventUninstall Element
+
+The optional <[preventUninstall]> element specifies whether the bundle should
+prevent being uninstalled at run-time. Valid values are <[true]> or <[false]>.
+
+
 ! The runLevel Element
 
 The <[runLevel]> element specifies the bundle's run level. It is optional.

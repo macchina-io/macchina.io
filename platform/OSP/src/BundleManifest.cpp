@@ -37,6 +37,7 @@ const std::string BundleManifest::REQUIRE_MODULE("Require-Module");
 const std::string BundleManifest::PROVIDE_MODULE("Provide-Module");
 const std::string BundleManifest::EXTENDS_BUNDLE("Extends-Bundle");
 const std::string BundleManifest::BUNDLE_LAZYSTART("Bundle-LazyStart");
+const std::string BundleManifest::BUNDLE_PREVENTUNINSTALL("Bundle-PreventUninstall");
 const std::string BundleManifest::BUNDLE_RUNLEVEL("Bundle-RunLevel");
 const std::string BundleManifest::BUNDLE_CERTIFICATE("Bundle-Certificate");
 const std::string BundleManifest::DEFAULT_RUNLEVEL("999-user");
@@ -61,14 +62,15 @@ void BundleManifest::parseManifest()
 	if (manifestVersion != VERSION)
 		throw ManifestException("Unsupported manifest version", manifestVersion);
 
-	_name           = _pManifest->getString(BUNDLE_NAME);
-	_symbolicName   = _pManifest->getString(BUNDLE_SYMBOLICNAME);
-	_version        = _pManifest->getString(BUNDLE_VERSION);
-	_vendor         = _pManifest->getString(BUNDLE_VENDOR, "");
-	_copyright      = _pManifest->getString(BUNDLE_COPYRIGHT, "");
-	_lazyStart      = _pManifest->getBool(BUNDLE_LAZYSTART, false);
-	_runLevel       = _pManifest->getString(BUNDLE_RUNLEVEL, DEFAULT_RUNLEVEL);
-	_extendedBundle = _pManifest->getString(EXTENDS_BUNDLE, "");
+	_name             = _pManifest->getString(BUNDLE_NAME);
+	_symbolicName     = _pManifest->getString(BUNDLE_SYMBOLICNAME);
+	_version          = _pManifest->getString(BUNDLE_VERSION);
+	_vendor           = _pManifest->getString(BUNDLE_VENDOR, "");
+	_copyright        = _pManifest->getString(BUNDLE_COPYRIGHT, "");
+	_lazyStart        = _pManifest->getBool(BUNDLE_LAZYSTART, false);
+	_preventUninstall = _pManifest->getBool(BUNDLE_PREVENTUNINSTALL, false);
+	_runLevel         = _pManifest->getString(BUNDLE_RUNLEVEL, DEFAULT_RUNLEVEL);
+	_extendedBundle   = _pManifest->getString(EXTENDS_BUNDLE, "");
 
 	parseActivator(_pManifest->getString(BUNDLE_ACTIVATOR, ""));
 	parseRequiredBundles(_pManifest->getString(REQUIRE_BUNDLE, ""));
