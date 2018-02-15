@@ -47,14 +47,14 @@ public:
 		Poco::ErrorHandler::set(&_errorHandler);
 		addSubsystem(_pOSP);
 	}
-	
+
 	~MacchinaServer()
 	{
-		// wait until all threads have terminated 
+		// wait until all threads have terminated
 		// before we completely shut down.
 		Poco::ThreadPool::defaultPool().joinAll();
 	}
-	
+
 	ServiceRegistry& serviceRegistry()
 	{
 		return _pOSP->serviceRegistry();
@@ -68,10 +68,10 @@ protected:
 			_app(app)
 		{
 		}
-		
+
 		void exception(const Poco::Exception& exc)
 		{
-			// Don't log Poco::Net::ConnectionResetException and Poco::TimeoutException - 
+			// Don't log Poco::Net::ConnectionResetException and Poco::TimeoutException -
 			// getting too many of them from the web server.
 			if (std::strcmp(exc.name(), "Connection reset by peer") != 0 &&
 			    std::strcmp(exc.name(), "Timeout") != 0)
@@ -89,16 +89,16 @@ protected:
 		{
 			log("unknown exception");
 		}
-		
+
 		void log(const std::string& message)
 		{
 			_app.logger().notice("A thread was terminated by an unhandled exception: " + message);
 		}
-		
+
 	private:
 		MacchinaServer& _app;
 	};
-	
+
 	std::string loadSettings()
 	{
 		std::string settingsPath = config().getString("macchina.settings.path", "");
@@ -122,30 +122,33 @@ protected:
 	void initialize(Application& self)
 	{
 		loadConfiguration(); // load default configuration files, if present
-		
+
 		int defaultThreadPoolCapacity = config().getInt("poco.threadPool.default.capacity", 32);
 		int defaultThreadPoolCapacityDelta = defaultThreadPoolCapacity - Poco::ThreadPool::defaultPool().capacity();
 		if (defaultThreadPoolCapacityDelta > 0)
 		{
 			Poco::ThreadPool::defaultPool().addCapacity(defaultThreadPoolCapacityDelta);
 		}
-		
+
 		std::string settingsPath = loadSettings();
-		
+
 		ServerApplication::initialize(self);
-		
-		if (!settingsPath.empty())
+
+		if (!settingsPath.empty() && !_showHelp)
 		{
 			logger().information("Settings loaded from \"%s\".", settingsPath);
 		}
-		
-		logger().information("System information: %s (%s) on %s, %u CPU core(s).",	
-			Poco::Environment::osDisplayName(),
-			Poco::Environment::osVersion(),
-			Poco::Environment::osArchitecture(),
-			Poco::Environment::processorCount());
+
+		if (!_showHelp)
+		{
+			logger().information("System information: %s (%s) on %s, %u CPU core(s).",
+				Poco::Environment::osDisplayName(),
+				Poco::Environment::osVersion(),
+				Poco::Environment::osArchitecture(),
+				Poco::Environment::processorCount());
+		}
 	}
-	
+
 	void defineOptions(OptionSet& options)
 	{
 		ServerApplication::defineOptions(options);
@@ -163,7 +166,7 @@ protected:
 				.argument("file")
 				.callback(OptionCallback<MacchinaServer>(this, &MacchinaServer::handleConfig)));
 	}
-	
+
 	void handleHelp(const std::string& name, const std::string& value)
 	{
 		_showHelp = true;
@@ -182,7 +185,18 @@ protected:
 		HelpFormatter helpFormatter(options());
 		helpFormatter.setCommand(commandName());
 		helpFormatter.setUsage("OPTIONS");
-		helpFormatter.setHeader("The macchina.io server.");
+		helpFormatter.setHeader(
+			"\n"
+			"The macchina.io server.\n"
+			"Copyright (c) 2015-2018 by Applied Informatics Software Engineering GmbH.\n"
+			"All rights reserved.\n\n"
+			"The following command line options are supported:"
+		);
+		helpFormatter.setFooter(
+			"For more information, please see the macchina.io "
+			"documentation at <https://macchina.io/docs>."
+		);
+		helpFormatter.setIndent(8);
 		helpFormatter.format(std::cout);
 	}
 
