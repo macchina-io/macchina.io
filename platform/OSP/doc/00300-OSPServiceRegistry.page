@@ -3,32 +3,32 @@ Open Service Platform
 
 !!! Service Registry
 
-The service registry (Poco::OSP::ServiceRegistry) allows a bundle to provide services to other bundles, and allows a bundle to find the 
+The service registry (Poco::OSP::ServiceRegistry) allows a bundle to provide services to other bundles, and allows a bundle to find the
 services provided by other bundles.
 
-A bundle can provide and register arbitrary services in the form of interface classes. 
-Every service a bundle provides must be implemented in a class that is a derived class of Poco::OSP::Service. 
-Service objects are reference counted, therefore, the Poco::OSP::Service class is derived from Poco::RefCountedObject. 
+A bundle can provide and register arbitrary services in the form of interface classes.
+Every service a bundle provides must be implemented in a class that is a derived class of Poco::OSP::Service.
+Service objects are reference counted, therefore, the Poco::OSP::Service class is derived from Poco::RefCountedObject.
 
 Subclasses of the Poco::OSP::Service class must implement the Poco::OSP::Service::type() and
 Poco::OSP::Service::isA() member functions.
 
-A service can be implemented and registered as a singleton, meaning there exists exactly one instance of the 
-service providing services to all bundles in the system, or it can be implemented and registered using a 
-service factory. A service factory provides a unique instance of the service class to everyone requesting an 
+A service can be implemented and registered as a singleton, meaning there exists exactly one instance of the
+service providing services to all bundles in the system, or it can be implemented and registered using a
+service factory. A service factory provides a unique instance of the service class to everyone requesting an
 instance of the service.
 
-If a service is to be registered using a service factory, a corresponding service factory object for the service, 
-derived from Poco::OSP::ServiceFactory, must be registered instead of the service object itself. 
+If a service is to be registered using a service factory, a corresponding service factory object for the service,
+derived from Poco::OSP::ServiceFactory, must be registered instead of the service object itself.
 
 
 !!! Registering Services
 
-Services are registered with the <[registerService()]> member function of the Poco::OSP::ServiceRegistry class. 
-Each service is registered under a unique name. To ensure uniqueness of the name, the service name should follow the 
-same naming conventions as a bundle name. Besides a name, a service can also have an arbitrary number of service 
-properties. The service properties are name-value pairs and can be freely defined by the service. 
-Other bundles can use the service properties to learn about the capabilities of a service, or even search for a 
+Services are registered with the <[registerService()]> member function of the Poco::OSP::ServiceRegistry class.
+Each service is registered under a unique name. To ensure uniqueness of the name, the service name should follow the
+same naming conventions as a bundle name. Besides a name, a service can also have an arbitrary number of service
+properties. The service properties are name-value pairs and can be freely defined by the service.
+Other bundles can use the service properties to learn about the capabilities of a service, or even search for a
 service by its properties.
 
 
@@ -37,29 +37,29 @@ service by its properties.
 The properties of a service are defined using the Poco::OSP::Properties class.
 There are two predefined properties, which are automatically set by the framework:
   * <[name]> contains the name of the service, and
-  * <[type]> contains the type name (obtained from via <[std::type_info::name()]>) 
+  * <[type]> contains the type name (obtained from via <[std::type_info::name()]>)
     of the class implementing the service.
 
 
 !! Updating Services
 
-Once a service has been registered, the service properties can be updated. This is done using the 
+Once a service has been registered, the service properties can be updated. This is done using the
 Poco::OSP::ServiceRef object returned by Poco::OSP::ServiceRegistry::registerService().
 
 
 !!! Finding Services
 
-Services can be found by name (Poco::OSP::ServiceRegistry::findByName()) or by property 
-(Poco::OSP::ServiceRegistry::find()). A simple query language can be used for looking up a 
-service by its properties. 
+Services can be found by name (Poco::OSP::ServiceRegistry::findByName()) or by property
+(Poco::OSP::ServiceRegistry::find()). A simple query language can be used for looking up a
+service by its properties.
 
 
 !! Query Language
 
-The query language is similar to C++ expressions and supports comparison (==, !=, 
-<, <=, >, >=), regular expression matching (=~) and logical and/or operations 
-(&&, ||). 
-Subexpressions can be grouped with parenthesis. The data types string, integer, float and boolean are 
+The query language is similar to C++ expressions and supports comparison (==, !=,
+<, <=, >, >=), regular expression matching (=~) and logical and/or operations
+(&&, ||).
+Subexpressions can be grouped with parenthesis. The data types string, integer, float and boolean are
 supported. The simplified syntax for the query language is given in the following.
 
   expr          ::= andExpr ["||" andExpr]
@@ -93,7 +93,22 @@ its properties, or its name can be obtained.
 
 !! Service Events
 
-The Poco::OSP::ServiceRegistry class provides two events to inform interested bundles about changes in 
-service registrations. The <[serviceRegistered]> event is fired whenever a new service is registered. 
-The <[serviceUnregistered]> event is fired when a service is unregistered. All events use the 
+The Poco::OSP::ServiceRegistry class provides two events to inform interested bundles about changes in
+service registrations. The <[serviceRegistered]> event is fired whenever a new service is registered.
+The <[serviceUnregistered]> event is fired when a service is unregistered. All events use the
 Poco::OSP::ServiceEvent class as argument.
+
+
+!! Service Listeners
+
+Poco::OSP::ServiceListener objects are used to dynamically react to service registrations and unregistrations.
+A ServiceListener is created with a Query Language string (in same format as the one passed to
+Poco::OSP::ServiceRegistry::find()), as well as two event delegates by calling
+Poco::OSP::ServiceRegistry::createListener().
+
+Whenever a service is registered that matches the given query, the <[serviceRegistered]> event is fired.
+
+Correspondingly, whenever a matching service is unregistered, the <[serviceUnregistered]> event is fired.
+
+When the ServiceListener is created and there are already services registered that match the query, the
+<[serviceRegistered]> delegate is immediately called for each service.
