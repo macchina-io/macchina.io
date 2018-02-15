@@ -73,7 +73,7 @@ systems. Furthermore, you may run out of memory during the build, especially whi
 building the V8 library. Try to restart the build and make sure as much memory as
 possible is available, by stopping all unnecessary processes.
 It may be better to cross-compile on a desktop system and transfer the
-binaries to the target systems.
+binaries to the target system.
 
 
 !!Cross Compiling macchina.io
