@@ -5,7 +5,7 @@
     <symbolicName>com.appinf.osp.js</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2013-2017, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2013-2018, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>Poco::OSP::JS::JSBundleActivator</class>
       <library>com.appinf.osp.js</library>

@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.ciss</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2017, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2017-2018, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::CISS::BundleActivator</class>
 			<library>io.macchina.ciss</library>

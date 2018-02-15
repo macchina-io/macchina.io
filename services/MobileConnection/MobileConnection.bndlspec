@@ -5,7 +5,7 @@
     <symbolicName>io.macchina.services.mobileconnection</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2017, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2017-2018, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>IoT::MobileConnection::BundleActivator</class>
       <library>io.macchina.services.mobileconnection</library>
