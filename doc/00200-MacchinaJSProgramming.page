@@ -2088,20 +2088,20 @@ bundles' "bundle.properties" file.
 The <[bundle]> object has the following methods:
 
 
-!getResource(path)
+!getResourceString(path)
 
 Returns a string containing the contents of the file stored in the bundle with the
 given path. Will only work for files containing text, as the contents of the file
 are stored in a string.
 
 
-!getBinaryResource(path)
+!getResourceBuffer(path)
 
 Returns a Buffer containing the contents of the file stored in the bundle with the
 given path.
 
 
-!getLocalizedResource(path [, language])
+!getLocalizedResourceString(path [, language])
 
 Returns a string containing the contents of the localized file stored in the bundle with the
 given path. Will only work for files containing text, as the contents of the file
@@ -2109,7 +2109,7 @@ are stored in a string. An optional RFC 1766 language tag string (e.g., "en-US")
 See the Poco::OSP::LanguageTag class for more information.
 
 
-!getLocalizedBinaryResource(path [, language])
+!getLocalizedResourceBuffer(path [, language])
 
 Returns a Buffer containing the contents of the localized file stored in the bundle with the
 given path. An optional RFC 1766 language tag string (e.g., "en-US") can be specified.

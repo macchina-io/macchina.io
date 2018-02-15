@@ -42,10 +42,14 @@ v8::Handle<v8::ObjectTemplate> BundleWrapper::objectTemplate(v8::Isolate* pIsola
 	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "path"), name);
 	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "state"), state);
 	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "active"), active);
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getResource"), v8::FunctionTemplate::New(pIsolate, getResource));
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getBinaryResource"), v8::FunctionTemplate::New(pIsolate, getBinaryResource));
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getLocalizedResource"), v8::FunctionTemplate::New(pIsolate, getLocalizedResource));
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getLocalizedBinaryResource"), v8::FunctionTemplate::New(pIsolate, getLocalizedBinaryResource));
+	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getResourceString"), v8::FunctionTemplate::New(pIsolate, getResourceString));
+	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getResourceBuffer"), v8::FunctionTemplate::New(pIsolate, getResourceBuffer));
+	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getLocalizedResourceString"), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceString));
+	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getLocalizedResourceBuffer"), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceBuffer));
+	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getResource"), v8::FunctionTemplate::New(pIsolate, getResourceString)); // deprecated
+	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getLocalizedResource"), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceString)); // deprecated
+	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getBinaryResource"), v8::FunctionTemplate::New(pIsolate, getResourceBuffer)); // deprecated
+	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getLocalizedBinaryResource"), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceBuffer)); // deprecated
 	return handleScope.Escape(bundleTemplate);
 }
 
@@ -92,7 +96,7 @@ void BundleWrapper::active(v8::Local<v8::String> name, const v8::PropertyCallbac
 }
 
 
-void BundleWrapper::getResource(const v8::FunctionCallbackInfo<v8::Value>& args)
+void BundleWrapper::getResourceString(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
 	v8::HandleScope scope(args.GetIsolate());
@@ -119,7 +123,7 @@ void BundleWrapper::getResource(const v8::FunctionCallbackInfo<v8::Value>& args)
 }
 
 
-void BundleWrapper::getBinaryResource(const v8::FunctionCallbackInfo<v8::Value>& args)
+void BundleWrapper::getResourceBuffer(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
 	v8::HandleScope scope(args.GetIsolate());
@@ -149,7 +153,7 @@ void BundleWrapper::getBinaryResource(const v8::FunctionCallbackInfo<v8::Value>&
 }
 
 
-void BundleWrapper::getLocalizedResource(const v8::FunctionCallbackInfo<v8::Value>& args)
+void BundleWrapper::getLocalizedResourceString(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
 	v8::HandleScope scope(args.GetIsolate());
@@ -183,7 +187,7 @@ void BundleWrapper::getLocalizedResource(const v8::FunctionCallbackInfo<v8::Valu
 }
 
 
-void BundleWrapper::getLocalizedBinaryResource(const v8::FunctionCallbackInfo<v8::Value>& args)
+void BundleWrapper::getLocalizedResourceBuffer(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
 	v8::HandleScope scope(args.GetIsolate());

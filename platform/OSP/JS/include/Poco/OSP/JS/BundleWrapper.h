@@ -28,13 +28,13 @@ class OSPJS_API BundleWrapper: public Poco::JS::Core::Wrapper
 public:
 	BundleWrapper();
 		/// Creates the BundleWrapper.
-	
+
 	~BundleWrapper();
 		/// Destroys the BundleWrapper.
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-		
+
 protected:
 	static void name(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void symbolicName(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
@@ -42,10 +42,10 @@ protected:
 	static void path(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void state(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void active(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
-	static void getResource(const v8::FunctionCallbackInfo<v8::Value>& args);
-	static void getBinaryResource(const v8::FunctionCallbackInfo<v8::Value>& args);
-	static void getLocalizedResource(const v8::FunctionCallbackInfo<v8::Value>& args);
-	static void getLocalizedBinaryResource(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void getResourceString(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void getResourceBuffer(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void getLocalizedResourceString(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void getLocalizedResourceBuffer(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 
