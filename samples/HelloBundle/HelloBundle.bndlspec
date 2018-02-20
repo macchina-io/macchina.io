@@ -1,0 +1,17 @@
+<bundlespec>
+	<manifest>
+		<name>HelloBundle Sample</name>
+		<symbolicName>io.macchina.samples.hello</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>HelloBundle::BundleActivator</class>
+			<library>io.macchina.samples.hello</library>
+		</activator>
+	</manifest>
+	<code>
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+	</code>
+</bundlespec>
