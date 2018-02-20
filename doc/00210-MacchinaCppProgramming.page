@@ -1,0 +1,454 @@
+macchina.io C++ Programming Guide
+AAAAMacchinaIO
+
+!!!Introduction
+
+The macchina.io C++ programming environment gives you full access
+to all features and APIs provided by macchina.io. macchina.io is itself
+written in C++, except for some parts of the web user interface. Therefore,
+some macchina.io features and APIs are only accessible to developers writing
+C++ code. Services, network protocols and device/sensor bindings generally must
+be written in C++.
+
+
+!!Bundles
+
+macchina.io is completely implemented in a modular, plug-in based architecture,
+using a C++ framework named <*Open Service Platform*> (OSP).
+Therefore, virtually all code that runs within macchina.io comes from a plug-in,
+or <*bundle*>, as it's called in OSP and macchina.io. The only exception is the quite
+minimal <*server*> application. It's purpose is to load configuration data from
+a set of configuration files and to initialize the bundle loading framework.
+
+For a more detailed introduction to the OSP framework, which is the foundation
+of macchina.io, please read the [[00100-OSPOverview.html OSP Overview]] and
+[[00150-OSPTutorial.html Tutorial]].
+
+A [[00200-OSPBundles.html Bundle]] is basically a directory with a certain structure, or,
+more commonly, a Zip archive file (with extension <*.bndl*>) containing such a directory
+hierarchy. A bundle contains mandatory meta information (the so-called <*manifest*>),
+as well as configuration files, dynamic libraries, and other resources like HTML files,
+images or stylesheets.
+
+Generally, there are two ways to run code from within a bundle. First, a bundle
+can provide a <*BundleActivator*> class, which must be a subclass of
+Poco::OSP::BundleActivator. In addition to implementing the class, it must
+also be declared in the bundle's meta information, the so-called <*bundle manifest*>.
+
+Second, a bundle can also implement one or more <*extension points*>. An extension point
+is, generally speaking, a hook defined by a bundle, that another bundle can hook itself
+in to.
+
+
+!!Services
+
+Given only bundle activators and extension points, it would be very hard for different
+bundles to work together. Therefore, OSP and macchina.io also have <*services*>.
+Services are C++ objects that are registered with a central <*service registry*>.
+Each bundle can register an arbitrary number of services it provides itself with the
+service registry, and can also find services provided by other bundles via the
+service registry.
+
+
+!!!Prerequisites
+
+The following tutorial assumes the you've already retrieved the macchina.io sources from
+its Git repository and built macchina.io for your host system, according to the
+instructions in the [[00150-MacchinaGettingStarted.html Getting Started]] document.
+
+To keep things simple for now, only the build steps for the host system will be shown.
+We assume that your host system is either a Linux or a macOS system.
+
+
+!!!Writing Your First Bundle in C++
+
+The following sections will guide you through the steps of creating your first
+bundle for macchina.io. This simple bundle will just provide a minimal bundle activator
+that prints a "Hello, world!" message to the log.
+
+Every bundle containing C++ code must have at the minimum the following items:
+
+  - a symbolic and human-readable name
+  - a bundle activator class implementation
+    (can be omitted if the bundle implements certain extension points, such as
+    <[osp.web.server.requestHandler]>)
+  - a bundle specification file (<*.bndlspec*>) used by the <*Bundle Creator*> tool
+  - a Makefile
+
+A minimal directory hierarchy for a C++ bundle looks like this:
+
+  HelloBundle/
+      Makefile
+      HelloBundle.bndlspec
+      src/
+          BundleActivator.cpp
+----
+
+Note that this directory layout (specifically, the placement of the C++ source file
+<*BundleActivator.cpp*> in the <[src]> folder) is only mandatory if you use macchina.io's
+GNU Make-based build system. If you use a different build system, you are free to arrange
+files however you like (or however your build system expects it).
+
+Note: You can find all files for this sample in the <*samples/HelloBundle*> directory.
+
+
+!!The Makefile
+
+Let's start with the Makefile. Here is a minimal Makefile that first compiles the
+<*BundleActivator.cpp*> source file into a dynamic library for the bundle, and then
+creates the bundle file by invoking the [[00210-OSPBundleCreator.html Bundle Creator]]
+tool:
+
+    include $(POCO_BASE)/build/rules/global
+
+    include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
+
+    objects = BundleActivator
+
+    target      = io.macchina.samples.hello
+    target_libs = PocoOSP PocoUtil PocoJSON PocoXML PocoFoundation
+
+    postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles HelloBundle.bndlspec
+
+    include $(POCO_BASE)/build/rules/dylib
+----
+
+This Makefile uses the macchina.io C++ build system which is taken from the
+[[99150-GMakeBuildNotes.html POCO C++ Libraries]],
+so the first thing it does is include global definitions.
+Furthermore, it will invoke the <*BundleCreator*> tool, so it also includes some
+definitions related to that from (<*BundleCreator.make*>).
+
+The Makefile will create a dynamic library from a single object file, <*BundleActivator.o*>.
+According to the build system rules, this object file will be created by compiling
+the source file <*src/BundleActivator.cpp*>.
+
+The resulting dynamic library will be named <*io.macchina.samples.hello*> (plus the
+system-specific suffix, e.g., <*.so*>), which, by convention, is the same as the name
+of the bundle. Note that the name of the bundle itself is defined in the bundle
+specification file, not the Makefile. The bundle will be created in the <*bundles*>
+directory alongside the <*HelloBundle*> directory.
+
+After building the dynamic library, the Makefile will invoke the bundle creator tool.
+This involves setting the shared library search path, and passing the target operating
+system name and architecture, the output directory and the name or path of the bundle
+specification file to the bundle creator tool.
+
+At the end, the Makefile includes the rules for building a dynamic library. Note that there
+is a subtle difference between shared and dynamic libraries in the POCO C++ Libraries
+build system. Shared libraries are libraries that are linked during build time. Dynamic
+libraries are libraries that are loaded at run-time, via a call to <[dlopen()]> or similar.
+While on a Linux system both are basically the same (except that dynamic
+libraries, other than shared libraries, do not have a library version number as part of the name),
+on a macOS system there is a difference in how they are built.
+
+
+!!The Bundle Specification File
+
+The bundle specification file is an XML file that describes the name (human-readable and
+symbolic) of the bundle, its version, its dependencies and other meta-information, such
+as the name of the bundle activator class and the name of the dynamic library where it
+can be found.
+
+The [[00210-OSPBundleCreator.html#1 bundle specification file]] (<*HelloBundle.bndlspec*>)
+for the sample bundle is shown in the following.
+
+    <bundlespec>
+        <manifest>
+            <name>HelloBundle Sample</name>
+            <symbolicName>io.macchina.samples.hello</symbolicName>
+            <version>1.0.0</version>
+            <vendor>Applied Informatics</vendor>
+            <copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+            <activator>
+                <class>HelloBundle::BundleActivator</class>
+                <library>io.macchina.samples.hello</library>
+            </activator>
+        </manifest>
+        <code>
+            bin/${osName}/${osArch}/*.so,
+            bin/${osName}/${osArch}/*.dylib,
+        </code>
+    </bundlespec>
+----
+
+The file first defines the human-readable name of the bundle ("HelloBundle Sample") and
+the symbolic name ("io.macchina.samples.hello"), which must be unique for all bundles in a
+macchina.io instance.
+
+The symbolic name of a bundle must conform to certain conventions. Symbolic names must be unique
+across different vendors. To ensure this, the bundle symbolic name employs the reverse domain
+name scheme known for example from Java namespaces. The name consists of a number of
+parts, separated by periods. The first part is the top-level domain of the vendor
+(e.g., "com" or "io"). The second part is the domain name of the company
+(e.g., "macchina" or "appinf"). The remaining parts can be freely specified by the vendor,
+and usually include a product name, subsystem name, module name, etc. There is no limit
+to the number of parts in a name, although for practical purposes, a bundle name should
+not consist of more than five parts. For maximum portability across different platforms,
+a name part must not contain any characters other than upper- and lowercase alphabetic
+characters ('A' - 'Z'), digits ('0' - '9') and dash ('-').
+
+Each bundle also has a version number, which is also specified in the bundle specification
+file, along with a vendor name and copyright information, which can be freely chosen.
+
+The symbolic name and version number will be part of the resulting bundle file name.
+
+The <*<activator>*> element specifies the class name (including namespace) of the
+bundle's bundle activator class, and the name of the dynamic library where the class
+is implemented. Note that this name matches the one specified in the Makefile's target
+variable.
+
+The <*<code>*> element contains a comma-separated list of Glob expressions
+that specify which dynamic library files should be copied into the bundle. The
+build system will place the resulting dynamic library in a subdirectory of the <*bin*>
+directory, which has a path based on the target operating system name and platform.
+For example, on an Intel-based 64-bit Linux system this will be <*bin/Linux/x86_64*>,
+on a Raspberry Pi this will be <*bin/Linux/armv7l*> and on macOS this will be
+<*bin/Darwin/x86_64*>. Using the built-in variables <[${osName}]> and <[${osArch}]>
+will make the bundle specification file independent of the host and target system.
+Also, note two entries, one for Linux, which uses the <*.so*> suffix, and one for
+macOS, which uses <*.dylib*>.
+
+
+!!The Bundle Activator
+
+Finally, here is the source code for the bundle activator class.
+
+    #include "Poco/OSP/BundleActivator.h"
+    #include "Poco/OSP/BundleContext.h"
+    #include "Poco/ClassLibrary.h"
+
+
+    namespace HelloBundle {
+
+
+    class BundleActivator: public Poco::OSP::BundleActivator
+    {
+    public:
+        void start(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            pContext->logger().information("Hello, world!");
+        }
+
+        void stop(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            pContext->logger().information("Goodbye!");
+        }
+    };
+
+
+    } // namespace HelloBundle
+
+
+    POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
+        POCO_EXPORT_CLASS(HelloBundle::BundleActivator)
+    POCO_END_MANIFEST
+----
+
+The above code should be pretty clear. A bundle activator needs to implement
+two methods:
+
+  - <[start()]>, which is called by the OSP framework when the bundle is started, and
+  - <[stop()]>, which is called by the OSP framework when the bundle is stopped.
+
+Both methods receive a pointer to a Poco::OSP::BundleContext object, which provides
+the entry point into the OSP framework. Among other objects, the BundleContext
+provides access to a Poco::Logger object that can be used for logging.
+
+The interesting part is at the end of the file, where the BundleActivator class
+is "exported" from the dynamic library containing it. This is done by creating a
+dynamic library manifest (not to be confused with the bundle manifest), which is
+used by OSP's class loader framework (see Poco::ClassLoader) to create an instance
+of the BundleActivator class when the bundle is started.
+
+The argument to the <[POCO_BEGIN_MANIFEST]> macro is the base class of the exported class,
+which for a bundle activator is always Poco::OSP::BundleActivator.
+The argument to the <[POCO_EXPORT_CLASS]> macro is the name of the exported class,
+including its namespace. The same name must be specified in the bundle
+specification file under the <*<activator>/<class>*> element.
+
+
+!!Building the Bundle
+
+In order to build the bundle with GNU Make, two environment variables must be
+defined.
+
+  - <[$PROJECT_BASE]> must contain the path to the macchina.io root directory (the one
+    containing the <*platform*>, <*launcher*>, <*protocols*>, etc. directories).
+  - <[$POCO_BASE]> must contain the path to the <*platform*> directory inside the
+    macchina.io root directory. Setting it to <[$PROJECT_BASE/platform]> is recommended.
+
+Example:
+    $ export PROJECT_BASE=/path/to/macchina.io
+    $ export POCO_BASE=$PROJECT_BASE/platform
+----
+
+The HelloBundle sample files can be found in <*$PROJECT_BASE/samples/HelloBundle*>.
+
+So after setting the environment variables, you can:
+
+    $ cd $PROJECT_BASE/samples/HelloBundle
+    $ make
+----
+
+This will compile the BundleActivator source, build the dynamic library and create
+the bundle file, which can be found in <*$PROJECT_BASE/samples/bundles*>.
+
+You can look into the contents of the resulting bundle with the <*unzip*> utility:
+
+    $ unzip -l ../bundles/io.macchina.samples.hello_1.0.0.bndl
+    Archive:  ../bundles/io.macchina.samples.hello_1.0.0.bndl
+      Length      Date    Time    Name
+    ---------  ---------- -----   ----
+            0  2018-02-20 15:01   META-INF/
+          363  2018-02-20 15:01   META-INF/manifest.mf
+            0  2018-02-20 15:01   bin/
+            0  2018-02-20 15:01   bin/Linux/
+            0  2018-02-20 15:01   bin/Linux/x86_64/
+        25552  2018-02-20 15:01   bin/Linux/x86_64/io.macchina.samples.hello.so
+       319200  2018-02-20 15:01   bin/Linux/x86_64/io.macchina.samples.hellod.so
+    ---------                     -------
+       345115                     7 files
+----
+
+You can see that the bundle contains directories for the bundle manifest and
+for the dynamic libraries. There are actually two dynamic libraries in the bundle.
+The smaller one is the release version of the library (which would be deployed on
+a real device), the second one is the debug version containing debug information.
+This allows you to debug code in bundles like any other C++ code.
+
+It's possible to build the bundle with only the release binaries by passing
+a DEFAULT_TARGET variable to GNU Make:
+
+    $ make DEFAULT_TARGET=shared_release
+----
+
+This is recommended for deployment to a device as it will significantly reduce the
+bundle size. Similarly, you can build the debug binaries only:
+
+    $ make DEFAULT_TARGET=shared_debug
+----
+
+
+You can also view the generated bundle manifest file:
+
+    $ unzip -p ../bundles/io.macchina.samples.hello_1.0.0.bndl META-INF/manifest.mf
+    Manifest-Version: 1.0
+    Bundle-Name: HelloBundle Sample
+    Bundle-SymbolicName: io.macchina.samples.hello
+    Bundle-Version: 1.0.0
+    Bundle-Vendor: Applied Informatics
+    Bundle-Copyright: (c) 2018, Applied Informatics Software Engineering GmbH
+    Bundle-Activator: HelloBundle::BundleActivator;library=io.macchina.samples.hello
+    Bundle-RunLevel: 999-user
+    Bundle-LazyStart: false
+----
+
+You can see that it contains most of the information specified in the bundle
+specification file, as well as some additional items.
+
+
+!!Running the Bundle
+
+To run the bundle, simply start (or restart) the macchina.io server application.
+The <*samples/bundles*> directory is part of the default search path for bundles,
+so it will automatically pick up the new bundle at startup.
+
+Alternatively, the bundle can also be deployed to a running macchina.io instance
+using the <*Bundles*> app in the web interface.
+Simply open the <*Bundles*> app, click on <*Install*> and drag the bundle file
+into your web browser window and drop it into the indicated area.
+This will only work if the bundle has not already been loaded. In that case you
+will see an error message in the browser and the macchina.io log output or console.
+
+After manually installing the bundle you have to start it as well by clicking
+the <*Start*> item in the bundle actions bar.
+
+If successfully started, the bundle will print a message to the macchina.io log
+output or console.
+
+    2018-02-20 15:21:34.289 [Information] osp.bundle.io.macchina.samples.hello<0>: Hello, world!
+----
+
+Similarly, when you stop the bundle, either by stopping the entire macchina.io server or
+by stopping only the bundle in the <*Bundles*> app, you will see its goodbye message:
+
+    2018-02-20 15:22:37.991 [Information] osp.bundle.io.macchina.samples.hello<0>: Goodbye!
+----
+
+
+
+!!Debugging the Bundle
+
+To debug your new bundle, you will need to run the macchina.io server under the
+debugger (GDB or LLDB). Make sure that the bundle contains dynamic libraries with
+debug information, and that you start the debug executable of the macchina.io server.
+
+Assuming you are currently in the <*samples/HelloBundle*> directory, start GDB with:
+
+    $ gdb ../../server/bin/Linux/x86_64/macchinad
+    GNU gdb (Ubuntu 7.11.1-0ubuntu1~16.5) 7.11.1
+    Copyright (C) 2016 Free Software Foundation, Inc.
+    License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+    This is free software: you are free to change and redistribute it.
+    There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+    and "show warranty" for details.
+    This GDB was configured as "x86_64-linux-gnu".
+    Type "show configuration" for configuration details.
+    For bug reporting instructions, please see:
+    <http://www.gnu.org/software/gdb/bugs/>.
+    Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+    For help, type "help".
+    Type "apropos word" to search for commands related to "word"...
+    Reading symbols from ../../server/bin/Linux/x86_64/macchinad...done.
+    (gdb)
+----
+
+Although the bundle has not been loaded, you can still set a breakpoint in its
+<[BundleActivator::start()]> method:
+
+    (gdb) break HelloBundle::BundleActivator::start
+    Function "HelloBundle::BundleActivator::start" not defined.
+    Make breakpoint pending on future shared library load? (y or [n]) y
+    Breakpoint 1 (HelloBundle::BundleActivator::start) pending.
+    (gdb)
+----
+
+Then, simply run the macchina.io server. It will hit the breakpoint as soon as it
+attempts to start the bundle.
+
+    (gdb) run
+    Starting program: /home/guenter/macchina.io/server/bin/Linux/x86_64/macchinad
+    [Thread debugging using libthread_db enabled]
+    Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+    [New Thread 0x7ffff56cd700 (LWP 70734)]
+    [New Thread 0x7ffff4ecc700 (LWP 70735)]
+    2018-02-20 15:28:12.204 [Information] osp.core.ServiceRegistry<0>: Service registered: osp.core.xp
+    2018-02-20 15:28:12.204 [Information] osp.core.ServiceRegistry<0>: Service registered: osp.core.preferences
+    2018-02-20 15:28:12.204 [Information] osp.core.ServiceRegistry<0>: Service registered: osp.core.installer
+    2018-02-20 15:28:12.204 [Information] Application<0>: Loading bundles...
+    2018-02-20 15:28:12.219 [Information] com.osp.BundleRepository<0>: Loaded bundle com.appinf.osp.js/1.0.0
+    2018-02-20 15:28:12.219 [Information] com.osp.BundleRepository<0>: Loaded bundle com.appinf.osp.js.data/1.0.0
+    2018-02-20 15:28:12.219 [Information] com.osp.BundleRepository<0>: Loaded bundle com.appinf.osp.js.net/1.0.0
+    ...
+    Thread 1 "macchinad" hit Breakpoint 1, HelloBundle::BundleActivator::start (this=0x64da40, pContext=...) at src/BundleActivator.cpp:22
+    22      void start(Poco::OSP::BundleContext::Ptr pContext)
+    (gdb)
+----
+
+
+!!Creating Your Own Bundle
+
+The easiest way to create your own bundle is to copy the <*HelloBundle*> directory and
+to edit and rename the bundle specification file (<*HelloBundle.bndlspec*>). Make sure
+to specify a unique symbolic name for your bundle. Furthermore, make sure your bundle
+activator class is in its own unique C++ namespace. The fully qualified name
+(namespace plus class name) of all bundle activator classes must be unique, otherwise
+the dynamic linker may get confused and call the wrong bundle activator start() method
+(another one with the same name) when the bundle is started.
+
+
+!!!Services, Sensors and Devices
+
+TODO
