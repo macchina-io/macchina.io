@@ -14,7 +14,7 @@ EXEC_DEBUG_SHARED   = $(BINPATH)/$(target)d$(OSARCH_POSTFIX)$(BINEXT)
 
 TARGET_LIBS_DEBUG   = $(foreach l,$(target_libs),-l$(l)d$(OSARCH_POSTFIX))
 TARGET_LIBS_RELEASE = $(foreach l,$(target_libs),-l$(l)$(OSARCH_POSTFIX))
-TARGET_LIBS_EXT     = $(foreach l,$(ext_libs),-l$(l)$(OSARCH_POSTFIX))
+TARGET_LIBS_EXT     = $(foreach l,$(target_extlibs),-l$(l)$(OSARCH_POSTFIX))
 
 #
 # Include the compile rules

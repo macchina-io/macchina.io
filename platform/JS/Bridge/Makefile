@@ -15,6 +15,6 @@ objects = Serializer Deserializer Listener \
 target         = PocoJSBridge
 target_version = 1
 target_libs    = PocoJSCore PocoRemotingNG PocoUtil PocoXML PocoFoundation
-ext_libs       = v8 v8_libplatform v8_libbase
+target_extlibs = v8 v8_libplatform v8_libbase
 
 include $(POCO_BASE)/build/rules/lib

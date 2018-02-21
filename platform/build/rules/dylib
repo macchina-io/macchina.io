@@ -27,7 +27,7 @@ DYLIB_S_RELEASE    = $(BINPATH)/static/$(target)$(OSARCH_POSTFIX)$(SHL_EXT)
 
 TARGET_LIBS_DEBUG   = $(foreach l,$(target_libs),-l$(l)d$(OSARCH_POSTFIX))
 TARGET_LIBS_RELEASE = $(foreach l,$(target_libs),-l$(l)$(OSARCH_POSTFIX))
-TARGET_LIBS_EXT     = $(foreach l,$(ext_libs),-l$(l)$(OSARCH_POSTFIX))
+TARGET_LIBS_EXT     = $(foreach l,$(target_extlibs),-l$(l)$(OSARCH_POSTFIX))
 
 #
 # Include the compile rules
