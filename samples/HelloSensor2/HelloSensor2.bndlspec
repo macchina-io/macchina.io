@@ -1,13 +1,13 @@
 <bundlespec>
 	<manifest>
-		<name>HelloSensor Sample #1</name>
-		<symbolicName>io.macchina.samples.sensor1</symbolicName>
+		<name>HelloSensor Sample #2</name>
+		<symbolicName>io.macchina.samples.sensor2</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
 		<copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
-			<class>HelloSensor1::BundleActivator</class>
-			<library>io.macchina.samples.sensor1</library>
+			<class>HelloSensor2::BundleActivator</class>
+			<library>io.macchina.samples.sensor2</library>
 		</activator>
 		<dependency>
 			<symbolicName>io.macchina.devices</symbolicName>

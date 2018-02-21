@@ -24,8 +24,7 @@ class BundleActivator: public Poco::OSP::BundleActivator
 public:
 	void start(Poco::OSP::BundleContext::Ptr pContext)
 	{
-		std::vector<Poco::OSP::ServiceRef::Ptr> sensorRefs;
-		pContext->registry().find("io.macchina.physicalQuantity == \"temperature\"", sensorRefs);
+		auto sensorRefs = pContext->registry().find("io.macchina.physicalQuantity == \"temperature\"");
 		pContext->logger().information("Found %z temperature sensors.", sensorRefs.size());
 		for (auto pSensorRef: sensorRefs)
 		{
