@@ -44,10 +44,12 @@ in to.
 
 Given only bundle activators and extension points, it would be very hard for different
 bundles to work together. Therefore, OSP and macchina.io also have <*services*>.
-Services are C++ objects that are registered with a central <*service registry*>.
+Services are C++ objects that are registered with a central
+[[00300-OSPServiceRegistry.html Service Registry]].
 Each bundle can register an arbitrary number of services it provides itself with the
 service registry, and can also find services provided by other bundles via the
-service registry.
+service registry. In macchina.io, every sensor, device or communication protocol is
+implemented as a service.
 
 
 !!!Prerequisites
@@ -100,7 +102,6 @@ creates the bundle file by invoking the [[00210-OSPBundleCreator.html Bundle Cre
 tool:
 
     include $(POCO_BASE)/build/rules/global
-
     include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
     objects = BundleActivator
@@ -451,4 +452,348 @@ the dynamic linker may get confused and call the wrong bundle activator start() 
 
 !!!Services, Sensors and Devices
 
+Besides bundles, services are the second main concept in macchina.io and the underlying
+Open Service Platform framework. Virtually every macchina.io feature is exposed as a
+service that can be found via the [[00300-OSPServiceRegistry.html Service Registry]].
+This includes sensors, devices and network protocols.
+
+
+!!Two Kinds of Services
+
+There are two kinds of services in macchina.io. The first kind are implemented as
+ordinary C++ classes, derived from Poco::OSP::Service. These are easy to implement but
+have the disadvantage that such services can only be used by C++ code. Using these services
+from JavaScript code is impossible. While they will be visible via the service registry,
+actually invoking these services will fail.
+
+Thus, the second kind of service is implemented using the
+[[00100-RemotingNGOverview.html Remoting]] framework. While
+these services impose a minor overhead when being invoked from C++ (an additional
+virtual function call through a wrapper object), these services can also be
+used from JavaScript (and potentially other runtime environments) using the
+Remoting-based bridging mechanism. Note that even if there's the Remoting framework
+involved, no actual network or socket communication happens during JavaScript
+bridging. Only the dynamic dispatching and serialization mechanisms from Remoting are used.
+
+Virtually all macchina.io services are implemented using the Remoting framework and are
+thus available from both C++ and JavaScript.
+Some [[00350-OSPStandardServices.html OSP core services]], however, are only
+available to C++ code.
+
+
+!!Finding Services
+
+Services are discovered via the central [[00300-OSPServiceRegistry.html Service Registry]].
+Services can be found either by name, or by their properties. Some services have
+well-known names, specifically the OSP core services. Most macchina.io services,
+however, should be found via their properties, to prevent coupling your code
+to a specific service implementation.
+
+
+!!Service References
+
+Service objects are not registered directly with the service registry. Intermediate
+service reference objects of class Poco::OSP::ServiceRef are used. A service reference
+binds together the actual object implementing the service with meta-information like
+name, type and a set of properties.
+
+When finding a service via the service registry, first a service reference is received.
+From this service reference, the actual service object (or its Remoting wrapper) can be
+obtained by calling the Poco::OSP::ServiceRef::castedInstance() method.
+
+
+!!!Accessing Services
+
+The following sample implements a bundle that uses the service registry to find
+temperature sensor services, print out their properties, and read the current
+temperature from each sensor. macchina.io comes with the capability to simulate
+simple sensors, and the default configuration file defines a couple of simulated
+temperature sensors, which can be used for testing.
+
+Like the <*HelloBundle*> sample, the <*HelloSensor1*> sample requires a few files,
+set up as follows:
+
+  HelloSensor1/
+      Makefile
+      HelloSensor1.bndlspec
+      src/
+          BundleActivator.cpp
+----
+
+The sources for this sample can be found in the <*samples*> directory.
+
+!!The Makefile
+
+The Makefile looks similar to the one for the HelloBundle sample, with a few additions:
+
+    include $(POCO_BASE)/build/rules/global
+    include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
+
+    objects = BundleActivator
+
+    target          = io.macchina.samples.sensor1
+    target_includes = $(PROJECT_BASE)/devices/Devices/include
+    target_libs     = IoTDevices PocoOSP PocoUtil PocoJSON PocoXML PocoFoundation
+
+    postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles HelloSensor1.bndlspec
+
+    include $(POCO_BASE)/build/rules/dylib
+----
+
+First, we need to add a header search path for the macchina.io <*IoTDevices*> library, which
+contains the interface definitions for working with sensors and other devices.
+This is done using the <[target_includes]> variable.
+Second, we also need to add the <*IoTDevices*> library to the list of libraries linked
+to our dynamic library. This is done by adding it to the <[target_libs]> variable.
+
+
+!!The Bundle Specification
+
+The bundle specification file for the <*HelloSensor1*> bundle also has one addition
+compared to the one for <*HelloBundle*>:
+
+    <bundlespec>
+        <manifest>
+            <name>HelloSensor Sample #1</name>
+            <symbolicName>io.macchina.samples.sensor1</symbolicName>
+            <version>1.0.0</version>
+            <vendor>Applied Informatics</vendor>
+            <copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+            <activator>
+                <class>HelloSensor1::BundleActivator</class>
+                <library>io.macchina.samples.sensor1</library>
+            </activator>
+            <dependency>
+                <symbolicName>io.macchina.devices</symbolicName>
+                <version>[1.0.0, 2.0.0)</version>
+            </dependency>
+        </manifest>
+        <code>
+            bin/${osName}/${osArch}/*.so,
+            bin/${osName}/${osArch}/*.dylib,
+        </code>
+    </bundlespec>
+----
+
+Our bundle requires the <*IoTDevices*> library, which is provided through the
+<*io.macchina.devices*> bundle. Therefore, we add a dependency to this bundle.
+The result of this is that the <*HelloSensor1*> bundle can only be started if
+the <*io.macchina.devices*> bundle is available (in a version equal to or greater
+than 1.0.0, and less than 2.0.0) and can be successfully started.
+
+
+!!The Bundle Activator
+
+Here is the source code for the bundle activator:
+
+    #include "Poco/OSP/BundleActivator.h"
+    #include "Poco/OSP/BundleContext.h"
+    #include "Poco/OSP/ServiceRegistry.h"
+    #include "Poco/OSP/ServiceRef.h"
+    #include "Poco/ClassLibrary.h"
+    #include "IoT/Devices/ISensor.h"
+
+
+    namespace HelloSensor1 {
+
+
+    class BundleActivator: public Poco::OSP::BundleActivator
+    {
+    public:
+        void start(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            auto sensorRefs = pContext->registry().find("io.macchina.physicalQuantity == \"temperature\"");
+            pContext->logger().information("Found %z temperature sensors.", sensorRefs.size());
+            for (auto pSensorRef: sensorRefs)
+            {
+                pContext->logger().information("Sensor name: %s", pSensorRef->name());
+                const Poco::OSP::Properties& props = pSensorRef->properties();
+                for (const auto& key: props.keys())
+                {
+                    pContext->logger().information("Property: %s = %s", key, props[key]);
+                }
+                IoT::Devices::ISensor::Ptr pSensor = pSensorRef->castedInstance<IoT::Devices::ISensor>();
+                pContext->logger().information("Sensor value: %.2f", pSensor->value());
+            }
+        }
+
+        void stop(Poco::OSP::BundleContext::Ptr pContext)
+        {
+        }
+    };
+
+
+    } // namespace HelloSensor1
+
+
+    POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
+        POCO_EXPORT_CLASS(HelloSensor1::BundleActivator)
+    POCO_END_MANIFEST
+----
+
+In the BundleActivator's <[start()]> method, we first look for all services that
+have a property named "io.macchina.physicalQuantity" with a value of "temperature".
+By convention in macchina.io, all sensor services for a sensor that measures a physical
+quantity expose this property.
+We receive a vector of sensor references (<[std::vector<Poco::OSP::SensorRef::Ptr>]>), which
+we then iterate through. For each sensor we print out its service name and its properties.
+Then we obtain the actual service object (or, more specifically, the remoting wrapper
+implementing the IoT::Devices::ISensor interface), which we the use to read the
+current temperature from the sensor.
+
+
+!!Building the Bundle
+
+Like with the <*HelloBundle*> sample, in order to build the <*HelloSensor1*> bundle,
+the two environment variables <[$PROJECT_BASE]> and <[$POCO_BASE]> must be defined.
+Then, the bundle can be built by invoking <*make*> from the <*HelloSensor1*> directory.
+
+    $ export PROJECT_BASE=/path/to/macchina.io
+    $ export POCO_BASE=$PROJECT_BASE/platform
+    $ cd $PROJECT_BASE/samples/HelloSensor1
+    $ make
+----
+
+After starting, or restarting the macchina.io server, the following log output should be
+visible:
+
+    2018-02-21 09:48:49.655 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Found 2 temperature sensors.
+    2018-02-21 09:48:49.655 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Sensor name: io.macchina.simulation.sensor#1
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: io.macchina.device = io.macchina.simulation.sensor
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: io.macchina.deviceType = io.macchina.sensor
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: io.macchina.physicalQuantity = temperature
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: jsbridge = jsbridge://local/jsbridge/IoT.Devices.Sensor/io.macchina.simulation.sensor#1
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: name = io.macchina.simulation.sensor#1
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: type = N3IoT7Devices7ISensorE
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Sensor value: 20.00
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Sensor name: io.macchina.simulation.sensor#2
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: io.macchina.device = io.macchina.simulation.sensor
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: io.macchina.deviceType = io.macchina.sensor
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: io.macchina.physicalQuantity = temperature
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: jsbridge = jsbridge://local/jsbridge/IoT.Devices.Sensor/io.macchina.simulation.sensor#2
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: name = io.macchina.simulation.sensor#2
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: type = N3IoT7Devices7ISensorE
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Sensor value: 25.00
+----
+
+
+!!Dynamically Reacting to Service Availability
+
+Services can be dynamically registered and unregistered, and not all services may be available
+at all times. A good example are sensors connected via Bluetooth LE, such as the
+TI SensorTag or the Bosch XDK. Sensor services for these devices will only be available
+as long as the respective device is connected. Therefore, these services may come
+and go at any time. Unlike with permanently connected devices, an application bundle using
+these cannot assume that the respective services will be available when the bundle
+is started.
+
+Of course, the application could periodically check for new services, either by repeatedly
+calling Poco::OSP::ServiceRegistry::find(), or by subscribing to the
+Poco::OSP::ServiceRegistry::serviceRegistered event. However, a better way is to use
+a Poco::OSP::ServiceListener. The following sample code shows how to use it:
+
+    #include "Poco/OSP/BundleActivator.h"
+    #include "Poco/OSP/BundleContext.h"
+    #include "Poco/OSP/ServiceRegistry.h"
+    #include "Poco/OSP/ServiceRef.h"
+    #include "Poco/OSP/ServiceListener.h"
+    #include "Poco/Delegate.h"
+    #include "Poco/ClassLibrary.h"
+    #include "IoT/Devices/ISensor.h"
+
+
+    namespace HelloSensor2 {
+
+
+    class BundleActivator: public Poco::OSP::BundleActivator
+    {
+    public:
+        void start(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            _pContext = pContext;
+            _pListener = pContext->registry().createListener(
+                "io.macchina.physicalQuantity == \"temperature\"",
+                Poco::delegate(this, &BundleActivator::onSensorRegistered),
+                Poco::delegate(this, &BundleActivator::onSensorUnregistered));
+        }
+
+        void stop(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            _pListener.reset();
+            _pContext.reset();
+        }
+
+    protected:
+        void onSensorRegistered(const Poco::OSP::ServiceRef::Ptr& pSensorRef)
+        {
+            _pContext->logger().information("Sensor registered: %s", pSensorRef->name());
+            const Poco::OSP::Properties& props = pSensorRef->properties();
+            for (const auto& key: props.keys())
+            {
+                _pContext->logger().information("Property: %s = %s", key, props[key]);
+            }
+            IoT::Devices::ISensor::Ptr pSensor = pSensorRef->castedInstance<IoT::Devices::ISensor>();
+            _pContext->logger().information("Sensor value: %.2f", pSensor->value());
+        }
+
+        void onSensorUnregistered(const Poco::OSP::ServiceRef::Ptr& pSensorRef)
+        {
+            _pContext->logger().information("Sensor unregistered: %s", pSensorRef->name());
+        }
+
+    private:
+        Poco::OSP::BundleContext::Ptr _pContext;
+        Poco::OSP::ServiceListener::Ptr _pListener;
+    };
+
+
+    } // namespace HelloSensor2
+
+
+    POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
+        POCO_EXPORT_CLASS(HelloSensor2::BundleActivator)
+    POCO_END_MANIFEST
+----
+
+In the BundleActivator's <[start()]> method, first the BundleContext pointer is stored in
+a member variable for use by other member functions. The BundleContext object for
+a given Bundle stays the same during the entire lifetime of the bundle, so it's safe
+to store it for later use outside the <[start()]> and <[stop()]> methods.
+
+Next we create a Poco::OSP::ServiceListener object by calling
+Poco::OSP::ServiceRegistry::createListener(), and providing it with the query string
+(same as for Poco::OSP::ServiceRegistry::find()) that looks for temperature sensors,
+and two delegates. The first delegate will be called when a matching service is registered,
+the second one when a matching service is unregistered. If matching services have already
+been registered, the first delegate will be called immediately.
+
+Both delegate functions will be passed the corresponding Poco::OSP::ServiceRef object.
+In our <[onSensorRegistered()]> member function we print the service name and its properties
+to the log, then obtain the service object and query the sensor's current value.
+
+The <[onSensorUnregistered()] member function does nothing except print a log message in
+this example. If the bundle activator would hold pointers to the respective service or
+service reference, this function would be a good place to release them.
+
+Note that in the BundleActivator's <[stop()]> method, we reset both the Context and
+the Listener pointer. Generally, the <[stop()]> method should free all resources
+used by the Bundle, and put the BundleActivator object in a state so that <[start()]>
+can be safely called again.
+
+The full source code and related files can be found in the <*samples/HelloSensor2*>
+directory.
+
+
+!!Handling Sensor Events
+
 TODO
+
+
+!!!Further Reading
+
+  - [[00100-OSPOverview.html OSP Overview]] - introduction to the Open Service Platform framework
+  - [[00150-OSPTutorial.html OSP Tutorial]] - Open Service Platform programming tutorial
+  - [[00200-OSPBundles.html OSP Bundles]] - detailed information about bundles
+  - [[00205-OSPModules.html OSP Modules]] - using modules to specify "virtual" dependencies
+  - [[00210-OSPBundleCreator.html OSP Bundle Creator]] - using the Bundle Creator tool
+  - [[00300-OSPServiceRegistry.html OSP Service Registry]] - using the Service Registry
