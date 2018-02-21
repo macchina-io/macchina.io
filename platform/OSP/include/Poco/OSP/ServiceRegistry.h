@@ -137,6 +137,9 @@ public:
 		/// An overload of find() that takes a parsed query in the form of a QLExpr
 		/// object instead of a query string.
 
+	std::vector<ServiceRef::Ptr> find(const std::string& query) const;
+		/// A convenience overload of find() that directly returns a vector of ServiceRef objects.
+
 	template <typename Delegate>
 	ServiceListener::Ptr createListener(const std::string& query, const Delegate& registeredDelegate, const Delegate& unregisteredDelegate);
 		/// Returns a new ServiceListener instance that will listen for services matching
@@ -180,6 +183,14 @@ template <typename Delegate>
 ServiceListener::Ptr ServiceRegistry::createListener(const std::string& query, const Delegate& registeredDelegate, const Delegate& unregisteredDelegate)
 {
 	return new ServiceListener(*this, query, registeredDelegate, unregisteredDelegate);
+}
+
+
+inline std::vector<ServiceRef::Ptr> ServiceRegistry::find(const std::string& query) const
+{
+	std::vector<ServiceRef::Ptr> result;
+	find(query, result);
+	return result;
 }
 
 
