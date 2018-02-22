@@ -786,7 +786,128 @@ directory.
 
 !!Handling Sensor Events
 
-TODO
+Some sensors can fire an event if the measured value changes. The following sample,
+<*HelloSensor3*>, extends the previous example with an event handler function that
+gets called when the measured temperature changes.
+
+    #include "Poco/OSP/BundleActivator.h"
+    #include "Poco/OSP/BundleContext.h"
+    #include "Poco/OSP/ServiceRegistry.h"
+    #include "Poco/OSP/ServiceRef.h"
+    #include "Poco/OSP/ServiceListener.h"
+    #include "Poco/Delegate.h"
+    #include "Poco/Mutex.h"
+    #include "Poco/ClassLibrary.h"
+    #include "IoT/Devices/ISensor.h"
+
+
+    namespace HelloSensor3 {
+
+
+    class BundleActivator: public Poco::OSP::BundleActivator
+    {
+    public:
+        void start(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            _pContext = pContext;
+            _pListener = pContext->registry().createListener(
+                "io.macchina.physicalQuantity == \"temperature\"",
+                Poco::delegate(this, &BundleActivator::onSensorRegistered),
+                Poco::delegate(this, &BundleActivator::onSensorUnregistered));
+        }
+
+        void stop(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            Poco::FastMutex::ScopedLock lock(_sensorMutex);
+
+            if (_pSensor)
+            {
+                unsubscribe();
+            }
+            _pSensor.reset();
+            _pSensorRef.reset();
+            _pListener.reset();
+            _pContext.reset();
+        }
+
+    protected:
+        void subscribe()
+        {
+            _pSensor->valueChanged += Poco::delegate(this, &BundleActivator::onTemperatureChanged);
+        }
+
+        void unsubscribe()
+        {
+            _pSensor->valueChanged -= Poco::delegate(this, &BundleActivator::onTemperatureChanged);
+        }
+
+        void onSensorRegistered(const Poco::OSP::ServiceRef::Ptr& pSensorRef)
+        {
+            Poco::FastMutex::ScopedLock lock(_sensorMutex);
+
+            if (!_pSensorRef)
+            {
+                _pContext->logger().information("Sensor registered: %s", pSensorRef->name());
+                _pSensorRef = pSensorRef;
+                _pSensor = pSensorRef->castedInstance<IoT::Devices::ISensor>();
+                subscribe();
+            }
+        }
+
+        void onSensorUnregistered(const Poco::OSP::ServiceRef::Ptr& pSensorRef)
+        {
+            Poco::FastMutex::ScopedLock lock(_sensorMutex);
+
+            if (pSensorRef == _pSensorRef)
+            {
+                _pContext->logger().information("Sensor unregistered: %s", pSensorRef->name());
+                unsubscribe();
+                _pSensor.reset();
+                _pSensorRef.reset();
+            }
+        }
+
+        void onTemperatureChanged(const double& temp)
+        {
+            _pContext->logger().information("Temperature changed: %.2f", temp);
+        }
+
+    private:
+        Poco::OSP::BundleContext::Ptr _pContext;
+        Poco::OSP::ServiceListener::Ptr _pListener;
+        Poco::OSP::ServiceRef::Ptr _pSensorRef;
+        IoT::Devices::ISensor::Ptr _pSensor;
+        Poco::FastMutex _sensorMutex;
+    };
+
+
+    } // namespace HelloSensor3
+
+
+    POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
+        POCO_EXPORT_CLASS(HelloSensor3::BundleActivator)
+    POCO_END_MANIFEST
+----
+
+The example only handles a single temperature sensor. The first time <[onSensorRegistered()]>
+is called it will remember the service reference, as well as the actual service object.
+It will also call <[subscribe()]> to register an event delegate to handle the
+<[valueChanged]> event. Whenever the measured temperature value changes, the
+<[onTemperatureChanged()]> method will be called, which logs the temperature.
+
+When the sensor goes away, in <[onSensorUnregistered()]>, we first check whether
+the received sensor reference is the same one we've stored. If so, we call
+<[unsubscribe()]> to remove the event delegate, and then reset the smart pointers for
+the sensor and sensor reference. We also do this if our bundle is stopped and we still
+have a sensor object.
+
+Note that <[onSensorRegistered()]> and <[onSensorUnregistered()]> will be called
+from a different thread than our main thread, so there's a (small) chance for a
+race condition between these methods and <[stop()]>. That's why we use a mutex
+to guard access to the <[_pSensorRef]> and <[_pSensor]> members.
+
+The full source code and related files can be found in the <*samples/HelloSensor3*>
+directory.
 
 
 !!!Further Reading

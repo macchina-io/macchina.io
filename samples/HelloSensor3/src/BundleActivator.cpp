@@ -14,6 +14,7 @@
 #include "Poco/OSP/ServiceRef.h"
 #include "Poco/OSP/ServiceListener.h"
 #include "Poco/Delegate.h"
+#include "Poco/Mutex.h"
 #include "Poco/ClassLibrary.h"
 #include "IoT/Devices/ISensor.h"
 
@@ -35,6 +36,8 @@ public:
 
 	void stop(Poco::OSP::BundleContext::Ptr pContext)
 	{
+		Poco::FastMutex::ScopedLock lock(_sensorMutex);
+
 		if (_pSensor)
 		{
 			unsubscribe();
@@ -58,6 +61,8 @@ protected:
 
 	void onSensorRegistered(const Poco::OSP::ServiceRef::Ptr& pSensorRef)
 	{
+		Poco::FastMutex::ScopedLock lock(_sensorMutex);
+
 		if (!_pSensorRef)
 		{
 			_pContext->logger().information("Sensor registered: %s", pSensorRef->name());
@@ -69,6 +74,8 @@ protected:
 
 	void onSensorUnregistered(const Poco::OSP::ServiceRef::Ptr& pSensorRef)
 	{
+		Poco::FastMutex::ScopedLock lock(_sensorMutex);
+
 		if (pSensorRef == _pSensorRef)
 		{
 			_pContext->logger().information("Sensor unregistered: %s", pSensorRef->name());
@@ -88,6 +95,7 @@ private:
 	Poco::OSP::ServiceListener::Ptr _pListener;
 	Poco::OSP::ServiceRef::Ptr _pSensorRef;
 	IoT::Devices::ISensor::Ptr _pSensor;
+	Poco::FastMutex _sensorMutex;
 };
 
 
