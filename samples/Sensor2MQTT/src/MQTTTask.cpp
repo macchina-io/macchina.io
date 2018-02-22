@@ -30,7 +30,7 @@ void MQTTTask::run()
 	{
 		if (_pSensor->ready())
 		{
-			std::string payload(Poco::format("%.1f", _pSensor->value()));
+			const std::string payload(Poco::format("%.1f", _pSensor->value()));
 			_pMQTTClient->publish(
 				_topic,
 				payload,

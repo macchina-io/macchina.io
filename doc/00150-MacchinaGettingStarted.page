@@ -306,12 +306,12 @@ The following short sample shows the usage of the ServiceListener.
 
     var listener = serviceRegistry.createListener(
         'io.macchina.physicalQuantity == "temperature"',
-        function (ref) {
+        (ref) => {
             console.log("Temperature sensor registered: %O", ref);
             var sensor = ref.instance();
             console.log("Current temperature: %f", sensor.value());
         },
-        function (ref) {
+        (ref) => {
             console.log("Temperature sensor unregistered: %O", ref);
         });
 ----
@@ -333,7 +333,7 @@ current temperature. We do this by setting up a timer. Here's the modified code:
         var temperatureSensor = temperatureRefs[0].instance();
         logger.information('Found temperature sensor.');
         setInterval(
-            function() {
+            () => {
                 logger.information('Current temperature: ' + temperatureSensor.value());
             },
             1000
@@ -361,7 +361,7 @@ will be written to the log.
     {
         var temperatureSensor = temperatureRefs[0].instance();
         temperatureSensor.on('valueChanged',
-            function(event) {
+            (event) => {
                 logger.information('Temperature changed: ' + event.data);
             }
         );
@@ -402,7 +402,7 @@ current temperature every 10 seconds.
         mqttClient = mqttClientRefs[0].instance();
 
         setInterval(
-            function () {
+            () => {
                 var payload = JSON.stringify(temperatureSensor.value());
                 logger.information('Sending temperature: ' + payload);
                 // Send payload using QoS 0
@@ -448,7 +448,7 @@ messages.
             '&To=' + encodeURIComponent(to) +
             '&Body=' + encodeURIComponent(message);
 
-        var response = twilioHttpRequest.send(function(result) {
+        var response = twilioHttpRequest.send((result) => {
             logger.information('SMS sent with HTTP status: ' + result.response.status);
             logger.information(result.response.content);
         });
@@ -461,7 +461,7 @@ messages.
     {
         var temperatureSensor = temperatureRefs[0].instance();
         temperatureSensor.on('valueChanged',
-            function(event) {
+            (event) => {
                 logger.information('Temperature changed: ' + event.data);
                 if (event.data > 30 && !smsSent)
                 {

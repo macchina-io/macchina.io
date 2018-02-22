@@ -10,6 +10,10 @@ some macchina.io features and APIs are only accessible to developers writing
 C++ code. Services, network protocols and device/sensor bindings generally must
 be written in C++.
 
+This document will introduce you to C++ programming in the macchina.io environment.
+Familiarity with C++ (C++11) and basic Linux/Unix programming with GCC (or Clang)
+and GNU Make is expected.
+
 
 !!Bundles
 
@@ -637,7 +641,7 @@ By convention in macchina.io, all sensor services for a sensor that measures a p
 quantity expose this property.
 We receive a vector of sensor references (<[std::vector<Poco::OSP::SensorRef::Ptr>]>), which
 we then iterate through. For each sensor we print out its service name and its properties.
-Then we obtain the actual service object (or, more specifically, the remoting wrapper
+Then we obtain the actual service object (or, more specifically, the Remoting wrapper
 implementing the IoT::Devices::ISensor interface), which we the use to read the
 current temperature from the sensor.
 
@@ -910,11 +914,192 @@ The full source code and related files can be found in the <*samples/HelloSensor
 directory.
 
 
+!!Multiple Services and Configuration Properties
+
+In the final sample we will combine multiple services to periodically send sensor data
+to an MQTT broker via the IoT::MQTT::MQTTClient service. We will also obtain
+configuration properties from the application via the Poco::OSP::PreferencesService.
+
+The complete source code can be found in the <*samples/Sensor2MQTT*> directory, so we
+will only focus on a few interesting parts here.
+
+First, the project uses multiple source files, and the MQTT library (<*libIoTMQTT*>),
+which is reflected in the Makefile:
+
+    include $(POCO_BASE)/build/rules/global
+    include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
+
+    objects = BundleActivator MQTTTask
+
+    target          = io.macchina.samples.sensor2mqtt
+    target_includes = $(PROJECT_BASE)/devices/Devices/include $(PROJECT_BASE)/protocols/MQTT/include
+    target_libs     = IoTDevices IoTMQTT PocoOSP PocoUtil PocoJSON PocoXML PocoFoundation
+
+    postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles Sensor2MQTT.bndlspec
+
+    include $(POCO_BASE)/build/rules/dylib
+----
+
+Furthermore, the sample adds a properties file to the bundle. This contains the defaults
+for various configurable properties. These can also be overridden by adding them to
+the main configuration file (*macchina.properties*).
+
+Here's the <*bundle.properties*> file, located in the <*bundle*> directory.
+
+    sensor2mqtt.interval = 20
+    sensor2mqtt.sensorQuery = io.macchina.physicalQuantity == \"temperature\"
+    sensor2mqtt.mqttClient = eclipse
+    sensor2mqtt.mqttTopic = macchina-io/samples/temperature
+----
+
+To add the properties file to the bundle, a <*<files>*> element has to be added
+to the bundle specification file <*Sensor2MQTT.bndlspec*>:
+
+    <bundlespec>
+        <manifest>
+            <name>Sensor2MQTT Sample</name>
+            <symbolicName>io.macchina.samples.sensor2mqtt</symbolicName>
+            <version>1.0.0</version>
+            <vendor>Applied Informatics</vendor>
+            <copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+            <activator>
+                <class>Sensor2MQTT::BundleActivator</class>
+                <library>io.macchina.samples.sensor2mqtt</library>
+            </activator>
+            <dependency>
+                <symbolicName>io.macchina.devices</symbolicName>
+                <version>[1.0.0, 2.0.0)</version>
+            </dependency>
+            <dependency>
+                <symbolicName>io.macchina.mqtt.client</symbolicName>
+                <version>[1.0.0, 2.0.0)</version>
+            </dependency>
+        </manifest>
+        <files>
+            bundle/*
+        </files>
+        <code>
+            bin/${osName}/${osArch}/*.so,
+            bin/${osName}/${osArch}/*.dylib,
+        </code>
+    </bundlespec>
+----
+
+The <*<files>*> element will add all files and directories located under the <*bundle*>
+directory to the bundle. A file named <*bundle.properties*> in the root directory of the
+bundle has a special meaning, as it will be automatically read when the bundle is loaded.
+The properties defined therein are available at run-time via the Poco::OSP::Bundle object,
+which can be obtained from the Poco::OSP::BundleContext object passed to the
+<[BundleActivator]>.
+
+Also note the additional dependency to the <*io.macchina.mqtt.client*> bundle.
+
+In the <[BundleActivator]> class, the <[getIntConfig()]> and <[getStringConfig()]>
+member functions will use the property values from the <*bundle.properties*> file
+as defaults, if the properties are not defined in the main application configuration file
+(<*macchina.properties*>).
+
+    int getIntConfig(const std::string& key)
+    {
+        const int deflt = _pContext->thisBundle()->properties().getInt(key);
+        return _pPrefs->configuration()->getInt(key, deflt);
+    }
+----
+
+<[_pPrefs]> points to the Poco::OSP::PreferencesService instance, which gives access
+to the main application configuration. This is obtained in <[start()]> by using
+the Poco::OSP::ServiceFinder helper class:
+
+    void start(Poco::OSP::BundleContext::Ptr pContext)
+    {
+        _pContext = pContext;
+        _pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(pContext);
+
+        const std::string mqttClientId = getStringConfig("sensor2mqtt.mqttClient");
+        auto mqttClientRefs = pContext->registry().find(Poco::format("io.macchina.mqtt.id == \"%s\"", mqttClientId));
+        if (!mqttClientRefs.empty())
+        {
+            _pMQTTClient = mqttClientRefs[0]->castedInstance<IoT::MQTT::IMQTTClient>();
+
+            _pListener = pContext->registry().createListener(
+                "io.macchina.physicalQuantity == \"temperature\"",
+                Poco::delegate(this, &BundleActivator::onSensorRegistered),
+                Poco::delegate(this, &BundleActivator::onSensorUnregistered));
+        }
+        else
+        {
+            _pContext->logger().warning("No MQTT client found.");
+        }
+    }
+----
+
+After obtaining the <[PreferencesService]> we look for an MQTTClient, which is also
+a service. In fact, multiple MQTT client services can be available, all configured
+in the main configuration file. The macchina.io default configuration file defines
+a single client that connects to the public MQTT broker provided by Eclipse IoT.
+
+    mqtt.clients.eclipse.serverURI = tcp://iot.eclipse.org:1883
+    mqtt.clients.eclipse.clientId = macchina.io
+----
+
+Via the service registry, a MQTT client can be found via its internal ID (part of
+the property name, in this case "eclipse"), its server URI (in this case,
+"tcp://iot.eclipse.org:1883", or via its MQTT client ID ("macchina.io").
+
+In the sample, we search by internal ID, but make this configurable via another
+configuration property ("sensor2mqtt.mqttClient").
+
+If we find a suitable MQTT client, we set up a listener for temperature sensors,
+like in the <*HelloSensor2*> and <*HelloSensor3*> samples.
+
+As soon as we've found a temperature sensor, we will send the temperature value
+periodically to the broker. To do this, we utilize the Poco::Util::Timer class.
+
+In <[onSensorRegistered()]> we call <[startTask()]> which will set up the periodic timer:
+
+    void startTask()
+    {
+        const std::string topic = getStringConfig("sensor2mqtt.mqttTopic");
+        _pTask = new MQTTTask(_pSensor, _pMQTTClient, topic);
+        long interval = 1000*getIntConfig("sensor2mqtt.interval");
+        _timer.scheduleAtFixedRate(_pTask, 0, interval);
+    }
+----
+
+MQTT topic name and periodic transmission interval (in milliseconds) are read from the
+configuration. <[MQTTTask]> is a subclass of Poco::Util::TimerTask. In its <[run()]>
+method it sends the MQTT message:
+
+    void MQTTTask::run()
+    {
+        try
+        {
+            if (_pSensor->ready())
+            {
+                const std::string payload(Poco::format("%.1f", _pSensor->value()));
+                _pMQTTClient->publish(
+                    _topic,
+                    payload,
+                    0
+                );
+                _logger.information("Temperature sent: %s", payload);
+            }
+        }
+        catch (Poco::Exception& exc)
+        {
+            _logger.log(exc);
+        }
+    }
+----
+
+
+
 !!!Further Reading
 
-  - [[00100-OSPOverview.html OSP Overview]] - introduction to the Open Service Platform framework
-  - [[00150-OSPTutorial.html OSP Tutorial]] - Open Service Platform programming tutorial
-  - [[00200-OSPBundles.html OSP Bundles]] - detailed information about bundles
-  - [[00205-OSPModules.html OSP Modules]] - using modules to specify "virtual" dependencies
-  - [[00210-OSPBundleCreator.html OSP Bundle Creator]] - using the Bundle Creator tool
-  - [[00300-OSPServiceRegistry.html OSP Service Registry]] - using the Service Registry
+  - [[https://pocoproject.org/documentation/ POCO C++ Libraries Documentation]]
+  - [[00100-OSPOverview.html OSP Overview]] -- introduction to the Open Service Platform framework
+  - [[00150-OSPTutorial.html OSP Tutorial]] -- Open Service Platform programming tutorial
+  - [[00200-OSPBundles.html OSP Bundles]] -- detailed information about bundles
+  - [[00205-OSPModules.html OSP Modules]] -- using modules to specify "virtual" dependencies
+  - [[00210-OSPBundleCreator.html OSP Bundle Creator]] -- using the Bundle Creator tool
+  - [[00300-OSPServiceRegistry.html OSP Service Registry]] -- using the Service Registry
