@@ -18,7 +18,7 @@ if [ $osname = "Darwin" ] ; then
 else
 	export LD_LIBRARY_PATH=$POCO_BASE/lib/$osname/$osarch:$LD_LIBRARY_PATH
 	libPath=$LD_LIBRARY_PATH
-	libPathVar="LD_LIBRARY_PATH. "
+	libPathVar="LD_LIBRARY_PATH  "
 fi
 
 echo "macchina.io build environment set."
