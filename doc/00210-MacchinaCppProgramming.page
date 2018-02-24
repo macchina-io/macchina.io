@@ -283,9 +283,24 @@ defined.
   - <[$POCO_BASE]> must contain the path to the <*platform*> directory inside the
     macchina.io root directory. Setting it to <[$PROJECT_BASE/platform]> is recommended.
 
-Example:
+There is a Bash script named <*env.bash*> in the macchina.io root directory that
+you can <*source*> in order to set these and a few other useful environment variables:
+
+    $ . env.bash
+    macchina.io build environment set.
+
+    $MACCHINA_BASE     = /home/user/macchina.io
+    $PROJECT_BASE      = /home/user/macchina.io
+    $POCO_BASE         = /home/user/macchina.io/platform
+    $MACCHINA_VERSION  = 0.9.0
+    $LD_LIBRARY_PATH   = /home/user/macchina.io/platform/lib/Linux/x86_64:
+
+----
+
+Alternatively, you can also set <[$PROJECT_BASE]> and <[$POCO_BASE]> manually:
+
     $ export PROJECT_BASE=/path/to/macchina.io
-    $ export POCO_BASE=$PROJECT_BASE/platform
+    $ export POCO_BASE=$PROJECT_BASE/poco
 ----
 
 The HelloBundle sample files can be found in <*$PROJECT_BASE/samples/HelloBundle*>.
@@ -921,7 +936,18 @@ to an MQTT broker via the IoT::MQTT::MQTTClient service. We will also obtain
 configuration properties from the application via the Poco::OSP::PreferencesService.
 
 The complete source code can be found in the <*samples/Sensor2MQTT*> directory, so we
-will only focus on a few interesting parts here.
+will only focus on a few interesting parts here. The directory structure looks like:
+
+    Sensor2MQTT/
+        Makefile
+        Sensor2MQTT.bndlspec
+        src/
+            BundleActivator.cpp
+            MQTTTask.h
+            MQTTTask.cpp
+        bundle/
+            bundle.properties
+----
 
 First, the project uses multiple source files, and the MQTT library (<*libIoTMQTT*>),
 which is reflected in the Makefile:
