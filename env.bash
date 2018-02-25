@@ -4,7 +4,11 @@ if [ $self == $0 ] ; then
 	echo "Usage: . $0"
 	exit 1
 fi
-basedir="$(cd "$(dirname "$self")" ; pwd -P)"
+if [ -d $self ] ; then
+	basedir="$(cd "$self" ; pwd -P)"
+else
+	basedir="$(cd "$(dirname "$self")" ; pwd -P)"
+fi
 osname=`uname`
 osarch=`uname -m`
 export MACCHINA_BASE="$basedir"
