@@ -1,5 +1,5 @@
-self=$_
-if [ $self == $0 ] ; then
+self="${BASH_SOURCE[0]}"
+if [ "$self" == "$0" ] ; then
 	echo "This file must be sourced from bash, not run."
 	echo "Usage: . $0"
 	exit 1
