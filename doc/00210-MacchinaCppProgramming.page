@@ -314,7 +314,19 @@ So after setting the environment variables, you can:
 This will compile the BundleActivator source, build the dynamic library and create
 the bundle file, which can be found in <*$PROJECT_BASE/samples/bundles*>.
 
-You can look into the contents of the resulting bundle with the <*unzip*> utility:
+If you see an error message like:
+
+    Makefile:7: /build/rules/global: No such file or directory
+    Makefile:8: /OSP/BundleCreator/BundleCreator.make: No such file or directory
+    Makefile:18: /build/rules/dylib: No such file or directory
+    make: *** No rule to make target `/build/rules/dylib'.  Stop.
+----
+
+This means that <[$POCO_BASE]> and <[$PROJECT_BASE]> are not defined. See above for how
+to set them.
+
+After successfully building the project, you can look into the contents of the resulting
+bundle with the <*unzip*> utility:
 
     $ unzip -l ../bundles/io.macchina.samples.hello_1.0.0.bndl
     Archive:  ../bundles/io.macchina.samples.hello_1.0.0.bndl
@@ -667,8 +679,7 @@ Like with the <*HelloBundle*> sample, in order to build the <*HelloSensor1*> bun
 the two environment variables <[$PROJECT_BASE]> and <[$POCO_BASE]> must be defined.
 Then, the bundle can be built by invoking <*make*> from the <*HelloSensor1*> directory.
 
-    $ export PROJECT_BASE=/path/to/macchina.io
-    $ export POCO_BASE=$PROJECT_BASE/platform
+    $ . /path/to/macchina.io/env.bash
     $ cd $PROJECT_BASE/samples/HelloSensor1
     $ make
 ----
