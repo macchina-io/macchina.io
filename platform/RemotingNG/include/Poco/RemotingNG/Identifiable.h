@@ -1,8 +1,6 @@
 //
 // Identifiable.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/Identifiable.h#1 $
-//
 // Library: RemotingNG
 // Package: ORB
 // Module:  Identifiable

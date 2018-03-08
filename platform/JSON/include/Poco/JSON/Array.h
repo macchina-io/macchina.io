@@ -1,8 +1,6 @@
 //
 // Array.h
 //
-// $Id$
-//
 // Library: JSON
 // Package: JSON
 // Module:  Array
@@ -65,14 +63,37 @@ public:
 	typedef std::vector<Dynamic::Var>::const_iterator ConstIterator;
 	typedef SharedPtr<Array> Ptr;
 
-	Array();
+	Array(int options = 0);
 		/// Creates an empty Array.
+		///
+		/// If JSON_ESCAPE_UNICODE is specified, when the object is
+		/// stringified, all unicode characters will be escaped in the
+		/// resulting string.
 
 	Array(const Array& copy);
 		/// Creates an Array by copying another one.
 
+#ifdef POCO_ENABLE_CPP11
+
+	Array(Array&& other);
+		/// Move constructor
+
+	Array& operator=(Array&& other);
+		/// Move assignment operator.
+
+#endif // POCO_ENABLE_CPP11
+
+	Array& operator=(const Array& other);
+		/// Assignment operator.
+
 	virtual ~Array();
 		/// Destroys the Array.
+
+	void setEscapeUnicode(bool escape = true);
+		/// Sets the flag for escaping unicode.
+
+	bool getEscapeUnicode() const;
+		/// Returns the flag for escaping unicode.
 
 	ValueVec::const_iterator begin() const;
 		/// Returns the begin iterator for values.
@@ -165,6 +186,7 @@ public:
 		/// Removes the element on the given index.
 
 	operator const Poco::Dynamic::Array& () const;
+		/// Conversion operator to Dynamic::Array.
 
 	static Poco::Dynamic::Array makeArray(const JSON::Array::Ptr& arr);
 		/// Utility function for creation of array.
@@ -173,16 +195,37 @@ public:
 		/// Clears the contents of the array.
 
 private:
+	void resetDynArray() const;
+
 	typedef SharedPtr<Poco::Dynamic::Array> ArrayPtr;
 
 	ValueVec         _values;
 	mutable ArrayPtr _pArray;
+	mutable bool     _modified;
+	// Note:
+	//  The reason we have this flag here (rather than as argument to stringify())
+	//  is because Array can be returned stringified from a Dynamic::Var:toString(),
+	//  so it must know whether to escape unicode or not.
+	bool             _escapeUnicode;
 };
 
 
 //
 // inlines
 //
+
+inline void Array::setEscapeUnicode(bool escape)
+{
+	_escapeUnicode = true;
+}
+
+
+inline bool Array::getEscapeUnicode() const
+{
+	return _escapeUnicode;
+}
+
+
 inline Array::ValueVec::const_iterator Array::begin() const
 {
 	return _values.begin();
@@ -224,6 +267,7 @@ inline bool Array::isArray(ConstIterator& it) const
 inline void Array::add(const Dynamic::Var& value)
 {
 	_values.push_back(value);
+	_modified = true;
 }
 
 
@@ -231,6 +275,7 @@ inline void Array::set(unsigned int index, const Dynamic::Var& value)
 {
 	if (index >= _values.size()) _values.resize(index + 1);
 	_values[index] = value;
+	_modified = true;
 }
 
 
@@ -354,11 +399,6 @@ public:
 	const JSON::Array::Ptr& value() const
 	{
 		return _val;
-	}
-
-	bool isArray() const
-	{
-		return false;
 	}
 
 	bool isInteger() const
@@ -493,11 +533,6 @@ public:
 	const JSON::Array& value() const
 	{
 		return _val;
-	}
-
-	bool isArray() const
-	{
-		return false;
 	}
 
 	bool isInteger() const

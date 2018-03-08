@@ -1,0 +1,21 @@
+<bundlespec>
+	<manifest>
+		<name>HelloSensor Sample #2</name>
+		<symbolicName>io.macchina.samples.sensor2</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>HelloSensor2::BundleActivator</class>
+			<library>io.macchina.samples.sensor2</library>
+		</activator>
+		<dependency>
+			<symbolicName>io.macchina.devices</symbolicName>
+			<version>[1.0.0, 2.0.0)</version>
+		</dependency>
+	</manifest>
+	<code>
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+	</code>
+</bundlespec>

@@ -1,8 +1,6 @@
 //
 // Skeleton.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/Skeleton.cpp#1 $
-//
 // Library: RemotingNG
 // Package: ORB
 // Module:  Skeleton

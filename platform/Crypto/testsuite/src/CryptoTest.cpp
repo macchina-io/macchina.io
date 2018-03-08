@@ -1,8 +1,6 @@
 //
 // CryptoTest.cpp
 //
-// $Id: //poco/1.4/Crypto/testsuite/src/CryptoTest.cpp#2 $
-//
 // Copyright (c) 2008, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -18,8 +16,10 @@
 #include "Poco/Crypto/CipherKey.h"
 #include "Poco/Crypto/X509Certificate.h"
 #include "Poco/Crypto/CryptoStream.h"
+#include "Poco/Crypto/CryptoTransform.h"
 #include "Poco/StreamCopier.h"
 #include "Poco/Base64Encoder.h"
+#include "Poco/HexBinaryEncoder.h"
 #include <sstream>
 
 
@@ -126,6 +126,39 @@ void CryptoTest::testEncryptDecryptWithSalt()
 }
 
 
+void CryptoTest::testEncryptDecryptWithSaltSha1()
+{
+	Cipher::Ptr pCipher = CipherFactory::defaultFactory().createCipher(
+		CipherKey("aes256", "simplepwd", "Too much salt", 2000, "sha1"));
+	Cipher::Ptr pCipher2 = CipherFactory::defaultFactory().createCipher(
+		CipherKey("aes256", "simplepwd", "Too much salt", 2000, "sha1"));
+
+	for (std::size_t n = 1; n < MAX_DATA_SIZE; n++)
+	{
+		std::string in(n, 'x');
+		std::string out = pCipher->encryptString(in, Cipher::ENC_NONE);
+		std::string result = pCipher2->decryptString(out, Cipher::ENC_NONE);
+		assert (in == result);
+	}
+
+	for (std::size_t n = 1; n < MAX_DATA_SIZE; n++)
+	{
+		std::string in(n, 'x');
+		std::string out = pCipher->encryptString(in, Cipher::ENC_BASE64);
+		std::string result = pCipher2->decryptString(out, Cipher::ENC_BASE64);
+		assert (in == result);
+	}
+
+	for (std::size_t n = 1; n < MAX_DATA_SIZE; n++)
+	{
+		std::string in(n, 'x');
+		std::string out = pCipher->encryptString(in, Cipher::ENC_BINHEX);
+		std::string result = pCipher2->decryptString(out, Cipher::ENC_BINHEX);
+		assert (in == result);
+	}
+}
+
+
 void CryptoTest::testEncryptDecryptDESECB()
 {
 	Cipher::Ptr pCipher = CipherFactory::defaultFactory().createCipher(CipherKey("des-ecb", "password"));
@@ -156,6 +189,38 @@ void CryptoTest::testEncryptDecryptDESECB()
 }
 
 
+void CryptoTest::testEncryptDecryptGCM()
+{
+	CipherKey key("aes-256-gcm");
+	
+	CipherKey::ByteVec iv(20, 213);
+	key.setIV(iv);
+
+	Cipher::Ptr pCipher = CipherFactory::defaultFactory().createCipher(key);
+
+	for (std::size_t n = 1; n < MAX_DATA_SIZE; n++)
+	{
+		std::stringstream str;
+		CryptoTransform* pEncryptor = pCipher->createEncryptor();
+		CryptoOutputStream encryptorStream(str, pEncryptor);
+		std::string in(n, 'x');
+		encryptorStream << in;
+		encryptorStream.close();
+		assert (encryptorStream.good());
+
+		std::string tag = pEncryptor->getTag();
+
+		CryptoTransform* pDecryptor = pCipher->createDecryptor();
+		pDecryptor->setTag(tag);
+		CryptoInputStream decryptorStream(str, pDecryptor);
+		std::string out;
+		decryptorStream >> out;
+
+		assert (in == out);
+	}
+}
+
+
 void CryptoTest::testPassword()
 {
 	CipherKey key("aes256", "password", "salt");
@@ -166,6 +231,33 @@ void CryptoTest::testPassword()
 	base64KeyEnc.close();
 	std::string base64Key = keyStream.str();
 	assert (base64Key == "hIzxBt58GDd7/6mRp88bewKk42lM4QwaF78ek0FkVoA=");
+}
+
+
+void CryptoTest::testPasswordSha1()
+{
+	// the test uses 1 iteration, as the openssl executable does not allow to set a custom number
+	// of iterations
+	CipherKey key("aes256", "password", "saltsalt", 1, "sha1");
+
+	std::ostringstream keyStream;
+	Poco::HexBinaryEncoder hexKeyEnc(keyStream);
+	hexKeyEnc.write(reinterpret_cast<const char*>(&key.getKey()[0]), key.keySize());
+	hexKeyEnc.close();
+	std::string hexKey = keyStream.str();
+
+	std::ostringstream ivStream;
+	Poco::HexBinaryEncoder hexIvEnc(ivStream);
+	hexIvEnc.write(reinterpret_cast<const char*>(&key.getIV()[0]), key.ivSize());
+	hexIvEnc.close();
+	std::string hexIv = ivStream.str();
+
+	// got Hex value for key and iv using:
+	// openssl enc -e -a -md sha1 -aes256 -k password -S 73616c7473616c74 -P
+	// (where "salt" == 73616c74 in Hex, doubled for an 8 bytes salt, openssl padds the salt with 0
+	// whereas Poco's implementation padds with the existing bytes using a modulo operation)
+	assert (hexIv == "c96049b0edc0b67af61ecc43d3de8898");
+	assert (hexKey == "cab86dd6261710891e8cb56ee3625691a75df344f0bff4c12cf3596fc00b39c7");
 }
 
 
@@ -270,8 +362,11 @@ CppUnit::Test* CryptoTest::suite()
 
 	CppUnit_addTest(pSuite, CryptoTest, testEncryptDecrypt);
 	CppUnit_addTest(pSuite, CryptoTest, testEncryptDecryptWithSalt);
+	CppUnit_addTest(pSuite, CryptoTest, testEncryptDecryptWithSaltSha1);
 	CppUnit_addTest(pSuite, CryptoTest, testEncryptDecryptDESECB);
+	CppUnit_addTest(pSuite, CryptoTest, testEncryptDecryptGCM);
 	CppUnit_addTest(pSuite, CryptoTest, testPassword);
+	CppUnit_addTest(pSuite, CryptoTest, testPasswordSha1);
 	CppUnit_addTest(pSuite, CryptoTest, testEncryptInterop);
 	CppUnit_addTest(pSuite, CryptoTest, testDecryptInterop);
 	CppUnit_addTest(pSuite, CryptoTest, testStreams);

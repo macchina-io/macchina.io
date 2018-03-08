@@ -1,8 +1,6 @@
 //
 // Transport.cpp
 //
-// $Id: //poco/1.7/RemotingNG/TCP/src/Transport.cpp#5 $
-//
 // Library: RemotingNG/TCP
 // Package: TCP
 // Module:  Transport

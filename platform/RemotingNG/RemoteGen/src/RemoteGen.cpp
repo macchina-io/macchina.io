@@ -1,8 +1,6 @@
 //
 // RemoteGen.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/RemoteGen.cpp#3 $
-//
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -86,8 +84,8 @@ using Poco::CodeGeneration::MethodPropertyFilter;
 class RemoteGenApp: public Application
 {
 public:
-	RemoteGenApp(): 
-	  _helpRequested(false), 
+	RemoteGenApp():
+	  _helpRequested(false),
 	  _enableOSP(false),
 	  _bundlePath("bundle"),
 	  _enableTimestamps(true)
@@ -109,24 +107,24 @@ public:
 	{
 	}
 
-protected:	
+protected:
 	void initialize(Application& self)
 	{
 		Application::initialize(self);
 		AbstractGenerator::EError += Poco::Delegate<RemoteGenApp, const std::string>(this, &RemoteGenApp::onError);
 	}
-	
+
 	void uninitialize()
 	{
 		AbstractGenerator::EError -= Poco::Delegate<RemoteGenApp, const std::string>(this, &RemoteGenApp::onError);
 		Application::uninitialize();
 	}
-	
+
 	void reinitialize(Application& self)
 	{
 		Application::reinitialize(self);
 	}
-	
+
 	void defineOptions(OptionSet& options)
 	{
 		Application::defineOptions(options);
@@ -138,7 +136,7 @@ protected:
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleHelp)));
 
 		options.addOption(
-			Option("define", "D", 
+			Option("define", "D",
 				"Define a configuration property. A configuration property "
 				"defined with this option can be referenced in the configuration "
 				"file, using the following syntax: ${<name>}.")
@@ -148,7 +146,7 @@ protected:
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleDefine)));
 
 		options.addOption(
-			Option("config", "c", 
+			Option("config", "c",
 				"Load configuration from the given file specified by <file>. "
 				"This option is supported for backwards compatibility only.")
 				.required(false)
@@ -157,7 +155,7 @@ protected:
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleConfig)));
 
 		options.addOption(
-			Option("mode", "m", 
+			Option("mode", "m",
 				"Override generation mode specified in configuration file. "
 				"Valid values for <mode> are \"client\", \"server\", \"both\" or \"interface\".")
 				.required(false)
@@ -166,7 +164,7 @@ protected:
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleMode)));
 
 		options.addOption(
-			Option("compiler", "C", 
+			Option("compiler", "C",
 				"Specify the compiler to use. Compilers are defined in the configuration file. "
 				"If not specified, the first compiler defined in the configuration file will be used.")
 				.required(false)
@@ -180,12 +178,12 @@ protected:
 				.repeatable(false)
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleOSP)));
 	}
-	
+
 	void handleConfig(const std::string& name, const std::string& value)
 	{
 		loadConfiguration(value);
 	}
-	
+
 	void handleCompiler(const std::string& name, const std::string& value)
 	{
 		_compiler = value;
@@ -219,7 +217,7 @@ protected:
 			_mode.clear();
 		}
 	}
-	
+
 	void handleHelp(const std::string& name, const std::string& value)
 	{
 		_helpRequested = true;
@@ -235,7 +233,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics Remoting NG Code Generator.\n"
-			"Copyright (c) 2006-2017 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2006-2018 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program parses C++ header files annotated with "
 			"Remoting attributes and generates C++ code for "
@@ -277,9 +275,9 @@ protected:
 		_bundlePath = config().getString("RemoteGen.output.bundle", _bundlePath);
 		_bundleActivator = config().getString("RemoteGen.output.osp.bundleActivator", "");
 		_enableTimestamps = config().getBool("RemoteGen.output.timestamps", true);
-		
+
 		if (compiler.empty()) throw Poco::NotFoundException("No compiler definition found in configuration file", _compiler);
-		
+
 		if (config().hasProperty("RemoteGen.output.namespace"))
 			checkNameSpaceExists(config().getString("RemoteGen.output.namespace"));
 
@@ -342,9 +340,9 @@ protected:
 			const Poco::CppParser::Struct* pStruct = *itV;
 			const std::string& outFile = pStruct->getFile();
 			Poco::Path incPath(outFile);
-			
-			while (incPath.depth() > 0 && 
-				Poco::toLower(incPath.directory(incPath.depth()-1)).find("include") == std::string::npos && 
+
+			while (incPath.depth() > 0 &&
+				Poco::toLower(incPath.directory(incPath.depth()-1)).find("include") == std::string::npos &&
 				Poco::toLower(incPath.directory(incPath.depth()-1)).find("src") == std::string::npos)
 				incPath.popDirectory();
 			if (incPath.depth() > 0)
@@ -363,7 +361,7 @@ protected:
 				schemaDir.createDirectories();
 			}
 			else schemaPath = Poco::Path::current();
-	
+
 			std::string cfgPath("RemoteGen.schema.");
 			cfgPath.append(pStruct->name());
 			// targetNS must be set at the class
@@ -484,9 +482,9 @@ protected:
 		std::string libraryName = config().getString("RemoteGen.output.library", config().getString("RemoteGen.output.libraryname", ""));
 		std::string copyright = config().getString("RemoteGen.output.copyright", "");
 		std::string mode = config().getString("RemoteGen.output.mode", BOTH);
-		
+
 		bool genBundle = !_bundleActivator.empty();
-		
+
 		if (!_mode.empty())
 			mode = _mode;
 		Poco::trimInPlace(mode);
@@ -511,7 +509,7 @@ protected:
 					BundleActivatorGenerator::BundleService bs(pStruct, genClient, genServer);
 					this->_bundleServices.push_back(bs);
 				}
-				
+
 				if (genClient)
 				{
 					generateProxy(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
@@ -551,7 +549,7 @@ protected:
 				{
 					std::string endPoints;
 					endPoints = config().getString(cfgPath+".serviceLocation");
-					
+
 					Poco::StringTokenizer aTok(endPoints, ",; \n", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 					Poco::StringTokenizer::Iterator it = aTok.begin();
 					Poco::StringTokenizer::Iterator itEnd = aTok.end();
@@ -561,7 +559,7 @@ protected:
 					_schemaGen.push_back(pStruct);
 				}
 			}
-			
+
 			if (genClient || genServer)
 			{
 				Poco::CodeGeneration::CodeGenerator::Properties props;
@@ -646,7 +644,7 @@ protected:
 
 		hOut.close();
 		cppOut.close();
-		if (pImplOut) 
+		if (pImplOut)
 		{
 			implOut.close();
 		}
@@ -916,12 +914,12 @@ protected:
 				#if defined(POCO_REQUIRE_LICENSE)
 				poco_verify_license(RemoteGen);
 				#endif
-				
+
 				for (std::vector<std::string>::const_iterator it = args.begin(); it != args.end(); ++it)
 				{
 					loadConfiguration(*it);
 				}
-				
+
 				if (config().hasProperty("RemoteGen"))
 				{
 					generateAll();
@@ -945,7 +943,7 @@ protected:
 		}
 		return _errMsgs.empty() ? Application::EXIT_OK : Application::EXIT_SOFTWARE;
 	}
-	
+
 private:
 	bool _helpRequested;
 	bool _enableOSP;

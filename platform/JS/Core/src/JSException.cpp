@@ -1,8 +1,6 @@
 //
 // JSException.cpp
 //
-// $Id$
-//
 // Library: JS/Core
 // Package: Execution
 // Module:  JSException

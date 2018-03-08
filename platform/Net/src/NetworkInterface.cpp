@@ -1,8 +1,6 @@
 //
 // NetworkInterface.cpp
 //
-// $Id: //poco/1.4/Net/src/NetworkInterface.cpp#9 $
-//
 // Library: Net
 // Package: NetCore
 // Module:  NetworkInterface
@@ -244,7 +242,7 @@ void NetworkInterfaceImpl::setPhyParams()
 #if !defined(POCO_OS_FAMILY_WINDOWS) && !defined(POCO_VXWORKS)
 	struct ifreq ifr;
 	std::strncpy(ifr.ifr_name, _name.c_str(), IFNAMSIZ);
-	DatagramSocket ds;
+	DatagramSocket ds(SocketAddress::IPv4);
 
 	ds.impl()->ioctl(SIOCGIFFLAGS, &ifr);
 	setFlags(ifr.ifr_flags);
@@ -798,16 +796,10 @@ bool NetworkInterface::isUp() const
 
 NetworkInterface NetworkInterface::forName(const std::string& name, bool requireIPv6)
 {
-	Map map = NetworkInterface::map(false, false);
-	Map::const_iterator it = map.begin();
-	Map::const_iterator end = map.end();
-
-	for (; it != end; ++it)
-	{
-		if (it->second.name() == name && ((requireIPv6 && it->second.supportsIPv6()) || !requireIPv6))
-			return it->second;
-	}
-	throw InterfaceNotFoundException(name);
+	if (requireIPv6) 
+		return forName(name, IPv6_ONLY);
+	else 
+		return forName(name, IPv4_OR_IPv6);
 }
 
 
@@ -883,33 +875,40 @@ NetworkInterface::List NetworkInterface::list(bool ipOnly, bool upOnly)
 
 		typedef NetworkInterface::AddressList List;
 		const List& ipList = it->second.addressList();
-		List::const_iterator ipIt = ipList.begin();
-		List::const_iterator ipEnd = ipList.end();
-		for (; ipIt != ipEnd; ++ipIt)
+		if (ipList.size() > 0)
 		{
-			IPAddress addr = ipIt->get<NetworkInterface::IP_ADDRESS>();
-			IPAddress mask = ipIt->get<NetworkInterface::SUBNET_MASK>();
-			NetworkInterface ni;
-			if (mask.isWildcard())
+			List::const_iterator ipIt = ipList.begin();
+			List::const_iterator ipEnd = ipList.end();
+			for(; ipIt != ipEnd; ++ipIt)
 			{
-				ni = NetworkInterface(name, displayName, adapterName, addr, index, &mac);
-			}
-			else
-			{
-				IPAddress broadcast = ipIt->get<NetworkInterface::BROADCAST_ADDRESS>();
-				ni = NetworkInterface(name, displayName, adapterName, addr, mask, broadcast, index, &mac);
-			}
+				IPAddress addr = ipIt->get<NetworkInterface::IP_ADDRESS>();
+				IPAddress mask = ipIt->get<NetworkInterface::SUBNET_MASK>();
+				NetworkInterface ni;
+				if(mask.isWildcard())
+				{
+					ni = NetworkInterface(name, displayName, adapterName, addr, index, &mac);
+				}
+				else
+				{
+					IPAddress broadcast = ipIt->get<NetworkInterface::BROADCAST_ADDRESS>();
+					ni = NetworkInterface(name, displayName, adapterName, addr, mask, broadcast, index, &mac);
+				}
 
-			ni._pImpl->_broadcast    = it->second._pImpl->_broadcast;
-			ni._pImpl->_loopback     = it->second._pImpl->_loopback;
-			ni._pImpl->_multicast    = it->second._pImpl->_multicast;
-			ni._pImpl->_pointToPoint = it->second._pImpl->_pointToPoint;
-			ni._pImpl->_up           = it->second._pImpl->_up;
-			ni._pImpl->_running      = it->second._pImpl->_running;
-			ni._pImpl->_mtu          = it->second._pImpl->_mtu;
-			ni._pImpl->_type         = it->second._pImpl->_type;
+				ni._pImpl->_broadcast = it->second._pImpl->_broadcast;
+				ni._pImpl->_loopback = it->second._pImpl->_loopback;
+				ni._pImpl->_multicast = it->second._pImpl->_multicast;
+				ni._pImpl->_pointToPoint = it->second._pImpl->_pointToPoint;
+				ni._pImpl->_up = it->second._pImpl->_up;
+				ni._pImpl->_running = it->second._pImpl->_running;
+				ni._pImpl->_mtu = it->second._pImpl->_mtu;
+				ni._pImpl->_type = it->second._pImpl->_type;
 
-			list.push_back(ni);
+				list.push_back(ni);
+			}
+		}
+		else
+		{
+			list.push_back(NetworkInterface(name, displayName, adapterName, index, &mac));
 		}
 	}
 
@@ -1512,14 +1511,14 @@ NetworkInterface::Map NetworkInterface::map(bool ipOnly, bool upOnly)
 } } // namespace Poco::Net
 
 
-#elif POCO_OS == POCO_OS_LINUX
+#elif POCO_OS == POCO_OS_LINUX || POCO_OS == POCO_OS_ANDROID
 //
 // Linux
 //
 
 
 #include <sys/types.h>
-#ifndef POCO_ANDROID // Android doesn't have <ifaddrs.h>
+#if POCO_OS != POCO_OS_ANDROID // Android doesn't have <ifaddrs.h>
 #include <ifaddrs.h>
 #endif
 #include <net/if.h>
@@ -1554,7 +1553,7 @@ static NetworkInterface::Type fromNative(unsigned arphrd)
 	}
 }
 
-#ifndef POCO_ANDROID
+#if POCO_OS != POCO_OS_ANDROID
 
 void setInterfaceParams(struct ifaddrs* iface, NetworkInterfaceImpl& impl)
 {
@@ -1610,7 +1609,7 @@ void setInterfaceParams(struct ifaddrs* iface, NetworkInterfaceImpl& impl)
 
 NetworkInterface::Map NetworkInterface::map(bool ipOnly, bool upOnly)
 {
-#ifndef POCO_ANDROID
+#if POCO_OS != POCO_OS_ANDROID
 	FastMutex::ScopedLock lock(_mutex);
 	Map result;
 	unsigned ifIndex = 0;

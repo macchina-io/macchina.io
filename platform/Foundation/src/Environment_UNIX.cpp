@@ -1,8 +1,6 @@
 
 // Environment_UNIX.cpp
 //
-// $Id: //poco/1.4/Foundation/src/Environment_UNIX.cpp#2 $
-//
 // Library: Foundation
 // Package: Core
 // Module:  Environment
@@ -179,7 +177,7 @@ void EnvironmentImpl::nodeIdImpl(NodeId& id)
 } // namespace Poco
 
 
-#elif defined(__CYGWIN__) || POCO_OS == POCO_OS_LINUX
+#elif defined(__CYGWIN__) || POCO_OS == POCO_OS_LINUX || POCO_OS == POCO_OS_ANDROID
 //
 // Linux, Cygwin
 //

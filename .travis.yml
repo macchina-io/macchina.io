@@ -1,9 +1,12 @@
+dist: trusty
+sudo: required
 language: cpp
 
 cache:
  - apt
 
 before_install:
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get update -qq
   - sudo apt-get install -qq -y gcc-multilib g++-multilib libc6-i386 libc6-dev-i386 lib32stdc++6 lib32z1 sloccount cppcheck
 
@@ -20,16 +23,21 @@ matrix:
       compiler: gcc
       language: cpp
       script:
-        - make -s -j2
+        - sudo apt-get install -qq -y gcc-4.9 g++-4.9
+        - export CC="gcc-4.9"
+        - export CXX="g++-4.9"
+        - $CXX --version
+        - make -s -j2 DEFAULT_TARGET=shared_release
 
-    - env:    TEST_NAME="arm-linux-gnueabihf-gcc (target)"
-      compiler: gcc
-      language: cpp
-      script:
-        - curl https://macchina.io/files/travis/ti-am335x-sdk.tgz >ti-am335x-sdk.tgz
-        - tar xfz ti-am335x-sdk.tgz
-        - make -s -j2 hosttools DEFAULT_TARGET=shared_release
-        - export PATH=$PATH:`pwd`/ti-am335x-sdk/linux-devkit/sysroots/i686-arago-linux/usr/bin; POCO_CONFIG=Arago make -s -j2 DEFAULT_TARGET=shared_release V8_NOSNAPSHOT=1
+# ARM build disabled until we get GCC 4.9 cross compiler
+#    - env:    TEST_NAME="arm-linux-gnueabi-gcc (target)"
+#      compiler: gcc
+#      language: cpp
+#      script:
+#        - sudo apt-get install -qq -y g++-arm-linux-gnueabihf
+#        - arm-linux-gnueabihf-g++ --version
+#        - make -s -j2 hosttools DEFAULT_TARGET=shared_release
+#        - POCO_CONFIG=ARM-Linux make -s -j2 DEFAULT_TARGET=shared_release TOOL=arm-linux-gnueabihf
 
     # QA jobs for code analytics and metrics
     # static code analysis with cppcheck (we can add --enable=all later)

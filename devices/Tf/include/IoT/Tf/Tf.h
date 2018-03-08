@@ -1,8 +1,6 @@
 //
 // Tf.h
 //
-// $Id: //iot/Main/Tf/include/IoT/Tf/Tf.h#2 $
-//
 // Library: Tf
 // Package: Tf
 // Module:  Tf

@@ -1,8 +1,6 @@
 //
 // BtLE.h
 //
-// $Id$
-//
 // Library: IoT/BtLE
 // Package: BtLE
 // Module:  BtLE

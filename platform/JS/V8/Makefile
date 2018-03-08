@@ -1,28 +1,25 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/JS/V8/Makefile#5 $
-#
 # Makefile for v8 JavaScript engine
 #
 
 include $(POCO_BASE)/build/rules/global
 
-export CFLAGS
-export CXXFLAGS
-export LINKFLAGS
+.PHONY: v8deps
 
-V8VERSION = 3.28.4
-GYPREVISION = 1831
-V8BASE = v8-$(V8VERSION)
-ifdef V8_SNAPSHOT
-V8SNAPSHOT = snapshot=on
+GYPFLAGS = -Dcomponent=shared_library -Dlinux_use_bundled_binutils=0 \
+	-Dlinux_use_bundled_gold=0 -Dlinux_use_gold_flags=0 -Dv8_enable_backtrace=0 -Ddcheck_always_on=0 \
+	-Dv8_enable_handle_zapping=0 -Dv8_enable_slow_dchecks=0 -Dv8_enable_inspector=0 \
+	-Dv8_enable_gdbjit=0 -Dwerror='' -Dtest_isolation_mode=noop -Dv8_optimized_debug=0 \
+	-Dv8_enable_i18n_support=0 -Dwant_separate_host_toolset=0 -Dv8_use_external_startup_data=0 \
+	-Dv8_random_seed=0
+
+ifdef V8_ENABLE_SNAPSHOT
+GYPFLAGS += -Dv8_use_snapshot=true
 else
-V8SNAPSHOT = snapshot=off
+GYPFLAGS += -Dv8_use_snapshot=false
 endif
-V8FLAGS = library=shared i18nsupport=off werror=no $(V8SNAPSHOT) $(V8_EXTRA_FLAGS)
-
-.PHONY: v8base v8deps
 
 ifeq ($(OSARCH),x86_64)
 V8ARCH = x64
@@ -35,14 +32,10 @@ V8ARCH = ia32
 endif
 ifeq ($(findstring arm,$(OSARCH)),arm)
 V8ARCH = arm
+GYPFLAGS += -Darm_fpu=default -Darm_float_abi=default -Darm_thumb=0 -Darm_test_noprobe=on
 endif
 ifeq ($(findstring armv7,$(OSARCH)),armv7)
-V8FLAGS += arm_version=7
-endif
-ifeq ($(findstring armv6,$(OSARCH)),armv6)
-V8FLAGS += arm_version=6
-# Workaround for Raspberry Pi
-V8FLAGS += armfpu=vfp armfloatabi=hard armneon=off
+GYPFLAGS += -Darm_version=7
 endif
 ifeq ($(OSARCH),mipsel)
 V8ARCH = mipsel
@@ -51,24 +44,30 @@ ifeq ($(OSARCH),mips)
 V8ARCH = mips
 endif
 
-$(info Building V8 for arch $(V8ARCH) with flags: $(V8FLAGS))
+ifeq ($(POCO_HOST_OSARCH),x86_64)
+V8HOSTARCH = x64
+endif
+ifeq ($(POCO_HOST_OSARCH),i386)
+V8HOSTARCH = ia32
+endif
+ifeq ($(POCO_HOST_OSARCH),i686)
+V8HOSTARCH = ia32
+endif
+ifeq ($(findstring arm,$(POCO_HOST_OSARCH)),arm)
+V8HOSTARCH = arm
+endif
+
+GYPFLAGS += -Dv8_target_arch=$(V8ARCH) -Dtarget_arch=$(V8ARCH) -Dhost_arch=$(V8HOSTARCH)
 
 ifeq ($(V8ARCH),)
 $(error Unknown target architecture)
 endif
-
 ifeq ($(findstring clang,$(CXX)),clang)
-GYP_DEFINES += clang=1 
-ifeq ($(OSNAME),Darwin)
-GYP_DEFINES += mac_deployment_target=10.9
-endif
-CXX += -Wno-tautological-undefined-compare -Wno-inconsistent-missing-override -Wno-shift-negative-value
+GYPFLAGS += -Dclang=1
 endif
 
-export GYP_DEFINES
-
-ifneq ($(POCO_TARGET_OSARCH),$(POCO_HOST_OSARCH))
-v8targetlibdir = lib.target
+ifeq ($(POCO_HOST_OSNAME),Linux)
+v8targetlibdir = lib.target/
 endif
 
 # Reduce linker memory usage on ARM systems
@@ -77,39 +76,35 @@ LINK += -Xlinker --hash-size=31 -Xlinker --reduce-memory-overhead
 export LINK
 endif
 
-default: v8install
+default: shared_release
 
-$(V8BASE): archive/$(V8BASE).tar.gz
-	tar xfz $<
-	cd $(V8BASE) && patch -p1 <../patches/armv6.patch
-	cd $(V8BASE) && patch -p1 <../patches/standalone.patch
-	cd $(V8BASE) && patch -p1 <../patches/handlescope.patch
+v8deps: out/Makefile include/v8.h
 
-v8base: $(V8BASE)
+out/Makefile:
+	 tools/gyp/gyp $(GYPFLAGS) --generator-output=$(POCO_BASE)/JS/V8/out -Goutput_dir=$(POCO_BASE)/JS/V8/out -f make -Icommon.gypi --depth=. v8/src/v8.gyp
 
-v8deps: v8base
-	mkdir -p $(V8BASE)/build
-	cd $(V8BASE)/build && tar xfz ../../archive/gyp-$(GYPREVISION).tar.gz
-	
-shared_debug: v8deps 
-	-$(MAKE) -C $(V8BASE) $(V8ARCH).debug $(V8FLAGS) 
+shared_debug: v8deps
+	$(MAKE) -C out BUILDTYPE=Debug CFLAGS="$(CFLAGS) $(SHAREDOPT_CC)" CXXFLAGS="$(CXXFLAGS) $(SHAREDOPT_CXX)" v8 v8_libplatform
+	cp out/Debug/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
+	cp out/Debug/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)
+	cp out/Debug/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)
 
 shared_release: v8deps
-	-$(MAKE) -C $(V8BASE) $(V8ARCH).release $(V8FLAGS) 
-	
+	$(MAKE) -C out BUILDTYPE=Release CFLAGS="$(CFLAGS) $(SHAREDOPT_CC)" CXXFLAGS="$(CXXFLAGS) $(SHAREDOPT_CXX)" v8 v8_libplatform
+	cp out/Release/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
+	cp out/Release/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)
+	cp out/Release/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)
+
 all_shared: shared_debug shared_release
 
-v8install: $(DEFAULT_TARGET)
-	if [ -d $(V8BASE)/out/$(V8ARCH).release ] ; then cp $(V8BASE)/out/$(V8ARCH).release/$(v8targetlibdir)/libv8$(SHAREDLIBLINKEXT) $(LIBPATH) ; fi
-	if [ -d $(V8BASE)/out/$(V8ARCH).debug ] ; then cp $(V8BASE)/out/$(V8ARCH).debug/$(v8targetlibdir)/libv8$(SHAREDLIBLINKEXT) $(LIBPATH)/libv8d$(SHAREDLIBLINKEXT) ; fi
+include/v8.h: v8/include/v8.h
 	mkdir -p include
-	cp $(V8BASE)/include/*.h include
+	mkdir -p include/libplatform
+	cp v8/include/*.h include
+	cp v8/include/libplatform/*.h include/libplatform
 
 clean:
-	-$(MAKE) -C $(V8BASE) clean
+	$(RM) out
 
-distclean:
-	$(RM) $(V8BASE)
+distclean: clean
 	$(RM) include
-	$(RM) $(LIBPATH)/libv8$(SHAREDLIBLINKEXT)
-	$(RM) $(LIBPATH)/libv8d$(SHAREDLIBLINKEXT)

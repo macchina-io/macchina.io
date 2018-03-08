@@ -1,8 +1,6 @@
 //
 // XBeeNodeImpl.cpp
 //
-// $Id$
-//
 // Library: IoT/XBee
 // Package: XBeeNode
 // Module:  XBeeNode
@@ -25,7 +23,7 @@
 #include "Poco/Format.h"
 
 
-namespace 
+namespace
 {
 	void serializeDeviceAddress(Poco::BinaryWriter& writer, const std::string addr)
 	{
@@ -36,7 +34,7 @@ namespace
 		}
 		writer << deviceAddress;
 	}
-	
+
 	void serializeNetworkAddress(Poco::BinaryWriter& writer, const std::string addr)
 	{
 		Poco::UInt16 networkAddress = 0xFFFE;
@@ -46,7 +44,7 @@ namespace
 		}
 		writer << networkAddress;
 	}
-	
+
 	void serializeData(Poco::BinaryWriter& writer, const std::vector<Poco::UInt8>& data)
 	{
 		for (std::vector<Poco::UInt8>::const_iterator it = data.begin(); it != data.end(); ++it)
@@ -54,7 +52,7 @@ namespace
 			writer << *it;
 		}
 	}
-	
+
 	void deserializeDeviceAddress(Poco::BinaryReader& reader, std::string& addr)
 	{
 		Poco::UInt64 deviceAddress;
@@ -70,7 +68,7 @@ namespace
 		addr.clear();
 		Poco::NumberFormatter::appendHex(addr, networkAddress, 4);
 	}
-	
+
 	void deserializeData(Poco::BinaryReader& reader, std::size_t size, std::vector<Poco::UInt8>& data)
 	{
 		data.clear();
@@ -97,10 +95,16 @@ XBeeNodeImpl::XBeeNodeImpl(Poco::SharedPtr<XBeePort> pXBeePort, int options):
 	start();
 }
 
-	
+
 XBeeNodeImpl::~XBeeNodeImpl()
 {
-	stop();
+	try
+	{
+		stop();
+	}
+	catch (...)
+	{
+	}
 }
 
 
@@ -109,7 +113,7 @@ void XBeeNodeImpl::sendFrame(const APIFrame& frame)
 	XBeeFrame xbeeFrame(
 		static_cast<XBeeFrame::FrameType>(frame.type),
 		reinterpret_cast<const char*>(&frame.data[0]), frame.data.size());
-		
+
 	sendFrame(xbeeFrame);
 }
 
@@ -118,11 +122,11 @@ void XBeeNodeImpl::sendCommand(const ATCommand& command)
 {
 	if (command.command.size() != 2) throw Poco::InvalidArgumentException("Invalid AT command", command.command);
 	if (command.parameters.size() > 64) throw Poco::InvalidArgumentException("Too many parameter bytes");
-	
+
 	char buffer[80];
 	Poco::MemoryOutputStream mostr(buffer, 80);
 	Poco::BinaryWriter writer(mostr, Poco::BinaryWriter::NETWORK_BYTE_ORDER);
-	
+
 	writer << command.frameID;
 	writer << command.command[0];
 	writer << command.command[1];
@@ -137,11 +141,11 @@ void XBeeNodeImpl::queueCommand(const ATCommand& command)
 {
 	if (command.command.size() != 2) throw Poco::InvalidArgumentException("Invalid AT command", command.command);
 	if (command.parameters.size() > 64) throw Poco::InvalidArgumentException("Too many parameter bytes");
-	
+
 	char buffer[80];
 	Poco::MemoryOutputStream mostr(buffer, 80);
 	Poco::BinaryWriter writer(mostr, Poco::BinaryWriter::NETWORK_BYTE_ORDER);
-	
+
 	writer << command.frameID;
 	writer << command.command[0];
 	writer << command.command[1];
@@ -156,11 +160,11 @@ void XBeeNodeImpl::sendRemoteCommand(const RemoteATCommand& command)
 {
 	if (command.command.size() != 2) throw Poco::InvalidArgumentException("Invalid AT command", command.command);
 	if (command.parameters.size() > 64) throw Poco::InvalidArgumentException("Too many parameter bytes");
-	
+
 	char buffer[80];
 	Poco::MemoryOutputStream mostr(buffer, 80);
 	Poco::BinaryWriter writer(mostr, Poco::BinaryWriter::NETWORK_BYTE_ORDER);
-	
+
 	writer << command.frameID;
 	serializeDeviceAddress(writer, command.deviceAddress);
 	serializeNetworkAddress(writer, command.networkAddress);
@@ -177,13 +181,13 @@ void XBeeNodeImpl::sendRemoteCommand(const RemoteATCommand& command)
 void XBeeNodeImpl::sendTransmitRequest(const TransmitRequest& request)
 {
 	if (request.payload.size() > XBEE_MAX_PAYLOAD_SIZE) throw Poco::InvalidArgumentException("Payload too large");
-	
+
 	XBeeFrame::FrameType frameType;
 
 	char buffer[256];
 	Poco::MemoryOutputStream mostr(buffer, 256);
 	Poco::BinaryWriter writer(mostr, Poco::BinaryWriter::NETWORK_BYTE_ORDER);
-	
+
 	writer << request.frameID;
 	if (request.deviceOrNetworkAddress.size() > 4)
 	{
@@ -199,18 +203,18 @@ void XBeeNodeImpl::sendTransmitRequest(const TransmitRequest& request)
 	serializeData(writer, request.payload);
 
 	XBeeFrame frame(frameType, buffer, mostr.charsWritten());
-	sendFrame(frame);	
+	sendFrame(frame);
 }
 
 
 void XBeeNodeImpl::sendZigBeeTransmitRequest(const ZigBeeTransmitRequest& request)
 {
 	if (request.payload.size() > XBEE_MAX_PAYLOAD_SIZE) throw Poco::InvalidArgumentException("Payload too large");
-	
+
 	char buffer[256];
 	Poco::MemoryOutputStream mostr(buffer, 256);
 	Poco::BinaryWriter writer(mostr, Poco::BinaryWriter::NETWORK_BYTE_ORDER);
-	
+
 	writer << request.frameID;
 	serializeDeviceAddress(writer, request.deviceAddress);
 	serializeNetworkAddress(writer, request.networkAddress);
@@ -219,18 +223,18 @@ void XBeeNodeImpl::sendZigBeeTransmitRequest(const ZigBeeTransmitRequest& reques
 	serializeData(writer, request.payload);
 
 	XBeeFrame frame(XBeeFrame::XBEE_FRAME_ZIGBEE_TRANSMIT_REQUEST, buffer, mostr.charsWritten());
-	sendFrame(frame);	
+	sendFrame(frame);
 }
 
 
 void XBeeNodeImpl::sendExplicitAddressingZigBeeTransmitRequest(const ExplicitAddressingZigBeeTransmitRequest& request)
 {
 	if (request.payload.size() > XBEE_MAX_PAYLOAD_SIZE) throw Poco::InvalidArgumentException("Payload too large");
-	
+
 	char buffer[256];
 	Poco::MemoryOutputStream mostr(buffer, 256);
 	Poco::BinaryWriter writer(mostr, Poco::BinaryWriter::NETWORK_BYTE_ORDER);
-	
+
 	writer << request.frameID;
 	serializeDeviceAddress(writer, request.deviceAddress);
 	serializeNetworkAddress(writer, request.networkAddress);
@@ -243,7 +247,7 @@ void XBeeNodeImpl::sendExplicitAddressingZigBeeTransmitRequest(const ExplicitAdd
 	serializeData(writer, request.payload);
 
 	XBeeFrame frame(XBeeFrame::XBEE_FRAME_ZIGBEE_TRANSMIT_REQUEST, buffer, mostr.charsWritten());
-	sendFrame(frame);	
+	sendFrame(frame);
 }
 
 
@@ -264,7 +268,7 @@ void XBeeNodeImpl::run()
 					}
 					if (_logger.debug())
 					{
-						_logger.debug(Poco::format("XBee frame received (type=0x%x, length=%z)", 
+						_logger.debug(Poco::format("XBee frame received (type=0x%x, length=%z)",
 							static_cast<unsigned>(frame.type()), frame.frameSize()));
 					}
 					handleFrame(frame);
@@ -297,13 +301,13 @@ void XBeeNodeImpl::stop()
 
 
 void XBeeNodeImpl::handleFrame(const XBeeFrame& frame)
-{	
+{
 	APIFrame apiFrame;
 	apiFrame.type = frame.type();
 	apiFrame.data.assign(
-		reinterpret_cast<const Poco::UInt8*>(frame.data()), 
+		reinterpret_cast<const Poco::UInt8*>(frame.data()),
 		reinterpret_cast<const Poco::UInt8*>(frame.data()) + frame.dataSize());
-	
+
 	try
 	{
 		frameReceived(apiFrame);
@@ -312,7 +316,7 @@ void XBeeNodeImpl::handleFrame(const XBeeFrame& frame)
 	{
 		_logger.log(exc);
 	}
-	
+
 	switch (frame.type())
 	{
 	case XBeeFrame::XBEE_FRAME_TRANSMIT_STATUS:
@@ -358,9 +362,9 @@ void XBeeNodeImpl::handleTransmitStatusReceived(const XBeeFrame& frame)
 	TransmitStatus transmitStatus;
 	Poco::MemoryInputStream mistr(frame.data(), frame.dataSize());
 	Poco::BinaryReader reader(mistr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
-	
-	reader 
-		>> transmitStatus.frameID 
+
+	reader
+		>> transmitStatus.frameID
 		>> transmitStatus.status;
 	transmitStatusReceived(transmitStatus);
 }
@@ -371,7 +375,7 @@ void XBeeNodeImpl::handlePacketReceived(const XBeeFrame& frame)
 	ReceivePacket receivePacket;
 	Poco::MemoryInputStream mistr(frame.data(), frame.dataSize());
 	Poco::BinaryReader reader(mistr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
-	
+
 	if (frame.type() == XBeeFrame::XBEE_FRAME_RECEIVE_PACKET_64BIT_ADDRESS)
 	{
 		deserializeDeviceAddress(reader, receivePacket.deviceOrNetworkAddress);
@@ -380,9 +384,9 @@ void XBeeNodeImpl::handlePacketReceived(const XBeeFrame& frame)
 	{
 		deserializeNetworkAddress(reader, receivePacket.deviceOrNetworkAddress);
 	}
-	
-	reader 
-		>> receivePacket.rssi 
+
+	reader
+		>> receivePacket.rssi
 		>> receivePacket.options;
 	deserializeData(reader, reader.available(), receivePacket.payload);
 
@@ -395,7 +399,7 @@ void XBeeNodeImpl::handleIODataReceived(const XBeeFrame& frame)
 	ReceivePacket receivePacket;
 	Poco::MemoryInputStream mistr(frame.data(), frame.dataSize());
 	Poco::BinaryReader reader(mistr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
-	
+
 	if (frame.type() == XBeeFrame::XBEE_FRAME_RECEIVE_PACKET_64BIT_ADDRESS_IO)
 	{
 		deserializeDeviceAddress(reader, receivePacket.deviceOrNetworkAddress);
@@ -404,9 +408,9 @@ void XBeeNodeImpl::handleIODataReceived(const XBeeFrame& frame)
 	{
 		deserializeNetworkAddress(reader, receivePacket.deviceOrNetworkAddress);
 	}
-	
-	reader 
-		>> receivePacket.rssi 
+
+	reader
+		>> receivePacket.rssi
 		>> receivePacket.options;
 	deserializeData(reader, reader.available(), receivePacket.payload);
 
@@ -419,11 +423,11 @@ void XBeeNodeImpl::handleZigBeeTransmitStatusReceived(const XBeeFrame& frame)
 	ZigBeeTransmitStatus transmitStatus;
 	Poco::MemoryInputStream mistr(frame.data(), frame.dataSize());
 	Poco::BinaryReader reader(mistr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
-	
+
 	reader >> transmitStatus.frameID;
 	deserializeNetworkAddress(reader, transmitStatus.networkAddress);
-	reader 
-		>> transmitStatus.deliveryStatus 
+	reader
+		>> transmitStatus.deliveryStatus
 		>> transmitStatus.discoveryStatus;
 
 	zigBeeTransmitStatusReceived(transmitStatus);
@@ -435,7 +439,7 @@ void XBeeNodeImpl::handleZigBeePacketReceived(const XBeeFrame& frame)
 	ZigBeeReceivePacket receivePacket;
 	Poco::MemoryInputStream mistr(frame.data(), frame.dataSize());
 	Poco::BinaryReader reader(mistr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
-	
+
 	deserializeDeviceAddress(reader, receivePacket.deviceAddress);
 	deserializeNetworkAddress(reader, receivePacket.networkAddress);
 	reader >> receivePacket.options;
@@ -450,14 +454,14 @@ void XBeeNodeImpl::handleExplicitAddressingZigBeePacketReceived(const XBeeFrame&
 	ExplicitAddressingZigBeeReceivePacket receivePacket;
 	Poco::MemoryInputStream mistr(frame.data(), frame.dataSize());
 	Poco::BinaryReader reader(mistr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
-	
+
 	deserializeDeviceAddress(reader, receivePacket.deviceAddress);
 	deserializeNetworkAddress(reader, receivePacket.networkAddress);
-	reader 
-		>> receivePacket.sourceEndpoint 
-		>> receivePacket.destinationEndpoint 
-		>> receivePacket.clusterID 
-		>> receivePacket.profileID 
+	reader
+		>> receivePacket.sourceEndpoint
+		>> receivePacket.destinationEndpoint
+		>> receivePacket.clusterID
+		>> receivePacket.profileID
 		>> receivePacket.options;
 	deserializeData(reader, reader.available(), receivePacket.payload);
 
@@ -470,7 +474,7 @@ void XBeeNodeImpl::handleCommandResponse(const XBeeFrame& frame)
 	ATCommandResponse commandResponse;
 	Poco::MemoryInputStream mistr(frame.data(), frame.dataSize());
 	Poco::BinaryReader reader(mistr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
-	
+
 	reader >> commandResponse.frameID;
 
 	char command[2];
@@ -488,15 +492,15 @@ void XBeeNodeImpl::handleRemoteCommandResponse(const XBeeFrame& frame)
 	RemoteATCommandResponse commandResponse;
 	Poco::MemoryInputStream mistr(frame.data(), frame.dataSize());
 	Poco::BinaryReader reader(mistr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
-	
+
 	reader >> commandResponse.frameID;
 	deserializeDeviceAddress(reader, commandResponse.deviceAddress);
 	deserializeNetworkAddress(reader, commandResponse.networkAddress);
-	
+
 	char command[2];
 	reader >> command[0] >> command[1];
 	commandResponse.command.assign(command, 2);
-	
+
 	reader >> commandResponse.status;
 	deserializeData(reader, frame.dataSize() - 14, commandResponse.data);
 
@@ -512,9 +516,9 @@ void XBeeNodeImpl::handleSampleRxIndicator(const XBeeFrame& frame)
 
 	deserializeDeviceAddress(reader, ioSample.deviceAddress);
 	deserializeNetworkAddress(reader, ioSample.networkAddress);
-	
+
 	reader >> ioSample.options >> ioSample.nSampleSets >> ioSample.digitalChannelMask >> ioSample.analogChannelMask;
-	
+
 	if (ioSample.digitalChannelMask)
 	{
 		reader >> ioSample.digitalSamples;
@@ -523,7 +527,7 @@ void XBeeNodeImpl::handleSampleRxIndicator(const XBeeFrame& frame)
 	{
 		ioSample.digitalSamples = 0;
 	}
-	
+
 	Poco::UInt8 analogChannelMask = ioSample.analogChannelMask;
 	for (int i = 0; i < 8; i++)
 	{
@@ -547,7 +551,7 @@ void XBeeNodeImpl::handleSensorRead(const XBeeFrame& frame)
 	Poco::BinaryReader reader(mistr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
 
 	deserializeDeviceAddress(reader, sensorRead.deviceAddress);
-	deserializeNetworkAddress(reader, sensorRead.networkAddress);	
+	deserializeNetworkAddress(reader, sensorRead.networkAddress);
 	reader >> sensorRead.options >> sensorRead.sensor;
 
 	for (int i = 0; i < 4; i++)
@@ -556,9 +560,9 @@ void XBeeNodeImpl::handleSensorRead(const XBeeFrame& frame)
 		reader >> sample;
 		sensorRead.analogSamples.push_back(sample);
 	}
-	
+
 	reader >> sensorRead.temperature;
-	
+
 	sensorReadReceived(sensorRead);
 }
 
@@ -579,7 +583,7 @@ void XBeeNodeImpl::sendFrame(XBeeFrame& frame)
 {
 	if (_logger.debug())
 	{
-		_logger.debug(Poco::format("Sending XBee frame (type=0x%x, length=%z)", 
+		_logger.debug(Poco::format("Sending XBee frame (type=0x%x, length=%z)",
 			static_cast<unsigned>(frame.type()), frame.frameSize()));
 	}
 

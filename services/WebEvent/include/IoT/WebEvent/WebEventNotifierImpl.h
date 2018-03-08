@@ -1,8 +1,6 @@
 //
 // WebEventNotifierImpl.h
 //
-// $Id$
-//
 // Library: IoT/WebEvent
 // Package: WebEventNotifier
 // Module:  WebEventNotifierImpl

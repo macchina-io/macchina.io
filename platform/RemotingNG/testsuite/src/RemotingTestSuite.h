@@ -1,8 +1,6 @@
 //
 // RemotingTestSuite.h
 //
-// $Id: //poco/1.7/RemotingNG/testsuite/src/RemotingTestSuite.h#3 $
-//
 // Definition of the RemotingTestSuite class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

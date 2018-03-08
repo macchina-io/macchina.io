@@ -1,8 +1,6 @@
 //
 // OSPException.cpp
 //
-// $Id: //poco/1.7/OSP/src/OSPException.cpp#1 $
-//
 // Library: OSP
 // Package: Core
 // Module:  OSPException
@@ -30,6 +28,7 @@ POCO_IMPLEMENT_EXCEPTION(BundleVersionConflictException, BundleException, "Bundl
 POCO_IMPLEMENT_EXCEPTION(BundleLoadException, BundleException, "Cannot load bundle")
 POCO_IMPLEMENT_EXCEPTION(BundleResolveException, BundleException, "Cannot resolve bundle")
 POCO_IMPLEMENT_EXCEPTION(BundleInstallException, BundleException, "Cannot install bundle")
+POCO_IMPLEMENT_EXCEPTION(BundleUninstallException, BundleException, "Cannot uninstall bundle")
 
 
 } } // namespace Poco::OSP

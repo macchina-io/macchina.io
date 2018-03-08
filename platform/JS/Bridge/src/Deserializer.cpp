@@ -1,8 +1,6 @@
 //
 // Deserializer.cpp
 //
-// $Id: //poco/1.4/JS/Bridge/src/Deserializer.cpp#4 $
-//
 // Library: JS/Bridge
 // Package: Bridging
 // Module:  Deserializer

@@ -1,8 +1,6 @@
 //
 // SystemEvents.cpp
 //
-// $Id: //poco/1.7/OSP/src/SystemEvents.cpp#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  SystemEvents

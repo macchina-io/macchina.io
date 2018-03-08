@@ -1,8 +1,6 @@
 //
 // XDKSensor.h
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -24,7 +22,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
@@ -41,13 +38,13 @@ public:
 		std::string physicalUnit;
 		long pollInterval;
 	};
-	
-	XDKSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+
+	XDKSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates a XDKSensor.
 
 	~XDKSensor();
 		/// Destroys the XDKSensor.
-	
+
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
@@ -83,10 +80,10 @@ protected:
 
 protected:
 	Params _params;
-	mutable Peripheral::Ptr _pPeripheral;
+	mutable BtLE::Peripheral::Ptr _pPeripheral;
 	Poco::SharedPtr<Poco::Util::Timer> _pTimer;
 	Poco::Util::TimerTask::Ptr _pPollTask;
-	Characteristic _dataChar;
+	BtLE::Characteristic _dataChar;
 	bool _ready;
 	bool _enabled;
 	double _value;
@@ -95,7 +92,7 @@ protected:
 	Poco::Any _deviceIdentifier;
 	Poco::Any _physicalQuantity;
 	Poco::Any _physicalUnit;
-	
+
 	friend class PollTask;
 };
 
@@ -103,12 +100,12 @@ protected:
 class XDKTemperatureSensor: public XDKSensor
 {
 public:
-	XDKTemperatureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	XDKTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the XDKTemperatureSensor.
 
 	~XDKTemperatureSensor();
 		/// Destroys the XDKTemperatureSensor.
-		
+
 protected:
 	void poll();
 };
@@ -118,12 +115,12 @@ protected:
 class XDKHumiditySensor: public XDKSensor
 {
 public:
-	XDKHumiditySensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	XDKHumiditySensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the XDKHumiditySensor.
 
 	~XDKHumiditySensor();
 		/// Destroys the XDKHumiditySensor.
-		
+
 protected:
 	void poll();
 };
@@ -132,12 +129,12 @@ protected:
 class XDKAirPressureSensor: public XDKSensor
 {
 public:
-	XDKAirPressureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	XDKAirPressureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the XDKAirPressureSensor.
 
 	~XDKAirPressureSensor();
 		/// Destroys the XDKAirPressureSensor.
-		
+
 protected:
 	void poll();
 };
@@ -146,12 +143,12 @@ protected:
 class XDKLightSensor: public XDKSensor
 {
 public:
-	XDKLightSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	XDKLightSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the XDKLightSensor.
 
 	~XDKLightSensor();
 		/// Destroys the XDKLightSensor.
-		
+
 protected:
 	void poll();
 };
@@ -160,19 +157,18 @@ protected:
 class XDKNoiseSensor: public XDKSensor
 {
 public:
-	XDKNoiseSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	XDKNoiseSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the XDKNoiseSensor.
 
 	~XDKNoiseSensor();
 		/// Destroys the XDKNoiseSensor.
-		
+
 protected:
 	void poll();
 };
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK
 
 
 #endif // IoT_XDK_XDKSensor_INCLUDED
-

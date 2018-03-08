@@ -1,8 +1,6 @@
 //
 // PDUReader.h
 //
-// $Id$
-//
 // Library: IoT/Modbus
 // Package: ModbusMaster
 // Module:  PDUReader

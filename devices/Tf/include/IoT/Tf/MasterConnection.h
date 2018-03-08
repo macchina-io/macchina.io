@@ -1,8 +1,6 @@
 //
 // MasterConnection.h
 //
-// $Id: //iot/Main/Tf/include/IoT/Tf/MasterConnection.h#2 $
-//
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

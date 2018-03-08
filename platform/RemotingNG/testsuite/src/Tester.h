@@ -1,8 +1,6 @@
 //
 // Tester.h
 //
-// $Id: //poco/1.7/RemotingNG/testsuite/src/Tester.h#4 $
-//
 // Definition of the Tester class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

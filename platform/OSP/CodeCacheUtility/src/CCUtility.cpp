@@ -1,8 +1,6 @@
 //
 // CodeCacheUtility.cpp
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -47,7 +45,7 @@ public:
 		_osArch(Poco::Environment::osArchitecture())
 	{
 	}
-	
+
 protected:
 	void initialize(Application& self)
 	{
@@ -106,7 +104,7 @@ protected:
 				.argument("<paths>")
 				.callback(OptionCallback<CodeCacheUtility>(this, &CodeCacheUtility::handleCache)));
 	}
-	
+
 	void handleHelp(const std::string& name, const std::string& value)
 	{
 		_showHelp = true;
@@ -128,12 +126,12 @@ protected:
 	{
 		_osName = value;
 	}
-	
+
 	void handleOSArch(const std::string& name, const std::string& value)
 	{
 		_osArch = value;
 	}
-	
+
 	void handleBundles(const std::string& name, const std::string& value)
 	{
 		_bundleRepositoryPath = value;
@@ -152,7 +150,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics OSP Code Cache Utility.\n"
-			"Copyright (c) 2017 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2017-2018 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program populates a code cache directory with the "
 			"shared libraries contained in all bundles in the given "
@@ -166,11 +164,11 @@ protected:
 		helpFormatter.setIndent(8);
 		helpFormatter.format(std::cout);
 	}
-	
+
 	int main(const std::vector<std::string>& args)
 	{
 		if (_showHelp) return Application::EXIT_OK;
-			
+
 		CodeCache codeCache(_codeCachePath, false);
 		if (_cleanCodeCache)
 		{
@@ -186,7 +184,7 @@ protected:
 				logger().warning(std::string("Cannot clear code cache: ") + exc.displayText());
 			}
 		}
-		
+
 		try
 		{
 			LanguageTag languageTag;
@@ -196,7 +194,7 @@ protected:
 			BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(serviceRegistry, systemEvents));
 			BundleLoader bundleLoader(codeCache, pBundleFactory, pBundleContextFactory, _osName, _osArch, true);
 			BundleRepository bundleRepository(_bundleRepositoryPath, bundleLoader);
-		
+
 			logger().information("Loading bundles...");
 			bundleRepository.loadBundles();
 			logger().information("Resolving bundles...");

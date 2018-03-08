@@ -1,8 +1,6 @@
 //
 // GATTClient.h
 //
-// $Id$
-//
 // Library: IoT/BtLE
 // Package: BtLE
 // Module:  GATTClient

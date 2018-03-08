@@ -1,8 +1,6 @@
 //
 // DeliveryAddress.h
 //
-// $Id: //poco/1.6/RemotingNG/samples/Pizzeria/include/Pizzeria/DeliveryAddress.h#1 $
-//
 // Definition of the DeliveryAddress class.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.

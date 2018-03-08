@@ -1,8 +1,6 @@
 //
 // XDKSensor.cpp
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -17,7 +15,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
@@ -29,7 +26,7 @@ public:
 		_logger(Poco::Logger::get("IoT.XDK"))
 	{
 	}
-	
+
 	void run()
 	{
 		try
@@ -49,7 +46,7 @@ public:
 			_logger.log(exc);
 		}
 	}
-	
+
 private:
 	XDKSensor& _sensor;
 	Poco::Logger& _logger;
@@ -58,10 +55,10 @@ private:
 
 const std::string XDKSensor::NAME("XDK Sensor");
 const std::string XDKSensor::TYPE("io.macchina.sensor");
-const std::string XDKSensor::SYMBOLIC_NAME("io.macchina.btle.xdk");
+const std::string XDKSensor::SYMBOLIC_NAME("io.macchina.xdk");
 
 
-XDKSensor::XDKSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+XDKSensor::XDKSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	_params(params),
 	_pPeripheral(pPeripheral),
 	_pTimer(pTimer),
@@ -84,7 +81,7 @@ XDKSensor::XDKSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::Sh
 	addProperty("type", &XDKSensor::getType);
 	addProperty("physicalQuantity", &XDKSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &XDKSensor::getPhysicalUnit);
-	
+
 	_pEventPolicy = new IoT::Devices::NoModerationPolicy<double>(valueChanged);
 
 	_pPeripheral->services();
@@ -94,7 +91,7 @@ XDKSensor::XDKSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::Sh
 	_pPeripheral->disconnected += Poco::delegate(this, &XDKSensor::onDisconnected);
 }
 
-	
+
 XDKSensor::~XDKSensor()
 {
 	_pPeripheral->connected -= Poco::delegate(this, &XDKSensor::onConnected);
@@ -128,7 +125,7 @@ bool XDKSensor::ready() const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	return _ready && _pPeripheral->isConnected();	
+	return _ready && _pPeripheral->isConnected();
 }
 
 
@@ -299,9 +296,9 @@ void XDKSensor::onDisconnected()
 //
 // XDKTemperatureSensor
 //
- 
 
-XDKTemperatureSensor::XDKTemperatureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+
+XDKTemperatureSensor::XDKTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	XDKSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -325,7 +322,7 @@ void XDKTemperatureSensor::poll()
 //
 
 
-XDKHumiditySensor::XDKHumiditySensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+XDKHumiditySensor::XDKHumiditySensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	XDKSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -349,7 +346,7 @@ void XDKHumiditySensor::poll()
 //
 
 
-XDKLightSensor::XDKLightSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+XDKLightSensor::XDKLightSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	XDKSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -373,7 +370,7 @@ void XDKLightSensor::poll()
 //
 
 
-XDKAirPressureSensor::XDKAirPressureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+XDKAirPressureSensor::XDKAirPressureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	XDKSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -397,7 +394,7 @@ void XDKAirPressureSensor::poll()
 //
 
 
-XDKNoiseSensor::XDKNoiseSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+XDKNoiseSensor::XDKNoiseSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	XDKSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -416,4 +413,4 @@ void XDKNoiseSensor::poll()
 }
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK

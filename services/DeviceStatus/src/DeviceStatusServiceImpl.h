@@ -1,8 +1,6 @@
 //
 // DeviceStatusServiceImpl.h
 //
-// $Id$
-//
 // Library: IoT/DeviceStatus
 // Package: DeviceStatusServiceImpl
 // Module:  DeviceStatusServiceImpl

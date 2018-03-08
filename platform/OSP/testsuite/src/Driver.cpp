@@ -1,8 +1,6 @@
 //
 // Driver.cpp
 //
-// $Id: //poco/1.7/OSP/testsuite/src/Driver.cpp#1 $
-//
 // Console-based test driver for Poco OSPCore.
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.

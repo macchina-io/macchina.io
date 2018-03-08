@@ -1,14 +1,12 @@
 #
 # Makefile
 #
-# $Id: //projects/SecurePassage/FireMon/poco/OSP/Unit/TestBundle/Makefile#1 $
-#
 # Makefile for TestBundle
 #
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-
 include $(POCO_BASE)/build/rules/global
+
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 objects = TestBundleActivator BundleTest TestBundleSuite
 

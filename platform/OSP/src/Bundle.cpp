@@ -1,8 +1,6 @@
 //
 // Bundle.cpp
 //
-// $Id: //poco/1.7/OSP/src/Bundle.cpp#1 $
-//
 // Library: OSP
 // Package: Bundle
 // Module:  Bundle
@@ -42,17 +40,17 @@ namespace
 		{
 			_state = newState;
 		}
-		
+
 		~StateChange()
 		{
 			_state = _oldState;
 		}
-		
+
 		void set(Bundle::State state)
 		{
 			_state = state;
 		}
-		
+
 		void commit(Bundle::State state)
 		{
 			_state = _oldState = state;
@@ -62,7 +60,7 @@ namespace
 		{
 			_oldState = _state;
 		}
-		
+
 	private:
 		Bundle::State& _state;
 		Bundle::State  _oldState;
@@ -91,10 +89,10 @@ Bundle::Bundle(int id, BundleLoader& loader, BundleStorage::Ptr pStorage, const 
 	_pActivator(0)
 {
 	poco_check_ptr (_pStorage);
-	
+
 	loadManifest();
 	loadProperties();
-	
+
 	_name      = _pProperties->expand(_pManifest->name());
 	_vendor    = _pProperties->expand(_pManifest->vendor());
 	_copyright = _pProperties->expand(_pManifest->copyright());
@@ -141,7 +139,7 @@ std::istream* Bundle::getResource(const std::string& name) const
 		while (!pStream && it != end)
 		{
 			pStream = (*it)->getResource(name);
-			++it; 
+			++it;
 		}
 	}
 	return pStream;
@@ -160,7 +158,7 @@ std::istream* Bundle::getLocalizedResource(const std::string& name, const Langua
 	localPath.pushDirectory(language.primaryTag());
 	localPath.pushDirectory(language.subTags());
 	Path resPath(localPath, name);
-	std::istream* pStream = getResource(resPath.toString(Path::PATH_UNIX)); 
+	std::istream* pStream = getResource(resPath.toString(Path::PATH_UNIX));
 	while (!pStream && localPath.depth() > 0)
 	{
 		localPath.popDirectory();
@@ -180,9 +178,10 @@ inline BundleEvents& Bundle::events()
 void Bundle::resolve()
 {
 	if (_state != BUNDLE_INSTALLED) throw BundleStateException("resolve() requires INSTALLED state");
-	
+
 	BundleEvent resolvingEvent(this, BundleEvent::EV_BUNDLE_RESOLVING);
 	events().bundleResolving(this, resolvingEvent);
+	_resolvedDependencies.clear();
 	_loader.resolveBundle(this);
 	_state = BUNDLE_RESOLVED;
 	BundleEvent resolvedEvent(this, BundleEvent::EV_BUNDLE_RESOLVED);
@@ -193,7 +192,7 @@ void Bundle::resolve()
 void Bundle::start()
 {
 	if (_state != BUNDLE_RESOLVED) throw BundleStateException("start() requires RESOLVED state");
-	
+
 	StateChange stateChange(_state, BUNDLE_STARTING);
 	BundleEvent startingEvent(this, BundleEvent::EV_BUNDLE_STARTING);
 	events().bundleStarting(this, startingEvent);
@@ -228,7 +227,7 @@ void Bundle::start()
 void Bundle::stop()
 {
 	if (_state != BUNDLE_ACTIVE) throw BundleStateException("stop() requires ACTIVE state");
-	
+
 	StateChange stateChange(_state, BUNDLE_STOPPING);
 	BundleEvent stoppingEvent(this, BundleEvent::EV_BUNDLE_STOPPING);
 	events().bundleStopping(this, stoppingEvent);
@@ -242,7 +241,8 @@ void Bundle::stop()
 void Bundle::uninstall()
 {
 	if (_state != BUNDLE_INSTALLED && _state != BUNDLE_RESOLVED) throw BundleStateException("uninstall() requires INSTALLED or RESOLVED state");
-	
+	if (_pManifest->preventUninstall()) throw BundleUninstallException("bundle manifest prevents uninstall");
+
 	BundleEvent uninstallingEvent(this, BundleEvent::EV_BUNDLE_UNINSTALLING);
 	events().bundleUninstalling(this, uninstallingEvent);
 	_loader.uninstallBundle(this);
@@ -257,7 +257,7 @@ bool Bundle::isExtensionBundle() const
 	return !_pManifest->extendedBundle().empty();
 }
 
-		
+
 Bundle::Ptr Bundle::extendedBundle() const
 {
 	Bundle::Ptr pExtendedBundle;
@@ -326,7 +326,7 @@ void Bundle::addExtensionBundle(Bundle* pExtensionBundle)
 	{
 		{
 			Poco::FastMutex::ScopedLock lock(_extensionBundlesMutex);
-		
+
 			_extensionBundles.insert(Bundle::Ptr(pExtensionBundle, true));
 		}
 		_pProperties->addProperties(pExtensionBundle->_pProperties, -static_cast<int>(_extensionBundles.size()), true);
@@ -334,13 +334,30 @@ void Bundle::addExtensionBundle(Bundle* pExtensionBundle)
 	else throw BundleStateException("addExtensionBundle() requires at least RESOLVED state");
 }
 
-	
+
 void Bundle::removeExtensionBundle(Bundle* pExtensionBundle)
 {
 	Poco::FastMutex::ScopedLock lock(_extensionBundlesMutex);
 
 	_extensionBundles.erase(Bundle::Ptr(pExtensionBundle, true));
 	_pProperties->removeProperties(pExtensionBundle->_pProperties);
+}
+
+
+void Bundle::addResolvedDependency(const ResolvedDependency& dependency)
+{
+	for (ResolvedDependencies::const_iterator it = _resolvedDependencies.begin(); it != _resolvedDependencies.end(); ++it)
+	{
+		if (it->symbolicName == dependency.symbolicName)
+			return;
+	}
+	_resolvedDependencies.push_back(dependency);
+}
+
+
+void Bundle::clearResolvedDependencies()
+{
+	_resolvedDependencies.clear();
 }
 
 

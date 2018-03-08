@@ -1,8 +1,6 @@
 //
 // ExtensionsGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/ExtensionsGenerator.h#1 $
-//
 // Definition of the ExtensionsGenerator class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

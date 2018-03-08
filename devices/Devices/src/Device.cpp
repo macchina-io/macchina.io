@@ -1,8 +1,6 @@
 //
 // Device.cpp
 //
-// $Id: //iot/Main/Devices/src/Device.cpp#2 $
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  Device

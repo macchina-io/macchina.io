@@ -1,8 +1,6 @@
 //
 // BinaryDeserializer.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/BinaryDeserializer.cpp#5 $
-//
 // Library: RemotingNG
 // Package: Serialization
 // Module:  BinaryDeserializer

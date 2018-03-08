@@ -1,8 +1,6 @@
 //
 // ProcessTest.cpp
 //
-// $Id: //poco/1.4/Foundation/testsuite/src/ProcessTest.cpp#2 $
-//
 // Copyright (c) 2005-2006, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -39,7 +37,7 @@ void ProcessTest::testLaunch()
 {
 	std::string name("TestApp");
 	std::string cmd;
-#if defined(_DEBUG)
+#if defined(_DEBUG) && (POCO_OS != POCO_OS_ANDROID)
 	name += "d";
 #endif
 
@@ -69,7 +67,7 @@ void ProcessTest::testLaunchRedirectIn()
 #if !defined(_WIN32_WCE)
 	std::string name("TestApp");
 	std::string cmd;
-#if defined(_DEBUG)
+#if defined(_DEBUG) && (POCO_OS != POCO_OS_ANDROID)
 	name += "d";
 #endif
 
@@ -98,7 +96,7 @@ void ProcessTest::testLaunchRedirectOut()
 #if !defined(_WIN32_WCE)
 	std::string name("TestApp");
 	std::string cmd;
-#if defined(_DEBUG)
+#if defined(_DEBUG) && (POCO_OS != POCO_OS_ANDROID)
 	name += "d";
 #endif
 
@@ -129,7 +127,7 @@ void ProcessTest::testLaunchEnv()
 #if !defined(_WIN32_WCE)
 	std::string name("TestApp");
 	std::string cmd;
-#if defined(_DEBUG)
+#if defined(_DEBUG) && (POCO_OS != POCO_OS_ANDROID)
 	name += "d";
 #endif
 
@@ -215,7 +213,7 @@ void ProcessTest::testIsRunning()
 #if !defined(_WIN32_WCE)
 	std::string name("TestApp");
 	std::string cmd;
-#if defined(_DEBUG)
+#if defined(_DEBUG) && (POCO_OS != POCO_OS_ANDROID)
 	name += "d";
 #endif
 
@@ -236,7 +234,7 @@ void ProcessTest::testIsRunning()
 	PipeOutputStream ostr(inPipe);
 	ostr << std::string(100, 'x');
 	ostr.close();
-	int rc = ph.wait();
+	int POCO_UNUSED rc = ph.wait();
 	assert (!Process::isRunning(ph));
 	assert (!Process::isRunning(id));
 #endif // !defined(_WIN32_WCE)

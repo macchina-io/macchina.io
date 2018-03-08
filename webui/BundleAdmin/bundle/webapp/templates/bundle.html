@@ -1,7 +1,7 @@
 <div class="groupbox">
   <h1>{{bundle.name}}</h1>
   <div ng-if="enableBundleUpgrade" ng-controller="UpgradeCtrl">
-    <div ng-file-drop ng-file-select ng-model="files" class="drop-box" 
+    <div ng-file-drop ng-file-select ng-model="files" class="drop-box"
          drag-over-class="dragover" ng-multiple="false" allow-dir="false"
          ng-accept="'.bndl'">
       Drop bundle (.bndl) file or click to upload and upgrade.
@@ -39,10 +39,10 @@
 	  <tr class="odd">
 		<th>Path</th><td>{{bundle.path}}</td>
 	  </tr>
-	</tbody>  
+	</tbody>
   </table>
   <div style="margin-top: 32px;" ng-show="bundle.requires.length > 0 || bundle.requiredBy.length > 0">
-    <h2>Dependencies</h2>
+    <h2>Bundle Dependencies</h2>
     <table class="list">
       <thead>
         <tr>
@@ -63,6 +63,33 @@
         </tr>
         <tr ng-repeat="dep in bundle.requiredBy" ng-class-even="'even'" ng-class-odd="'odd'">
           <td><a href="#/bundles/{{dep.symbolicName}}">{{dep.symbolicName}}</a></td>
+          <td>{{dep.versions}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="margin-top: 32px;" ng-show="bundle.modules.provides.length > 0 || bundle.modules.requires.length > 0">
+    <h2>Module Dependencies</h2>
+    <table class="list">
+      <thead>
+        <tr>
+          <th>Module</th>
+          <th>Version</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="intermediateHeader" ng-show="bundle.modules.provides.length > 0">
+          <th colspan="2">Provides</th>
+        </tr>
+        <tr ng-repeat="dep in bundle.modules.provides" ng-class-even="'even'" ng-class-odd="'odd'">
+          <td>{{dep.symbolicName}}</td>
+          <td>{{dep.version}}</td>
+        </tr>
+        <tr class="intermediateHeader" ng-show="bundle.modules.requires.length > 0">
+          <th colspan="2">Requires</th>
+        </tr>
+        <tr ng-repeat="dep in bundle.modules.requires" ng-class-even="'even'" ng-class-odd="'odd'">
+          <td>{{dep.symbolicName}}</td>
           <td>{{dep.versions}}</td>
         </tr>
       </tbody>

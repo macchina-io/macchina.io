@@ -3,9 +3,9 @@
   <manifest>
     <name>OSP Core</name>
     <symbolicName>osp.core</symbolicName>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2007-2017, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2007-2018, Applied Informatics Software Engineering GmbH</copyright>
     <lazyStart>false</lazyStart>
     <runLevel>000</runLevel>
   </manifest>

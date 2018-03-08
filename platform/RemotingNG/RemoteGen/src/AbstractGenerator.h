@@ -1,8 +1,6 @@
 //
 // AbstractGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/AbstractGenerator.h#1 $
-//
 // Definition of the AbstractGenerator class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

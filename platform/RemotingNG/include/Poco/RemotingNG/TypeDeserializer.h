@@ -1,8 +1,6 @@
 //
 // TypeDeserializer.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/TypeDeserializer.h#1 $
-//
 // Library: RemotingNG
 // Package: Serialization
 // Module:  TypeDeserializer

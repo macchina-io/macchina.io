@@ -1,8 +1,6 @@
 //
 // SystemWrapper.h
 //
-// $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/SystemWrapper.h#4 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  SystemWrapper

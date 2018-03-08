@@ -1,8 +1,6 @@
 //
 // NamedEvent_UNIX.cpp
 //
-// $Id: //poco/1.4/Foundation/src/NamedEvent_UNIX.cpp#1 $
-//
 // Library: Foundation
 // Package: Processes
 // Module:  NamedEvent
@@ -33,7 +31,7 @@
 namespace Poco {
 
 
-#if (POCO_OS == POCO_OS_LINUX) || (POCO_OS == POCO_OS_CYGWIN) || (POCO_OS == POCO_OS_FREE_BSD)
+#if (POCO_OS == POCO_OS_LINUX) || (POCO_OS == POCO_OS_ANDROID) || (POCO_OS == POCO_OS_CYGWIN) || (POCO_OS == POCO_OS_FREE_BSD)
 	union semun
 	{
 		int                 val;

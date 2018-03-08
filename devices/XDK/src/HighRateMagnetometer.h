@@ -1,8 +1,6 @@
 //
 // HighRateMagnetometer.h
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -21,7 +19,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
@@ -30,12 +27,12 @@ class HighRateMagnetometer: public IoT::Devices::DeviceImpl<IoT::Devices::Magnet
 public:
 	typedef Poco::SharedPtr<HighRateMagnetometer> Ptr;
 
-	HighRateMagnetometer(Peripheral::Ptr pPeripheral);
+	HighRateMagnetometer(BtLE::Peripheral::Ptr pPeripheral);
 		/// Creates a HighRateMagnetometer.
 
 	~HighRateMagnetometer();
 		/// Destroys the HighRateMagnetometer.
-	
+
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
@@ -64,7 +61,7 @@ protected:
 	void onDisconnected();
 
 protected:
-	mutable Peripheral::Ptr _pPeripheral;
+	mutable BtLE::Peripheral::Ptr _pPeripheral;
 	bool _enabled;
 	bool _ready;
 	IoT::Devices::MagneticFieldStrength _fieldStrength;
@@ -72,7 +69,7 @@ protected:
 };
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK
 
 
 #endif // IoT_XDK_HighRateMagnetometer_INCLUDED

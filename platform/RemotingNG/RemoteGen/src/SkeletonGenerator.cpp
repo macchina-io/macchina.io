@@ -1,8 +1,6 @@
 //
 // SkeletonGenerator.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/SkeletonGenerator.cpp#4 $
-//
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

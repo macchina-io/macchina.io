@@ -3,11 +3,11 @@ AAAAMacchinaIO
 
 !!!System Requirements
 
-macchina.io can be installed on Linux and OS X systems.
+macchina.io can be installed on Linux and macOS systems.
 On Linux, cross-compilation for embedded Linux targets is supported.
 
 For the first steps, it is recommended to build and install macchina.io
-on a desktop Linux or OS X system. This will get you up and running within
+on a desktop Linux or macOS system. This will get you up and running within
 a few minutes. You can also build macchina.io on systems like a Raspberry Pi
 or a Tinkerforge RED brick, but this will take a couple of hours.
 Alternatively, you can cross-compile macchina.io for an embedded Linux target,
@@ -33,20 +33,22 @@ For the latest stable release, you may want to check out the master branch:
     $ git checkout master
 ----
 
+The default branch is the develop branch.
+
 
 !!!Building macchina.io
 
 !!Prerequisites
 
-macchina.io uses the build system from the POCO C++ Libraries, which is based on 
+macchina.io uses the build system from the POCO C++ Libraries, which is based on
 GNU Make. You'll also need a recent version of the GNU C++ compiler (at least
 4.4) or Clang. Make sure you have the OpenSSL headers and libraries
 installed, e.g.:
 
   - on Ubuntu: <[sudo apt-get install libssl-dev]>
-  - on OS X: via [[http://brew.sh Homebrew]]: <[brew install openssl]>
+  - on macOS: via [[http://brew.sh Homebrew]]: <[brew install openssl]>
 
-Furthermore, Python is required for building the V8 library.
+Furthermore, Python is required for building the V8 JavaScript engine.
 
 
 !!Compiling macchina.io
@@ -65,13 +67,13 @@ things up, you may want to build the release configuration only:
 ----
 
 On a typical desktop or notebook machine, building macchina.io takes about 10 to 15 minutes.
-If you're building on a system like a Raspberry Pi or Tinkerforge RED Brick, building 
+If you're building on a system like a Raspberry Pi or Tinkerforge RED Brick, building
 macchina.io will take a couple of hours. Don't attempt a parallel build (<*-j8*>) on these
 systems. Furthermore, you may run out of memory during the build, especially while
 building the V8 library. Try to restart the build and make sure as much memory as
 possible is available, by stopping all unnecessary processes.
 It may be better to cross-compile on a desktop system and transfer the
-binaries to the target systems.
+binaries to the target system.
 
 
 !!Cross Compiling macchina.io
@@ -85,9 +87,9 @@ configuration selected. A couple of configurations
 for various Embedded Linux targets can be found in the <*platform/build/config*> directory.
 A build configuration specifies the toolchain/compiler to be used as well as any special compiler
 or linker arguments required for the target. It's best to create a new configuration
-by copying an existing one and copying it into the <*platform/build/config*> directory. 
-Good starting points for ARM-based targets are <*DigiEL-A8*>, <*Angstrom*>, <*BeagleBoard*>, 
-<*Yocto*> or <*ELDK*>. If you have a basic understanding of cross-compiling for 
+by copying an existing one and copying it into the <*platform/build/config*> directory.
+Good starting points for ARM-based targets are <*DigiEL-A8*>, <*Angstrom*>, <*BeagleBoard*>,
+<*Yocto*> or <*ELDK*>. If you have a basic understanding of cross-compiling for
 embedded Linux systems, the build configuration files should be pretty self explaining.
 
 You can find more information about build configurations and the build system in
@@ -101,10 +103,10 @@ with the following command:
    $ make -s -j8 hosttools
 ----
 
-Note: You should not build the entire macchina.io for both host and target in the same directory 
-tree, except for the required host tools and libraries. After you've built macchina.io for the 
-target system, the bundle files will no longer be usable on the host as they contain the target 
-binaries only. 
+Note: You should not build the entire macchina.io for both host and target in the same directory
+tree, except for the required host tools and libraries. After you've built macchina.io for the
+target system, the bundle files will no longer be usable on the host as they contain the target
+binaries only.
 
 If you have found an existing, or created a new suitable build configuration for
 your target, you can build for the target with the following command (assuming the
@@ -116,23 +118,15 @@ your target, you can build for the target with the following command (assuming t
 Note: unless you intend to debug on the target, it is sufficient to build the
 release configuration only.
 
-With some cross toolchains building the V8 library may fail when building the 
-mksnapshot executable. If this happens, you can disable the V8 snapshot feature
-by building with the variable V8_NOSNAPSHOT defined:
-
-    $ POCO_CONFIG=Yocto LINKMODE=SHARED make -s -j8 DEFAULT_TARGET=shared_release V8_NOSNAPSHOT=1
-----
-
-
 After the build completes, you'll need to copy the following files to the target:
 
   - The following shared libraries (<*libPoco*.so.**>) from <*platform/lib/Linux/<target_arch>*>:
     Foundation, XML, JSON, Util, Net, Zip, Crypto, NetSSL, Geo, WebTunnel, RemotingNG and OSP.
   - All bundle files (<**.bndl*>) from <*platform/OSP/bundles*>, <*devices/bundles*>,
-    <*protocols/bundles*>, <*services/bundles*>, <*webui/bundles*>.
+    <*protocols/bundles*>, <*services/bundles*>, <*webui/bundles*>, <*samples/bundles*>.
   - The macchina.io server executable: <*server/bin/Linux/<target_arch>/macchina*>.
   - The macchina.io server configuration file: <*server/macchina.properties*>.
-    
+
 The bundles should all be copied into a separate directory on the target. A recommended
 filesystem layout on the target would be:
 
@@ -152,13 +146,13 @@ a directory hierarchy like above:
     $ POCO_CONFIG=Yocto make -s install_runtime INSTALLDIR=/path/to/macchina-install-dir
 ----
 
-Then you can simply pack the directory into an archive (e.g., <*.tar.gz*>) file and 
+Then you can simply pack the directory into an archive (e.g., <*.tar.gz*>) file and
 transfer it to the target.
 
 The configuration file for the macchina.io server, <*macchina.properties*> (located
 in the <*server*> directory) should be copied into the <*etc*> directory on the target.
-The configuration file needs to be modified for the target. Open the  
-<*macchina.properties*> in your favorite text editor and change the line 
+The configuration file needs to be modified for the target. Open the
+<*macchina.properties*> in your favorite text editor and change the line
 
     osp.bundleRepository = ${application.configDir}../platform/OSP/bundles;...
 ----
@@ -176,7 +170,7 @@ additional install step. To run the macchina.io server:
 
   1. Set your system's shared library search path to include the macchina.io libraries.
   2. Run the macchina.io server program.
-  
+
 To run macchina.io on a Linux system:
 
     $ export LD_LIBRARY_PATH=/path/to/macchina.io/platform/lib/Linux/x86_64
@@ -184,7 +178,7 @@ To run macchina.io on a Linux system:
     $ bin/Linux/x86_64/macchina
 ----
 
-To run macchina.io on an OS X system:
+To run macchina.io on an macOS system:
 
     $ export DYLD_LIBRARY_PATH=/path/to/macchina.io/platform/lib/Darwin/x86_64
     $ cd /path/to/macchina.io/server
@@ -192,7 +186,7 @@ To run macchina.io on an OS X system:
 ----
 
 Note: if you macchina.io configuration file <*macchina.properties*> is not
-located in the same directory as the server executable, or in a parent 
+located in the same directory as the server executable, or in a parent
 directory of it, you'll need to specify the path to the configuration file
 when starting the server:
 
@@ -207,16 +201,19 @@ in. After successfully logging in you'll see the Launcher page of the web
 interface. Try out the different web apps to familiarize yourself with the
 web user interface.
 
-The default configuration of macchina.io enables simulation of various 
+The default configuration of macchina.io enables simulation of various
 sensors, including a temperature and an ambient light sensor. You can
 use these simulated sensors in the same way as you'd use any real
-connected sensors in your code. The available sensors and their current 
+connected sensors in your code. The available sensors and their current
 measurements can be seen on the "Sensors & Devices" app.
 
+There's also the "Sensor Log" app which displays current and time series
+sensor data from a configurable set of sensors.
+
 To get the most out of macchina.io, you may want to get some real sensors.
-In the developer preview release of macchina.io, only some Tinkerforge sensors 
+In the developer preview release of macchina.io, only some Tinkerforge sensors
 are supported. More sensors and devices will be supported in future releases.
-You can of course also implement you own sensor types, once you're 
+You can of course also implement you own sensor types, once you're
 familiar with the macchina.io Software Development Kit (SDK).
 
 
@@ -225,9 +222,13 @@ familiar with the macchina.io Software Development Kit (SDK).
 In order to write your first JavaScript program that runs on macchina.io,
 open the "Playground" app. The Playground allows you to create and edit
 a JavaScript program directly in the browser, using a comfortable text
-editor. 
+editor.
 
 [[image:images/macchina_web_playground.png The macchina.io Playground, a JavaScript editor]]
+
+Note that when working with the Playground app, it's a good idea to have a nearby
+console window with macchina.io's log output open to see script output or error messages.
+You can also open the "Console" app in a separate browser window.
 
 
 !!Getting Sensor Data
@@ -235,7 +236,7 @@ editor.
 The Playground comes pre-loaded with the macchina.io variant
 of the "Hello, world!" program - a little program that finds a temperature
 sensor and obtains the current temperature from the sensor. The program
-is reproduced below for reference. 
+is reproduced below for reference.
 
     //
     // Playground Sample Script
@@ -296,6 +297,30 @@ It should contain something like:
     2015-03-07 13:12:31.688 [Information] osp.bundle.io.macchina.webui.playground.sandbox<28>: Current temperature: 26.999999999999975
 ----
 
+In addition to querying the service registry directly for a specific kind of sensor or,
+more generally, service, a program can also be notified if a service that matches a query
+is registered with the service registry. This is done using a ServiceListener, and it's
+specifically useful for services that may appear or disappear at any time.
+
+The following short sample shows the usage of the ServiceListener.
+
+    var listener = serviceRegistry.createListener(
+        'io.macchina.physicalQuantity == "temperature"',
+        (ref) => {
+            console.log("Temperature sensor registered: %O", ref);
+            var sensor = ref.instance();
+            console.log("Current temperature: %f", sensor.value());
+        },
+        (ref) => {
+            console.log("Temperature sensor unregistered: %O", ref);
+        });
+----
+
+The <*createListener()*> method of the serviceRegistry object takes a query expression
+(like <*find()*>) and two callback functions. The first one will called after a
+matching service has been registered. The second one will be called after the
+service has been unregistered.
+
 
 !!Periodically Querying Sensor Data
 
@@ -308,7 +333,7 @@ current temperature. We do this by setting up a timer. Here's the modified code:
         var temperatureSensor = temperatureRefs[0].instance();
         logger.information('Found temperature sensor.');
         setInterval(
-            function() {
+            () => {
                 logger.information('Current temperature: ' + temperatureSensor.value());
             },
             1000
@@ -335,8 +360,8 @@ will be written to the log.
     if (temperatureRefs.length > 0)
     {
         var temperatureSensor = temperatureRefs[0].instance();
-        temperatureSensor.on('valueChanged', 
-            function(event) {
+        temperatureSensor.on('valueChanged',
+            (event) => {
                 logger.information('Temperature changed: ' + event.data);
             }
         );
@@ -353,7 +378,7 @@ will be written to the log.
 Let's now extend the sample to send sensor data over the internet to a server,
 using the MQTT protocol. We're going to use the MQTT sandbox server provided by
 the Eclipse foundation, which is pre-configured in the macchina.io configuration
-file. We'll return to the example using the timer and modify it to send the 
+file. We'll return to the example using the timer and modify it to send the
 current temperature every 10 seconds.
 
     var temperatureSensor;
@@ -368,16 +393,16 @@ current temperature every 10 seconds.
         logger.error('No temperature sensor found.');
     }
 
-    var mqttClientRefs = serviceRegistry.find('io.macchina.mqtt.serverURI != ""');
+    var mqttClientRefs = serviceRegistry.find('io.macchina.mqtt.id == "eclipse"');
     if (mqttClientRefs.length > 0)
     {
         logger.information("MQTT Client found.");
-    
+
         var mqttClient;
         mqttClient = mqttClientRefs[0].instance();
-    
+
         setInterval(
-            function () {
+            () => {
                 var payload = JSON.stringify(temperatureSensor.value());
                 logger.information('Sending temperature: ' + payload);
                 // Send payload using QoS 0
@@ -402,12 +427,12 @@ e.g. "tcp://iot.eclipse.org:1883".
 
 As a final example in this tutorial, we'll show how to invoke a HTTP based web
 service from JavaScript. If the temperature exceeds a certain limit, we'll
-send a SMS message using [[http://www.twilio.com Twilio]]. Note that for this 
-example to work, you'll need to have a Twilio account with the ability to send SMS 
+send a SMS message using [[http://www.twilio.com Twilio]]. Note that for this
+example to work, you'll need to have a Twilio account with the ability to send SMS
 messages.
 
     var net = require('net');
-    
+
     function sendSMS(message)
     {
         var username = application.config.getString('twilio.username');
@@ -418,12 +443,12 @@ messages.
         var twilioHttpRequest = new net.HTTPRequest('POST', 'https://api.twilio.com/2010-04-01/Accounts/' + username + '/SMS/Messages');
         twilioHttpRequest.authenticate(username, password);
         twilioHttpRequest.contentType = 'application/x-www-form-urlencoded';
-        twilioHttpRequest.content = 
-            'From=' + encodeURIComponent(from) + 
-            '&To=' + encodeURIComponent(to) + 
+        twilioHttpRequest.content =
+            'From=' + encodeURIComponent(from) +
+            '&To=' + encodeURIComponent(to) +
             '&Body=' + encodeURIComponent(message);
 
-        var response = twilioHttpRequest.send(function(result) {
+        var response = twilioHttpRequest.send((result) => {
             logger.information('SMS sent with HTTP status: ' + result.response.status);
             logger.information(result.response.content);
         });
@@ -435,8 +460,8 @@ messages.
     if (temperatureRefs.length > 0)
     {
         var temperatureSensor = temperatureRefs[0].instance();
-        temperatureSensor.on('valueChanged', 
-            function(event) {
+        temperatureSensor.on('valueChanged',
+            (event) => {
                 logger.information('Temperature changed: ' + event.data);
                 if (event.data > 30 && !smsSent)
                 {
@@ -466,6 +491,6 @@ lines to the configuration file:
 
 Of course you'll need to replace the placeholders (<*<your_twilio_account_sid>*>, etc.)
 with the proper values from your Twilio account.
-We're using the HTTPRequest class from the <*net*> module for sending the HTTPS POST 
-request to the Twilio API. The HTTPS request is sent asynchronously. 
-We'll notified of the result via the callback function we provide to the send() function. 
+We're using the HTTPRequest class from the <*net*> module for sending the HTTPS POST
+request to the Twilio API. The HTTPS request is sent asynchronously.
+We'll notified of the result via the callback function we provide to the send() function.

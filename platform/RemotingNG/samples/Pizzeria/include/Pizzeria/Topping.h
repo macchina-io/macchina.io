@@ -1,8 +1,6 @@
 //
 // Topping.h
 //
-// $Id: //poco/1.6/RemotingNG/samples/Pizzeria/include/Pizzeria/Topping.h#1 $
-//
 // Definition of the Topping class.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.

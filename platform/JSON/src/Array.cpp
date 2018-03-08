@@ -1,8 +1,6 @@
 //
 // Array.cpp
 //
-// $Id$
-//
 // Library: JSON
 // Package: JSON
 // Module:  Array
@@ -17,6 +15,7 @@
 #include "Poco/JSON/Array.h"
 #include "Poco/JSON/Object.h"
 #include "Poco/JSON/Stringifier.h"
+#include "Poco/JSONString.h"
 
 
 using Poco::Dynamic::Var;
@@ -26,14 +25,55 @@ namespace Poco {
 namespace JSON {
 
 
-Array::Array()
+Array::Array(int options): _modified(false),
+	_escapeUnicode((options & Poco::JSON_ESCAPE_UNICODE) != 0)
 {
 }
 
 
-Array::Array(const Array& copy) : _values(copy._values)
+Array::Array(const Array& other) : _values(other._values),
+	_pArray(other._pArray),
+	_modified(other._modified)
 {
 }
+
+
+Array &Array::operator=(const Array& other)
+{
+	if (&other != this)
+	{
+		_values = other._values;
+		_pArray = other._pArray;
+		_modified = other._modified;
+	}
+	return *this;
+}
+
+#ifdef POCO_ENABLE_CPP11
+
+
+Array::Array(Array&& other) :
+	_values(std::move(other._values)),
+	_pArray(!other._modified ? other._pArray : 0),
+	_modified(other._modified)
+{
+	_pArray = 0;
+}
+
+Array &Array::operator= (Array&& other)
+{
+	if (&other != this)
+	{
+		_values = std::move(other._values);
+		_pArray = other._pArray;
+		other._pArray = 0;
+		_modified = other._modified;
+	}
+	return *this;
+}
+
+
+#endif // POCO_ENABLE_CPP11
 
 
 Array::~Array()
@@ -114,6 +154,9 @@ bool Array::isObject(ConstIterator& it) const
 
 void Array::stringify(std::ostream& out, unsigned int indent, int step) const
 {
+	int options = Poco::JSON_WRAP_STRINGS;
+	options |= _escapeUnicode ? Poco::JSON_ESCAPE_UNICODE : 0;
+
 	if (step == -1) step = indent;
 
 	out << "[";
@@ -124,7 +167,7 @@ void Array::stringify(std::ostream& out, unsigned int indent, int step) const
 	{
 		for (int i = 0; i < indent; i++) out << ' ';
 
-		Stringifier::stringify(*it, out, indent + step, step);
+		Stringifier::stringify(*it, out, indent + step, step, options);
 
 		if (++it != _values.end())
 		{
@@ -137,20 +180,32 @@ void Array::stringify(std::ostream& out, unsigned int indent, int step) const
 
 	if (indent >= step) indent -= step;
 
-	for (int i = 0; i < indent; i++)
-		out << ' ';
+	for (int i = 0; i < indent; i++) out << ' ';
 
 	out << "]";
 }
 
 
-Array::operator const Poco::Dynamic::Array& () const
+void Array::resetDynArray() const
 {
 	if (!_pArray)
+		_pArray = new Poco::Dynamic::Array;
+	else
+		_pArray->clear();
+}
+
+
+Array::operator const Poco::Dynamic::Array& () const
+{
+	if (!_values.size())
+	{
+		resetDynArray();
+	}
+	else if (_modified)
 	{
 		ValueVec::const_iterator it = _values.begin();
 		ValueVec::const_iterator end = _values.end();
-		_pArray = new Poco::Dynamic::Array;
+		resetDynArray();
 		int index = 0;
 		for (; it != end; ++it, ++index)
 		{
@@ -167,6 +222,7 @@ Array::operator const Poco::Dynamic::Array& () const
 				_pArray->insert(_pArray->end(), *it);
 			}
 		}
+		_modified = false;
 	}
 
 	return *_pArray;

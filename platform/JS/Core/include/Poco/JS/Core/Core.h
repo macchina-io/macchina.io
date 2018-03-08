@@ -1,8 +1,6 @@
 //
 // Core.h
 //
-// $Id: //poco/1.4/JS/Core/include/Poco/JS/Core/Core.h#4 $
-//
 // Library: JS/Core
 // Package: Core
 // Module:  Core
@@ -55,6 +53,22 @@
 		#pragma comment(lib, "PocoJSCore" POCO_LIB_SUFFIX)
 	#endif
 #endif
+
+
+namespace Poco {
+namespace JS {
+namespace Core {
+
+
+void JSCore_API initialize();
+	/// Initializes the JavaScript engine.
+
+
+void JSCore_API uninitialize();
+	/// Uninitialize the JavaScript engine.
+	
+
+} } } // namespace Poco::JS::Core
 
 
 #endif // JS_Core_Core_INCLUDED

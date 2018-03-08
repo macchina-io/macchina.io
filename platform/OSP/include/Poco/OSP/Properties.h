@@ -1,8 +1,6 @@
 //
 // Properties.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/Properties.h#1 $
-//
 // Library: OSP
 // Package: Util
 // Module:  Properties
@@ -49,17 +47,17 @@ public:
 
 	Properties& operator = (const Properties& props);
 		/// Assigns another Properties object.
-		
+
 	void swap(Properties& props);
 		/// Exchanges the contents of the Properties object
 		/// with those from another one.
-		
+
 	std::string operator [] (const std::string& key) const;
 		/// Returns the value for the given key.
 		///
 		/// Throws a Poco::NotFoundException if the given key
 		/// does not exist.
-	
+
 	std::string get(const std::string& key) const;
 		/// Returns the value for the given key.
 		///
@@ -67,9 +65,9 @@ public:
 		/// does not exist.
 
 	std::string get(const std::string& key, const std::string& deflt) const;
-		/// Returns the value for the given key, or 
+		/// Returns the value for the given key, or
 		/// deflt if the key does not exist.
-	
+
 	bool getBool(const std::string& key) const;
 		/// Returns the given value as a boolean.
 		/// To be true, the string value must be something
@@ -111,12 +109,15 @@ public:
 
 	void set(const std::string& key, const std::string& value);
 		/// Adds a new or updates an existing property.
-		
+
 	bool has(const std::string& key) const;
 		/// Returns true iff a property with the given key exists.
-	
+
 	void keys(std::vector<std::string>& keys) const;
 		/// Fills the given vector with all keys.
+
+	std::vector<std::string> keys() const;
+		/// Returns a vector containing all keys.
 
 protected:
 	struct ILT
@@ -126,8 +127,8 @@ protected:
 			return Poco::icompare(s1, s2) < 0;
 		}
 	};
-	
-	typedef std::map<std::string, std::string, ILT> PropsMap;	
+
+	typedef std::map<std::string, std::string, ILT> PropsMap;
 
 private:
 	PropsMap _props;
@@ -142,11 +143,19 @@ inline std::string Properties::operator [] (const std::string& key) const
 {
 	return get(key);
 }
-	
+
 
 inline void swap(Properties& p1, Properties& p2)
 {
 	p1.swap(p2);
+}
+
+
+inline std::vector<std::string> Properties::keys() const
+{
+	std::vector<std::string> result;
+	keys(result);
+	return result;
 }
 
 

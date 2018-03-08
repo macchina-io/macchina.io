@@ -1,8 +1,6 @@
 //
 // Version.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/Version.h#1 $
-//
 // Library: OSP
 // Package: Core
 // Module:  Version
@@ -55,15 +53,15 @@ public:
 
 	Version(const Version& version);
 		/// Creates a Version by copying another one.
-		
+
 	Version(int major, int minor, int revision);
 		/// Creates a Version from a major, minor and revision number.
-		
+
 	Version(int major, int minor, int revision, const std::string& designation);
 		/// Creates a Version from a major, minor and revision number,
 		/// as well as a release designation.
 
-	Version(const std::string& version);
+	explicit Version(const std::string& version);
 		/// Creates a Version from its string representation.
 
 	~Version();
@@ -71,7 +69,7 @@ public:
 
 	Version& operator = (const Version& version);
 		/// Assigns another version.
-		
+
 	Version& operator = (const std::string& version);
 		/// Assigns a version parsed from a string.
 
@@ -80,16 +78,16 @@ public:
 
 	int major() const;
 		/// Returns the major version number.
-		
+
 	int minor() const;
 		/// Returns the minor version number.
-		
+
 	int revision() const;
 		/// Returns the revision number.
-		
+
 	const std::string& designation() const;
 		/// Returns the release designation.
-		
+
 	std::string toString() const;
 		/// Returns a string representation of the version.
 

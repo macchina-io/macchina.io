@@ -1,8 +1,6 @@
 //
 // GNSSSensor.cpp
 //
-// $Id: //iot/Main/Tf/src/GNSSSensor.cpp#2 $
-//
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

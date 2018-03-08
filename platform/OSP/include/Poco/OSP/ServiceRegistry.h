@@ -1,8 +1,6 @@
 //
 // ServiceRegistry.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/ServiceRegistry.h#1 $
-//
 // Library: OSP
 // Package: Service
 // Module:  ServiceRegistry
@@ -23,6 +21,8 @@
 #include "Poco/OSP/OSP.h"
 #include "Poco/OSP/ServiceRef.h"
 #include "Poco/OSP/ServiceEvent.h"
+#include "Poco/OSP/ServiceListener.h"
+#include "Poco/AbstractDelegate.h"
 #include "Poco/BasicEvent.h"
 #include "Poco/Logger.h"
 #include "Poco/Mutex.h"
@@ -36,6 +36,7 @@ namespace OSP {
 
 
 class Properties;
+class QLExpr;
 
 
 class OSP_API ServiceRegistry
@@ -70,10 +71,10 @@ public:
 
 	Poco::BasicEvent<ServiceEvent> serviceRegistered;
 		/// Fired whenever a new service has been registered.
-		
+
 	Poco::BasicEvent<ServiceEvent> serviceUnregistered;
 		/// Fired whenever a service has been unregistered.
-		
+
 	ServiceRef::Ptr registerService(const std::string& name, Service::Ptr pService, const Properties& props);
 		/// Registers the service object given in pService under the given name,
 		/// and with the given service properties.
@@ -83,7 +84,7 @@ public:
 		///
 		/// Throws a Poco::ExistsException if a service with that name
 		/// has already been registered.
-		
+
 	void unregisterService(const std::string& name);
 		/// Unregisters the service with the given name.
 		///
@@ -92,13 +93,13 @@ public:
 
 	void unregisterService(ServiceRef::Ptr pServiceRef);
 		/// Unregisters the service specified by pServiceRef.
-		
+
 	ServiceRef::ConstPtr findByName(const std::string& name) const;
 		/// Looks up a service with the given name.
 		///
 		/// Returns a ServiceRef for the given service,
 		/// or a NULL pointer if the service does not exist.
-	
+
 	std::size_t find(const std::string& query, std::vector<ServiceRef::Ptr>& results) const;
 		/// Looks up a service(s) with the properties specified
 		/// by the given query.
@@ -128,13 +129,41 @@ public:
 		/// Examples for valid queries:
 		///     * name == "com.appinf.osp.sample.service" - a simple string comparison for equality.
 		///     * majorVersion > 1 && minorVersion >= 5 - numeric comparisons and logical AND.
-		///     * name =~ "com.appinf.osp.*" && someProperty - simple pattern matching and 
+		///     * name =~ "com.appinf.osp.*" && someProperty - simple pattern matching and
 		///       test for existence of someProperty.
-		///     * someProperty =~ /[0-9]+/ - regular expression matching.	
-	
+		///     * someProperty =~ /[0-9]+/ - regular expression matching.
+
+	std::size_t find(const QLExpr& expr, std::vector<ServiceRef::Ptr>& results) const;
+		/// An overload of find() that takes a parsed query in the form of a QLExpr
+		/// object instead of a query string.
+
+	std::vector<ServiceRef::Ptr> find(const std::string& query) const;
+		/// A convenience overload of find() that directly returns a vector of ServiceRef objects.
+
+	template <typename Delegate>
+	ServiceListener::Ptr createListener(const std::string& query, const Delegate& registeredDelegate, const Delegate& unregisteredDelegate);
+		/// Returns a new ServiceListener instance that will listen for services matching
+		/// the given query.
+		///
+		/// See find() for a description of the query language syntax.
+		///
+		/// The given registeredDelegate will be called when a new service has been
+		/// registered that matches the given query. It will be added to the
+		/// ServiceListener's serviceRegistered event.
+		///
+		/// The given unregisteredDelegate will be called when a previously matched
+		/// service has been unregistered. It will be added to the
+		/// ServiceListener's serviceUnregistered event.
+		///
+		/// If services that match the given query already have been registered,
+		/// the registeredDelegate will be immediately called for each matching
+		/// service.
+		///
+		/// Both delegates must accept a const Poco::OSP::ServiceRef::Ptr& as argument.
+
 	static const std::string PROP_NAME;
 	static const std::string PROP_TYPE;
-	
+
 private:
 	ServiceRegistry(const ServiceRegistry&);
 	ServiceRegistry& operator = (const ServiceRegistry&);
@@ -145,6 +174,24 @@ private:
 	Poco::Logger& _logger;
 	mutable Poco::FastMutex _mutex;
 };
+
+
+//
+// inlines
+//
+template <typename Delegate>
+ServiceListener::Ptr ServiceRegistry::createListener(const std::string& query, const Delegate& registeredDelegate, const Delegate& unregisteredDelegate)
+{
+	return new ServiceListener(*this, query, registeredDelegate, unregisteredDelegate);
+}
+
+
+inline std::vector<ServiceRef::Ptr> ServiceRegistry::find(const std::string& query) const
+{
+	std::vector<ServiceRef::Ptr> result;
+	find(query, result);
+	return result;
+}
 
 
 } } // namespace Poco::OSP

@@ -1,8 +1,6 @@
 //
 // Preferences.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/Preferences.h#1 $
-//
 // Library: OSP
 // Package: PreferencesService
 // Module:  Preferences

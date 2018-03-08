@@ -1,8 +1,6 @@
 //
 // Binder.cpp
 //
-// $Id: //poco/Main/Data/SQLite/src/Binder.cpp#5 $
-//
 // Library: Data/SQLite
 // Package: SQLite
 // Module:  Binder
@@ -115,14 +113,14 @@ void Binder::bind(std::size_t pos, const DateTime& val, Direction dir)
 
 void Binder::bind(std::size_t pos, const NullData&, Direction)
 {
-	sqlite3_bind_null(_pStmt, pos);
+	sqlite3_bind_null(_pStmt, static_cast<int>(pos));
 }
 
 
 void Binder::checkReturn(int rc)
 {
 	if (rc != SQLITE_OK)
-		Utility::throwException(rc);
+		Utility::throwException(sqlite3_db_handle(_pStmt), rc);
 }
 
 

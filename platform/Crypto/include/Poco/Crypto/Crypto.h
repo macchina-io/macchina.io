@@ -1,8 +1,6 @@
 //
 // Crypto.h
 //
-// $Id: //poco/1.4/Crypto/include/Poco/Crypto/Crypto.h#3 $
-//
 // Library: Crypto
 // Package: CryptoCore
 // Module:  Crypto
@@ -29,6 +27,7 @@
 
 
 #include "Poco/Foundation.h"
+#include <openssl/opensslv.h>
 
 
 enum RSAPaddingMode
@@ -57,14 +56,16 @@ enum RSAPaddingMode
 // from a DLL simpler. All files within this DLL are compiled with the Crypto_EXPORTS
 // symbol defined on the command line. this symbol should not be defined on any project
 // that uses this DLL. This way any other project whose source files include this file see
-// Crypto_API functions as being imported from a DLL, wheras this DLL sees symbols
+// Crypto_API functions as being imported from a DLL, whereas this DLL sees symbols
 // defined with this macro as being exported.
 //
-#if defined(_WIN32) && defined(POCO_DLL)
-	#if defined(Crypto_EXPORTS)
-		#define Crypto_API __declspec(dllexport)
-	#else
-		#define Crypto_API __declspec(dllimport)
+#if defined(_WIN32)
+	#if defined(POCO_DLL)
+		#if defined(Crypto_EXPORTS)
+			#define Crypto_API __declspec(dllexport)
+		#else
+			#define Crypto_API __declspec(dllimport)
+		#endif
 	#endif
 #endif
 
@@ -79,12 +80,45 @@ enum RSAPaddingMode
 
 
 //
-// Automatically link Crypto library.
+// Automatically link Crypto and OpenSSL libraries.
 //
 #if defined(_MSC_VER)
-	#if !defined(POCO_NO_AUTOMATIC_LIBS) && !defined(Crypto_EXPORTS)
-		#pragma comment(lib, "PocoCrypto" POCO_LIB_SUFFIX)
-	#endif
+	#if !defined(POCO_NO_AUTOMATIC_LIBS)
+		#if defined(POCO_INTERNAL_OPENSSL_MSVC_VER)
+			#if defined(POCO_EXTERNAL_OPENSSL)
+				#pragma warning "External OpenSSL defined but internal headers used - possible mismatch!"
+			#endif // POCO_EXTERNAL_OPENSSL
+			#if !defined(_DEBUG)
+				#define POCO_DEBUG_SUFFIX ""
+				#if !defined (_DLL)
+					#define POCO_STATIC_SUFFIX "mt"
+				#else // _DLL
+					#define POCO_STATIC_SUFFIX ""
+				#endif
+			#else // _DEBUG
+				#define POCO_DEBUG_SUFFIX "d"
+				#if !defined (_DLL)
+					#define POCO_STATIC_SUFFIX "mt"
+				#else // _DLL
+					#define POCO_STATIC_SUFFIX ""
+				#endif
+			#endif
+			#pragma comment(lib, "libcrypto" POCO_STATIC_SUFFIX POCO_DEBUG_SUFFIX ".lib")
+			#pragma comment(lib, "libssl" POCO_STATIC_SUFFIX POCO_DEBUG_SUFFIX ".lib")
+			#if !defined(_WIN64) && !defined (_DLL) && \
+						(POCO_INTERNAL_OPENSSL_MSVC_VER == 120) && \
+						(POCO_MSVC_VERSION < POCO_INTERNAL_OPENSSL_MSVC_VER)
+				#pragma comment(lib, "libPreVS2013CRT" POCO_STATIC_SUFFIX POCO_DEBUG_SUFFIX ".lib")
+			#endif
+			#if !defined (_DLL) && (POCO_MSVS_VERSION >= 2015)
+				#pragma comment(lib, "legacy_stdio_definitions.lib")
+				#pragma comment(lib, "legacy_stdio_wide_specifiers.lib")
+			#endif
+		#endif // POCO_INTERNAL_OPENSSL_MSVC_VER
+		#if !defined(Crypto_EXPORTS)
+			#pragma comment(lib, "PocoCrypto" POCO_LIB_SUFFIX)
+		#endif
+	#endif // POCO_NO_AUTOMATIC_LIBS
 #endif
 
 

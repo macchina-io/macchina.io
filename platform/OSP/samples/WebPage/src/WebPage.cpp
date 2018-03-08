@@ -1,8 +1,6 @@
 //
 // WebPage.cpp
 //
-// $Id: //poco/1.7/OSP/samples/WebPage/src/WebPage.cpp#1 $
-//
 // Copyright (c) 2007-2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

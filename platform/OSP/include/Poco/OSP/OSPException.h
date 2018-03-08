@@ -1,8 +1,6 @@
 //
 // OSPException.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/OSPException.h#1 $
-//
 // Library: OSP
 // Package: Core
 // Module:  OSPException
@@ -36,6 +34,7 @@ POCO_DECLARE_EXCEPTION(OSP_API, BundleVersionConflictException, BundleException)
 POCO_DECLARE_EXCEPTION(OSP_API, BundleLoadException, BundleException)
 POCO_DECLARE_EXCEPTION(OSP_API, BundleResolveException, BundleException)
 POCO_DECLARE_EXCEPTION(OSP_API, BundleInstallException, BundleException)
+POCO_DECLARE_EXCEPTION(OSP_API, BundleUninstallException, BundleException)
 
 
 } } // namespace Poco::OSP

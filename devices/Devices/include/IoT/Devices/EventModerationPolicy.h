@@ -1,8 +1,6 @@
 //
 // EventModerationPolicy.h
 //
-// $Id: //poco/1.4/UPnP/GENA/include/Poco/UPnP/GENA/EventModerationPolicy.h#1 $
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  Utilities

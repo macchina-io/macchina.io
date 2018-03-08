@@ -1,8 +1,6 @@
 //
 // JSSPageReader.h
 //
-// $Id: //poco/1.4/OSP/JS/src/JSSPageReader.h#2 $
-//
 // Copyright (c) 2013-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //

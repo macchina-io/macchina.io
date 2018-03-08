@@ -1,8 +1,6 @@
 //
 // BarcodeReader.cpp
 //
-// $Id$
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  BarcodeReader

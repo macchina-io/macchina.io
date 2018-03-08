@@ -1,8 +1,6 @@
 //
 // Counter.h
 //
-// $Id: //iot/Main/Devices/include/IoT/Devices/Counter.h#2 $
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  Counter

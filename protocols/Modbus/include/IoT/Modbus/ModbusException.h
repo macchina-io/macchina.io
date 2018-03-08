@@ -1,8 +1,6 @@
 //
 // ModbusException.h
 //
-// $Id$
-//
 // Library: IoT/Modbus
 // Package: ModbusMaster
 // Module:  ModbusException

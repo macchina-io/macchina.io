@@ -1,0 +1,1142 @@
+macchina.io C++ Programming Guide
+AAAAMacchinaIO
+
+!!!Introduction
+
+The macchina.io C++ programming environment gives you full access
+to all features and APIs provided by macchina.io. macchina.io is itself
+written in C++, except for some parts of the web user interface. Therefore,
+some macchina.io features and APIs are only accessible to developers writing
+C++ code. Services, network protocols and device/sensor bindings generally must
+be written in C++.
+
+This document will introduce you to C++ programming in the macchina.io environment.
+Familiarity with C++ (C++11) and basic Linux/Unix programming with GCC (or Clang)
+and GNU Make is expected.
+
+
+!!Bundles
+
+macchina.io is completely implemented in a modular, plug-in based architecture,
+using a C++ framework named <*Open Service Platform*> (OSP).
+Therefore, virtually all code that runs within macchina.io comes from a plug-in,
+or <*bundle*>, as it's called in OSP and macchina.io. The only exception is the quite
+minimal <*server*> application. It's purpose is to load configuration data from
+a set of configuration files and to initialize the bundle loading framework.
+
+For a more detailed introduction to the OSP framework, which is the foundation
+of macchina.io, please read the [[00100-OSPOverview.html OSP Overview]] and
+[[00150-OSPTutorial.html Tutorial]].
+
+A [[00200-OSPBundles.html Bundle]] is basically a directory with a certain structure, or,
+more commonly, a Zip archive file (with extension <*.bndl*>) containing such a directory
+hierarchy. A bundle contains mandatory meta information (the so-called <*manifest*>),
+as well as configuration files, dynamic libraries, and other resources like HTML files,
+images or stylesheets.
+
+Generally, there are two ways to run code from within a bundle. First, a bundle
+can provide a <*BundleActivator*> class, which must be a subclass of
+Poco::OSP::BundleActivator. In addition to implementing the class, it must
+also be declared in the bundle's meta information, the so-called <*bundle manifest*>.
+
+Second, a bundle can also implement one or more <*extension points*>. An extension point
+is, generally speaking, a hook defined by a bundle, that another bundle can hook itself
+in to.
+
+
+!!Services
+
+Given only bundle activators and extension points, it would be very hard for different
+bundles to work together. Therefore, OSP and macchina.io also have <*services*>.
+Services are C++ objects that are registered with a central
+[[00300-OSPServiceRegistry.html Service Registry]].
+Each bundle can register an arbitrary number of services it provides itself with the
+service registry, and can also find services provided by other bundles via the
+service registry. In macchina.io, every sensor, device or communication protocol is
+implemented as a service.
+
+
+!!!Prerequisites
+
+The following tutorial assumes the you've already retrieved the macchina.io sources from
+its Git repository and built macchina.io for your host system, according to the
+instructions in the [[00150-MacchinaGettingStarted.html Getting Started]] document.
+
+To keep things simple for now, only the build steps for the host system will be shown.
+We assume that your host system is either a Linux or a macOS system.
+
+
+!!!Writing Your First Bundle in C++
+
+The following sections will guide you through the steps of creating your first
+bundle for macchina.io. This simple bundle will just provide a minimal bundle activator
+that prints a "Hello, world!" message to the log.
+
+Every bundle containing C++ code must have at the minimum the following items:
+
+  - a symbolic and human-readable name
+  - a bundle activator class implementation
+    (can be omitted if the bundle implements certain extension points, such as
+    <[osp.web.server.requestHandler]>)
+  - a bundle specification file (<*.bndlspec*>) used by the <*Bundle Creator*> tool
+  - a Makefile
+
+A minimal directory hierarchy for a C++ bundle looks like this:
+
+  HelloBundle/
+      Makefile
+      HelloBundle.bndlspec
+      src/
+          BundleActivator.cpp
+----
+
+Note that this directory layout (specifically, the placement of the C++ source file
+<*BundleActivator.cpp*> in the <[src]> folder) is only mandatory if you use macchina.io's
+GNU Make-based build system. If you use a different build system, you are free to arrange
+files however you like (or however your build system expects it).
+
+Note: You can find all files for this sample in the <*samples/HelloBundle*> directory.
+
+
+!!The Makefile
+
+Let's start with the Makefile. Here is a minimal Makefile that first compiles the
+<*BundleActivator.cpp*> source file into a dynamic library for the bundle, and then
+creates the bundle file by invoking the [[00210-OSPBundleCreator.html Bundle Creator]]
+tool:
+
+    include $(POCO_BASE)/build/rules/global
+    include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
+
+    objects = BundleActivator
+
+    target      = io.macchina.samples.hello
+    target_libs = PocoOSP PocoUtil PocoJSON PocoXML PocoFoundation
+
+    postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles HelloBundle.bndlspec
+
+    include $(POCO_BASE)/build/rules/dylib
+----
+
+This Makefile uses the macchina.io C++ build system which is taken from the
+[[99150-GMakeBuildNotes.html POCO C++ Libraries]],
+so the first thing it does is include global definitions.
+Furthermore, it will invoke the <*BundleCreator*> tool, so it also includes some
+definitions related to that from (<*BundleCreator.make*>).
+
+The Makefile will create a dynamic library from a single object file, <*BundleActivator.o*>.
+According to the build system rules, this object file will be created by compiling
+the source file <*src/BundleActivator.cpp*>.
+
+The resulting dynamic library will be named <*io.macchina.samples.hello*> (plus the
+system-specific suffix, e.g., <*.so*>), which, by convention, is the same as the name
+of the bundle. Note that the name of the bundle itself is defined in the bundle
+specification file, not the Makefile. The bundle will be created in the <*bundles*>
+directory alongside the <*HelloBundle*> directory.
+
+After building the dynamic library, the Makefile will invoke the bundle creator tool.
+This involves setting the shared library search path, and passing the target operating
+system name and architecture, the output directory and the name or path of the bundle
+specification file to the bundle creator tool.
+
+At the end, the Makefile includes the rules for building a dynamic library. Note that there
+is a subtle difference between shared and dynamic libraries in the POCO C++ Libraries
+build system. Shared libraries are libraries that are linked during build time. Dynamic
+libraries are libraries that are loaded at run-time, via a call to <[dlopen()]> or similar.
+While on a Linux system both are basically the same (except that dynamic
+libraries, other than shared libraries, do not have a library version number as part of the name),
+on a macOS system there is a difference in how they are built.
+
+
+!!The Bundle Specification File
+
+The bundle specification file is an XML file that describes the name (human-readable and
+symbolic) of the bundle, its version, its dependencies and other meta-information, such
+as the name of the bundle activator class and the name of the dynamic library where it
+can be found.
+
+The [[00210-OSPBundleCreator.html#1 bundle specification file]] (<*HelloBundle.bndlspec*>)
+for the sample bundle is shown in the following.
+
+    <bundlespec>
+        <manifest>
+            <name>HelloBundle Sample</name>
+            <symbolicName>io.macchina.samples.hello</symbolicName>
+            <version>1.0.0</version>
+            <vendor>Applied Informatics</vendor>
+            <copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+            <activator>
+                <class>HelloBundle::BundleActivator</class>
+                <library>io.macchina.samples.hello</library>
+            </activator>
+        </manifest>
+        <code>
+            bin/${osName}/${osArch}/*.so,
+            bin/${osName}/${osArch}/*.dylib,
+        </code>
+    </bundlespec>
+----
+
+The file first defines the human-readable name of the bundle ("HelloBundle Sample") and
+the symbolic name ("io.macchina.samples.hello"), which must be unique for all bundles in a
+macchina.io instance.
+
+The symbolic name of a bundle must conform to certain conventions. Symbolic names must be unique
+across different vendors. To ensure this, the bundle symbolic name employs the reverse domain
+name scheme known for example from Java namespaces. The name consists of a number of
+parts, separated by periods. The first part is the top-level domain of the vendor
+(e.g., "com" or "io"). The second part is the domain name of the company
+(e.g., "macchina" or "appinf"). The remaining parts can be freely specified by the vendor,
+and usually include a product name, subsystem name, module name, etc. There is no limit
+to the number of parts in a name, although for practical purposes, a bundle name should
+not consist of more than five parts. For maximum portability across different platforms,
+a name part must not contain any characters other than upper- and lowercase alphabetic
+characters ('A' - 'Z'), digits ('0' - '9') and dash ('-').
+
+Each bundle also has a version number, which is also specified in the bundle specification
+file, along with a vendor name and copyright information, which can be freely chosen.
+
+The symbolic name and version number will be part of the resulting bundle file name.
+
+The <*<activator>*> element specifies the class name (including namespace) of the
+bundle's bundle activator class, and the name of the dynamic library where the class
+is implemented. Note that this name matches the one specified in the Makefile's target
+variable.
+
+The <*<code>*> element contains a comma-separated list of Glob expressions
+that specify which dynamic library files should be copied into the bundle. The
+build system will place the resulting dynamic library in a subdirectory of the <*bin*>
+directory, which has a path based on the target operating system name and platform.
+For example, on an Intel-based 64-bit Linux system this will be <*bin/Linux/x86_64*>,
+on a Raspberry Pi this will be <*bin/Linux/armv7l*> and on macOS this will be
+<*bin/Darwin/x86_64*>. Using the built-in variables <[${osName}]> and <[${osArch}]>
+will make the bundle specification file independent of the host and target system.
+Also, note two entries, one for Linux, which uses the <*.so*> suffix, and one for
+macOS, which uses <*.dylib*>.
+
+
+!!The Bundle Activator
+
+Finally, here is the source code for the bundle activator class.
+
+    #include "Poco/OSP/BundleActivator.h"
+    #include "Poco/OSP/BundleContext.h"
+    #include "Poco/ClassLibrary.h"
+
+
+    namespace HelloBundle {
+
+
+    class BundleActivator: public Poco::OSP::BundleActivator
+    {
+    public:
+        void start(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            pContext->logger().information("Hello, world!");
+        }
+
+        void stop(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            pContext->logger().information("Goodbye!");
+        }
+    };
+
+
+    } // namespace HelloBundle
+
+
+    POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
+        POCO_EXPORT_CLASS(HelloBundle::BundleActivator)
+    POCO_END_MANIFEST
+----
+
+The above code should be pretty clear. A bundle activator needs to implement
+two methods:
+
+  - <[start()]>, which is called by the OSP framework when the bundle is started, and
+  - <[stop()]>, which is called by the OSP framework when the bundle is stopped.
+
+Both methods receive a pointer to a Poco::OSP::BundleContext object, which provides
+the entry point into the OSP framework. Among other objects, the BundleContext
+provides access to a Poco::Logger object that can be used for logging.
+
+The interesting part is at the end of the file, where the BundleActivator class
+is "exported" from the dynamic library containing it. This is done by creating a
+dynamic library manifest (not to be confused with the bundle manifest), which is
+used by OSP's class loader framework (see Poco::ClassLoader) to create an instance
+of the BundleActivator class when the bundle is started.
+
+The argument to the <[POCO_BEGIN_MANIFEST]> macro is the base class of the exported class,
+which for a bundle activator is always Poco::OSP::BundleActivator.
+The argument to the <[POCO_EXPORT_CLASS]> macro is the name of the exported class,
+including its namespace. The same name must be specified in the bundle
+specification file under the <*<activator>/<class>*> element.
+
+
+!!Building the Bundle
+
+In order to build the bundle with GNU Make, two environment variables must be
+defined.
+
+  - <[$PROJECT_BASE]> must contain the path to the macchina.io root directory (the one
+    containing the <*platform*>, <*launcher*>, <*protocols*>, etc. directories).
+  - <[$POCO_BASE]> must contain the path to the <*platform*> directory inside the
+    macchina.io root directory. Setting it to <[$PROJECT_BASE/platform]> is recommended.
+
+There is a Bash script named <*env.bash*> in the macchina.io root directory that
+you can <*source*> in order to set these and a few other useful environment variables:
+
+    $ . env.bash
+    macchina.io build environment set.
+
+    $MACCHINA_BASE     = /home/user/macchina.io
+    $PROJECT_BASE      = /home/user/macchina.io
+    $POCO_BASE         = /home/user/macchina.io/platform
+    $MACCHINA_VERSION  = 0.9.0
+    $LD_LIBRARY_PATH   = /home/user/macchina.io/platform/lib/Linux/x86_64:
+
+----
+
+Alternatively, you can also set <[$PROJECT_BASE]> and <[$POCO_BASE]> manually:
+
+    $ export PROJECT_BASE=/path/to/macchina.io
+    $ export POCO_BASE=$PROJECT_BASE/poco
+----
+
+The HelloBundle sample files can be found in <*$PROJECT_BASE/samples/HelloBundle*>.
+
+So after setting the environment variables, you can:
+
+    $ cd $PROJECT_BASE/samples/HelloBundle
+    $ make
+----
+
+This will compile the BundleActivator source, build the dynamic library and create
+the bundle file, which can be found in <*$PROJECT_BASE/samples/bundles*>.
+
+If you see an error message like:
+
+    Makefile:7: /build/rules/global: No such file or directory
+    Makefile:8: /OSP/BundleCreator/BundleCreator.make: No such file or directory
+    Makefile:18: /build/rules/dylib: No such file or directory
+    make: *** No rule to make target `/build/rules/dylib'.  Stop.
+----
+
+This means that <[$POCO_BASE]> and <[$PROJECT_BASE]> are not defined. See above for how
+to set them.
+
+After successfully building the project, you can look into the contents of the resulting
+bundle with the <*unzip*> utility:
+
+    $ unzip -l ../bundles/io.macchina.samples.hello_1.0.0.bndl
+    Archive:  ../bundles/io.macchina.samples.hello_1.0.0.bndl
+      Length      Date    Time    Name
+    ---------  ---------- -----   ----
+            0  2018-02-20 15:01   META-INF/
+          363  2018-02-20 15:01   META-INF/manifest.mf
+            0  2018-02-20 15:01   bin/
+            0  2018-02-20 15:01   bin/Linux/
+            0  2018-02-20 15:01   bin/Linux/x86_64/
+        25552  2018-02-20 15:01   bin/Linux/x86_64/io.macchina.samples.hello.so
+       319200  2018-02-20 15:01   bin/Linux/x86_64/io.macchina.samples.hellod.so
+    ---------                     -------
+       345115                     7 files
+----
+
+You can see that the bundle contains directories for the bundle manifest and
+for the dynamic libraries. There are actually two dynamic libraries in the bundle.
+The smaller one is the release version of the library (which would be deployed on
+a real device), the second one is the debug version containing debug information.
+This allows you to debug code in bundles like any other C++ code.
+
+It's possible to build the bundle with only the release binaries by passing
+a DEFAULT_TARGET variable to GNU Make:
+
+    $ make DEFAULT_TARGET=shared_release
+----
+
+This is recommended for deployment to a device as it will significantly reduce the
+bundle size. Similarly, you can build the debug binaries only:
+
+    $ make DEFAULT_TARGET=shared_debug
+----
+
+
+You can also view the generated bundle manifest file:
+
+    $ unzip -p ../bundles/io.macchina.samples.hello_1.0.0.bndl META-INF/manifest.mf
+    Manifest-Version: 1.0
+    Bundle-Name: HelloBundle Sample
+    Bundle-SymbolicName: io.macchina.samples.hello
+    Bundle-Version: 1.0.0
+    Bundle-Vendor: Applied Informatics
+    Bundle-Copyright: (c) 2018, Applied Informatics Software Engineering GmbH
+    Bundle-Activator: HelloBundle::BundleActivator;library=io.macchina.samples.hello
+    Bundle-RunLevel: 999-user
+    Bundle-LazyStart: false
+----
+
+You can see that it contains most of the information specified in the bundle
+specification file, as well as some additional items.
+
+
+!!Running the Bundle
+
+To run the bundle, simply start (or restart) the macchina.io server application.
+The <*samples/bundles*> directory is part of the default search path for bundles,
+so it will automatically pick up the new bundle at startup.
+
+Alternatively, the bundle can also be deployed to a running macchina.io instance
+using the <*Bundles*> app in the web interface.
+Simply open the <*Bundles*> app, click on <*Install*> and drag the bundle file
+into your web browser window and drop it into the indicated area.
+This will only work if the bundle has not already been loaded. In that case you
+will see an error message in the browser and the macchina.io log output or console.
+
+After manually installing the bundle you have to start it as well by clicking
+the <*Start*> item in the bundle actions bar.
+
+If successfully started, the bundle will print a message to the macchina.io log
+output or console.
+
+    2018-02-20 15:21:34.289 [Information] osp.bundle.io.macchina.samples.hello<0>: Hello, world!
+----
+
+Similarly, when you stop the bundle, either by stopping the entire macchina.io server or
+by stopping only the bundle in the <*Bundles*> app, you will see its goodbye message:
+
+    2018-02-20 15:22:37.991 [Information] osp.bundle.io.macchina.samples.hello<0>: Goodbye!
+----
+
+
+
+!!Debugging the Bundle
+
+To debug your new bundle, you will need to run the macchina.io server under the
+debugger (GDB or LLDB). Make sure that the bundle contains dynamic libraries with
+debug information, and that you start the debug executable of the macchina.io server.
+
+Assuming you are currently in the <*samples/HelloBundle*> directory, start GDB with:
+
+    $ gdb ../../server/bin/Linux/x86_64/macchinad
+    GNU gdb (Ubuntu 7.11.1-0ubuntu1~16.5) 7.11.1
+    Copyright (C) 2016 Free Software Foundation, Inc.
+    License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+    This is free software: you are free to change and redistribute it.
+    There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+    and "show warranty" for details.
+    This GDB was configured as "x86_64-linux-gnu".
+    Type "show configuration" for configuration details.
+    For bug reporting instructions, please see:
+    <http://www.gnu.org/software/gdb/bugs/>.
+    Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+    For help, type "help".
+    Type "apropos word" to search for commands related to "word"...
+    Reading symbols from ../../server/bin/Linux/x86_64/macchinad...done.
+    (gdb)
+----
+
+Although the bundle has not been loaded, you can still set a breakpoint in its
+<[BundleActivator::start()]> method:
+
+    (gdb) break HelloBundle::BundleActivator::start
+    Function "HelloBundle::BundleActivator::start" not defined.
+    Make breakpoint pending on future shared library load? (y or [n]) y
+    Breakpoint 1 (HelloBundle::BundleActivator::start) pending.
+    (gdb)
+----
+
+Then, simply run the macchina.io server. It will hit the breakpoint as soon as it
+attempts to start the bundle.
+
+    (gdb) run
+    Starting program: /home/guenter/macchina.io/server/bin/Linux/x86_64/macchinad
+    [Thread debugging using libthread_db enabled]
+    Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+    [New Thread 0x7ffff56cd700 (LWP 70734)]
+    [New Thread 0x7ffff4ecc700 (LWP 70735)]
+    2018-02-20 15:28:12.204 [Information] osp.core.ServiceRegistry<0>: Service registered: osp.core.xp
+    2018-02-20 15:28:12.204 [Information] osp.core.ServiceRegistry<0>: Service registered: osp.core.preferences
+    2018-02-20 15:28:12.204 [Information] osp.core.ServiceRegistry<0>: Service registered: osp.core.installer
+    2018-02-20 15:28:12.204 [Information] Application<0>: Loading bundles...
+    2018-02-20 15:28:12.219 [Information] com.osp.BundleRepository<0>: Loaded bundle com.appinf.osp.js/1.0.0
+    2018-02-20 15:28:12.219 [Information] com.osp.BundleRepository<0>: Loaded bundle com.appinf.osp.js.data/1.0.0
+    2018-02-20 15:28:12.219 [Information] com.osp.BundleRepository<0>: Loaded bundle com.appinf.osp.js.net/1.0.0
+    ...
+    Thread 1 "macchinad" hit Breakpoint 1, HelloBundle::BundleActivator::start (this=0x64da40, pContext=...) at src/BundleActivator.cpp:22
+    22      void start(Poco::OSP::BundleContext::Ptr pContext)
+    (gdb)
+----
+
+
+!!Creating Your Own Bundle
+
+The easiest way to create your own bundle is to copy the <*HelloBundle*> directory and
+to edit and rename the bundle specification file (<*HelloBundle.bndlspec*>). Make sure
+to specify a unique symbolic name for your bundle. Furthermore, make sure your bundle
+activator class is in its own unique C++ namespace. The fully qualified name
+(namespace plus class name) of all bundle activator classes must be unique, otherwise
+the dynamic linker may get confused and call the wrong bundle activator start() method
+(another one with the same name) when the bundle is started.
+
+
+!!!Services, Sensors and Devices
+
+Besides bundles, services are the second main concept in macchina.io and the underlying
+Open Service Platform framework. Virtually every macchina.io feature is exposed as a
+service that can be found via the [[00300-OSPServiceRegistry.html Service Registry]].
+This includes sensors, devices and network protocols.
+
+
+!!Two Kinds of Services
+
+There are two kinds of services in macchina.io. The first kind are implemented as
+ordinary C++ classes, derived from Poco::OSP::Service. These are easy to implement but
+have the disadvantage that such services can only be used by C++ code. Using these services
+from JavaScript code is impossible. While they will be visible via the service registry,
+actually invoking these services will fail.
+
+Thus, the second kind of service is implemented using the
+[[00100-RemotingNGOverview.html Remoting]] framework. While
+these services impose a minor overhead when being invoked from C++ (an additional
+virtual function call through a wrapper object), these services can also be
+used from JavaScript (and potentially other runtime environments) using the
+Remoting-based bridging mechanism. Note that even if there's the Remoting framework
+involved, no actual network or socket communication happens during JavaScript
+bridging. Only the dynamic dispatching and serialization mechanisms from Remoting are used.
+
+Virtually all macchina.io services are implemented using the Remoting framework and are
+thus available from both C++ and JavaScript.
+Some [[00350-OSPStandardServices.html OSP core services]], however, are only
+available to C++ code.
+
+
+!!Finding Services
+
+Services are discovered via the central [[00300-OSPServiceRegistry.html Service Registry]].
+Services can be found either by name, or by their properties. Some services have
+well-known names, specifically the OSP core services. Most macchina.io services,
+however, should be found via their properties, to prevent coupling your code
+to a specific service implementation.
+
+
+!!Service References
+
+Service objects are not registered directly with the service registry. Intermediate
+service reference objects of class Poco::OSP::ServiceRef are used. A service reference
+binds together the actual object implementing the service with meta-information like
+name, type and a set of properties.
+
+When finding a service via the service registry, first a service reference is received.
+From this service reference, the actual service object (or its Remoting wrapper) can be
+obtained by calling the Poco::OSP::ServiceRef::castedInstance() method.
+
+
+!!!Accessing Services
+
+The following sample implements a bundle that uses the service registry to find
+temperature sensor services, print out their properties, and read the current
+temperature from each sensor. macchina.io comes with the capability to simulate
+simple sensors, and the default configuration file defines a couple of simulated
+temperature sensors, which can be used for testing.
+
+Like the <*HelloBundle*> sample, the <*HelloSensor1*> sample requires a few files,
+set up as follows:
+
+  HelloSensor1/
+      Makefile
+      HelloSensor1.bndlspec
+      src/
+          BundleActivator.cpp
+----
+
+The sources for this sample can be found in the <*samples*> directory.
+
+!!The Makefile
+
+The Makefile looks similar to the one for the HelloBundle sample, with a few additions:
+
+    include $(POCO_BASE)/build/rules/global
+    include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
+
+    objects = BundleActivator
+
+    target          = io.macchina.samples.sensor1
+    target_includes = $(PROJECT_BASE)/devices/Devices/include
+    target_libs     = IoTDevices PocoOSP PocoUtil PocoJSON PocoXML PocoFoundation
+
+    postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles HelloSensor1.bndlspec
+
+    include $(POCO_BASE)/build/rules/dylib
+----
+
+First, we need to add a header search path for the macchina.io <*IoTDevices*> library, which
+contains the interface definitions for working with sensors and other devices.
+This is done using the <[target_includes]> variable.
+Second, we also need to add the <*IoTDevices*> library to the list of libraries linked
+to our dynamic library. This is done by adding it to the <[target_libs]> variable.
+
+
+!!The Bundle Specification
+
+The bundle specification file for the <*HelloSensor1*> bundle also has one addition
+compared to the one for <*HelloBundle*>:
+
+    <bundlespec>
+        <manifest>
+            <name>HelloSensor Sample #1</name>
+            <symbolicName>io.macchina.samples.sensor1</symbolicName>
+            <version>1.0.0</version>
+            <vendor>Applied Informatics</vendor>
+            <copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+            <activator>
+                <class>HelloSensor1::BundleActivator</class>
+                <library>io.macchina.samples.sensor1</library>
+            </activator>
+            <dependency>
+                <symbolicName>io.macchina.devices</symbolicName>
+                <version>[1.0.0, 2.0.0)</version>
+            </dependency>
+        </manifest>
+        <code>
+            bin/${osName}/${osArch}/*.so,
+            bin/${osName}/${osArch}/*.dylib,
+        </code>
+    </bundlespec>
+----
+
+Our bundle requires the <*IoTDevices*> library, which is provided through the
+<*io.macchina.devices*> bundle. Therefore, we add a dependency to this bundle.
+The result of this is that the <*HelloSensor1*> bundle can only be started if
+the <*io.macchina.devices*> bundle is available (in a version equal to or greater
+than 1.0.0, and less than 2.0.0) and can be successfully started.
+
+
+!!The Bundle Activator
+
+Here is the source code for the bundle activator:
+
+    #include "Poco/OSP/BundleActivator.h"
+    #include "Poco/OSP/BundleContext.h"
+    #include "Poco/OSP/ServiceRegistry.h"
+    #include "Poco/OSP/ServiceRef.h"
+    #include "Poco/ClassLibrary.h"
+    #include "IoT/Devices/ISensor.h"
+
+
+    namespace HelloSensor1 {
+
+
+    class BundleActivator: public Poco::OSP::BundleActivator
+    {
+    public:
+        void start(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            auto sensorRefs = pContext->registry().find("io.macchina.physicalQuantity == \"temperature\"");
+            pContext->logger().information("Found %z temperature sensors.", sensorRefs.size());
+            for (auto pSensorRef: sensorRefs)
+            {
+                pContext->logger().information("Sensor name: %s", pSensorRef->name());
+                const Poco::OSP::Properties& props = pSensorRef->properties();
+                for (const auto& key: props.keys())
+                {
+                    pContext->logger().information("Property: %s = %s", key, props[key]);
+                }
+                IoT::Devices::ISensor::Ptr pSensor = pSensorRef->castedInstance<IoT::Devices::ISensor>();
+                pContext->logger().information("Sensor value: %.2f", pSensor->value());
+            }
+        }
+
+        void stop(Poco::OSP::BundleContext::Ptr pContext)
+        {
+        }
+    };
+
+
+    } // namespace HelloSensor1
+
+
+    POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
+        POCO_EXPORT_CLASS(HelloSensor1::BundleActivator)
+    POCO_END_MANIFEST
+----
+
+In the BundleActivator's <[start()]> method, we first look for all services that
+have a property named "io.macchina.physicalQuantity" with a value of "temperature".
+By convention in macchina.io, all sensor services for a sensor that measures a physical
+quantity expose this property.
+We receive a vector of sensor references (<[std::vector<Poco::OSP::SensorRef::Ptr>]>), which
+we then iterate through. For each sensor we print out its service name and its properties.
+Then we obtain the actual service object (or, more specifically, the Remoting wrapper
+implementing the IoT::Devices::ISensor interface), which we the use to read the
+current temperature from the sensor.
+
+
+!!Building the Bundle
+
+Like with the <*HelloBundle*> sample, in order to build the <*HelloSensor1*> bundle,
+the two environment variables <[$PROJECT_BASE]> and <[$POCO_BASE]> must be defined.
+Then, the bundle can be built by invoking <*make*> from the <*HelloSensor1*> directory.
+
+    $ . /path/to/macchina.io/env.bash
+    $ cd $PROJECT_BASE/samples/HelloSensor1
+    $ make
+----
+
+After starting, or restarting the macchina.io server, the following log output should be
+visible:
+
+    2018-02-21 09:48:49.655 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Found 2 temperature sensors.
+    2018-02-21 09:48:49.655 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Sensor name: io.macchina.simulation.sensor#1
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: io.macchina.device = io.macchina.simulation.sensor
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: io.macchina.deviceType = io.macchina.sensor
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: io.macchina.physicalQuantity = temperature
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: jsbridge = jsbridge://local/jsbridge/IoT.Devices.Sensor/io.macchina.simulation.sensor#1
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: name = io.macchina.simulation.sensor#1
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: type = N3IoT7Devices7ISensorE
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Sensor value: 20.00
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Sensor name: io.macchina.simulation.sensor#2
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: io.macchina.device = io.macchina.simulation.sensor
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: io.macchina.deviceType = io.macchina.sensor
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: io.macchina.physicalQuantity = temperature
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: jsbridge = jsbridge://local/jsbridge/IoT.Devices.Sensor/io.macchina.simulation.sensor#2
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: name = io.macchina.simulation.sensor#2
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Property: type = N3IoT7Devices7ISensorE
+    2018-02-21 09:48:49.656 [Information] osp.bundle.io.macchina.samples.sensor1<0>: Sensor value: 25.00
+----
+
+
+!!Dynamically Reacting to Service Availability
+
+Services can be dynamically registered and unregistered, and not all services may be available
+at all times. A good example are sensors connected via Bluetooth LE, such as the
+TI SensorTag or the Bosch XDK. Sensor services for these devices will only be available
+as long as the respective device is connected. Therefore, these services may come
+and go at any time. Unlike with permanently connected devices, an application bundle using
+these cannot assume that the respective services will be available when the bundle
+is started.
+
+Of course, the application could periodically check for new services, either by repeatedly
+calling Poco::OSP::ServiceRegistry::find(), or by subscribing to the
+Poco::OSP::ServiceRegistry::serviceRegistered event. However, a better way is to use
+a Poco::OSP::ServiceListener. The following sample code shows how to use it:
+
+    #include "Poco/OSP/BundleActivator.h"
+    #include "Poco/OSP/BundleContext.h"
+    #include "Poco/OSP/ServiceRegistry.h"
+    #include "Poco/OSP/ServiceRef.h"
+    #include "Poco/OSP/ServiceListener.h"
+    #include "Poco/Delegate.h"
+    #include "Poco/ClassLibrary.h"
+    #include "IoT/Devices/ISensor.h"
+
+
+    namespace HelloSensor2 {
+
+
+    class BundleActivator: public Poco::OSP::BundleActivator
+    {
+    public:
+        void start(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            _pContext = pContext;
+            _pListener = pContext->registry().createListener(
+                "io.macchina.physicalQuantity == \"temperature\"",
+                Poco::delegate(this, &BundleActivator::onSensorRegistered),
+                Poco::delegate(this, &BundleActivator::onSensorUnregistered));
+        }
+
+        void stop(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            _pListener.reset();
+            _pContext.reset();
+        }
+
+    protected:
+        void onSensorRegistered(const Poco::OSP::ServiceRef::Ptr& pSensorRef)
+        {
+            _pContext->logger().information("Sensor registered: %s", pSensorRef->name());
+            const Poco::OSP::Properties& props = pSensorRef->properties();
+            for (const auto& key: props.keys())
+            {
+                _pContext->logger().information("Property: %s = %s", key, props[key]);
+            }
+            IoT::Devices::ISensor::Ptr pSensor = pSensorRef->castedInstance<IoT::Devices::ISensor>();
+            _pContext->logger().information("Sensor value: %.2f", pSensor->value());
+        }
+
+        void onSensorUnregistered(const Poco::OSP::ServiceRef::Ptr& pSensorRef)
+        {
+            _pContext->logger().information("Sensor unregistered: %s", pSensorRef->name());
+        }
+
+    private:
+        Poco::OSP::BundleContext::Ptr _pContext;
+        Poco::OSP::ServiceListener::Ptr _pListener;
+    };
+
+
+    } // namespace HelloSensor2
+
+
+    POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
+        POCO_EXPORT_CLASS(HelloSensor2::BundleActivator)
+    POCO_END_MANIFEST
+----
+
+In the BundleActivator's <[start()]> method, first the BundleContext pointer is stored in
+a member variable for use by other member functions. The BundleContext object for
+a given Bundle stays the same during the entire lifetime of the bundle, so it's safe
+to store it for later use outside the <[start()]> and <[stop()]> methods.
+
+Next we create a Poco::OSP::ServiceListener object by calling
+Poco::OSP::ServiceRegistry::createListener(), and providing it with the query string
+(same as for Poco::OSP::ServiceRegistry::find()) that looks for temperature sensors,
+and two delegates. The first delegate will be called when a matching service is registered,
+the second one when a matching service is unregistered. If matching services have already
+been registered, the first delegate will be called immediately.
+
+Both delegate functions will be passed the corresponding Poco::OSP::ServiceRef object.
+In our <[onSensorRegistered()]> member function we print the service name and its properties
+to the log, then obtain the service object and query the sensor's current value.
+
+The <[onSensorUnregistered()] member function does nothing except print a log message in
+this example. If the bundle activator would hold pointers to the respective service or
+service reference, this function would be a good place to release them.
+
+Note that in the BundleActivator's <[stop()]> method, we reset both the Context and
+the Listener pointer. Generally, the <[stop()]> method should free all resources
+used by the Bundle, and put the BundleActivator object in a state so that <[start()]>
+can be safely called again.
+
+The full source code and related files can be found in the <*samples/HelloSensor2*>
+directory.
+
+
+!!Handling Sensor Events
+
+Some sensors can fire an event if the measured value changes. The following sample,
+<*HelloSensor3*>, extends the previous example with an event handler function that
+gets called when the measured temperature changes.
+
+    #include "Poco/OSP/BundleActivator.h"
+    #include "Poco/OSP/BundleContext.h"
+    #include "Poco/OSP/ServiceRegistry.h"
+    #include "Poco/OSP/ServiceRef.h"
+    #include "Poco/OSP/ServiceListener.h"
+    #include "Poco/Delegate.h"
+    #include "Poco/Mutex.h"
+    #include "Poco/ClassLibrary.h"
+    #include "IoT/Devices/ISensor.h"
+
+
+    namespace HelloSensor3 {
+
+
+    class BundleActivator: public Poco::OSP::BundleActivator
+    {
+    public:
+        void start(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            _pContext = pContext;
+            _pListener = pContext->registry().createListener(
+                "io.macchina.physicalQuantity == \"temperature\"",
+                Poco::delegate(this, &BundleActivator::onSensorRegistered),
+                Poco::delegate(this, &BundleActivator::onSensorUnregistered));
+        }
+
+        void stop(Poco::OSP::BundleContext::Ptr pContext)
+        {
+            Poco::FastMutex::ScopedLock lock(_sensorMutex);
+
+            if (_pSensor)
+            {
+                unsubscribe();
+            }
+            _pSensor.reset();
+            _pSensorRef.reset();
+            _pListener.reset();
+            _pContext.reset();
+        }
+
+    protected:
+        void subscribe()
+        {
+            _pSensor->valueChanged += Poco::delegate(this, &BundleActivator::onTemperatureChanged);
+        }
+
+        void unsubscribe()
+        {
+            _pSensor->valueChanged -= Poco::delegate(this, &BundleActivator::onTemperatureChanged);
+        }
+
+        void onSensorRegistered(const Poco::OSP::ServiceRef::Ptr& pSensorRef)
+        {
+            Poco::FastMutex::ScopedLock lock(_sensorMutex);
+
+            if (!_pSensorRef)
+            {
+                _pContext->logger().information("Sensor registered: %s", pSensorRef->name());
+                _pSensorRef = pSensorRef;
+                _pSensor = pSensorRef->castedInstance<IoT::Devices::ISensor>();
+                subscribe();
+            }
+        }
+
+        void onSensorUnregistered(const Poco::OSP::ServiceRef::Ptr& pSensorRef)
+        {
+            Poco::FastMutex::ScopedLock lock(_sensorMutex);
+
+            if (pSensorRef == _pSensorRef)
+            {
+                _pContext->logger().information("Sensor unregistered: %s", pSensorRef->name());
+                unsubscribe();
+                _pSensor.reset();
+                _pSensorRef.reset();
+            }
+        }
+
+        void onTemperatureChanged(const double& temp)
+        {
+            _pContext->logger().information("Temperature changed: %.2f", temp);
+        }
+
+    private:
+        Poco::OSP::BundleContext::Ptr _pContext;
+        Poco::OSP::ServiceListener::Ptr _pListener;
+        Poco::OSP::ServiceRef::Ptr _pSensorRef;
+        IoT::Devices::ISensor::Ptr _pSensor;
+        Poco::FastMutex _sensorMutex;
+    };
+
+
+    } // namespace HelloSensor3
+
+
+    POCO_BEGIN_MANIFEST(Poco::OSP::BundleActivator)
+        POCO_EXPORT_CLASS(HelloSensor3::BundleActivator)
+    POCO_END_MANIFEST
+----
+
+The example only handles a single temperature sensor. The first time <[onSensorRegistered()]>
+is called it will remember the service reference, as well as the actual service object.
+It will also call <[subscribe()]> to register an event delegate to handle the
+<[valueChanged]> event. Whenever the measured temperature value changes, the
+<[onTemperatureChanged()]> method will be called, which logs the temperature.
+
+When the sensor goes away, in <[onSensorUnregistered()]>, we first check whether
+the received sensor reference is the same one we've stored. If so, we call
+<[unsubscribe()]> to remove the event delegate, and then reset the smart pointers for
+the sensor and sensor reference. We also do this if our bundle is stopped and we still
+have a sensor object.
+
+Note that <[onSensorRegistered()]> and <[onSensorUnregistered()]> will be called
+from a different thread than our main thread, so there's a (small) chance for a
+race condition between these methods and <[stop()]>. That's why we use a mutex
+to guard access to the <[_pSensorRef]> and <[_pSensor]> members.
+
+The full source code and related files can be found in the <*samples/HelloSensor3*>
+directory.
+
+
+!!Multiple Services and Configuration Properties
+
+In the final sample we will combine multiple services to periodically send sensor data
+to an MQTT broker via the IoT::MQTT::MQTTClient service. We will also obtain
+configuration properties from the application via the Poco::OSP::PreferencesService.
+
+The complete source code can be found in the <*samples/Sensor2MQTT*> directory, so we
+will only focus on a few interesting parts here. The directory structure looks like:
+
+    Sensor2MQTT/
+        Makefile
+        Sensor2MQTT.bndlspec
+        src/
+            BundleActivator.cpp
+            MQTTTask.h
+            MQTTTask.cpp
+        bundle/
+            bundle.properties
+----
+
+First, the project uses multiple source files, and the MQTT library (<*libIoTMQTT*>),
+which is reflected in the Makefile:
+
+    include $(POCO_BASE)/build/rules/global
+    include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
+
+    objects = BundleActivator MQTTTask
+
+    target          = io.macchina.samples.sensor2mqtt
+    target_includes = $(PROJECT_BASE)/devices/Devices/include $(PROJECT_BASE)/protocols/MQTT/include
+    target_libs     = IoTDevices IoTMQTT PocoOSP PocoUtil PocoJSON PocoXML PocoFoundation
+
+    postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles Sensor2MQTT.bndlspec
+
+    include $(POCO_BASE)/build/rules/dylib
+----
+
+Furthermore, the sample adds a properties file to the bundle. This contains the defaults
+for various configurable properties. These can also be overridden by adding them to
+the main configuration file (*macchina.properties*).
+
+Here's the <*bundle.properties*> file, located in the <*bundle*> directory.
+
+    sensor2mqtt.interval = 20
+    sensor2mqtt.sensorQuery = io.macchina.physicalQuantity == \"temperature\"
+    sensor2mqtt.mqttClient = eclipse
+    sensor2mqtt.mqttTopic = macchina-io/samples/temperature
+----
+
+To add the properties file to the bundle, a <*<files>*> element has to be added
+to the bundle specification file <*Sensor2MQTT.bndlspec*>:
+
+    <bundlespec>
+        <manifest>
+            <name>Sensor2MQTT Sample</name>
+            <symbolicName>io.macchina.samples.sensor2mqtt</symbolicName>
+            <version>1.0.0</version>
+            <vendor>Applied Informatics</vendor>
+            <copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+            <activator>
+                <class>Sensor2MQTT::BundleActivator</class>
+                <library>io.macchina.samples.sensor2mqtt</library>
+            </activator>
+            <dependency>
+                <symbolicName>io.macchina.devices</symbolicName>
+                <version>[1.0.0, 2.0.0)</version>
+            </dependency>
+            <dependency>
+                <symbolicName>io.macchina.mqtt.client</symbolicName>
+                <version>[1.0.0, 2.0.0)</version>
+            </dependency>
+        </manifest>
+        <files>
+            bundle/*
+        </files>
+        <code>
+            bin/${osName}/${osArch}/*.so,
+            bin/${osName}/${osArch}/*.dylib,
+        </code>
+    </bundlespec>
+----
+
+The <*<files>*> element will add all files and directories located under the <*bundle*>
+directory to the bundle. A file named <*bundle.properties*> in the root directory of the
+bundle has a special meaning, as it will be automatically read when the bundle is loaded.
+The properties defined therein are available at run-time via the Poco::OSP::Bundle object,
+which can be obtained from the Poco::OSP::BundleContext object passed to the
+<[BundleActivator]>.
+
+Also note the additional dependency to the <*io.macchina.mqtt.client*> bundle.
+
+In the <[BundleActivator]> class, the <[getIntConfig()]> and <[getStringConfig()]>
+member functions will use the property values from the <*bundle.properties*> file
+as defaults, if the properties are not defined in the main application configuration file
+(<*macchina.properties*>).
+
+    int getIntConfig(const std::string& key)
+    {
+        const int deflt = _pContext->thisBundle()->properties().getInt(key);
+        return _pPrefs->configuration()->getInt(key, deflt);
+    }
+----
+
+<[_pPrefs]> points to the Poco::OSP::PreferencesService instance, which gives access
+to the main application configuration. This is obtained in <[start()]> by using
+the Poco::OSP::ServiceFinder helper class:
+
+    void start(Poco::OSP::BundleContext::Ptr pContext)
+    {
+        _pContext = pContext;
+        _pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(pContext);
+
+        const std::string mqttClientId = getStringConfig("sensor2mqtt.mqttClient");
+        auto mqttClientRefs = pContext->registry().find(Poco::format("io.macchina.mqtt.id == \"%s\"", mqttClientId));
+        if (!mqttClientRefs.empty())
+        {
+            _pMQTTClient = mqttClientRefs[0]->castedInstance<IoT::MQTT::IMQTTClient>();
+
+            _pListener = pContext->registry().createListener(
+                "io.macchina.physicalQuantity == \"temperature\"",
+                Poco::delegate(this, &BundleActivator::onSensorRegistered),
+                Poco::delegate(this, &BundleActivator::onSensorUnregistered));
+        }
+        else
+        {
+            _pContext->logger().warning("No MQTT client found.");
+        }
+    }
+----
+
+After obtaining the <[PreferencesService]> we look for an MQTTClient, which is also
+a service. In fact, multiple MQTT client services can be available, all configured
+in the main configuration file. The macchina.io default configuration file defines
+a single client that connects to the public MQTT broker provided by Eclipse IoT.
+
+    mqtt.clients.eclipse.serverURI = tcp://iot.eclipse.org:1883
+    mqtt.clients.eclipse.clientId = macchina.io
+----
+
+Via the service registry, a MQTT client can be found via its internal ID (part of
+the property name, in this case "eclipse"), its server URI (in this case,
+"tcp://iot.eclipse.org:1883", or via its MQTT client ID ("macchina.io").
+
+In the sample, we search by internal ID, but make this configurable via another
+configuration property ("sensor2mqtt.mqttClient").
+
+If we find a suitable MQTT client, we set up a listener for temperature sensors,
+like in the <*HelloSensor2*> and <*HelloSensor3*> samples.
+
+As soon as we've found a temperature sensor, we will send the temperature value
+periodically to the broker. To do this, we utilize the Poco::Util::Timer class.
+
+In <[onSensorRegistered()]> we call <[startTask()]> which will set up the periodic timer:
+
+    void startTask()
+    {
+        const std::string topic = getStringConfig("sensor2mqtt.mqttTopic");
+        _pTask = new MQTTTask(_pSensor, _pMQTTClient, topic);
+        long interval = 1000*getIntConfig("sensor2mqtt.interval");
+        _timer.scheduleAtFixedRate(_pTask, 0, interval);
+    }
+----
+
+MQTT topic name and periodic transmission interval (in milliseconds) are read from the
+configuration. <[MQTTTask]> is a subclass of Poco::Util::TimerTask. In its <[run()]>
+method it sends the MQTT message:
+
+    void MQTTTask::run()
+    {
+        try
+        {
+            if (_pSensor->ready())
+            {
+                const std::string payload(Poco::format("%.1f", _pSensor->value()));
+                _pMQTTClient->publish(
+                    _topic,
+                    payload,
+                    0
+                );
+                _logger.information("Temperature sent: %s", payload);
+            }
+        }
+        catch (Poco::Exception& exc)
+        {
+            _logger.log(exc);
+        }
+    }
+----
+
+
+
+!!!Further Reading
+
+  - [[https://pocoproject.org/documentation/ POCO C++ Libraries Documentation]]
+  - [[00100-OSPOverview.html OSP Overview]] -- introduction to the Open Service Platform framework
+  - [[00150-OSPTutorial.html OSP Tutorial]] -- Open Service Platform programming tutorial
+  - [[00200-OSPBundles.html OSP Bundles]] -- detailed information about bundles
+  - [[00205-OSPModules.html OSP Modules]] -- using modules to specify "virtual" dependencies
+  - [[00210-OSPBundleCreator.html OSP Bundle Creator]] -- using the Bundle Creator tool
+  - [[00300-OSPServiceRegistry.html OSP Service Registry]] -- using the Service Registry

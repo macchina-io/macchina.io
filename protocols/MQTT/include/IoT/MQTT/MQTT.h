@@ -1,8 +1,6 @@
 //
 // MQTT.h
 //
-// $Id$
-//
 // Library: IoT/MQTT
 // Package: MQTT
 // Module:  MQTT

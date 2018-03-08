@@ -1,8 +1,6 @@
 //
 // Accelerometer.cpp
 //
-// $Id$
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  Accelerometer

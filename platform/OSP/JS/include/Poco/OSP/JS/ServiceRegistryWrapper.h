@@ -1,8 +1,6 @@
 //
 // ServiceRegistryWrapper.h
 //
-// $Id: //poco/1.4/OSP/JS/src/ServiceRegistryWrapper.h#2 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -31,16 +29,17 @@ class OSPJS_API ServiceRegistryWrapper: public Poco::JS::Core::Wrapper
 public:
 	ServiceRegistryWrapper();
 		/// Creates the ServiceRegistryWrapper.
-	
+
 	~ServiceRegistryWrapper();
 		/// Destroys the ServiceRegistryWrapper.
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-		
+
 protected:
 	static void findByName(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void find(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void createListener(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 

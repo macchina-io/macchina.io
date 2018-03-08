@@ -1,8 +1,6 @@
 //
 // Switch.h
 //
-// $Id$
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  Switch

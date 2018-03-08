@@ -1,8 +1,6 @@
 //
 // ProxyGenerator.h
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/ProxyGenerator.h#1 $
-//
 // Definition of the ProxyGenerator class.
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.

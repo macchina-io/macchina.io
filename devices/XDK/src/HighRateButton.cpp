@@ -1,8 +1,6 @@
 //
 // HighRateButton.cpp
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -17,16 +15,15 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
 const std::string HighRateButton::NAME("XDK Button");
 const std::string HighRateButton::TYPE("io.macchina.trigger");
-const std::string HighRateButton::SYMBOLIC_NAME("io.macchina.btle.xdk.button");
+const std::string HighRateButton::SYMBOLIC_NAME("io.macchina.xdk.button");
 
 
-HighRateButton::HighRateButton(Peripheral::Ptr pPeripheral):
+HighRateButton::HighRateButton(BtLE::Peripheral::Ptr pPeripheral):
 	_pPeripheral(pPeripheral),
 	_enabled(false),
 	_ready(false),
@@ -39,14 +36,14 @@ HighRateButton::HighRateButton(Peripheral::Ptr pPeripheral):
 	addProperty("symbolicName", &HighRateButton::getSymbolicName);
 	addProperty("name", &HighRateButton::getName);
 	addProperty("type", &HighRateButton::getType);
-	
+
 	_pPeripheral->connected += Poco::delegate(this, &HighRateButton::onConnected);
 	_pPeripheral->disconnected += Poco::delegate(this, &HighRateButton::onDisconnected);
 
 	init();
 }
 
-	
+
 HighRateButton::~HighRateButton()
 {
 	_pPeripheral->connected -= Poco::delegate(this, &HighRateButton::onConnected);
@@ -162,10 +159,9 @@ void HighRateButton::onConnected()
 void HighRateButton::onDisconnected()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
-	
+
 	_ready = false;
 }
 
 
-} } } // namespace IoT::BtLE::XDK
-
+} } // namespace IoT::XDK

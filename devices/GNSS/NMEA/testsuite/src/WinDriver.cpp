@@ -1,8 +1,6 @@
 //
 // WinDriver.cpp
 //
-// $Id$
-//
 // Windows test driver for IoT GNSS NMEA.
 //
 // Copyright (c) 2010-2015, Applied Informatics Software Engineering GmbH.

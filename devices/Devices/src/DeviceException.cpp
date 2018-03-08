@@ -1,8 +1,6 @@
 //
 // DeviceException.cpp
 //
-// $Id: //iot/Main/Devices/src/DeviceException.cpp#2 $
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  DeviceException

@@ -1,8 +1,6 @@
 //
 // SensorTag.h
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -24,7 +22,6 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace SensorTag {
 
 
@@ -42,13 +39,13 @@ public:
 		std::string physicalUnit;
 		long pollInterval;
 	};
-	
-	SensorTagSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+
+	SensorTagSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates a SensorTagSensor.
 
 	~SensorTagSensor();
 		/// Destroys the SensorTagSensor.
-	
+
 	bool isConnected() const;
 		/// Returns true if the sensor's peripheral is connected.
 
@@ -84,11 +81,11 @@ protected:
 
 protected:
 	Params _params;
-	mutable Peripheral::Ptr _pPeripheral;
+	mutable BtLE::Peripheral::Ptr _pPeripheral;
 	Poco::SharedPtr<Poco::Util::Timer> _pTimer;
 	Poco::Util::TimerTask::Ptr _pPollTask;
-	Characteristic _controlChar;
-	Characteristic _dataChar;
+	BtLE::Characteristic _controlChar;
+	BtLE::Characteristic _dataChar;
 	bool _ready;
 	bool _enabled;
 	double _value;
@@ -97,7 +94,7 @@ protected:
 	Poco::Any _deviceIdentifier;
 	Poco::Any _physicalQuantity;
 	Poco::Any _physicalUnit;
-	
+
 	friend class PollTask;
 };
 
@@ -105,12 +102,12 @@ protected:
 class SensorTag1IRAmbientTemperatureSensor: public SensorTagSensor
 {
 public:
-	SensorTag1IRAmbientTemperatureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	SensorTag1IRAmbientTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the SensorTag1IRAmbientTemperatureSensor.
 
 	~SensorTag1IRAmbientTemperatureSensor();
 		/// Destroys the SensorTag1IRAmbientTemperatureSensor.
-		
+
 protected:
 	void poll();
 };
@@ -119,12 +116,12 @@ protected:
 class SensorTag1IRObjectTemperatureSensor: public SensorTagSensor
 {
 public:
-	SensorTag1IRObjectTemperatureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	SensorTag1IRObjectTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the SensorTag1IRObjectTemperatureSensor.
 
 	~SensorTag1IRObjectTemperatureSensor();
 		/// Destroys the SensorTag1IRObjectTemperatureSensor.
-		
+
 protected:
 	void poll();
 };
@@ -133,12 +130,12 @@ protected:
 class SensorTag2IRAmbientTemperatureSensor: public SensorTagSensor
 {
 public:
-	SensorTag2IRAmbientTemperatureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	SensorTag2IRAmbientTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the SensorTag2IRAmbientTemperatureSensor.
 
 	~SensorTag2IRAmbientTemperatureSensor();
 		/// Destroys the SensorTag2IRAmbientTemperatureSensor.
-		
+
 protected:
 	void poll();
 };
@@ -147,12 +144,12 @@ protected:
 class SensorTag2IRObjectTemperatureSensor: public SensorTagSensor
 {
 public:
-	SensorTag2IRObjectTemperatureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	SensorTag2IRObjectTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the SensorTag2IRObjectTemperatureSensor.
 
 	~SensorTag2IRObjectTemperatureSensor();
 		/// Destroys the SensorTag2IRObjectTemperatureSensor.
-		
+
 protected:
 	void poll();
 };
@@ -161,12 +158,12 @@ protected:
 class SensorTagHumiditySensor: public SensorTagSensor
 {
 public:
-	SensorTagHumiditySensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	SensorTagHumiditySensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the SensorTagHumiditySensor.
 
 	~SensorTagHumiditySensor();
 		/// Destroys the SensorTagHumiditySensor.
-		
+
 protected:
 	void poll();
 };
@@ -175,12 +172,12 @@ protected:
 class SensorTag2LightSensor: public SensorTagSensor
 {
 public:
-	SensorTag2LightSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	SensorTag2LightSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the SensorTag2LightSensor.
 
 	~SensorTag2LightSensor();
 		/// Destroys the SensorTag2LightSensor.
-		
+
 protected:
 	void poll();
 };
@@ -189,12 +186,12 @@ protected:
 class SensorTag1AirPressureSensor: public SensorTagSensor
 {
 public:
-	SensorTag1AirPressureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	SensorTag1AirPressureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the SensorTag1AirPressureSensor.
 
 	~SensorTag1AirPressureSensor();
 		/// Destroys the SensorTag1AirPressureSensor.
-		
+
 protected:
 	void poll();
 
@@ -206,19 +203,18 @@ private:
 class SensorTag2AirPressureSensor: public SensorTagSensor
 {
 public:
-	SensorTag2AirPressureSensor(Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
+	SensorTag2AirPressureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer);
 		/// Creates the SensorTag2AirPressureSensor.
 
 	~SensorTag2AirPressureSensor();
 		/// Destroys the SensorTag2AirPressureSensor.
-		
+
 protected:
 	void poll();
 };
 
 
-} } } // namespace IoT::BtLE::SensorTag
+} } // namespace IoT::SensorTag
 
 
 #endif // IoT_SensorTag_SensorTag_INCLUDED
-

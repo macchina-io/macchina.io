@@ -84,11 +84,12 @@ implemented in the <[com.appinf.osp.auth]> bundle. As its name implies the servi
 not only provides the <[authenticate()]> and <[authorize()]> methods known from
 the <[Poco::OSP::Auth::AuthService]>, it also provides methods for managing
 user accounts and permissions. There is also a shell command available for managing
-users, roles and permissions.
+users, roles and permissions. The AuthAdminService requires a commercial license.
 
 The following features are supported:
   * User and role-based permission grants.
-  * User accounts and permissions are stored in a SQL Database.
+  * User accounts and permissions are stored in a SQL Database (other database
+    types can be supported as well).
   * LDAP server integration. Users can be authenticated via an LDAP server and
     permissions and roles can be assigned via LDAP attributes.
   * In-memory caching of password hashes and permissions.
@@ -102,7 +103,8 @@ as well as the permissions granted via its assigned roles.
 
 !! Setting up the Authentication/Authorization Database
 
-The <[AuthAdminService]> uses a SQL database for managing users, roles and
+The default <[AuthAdminService]> implementation in the <[com.appinf.osp.auth.data]>
+bundle uses a SQL database for managing users, roles and
 permissions. In order to use the service, a database must be set up and the
 service must be configured to use a specific database. The Data library from
 the POCO C++ Libraries is used for database access, therefore the service
@@ -148,7 +150,7 @@ Following is the database schema required by the <[AuthAdminService]>:
     );
 ----
 
-After setting up the tables, at least one user account must be created.
+After setting up the tables, at least one initial user account must be created.
 Usually, this will be an administrator account with the necessary permissions to
 perform further administrative tasks using the OSP Shell service.
 
@@ -164,8 +166,8 @@ the salt with the password and computing the MD5:
     passwordHash = MD5(salt | password)
 ----
 
-The salt can be configured in the bundle.properties file in the <[com.appinf.osp.auth]> 
-bundle and should be unique for each application.
+The salt can be configured in the bundle.properties file in the <[com.appinf.osp.auth.data]> 
+bundle (property <[auth.passwordSalt]>) and should be unique for each application.
 
 On Linux systems, the has can be computed with the md5sum command:
 
@@ -176,6 +178,11 @@ On OS X and BSD systems, the md5 utility can be used:
 
     $ md5 -s "saltpassword"
 ----
+
+<!Important!>: MD5 hashes are no longer considered secure. However, newer versions
+of the AuthAdminService use a more secure hashing algorithm (PBKDF2), and the initial 
+MD5 password hash will be automatically upgraded upon the first successful login. 
+Nevertheless, only the initial account should be created this way. 
 
 The following permissions used by OSP should be granted to the administrator:
 
@@ -203,8 +210,9 @@ After the database tables have been set up, the service must be configured.
 
 !! Configuring the AuthAdminService
 
-The <[AuthAdminService]> is configured using the global application configuration
-file. At least the <*auth.db.connector*> and <*auth.db.connectionString*> configuration
+The <[AuthAdminService]> default implementation in the <[com.appinf.osp.auth.data]> bundle
+is configured using the global application configuration file. At least the 
+<*auth.db.connector*> and <*auth.db.connectionString*> configuration
 properties must be specified.
 
 The following configuration properties are available:
@@ -213,6 +221,10 @@ The following configuration properties are available:
   * auth.db.connectionString
   * auth.cacheSize
   * auth.cacheTimeout
+  * auth.hashVersion
+  * auth.saltLength
+  * auth.pbkdf2Iterations
+  * auth.credentialsSalt
   * auth.ldap.uri
   * auth.ldap.bindDN
   * auth.ldap.permissionAttribute
@@ -255,6 +267,43 @@ system.
 This setting allows configuring the timeout of the password cache. The
 password cache is used to reduce database accesses or LDAP lookups (if
 LDAP authentication is enabled). 
+
+
+! auth.hashVersion
+
+Specifies the version of the password hashing algorithm. 
+
+  - Version 1 uses MD5 with a global salt. This is considered insecure and should
+    no longer be used.
+  - Version 2 uses PBKDF2 with HMAC-SHA1 and per-user random salt (default).
+  - Version 3 uses PBKDF2 with HMAC-SHA1 and per-user random salt with additional
+    MD5 password hashing allowing implementation of secure challenge-response 
+    authentication mechanisms such as SCRAM-SHA1 (recommended). 
+	
+New deployments should use Version 3. Also, existing deployments should be upgraded
+to use this version. A user's hash will automatically be upgraded when the user
+successfully authenticates. Note that the default version is 2; version 3 has to
+be explicitly configured by setting the <[auth.hashVersion]> configuration property. 
+
+
+! auth.saltLength
+
+The length of the generated per-user salt in bytes. Defaults to 7.
+
+
+! auth.pbkdf2Rounds
+
+The number of iterations for the PBKDF2 algorithm.
+Defaults to 1024, but should be configured to 10000 for new deployments. 
+Note that existing Version 2 hashes cannot be validated anymore if this value is 
+changed. This does not affect Version 3 hashes.
+
+
+! auth.credentialsSalt
+
+An additional salt value for the Version 3 initial MD5 hash that is the input for
+the main PBKDF2 hash. Defaults to "poco". Can be left at default value. 
+If changed while in deployment, Version 3 hashes cannot be validated anymore.
 
 
 ! auth.ldap.uri
@@ -310,7 +359,7 @@ the <[getUserAttribute()]> and <[attributesForUser()]> methods.
 
 The <[AuthAdminService]> provides methods for managing users, roles and permissions.
 Please refer to the documentation of the Poco::OSP::Auth::AuthAdminService interface
-for more information.
+and the Poco::OSP::Auth::Data::AuthAdminServiceImpl class for more information.
 
 The <[AuthAdminService]> is registered under the service name "osp.auth" and 
 can be obtained using the Poco::OSP::ServiceFinder helper class:

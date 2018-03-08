@@ -1,8 +1,6 @@
 //
 // WebTunnel.h
 //
-// $Id: //poco/1.4/WebTunnel/include/Poco/WebTunnel/WebTunnel.h#4 $
-//
 // Library: WebTunnel
 // Package: WebTunnel
 // Module:  WebTunnel

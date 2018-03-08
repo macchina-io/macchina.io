@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html lang="en" ng-app="gpioApp">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>macchina.io - GPIO</title>
+    <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
+    <link rel="icon" href="/images/favicon.ico">
+    <script type="text/javascript" src="/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/angular/angular.min.js"></script>
+    <script type="text/javascript" src="/macchina/gpio/js/app.js"></script>
+    <script type="text/javascript" src="/macchina/gpio/js/controllers.js"></script>
+  </head>
+  <body ng-controller="SessionCtrl">
+    <header>
+      <div class="headercontainer">
+        <div class="header">
+          <h1>
+          <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io"></a>GPIO Pins
+          </h1>
+        </div>
+      </div>
+    </header>
+    <div class="contentcontainer">
+      <div class="content">
+        <nav>
+          <div class="usernav">
+            <div class="navigation">
+            </div>
+            <div class="username">
+              <i class="fa fa-user"></i>
+              &nbsp;
+              {{session.username}}
+              &nbsp;
+              <a id="logoutLink" href="#" onclick="document.logout.submit()">Sign out</a>
+           </div>
+           <form method="post" name="logout" action="/">
+             <input type="hidden" name="action" value="logout">
+           </form>
+           <div style="clear: both;"></div>
+         </div>
+        </nav>
+        <div ng-controller="GpioCtrl" class="groupbox">
+          <div ng-if="devices.length == 0">No GPIO devices found.</div>
+          <table class="list" style="width: 100%" ng-if="devices.length > 0">
+            <thead>
+              <tr>
+                <th ng-click="setOrderBy('name')" class="list-sortable">Name</th>
+                <th ng-click="setOrderBy('type')" class="list-sortable">Type</th>
+                <th ng-click="setOrderBy('id')" class="list-sortable">ID</th>
+                <th>State/Value</th>
+                <th>Direction</th>
+                <th>State</th>
+                <th>Set State</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="device in devices | orderBy:orderBy track by $index" ng-class-even="'even'" ng-class-odd="'odd'">
+                <td><span ng-attr-title="{{device.symbolicName}}">{{device.name}}</span></td>
+                <td>{{device.type}}</td>
+                <td>{{device.id}}</td>
+                <td>{{device.displayValue}}</td>
+                <td>{{device.direction}}</td>
+                <td>{{device.state}}</td>
+                <td>
+                  <button class="pull-center btn btn-primary btn-xs" ng-click="toggleState(device.id)" ng-disabled="'{{device.direction}}' == 'in'">Toogle</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

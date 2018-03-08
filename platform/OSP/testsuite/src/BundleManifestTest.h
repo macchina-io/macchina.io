@@ -1,8 +1,6 @@
 //
 // BundleManifestTest.h
 //
-// $Id: //poco/1.7/OSP/testsuite/src/BundleManifestTest.h#1 $
-//
 // Definition of the BundleManifestTest class.
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
@@ -40,6 +38,14 @@ public:
 	void testRequired7();
 	void testRequired8();
 	void testRequired9();
+	void testRequiredModule1();
+	void testRequiredModule2();
+	void testRequiredModule3();
+	void testRequiredModule4();
+	void testProvidedModule1();
+	void testProvidedModule2();
+	void testProvidedModule3();
+	void testProvidedModule4();
 
 	void setUp();
 	void tearDown();

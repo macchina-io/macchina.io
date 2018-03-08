@@ -1,8 +1,6 @@
 //
 // Error.cpp
 //
-// $Id: //poco/1.4/Foundation/src/Error.cpp#3 $
-//
 // Library: Foundation
 // Package: Core
 // Module:  Error
@@ -70,7 +68,7 @@ namespace Poco {
 		{
 			_buffer[0] = 0;
 
-#if (_XOPEN_SOURCE >= 600) || POCO_ANDROID || __APPLE__
+#if (_XOPEN_SOURCE >= 600) || POCO_OS == POCO_OS_ANDROID || __APPLE__
 			setMessage(strerror_r(err, _buffer, sizeof(_buffer)));
 #elif _GNU_SOURCE
 			setMessage(strerror_r(err, _buffer, sizeof(_buffer)));

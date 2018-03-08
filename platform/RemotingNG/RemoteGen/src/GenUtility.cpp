@@ -1,8 +1,6 @@
 //
 // GenUtility.cpp
 //
-// $Id: //poco/1.7/RemotingNG/RemoteGen/src/GenUtility.cpp#2 $
-//
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -151,7 +149,6 @@ bool GenUtility::getIsMandatory(const Poco::CppParser::Function* pFunc, const Po
 
 bool GenUtility::getIsMandatory(const Poco::CppParser::Variable* pVar)
 {
-	bool isMandatory = true;
 	Poco::CodeGeneration::CodeGenerator::Properties props;
 	Poco::CodeGeneration::GeneratorEngine::parseProperties(pVar, props);
 	return getIsMandatory(props);

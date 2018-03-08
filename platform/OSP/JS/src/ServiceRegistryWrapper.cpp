@@ -1,8 +1,6 @@
 //
 // ServiceRegistryWrapper.cpp
 //
-// $Id: //poco/1.4/OSP/JS/src/ServiceRegistryWrapper.cpp#4 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -12,6 +10,7 @@
 
 #include "Poco/OSP/JS/ServiceRegistryWrapper.h"
 #include "Poco/OSP/JS/ServiceRefWrapper.h"
+#include "Poco/OSP/JS/ServiceListenerWrapper.h"
 
 
 namespace Poco {
@@ -36,12 +35,14 @@ v8::Handle<v8::ObjectTemplate> ServiceRegistryWrapper::objectTemplate(v8::Isolat
 	serviceRegistryTemplate->SetInternalFieldCount(1);
 	serviceRegistryTemplate->Set(v8::String::NewFromUtf8(pIsolate, "find"), v8::FunctionTemplate::New(pIsolate, find));
 	serviceRegistryTemplate->Set(v8::String::NewFromUtf8(pIsolate, "findByName"), v8::FunctionTemplate::New(pIsolate, findByName));
+	serviceRegistryTemplate->Set(v8::String::NewFromUtf8(pIsolate, "createListener"), v8::FunctionTemplate::New(pIsolate, createListener));
 	return handleScope.Escape(serviceRegistryTemplate);
 }
 
 
 void ServiceRegistryWrapper::findByName(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::HandleScope handleScope(args.GetIsolate());
 	Poco::OSP::ServiceRegistry* pServiceRegistry = Poco::JS::Core::Wrapper::unwrapNative<Poco::OSP::ServiceRegistry>(args);
 
 	try
@@ -73,6 +74,7 @@ void ServiceRegistryWrapper::findByName(const v8::FunctionCallbackInfo<v8::Value
 
 void ServiceRegistryWrapper::find(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::HandleScope handleScope(args.GetIsolate());
 	Poco::OSP::ServiceRegistry* pServiceRegistry = Poco::JS::Core::Wrapper::unwrapNative<Poco::OSP::ServiceRegistry>(args);
 
 	try
@@ -101,6 +103,42 @@ void ServiceRegistryWrapper::find(const v8::FunctionCallbackInfo<v8::Value>& arg
 		else
 		{
 			returnException(args, std::string("bad arguments - service query required"));
+		}
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
+}
+
+
+void ServiceRegistryWrapper::createListener(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::HandleScope handleScope(args.GetIsolate());
+	Poco::OSP::ServiceRegistry* pServiceRegistry = Poco::JS::Core::Wrapper::unwrapNative<Poco::OSP::ServiceRegistry>(args);
+
+	try
+	{
+		if (args.Length() == 3 && args[1]->IsFunction() && args[2]->IsFunction())
+		{
+			std::string query = toString(args[0]);
+
+			ServiceListenerWrapper wrapper;
+			ServiceListenerHolder::Ptr pHolder = new ServiceListenerHolder(
+				args.GetIsolate(),
+				Poco::JS::Core::JSExecutor::current(),
+				*pServiceRegistry,
+				query,
+				args[1].As<v8::Function>(),
+				args[2].As<v8::Function>());
+
+			v8::Persistent<v8::Object>& serviceListenerObject(wrapper.wrapNativePersistent(args.GetIsolate(), pHolder));
+			v8::Local<v8::Object> localListenerObject = v8::Local<v8::Object>::New(args.GetIsolate(), serviceListenerObject);
+			args.GetReturnValue().Set(localListenerObject);
+		}
+		else
+		{
+			returnException(args, std::string("bad arguments - service query, registered callback and unregistered callback required"));
 		}
 	}
 	catch (Poco::Exception& exc)

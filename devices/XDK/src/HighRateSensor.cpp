@@ -1,8 +1,6 @@
 //
 // HighRateSensor.cpp
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -16,16 +14,15 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
 const std::string HighRateSensor::NAME("XDK Sensor");
 const std::string HighRateSensor::TYPE("io.macchina.sensor");
-const std::string HighRateSensor::SYMBOLIC_NAME("io.macchina.btle.xdk");
+const std::string HighRateSensor::SYMBOLIC_NAME("io.macchina.xdk");
 
 
-HighRateSensor::HighRateSensor(Peripheral::Ptr pPeripheral, const Params& params):
+HighRateSensor::HighRateSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params):
 	_params(params),
 	_pPeripheral(pPeripheral),
 	_ready(false),
@@ -47,7 +44,7 @@ HighRateSensor::HighRateSensor(Peripheral::Ptr pPeripheral, const Params& params
 	addProperty("type", &HighRateSensor::getType);
 	addProperty("physicalQuantity", &HighRateSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &HighRateSensor::getPhysicalUnit);
-	
+
 	_pEventPolicy = new IoT::Devices::NoModerationPolicy<double>(valueChanged);
 
 	_pPeripheral->connected += Poco::delegate(this, &HighRateSensor::onConnected);
@@ -56,7 +53,7 @@ HighRateSensor::HighRateSensor(Peripheral::Ptr pPeripheral, const Params& params
 	init();
 }
 
-	
+
 HighRateSensor::~HighRateSensor()
 {
 	_pPeripheral->connected -= Poco::delegate(this, &HighRateSensor::onConnected);
@@ -84,7 +81,7 @@ bool HighRateSensor::ready() const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	return _ready && _pPeripheral->isConnected();	
+	return _ready && _pPeripheral->isConnected();
 }
 
 
@@ -226,4 +223,4 @@ void HighRateSensor::onDisconnected()
 }
 
 
-} } } // namespace IoT::BtLE::XDK
+} } // namespace IoT::XDK

@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/WebTunnel/samples-internal/WebTunnelReflector/Makefile#1 $
-#
 # Makefile for Reflector
 #
 

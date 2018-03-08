@@ -1,21 +1,19 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Makefile for macchina.io SensorTag Bundle
 #
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-
 include $(POCO_BASE)/build/rules/global
+
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 INCLUDE += -I$(PROJECT_BASE)/protocols/BtLE/include
 
-objects = SensorTag SensorTagAccelerometer BundleActivator 
+objects = SensorTag SensorTagAccelerometer BundleActivator
 
-target         = io.macchina.btle.sensortag
+target         = io.macchina.sensortag
 target_version = 1
 target_libs    = IoTBtLE IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoFoundation
 

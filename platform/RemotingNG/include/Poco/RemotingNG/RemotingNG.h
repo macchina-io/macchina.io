@@ -1,8 +1,6 @@
 //
 // RemotingNG.h
 //
-// $Id: //poco/1.7/RemotingNG/include/Poco/RemotingNG/RemotingNG.h#1 $
-//
 // Library: RemotingNG
 // Package: RemotingNG
 // Module:  RemotingNG

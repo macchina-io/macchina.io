@@ -3,41 +3,41 @@ Open Service Platform
 
 !!! Introduction
 
-Today's applications are becoming ever more complex. A large part of this complexity 
-stems from the need to support different configurations, e.g. for different devices, 
-operating system environments or customer requirements. Huge monolithic applications 
-like the ones developed in the past do not (or only at an enormous cost) provide the 
+Today's applications are becoming ever more complex. A large part of this complexity
+stems from the need to support different configurations, e.g. for different devices,
+operating system environments or customer requirements. Huge monolithic applications
+like the ones developed in the past do not (or only at an enormous cost) provide the
 necessary flexibility required today.
 
-Many companies have noticed this, and are basing their latest software architectures on 
-a dynamic plug-in model. In this model, they implement a very basic skeleton application 
+Many companies have noticed this, and are basing their latest software architectures on
+a dynamic plug-in model. In this model, they implement a very basic skeleton application
 merely acting as a loader and execution environment (or container) for plug-ins --
-shared libraries loaded dynamically as required at run-time. All the features of an application 
-are then provided by plug-ins, which can be added to an application on demand. 
-While Java developers have been able -- for a few years now -- to choose between the various readily 
+shared libraries loaded dynamically as required at run-time. All the features of an application
+are then provided by plug-ins, which can be added to an application on demand.
+While Java developers have been able -- for a few years now -- to choose between the various readily
 available implementations of such a framework based on the OSGi(TM) Service Platform specification
 (OSGi is a trademark or a registered trademark of the OSGi Alliance in the United States, other countries, or both)
-developed by the OSGi Foundation (http://www.osgi.org/), companies relying on C++ have no such 
+developed by the OSGi Foundation (http://www.osgi.org/), companies relying on C++ have no such
 standard environment readily available and are forced to implement their own system.
 
-This is where the Open Service Platform (OSP) comes in. OSP is a C++ based middleware 
-providing a service-oriented and component-based environment for developing, deploying, 
-running and managing modular network-based applications. As such, OSP is to C++ to what the 
-OSGi Service Platform is to Java. In fact, the design of OSP draws many ideas and inspirations 
+This is where the Open Service Platform (OSP) comes in. OSP is a C++ based middleware
+providing a service-oriented and component-based environment for developing, deploying,
+running and managing modular network-based applications. As such, OSP is to C++ to what the
+OSGi Service Platform is to Java. In fact, the design of OSP draws many ideas and inspirations
 from the OSGi Service Platform.
 
-This component-based architecture of OSP addresses an increasing problem in software development: 
-The large number of application configurations that need to be developed and maintained. 
+This component-based architecture of OSP addresses an increasing problem in software development:
+The large number of application configurations that need to be developed and maintained.
 The standardized OSP component architecture simplifies this configuration process significantly.
 
 
 !!! OSP Architecture Overview
 
 The Open Service Platform is based on a layered architecture, depicted in the figure below.
-At the core of OSP is the Portable Runtime Environment, consisting of the C and C++ standard 
-libraries and the POCO Core Libraries (Foundation, XML, Util and Net). Layered above the Portable 
-Runtime Environment is the OSP Framework, consisting of <*Service Registry*>, <*Life Cycle Management*>, 
-<*Bundle Management*> and <*Standard Services*>. Application-specific bundles based on the OSP Framework 
+At the core of OSP is the Portable Runtime Environment, consisting of the C and C++ standard
+libraries and the POCO Core Libraries (Foundation, XML, JSON, Util and Net). Layered above the Portable
+Runtime Environment is the OSP Framework, consisting of <*Service Registry*>, <*Life Cycle Management*>,
+<*Bundle Management*> and <*Standard Services*>. Application-specific bundles based on the OSP Framework
 implement the actual application logic.
 
 <%
@@ -47,29 +47,29 @@ implement the actual application logic.
 
 !! Portable Runtime Environment
 
-The Portable Runtime Environment sits at the center of the OSP architecture. Based on the C and 
-C++ Standard Libraries, as well as on the POCO Core Libraries, it provides platform-independent 
+The Portable Runtime Environment sits at the center of the OSP architecture. Based on the C and
+C++ Standard Libraries, as well as on the POCO Core Libraries, it provides platform-independent
 low-level services to the upper OSP layers, such as:
   * access to the file system
   * multithreading support
   * shared library and class loading
   * notifications and events
   * logging
-  * XML parsing
+  * JSON and XML parsing
   * configuration data handling
   * TCP/IP sockets and support for various network protocols (HTTP, FTP, SMTP, POP3, etc.)
   * various utility classes and functions
 
-By isolating applications from the operating system interfaces, the Portable Runtime Environment makes 
-it possible to write applications that can be compiled for and run on different operating system 
+By isolating applications from the operating system interfaces, the Portable Runtime Environment makes
+it possible to write applications that can be compiled for and run on different operating system
 platforms and processor architectures, all from the same source code.
 
 
 !! Service Registry
 
-The Service Registry allows a bundle to register its services to make them available to other bundles, 
-as well as to discover the services provided by other bundles. Since bundles can appear and disappear 
-in an application at any time, the Service Registry also provides notification mechanisms so that a 
+The Service Registry allows a bundle to register its services to make them available to other bundles,
+as well as to discover the services provided by other bundles. Since bundles can appear and disappear
+in an application at any time, the Service Registry also provides notification mechanisms so that a
 bundle can be informed when another bundles it uses disappears from the system.
 
 A bundle can discover a certain service by using a simple query language to query the Service Registry
@@ -78,17 +78,17 @@ for a service with certain properties.
 
 !! Life Cycle Management
 
-Bundles adhere to a well-defined life cycle, shown in the figure below. The Life Cycle Management in OSP 
+Bundles adhere to a well-defined life cycle, shown in the figure below. The Life Cycle Management in OSP
 ensures that every bundle in the system follows this life cycle, which is outlined in the following.
 
-A bundle is installed into an application and starts its life cycle in the <*Installed*> state. 
-From the <*Installed*> state, a bundle can either be uninstalled, or resolved. Resolving a bundle 
-means determining all its dependencies on other bundles, and verifying that all required bundles 
-are available. Only a successfully resolved bundle can be started. Starting a bundle causes a 
-special class provided by the bundle, the <*Bundle Activator*>, to be loaded and invoked. The 
-Bundle Activator then takes care of registering the bundle's services and does all the necessary 
-steps so that the bundle can provide its services. After the Bundle Activator has successfully 
-done its work, the bundle is in <*Active*> state. Eventually, an active bundle will be stopped again, 
+A bundle is installed into an application and starts its life cycle in the <*Installed*> state.
+From the <*Installed*> state, a bundle can either be uninstalled, or resolved. Resolving a bundle
+means determining all its dependencies on other bundles, and verifying that all required bundles
+are available. Only a successfully resolved bundle can be started. Starting a bundle causes a
+special class provided by the bundle, the <*Bundle Activator*>, to be loaded and invoked. The
+Bundle Activator then takes care of registering the bundle's services and does all the necessary
+steps so that the bundle can provide its services. After the Bundle Activator has successfully
+done its work, the bundle is in <*Active*> state. Eventually, an active bundle will be stopped again,
 and possibly removed from the system (uninstall).
 
 <%
@@ -97,24 +97,22 @@ and possibly removed from the system (uninstall).
 
 !! Bundle Management
 
-The Bundle Management layer in OSP takes care of dealing with the physical storage of bundles in the 
+The Bundle Management layer in OSP takes care of dealing with the physical storage of bundles in the
 file system, as well as the loading of shared libraries contained in bundles.
 
-Bundles are a collection of files (manifest, shared libraries, data files, configuration files, 
-resource files, etc.) stored in a certain directory structure. For easier deployment, a bundle can be 
-packed into an archive, using the Zip file format 
-(specification: http://www.pkware.com/documents/casestudies/APPNOTE.TXT). 
-In a future version of OSP it will also be possible to cryptographically sign a bundle and to encrypt 
-the contents of a bundle.
+Bundles are a collection of files (manifest, shared libraries, data files, configuration files,
+resource files, etc.) stored in a certain directory structure. For easier deployment, a bundle can be
+packed into an archive, using the Zip file format
+(specification: http://www.pkware.com/documents/casestudies/APPNOTE.TXT).
 
-Bundles can contain multiple versions of a shared library for different operating system platforms and 
-hardware architectures. Bundle Management ensures that the correct version of a shared library for the 
-current operating system and hardware architecture is loaded. This makes it possible to provide a single 
+Bundles can contain multiple versions of a shared library for different operating system platforms and
+hardware architectures. Bundle Management ensures that the correct version of a shared library for the
+current operating system and hardware architecture is loaded. This makes it possible to provide a single
 bundle file that can be, for example, deployed on both a Windows and a Linux system.
 
 
 !! Standard Services
 
-OSP comes with a number of standard services implementing commonly required features. Examples include a 
-HTTP server, support for sending email messages, Web-based bundle management, as well as a configuration 
+OSP comes with a number of standard services implementing commonly required features. Examples include a
+HTTP server, support for sending email messages, Web-based bundle management, as well as a configuration
 and preferences storage service.

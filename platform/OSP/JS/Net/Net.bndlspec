@@ -6,7 +6,7 @@
     <version>1.0.0</version>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2017, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2017-2018, Applied Informatics Software Engineering GmbH</copyright>
     <lazyStart>false</lazyStart>
     <runLevel>600</runLevel>
     <dependency>
@@ -26,5 +26,9 @@
     ${bin}/*.pdb
     bin/${osName}/${osArch}/*.so
     bin/${osName}/${osArch}/*.dylib
+    ../../../lib/${osName}/${osArch}/libPocoJSNet.so.*
+    ../../../lib/${osName}/${osArch}/libPocoJSNetd.so.*
+    ../../../lib/${osName}/${osArch}/libPocoJSNet.*.dylib
+    ../../../lib/${osName}/${osArch}/libPocoJSNetd.*.dylib
   </code>
 </bundlespec>

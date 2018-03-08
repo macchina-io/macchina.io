@@ -1,8 +1,6 @@
 //
 // RegularExpression.h
 //
-// $Id: //poco/1.4/Foundation/src/RegularExpression.cpp#1 $
-//
 // Library: Foundation
 // Package: RegExp
 // Module:  RegularExpression
@@ -28,7 +26,7 @@
 namespace Poco {
 
 
-const int RegularExpression::OVEC_SIZE = 64;
+const int RegularExpression::OVEC_SIZE = 63; // must be multiple of 3
 
 
 RegularExpression::RegularExpression(const std::string& pattern, int options, bool study): _pcre(0), _extra(0)

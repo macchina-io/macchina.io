@@ -1,8 +1,6 @@
 //
 // LogTestResult.h
 //
-// $Id: //projects/SecurePassage/FireMon/poco/OSP/Unit/include/Poco/OSP/Unit/LogTestResult.h#1 $
-//
 // Library: OSP/Unit
 // Package: Unit
 // Module:  LogTestResult

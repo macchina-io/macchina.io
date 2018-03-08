@@ -1,8 +1,6 @@
 //
 // TimeService.h
 //
-// $Id: //poco/1.6/RemotingNG/samples/TimeServerTCP/include/TimeService.h#1 $
-//
 // Definition of the TimeService class.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.

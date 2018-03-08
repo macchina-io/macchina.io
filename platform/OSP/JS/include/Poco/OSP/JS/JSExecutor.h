@@ -1,8 +1,6 @@
 //
 // JSExecutor.h
 //
-// $Id: //poco/1.4/OSP/JS/src/JSExecutor.h#8 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -73,7 +71,8 @@ public:
 		/// Returns the global default memory limit for scripts.
 
 protected:
-	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
+	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
+	void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate);
 	void handleError(const ErrorInfo& errorInfo);
 
 private:	
@@ -117,7 +116,8 @@ public:
 		/// Returns the bundle context.
 	
 protected:
-	void registerGlobals(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
+	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
+	void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate);
 	void handleError(const ErrorInfo& errorInfo);
 	void onBundleStopped(const void* pSender, Poco::OSP::BundleEvent& ev);
 

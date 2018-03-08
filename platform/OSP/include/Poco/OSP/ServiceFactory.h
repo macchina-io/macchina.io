@@ -1,8 +1,6 @@
 //
 // ServiceFactory.h
 //
-// $Id: //poco/1.7/OSP/include/Poco/OSP/ServiceFactory.h#1 $
-//
 // Library: OSP
 // Package: Service
 // Module:  ServiceFactory

@@ -1,8 +1,6 @@
 /*
 // webtunnelclient.h
 //
-// $Id: //poco/1.4/WebTunnel/samples/WebTunnelClientCAPI/include/webtunnelclient.h#3 $
-//
 // The WebTunnel Client C API
 //
 // Copyright (c) 2013, Applied Informatics Software Engineering GmbH.

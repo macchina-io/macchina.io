@@ -1,8 +1,6 @@
 //
 // JSSPageReader.cpp
 //
-// $Id: //poco/1.4/OSP/JS/src/JSSPageReader.cpp#2 $
-//
 // Copyright (c) 2013-2016, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -225,7 +223,7 @@ void JSSPageReader::nextToken(std::istream& istr, std::string& token)
 		if (ch == '<' && istr.peek() == '%')
 		{
 			token += "<%";
-			ch = istr.get();
+			istr.get();
 			ch = istr.peek();
 			switch (ch)
 			{
@@ -267,7 +265,7 @@ void JSSPageReader::nextToken(std::istream& istr, std::string& token)
 
 void JSSPageReader::handleAttribute(const std::string& name, const std::string& value)
 {
-	if (name == "include.page")
+	if (name == "include.page" || name == "include.file")
 	{
 		include(value);
 	}

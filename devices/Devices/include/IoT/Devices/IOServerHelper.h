@@ -35,9 +35,9 @@ class IOServerHelper
 	/// The interface for general purpose input/output (GPIO)
 	/// ports.
 	///
-	/// This class represents a single GPIO pin. 
-	/// Mapping to physical pins is configured when setting up 
-	/// the specific IO implementation class, typically using a 
+	/// This class represents a single GPIO pin.
+	/// Mapping to physical pins is configured when setting up
+	/// the specific IO implementation class, typically using a
 	/// configuration file.
 	///
 	/// Implementations supporting dynamically changing pin directions

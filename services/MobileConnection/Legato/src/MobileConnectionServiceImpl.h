@@ -1,8 +1,6 @@
 //
 // MobileConnectionServiceImpl.h
 //
-// $Id$
-//
 // Definition of the MobileConnectionServiceImpl class.
 //
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.

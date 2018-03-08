@@ -1,8 +1,6 @@
 //
 // JSBundleActivator.cpp
 //
-// $Id: //poco/1.4/OSP/JS/src/JSBundleActivator.cpp#6 $
-//
 // Copyright (c) 2013-2014, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
@@ -49,6 +47,8 @@ public:
 	void start(Poco::OSP::BundleContext::Ptr pContext)
 	{
 		_pContext = pContext;
+	
+		Poco::JS::Core::initialize();
 	
 		_pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(_pContext);
 		_pXPS = Poco::OSP::ServiceFinder::find<Poco::OSP::ExtensionPointService>(_pContext);
@@ -107,6 +107,8 @@ public:
 		pContext->registry().serviceUnregistered -= Poco::delegate(this, &JSBundleActivator::handleServiceUnregistered);
 
 		_pContext = 0;
+		
+		Poco::JS::Core::uninitialize();
 	}
 
 	void handleServiceRegistered(const void* sender, ServiceEvent& event)

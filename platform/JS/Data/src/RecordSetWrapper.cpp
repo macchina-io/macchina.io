@@ -1,8 +1,6 @@
 //
 // RecordSetWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Data/src/RecordSetWrapper.cpp#8 $
-//
 // Library: JS/Data
 // Package: Wrappers
 // Module:  RecordSetWrapper
@@ -19,10 +17,8 @@
 #include "Poco/Data/MetaColumn.h"
 #include "Poco/Data/RowFormatter.h"
 #include "Poco/Version.h"
-#if POCO_VERSION > 0x01050000
 #include "Poco/Data/Date.h"
 #include "Poco/Data/Time.h"
-#endif
 
 
 namespace Poco {
@@ -141,12 +137,6 @@ void RecordSetHolder::updateRecordSet()
 }
 
 
-void RecordSetHolder::reserveBindings(std::size_t size)
-{
-	_boundValues.reserve(size);
-}
-
-
 RecordSetWrapper::RecordSetWrapper()
 {
 }
@@ -165,7 +155,7 @@ v8::Handle<v8::ObjectTemplate> RecordSetWrapper::objectTemplate(v8::Isolate* pIs
 	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Data.RecordSet"));
 	if (pooledObjectTemplate.IsEmpty())
 	{
-		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New();
+		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "columnCount"), getColumnCount);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "rowCount"), getRowCount);
@@ -191,7 +181,7 @@ v8::Handle<v8::ObjectTemplate> RecordSetWrapper::objectTemplate(v8::Isolate* pIs
 }
 
 
-void RecordSetWrapper::destruct(const v8::WeakCallbackData<v8::Object, RecordSetHolder>& data)
+void RecordSetWrapper::destruct(const v8::WeakCallbackInfo<RecordSetHolder>& data)
 {
 	delete data.GetParameter();
 }
@@ -364,7 +354,6 @@ void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 			case Poco::Data::MetaColumn::FDT_UNKNOWN:
 				typeString = "unknown";
 				break;
-#if POCO_VERSION > 0x01050000
 			case Poco::Data::MetaColumn::FDT_TIMESTAMP:
 				typeString = "DateTime";
 				break;
@@ -380,7 +369,6 @@ void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 			case Poco::Data::MetaColumn::FDT_TIME:
 				typeString = "Time";
 				break;
-#endif
 			}
 			returnString(args, typeString);
 			return;
@@ -585,7 +573,6 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 	case Poco::Data::MetaColumn::FDT_STRING:
 		returnString(args, value.convert<std::string>());
 		break;
-#if POCO_VERSION > 0x01050000
 	case Poco::Data::MetaColumn::FDT_TIMESTAMP:
 		{
 			Poco::DateTime dt = value.extract<Poco::DateTime>();
@@ -613,12 +600,9 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 			args.GetReturnValue().Set(jsDate);
 		}
 		break;
-#endif
 	case Poco::Data::MetaColumn::FDT_BLOB:
-#if POCO_VERSION > 0x01050000
 	case Poco::Data::MetaColumn::FDT_CLOB:
 	case Poco::Data::MetaColumn::FDT_WSTRING:
-#endif
 	case Poco::Data::MetaColumn::FDT_UNKNOWN:
 	default:
 		returnException(args, std::string("cannot convert value"));

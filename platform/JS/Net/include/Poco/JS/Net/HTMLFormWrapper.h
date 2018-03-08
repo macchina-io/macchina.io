@@ -1,8 +1,6 @@
 //
 // HTMLFormWrapper.h
 //
-// $Id: //poco/1.4/JS/Net/include/Poco/JS/Net/HTMLFormWrapper.h#3 $
-//
 // Library: JS/Net
 // Package: Wrappers
 // Module:  HTMLFormWrapper

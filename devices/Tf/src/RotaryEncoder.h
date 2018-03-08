@@ -1,8 +1,6 @@
 //
 // RotaryEncoder.h
 //
-// $Id: //iot/Main/Tf/src/RotaryEncoder.h#3 $
-//
 // Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

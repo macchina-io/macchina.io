@@ -1,8 +1,6 @@
 //
 // TestCase.h
 //
-// $Id: //projects/SecurePassage/FireMon/poco/OSP/Unit/include/Poco/OSP/Unit/TestCase.h#1 $
-//
 // Library: OSP/Unit
 // Package: Unit
 // Module:  TestCase

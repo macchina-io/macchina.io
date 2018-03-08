@@ -1,8 +1,6 @@
 //
 // ManifestInfo.h
 //
-// $Id: //poco/1.7/OSP/BundleCreator/src/ManifestInfo.h#1 $
-//
 // Declaration of the ManifestInfo class.
 //
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
@@ -27,6 +25,13 @@ public:
 	};
 	typedef std::vector<Dependency> Dependencies;
 
+	struct ProvidedModule
+	{
+		std::string symbolicName;
+		std::string version;
+	};
+	typedef std::vector<ProvidedModule> ProvidedModules;
+
 	ManifestInfo(const std::string& name,
 		const std::string& symbolicName,
 		const Poco::OSP::Version& version,
@@ -35,7 +40,10 @@ public:
 		const std::string& activatorClass,
 		const std::string& activatorLibrary,
 		const Dependencies& requiredBundles,
+		const Dependencies& requiredModules,
+		const ProvidedModules& providedModules,
 		bool lazyStart,
+		bool preventUninstall,
 		const std::string& runLevel,
 		const std::string& extendsBundle);
 
@@ -49,7 +57,10 @@ public:
 	const std::string& activatorClass() const;
 	const std::string& activatorLibrary() const;
 	const Dependencies& requiredBundles() const;
+	const Dependencies& requiredModules() const;
+	const ProvidedModules& providedModules() const;
 	bool lazyStart() const;
+	bool preventUninstall() const;
 	const std::string& runLevel() const;
 	const std::string& extendsBundle() const;
 
@@ -62,7 +73,10 @@ private:
 	std::string  _activatorClass;
 	std::string  _activatorLibrary;
 	Dependencies _requiredBundles;
+	Dependencies _requiredModules;
+	ProvidedModules _providedModules;
 	bool         _lazyStart;
+	bool         _preventUninstall;
 	std::string  _runLevel;
 	std::string  _extendsBundle;
 };
@@ -119,9 +133,27 @@ inline const ManifestInfo::Dependencies& ManifestInfo::requiredBundles() const
 }
 
 
+inline const ManifestInfo::Dependencies& ManifestInfo::requiredModules() const
+{
+	return _requiredModules;
+}
+
+
+inline const ManifestInfo::ProvidedModules& ManifestInfo::providedModules() const
+{
+	return _providedModules;
+}
+
+
 inline bool ManifestInfo::lazyStart() const
 {
 	return _lazyStart;
+}
+
+
+inline bool ManifestInfo::preventUninstall() const
+{
+	return _preventUninstall;
 }
 
 

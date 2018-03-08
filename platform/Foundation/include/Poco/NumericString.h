@@ -1,8 +1,6 @@
 //
 // NumericString.h
 //
-// $Id: //poco/1.4/Foundation/include/Poco/NumericString.h#1 $
-//
 // Library: Foundation
 // Package: Core
 // Module:  NumericString
@@ -197,39 +195,39 @@ namespace Impl {
 	
 		char*& operator ++ () // prefix
 		{
-			check(_cur + 1);
+			checkBounds(_cur + 1);
 			return ++_cur;
 		}
 
 		char* operator ++ (int) // postfix
 		{
-			check(_cur + 1);
+			checkBounds(_cur + 1);
 			char* tmp = _cur++;
 			return tmp;
 		}
 	
 		char*& operator -- () // prefix
 		{
-			check(_cur - 1);
+			checkBounds(_cur - 1);
 			return --_cur;
 		}
 
 		char* operator -- (int) // postfix
 		{
-			check(_cur - 1);
+			checkBounds(_cur - 1);
 			char* tmp = _cur--;
 			return tmp;
 		}
 
 		char*& operator += (int incr)
 		{
-			check(_cur + incr);
+			checkBounds(_cur + incr);
 			return _cur += incr;
 		}
 
 		char*& operator -= (int decr)
 		{
-			check(_cur - decr);
+			checkBounds(_cur - decr);
 			return _cur -= decr;
 		}
 
@@ -244,7 +242,7 @@ namespace Impl {
 		}
 
 	private:
-		void check(char* ptr)
+		void checkBounds(char* ptr)
 		{
 			if (ptr > _end) throw RangeException();
 		}
@@ -319,7 +317,7 @@ bool intToStr(T value,
 
 	size = ptr - result;
 	poco_assert_dbg (size <= ptr.span());
-	poco_assert_dbg ((-1 == width) || (size >= size_t(width)));
+	poco_assert_dbg ((-1 == width) || (size >= std::size_t(width)));
 	*ptr-- = '\0';
 
 	char* ptrr = result;
@@ -394,7 +392,7 @@ bool uIntToStr(T value,
 	
 	size = ptr - result;
 	poco_assert_dbg (size <= ptr.span());
-	poco_assert_dbg ((-1 == width) || (size >= size_t(width)));
+	poco_assert_dbg ((-1 == width) || (size >= std::size_t(width)));
 	*ptr-- = '\0';
 	
 	char* ptrr = result;

@@ -1,8 +1,6 @@
 //
 // SessionWrapper.h
 //
-// $Id: //poco/1.4/JS/Data/include/Poco/JS/Data/SessionWrapper.h#6 $
-//
 // Library: JS/Data
 // Package: Wrappers
 // Module:  SessionWrapper

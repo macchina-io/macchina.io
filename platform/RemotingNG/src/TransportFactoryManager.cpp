@@ -1,8 +1,6 @@
 //
 // TransportFactoryManager.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/TransportFactoryManager.cpp#1 $
-//
 // Library: RemotingNG
 // Package: Transport
 // Module:  TransportFactoryManager

@@ -1,8 +1,6 @@
 //
 // Proxy.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/Proxy.cpp#1 $
-//
 // Library: RemotingNG
 // Package: ORB
 // Module:  Proxy

@@ -1,8 +1,6 @@
 //
 // LED.cpp
 //
-// $Id$
-//
 // Library: IoT/Devices
 // Package: Devices
 // Module:  LED

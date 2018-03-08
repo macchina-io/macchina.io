@@ -1,8 +1,6 @@
 //
 // RemotingException.cpp
 //
-// $Id: //poco/1.7/RemotingNG/src/RemotingException.cpp#3 $
-//
 // Library: RemotingNG
 // Package: RemotingNG
 // Module:  RemotingException

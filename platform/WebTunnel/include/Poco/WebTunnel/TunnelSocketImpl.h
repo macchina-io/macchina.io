@@ -1,8 +1,6 @@
 //
 // TunnelSocketImpl.h
 //
-// $Id: //poco/1.4/WebTunnel/include/Poco/WebTunnel/TunnelSocketImpl.h#5 $
-//
 // Library: WebTunnel
 // Package: WebTunnel
 // Module:  TunnelSocketImpl
@@ -37,18 +35,18 @@ class WebTunnel_API TunnelSocketImpl: public Poco::Net::StreamSocketImpl
 public:
 	TunnelSocketImpl(PortReflector& portReflector, PortReflector::TargetInfo::Ptr pTargetInfo, PortReflector::ChannelInfo::Ptr pChannelInfo);
 		/// Creates a TunnelSocketImpl using the given PortReflector, TargetInfo and channel.
-	
+
 	int enqueueBytes(const char* buffer, int size);
 		/// Copies the content of the given buffer into the internal circular buffer.
 
 	void enqueueClose(Poco::UInt16 statusCode = Protocol::WT_ERR_NONE);
 		/// Signals the socket should be closed.
-		
+
 	Poco::UInt16 statusCode() const;
 		/// Returns the close status code.
-	
+
 	// StreamSocketImpl
-	virtual int sendBytes(const void* buffer, int length, int flags);		
+	virtual int sendBytes(const void* buffer, int length, int flags);
 	virtual int receiveBytes(void* buffer, int length, int flags);
 	virtual Poco::Net::SocketImpl* acceptConnection(Poco::Net::SocketAddress& clientAddr);
 	virtual void connect(const Poco::Net::SocketAddress& address);
@@ -65,7 +63,7 @@ public:
 	virtual int receiveFrom(void* buffer, int length, Poco::Net::SocketAddress& address, int flags = 0);
 	virtual void sendUrgent(unsigned char data);
 	virtual bool secure() const;
-	virtual void setSendTimeout(const Poco::Timespan& timeout);	
+	virtual void setSendTimeout(const Poco::Timespan& timeout);
 	virtual Poco::Timespan getSendTimeout();
 	virtual void setReceiveTimeout(const Poco::Timespan& timeout);
 	virtual Poco::Timespan getReceiveTimeout();
@@ -75,13 +73,13 @@ protected:
 
 private:
 	TunnelSocketImpl();
-	
+
 	enum
 	{
 		CONNECT_TIMEOUT = 60000,
 		BUFFER_TIMEOUT  = 30000
 	};
-	
+
 	template <class Elem>
 	class CircularBuffer
 	{
@@ -97,11 +95,11 @@ private:
 			_close(false)
 		{
 		}
-		
+
 		~CircularBuffer()
 		{
 		}
-		
+
 		int write(const Elem* data, int length, long timeout)
 		{
 			poco_assert (0 < length && length < _buffer.size());
@@ -124,14 +122,14 @@ private:
 			else throw Poco::TimeoutException();
 			return result;
 		}
-		
+
 		int read(Elem* data, int length, long timeout)
 		{
 			int result = 0;
 			if (_canRead.tryWait(timeout))
 			{
 				Poco::FastMutex::ScopedLock lock(_mutex);
-				
+
 				if (_available == 0) return 0; // closed
 				if (length > _available) length = _available;
 				result = length;
@@ -150,21 +148,21 @@ private:
 				{
 					_canRead.reset();
 				}
-			}	
+			}
 			else throw Poco::TimeoutException();
 			return result;
 		}
-		
+
 		void close()
 		{
 			_close = true;
 			_canRead.set();
 		}
-		
+
 		bool reserveWrite(std::size_t size)
 		{
 			Poco::FastMutex::ScopedLock lock(_mutex);
-			
+
 			_reserved = static_cast<int>(size);
 			if (_buffer.size() - _available >= _reserved)
 			{
@@ -177,7 +175,7 @@ private:
 				return false;
 			}
 		}
-				
+
 	private:
 		Poco::Buffer<Elem> _buffer;
 		int _available;
@@ -189,7 +187,7 @@ private:
 		bool _close;
 		Poco::FastMutex _mutex;
 	};
-	
+
 	PortReflector& _portReflector;
 	PortReflector::TargetInfo::Ptr _pTargetInfo;
 	PortReflector::ChannelInfo::Ptr _pChannelInfo;

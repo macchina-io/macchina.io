@@ -1,8 +1,6 @@
 //
 // MacchinaServer.cpp
 //
-// $Id$
-//
 // The launcher/watchdog for macchina.io server
 //
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.

@@ -1,8 +1,6 @@
 //
 // LocalPortForwarder.cpp
 //
-// $Id: //poco/1.4/WebTunnel/src/LocalPortForwarder.cpp#12 $
-//
 // Library: WebTunnel
 // Package: WebTunnel
 // Module:  LocalPortForwarder
@@ -46,12 +44,12 @@ public:
 		_forwarder(forwarder)
 	{
 	}
-	
+
 	void run()
-	{	
+	{
 		_forwarder.forward(socket());
 	}
-	
+
 private:
 	LocalPortForwarder& _forwarder;
 };
@@ -69,7 +67,7 @@ public:
 		_forwarder(forwarder)
 	{
 	}
-	
+
 	Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket& socket)
 	{
 		return new LocalPortForwarderConnection(socket, _forwarder);
@@ -112,7 +110,7 @@ DefaultWebSocketFactory::DefaultWebSocketFactory(const std::string& username, co
 {
 }
 
-	
+
 DefaultWebSocketFactory::~DefaultWebSocketFactory()
 {
 }
@@ -167,7 +165,7 @@ public:
 			logger.warning(Poco::format("Error shutting down WebSocket: %s", exc.displayText()));
 		}
 	}
-	
+
 protected:
 	Poco::SharedPtr<SocketDispatcher> _pDispatcher;
 	Poco::Buffer<char> _buffer;
@@ -188,7 +186,7 @@ public:
 		_logger(Poco::Logger::get("WebTunnel.StreamSocketToWebSocketForwarder"))
 	{
 	}
-	
+
 	bool readable(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 	{
 		int n = 0;
@@ -224,7 +222,7 @@ public:
 		}
 		return false;
 	}
-		
+
 	void exception(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 	{
 		shutdown(*_pWebSocket, Poco::Net::WebSocket::WS_UNEXPECTED_CONDITION, _logger);
@@ -236,7 +234,7 @@ public:
 		shutdown(*_pWebSocket, Poco::Net::WebSocket::WS_UNEXPECTED_CONDITION, _logger);
 		cleanupDispatcher(socket, *_pWebSocket);
 	}
-	
+
 private:
 	Poco::SharedPtr<Poco::Net::WebSocket> _pWebSocket;
 	Poco::Logger& _logger;
@@ -258,7 +256,7 @@ public:
 		_logger(Poco::Logger::get("WebTunnel.WebSocketToStreamSocketForwarder"))
 	{
 	}
-	
+
 	bool readable(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 	{
 		Poco::Net::WebSocket webSocket(socket);
@@ -307,7 +305,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	void exception(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 	{
 		cleanupDispatcher(socket, _streamSocket);
@@ -341,7 +339,7 @@ private:
 	int _timeoutCount;
 	Poco::Logger& _logger;
 };
-	
+
 
 //
 // LocalPortForwarder

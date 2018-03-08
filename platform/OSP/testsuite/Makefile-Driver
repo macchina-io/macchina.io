@@ -1,8 +1,6 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/testsuite/Makefile-Driver#1 $
-#
 # Makefile for Poco OSP testsuite
 #
 
@@ -12,7 +10,7 @@ objects = BundleDirectoryTest BundleTest OSPCoreTestSuite TestBundle \
 	BundleFileTest Driver OSPTestSuite VersionRangeTest \
 	BundleManifestTest OSPBundleTestSuite OSPUtilTestSuite VersionTest \
 	BundleRepositoryTest PropertiesTest QLParserTest ServiceRegistryTest \
-	ServiceTestSuite BundleStreamFactoryTest
+	ServiceListenerTest ServiceTestSuite BundleStreamFactoryTest
 
 target         = testrunner
 target_version = 1

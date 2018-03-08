@@ -1,14 +1,12 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Makefile for IoT GNSS Library
 #
 
 include $(POCO_BASE)/build/rules/global
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 INCLUDE += -I$(PROJECT_BASE)/devices/GNSS/NMEA/include

@@ -1,18 +1,16 @@
 #
 # Makefile
 #
-# $Id$
-#
 # Makefile for SensorLog Bundle
 #
 
 .PHONY: clean all
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-
 include $(POCO_BASE)/build/rules/global
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 all:
-	$(BUNDLE_TOOL) -o../bundles SensorLog.bndlspec
+	$(shell mkdir -p ../bundles)
+	$(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -o../bundles SensorLog.bndlspec
 
 clean:

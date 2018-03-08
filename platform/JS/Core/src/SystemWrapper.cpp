@@ -1,8 +1,6 @@
 //
 // SystemWrapper.cpp
 //
-// $Id: //poco/1.4/JS/Core/src/SystemWrapper.cpp#5 $
-//
 // Library: JS/Core
 // Package: Wrappers
 // Module:  SystemWrapper
@@ -42,7 +40,7 @@ SystemWrapper::~SystemWrapper()
 v8::Handle<v8::ObjectTemplate> SystemWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
-	v8::Local<v8::ObjectTemplate> systemTemplate = v8::ObjectTemplate::New();
+	v8::Local<v8::ObjectTemplate> systemTemplate = v8::ObjectTemplate::New(pIsolate);
 	systemTemplate->SetInternalFieldCount(1);
 	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osName"), osName);
 	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osDisplayName"), osDisplayName);

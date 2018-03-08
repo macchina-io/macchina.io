@@ -1,8 +1,6 @@
 //
 // PizzaDeliveryService.h
 //
-// $Id: //poco/1.6/RemotingNG/samples/Pizzeria/include/Pizzeria/PizzaDeliveryService.h#1 $
-//
 // Definition of the PizzaDeliveryService class.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.

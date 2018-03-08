@@ -1,8 +1,6 @@
 //
 // CppGenerator.cpp
 //
-// $Id: //poco/1.7/CodeGeneration/src/CppGenerator.cpp#1 $
-//
 // Library: CodeGeneration
 // Package: CodeGeneration
 // Module:  CppGenerator

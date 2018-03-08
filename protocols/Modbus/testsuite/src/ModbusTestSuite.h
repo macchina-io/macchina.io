@@ -1,8 +1,6 @@
 //
 // ModbusTestSuite.h
 //
-// $Id$
-//
 // Definition of the GENATestSuite class.
 //
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.

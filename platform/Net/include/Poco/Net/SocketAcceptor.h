@@ -1,8 +1,6 @@
 //
 // SocketAcceptor.h
 //
-// $Id: //poco/1.4/Net/include/Poco/Net/SocketAcceptor.h#1 $
-//
 // Library: Net
 // Package: Reactor
 // Module:  SocketAcceptor
@@ -22,6 +20,7 @@
 
 #include "Poco/Net/Net.h"
 #include "Poco/Net/SocketNotification.h"
+#include "Poco/Net/SocketReactor.h"
 #include "Poco/Net/ServerSocket.h"
 #include "Poco/Net/StreamSocket.h"
 #include "Poco/Observer.h"

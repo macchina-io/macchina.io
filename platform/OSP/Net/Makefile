@@ -1,14 +1,12 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/Net/Makefile#2 $
-#
 # Makefile for Net Bundle
 #
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-
 include $(POCO_BASE)/build/rules/global
+
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 objects = NetBundleActivator
 

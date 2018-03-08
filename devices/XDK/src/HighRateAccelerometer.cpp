@@ -1,8 +1,6 @@
 //
 // HighRateAccelerometer.cpp
 //
-// $Id$
-//
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -17,16 +15,15 @@
 
 
 namespace IoT {
-namespace BtLE {
 namespace XDK {
 
 
 const std::string HighRateAccelerometer::NAME("XDK Accelerometer");
 const std::string HighRateAccelerometer::TYPE("io.macchina.accelerometer");
-const std::string HighRateAccelerometer::SYMBOLIC_NAME("io.macchina.btle.xdk.accelerometer");
+const std::string HighRateAccelerometer::SYMBOLIC_NAME("io.macchina.xdk.accelerometer");
 
 
-HighRateAccelerometer::HighRateAccelerometer(Peripheral::Ptr pPeripheral):
+HighRateAccelerometer::HighRateAccelerometer(BtLE::Peripheral::Ptr pPeripheral):
 	_pPeripheral(pPeripheral),
 	_enabled(false),
 	_ready(false),
@@ -39,14 +36,14 @@ HighRateAccelerometer::HighRateAccelerometer(Peripheral::Ptr pPeripheral):
 	addProperty("symbolicName", &HighRateAccelerometer::getSymbolicName);
 	addProperty("name", &HighRateAccelerometer::getName);
 	addProperty("type", &HighRateAccelerometer::getType);
-	
+
 	_pPeripheral->connected += Poco::delegate(this, &HighRateAccelerometer::onConnected);
 	_pPeripheral->disconnected += Poco::delegate(this, &HighRateAccelerometer::onDisconnected);
 
 	init();
 }
 
-	
+
 HighRateAccelerometer::~HighRateAccelerometer()
 {
 	_pPeripheral->connected -= Poco::delegate(this, &HighRateAccelerometer::onConnected);
@@ -170,5 +167,4 @@ void HighRateAccelerometer::onDisconnected()
 }
 
 
-} } } // namespace IoT::BtLE::XDK
-
+} } // namespace IoT::XDK

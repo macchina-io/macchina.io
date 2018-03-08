@@ -1,17 +1,18 @@
 #
 # Makefile
 #
-# $Id: //poco/1.4/JS/Net/Makefile#2 $
-#
 # Makefile for Poco JS Net library
 #
 
 include $(POCO_BASE)/build/rules/global
 
+CXXFLAGS += -DV8_DEPRECATION_WARNINGS=1
+
 objects = HTTPRequestWrapper HTTPResponseWrapper HTMLFormWrapper
 
 target         = PocoJSNet
 target_version = 1
-target_libs    = PocoJSCore PocoUtil PocoXML PocoNet PocoFoundation v8
+target_libs    = PocoJSCore PocoUtil PocoXML PocoNet PocoFoundation
+target_extlibs = v8 v8_libplatform v8_libbase
 
 include $(POCO_BASE)/build/rules/lib

@@ -1,8 +1,6 @@
 //
 // WebSession.cpp
 //
-// $Id: //poco/1.7/OSP/Web/src/WebSession.cpp#1 $
-//
 // Library: OSP/Web
 // Package: Web
 // Module:  WebSession

@@ -1,14 +1,10 @@
 #
 # Makefile
 #
-# $Id: //poco/1.7/OSP/samples/Extension/Makefile#2 $
-#
 # Makefile for Extension
 #
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-
-include $(POCO_BASE)/build/rules/global
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 objects = Extension
 

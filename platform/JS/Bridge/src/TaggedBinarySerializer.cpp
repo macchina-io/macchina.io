@@ -1,8 +1,6 @@
 //
 // TaggedBinarySerializer.cpp
 //
-// $Id$
-//
 // Library: JS/Bridge
 // Package: Bridging
 // Module:  TaggedBinarySerializer
@@ -36,9 +34,21 @@ TaggedBinarySerializer::~TaggedBinarySerializer()
 }
 
 
+void TaggedBinarySerializer::resetImpl()
+{
+	_serializer.reset();
+}
+
+
+void TaggedBinarySerializer::setupImpl(std::ostream& ostr)
+{
+	_serializer.setup(ostr);
+}
+
+
 void TaggedBinarySerializer::serializeMessageBegin(const std::string& name, Poco::RemotingNG::SerializerBase::MessageType type)
 {
-	BinarySerializer::serializeMessageBegin(name, type);
+	_serializer.serializeMessageBegin(name, type);
 	_containerStack.push_back(CONT_MESSAGE);
 }
 
@@ -47,13 +57,13 @@ void TaggedBinarySerializer::serializeMessageEnd(const std::string& name, Poco::
 {
 	_containerStack.pop_back();
 	serializeTypeTag(TYPE_TAG_MESSAGE_END);
-	BinarySerializer::serializeMessageEnd(name, type);
+	_serializer.serializeMessageEnd(name, type);
 }
 
 
 void TaggedBinarySerializer::serializeFaultMessage(const std::string& methodName, Poco::Exception& e)
 {
-	BinarySerializer::serializeFaultMessage(methodName, e);
+	_serializer.serializeFaultMessage(methodName, e);
 }
 
 
@@ -61,7 +71,7 @@ void TaggedBinarySerializer::serializeStructBegin(const std::string& name)
 {
 	serializeTypeTag(TYPE_TAG_STRUCT_BEGIN);
 	serializeName(name);
-	BinarySerializer::serializeStructBegin(name);
+	_serializer.serializeStructBegin(name);
 	_containerStack.push_back(CONT_STRUCT);
 }
 
@@ -70,7 +80,7 @@ void TaggedBinarySerializer::serializeStructEnd(const std::string& name)
 {
 	_containerStack.pop_back();
 	serializeTypeTag(TYPE_TAG_STRUCT_END);
-	BinarySerializer::serializeStructEnd(name);
+	_serializer.serializeStructEnd(name);
 }
 
 
@@ -78,7 +88,7 @@ void TaggedBinarySerializer::serializeSequenceBegin(const std::string& name, Poc
 {
 	serializeTypeTag(TYPE_TAG_SEQUENCE_BEGIN);
 	serializeName(name);
-	BinarySerializer::serializeSequenceBegin(name, numElems);
+	_serializer.serializeSequenceBegin(name, numElems);
 	_containerStack.push_back(CONT_SEQUENCE);
 }
 
@@ -87,7 +97,7 @@ void TaggedBinarySerializer::serializeSequenceEnd(const std::string& name)
 {
 	_containerStack.pop_back();
 	serializeTypeTag(TYPE_TAG_SEQUENCE_END);
-	BinarySerializer::serializeSequenceEnd(name);
+	_serializer.serializeSequenceEnd(name);
 }
 
 
@@ -95,14 +105,14 @@ void TaggedBinarySerializer::serializeNullableBegin(const std::string& name, boo
 {
 	serializeTypeTag(TYPE_TAG_NULLABLE_BEGIN);
 	serializeName(name);
-	BinarySerializer::serializeNullableBegin(name, isNull);
+	_serializer.serializeNullableBegin(name, isNull);
 }
 
 
 void TaggedBinarySerializer::serializeNullableEnd(const std::string& name)
 {
 	serializeTypeTag(TYPE_TAG_NULLABLE_END);
-	BinarySerializer::serializeNullableEnd(name);
+	_serializer.serializeNullableEnd(name);
 }
 
 
@@ -110,14 +120,14 @@ void TaggedBinarySerializer::serializeOptionalBegin(const std::string& name, boo
 {
 	serializeTypeTag(TYPE_TAG_OPTIONAL_BEGIN);
 	serializeName(name);
-	BinarySerializer::serializeOptionalBegin(name, isSpecified);
+	_serializer.serializeOptionalBegin(name, isSpecified);
 }
 
 
 void TaggedBinarySerializer::serializeOptionalEnd(const std::string& name)
 {
 	serializeTypeTag(TYPE_TAG_OPTIONAL_END);
-	BinarySerializer::serializeOptionalEnd(name);
+	_serializer.serializeOptionalEnd(name);
 }
 
 
@@ -125,7 +135,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, Poco::Int8 val)
 {
 	serializeTypeTag(TYPE_TAG_INT8);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -133,7 +143,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, Poco::UInt8 val)
 {
 	serializeTypeTag(TYPE_TAG_UINT8);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -141,7 +151,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, Poco::Int16 val)
 {
 	serializeTypeTag(TYPE_TAG_INT16);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -149,7 +159,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, Poco::UInt16 val
 {
 	serializeTypeTag(TYPE_TAG_UINT16);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -157,7 +167,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, Poco::Int32 val)
 {
 	serializeTypeTag(TYPE_TAG_INT32);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -165,7 +175,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, Poco::UInt32 val
 {
 	serializeTypeTag(TYPE_TAG_UINT32);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -173,7 +183,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, long val)
 {
 	serializeTypeTag(TYPE_TAG_LONG);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -181,7 +191,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, unsigned long va
 {
 	serializeTypeTag(TYPE_TAG_ULONG);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -190,7 +200,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, Poco::Int64 val)
 {
 	serializeTypeTag(TYPE_TAG_INT64);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -198,7 +208,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, Poco::UInt64 val
 {
 	serializeTypeTag(TYPE_TAG_UINT64);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 #endif
 
@@ -207,7 +217,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, float val)
 {
 	serializeTypeTag(TYPE_TAG_FLOAT);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -215,7 +225,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, double val)
 {
 	serializeTypeTag(TYPE_TAG_DOUBLE);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -223,7 +233,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, bool val)
 {
 	serializeTypeTag(TYPE_TAG_BOOL);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -231,7 +241,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, char val)
 {
 	serializeTypeTag(TYPE_TAG_CHAR);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -239,7 +249,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, const std::strin
 {
 	serializeTypeTag(TYPE_TAG_STRING);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 
@@ -247,7 +257,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, const std::vecto
 {
 	serializeTypeTag(TYPE_TAG_BUFFER);
 	serializeName(name);
-	BinarySerializer::serialize(name, val);
+	_serializer.serialize(name, val);
 }
 
 

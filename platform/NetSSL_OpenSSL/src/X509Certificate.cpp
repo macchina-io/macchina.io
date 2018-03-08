@@ -1,8 +1,6 @@
 //
 // X509Certificate.cpp
 //
-// $Id: //poco/1.4/NetSSL_OpenSSL/src/X509Certificate.cpp#4 $
-//
 // Library: NetSSL_OpenSSL
 // Package: SSLCore
 // Module:  X509Certificate
@@ -84,6 +82,7 @@ bool X509Certificate::verify(const std::string& hostName) const
 
 bool X509Certificate::verify(const Poco::Crypto::X509Certificate& certificate, const std::string& hostName)
 {		
+#if OPENSSL_VERSION_NUMBER < 0x10002000L
 	std::string commonName;
 	std::set<std::string> dnsNames;
 	certificate.extractNames(commonName, dnsNames);
@@ -133,6 +132,21 @@ bool X509Certificate::verify(const Poco::Crypto::X509Certificate& certificate, c
 		}
 	}
 	return ok;
+#else
+	if (X509_check_host(const_cast<X509*>(certificate.certificate()), hostName.c_str(), hostName.length(), 0, NULL) == 1)
+	{
+		return true;
+	}
+	else
+	{
+		IPAddress ip;
+		if (IPAddress::tryParse(hostName, ip))
+		{
+		    return (X509_check_ip_asc(const_cast<X509*>(certificate.certificate()), hostName.c_str(), 0) == 1);
+		}
+	}
+	return false;
+#endif
 }
 
 

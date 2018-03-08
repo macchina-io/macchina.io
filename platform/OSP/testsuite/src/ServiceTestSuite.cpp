@@ -1,8 +1,6 @@
 //
 // ServiceTestSuite.cpp
 //
-// $Id: //poco/1.7/OSP/testsuite/src/ServiceTestSuite.cpp#1 $
-//
 // Copyright (c) 2007-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -12,6 +10,7 @@
 
 #include "ServiceTestSuite.h"
 #include "ServiceRegistryTest.h"
+#include "ServiceListenerTest.h"
 
 
 CppUnit::Test* ServiceTestSuite::suite()
@@ -19,6 +18,7 @@ CppUnit::Test* ServiceTestSuite::suite()
 	CppUnit::TestSuite* pSuite = new CppUnit::TestSuite("ServiceTestSuite");
 
 	pSuite->addTest(ServiceRegistryTest::suite());
+	pSuite->addTest(ServiceListenerTest::suite());
 
 	return pSuite;
 }

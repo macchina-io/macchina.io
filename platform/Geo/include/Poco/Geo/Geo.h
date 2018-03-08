@@ -1,8 +1,6 @@
 //
 // Geo.h
 //
-// $Id$
-//
 // Library: Geo
 // Package: Geo
 // Module:  Geo

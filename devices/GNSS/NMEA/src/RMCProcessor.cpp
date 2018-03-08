@@ -1,8 +1,6 @@
 //
 // RMCProcessor.cpp
 //
-// $Id$
-//
 // Library: IoT/GNSS/NMEA
 // Package: Sentences
 // Module:  RMCProcessor
