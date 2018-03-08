@@ -96,7 +96,7 @@ Poco::UInt8 TCPPort::receiveFrame(const Poco::Timespan& timeout)
 void TCPPort::disconnect(const bool active)
 {
 	_logger.information("Disconnecting from tcp port '%s'", _serverAddress.toString());
-	if(_state == STATE_CLOSED) throw Poco::IllegalStateException("TCPPort is already in closed state");
+	if(_state == STATE_CLOSED) throw Poco::IOException("TCPPort is already in closed state");
 	connectionClosing(this);
 	try
 	{
@@ -131,7 +131,7 @@ void TCPPort::disconnect(const bool active)
 void TCPPort::connect()
 {
 	_logger.information("Connecting to tcp port '%s'", _serverAddress.toString());
-	if(_state == STATE_ESTABLISHED) throw Poco::IllegalStateException("TCPPort is alread in etablished state");
+	if(_state == STATE_ESTABLISHED) throw Poco::IOException("TCPPort is alread in etablished state");
 	try
 	{
 		_socket.connect(_serverAddress);
@@ -152,7 +152,7 @@ void TCPPort::reconnectIfRequired()
 		_logger.notice("Try reconnect to tcp port '%s'", _serverAddress.toString());
 		connect();
 	}
-	if(_state != STATE_ESTABLISHED) throw Poco::IllegalStateException("TCPPort is not in established state");
+	if(_state != STATE_ESTABLISHED) throw Poco::IOException("TCPPort is not in established state");
 }
 
 

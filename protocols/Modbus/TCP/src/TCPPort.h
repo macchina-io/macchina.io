@@ -59,7 +59,7 @@ public:
 		/// Try connect to underlying socket in constructor.
 		/// If connect failed the TCPPort class try reconnect at the begin
 		/// of every sendFrame() and receiveFrame() function
-		/// to reconnect. If this also fail an IllegalStateException is thrown.
+		/// to reconnect. If this also fail an IOException is thrown.
 		
 	~TCPPort();
 		/// Destroys the TCPPort.
@@ -70,7 +70,7 @@ public:
 	void sendFrame(const Message& message)
 		/// Sends a Modbus TCP frame over the wire.
 		///
-		/// Throws an IllegalStateException if the port is not connected.
+		/// Throws an IOException if the port is not connected.
 	{
 		// We write the PDU before the MBAP header (which comes first in the frame)
 		// since we need to know the size.
@@ -111,7 +111,7 @@ public:
 	Poco::UInt8 receiveFrame(const Poco::Timespan& timeout);
 		/// Receives the next frame from the wire. Returns the frame's function code.
 		///
-		/// Throws an IllegalStateException if the port is not connected.
+		/// Throws an IOException if the port is not connected.
 
 	template <class Message>
 	void decodeFrame(Message& message)
