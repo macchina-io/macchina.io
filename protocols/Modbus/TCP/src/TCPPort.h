@@ -47,20 +47,20 @@ public:
 		/// Fired after the handshake to the port is complete and the
 		/// connection has been established.
 
-	Poco::BasicEvent<void> connectionClosing;	
+	Poco::BasicEvent<void> connectionClosing;
 		/// Fired when the connection to the port is about to be closed.
-		
-	Poco::BasicEvent<void> connectionClosed;	
+
+	Poco::BasicEvent<void> connectionClosed;
 		/// Fired after the connection to the port has been closed.
 
 	TCPPort(const Poco::Net::SocketAddress& serverAddress);
 		/// Creates a TCPPort using the given server address.
-		/// 
+		///
 		/// Try connect to underlying socket in constructor.
 		/// If connect failed the TCPPort class try reconnect at the begin
 		/// of every sendFrame() and receiveFrame() function
 		/// to reconnect. If this also fail an IOException is thrown.
-		
+
 	~TCPPort();
 		/// Destroys the TCPPort.
 		///
@@ -74,7 +74,7 @@ public:
 	{
 		// We write the PDU before the MBAP header (which comes first in the frame)
 		// since we need to know the size.
-		
+
 		// PDU
 		Poco::MemoryOutputStream pduStream(_sendBuffer.begin() + MBAP_HEADER_SIZE, _sendBuffer.size());
 		Poco::BinaryWriter binaryWriter(pduStream, Poco::BinaryWriter::BIG_ENDIAN_BYTE_ORDER);
@@ -82,7 +82,7 @@ public:
 		pduWriter.write(message);
 
 		poco_assert (pduStream.good());
-		
+
 		// MBAP header
 		Poco::MemoryOutputStream mbapStream(_sendBuffer.begin(), MBAP_HEADER_SIZE);
 		Poco::BinaryWriter mbapWriter(mbapStream, Poco::BinaryWriter::BIG_ENDIAN_BYTE_ORDER);
@@ -91,23 +91,22 @@ public:
 		mbapWriter << static_cast<Poco::UInt16>(pduStream.charsWritten());
 
 		poco_assert (mbapStream.good());
-
 		poco_assert (mbapStream.charsWritten() == MBAP_HEADER_SIZE);
 
 		reconnectIfRequired();
-		
+
 		try
 		{
 			int n = _socket.sendBytes(_sendBuffer.begin(), pduStream.charsWritten() + MBAP_HEADER_SIZE);
-			poco_assert(n >= 0);
+			poco_assert (n >= 0);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.fatal(Poco::format("Error sending frame to TCP socket: %s", exc.displayText()));
+			_logger.error(Poco::format("Error sending frame through TCP socket: %s", exc.displayText()));
 			disconnect();
 		}
 	}
-	
+
 	Poco::UInt8 receiveFrame(const Poco::Timespan& timeout);
 		/// Receives the next frame from the wire. Returns the frame's function code.
 		///
@@ -121,22 +120,22 @@ public:
 	{
 		Poco::MemoryInputStream istr(_receiveBuffer.begin(), _receiveBuffer.size());
 		Poco::BinaryReader binaryReader(istr, Poco::BinaryReader::BIG_ENDIAN_BYTE_ORDER);
-		
+
 		// MBAP header
 		Poco::UInt16 protocolID;
 		Poco::UInt16 length;
 		binaryReader >> message.transactionID >> protocolID >> length;
 		if (protocolID != PROTOCOL_ID) throw Poco::ProtocolException("invalid Modbus TCP Protocol Identifier"); // protocol ID, always 0
 		if (length == 0) throw Poco::ProtocolException("invalid Modbus TCP frame length");
-		
+
 		PDUReader pduReader(binaryReader);
 		pduReader.read(message);
 	}
-		
+
 	bool poll(const Poco::Timespan& timeout);
 		/// Waits for data to arrive at the port.
 		///
-		/// Returns true immediately if data is already in 
+		/// Returns true immediately if data is already in
 		/// the internal buffer, or if data arrives during the
 		/// specified time interval, otherwise false.
 
@@ -171,7 +170,7 @@ private:
 	void reconnectIfRequired();
 
 	int receiveBytes(void* buffer, int length);
-	
+
 	Poco::Net::SocketAddress _serverAddress;
 	Poco::Net::StreamSocket _socket;
 	Poco::Buffer<char> _sendBuffer;

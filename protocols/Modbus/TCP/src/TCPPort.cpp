@@ -42,7 +42,7 @@ TCPPort::TCPPort(const Poco::Net::SocketAddress& serverAddress):
 }
 
 
-	
+
 TCPPort::~TCPPort()
 {
 	try
@@ -59,8 +59,8 @@ TCPPort::~TCPPort()
 Poco::UInt8 TCPPort::receiveFrame(const Poco::Timespan& timeout)
 {
 	reconnectIfRequired();
-	
-	try 
+
+	try
 	{
 
 		receiveBytes(_receiveBuffer.begin(), MBAP_HEADER_SIZE);
@@ -80,23 +80,24 @@ Poco::UInt8 TCPPort::receiveFrame(const Poco::Timespan& timeout)
 	}
 	catch (Poco::TimeoutException& exc)
 	{
-		_logger.error(Poco::format("Error receiving frame on TCP socket: %s", exc.displayText()));
+		_logger.error(Poco::format("Error receiving frame from %s", exc.displayText()));
 		disconnect();
-		throw exc;
+		throw;
 	}
 	catch (Poco::Net::NetException& exc)
 	{
-		_logger.error(Poco::format("Error receiving frame on TCP socket: %s", exc.displayText()));
+		_logger.error(Poco::format("Error receiving frame from %s", exc.displayText()));
 		disconnect();
-		throw exc;
-	}	
+		throw;
+	}
 }
 
 
 void TCPPort::disconnect(const bool active)
 {
-	_logger.information("Disconnecting from tcp port '%s'", _serverAddress.toString());
-	if(_state == STATE_CLOSED) throw Poco::IOException("TCPPort is already in closed state");
+	if (_state == STATE_CLOSED) return;
+
+	_logger.information("Disconnecting from %s", _serverAddress.toString());
 	connectionClosing(this);
 	try
 	{
@@ -104,25 +105,25 @@ void TCPPort::disconnect(const bool active)
 		{
 			if (active)
 			{
-				_logger.information("Shutting down tcp socket '%s'", _serverAddress.toString());
+				_logger.debug("Shutting down connection to %s", _serverAddress.toString());
 				_socket.shutdown();
-				_logger.information("Shutted down tcp socket '%s'", _serverAddress.toString());
+				_logger.debug("Shut down connection to %s", _serverAddress.toString());
 			}
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.error("Failed to shut down tcp socket '%s': %s", _serverAddress.toString(), exc.displayText());
+			_logger.error("Failed to shut down connection to %s: %s", _serverAddress.toString(), exc.displayText());
 		}
-		_logger.information("Closing tcp socket '%s'", _serverAddress.toString());
-		_socket.close();		
-		_logger.information("Closed tcp socket '%s'", _serverAddress.toString());
+		_logger.debug("Closing connection to %s", _serverAddress.toString());
+		_socket.close();
+		_logger.debug("Closed connection to %s", _serverAddress.toString());
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error("Failed to close tcp socket '%s': %s", _serverAddress.toString(), exc.displayText());
+		_logger.error("Failed to close connection to %s: %s", _serverAddress.toString(), exc.displayText());
 	}
 
-	// TODO Improve failing closing state, at the moment set state in any case closed and notify connectionClosed event :
+	// TODO: Improve failing closing state, at the moment set state in any case closed and notify connectionClosed event
 	_state = STATE_CLOSED;
 	connectionClosed(this);
 }
@@ -130,29 +131,29 @@ void TCPPort::disconnect(const bool active)
 
 void TCPPort::connect()
 {
-	_logger.information("Connecting to tcp port '%s'", _serverAddress.toString());
-	if(_state == STATE_ESTABLISHED) throw Poco::IOException("TCPPort is alread in etablished state");
+	if (_state == STATE_ESTABLISHED) throw Poco::IllegalStateException("TCPPort is alread in etablished state");
+	_logger.information("Connecting to %s...", _serverAddress.toString());
 	try
 	{
 		_socket.connect(_serverAddress);
 		_state = STATE_ESTABLISHED;
-		_logger.information("Connected to tcp port '%s'", _serverAddress.toString());
+		_logger.information("Connected to %s.", _serverAddress.toString());
 		connectionEstablished(this);
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error("Failed to connect to tcp port '%s': %s", _serverAddress.toString(), exc.displayText());
+		_logger.error("Failed to connect to %s: %s", _serverAddress.toString(), exc.displayText());
 	}
 }
 
 void TCPPort::reconnectIfRequired()
 {
-	if(_state == STATE_CLOSED)
+	if (_state == STATE_CLOSED)
 	{
-		_logger.notice("Try reconnect to tcp port '%s'", _serverAddress.toString());
+		_logger.notice("Reconnecting to %s...", _serverAddress.toString());
 		connect();
 	}
-	if(_state != STATE_ESTABLISHED) throw Poco::IOException("TCPPort is not in established state");
+	if (_state != STATE_ESTABLISHED) throw Poco::IOException("Failed to reconnect to", _serverAddress.toString());
 }
 
 
@@ -161,14 +162,14 @@ int TCPPort::receiveBytes(void* buffer, int length)
 	int n = _socket.receiveBytes(buffer, length);
 
 	// A return value of 0 means a graceful shutdown of the connection from the peer.
-	if(n == 0) 
+	if (n == 0)
 	{
 		_logger.notice("Peer has shutdown the connection.");
-		disconnect(false);	
+		disconnect(false);
 		throw Poco::ProtocolException("Peer has shutdown the connection.");
 	}
 
-	poco_assert(n == length);
+	poco_assert (n == length);
 
 	return n;
 }
