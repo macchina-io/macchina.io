@@ -16,4 +16,5 @@ clean all:
 	$(MAKE) -C UDP $(MAKECMDGOALS)
 	$(MAKE) -C Modbus $(MAKECMDGOALS)
 	$(MAKE) -C Modbus/RTU $(MAKECMDGOALS)
+	$(MAKE) -C Modbus/TCP $(MAKECMDGOALS)
 	$(MAKE) -C WebTunnel $(MAKECMDGOALS)
