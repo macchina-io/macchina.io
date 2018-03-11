@@ -203,7 +203,7 @@ public:
 			wrapper->SetInternalField(0, ext);
 			wrapper->SetPrivate(
 				pIsolate->GetCurrentContext(),
-				v8::Private::New(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")),
+				v8::Private::ForApi(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")),
 				v8::String::NewFromUtf8(pIsolate, typeid(T).name()));
 		}
 		return handleScope.Escape(wrapper);
@@ -297,7 +297,9 @@ public:
 			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
 			if (object->InternalFieldCount() > 0)
 			{
-				v8::MaybeLocal<v8::Value> maybeNativeType = object->GetPrivate(pIsolate->GetCurrentContext(), v8::Private::New(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")));
+				v8::MaybeLocal<v8::Value> maybeNativeType = object->GetPrivate(
+					pIsolate->GetCurrentContext(),
+					v8::Private::ForApi(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")));
 				if (!maybeNativeType.IsEmpty())
 				{
 					v8::Local<v8::Value> nativeType = maybeNativeType.ToLocalChecked();
@@ -321,7 +323,9 @@ public:
 			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
 			if (object->InternalFieldCount() > 0)
 			{
-				v8::MaybeLocal<v8::Value> maybeNativeType = object->GetPrivate(pIsolate->GetCurrentContext(), v8::Private::New(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")));
+				v8::MaybeLocal<v8::Value> maybeNativeType = object->GetPrivate(
+					pIsolate->GetCurrentContext(),
+					v8::Private::ForApi(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")));
 				if (!maybeNativeType.IsEmpty())
 				{
 					v8::Local<v8::Value> nativeType = maybeNativeType.ToLocalChecked();
