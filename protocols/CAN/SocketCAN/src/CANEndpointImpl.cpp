@@ -92,7 +92,7 @@ void CANEndpointImpl::run()
 					CANFDFrame::ID id = scFrame.can_id & CAN_EFF_MASK;
 
 					CANFDFrame frame(id, flags, scFrame.len, reinterpret_cast<char*>(&scFrame.data[0]));
-					sdFrameReceived(this, frame);
+					fdFrameReceived(this, frame);
 				}
 #else
 				struct can_frame scFrame;
