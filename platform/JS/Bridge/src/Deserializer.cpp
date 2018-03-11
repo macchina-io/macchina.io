@@ -336,7 +336,16 @@ bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, ch
 			return true;
 		}
 	}
-	throw Poco::RemotingNG::DeserializerException("value is not a one-character string");
+	else if (jsValue->IsNumber())
+	{
+		Poco::Int32 i = jsValue->Int32Value();
+		if (i >= 0 && i <= 255)
+		{
+			value = static_cast<char>(i);
+			return true;
+		}
+	}
+	throw Poco::RemotingNG::DeserializerException("value is not a one-character string or a byte value");
 }
 
 
