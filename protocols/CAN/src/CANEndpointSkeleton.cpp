@@ -204,13 +204,13 @@ public:
 };
 
 
-class CANEndpointEnableFDEventsMethodHandler: public Poco::RemotingNG::MethodHandler
+class CANEndpointEnableFDMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"enableFDEvents","enable"};
+		static const std::string REMOTING__NAMES[] = {"enableFD","enable"};
 		remoting__staticInitEnd(REMOTING__NAMES);
 		bool remoting__requestSucceeded = false;
 		try
@@ -220,11 +220,11 @@ public:
 			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[1], false, remoting__deser, enable);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
-			remoting__pCastedRO->enableFDEvents(enable);
+			remoting__pCastedRO->enableFD(enable);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
-			static const std::string REMOTING__REPLY_NAME("enableFDEventsReply");
+			static const std::string REMOTING__REPLY_NAME("enableFDReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -315,13 +315,13 @@ public:
 };
 
 
-class CANEndpointFdEventsEnabledMethodHandler: public Poco::RemotingNG::MethodHandler
+class CANEndpointFdEnabledMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"fdEventsEnabled"};
+		static const std::string REMOTING__NAMES[] = {"fdEnabled"};
 		remoting__staticInitEnd(REMOTING__NAMES);
 		bool remoting__requestSucceeded = false;
 		try
@@ -329,11 +329,11 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
-			bool remoting__return = remoting__pCastedRO->fdEventsEnabled();
+			bool remoting__return = remoting__pCastedRO->fdEnabled();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
-			static const std::string REMOTING__REPLY_NAME("fdEventsEnabledReply");
+			static const std::string REMOTING__REPLY_NAME("fdEnabledReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			Poco::RemotingNG::TypeSerializer<bool >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
@@ -370,13 +370,13 @@ public:
 };
 
 
-class CANEndpointFdFramesSupportedMethodHandler: public Poco::RemotingNG::MethodHandler
+class CANEndpointFdSupportedMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"fdFramesSupported"};
+		static const std::string REMOTING__NAMES[] = {"fdSupported"};
 		remoting__staticInitEnd(REMOTING__NAMES);
 		bool remoting__requestSucceeded = false;
 		try
@@ -384,11 +384,11 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
-			bool remoting__return = remoting__pCastedRO->fdFramesSupported();
+			bool remoting__return = remoting__pCastedRO->fdSupported();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
-			static const std::string REMOTING__REPLY_NAME("fdFramesSupportedReply");
+			static const std::string REMOTING__REPLY_NAME("fdSupportedReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			Poco::RemotingNG::TypeSerializer<bool >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
@@ -885,10 +885,10 @@ CANEndpointSkeleton::CANEndpointSkeleton():
 	addMethodHandler("addFilter", new IoT::CAN::CANEndpointAddFilterMethodHandler);
 	addMethodHandler("device", new IoT::CAN::CANEndpointDeviceMethodHandler);
 	addMethodHandler("enableEvents", new IoT::CAN::CANEndpointEnableEventsMethodHandler);
-	addMethodHandler("enableFDEvents", new IoT::CAN::CANEndpointEnableFDEventsMethodHandler);
+	addMethodHandler("enableFD", new IoT::CAN::CANEndpointEnableFDMethodHandler);
 	addMethodHandler("eventsEnabled", new IoT::CAN::CANEndpointEventsEnabledMethodHandler);
-	addMethodHandler("fdEventsEnabled", new IoT::CAN::CANEndpointFdEventsEnabledMethodHandler);
-	addMethodHandler("fdFramesSupported", new IoT::CAN::CANEndpointFdFramesSupportedMethodHandler);
+	addMethodHandler("fdEnabled", new IoT::CAN::CANEndpointFdEnabledMethodHandler);
+	addMethodHandler("fdSupported", new IoT::CAN::CANEndpointFdSupportedMethodHandler);
 	addMethodHandler("getFilter", new IoT::CAN::CANEndpointGetFilterMethodHandler);
 	addMethodHandler("getFilterMode", new IoT::CAN::CANEndpointGetFilterModeMethodHandler);
 	addMethodHandler("removeFilter", new IoT::CAN::CANEndpointRemoveFilterMethodHandler);

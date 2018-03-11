@@ -108,7 +108,7 @@ public:
 
 			const std::string interfc = _pPrefs->configuration()->getString(baseKey + ".interface", "");
 			const bool enableEvents = _pPrefs->configuration()->getBool(baseKey + ".events.enable", false);
-			const bool enableFDEvents = _pPrefs->configuration()->getBool(baseKey + ".canfd.events.enable", false);
+			const bool enableFD = _pPrefs->configuration()->getBool(baseKey + ".canfd.enable", false);
 			const std::string filterMode = Poco::toLower(_pPrefs->configuration()->getString(baseKey + ".filter.mode", "or"));
 			if (filterMode != "and" && filterMode != "or")
 			{
@@ -120,7 +120,7 @@ public:
 				pContext->logger().information(Poco::format("Creating SocketCAN CANEndpoint for interface %s.", interfc));
 				CANEndpoint::Ptr pEndpoint = createCANEndpoint(Poco::NumberFormatter::format(index), *it, interfc);
 				pEndpoint->enableEvents(enableEvents);
-				pEndpoint->enableFDEvents(enableFDEvents);
+				pEndpoint->enableFD(enableFD);
 				pEndpoint->setFilter(configureFilter(baseKey + ".filter"));
 				pEndpoint->setFilterMode(filterMode == "and" ? CAN_FILTER_MODE_AND : CAN_FILTER_MODE_OR);
 			}

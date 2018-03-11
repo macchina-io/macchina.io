@@ -53,17 +53,17 @@ public:
 	virtual void enableEvents(bool enable = bool(true));
 		/// Enables or disables events for received CAN frames.
 
-	virtual void enableFDEvents(bool enable = bool(true));
-		/// Enables or disables events for received CAN-FD frames.
+	virtual void enableFD(bool enable = bool(true));
+		/// Enables or disables support for CAN-FD frames.
 
 	virtual bool eventsEnabled() const;
 		/// Returns true if events for received CAN frames are enabled, otherwise false.
 
-	virtual bool fdEventsEnabled() const;
-		/// Returns true if events for received CAN-FD frames are enabled, otherwise false.
+	virtual bool fdEnabled() const;
+		/// Returns true if CAN-FD frames are enabled, otherwise false.
 
-	virtual bool fdFramesSupported() const;
-		/// Returns true if the implementation supports CAN-FD.
+	virtual bool fdSupported() const;
+		/// Returns true if the implementation supports CAN-FD, otherwise false.
 
 	std::vector < IoT::CAN::Filter > getFilter() const;
 		/// Returns the current filter.
@@ -129,9 +129,9 @@ inline void CANEndpointRemoteObject::enableEvents(bool enable)
 }
 
 
-inline void CANEndpointRemoteObject::enableFDEvents(bool enable)
+inline void CANEndpointRemoteObject::enableFD(bool enable)
 {
-	_pServiceObject->enableFDEvents(enable);
+	_pServiceObject->enableFD(enable);
 }
 
 
@@ -141,15 +141,15 @@ inline bool CANEndpointRemoteObject::eventsEnabled() const
 }
 
 
-inline bool CANEndpointRemoteObject::fdEventsEnabled() const
+inline bool CANEndpointRemoteObject::fdEnabled() const
 {
-	return _pServiceObject->fdEventsEnabled();
+	return _pServiceObject->fdEnabled();
 }
 
 
-inline bool CANEndpointRemoteObject::fdFramesSupported() const
+inline bool CANEndpointRemoteObject::fdSupported() const
 {
-	return _pServiceObject->fdFramesSupported();
+	return _pServiceObject->fdSupported();
 }
 
 

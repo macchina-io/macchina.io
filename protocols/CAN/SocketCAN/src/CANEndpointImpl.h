@@ -56,9 +56,9 @@ public:
 	void sendFrame(const CANFDFrame& frame, FrameType type);
 	void enableEvents(bool enable);
 	bool eventsEnabled() const;
-	void enableFDEvents(bool enable);
-	bool fdEventsEnabled() const;
-	bool fdFramesSupported() const;
+	void enableFD(bool enable);
+	bool fdEnabled() const;
+	bool fdSupported() const;
 
 protected:
 	void applyFilter();
@@ -75,7 +75,7 @@ private:
 	std::vector<Filter> _filter;
 	FilterMode _filterMode;
 	int _enableEvents;
-	int _enableFDEvents;
+	int _enableFD;
 	mutable Poco::FastMutex _mutex;
 	Poco::Logger& _logger;
 };

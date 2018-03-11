@@ -42,6 +42,7 @@ CANEndpointImpl::CANEndpointImpl(const std::string& interfc):
 	_socket(interfc),
 	_filterMode(CAN_FILTER_MODE_OR),
 	_enableEvents(0),
+	_enableFD(0),
 	_logger(Poco::Logger::get("IoT.CAN.SocketCAN.CANEndpointImpl"))
 {
 }
@@ -230,7 +231,7 @@ void CANEndpointImpl::sendCANFDFrame(const CANFDFrame& frame)
 	_socket.sendBytes(&scFrame, sizeof(scFrame));
 #endif
 #else
-	throw Poco::NotImplementedException("CAN FD frames not supported by platform's SocketCAN");
+	throw Poco::NotImplementedException("CAN-FD frames not supported by platform's SocketCAN");
 #endif
 }
 
@@ -277,7 +278,7 @@ void CANEndpointImpl::sendFrame(const CANFDFrame& frame, FrameType type)
 		if (frame.length() > 8) throw Poco::InvalidArgumentException("Frame too big for standard CAN frame");
 		break;
 	case CAN_FRAME_CANFD:
-		throw Poco::NotImplementedException("CAN FD frames not supported by platform's SocketCAN");
+		throw Poco::NotImplementedException("CAN-FD frames not supported by platform's SocketCAN");
 		break;
 	default:
 		throw Poco::InvalidArgumentException("type");
@@ -323,40 +324,40 @@ bool CANEndpointImpl::eventsEnabled() const
 }
 
 
-void CANEndpointImpl::enableFDEvents(bool enable)
+void CANEndpointImpl::enableFD(bool enable)
 {
 #ifdef CANFD_MTU
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
 	if (enable)
 	{
-		if (!_enableFDEvents++)
+		if (!_enableFD++)
 		{
 			_socket.setOption(SOL_CAN_RAW, CAN_RAW_FD_FRAMES, 1);
 		}
 	}
-	else if (_enableFDEvents > 0)
+	else if (_enableFD > 0)
 	{
-		if (--_enableFDEvents == 0)
+		if (--_enableFD == 0)
 		{
 			_socket.setOption(SOL_CAN_RAW, CAN_RAW_FD_FRAMES, 0);
 		}
 	}
 #else
-	if (enable) throw Poco::NotImplementedException("CAN FD frames not supported by platform's SocketCAN");
+	if (enable) throw Poco::NotImplementedException("CAN-FD not supported by platform's SocketCAN");
 #endif
 }
 
 
-bool CANEndpointImpl::fdEventsEnabled() const
+bool CANEndpointImpl::fdEnabled() const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	return _enableFDEvents > 0;
+	return _enableFD > 0;
 }
 
 
-bool CANEndpointImpl::fdFramesSupported() const
+bool CANEndpointImpl::fdSupported() const
 {
 #ifdef MACCHINA_HAVE_CANFD
 	return true;

@@ -54,17 +54,17 @@ public:
 	virtual void enableEvents(bool enable = bool(true)) = 0;
 		/// Enables or disables events for received CAN frames.
 
-	virtual void enableFDEvents(bool enable = bool(true)) = 0;
-		/// Enables or disables events for received CAN-FD frames.
+	virtual void enableFD(bool enable = bool(true)) = 0;
+		/// Enables or disables support for CAN-FD frames.
 
 	virtual bool eventsEnabled() const = 0;
 		/// Returns true if events for received CAN frames are enabled, otherwise false.
 
-	virtual bool fdEventsEnabled() const = 0;
-		/// Returns true if events for received CAN-FD frames are enabled, otherwise false.
+	virtual bool fdEnabled() const = 0;
+		/// Returns true if CAN-FD frames are enabled, otherwise false.
 
-	virtual bool fdFramesSupported() const = 0;
-		/// Returns true if the implementation supports CAN-FD.
+	virtual bool fdSupported() const = 0;
+		/// Returns true if the implementation supports CAN-FD, otherwise false.
 
 	virtual std::vector < IoT::CAN::Filter > getFilter() const = 0;
 		/// Returns the current filter.
