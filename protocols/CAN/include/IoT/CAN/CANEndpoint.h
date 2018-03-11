@@ -77,9 +77,9 @@ enum FilterMode
 enum FrameType
 	/// Frame type for sendAnyFrame()
 {
-	CAN_FRAME_AUTO     = 0, /// Send frame as CAN or CAN-FD frame, depending on payload length
-	CAN_FRAME_CAN      = 1, /// Send frame as standard CAN frame
-	CAN_FRAME_CANFD    = 2  /// Send frame as CAN-FD frame
+	CAN_FRAME_AUTO  = 0, /// Send frame as CAN or CAN-FD frame, depending on payload length
+	CAN_FRAME_CAN   = 1, /// Send frame as standard CAN frame
+	CAN_FRAME_CANFD = 2  /// Send frame as CAN-FD frame
 };
 
 
@@ -135,7 +135,7 @@ public:
 	virtual void sendCANFDFrame(const CANFDFrame& frame) = 0;
 		/// Transmits the given CAN-FD frame.
 
-	// $type={optional}
+	//@ $type={optional}
 	virtual void sendFrame(const CANFDFrame& frame, FrameType type = CAN_FRAME_AUTO) = 0;
 		/// Transmit the given frame as CAN or CAN-FD frame, depending
 		/// on type.

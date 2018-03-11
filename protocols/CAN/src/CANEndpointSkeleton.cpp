@@ -720,8 +720,8 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			Poco::RemotingNG::TypeDeserializer<IoT::CAN::CANFDFrame >::deserialize(REMOTING__NAMES[1], true, remoting__deser, frame);
 			int remoting__typeTmp;
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], true, remoting__deser, remoting__typeTmp);
-			type = static_cast<IoT::CAN::FrameType>(remoting__typeTmp);
+			if (Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], false, remoting__deser, remoting__typeTmp))
+				type = static_cast<IoT::CAN::FrameType>(remoting__typeTmp);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->sendFrame(frame, type);
