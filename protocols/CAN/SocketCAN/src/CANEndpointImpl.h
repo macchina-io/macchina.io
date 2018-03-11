@@ -49,6 +49,8 @@ public:
 	std::vector<Filter> getFilter() const;
 	bool addFilter(const Filter& filter);
 	bool removeFilter(const Filter& filter);
+	void setFilterMode(FilterMode mode);
+	FilterMode getFilterMode() const;
 	void sendFrame(const CANFrame& frame);
 	void sendFDFrame(const CANFDFrame& frame);
 	void enableEvents(bool enable);
@@ -70,6 +72,7 @@ private:
 	CANSocket _socket;
 	Poco::Thread _thread;
 	std::vector<Filter> _filter;
+	FilterMode _filterMode;
 	int _enableEvents;
 	int _enableFDEvents;
 	mutable Poco::FastMutex _mutex;
