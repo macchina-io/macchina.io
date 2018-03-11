@@ -1,0 +1,30 @@
+<bundlespec>
+	<manifest>
+    	<name>macchina.io CAN SocketCAN Implementation</name>
+		<symbolicName>io.macchina.can.socketcan</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>IoT::CAN::SocketCAN::BundleActivator</class>
+			<library>io.macchina.can.socketcan</library>
+		</activator>
+		<dependency>
+			<symbolicName>io.macchina.can.core</symbolicName>
+			<version>[1.0.0, 2.0.0)</version>
+		</dependency>
+		<dependency>
+			<symbolicName>poco.net</symbolicName>
+			<version>[1.0.0, 2.0.0)</version>
+		</dependency>
+		<lazyStart>false</lazyStart>
+		<runLevel>610</runLevel>
+	</manifest>
+	<code>
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+	</code>
+	<files>
+		bundle/*
+	</files>
+</bundlespec>

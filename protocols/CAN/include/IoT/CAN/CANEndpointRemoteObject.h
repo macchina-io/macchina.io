@@ -43,15 +43,27 @@ public:
 
 	virtual bool addFilter(const IoT::CAN::Filter& filter);
 		/// Adds a filter element to the frame filter.
+		///
+		/// Returns true if the filter was added, or false
+		/// if the filter was already present.
 
 	virtual std::string device() const;
 		/// Returns the interface device name (e.g., "can0").
 
 	virtual void enableEvents(bool enable = bool(true));
-		/// Enables or disables events for received frames.
+		/// Enables or disables events for received CAN frames.
+
+	virtual void enableFDEvents(bool enable = bool(true));
+		/// Enables or disables events for received CAN-FD frames.
 
 	virtual bool eventsEnabled() const;
-		/// Returns true if events for received frames are enabled, otherwise false.
+		/// Returns true if events for received CAN frames are enabled, otherwise false.
+
+	virtual bool fdEventsEnabled() const;
+		/// Returns true if events for received CAN-FD frames are enabled, otherwise false.
+
+	virtual bool fdFramesSupported() const;
+		/// Returns true if the implementation supports CAN-FD.
 
 	std::vector < IoT::CAN::Filter > getFilter() const;
 		/// Returns the current filter.
@@ -66,6 +78,9 @@ public:
 
 	virtual bool removeFilter(const IoT::CAN::Filter& filter);
 		/// Removes the given filter element.
+		///
+		/// Returns true if the filter was removed, or false
+		/// if no such filter was set.
 
 	virtual void sendFDFrame(const IoT::CAN::CANFDFrame& frame);
 		/// Transmits the given CAN-FD frame.
@@ -104,9 +119,27 @@ inline void CANEndpointRemoteObject::enableEvents(bool enable)
 }
 
 
+inline void CANEndpointRemoteObject::enableFDEvents(bool enable)
+{
+	_pServiceObject->enableFDEvents(enable);
+}
+
+
 inline bool CANEndpointRemoteObject::eventsEnabled() const
 {
 	return _pServiceObject->eventsEnabled();
+}
+
+
+inline bool CANEndpointRemoteObject::fdEventsEnabled() const
+{
+	return _pServiceObject->fdEventsEnabled();
+}
+
+
+inline bool CANEndpointRemoteObject::fdFramesSupported() const
+{
+	return _pServiceObject->fdFramesSupported();
 }
 
 

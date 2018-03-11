@@ -36,12 +36,12 @@ CANFDFrame::CANFDFrame(ID id, Flags flags, const Payload& payload):
 }
 
 
-CANFDFrame::CANFDFrame(ID id, Flags flags, DLC dlc, const char* payload):
+CANFDFrame::CANFDFrame(ID id, Flags flags, Length length, const char* payload):
 	_id(id),
 	_flags(flags),
-	_payload(payload, payload + dlc)
+	_payload(payload, payload + length)
 {
-	poco_assert (dlc <= _payload.size());
+	poco_assert (length <= _payload.size());
 }
 
 
@@ -65,9 +65,9 @@ void CANFDFrame::assign(const CANFDFrame& frame)
 }
 
 
-void CANFDFrame::assign(ID id, Flags flags, DLC dlc, const char* payload)
+void CANFDFrame::assign(ID id, Flags flags, Length length, const char* payload)
 {
-	CANFDFrame tmp(id, flags, dlc, payload);
+	CANFDFrame tmp(id, flags, length, payload);
 	swap(tmp);
 }
 

@@ -44,15 +44,27 @@ public:
 
 	virtual bool addFilter(const IoT::CAN::Filter& filter) = 0;
 		/// Adds a filter element to the frame filter.
+		///
+		/// Returns true if the filter was added, or false
+		/// if the filter was already present.
 
 	virtual std::string device() const = 0;
 		/// Returns the interface device name (e.g., "can0").
 
 	virtual void enableEvents(bool enable = bool(true)) = 0;
-		/// Enables or disables events for received frames.
+		/// Enables or disables events for received CAN frames.
+
+	virtual void enableFDEvents(bool enable = bool(true)) = 0;
+		/// Enables or disables events for received CAN-FD frames.
 
 	virtual bool eventsEnabled() const = 0;
-		/// Returns true if events for received frames are enabled, otherwise false.
+		/// Returns true if events for received CAN frames are enabled, otherwise false.
+
+	virtual bool fdEventsEnabled() const = 0;
+		/// Returns true if events for received CAN-FD frames are enabled, otherwise false.
+
+	virtual bool fdFramesSupported() const = 0;
+		/// Returns true if the implementation supports CAN-FD.
 
 	virtual std::vector < IoT::CAN::Filter > getFilter() const = 0;
 		/// Returns the current filter.
@@ -74,6 +86,9 @@ public:
 
 	virtual bool removeFilter(const IoT::CAN::Filter& filter) = 0;
 		/// Removes the given filter element.
+		///
+		/// Returns true if the filter was removed, or false
+		/// if no such filter was set.
 
 	virtual void sendFDFrame(const IoT::CAN::CANFDFrame& frame) = 0;
 		/// Transmits the given CAN-FD frame.

@@ -19,6 +19,7 @@
 
 
 #include "IoT/CAN/CAN.h"
+#include "Poco/Exception.h"
 #include <vector>
 
 
@@ -35,7 +36,7 @@ class CANFDFrame
 public:
 	typedef Poco::UInt32 ID;
 	typedef Poco::UInt8  Flags;
-	typedef Poco::UInt8  DLC;
+	typedef Poco::UInt8  Length;
 	typedef std::vector<char> Payload;
 
 	enum Flag
@@ -59,7 +60,7 @@ public:
 		/// Creates a CANFDFrame with the given data.
 		/// Maximum data length is 64 bytes.
 
-	CANFDFrame(ID id, Flags flags, DLC dlc, const char* payload);
+	CANFDFrame(ID id, Flags flags, Length length, const char* payload);
 		/// Creates a CANFDFrame with the given data.
 		/// Maximum data length is 64 bytes.
 
@@ -72,7 +73,7 @@ public:
 	void assign(const CANFDFrame& frame);
 		/// Copies data and flags over from another CANFDFrame.
 
-	void assign(ID id, Flags flags, DLC dlc, const char* payload);
+	void assign(ID id, Flags flags, Length length, const char* payload);
 		/// Changes the frame's data to the given.
 
 	void assign(ID id, Flags flags, const Payload& payload);
@@ -90,7 +91,7 @@ public:
 	Flags flags() const;
 		/// Returns the flags of the frame.
 
-	DLC dlc() const;
+	Length length() const;
 		/// Returns the length of the data (Data Length Code).
 
 	const Payload& payload() const;
@@ -134,9 +135,9 @@ inline CANFDFrame::Flags CANFDFrame::flags() const
 }
 
 
-inline CANFDFrame::DLC CANFDFrame::dlc() const
+inline CANFDFrame::Length CANFDFrame::length() const
 {
-	return static_cast<DLC>(_payload.size());
+	return static_cast<Length>(_payload.size());
 }
 
 
@@ -166,7 +167,10 @@ inline void CANFDFrame::flags(Flags f)
 
 inline void CANFDFrame::payload(const CANFDFrame::Payload& p)
 {
-	_payload = p;
+	if (p.size() <= MAX_PAYLOAD_SIZE)
+		_payload = p;
+	else
+		throw Poco::InvalidArgumentException("CAN-FD payload too large");
 }
 
 

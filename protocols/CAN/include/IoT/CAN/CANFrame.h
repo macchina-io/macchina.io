@@ -20,6 +20,7 @@
 
 #include "IoT/CAN/CAN.h"
 #include "Poco/Array.h"
+#include "Poco/Exception.h"
 
 
 namespace IoT {
@@ -169,9 +170,10 @@ inline void CANFrame::flags(Flags f)
 
 inline void CANFrame::dlc(DLC len)
 {
-	poco_assert (len <= _payload.size());
-
-	_dlc = len;
+	if (len <= MAX_PAYLOAD_SIZE)
+		_dlc = len;
+	else
+		throw Poco::InvalidArgumentException("CAN payload too large");
 }
 
 

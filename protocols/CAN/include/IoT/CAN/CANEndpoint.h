@@ -4,8 +4,8 @@
 // Library: IoT/CAN
 // Package: CANEndpoint
 // Module:  CANEndpoint
-///
-/// Definition of the CANEndpoint interface.
+//
+// Definition of the CANEndpoint interface.
 //
 // Copyright (c) 2018, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -39,6 +39,14 @@ struct Filter
 	///
 	/// The filter condition can be inverted by setting the invert flag to true.
 {
+	enum
+	{
+		CAN_FILTER_MASK_SFF = 0x000007FFU, /// Standard Frame Format mask
+		CAN_FILTER_MASK_EFF = 0x1FFFFFFFU, /// Extended Frame Format mask
+		CAN_FILTER_FLAG_RTR = 0x40000000U, /// RTR Flag for ID and/or mask
+		CAN_FILTER_FLAG_EFF = 0x80000000U  /// Extended Frame Flag for ID and/or mask
+	};
+
 	Filter():
 		id(0),
 		mask(0),
@@ -47,14 +55,14 @@ struct Filter
 	}
 
 	Poco::UInt32 id;
-		/// 11-bit or 29-bit CAN ID
+		/// 11-bit or 29-bit CAN ID. For a 29-bit ID must be or-ed with CAN_FILTER_FLAG_EFF.
 
 	Poco::UInt32 mask;
-		/// Mask for CAN ID
+		/// Mask for CAN ID (CAN_FILTER_MASK_SFF, CAN_FILTER_MASK_EFF, CAN_FILTER_MASK_RTR, or custom).
 
 	//@ optional
 	bool invert;
-		/// Invert filter condition
+		/// Invert filter condition.
 };
 
 
@@ -71,7 +79,7 @@ public:
 	Poco::BasicEvent<const CANFDFrame> fdFrameReceived;
 		/// Fired when an CAN-FD frame has been received.
 
-	CANEndpoint();
+ 	CANEndpoint();
 		/// Creates the CANEndpoint.
 
 	virtual ~CANEndpoint();
@@ -88,9 +96,15 @@ public:
 
 	virtual bool addFilter(const Filter& filter) = 0;
 		/// Adds a filter element to the frame filter.
+		///
+		/// Returns true if the filter was added, or false
+		/// if the filter was already present.
 
 	virtual bool removeFilter(const Filter& filter) = 0;
 		/// Removes the given filter element.
+		///
+		/// Returns true if the filter was removed, or false
+		/// if no such filter was set.
 
 	virtual void sendFrame(const CANFrame& frame) = 0;
 		/// Transmits the given CAN frame.
@@ -99,10 +113,19 @@ public:
 		/// Transmits the given CAN-FD frame.
 
 	virtual void enableEvents(bool enable = true) = 0;
-		/// Enables or disables events for received frames.
+		/// Enables or disables events for received CAN frames.
 
 	virtual bool eventsEnabled() const = 0;
-		/// Returns true if events for received frames are enabled, otherwise false.
+		/// Returns true if events for received CAN frames are enabled, otherwise false.
+
+	virtual void enableFDEvents(bool enable = true) = 0;
+		/// Enables or disables events for received CAN-FD frames.
+
+	virtual bool fdEventsEnabled() const = 0;
+		/// Returns true if events for received CAN-FD frames are enabled, otherwise false.
+
+	virtual bool fdFramesSupported() const = 0;
+		/// Returns true if the implementation supports CAN-FD.
 };
 
 

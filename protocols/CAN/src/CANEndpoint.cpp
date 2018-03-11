@@ -4,7 +4,7 @@
 // Library: IoT/CAN
 // Package: CANEndpoint
 // Module:  CANEndpoint
-///
+//
 // Copyright (c) 2018, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //

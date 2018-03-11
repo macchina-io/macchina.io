@@ -15,4 +15,6 @@ clean all:
 	$(MAKE) -C Modbus $(MAKECMDGOALS)
 	$(MAKE) -C Modbus/RTU $(MAKECMDGOALS)
 	$(MAKE) -C Modbus/TCP $(MAKECMDGOALS)
+	$(MAKE) -C CAN $(MAKECMDGOALS)
+	$(MAKE) -C CAN/SocketCAN $(MAKECMDGOALS)
 	$(MAKE) -C WebTunnel $(MAKECMDGOALS)
