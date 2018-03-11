@@ -23,6 +23,7 @@
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
 #include "Poco/NumberFormatter.h"
+#include "Poco/String.h"
 #include <vector>
 
 
@@ -108,6 +109,11 @@ public:
 			const std::string interfc = _pPrefs->configuration()->getString(baseKey + ".interface", "");
 			const bool enableEvents = _pPrefs->configuration()->getBool(baseKey + ".events.enable", false);
 			const bool enableFDEvents = _pPrefs->configuration()->getBool(baseKey + ".canfd.events.enable", false);
+			const std::string filterMode = Poco::toLower(_pPrefs->configuration()->getString(baseKey + ".filter.mode", "or"));
+			if (filterMode != "and" && filterMode != "or")
+			{
+				pContext->logger().warning("Invalid filter mode specified. Must be 'or' or 'and', but is '%s'. Using default 'or'.", filterMode);
+			}
 
 			try
 			{
@@ -116,6 +122,7 @@ public:
 				pEndpoint->enableEvents(enableEvents);
 				pEndpoint->enableFDEvents(enableFDEvents);
 				pEndpoint->setFilter(configureFilter(baseKey + ".filter"));
+				pEndpoint->setFilterMode(filterMode == "and" ? CANEndpoint::CAN_FILTER_MODE_AND : CANEndpoint::CAN_FILTER_MODE_OR);
 			}
 			catch (Poco::Exception& exc)
 			{

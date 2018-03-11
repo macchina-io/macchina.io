@@ -79,6 +79,12 @@ public:
 	Poco::BasicEvent<const CANFDFrame> fdFrameReceived;
 		/// Fired when an CAN-FD frame has been received.
 
+	enum FilterMode
+	{
+		CAN_FILTER_MODE_OR  = 0, /// Frame passes if it matches at least one filter element (default)
+		CAN_FILTER_MODE_AND = 1  /// Frame passes if it matches all filter elements
+	};
+
  	CANEndpoint();
 		/// Creates the CANEndpoint.
 
@@ -105,6 +111,12 @@ public:
 		///
 		/// Returns true if the filter was removed, or false
 		/// if no such filter was set.
+
+	virtual void setFilterMode(FilterMode mode) = 0;
+		/// Sets the filter mode (defaults to CAN_FILTER_MODE_OR).
+
+	virtual FilterMode getFilterMode() const = 0;
+		/// Returns the filter mode.
 
 	virtual void sendFrame(const CANFrame& frame) = 0;
 		/// Transmits the given CAN frame.

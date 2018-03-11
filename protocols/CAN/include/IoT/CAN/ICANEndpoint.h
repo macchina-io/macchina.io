@@ -69,6 +69,9 @@ public:
 	virtual std::vector < IoT::CAN::Filter > getFilter() const = 0;
 		/// Returns the current filter.
 
+	virtual IoT::CAN::CANEndpoint::FilterMode getFilterMode() const = 0;
+		/// Returns the filter mode.
+
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
 
@@ -98,6 +101,9 @@ public:
 
 	virtual void setFilter(const std::vector < IoT::CAN::Filter >& filter) = 0;
 		/// Sets a frame filter for CAN messages.
+
+	virtual void setFilterMode(IoT::CAN::CANEndpoint::FilterMode mode) = 0;
+		/// Sets the filter mode (defaults to CAN_FILTER_MODE_OR).
 
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.

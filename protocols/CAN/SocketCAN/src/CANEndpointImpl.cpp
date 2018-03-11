@@ -35,6 +35,7 @@ bool operator == (const Filter& f1, const Filter& f2)
 CANEndpointImpl::CANEndpointImpl(const std::string& interfc):
 	_interfc(interfc),
 	_socket(interfc),
+	_filterMode(CAN_FILTER_MODE_OR),
 	_enableEvents(0),
 	_logger(Poco::Logger::get("IoT.CAN.SocketCAN.CANEndpointImpl"))
 {
@@ -158,6 +159,28 @@ bool CANEndpointImpl::removeFilter(const Filter& filter)
 		}
 	}
 	return false;
+}
+
+
+void CANEndpointImpl::setFilterMode(CANEndpoint::FilterMode mode)
+{
+#ifdef MACCHINA_HAVE_SOCKETCAN
+	if (mode == CAN_FILTER_MODE_AND)
+	{
+		_socket.setOption(SOL_CAN_RAW, CAN_RAW_JOIN_FILTERS, 1);
+	}
+	else
+	{
+		_socket.setOption(SOL_CAN_RAW, CAN_RAW_JOIN_FILTERS, 0);
+	}
+#endif
+	_filterMode = mode;
+}
+
+
+CANEndpoint::FilterMode CANEndpointImpl::getFilterMode() const
+{
+	return _filterMode;
 }
 
 
