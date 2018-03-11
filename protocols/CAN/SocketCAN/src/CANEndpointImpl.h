@@ -51,8 +51,9 @@ public:
 	bool removeFilter(const Filter& filter);
 	void setFilterMode(FilterMode mode);
 	FilterMode getFilterMode() const;
-	void sendFrame(const CANFrame& frame);
-	void sendFDFrame(const CANFDFrame& frame);
+	void sendCANFrame(const CANFrame& frame);
+	void sendCANFDFrame(const CANFDFrame& frame);
+	void sendFrame(const CANFDFrame& frame, FrameType type);
 	void enableEvents(bool enable);
 	bool eventsEnabled() const;
 	void enableFDEvents(bool enable);

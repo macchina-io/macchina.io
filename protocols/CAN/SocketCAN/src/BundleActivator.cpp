@@ -122,7 +122,7 @@ public:
 				pEndpoint->enableEvents(enableEvents);
 				pEndpoint->enableFDEvents(enableFDEvents);
 				pEndpoint->setFilter(configureFilter(baseKey + ".filter"));
-				pEndpoint->setFilterMode(filterMode == "and" ? CANEndpoint::CAN_FILTER_MODE_AND : CANEndpoint::CAN_FILTER_MODE_OR);
+				pEndpoint->setFilterMode(filterMode == "and" ? CAN_FILTER_MODE_AND : CAN_FILTER_MODE_OR);
 			}
 			catch (Poco::Exception& exc)
 			{

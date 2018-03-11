@@ -69,7 +69,7 @@ public:
 	virtual std::vector < IoT::CAN::Filter > getFilter() const = 0;
 		/// Returns the current filter.
 
-	virtual IoT::CAN::CANEndpoint::FilterMode getFilterMode() const = 0;
+	virtual IoT::CAN::FilterMode getFilterMode() const = 0;
 		/// Returns the filter mode.
 
 	bool isA(const std::type_info& otherType) const;
@@ -93,16 +93,20 @@ public:
 		/// Returns true if the filter was removed, or false
 		/// if no such filter was set.
 
-	virtual void sendFDFrame(const IoT::CAN::CANFDFrame& frame) = 0;
+	virtual void sendCANFDFrame(const IoT::CAN::CANFDFrame& frame) = 0;
 		/// Transmits the given CAN-FD frame.
 
-	virtual void sendFrame(const IoT::CAN::CANFrame& frame) = 0;
+	virtual void sendCANFrame(const IoT::CAN::CANFrame& frame) = 0;
 		/// Transmits the given CAN frame.
+
+	virtual void sendFrame(const IoT::CAN::CANFDFrame& frame, IoT::CAN::FrameType type = IoT::CAN::FrameType(IoT::CAN::CAN_FRAME_AUTO)) = 0;
+		/// Transmit the given frame as CAN or CAN-FD frame, depending
+		/// on type.
 
 	virtual void setFilter(const std::vector < IoT::CAN::Filter >& filter) = 0;
 		/// Sets a frame filter for CAN messages.
 
-	virtual void setFilterMode(IoT::CAN::CANEndpoint::FilterMode mode) = 0;
+	virtual void setFilterMode(IoT::CAN::FilterMode mode) = 0;
 		/// Sets the filter mode (defaults to CAN_FILTER_MODE_OR).
 
 	const std::type_info& type() const;

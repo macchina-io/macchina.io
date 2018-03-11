@@ -168,7 +168,7 @@ bool CANEndpointImpl::removeFilter(const Filter& filter)
 }
 
 
-void CANEndpointImpl::setFilterMode(CANEndpoint::FilterMode mode)
+void CANEndpointImpl::setFilterMode(FilterMode mode)
 {
 #ifdef MACCHINA_HAVE_SOCKETCAN
 	if (mode == CAN_FILTER_MODE_AND)
@@ -184,13 +184,13 @@ void CANEndpointImpl::setFilterMode(CANEndpoint::FilterMode mode)
 }
 
 
-CANEndpoint::FilterMode CANEndpointImpl::getFilterMode() const
+FilterMode CANEndpointImpl::getFilterMode() const
 {
 	return _filterMode;
 }
 
 
-void CANEndpointImpl::sendFrame(const CANFrame& frame)
+void CANEndpointImpl::sendCANFrame(const CANFrame& frame)
 {
 	if (_logger.debug())
 	{
@@ -208,8 +208,9 @@ void CANEndpointImpl::sendFrame(const CANFrame& frame)
 }
 
 
-void CANEndpointImpl::sendFDFrame(const CANFDFrame& frame)
+void CANEndpointImpl::sendCANFDFrame(const CANFDFrame& frame)
 {
+#ifdef CAN_RAW_FD_FRAMES
 	if (_logger.debug())
 	{
 		_logger.dump("Sending CAN-FD frame", frame.payload().data(), frame.length());
@@ -223,6 +224,67 @@ void CANEndpointImpl::sendFDFrame(const CANFDFrame& frame)
 	std::memcpy(scFrame.data, frame.payload().data(), frame.length());
 	_socket.sendBytes(&scFrame, sizeof(scFrame));
 #endif
+#else
+	throw Poco::NotImplementedException("CAN FD frames not supported by platform's SocketCAN");
+#endif
+}
+
+
+void CANEndpointImpl::sendFrame(const CANFDFrame& frame, FrameType type)
+{
+	if (_logger.debug())
+	{
+		_logger.dump("Sending frame", frame.payload().data(), frame.length());
+	}
+#ifdef MACCHINA_HAVE_SOCKETCAN
+#ifdef CAN_RAW_FD_FRAMES
+	int mtu;
+	switch (type)
+	{
+	case CAN_FRAME_AUTO:
+		mtu = frame.length() <= 8 ? CAN_MTU : CANFD_MTU;
+		break;
+	case CAN_FRAME_CAN:
+		if (frame.length() > 8) throw Poco::InvalidArgumentException("Frame too big for standard CAN frame");
+		mtu = CAN_MTU;
+		break;
+	case CAN_FRAME_CANFD:
+		mtu = CANFD_MTU;
+		break;
+	default:
+		throw Poco::InvalidArgumentException("type");
+	}
+
+	struct canfd_frame scFrame;
+	scFrame.can_id = frame.id();
+	if (frame.flags() & CANFrame::CAN_FLAG_IDE) scFrame.can_id |= CAN_EFF_FLAG;
+	if (frame.flags() & CANFrame::CAN_FLAG_RTR) scFrame.can_id |= CAN_RTR_FLAG;
+	scFrame.len = frame.length();
+	std::memcpy(scFrame.data, frame.payload().data(), frame.length());
+	_socket.sendBytes(&scFrame, mtu);
+#else
+	switch (type)
+	{
+	case CAN_FRAME_AUTO:
+		if (frame.length() > 8) throw Poco::InvalidArgumentException("Frame too big for standard CAN frame and CAN-FD frames are not supported by platform's SocketCAN");
+		break;
+	case CAN_FRAME_CAN:
+		if (frame.length() > 8) throw Poco::InvalidArgumentException("Frame too big for standard CAN frame");
+		break;
+	case CAN_FRAME_CANFD:
+		break;
+	default:
+		throw Poco::InvalidArgumentException("type");
+	}
+	struct can_frame scFrame;
+	scFrame.can_id = frame.id();
+	if (frame.flags() & CANFrame::CAN_FLAG_IDE) scFrame.can_id |= CAN_EFF_FLAG;
+	if (frame.flags() & CANFrame::CAN_FLAG_RTR) scFrame.can_id |= CAN_RTR_FLAG;
+	scFrame.can_dlc = frame.length();
+	std::memcpy(scFrame.data, frame.payload().data(), frame.dlc());
+	_socket.sendBytes(&scFrame, sizeof(scFrame));
+#endif // CAN_RAW_FD_FRAMES
+#endif // MACCHINA_HAVE_SOCKETCAN
 }
 
 

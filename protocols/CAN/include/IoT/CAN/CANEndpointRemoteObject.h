@@ -68,7 +68,7 @@ public:
 	std::vector < IoT::CAN::Filter > getFilter() const;
 		/// Returns the current filter.
 
-	IoT::CAN::CANEndpoint::FilterMode getFilterMode() const;
+	IoT::CAN::FilterMode getFilterMode() const;
 		/// Returns the filter mode.
 
 	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
@@ -85,16 +85,20 @@ public:
 		/// Returns true if the filter was removed, or false
 		/// if no such filter was set.
 
-	virtual void sendFDFrame(const IoT::CAN::CANFDFrame& frame);
+	virtual void sendCANFDFrame(const IoT::CAN::CANFDFrame& frame);
 		/// Transmits the given CAN-FD frame.
 
-	virtual void sendFrame(const IoT::CAN::CANFrame& frame);
+	virtual void sendCANFrame(const IoT::CAN::CANFrame& frame);
 		/// Transmits the given CAN frame.
+
+	virtual void sendFrame(const IoT::CAN::CANFDFrame& frame, IoT::CAN::FrameType type = IoT::CAN::FrameType(IoT::CAN::CAN_FRAME_AUTO));
+		/// Transmit the given frame as CAN or CAN-FD frame, depending
+		/// on type.
 
 	virtual void setFilter(const std::vector < IoT::CAN::Filter >& filter);
 		/// Sets a frame filter for CAN messages.
 
-	virtual void setFilterMode(IoT::CAN::CANEndpoint::FilterMode mode);
+	virtual void setFilterMode(IoT::CAN::FilterMode mode);
 		/// Sets the filter mode (defaults to CAN_FILTER_MODE_OR).
 
 protected:
@@ -155,7 +159,7 @@ inline std::vector < IoT::CAN::Filter > CANEndpointRemoteObject::getFilter() con
 }
 
 
-inline IoT::CAN::CANEndpoint::FilterMode CANEndpointRemoteObject::getFilterMode() const
+inline IoT::CAN::FilterMode CANEndpointRemoteObject::getFilterMode() const
 {
 	return _pServiceObject->getFilterMode();
 }
@@ -173,15 +177,21 @@ inline bool CANEndpointRemoteObject::removeFilter(const IoT::CAN::Filter& filter
 }
 
 
-inline void CANEndpointRemoteObject::sendFDFrame(const IoT::CAN::CANFDFrame& frame)
+inline void CANEndpointRemoteObject::sendCANFDFrame(const IoT::CAN::CANFDFrame& frame)
 {
-	_pServiceObject->sendFDFrame(frame);
+	_pServiceObject->sendCANFDFrame(frame);
 }
 
 
-inline void CANEndpointRemoteObject::sendFrame(const IoT::CAN::CANFrame& frame)
+inline void CANEndpointRemoteObject::sendCANFrame(const IoT::CAN::CANFrame& frame)
 {
-	_pServiceObject->sendFrame(frame);
+	_pServiceObject->sendCANFrame(frame);
+}
+
+
+inline void CANEndpointRemoteObject::sendFrame(const IoT::CAN::CANFDFrame& frame, IoT::CAN::FrameType type)
+{
+	_pServiceObject->sendFrame(frame, type);
 }
 
 
@@ -191,7 +201,7 @@ inline void CANEndpointRemoteObject::setFilter(const std::vector < IoT::CAN::Fil
 }
 
 
-inline void CANEndpointRemoteObject::setFilterMode(IoT::CAN::CANEndpoint::FilterMode mode)
+inline void CANEndpointRemoteObject::setFilterMode(IoT::CAN::FilterMode mode)
 {
 	_pServiceObject->setFilterMode(mode);
 }

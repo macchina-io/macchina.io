@@ -66,6 +66,23 @@ struct Filter
 };
 
 
+enum FilterMode
+	/// Filter modes for setFilterMode()/getFilterMode()
+{
+	CAN_FILTER_MODE_OR  = 0, /// Frame passes if it matches at least one filter element (default)
+	CAN_FILTER_MODE_AND = 1  /// Frame passes if it matches all filter elements
+};
+
+
+enum FrameType
+	/// Frame type for sendAnyFrame()
+{
+	CAN_FRAME_AUTO     = 0, /// Send frame as CAN or CAN-FD frame, depending on payload length
+	CAN_FRAME_CAN      = 1, /// Send frame as standard CAN frame
+	CAN_FRAME_CANFD    = 2  /// Send frame as CAN-FD frame
+};
+
+
 //@ remote
 class IoTCAN_API CANEndpoint
 	/// The CANEndpoint is used to receive and send CAN and CAN-FD frames.
@@ -78,12 +95,6 @@ public:
 
 	Poco::BasicEvent<const CANFDFrame> fdFrameReceived;
 		/// Fired when an CAN-FD frame has been received.
-
-	enum FilterMode
-	{
-		CAN_FILTER_MODE_OR  = 0, /// Frame passes if it matches at least one filter element (default)
-		CAN_FILTER_MODE_AND = 1  /// Frame passes if it matches all filter elements
-	};
 
  	CANEndpoint();
 		/// Creates the CANEndpoint.
@@ -118,18 +129,25 @@ public:
 	virtual FilterMode getFilterMode() const = 0;
 		/// Returns the filter mode.
 
-	virtual void sendFrame(const CANFrame& frame) = 0;
+	virtual void sendCANFrame(const CANFrame& frame) = 0;
 		/// Transmits the given CAN frame.
 
-	virtual void sendFDFrame(const CANFDFrame& frame) = 0;
+	virtual void sendCANFDFrame(const CANFDFrame& frame) = 0;
 		/// Transmits the given CAN-FD frame.
 
+	// $type={optional}
+	virtual void sendFrame(const CANFDFrame& frame, FrameType type = CAN_FRAME_AUTO) = 0;
+		/// Transmit the given frame as CAN or CAN-FD frame, depending
+		/// on type.
+
+	//@ $enable={optional}
 	virtual void enableEvents(bool enable = true) = 0;
 		/// Enables or disables events for received CAN frames.
 
 	virtual bool eventsEnabled() const = 0;
 		/// Returns true if events for received CAN frames are enabled, otherwise false.
 
+	//@ $enable={optional}
 	virtual void enableFDEvents(bool enable = true) = 0;
 		/// Enables or disables events for received CAN-FD frames.
 
