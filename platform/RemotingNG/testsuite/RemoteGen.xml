@@ -28,6 +28,7 @@
 				-C
 				-DPOCO_NO_GCC_API_ATTRIBUTE
 				-o%.i
+				-std=c++11
 			</options>
 		</compiler>
 		<compiler id="clang">
@@ -40,6 +41,7 @@
 				-DPOCO_NO_GCC_API_ATTRIBUTE
 				-xc++
 				-o%.i
+				-std=c++11
 			</options>
 		</compiler>
 		<compiler id="msvc">

@@ -32,6 +32,8 @@
 #include "Struct5Serializer.h"
 #include "Struct6Deserializer.h"
 #include "Struct6Serializer.h"
+#include "Struct7Deserializer.h"
+#include "Struct7Serializer.h"
 
 
 class TesterEvent__testEventMethodHandler: public Poco::RemotingNG::MethodHandler

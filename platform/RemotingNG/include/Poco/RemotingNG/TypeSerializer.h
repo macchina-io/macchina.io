@@ -35,6 +35,9 @@
 #include <vector>
 #include <list>
 #include <set>
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+#include <array>
+#endif
 
 
 namespace Poco {
@@ -113,6 +116,35 @@ public:
 		}
 	}
 };
+
+
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+
+
+template <typename T, std::size_t N>
+class TypeSerializer<std::array<T, N> >
+{
+public:
+	static void serialize(const std::string& name, const std::array<T, N>& value, Serializer& ser)
+	{
+		ser.serializeSequenceBegin(name, static_cast<Poco::UInt32>(value.size()));
+		serializeImpl(name, value, ser);
+		ser.serializeSequenceEnd(name);
+	}
+
+	static void serializeImpl(const std::string& name, const std::array<T, N>& value, Serializer& ser)
+	{
+		typename std::array<T, N>::const_iterator it = value.begin();
+		typename std::array<T, N>::const_iterator itEnd = value.end();
+		for (; it != itEnd; ++it)
+		{
+			TypeSerializer<T>::serialize(name, *it, ser);
+		}
+	}
+};
+
+
+#endif // POCO_REMOTING_HAVE_STD_ARRAY
 
 
 template <typename T>

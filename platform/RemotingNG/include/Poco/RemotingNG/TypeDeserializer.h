@@ -36,6 +36,9 @@
 #include <vector>
 #include <list>
 #include <set>
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+#include <array>
+#endif
 
 
 namespace Poco {
@@ -137,6 +140,46 @@ public:
 		while (found);
 	}
 };
+
+
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+
+
+template <typename T, std::size_t N>
+class TypeDeserializer<std::array<T, N> >
+{
+public:
+	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::array<T, N>& value)
+	{
+		Poco::UInt32 sizeHint;
+		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
+		{
+			deserializeImpl(name, false, deser, value);
+			deser.deserializeSequenceEnd(name);
+			return true;
+		}
+		else return false;
+	}
+
+	static void deserializeImpl(const std::string& name, bool isMandatory, Deserializer& deser, std::array<T, N>& value)
+	{
+		bool found = true;
+		std::size_t index = 0;
+		do
+		{
+			T elem; // recreate elem with default values in EACH iteration -> deserialize can return true even when no data was set!
+			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, elem);
+			if (found && index < value.size())
+			{
+				value[index++] = elem;
+			}
+		}
+		while (found);
+	}
+};
+
+
+#endif // POCO_REMOTING_HAVE_STD_ARRAY
 
 
 template <typename T>

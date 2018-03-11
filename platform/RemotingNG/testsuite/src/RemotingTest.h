@@ -40,6 +40,10 @@ public:
 	void testStruct5();
 	void testStruct6();
 	void testArray();
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+	void testStruct7();
+	void testStdArray();
+#endif
 	void testClass1();
 	void testPtr();
 	void testStruct1Vec();
@@ -67,6 +71,10 @@ protected:
 	void testStruct5(ITester::Ptr pTester);
 	void testStruct6(ITester::Ptr pTester);
 	void testArray(ITester::Ptr pTester);
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+	void testStruct7(ITester::Ptr pTester);
+	void testStdArray(ITester::Ptr pTester);
+#endif
 	void testClass1(ITester::Ptr pTester);
 	void testPtr(ITester::Ptr pTester);
 	void testStruct1Vec(ITester::Ptr pTester);

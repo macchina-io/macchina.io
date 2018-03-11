@@ -166,6 +166,24 @@ Poco::Array<int, 4> Tester::testArray(const Poco::Array<int, 4>& arr)
 }
 
 
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+
+
+Struct7 Tester::testStruct7(const Struct7& s1)
+{
+	return s1;
+}
+
+
+std::array<int, 4> Tester::testStdArray(const std::array<int, 4>& arr)
+{
+	return arr;
+}
+
+
+#endif // POCO_REMOTING_HAVE_STD_ARRAY
+
+
 Class1 Tester::testClass11(const Class1& c1)
 {
 	return c1;

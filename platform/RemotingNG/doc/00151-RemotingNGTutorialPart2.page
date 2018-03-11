@@ -16,11 +16,11 @@ and be familiar with basic Remoting concepts, such as presented in
 
 !!!Using User-Defined Classes as Parameters
 
-Besides the built-in C++ types (with the exception of pointers), 
-including enumerations (with some restrictions), 
-<[std::string]>, <[std::vector]>, <[std::set]> and <[std::multiset]>, as
-well as Poco::DateTime, Poco::LocalDateTime, Poco::Timestamp, Poco::Timespan, 
-Poco::Nullable, Poco::AutoPtr and Poco::SharedPtr,
+Besides the built-in C++ types (with the exception of pointers),
+including enumerations (with some restrictions),
+<[std::string]>, <[std::vector]>, <[std::array]>, <[std::set]> and <[std::multiset]>, as
+well as Poco::DateTime, Poco::LocalDateTime, Poco::Timestamp, Poco::Timespan,
+Poco::Nullable, Poco::Optional, Poco::Array, Poco::AutoPtr and Poco::SharedPtr,
 Remoting also supports user-defined classes and structures as parameter types.
 
 For this to work, a serializer and a deserializer class must be generated for each
@@ -35,14 +35,14 @@ Following is the updated header file for the TimeService class.
 
     #ifndef TimeService_INCLUDED
     #define TimeService_INCLUDED
-    
-    
+
+
     #include <string>
-    
-    
+
+
     namespace Sample {
-    
-    
+
+
     //@ serialize
     struct Time
     {
@@ -50,8 +50,8 @@ Following is the updated header file for the TimeService class.
         int minute;
         int second;
     };
-    
-    
+
+
     //@ remote
     //@ namespace = "http://sample.com/webservices/TimeService"
     class TimeService
@@ -59,10 +59,10 @@ Following is the updated header file for the TimeService class.
     public:
         TimeService();
             /// Creates the TimeService.
-            
+
         ~TimeService();
             /// Destroys the TimeService.
-            
+
         std::string currentTimeAsString() const;
             /// Returns the current time, formatted
             /// as a string (HH:MM::SS).
@@ -71,11 +71,11 @@ Following is the updated header file for the TimeService class.
             /// Returns the current time
             /// in a Time structure.
     };
-    
-    
+
+
     } // namespace Sample
-    
-    
+
+
     #endif // TimeService_INCLUDED
 ----
 
@@ -104,22 +104,22 @@ We can now change the client to use the new method.
     #include "Poco/RemotingNG/TCP/TransportFactory.h"
     #include <iostream>
     #include <iomanip>
-    
-    
+
+
     int main(int argc, char** argv)
     {
         try
         {
             // Register TCP Transport.
             Poco::RemotingNG::TCP::TransportFactory::registerFactory();
-            
+
             // Get proxy for remote TimeService.
             std::string uri("http://localhost:7777/tcp/TimeService/TheTimeService");
             Sample::ITimeService::Ptr pTimeService = Sample::TimeServiceClientHelper::find(uri);
-    
+
             // invoke methods on remote object
             Sample::Time currentTime = pTimeService->currentTimeAsStruct();
-            std::cout << "Current time: " << std::setw(2) << std::setfill('0') 
+            std::cout << "Current time: " << std::setw(2) << std::setfill('0')
                 << currentTime.hour << ":" << currentTime.minute << std::endl;
         }
         catch (Poco::Exception& exc)
@@ -131,7 +131,7 @@ We can now change the client to use the new method.
     }
 ----
 
-Classes with non-public data members can be used as parameter or return value types as well. 
+Classes with non-public data members can be used as parameter or return value types as well.
 For this to work, such a class must follow a few conventions:
 
   * The class must support full value semantics (copy constructor and
@@ -142,7 +142,7 @@ For this to work, such a class must follow a few conventions:
     from the name of the member variable according to certain rules.
 
 Rules for member variable and setter/getter function names are as follows.
-For a member variable named <[var]>, <[_var]>, <[var_]> or <[m_var]>, the getter 
+For a member variable named <[var]>, <[_var]>, <[var_]> or <[m_var]>, the getter
 function signature must be:
 
     <type> getVar() const;
@@ -193,7 +193,7 @@ polling model are:
   * there aren't any issues with firewalls -- as soon as the client
     is able to reach the server, it will also receive its notifications,
     because it is always the client that initiates the connection, and
-    
+
 Polling has two serious disadvantages, though:
 
   * polling significantly increases the server and network load, especially with
@@ -227,11 +227,11 @@ The advantages of this model are:
   * it does not unnecessarily increase network and server load --
     messages are only sent over the network if the server needs
     to notify the client.
-    
+
 This model has a significant drawback, though: it may not work
 across firewalls, as the server needs to open a network connection
 to the client. If the client is located behind a NAT router or firewall,
-the server won't be able to reach the client, unless additonal 
+the server won't be able to reach the client, unless additonal
 steps (basically, punching a hole through the firewall) are taken.
 
 
@@ -252,55 +252,55 @@ by adding a public Poco::BasicEvent member variable (named <[wakeUp]>), as shown
 
     #ifndef TimeService_INCLUDED
     #define TimeService_INCLUDED
-    
-    
+
+
     #include "Poco/Foundation.h"
     #include "Poco/BasicEvent.h"
     #include "Poco/DateTime.h"
     #include "Poco/Util/Timer.h"
-    
-    
+
+
     namespace Sample {
-    
-    
+
+
     //@ remote
     class TimeService
     {
     public:
         TimeService();
             /// Creates the TimeService.
-    
+
         ~TimeService();
             /// Destroys the TimeService.
-            
+
         Poco::BasicEvent<const std::string> wakeUp;
-        
+
         Poco::DateTime currentTime() const;
             /// Returns the current date and time.
-            
+
         void wakeMeUp(const Poco::DateTime& time, const std::string& message);
             /// Schedules a wakeup call.
             ///
             /// Fires the wakeUp event at the given time, passing
             /// the given message as argument.
-            
+
     private:
         Poco::Util::Timer _timer;
     };
-    
-    
+
+
     } // namespace Sample
-    
-    
+
+
     #endif // TimeService_INCLUDED
 ----
 
 We've also added a Poco::Util::Timer member variable, which we'll use to schedule
 the callback events.
 
-When we run RemoteGenNG on the header file to generate the server code, it will 
-generate a new class, <[TimeServiceEventDispatcher]>. However, before running RemoteGenNG, 
-we must make a small change to its configuration file. In order to generate code supporting remote 
+When we run RemoteGenNG on the header file to generate the server code, it will
+generate a new class, <[TimeServiceEventDispatcher]>. However, before running RemoteGenNG,
+we must make a small change to its configuration file. In order to generate code supporting remote
 events, the code generator must know about the Poco::RemotingNG::EventDispatcher class
 for server code, and about the Poco::RemotingNG::EventSubscriber class for client code.
 So we'll have to add the corresponding headers to the configuration file:
@@ -333,12 +333,12 @@ subclass of Poco::Util::TimerTask that fires the event:
             _message(message)
         {
         }
-        
+
         void run()
         {
             _owner.wakeUp(this, _message);
         }
-        
+
     private:
         TimeService& _owner;
         std::string _message;
@@ -366,7 +366,7 @@ register the TransportFactory for the TCP Transport which will be used for event
 
 To enable events for our service object, we use the client helper class. Events for
 a service object can be enabled after the service object has been registered. The
-protocol name of the transport ("tcp" in our case) to use for events must be given as 
+protocol name of the transport ("tcp" in our case) to use for events must be given as
 argument, along with the object's URI.
 
     // register TimeService service object and enable events
@@ -388,35 +388,35 @@ file for the server. After running the code generator, the generated
 <[TimeServiceEventSubscriber]> class must be added to the project, along with the
 other generated files. When we look at the generated interface class, we'll see that
 it now has a Poco::BasicEvent member variable that matches the server's <[wakeUp]>
-event, as well as a new method <[remoting__enableEvents()]>. 
+event, as well as a new method <[remoting__enableEvents()]>.
 In order to receive events, we must first register a delegate with
 the proxy's event. Furthermore, we must tell the proxy how to receive events.
-For receiving events, the client must set up an <*EventListener*> object. The 
+For receiving events, the client must set up an <*EventListener*> object. The
 <*EventListener*> is similar to the <*Listener*> object used by the server to
 listen for incoming requests. In fact, the Poco::RemotingNG::EventListener class
 is a subclass of Poco::RemotingNG::Listener. One additional task the EventListener
 is responsible for is sending a transport-specific subscription request to the server,
 so that the server knows whom to send its events. Our EventListener object must
 be passed to the local proxy, so that the proxy will receive remote events, which will
-cause the proxy's corresponding events members (to which we've subscribed our delegates) 
+cause the proxy's corresponding events members (to which we've subscribed our delegates)
 to be fired. This is done by calling <[remoting__enableEvents()]>.
 
 Putting it all together, the client's setup code looks as follows:
 
     // register transport
     Poco::RemotingNG::TCP::TransportFactory::registerFactory();
-    
+
     // create event listener
     Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener;
-    
+
     // get proxy for remote object
     std::string uri("remoting.tcp://localhost:7777/tcp/TimeService/TheClock");
     Services::ITimeService::Ptr pClock = Services::TimeServiceClientHelper::find(uri);
-    
+
     // invoke method on remote object
     Poco::DateTime dt = pClock->currentTime();
     std::cout << Poco::DateTimeFormatter::format(dt, Poco::DateTimeFormat::SORTABLE_FORMAT) << std::endl;
-    
+
     // enable events
     pClock->remoting__enableEvents(pListener);
     pClock->wakeUp += Poco::delegate(onWakeUp);

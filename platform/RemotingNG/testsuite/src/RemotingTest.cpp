@@ -556,6 +556,26 @@ void RemotingTest::testArray()
 }
 
 
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+
+
+void RemotingTest::testStruct7()
+{
+	ITester::Ptr pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
+	testStruct7(pTester);
+}
+
+
+void RemotingTest::testStdArray()
+{
+	ITester::Ptr pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
+	testStdArray(pTester);
+}
+
+
+#endif // POCO_REMOTING_HAVE_STD_ARRAY
+
+
 void RemotingTest::testClass1()
 {
 	ITester::Ptr pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
@@ -952,6 +972,40 @@ void RemotingTest::testArray(ITester::Ptr pTester)
 }
 
 
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+
+
+void RemotingTest::testStruct7(ITester::Ptr pTester)
+{
+	Struct7 s71;
+	s71.arr[0] = 0;
+	s71.arr[1] = 1;
+	s71.arr[2] = 2;
+	s71.arr[3] = 3;
+
+	Struct7 s72 = pTester->testStruct7(s71);
+
+	assert (s71.arr == s72.arr);
+}
+
+
+void RemotingTest::testStdArray(ITester::Ptr pTester)
+{
+	std::array<int, 4> arr1;
+	arr1[0] = 0;
+	arr1[1] = 1;
+	arr1[2] = 2;
+	arr1[3] = 3;
+
+	std::array<int, 4> arr2 = pTester->testStdArray(arr1);
+
+	assert (arr1 == arr2);
+}
+
+
+#endif
+
+
 void RemotingTest::testClass1(ITester::Ptr pTester)
 {
 	Class1 c1;
@@ -1087,6 +1141,10 @@ CppUnit::Test* RemotingTest::suite()
 	CppUnit_addTest(pSuite, RemotingTest, testStruct5);
 	CppUnit_addTest(pSuite, RemotingTest, testStruct6);
 	CppUnit_addTest(pSuite, RemotingTest, testArray);
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+	CppUnit_addTest(pSuite, RemotingTest, testStruct7);
+	CppUnit_addTest(pSuite, RemotingTest, testStdArray);
+#endif
 	CppUnit_addTest(pSuite, RemotingTest, testClass1);
 	CppUnit_addTest(pSuite, RemotingTest, testPtr);
 	CppUnit_addTest(pSuite, RemotingTest, testStruct1Vec);

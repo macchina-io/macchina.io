@@ -92,7 +92,7 @@ public:
 	{
 		_mutex.lock();
 	}
-	
+
 	~StaticInitGuard()
 	{
 		try
@@ -104,7 +104,7 @@ public:
 			poco_unexpected();
 		}
 	}
-	
+
 	void release()
 	{
 		if (_pMutex)
@@ -113,7 +113,7 @@ public:
 			_pMutex = 0;
 		}
 	}
-	
+
 private:
 	StaticInitGuard(const StaticInitGuard&);
 	StaticInitGuard& operator = (const StaticInitGuard&);
@@ -138,6 +138,15 @@ private:
 
 
 #endif // !defined(POCO_LOCAL_STATIC_INIT_IS_THREADSAFE)
+
+
+//
+// Check for std::array support
+//
+
+ #if __cplusplus >= 201103L || _MSC_VER >= 1800
+ #define POCO_REMOTING_HAVE_STD_ARRAY 1
+ #endif
 
 
 #endif // RemotingNG_RemotingNG_INCLUDED

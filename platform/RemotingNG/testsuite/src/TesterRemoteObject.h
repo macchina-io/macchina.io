@@ -86,6 +86,8 @@ public:
 
 	Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1);
 
+	std::array < int, 4 > testStdArray(const std::array < int, 4 >& arr);
+
 	Struct1 testStruct11(const Struct1& s1);
 
 	void testStruct12(Struct1& s1);
@@ -123,6 +125,8 @@ public:
 	void testStruct53(const Struct5& s1, Struct5& s2);
 
 	Struct6 testStruct6(const Struct6& s1);
+
+	Struct7 testStruct7(const Struct7& s1);
 
 	void testSynchronized();
 
@@ -294,6 +298,12 @@ inline Poco::SharedPtr < Struct1 > TesterRemoteObject::testPtr(Poco::SharedPtr <
 }
 
 
+inline std::array < int, 4 > TesterRemoteObject::testStdArray(const std::array < int, 4 >& arr)
+{
+	return _pServiceObject->testStdArray(arr);
+}
+
+
 inline Struct1 TesterRemoteObject::testStruct11(const Struct1& s1)
 {
 	return _pServiceObject->testStruct11(s1);
@@ -405,6 +415,12 @@ inline void TesterRemoteObject::testStruct53(const Struct5& s1, Struct5& s2)
 inline Struct6 TesterRemoteObject::testStruct6(const Struct6& s1)
 {
 	return _pServiceObject->testStruct6(s1);
+}
+
+
+inline Struct7 TesterRemoteObject::testStruct7(const Struct7& s1)
+{
+	return _pServiceObject->testStruct7(s1);
 }
 
 

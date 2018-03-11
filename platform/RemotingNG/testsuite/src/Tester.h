@@ -14,7 +14,7 @@
 #define Tester_INCLUDED
 
 
-#include "Poco/Poco.h"
+#include "Poco/RemotingNG/RemotingNG.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/BinaryWriter.h"
 #include "Poco/BinaryReader.h"
@@ -30,6 +30,9 @@
 #include <vector>
 #include <list>
 #include <set>
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+#include <array>
+#endif
 
 
 enum Enum1
@@ -112,6 +115,19 @@ struct Struct6
 {
 	Poco::Array<int, 4> arr;
 };
+
+
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+
+
+//@ serialize
+struct Struct7
+{
+	std::array<int, 4> arr;
+};
+
+
+#endif // POCO_REMOTING_HAVE_STD_ARRAY
 
 
 //@ serialize
@@ -240,6 +256,14 @@ public:
 	Struct6 testStruct6(const Struct6& s1);
 
 	Poco::Array<int, 4> testArray(const Poco::Array<int, 4>& arr);
+
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+
+	Struct7 testStruct7(const Struct7& s1);
+
+	std::array<int, 4> testStdArray(const std::array<int, 4>& arr);
+
+#endif
 
 	Class1 testClass11(const Class1& c1);
 
