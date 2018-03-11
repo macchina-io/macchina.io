@@ -21,6 +21,11 @@
 #include <cstring>
 
 
+#ifdef CANFD_MTU
+#define MACCHINA_HAVE_CANFD 1
+#endif
+
+
 namespace IoT {
 namespace CAN {
 namespace SocketCAN {
@@ -66,7 +71,7 @@ void CANEndpointImpl::run()
 #ifdef MACCHINA_HAVE_SOCKETCAN
 			if (_socket.poll(timeout, Poco::Net::Socket::SELECT_READ))
 			{
-#ifdef CAN_RAW_FD_FRAMES
+#ifdef MACCHINA_HAVE_CANFD
 				struct canfd_frame scFrame;
 				int n = _socket.receiveBytes(&scFrame, sizeof(scFrame));
 				if (n == CAN_MTU)
@@ -102,7 +107,7 @@ void CANEndpointImpl::run()
 					CANFrame frame(id, flags, scFrame.can_dlc, reinterpret_cast<char*>(&scFrame.data[0]));
 					frameReceived(this, frame);
 				}
-#endif // CAN_RAW_FD_FRAMES
+#endif // MACCHINA_HAVE_CANFD
 			}
 #endif // MACCHINA_HAVE_SOCKETCAN
 		}
@@ -210,7 +215,7 @@ void CANEndpointImpl::sendCANFrame(const CANFrame& frame)
 
 void CANEndpointImpl::sendCANFDFrame(const CANFDFrame& frame)
 {
-#ifdef CAN_RAW_FD_FRAMES
+#ifdef MACCHINA_HAVE_CANFD
 	if (_logger.debug())
 	{
 		_logger.dump("Sending CAN-FD frame", frame.payload().data(), frame.length());
@@ -237,7 +242,7 @@ void CANEndpointImpl::sendFrame(const CANFDFrame& frame, FrameType type)
 		_logger.dump("Sending frame", frame.payload().data(), frame.length());
 	}
 #ifdef MACCHINA_HAVE_SOCKETCAN
-#ifdef CAN_RAW_FD_FRAMES
+#ifdef MACCHINA_HAVE_CANFD
 	int mtu;
 	switch (type)
 	{
@@ -272,6 +277,7 @@ void CANEndpointImpl::sendFrame(const CANFDFrame& frame, FrameType type)
 		if (frame.length() > 8) throw Poco::InvalidArgumentException("Frame too big for standard CAN frame");
 		break;
 	case CAN_FRAME_CANFD:
+		throw Poco::NotImplementedException("CAN FD frames not supported by platform's SocketCAN");
 		break;
 	default:
 		throw Poco::InvalidArgumentException("type");
@@ -283,7 +289,7 @@ void CANEndpointImpl::sendFrame(const CANFDFrame& frame, FrameType type)
 	scFrame.can_dlc = frame.length();
 	std::memcpy(scFrame.data, frame.payload().data(), frame.dlc());
 	_socket.sendBytes(&scFrame, sizeof(scFrame));
-#endif // CAN_RAW_FD_FRAMES
+#endif // MACCHINA_HAVE_CANFD
 #endif // MACCHINA_HAVE_SOCKETCAN
 }
 
@@ -319,7 +325,7 @@ bool CANEndpointImpl::eventsEnabled() const
 
 void CANEndpointImpl::enableFDEvents(bool enable)
 {
-#ifdef CAN_RAW_FD_FRAMES
+#ifdef CANFD_MTU
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
 	if (enable)
@@ -352,7 +358,7 @@ bool CANEndpointImpl::fdEventsEnabled() const
 
 bool CANEndpointImpl::fdFramesSupported() const
 {
-#ifdef CAN_RAW_FD_FRAMES
+#ifdef MACCHINA_HAVE_CANFD
 	return true;
 #else
 	return false;
