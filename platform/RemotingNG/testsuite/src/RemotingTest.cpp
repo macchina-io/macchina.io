@@ -46,32 +46,32 @@ namespace
 			_pAuthorizer(pAuthorizer)
 		{
 		}
-		
+
 		bool authorize(const std::string& method, const std::string& permission)
-		{	
+		{
 			if (_pAuthorizer)
 			{
 				return _pAuthorizer->authorize(method, permission);
 			}
 			return false;
 		}
-		
+
 		Poco::RemotingNG::Deserializer& beginRequest()
 		{
 			_deserializer.setup(_istr);
 			return _deserializer;
 		}
-		
+
 		Poco::RemotingNG::Serializer& sendReply(Poco::RemotingNG::SerializerBase::MessageType messageType)
 		{
 			_serializer.setup(_ostr);
 			return _serializer;
 		}
-	
+
 		void endRequest()
 		{
 		}
-		
+
 	private:
 		std::istream& _istr;
 		std::ostream& _ostr;
@@ -79,12 +79,12 @@ namespace
 		Poco::RemotingNG::BinaryDeserializer _deserializer;
 		Poco::RemotingNG::Authorizer::Ptr _pAuthorizer;
 	};
-	
+
 	class MockListener: public Poco::RemotingNG::EventListener
 	{
 	public:
 		typedef Poco::AutoPtr<MockListener> Ptr;
-	
+
 		MockListener(const std::string& protocol, const std::string& endPoint):
 			Poco::RemotingNG::EventListener(endPoint),
 			_protocol(protocol),
@@ -99,11 +99,11 @@ namespace
 			_pServerListener(pServerListener)
 		{
 		}
-				
+
 		~MockListener()
 		{
 		}
-	
+
 		bool running() const
 		{
 			return _running;
@@ -139,29 +139,29 @@ namespace
 			Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = Poco::RemotingNG::ORB::instance().findEventDispatcher(objectURI, "evmock");
 			pEventDispatcher->subscribe(subscriberURI, subscriberURI);
 		}
-		
+
 		void unregisterSubscriber(const std::string& objectURI, const std::string& subscriberURI)
 		{
 			Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = Poco::RemotingNG::ORB::instance().findEventDispatcher(objectURI, "evmock");
 			pEventDispatcher->unsubscribe(subscriberURI);
 		}
-		
-		// Listener	
+
+		// Listener
 		void start()
 		{
 			_running = true;
 		}
-	
+
 		void stop()
 		{
 			_running = false;
 		}
-		
+
 		const std::string& protocol() const
 		{
 			return _protocol;
 		}
-	
+
 		std::string createURI(const Poco::RemotingNG::Identifiable::TypeId& typeId, const Poco::RemotingNG::Identifiable::ObjectId& objectId)
 		{
 			std::string uri("mock://localhost/");
@@ -172,12 +172,12 @@ namespace
 			uri += objectId;
 			return uri;
 		}
-	
+
 		bool handlesURI(const std::string& uri)
 		{
 			return false;
 		}
-		
+
 		void registerObject(Poco::RemotingNG::RemoteObject::Ptr pRemoteObject, Poco::RemotingNG::Skeleton::Ptr pSkeleton)
 		{
 		}
@@ -185,7 +185,7 @@ namespace
 		void unregisterObject(Poco::RemotingNG::RemoteObject::Ptr pRemoteObject)
 		{
 		}
-				
+
 		// EventListener
 		std::string subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber)
 		{
@@ -201,17 +201,17 @@ namespace
 			_pServerListener->unregisterSubscriber(pEventSubscriber->uri(), subscriberURI);
 			_pEventSubscriber = 0;
 		}
-	
+
 	private:
 		std::string _protocol;
 		bool _running;
 		MockListener::Ptr _pServerListener;
 		Poco::RemotingNG::EventSubscriber::Ptr _pEventSubscriber;
-		
+
 		friend class MockTransport;
 	};
-	
-	
+
+
 	class MockTransport: public Poco::RemotingNG::Transport
 	{
 	public:
@@ -219,54 +219,54 @@ namespace
 			_connected(false)
 		{
 		}
-		
+
 		MockTransport(MockListener::Ptr pListener):
 			_pListener(pListener),
 			_connected(false)
 		{
 		}
-	
+
 		~MockTransport()
 		{
 		}
-	
+
 		const std::string& endPoint() const
 		{
 			return _pListener->endPoint();
 		}
-	
+
 		void connect(const std::string& endPoint)
 		{
 			_connected = true;
 		}
-	
+
 		void disconnect()
 		{
 			_connected = false;
 		}
-	
+
 		bool connected() const
 		{
 			return _connected;
 		}
-	
+
 		Poco::RemotingNG::Serializer& beginMessage(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 		{
 			return beginRequest(oid, tid, messageName, messageType);
 		}
-	
+
 		void sendMessage(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 		{
 			sendRequest(oid, tid, messageName, messageType);
 		}
-	
+
 		Poco::RemotingNG::Serializer& beginRequest(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 		{
 			_pRequestStream = new std::stringstream;
 			_serializer.setup(*_pRequestStream);
 			return _serializer;
 		}
-	
+
 		Poco::RemotingNG::Deserializer& sendRequest(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 		{
 			_pResponseStream = new std::stringstream;
@@ -275,12 +275,12 @@ namespace
 			_pRequestStream = 0;
 			return _deserializer;
 		}
-		
+
 		void endRequest()
 		{
 			_pResponseStream = 0;
 		}
-	
+
 	private:
 		MockListener::Ptr _pListener;
 		bool _connected;
@@ -298,7 +298,7 @@ namespace
 			_pListener(pListener)
 		{
 		}
-		
+
 		Poco::RemotingNG::Transport* createTransport()
 		{
 			return new MockTransport(_pListener);
@@ -307,8 +307,8 @@ namespace
 		static void registerFactory(MockListener::Ptr pListener, const std::string& protocol)
 		{
 			Poco::RemotingNG::TransportFactoryManager::instance().registerFactory(protocol, new TestTransportFactory(pListener));
-		}	
-		
+		}
+
 		static void unregisterFactory(const std::string& protocol)
 		{
 			Poco::RemotingNG::TransportFactoryManager::instance().unregisterFactory(protocol);
@@ -317,7 +317,7 @@ namespace
 	private:
 		MockListener::Ptr _pListener;
 	};
-	
+
 	class MockAuthorizer: public Poco::RemotingNG::Authorizer
 	{
 	public:
@@ -325,16 +325,16 @@ namespace
 			_permission(permission)
 		{
 		}
-		
+
 		~MockAuthorizer()
 		{
 		}
-		
+
 		bool authorize(const std::string& method, const std::string& permission)
 		{
 			return permission == _permission;
 		}
-		
+
 	private:
 		std::string _permission;
 	};
@@ -413,7 +413,7 @@ bool operator == (const Struct4& s1, const Struct4& s2)
 }
 
 
-RemotingTest::RemotingTest(const std::string& name): 
+RemotingTest::RemotingTest(const std::string& name):
 	CppUnit::TestCase(name),
 	_filteredArg(0)
 {
@@ -462,13 +462,13 @@ void RemotingTest::testRegistration()
 void RemotingTest::testFindObject()
 {
 	ITester::Ptr pTester = TesterClientHelper::find(_objectURI);
-	
+
 	Poco::AutoPtr<TesterRemoteObject> pRO = pTester.cast<TesterRemoteObject>();
 	assert (!pRO.isNull());
 
 	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
 	assert (pProxy.isNull());
-	
+
 	pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
 
 	pRO = pTester.cast<TesterRemoteObject>();
@@ -538,7 +538,21 @@ void RemotingTest::testStruct4()
 void RemotingTest::testStruct5()
 {
 	ITester::Ptr pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
-	testStruct4(pTester);
+	testStruct5(pTester);
+}
+
+
+void RemotingTest::testStruct6()
+{
+	ITester::Ptr pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
+	testStruct6(pTester);
+}
+
+
+void RemotingTest::testArray()
+{
+	ITester::Ptr pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
+	testArray(pTester);
 }
 
 
@@ -585,14 +599,14 @@ void RemotingTest::testEvent()
 	Poco::AutoPtr<TesterProxy> pTester = new TesterProxy("TheTester");
 	pTester->remoting__connect("mock", "mock://localhost/mock/Tester/TheTester");
 	pTester->remoting__enableEvents(pEventListener);
-	
+
 	pTester->testEvent += Poco::delegate(this, &RemotingTest::onEvent);
 	_eventArg.clear();
 	pTester->fireTestEvent("s3cr3t");
 	assert (_eventArg == "s3cr3t");
 
 	TestTransportFactory::unregisterFactory("evmock");
-	Poco::RemotingNG::ORB::instance().unregisterListener(elEndpoint);	
+	Poco::RemotingNG::ORB::instance().unregisterListener(elEndpoint);
 }
 
 
@@ -609,14 +623,14 @@ void RemotingTest::testOneWayEvent()
 	Poco::AutoPtr<TesterProxy> pTester = new TesterProxy("TheTester");
 	pTester->remoting__connect("mock", "mock://localhost/mock/Tester/TheTester");
 	pTester->remoting__enableEvents(pEventListener);
-	
+
 	pTester->testOneWayEvent += Poco::delegate(this, &RemotingTest::onEvent);
 	_eventArg.clear();
 	pTester->fireTestOneWayEvent("s3cr3t");
 	assert (_eventArg == "s3cr3t");
 
 	TestTransportFactory::unregisterFactory("evmock");
-	Poco::RemotingNG::ORB::instance().unregisterListener(elEndpoint);	
+	Poco::RemotingNG::ORB::instance().unregisterListener(elEndpoint);
 }
 
 
@@ -633,14 +647,14 @@ void RemotingTest::testVoidEvent()
 	Poco::AutoPtr<TesterProxy> pTester = new TesterProxy("TheTester");
 	pTester->remoting__connect("mock", "mock://localhost/mock/Tester/TheTester");
 	pTester->remoting__enableEvents(pEventListener);
-	
+
 	pTester->testVoidEvent += Poco::delegate(this, &RemotingTest::onVoidEvent);
 	_eventArg.clear();
 	pTester->fireTestVoidEvent();
 	assert (_eventArg == "FIRED");
 
 	TestTransportFactory::unregisterFactory("evmock");
-	Poco::RemotingNG::ORB::instance().unregisterListener(elEndpoint);	
+	Poco::RemotingNG::ORB::instance().unregisterListener(elEndpoint);
 }
 
 
@@ -650,7 +664,7 @@ void RemotingTest::testFilteredEvent()
 	std::string elEndpoint = Poco::RemotingNG::ORB::instance().registerListener(pEventListener);
 	TestTransportFactory::registerFactory(pEventListener, "evmock");
 	TesterServerHelper::enableEvents(_objectURI, "evmock");
-	
+
 	// We must use the exact same URI as registered on the server ORB,
 	// so we have to manually build a Proxy, otherwise the ORB would
 	// just return a RemoteObject.
@@ -667,16 +681,16 @@ void RemotingTest::testFilteredEvent()
 	assert (_filteredArg == 0);
 	pTester->fireTestFilteredEvent(100);
 	assert (_filteredArg == 100);
-	
+
 	pED->removeEventFilter(subscriberURI, "testFilteredEvent");
-	
+
 	pTester->fireTestFilteredEvent(1);
 	assert (_filteredArg == 1);
 	pTester->fireTestFilteredEvent(2);
 	assert (_filteredArg == 2);
 
 	TestTransportFactory::unregisterFactory("evmock");
-	Poco::RemotingNG::ORB::instance().unregisterListener(elEndpoint);	
+	Poco::RemotingNG::ORB::instance().unregisterListener(elEndpoint);
 }
 
 
@@ -691,10 +705,10 @@ void RemotingTest::testInt(ITester::Ptr pTester)
 {
 	int i = pTester->testInt1(42);
 	assert (i == 42);
-	
+
 	pTester->testInt2(i);
 	assert (i == 2112);
-	
+
 	int i2(0);
 	pTester->testInt3(55, i2);
 	assert (i2 == 55);
@@ -705,10 +719,10 @@ void RemotingTest::testEnum1(ITester::Ptr pTester)
 {
 	Enum1 e = pTester->testEnum11(VALUE_1);
 	assert (e == VALUE_1);
-	
+
 	pTester->testEnum12(e);
 	assert (e == VALUE_2);
-	
+
 	pTester->testEnum13(VALUE_3, e);
 	assert (e == VALUE_3);
 }
@@ -718,10 +732,10 @@ void RemotingTest::testEnum2(ITester::Ptr pTester)
 {
 	Struct1::Enum2 e = pTester->testEnum21(Struct1::VALUE_1);
 	assert (e == Struct1::VALUE_1);
-	
+
 	pTester->testEnum22(e);
 	assert (e == Struct1::VALUE_2);
-	
+
 	pTester->testEnum23(Struct1::VALUE_3, e);
 	assert (e == Struct1::VALUE_3);
 }
@@ -743,10 +757,10 @@ void RemotingTest::testStruct1(ITester::Ptr pTester)
 	s1.aDouble = 0.5;
 	s1.anEnum = VALUE_1;
 	s1.anEnum2 = Struct1::VALUE_2;
-	
+
 	Struct1 s2 = pTester->testStruct11(s1);
 	assert (s2 == s1);
-	
+
 	pTester->testStruct12(s2);
 	assert (s2 == s1);
 
@@ -786,13 +800,13 @@ void RemotingTest::testStruct2(ITester::Ptr pTester)
 	s21.aDateTime.assign(2009, 11, 9, 13, 23, 23, 200);
 	s21.aLocalDateTime.assign(7200, 2009, 11, 9, 13, 23, 23, 200, 0);
 	s21.aTimestamp = s21.aDateTime.timestamp();
-	
-	Struct2 s22 = pTester->testStruct21(s21);	
+
+	Struct2 s22 = pTester->testStruct21(s21);
 	assert (s22 == s21);
-		
+
 	pTester->testStruct22(s22);
 	assert (s22 == s21);
-	
+
 	Struct2 s23;
 	assert (!(s23 == s21));
 	pTester->testStruct23(s21, s23);
@@ -842,13 +856,13 @@ void RemotingTest::testStruct3(ITester::Ptr pTester)
 	s31.aMultiSet.insert(1);
 	s31.aMultiSet.insert(2);
 	s31.aMultiSet.insert(3);
-	
+
 	Struct3 s32 = pTester->testStruct31(s31);
 	assert (s32 == s31);
-		
+
 	pTester->testStruct32(s32);
 	assert (s32 == s31);
-	
+
 	Struct3 s33;
 	assert (!(s33 == s31));
 	pTester->testStruct33(s31, s33);
@@ -869,23 +883,23 @@ void RemotingTest::testStruct4(ITester::Ptr pTester)
 
 	Struct4 s44 = pTester->testStruct41(s41);
 	assert (s44 == s41);
-		
+
 	pTester->testStruct42(s44);
 	assert (s44 == s41);
-	
+
 	Struct4 s45;
 	assert (!(s45 == s41));
 	pTester->testStruct43(s41, s45);
 	assert (s41 == s45);
-	
+
 	s41.ptr = new Struct4;
-	
+
 	s44 = pTester->testStruct41(s41);
 	assert (s44 == s41);
-		
+
 	pTester->testStruct42(s44);
 	assert (s44 == s41);
-	
+
 	Struct4 s46;
 	assert (!(s46 == s41));
 	pTester->testStruct43(s41, s46);
@@ -900,13 +914,41 @@ void RemotingTest::testStruct5(ITester::Ptr pTester)
 
 	Struct5 s52 = pTester->testStruct51(s51);
 	assert (s52.tv == s51.tv);
-		
+
 	pTester->testStruct52(s52);
 	assert (s52.tv == s51.tv);
-	
+
 	Struct5 s53;
 	pTester->testStruct53(s51, s53);
 	assert (s51.tv == s53.tv);
+}
+
+
+void RemotingTest::testStruct6(ITester::Ptr pTester)
+{
+	Struct6 s61;
+	s61.arr[0] = 0;
+	s61.arr[1] = 1;
+	s61.arr[2] = 2;
+	s61.arr[3] = 3;
+
+	Struct6 s62 = pTester->testStruct6(s61);
+
+	assert (s61.arr == s62.arr);
+}
+
+
+void RemotingTest::testArray(ITester::Ptr pTester)
+{
+	Poco::Array<int, 4> arr1;
+	arr1[0] = 0;
+	arr1[1] = 1;
+	arr1[2] = 2;
+	arr1[3] = 3;
+
+	Poco::Array<int, 4> arr2 = pTester->testArray(arr1);
+
+	assert (arr1 == arr2);
 }
 
 
@@ -916,10 +958,10 @@ void RemotingTest::testClass1(ITester::Ptr pTester)
 	c1.setAString("foobar");
 	c1.setAnInt(42);
 	c1.setAnEnum(VALUE_2);
-	
+
 	Class1 c2 = pTester->testClass11(c1);
 	assert (c2 == c1);
-	
+
 	pTester->testClass12(c2);
 	assert (c2 == c1);
 
@@ -937,7 +979,7 @@ void RemotingTest::testPtr(ITester::Ptr pTester)
 	p1->aDouble = 0.5;
 	p1->anEnum = VALUE_1;
 	p1->anEnum2 = Struct1::VALUE_2;
-	
+
 	Struct1::Ptr p2 = pTester->testPtr(p1);
 	assert (*p2 == *p1);
 }
@@ -956,14 +998,14 @@ void RemotingTest::testStruct1Vec(ITester::Ptr pTester)
 		s1.anEnum2 = Struct1::VALUE_2;
 		vec1.push_back(s1);
 	}
-	
+
 	Struct1Vec vec2 = pTester->testStruct1Vec1(vec1);
 	assert (vec2.size() == vec1.size());
 	for (int i = 0; i < vec1.size(); i++)
 	{
 		assert (vec2[i] == vec1[i]);
 	}
-	
+
 	pTester->testStruct1Vec2(vec2);
 	assert (vec2.size() == vec1.size());
 	for (int i = 0; i < vec1.size(); i++)
@@ -991,10 +1033,10 @@ void RemotingTest::testPermissions(ITester::Ptr pTester)
 	catch (Poco::RemotingNG::RemoteException&)
 	{
 	}
-	
+
 	_pListener->setAuthorizer(new MockAuthorizer("perm1"));
 	pTester->testPermission1();
-	
+
 	try
 	{
 		pTester->testPermission2();
@@ -1043,6 +1085,8 @@ CppUnit::Test* RemotingTest::suite()
 	CppUnit_addTest(pSuite, RemotingTest, testStruct3);
 	CppUnit_addTest(pSuite, RemotingTest, testStruct4);
 	CppUnit_addTest(pSuite, RemotingTest, testStruct5);
+	CppUnit_addTest(pSuite, RemotingTest, testStruct6);
+	CppUnit_addTest(pSuite, RemotingTest, testArray);
 	CppUnit_addTest(pSuite, RemotingTest, testClass1);
 	CppUnit_addTest(pSuite, RemotingTest, testPtr);
 	CppUnit_addTest(pSuite, RemotingTest, testStruct1Vec);

@@ -48,6 +48,8 @@ public:
 
 	void testArgNamespace(const Struct3& s31, Struct3& s32);
 
+	Poco::Array < int, 4 > testArray(const Poco::Array < int, 4 >& arr);
+
 	Class1 testClass11(const Class1& c1);
 
 	void testClass12(Class1& c1);
@@ -120,6 +122,8 @@ public:
 
 	void testStruct53(const Struct5& s1, Struct5& s2);
 
+	Struct6 testStruct6(const Struct6& s1);
+
 	void testSynchronized();
 
 	void testSynchronizedProxy();
@@ -173,6 +177,12 @@ inline const Poco::RemotingNG::Identifiable::TypeId& TesterRemoteObject::remotin
 inline void TesterRemoteObject::testArgNamespace(const Struct3& s31, Struct3& s32)
 {
 	_pServiceObject->testArgNamespace(s31, s32);
+}
+
+
+inline Poco::Array < int, 4 > TesterRemoteObject::testArray(const Poco::Array < int, 4 >& arr)
+{
+	return _pServiceObject->testArray(arr);
 }
 
 
@@ -389,6 +399,12 @@ inline void TesterRemoteObject::testStruct52(Struct5& s1)
 inline void TesterRemoteObject::testStruct53(const Struct5& s1, Struct5& s2)
 {
 	_pServiceObject->testStruct53(s1, s2);
+}
+
+
+inline Struct6 TesterRemoteObject::testStruct6(const Struct6& s1)
+{
+	return _pServiceObject->testStruct6(s1);
 }
 
 

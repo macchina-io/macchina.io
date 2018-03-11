@@ -154,6 +154,18 @@ void Tester::testStruct53(const Struct5& s1, Struct5& s2)
 }
 
 
+Struct6 Tester::testStruct6(const Struct6& s1)
+{
+	return s1;
+}
+
+
+Poco::Array<int, 4> Tester::testArray(const Poco::Array<int, 4>& arr)
+{
+	return arr;
+}
+
+
 Class1 Tester::testClass11(const Class1& c1)
 {
 	return c1;

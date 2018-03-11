@@ -26,6 +26,7 @@
 #include "Poco/LocalDateTime.h"
 #include "Poco/Timestamp.h"
 #include "Poco/SharedPtr.h"
+#include "Poco/Array.h"
 #include <vector>
 #include <list>
 #include <set>
@@ -50,7 +51,7 @@ struct Struct1
 		VALUE_2 = 2,
 		VALUE_3 = 4
 	};
-	
+
 	std::string aString;
 	int anInt;
 	double aDouble;
@@ -107,6 +108,13 @@ struct Struct5
 
 
 //@ serialize
+struct Struct6
+{
+	Poco::Array<int, 4> arr;
+};
+
+
+//@ serialize
 class Class1
 {
 public:
@@ -115,53 +123,53 @@ public:
 		_anInt(0)
 	{
 	}
-	
+
 	void setAnEnum(Enum1 anEnum)
 	{
 		_anEnum = anEnum;
 	}
-	
+
 	Enum1 getAnEnum() const
 	{
 		return _anEnum;
 	}
-	
+
 	void setAnInt(int anInt)
 	{
 		_anInt = anInt;
 	}
-	
+
 	int getAnInt() const
 	{
 		return _anInt;
 	}
-	
+
 	void setAString(const std::string& str)
 	{
 		_aString = str;
 	}
-	
+
 	const std::string& getAString() const
 	{
 		return _aString;
 	}
-	
+
 	void write(Poco::BinaryWriter& writer)
 	{
 	}
-	
+
 	void read(Poco::BinaryReader& reader)
 	{
 	}
-	
+
 	bool operator == (const Class1& cl)
 	{
-		return _anEnum == cl._anEnum 
+		return _anEnum == cl._anEnum
 		    && _anInt  == cl._anInt;
 	}
-	
+
 	static const int A_CONSTANT;
-		
+
 private:
 	Enum1 _anEnum;
 	int _anInt;
@@ -172,125 +180,129 @@ private:
 //@ remote, namespace="http://www.appinf.com/services/tester", synchronized="false"
 class Tester
 {
-public:		
+public:
 	int testInt1(int i);
-	
+
 	void testInt2(int& i);
-	
+
 	//@ $i2={direction=out}
 	void testInt3(int i1, int& i2);
-	
+
 	Enum1 testEnum11(Enum1 e1);
-	
+
 	void testEnum12(Enum1& e1);
-	
+
 	//@ $e2={direction=out}
 	void testEnum13(Enum1 e1, Enum1& e2);
 
 	Struct1::Enum2 testEnum21(Struct1::Enum2 e1);
-	
+
 	void testEnum22(Struct1::Enum2& e1);
-	
+
 	//@ $e2={direction=out}
 	void testEnum23(Struct1::Enum2 e1, Struct1::Enum2& e2);
-	
+
 	Struct1 testStruct11(const Struct1& s1);
-	
+
 	void testStruct12(Struct1& s1);
-	
+
 	//@ $s2={direction=out}
 	void testStruct13(const Struct1& s1, Struct1& s2);
 
 	Struct2 testStruct21(const Struct2& s1);
-	
+
 	void testStruct22(Struct2& s1);
-	
+
 	//@ $s2={direction=out}
 	void testStruct23(const Struct2& s1, Struct2& s2);
 
 	Struct3 testStruct31(const Struct3& s1);
-	
+
 	void testStruct32(Struct3& s1);
-	
+
 	//@ $s2={direction=out}
 	void testStruct33(const Struct3& s1, Struct3& s2);
 
 	Struct4 testStruct41(const Struct4& s1);
-	
+
 	void testStruct42(Struct4& s1);
-	
+
 	//@ $s2={direction=out}
 	void testStruct43(const Struct4& s1, Struct4& s2);
 
 	Struct5 testStruct51(const Struct5& s1);
-	
+
 	void testStruct52(Struct5& s1);
-	
+
 	//@ $s2={direction=out}
 	void testStruct53(const Struct5& s1, Struct5& s2);
-	
+
+	Struct6 testStruct6(const Struct6& s1);
+
+	Poco::Array<int, 4> testArray(const Poco::Array<int, 4>& arr);
+
 	Class1 testClass11(const Class1& c1);
-	
+
 	void testClass12(Class1& c1);
 
 	//@ $c2={direction=out}
 	void testClass13(const Class1& c1, Class1& c2);
-	
+
 	Struct1::Ptr testPtr(Struct1::Ptr p1);
-	
+
 	Struct1Vec testStruct1Vec1(const Struct1Vec& vec);
-	
+
 	void testStruct1Vec2(Struct1Vec& vec);
-	
+
 	//@ $vec2={direction=out}
 	void testStruct1Vec3(const Struct1Vec& vec1, Struct1Vec& vec2);
-	
+
 	//@ oneway
 	void testOneWay(const std::string& arg);
-	
+
 	std::string testOneWayResult();
-	
+
 	Poco::Timestamp::TimeVal testNestedType(Poco::Timestamp::TimeVal arg);
-	
+
 	//@ synchronized
 	void testSynchronized();
-	
+
 	//@ synchronized=proxy
 	void testSynchronizedProxy();
-	
+
 	//@ synchronized=remote
 	void testSynchronizedRemote();
-	
+
 	//@ $s31={namespace="http://www.appinf.com/types"}
 	//@ $s32={direction=out}
 	void testArgNamespace(const Struct3& s31, Struct3& s32);
-	
+
 	//@ permission="perm1"
 	void testPermission1();
 
 	//@ permission="perm2"
 	void testPermission2();
-	
+
 	//@ oneway
 	void fireTestEvent(const std::string& arg);
-	
+
 	//@ oneway
 	void fireTestOneWayEvent(const std::string& arg);
-	
+
 	void fireTestVoidEvent();
-	
+
 	void fireTestFilteredEvent(int arg);
-	
+
 	Poco::BasicEvent<std::string> testEvent;
-	
+
 	//@ oneway
 	Poco::BasicEvent<std::string> testOneWayEvent;
-	
+
 	Poco::BasicEvent<void> testVoidEvent;
-	
+
 	//@ filter=true
 	Poco::BasicEvent<const int> testFilteredEvent;
-	
+
 private:
 	std::string _oneWayResult;
 };

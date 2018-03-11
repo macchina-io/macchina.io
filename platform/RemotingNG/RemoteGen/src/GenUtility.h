@@ -75,6 +75,11 @@ public:
 
 	static bool isVectorType(const std::string& resolvedType);
 
+	static bool isArrayType(const Poco::CppParser::NameSpace* pNS, const Poco::CppParser::Parameter* pParam);
+		/// returns true if type is Poco::Array or std::array.
+
+	static bool isArrayType(const std::string& resolvedType);
+
 	static bool isTemplateType(const std::string& resolvedType);
 
 	static bool isPtrType(const std::string& type);
@@ -135,7 +140,7 @@ private:
 
 	enum
 	{
-		KEYS_SIZE = 4
+		KEYS_SIZE = 6
 	};
 
 	static const std::string KEYS_VECTOR[KEYS_SIZE];

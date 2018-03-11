@@ -38,6 +38,8 @@ public:
 	void testStruct3();
 	void testStruct4();
 	void testStruct5();
+	void testStruct6();
+	void testArray();
 	void testClass1();
 	void testPtr();
 	void testStruct1Vec();
@@ -63,6 +65,8 @@ protected:
 	void testStruct3(ITester::Ptr pTester);
 	void testStruct4(ITester::Ptr pTester);
 	void testStruct5(ITester::Ptr pTester);
+	void testStruct6(ITester::Ptr pTester);
+	void testArray(ITester::Ptr pTester);
 	void testClass1(ITester::Ptr pTester);
 	void testPtr(ITester::Ptr pTester);
 	void testStruct1Vec(ITester::Ptr pTester);
@@ -70,7 +74,7 @@ protected:
 	void onEvent(const void* pSender, std::string& arg);
 	void onVoidEvent(const void* pSender);
 	void onFilteredEvent(const int& arg);
-	
+
 private:
 	std::string _listener;
 	std::string _objectURI;

@@ -21,6 +21,7 @@
 #include "Poco/RemotingNG/RemotingNG.h"
 #include "Poco/RemotingNG/Deserializer.h"
 #include "Poco/RemotingNG/Serializer.h"
+#include "Poco/Array.h"
 #include "Poco/Optional.h"
 #include "Poco/Nullable.h"
 #include "Poco/AutoPtr.h"
@@ -97,6 +98,40 @@ public:
 			if (found)
 			{
 				value.push_back(elem);
+			}
+		}
+		while (found);
+	}
+};
+
+
+template <typename T, std::size_t N>
+class TypeDeserializer<Poco::Array<T, N> >
+{
+public:
+	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::Array<T, N>& value)
+	{
+		Poco::UInt32 sizeHint;
+		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
+		{
+			deserializeImpl(name, false, deser, value);
+			deser.deserializeSequenceEnd(name);
+			return true;
+		}
+		else return false;
+	}
+
+	static void deserializeImpl(const std::string& name, bool isMandatory, Deserializer& deser, Poco::Array<T, N>& value)
+	{
+		bool found = true;
+		std::size_t index = 0;
+		do
+		{
+			T elem; // recreate elem with default values in EACH iteration -> deserialize can return true even when no data was set!
+			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, elem);
+			if (found && index < value.size())
+			{
+				value[index++] = elem;
 			}
 		}
 		while (found);
@@ -229,7 +264,7 @@ public:
 
 	static void deserializeImpl(const std::string& name, bool isMandatory, Deserializer& deser, Poco::Nullable<T>& value)
 	{
-		T temp; 
+		T temp;
 		if (TypeDeserializer<T>::deserialize(name, isMandatory, deser, temp))
 			value = temp;
 		else
@@ -261,7 +296,7 @@ public:
 
 	static void deserializeImpl(const std::string& name, bool isMandatory, Deserializer& deser, Poco::Optional<T>& value)
 	{
-		T temp; 
+		T temp;
 		if (TypeDeserializer<T>::deserialize(name, isMandatory, deser, temp))
 			value = temp;
 		else
@@ -375,7 +410,7 @@ public:
 		bool found = TypeDeserializer<std::string>::deserialize(name, isMandatory, deser, timeStr);
 		if (found)
 		{
-			int tzd = 0; 
+			int tzd = 0;
 			Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FRAC_FORMAT, timeStr, value, tzd);
 			value.makeUTC(tzd);
 		}

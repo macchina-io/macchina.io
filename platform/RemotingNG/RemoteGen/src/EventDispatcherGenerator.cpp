@@ -665,9 +665,10 @@ void EventDispatcherGenerator::writeDeserializeReturnParam(const Poco::CppParser
 	{
 		std::string retParamType(GenUtility::getResolvedReturnParameterType(pFunc->nameSpace(), pFunc));
 		Poco::CppParser::Parameter retParam(pFunc->getReturnParameter() + " dummy", 0);
-		bool needsClear = GenUtility::isVectorType(pFunc->nameSpace(), &retParam)
+		bool needsClear = (GenUtility::isVectorType(pFunc->nameSpace(), &retParam)
 			|| GenUtility::isNullableType(pFunc->nameSpace(), &retParam)
-			|| GenUtility::isOptionalType(pFunc->nameSpace(), &retParam);
+			|| GenUtility::isOptionalType(pFunc->nameSpace(), &retParam))
+			&& !GenUtility::isArrayType(pFunc->nameSpace(), &retParam);
 
 		if (needsClear)
 		{

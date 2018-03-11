@@ -44,6 +44,8 @@ public:
 
 	void testArgNamespace(const Struct3& s31, Struct3& s32);
 
+	Poco::Array < int, 4 > testArray(const Poco::Array < int, 4 >& arr);
+
 	Class1 testClass11(const Class1& c1);
 
 	void testClass12(Class1& c1);
@@ -116,6 +118,8 @@ public:
 
 	void testStruct53(const Struct5& s1, Struct5& s2);
 
+	Struct6 testStruct6(const Struct6& s1);
+
 	void testSynchronized();
 
 	void testSynchronizedProxy();
@@ -126,6 +130,7 @@ private:
 	static const std::string DEFAULT_NS;
 	Poco::RemotingNG::EventListener::Ptr _pEventListener;
 	Poco::RemotingNG::EventSubscriber::Ptr _pEventSubscriber;
+	mutable Poco::Array < int, 4 > _testArrayRet;
 	mutable Class1 _testClass11Ret;
 	mutable Enum1 _testEnum11Ret;
 	mutable Struct1::Enum2 _testEnum21Ret;
@@ -139,6 +144,7 @@ private:
 	mutable Struct3 _testStruct31Ret;
 	mutable Struct4 _testStruct41Ret;
 	mutable Struct5 _testStruct51Ret;
+	mutable Struct6 _testStruct6Ret;
 };
 
 

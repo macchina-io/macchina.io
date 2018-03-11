@@ -17,6 +17,7 @@
 #include "Poco/Exception.h"
 #include "Poco/String.h"
 #include "Poco/NumberParser.h"
+#include "Poco/Ascii.h"
 #include <typeinfo>
 #include <cctype>
 
@@ -31,7 +32,7 @@ const std::string GenUtility::VAL_REQUEST("Request");
 const std::string GenUtility::VAL_REPLY("Reply");
 const std::string GenUtility::ATTR_RETURN("return");
 const std::string GenUtility::ATTR_HEADER("header");
-const std::string GenUtility::KEYS_VECTOR[KEYS_SIZE] = {"std::vector", "std::set", "std::multiset", "std::list"};
+const std::string GenUtility::KEYS_VECTOR[KEYS_SIZE] = {"std::vector", "std::set", "std::multiset", "std::list", "std::array", "Poco::Array"};
 
 
 std::string GenUtility::getMethodName(const Poco::CppParser::Function* pFunc)
@@ -283,6 +284,19 @@ bool GenUtility::isVectorType(const std::string& resolvedType)
 }
 
 
+bool GenUtility::isArrayType(const Poco::CppParser::NameSpace* pNS, const Poco::CppParser::Parameter* pParam)
+{
+	std::string paramType = Poco::CodeGeneration::Utility::resolveType(pNS, pParam->declType());
+	return isArrayType(paramType);
+}
+
+
+bool GenUtility::isArrayType(const std::string& resolvedType)
+{
+	return resolvedType.compare(0, 11, "Poco::Array") == 0 || resolvedType.compare(0, 10, "std::array") == 0;
+}
+
+
 bool GenUtility::isNullableType(const Poco::CppParser::NameSpace* pNS, const Poco::CppParser::Parameter* pParam)
 {
 	std::string resolvedType = Poco::CodeGeneration::Utility::resolveType(pNS, pParam->declType());
@@ -355,7 +369,9 @@ std::vector<std::string> GenUtility::getInnerTemplateTypes(const std::string& ty
 			--lvl;
 			if (lvl == 0)
 			{
-				templTypes.push_back(Poco::trim(temp));
+				Poco::trimInPlace(temp);
+				if (!temp.empty() && (Poco::Ascii::isAlpha(temp[0]) || temp[0] == '_')) // Poco::Array<int, 8> -> 8 is not a type
+					templTypes.push_back(temp);
 				temp.clear();
 			}
 			else
@@ -365,7 +381,9 @@ std::vector<std::string> GenUtility::getInnerTemplateTypes(const std::string& ty
 		{
 			if (lvl > 0)
 			{
-				templTypes.push_back(Poco::trim(temp));
+				Poco::trimInPlace(temp);
+				if (!temp.empty() && (Poco::Ascii::isAlpha(temp[0]) || temp[0] == '_')) // Poco::Array<int, 8> -> 8 is not a type
+					templTypes.push_back(temp);
 				temp.clear();
 			}
 			else

@@ -393,7 +393,9 @@ void AbstractGenerator::handleIncludeTypeSerializersImpl(const std::string& comp
 		{
 			std::vector<std::string> innerTypes = GenUtility::getInnerTemplateTypes(aType);
 			for (std::size_t i = 0; i < innerTypes.size(); ++i)
+			{
 				notIncludedTypes.push(innerTypes[i]);
+			}
 		}
 		else
 			handleIncludeTypeSerializers(aType, toHFile, writeDirectly);
