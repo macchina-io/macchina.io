@@ -30,7 +30,6 @@ CANEndpointRemoteObject::CANEndpointRemoteObject(const Poco::RemotingNG::Identif
 	Poco::RemotingNG::RemoteObject(oid),
 	_pServiceObject(pServiceObject)
 {
-	_pServiceObject->fdFrameReceived += Poco::delegate(this, &CANEndpointRemoteObject::event__fdFrameReceived);
 	_pServiceObject->frameReceived += Poco::delegate(this, &CANEndpointRemoteObject::event__frameReceived);
 }
 
@@ -39,7 +38,6 @@ CANEndpointRemoteObject::~CANEndpointRemoteObject()
 {
 	try
 	{
-		_pServiceObject->fdFrameReceived -= Poco::delegate(this, &CANEndpointRemoteObject::event__fdFrameReceived);
 		_pServiceObject->frameReceived -= Poco::delegate(this, &CANEndpointRemoteObject::event__frameReceived);
 	}
 	catch (...)
@@ -68,13 +66,7 @@ bool CANEndpointRemoteObject::remoting__hasEvents() const
 }
 
 
-void CANEndpointRemoteObject::event__fdFrameReceived(const IoT::CAN::CANFDFrame& data)
-{
-	fdFrameReceived(this, data);
-}
-
-
-void CANEndpointRemoteObject::event__frameReceived(const IoT::CAN::CANFrame& data)
+void CANEndpointRemoteObject::event__frameReceived(const IoT::CAN::CANFDFrame& data)
 {
 	frameReceived(this, data);
 }

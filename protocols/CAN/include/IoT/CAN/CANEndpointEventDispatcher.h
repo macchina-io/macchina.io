@@ -37,16 +37,12 @@ public:
 	virtual ~CANEndpointEventDispatcher();
 		/// Destroys the CANEndpointEventDispatcher.
 
-	void event__fdFrameReceived(const void* pSender, const IoT::CAN::CANFDFrame& data);
-
-	void event__frameReceived(const void* pSender, const IoT::CAN::CANFrame& data);
+	void event__frameReceived(const void* pSender, const IoT::CAN::CANFDFrame& data);
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
-	void event__fdFrameReceivedImpl(const std::string& subscriberURI, const IoT::CAN::CANFDFrame& data);
-
-	void event__frameReceivedImpl(const std::string& subscriberURI, const IoT::CAN::CANFrame& data);
+	void event__frameReceivedImpl(const std::string& subscriberURI, const IoT::CAN::CANFDFrame& data);
 
 	static const std::string DEFAULT_NS;
 	CANEndpointRemoteObject* _pRemoteObject;

@@ -24,7 +24,6 @@ namespace CAN {
 
 ICANEndpoint::ICANEndpoint():
 	Poco::OSP::Service(),
-	fdFrameReceived(),
 	frameReceived()
 {
 }

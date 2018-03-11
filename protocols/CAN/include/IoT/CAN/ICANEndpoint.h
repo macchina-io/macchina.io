@@ -112,8 +112,7 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const CANFDFrame > fdFrameReceived;
-	Poco::BasicEvent < const CANFrame > frameReceived;
+	Poco::BasicEvent < const CANFDFrame > frameReceived;
 };
 
 

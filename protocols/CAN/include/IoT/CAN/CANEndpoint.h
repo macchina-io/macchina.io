@@ -90,11 +90,8 @@ class IoTCAN_API CANEndpoint
 public:
 	typedef Poco::SharedPtr<CANEndpoint> Ptr;
 
-	Poco::BasicEvent<const CANFrame> frameReceived;
-		/// Fired when an CAN frame has been received.
-
-	Poco::BasicEvent<const CANFDFrame> fdFrameReceived;
-		/// Fired when an CAN-FD frame has been received.
+	Poco::BasicEvent<const CANFDFrame> frameReceived;
+		/// Fired when an CAN or CAN-FD frame has been received.
 
  	CANEndpoint();
 		/// Creates the CANEndpoint.

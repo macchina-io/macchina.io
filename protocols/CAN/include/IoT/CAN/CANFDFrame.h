@@ -41,11 +41,12 @@ public:
 
 	enum Flag
 	{
-		CAN_FLAG_NONE = 0, /// No flags set
-		CAN_FLAG_IDE  = 1, /// CAN Identifier Extension bit (signalling extended frame format)
-		CAN_FLAG_RTR  = 2, /// CAN Remote Transmission Request bit
-		CAN_FLAG_SRR  = 4, /// CAN Substitute Remote Request bit (extended frame only, currently unused)
-		CAN_FLAG_ERR  = 8  /// Error frame indicator
+		CAN_FLAG_NONE = 0x00, /// No flags set
+		CAN_FLAG_IDE  = 0x01, /// CAN Identifier Extension bit (signalling extended frame format)
+		CAN_FLAG_RTR  = 0x02, /// CAN Remote Transmission Request bit
+		CAN_FLAG_SRR  = 0x04, /// CAN Substitute Remote Request bit (extended frame only, currently unused)
+		CAN_FLAG_ERR  = 0x08, /// Error frame indicator
+		CAN_FLAG_FD   = 0x80  /// CAN-FD frame indicator (receive only)
 	};
 
 	enum

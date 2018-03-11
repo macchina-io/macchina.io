@@ -102,9 +102,7 @@ public:
 		/// Sets the filter mode (defaults to CAN_FILTER_MODE_OR).
 
 protected:
-	void event__fdFrameReceived(const IoT::CAN::CANFDFrame& data);
-
-	void event__frameReceived(const IoT::CAN::CANFrame& data);
+	void event__frameReceived(const IoT::CAN::CANFDFrame& data);
 
 private:
 	Poco::SharedPtr<IoT::CAN::CANEndpoint> _pServiceObject;

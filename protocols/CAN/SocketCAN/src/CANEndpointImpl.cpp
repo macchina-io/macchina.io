@@ -66,6 +66,8 @@ void CANEndpointImpl::run()
 	_logger.debug("Starting receive loop...");
 
 	Poco::Timespan timeout(CAN_POLL_TIMEOUT);
+	CANFDFrame frame;
+	frame.payload().reserve(CANFDFrame::MAX_PAYLOAD_SIZE);
 	while (eventsEnabled())
 	{
 		try
@@ -79,24 +81,24 @@ void CANEndpointImpl::run()
 				if (n == CAN_MTU)
 				{
 					_logger.dump("CAN frame received", scFrame.data, scFrame.len);
-					CANFrame::Flags flags(0);
-					if (scFrame.can_id & CAN_EFF_FLAG) flags |= CANFrame::CAN_FLAG_IDE;
-					if (scFrame.can_id & CAN_RTR_FLAG) flags |= CANFrame::CAN_FLAG_RTR;
-					CANFrame::ID id = scFrame.can_id & CAN_EFF_MASK;
+					CANFDFrame::Flags flags(0);
+					if (scFrame.can_id & CAN_EFF_FLAG) flags |= CANFDFrame::CAN_FLAG_IDE;
+					if (scFrame.can_id & CAN_RTR_FLAG) flags |= CANFDFrame::CAN_FLAG_RTR;
+					CANFDFrame::ID id = scFrame.can_id & CAN_EFF_MASK;
 
-					CANFrame frame(id, flags, scFrame.len, reinterpret_cast<char*>(&scFrame.data[0]));
+					frame.assign(id, flags, scFrame.len, reinterpret_cast<char*>(&scFrame.data[0]));
 					frameReceived(this, frame);
 				}
 				else if (n == CANFD_MTU)
 				{
 					_logger.dump("CAN-FD frame received", scFrame.data, scFrame.len);
-					CANFDFrame::Flags flags(0);
-					if (scFrame.can_id & CAN_EFF_FLAG) flags |= CANFrame::CAN_FLAG_IDE;
-					if (scFrame.can_id & CAN_RTR_FLAG) flags |= CANFrame::CAN_FLAG_RTR;
+					CANFDFrame::Flags flags(CANFDFrame::CAN_FLAG_FD);
+					if (scFrame.can_id & CAN_EFF_FLAG) flags |= CANFDFrame::CAN_FLAG_IDE;
+					if (scFrame.can_id & CAN_RTR_FLAG) flags |= CANFDFrame::CAN_FLAG_RTR;
 					CANFDFrame::ID id = scFrame.can_id & CAN_EFF_MASK;
 
-					CANFDFrame frame(id, flags, scFrame.len, reinterpret_cast<char*>(&scFrame.data[0]));
-					fdFrameReceived(this, frame);
+					frame.assign(id, flags, scFrame.len, reinterpret_cast<char*>(&scFrame.data[0]));
+					frameReceived(this, frame);
 				}
 				else
 				{
@@ -107,12 +109,12 @@ void CANEndpointImpl::run()
 				int n = _socket.receiveBytes(&scFrame, sizeof(scFrame));
 				if (n == CAN_MTU)
 				{
-					CANFrame::Flags flags(0);
-					if (scFrame.can_id & CAN_EFF_FLAG) flags |= CANFrame::CAN_FLAG_IDE;
-					if (scFrame.can_id & CAN_RTR_FLAG) flags |= CANFrame::CAN_FLAG_RTR;
-					CANFrame::ID id = scFrame.can_id & CAN_EFF_MASK;
+					CANFDFrame::Flags flags(0);
+					if (scFrame.can_id & CAN_EFF_FLAG) flags |= CANFDFrame::CAN_FLAG_IDE;
+					if (scFrame.can_id & CAN_RTR_FLAG) flags |= CANFDFrame::CAN_FLAG_RTR;
+					CANFDFrame::ID id = scFrame.can_id & CAN_EFF_MASK;
 
-					CANFrame frame(id, flags, scFrame.can_dlc, reinterpret_cast<char*>(&scFrame.data[0]));
+					frame.assign(id, flags, scFrame.can_dlc, reinterpret_cast<char*>(&scFrame.data[0]));
 					frameReceived(this, frame);
 				}
 				else
