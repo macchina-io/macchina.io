@@ -63,8 +63,9 @@ CANEndpointImpl::~CANEndpointImpl()
 
 void CANEndpointImpl::run()
 {
-	Poco::Timespan timeout(CAN_POLL_TIMEOUT);
+	_logger.debug("Starting receive loop...");
 
+	Poco::Timespan timeout(CAN_POLL_TIMEOUT);
 	while (eventsEnabled())
 	{
 		try
@@ -77,6 +78,7 @@ void CANEndpointImpl::run()
 				int n = _socket.receiveBytes(&scFrame, sizeof(scFrame));
 				if (n == CAN_MTU)
 				{
+					_logger.dump("CAN frame received", scFrame.data, scFrame.len);
 					CANFrame::Flags flags(0);
 					if (scFrame.can_id & CAN_EFF_FLAG) flags |= CANFrame::CAN_FLAG_IDE;
 					if (scFrame.can_id & CAN_RTR_FLAG) flags |= CANFrame::CAN_FLAG_RTR;
@@ -87,6 +89,7 @@ void CANEndpointImpl::run()
 				}
 				else if (n == CANFD_MTU)
 				{
+					_logger.dump("CAN-FD frame received", scFrame.data, scFrame.len);
 					CANFDFrame::Flags flags(0);
 					if (scFrame.can_id & CAN_EFF_FLAG) flags |= CANFrame::CAN_FLAG_IDE;
 					if (scFrame.can_id & CAN_RTR_FLAG) flags |= CANFrame::CAN_FLAG_RTR;
@@ -94,6 +97,10 @@ void CANEndpointImpl::run()
 
 					CANFDFrame frame(id, flags, scFrame.len, reinterpret_cast<char*>(&scFrame.data[0]));
 					fdFrameReceived(this, frame);
+				}
+				else
+				{
+					_logger.notice("Invalid CAN frame received.");
 				}
 #else
 				struct can_frame scFrame;
@@ -108,6 +115,10 @@ void CANEndpointImpl::run()
 					CANFrame frame(id, flags, scFrame.can_dlc, reinterpret_cast<char*>(&scFrame.data[0]));
 					frameReceived(this, frame);
 				}
+				else
+				{
+					_logger.notice("Invalid CAN frame received.");
+				}
 #endif // MACCHINA_HAVE_CANFD
 			}
 #endif // MACCHINA_HAVE_SOCKETCAN
@@ -117,6 +128,7 @@ void CANEndpointImpl::run()
 			_logger.log(exc);
 		}
 	}
+	_logger.debug("Receive loop exiting.");
 }
 
 
@@ -301,7 +313,7 @@ void CANEndpointImpl::enableEvents(bool enable)
 
 	if (enable)
 	{
-		if (!_enableEvents++)
+		if (++_enableEvents == 1)
 		{
 			_thread.start(*this);
 		}
@@ -331,8 +343,8 @@ void CANEndpointImpl::enableFD(bool enable)
 
 	if (enable)
 	{
-		if (!_enableFD++)
-		{
+		if (++_enableFD == 1)
+  		{
 			_socket.setOption(SOL_CAN_RAW, CAN_RAW_FD_FRAMES, 1);
 		}
 	}
