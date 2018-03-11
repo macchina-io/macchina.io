@@ -2,7 +2,7 @@
 <bundlespec>
   <manifest>
     <name>macchina.io CAN Core Libraries</name>
-    <symbolicName>io.macchina.protocols.can.core</symbolicName>
+    <symbolicName>io.macchina.can.core</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>

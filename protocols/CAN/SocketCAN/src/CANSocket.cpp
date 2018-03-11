@@ -18,6 +18,7 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <errno.h>
+#include <cstring>
 #endif // MACCHINA_HAVE_SOCKETCAN
 
 
@@ -41,12 +42,21 @@ CANSocket::~CANSocket()
 int CANSocket::canSocket(const std::string& interfc)
 {
 #ifdef MACCHINA_HAVE_SOCKETCAN
+	if (interfc.size() >= IFNAMSIZ) throw Poco::InvalidArgumentException("interface name too long", interfc);
+
 	int canFD = ::socket(PF_CAN, SOCK_RAW, CAN_RAW);
 
 	struct ifreq ifr;
-	std::strcpy(ifr.ifr_name, interfc.c_str());
-	if (::ioctl(canFD, SIOCGIFINDEX, &ifr) == -1)
-		throw Poco::IOException("Cannot map CAN interface name to index", interfc, errno);
+	if (interfc.empty())
+	{
+		ifr.ifr_ifindex = 0;
+	}
+	else
+	{
+		std::strcpy(ifr.ifr_name, interfc.c_str());
+		if (::ioctl(canFD, SIOCGIFINDEX, &ifr) == -1)
+			throw Poco::IOException("Cannot map CAN interface name to index", interfc, errno);
+	}
 
 	struct sockaddr_can addr;
 	addr.can_family = AF_CAN;

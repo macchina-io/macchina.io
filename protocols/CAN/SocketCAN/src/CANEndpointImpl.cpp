@@ -75,7 +75,9 @@ void CANEndpointImpl::run()
 					if (scFrame.can_id & CAN_EFF_FLAG) flags |= CANFrame::CAN_FLAG_IDE;
 					if (scFrame.can_id & CAN_RTR_FLAG) flags |= CANFrame::CAN_FLAG_RTR;
 					CANFrame::ID id = scFrame.can_id & CAN_EFF_MASK;
-					canFrame.assign(id, flags, scFrame.len, reinterpret_cast<char*>(&scFrame.data[0]));
+
+					CANFrame frame(id, flags, scFrame.len, reinterpret_cast<char*>(&scFrame.data[0]));
+					frameReceived(this, frame);
 				}
 				else if (n == CANFD_MTU)
 				{
@@ -83,7 +85,9 @@ void CANEndpointImpl::run()
 					if (scFrame.can_id & CAN_EFF_FLAG) flags |= CANFrame::CAN_FLAG_IDE;
 					if (scFrame.can_id & CAN_RTR_FLAG) flags |= CANFrame::CAN_FLAG_RTR;
 					CANFDFrame::ID id = scFrame.can_id & CAN_EFF_MASK;
-					canFDFrame.assign(id, flags, scFrame.len, reinterpret_cast<char*>(&scFrame.data[0]));
+
+					CANFDFrame frame(id, flags, scFrame.len, reinterpret_cast<char*>(&scFrame.data[0]));
+					sdFrameReceived(this, frame);
 				}
 #else
 				struct can_frame scFrame;
@@ -94,7 +98,9 @@ void CANEndpointImpl::run()
 					if (scFrame.can_id & CAN_EFF_FLAG) flags |= CANFrame::CAN_FLAG_IDE;
 					if (scFrame.can_id & CAN_RTR_FLAG) flags |= CANFrame::CAN_FLAG_RTR;
 					CANFrame::ID id = scFrame.can_id & CAN_EFF_MASK;
-					canFrame.assign(id, flags, scFrame.can_dlc, reinterpret_cast<char*>(&scFrame.data[0]));
+
+					CANFrame frame(id, flags, scFrame.can_dlc, reinterpret_cast<char*>(&scFrame.data[0]));
+					frameReceived(this, frame);
 				}
 #endif // CAN_RAW_FD_FRAMES
 			}
@@ -186,13 +192,17 @@ CANEndpoint::FilterMode CANEndpointImpl::getFilterMode() const
 
 void CANEndpointImpl::sendFrame(const CANFrame& frame)
 {
+	if (_logger.debug())
+	{
+		_logger.dump("Sending CAN frame", frame.payload().data(), frame.dlc());
+	}
 #ifdef MACCHINA_HAVE_SOCKETCAN
 	struct can_frame scFrame;
-	scFrame.can_id = canFrame.id();
-	if (canFrame.flags() & CANFrame::CAN_FLAG_IDE) scFrame.can_id |= CAN_EFF_FLAG;
-	if (canFrame.flags() & CANFrame::CAN_FLAG_RTR) scFrame.can_id |= CAN_RTR_FLAG;
-	scFrame.can_dlc = canFrame.dlc();
-	std::memcpy(scFrame.data, canFrame.payload().data(), canFrame.dlc());
+	scFrame.can_id = frame.id();
+	if (frame.flags() & CANFrame::CAN_FLAG_IDE) scFrame.can_id |= CAN_EFF_FLAG;
+	if (frame.flags() & CANFrame::CAN_FLAG_RTR) scFrame.can_id |= CAN_RTR_FLAG;
+	scFrame.can_dlc = frame.dlc();
+	std::memcpy(scFrame.data, frame.payload().data(), frame.dlc());
 	_socket.sendBytes(&scFrame, sizeof(scFrame));
 #endif
 }
@@ -200,13 +210,17 @@ void CANEndpointImpl::sendFrame(const CANFrame& frame)
 
 void CANEndpointImpl::sendFDFrame(const CANFDFrame& frame)
 {
+	if (_logger.debug())
+	{
+		_logger.dump("Sending CAN-FD frame", frame.payload().data(), frame.length());
+	}
 #ifdef MACCHINA_HAVE_SOCKETCAN
 	struct canfd_frame scFrame;
-	scFrame.can_id = canFrame.id();
-	if (canFrame.flags() & CANFrame::CAN_FLAG_IDE) scFrame.can_id |= CAN_EFF_FLAG;
-	if (canFrame.flags() & CANFrame::CAN_FLAG_RTR) scFrame.can_id |= CAN_RTR_FLAG;
-	scFrame.can_dlc = canFrame.dlc();
-	std::memcpy(scFrame.data, canFrame.payload().data(), canFrame.dlc());
+	scFrame.can_id = frame.id();
+	if (frame.flags() & CANFrame::CAN_FLAG_IDE) scFrame.can_id |= CAN_EFF_FLAG;
+	if (frame.flags() & CANFrame::CAN_FLAG_RTR) scFrame.can_id |= CAN_RTR_FLAG;
+	scFrame.len = frame.length();
+	std::memcpy(scFrame.data, frame.payload().data(), frame.length());
 	_socket.sendBytes(&scFrame, sizeof(scFrame));
 #endif
 }
@@ -223,10 +237,8 @@ void CANEndpointImpl::enableEvents(bool enable)
 			_thread.start(*this);
 		}
 	}
-	else
+	else if (_enableEvents > 0)
 	{
-		poco_assert (_enableEvents > 0);
-
 		if (--_enableEvents == 0)
 		{
 			_thread.join();
@@ -255,10 +267,8 @@ void CANEndpointImpl::enableFDEvents(bool enable)
 			_socket.setOption(SOL_CAN_RAW, CAN_RAW_FD_FRAMES, 1);
 		}
 	}
-	else
+	else if (_enableFDEvents > 0)
 	{
-		poco_assert (_enableFDEvents > 0);
-
 		if (--_enableFDEvents == 0)
 		{
 			_socket.setOption(SOL_CAN_RAW, CAN_RAW_FD_FRAMES, 0);
