@@ -190,17 +190,22 @@ bool CANEndpointImpl::removeFilter(const Filter& filter)
 
 void CANEndpointImpl::setFilterMode(FilterMode mode)
 {
+	if (_filterMode != mode)
+	{
 #ifdef MACCHINA_HAVE_SOCKETCAN
-	if (mode == CAN_FILTER_MODE_AND)
-	{
-		_socket.setOption(SOL_CAN_RAW, CAN_RAW_JOIN_FILTERS, 1);
-	}
-	else
-	{
-		_socket.setOption(SOL_CAN_RAW, CAN_RAW_JOIN_FILTERS, 0);
-	}
+		// HACK: CAN_RAW_JOIN_FILTERS (6) is not available on all Linux versions.
+		// Furthermore, it's an enum, so we cannot easily check for its availability.
+		if (mode == CAN_FILTER_MODE_AND)
+		{
+			_socket.setOption(SOL_CAN_RAW, 6 /*CAN_RAW_JOIN_FILTERS*/, 1);
+		}
+		else
+		{
+			_socket.setOption(SOL_CAN_RAW, 6 /*CAN_RAW_JOIN_FILTERS*/, 0);
+		}
 #endif
-	_filterMode = mode;
+		_filterMode = mode;
+	}
 }
 
 
