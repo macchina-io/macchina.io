@@ -20,7 +20,7 @@ setInterval(
 		{
 			var sensor = sensors[id].sensor;
 
-			db.session.execute('INSERT INTO sensorlog VALUES (?, ?, ?)',
+			db.session.executeNonQuery('INSERT INTO sensorlog VALUES (?, ?, ?)',
 				ts,
 				id,
 				sensor.value());
@@ -32,6 +32,6 @@ setInterval(
 	function()
 	{
 		var cutoffTime = DateTime().timestamp/1000 - 1000*db.retain;
-		db.session.execute('DELETE FROM sensorlog WHERE timestamp < ?', cutoffTime);
+		db.session.executeNonQuery('DELETE FROM sensorlog WHERE timestamp < ?', cutoffTime);
 	},
 	db.retain*1000);
