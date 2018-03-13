@@ -33,7 +33,8 @@ For the latest stable release, you may want to check out the master branch:
     $ git checkout master
 ----
 
-The default branch is the develop branch.
+The default branch is the develop branch, which contains the latest and greatest
+features, but is not recommended for production use.
 
 
 !!!Building macchina.io
@@ -42,13 +43,25 @@ The default branch is the develop branch.
 
 macchina.io uses the build system from the POCO C++ Libraries, which is based on
 GNU Make. You'll also need a recent version of the GNU C++ compiler (at least
-4.4) or Clang. Make sure you have the OpenSSL headers and libraries
-installed, e.g.:
+4.9) or Clang 3.4 (on macOS: Xcode Clang/Apple LLVM 8.0 command-line tools).
+Make sure you have the OpenSSL headers and libraries installed.
 
-  - on Ubuntu: <[sudo apt-get install libssl-dev]>
-  - on macOS: via [[http://brew.sh Homebrew]]: <[brew install openssl]>
+Furthermore, Python 2.7 is required for building the V8 JavaScript engine.
 
-Furthermore, Python is required for building the V8 JavaScript engine.
+
+!Ubuntu/Debian/Raspbian
+
+Install all required packages via:
+
+    $ sudo apt-get install g++ make libssl-dev python
+----
+
+!macOS
+
+Install OpenSSL via [[http://brew.sh Homebrew]]:
+
+    $ brew install openssl
+----
 
 
 !!Compiling macchina.io
