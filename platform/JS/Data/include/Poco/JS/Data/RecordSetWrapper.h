@@ -21,7 +21,7 @@
 #include "Poco/JS/Data/Data.h"
 #include "Poco/JS/Core/Wrapper.h"
 #include "Poco/Data/RecordSet.h"
-#include "Poco/Any.h"
+#include "Poco/SharedPtr.h"
 
 
 namespace Poco {
@@ -32,7 +32,7 @@ namespace Data {
 class JSData_API RecordSetHolder
 {
 public:
-	RecordSetHolder();
+	RecordSetHolder(const Poco::SharedPtr<Poco::Data::Session>& pSession);
 		/// Creates the RecordSetHolder.
 
 	~RecordSetHolder();
@@ -62,6 +62,7 @@ public:
 	}
 
 private:
+	Poco::SharedPtr<Poco::Data::Session> _pSession;
 	Poco::Data::Statement* _pStatement;
 	Poco::Data::RecordSet* _pRecordSet;
 };

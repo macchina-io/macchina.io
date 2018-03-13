@@ -21,6 +21,7 @@
 #include "Poco/JS/Data/Data.h"
 #include "Poco/JS/Core/Wrapper.h"
 #include "Poco/Data/Session.h"
+#include "Poco/SharedPtr.h"
 
 
 namespace Poco {
@@ -33,7 +34,7 @@ class JSData_API SessionHolder
 public:
 	SessionHolder(const std::string& connector, const std::string& connectionString);
 		/// Creates the SessionHolder.
-		
+
 	~SessionHolder();
 		/// Destroys the SessionHolder.
 
@@ -41,32 +42,37 @@ public:
 	{
 		return _connector;
 	}
-	
+
 	const std::string& connectionString() const
 	{
 		return _connectionString;
 	}
-	
-	Poco::Data::Session& session()
-	{
-		return _session;
-	}
-	
+
 	unsigned getPageSize() const
 	{
 		return _pageSize;
 	}
-	
+
 	void setPageSize(unsigned pageSize)
 	{
 		_pageSize = pageSize;
 	}
-	
+
+	const Poco::SharedPtr<Poco::Data::Session>& session() const
+	{
+		return _pSession;
+	}
+
+	Poco::SharedPtr<Poco::Data::Session>& session()
+	{
+		return _pSession;
+	}
+
 private:
 	std::string _connector;
 	std::string _connectionString;
 	unsigned _pageSize;
-	Poco::Data::Session _session;
+	Poco::SharedPtr<Poco::Data::Session> _pSession;
 };
 
 
@@ -76,7 +82,7 @@ class JSData_API SessionWrapper: public JS::Core::Wrapper
 public:
 	SessionWrapper();
 		/// Creates the SessionWrapper.
-	
+
 	~SessionWrapper();
 		/// Destroys the SessionWrapper.
 
@@ -88,7 +94,7 @@ public:
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-		
+
 protected:
 	static void getConnector(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void getConnectionString(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
