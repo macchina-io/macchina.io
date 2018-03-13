@@ -33,7 +33,7 @@ SessionHolder::SessionHolder(const std::string& connector, const std::string& co
 	_connector(connector),
 	_connectionString(connectionString),
 	_pageSize(256),
-	_session(connector, connectionString)
+	_pSession(new Poco::Data::Session(connector, connectionString))
 {
 }
 
@@ -137,14 +137,14 @@ void SessionWrapper::getConnectionString(v8::Local<v8::String> name, const v8::P
 void SessionWrapper::getIsConnected(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	SessionHolder* pSessionHolder = Wrapper::unwrapNative<SessionHolder>(info);
-	info.GetReturnValue().Set(pSessionHolder->session().isConnected());
+	info.GetReturnValue().Set(pSessionHolder->session()->isConnected());
 }
 
 
 void SessionWrapper::getIsTransaction(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	SessionHolder* pSessionHolder = Wrapper::unwrapNative<SessionHolder>(info);
-	info.GetReturnValue().Set(pSessionHolder->session().isTransaction());
+	info.GetReturnValue().Set(pSessionHolder->session()->isTransaction());
 }
 
 
@@ -174,7 +174,7 @@ void SessionWrapper::begin(const v8::FunctionCallbackInfo<v8::Value>& args)
 	SessionHolder* pSessionHolder = Wrapper::unwrapNative<SessionHolder>(args);
 	try
 	{
-		pSessionHolder->session().begin();
+		pSessionHolder->session()->begin();
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -188,7 +188,7 @@ void SessionWrapper::commit(const v8::FunctionCallbackInfo<v8::Value>& args)
 	SessionHolder* pSessionHolder = Wrapper::unwrapNative<SessionHolder>(args);
 	try
 	{
-		pSessionHolder->session().commit();
+		pSessionHolder->session()->commit();
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -202,7 +202,7 @@ void SessionWrapper::rollback(const v8::FunctionCallbackInfo<v8::Value>& args)
 	SessionHolder* pSessionHolder = Wrapper::unwrapNative<SessionHolder>(args);
 	try
 	{
-		pSessionHolder->session().rollback();
+		pSessionHolder->session()->rollback();
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -216,7 +216,7 @@ void SessionWrapper::close(const v8::FunctionCallbackInfo<v8::Value>& args)
 	SessionHolder* pSessionHolder = Wrapper::unwrapNative<SessionHolder>(args);
 	try
 	{
-		pSessionHolder->session().close();
+		pSessionHolder->session()->close();
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -228,13 +228,13 @@ void SessionWrapper::close(const v8::FunctionCallbackInfo<v8::Value>& args)
 void SessionWrapper::execute(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	SessionHolder* pSessionHolder = Wrapper::unwrapNative<SessionHolder>(args);
-	Poco::Data::Session& session = pSessionHolder->session();
+	Poco::SharedPtr<Poco::Data::Session> pSession = pSessionHolder->session();
 	if (args.Length() > 0)
 	{
-		RecordSetHolder* pRecordSetHolder = new RecordSetHolder;
+		RecordSetHolder* pRecordSetHolder = new RecordSetHolder(pSession);
 		try
 		{
-			Poco::Data::Statement statement = (session << toString(args[0]));
+			Poco::Data::Statement statement = (*pSession << toString(args[0]));
 			for (int i = 1; i < args.Length(); i++)
 			{
 				if (args[i]->IsString())

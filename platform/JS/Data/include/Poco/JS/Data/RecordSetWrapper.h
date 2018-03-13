@@ -21,7 +21,7 @@
 #include "Poco/JS/Data/Data.h"
 #include "Poco/JS/Core/Wrapper.h"
 #include "Poco/Data/RecordSet.h"
-#include "Poco/Any.h"
+#include "Poco/SharedPtr.h"
 
 
 namespace Poco {
@@ -32,8 +32,12 @@ namespace Data {
 class JSData_API RecordSetHolder
 {
 public:
-	RecordSetHolder();
+	RecordSetHolder(const Poco::SharedPtr<Poco::Data::Session>& pSession);
 		/// Creates the RecordSetHolder.
+		///
+		/// Event if not used directly, we need to keep a SharedPtr to underlying Session
+		/// to prevent it from being deleted before the RecordSet, which causes
+		/// a memory leak in SQLite.
 
 	~RecordSetHolder();
 		/// Destroys the RecordSetHolder.
@@ -62,6 +66,7 @@ public:
 	}
 
 private:
+	Poco::SharedPtr<Poco::Data::Session> _pSession;
 	Poco::Data::Statement* _pStatement;
 	Poco::Data::RecordSet* _pRecordSet;
 };

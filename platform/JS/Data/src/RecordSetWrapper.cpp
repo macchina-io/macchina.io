@@ -91,7 +91,8 @@ private:
 };
 
 
-RecordSetHolder::RecordSetHolder():
+RecordSetHolder::RecordSetHolder(const Poco::SharedPtr<Poco::Data::Session>& pSession):
+	_pSession(pSession),
 	_pStatement(0),
 	_pRecordSet(0)
 {
@@ -117,6 +118,7 @@ void RecordSetHolder::close()
 	_pRecordSet = 0;
 	delete _pStatement;
 	_pStatement = 0;
+	_pSession.reset();
 }
 
 
