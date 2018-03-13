@@ -2350,12 +2350,21 @@ Closes the session. After the session has been closed, it must no longer
 be used.
 
 
-!execute(statement [, args]...)
+!executeNonQuery(statement [, args]...)
 
-Execute a SQL statement. The statement can contain placeholders ('?'), which will
+Execute a non-query SQL statement (e.g., INSERT or UPDATE).
+The statement can contain placeholders ('?'), which will
 be replaced by the given arguments using the underlying database's data binding mechanism.
 
-Returns a RecordSet object.
+Returns the number of rows affected by the statement.
+
+
+!execute(statement [, args]...)
+
+Execute a SQL query statement. The statement can contain placeholders ('?'), which will
+be replaced by the given arguments using the underlying database's data binding mechanism.
+
+Returns a RecordSet object containing the query result.
 
 
 !!!RecordSet Objects

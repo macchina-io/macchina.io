@@ -108,6 +108,7 @@ protected:
 	static void rollback(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void close(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void execute(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void executeNonQuery(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 
