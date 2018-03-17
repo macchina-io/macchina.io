@@ -23,6 +23,8 @@
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
 #include "Poco/NumberFormatter.h"
+#include "Poco/NumberParser.h"
+#include "Poco/StringTokenizer.h"
 #include "Poco/String.h"
 #include <vector>
 
@@ -73,6 +75,38 @@ public:
 		return pCANEndpoint;
 	}
 
+	Poco::UInt32 parseUInt32(const std::string& value)
+	{
+		if (value.compare(0, 2, "0x") == 0)
+			return Poco::NumberParser::parseHex(value);
+		else
+			return Poco::NumberParser::parseUnsigned(value);
+	}
+
+	std::vector<Poco::UInt32> parseIDs(const std::string& idString)
+	{
+		std::vector<Poco::UInt32> result;
+		Poco::StringTokenizer tok(idString, ",;", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
+		for (Poco::StringTokenizer::Iterator it = tok.begin(); it != tok.end(); ++it)
+		{
+			std::string::size_type pos = it->find('-');
+			if (pos != std::string::npos)
+			{
+				Poco::UInt32 from = parseUInt32(it->substr(0, pos));
+				Poco::UInt32 to   = parseUInt32(it->substr(pos + 1));
+				for (Poco::UInt32 i = from; i <= to; i++)
+				{
+					result.push_back(i);
+				}
+			}
+			else
+			{
+				result.push_back(parseUInt32(*it));
+			}
+		}
+		return result;
+	}
+
 	std::vector<Filter> configureFilter(const std::string& baseKey)
 	{
 		std::vector<Filter> filter;
@@ -85,10 +119,15 @@ public:
 			key += *it;
 
 			Filter f;
-			f.id = _pPrefs->configuration()->getUInt(key + ".id");
 			f.mask = _pPrefs->configuration()->getUInt(key + ".mask", Filter::CAN_FILTER_MASK_SFF);
 			f.invert = _pPrefs->configuration()->getBool(key + ".invert", false);
-			filter.push_back(f);
+			std::string idString = _pPrefs->configuration()->getString(key + ".id");
+			std::vector<Poco::UInt32> ids = parseIDs(idString);
+			for (std::vector<Poco::UInt32>::const_iterator itID = ids.begin(); itID != ids.end(); ++itID)
+			{
+				f.id = *itID;
+				filter.push_back(f);
+			}
 		}
 		return filter;
 	}
