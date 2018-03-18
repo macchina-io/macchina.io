@@ -214,7 +214,7 @@ void SensorTagSensor::setValueChangedDelta(const std::string&, const Poco::Any& 
 
 Poco::Any SensorTagSensor::getDisplayValue(const std::string&) const
 {
-	if (_ready)
+	if (ready())
 		return Poco::NumberFormatter::format(value(), 0, 1);
 	else
 		return std::string("n/a");

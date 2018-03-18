@@ -163,8 +163,10 @@ void Sensor::setSamplingInterval(const std::string&, const Poco::Any& value)
 
 Poco::Any Sensor::getDisplayValue(const std::string&) const
 {
+	Poco::Mutex::ScopedLock lock(_mutex);
+
 	if (_ready && _enabled)
-		return Poco::NumberFormatter::format(value(), 0, 1);
+		return Poco::NumberFormatter::format(_value, 0, 1);
 	else
 		return std::string("n/a");
 }
