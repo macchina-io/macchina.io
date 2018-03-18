@@ -80,8 +80,6 @@ SensorTagSensor::SensorTagSensor(BtLE::Peripheral::Ptr pPeripheral, const Params
 	addProperty("physicalQuantity", &SensorTagSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &SensorTagSensor::getPhysicalUnit);
 
-	_pEventPolicy = new IoT::Devices::NoModerationPolicy<double>(valueChanged);
-
 	_pPeripheral->services();
 	_controlChar = _pPeripheral->characteristic(_params.serviceUUID, _params.controlUUID);
 	_dataChar = _pPeripheral->characteristic(_params.serviceUUID, _params.dataUUID);

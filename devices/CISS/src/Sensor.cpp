@@ -48,8 +48,6 @@ Sensor::Sensor(Node& node, Poco::UInt8 id, Poco::UInt8 streamId, const std::stri
 	addProperty("type", &Sensor::getType);
 	addProperty("physicalQuantity", &Sensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &Sensor::getPhysicalUnit);
-
-	_pEventPolicy = new IoT::Devices::NoModerationPolicy<double>(valueChanged);
 }
 
 

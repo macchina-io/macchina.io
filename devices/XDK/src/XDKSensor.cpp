@@ -82,8 +82,6 @@ XDKSensor::XDKSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Po
 	addProperty("physicalQuantity", &XDKSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &XDKSensor::getPhysicalUnit);
 
-	_pEventPolicy = new IoT::Devices::NoModerationPolicy<double>(valueChanged);
-
 	_pPeripheral->services();
 	_dataChar = _pPeripheral->characteristic(_params.serviceUUID, _params.dataUUID);
 

@@ -43,13 +43,11 @@ XBeeSensor::XBeeSensor(IXBeeNode::Ptr pXBeeNode, Params params):
 	addProperty("type", &XBeeSensor::getType);
 	addProperty("physicalQuantity", &XBeeSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &XBeeSensor::getPhysicalUnit);
-	
-	_pEventPolicy = new IoT::Devices::NoModerationPolicy<double>(valueChanged);
 
 	_pXBeeNode->ioSampleReceived += Poco::delegate(this, &XBeeSensor::onIOSampleReceived);
 }
 
-	
+
 XBeeSensor::~XBeeSensor()
 {
 	_pXBeeNode->ioSampleReceived -= Poco::delegate(this, &XBeeSensor::onIOSampleReceived);
@@ -68,7 +66,7 @@ bool XBeeSensor::ready() const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	return _ready;	
+	return _ready;
 }
 
 
@@ -158,7 +156,7 @@ void XBeeSensor::update(double value)
 //
 // XBeeTemperatureSensor
 //
- 
+
 
 XBeeTemperatureSensor::XBeeTemperatureSensor(IXBeeNode::Ptr pXBeeNode, Params params):
 	XBeeSensor(pXBeeNode, params)

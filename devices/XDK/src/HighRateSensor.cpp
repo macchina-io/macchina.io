@@ -45,8 +45,6 @@ HighRateSensor::HighRateSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& 
 	addProperty("physicalQuantity", &HighRateSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &HighRateSensor::getPhysicalUnit);
 
-	_pEventPolicy = new IoT::Devices::NoModerationPolicy<double>(valueChanged);
-
 	_pPeripheral->connected += Poco::delegate(this, &HighRateSensor::onConnected);
 	_pPeripheral->disconnected += Poco::delegate(this, &HighRateSensor::onDisconnected);
 
