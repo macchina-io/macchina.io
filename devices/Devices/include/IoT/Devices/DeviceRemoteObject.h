@@ -45,6 +45,7 @@ class DeviceRemoteObject: public IoT::Devices::IDevice, public Poco::RemotingNG:
 	///   - type (string): A name in reverse DNS notation
 	///     that identifies the generic device type (e.g., "io.macchina.serial").
 	///   - name (string): A human-readable device type (e.g., "Serial Port").
+	///   - status (int): Current device status (DeviceStatus); optional.
 	///
 	/// The following generic device types are currently defined:
 	///   - io.macchina.accelerometer (Accelerometer)
