@@ -5,18 +5,15 @@
 #
 
 include $(POCO_BASE)/build/rules/global
-
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
-
-INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
-INCLUDE += -I$(PROJECT_BASE)/devices/Serial/include
 
 objects = XBeeNodeImpl BundleActivator
 
-target         = io.macchina.xbee
-target_version = 1
-target_libs    = IoTXBee IoTDevices PocoSerial PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
+target          = io.macchina.xbee
+target_includes = $(PROJECT_BASE)/devices/Devices/include \
+                  $(PROJECT_BASE)/devices/Serial/include
+target_libs     = IoTXBee IoTDevices PocoSerial PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
 
-postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles XBee.bndlspec
+postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles XBee.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib

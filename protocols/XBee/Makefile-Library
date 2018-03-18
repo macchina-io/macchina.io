@@ -6,9 +6,6 @@
 
 include $(POCO_BASE)/build/rules/global
 
-INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
-INCLUDE += -I$(PROJECT_BASE)/devices/Serial/include
-
 objects = \
 	XBeeFrame \
 	XBeePort \
@@ -19,8 +16,10 @@ objects = \
 	XBeeNodeSkeleton \
 	XBeeNodeServerHelper
 
-target         = IoTXBee
-target_version = 1
-target_libs    = IoTDevices PocoSerial PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
+target          = IoTXBee
+target_version  = 1
+target_includes = $(PROJECT_BASE)/devices/Devices/include \
+                  $(PROJECT_BASE)/devices/Serial/include
+target_libs     = IoTDevices PocoSerial PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
 
 include $(POCO_BASE)/build/rules/lib

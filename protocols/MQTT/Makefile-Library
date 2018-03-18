@@ -6,18 +6,17 @@
 
 include $(POCO_BASE)/build/rules/global
 
-INCLUDE += -I$(PROJECT_BASE)/protocols/MQTT/Paho/include
-
 objects = \
 	MQTTClient \
 	IMQTTClient \
 	MQTTClientEventDispatcher \
 	MQTTClientRemoteObject \
 	MQTTClientServerHelper \
-	MQTTClientSkeleton 
+	MQTTClientSkeleton
 
-target         = IoTMQTT
-target_version = 1
-target_libs    = PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
+target          = IoTMQTT
+target_version  = 1
+target_includes = $(PROJECT_BASE)/protocols/MQTT/Paho/include
+target_libs     = PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
 
 include $(POCO_BASE)/build/rules/lib

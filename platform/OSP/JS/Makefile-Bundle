@@ -5,16 +5,14 @@
 #
 
 include $(POCO_BASE)/build/rules/global
-
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 objects = JSBundleActivator
 
 target         = com.appinf.osp.js
-target_version = 1
 target_libs    = PocoOSPJS PocoJSBridge PocoJSCore PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
 target_extlibs = v8 v8_libplatform v8_libbase
 
-postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles JS.bndlspec
+postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles JS.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib

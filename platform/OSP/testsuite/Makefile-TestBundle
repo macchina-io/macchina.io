@@ -8,9 +8,8 @@ include $(POCO_BASE)/build/rules/global
 
 objects = TestBundle
 
-target         = TestBundle
-target_version = 1
-target_libs    = PocoOSP PocoUtil PocoXML PocoFoundation
+target      = TestBundle
+target_libs = PocoOSP PocoUtil PocoXML PocoFoundation
 
 include $(POCO_BASE)/build/rules/dylib
 

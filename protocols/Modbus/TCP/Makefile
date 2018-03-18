@@ -9,14 +9,12 @@
 include $(POCO_BASE)/build/rules/global
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
-INCLUDE += -I$(PROJECT_BASE)/protocols/Modbus/include
-
 objects = TCPPort BundleActivator
 
-target         = io.macchina.modbus.tcp
-target_version = 1
-target_libs    = IoTModbus PocoOSP PocoRemotingNG PocoNet PocoUtil PocoXML PocoFoundation
+target          = io.macchina.modbus.tcp
+target_includes = $(PROJECT_BASE)/protocols/Modbus/include
+target_libs     = IoTModbus PocoOSP PocoRemotingNG PocoNet PocoUtil PocoXML PocoFoundation
 
-postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../../bundles TCP.bndlspec
+postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../../bundles TCP.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib

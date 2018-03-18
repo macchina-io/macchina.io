@@ -5,10 +5,7 @@
 #
 
 include $(POCO_BASE)/build/rules/global
-
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
-
-INCLUDE += -I$(PROJECT_BASE)/devices/Devices/include
 
 objects = \
 	MasterConnection \
@@ -70,10 +67,10 @@ objects = \
 	bricklet_voltage_current \
 	ip_connection
 
-target         = io.macchina.tf
-target_version = 1
-target_libs    = IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoFoundation
+target          = io.macchina.tf
+target_includes = $(PROJECT_BASE)/devices/Devices/include
+target_libs     = IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoFoundation
 
-postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles Tf.bndlspec
+postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles Tf.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib

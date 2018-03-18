@@ -6,13 +6,12 @@
 
 include $(POCO_BASE)/build/rules/global
 
-INCLUDE += -I$(PROJECT_BASE)/devices/GNSS/NMEA/include
-
 objects = NMEATestSuite Driver \
 	SentenceDecoderTest RMCProcessorTest GGAProcessorTest
 
-target         = testrunner
-target_version = 1
-target_libs    = IoTGNSSNMEA PocoGeo PocoFoundation CppUnit
+target          = testrunner
+target_version  = 1
+target_includes = $(PROJECT_BASE)/devices/GNSS/NMEA/include
+target_libs     = IoTGNSSNMEA PocoGeo PocoFoundation CppUnit
 
 include $(POCO_BASE)/build/rules/exec

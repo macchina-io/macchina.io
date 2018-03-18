@@ -7,7 +7,6 @@
 .PHONY: clean all
 
 include $(POCO_BASE)/build/rules/global
-
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 all:

@@ -16,11 +16,10 @@ objects =  \
 	Utility \
 	BundleActivator
 
-target         = io.macchina.webui.bundleadmin
-target_version = 1
-target_libs    = PocoOSPWeb PocoOSP PocoNet PocoUtil PocoJSON PocoXML PocoFoundation
+target      = io.macchina.webui.bundleadmin
+target_libs = PocoOSPWeb PocoOSP PocoNet PocoUtil PocoJSON PocoXML PocoFoundation
 
-postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -Npng,gif,jpg -o../bundles BundleAdmin.bndlspec
+postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -Npng,gif,jpg -o../bundles BundleAdmin.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib
 
