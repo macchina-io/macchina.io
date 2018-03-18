@@ -39,10 +39,14 @@ public:
 
 	void event__accelerationChanged(const void* pSender, const IoT::Devices::Acceleration& data);
 
+	void event__statusChanged(const void* pSender, const IoT::Devices::DeviceStatusChange& data);
+
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
 	void event__accelerationChangedImpl(const std::string& subscriberURI, const IoT::Devices::Acceleration& data);
+
+	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
 	AccelerometerRemoteObject* _pRemoteObject;

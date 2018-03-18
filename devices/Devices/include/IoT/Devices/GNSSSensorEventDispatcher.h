@@ -53,12 +53,16 @@ public:
 
 	void event__positionUpdate(const void* pSender, const IoT::Devices::PositionUpdate& data);
 
+	void event__statusChanged(const void* pSender, const IoT::Devices::DeviceStatusChange& data);
+
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
 	void event__positionLostImpl(const std::string& subscriberURI);
 
 	void event__positionUpdateImpl(const std::string& subscriberURI, const IoT::Devices::PositionUpdate& data);
+
+	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
 	GNSSSensorRemoteObject* _pRemoteObject;

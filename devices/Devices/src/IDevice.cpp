@@ -23,8 +23,8 @@ namespace Devices {
 
 
 IDevice::IDevice():
-	Poco::OSP::Service()
-
+	Poco::OSP::Service(),
+	statusChanged()
 {
 }
 

@@ -16,6 +16,7 @@
 
 
 #include "IoT/Devices/DeviceServerHelper.h"
+#include "IoT/Devices/DeviceEventDispatcher.h"
 #include "IoT/Devices/DeviceSkeleton.h"
 #include "Poco/RemotingNG/URIUtility.h"
 #include "Poco/SingletonHolder.h"
@@ -54,6 +55,18 @@ void DeviceServerHelper::shutdown()
 Poco::AutoPtr<IoT::Devices::DeviceRemoteObject> DeviceServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::Device> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
 	return new DeviceRemoteObject(oid, pServiceObject);
+}
+
+
+void DeviceServerHelper::enableEventsImpl(const std::string& uri, const std::string& protocol)
+{
+	Poco::RemotingNG::Identifiable::Ptr pIdentifiable = _pORB->findObject(uri);
+	Poco::AutoPtr<DeviceRemoteObject> pRemoteObject = pIdentifiable.cast<DeviceRemoteObject>();
+	if (pRemoteObject)
+	{
+		pRemoteObject->remoting__enableRemoteEvents(protocol);
+	}
+	else throw Poco::NotFoundException("remote object", uri);
 }
 
 

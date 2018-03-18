@@ -61,10 +61,14 @@ public:
 
 	void event__lineReceived(const void* pSender, const std::string& data);
 
+	void event__statusChanged(const void* pSender, const IoT::Devices::DeviceStatusChange& data);
+
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
 	void event__lineReceivedImpl(const std::string& subscriberURI, const std::string& data);
+
+	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
 	SerialDeviceRemoteObject* _pRemoteObject;

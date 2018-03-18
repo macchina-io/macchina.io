@@ -1,9 +1,9 @@
 //
-// DeviceSkeleton.h
+// DeviceEventDispatcher.h
 //
 // Library: IoT/Devices
 // Package: Generated
-// Module:  DeviceSkeleton
+// Module:  DeviceEventDispatcher
 //
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
@@ -15,19 +15,19 @@
 //
 
 
-#ifndef IoT_Devices_DeviceSkeleton_INCLUDED
-#define IoT_Devices_DeviceSkeleton_INCLUDED
+#ifndef IoT_Devices_DeviceEventDispatcher_INCLUDED
+#define IoT_Devices_DeviceEventDispatcher_INCLUDED
 
 
 #include "IoT/Devices/DeviceRemoteObject.h"
-#include "Poco/RemotingNG/Skeleton.h"
+#include "Poco/RemotingNG/EventDispatcher.h"
 
 
 namespace IoT {
 namespace Devices {
 
 
-class DeviceSkeleton: public Poco::RemotingNG::Skeleton
+class DeviceEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// The base class for all devices and sensors.
 	///
 	/// This class defines a generic interface for setting
@@ -61,19 +61,25 @@ class DeviceSkeleton: public Poco::RemotingNG::Skeleton
 	///   - io.macchina.trigger (Trigger)
 {
 public:
-	DeviceSkeleton();
-		/// Creates a DeviceSkeleton.
+	DeviceEventDispatcher(DeviceRemoteObject* pRemoteObject, const std::string& protocol);
+		/// Creates a DeviceEventDispatcher.
 
-	virtual ~DeviceSkeleton();
-		/// Destroys a DeviceSkeleton.
+	virtual ~DeviceEventDispatcher();
+		/// Destroys the DeviceEventDispatcher.
+
+	void event__statusChanged(const void* pSender, const IoT::Devices::DeviceStatusChange& data);
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
+private:
+	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
+
 	static const std::string DEFAULT_NS;
+	DeviceRemoteObject* _pRemoteObject;
 };
 
 
-inline const Poco::RemotingNG::Identifiable::TypeId& DeviceSkeleton::remoting__typeId() const
+inline const Poco::RemotingNG::Identifiable::TypeId& DeviceEventDispatcher::remoting__typeId() const
 {
 	return IDevice::remoting__typeId();
 }
@@ -83,5 +89,5 @@ inline const Poco::RemotingNG::Identifiable::TypeId& DeviceSkeleton::remoting__t
 } // namespace IoT
 
 
-#endif // IoT_Devices_DeviceSkeleton_INCLUDED
+#endif // IoT_Devices_DeviceEventDispatcher_INCLUDED
 

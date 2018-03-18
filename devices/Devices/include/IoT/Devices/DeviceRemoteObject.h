@@ -35,6 +35,9 @@ class DeviceRemoteObject: public IoT::Devices::IDevice, public Poco::RemotingNG:
 	/// This class defines a generic interface for setting
 	/// and querying device properties and features.
 	///
+	/// The class also defines an event for notifications
+	/// about changes to the device status.
+	///
 	/// Every implementation of Device should expose the
 	/// following properties:
 	///   - symbolicName: A name in reverse DNS notation that identifies the
@@ -53,6 +56,8 @@ class DeviceRemoteObject: public IoT::Devices::IDevice, public Poco::RemotingNG:
 	///   - io.macchina.magnetometer (Magnetometer)
 	///   - io.macchina.rotary (RotaryEncoder)
 	///   - io.macchina.sensor (Sensor)
+	///   - io.macchina.boolean (BooleanSensor)
+	///   - io.macchina.counter (Counter)
 	///   - io.macchina.serial (SerialDevice)
 	///   - io.macchina.switch (Switch)
 	///   - io.macchina.trigger (Trigger)
@@ -106,6 +111,12 @@ public:
 		/// Returns true if the property with the given name
 		/// exists, or false otherwise.
 
+	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
+
+	virtual void remoting__enableRemoteEvents(const std::string& protocol);
+
+	virtual bool remoting__hasEvents() const;
+
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 	virtual void setFeature(const std::string& name, bool enable);
@@ -137,6 +148,9 @@ public:
 		///
 		/// Which properties are supported is defined by the
 		/// actual device implementation.
+
+protected:
+	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
 
 private:
 	Poco::SharedPtr<IoT::Devices::Device> _pServiceObject;

@@ -23,6 +23,7 @@
 #include "Poco/AutoPtr.h"
 #include "Poco/OSP/Service.h"
 #include "Poco/RemotingNG/Identifiable.h"
+#include "Poco/RemotingNG/Listener.h"
 
 
 namespace IoT {
@@ -34,6 +35,9 @@ class IDevice: public Poco::OSP::Service
 	///
 	/// This class defines a generic interface for setting
 	/// and querying device properties and features.
+	///
+	/// The class also defines an event for notifications
+	/// about changes to the device status.
 	///
 	/// Every implementation of Device should expose the
 	/// following properties:
@@ -53,6 +57,8 @@ class IDevice: public Poco::OSP::Service
 	///   - io.macchina.magnetometer (Magnetometer)
 	///   - io.macchina.rotary (RotaryEncoder)
 	///   - io.macchina.sensor (Sensor)
+	///   - io.macchina.boolean (BooleanSensor)
+	///   - io.macchina.counter (Counter)
 	///   - io.macchina.serial (SerialDevice)
 	///   - io.macchina.switch (Switch)
 	///   - io.macchina.trigger (Trigger)
@@ -109,6 +115,15 @@ public:
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
 
+	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true)) = 0;
+		/// Enable or disable delivery of remote events.
+		///
+		/// The given Listener instance must implement the Poco::RemotingNG::EventListener
+		/// interface, otherwise this method will fail with a RemotingException.
+		///
+		/// This method is only used with Proxy objects; calling this method on a
+		/// RemoteObject will do nothing.
+
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();
 		/// Returns the TypeId of the class.
 
@@ -145,6 +160,7 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
+	Poco::BasicEvent < const DeviceStatusChange > statusChanged;
 };
 
 

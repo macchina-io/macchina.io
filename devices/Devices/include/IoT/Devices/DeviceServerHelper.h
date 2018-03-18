@@ -37,6 +37,9 @@ class DeviceServerHelper
 	/// This class defines a generic interface for setting
 	/// and querying device properties and features.
 	///
+	/// The class also defines an event for notifications
+	/// about changes to the device status.
+	///
 	/// Every implementation of Device should expose the
 	/// following properties:
 	///   - symbolicName: A name in reverse DNS notation that identifies the
@@ -55,6 +58,8 @@ class DeviceServerHelper
 	///   - io.macchina.magnetometer (Magnetometer)
 	///   - io.macchina.rotary (RotaryEncoder)
 	///   - io.macchina.sensor (Sensor)
+	///   - io.macchina.boolean (BooleanSensor)
+	///   - io.macchina.counter (Counter)
 	///   - io.macchina.serial (SerialDevice)
 	///   - io.macchina.switch (Switch)
 	///   - io.macchina.trigger (Trigger)
@@ -70,6 +75,12 @@ public:
 
 	static Poco::AutoPtr<IoT::Devices::DeviceRemoteObject> createRemoteObject(Poco::SharedPtr<IoT::Devices::Device> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates and returns a RemoteObject wrapper for the given IoT::Devices::Device instance.
+
+	static void enableEvents(const std::string& uri, const std::string& protocol);
+		/// Enables remote events for the RemoteObject identified by the given URI.
+		///
+		/// Events will be delivered using the Transport for the given protocol.
+		/// Can be called multiple times for the same URI with different protocols.
 
 	static std::string registerObject(Poco::SharedPtr<IoT::Devices::Device> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId);
 		/// Creates a RemoteObject wrapper for the given IoT::Devices::Device instance
@@ -93,6 +104,8 @@ public:
 private:
 	static Poco::AutoPtr<IoT::Devices::DeviceRemoteObject> createRemoteObjectImpl(Poco::SharedPtr<IoT::Devices::Device> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid);
 
+	void enableEventsImpl(const std::string& uri, const std::string& protocol);
+
 	static DeviceServerHelper& instance();
 		/// Returns a static instance of the helper class.
 
@@ -111,6 +124,12 @@ private:
 inline Poco::AutoPtr<IoT::Devices::DeviceRemoteObject> DeviceServerHelper::createRemoteObject(Poco::SharedPtr<IoT::Devices::Device> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
 	return DeviceServerHelper::instance().createRemoteObjectImpl(pServiceObject, oid);
+}
+
+
+inline void DeviceServerHelper::enableEvents(const std::string& uri, const std::string& protocol)
+{
+	DeviceServerHelper::instance().enableEventsImpl(uri, protocol);
 }
 
 

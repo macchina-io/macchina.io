@@ -39,10 +39,14 @@ public:
 
 	void event__countChanged(const void* pSender, const Poco::Int32& data);
 
+	void event__statusChanged(const void* pSender, const IoT::Devices::DeviceStatusChange& data);
+
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
 	void event__countChangedImpl(const std::string& subscriberURI, const Poco::Int32& data);
+
+	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
 	CounterRemoteObject* _pRemoteObject;

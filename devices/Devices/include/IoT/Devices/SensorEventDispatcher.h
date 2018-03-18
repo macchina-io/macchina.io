@@ -49,11 +49,15 @@ public:
 	virtual ~SensorEventDispatcher();
 		/// Destroys the SensorEventDispatcher.
 
+	void event__statusChanged(const void* pSender, const IoT::Devices::DeviceStatusChange& data);
+
 	void event__valueChanged(const void* pSender, const double& data);
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
+	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
+
 	void event__valueChangedImpl(const std::string& subscriberURI, const double& data);
 
 	static const std::string DEFAULT_NS;

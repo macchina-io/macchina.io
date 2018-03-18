@@ -43,10 +43,14 @@ public:
 
 	void event__barcodeRead(const void* pSender, const IoT::Devices::BarcodeReadEvent& data);
 
+	void event__statusChanged(const void* pSender, const IoT::Devices::DeviceStatusChange& data);
+
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
 	void event__barcodeReadImpl(const std::string& subscriberURI, const IoT::Devices::BarcodeReadEvent& data);
+
+	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
 	BarcodeReaderRemoteObject* _pRemoteObject;

@@ -119,6 +119,12 @@ public:
 		/// Convenience method that turns the LED on by
 		/// calling setBrightness(1.0).
 
+	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
+
+	virtual void remoting__enableRemoteEvents(const std::string& protocol);
+
+	virtual bool remoting__hasEvents() const;
+
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 	virtual void setBrightness(double brightness);
