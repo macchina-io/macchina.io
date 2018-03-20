@@ -39,7 +39,9 @@ class SensorRemoteObject: public IoT::Devices::ISensor, public Poco::RemotingNG:
 	///   - physicalQuantity (string): The physical quantity that is
 	///     being measured by the sensor, e.g. "temperature".
 	///   - physicalUnit (string): The physical unit the measured value
-	///     is being represented in (e.g. "°C"), UTF-8 encoded.
+	///     is being represented in (e.g. "Cel" for degree Celsius).
+	///     This should use the "c/s" symbols from the Unified Code for Units of Measure
+	///     (http://unitsofmeasure.org/ucum.html).
 	///     See the PHYSICAL_UNIT_* strings for predefined values.
 	///   - displayValue (string, optional): The current value of the sensor,
 	///     formatted as string for display purposes.
@@ -165,7 +167,7 @@ public:
 		/// Returns the current value measured by the sensor.
 		///
 		/// Some sensors may not be able to immediately report
-		/// a valid value. Therefore, before calling value() the first time, ready() 
+		/// a valid value. Therefore, before calling value() the first time, ready()
 		/// should be called to check if a valid value is available.
 
 protected:

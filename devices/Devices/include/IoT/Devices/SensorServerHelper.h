@@ -41,7 +41,9 @@ class SensorServerHelper
 	///   - physicalQuantity (string): The physical quantity that is
 	///     being measured by the sensor, e.g. "temperature".
 	///   - physicalUnit (string): The physical unit the measured value
-	///     is being represented in (e.g. "°C"), UTF-8 encoded.
+	///     is being represented in (e.g. "Cel" for degree Celsius).
+	///     This should use the "c/s" symbols from the Unified Code for Units of Measure
+	///     (http://unitsofmeasure.org/ucum.html).
 	///     See the PHYSICAL_UNIT_* strings for predefined values.
 	///   - displayValue (string, optional): The current value of the sensor,
 	///     formatted as string for display purposes.

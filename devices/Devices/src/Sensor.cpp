@@ -22,8 +22,8 @@ namespace IoT {
 namespace Devices {
 
 
-std::string Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS("°C");
-std::string Sensor::PHYSICAL_UNIT_DEGREES_FAHRENHEIT("°F");
+std::string Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS("Cel");
+std::string Sensor::PHYSICAL_UNIT_DEGREES_FAHRENHEIT("[degF]");
 std::string Sensor::PHYSICAL_UNIT_KELVIN("K");
 std::string Sensor::PHYSICAL_UNIT_METER("m");
 std::string Sensor::PHYSICAL_UNIT_KILOGRAM("kg");
