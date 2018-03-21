@@ -146,6 +146,7 @@ public:
 		u.code     = getString("unit/Code");
 		u.icode    = getString("unit/CODE");
 		u.metric   = getString("unit/isMetric") == "yes";
+		u.group    = getString("unit/class");
 		u.name     = getString("name");
 		u.print    = getString("printSymbol");
 		u.property = getString("property");

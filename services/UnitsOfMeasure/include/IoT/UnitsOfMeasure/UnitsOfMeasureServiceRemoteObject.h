@@ -57,11 +57,11 @@ public:
 		///
 		/// Returns the Unit, or a null pointer if not found.
 
-	virtual std::string print(const std::string& prefixedCode) const;
+	virtual std::string format(const std::string& prefixedCode) const;
 		/// Looks up the given unit code with optional prefix (e.g., "cm")
-		/// and returns a printable string.
+		/// and returns the "printable" string.
 		///
-		/// Throws a Poco::NotFoundException if no matching unit is found.
+		/// If not found, simply returns prefixedCode.
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
@@ -89,9 +89,9 @@ inline Poco::SharedPtr < IoT::UnitsOfMeasure::Unit > UnitsOfMeasureServiceRemote
 }
 
 
-inline std::string UnitsOfMeasureServiceRemoteObject::print(const std::string& prefixedCode) const
+inline std::string UnitsOfMeasureServiceRemoteObject::format(const std::string& prefixedCode) const
 {
-	return _pServiceObject->print(prefixedCode);
+	return _pServiceObject->format(prefixedCode);
 }
 
 

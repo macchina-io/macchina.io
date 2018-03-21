@@ -150,13 +150,13 @@ public:
 };
 
 
-class UnitsOfMeasureServicePrintMethodHandler: public Poco::RemotingNG::MethodHandler
+class UnitsOfMeasureServiceFormatMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"print","prefixedCode"};
+		static const std::string REMOTING__NAMES[] = {"format","prefixedCode"};
 		remoting__staticInitEnd(REMOTING__NAMES);
 		bool remoting__requestSucceeded = false;
 		try
@@ -166,11 +166,11 @@ public:
 			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, prefixedCode);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::UnitsOfMeasure::UnitsOfMeasureServiceRemoteObject* remoting__pCastedRO = static_cast<IoT::UnitsOfMeasure::UnitsOfMeasureServiceRemoteObject*>(remoting__pRemoteObject.get());
-			std::string remoting__return = remoting__pCastedRO->print(prefixedCode);
+			std::string remoting__return = remoting__pCastedRO->format(prefixedCode);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__staticInitBegin(REMOTING__REPLY_NAME);
-			static const std::string REMOTING__REPLY_NAME("printReply");
+			static const std::string REMOTING__REPLY_NAME("formatReply");
 			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			Poco::RemotingNG::TypeSerializer<std::string >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
@@ -270,7 +270,7 @@ UnitsOfMeasureServiceSkeleton::UnitsOfMeasureServiceSkeleton():
 {
 	addMethodHandler("findPrefix", new IoT::UnitsOfMeasure::UnitsOfMeasureServiceFindPrefixMethodHandler);
 	addMethodHandler("findUnit", new IoT::UnitsOfMeasure::UnitsOfMeasureServiceFindUnitMethodHandler);
-	addMethodHandler("print", new IoT::UnitsOfMeasure::UnitsOfMeasureServicePrintMethodHandler);
+	addMethodHandler("format", new IoT::UnitsOfMeasure::UnitsOfMeasureServiceFormatMethodHandler);
 	addMethodHandler("resolve", new IoT::UnitsOfMeasure::UnitsOfMeasureServiceResolveMethodHandler);
 }
 

@@ -50,7 +50,7 @@ public:
 	Prefix::Ptr findPrefix(const std::string& code) const;
 	Unit::Ptr findUnit(const std::string& code) const;
 	PrefixedUnit resolve(const std::string& code) const;
-	std::string print(const std::string& code) const;
+	std::string format(const std::string& code) const;
 
 private:
 	PrefixMap _prefixes;

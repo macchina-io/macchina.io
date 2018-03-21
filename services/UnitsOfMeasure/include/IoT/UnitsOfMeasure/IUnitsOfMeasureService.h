@@ -57,14 +57,14 @@ public:
 		///
 		/// Returns the Unit, or a null pointer if not found.
 
+	virtual std::string format(const std::string& prefixedCode) const = 0;
+		/// Looks up the given unit code with optional prefix (e.g., "cm")
+		/// and returns the "printable" string.
+		///
+		/// If not found, simply returns prefixedCode.
+
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
-
-	virtual std::string print(const std::string& prefixedCode) const = 0;
-		/// Looks up the given unit code with optional prefix (e.g., "cm")
-		/// and returns a printable string.
-		///
-		/// Throws a Poco::NotFoundException if no matching unit is found.
 
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();
 		/// Returns the TypeId of the class.

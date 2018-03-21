@@ -92,13 +92,20 @@ PrefixedUnit UnitsOfMeasureServiceImpl::resolve(const std::string& code) const
 }
 
 
-std::string UnitsOfMeasureServiceImpl::print(const std::string& code) const
+std::string UnitsOfMeasureServiceImpl::format(const std::string& code) const
 {
-	std::string result;
-	PrefixedUnit pu = resolve(code);
-	if (pu.prefix) result += pu.prefix->print;
-	result += pu.unit->print;
-	return result;
+	try
+	{
+		std::string result;
+		PrefixedUnit pu = resolve(code);
+		if (pu.prefix) result += pu.prefix->print;
+		result += pu.unit->print;
+		return result;
+	}
+	catch (Poco::NotFoundException&)
+	{
+		return code;
+	}
 }
 
 

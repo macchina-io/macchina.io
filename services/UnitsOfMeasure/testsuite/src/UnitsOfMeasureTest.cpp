@@ -75,6 +75,7 @@ void UnitsOfMeasureTest::testFindUnit()
 	assert (pUnit->metric);
 	assert (pUnit->unit == "kg.m/s2");
 	assert (pUnit->iunit == "KG.M/S2");
+	assert (pUnit->group == "si");
 	assert (pUnit->value == 1);
 }
 
@@ -100,10 +101,16 @@ void UnitsOfMeasureTest::testResolve()
 }
 
 
-void UnitsOfMeasureTest::testPrint()
+void UnitsOfMeasureTest::testFormat()
 {
-	std::string print = _pUoM->print("cm");
-	assert (print == "cm");
+	std::string format = _pUoM->format("cm");
+	assert (format == "cm");
+
+	format = _pUoM->format("[c]");
+	assert (format == "<i>c</i>");
+
+	format = _pUoM->format("xyz");
+	assert (format == "xyz");
 }
 
 
@@ -138,7 +145,7 @@ CppUnit::Test* UnitsOfMeasureTest::suite()
 	CppUnit_addTest(pSuite, UnitsOfMeasureTest, testFindBaseUnit);
 	CppUnit_addTest(pSuite, UnitsOfMeasureTest, testFindUnit);
 	CppUnit_addTest(pSuite, UnitsOfMeasureTest, testResolve);
-	CppUnit_addTest(pSuite, UnitsOfMeasureTest, testPrint);
+	CppUnit_addTest(pSuite, UnitsOfMeasureTest, testFormat);
 
 	return pSuite;
 }

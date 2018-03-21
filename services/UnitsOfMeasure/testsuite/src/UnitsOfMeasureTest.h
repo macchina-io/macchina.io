@@ -28,7 +28,7 @@ public:
 	void testFindBaseUnit();
 	void testFindUnit();
 	void testResolve();
-	void testPrint();
+	void testFormat();
 
 	void setUp();
 	void tearDown();

@@ -78,6 +78,10 @@ struct IoTUnitsOfMeasure_API Unit
 	std::string property;
 		/// physical quantity (e.g., "length", "temperature")
 
+	std::string group;
+		/// group (class) this unit belongs to, e.g.
+		/// "dimless", "si", "iso1000", "const", etc.
+
 	std::string dim;
 		/// dimension for base units, empty for derived units.
 		///   - L: Length
@@ -147,11 +151,11 @@ public:
 		///
 		/// Throws a Poco::NotFoundException if no matching unit is found.
 
-	virtual std::string print(const std::string& prefixedCode) const = 0;
+	virtual std::string format(const std::string& prefixedCode) const = 0;
 		/// Looks up the given unit code with optional prefix (e.g., "cm")
-		/// and returns a printable string.
+		/// and returns the "printable" string.
 		///
-		/// Throws a Poco::NotFoundException if no matching unit is found.
+		/// If not found, simply returns prefixedCode.
 };
 
 

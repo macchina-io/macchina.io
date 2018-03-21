@@ -40,18 +40,19 @@ public:
 	static void serializeImpl(const IoT::UnitsOfMeasure::Unit& value, Serializer& ser)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"code","dim","icode","iunit","metric","name","print","property","unit","value",""};
+		static const std::string REMOTING__NAMES[] = {"code","dim","group","icode","iunit","metric","name","print","property","unit","value",""};
 		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.code, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.dim, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.icode, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[3], value.iunit, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[4], value.metric, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[5], value.name, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[6], value.print, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[7], value.property, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[8], value.unit, ser);
-		TypeSerializer<double >::serialize(REMOTING__NAMES[9], value.value, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.group, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[3], value.icode, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[4], value.iunit, ser);
+		TypeSerializer<bool >::serialize(REMOTING__NAMES[5], value.metric, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[6], value.name, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[7], value.print, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[8], value.property, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[9], value.unit, ser);
+		TypeSerializer<double >::serialize(REMOTING__NAMES[10], value.value, ser);
 	}
 
 };

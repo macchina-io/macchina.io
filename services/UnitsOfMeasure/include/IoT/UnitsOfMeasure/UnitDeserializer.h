@@ -44,18 +44,19 @@ public:
 	static void deserializeImpl(Deserializer& deser, IoT::UnitsOfMeasure::Unit& value)
 	{
 		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"code","dim","icode","iunit","metric","name","print","property","unit","value"};
+		static const std::string REMOTING__NAMES[] = {"code","dim","group","icode","iunit","metric","name","print","property","unit","value"};
 		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.code);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.dim);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.icode);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[3], true, deser, value.iunit);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[4], true, deser, value.metric);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[5], true, deser, value.name);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[6], true, deser, value.print);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[7], true, deser, value.property);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[8], true, deser, value.unit);
-		TypeDeserializer<double >::deserialize(REMOTING__NAMES[9], true, deser, value.value);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.group);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[3], true, deser, value.icode);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[4], true, deser, value.iunit);
+		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[5], true, deser, value.metric);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[6], true, deser, value.name);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[7], true, deser, value.print);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[8], true, deser, value.property);
+		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[9], true, deser, value.unit);
+		TypeDeserializer<double >::deserialize(REMOTING__NAMES[10], true, deser, value.value);
 	}
 
 };
