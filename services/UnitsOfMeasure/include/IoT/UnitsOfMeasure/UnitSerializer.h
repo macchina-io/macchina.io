@@ -1,0 +1,65 @@
+//
+// UnitSerializer.h
+//
+// Package: Generated
+// Module:  TypeSerializer
+//
+// This file has been generated.
+// Warning: All changes to this will be lost when the file is re-generated.
+//
+// Copyright (c) 2018, Applied Informatics Software Engineering GmbH.
+// All rights reserved.
+// 
+// SPDX-License-Identifier: Apache-2.0
+//
+
+
+#ifndef TypeSerializer_IoT_UnitsOfMeasure_Unit_INCLUDED
+#define TypeSerializer_IoT_UnitsOfMeasure_Unit_INCLUDED
+
+
+#include "IoT/UnitsOfMeasure/UnitsOfMeasureService.h"
+#include "Poco/RemotingNG/TypeSerializer.h"
+
+
+namespace Poco {
+namespace RemotingNG {
+
+
+template <>
+class TypeSerializer<IoT::UnitsOfMeasure::Unit>
+{
+public:
+	static void serialize(const std::string& name, const IoT::UnitsOfMeasure::Unit& value, Serializer& ser)
+	{
+		ser.serializeStructBegin(name);
+		serializeImpl(value, ser);
+		ser.serializeStructEnd(name);
+	}
+
+	static void serializeImpl(const IoT::UnitsOfMeasure::Unit& value, Serializer& ser)
+	{
+		remoting__staticInitBegin(REMOTING__NAMES);
+		static const std::string REMOTING__NAMES[] = {"code","dim","icode","iunit","metric","name","print","property","unit","value",""};
+		remoting__staticInitEnd(REMOTING__NAMES);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.code, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.dim, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.icode, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[3], value.iunit, ser);
+		TypeSerializer<bool >::serialize(REMOTING__NAMES[4], value.metric, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[5], value.name, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[6], value.print, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[7], value.property, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[8], value.unit, ser);
+		TypeSerializer<double >::serialize(REMOTING__NAMES[9], value.value, ser);
+	}
+
+};
+
+
+} // namespace RemotingNG
+} // namespace Poco
+
+
+#endif // TypeSerializer_IoT_UnitsOfMeasure_Unit_INCLUDED
+

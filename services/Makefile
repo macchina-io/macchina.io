@@ -12,3 +12,4 @@ clean all:
 	$(MAKE) -C NetworkEnvironment $(MAKECMDGOALS)
 	$(MAKE) -C MobileConnection $(MAKECMDGOALS)
 	$(MAKE) -C MobileConnection/Legato $(MAKECMDGOALS)
+	$(MAKE) -C UnitsOfMeasure $(MAKECMDGOALS)

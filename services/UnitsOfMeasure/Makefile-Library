@@ -1,0 +1,21 @@
+#
+# Makefile-Library
+#
+# Makefile for IoT UnitsOfMeasure Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = IUnitsOfMeasureService \
+	UnitsOfMeasureService \
+	UnitsOfMeasureServiceRemoteObject \
+	UnitsOfMeasureServiceServerHelper \
+	UnitsOfMeasureServiceSkeleton \
+	UnitsOfMeasureServiceImpl \
+	UCUMEssenceParser
+
+target         = IoTUnitsOfMeasure
+target_version = 1
+target_libs    = PocoRemotingNG PocoOSP PocoZip PocoUtil PocoJSON PocoXML PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>macchina.io Units of Measure Service</name>
+    <symbolicName>io.macchina.services.unitsofmeasure</symbolicName>
+    <version>1.0.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>IoT::UnitsOfMeasure::BundleActivator</class>
+      <library>io.macchina.services.unitsofmeasure</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>000</runLevel>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../${bin}/IoTUnitsOfMeasure${64}.dll,
+    ../../${bin}/IoTUnitsOfMeasure${64}d.dll,
+    ../../${bin}/IoTUnitsOfMeasure${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../lib/${osName}/${osArch}/libIoTUnitsOfMeasure.so.*,
+    ../../lib/${osName}/${osArch}/libIoTUnitsOfMeasured.so.*,
+    ../../lib/${osName}/${osArch}/libIoTUnitsOfMeasure.*.dylib,
+    ../../lib/${osName}/${osArch}/libIoTUnitsOfMeasured.*.dylib
+  </code>
+  <files>
+  	bundle/*
+  </files>
+</bundlespec>
