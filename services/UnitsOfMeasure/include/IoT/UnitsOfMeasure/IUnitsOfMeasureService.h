@@ -47,6 +47,13 @@ public:
 	virtual ~IUnitsOfMeasureService();
 		/// Destroys the IUnitsOfMeasureService.
 
+	virtual IoT::UnitsOfMeasure::CanonicalValue canonicalize(double value, const std::string& prefixedCode) const = 0;
+		/// Removes the prefix from the code and scales the value accordingly.
+
+	virtual double convert(double value, const std::string& fromPrefixedCode, const std::string& toPrefixedCode) const = 0;
+		/// Converts the value from one unit (given in fromPrefixedCode) to a different one (given in
+		/// toPrefixedCode). Conversion only works if both units share the same base unit.
+
 	virtual Poco::SharedPtr < IoT::UnitsOfMeasure::Prefix > findPrefix(const std::string& code) const = 0;
 		/// Looks up the prefix with the given code.
 		///

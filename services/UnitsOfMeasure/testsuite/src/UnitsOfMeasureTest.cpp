@@ -15,7 +15,7 @@
 #include "Poco/Path.h"
 #include "Poco/FileStream.h"
 #include "Poco/Exception.h"
-
+#include <iostream>
 
 using namespace IoT::UnitsOfMeasure;
 
@@ -114,6 +114,37 @@ void UnitsOfMeasureTest::testFormat()
 }
 
 
+void UnitsOfMeasureTest::testCanonicalize()
+{
+	CanonicalValue can = _pUoM->canonicalize(10, "km");
+	assert (can.code == "m");
+	assert (can.value == 10000);
+
+	can = _pUoM->canonicalize(100, "cm");
+	assert (can.code == "m");
+	assert (can.value == 1);
+}
+
+
+void UnitsOfMeasureTest::testConvert()
+{
+	double value = _pUoM->convert(1, "[nmi_i]", "m");
+	assert (value == 1852);
+
+	value = _pUoM->convert(1, "[nmi_i]", "km");
+	assertEqualDelta (1.852, value, 0.0001);
+
+	value = _pUoM->convert(30, "Cel", "[degF]");
+	assertEqualDelta (86, value, 0.1);
+
+	value = _pUoM->convert(86, "[degF]", "Cel");
+	assertEqualDelta (30, value, 0.1);
+
+	value = _pUoM->convert(10, "[nmi_i]", "[mi_i]");
+	assertEqualDelta (11.5078, value, 0.0001);
+}
+
+
 void UnitsOfMeasureTest::setUp()
 {
 	_pUoM = new UnitsOfMeasureServiceImpl;
@@ -146,6 +177,8 @@ CppUnit::Test* UnitsOfMeasureTest::suite()
 	CppUnit_addTest(pSuite, UnitsOfMeasureTest, testFindUnit);
 	CppUnit_addTest(pSuite, UnitsOfMeasureTest, testResolve);
 	CppUnit_addTest(pSuite, UnitsOfMeasureTest, testFormat);
+	CppUnit_addTest(pSuite, UnitsOfMeasureTest, testCanonicalize);
+	CppUnit_addTest(pSuite, UnitsOfMeasureTest, testConvert);
 
 	return pSuite;
 }

@@ -51,6 +51,14 @@ public:
 	Unit::Ptr findUnit(const std::string& code) const;
 	PrefixedUnit resolve(const std::string& code) const;
 	std::string format(const std::string& code) const;
+	CanonicalValue canonicalize(double value, const std::string& prefixedCode) const;
+	double convert(double value, const std::string& fromPrefixedCode, const std::string& toPrefixedCode) const;
+
+protected:
+	CanonicalValue convertToBase(double value, const std::string& code) const;
+	double convertFromBase(double value, const std::string& code, const std::string& base) const;
+	PrefixedUnit tryResolve(const std::string& code) const;
+	CanonicalValue reverseCanonicalize(double value, const std::string& prefixedCode) const;
 
 private:
 	PrefixMap _prefixes;

@@ -47,6 +47,13 @@ public:
 	virtual ~UnitsOfMeasureServiceRemoteObject();
 		/// Destroys the UnitsOfMeasureServiceRemoteObject.
 
+	IoT::UnitsOfMeasure::CanonicalValue canonicalize(double value, const std::string& prefixedCode) const;
+		/// Removes the prefix from the code and scales the value accordingly.
+
+	virtual double convert(double value, const std::string& fromPrefixedCode, const std::string& toPrefixedCode) const;
+		/// Converts the value from one unit (given in fromPrefixedCode) to a different one (given in
+		/// toPrefixedCode). Conversion only works if both units share the same base unit.
+
 	Poco::SharedPtr < IoT::UnitsOfMeasure::Prefix > findPrefix(const std::string& code) const;
 		/// Looks up the prefix with the given code.
 		///
@@ -75,6 +82,18 @@ public:
 private:
 	Poco::SharedPtr<IoT::UnitsOfMeasure::UnitsOfMeasureService> _pServiceObject;
 };
+
+
+inline IoT::UnitsOfMeasure::CanonicalValue UnitsOfMeasureServiceRemoteObject::canonicalize(double value, const std::string& prefixedCode) const
+{
+	return _pServiceObject->canonicalize(value, prefixedCode);
+}
+
+
+inline double UnitsOfMeasureServiceRemoteObject::convert(double value, const std::string& fromPrefixedCode, const std::string& toPrefixedCode) const
+{
+	return _pServiceObject->convert(value, fromPrefixedCode, toPrefixedCode);
+}
 
 
 inline Poco::SharedPtr < IoT::UnitsOfMeasure::Prefix > UnitsOfMeasureServiceRemoteObject::findPrefix(const std::string& code) const

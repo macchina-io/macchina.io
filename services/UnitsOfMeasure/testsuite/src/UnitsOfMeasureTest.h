@@ -29,6 +29,8 @@ public:
 	void testFindUnit();
 	void testResolve();
 	void testFormat();
+	void testCanonicalize();
+	void testConvert();
 
 	void setUp();
 	void tearDown();

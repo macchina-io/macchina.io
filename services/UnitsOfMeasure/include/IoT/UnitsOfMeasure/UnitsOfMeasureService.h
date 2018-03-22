@@ -32,7 +32,7 @@ struct IoTUnitsOfMeasure_API Prefix
 {
 	typedef Poco::SharedPtr<Prefix> Ptr;
 
-	Prefix(): value(0) { };
+	Prefix(): value(0) { }
 
 	std::string code;
 		/// case-sensitive code (e.g. "k")
@@ -57,7 +57,7 @@ struct IoTUnitsOfMeasure_API Unit
 {
 	typedef Poco::SharedPtr<Unit> Ptr;
 
-	Unit(): metric(false), value(0) { };
+	Unit(): metric(false), value(0) { }
 
 	std::string code;
 		/// case-sensitive code (e.g. "m")
@@ -115,6 +115,18 @@ struct PrefixedUnit
 };
 
 
+//@ serialize
+struct CanonicalValue
+	/// A canonical value, obtained by removing the prefix from a unit
+	/// and scaling the value accordingly.
+{
+	CanonicalValue(): value(0) { }
+
+	double value;
+	std::string code;
+};
+
+
 //@ remote
 class IoTUnitsOfMeasure_API UnitsOfMeasureService
 	/// The UnitsOfMeasureService service is mainly used to map
@@ -156,6 +168,19 @@ public:
 		/// and returns the "printable" string.
 		///
 		/// If not found, simply returns prefixedCode.
+
+	virtual CanonicalValue canonicalize(double value, const std::string& prefixedCode) const = 0;
+		/// Removes the prefix from the code and scales the value accordingly.
+
+	virtual double convert(double value, const std::string& fromPrefixedCode, const std::string& toPrefixedCode) const = 0;
+		/// Attempts to convert the value from one unit (given in fromPrefixedCode) to a different one
+		/// (given in toPrefixedCode). Conversion only works if both units share the same base unit,
+		/// which must be atomic. Unfortunately, this means that conversion only works for
+		/// a small set of unit pairs, e.g. from km to nautical miles [nmi_i].
+		///
+		/// Temperature conversions between degrees Celsius ("Cel"), degrees Fahrenheit ("[degF]") and Kelvin ("K") are supported.
+		///
+		/// Throws a Poco::InvalidArgumentException if the conversion cannot be performed.
 };
 
 
