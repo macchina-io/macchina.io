@@ -285,7 +285,7 @@ public:
 
 		// humidity
 		params.physicalQuantity = "humidity";
-		params.physicalUnit = "%RH";
+		params.physicalUnit = "%";
 
 		try
 		{
@@ -411,7 +411,7 @@ public:
 		params.serviceUUID = "92dab060-7634-11e4-82f8-0800200c9a66";
 		params.dataUUID    = "92dab063-7634-11e4-82f8-0800200c9a66";
 		params.physicalQuantity = "humidity";
-		params.physicalUnit = "%RH";
+		params.physicalUnit = "%";
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".humidity.pollInterval", 10000);
 
 		try

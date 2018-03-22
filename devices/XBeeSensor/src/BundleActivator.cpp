@@ -48,11 +48,11 @@ public:
 	BundleActivator()
 	{
 	}
-	
+
 	~BundleActivator()
 	{
 	}
-	
+
 	void createSensor(IXBeeNode::Ptr pXBeeNode, const XBeeSensor::Params& params)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor> ServerHelper;
@@ -74,21 +74,21 @@ public:
 		oid += params.id;
 
 		ServerHelper::RemoteObjectPtr pSensorRemoteObject = ServerHelper::createRemoteObject(pSensor, oid);
-		
+
 		Properties props;
 		props.set("io.macchina.device", XBeeSensor::SYMBOLIC_NAME);
 		props.set("io.macchina.deviceType", XBeeSensor::TYPE);
 		props.set("io.macchina.physicalQuantity", params.physicalQuantity);
-		
+
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pSensorRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
-	
+
 	void start(BundleContext::Ptr pContext)
 	{
 		_pContext = pContext;
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
-		
+
 		Poco::Util::AbstractConfiguration::Keys keys;
 		_pPrefs->configuration()->keys("xbee.sensors", keys);
 		int index = 0;
@@ -108,10 +108,10 @@ public:
 				lastChannel = 2;
 			else
 				pContext->logger().warning(Poco::format("Invalid sensor type \"%s\"; valid types are \"LT\" and \"LTH\".", type));
-			
+
 			for (int channel = 1; channel <= lastChannel; channel++)
 			{
-				params.analogChannel = channel;	
+				params.analogChannel = channel;
 				switch (params.analogChannel)
 				{
 				case 1:
@@ -124,7 +124,7 @@ public:
 					break;
 				case 3:
 					params.physicalQuantity = "humidity";
-					params.physicalUnit = "%RH";
+					params.physicalUnit = "%";
 					break;
 				}
 
@@ -135,13 +135,13 @@ public:
 				}
 				catch (Poco::Exception& exc)
 				{
-					pContext->logger().error(Poco::format("Cannot create XBee Sensor: %s", exc.displayText())); 
+					pContext->logger().error(Poco::format("Cannot create XBee Sensor: %s", exc.displayText()));
 				}
 			}
 			index++;
 		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		for (std::vector<ServiceRef::Ptr>::iterator it = _serviceRefs.begin(); it != _serviceRefs.end(); ++it)
@@ -153,7 +153,7 @@ public:
 		_pPrefs = 0;
 		_pContext = 0;
 	}
-	
+
 private:
 	BundleContext::Ptr _pContext;
 	PreferencesService::Ptr _pPrefs;

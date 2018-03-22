@@ -18,7 +18,7 @@ namespace Tf {
 
 
 HumiditySensor::HumiditySensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.humidity", "Tinkerforge Humidity Bricklet", "io.macchina.sensor", "humidity", "%RH"),
+	BrickletType("io.macchina.tf.humidity", "Tinkerforge Humidity Bricklet", "io.macchina.sensor", "humidity", "%"),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
 	addProperty("displayValue", &HumiditySensor::getDisplayValue);
@@ -27,7 +27,7 @@ HumiditySensor::HumiditySensor(MasterConnection::Ptr pMasterConn, const std::str
 
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	humidity_create(&_humidity, uid.c_str(), ipcon);
-	
+
 	char deviceUID[8];
 	char masterUID[8];
 	char position;
@@ -38,12 +38,12 @@ HumiditySensor::HumiditySensor(MasterConnection::Ptr pMasterConn, const std::str
 	{
 		setIdentity(deviceUID, masterUID, position, hardwareVersion, firmwareVersion, deviceType);
 	}
-	
+
 	humidity_register_callback(&_humidity, HUMIDITY_CALLBACK_HUMIDITY, reinterpret_cast<void*>(onHumidityChanged), this);
 	humidity_set_humidity_callback_period(&_humidity, 1000);
 }
 
-	
+
 HumiditySensor::~HumiditySensor()
 {
 	humidity_destroy(&_humidity);

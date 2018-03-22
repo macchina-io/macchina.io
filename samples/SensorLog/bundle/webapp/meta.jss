@@ -17,18 +17,38 @@ var index = 0;
 for (var id in sensors)
 {
 	var sensor = sensors[id].sensor;
-	var physicalQuantity = sensor.getPropertyString('physicalQuantity');
-	var physicalUnit = sensor.getPropertyString('physicalUnit');
+	var physicalQuantity;
+	if (sensor.hasProperty('physicalQuantity'))
+		physicalQuantity = sensor.getPropertyString('physicalQuantity');
+	else
+		physicalQuantity = '';
+	var physicalUnit;
+	var displayUnit;
+	if (sensor.hasProperty('physicalUnit'))
+	{
+		physicalUnit = sensor.getPropertyString('physicalUnit');
+		var uomRef = serviceRegistry.findByName('io.macchina.services.unitsofmeasure');
+		if (uomRef)
+			displayUnit = uomRef.instance().format(physicalUnit);
+		else
+			displayUnit = physicalUnit;
+	}
+	else
+	{
+		physicalUnit = '';
+		displayUnit = '';
+	}
 	var title = sensors[id].title;
 	if (!title) title = physicalQuantity;
 	var color = sensors[id].color;
 	if (!color) color = colors[index % colors.length];
-	
+
 	data[id] = {
 	    id: id,
 	    index: index++,
 		physicalQuantity: physicalQuantity,
 		physicalUnit: physicalUnit,
+		displayUnit: displayUnit,
 		title: title,
 		color: color
 	};

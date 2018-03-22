@@ -31,14 +31,24 @@ for (var i = 0; i < deviceRefs.length; i++)
 		if (device.hasProperty("physicalUnit"))
 		{
 			deviceInfo.physicalUnit = device.getPropertyString("physicalUnit");
+			var uomRef = serviceRegistry.findByName('io.macchina.services.unitsofmeasure');
+			if (uomRef)
+			{
+				deviceInfo.displayUnit = uomRef.instance().format(deviceInfo.physicalUnit);
+			}
+			else
+			{
+				deviceInfo.displayUnit = deviceInfo.physicalUnit;
+			}
 		}
 		else
 		{
 			deviceInfo.physicalUnit = "";
+			deviceInfo.displayUnit = "";
 		}
 		if (device.hasProperty("displayValue"))
 		{
-			deviceInfo.displayValue = device.getPropertyString("displayValue") + " " + deviceInfo.physicalUnit;
+			deviceInfo.displayValue = device.getPropertyString("displayValue") + " " + deviceInfo.displayUnit;
 		}
 		else if (device.hasProperty("displayState"))
 		{

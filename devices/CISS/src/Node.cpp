@@ -31,7 +31,7 @@ Node::Node(const std::string& id, Poco::SharedPtr<NPIPort> pPort):
 	_logger(Poco::Logger::get("IoT.CISS.Node"))
 {
 	_pTemperature   = new Sensor(*this, CISS_SENSOR_ENVIRONMENTAL, CISS_STREAM_TEMPERATURE, "temperature", IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS);
-	_pHumidity      = new Sensor(*this, CISS_SENSOR_ENVIRONMENTAL, CISS_STREAM_HUMIDITY, "humidity", "%RH");
+	_pHumidity      = new Sensor(*this, CISS_SENSOR_ENVIRONMENTAL, CISS_STREAM_HUMIDITY, "humidity", "%");
 	_pPressure      = new Sensor(*this, CISS_SENSOR_ENVIRONMENTAL, CISS_STREAM_PRESSURE, "airPressure", "hPa");
 	_pLight         = new Sensor(*this, CISS_SENSOR_LIGHT, CISS_STREAM_LIGHT, "illuminance", IoT::Devices::Sensor::PHYSICAL_UNIT_LUX);
 	_pAccelerometer = new Accelerometer(*this);

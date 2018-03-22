@@ -104,7 +104,7 @@ sensorLogControllers.controller('sensorLogCtrl', ['$scope', '$http', '$interval'
         $timeout(function() {
           for (var id in $scope.sensors)
           {
-            charts[id] = $scope.createSensorChart($scope.sensors[id].index, id, $scope.sensors[id].physicalUnit, $scope.sensors[id].color);
+            charts[id] = $scope.createSensorChart($scope.sensors[id].index, id, $scope.sensors[id].displayUnit, $scope.sensors[id].color);
           }
         }, 200);
 
