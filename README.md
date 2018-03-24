@@ -14,7 +14,7 @@ macchina.io is based on the [POCO C++ Libraries](http://pocoproject.org) and
 uses the [V8 JavaScript engine](https://code.google.com/p/v8/).
 
 For more information, including documentation, please see the
-[macchina.io website](http://macchina.io).
+[macchina.io website](https://macchina.io).
 
 
 Build Status
