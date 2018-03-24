@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>macchina.io CAN Devices</name>
+    <symbolicName>io.macchina.can.devices</symbolicName>
+    <version>1.0.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+    <lazyStart>false</lazyStart>
+    <runLevel>000</runLevel>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../${bin}/IoTCANDevices${64}.dll,
+    ../../${bin}/IoTCANDevices${64}d.dll,
+    ../../${bin}/IoTCANDevices${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../lib/${osName}/${osArch}/libIoTCANDevices.so.*,
+    ../../lib/${osName}/${osArch}/libIoTCANDevicesd.so.*,
+    ../../lib/${osName}/${osArch}/libIoTCANDevices.*.dylib,
+    ../../lib/${osName}/${osArch}/libIoTCANDevicesd.*.dylib
+  </code>
+</bundlespec>
