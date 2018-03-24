@@ -1,14 +1,14 @@
 ![macchina.io][logo]
 
-*A toolkit for embedded IoT Edge and Fog Computing applications that connect sensors, devices and cloud services.*
+*macchina.io is a powerful application software platform for IoT devices.*
 
-macchina.io is a software toolkit for quickly building device applications
-for the Internet of Things running on Linux-based devices like the Raspberry Pi,
-Beaglebone or MangOH. macchina.io implements a web-enabled, modular and extensible C++
-and JavaScript runtime environment and provides easy to use building blocks.
-These enable applications to talk to various sensors, devices and cloud services, and to
-process, analyze and filter sensor data locally, at the edge device or within the local
-network ("fog").
+With macchina.io you can rapidly build and deploy device applications that communicate with devices, sensors, actuators, cloud services, and humans.
+
+macchina.io provides a web-enabled, secure, modular and extensible C++ and JavaScript IoT application environment on top of Linux, consisting of middleware, protocols and rich APIs.
+macchina.io provides ready-to-use and industry proven software building blocks that enable applications to collect, process, filter, analyze and visualize sensor, machine and process data locally, directly where it originates, and where the action happens.
+macchina.io enables IoT edge and fog computing.
+
+macchina.io runs on Linux-based devices, including IoT gateways, industrial computing devices, and prototyping platforms like the Raspberry Pi, Beaglebone and MangOH.
 
 macchina.io is based on the [POCO C++ Libraries](http://pocoproject.org) and
 uses the [V8 JavaScript engine](https://code.google.com/p/v8/).
