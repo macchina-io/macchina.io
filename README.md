@@ -11,7 +11,7 @@ macchina.io enables IoT edge and fog computing.
 macchina.io runs on Linux-based devices, including IoT gateways, industrial computing devices, and prototyping platforms like the Raspberry Pi, Beaglebone and MangOH.
 
 macchina.io is based on the [POCO C++ Libraries](http://pocoproject.org) and
-uses the [V8 JavaScript engine](https://code.google.com/p/v8/).
+uses the [V8 JavaScript engine](https://developers.google.com/v8/).
 
 For more information, including documentation, please see the
 [macchina.io website](https://macchina.io).
