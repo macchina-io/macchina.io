@@ -18,6 +18,21 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
       upgrade: false
     };
 
+    $scope.protectedBundles = [
+    	'poco.net',
+    	'osp.web'
+    ];
+
+    $scope.protectedBundlesHTTP = [
+    	'osp.web.server'
+    ];
+
+    $scope.protectedBundlesHTTPS = [
+    	'poco.crypto',
+    	'poco.net.ssl',
+    	'osp.web.server.secure'
+    ];
+
     $scope.isActive = function(viewLocation) {
       return viewLocation === $location.path();
     };
@@ -74,6 +89,25 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
       $scope.error = "";
     };
 
+    $scope.canStopBundle = function() {
+      if (!$scope.bundle) return false;
+
+      if ($scope.protectedBundles.indexOf($scope.bundle.symbolicName) > -1)
+      	return false;
+
+      if (location.protocol === 'https:')
+      {
+        if ($scope.protectedBundlesHTTPS.indexOf($scope.bundle.symbolicName) > -1)
+          return false;
+      }
+      else
+      {
+        if ($scope.protectedBundlesHTTP.indexOf($scope.bundle.symbolicName) > -1)
+          return false;
+      }
+      return true;
+    };
+
     $scope.reloadBundle = function() {
       if ($scope.bundle)
       {
@@ -97,12 +131,11 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
     $scope.stopBundle = function() {
       if ($scope.bundle)
       {
-        var doStop = true;
         if ($scope.bundle.requiredBy.length > 0)
         {
-          doStop = confirm("Other bundles depend on this bundle and may stop working.\nStop bundle " + $scope.bundle.symbolicName + "?");
+          $scope.showConfirmStop();
         }
-        if (doStop)
+        else
         {
           BundleService.stop($scope.bundle,
             function(state) {
@@ -115,25 +148,37 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
       }
     };
 
-    $scope.stopBundleAndDeps = function() {
+    $scope.confirmStop = function() {
+      $scope.hideConfirmStop();
       if ($scope.bundle)
       {
-        var doStop = true;
-        if ($scope.bundle.requiredBy.length > 0)
-        {
-          doStop = confirm("Stop bundle " + $scope.bundle.symbolicName + " and all depending bundles?");
-        }
-        if (doStop)
-        {
-          BundleService.stopAll($scope.bundle,
-            function(state) {
-              $scope.setBundleState(state);
-            },
-            function(error) {
-              $scope.setError("Failed to stop bundle: " + error);
-            });
-        }
+        BundleService.stop($scope.bundle,
+          function(state) {
+            $scope.setBundleState(state);
+          },
+          function(error) {
+            $scope.setError("Failed to stop bundle: " + error);
+          });
       }
+    };
+
+    $scope.confirmStopAll = function() {
+      $scope.hideConfirmStop();
+      if ($scope.bundle)
+      {
+        BundleService.stopAll($scope.bundle,
+          function(state) {
+            $scope.setBundleState(state);
+          },
+          function(error) {
+            $scope.setError("Failed to stop bundle: " + error);
+          });
+      }
+    };
+
+    $scope.cancelStop = function() {
+      $scope.hideConfirmStop();
+      return false;
     };
 
     $scope.resolveBundle = function() {
@@ -171,6 +216,25 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
             });
         }
       }
+    };
+
+    $scope.showConfirmStop = function() {
+      $('#modalBackground').css('display', 'block');
+      $('#confirmStop').css('display', 'block');
+      $(document).on('keyup.confirmStop',
+        function(e) {
+          if (e.keyCode == 27)
+          {
+            $scope.hideConfirmStop();
+          }
+        }
+      );
+    };
+
+    $scope.hideConfirmStop = function() {
+    	$('#modalBackground').css('display', 'none');
+    	$('#confirmStop').css('display', 'none');
+    	$(document).unbind('keyup.confirmStop');
     };
 
     $rootScope.$on('$routeChangeStart', function(event, next, current) {

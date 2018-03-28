@@ -6,6 +6,7 @@
     <title>macchina.io - Bundles</title>
     <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
     <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/macchina/bundles/css/styles.css" type="text/css"/>
     <link rel="icon" href="/images/favicon.ico">
     <script type="text/javascript" src="/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="/angular/angular.min.js"></script>
@@ -41,11 +42,8 @@
                 <li ng-show="!isActive('/bundles') && allowedBundleActions.start">
                   <i class="fa fa-play"></i> <a ng-click="startBundle()">Start</a>
                 </li>
-                <li ng-show="!isActive('/bundles') && allowedBundleActions.stop">
+                <li ng-show="!isActive('/bundles') && canStopBundle() && allowedBundleActions.stop">
                   <i class="fa fa-stop"></i> <a ng-click="stopBundle()">Stop</a>
-                </li>
-                <li ng-show="!isActive('/bundles') && allowedBundleActions.stop">
-                  <i class="fa fa-stop"></i> <a ng-click="stopBundleAndDeps()">Stop All</a>
                 </li>
                 <li ng-show="!isActive('/bundles') && allowedBundleActions.resolve">
                   <i class="fa fa-check-square"></i> <a ng-click="resolveBundle()">Resolve</a>
