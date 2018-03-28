@@ -36,7 +36,7 @@ public:
 		_form(form)
 	{
 	}
-	
+
 	void handlePart(const Poco::Net::MessageHeader& header, std::istream& stream)
 	{
 		std::string symbolicName;
@@ -57,12 +57,12 @@ public:
 			}
 		}
 	}
-	
+
 	Poco::OSP::Bundle::Ptr bundle() const
 	{
 		return _pBundle;
 	}
-		
+
 private:
 	Poco::OSP::BundleInstallerService::Ptr _pInstaller;
 	Poco::Net::HTMLForm& _form;
@@ -99,7 +99,7 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 		response.send();
 		return;
 	}
-	
+
 	std::string symbolicName;
 	std::string bundleState;
 	std::string error;
@@ -167,6 +167,10 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 				{
 					pBundle->stop();
 				}
+				else if (action == "stopAll")
+				{
+					stopAll(pBundle);
+				}
 				else if (action == "resolve")
 				{
 					pBundle->resolve();
@@ -189,7 +193,7 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 			error = "Bundle not found";
 		}
 	}
-	
+
 	response.setContentType("application/json");
 	response.setChunkedTransferEncoding(true);
 	response.send()
@@ -198,6 +202,40 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 		<< "\"bundleState\":" << Utility::jsonize(bundleState) << ","
 		<< "\"error\":" << Utility::jsonize(error)
 		<< "}";
+}
+
+
+void BundleActionsRequestHandler::stopAll(Poco::OSP::Bundle::Ptr pBundle)
+{
+	BundleVec depending;
+	dependingBundles(pBundle, depending);
+	for (BundleVec::iterator it = depending.begin(); it != depending.end(); ++it)
+	{
+		if ((*it)->isStarted()) stopAll(*it);
+	}
+	pBundle->stop();
+}
+
+
+void BundleActionsRequestHandler::dependingBundles(Poco::OSP::Bundle::Ptr pBundle, BundleVec& dependingBundles)
+{
+	BundleVec bundles;
+	context()->listBundles(bundles);
+	for (BundleVec::const_iterator it = bundles.begin(); it != bundles.end(); ++it)
+	{
+		if ((*it)->isStarted())
+		{
+			const Poco::OSP::BundleManifest::Dependencies& deps = (*it)->requiredBundles();
+			for (Poco::OSP::BundleManifest::Dependencies::const_iterator itDep = deps.begin(); itDep != deps.end(); ++itDep)
+			{
+				if (itDep->symbolicName == pBundle->symbolicName())
+				{
+					dependingBundles.push_back(*it);
+					break;
+				}
+			}
+		}
+	}
 }
 
 

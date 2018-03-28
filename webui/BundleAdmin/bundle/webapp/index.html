@@ -44,6 +44,9 @@
                 <li ng-show="!isActive('/bundles') && allowedBundleActions.stop">
                   <i class="fa fa-stop"></i> <a ng-click="stopBundle()">Stop</a>
                 </li>
+                <li ng-show="!isActive('/bundles') && allowedBundleActions.stop">
+                  <i class="fa fa-stop"></i> <a ng-click="stopBundleAndDeps()">Stop All</a>
+                </li>
                 <li ng-show="!isActive('/bundles') && allowedBundleActions.resolve">
                   <i class="fa fa-check-square"></i> <a ng-click="resolveBundle()">Resolve</a>
                 </li>

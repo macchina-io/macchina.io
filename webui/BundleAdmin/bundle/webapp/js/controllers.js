@@ -6,10 +6,10 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
   function ($scope, $rootScope, $location, BundleService) {
     $scope.information = "";
     $scope.error = "";
-    
+
     $scope.bundle = null;
     $scope.enableBundleUpgrade = false;
-    
+
     $scope.allowedBundleActions = {
       start: false,
       stop: false,
@@ -17,11 +17,11 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
       uninstall: false,
       upgrade: false
     };
-    
+
     $scope.isActive = function(viewLocation) {
       return viewLocation === $location.path();
     };
-    
+
     $scope.setAllowedBundleActions = function(state) {
       $scope.allowedBundleActions = {
         start: state == "resolved",
@@ -31,7 +31,7 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
         upgrade: state != "active" && state != "uninstalled"
       };
     };
-    
+
     $scope.setBundle = function(bundle) {
       $scope.bundle = bundle;
       if (bundle)
@@ -49,7 +49,7 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
         };
       }
     };
-    
+
     $scope.setBundleState = function(state) {
       if ($scope.bundle)
       {
@@ -57,37 +57,37 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
         $scope.setAllowedBundleActions(state);
       }
     };
-    
+
     $scope.setError = function(msg) {
       $scope.error = msg;
     };
-    
+
     $scope.setInformation = function(msg) {
       $scope.information = msg;
     };
-    
+
     $scope.clearInformation = function() {
       $scope.information = "";
     };
-    
+
     $scope.clearError = function() {
       $scope.error = "";
     };
-    
+
     $scope.reloadBundle = function() {
       if ($scope.bundle)
       {
         $scope.$broadcast("reloadBundle");
       }
     };
-    
+
     $scope.startBundle = function() {
       if ($scope.bundle)
       {
-        BundleService.start($scope.bundle, 
+        BundleService.start($scope.bundle,
           function(state) {
             $scope.setBundleState(state);
-          }, 
+          },
           function(error) {
             $scope.setError("Failed to start bundle: " + error);
           });
@@ -100,14 +100,35 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
         var doStop = true;
         if ($scope.bundle.requiredBy.length > 0)
         {
-          doStop = confirm("Other bundles depend on this bundle and will be stopped as well.\nStop bundle " + $scope.bundle.symbolicName + "?");
+          doStop = confirm("Other bundles depend on this bundle and may stop working.\nStop bundle " + $scope.bundle.symbolicName + "?");
         }
         if (doStop)
         {
           BundleService.stop($scope.bundle,
             function(state) {
               $scope.setBundleState(state);
-            }, 
+            },
+            function(error) {
+              $scope.setError("Failed to stop bundle: " + error);
+            });
+        }
+      }
+    };
+
+    $scope.stopBundleAndDeps = function() {
+      if ($scope.bundle)
+      {
+        var doStop = true;
+        if ($scope.bundle.requiredBy.length > 0)
+        {
+          doStop = confirm("Stop bundle " + $scope.bundle.symbolicName + " and all depending bundles?");
+        }
+        if (doStop)
+        {
+          BundleService.stopAll($scope.bundle,
+            function(state) {
+              $scope.setBundleState(state);
+            },
             function(error) {
               $scope.setError("Failed to stop bundle: " + error);
             });
@@ -121,7 +142,7 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
         BundleService.resolve($scope.bundle,
           function(state) {
             $scope.setBundleState(state);
-          }, 
+          },
           function(error) {
             $scope.setError("Failed to resolve bundle: " + error);
           });
@@ -141,17 +162,17 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
       {
         if (confirm("Uninstall bundle " + $scope.bundle.symbolicName + "?\nThis cannot be undone."))
         {
-          BundleService.uninstall($scope.bundle, 
+          BundleService.uninstall($scope.bundle,
             function(state) {
               $scope.setBundleState(state);
-            }, 
+            },
             function(error) {
               $scope.setError("Failed to uninstall bundle: " + error);
             });
         }
       }
-    };  
-    
+    };
+
     $rootScope.$on('$routeChangeStart', function(event, next, current) {
       $scope.clearError();
       $scope.clearInformation();
@@ -177,7 +198,7 @@ bundleControllers.controller('BundleListCtrl', ['$scope', '$http',
 bundleControllers.controller('BundleDetailCtrl', ['$scope', '$http', '$routeParams',
   function ($scope, $http, $routeParams) {
     $scope.bundles = [];
-    
+
     $scope.loadBundle = function() {
       $http.get('/macchina/bundles/bundle.json?symbolicName=' + $routeParams.symbolicName).success(
         function(data) {
@@ -188,7 +209,7 @@ bundleControllers.controller('BundleDetailCtrl', ['$scope', '$http', '$routePara
     };
 
     $scope.loadBundle();
-    $scope.$on('reloadBundle', 
+    $scope.$on('reloadBundle',
       function(event) {
         $scope.loadBundle();
       }
@@ -199,13 +220,13 @@ bundleControllers.controller('BundleDetailCtrl', ['$scope', '$http', '$routePara
 bundleControllers.controller('InstallCtrl', ['$scope', '$upload',
   function($scope, $upload) {
     $scope.setBundle(null);
-    
+
     $scope.status = "";
-    
+
     $scope.$watch('files', function() {
       $scope.upload($scope.files);
     });
-    
+
     $scope.upload = function(files) {
       if (files && files.length) {
         $scope.clearError();
@@ -246,11 +267,11 @@ bundleControllers.controller('InstallCtrl', ['$scope', '$upload',
 bundleControllers.controller('UpgradeCtrl', ['$scope', '$upload',
   function($scope, $upload) {
     $scope.status = "";
-    
+
     $scope.$watch('files', function() {
       $scope.upload($scope.files);
     });
-    
+
     $scope.upload = function(files) {
       if (files && files.length) {
         $scope.clearError();

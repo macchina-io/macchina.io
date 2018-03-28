@@ -15,6 +15,8 @@
 #include "Poco/Net/HTTPRequestHandler.h"
 #include "Poco/OSP/Web/WebRequestHandlerFactory.h"
 #include "Poco/OSP/BundleContext.h"
+#include "Poco/OSP/Bundle.h"
+#include <vector>
 
 
 namespace IoT {
@@ -32,10 +34,15 @@ public:
 	void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 
 protected:
+	typedef std::vector<Poco::OSP::Bundle::Ptr> BundleVec;
+
 	Poco::OSP::BundleContext::Ptr context() const
 	{
 		return _pContext;
 	}
+
+	void stopAll(Poco::OSP::Bundle::Ptr pBundle);
+	void dependingBundles(Poco::OSP::Bundle::Ptr pBundle, BundleVec& dependingBundles);
 
 private:
 	Poco::OSP::BundleContext::Ptr _pContext;

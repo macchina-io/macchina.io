@@ -6,7 +6,7 @@ bundlesServices.service('BundleService', ['$http',
   function($http) {
     this.post = function(action, symbolicName, onsuccess, onfailure) {
       $http({
-        method: "POST", 
+        method: "POST",
         url: "/macchina/bundles/actions.json",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
@@ -33,19 +33,23 @@ bundlesServices.service('BundleService', ['$http',
         onfailure("Server request failed.");
       });
     };
-  
+
     this.start = function(bundle, onsuccess, onfailure) {
       this.post("start", bundle.symbolicName, onsuccess, onfailure);
     };
-    
+
     this.stop = function(bundle, onsuccess, onfailure) {
       this.post("stop", bundle.symbolicName, onsuccess, onfailure);
     };
-    
+
+    this.stopAll = function(bundle, onsuccess, onfailure) {
+      this.post("stopAll", bundle.symbolicName, onsuccess, onfailure);
+    };
+
     this.resolve = function(bundle, onsuccess, onfailure) {
       this.post("resolve", bundle.symbolicName, onsuccess, onfailure);
     };
-    
+
     this.uninstall = function(bundle, onsuccess, onfailure) {
       this.post("uninstall", bundle.symbolicName, onsuccess, onfailure);
     };
