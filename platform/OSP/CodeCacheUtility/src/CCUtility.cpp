@@ -199,6 +199,7 @@ protected:
 			bundleRepository.loadBundles();
 			logger().information("Resolving bundles...");
 			bundleLoader.resolveAllBundles();
+			logger().information("All bundles resolved.");
 		}
 		catch (Poco::Exception& exc)
 		{
