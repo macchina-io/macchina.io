@@ -309,17 +309,23 @@ Example:
 !!path
 For the REST transport, specifies the path template used for extracting parameters
 passed within the request URI.
-  * level: class/method
+  * level: class
   * type: string
 
 The location of parameters within the path is indicated by putting the parameter
 name in curly brackets.
 
 Example:
+    //@ remote
     //@ path="/api/1.0/orders/{orderNo}/items/{itemNo}"
+    class ItemCollection
+    {
+        ...
     //@ $orderNo={in=path}
     //@ $itemNo={in=path}
     Item get(int orderNo, int itemNo);
+        ...
+    };
 ----
 
 

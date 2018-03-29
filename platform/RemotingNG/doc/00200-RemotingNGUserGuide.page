@@ -579,8 +579,10 @@ Following is an example for a typical configuration file.
             <compiler>
                 <exec>cl</exec>
                 <options>
-                    /I "${POCO_BASE}\Foundation\include"
-                    /I "${POCO_BASE}\RemotingNG\include"
+                    /I
+                    "${POCO_BASE}\Foundation\include"
+                    /I
+                    "${POCO_BASE}\RemotingNG\include"
                     /nologo
                     /C
                     /P
@@ -903,7 +905,9 @@ or a semicolon.
 In the above example, the command line options have the following
 meaning:
 
-  * /I: specify search path for include files.
+  * /I: specify search path for include files. Note that the actual
+    path is passed as separate argument and thus placed on the
+    next line.
   * /nologo: do not display the startup banner.
   * /C: preserve comments during preprocessing (important, otherwise
     the code generator would not see the attributes).
