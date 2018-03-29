@@ -20,6 +20,7 @@
 				${MacchinaBase}/protocols/BtLE/include/*/*/*.h
 				${MacchinaBase}/protocols/MQTT/include/*/*/*.h
 				${MacchinaBase}/protocols/Modbus/include/*/*/*.h
+				${MacchinaBase}/protocols/CAN/include/*/*/*.h
 				${MacchinaBase}/protocols/UDP/include/*/*/*.h
 				${MacchinaBase}/protocols/XBee/include/*/*/*.h
 			</include>
@@ -89,6 +90,7 @@
 				-I${MacchinaBase}/protocols/BtLE/include
 				-I${MacchinaBase}/protocols/MQTT/include
 				-I${MacchinaBase}/protocols/Modbus/include
+				-I${MacchinaBase}/protocols/CAN/include
 				-I${MacchinaBase}/protocols/UDP/include
 				-I${MacchinaBase}/protocols/XBee/include
 				-D_DEBUG
