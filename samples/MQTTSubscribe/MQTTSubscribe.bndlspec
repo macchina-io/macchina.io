@@ -1,0 +1,24 @@
+<bundlespec>
+	<manifest>
+		<name>MQTTSubscribe Sample</name>
+		<symbolicName>io.macchina.samples.mqttsubscribe</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>MQTTSubscribe::BundleActivator</class>
+			<library>io.macchina.samples.mqttsubscribe</library>
+		</activator>
+		<dependency>
+			<symbolicName>io.macchina.mqtt.client</symbolicName>
+			<version>[1.0.0, 2.0.0)</version>
+		</dependency>
+	</manifest>
+	<files>
+		bundle/*
+	</files>
+	<code>
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+	</code>
+</bundlespec>
