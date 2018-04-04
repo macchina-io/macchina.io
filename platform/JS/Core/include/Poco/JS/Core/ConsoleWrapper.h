@@ -35,16 +35,16 @@ class JSCore_API ConsoleWrapper: public Wrapper
 public:
 	ConsoleWrapper();
 		/// Creates the ConsoleWrapper for the root logger.
-	
+
 	~ConsoleWrapper();
 		/// Destroys the ConsoleWrapper.
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-		
+
 protected:
 	static void trace(const v8::FunctionCallbackInfo<v8::Value>& args);
-	static void assert(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void xassert(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void log(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void debug(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void info(const v8::FunctionCallbackInfo<v8::Value>& args);

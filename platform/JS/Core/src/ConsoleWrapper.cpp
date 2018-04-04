@@ -39,7 +39,7 @@ v8::Handle<v8::ObjectTemplate> ConsoleWrapper::objectTemplate(v8::Isolate* pIsol
 	v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New(pIsolate);
 	loggerTemplate->SetInternalFieldCount(1);
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "trace"), v8::FunctionTemplate::New(pIsolate, trace));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "assert"), v8::FunctionTemplate::New(pIsolate, assert));
+	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "assert"), v8::FunctionTemplate::New(pIsolate, xassert));
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "log"), v8::FunctionTemplate::New(pIsolate, log));
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "debug"), v8::FunctionTemplate::New(pIsolate, debug));
 	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "info"), v8::FunctionTemplate::New(pIsolate, info));
@@ -95,7 +95,7 @@ void ConsoleWrapper::trace(const v8::FunctionCallbackInfo<v8::Value>& args)
 }
 
 
-void ConsoleWrapper::assert(const v8::FunctionCallbackInfo<v8::Value>& args)
+void ConsoleWrapper::xassert(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 2) return;
 	if (!args[0]->BooleanValue())
