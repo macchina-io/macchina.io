@@ -15,6 +15,7 @@
 #include "Poco/OSP/Properties.h"
 #include "Poco/Exception.h"
 #include "Poco/NumberParser.h"
+#include "Poco/NumberFormatter.h"
 #include <algorithm>
 
 
@@ -23,6 +24,10 @@ using Poco::NumberParser;
 
 namespace Poco {
 namespace OSP {
+
+
+const std::string Properties::PROP_TRUE("true");
+const std::string Properties::PROP_FALSE("false");
 
 
 Properties::Properties()
@@ -58,7 +63,7 @@ void Properties::swap(Properties& props)
 std::string Properties::get(const std::string& key) const
 {
 	Poco::FastMutex::ScopedLock _lock(_mutex);
-	
+
 	PropsMap::const_iterator it = _props.find(key);
 	if (it != _props.end())
 		return it->second;
@@ -70,7 +75,7 @@ std::string Properties::get(const std::string& key) const
 std::string Properties::get(const std::string& key, const std::string& deflt) const
 {
 	Poco::FastMutex::ScopedLock _lock(_mutex);
-	
+
 	PropsMap::const_iterator it = _props.find(key);
 	if (it != _props.end())
 		return it->second;
@@ -82,10 +87,10 @@ std::string Properties::get(const std::string& key, const std::string& deflt) co
 bool Properties::getBool(const std::string& key) const
 {
 	Poco::FastMutex::ScopedLock _lock(_mutex);
-	
+
 	PropsMap::const_iterator it = _props.find(key);
 	if (it != _props.end())
-		return it->second != "false";
+		return it->second != PROP_FALSE;
 	else
 		throw NotFoundException(key);
 }
@@ -94,10 +99,10 @@ bool Properties::getBool(const std::string& key) const
 bool Properties::getBool(const std::string& key, bool deflt) const
 {
 	Poco::FastMutex::ScopedLock _lock(_mutex);
-	
+
 	PropsMap::const_iterator it = _props.find(key);
 	if (it != _props.end())
-		return it->second != "false";
+		return it->second != PROP_FALSE;
 	else
 		return deflt;
 }
@@ -106,7 +111,7 @@ bool Properties::getBool(const std::string& key, bool deflt) const
 int Properties::getInt(const std::string& key) const
 {
 	Poco::FastMutex::ScopedLock _lock(_mutex);
-	
+
 	PropsMap::const_iterator it = _props.find(key);
 	if (it != _props.end())
 		return NumberParser::parse(it->second);
@@ -118,7 +123,7 @@ int Properties::getInt(const std::string& key) const
 int Properties::getInt(const std::string& key, int deflt) const
 {
 	Poco::FastMutex::ScopedLock _lock(_mutex);
-	
+
 	PropsMap::const_iterator it = _props.find(key);
 	if (it != _props.end())
 		return NumberParser::parse(it->second);
@@ -127,10 +132,34 @@ int Properties::getInt(const std::string& key, int deflt) const
 }
 
 
+Poco::Int64 Properties::getInt64(const std::string& key) const
+{
+	Poco::FastMutex::ScopedLock _lock(_mutex);
+
+	PropsMap::const_iterator it = _props.find(key);
+	if (it != _props.end())
+		return NumberParser::parse64(it->second);
+	else
+		throw NotFoundException(key);
+}
+
+
+Poco::Int64 Properties::getInt64(const std::string& key, Poco::Int64 deflt) const
+{
+	Poco::FastMutex::ScopedLock _lock(_mutex);
+
+	PropsMap::const_iterator it = _props.find(key);
+	if (it != _props.end())
+		return NumberParser::parse64(it->second);
+	else
+		return deflt;
+}
+
+
 double Properties::getFloat(const std::string& key) const
 {
 	Poco::FastMutex::ScopedLock _lock(_mutex);
-	
+
 	PropsMap::const_iterator it = _props.find(key);
 	if (it != _props.end())
 		return NumberParser::parseFloat(it->second);
@@ -142,7 +171,7 @@ double Properties::getFloat(const std::string& key) const
 double Properties::getFloat(const std::string& key, double deflt) const
 {
 	Poco::FastMutex::ScopedLock _lock(_mutex);
-	
+
 	PropsMap::const_iterator it = _props.find(key);
 	if (it != _props.end())
 		return NumberParser::parseFloat(it->second);
@@ -156,6 +185,30 @@ void Properties::set(const std::string& key, const std::string& value)
 	Poco::FastMutex::ScopedLock _lock(_mutex);
 
 	_props[key] = value;
+}
+
+
+void Properties::set(const std::string& key, bool value)
+{
+	set(key, value ? PROP_TRUE : PROP_FALSE);
+}
+
+
+void Properties::set(const std::string& key, int value)
+{
+	set(key, NumberFormatter::format(value));
+}
+
+
+void Properties::set(const std::string& key, Poco::Int64 value)
+{
+	set(key, NumberFormatter::format(value));
+}
+
+
+void Properties::set(const std::string& key, double value)
+{
+	set(key, NumberFormatter::format(value));
 }
 
 
