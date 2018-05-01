@@ -26,7 +26,7 @@ namespace Linux {
 
 
 const std::string LinuxGPIO::NAME("Linux GPIO");
-const std::string LinuxGPIO::TYPE("io.macchina.io");
+const std::string LinuxGPIO::TYPE("io.macchina.gpio");
 const std::string LinuxGPIO::SYMBOLIC_NAME("io.macchina.linux.gpio");
 const std::string LinuxGPIO::LOGGER_NAME("IoT.LinuxGPIO");
 

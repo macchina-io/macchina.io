@@ -121,7 +121,7 @@ public:
 
 		Properties props;
 		props.set("io.macchina.device", LinuxGPIO::SYMBOLIC_NAME);
-		props.set("io.macchina.deviceType", "io.macchina.gpio");
+		props.set("io.macchina.deviceType", LinuxGPIO::TYPE);
 
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pGPIORemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
