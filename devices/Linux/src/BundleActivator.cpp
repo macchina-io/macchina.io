@@ -121,7 +121,7 @@ public:
 
 		Properties props;
 		props.set("io.macchina.device", LinuxGPIO::SYMBOLIC_NAME);
-		props.set("io.macchina.deviceType", "io.macchina.gpio");
+		props.set("io.macchina.deviceType", LinuxGPIO::TYPE);
 
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pGPIORemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
@@ -168,9 +168,8 @@ public:
 					std::string baseKey = "linux.gpio.pins.";
 					baseKey += *it;
 
-					std::string device = _pPrefs->configuration()->getString(baseKey + ".device", "");
 					std::string direction = _pPrefs->configuration()->getString(baseKey + ".direction", "out");
-					gpioMap[device] = direction;
+					gpioMap[*it] = direction;
 				}
 
 				createGPIOs(gpioMap);
