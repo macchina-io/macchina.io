@@ -24,7 +24,7 @@ auth.simple.admin.passwordHash = 21232f297a57a5a743894a0e4a801fc3
 #
 # Serial Ports
 #
-#serial.ports.1.device = /dev/tty.usbserial 
+#serial.ports.1.device = /dev/tty.usbserial
 #serial.ports.1.params = 8N1
 #serial.ports.1.speed = 57600
 
@@ -144,3 +144,11 @@ openSSL.client.verificationDepth = 9
 openSSL.client.loadDefaultCAFile = false
 openSSL.client.caConfig = ${application.configDir}rootcert.pem
 openSSL.client.invalidCertificateHandler.name = RejectCertificateHandler
+
+
+#
+# GPIO Configuration
+#
+#linux.gpio.enable = true
+#linux.gpio.pins.10.direction = out
+#linux.gpio.pins.11.direction = in
