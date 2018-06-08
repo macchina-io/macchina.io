@@ -66,20 +66,20 @@ void SandboxRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request,
 	std::string username = pSession->getValue<std::string>("username");
 	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth");
 
-	if (!pAuthService->authorize(username, "bundleAdmin"))
+	if (!(pAuthService->authorize(username, "bundleAdmin") && request.get("X-XSRF-TOKEN", "") == pSession->csrfToken()))
 	{
 		response.setContentLength(0);
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_FORBIDDEN);
 		response.send();
 		return;
 	}
-	
+
 	Poco::Path p(request.getURI(), Poco::Path::PATH_UNIX);
 	p.makeFile();
 	std::string action = p.getBaseName();
-	
+
 	context()->logger().debug("Performing action: " + action);
-	
+
 	std::string bundleState;
 	std::string error;
 	Poco::OSP::Bundle::Ptr pBundle = context()->findBundle(SANDBOX_BUNDLE);
@@ -163,7 +163,7 @@ void SandboxRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request,
 	{
 		error = "The sandbox bundle is not available.";
 	}
-	
+
 	response.setContentType("application/json");
 	response.setChunkedTransferEncoding(true);
 	response.send()
@@ -228,27 +228,27 @@ void SandboxRequestHandler::handleExport(Poco::OSP::Bundle::Ptr pBundle, Poco::N
 	std::string version = form.get("version", "");
 	std::string vendor = form.get("vendor", "");
 	std::string copyright = form.get("copyright", "");
-	
-	if (name.empty() || symbolicName.empty() || version.empty() || 
-	    symbolicName.find("..") != std::string::npos || 
+
+	if (name.empty() || symbolicName.empty() || version.empty() ||
+	    symbolicName.find("..") != std::string::npos ||
 	    version.find("..") != std::string::npos)
 	{
 		context()->logger().error(Poco::format(
-			"Bundle export: bad form parameters submitted: name=\"%s\", symbolicName=\"%s\", version=\"%s\"", 
+			"Bundle export: bad form parameters submitted: name=\"%s\", symbolicName=\"%s\", version=\"%s\"",
 			name, symbolicName, version));
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
 		response.setContentLength(0);
 		response.send();
 		return;
 	}
-	
+
 	Poco::AutoPtr<Poco::Util::PropertyFileConfiguration> pProps = new Poco::Util::PropertyFileConfiguration();
 	pProps->setString("name", name);
 	pProps->setString("symbolicName", symbolicName);
 	pProps->setString("version", version);
 	pProps->setString("vendor", vendor);
 	pProps->setString("copyright", copyright);
-	
+
 	Poco::Path propsPath(pBundle->path());
 	propsPath.makeDirectory();
 	propsPath.setFileName(SANDBOX_PROPERTIES);
@@ -258,22 +258,22 @@ void SandboxRequestHandler::handleExport(Poco::OSP::Bundle::Ptr pBundle, Poco::N
 	bundleFileName += "_";
 	bundleFileName += version;
 	bundleFileName += ".bndl";
-	
+
 	Poco::Path exportPath(context()->temporaryDirectory(), "export.bndl");
 	Poco::File exportDir(exportPath.toString());
 	if (exportDir.exists())
 	{
 		exportDir.remove(true);
 	}
-	
+
 	exportDir.createDirectories();
 	Poco::Path metaInfPath(exportPath, "META-INF");
 	Poco::File metaInfDir(metaInfPath.toString());
 	metaInfDir.createDirectories();
-	
+
 	Poco::Path manifestPath(metaInfPath, "manifest.mf");
 	Poco::FileOutputStream manifestStream(manifestPath.toString());
-	manifestStream 
+	manifestStream
 		<< "Manifest-Version: 1.0\n"
 		<< "Bundle-Name: " << name << "\n"
 		<< "Bundle-SymbolicName: " << symbolicName << "\n"
@@ -283,7 +283,7 @@ void SandboxRequestHandler::handleExport(Poco::OSP::Bundle::Ptr pBundle, Poco::N
 		<< "Bundle-RunLevel: 900\n"
 		<< "Bundle-LazyStart: false\n";
 	manifestStream.close();
-	
+
 	Poco::Path extensionsPath(exportPath, "extensions.xml");
 	Poco::FileOutputStream extensionsStream(extensionsPath.toString());
 	extensionsStream
@@ -308,10 +308,10 @@ void SandboxRequestHandler::handleExport(Poco::OSP::Bundle::Ptr pBundle, Poco::N
 	compress.addRecursive(exportPath.toString(), Poco::Zip::ZipCommon::CM_AUTO, Poco::Zip::ZipCommon::CL_MAXIMUM, true);
 	compress.close();
 	exportBndlStream.close();
-	
+
 	response.set("Content-Disposition", Poco::format("attachment; filename=%s", bundleFileName));
 	response.sendFile(exportBndlPath.toString(), "application/octet-stream");
-	
+
 	try
 	{
 		exportDir.remove(true);

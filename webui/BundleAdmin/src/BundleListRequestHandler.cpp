@@ -41,7 +41,7 @@ void BundleListRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reque
 			pSession = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"), request);
 		}
 	}
-	if (!Utility::isAuthenticated(pSession, response)) return;
+	if (!Utility::isAuthenticated(pSession, request, response)) return;
 
 	std::string username = pSession->getValue<std::string>("username");
 	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth");
@@ -57,14 +57,14 @@ void BundleListRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reque
 	response.setChunkedTransferEncoding(true);
 	response.setContentType("application/json");
 	std::ostream& ostr = response.send();
-	
+
 	ostr << "[";
 	std::vector<Poco::OSP::Bundle::Ptr> bundles;
 	_pContext->listBundles(bundles);
 	for (std::vector<Poco::OSP::Bundle::Ptr>::const_iterator it = bundles.begin(); it != bundles.end(); ++it)
 	{
 		if (it != bundles.begin()) ostr << ",";
-		ostr 
+		ostr
 			<< "{"
 			<< "\"id\":" << (*it)->id() << ","
 			<< "\"symbolicName\":" << Utility::jsonize((*it)->symbolicName()) << ","

@@ -54,7 +54,7 @@ void SettingsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 			pSession = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"), request);
 		}
 	}
-	if (!Utility::isAuthenticated(pSession, response)) return;
+	if (!Utility::isAuthenticated(pSession, request, response)) return;
 
 	std::string username = pSession->getValue<std::string>("username");
 	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth");
@@ -66,11 +66,11 @@ void SettingsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 		response.send();
 		return;
 	}
-	
+
 	Poco::Path p(request.getURI(), Poco::Path::PATH_UNIX);
 	p.makeFile();
 	std::string resource = p.getBaseName();
-	
+
 	if (request.getMethod() == "HEAD")
 	{
 		response.setContentType("application/json");
@@ -93,7 +93,7 @@ void SettingsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 			<< "{"
 			<<   "\"error\":" << Utility::jsonize("Bad request")
 			<< "}";
-	}	
+	}
 }
 
 
@@ -109,7 +109,7 @@ void SettingsRequestHandler::handleLoad(Poco::Net::HTTPServerRequest& request, P
 
 	response.setContentType("application/json");
 	response.setChunkedTransferEncoding(true);
-	std::ostream& ostr = response.send();	
+	std::ostream& ostr = response.send();
 	json.save(ostr);
 }
 
@@ -122,10 +122,10 @@ void SettingsRequestHandler::handleSave(Poco::Net::HTTPServerRequest& request, P
 	{
 		Poco::AutoPtr<Poco::Util::JSONConfiguration> pJSON = new Poco::Util::JSONConfiguration;
 		pJSON->load(request.stream());
-	
+
 		std::string settingsPath = app.config().getString("macchina.settings.path", "");
 		Poco::AutoPtr<Poco::Util::PropertyFileConfiguration> pSettings;
-	
+
 		if (!settingsPath.empty())
 		{
 			Poco::AutoPtr<Poco::Util::AbstractConfiguration> pConf = app.config().find("macchina.settings");
@@ -148,9 +148,9 @@ void SettingsRequestHandler::handleSave(Poco::Net::HTTPServerRequest& request, P
 			excludeSet.insert("application");
 			excludeSet.insert("system");
 			Utility::copyDeltaProperties(app.config(), *pJSON, *pSettings, excludeSet);
-		
+
 			pSettings->save(settingsPath);
-			
+
 			_pContext->logger().information("Settings saved to \"%s\".", settingsPath);
 		}
 		else
@@ -170,7 +170,7 @@ void SettingsRequestHandler::handleSave(Poco::Net::HTTPServerRequest& request, P
 			<< "}";
 		return;
 	}
-	
+
 	response.setContentType("application/json");
 	response.setChunkedTransferEncoding(true);
 	response.send()

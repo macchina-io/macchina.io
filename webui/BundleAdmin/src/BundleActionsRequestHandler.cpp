@@ -87,7 +87,7 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 			pSession = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"), request);
 		}
 	}
-	if (!Utility::isAuthenticated(pSession, response)) return;
+	if (!Utility::isAuthenticated(pSession, request, response)) return;
 
 	std::string username = pSession->getValue<std::string>("username");
 	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth");

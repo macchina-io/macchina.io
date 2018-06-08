@@ -16,9 +16,9 @@ namespace Web {
 namespace Settings {
 
 
-bool Utility::isAuthenticated(Poco::OSP::Web::WebSession::Ptr pSession, Poco::Net::HTTPServerResponse& response)
+bool Utility::isAuthenticated(Poco::OSP::Web::WebSession::Ptr pSession, const Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
-	if (!pSession || !pSession->has("username"))
+	if (!pSession || !pSession->has("username") || request.get("X-XSRF-TOKEN", "") != pSession->csrfToken())
 	{
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_UNAUTHORIZED);
 		response.setContentLength(0);
