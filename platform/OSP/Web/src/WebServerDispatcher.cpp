@@ -123,7 +123,7 @@ void WebServerDispatcher::addVirtualPath(const VirtualPath& virtualPath)
 		vPath.path = normalizePath(vPath.path);
 		Poco::Path path(vPath.path);
 		PathMap::iterator itTmp;
-	
+
 		// we have to check if a parent entry exists, start with /
 		std::string entry("/");
 		PathMap::const_iterator it = _pathMap.find(entry);
@@ -165,7 +165,7 @@ void WebServerDispatcher::addVirtualPath(const VirtualPath& virtualPath)
 			}
 			++it;
 		}
-	
+
 		std::string msg("Virtual path '");
 		msg += vPath.path;
 		msg += "' mapped by bundle ";
@@ -214,7 +214,7 @@ void WebServerDispatcher::removeVirtualPath(const std::string& virtualPath)
 void WebServerDispatcher::listVirtualPaths(PathInfoMap& paths) const
 {
 	FastMutex::ScopedLock lock(_mutex);
-	
+
 	paths.clear();
 	for (PathMap::const_iterator it = _pathMap.begin(); it != _pathMap.end(); ++it)
 	{
@@ -242,7 +242,7 @@ void WebServerDispatcher::virtualPathMappings(PathMap& mappings) const
 void WebServerDispatcher::addFilter(const std::string& mediaType, WebFilterFactoryPtr pFilterFactory, const WebFilter::Args& args)
 {
 	Poco::FastMutex::ScopedLock lock(_filterFactoryMutex);
-	
+
 	FilterFactoryMap::iterator it = _filterFactoryMap.find(mediaType);
 	if (it == _filterFactoryMap.end())
 	{
@@ -359,7 +359,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 		{
 			_pContext->logger().log(exc);
 		}
-	}	
+	}
 	catch (Poco::Exception& exc)
 	{
 		try
@@ -380,13 +380,13 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 			_pContext->logger().log(exc);
 		}
 	}
-	
+
 	// clear out any remaining data in request body
 	if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_POST || request.getMethod() == Poco::Net::HTTPRequest::HTTP_PUT)
 	{
 		if (Poco::icompare(request.get(Poco::Net::HTTPMessage::CONNECTION, ""), Poco::Net::HTTPRequest::UPGRADE) != 0)
-		{ 
-			request.stream().ignore(std::numeric_limits<std::streamsize>::max()); 
+		{
+			request.stream().ignore(std::numeric_limits<std::streamsize>::max());
 		}
 	}
 
@@ -404,25 +404,25 @@ void WebServerDispatcher::logRequest(const Poco::Net::HTTPServerRequest& request
 	reqText += request.getURI();
 	reqText += ' ';
 	reqText += request.getVersion();
-	
+
 	Poco::Message message(_accessLogger.name(), reqText, Poco::Message::PRIO_INFORMATION);
-	
+
 	if (username.empty())
 		message["username"] = "-";
 	else
 		message["username"] = username;
-		
+
 	message["status"] = Poco::NumberFormatter::format(static_cast<int>(response.getStatus()));
 	message["client"] = request.clientAddress().host().toString();
-	
+
 	if (response.getContentLength64() != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
 		message["size"] = Poco::NumberFormatter::format(response.getContentLength64());
 	else
 		message["size"] = "-";
-		
+
 	message["referer"] = request.get("Referer", "");
 	message["useragent"] = request.get("User-Agent", "");
-	
+
 	_accessLogger.log(message);
 }
 
@@ -441,7 +441,7 @@ void WebServerDispatcher::sendResource(Poco::Net::HTTPServerRequest& request, co
 	if (pResourceStream.get())
 	{
 		response.setContentType(mediaType);
-		
+
 		Poco::SharedPtr<WebFilter> pFilter = findFilter(mediaType);
 		if (pFilter)
 		{
@@ -466,7 +466,7 @@ void WebServerDispatcher::sendResource(Poco::Net::HTTPServerRequest& request, co
 					return;
 				}
 			}
-	
+
 			response.setChunkedTransferEncoding(true);
 			bool compressResponse(_compressResponses && request.hasToken("Accept-Encoding", "gzip") && shouldCompressMediaType(mediaType));
 			if (compressResponse) response.set("Content-Encoding", "gzip");
@@ -538,7 +538,7 @@ void WebServerDispatcher::removeBundle(Bundle::ConstPtr pBundle)
 		}
 		else ++itm;
 	}
-	
+
 	PatternVec::iterator itv = _patternVec.begin();
 	while (itv != _patternVec.end())
 	{
@@ -566,7 +566,7 @@ void WebServerDispatcher::uncacheBundleResources(Bundle::ConstPtr pBundle)
 	std::string cachePath = "//";
 	cachePath += pBundle->symbolicName();
 	cachePath += "/";
-	
+
 	Poco::FastMutex::ScopedLock lock(_resourceCacheMutex);
 
 	ResourceCache::iterator it = _resourceCache.begin();
@@ -744,7 +744,7 @@ bool WebServerDispatcher::cleanPath(std::string& path)
 	}
 	while (path.size() > 0 && path[path.size() - 1] == '.')
 		path.resize(path.size() - 1);
-	
+
 	if (path.size() > 0)
 	{
 		Path p(path, Path::PATH_UNIX);
@@ -795,7 +795,14 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 				AuthService::Ptr pAuthService = authService();
 				if (pAuthService->authorize(username, vPath.security.permission))
 				{
-					return true;
+					if (vPath.security.csrfProtection && !vPath.security.csrfTokenHeader.empty())
+					{
+						return request.get(vPath.security.csrfTokenHeader, "") == pSession->csrfToken();
+					}
+					else
+					{
+						return true;
+					}
 				}
 				else
 				{
@@ -812,7 +819,7 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 			_pContext->logger().warning(Poco::format("Failed to authorize user for path %s because no session is available.", request.getURI()));
 		}
 	}
-	else 
+	else
 	{
 		_pContext->logger().warning(Poco::format("Failed to authorize user for path %s via session because no WebSessionManager is available.", request.getURI()));
 	}
@@ -841,7 +848,7 @@ bool WebServerDispatcher::authorizeBasic(Poco::Net::HTTPServerRequest& request, 
 		else
 		{
 			_pContext->logger().warning(Poco::format("User %s failed authentication.", username));
-		}	
+		}
 	}
 	return false;
 }
@@ -883,7 +890,7 @@ void WebServerDispatcher::sendMethodNotAllowed(Poco::Net::HTTPServerRequest& req
 	sendResponse(request, HTTPResponse::HTTP_METHOD_NOT_ALLOWED, message);
 }
 
-	
+
 void WebServerDispatcher::sendInternalError(Poco::Net::HTTPServerRequest& request, const std::string& message)
 {
 	sendResponse(request, HTTPResponse::HTTP_INTERNAL_SERVER_ERROR, message);
@@ -945,9 +952,9 @@ std::string WebServerDispatcher::htmlize(const std::string& str)
 
 
 Poco::OSP::Auth::AuthService::Ptr WebServerDispatcher::authService() const
-{	
+{
 	Poco::FastMutex::ScopedLock lock(_authServiceMutex);
-	
+
 	if (!_pAuthService && !_authServiceName.empty())
 	{
 		if (!_authServiceName.empty())
@@ -979,7 +986,7 @@ WebSessionManager::Ptr WebServerDispatcher::sessionManager() const
 	{
 		_pSessionManager = pWebSessionManagerRef->castedInstance<Poco::OSP::Web::WebSessionManager>();
 	}
-	
+
 	return _pSessionManager;
 }
 
@@ -994,7 +1001,7 @@ std::string WebServerDispatcher::formatMessage(const std::string& messageId, con
 	{
 		message = "Message not found: ";
 		message += realId;
-	}	
+	}
 	else
 	{
 		std::string::const_iterator it(rawMessage.begin());
@@ -1029,7 +1036,7 @@ bool WebServerDispatcher::shouldCompressMediaType(const std::string& mediaType) 
 	std::string mt(mediaType, 0, endPos);
 	if (_compressedMediaTypes.find(mt) != _compressedMediaTypes.end())
 		return true;
-		
+
 	endPos = mt.find('/');
 	if (endPos != std::string::npos)
 	{

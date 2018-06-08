@@ -39,7 +39,8 @@ const std::string WebSessionManager::SERVICE_NAME("osp.web.session");
 
 WebSessionManager::WebSessionManager():
 	_serial(0),
-	_cookiePersistence(COOKIE_PERSISTENT)
+	_cookiePersistence(COOKIE_PERSISTENT),
+	_cookieSecure(false)
 {
 }
 
@@ -60,13 +61,13 @@ const std::string& WebSessionManager::getDefaultDomain() const
 	return _defaultDomain;
 }
 
-	
+
 void WebSessionManager::setDefaultPath(const std::string& path)
 {
 	_defaultPath = path;
 }
 
-	
+
 const std::string& WebSessionManager::getDefaultPath() const
 {
 	return _defaultPath;
@@ -82,6 +83,30 @@ void WebSessionManager::setCookiePersistence(WebSessionManager::CookiePersistenc
 WebSessionManager::CookiePersistence WebSessionManager::getCookiePersistence() const
 {
 	return _cookiePersistence;
+}
+
+
+void WebSessionManager::setCookieSecure(bool secure)
+{
+	_cookieSecure = secure;
+}
+
+
+bool WebSessionManager::isCookieSecure() const
+{
+	return _cookieSecure;
+}
+
+
+void WebSessionManager::setCSRFCookie(const std::string& name)
+{
+	_csrfCookie = name;
+}
+
+
+const std::string& WebSessionManager::getCSRFCookie() const
+{
+	return _csrfCookie;
 }
 
 
@@ -101,7 +126,7 @@ bool WebSessionManager::isA(const std::type_info& otherType) const
 WebSession::Ptr WebSessionManager::find(const std::string& appName, const Poco::Net::HTTPServerRequest& request)
 {
 	FastMutex::ScopedLock lock(_mutex);
-	
+
 	WebSession::Ptr pSession(_cache.get(getId(appName, request)));
 	if (pSession)
 	{
@@ -109,9 +134,10 @@ WebSession::Ptr WebSessionManager::find(const std::string& appName, const Poco::
 		{
 			pSession->access();
 			_cache.add(pSession->id(), pSession);
-			addCookie(appName, request, pSession);
+			addSessionCookie(appName, request, pSession);
+			addCSRFCookie(appName, request, pSession);
 		}
-		else 
+		else
 		{
 			// possible attack: same session ID from different host - invalidate session
 			_cache.remove(pSession->id());
@@ -136,8 +162,9 @@ WebSession::Ptr WebSessionManager::create(const std::string& appName, const Poco
 	FastMutex::ScopedLock lock(_mutex);
 	WebSession::Ptr pSession(new WebSession(createSessionId(request), expireSeconds, request.clientAddress().host(), pContext));
 	_cache.add(pSession->id(), pSession);
-	addCookie(appName, request, pSession);
 	pSession->setValue(WebSession::CSRF_TOKEN, createSessionId(request));
+	addSessionCookie(appName, request, pSession);
+	addCSRFCookie(appName, request, pSession);
 	return pSession;
 }
 
@@ -158,12 +185,12 @@ std::string WebSessionManager::getId(const std::string& appName, const Poco::Net
 	NameValueCollection::ConstIterator it = cookies.find(name);
 	if (it != cookies.end())
 		id = it->second;
-	
+
 	return id;
 }
 
 
-void WebSessionManager::addCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr pSession)
+void WebSessionManager::addSessionCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr pSession)
 {
 	Poco::Net::HTTPCookie cookie(cookieName(appName), pSession->id());
 	if (_cookiePersistence == COOKIE_PERSISTENT)
@@ -173,14 +200,32 @@ void WebSessionManager::addCookie(const std::string& appName, const Poco::Net::H
 	cookie.setPath(cookiePath(appName));
 	cookie.setDomain(cookieDomain(appName));
 	cookie.setHttpOnly();
+	cookie.setSecure(_cookieSecure);
 	request.response().addCookie(cookie);
+}
+
+
+void WebSessionManager::addCSRFCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr pSession)
+{
+	if (!_csrfCookie.empty())
+	{
+		Poco::Net::HTTPCookie csrfCookie(_csrfCookie, pSession->csrfToken());
+		if (_cookiePersistence == COOKIE_PERSISTENT)
+		{
+			csrfCookie.setMaxAge(pSession->timeout());
+		}
+		csrfCookie.setPath(cookiePath(appName));
+		csrfCookie.setDomain(cookieDomain(appName));
+		csrfCookie.setSecure(_cookieSecure);
+		request.response().addCookie(csrfCookie);
+	}
 }
 
 
 std::string WebSessionManager::createSessionId(const Poco::Net::HTTPServerRequest& request)
 {
 	++_serial;
-	
+
 	Poco::SHA1Engine sha1;
 	sha1.update(&_serial, sizeof(_serial));
 	Poco::Timestamp::TimeVal tv = Poco::Timestamp().epochMicroseconds();
@@ -192,7 +237,7 @@ std::string WebSessionManager::createSessionId(const Poco::Net::HTTPServerReques
 		sha1.update(c);
 	}
 	sha1.update(request.clientAddress().toString());
-	
+
 	std::string result = Poco::DigestEngine::digestToHex(sha1.digest());
 	return result;
 }

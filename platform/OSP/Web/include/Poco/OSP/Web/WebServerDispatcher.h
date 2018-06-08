@@ -62,16 +62,17 @@ public:
 
 	typedef Poco::SharedPtr<Poco::Net::HTTPRequestHandlerFactory> RequestHandlerFactoryPtr;
 	typedef Poco::SharedPtr<Poco::RegularExpression> RegularExpressionPtr;
-	
+
 	struct PathSecurity
 		/// Security attributes for a registered path.
 	{
 		PathSecurity():
 			mode(SM_OWNER),
-			secure(false)
+			secure(false),
+			csrfProtection(false)
 		{
 		}
-		
+
 		PathSecurity(SpecializationMode aMode, const std::string& aRealm, const std::string& aPermission, bool aSecure = false):
 			mode(aMode),
 			realm(aRealm),
@@ -79,12 +80,14 @@ public:
 			secure(aSecure)
 		{
 		}
-		
-		SpecializationMode mode;       /// specialization mode (does not apply to pattern)
-		std::string        realm;      /// realm if a permission (and thus authentication) is required
-		std::string        permission; /// required permission (empty for none)
-		std::string        session;    /// name of session for session-based authentication
-		bool               secure;     /// path requires secure connection
+
+		SpecializationMode mode;            /// specialization mode (does not apply to pattern)
+		std::string        realm;           /// realm if a permission (and thus authentication) is required
+		std::string        permission;      /// required permission (empty for none)
+		std::string        session;         /// name of session for session-based authentication
+		bool               secure;          /// path requires secure connection
+		bool               csrfProtection;  /// enable/disable CSRF/XSRF protection
+		std::string        csrfTokenHeader; /// name of header containing CSRF/XSRF token for CSRF/XSRF protection
 	};
 
 	struct VirtualPath
@@ -94,7 +97,7 @@ public:
 			hidden(false)
 		{
 		}
-		
+
 		VirtualPath(const std::string& aPath, const std::string& aResource, const PathSecurity& aSecurity, Bundle::ConstPtr pOwner):
 			path(aPath),
 			resource(aResource),
@@ -104,7 +107,7 @@ public:
 			pOwnerBundle(pOwner)
 		{
 		}
-		
+
 		VirtualPath(const std::string& aPath, RequestHandlerFactoryPtr aFactory, const PathSecurity& aSecurity, Bundle::ConstPtr pOwner):
 			path(aPath),
 			pFactory(aFactory),
@@ -114,7 +117,7 @@ public:
 			pOwnerBundle(pOwner)
 		{
 		}
-		
+
 		RegularExpressionPtr     pPattern;     /// pattern for matching request handlers
 		std::string              path;         /// virtual server path (e.g., /images)
 		std::set<std::string>    methods;      /// allowed methods ("GET", "POST", etc.)
@@ -127,7 +130,7 @@ public:
 		bool                     cache;        /// resource can be cached
 		Bundle::Ptr              pOwnerBundle; /// bundle owning path
 	};
-	
+
 	struct PathInfo
 	{
 		std::string description;
@@ -135,7 +138,7 @@ public:
 		std::string session;
 		Bundle::Ptr pBundle;
 	};
-	
+
 	typedef std::map<std::string, VirtualPath> PathMap;
 	typedef std::map<std::string, PathInfo> PathInfoMap;
 	typedef std::vector<VirtualPath> PatternVec;
@@ -162,21 +165,21 @@ public:
 	void listVirtualPaths(PathInfoMap& paths) const;
 		/// Returns a map containing all virtual paths (key) that are not patterns
 		/// and not marked as hidden, and their descriptions (value).
-		
+
 	void virtualPathMappings(PathMap& mappings) const;
 		/// Returns all path mappings. This member function creates a full
 		/// copy of the internal path map.
 
 	void removeBundle(Bundle::ConstPtr pBundle);
 		/// Removes all mappings from the given bundle.
-		
+
 	void uncacheBundleResources(Bundle::ConstPtr pBundle);
 		/// Removes all cached resources from the given bundle form the cache.
 
 	void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, bool secure);
 		/// Handles the given request. Secure specifies whether the request has been
 		/// sent over a secure (HTTPS) connection.
-		
+
 	Poco::ThreadPool& threadPool();
 		/// Returns the thread pool for use by Poco::Net::HTTPServer.
 
@@ -184,16 +187,16 @@ public:
 		/// Adds a filter factory for the given media type.
 		///
 		/// Throws a Poco::ExistsException if a filter already exists for the given mediaType.
-		
+
 	void removeFilter(const std::string& mediaType);
-		/// Removes the filter for the given mediaType.	
+		/// Removes the filter for the given mediaType.
 
 	// Service
 	virtual const std::type_info& type() const;
 	virtual bool isA(const std::type_info& otherType) const;
 
 	static const std::string SERVICE_NAME;
-	
+
 protected:
 	void onBundleStopping(const void* pSender, BundleEvent& ev);
 		/// When a bundle is stopped, all of its request handlers and mappings are automatically disabled.
@@ -201,7 +204,7 @@ protected:
 	static std::string normalizePath(const std::string& path);
 		/// Creates normalized path for internal storage.
 		/// The normalized path always starts and ends with a slash.
-		
+
 	const VirtualPath& mapPath(const std::string& path, const std::string& method) const;
 		/// Maps a URI to a VirtualPath.
 		///
@@ -209,7 +212,7 @@ protected:
 
 	void sendResource(Poco::Net::HTTPServerRequest& request, const std::string& path, const std::string& vpath, const std::string& resPath, const std::string& resBase, const std::string& index, Bundle::ConstPtr pBundle, bool canCache);
 		/// Sends a bundle resource as response.
-		
+
 	std::istream* findResource(Bundle::ConstPtr pBundle, const std::string& base, const std::string& res, const std::string& index, std::string& mediaType, std::string& resolvedPath, bool canCache) const;
 		/// Returns a resource stream for the given path, or a null pointer
 		/// if no matching resource exists.
@@ -252,7 +255,7 @@ protected:
 
 	void sendMethodNotAllowed(Poco::Net::HTTPServerRequest& request, const std::string& message);
 		/// Sends a 405 Method Not Allowed error response.
-		
+
 	void sendInternalError(Poco::Net::HTTPServerRequest& request, const std::string& message);
 		/// Sends a 500 Internal Server Error response.
 
@@ -265,25 +268,25 @@ protected:
 	Poco::OSP::Auth::AuthService::Ptr authService() const;
 		/// Returns a pointer to the auth service, if it is available,
 		/// or null otherwise.
-		
+
 	WebSessionManager::Ptr sessionManager() const;
 		/// Returns a pointer to the WebSessionManager.
-		
+
 	std::string formatMessage(const std::string& messageId, const std::string& arg1 = std::string(), const std::string& arg2 = std::string());
 		/// Reads a message from the bundle.properties resource and replaces
 		/// placeholders $1 and $2 with arg1 and arg2, respectively.
-		
+
 	bool shouldCompressMediaType(const std::string& mediaType) const;
 		/// Returns true iff content with the given media type should be compressed.
-		
+
 	WebFilterPtr findFilter(const std::string& mediaType);
 		/// Returns a WebFilter instance for the given mediaType, or a null
 		/// pointer if no WebFilterFactory has been registered for the given
 		/// mediaType.
-		
+
 	void logRequest(const Poco::Net::HTTPServerRequest& request, const Poco::Net::HTTPServerResponse& response, const std::string& username);
 		/// Logs the HTTP request.
-		
+
 private:
 	struct WebFilterFactoryInfo
 	{
@@ -292,7 +295,7 @@ private:
 	};
 	typedef std::map<std::string, WebFilterFactoryInfo> FilterFactoryMap;
 	typedef std::map<std::string, std::string> ResourceCache;
-	
+
 	BundleContext::Ptr _pContext;
 	MediaTypeMapper::Ptr _pMediaTypeMapper;
 	PathMap _pathMap;

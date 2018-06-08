@@ -53,11 +53,11 @@ public:
 	WebBundleActivator()
 	{
 	}
-	
+
 	~WebBundleActivator()
 	{
 	}
-	
+
 	void start(BundleContext::Ptr pContext)
 	{
 		MediaTypeMapper::Ptr pMediaTypeMapper = new MediaTypeMapper;
@@ -78,6 +78,9 @@ public:
 		bool compressResponse(pContext->thisBundle()->properties().getBool("compressResponses", false));
 		std::string compressedMediaTypesString(pContext->thisBundle()->properties().getString("compressedMediaTypes", ""));
 		std::string sessionCookiePersistence(pContext->thisBundle()->properties().getString("cookiePersistence", "persistent"));
+		bool sessionCookieSecure(pContext->thisBundle()->properties().getBool("cookieSecure", false));
+		std::string csrfCookie(pContext->thisBundle()->properties().getString("csrfCookie", "XSRF-TOKEN"));
+		bool csrfProtectionEnabled(pContext->thisBundle()->properties().getBool("csrfProtectionEnabled", true));
 		if (pPrefsSvcRef)
 		{
 			Poco::AutoPtr<PreferencesService> pPrefsSvc = pPrefsSvcRef->castedInstance<PreferencesService>();
@@ -86,22 +89,36 @@ public:
 			compressResponse = pPrefsSvc->configuration()->getBool("osp.web.compressResponses", compressResponse);
 			compressedMediaTypesString = pPrefsSvc->configuration()->getString("osp.web.compressedMediaTypes", compressedMediaTypesString);
 			sessionCookiePersistence = pPrefsSvc->configuration()->getString("osp.web.sessionManager.cookiePersistence", sessionCookiePersistence);
+			sessionCookieSecure = pPrefsSvc->configuration()->getBool("osp.web.sessionManager.cookieSecure", sessionCookieSecure);
+			csrfCookie = pPrefsSvc->configuration()->getString("osp.web.sessionManager.csrfCookie", csrfCookie);
+			csrfProtectionEnabled = pPrefsSvc->configuration()->getBool("osp.web.csrfProtectionEnabled", csrfProtectionEnabled);
 		}
 
 		Poco::StringTokenizer tok(compressedMediaTypesString, ",", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 		std::set<std::string> compressedMediaTypes(tok.begin(), tok.end());
-		
+
 		AutoPtr<WebServerDispatcher> pWebServerDispatcher = new WebServerDispatcher(pContext, pMediaTypeMapper, authServiceName, compressResponse, compressedMediaTypes, cacheResources);
 		_pWebServerDispatcherSvc = pContext->registry().registerService(WebServerDispatcher::SERVICE_NAME, pWebServerDispatcher, Properties());
-		
+
 		WebSessionManager::CookiePersistence cookiePersistence = WebSessionManager::COOKIE_PERSISTENT;
 		if (sessionCookiePersistence == "transient")
+		{
 			cookiePersistence = WebSessionManager::COOKIE_TRANSIENT;
+		}
 		else if (sessionCookiePersistence != "persistent")
+		{
 			pContext->logger().warning(Poco::format("Ignoring invalid value for osp.web.sessionManager.cookiePersistence: '%s'. Valid values are 'transient' or 'persistent'.", sessionCookiePersistence));
-		
+		}
+
 		AutoPtr<WebSessionManager> pWebSessionManager = new WebSessionManager;
 		pWebSessionManager->setCookiePersistence(cookiePersistence);
+		pWebSessionManager->setCookieSecure(sessionCookieSecure);
+
+		if (csrfProtectionEnabled)
+		{
+			pWebSessionManager->setCSRFCookie(csrfCookie);
+		}
+
 		_pWebSessionManagerSvc = pContext->registry().registerService(WebSessionManager::SERVICE_NAME, pWebSessionManager, Properties());
 
 		ServiceRef::Ptr pXPSRef = pContext->registry().findByName("osp.core.xp");
@@ -117,9 +134,9 @@ public:
 		else
 		{
 			pContext->logger().error("The ExtensionPointService is not available.");
-		}		
+		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		pContext->registry().unregisterService(_pWebSessionManagerSvc);
@@ -131,7 +148,7 @@ public:
 		_pWebServerExtensionPoint = 0;
 		_pWebFilterExtensionPoint = 0;
 	}
-	
+
 private:
 	ServiceRef::Ptr _pMediaTypeMapperSvc;
 	ServiceRef::Ptr _pWebServerDispatcherSvc;

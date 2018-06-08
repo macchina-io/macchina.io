@@ -61,26 +61,49 @@ public:
 
 	~WebSessionManager();
 		/// Destroys the SessionManager.
-		
+
 	void setDefaultDomain(const std::string& domain);
 		/// Sets the default domain for the session cookie.
-		
+
 	const std::string& getDefaultDomain() const;
 		/// Returns the default domain for the session cookie.
-		
+
 	void setDefaultPath(const std::string& path);
 		/// Sets the default path for the session cookie.
-		
+
 	const std::string& getDefaultPath() const;
 		/// Returns the default path for the session cookie.
-		
+
 	void setCookiePersistence(CookiePersistence persistence);
 		/// Sets the cookie persistence, which controls whether
-		/// session cookies are transient (go away when the
+		/// session and CSRF cookies are transient (go away when the
 		/// browser is closed) or persistent (default).
-		
+
 	CookiePersistence getCookiePersistence() const;
-		/// Returns the cookie persistence.
+		/// Returns the cookie persistence for the session
+		/// and CSRF cookies.
+
+	void setCookieSecure(bool secure);
+		/// Sets the secure attribute of the session cookie.
+		///
+		/// If set to true, the browser will only send the
+		/// cookie over HTTPS connections.
+
+	bool isCookieSecure() const;
+		/// Returns true if the session cookie has the secure
+		/// attribute set, otherwise false.
+
+	void setCSRFCookie(const std::string& name);
+		/// Sets the name of the CSRF/XSRF cookie.
+		///
+		/// If set, the CSRF token of the session will be stored in
+		/// the cookie with the given name. This cookie is accessible
+		/// from JavaScript and can be used to authenticate scripted
+		/// HTTP requests (together with the session cookie).
+
+	const std::string& getCSRFCookie() const;
+		/// Returns the name of the CSRF cookie, if set, otherwise
+		/// an empty string.
 
 	// WebSessionService
 	WebSession::Ptr find(const std::string& appName, const Poco::Net::HTTPServerRequest& request);
@@ -96,7 +119,8 @@ public:
 
 protected:
 	std::string getId(const std::string& appName, const Poco::Net::HTTPServerRequest& request);
-	void addCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr ptrSes);
+	void addSessionCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr ptrSes);
+	void addCSRFCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr ptrSes);
 	std::string createSessionId(const Poco::Net::HTTPServerRequest& request);
 	std::string cookieName(const std::string& appName);
 	std::string cookieDomain(const std::string& appName);
@@ -110,7 +134,9 @@ private:
 	Poco::UniqueExpireCache<std::string, WebSession> _cache;
 	std::string _defaultDomain;
 	std::string _defaultPath;
+	std::string _csrfCookie;
 	CookiePersistence _cookiePersistence;
+	bool _cookieSecure;
 };
 
 

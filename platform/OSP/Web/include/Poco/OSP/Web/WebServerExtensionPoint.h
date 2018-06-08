@@ -37,16 +37,16 @@ namespace Web {
 class OSPWeb_API WebServerExtensionPoint: public ExtensionPoint
 	/// WebServerExtension handles two extensions points.
 	/// To register a directory in the Webserver:
-	///     <extension point="osp.web.server.directory" 
-	///                path="URI" 
-	///                resource="dir inside bundle" 
+	///     <extension point="osp.web.server.directory"
+	///                path="URI"
+	///                resource="dir inside bundle"
 	///                allowSpecialization="none|owner|all"
 	///                index="index.html"/>
 	///
 	/// To register a RequestHandlerFactory for a given server uri/set of uris:
-	///     <extension point="osp.web.server.requesthandler" 
+	///     <extension point="osp.web.server.requesthandler"
 	///                path="URI"
-	///                class="MyRequestHandlerFactory" 
+	///                class="MyRequestHandlerFactory"
 	///                library="MyLib"/>
 	///
 	/// Note that the extension points are automatically removed if a bundle is stopped.
@@ -57,16 +57,24 @@ class OSPWeb_API WebServerExtensionPoint: public ExtensionPoint
 	///    * secure:      If "true", require a secure (HTTPS) connection to access the resource.
 	///    * realm:       Specify authentication realm (together with permission).
 	///    * permission:  Specify the necessary access permission for this resource.
-	///                   Unless a session name is specified, HTTP Basic Authentication 
-	///                   is used to obtain the user's user name and password, which are 
-	///                   then checked against the specified permission using the authorization 
+	///                   Unless a session name is specified, HTTP Basic Authentication
+	///                   is used to obtain the user's user name and password, which are
+	///                   then checked against the specified permission using the authorization
 	///                   service.
-	///    * session:     Specify the name of the session used for session-based 
+	///    * session:     Specify the name of the session used for session-based
 	///                   authentication instead of HTTP Basic Authentication.
 	///                   If specified together with a permission, the session with the
 	///                   specified name is obtained from the WebSessionService, and the
 	///                   current users's name is obtained from the session's "username"
-	///                   attribute, which must be a std::string. 
+	///                   attribute, which must be a std::string.
+	///    * csrfProtection:
+	///                   If "true", enable CSRF/XSRF protection for session-based
+	///                   authentication. Requests must contain a header (default name
+	///                   "X-XSRF-TOKEN", but can be set with csrfToken attribute)
+	///                   containing the session's CSRF token.
+	///    * csrfTokenHeader:
+	///                   For CSRF/XSRF protection, specify the name of the header
+	///                   containing the CSRF/XSRF token. Defaults to "X-XSRF-TOKEN".
 	///    * hidden:      If "true", path is not included by WebServerDispatcher::listVirtualPaths().
 	///
 	/// The following attributes can be specified for "osp.web.server.directory":
@@ -75,9 +83,9 @@ class OSPWeb_API WebServerExtensionPoint: public ExtensionPoint
 	///    * index:       Specify the name of the default document (defaults to "index.html").
 	///    * cache:       If "true", files in this directory can be cached.
 	///                   Defaults to "true". Set to "false" to disable caching.
-	///    * allowSpecialization: 
-	///                   Using the <[allowSpecialization]> attribute, a bundle can specify whether 
-	///                   other bundles can register themselves for subdirectories of the directory 
+	///    * allowSpecialization:
+	///                   Using the <[allowSpecialization]> attribute, a bundle can specify whether
+	///                   other bundles can register themselves for subdirectories of the directory
 	///                   specified in <[path]>. The following values are supported:
 	///                   none: it is impossible to map resources or request handlers to subdirectories;
 	///                   owner: only this bundle can map resources or request handlers to subdirectories;
@@ -91,7 +99,7 @@ class OSPWeb_API WebServerExtensionPoint: public ExtensionPoint
 	///    * methods:     A comma-separated list of HTTP request methods ("GET", "POST", etc.") supported by the handler.
 	///                   If not specified, all methods are passed to the handler.
 	///    * class:       The class name of the request handler factory.
-	///    * library:     The name of the shared library containing the request handler factory. 
+	///    * library:     The name of the shared library containing the request handler factory.
 {
 public:
 	WebServerExtensionPoint(BundleContext::Ptr pContext, WebServerDispatcher* pDispatcher);
@@ -123,6 +131,8 @@ protected:
 	static const std::string ATTR_REALM;
 	static const std::string ATTR_PERMISSION;
 	static const std::string ATTR_SESSION;
+	static const std::string ATTR_CSRFPROTECTION;
+	static const std::string ATTR_CSRFTOKENHEADER;
 	static const std::string ATTR_RESOURCE;
 	static const std::string ATTR_CLASS;
 	static const std::string ATTR_LIBRARY;
@@ -134,11 +144,11 @@ protected:
 
 private:
 	WebServerExtensionPoint();
-	
+
 	typedef Poco::SharedPtr<WebRequestHandlerFactory> FactoryPtr;
 	typedef Poco::ClassLoader<WebRequestHandlerFactory> Loader;
 	typedef std::map<std::string, Bundle::Ptr> LibBundleMap;
-	
+
 	BundleContext::Ptr   _pContext;
 	WebServerDispatcher* _pDispatcher;
 	Loader               _loader;

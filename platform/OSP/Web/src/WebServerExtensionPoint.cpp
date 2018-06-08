@@ -41,6 +41,8 @@ const std::string WebServerExtensionPoint::ATTR_SECURE("secure");
 const std::string WebServerExtensionPoint::ATTR_REALM("realm");
 const std::string WebServerExtensionPoint::ATTR_PERMISSION("permission");
 const std::string WebServerExtensionPoint::ATTR_SESSION("session");
+const std::string WebServerExtensionPoint::ATTR_CSRFPROTECTION("csrfProtection");
+const std::string WebServerExtensionPoint::ATTR_CSRFTOKENHEADER("csrfTokenHeader");
 const std::string WebServerExtensionPoint::ATTR_RESOURCE("resource");
 const std::string WebServerExtensionPoint::ATTR_CLASS("class");
 const std::string WebServerExtensionPoint::ATTR_LIBRARY("library");
@@ -56,7 +58,7 @@ WebServerExtensionPoint::WebServerExtensionPoint(BundleContext::Ptr pContext, We
 	_pDispatcher(pDispatcher)
 {
 	poco_check_ptr (_pDispatcher);
-	
+
 	_pContext->events().bundleStopped += Delegate<WebServerExtensionPoint, BundleEvent>(this, &WebServerExtensionPoint::onBundleStopped);
 }
 
@@ -113,7 +115,7 @@ void WebServerExtensionPoint::handleRequestHandler(Bundle::ConstPtr pBundle, Poc
 		vPath.pPattern = new Poco::RegularExpression(pattern, Poco::RegularExpression::RE_ANCHORED);
 		vPath.path     = pattern;
 	}
-	
+
 	std::string methods = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_METHODS));
 	if (!methods.empty())
 	{
@@ -122,37 +124,44 @@ void WebServerExtensionPoint::handleRequestHandler(Bundle::ConstPtr pBundle, Poc
 	}
 
 	const std::string& className = pExtensionElem->getAttribute(ATTR_CLASS);
-	
+
 	std::string library = pExtensionElem->getAttribute(ATTR_LIBRARY);
 	if (library.empty())
 		library = pBundle->symbolicName();
-		
+
 	std::string libraryPath = _pContext->pathForLibrary(library);
 	if (!_loader.isLibraryLoaded(libraryPath))
 	{
 		_loader.loadLibrary(libraryPath, MANIFEST_NAME);
 		_libBundleMap[libraryPath] = pBundle;
 	}
-	
+
 	FactoryPtr pFactory = _loader.create(className);
 	pFactory->init(_pContext->contextForBundle(pBundle));
 	vPath.pFactory = pFactory;
-		
+
 	_pDispatcher->addVirtualPath(vPath);
 }
 
 
 void WebServerExtensionPoint::handleCommon(Bundle::ConstPtr pBundle, Poco::XML::Element* pExtensionElem, WebServerDispatcher::VirtualPath& vPath)
 {
-	vPath.pOwnerBundle        = pBundle;
-	vPath.path                = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_PATH));
-	vPath.description         = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_DESCRIPTION));
-	vPath.security.realm      = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_REALM));
-	vPath.security.permission = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_PERMISSION));
-	vPath.security.session    = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_SESSION));
-	vPath.security.secure     = pExtensionElem->getAttribute(ATTR_SECURE) == "true";
-	vPath.hidden              = pExtensionElem->getAttribute(ATTR_HIDDEN) == "true";
-	vPath.cache               = pExtensionElem->getAttribute(ATTR_CACHE) != "false";
+	vPath.pOwnerBundle             = pBundle;
+	vPath.path                     = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_PATH));
+	vPath.description              = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_DESCRIPTION));
+	vPath.security.realm           = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_REALM));
+	vPath.security.permission      = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_PERMISSION));
+	vPath.security.session         = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_SESSION));
+	vPath.security.secure          = pExtensionElem->getAttribute(ATTR_SECURE) == "true";
+	vPath.security.csrfProtection  = pExtensionElem->getAttribute(ATTR_CSRFPROTECTION) == "true";
+	vPath.security.csrfTokenHeader = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_CSRFTOKENHEADER));
+	vPath.hidden                   = pExtensionElem->getAttribute(ATTR_HIDDEN) == "true";
+	vPath.cache                    = pExtensionElem->getAttribute(ATTR_CACHE) != "false";
+
+	if (vPath.security.csrfProtection && vPath.security.csrfTokenHeader.empty())
+	{
+		vPath.security.csrfTokenHeader = "X-XSRF-TOKEN";
+	}
 
 	const std::string& specialization = Poco::toLower(pExtensionElem->getAttribute(ATTR_ALLOWSPECIALIZATION));
 	if (specialization.empty() || specialization == "none")
@@ -169,7 +178,7 @@ void WebServerExtensionPoint::handleCommon(Bundle::ConstPtr pBundle, Poco::XML::
 void WebServerExtensionPoint::onBundleStopped(const void* pSender, BundleEvent& ev)
 {
 	FastMutex::ScopedLock lock(_mutex);
-	
+
 	Bundle::ConstPtr pBundle = ev.bundle();
 	LibBundleMap::iterator it = _libBundleMap.begin();
 	while (it != _libBundleMap.end())
