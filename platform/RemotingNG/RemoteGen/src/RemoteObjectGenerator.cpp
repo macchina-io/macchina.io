@@ -106,7 +106,6 @@ void RemoteObjectGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 	}
 
 	handleParentFunctions(_pStructIn);
-	checkForParentEventMembers(pStruct);
 	checkForEventMembers(pStruct);
 }
 
@@ -130,7 +129,7 @@ void RemoteObjectGenerator::registerCallbacks(Poco::CodeGeneration::GeneratorEng
 	{
 		e.registerCallback(RemoteObjectGenerator::generateEventFunctionName(*itE), &RemoteObjectGenerator::eventCodeGen);
 	}
-	
+
 	// now register others
 	std::map<std::string, Poco::CodeGeneration::GeneratorEngine::MethodGenerator>::const_iterator it = _codeInjectors.begin();
 	std::map<std::string, Poco::CodeGeneration::GeneratorEngine::MethodGenerator>::const_iterator itEnd = _codeInjectors.end();
@@ -209,6 +208,23 @@ void RemoteObjectGenerator::syncFwdCodeGen(const Poco::CppParser::Function* pFun
 
 void RemoteObjectGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct)
 {
+	checkForEventMembersImpl(pStruct);
+
+	Poco::CppParser::Struct::BaseIterator itB = pStruct->baseBegin();
+	Poco::CppParser::Struct::BaseIterator itBEnd = pStruct->baseEnd();
+	for (; itB != itBEnd; ++itB)
+	{
+		const Poco::CppParser::Struct* pParent = itB->pClass;
+		if (pParent && Utility::hasAnyRemoteProperty(pParent))
+		{
+			checkForEventMembers(pParent);
+		}
+	}
+}
+
+
+void RemoteObjectGenerator::checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct)
+{
 	Poco::CppParser::NameSpace::SymbolTable tbl;
 	pStruct->variables(tbl);
 	Poco::CppParser::NameSpace::SymbolTable::const_iterator it = tbl.begin();
@@ -245,48 +261,9 @@ void RemoteObjectGenerator::checkForEventMembers(const Poco::CppParser::Struct* 
 				{
 					Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter(paramDecl, 0);
 					pFunc->addParameter(pParam);
-				}		
+				}
 			}
-		}	
-	}
-}
-
-
-void RemoteObjectGenerator::checkForParentEventMembers(const Poco::CppParser::Struct* pStruct)
-{
-	checkForParentEventMembersImpl(pStruct);
-
-	Poco::CppParser::Struct::BaseIterator itB = pStruct->baseBegin();
-	Poco::CppParser::Struct::BaseIterator itBEnd = pStruct->baseEnd();
-	for (; itB != itBEnd; ++itB)
-	{
-		const Poco::CppParser::Struct* pParent = itB->pClass;
-		if (pParent && Utility::hasAnyRemoteProperty(pParent))
-		{
-			checkForParentEventMembers(pParent);
 		}
-	}
-}
-
-
-void RemoteObjectGenerator::checkForParentEventMembersImpl(const Poco::CppParser::Struct* pStruct)
-{
-	Poco::CppParser::NameSpace::SymbolTable tbl;
-	pStruct->variables(tbl);
-	Poco::CppParser::NameSpace::SymbolTable::const_iterator it = tbl.begin();
-	Poco::CppParser::NameSpace::SymbolTable::const_iterator itEnd = tbl.end();
-	for (; it != itEnd; ++it)
-	{
-		Poco::CppParser::Variable* pVar = static_cast<Poco::CppParser::Variable*>(it->second);
-		const std::string& varType = pVar->declType();
-		if (pVar->getAccess() == Poco::CppParser::Variable::ACC_PUBLIC && !(pVar->flags() & Poco::CppParser::Variable::VAR_STATIC))
-		{
-			if (varType.find("Poco::BasicEvent") == 0 || varType.find("Poco::FIFOEvent") == 0)
-			{
-				_hasEvents = true;	
-				_cppGen.addSrcIncludeFile("Poco/RemotingNG/ORB.h");
-			}
-		}	
 	}
 }
 

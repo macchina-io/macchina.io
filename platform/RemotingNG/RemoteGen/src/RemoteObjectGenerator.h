@@ -20,7 +20,7 @@
 
 
 class RemoteObjectGenerator: public AbstractGenerator
-	/// RemoteObjectGenerator generates a wrapper extending RemoteObject for a given class definition. C++ specific. 
+	/// RemoteObjectGenerator generates a wrapper extending RemoteObject for a given class definition. C++ specific.
 {
 public:
 	RemoteObjectGenerator(Poco::CodeGeneration::CppGenerator& cppGen);
@@ -70,10 +70,7 @@ private:
 	void checkForEventMembers(const Poco::CppParser::Struct* pStruct);
 		/// checks if the class contains public BasicEvents
 
-	void checkForParentEventMembers(const Poco::CppParser::Struct* pStruct);
-		/// checks if any base class contains public BasicEvents
-
-	void checkForParentEventMembersImpl(const Poco::CppParser::Struct* pStruct);
+	void checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct);
 
 	std::map<std::string, Poco::CodeGeneration::GeneratorEngine::MethodGenerator> _codeInjectors;
 	std::set<std::string> _functions;
