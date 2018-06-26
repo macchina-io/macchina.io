@@ -31,6 +31,7 @@ BooleanSensorRemoteObject::BooleanSensorRemoteObject(const Poco::RemotingNG::Ide
 	_pServiceObject(pServiceObject)
 {
 	_pServiceObject->stateChanged += Poco::delegate(this, &BooleanSensorRemoteObject::event__stateChanged);
+	_pServiceObject->statusChanged += Poco::delegate(this, &BooleanSensorRemoteObject::event__statusChanged);
 }
 
 
@@ -39,6 +40,7 @@ BooleanSensorRemoteObject::~BooleanSensorRemoteObject()
 	try
 	{
 		_pServiceObject->stateChanged -= Poco::delegate(this, &BooleanSensorRemoteObject::event__stateChanged);
+		_pServiceObject->statusChanged -= Poco::delegate(this, &BooleanSensorRemoteObject::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -69,6 +71,12 @@ bool BooleanSensorRemoteObject::remoting__hasEvents() const
 void BooleanSensorRemoteObject::event__stateChanged(const bool& data)
 {
 	stateChanged(this, data);
+}
+
+
+void BooleanSensorRemoteObject::event__statusChanged(const IoT::Devices::DeviceStatusChange& data)
+{
+	statusChanged(this, data);
 }
 
 

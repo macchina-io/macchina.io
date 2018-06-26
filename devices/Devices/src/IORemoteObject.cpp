@@ -31,6 +31,7 @@ IORemoteObject::IORemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& o
 	_pServiceObject(pServiceObject)
 {
 	_pServiceObject->stateChanged += Poco::delegate(this, &IORemoteObject::event__stateChanged);
+	_pServiceObject->statusChanged += Poco::delegate(this, &IORemoteObject::event__statusChanged);
 }
 
 
@@ -39,6 +40,7 @@ IORemoteObject::~IORemoteObject()
 	try
 	{
 		_pServiceObject->stateChanged -= Poco::delegate(this, &IORemoteObject::event__stateChanged);
+		_pServiceObject->statusChanged -= Poco::delegate(this, &IORemoteObject::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -69,6 +71,12 @@ bool IORemoteObject::remoting__hasEvents() const
 void IORemoteObject::event__stateChanged(const bool& data)
 {
 	stateChanged(this, data);
+}
+
+
+void IORemoteObject::event__statusChanged(const IoT::Devices::DeviceStatusChange& data)
+{
+	statusChanged(this, data);
 }
 
 

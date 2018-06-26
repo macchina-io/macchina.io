@@ -32,6 +32,7 @@ GNSSSensorRemoteObject::GNSSSensorRemoteObject(const Poco::RemotingNG::Identifia
 {
 	_pServiceObject->positionLost += Poco::delegate(this, &GNSSSensorRemoteObject::event__positionLost);
 	_pServiceObject->positionUpdate += Poco::delegate(this, &GNSSSensorRemoteObject::event__positionUpdate);
+	_pServiceObject->statusChanged += Poco::delegate(this, &GNSSSensorRemoteObject::event__statusChanged);
 }
 
 
@@ -41,6 +42,7 @@ GNSSSensorRemoteObject::~GNSSSensorRemoteObject()
 	{
 		_pServiceObject->positionLost -= Poco::delegate(this, &GNSSSensorRemoteObject::event__positionLost);
 		_pServiceObject->positionUpdate -= Poco::delegate(this, &GNSSSensorRemoteObject::event__positionUpdate);
+		_pServiceObject->statusChanged -= Poco::delegate(this, &GNSSSensorRemoteObject::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -77,6 +79,12 @@ void GNSSSensorRemoteObject::event__positionLost()
 void GNSSSensorRemoteObject::event__positionUpdate(const IoT::Devices::PositionUpdate& data)
 {
 	positionUpdate(this, data);
+}
+
+
+void GNSSSensorRemoteObject::event__statusChanged(const IoT::Devices::DeviceStatusChange& data)
+{
+	statusChanged(this, data);
 }
 
 

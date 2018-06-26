@@ -31,6 +31,7 @@ SwitchRemoteObject::SwitchRemoteObject(const Poco::RemotingNG::Identifiable::Obj
 	_pServiceObject(pServiceObject)
 {
 	_pServiceObject->stateChanged += Poco::delegate(this, &SwitchRemoteObject::event__stateChanged);
+	_pServiceObject->statusChanged += Poco::delegate(this, &SwitchRemoteObject::event__statusChanged);
 }
 
 
@@ -39,6 +40,7 @@ SwitchRemoteObject::~SwitchRemoteObject()
 	try
 	{
 		_pServiceObject->stateChanged -= Poco::delegate(this, &SwitchRemoteObject::event__stateChanged);
+		_pServiceObject->statusChanged -= Poco::delegate(this, &SwitchRemoteObject::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -69,6 +71,12 @@ bool SwitchRemoteObject::remoting__hasEvents() const
 void SwitchRemoteObject::event__stateChanged(const bool& data)
 {
 	stateChanged(this, data);
+}
+
+
+void SwitchRemoteObject::event__statusChanged(const IoT::Devices::DeviceStatusChange& data)
+{
+	statusChanged(this, data);
 }
 
 

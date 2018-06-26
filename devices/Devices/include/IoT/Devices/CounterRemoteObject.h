@@ -129,6 +129,8 @@ public:
 protected:
 	void event__countChanged(const Poco::Int32& data);
 
+	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
+
 private:
 	Poco::SharedPtr<IoT::Devices::Counter> _pServiceObject;
 };

@@ -210,6 +210,8 @@ public:
 protected:
 	void event__lineReceived(const std::string& data);
 
+	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
+
 private:
 	Poco::SharedPtr<IoT::Devices::SerialDevice> _pServiceObject;
 };

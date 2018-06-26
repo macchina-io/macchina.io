@@ -31,6 +31,7 @@ BarcodeReaderRemoteObject::BarcodeReaderRemoteObject(const Poco::RemotingNG::Ide
 	_pServiceObject(pServiceObject)
 {
 	_pServiceObject->barcodeRead += Poco::delegate(this, &BarcodeReaderRemoteObject::event__barcodeRead);
+	_pServiceObject->statusChanged += Poco::delegate(this, &BarcodeReaderRemoteObject::event__statusChanged);
 }
 
 
@@ -39,6 +40,7 @@ BarcodeReaderRemoteObject::~BarcodeReaderRemoteObject()
 	try
 	{
 		_pServiceObject->barcodeRead -= Poco::delegate(this, &BarcodeReaderRemoteObject::event__barcodeRead);
+		_pServiceObject->statusChanged -= Poco::delegate(this, &BarcodeReaderRemoteObject::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -69,6 +71,12 @@ bool BarcodeReaderRemoteObject::remoting__hasEvents() const
 void BarcodeReaderRemoteObject::event__barcodeRead(const IoT::Devices::BarcodeReadEvent& data)
 {
 	barcodeRead(this, data);
+}
+
+
+void BarcodeReaderRemoteObject::event__statusChanged(const IoT::Devices::DeviceStatusChange& data)
+{
+	statusChanged(this, data);
 }
 
 

@@ -129,6 +129,11 @@ public:
 	virtual bool state() const;
 		/// Returns the current state of the trigger.
 
+protected:
+	void event__stateChanged(const bool& data);
+
+	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
+
 private:
 	Poco::SharedPtr<IoT::Devices::Trigger> _pServiceObject;
 };

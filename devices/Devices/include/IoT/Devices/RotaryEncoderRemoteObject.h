@@ -133,6 +133,10 @@ public:
 protected:
 	void event__buttonStateChanged(const bool& data);
 
+	void event__countChanged(const Poco::Int32& data);
+
+	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
+
 private:
 	Poco::SharedPtr<IoT::Devices::RotaryEncoder> _pServiceObject;
 };

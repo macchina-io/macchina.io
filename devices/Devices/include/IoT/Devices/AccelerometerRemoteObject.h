@@ -125,6 +125,8 @@ public:
 protected:
 	void event__accelerationChanged(const IoT::Devices::Acceleration& data);
 
+	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
+
 private:
 	Poco::SharedPtr<IoT::Devices::Accelerometer> _pServiceObject;
 };

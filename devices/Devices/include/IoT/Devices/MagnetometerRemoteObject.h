@@ -125,6 +125,8 @@ public:
 protected:
 	void event__fieldStrengthChanged(const IoT::Devices::MagneticFieldStrength& data);
 
+	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
+
 private:
 	Poco::SharedPtr<IoT::Devices::Magnetometer> _pServiceObject;
 };

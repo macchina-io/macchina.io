@@ -31,6 +31,7 @@ GyroscopeRemoteObject::GyroscopeRemoteObject(const Poco::RemotingNG::Identifiabl
 	_pServiceObject(pServiceObject)
 {
 	_pServiceObject->rotationChanged += Poco::delegate(this, &GyroscopeRemoteObject::event__rotationChanged);
+	_pServiceObject->statusChanged += Poco::delegate(this, &GyroscopeRemoteObject::event__statusChanged);
 }
 
 
@@ -39,6 +40,7 @@ GyroscopeRemoteObject::~GyroscopeRemoteObject()
 	try
 	{
 		_pServiceObject->rotationChanged -= Poco::delegate(this, &GyroscopeRemoteObject::event__rotationChanged);
+		_pServiceObject->statusChanged -= Poco::delegate(this, &GyroscopeRemoteObject::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -69,6 +71,12 @@ bool GyroscopeRemoteObject::remoting__hasEvents() const
 void GyroscopeRemoteObject::event__rotationChanged(const IoT::Devices::Rotation& data)
 {
 	rotationChanged(this, data);
+}
+
+
+void GyroscopeRemoteObject::event__statusChanged(const IoT::Devices::DeviceStatusChange& data)
+{
+	statusChanged(this, data);
 }
 
 

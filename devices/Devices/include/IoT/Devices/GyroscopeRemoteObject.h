@@ -125,6 +125,8 @@ public:
 protected:
 	void event__rotationChanged(const IoT::Devices::Rotation& data);
 
+	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
+
 private:
 	Poco::SharedPtr<IoT::Devices::Gyroscope> _pServiceObject;
 };

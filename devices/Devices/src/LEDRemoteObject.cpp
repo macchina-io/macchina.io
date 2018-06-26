@@ -17,6 +17,7 @@
 
 #include "IoT/Devices/LEDRemoteObject.h"
 #include "IoT/Devices/LEDEventDispatcher.h"
+#include "Poco/Delegate.h"
 #include "Poco/RemotingNG/ORB.h"
 
 
@@ -29,6 +30,7 @@ LEDRemoteObject::LEDRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId&
 	Poco::RemotingNG::RemoteObject(oid),
 	_pServiceObject(pServiceObject)
 {
+	_pServiceObject->statusChanged += Poco::delegate(this, &LEDRemoteObject::event__statusChanged);
 }
 
 
@@ -36,6 +38,7 @@ LEDRemoteObject::~LEDRemoteObject()
 {
 	try
 	{
+		_pServiceObject->statusChanged -= Poco::delegate(this, &LEDRemoteObject::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -60,6 +63,12 @@ void LEDRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 bool LEDRemoteObject::remoting__hasEvents() const
 {
 	return true;
+}
+
+
+void LEDRemoteObject::event__statusChanged(const IoT::Devices::DeviceStatusChange& data)
+{
+	statusChanged(this, data);
 }
 
 

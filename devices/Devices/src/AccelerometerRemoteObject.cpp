@@ -31,6 +31,7 @@ AccelerometerRemoteObject::AccelerometerRemoteObject(const Poco::RemotingNG::Ide
 	_pServiceObject(pServiceObject)
 {
 	_pServiceObject->accelerationChanged += Poco::delegate(this, &AccelerometerRemoteObject::event__accelerationChanged);
+	_pServiceObject->statusChanged += Poco::delegate(this, &AccelerometerRemoteObject::event__statusChanged);
 }
 
 
@@ -39,6 +40,7 @@ AccelerometerRemoteObject::~AccelerometerRemoteObject()
 	try
 	{
 		_pServiceObject->accelerationChanged -= Poco::delegate(this, &AccelerometerRemoteObject::event__accelerationChanged);
+		_pServiceObject->statusChanged -= Poco::delegate(this, &AccelerometerRemoteObject::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -69,6 +71,12 @@ bool AccelerometerRemoteObject::remoting__hasEvents() const
 void AccelerometerRemoteObject::event__accelerationChanged(const IoT::Devices::Acceleration& data)
 {
 	accelerationChanged(this, data);
+}
+
+
+void AccelerometerRemoteObject::event__statusChanged(const IoT::Devices::DeviceStatusChange& data)
+{
+	statusChanged(this, data);
 }
 
 

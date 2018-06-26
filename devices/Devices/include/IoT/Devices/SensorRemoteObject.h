@@ -171,6 +171,8 @@ public:
 		/// should be called to check if a valid value is available.
 
 protected:
+	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
+
 	void event__valueChanged(const double& data);
 
 private:

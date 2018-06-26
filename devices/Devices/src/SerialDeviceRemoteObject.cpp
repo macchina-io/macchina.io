@@ -31,6 +31,7 @@ SerialDeviceRemoteObject::SerialDeviceRemoteObject(const Poco::RemotingNG::Ident
 	_pServiceObject(pServiceObject)
 {
 	_pServiceObject->lineReceived += Poco::delegate(this, &SerialDeviceRemoteObject::event__lineReceived);
+	_pServiceObject->statusChanged += Poco::delegate(this, &SerialDeviceRemoteObject::event__statusChanged);
 }
 
 
@@ -39,6 +40,7 @@ SerialDeviceRemoteObject::~SerialDeviceRemoteObject()
 	try
 	{
 		_pServiceObject->lineReceived -= Poco::delegate(this, &SerialDeviceRemoteObject::event__lineReceived);
+		_pServiceObject->statusChanged -= Poco::delegate(this, &SerialDeviceRemoteObject::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -69,6 +71,12 @@ bool SerialDeviceRemoteObject::remoting__hasEvents() const
 void SerialDeviceRemoteObject::event__lineReceived(const std::string& data)
 {
 	lineReceived(this, data);
+}
+
+
+void SerialDeviceRemoteObject::event__statusChanged(const IoT::Devices::DeviceStatusChange& data)
+{
+	statusChanged(this, data);
 }
 
 

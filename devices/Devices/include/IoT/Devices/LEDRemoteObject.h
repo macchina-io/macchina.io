@@ -166,6 +166,9 @@ public:
 		/// Which properties are supported is defined by the
 		/// actual device implementation.
 
+protected:
+	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
+
 private:
 	Poco::SharedPtr<IoT::Devices::LED> _pServiceObject;
 };

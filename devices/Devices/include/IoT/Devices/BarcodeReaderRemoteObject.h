@@ -126,6 +126,8 @@ public:
 protected:
 	void event__barcodeRead(const IoT::Devices::BarcodeReadEvent& data);
 
+	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
+
 private:
 	Poco::SharedPtr<IoT::Devices::BarcodeReader> _pServiceObject;
 };

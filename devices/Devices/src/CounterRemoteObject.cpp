@@ -31,6 +31,7 @@ CounterRemoteObject::CounterRemoteObject(const Poco::RemotingNG::Identifiable::O
 	_pServiceObject(pServiceObject)
 {
 	_pServiceObject->countChanged += Poco::delegate(this, &CounterRemoteObject::event__countChanged);
+	_pServiceObject->statusChanged += Poco::delegate(this, &CounterRemoteObject::event__statusChanged);
 }
 
 
@@ -39,6 +40,7 @@ CounterRemoteObject::~CounterRemoteObject()
 	try
 	{
 		_pServiceObject->countChanged -= Poco::delegate(this, &CounterRemoteObject::event__countChanged);
+		_pServiceObject->statusChanged -= Poco::delegate(this, &CounterRemoteObject::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -69,6 +71,12 @@ bool CounterRemoteObject::remoting__hasEvents() const
 void CounterRemoteObject::event__countChanged(const Poco::Int32& data)
 {
 	countChanged(this, data);
+}
+
+
+void CounterRemoteObject::event__statusChanged(const IoT::Devices::DeviceStatusChange& data)
+{
+	statusChanged(this, data);
 }
 
 

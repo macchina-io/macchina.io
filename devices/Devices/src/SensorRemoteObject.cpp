@@ -31,6 +31,7 @@ SensorRemoteObject::SensorRemoteObject(const Poco::RemotingNG::Identifiable::Obj
 	_pServiceObject(pServiceObject)
 {
 	_pServiceObject->valueChanged += Poco::delegate(this, &SensorRemoteObject::event__valueChanged);
+	_pServiceObject->statusChanged += Poco::delegate(this, &SensorRemoteObject::event__statusChanged);
 }
 
 
@@ -39,6 +40,7 @@ SensorRemoteObject::~SensorRemoteObject()
 	try
 	{
 		_pServiceObject->valueChanged -= Poco::delegate(this, &SensorRemoteObject::event__valueChanged);
+		_pServiceObject->statusChanged -= Poco::delegate(this, &SensorRemoteObject::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -63,6 +65,12 @@ void SensorRemoteObject::remoting__enableRemoteEvents(const std::string& protoco
 bool SensorRemoteObject::remoting__hasEvents() const
 {
 	return true;
+}
+
+
+void SensorRemoteObject::event__statusChanged(const IoT::Devices::DeviceStatusChange& data)
+{
+	statusChanged(this, data);
 }
 
 

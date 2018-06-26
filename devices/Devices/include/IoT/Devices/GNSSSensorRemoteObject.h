@@ -164,6 +164,8 @@ protected:
 
 	void event__positionUpdate(const IoT::Devices::PositionUpdate& data);
 
+	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
+
 private:
 	Poco::SharedPtr<IoT::Devices::GNSSSensor> _pServiceObject;
 };

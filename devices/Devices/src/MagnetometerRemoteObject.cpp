@@ -31,6 +31,7 @@ MagnetometerRemoteObject::MagnetometerRemoteObject(const Poco::RemotingNG::Ident
 	_pServiceObject(pServiceObject)
 {
 	_pServiceObject->fieldStrengthChanged += Poco::delegate(this, &MagnetometerRemoteObject::event__fieldStrengthChanged);
+	_pServiceObject->statusChanged += Poco::delegate(this, &MagnetometerRemoteObject::event__statusChanged);
 }
 
 
@@ -39,6 +40,7 @@ MagnetometerRemoteObject::~MagnetometerRemoteObject()
 	try
 	{
 		_pServiceObject->fieldStrengthChanged -= Poco::delegate(this, &MagnetometerRemoteObject::event__fieldStrengthChanged);
+		_pServiceObject->statusChanged -= Poco::delegate(this, &MagnetometerRemoteObject::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -69,6 +71,12 @@ bool MagnetometerRemoteObject::remoting__hasEvents() const
 void MagnetometerRemoteObject::event__fieldStrengthChanged(const IoT::Devices::MagneticFieldStrength& data)
 {
 	fieldStrengthChanged(this, data);
+}
+
+
+void MagnetometerRemoteObject::event__statusChanged(const IoT::Devices::DeviceStatusChange& data)
+{
+	statusChanged(this, data);
 }
 
 
