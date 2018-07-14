@@ -48,7 +48,10 @@
               <div class="apptitle"><a href="{{app.link}}" title="{{app.title}}">{{app.title}}</a></div>
             </div>
           </a>
-          <div id="noAppsFound" ng-if="!appsAvailable()">
+          <div id="noAppsFound" ng-if="appsLoading()">
+          Loading...
+          </div>
+          <div id="noAppsFound" ng-if="!appsAvailable() && !appsLoading()">
           No applications found.
           </div>
         </div>
