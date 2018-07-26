@@ -122,6 +122,9 @@ public:
 	void set(const std::string& key, const std::string& value);
 		/// Adds a new or updates an existing property.
 
+	void set(const std::string& key, const char* value);
+		/// Adds a new or updates an existing property.
+
 	void set(const std::string& key, bool value);
 		/// Adds a new or updates an existing property.
 

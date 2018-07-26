@@ -188,6 +188,14 @@ void Properties::set(const std::string& key, const std::string& value)
 }
 
 
+void Properties::set(const std::string& key, const char* value)
+{
+	Poco::FastMutex::ScopedLock _lock(_mutex);
+
+	_props[key] = value;
+}
+
+
 void Properties::set(const std::string& key, bool value)
 {
 	set(key, value ? PROP_TRUE : PROP_FALSE);
