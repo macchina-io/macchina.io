@@ -912,7 +912,7 @@ void BundleLoader::makeValidFileName(std::string& name)
 {
 	for (std::string::iterator it = name.begin(); it != name.end(); ++it)
 	{
-		if (!std::isalnum(*it)) *it = '_';
+		if (!(std::isalnum(*it) || *it == '-')) *it = '_';
 	}
 }
 

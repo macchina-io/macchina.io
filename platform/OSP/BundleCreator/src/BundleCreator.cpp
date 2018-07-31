@@ -239,11 +239,13 @@ protected:
 	void handleOSName(const std::string& name, const std::string& value)
 	{
 		_osName = value;
+		makeValidFileName(_osName);
 	}
 
 	void handleOSArch(const std::string& name, const std::string& value)
 	{
 		_osArch = value;
+		makeValidFileName(_osArch);
 	}
 
 	void handleNoDeflate(const std::string& name, const std::string& value)
@@ -678,7 +680,7 @@ private:
 	{
 		for (std::string::iterator it = name.begin(); it != name.end(); ++it)
 		{
-			if (!std::isalnum(*it)) *it = '_';
+			if (!(std::isalnum(*it) || *it == '-')) *it = '_';
 		}
 	}
 
