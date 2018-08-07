@@ -215,7 +215,6 @@ void WebSessionManager::addCSRFCookie(const std::string& appName, const Poco::Ne
 			csrfCookie.setMaxAge(pSession->timeout());
 		}
 		csrfCookie.setPath(cookiePath(appName));
-		csrfCookie.setDomain(cookieDomain(appName));
 		csrfCookie.setSecure(_cookieSecure);
 		request.response().addCookie(csrfCookie);
 	}
