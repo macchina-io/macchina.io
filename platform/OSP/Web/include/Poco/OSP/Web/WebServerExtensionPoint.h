@@ -61,6 +61,8 @@ class OSPWeb_API WebServerExtensionPoint: public ExtensionPoint
 	///                   is used to obtain the user's user name and password, which are
 	///                   then checked against the specified permission using the authorization
 	///                   service.
+	///                   If the permission string is an asterisk ("*"), only the
+	///                   validity of the credentials is verified.
 	///    * session:     Specify the name of the session used for session-based
 	///                   authentication instead of HTTP Basic Authentication.
 	///                   If specified together with a permission, the session with the

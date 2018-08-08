@@ -793,7 +793,7 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 			if (!username.empty())
 			{
 				AuthService::Ptr pAuthService = authService();
-				if (pAuthService->authorize(username, vPath.security.permission))
+				if (vPath.security.permission == "*" || pAuthService->authorize(username, vPath.security.permission))
 				{
 					if (vPath.security.csrfProtection && !vPath.security.csrfTokenHeader.empty())
 					{
@@ -836,7 +836,7 @@ bool WebServerDispatcher::authorizeBasic(Poco::Net::HTTPServerRequest& request, 
 		username = cred.getUsername();
 		if (pAuthService->authenticate(username, cred.getPassword()))
 		{
-			if (pAuthService->authorize(username, vPath.security.permission))
+			if (vPath.security.permission == "*" || pAuthService->authorize(username, vPath.security.permission))
 			{
 				return true;
 			}

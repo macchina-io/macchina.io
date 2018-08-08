@@ -128,26 +128,37 @@ public:
 		ServiceRef::Ptr pPrefsRef = pContext->registry().findByName(PreferencesService::SERVICE_NAME);
 		AutoPtr<PreferencesService> pPrefs = pPrefsRef->castedInstance<PreferencesService>();
 		
-		std::string adminName = pPrefs->configuration()->getString("auth.simple.admin.name", "admin");
-		std::string adminPasswordHash = pPrefs->configuration()->getString("auth.simple.admin.passwordHash", ""); 
-		std::string userName = pPrefs->configuration()->getString("auth.simple.user.name", "user");
-		std::string userPasswordHash = pPrefs->configuration()->getString("auth.simple.user.passwordHash", "");
-		std::string salt = pPrefs->configuration()->getString("auth.simple.salt", "");
-		std::string perms = pPrefs->configuration()->getString("auth.simple.user.permissions", "");
-		StringTokenizer tok(perms, ",;", StringTokenizer::TOK_TRIM | StringTokenizer::TOK_IGNORE_EMPTY);
-		std::set<std::string> userPermissions;
-		for (StringTokenizer::Iterator it = tok.begin(); it != tok.end(); ++it)
+		bool enable = pPrefs->configuration()->getBool("auth.simple.enable", true);
+		if (enable)
 		{
-			userPermissions.insert(*it);
+			std::string adminName = pPrefs->configuration()->getString("auth.simple.admin.name", "admin");
+			std::string adminPasswordHash = pPrefs->configuration()->getString("auth.simple.admin.passwordHash", ""); 
+			std::string userName = pPrefs->configuration()->getString("auth.simple.user.name", "user");
+			std::string userPasswordHash = pPrefs->configuration()->getString("auth.simple.user.passwordHash", "");
+			std::string salt = pPrefs->configuration()->getString("auth.simple.salt", "");
+			std::string perms = pPrefs->configuration()->getString("auth.simple.user.permissions", "");
+			StringTokenizer tok(perms, ",;", StringTokenizer::TOK_TRIM | StringTokenizer::TOK_IGNORE_EMPTY);
+			std::set<std::string> userPermissions;
+			for (StringTokenizer::Iterator it = tok.begin(); it != tok.end(); ++it)
+			{
+				userPermissions.insert(*it);
+			}
+			
+			AutoPtr<SimpleAuthService> pService = new SimpleAuthService(adminName, adminPasswordHash, userName, userPasswordHash, userPermissions, salt);
+			_pService = pContext->registry().registerService("osp.auth", pService, Properties());
 		}
-		
-		AutoPtr<SimpleAuthService> pService = new SimpleAuthService(adminName, adminPasswordHash, userName, userPasswordHash, userPermissions, salt);
-		_pService = pContext->registry().registerService("osp.auth", pService, Properties());
+		else
+		{
+			pContext->logger().information("Simple authentication service disabled.");
+		}
 	}
 		
 	void stop(BundleContext::Ptr pContext)
 	{
-		pContext->registry().unregisterService(_pService);
+		if (_pService)
+		{
+			pContext->registry().unregisterService(_pService);
+		}
 	}
 	
 private:
