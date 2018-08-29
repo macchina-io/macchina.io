@@ -4,6 +4,6 @@ find_package(MacchinaOSP)
 add_library(poco.net SHARED 
     src/NetBundleActivator.cpp
 )
-target_link_libraries(poco.net Poco::OSP)
+target_link_libraries(poco.net Poco::OSP Poco::Net)
 
 create_bundle(TARGET poco.net SPEC_FILE Net.bndlspec)
