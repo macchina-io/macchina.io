@@ -15,12 +15,13 @@ add_library(PocoOSPWeb SHARED
     src/WebFilterFactory.cpp
     src/WebFilterExtensionPoint.cpp
 )
-target_link_libraries(PocoOSPWeb  PocoOSP PocoNet PocoUtil PocoXML PocoFoundation)
+target_link_libraries(PocoOSPWeb  Poco::OSP)
 target_include_directories(PocoOSPWeb PUBLIC include)
+add_library(Poco::OSP::Web ALIAS PocoOSPWeb)
 
 add_library(osp.web SHARED 
     src/WebBundleActivator.cpp
 )
-target_link_libraries(osp.web PocoOSPWeb)
- 
+target_link_libraries(osp.web Poco::OSP::Web)
+
 create_bundle(TARGET osp.web SPEC_FILE WebBundle.bndlspec)

@@ -4,7 +4,7 @@ add_library(PocoGeo
     src/Angle.cpp
 )
 
-target_link_libraries(PocoGeo Foundation )
+target_link_libraries(PocoGeo Poco::Foundation)
 target_include_directories(PocoGeo
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -12,3 +12,4 @@ target_include_directories(PocoGeo
     PRIVATE 
         src
     )
+add_library(Poco::Geo ALIAS PocoGeo)

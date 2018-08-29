@@ -41,10 +41,12 @@ add_library(PocoOSP SHARED
     src/AuthService.cpp
     src/BundleActivator.cpp
 )
-target_link_libraries(PocoOSP PocoZip PocoUtil PocoXML PocoFoundation )
+target_link_libraries(PocoOSP PUBLIC Poco::Zip Poco::Util Poco::XML)
 target_include_directories(PocoOSP
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
+
+add_library(Poco::OSP ALIAS PocoOSP)

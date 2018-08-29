@@ -1,5 +1,15 @@
 cmake_minimum_required(VERSION 3.2.0)
+
+include("cmake/HunterGate.cmake")
+HunterGate(
+    URL "https://github.com/Bjoe/hunter/archive/026b81652febb03e3e6e2519868dc59d84de2dfe.zip"
+    SHA1 "fac046931de6f4762f2d9d321494af8b00aba1bf"
+    LOCAL
+)
+
 project(macchina.io)
+
+hunter_add_package(PocoCpp)
 
 # Read the version information from the VERSION file
 file (STRINGS "${PROJECT_SOURCE_DIR}/VERSION" PACKAGE_VERSION )
@@ -22,14 +32,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${CMAKE_SYSTEM_NAME}/
 # Append our module directory to CMake
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/platform/OSP/cmake)
 
-
+find_package(Poco REQUIRED Foundation Data Crypto JSON Net NetSSL   Util XML Zip) # TODO(BJoe) Add support for CppUnit PageCompiler Redis
 # Build third party libraries
-add_subdirectory(platform)
+#add_subdirectory(platform)
 add_subdirectory(platform/Serial)
 add_subdirectory(platform/WebTunnel)
 add_subdirectory(platform/RemotingNG)
 add_subdirectory(platform/Geo)
-# add_subdirectory(platform/JS/V8) TODO Fix build error
+# add_subdirectory(platform/JS/V8) TODO(BJoe) Fix build error
 
 
 # Build OSP

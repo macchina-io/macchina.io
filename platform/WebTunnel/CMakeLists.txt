@@ -9,7 +9,7 @@ add_library(PocoWebTunnel
     src/TunnelSocketImpl.cpp
 )
 
-target_link_libraries(PocoWebTunnel Foundation Net )
+target_link_libraries(PocoWebTunnel Poco::Net)
 target_include_directories(PocoWebTunnel
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -17,3 +17,5 @@ target_include_directories(PocoWebTunnel
     PRIVATE 
        src
     )
+
+add_library(Poco::WebTunnel ALIAS PocoWebTunnel)

@@ -32,7 +32,7 @@ add_library(PocoRemotingNG
 
 target_compile_definitions(PocoRemotingNG PUBLIC RemotingNG_EXPORTS)
 
-target_link_libraries(PocoRemotingNG Foundation )
+target_link_libraries(PocoRemotingNG Poco::Foundation)
 
 target_include_directories(PocoRemotingNG
     PUBLIC
