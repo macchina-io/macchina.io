@@ -5,7 +5,7 @@ AAAAMacchinaIO
 
 macchina.io is an open source software toolkit for quickly building
 embedded applications for the Internet of Things that run on Linux-based
-devices like the Raspberry Pi, Beaglebone, RED Brick or Galileo/Edison.
+devices like the Raspberry Pi, Beaglebone or similar.
 It implements a web-enabled, modular and extensible JavaScript
 and C++ runtime environment and provides readily available, easy to use
 building blocks that allow your application to talk to various sensors
@@ -27,8 +27,8 @@ the system architecture of macchina.io, which is also reflected in the source co
 [[image:images/macchina_overview.png Figure 1: An overview of macchina.io]]
 
 macchina.io ist mostly implemented in C++. Although JavaScript plays a big role in
-macchina.io as the primary language for application development, it is not used much 
-in the implementation of macchina.io itself, except for some parts of the web user 
+macchina.io as the primary language for application development, it is not used much
+in the implementation of macchina.io itself, except for some parts of the web user
 interface.
 
 
@@ -45,12 +45,12 @@ well.
 
 !POCO C++ Libraries
 
-The [[http://pocoproject.org POCO C++ Libraries]] are modern, powerful open source 
-C++ class libraries and frameworks for building network- and internet-based applications 
+The [[http://pocoproject.org POCO C++ Libraries]] are modern, powerful open source
+C++ class libraries and frameworks for building network- and internet-based applications
 that run on desktop, server, mobile and embedded systems. They provide essential features
 such as platform abstraction, multithreading, XML and JSON processing, filesystem access,
-logging, stream, datagram and multicast sockets, HTTP server and client, SSL/TLS, etc. 
-Virtually everything implemented in macchina.io (except some integrated third-party open 
+logging, stream, datagram and multicast sockets, HTTP server and client, SSL/TLS, etc.
+Virtually everything implemented in macchina.io (except some integrated third-party open
 source projects) is based on the POCO C++ Libraries.
 
 
@@ -79,7 +79,7 @@ The Open Service Platform has been developed by Applied Informatics. It was
 first released under a commercial license. For macchina.io, the core of
 OSP has been released under an open source license. The full version of OSP
 (including features such as a command shell framework, improved user authentication
-and authorization including LDAP support, cryptographically signed bundles, etc.) is 
+and authorization including LDAP support, cryptographically signed bundles, etc.) is
 available from Applied Informatics under a commercial license.
 
 
@@ -111,7 +111,7 @@ communication, using the TCP transport.
 !JavaScript Environment
 
 The JavaScript environment in macchina.io is based on the Google V8 engine.
-V8 is the JavaScript engine used in the Google Chrome browser and 
+V8 is the JavaScript engine used in the Google Chrome browser and
 node.js, the well-known server-side JavaScript platform.
 
 There are bindings that allow using certain features of the POCO C++ Libraries
@@ -145,7 +145,7 @@ macchina.io implements various protocols for talking to sensor networks,
 automation systems, or cloud services. One such protocol is MQTT, a
 publish-subscribe based "light weight" messaging protocol for use on top
 of the TCP/IP protocol, which is popular for building cloud-connected
-IoT applications. In macchina.io, MQTT is implemented using the 
+IoT applications. In macchina.io, MQTT is implemented using the
 [[https://eclipse.org/paho/ Eclipse Paho]] C library.
 
 Note: In the first release of macchina.io, only MQTT is implemented.

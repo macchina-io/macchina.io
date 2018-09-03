@@ -9,10 +9,13 @@ On Linux, cross-compilation for embedded Linux targets is supported.
 For the first steps, it is recommended to build and install macchina.io
 on a desktop Linux or macOS system. This will get you up and running within
 a few minutes. You can also build macchina.io on systems like a Raspberry Pi
-or a Tinkerforge RED brick, but this will take a couple of hours.
+or a BeagleBone Black, but this will take a couple of hours.
 Alternatively, you can cross-compile macchina.io for an embedded Linux target,
 however, this will require a couple of extra steps in order to get everything
 working.
+
+Instructions for cross-compiling macchina.io can be found in the
+[[https://github.com/macchina-io/macchina.io/wiki Wiki]].
 
 
 !!!Getting macchina.io
@@ -162,26 +165,14 @@ a directory hierarchy like above:
 Then you can simply pack the directory into an archive (e.g., <*.tar.gz*>) file and
 transfer it to the target.
 
-The configuration file for the macchina.io server, <*macchina.properties*> (located
-in the <*server*> directory) should be copied into the <*etc*> directory on the target.
-The configuration file needs to be modified for the target. Open the
-<*macchina.properties*> in your favorite text editor and change the line
-
-    osp.bundleRepository = ${application.configDir}../platform/OSP/bundles;...
-----
-
-to:
-
-    osp.bundleRepository = /path/to/lib/bundles
-----
-
 
 !!!Running macchina.io
 
 After the macchina.io build completes, you can directly run macchina.io without an
 additional install step. To run the macchina.io server:
 
-  1. Set your system's shared library search path to include the macchina.io libraries.
+  1. Set your system's shared library search path to include the macchina.io libraries
+     and the <*codeCache*> directory (if necessary, see below).
   2. Run the macchina.io server program.
 
 To run macchina.io on a Linux system:
@@ -206,10 +197,24 @@ when starting the server:
     $ bin/Darwin/x86_64/macchina --config=/path/to/macchina.properties
 ----
 
+On Debian-based systems, it is necessary to include the <*codeCache*>
+directory in <*LD_LIBRARY_PATH*>. If you see lots of errors during startup,
+complaining about shared libraries that cannot be found, do this:
+
+    $ export LD_LIBRARY_PATH=/path/to/macchina.io/platform/lib/Linux/x86_64:/path/to/macchina.io/server/bin/Linux/x86_64/codeCache
+----
+
+If you run on an embedded device using the directory structure created with the
+<*install_runtime*> make target, start as follows:
+
+    $ export LD_LIBRARY_PATH=/path/to/macchina-install-dir/lib:/path/to/macchina-install-dir/bin/codeCache
+    $ /path/to/macchina-install-dir/bin/macchina --config=/path/to/macchina-install-dir/etc/macchina.properties
+----
+
 
 After the macchina.io server has started, which may take a few seconds on slower systems,
-direct your web browser of choice to http://localhost:22080. You'll see the
-macchina.io login screen. User username "admin" and password "admin" to log
+direct your web browser of choice to http://localhost:22080 (or the IP address of your device).
+You'll see the macchina.io login screen. User username "admin" and password "admin" to log
 in. After successfully logging in you'll see the Launcher page of the web
 interface. Try out the different web apps to familiarize yourself with the
 web user interface.
