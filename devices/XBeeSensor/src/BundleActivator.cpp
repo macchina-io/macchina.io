@@ -91,7 +91,6 @@ public:
 
 		Poco::Util::AbstractConfiguration::Keys keys;
 		_pPrefs->configuration()->keys("xbee.sensors", keys);
-		int index = 0;
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "xbee.sensors.";
@@ -138,7 +137,6 @@ public:
 					pContext->logger().error(Poco::format("Cannot create XBee Sensor: %s", exc.displayText()));
 				}
 			}
-			index++;
 		}
 	}
 
