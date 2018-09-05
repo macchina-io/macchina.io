@@ -47,18 +47,18 @@ public:
 	BundleActivator()
 	{
 	}
-	
+
 	~BundleActivator()
 	{
 	}
-	
+
 	void createSensor(const SimulatedSensor::Params& params)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor> ServerHelper;
-		
+
 		Poco::SharedPtr<SimulatedSensor> pSensor = new SimulatedSensor(params, *_pTimer);
 		ServerHelper::RemoteObjectPtr pSensorRemoteObject = ServerHelper::createRemoteObject(pSensor, params.id);
-		
+
 		Properties props;
 		props.set("io.macchina.device", SimulatedSensor::SYMBOLIC_NAME);
 		props.set("io.macchina.deviceType", SimulatedSensor::TYPE);
@@ -66,7 +66,7 @@ public:
 		{
 			props.set("io.macchina.physicalQuantity", params.physicalQuantity);
 		}
-		
+
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(params.id, pSensorRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
@@ -74,27 +74,26 @@ public:
 	void createGNSSSensor(const SimulatedGNSSSensor::Params& params)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::GNSSSensor> ServerHelper;
-		
+
 		Poco::SharedPtr<SimulatedGNSSSensor> pGNSSSensor = new SimulatedGNSSSensor(params);
 		ServerHelper::RemoteObjectPtr pGNSSSensorRemoteObject = ServerHelper::createRemoteObject(pGNSSSensor, params.id);
-		
+
 		Properties props;
 		props.set("io.macchina.device", SimulatedGNSSSensor::SYMBOLIC_NAME);
 		props.set("io.macchina.deviceType", SimulatedGNSSSensor::TYPE);
-		
+
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(params.id, pGNSSSensorRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
-	
+
 	void start(BundleContext::Ptr pContext)
 	{
 		_pTimer = new Poco::Util::Timer;
 		_pContext = pContext;
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
-		
+
 		Poco::Util::AbstractConfiguration::Keys keys;
 		_pPrefs->configuration()->keys("simulation.sensors", keys);
-		int index = 0;
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "simulation.sensors.";
@@ -104,14 +103,14 @@ public:
 			params.id = SimulatedSensor::SYMBOLIC_NAME;
 			params.id += "#";
 			params.id += Poco::NumberFormatter::format(_serviceRefs.size());
-			
+
 			params.physicalQuantity = _pPrefs->configuration()->getString(baseKey + ".physicalQuantity", "");
 			params.physicalUnit     = _pPrefs->configuration()->getString(baseKey + ".physicalUnit", "");
 			params.initialValue     = _pPrefs->configuration()->getDouble(baseKey + ".initialValue", 0.0);
 			params.delta            = _pPrefs->configuration()->getDouble(baseKey + ".delta", 0.0);
 			params.cycles           = _pPrefs->configuration()->getInt(baseKey + ".cycles", 0);
 			params.updateRate       = _pPrefs->configuration()->getDouble(baseKey + ".updateRate", 0.0);
-			
+
 			std::string mode = _pPrefs->configuration()->getString(baseKey + ".mode", "linear");
 			if (mode == "linear")
 				params.mode = SimulatedSensor::SIM_LINEAR;
@@ -124,11 +123,10 @@ public:
 			}
 			catch (Poco::Exception& exc)
 			{
-				pContext->logger().error(Poco::format("Cannot create simulated sensor: %s", exc.displayText())); 
+				pContext->logger().error(Poco::format("Cannot create simulated sensor: %s", exc.displayText()));
 			}
-			index++;
 		}
-		
+
 		std::string gpxPath = _pPrefs->configuration()->getString("simulation.gnss.gpxPath", "");
 		if (!gpxPath.empty())
 		{
@@ -137,18 +135,18 @@ public:
 			params.gpxPath = gpxPath;
 			params.loopReplay = _pPrefs->configuration()->getBool("simulation.gnss.loopReplay", true);
 			params.speedUp = _pPrefs->configuration()->getDouble("simulation.gnss.speedUp", 1.0);
-		
+
 			try
 			{
 				createGNSSSensor(params);
 			}
 			catch (Poco::Exception& exc)
 			{
-				pContext->logger().error(Poco::format("Cannot create simulated GNSS sensor: %s", exc.displayText())); 
+				pContext->logger().error(Poco::format("Cannot create simulated GNSS sensor: %s", exc.displayText()));
 			}
 		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		_pTimer->cancel(true);
@@ -163,7 +161,7 @@ public:
 		_pPrefs = 0;
 		_pContext = 0;
 	}
-	
+
 private:
 	Poco::SharedPtr<Poco::Util::Timer> _pTimer;
 	BundleContext::Ptr _pContext;
