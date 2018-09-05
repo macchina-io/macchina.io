@@ -55,13 +55,13 @@ public:
 	{
 	}
 
-	CANEndpoint::Ptr createCANEndpoint(const std::string& uid, const std::string& id, const std::string& interfc)
+	CANEndpoint::Ptr createCANEndpoint(const std::string& id, const std::string& interfc)
 	{
 		CANEndpoint::Ptr pCANEndpoint = new CANEndpointImpl(interfc);
 		std::string symbolicName = "io.macchina.can.socketcan";
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
-		oid += uid;
+		oid += id;
 		ServerHelper::RemoteObjectPtr pCANEndpointRemoteObject = ServerHelper::createRemoteObject(pCANEndpoint, oid);
 
 		Properties props;
@@ -139,7 +139,6 @@ public:
 
 		Poco::Util::AbstractConfiguration::Keys keys;
 		_pPrefs->configuration()->keys("socketcan.endpoints", keys);
-		int index = 0;
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "socketcan.endpoints.";
@@ -157,7 +156,7 @@ public:
 			try
 			{
 				pContext->logger().information(Poco::format("Creating SocketCAN CANEndpoint for interface %s.", interfc));
-				CANEndpoint::Ptr pEndpoint = createCANEndpoint(Poco::NumberFormatter::format(index), *it, interfc);
+				CANEndpoint::Ptr pEndpoint = createCANEndpoint(*it, interfc);
 				pEndpoint->enableEvents(enableEvents);
 				pEndpoint->enableFD(enableFD);
 				pEndpoint->setFilter(configureFilter(baseKey + ".filter"));
@@ -167,7 +166,6 @@ public:
 			{
 				pContext->logger().error(Poco::format("Cannot create SocketCAN CANEndpoint for interface %s: %s", interfc, exc.displayText()));
 			}
-			index++;
 		}
 	}
 
