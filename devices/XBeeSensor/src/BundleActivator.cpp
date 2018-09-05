@@ -96,7 +96,7 @@ public:
 			std::string baseKey = "xbee.sensors.";
 			baseKey += *it;
 
-			std::string xBeeNode = _pPrefs->configuration()->getString(baseKey + ".node", "io.macchina.xbee#0");
+			std::string xBeeNode = _pPrefs->configuration()->getString(baseKey + ".node", "io.macchina.xbee#1");
 			XBeeSensor::Params params;
 			params.id = Poco::toUpper(_pPrefs->configuration()->getString(baseKey + ".id"));
 			std::string type = _pPrefs->configuration()->getString(baseKey + ".type", "LTH");

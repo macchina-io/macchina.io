@@ -41,15 +41,15 @@ class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
 	typedef Poco::RemotingNG::ServerHelper<IoT::XBee::XBeeNode> ServerHelper;
-		
+
 	BundleActivator()
 	{
 	}
-	
+
 	~BundleActivator()
 	{
 	}
-	
+
 	void createXBeeNode(const std::string& uid, Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, int options)
 	{
 		Poco::SharedPtr<XBeeNode> pXBeeNode = new XBeeNodeImpl(new XBeePort(pSerialPort));
@@ -58,23 +58,22 @@ public:
 		oid += '#';
 		oid += uid;
 		ServerHelper::RemoteObjectPtr pXBeeNodeRemoteObject = ServerHelper::createRemoteObject(pXBeeNode, oid);
-		
+
 		Properties props;
 		props.set("io.macchina.protocol", symbolicName);
 		props.set("io.macchina.xbee.device", pSerialPort->device());
-		
+
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pXBeeNodeRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
-	
+
 	void start(BundleContext::Ptr pContext)
 	{
 		_pContext = pContext;
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
-		
+
 		Poco::Util::AbstractConfiguration::Keys keys;
 		_pPrefs->configuration()->keys("xbee.ports", keys);
-		int index = 0;
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "xbee.ports.";
@@ -88,22 +87,21 @@ public:
 			{
 				options |= XBeeNodeImpl::XBEE_OPTION_ESCAPE_FRAMES;
 			}
-		
+
 			try
 			{
 				pContext->logger().information(Poco::format("Creating serial port for XBee device '%s'.", device));
 
 				Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort = new Poco::Serial::SerialPort(device, speed, params);
-				createXBeeNode(Poco::NumberFormatter::format(index), pSerialPort, options);
+				createXBeeNode(*it, pSerialPort, options);
 			}
 			catch (Poco::Exception& exc)
 			{
-				pContext->logger().error(Poco::format("Cannot create serial port for XBee device '%s': %s", device, exc.displayText())); 
+				pContext->logger().error(Poco::format("Cannot create serial port for XBee device '%s': %s", device, exc.displayText()));
 			}
-			index++;
 		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		for (std::vector<ServiceRef::Ptr>::iterator it = _serviceRefs.begin(); it != _serviceRefs.end(); ++it)
@@ -113,7 +111,7 @@ public:
 		_serviceRefs.clear();
 		_pPrefs = 0;
 		_pContext = 0;
-		
+
 		ServerHelper::shutdown();
 	}
 

@@ -151,13 +151,12 @@ public:
 
 		Poco::Util::AbstractConfiguration::Keys keys;
 		_pPrefs->configuration()->keys("ciss.ports", keys);
-		int index = 0;
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "ciss.ports.";
 			baseKey += *it;
 
-			std::string id = _pPrefs->configuration()->getString(baseKey + ".id", Poco::format("ciss%d", index));
+			std::string id = _pPrefs->configuration()->getString(baseKey + ".id", *it);
 			std::string device = _pPrefs->configuration()->getString(baseKey + ".device", "");
 			std::string params = _pPrefs->configuration()->getString(baseKey + ".params", "8N1");
 			int speed = _pPrefs->configuration()->getInt(baseKey + ".speed", 115200);
@@ -199,7 +198,6 @@ public:
 			{
 				pContext->logger().error(Poco::format("Cannot create serial port for CISS device '%s': %s", device, exc.displayText()));
 			}
-			index++;
 		}
 	}
 
