@@ -1,5 +1,5 @@
-hunter_config(PocoCpp VERSION 1.9.1-RC1
-  GIT_SUBMODULE thirdparty/poco
+hunter_config(PocoCpp VERSION 1.9.1
+  #GIT_SUBMODULE thirdparty/poco
   CMAKE_ARGS
   BUILD_SHARED_LIBS=ON
   POCO_STATIC=OFF
