@@ -11,6 +11,8 @@ project(macchina.io)
 
 hunter_add_package(PocoCpp)
 
+set(CMAKE_SKIP_RPATH TRUE)
+
 # Read the version information from the VERSION file
 file (STRINGS "${PROJECT_SOURCE_DIR}/VERSION" PACKAGE_VERSION )
 message(STATUS "macchina.io version: ${PACKAGE_VERSION}")
