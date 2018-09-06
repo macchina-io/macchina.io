@@ -63,3 +63,8 @@ add_dependencies(osp.core bundle)
 add_dependencies(poco.net bundle) 
 add_dependencies(osp.web bundle)
 add_dependencies(com.appinf.osp.samples.servicelistener bundle)
+
+install(EXPORT OSP NAMESPACE Poco:: DESTINATION lib/cmake/macchina)
+install(EXPORT Web NAMESPACE Poco::OSP:: DESTINATION lib/cmake/macchina)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/platform/OSP/cmake/MacchinaOSPConfig.cmake
+  DESTINATION lib/cmake/macchina)

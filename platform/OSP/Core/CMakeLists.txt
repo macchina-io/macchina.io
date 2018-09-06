@@ -7,3 +7,4 @@ add_library(osp.core SHARED
 target_link_libraries(osp.core Poco::OSP)
 
 create_bundle(TARGET osp.core SPEC_FILE Core.bndlspec)
+

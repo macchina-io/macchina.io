@@ -50,3 +50,11 @@ target_include_directories(PocoOSP
     )
 
 add_library(Poco::OSP ALIAS PocoOSP)
+
+install(TARGETS PocoOSP
+  EXPORT OSP
+  LIBRARY
+    DESTINATION lib/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}
+  PUBLIC_HEADER
+    DESTINATION include
+)
