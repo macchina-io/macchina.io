@@ -1,5 +1,5 @@
 
-add_library(PocoOSP SHARED
+add_library(OSP SHARED
     src/BundleLoader.cpp
     src/Preferences.cpp
     src/BundleFactory.cpp
@@ -41,8 +41,8 @@ add_library(PocoOSP SHARED
     src/AuthService.cpp
     src/BundleActivator.cpp
 )
-target_link_libraries(PocoOSP PUBLIC Poco::Zip Poco::Util Poco::XML)
-target_include_directories(PocoOSP
+target_link_libraries(OSP PUBLIC Poco::Zip Poco::Util Poco::XML)
+target_include_directories(OSP
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
@@ -50,9 +50,9 @@ target_include_directories(PocoOSP
     )
 install(DIRECTORY include/ DESTINATION include)
 
-add_library(Poco::OSP ALIAS PocoOSP)
+add_library(Poco::OSP ALIAS OSP)
 
-install(TARGETS PocoOSP
+install(TARGETS OSP
   EXPORT OSP
   LIBRARY
     DESTINATION lib/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}
