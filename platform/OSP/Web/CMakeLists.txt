@@ -23,6 +23,8 @@ target_include_directories(PocoOSPWeb
   PRIVATE
     src
 )
+install(DIRECTORY include/ DESTINATION include)
+
 add_library(Poco::OSP::Web ALIAS PocoOSPWeb)
 
 add_library(osp.web SHARED 

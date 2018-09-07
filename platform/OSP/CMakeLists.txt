@@ -48,6 +48,7 @@ target_include_directories(PocoOSP
         $<INSTALL_INTERFACE:include>
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
+install(DIRECTORY include/ DESTINATION include)
 
 add_library(Poco::OSP ALIAS PocoOSP)
 
@@ -58,3 +59,4 @@ install(TARGETS PocoOSP
   PUBLIC_HEADER
     DESTINATION include
 )
+
