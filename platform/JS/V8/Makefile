@@ -37,6 +37,9 @@ endif
 ifeq ($(findstring armv7,$(OSARCH)),armv7)
 GYPFLAGS += -Darm_version=7
 endif
+ifeq ($(OSARCH),aarch64)
+V8ARCH = arm64
+endif
 ifeq ($(OSARCH),mipsel)
 V8ARCH = mipsel
 endif
@@ -55,6 +58,9 @@ V8HOSTARCH = ia32
 endif
 ifeq ($(findstring arm,$(POCO_HOST_OSARCH)),arm)
 V8HOSTARCH = arm
+endif
+ifeq ($(POCO_HOST_OSARCH),aarch64)
+V8HOSTARCH = arm64
 endif
 
 GYPFLAGS += -Dv8_target_arch=$(V8ARCH) -Dtarget_arch=$(V8ARCH) -Dhost_arch=$(V8HOSTARCH)
