@@ -80,9 +80,9 @@ public:
 		///
 		/// The WebSocket will be managed by the PortReflector until closed by the peer.
 
-	void removeServerSocket(const std::string& targetId);
+	void removeServerSocket(const std::string& targetId, const std::string& reason);
 		/// Shuts down and removes the WebSocket connection for forwarding to the given
-		// target device.
+		/// target device.
 
 	int countConnections() const;
 		/// Returns the number of currently active connections.
@@ -258,8 +258,8 @@ protected:
 		Poco::Buffer<char> _buffer;
 	};
 
-	bool abortTarget(TargetInfo::Ptr pTargetInfo);
-	void removeTarget(TargetInfo::Ptr pTargetInfo);
+	bool abortTarget(TargetInfo::Ptr pTargetInfo, const std::string& reason);
+	void removeTarget(TargetInfo::Ptr pTargetInfo, const std::string& reason);
 	void shutdownChannel(TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo);
 	void openChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt16 channel, Poco::UInt16 port);
 	void closeChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt16 channel);

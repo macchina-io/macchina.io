@@ -51,7 +51,7 @@ int TunnelSocketImpl::sendBytes(const void* buffer, int length, int flags)
 		if (!_pChannelInfo->stateChanged.tryWait(CONNECT_TIMEOUT))
 		{
 			_pChannelInfo->state = PortReflector::CS_ERROR;
-			_portReflector.removeTarget(_pTargetInfo);
+			_portReflector.removeTarget(_pTargetInfo, "connect timeout (tunnel)");
 			throw Poco::TimeoutException();
 		}
 	}
@@ -72,7 +72,7 @@ int TunnelSocketImpl::sendBytes(const void* buffer, int length, int flags)
 		}
 		else if (_logger.debug())
 		{
-			_logger.debug(Poco::format("Illegal channel state for channel %hu: %d", _pChannelInfo->channel, static_cast<int>(_pChannelInfo->state)));
+			_logger.debug("Illegal channel state for channel %hu: %d", _pChannelInfo->channel, static_cast<int>(_pChannelInfo->state));
 		}
 		return 0;
 	}
@@ -96,7 +96,7 @@ int TunnelSocketImpl::sendBytes(const void* buffer, int length, int flags)
 	}
 	catch (Poco::Exception&)
 	{
-		_portReflector.removeTarget(_pTargetInfo);
+		_portReflector.removeTarget(_pTargetInfo, "send frame error (tunnel)");
 		return 0;
 	}
 	return sent;
@@ -196,7 +196,7 @@ void TunnelSocketImpl::close()
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.warning(Poco::format("Error closing TunnelSocket: %s", exc.displayText()));
+		_logger.warning("Error closing TunnelSocket: %s", exc.displayText());
 	}
 
 	reset();

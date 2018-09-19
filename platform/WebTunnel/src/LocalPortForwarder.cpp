@@ -162,7 +162,7 @@ public:
 		}
 		catch (Poco::Exception& exc)
 		{
-			logger.warning(Poco::format("Error shutting down WebSocket: %s", exc.displayText()));
+			logger.warning("Error shutting down WebSocket: %s", exc.displayText());
 		}
 	}
 
@@ -416,7 +416,7 @@ void LocalPortForwarder::forward(Poco::Net::StreamSocket& socket)
 {
 	if (_logger.debug())
 	{
-		_logger.debug(Poco::format("Local connection accepted, creating forwarding connection to %s, remote port %hu", _remoteURI.toString(), _remotePort));
+		_logger.debug("Local connection accepted, creating forwarding connection to %s, remote port %hu", _remoteURI.toString(), _remotePort);
 	}
 	try
 	{
@@ -444,7 +444,7 @@ void LocalPortForwarder::forward(Poco::Net::StreamSocket& socket)
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error(Poco::format("Failed to open forwarding connection: %s", exc.displayText()));
+		_logger.error("Failed to open forwarding connection: %s", exc.displayText());
 		socket.close();
 	}
 }

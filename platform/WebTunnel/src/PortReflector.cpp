@@ -46,7 +46,7 @@ PortReflector::~PortReflector()
 	{
 		for (TargetMap::iterator it = _targetMap.begin(); it != _targetMap.end(); ++it)
 		{
-			abortTarget(it->second);
+			abortTarget(it->second, "shutting down");
 		}
 		_dispatcher.stop();
 	}
@@ -61,7 +61,7 @@ void PortReflector::addWebSocket(Poco::SharedPtr<Poco::Net::WebSocket> pWebSocke
 {
 	if (_logger.debug())
 	{
-		_logger.debug(Poco::format("Adding client connection for target %s, port %hu", targetId, targetPort));
+		_logger.debug("Adding client connection for target %s, port %hu", targetId, targetPort);
 	}
 
 	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
@@ -90,7 +90,7 @@ void PortReflector::addWebSocket(Poco::SharedPtr<Poco::Net::WebSocket> pWebSocke
 		pTargetInfo->channelMap[channel] = pChannelInfo;
 		if (_logger.debug())
 		{
-			_logger.debug(Poco::format("Now %z channels to target %s", pTargetInfo->channelMap.size(), targetId));
+			_logger.debug("Now %z channels to target %s", pTargetInfo->channelMap.size(), targetId);
 		}
 		targetLock.unlock();
 
@@ -106,7 +106,7 @@ void PortReflector::addStreamSocket(Poco::SharedPtr<Poco::Net::StreamSocket> pSt
 {
 	if (_logger.debug())
 	{
-		_logger.debug(Poco::format("Adding stream socket connection for target %s, port %hu", targetId, targetPort));
+		_logger.debug("Adding stream socket connection for target %s, port %hu", targetId, targetPort);
 	}
 
 	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
@@ -136,7 +136,7 @@ void PortReflector::addStreamSocket(Poco::SharedPtr<Poco::Net::StreamSocket> pSt
 		pTargetInfo->channelMap[channel] = pChannelInfo;
 		if (_logger.debug())
 		{
-			_logger.debug(Poco::format("Now %z channels to target %s", pTargetInfo->channelMap.size(), targetId));
+			_logger.debug("Now %z channels to target %s", pTargetInfo->channelMap.size(), targetId);
 		}
 		targetLock.unlock();
 
@@ -152,7 +152,7 @@ TunnelSocket PortReflector::openTunnelSocket(const std::string& targetId, Poco::
 {
 	if (_logger.information())
 	{
-		_logger.information(Poco::format("Creating TunnelSocket for target %s, port %hu", targetId, targetPort));
+		_logger.information("Creating TunnelSocket for target %s, port %hu", targetId, targetPort);
 	}
 
 	Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
@@ -181,7 +181,7 @@ TunnelSocket PortReflector::openTunnelSocket(const std::string& targetId, Poco::
 		pTargetInfo->channelMap[channel] = pChannelInfo;
 		if (_logger.debug())
 		{
-			_logger.debug(Poco::format("Now %z channels to target %s", pTargetInfo->channelMap.size(), targetId));
+			_logger.debug("Now %z channels to target %s", pTargetInfo->channelMap.size(), targetId);
 		}
 		targetLock.unlock();
 
@@ -197,7 +197,7 @@ void PortReflector::addServerSocket(Poco::SharedPtr<Poco::Net::WebSocket> pWebSo
 {
 	if (_logger.information())
 	{
-		_logger.information(Poco::format("Adding server connection to target %s", targetId));
+		_logger.information("Adding server connection to target %s", targetId);
 	}
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
@@ -205,7 +205,7 @@ void PortReflector::addServerSocket(Poco::SharedPtr<Poco::Net::WebSocket> pWebSo
 		TargetMap::iterator it = _targetMap.find(targetId);
 		if (it != _targetMap.end())
 		{
-			abortTarget(it->second);
+			abortTarget(it->second, "device reconnected");
 			_targetMap.erase(it);
 		}
 
@@ -221,7 +221,7 @@ void PortReflector::addServerSocket(Poco::SharedPtr<Poco::Net::WebSocket> pWebSo
 }
 
 
-void PortReflector::removeServerSocket(const std::string& targetId)
+void PortReflector::removeServerSocket(const std::string& targetId, const std::string& reason)
 {
 	TargetInfo::Ptr pTargetInfo;
 	{
@@ -234,7 +234,7 @@ void PortReflector::removeServerSocket(const std::string& targetId)
 
 	if (pTargetInfo)
 	{
-		removeTarget(pTargetInfo);
+		removeTarget(pTargetInfo, reason);
 	}
 }
 
@@ -279,7 +279,7 @@ bool PortReflector::multiplexWebSocket(SocketDispatcher& dispatcher, Poco::Net::
 			{
 				if (_logger.debug())
 				{
-					_logger.debug(Poco::format("Actively closing channel %hu to target %s", pChannelInfo->channel, pTargetInfo->id));
+					_logger.debug("Actively closing channel %hu to target %s", pChannelInfo->channel, pTargetInfo->id);
 				}
 				shutdownChannel(pTargetInfo, pChannelInfo);
 				return false;
@@ -289,7 +289,7 @@ bool PortReflector::multiplexWebSocket(SocketDispatcher& dispatcher, Poco::Net::
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error(Poco::format("Error reading from client WebSocket for channel %hu on target %s: %s", pChannelInfo->channel, pTargetInfo->id, exc.displayText()));
+		_logger.error("Error reading from client WebSocket for channel %hu on target %s: %s", pChannelInfo->channel, pTargetInfo->id, exc.displayText());
 		shutdownChannel(pTargetInfo, pChannelInfo);
 		expectMore = false;
 	}
@@ -300,14 +300,14 @@ bool PortReflector::multiplexWebSocket(SocketDispatcher& dispatcher, Poco::Net::
 		if (!pChannelInfo->stateChanged.tryWait(CONNECT_TIMEOUT))
 		{
 			pChannelInfo->state = CS_ERROR;
-			removeTarget(pTargetInfo);
+			removeTarget(pTargetInfo, "connect timeout");
 			throw Poco::TimeoutException();
 		}
 	}
 
 	if (n > 0 && pChannelInfo->state != CS_CONNECTED)
 	{
-		_logger.warning(Poco::format("Ignoring data for unconnected channel %hu to target %s", pChannelInfo->channel, pTargetInfo->id));
+		_logger.warning("Ignoring data for unconnected channel %hu to target %s", pChannelInfo->channel, pTargetInfo->id);
 		return false;
 	}
 
@@ -318,8 +318,8 @@ bool PortReflector::multiplexWebSocket(SocketDispatcher& dispatcher, Poco::Net::
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error(Poco::format("Error sending WebSocket frame for channel %hu: %s", pChannelInfo->channel, exc.displayText()));
-		removeTarget(pTargetInfo);
+		_logger.error("Error sending WebSocket frame for channel %hu to target %s: %s", pChannelInfo->channel, pTargetInfo->id, exc.displayText());
+		removeTarget(pTargetInfo, "send frame error");
 		expectMore = false;
 	}
 	return expectMore;
@@ -345,7 +345,7 @@ bool PortReflector::multiplexStreamSocket(SocketDispatcher& dispatcher, Poco::Ne
 			{
 				if (_logger.debug())
 				{
-					_logger.debug(Poco::format("Actively closing channel %hu to target %s", pChannelInfo->channel, pTargetInfo->id));
+					_logger.debug("Actively closing channel %hu to target %s", pChannelInfo->channel, pTargetInfo->id);
 				}
 				shutdownChannel(pTargetInfo, pChannelInfo);
 				return false;
@@ -355,7 +355,7 @@ bool PortReflector::multiplexStreamSocket(SocketDispatcher& dispatcher, Poco::Ne
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error(Poco::format("Error reading from client stream socket for channel %hu on target %s: %s", pChannelInfo->channel, pTargetInfo->id, exc.displayText()));
+		_logger.error("Error reading from client stream socket for channel %hu on target %s: %s", pChannelInfo->channel, pTargetInfo->id, exc.displayText());
 		shutdownChannel(pTargetInfo, pChannelInfo);
 		expectMore = false;
 	}
@@ -366,14 +366,14 @@ bool PortReflector::multiplexStreamSocket(SocketDispatcher& dispatcher, Poco::Ne
 		if (!pChannelInfo->stateChanged.tryWait(CONNECT_TIMEOUT))
 		{
 			pChannelInfo->state = CS_ERROR;
-			removeTarget(pTargetInfo);
+			removeTarget(pTargetInfo, "connect timeout");
 			throw Poco::TimeoutException();
 		}
 	}
 
 	if (n > 0 && pChannelInfo->state != CS_CONNECTED)
 	{
-		_logger.warning(Poco::format("Ignoring data for unconnected channel %hu to target %s", pChannelInfo->channel, pTargetInfo->id));
+		_logger.warning("Ignoring data for unconnected channel %hu to target %s", pChannelInfo->channel, pTargetInfo->id);
 		return false;
 	}
 
@@ -384,8 +384,8 @@ bool PortReflector::multiplexStreamSocket(SocketDispatcher& dispatcher, Poco::Ne
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error(Poco::format("Error sending WebSocket frame for channel %hu: %s", pChannelInfo->channel, exc.displayText()));
-		removeTarget(pTargetInfo);
+		_logger.error("Error sending WebSocket frame for channel %hu to target %s: %s", pChannelInfo->channel, pTargetInfo->id, exc.displayText());
+		removeTarget(pTargetInfo, "send frame error");
 		expectMore = false;
 	}
 	return expectMore;
@@ -394,14 +394,14 @@ bool PortReflector::multiplexStreamSocket(SocketDispatcher& dispatcher, Poco::Ne
 
 void PortReflector::multiplexError(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer)
 {
-	_logger.error(Poco::format("Error receiving from client socket for channel %hu, target %s", pChannelInfo->channel, pTargetInfo->id));
+	_logger.error("Error receiving from client socket for channel %hu, target %s", pChannelInfo->channel, pTargetInfo->id);
 	shutdownChannel(pTargetInfo, pChannelInfo);
 }
 
 
 void PortReflector::multiplexTimeout(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, ChannelInfo::Ptr pChannelInfo, Poco::Buffer<char>& buffer)
 {
-	_logger.error(Poco::format("Timeout receiving from client socket for channel %hu, target %s", pChannelInfo->channel, pTargetInfo->id));
+	_logger.error("Timeout receiving from client socket for channel %hu, target %s", pChannelInfo->channel, pTargetInfo->id);
 	shutdownChannel(pTargetInfo, pChannelInfo);
 }
 
@@ -416,8 +416,8 @@ bool PortReflector::demultiplex(SocketDispatcher& dispatcher, Poco::Net::StreamS
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error(Poco::format("Error receiving WebSocket frame: %s", exc.displayText()));
-		removeTarget(pTargetInfo);
+		_logger.error("Error receiving WebSocket frame for target %s: %s", pTargetInfo->id, exc.displayText());
+		removeTarget(pTargetInfo, "receive frame error");
 		return false;
 	}
 	if (n >= 0 && (wsFlags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_PING)
@@ -434,7 +434,7 @@ bool PortReflector::demultiplex(SocketDispatcher& dispatcher, Poco::Net::StreamS
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.error(Poco::format("Error sending PONG to %s: %s", pTargetInfo->id, exc.displayText()));
+			_logger.error("Error sending PONG to %s: %s", pTargetInfo->id, exc.displayText());
 			return false;
 		}
 	}
@@ -458,7 +458,7 @@ bool PortReflector::demultiplex(SocketDispatcher& dispatcher, Poco::Net::StreamS
 				return false;
 
 		case Protocol::WT_OP_OPEN_FAULT:
-			_logger.error(Poco::format("Failed to open channel %hu (status code %hu)", channel, portOrErrorCode));
+			_logger.error("Failed to open channel %hu (status code %hu) to target %s", channel, portOrErrorCode, pTargetInfo->id);
 			confirmCloseChannel(pTargetInfo, channel, portOrErrorCode);
 			return false;
 
@@ -469,14 +469,14 @@ bool PortReflector::demultiplex(SocketDispatcher& dispatcher, Poco::Net::StreamS
 		case Protocol::WT_OP_ERROR:
 			if (_logger.debug())
 			{
-				_logger.debug(Poco::format("Status %hu reported by peer. Closing channel %hu.", portOrErrorCode, channel));
+				_logger.debug("Status %hu reported by peer. Closing channel %hu to target %s.", portOrErrorCode, channel, pTargetInfo->id);
 			}
 			confirmCloseChannel(pTargetInfo, channel, portOrErrorCode);
 			return false;
 
 		default:
-			_logger.error(Poco::format("Invalid WebSocket frame received (bad channel opcode: %hu).", static_cast<Poco::UInt16>(opcode)));
-			removeTarget(pTargetInfo);
+			_logger.error("Invalid WebSocket frame received (bad channel opcode: %hu) for target %s.", static_cast<Poco::UInt16>(opcode), pTargetInfo->id);
+			removeTarget(pTargetInfo, "invalid frame received");
 			return false;
 		}
 	}
@@ -484,9 +484,9 @@ bool PortReflector::demultiplex(SocketDispatcher& dispatcher, Poco::Net::StreamS
 	{
 		if (_logger.debug())
 		{
-			_logger.debug(Poco::format("Target WebSocket to %s closed by peer", pTargetInfo->id));
+			_logger.debug("Target WebSocket to %s closed by peer", pTargetInfo->id);
 		}
-		removeTarget(pTargetInfo);
+		removeTarget(pTargetInfo, "websocket closed by peer");
 		return false;
 	}
 	else
@@ -499,26 +499,26 @@ bool PortReflector::demultiplex(SocketDispatcher& dispatcher, Poco::Net::StreamS
 
 void PortReflector::demultiplexError(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, Poco::Buffer<char>& buffer)
 {
-	_logger.error(Poco::format("Error reading from target %s", pTargetInfo->id));
-	removeTarget(pTargetInfo);
+	_logger.error("Error reading from tunnel to target %s", pTargetInfo->id);
+	removeTarget(pTargetInfo, "tunnel error");
 }
 
 
 void PortReflector::demultiplexTimeout(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, TargetInfo::Ptr pTargetInfo, Poco::Buffer<char>& buffer)
 {
-	_logger.error(Poco::format("Timeout reading from target %s", pTargetInfo->id));
-	removeTarget(pTargetInfo);
+	_logger.error("Timeout reading from tunnel to target %s", pTargetInfo->id);
+	removeTarget(pTargetInfo, "tunnel timeout");
 }
 
 
-bool PortReflector::abortTarget(TargetInfo::Ptr pTargetInfo)
+bool PortReflector::abortTarget(TargetInfo::Ptr pTargetInfo, const std::string& reason)
 {
 	bool connected = false;
 	Poco::FastMutex::ScopedLock targetLock(pTargetInfo->mutex);
 	if (pTargetInfo->state == TS_CONNECTED)
 	{
 		connected = true;
-		_logger.notice(Poco::format("Aborting connection to target %s", pTargetInfo->id));
+		_logger.notice("Aborting connection to target %s [%s]", pTargetInfo->id, reason);
 		for (ChannelMap::iterator it = pTargetInfo->channelMap.begin(); it != pTargetInfo->channelMap.end(); ++it)
 		{
 			try
@@ -533,7 +533,7 @@ bool PortReflector::abortTarget(TargetInfo::Ptr pTargetInfo)
 			}
 			catch (Poco::Exception& exc)
 			{
-				_logger.warning(Poco::format("Error closing channel %hu for target %s: %s", it->second->channel, pTargetInfo->id, exc.displayText()));
+				_logger.warning("Error closing channel %hu for target %s: %s", it->second->channel, pTargetInfo->id, exc.displayText());
 			}
 			if (it->second->pSocket)
 			{
@@ -548,11 +548,11 @@ bool PortReflector::abortTarget(TargetInfo::Ptr pTargetInfo)
 }
 
 
-void PortReflector::removeTarget(TargetInfo::Ptr pTargetInfo)
+void PortReflector::removeTarget(TargetInfo::Ptr pTargetInfo, const std::string& reason)
 {
 	try
 	{
-		if (abortTarget(pTargetInfo))
+		if (abortTarget(pTargetInfo, reason))
 		{
 			Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
 			_targetMap.erase(pTargetInfo->id);
@@ -583,7 +583,7 @@ void PortReflector::shutdownChannel(TargetInfo::Ptr pTargetInfo, ChannelInfo::Pt
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.error(Poco::format("Error closing channel %hu to target %s: %s", pChannelInfo->channel, pTargetInfo->id, exc.displayText()));
+			_logger.error("Error closing channel %hu to target %s: %s", pChannelInfo->channel, pTargetInfo->id, exc.displayText());
 		}
 	}
 }
@@ -593,7 +593,7 @@ void PortReflector::openChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt16 channe
 {
 	if (_logger.debug())
 	{
-		_logger.debug(Poco::format("Opening channel %hu for port %hu", channel, port));
+		_logger.debug("Opening channel %hu for port %hu", channel, port);
 	}
 	char buffer[6];
 	Protocol::writeHeader(buffer, sizeof(buffer), Protocol::WT_OP_OPEN_REQUEST, 0, channel, port);
@@ -604,8 +604,8 @@ void PortReflector::openChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt16 channe
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error(Poco::format("Error opening channel %hu for port %hu on target %s: %s", channel, port, pTargetInfo->id, exc.displayText()));
-		removeTarget(pTargetInfo);
+		_logger.error("Error opening channel %hu for port %hu on target %s: %s", channel, port, pTargetInfo->id, exc.displayText());
+		removeTarget(pTargetInfo, "open channel error");
 	}
 }
 
@@ -614,7 +614,7 @@ void PortReflector::closeChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt16 chann
 {
 	if (_logger.debug())
 	{
-		_logger.debug(Poco::format("Closing channel %hu to target %s", channel, pTargetInfo->id));
+		_logger.debug("Closing channel %hu to target %s", channel, pTargetInfo->id);
 	}
 	char buffer[4];
 	Protocol::writeHeader(buffer, sizeof(buffer), Protocol::WT_OP_CLOSE, 0, channel);
@@ -625,8 +625,8 @@ void PortReflector::closeChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt16 chann
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error(Poco::format("Error closing channel %hu on target %s: %s", channel, pTargetInfo->id, exc.displayText()));
-		removeTarget(pTargetInfo);
+		_logger.error("Error closing channel %hu on target %s: %s", channel, pTargetInfo->id, exc.displayText());
+		removeTarget(pTargetInfo, "close channel error");
 	}
 }
 
@@ -643,7 +643,7 @@ bool PortReflector::confirmOpenChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt16
 			{
 				if (_logger.debug())
 				{
-					_logger.debug(Poco::format("Channel %hu to target %s opened", channel, pTargetInfo->id));
+					_logger.debug("Channel %hu to target %s opened", channel, pTargetInfo->id);
 				}
 				it->second->state = CS_CONNECTED;
 				it->second->stateChanged.set();
@@ -652,8 +652,8 @@ bool PortReflector::confirmOpenChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt16
 		}
 	}
 
-	_logger.error(Poco::format("Received unexpected open confirm message for channel %hu on target %s", channel, pTargetInfo->id));
-	removeTarget(pTargetInfo);
+	_logger.error("Received unexpected open confirm message for channel %hu on target %s", channel, pTargetInfo->id);
+	removeTarget(pTargetInfo, "unexpected open confirm");
 	return false;
 }
 
@@ -664,7 +664,7 @@ void PortReflector::confirmCloseChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt1
 
 	if (_logger.debug())
 	{
-		_logger.debug(Poco::format("Confirming close channel %hu to target %s (status code %hu)", channel, pTargetInfo->id, errorCode));
+		_logger.debug("Confirming close channel %hu to target %s (status code %hu)", channel, pTargetInfo->id, errorCode);
 	}
 	ChannelMap::iterator it = pTargetInfo->channelMap.find(channel);
 	if (it != pTargetInfo->channelMap.end())
@@ -684,7 +684,7 @@ void PortReflector::confirmCloseChannel(TargetInfo::Ptr pTargetInfo, Poco::UInt1
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.warning(Poco::format("Error closing client WebSocket for channel %hu: %s", channel, exc.displayText()));
+			_logger.warning("Error closing client WebSocket for channel %hu: %s", channel, exc.displayText());
 		}
 		if (it->second->pSocket)
 		{
@@ -721,14 +721,14 @@ bool PortReflector::forwardData(const char* buffer, std::size_t size, TargetInfo
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.error(Poco::format("Error forwarding data for channel %hu, target %s: ", channel, pTargetInfo->id, exc.displayText()));
+			_logger.error("Error forwarding data for channel %hu, target %s: ", channel, pTargetInfo->id, exc.displayText());
 			shutdownChannel(pTargetInfo, pChannelInfo);
 		}
 	}
 	else
 	{
 		targetLock.unlock();
-		_logger.error(Poco::format("Received unexpected data message for channel %hu on target %s", channel, pTargetInfo->id));
+		_logger.error("Received unexpected data message for channel %hu on target %s", channel, pTargetInfo->id);
 	}
 	return false;
 }
@@ -751,8 +751,8 @@ bool PortReflector::sendInitialMessage(TargetInfo::Ptr pTargetInfo, Poco::UInt16
 			}
 			catch (Poco::Exception& exc)
 			{
-				_logger.error(Poco::format("Error sending WebSocket frame for channel %hu: %s", channel, exc.displayText()));
-				removeTarget(pTargetInfo);
+				_logger.error("Error sending WebSocket frame for channel %hu to target %s: %s", channel, pTargetInfo->id, exc.displayText());
+				removeTarget(pTargetInfo, "send frame error");
 				return false;
 			}
 		}
