@@ -107,6 +107,12 @@ protected:
 	typedef Poco::SharedPtr<Poco::Thread> ThreadPtr;
 	typedef std::vector<ThreadPtr> ThreadVec;
 
+	enum
+	{
+		MAIN_QUEUE_TIMEOUT = 1000,
+		WORKER_QUEUE_TIMEOUT = 2500
+	};
+
 	void runMain();
 	void runWorker();
 	void readable(const Poco::Net::StreamSocket& socket, const SocketInfo::Ptr& pInfo);
@@ -119,6 +125,7 @@ protected:
 	void removeSocketImpl(const Poco::Net::StreamSocket& socket);
 	void closeSocketImpl(Poco::Net::StreamSocket& socket);
 	void resetImpl();
+	bool stopped();
 
 private:
 	Poco::Timespan _timeout;
@@ -132,6 +139,7 @@ private:
 	Poco::NotificationQueue _mainQueue;
 	Poco::NotificationQueue _workerQueue;
 	bool _stopped;
+	Poco::FastMutex _stoppedMtx;
 	Poco::Logger& _logger;
 
 	friend class ReadableNotification;
@@ -142,6 +150,17 @@ private:
 	friend class CloseSocketNotification;
 	friend class ResetNotification;
 };
+
+
+//
+// inlines
+//
+inline bool SocketDispatcher::stopped()
+{
+	Poco::FastMutex::ScopedLock lock(_stoppedMtx);
+
+	return _stopped;
+}
 
 
 } } // namespace Poco::WebTunnel

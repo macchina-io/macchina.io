@@ -280,9 +280,13 @@ SocketDispatcher::~SocketDispatcher()
 
 void SocketDispatcher::stop()
 {
-	if (!_stopped)
+	if (!stopped())
 	{
+		{
+			Poco::FastMutex::ScopedLock lock(_stoppedMtx);
+
 		_stopped = true;
+		}
 		_mainQueue.wakeUpAll();
 		_workerQueue.wakeUpAll();
 		_mainThread.join();
@@ -331,7 +335,7 @@ void SocketDispatcher::closeSocket(const Poco::Net::StreamSocket& socket)
 void SocketDispatcher::runMain()
 {
 	Poco::Timespan currentTimeout(_timeout);
-	while (!_stopped)
+	while (!stopped())
 	{
 		try
 		{
@@ -390,7 +394,7 @@ void SocketDispatcher::runMain()
 				if (currentTimeout.totalMicroseconds() < 4*_timeout.totalMicroseconds()) currentTimeout += _timeout.totalMicroseconds()/2;
 			}
 
-			Poco::Notification::Ptr pNf = _socketMap.empty() ? _mainQueue.waitDequeueNotification() : _mainQueue.dequeueNotification();
+			Poco::Notification::Ptr pNf = _socketMap.empty() ? _mainQueue.waitDequeueNotification(MAIN_QUEUE_TIMEOUT) : _mainQueue.dequeueNotification();
 			while (pNf)
 			{
 				TaskNotification::Ptr pTaskNf = pNf.cast<TaskNotification>();
@@ -398,7 +402,7 @@ void SocketDispatcher::runMain()
 				{
 					pTaskNf->execute();
 				}
-				pNf = _socketMap.empty() ? _mainQueue.waitDequeueNotification() : _mainQueue.dequeueNotification();
+				pNf = _socketMap.empty() ? _mainQueue.waitDequeueNotification(MAIN_QUEUE_TIMEOUT) : _mainQueue.dequeueNotification();
 			}
 		}
 		catch (Poco::Net::NetException& exc)
@@ -422,11 +426,11 @@ void SocketDispatcher::runMain()
 
 void SocketDispatcher::runWorker()
 {
-	while (!_stopped)
+	while (!stopped())
 	{
 		try
 		{
-			Poco::Notification::Ptr pNf = _workerQueue.waitDequeueNotification();
+			Poco::Notification::Ptr pNf = _workerQueue.waitDequeueNotification(WORKER_QUEUE_TIMEOUT);
 			if (pNf)
 			{
 				TaskNotification::Ptr pTaskNf = pNf.cast<TaskNotification>();
