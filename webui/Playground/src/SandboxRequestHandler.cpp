@@ -66,17 +66,17 @@ void SandboxRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request,
 	std::string username = pSession->getValue<std::string>("username");
 	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth");
 
-	if (!(pAuthService->authorize(username, "bundleAdmin") && request.get("X-XSRF-TOKEN", "") == pSession->csrfToken()))
+	Poco::Path p(request.getURI(), Poco::Path::PATH_UNIX);
+	p.makeFile();
+	std::string action = p.getBaseName();
+
+	if (!(pAuthService->authorize(username, "bundleAdmin") && (action == "export" || request.get("X-XSRF-TOKEN", "") == pSession->csrfToken())))
 	{
 		response.setContentLength(0);
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_FORBIDDEN);
 		response.send();
 		return;
 	}
-
-	Poco::Path p(request.getURI(), Poco::Path::PATH_UNIX);
-	p.makeFile();
-	std::string action = p.getBaseName();
 
 	context()->logger().debug("Performing action: " + action);
 
