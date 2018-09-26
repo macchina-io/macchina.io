@@ -2,7 +2,3 @@
 	path = poco
 	url = git@github.com:Bjoe/poco.git
 	branch = feature-hunter-support
-[submodule "thirdparty/poco"]
-	path = thirdparty/poco
-	url = git@github.com:Bjoe/poco.git
-	branch = feature-hunter-support
