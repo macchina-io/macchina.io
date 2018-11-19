@@ -8,8 +8,10 @@
 # a Makefile.
 #
 
+ifndef BUNDLE_TOOL
 ifneq (,$(findstring debug,$(DEFAULT_TARGET) $(MAKECMDGOALS)))
 BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundled
 else
 BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
+endif
 endif

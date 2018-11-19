@@ -10,6 +10,6 @@ objects = CCUtility
 
 target         = ccutil
 target_version = 1
-target_libs    = PocoOSP PocoZip PocoUtil PocoXML PocoFoundation
+target_libs    = PocoOSP PocoZip PocoUtil PocoXML PocoJSON PocoFoundation
 
 include $(POCO_BASE)/build/rules/exec
