@@ -82,6 +82,12 @@ LINK += -Xlinker --hash-size=31 -Xlinker --reduce-memory-overhead
 export LINK
 endif
 
+ifeq ($(strip $(STRIP)),)
+V8STRIPCMD = touch -c
+else
+V8STRIPCMD = $(STRIP)
+endif
+
 default: shared_release
 
 v8deps: out/Makefile include/v8.h
@@ -100,6 +106,9 @@ shared_release: v8deps
 	cp out/Release/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
 	cp out/Release/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)
 	cp out/Release/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)
+	$(V8STRIPCMD) $(LIBPATH)/libv8$(SHAREDLIBLINKEXT)
+	$(V8STRIPCMD) $(LIBPATH)/libv8_libbase$(SHAREDLIBLINKEXT)
+	$(V8STRIPCMD) $(LIBPATH)/libv8_libplatform$(SHAREDLIBLINKEXT)
 
 all_shared: shared_debug shared_release
 
