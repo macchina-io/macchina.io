@@ -97,10 +97,19 @@ objects = Device DeviceException \
 	SwitchEventDispatcher \
 	SwitchRemoteObject \
 	SwitchServerHelper \
-	SwitchSkeleton
+	SwitchSkeleton \
+	State \
+	IState \
+	StateEventDispatcher \
+	StateRemoteObject \
+	StateServerHelper \
+	StateSkeleton \
+	GenericSensor \
+	GenericBooleanSensor \
+	GenericCounter
 
 target         = IoTDevices
 target_version = 1
-target_libs    = PocoRemotingNG PocoOSP PocoFoundation
+target_libs    = PocoRemotingNG PocoOSP PocoUtil PocoJSON PocoXML PocoFoundation
 
 include $(POCO_BASE)/build/rules/lib
