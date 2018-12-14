@@ -125,7 +125,7 @@ public:
 		/// Which properties are supported is defined by the
 		/// actual device implementation.
 
-	virtual Poco::UInt32 state() const;
+	Poco::UInt32 state() const;
 		/// Returns the value representing the current state.
 
 protected:

@@ -62,6 +62,13 @@ class DeviceRemoteObject: public IoT::Devices::IDevice, public Poco::RemotingNG:
 	///   - io.macchina.serial (SerialDevice)
 	///   - io.macchina.switch (Switch)
 	///   - io.macchina.trigger (Trigger)
+	///
+	/// A device can also have an arbitrary number of sub devices, making
+	/// complex device tree structures possible.
+	///
+	/// Every sub device is itself a subclass of Device. Sub devices
+	/// are referenced by their service name only. All sub devices
+	/// are therefore registered in the ServiceRegistry.
 {
 public:
 	typedef Poco::AutoPtr<DeviceRemoteObject> Ptr;

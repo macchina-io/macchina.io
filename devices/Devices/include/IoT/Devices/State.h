@@ -37,7 +37,9 @@ class IoTDevices_API State: public Device
 	/// that returns the current state as a string suitable for display.
 {
 public:
-	Poco::BasicEvent<const Poco::UInt32> stateChanged;
+	typedef Poco::UInt32 StateType;
+
+	Poco::BasicEvent<const State::StateType> stateChanged;
 		/// Fired when the state has changed.
 
 	State();
@@ -46,7 +48,7 @@ public:
 	~State();
 		/// Destroys the State.
 
-	virtual Poco::UInt32 state() const = 0;
+	virtual StateType state() const = 0;
 		/// Returns the value representing the current state.
 };
 

@@ -106,7 +106,8 @@ objects = Device DeviceException \
 	StateSkeleton \
 	GenericSensor \
 	GenericBooleanSensor \
-	GenericCounter
+	GenericCounter \
+	GenericState
 
 target         = IoTDevices
 target_version = 1
