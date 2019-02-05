@@ -28,4 +28,4 @@ include $(POCO_BASE)/build/rules/dylib
 # Rule for runnning PageCompiler
 src/%.cpp: src/%.cpsp
 	@echo "** Compiling Page" $<
-	$(SET_LD_LIBRARY_PATH) $(PAGE_COMPILER) --OSP $<
+	-$(SET_LD_LIBRARY_PATH) $(PAGE_COMPILER) --OSP $<
