@@ -162,8 +162,21 @@ public:
 		/// Otherwise, returns NULL.
 
 	bool lazyStart() const;
-		/// Returns true whether lazy start has been specified for
+		/// Returns true if lazy start has been specified for
 		/// the bundle.
+
+	bool sealed() const;
+		/// Returns true if the bundle is sealed and cannot be
+		/// extended by an extension bundle.
+
+	bool preventUninstall() const;
+		/// Returns true if the bundle must not be uninstalled
+		/// at run-time.
+		///
+		/// This is mostly useful for bundles that cannot be
+		/// cleanly stopped. An example are bundles that
+		/// contain third-party libraries that, once loaded,
+		/// cannot be unloaded cleanly.
 
 	const std::string& runLevel() const;
 		/// Returns the bundle's run level.
@@ -471,6 +484,18 @@ inline const std::string& Bundle::activatorLibrary() const
 inline BundleActivator* Bundle::activator() const
 {
 	return _pActivator;
+}
+
+
+inline bool Bundle::sealed() const
+{
+	return _pManifest->sealed();
+}
+
+
+inline bool Bundle::preventUninstall() const
+{
+	return _pManifest->preventUninstall();
 }
 
 
