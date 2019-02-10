@@ -100,6 +100,9 @@ void BundleRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, 
 		<< "\"vendor\":" << Utility::jsonize(pBundle->vendor()) << ","
 		<< "\"copyright\":" << Utility::jsonize(pBundle->copyright()) << ","
 		<< "\"runlevel\":" << Utility::jsonize(pBundle->runLevel()) << ","
+		<< "\"lazyStart\":" << (pBundle->lazyStart() ? "true" : "false") << ","
+		<< "\"sealed\":" << (pBundle->sealed() ? "true" : "false") << ","
+		<< "\"preventUninstall\":" << (pBundle->preventUninstall() ? "true" : "false") << ","
 		<< "\"path\":" << Utility::jsonize(pBundle->path()) << ","
 		<< "\"requires\": [";
 
