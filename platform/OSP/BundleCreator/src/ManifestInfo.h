@@ -44,6 +44,7 @@ public:
 		const ProvidedModules& providedModules,
 		bool lazyStart,
 		bool preventUninstall,
+		bool sealed,
 		const std::string& runLevel,
 		const std::string& extendsBundle);
 
@@ -60,6 +61,7 @@ public:
 	const Dependencies& requiredModules() const;
 	const ProvidedModules& providedModules() const;
 	bool lazyStart() const;
+	bool sealed() const;
 	bool preventUninstall() const;
 	const std::string& runLevel() const;
 	const std::string& extendsBundle() const;
@@ -76,6 +78,7 @@ private:
 	Dependencies _requiredModules;
 	ProvidedModules _providedModules;
 	bool         _lazyStart;
+	bool         _sealed;
 	bool         _preventUninstall;
 	std::string  _runLevel;
 	std::string  _extendsBundle;
@@ -148,6 +151,12 @@ inline const ManifestInfo::ProvidedModules& ManifestInfo::providedModules() cons
 inline bool ManifestInfo::lazyStart() const
 {
 	return _lazyStart;
+}
+
+
+inline bool ManifestInfo::sealed() const
+{
+	return _sealed;
 }
 
 

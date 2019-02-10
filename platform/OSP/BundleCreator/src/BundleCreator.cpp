@@ -293,7 +293,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics OSP Bundle Creator Utility.\n"
-			"Copyright (c) 2007-2018 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2007-2019 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program builds bundle files for use with the "
 			"Open Service Platform. What goes into a bundle "
@@ -408,6 +408,7 @@ private:
 		std::string activatorClass = getString(PREFIX + "activator.class", "");
 		std::string activatorLibrary = getString(PREFIX + "activator.library", "");
 		bool lazyStart = getBool(PREFIX + "lazyStart", false);
+		bool sealed = getBool(PREFIX + "sealed", false);
 		bool preventUninstall = getBool(PREFIX + "preventUninstall", false);
 		std::string runLevel = getString(PREFIX + "runLevel", BundleManifest::DEFAULT_RUNLEVEL);
 		std::string extendsBundle = getString(PREFIX + "extends", "");
@@ -497,7 +498,7 @@ private:
 		}
 		while (!symName.empty());
 
-		return ManifestInfo(name, symbolicName, version, vendor, copyright, activatorClass, activatorLibrary, requiredBundles, requiredModules, providedModules, lazyStart, preventUninstall, runLevel, extendsBundle);
+		return ManifestInfo(name, symbolicName, version, vendor, copyright, activatorClass, activatorLibrary, requiredBundles, requiredModules, providedModules, lazyStart, sealed, preventUninstall, runLevel, extendsBundle);
 	}
 
 	void saveManifest(const ManifestInfo& info, std::ostream& out)
@@ -524,6 +525,8 @@ private:
 		if (!info.extendsBundle().empty())
 			out << BundleManifest::EXTENDS_BUNDLE << ": " << info.extendsBundle() << std::endl;
 		out << BundleManifest::BUNDLE_LAZYSTART << ": " << (info.lazyStart()?"true":"false") << std::endl;
+		if (info.sealed())
+			out << BundleManifest::BUNDLE_SEALED << ": true" << std::endl;
 		if (info.preventUninstall())
 			out << BundleManifest::BUNDLE_PREVENTUNINSTALL << ": true" << std::endl;
 
