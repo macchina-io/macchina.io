@@ -5,7 +5,7 @@
     <symbolicName>poco.net</symbolicName>
     <version>1.9.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2007-2018, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2007-2019, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>NetBundleActivator</class>
       <library>poco.net</library>

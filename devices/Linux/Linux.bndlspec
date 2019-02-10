@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.linux</symbolicName>
 		<version>1.0.1</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2015-2018, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2015-2019, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::Linux::BundleActivator</class>
 			<library>io.macchina.linux</library>

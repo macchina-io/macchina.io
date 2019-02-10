@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.samples.sensor2mqtt</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2018, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2018-2019, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>Sensor2MQTT::BundleActivator</class>
 			<library>io.macchina.samples.sensor2mqtt</library>

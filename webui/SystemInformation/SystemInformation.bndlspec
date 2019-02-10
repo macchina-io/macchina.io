@@ -5,7 +5,7 @@
     <symbolicName>io.macchina.webui.systeminformation</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2015-2018, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2015-2019, Applied Informatics Software Engineering GmbH</copyright>
     <lazyStart>false</lazyStart>
     <runLevel>900</runLevel>
   </manifest>
