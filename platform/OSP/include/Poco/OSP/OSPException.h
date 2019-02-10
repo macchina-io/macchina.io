@@ -35,6 +35,7 @@ POCO_DECLARE_EXCEPTION(OSP_API, BundleLoadException, BundleException)
 POCO_DECLARE_EXCEPTION(OSP_API, BundleResolveException, BundleException)
 POCO_DECLARE_EXCEPTION(OSP_API, BundleInstallException, BundleException)
 POCO_DECLARE_EXCEPTION(OSP_API, BundleUninstallException, BundleException)
+POCO_DECLARE_EXCEPTION(OSP_API, BundleSealedException, BundleException)
 
 
 } } // namespace Poco::OSP

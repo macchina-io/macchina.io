@@ -37,6 +37,7 @@ const std::string BundleManifest::REQUIRE_MODULE("Require-Module");
 const std::string BundleManifest::PROVIDE_MODULE("Provide-Module");
 const std::string BundleManifest::EXTENDS_BUNDLE("Extends-Bundle");
 const std::string BundleManifest::BUNDLE_LAZYSTART("Bundle-LazyStart");
+const std::string BundleManifest::BUNDLE_SEALED("Bundle-Sealed");
 const std::string BundleManifest::BUNDLE_PREVENTUNINSTALL("Bundle-PreventUninstall");
 const std::string BundleManifest::BUNDLE_RUNLEVEL("Bundle-RunLevel");
 const std::string BundleManifest::BUNDLE_CERTIFICATE("Bundle-Certificate");
@@ -45,6 +46,8 @@ const std::string BundleManifest::DEFAULT_RUNLEVEL("999-user");
 
 BundleManifest::BundleManifest(std::istream& istr):
 	_lazyStart(false),
+	_sealed(false),
+	_preventUninstall(false),
 	_pManifest(new Poco::Util::PropertyFileConfiguration(istr))
 {
 	parseManifest();
@@ -68,6 +71,7 @@ void BundleManifest::parseManifest()
 	_vendor           = _pManifest->getString(BUNDLE_VENDOR, "");
 	_copyright        = _pManifest->getString(BUNDLE_COPYRIGHT, "");
 	_lazyStart        = _pManifest->getBool(BUNDLE_LAZYSTART, false);
+	_sealed           = _pManifest->getBool(BUNDLE_SEALED, false);
 	_preventUninstall = _pManifest->getBool(BUNDLE_PREVENTUNINSTALL, false);
 	_runLevel         = _pManifest->getString(BUNDLE_RUNLEVEL, DEFAULT_RUNLEVEL);
 	_extendedBundle   = _pManifest->getString(EXTENDS_BUNDLE, "");

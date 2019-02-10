@@ -29,6 +29,7 @@ POCO_IMPLEMENT_EXCEPTION(BundleLoadException, BundleException, "Cannot load bund
 POCO_IMPLEMENT_EXCEPTION(BundleResolveException, BundleException, "Cannot resolve bundle")
 POCO_IMPLEMENT_EXCEPTION(BundleInstallException, BundleException, "Cannot install bundle")
 POCO_IMPLEMENT_EXCEPTION(BundleUninstallException, BundleException, "Cannot uninstall bundle")
+POCO_IMPLEMENT_EXCEPTION(BundleSealedException, BundleException, "Bundle is sealed")
 
 
 } } // namespace Poco::OSP

@@ -22,3 +22,4 @@ CppUnit::Test* ServiceTestSuite::suite()
 
 	return pSuite;
 }
+

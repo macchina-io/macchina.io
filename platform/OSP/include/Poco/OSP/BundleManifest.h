@@ -103,6 +103,10 @@ public:
 		/// Returns true if lazy startup has been specified for
 		/// the bundle.
 
+	bool sealed() const;
+		/// Returns true if the bundle is sealed and cannot be
+		/// extended by an extension bundle.
+
 	bool preventUninstall() const;
 		/// Returns true if the bundle must not be uninstalled
 		/// at run-time.
@@ -140,6 +144,7 @@ public:
 	static const std::string PROVIDE_MODULE;
 	static const std::string EXTENDS_BUNDLE;
 	static const std::string BUNDLE_LAZYSTART;
+	static const std::string BUNDLE_SEALED;
 	static const std::string BUNDLE_PREVENTUNINSTALL;
 	static const std::string BUNDLE_RUNLEVEL;
 	static const std::string BUNDLE_CERTIFICATE;
@@ -185,6 +190,7 @@ private:
 	Modules      _providedModules;
 	std::string  _extendedBundle;
 	bool         _lazyStart;
+	bool         _sealed;
 	bool         _preventUninstall;
 	std::string  _runLevel;
 
@@ -258,6 +264,12 @@ inline const BundleManifest::Modules& BundleManifest::providedModules() const
 inline bool BundleManifest::lazyStart() const
 {
 	return _lazyStart;
+}
+
+
+inline bool BundleManifest::sealed() const
+{
+	return _sealed;
 }
 
 

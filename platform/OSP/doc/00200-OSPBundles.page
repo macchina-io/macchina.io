@@ -217,6 +217,16 @@ will be started whenever another bundle depending on it is also started, or when
 ----
 
 
+! Bundle-Sealed
+
+This optional property specifies whether the bundle can be extended by an extension bundle or not.
+The default is false, which means the bundle can be extended by other extension bundles. If set to true,
+the bundle extension mechanism will be disabled for this bundle.
+
+    bundle-sealed ::= "true" | "false"
+----
+
+
 ! Bundle-PreventUninstall
 
 This optional property specifies whether the bundle should prevent being uninstalled at run-time.

@@ -1,6 +1,30 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2018.1
+
+!!Summary of Changes
+
+  - Support for Modules. Modules are a way to specify dependencies between bundles,
+    without referring to specific bundle names. Instead, bundles can declare which
+    modules they provide, and which modules they require. The OSP framework then
+    resolves module dependencies during the bundle resolve step.
+  - Web: Improved support for cross-site request forgery (CSRF or XSRF) protection
+    when using session-based authentication.
+  - Mail: A Message-ID header can now be generated for outgoing messages.
+  - New Poco::OSP::ServiceListener class for dynamically reacting to the availability
+    of services.
+
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2017.2
 
 !!Summary of Changes

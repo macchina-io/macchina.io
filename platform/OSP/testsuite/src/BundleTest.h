@@ -39,6 +39,7 @@ public:
 	void testStopAll();
 	void testResolveStartStopUnloadAll();
 	void testExtensionBundle();
+	void testSealedBundle();
 
 	void setUp();
 	void tearDown();

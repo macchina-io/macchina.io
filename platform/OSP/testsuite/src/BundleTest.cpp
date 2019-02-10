@@ -699,6 +699,38 @@ void BundleTest::testExtensionBundle()
 }
 
 
+void BundleTest::testSealedBundle()
+{
+	CodeCache cc("codeCache");
+	ServiceRegistry reg;
+	LanguageTag lang("en", "US");
+
+	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
+	Poco::OSP::SystemEvents systemEvents;
+	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
+	BundleLoader loader(cc, pBundleFactory, pBundleContextFactory);
+
+	Bundle::Ptr pBundleG = loader.createBundle(findBundle("com.appinf.osp.bundleG_1.0.0"));
+	Bundle::Ptr pBundleY = loader.createBundle(findBundle("com.appinf.osp.bundleY_1.0.0"));
+
+	loader.loadBundle(pBundleG);
+	loader.loadBundle(pBundleY);
+
+	pBundleG->resolve();
+
+	try
+	{
+		pBundleY->resolve();
+		fail("sealed bundle - must throw");
+	}
+	catch (Poco::OSP::BundleSealedException&)
+	{
+	}
+
+	assert (!pBundleY->isResolved());
+}
+
+
 void BundleTest::setUp()
 {
 	Poco::AutoPtr<Poco::Channel> pChannel(new Poco::ConsoleChannel);
@@ -796,6 +828,7 @@ CppUnit::Test* BundleTest::suite()
 	CppUnit_addTest(pSuite, BundleTest, testStopAll);
 	CppUnit_addTest(pSuite, BundleTest, testResolveStartStopUnloadAll);
 	CppUnit_addTest(pSuite, BundleTest, testExtensionBundle);
+	CppUnit_addTest(pSuite, BundleTest, testSealedBundle);
 
 	return pSuite;
 }
