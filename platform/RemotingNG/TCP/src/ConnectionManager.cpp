@@ -112,7 +112,9 @@ Connection::Ptr ConnectionManager::getConnection(const Poco::URI& endpointURI)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	Poco::Net::SocketAddress addr(endpointURI.getHost(), endpointURI.getPort());
+	std::string auth;
+	Poco::URI::decode(endpointURI.getAuthority(), auth);
+	Poco::Net::SocketAddress addr(auth);
 
 	while (_pendingConnections.find(addr) != _pendingConnections.end())
 	{

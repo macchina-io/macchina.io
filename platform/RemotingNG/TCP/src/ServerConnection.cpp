@@ -259,6 +259,7 @@ void ServerConnection::run()
 	pConnection->pushFrameHandler(pEventSubFrameHandler);
 	pConnection->pushFrameHandler(pRequestFrameHandler);
 	_pListener->connectionManager().registerConnection(pConnection);
+	_pListener->registerEventFrameHandler(pConnection);
 	try
 	{
 		_pListener->connectionAccepted(pConnection);

@@ -19,6 +19,7 @@
 #include "Poco/RemotingNG/TCP/Transport.h"
 #include "Poco/RemotingNG/TCP/TransportFactory.h"
 #include "Poco/RemotingNG/TCP/ConnectionManager.h"
+#include "Poco/File.h"
 #include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
 
@@ -35,11 +36,11 @@ public:
 	BundleActivator()
 	{
 	}
-	
+
 	~BundleActivator()
 	{
 	}
-	
+
 	void start(Poco::OSP::BundleContext::Ptr pContext)
 	{
 		_pContext = pContext;
@@ -50,30 +51,40 @@ public:
 		std::string endpoint = _pPrefs->configuration()->getString("remoting.tcp.listener", "");
 		if (!endpoint.empty())
 		{
+			if (endpoint[0] == '/')
+			{
+				Poco::File f(endpoint);
+				if (f.exists())
+				{
+					pContext->logger().notice("Removing existing socket file %s", endpoint);
+					f.remove();
+				}
+			}
+
 			Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener(endpoint);
 			_listener = Poco::RemotingNG::ORB::instance().registerListener(pListener);
-		
+
 			_pContext->logger().information("Remoting TCP Listener ready: %s", _listener);
-		
+
 			std::vector<ServiceRef::Ptr> services;
 			pContext->registry().find("name", services);
 			for (std::vector<ServiceRef::Ptr>::iterator it = services.begin(); it != services.end(); ++it)
 			{
 				registerServiceWithORB(*it);
 			}
-		
+
 			pContext->registry().serviceRegistered   += Poco::delegate(this, &BundleActivator::handleServiceRegistered);
 			pContext->registry().serviceUnregistered += Poco::delegate(this, &BundleActivator::handleServiceUnregistered);
-			
+
 			int connectionIdleTimeout = _pPrefs->configuration()->getInt("remoting.tcp.connection.idleTimeout", 60);
 			Poco::RemotingNG::TCP::ConnectionManager::defaultManager().setIdleTimeout(Poco::Timespan(connectionIdleTimeout, 0));
 		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		_pPrefs = 0;
-	
+
 		if (!_listener.empty())
 		{
 			Poco::RemotingNG::ORB::instance().unregisterListener(_listener, true);
@@ -103,7 +114,7 @@ public:
 			Poco::RemotingNG::ORB::instance().unregisterObject(uri);
 		}
 	}
-	
+
 	void registerServiceWithORB(ServiceRef::Ptr pServiceRef)
 	{
 		if (pServiceRef->properties().getBool("remoting.tcp.enable", false))
@@ -112,8 +123,8 @@ public:
 			if (dynamic_cast<Poco::RemotingNG::RemoteObject*>(pService.get()))
 			{
 				Poco::RemotingNG::RemoteObject::Ptr pRemoteObject = pService.cast<Poco::RemotingNG::RemoteObject>();
-				std::string uri = Poco::RemotingNG::ORB::instance().registerObject(pRemoteObject, _listener);		
-				pRemoteObject->remoting__enableRemoteEvents(Poco::RemotingNG::TCP::Transport::PROTOCOL);	
+				std::string uri = Poco::RemotingNG::ORB::instance().registerObject(pRemoteObject, _listener);
+				pRemoteObject->remoting__enableRemoteEvents(Poco::RemotingNG::TCP::Transport::PROTOCOL);
 				pServiceRef->properties().set("remoting.tcp.uri", uri);
 				_pContext->logger().information("Registered service with ORB: %s", uri);
 			}

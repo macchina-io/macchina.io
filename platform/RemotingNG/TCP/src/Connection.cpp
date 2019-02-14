@@ -44,7 +44,13 @@ Connection::Connection(const Poco::Net::StreamSocket& socket, ConnectionMode mod
 {
 	_socket.setReceiveTimeout(TIMEOUT_FRAME);
 	_socket.setSendTimeout(TIMEOUT_FRAME);
-	_socket.setNoDelay(true);
+	try
+	{
+		_socket.setNoDelay(true);
+	}
+	catch (...)
+	{
+	}
 	
 	_frameHandlers.reserve(64);
 	_tmpFrameHandlers.reserve(64);

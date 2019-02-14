@@ -125,6 +125,15 @@ public:
 		/// ConnectionManager instance in a subsequent call will result
 		/// in a Poco::IllegalStateException being thrown.
 
+	void makeDefaultListener();
+		/// Makes the Listener the default Listener, returned by defaultListener().
+		///
+		/// Can only be called if there is no default Listener already set, or,
+		/// in other words, if defaultListener() has not been called yet.
+		///
+		/// Throws a Poco::IllegalStateException if another default Listener has
+		/// already been set.
+
 	// Poco::RemotingNG::EventListener
 	std::string subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber);
 	void unsubscribeFromEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber);
@@ -140,6 +149,9 @@ public:
 
 	// internal
 	Poco::RemotingNG::EventSubscriber::Ptr findEventSubscriber(const std::string& path) const;
+
+protected:
+	void registerEventFrameHandler(Connection::Ptr pConnection);
 
 private:
 	enum
@@ -168,6 +180,7 @@ private:
 	typedef std::map<Poco::RemotingNG::EventSubscriber::Ptr, EventSubscription::Ptr> EventSubscriptionsMap;
 
 	static Poco::UInt32 nextSubscriberId();
+	static std::string encodeEndPoint(const std::string& endPoint);
 
 	ConnectionManager& _connectionManager;
 	Poco::Timespan _timeout;
@@ -180,6 +193,9 @@ private:
 	static Poco::FastMutex _staticMutex;
 	static Poco::UInt32 _nextSubscriberId;
 	static Ptr _pDefaultListener;
+	
+	friend class ServerConnection;
+	friend class EventSubscription;
 };
 
 

@@ -83,7 +83,7 @@ Listener::Listener(ConnectionManager& connectionManager):
 
 
 Listener::Listener(const std::string& endPoint, ConnectionManager& connectionManager):
-	Poco::RemotingNG::EventListener(endPoint),
+	Poco::RemotingNG::EventListener(encodeEndPoint(endPoint)),
 	_connectionManager(connectionManager),
 	_timeout(DEFAULT_TIMEOUT, 0),
 	_eventSubscriptionTimeout(DEFAULT_EVENT_SUBSCR_TIMEOUT, 0),
@@ -96,7 +96,7 @@ Listener::Listener(const std::string& endPoint, ConnectionManager& connectionMan
 
 
 Listener::Listener(const std::string& endPoint, Poco::Net::TCPServerParams::Ptr pParams, ConnectionManager& connectionManager):
-	Poco::RemotingNG::EventListener(endPoint),
+	Poco::RemotingNG::EventListener(encodeEndPoint(endPoint)),
 	_connectionManager(connectionManager),
 	_timeout(DEFAULT_TIMEOUT, 0),
 	_eventSubscriptionTimeout(DEFAULT_EVENT_SUBSCR_TIMEOUT, 0),
@@ -109,7 +109,7 @@ Listener::Listener(const std::string& endPoint, Poco::Net::TCPServerParams::Ptr 
 
 
 Listener::Listener(const std::string& endPoint, const Poco::Net::ServerSocket& socket, Poco::Net::TCPServerParams::Ptr pParams, ConnectionManager& connectionManager):
-	Poco::RemotingNG::EventListener(endPoint),
+	Poco::RemotingNG::EventListener(encodeEndPoint(endPoint)),
 	_connectionManager(connectionManager),
 	_timeout(DEFAULT_TIMEOUT, 0),
 	_eventSubscriptionTimeout(DEFAULT_EVENT_SUBSCR_TIMEOUT, 0),
@@ -226,8 +226,16 @@ const std::string& Listener::protocol() const
 
 std::string Listener::createURI(const Poco::RemotingNG::Identifiable::TypeId& typeId, const Poco::RemotingNG::Identifiable::ObjectId& objectId)
 {
-	std::string uri(_secure ? "remoting.tcps://" : "remoting.tcp://");
-	uri += endPoint();
+	std::string uri;
+	std::string endp = endPoint();
+
+	if (endp.compare(0, 3, "%2f") == 0 || endp.compare(0, 3, "%2F") == 0)
+		uri = "remoting.unix://";
+	else if (_secure)
+		uri = "remoting.tcps://";
+	else
+		uri = "remoting.tcp://";
+	uri += endp;
 	uri += '/';
 	uri += protocol();
 	uri += '/';
@@ -260,7 +268,11 @@ Listener::EventSubscription::EventSubscription(Listener& listener, const std::st
 {
 	Poco::URI suri(uri);
 	Connection::Ptr pConnection = _listener.connectionManager().getConnection(suri);
-	suri.setAuthority(pConnection->localAddress().toString());
+	if (_listener.endPoint() != "0.0.0.0:0")
+		suri.setAuthority(_listener.endPoint());
+	else
+		suri.setAuthority(pConnection->localAddress().toString());
+	
 	suri.setFragment(Poco::NumberFormatter::format(id));
 	_suri = suri.toString();
 	_path = suri.getPathEtc().substr(1);
@@ -282,10 +294,9 @@ const std::string& Listener::EventSubscription::path() const
 void Listener::EventSubscription::run()
 {
 	Connection::Ptr pConnection = _listener.connectionManager().getConnection(_uri);
-	if (!pConnection->hasAttribute("EventFrameHandler") && !isCancelled())
+	if (!isCancelled())
 	{
-		pConnection->pushFrameHandler(new EventFrameHandler(Listener::Ptr(&_listener, true)));
-		pConnection->setAttribute("EventFrameHandler", "");
+		_listener.registerEventFrameHandler(pConnection);
 	}
 	Frame::Ptr pFrame = new Frame(isCancelled() ? Frame::FRAME_TYPE_EVUN : Frame::FRAME_TYPE_EVSU, 0, Frame::FRAME_FLAG_EOM, static_cast<Poco::UInt16>(Frame::FRAME_HEADER_SIZE + _suri.size()));
 	_suri.copy(pFrame->payloadBegin(), _suri.size());
@@ -294,10 +305,32 @@ void Listener::EventSubscription::run()
 }
 
 
+void Listener::registerEventFrameHandler(Connection::Ptr pConnection)
+{
+	if (!pConnection->hasAttribute("EventFrameHandler"))
+	{
+		pConnection->pushFrameHandler(new EventFrameHandler(Listener::Ptr(this, true)));
+		pConnection->setAttribute("EventFrameHandler", "");
+	}
+}
+
+
 Poco::UInt32 Listener::nextSubscriberId()
 {
 	Poco::FastMutex::ScopedLock lock(_staticMutex);
 	return _nextSubscriberId++;
+}
+
+
+std::string Listener::encodeEndPoint(const std::string& endPoint)
+{
+	if (!endPoint.empty() && endPoint[0] == '/')
+	{
+		std::string encodedEndPoint;
+		Poco::URI::encode(endPoint, "/", encodedEndPoint);
+		return encodedEndPoint;
+	}
+	return endPoint;
 }
 
 
@@ -324,6 +357,17 @@ Listener::Ptr Listener::defaultListener(ConnectionManager& cm)
 		throw Poco::IllegalStateException("A default Listener using a different ConnectionManager already exists");
 	}
 	return _pDefaultListener;
+}
+
+
+void Listener::makeDefaultListener()
+{
+	Poco::FastMutex::ScopedLock lock(_staticMutex);
+	if (!_pDefaultListener)
+	{
+		_pDefaultListener.assign(this, true);
+	}
+	else throw Poco::IllegalStateException("A default Listener already exists");
 }
 
 

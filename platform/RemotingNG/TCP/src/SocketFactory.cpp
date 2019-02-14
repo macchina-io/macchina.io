@@ -33,9 +33,17 @@ SocketFactory::~SocketFactory()
 
 Poco::Net::StreamSocket SocketFactory::createSocket(const Poco::URI& uri)
 {
-	Poco::Net::SocketAddress addr(uri.getHost(), uri.getPort());
+	std::string auth;
+	Poco::URI::decode(uri.getAuthority(), auth);
+	Poco::Net::SocketAddress addr(auth);
 	Poco::Net::StreamSocket ss(addr);
-	ss.setNoDelay(true);
+	
+#if defined(POCO_OS_FAMILY_UNIX)
+	if (addr.family() != Poco::Net::SocketAddress::UNIX_LOCAL)
+#endif
+	{
+		ss.setNoDelay(true);
+	}
 	return ss;
 }
 

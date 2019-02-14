@@ -363,3 +363,81 @@ a "remoting.tcps"-scheme URI to the client helper:
     );
 ----
 
+
+!!!Using The TCP Transport With Unix Domain Sockets
+
+While not specifically designed for that purpose, the TCP transport can be
+used with Unix domain sockets. However, due to the nature of Unix domain sockets,
+a few caveats have to be taken into account. It must also be noted that Unix
+domain sockets do not use the TCP protocol, even if the transport is still called
+TCP.
+
+!!End Point URI
+
+The end point address of a server using Unix domain sockets is the path of
+the socket file. This brings an interesting issue with URIs used by Remoting, as the
+path portion of a Remoting URI is used for identifying the object. In order to
+distinguish the socket file path from the object path, the socket path will be
+URI-encoded and treated as URI authority. In practical terms this means that
+for the URI, each slash in the socket path will be replaced with "%2F". Furthermore,
+to distinguish a socket path from a domain name, a socket path must always be 
+absolute and begin with a slash. The URI scheme used for Unix domain sockets
+is "remoting.unix". An example for such a URI is
+<*remoting.unix://%2Ftmp%2FTimeServer.sock/tcp/Services.TimeService/TheClock*>.
+The path of the socket file in this URI is <*/tmp/TimeServer.sock*>.
+
+!!Socket File
+
+The socket file created by the operating system when binding the server socket
+will not be deleted when the socket is closed or the server application crashes.
+Therefore, before creating the Listener, it must be checked whether the socket file 
+already exists. If so, it should be removed before creating the Listener.
+
+Therefore, the typical sequence when creating a Listener using a Unix domain socket is:
+
+    // delete socket file if it already exists
+    Poco::File socketFile("/tmp/TimeServer.sock");
+    if (socketFile.exists()) socketFile.remove();
+
+    // create Listener using local socket address
+    Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener(socketFile.path());
+    std::string listener = Poco::RemotingNG::ORB::instance().registerListener(pListener);
+----
+
+!!Receiving Events
+
+One major aspect where Unix domain sockets differ in behavior from TCP sockets is that
+a client socket has no useful socket address unless it has been explicitly bound to
+a file. The TCP transport does not support binding client sockets, and even if it
+would support this, the application would have to manually manage socket files for all
+its client connections.
+
+As a workaround, the client can set up a regular Listener using a server socket to
+receive events. Instead of using the default Listener, which would receive event
+notifications on the same socket connection that is used for sending requests to the
+server, the regular Listener is used. This means that, before sending the first 
+event to the client, the server will have to open a socket connection to the
+client's event listener server socket. Unlike with TCP sockets, this is not an issue
+as both client and server are always on the same machine and not firewalls or NAT
+issues could prevent that.
+
+A single event Listener can be used for all events received by the client from 
+different servers. It's also possible to make this Listener the default Listener,
+which will be returned by a call to Poco::RemotingNG::TCP::Listener::defaultListener().
+This means that existing code using the defaultListener() method does not have to
+be changed. It is not necessary to register the event Listener with the ORB, by 
+calling Poco::RemotingNG::ORB::registerListener(). However, the event Listener must
+be explicitly started, by calling its <[start()]> method.
+
+The typical sequence for setting up an event Listener is as follows:
+
+    // delete socket file if it already exists
+    Poco::File socketFile("/tmp/TimeClient.sock");
+    if (socketFile.exists()) socketFile.remove();
+
+    Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener(socketFile.path());
+    pListener->start();
+    pListener->makeDefaultListener();
+----
+
+
