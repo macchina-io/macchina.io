@@ -78,9 +78,31 @@ std::string UnitsOfMeasureServiceImpl::format(const std::string& code) const
 	try
 	{
 		std::string result;
-		PrefixedUnit pu = resolve(code);
-		if (pu.prefix) result += pu.prefix->print;
-		result += pu.unit->print;
+		PrefixedUnit pu = tryResolve(code);
+		if (pu.unit)
+		{
+			if (pu.prefix) result += pu.prefix->print;
+			result += pu.unit->print;
+		}
+		else
+		{
+			std::string::size_type pos = code.find('/');
+			if (pos != std::string::npos)
+			{
+				std::string upper(code, 0, pos);
+				std::string lower(code, pos + 1);
+				result = format(upper) + "/" + format(lower);
+			}
+			else
+			{
+				if (code.size() > 1 && (code[code.size() - 1] == '2' || code[code.size() - 1 ] == '3'))
+				{
+					result = format(code.substr(0, code.size() - 1));
+					result += code[code.size() - 1] == '2' ? "²" : "³";
+				}
+				else result = code;
+			}
+		}
 		return result;
 	}
 	catch (Poco::NotFoundException&)
