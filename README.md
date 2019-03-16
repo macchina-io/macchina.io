@@ -15,7 +15,7 @@ uses the [V8 JavaScript engine](https://developers.google.com/v8/).
 
 For more information, including [documentation](https://macchina.io/docs), please see the
 [macchina.io website](https://macchina.io). There are also a couple of articles an How-To's in the
-(project wiki)[https://github.com/macchina-io/macchina.io/wiki].
+[project wiki](https://github.com/macchina-io/macchina.io/wiki).
 
 
 Build Status
