@@ -13,8 +13,9 @@ macchina.io runs on Linux-based devices, including IoT gateways, industrial comp
 macchina.io is based on the [POCO C++ Libraries](https://pocoproject.org) and
 uses the [V8 JavaScript engine](https://developers.google.com/v8/).
 
-For more information, including documentation, please see the
-[macchina.io website](https://macchina.io).
+For more information, including [documentation](https://macchina.io/docs), please see the
+[macchina.io website](https://macchina.io). There are also a couple of articles an How-To's in the
+[project wiki](https://github.com/macchina-io/macchina.io/wiki).
 
 
 Build Status

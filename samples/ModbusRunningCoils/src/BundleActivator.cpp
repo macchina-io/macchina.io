@@ -38,13 +38,13 @@ public:
 	void run()
 	{
 		int lastCoil = _currentCoil - 1;
-    	if (lastCoil < 0) lastCoil = _nOfCoils - 1;
+		if (lastCoil < 0) lastCoil = _nOfCoils - 1;
 
-    	_pModbusMaster->writeSingleCoil(_slaveId, static_cast<Poco::UInt16>(_baseAddress + lastCoil), false);
-    	_pModbusMaster->writeSingleCoil(_slaveId, static_cast<Poco::UInt16>(_baseAddress + _currentCoil), true);
+		_pModbusMaster->writeSingleCoil(_slaveId, static_cast<Poco::UInt16>(_baseAddress + lastCoil), false);
+		_pModbusMaster->writeSingleCoil(_slaveId, static_cast<Poco::UInt16>(_baseAddress + _currentCoil), true);
 
-    	_currentCoil++;
-    	if (_currentCoil >= _nOfCoils) _currentCoil = 0;
+		_currentCoil++;
+		if (_currentCoil >= _nOfCoils) _currentCoil = 0;
 	}
 
 private:
