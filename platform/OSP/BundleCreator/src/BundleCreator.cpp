@@ -29,6 +29,7 @@
 #include "Poco/File.h"
 #include "Poco/Glob.h"
 #include "Poco/DirectoryIterator.h"
+#include "Poco/String.h"
 #include "Poco/FileStream.h"
 #include "Poco/Thread.h"
 #include "Poco/Random.h"
@@ -635,8 +636,15 @@ private:
 			{
 				File aFile(*itF);
 				if (aFile.exists())
+				{
 					copyFile(aFile, platformDir.toString());
+				}
 			}
+			if (files.empty() && incTokenizer.count() > 0)
+			{
+				logger().warning("Non-empty <code> element, but no files found for expression '%s'.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end()));
+			}
+
 			path = "code[";
 			path.append(Poco::NumberFormatter::format(idx++));
 			path.append("]");
@@ -675,6 +683,11 @@ private:
 			{
 				File aFile(*itFiles);
 				copyFile(aFile, root.toString());
+			}
+
+			if (files.empty() && incTokenizer.count() > 0)
+			{
+				logger().warning("Non-empty <files> element, but no files found for expression '%s'.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end()));
 			}
 		}
 	}
