@@ -642,7 +642,7 @@ private:
 			}
 			if (files.empty() && incTokenizer.count() > 0)
 			{
-				logger().warning("Non-empty <code> element, but no files found for expression '%s'.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end()));
+				std::cerr << Poco::format("Warning: Non-empty <code> element, but no files found for expression '%s'.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end())) << std::endl;
 			}
 
 			path = "code[";
@@ -687,7 +687,7 @@ private:
 
 			if (files.empty() && incTokenizer.count() > 0)
 			{
-				logger().warning("Non-empty <files> element, but no files found for expression '%s'.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end()));
+				std::cerr << Poco::format("Warning: Non-empty <files> element, but no files found for expression '%s'.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end())) << std::endl;
 			}
 		}
 	}
