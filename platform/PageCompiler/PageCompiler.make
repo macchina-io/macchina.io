@@ -8,7 +8,6 @@
 # a Makefile.
 #
 
-ifndef PAGE_COMPILER
 ifneq (,$(findstring debug,$(DEFAULT_TARGET) $(MAKECMDGOALS)))
 ifneq (,$(findstring static,$(DEFAULT_TARGET) $(MAKECMDGOALS)))
 PAGE_COMPILER = $(POCO_BASE)/PageCompiler/$(POCO_HOST_BINDIR)/static/cpspcd
@@ -20,6 +19,5 @@ ifneq (,$(findstring static,$(DEFAULT_TARGET) $(MAKECMDGOALS)))
 PAGE_COMPILER = $(POCO_BASE)/PageCompiler/$(POCO_HOST_BINDIR)/static/cpspc
 else
 PAGE_COMPILER = $(POCO_BASE)/PageCompiler/$(POCO_HOST_BINDIR)/cpspc
-endif
 endif
 endif

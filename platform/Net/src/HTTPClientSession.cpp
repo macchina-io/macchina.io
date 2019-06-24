@@ -260,11 +260,16 @@ std::ostream& HTTPClientSession::sendRequest(HTTPRequest& request)
 }
 
 
-std::istream& HTTPClientSession::receiveResponse(HTTPResponse& response)
+void HTTPClientSession::flushRequest()
 {
 	_pRequestStream = 0;
 	if (networkException()) networkException()->rethrow();
+}
 
+
+std::istream& HTTPClientSession::receiveResponse(HTTPResponse& response)
+{
+	flushRequest();
 	if (!_responseReceived)
 	{
 		do

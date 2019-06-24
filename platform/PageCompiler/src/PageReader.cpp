@@ -179,10 +179,6 @@ void PageReader::parse(std::istream& pageStream)
 				{
 					_page.handler() << "\\\"";
 				}
-				else if (token == "\\")
-				{
-					_page.handler() << "\\\\";
-				}
 				else if (token != "\r")
 				{
 					_page.handler() << token;
