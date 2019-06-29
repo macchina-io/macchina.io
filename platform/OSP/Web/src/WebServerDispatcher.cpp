@@ -300,7 +300,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 						}
 						catch (Poco::Exception& exc)
 						{
-							throw Poco::UnhandledException("Request Handler", exc.displayText());
+							throw Poco::UnhandledException("Request Handler", exc);
 						}
 					}
 					else
@@ -364,6 +364,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 	{
 		try
 		{
+			std::string excName;
 			std::string msg("Error processing ");
 			msg += request.getMethod();
 			msg += " request for \"";
@@ -372,8 +373,18 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 			msg += request.clientAddress().toString();
 			msg += ": ";
 			msg += exc.displayText();
+			if (exc.nested())
+			{
+				excName = exc.nested()->name();
+				msg += ": ";
+				msg += exc.nested()->displayText();
+			}
+			else
+			{
+				excName = exc.name();
+			}
 			_pContext->logger().error(msg);
-			sendInternalError(request, exc.displayText());
+			sendInternalError(request, formatMessage("internal", excName));
 		}
 		catch (Poco::Exception& exc)
 		{
@@ -768,13 +779,13 @@ bool WebServerDispatcher::authorize(Poco::Net::HTTPServerRequest& request, const
 	}
 	else
 	{
-		if (!vPath.security.session.empty())
-		{
-			return authorizeSession(request, vPath, username);
-		}
-		else if (request.hasCredentials())
+		if (request.hasCredentials())
 		{
 			return authorizeBasic(request, vPath, username);
+		}
+		else if (!vPath.security.session.empty())
+		{
+			return authorizeSession(request, vPath, username);
 		}
 	}
 	return false;

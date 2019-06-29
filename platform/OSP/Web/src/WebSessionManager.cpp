@@ -37,10 +37,12 @@ const std::string WebSessionManager::COOKIE_NAME("osp.web.session");
 const std::string WebSessionManager::SERVICE_NAME("osp.web.session");
 
 
-WebSessionManager::WebSessionManager():
+WebSessionManager::WebSessionManager(Poco::OSP::BundleContext::Ptr pContext):
+	_pContext(pContext),
 	_serial(0),
 	_cookiePersistence(COOKIE_PERSISTENT),
-	_cookieSecure(false)
+	_cookieSecure(false),
+	_verifyAddress(true)
 {
 }
 
@@ -98,6 +100,18 @@ bool WebSessionManager::isCookieSecure() const
 }
 
 
+void WebSessionManager::setVerifyAddress(bool verify)
+{
+	_verifyAddress = verify;
+}
+
+
+bool WebSessionManager::isAddressVerified() const
+{
+	return _verifyAddress;
+}
+
+
 void WebSessionManager::setCSRFCookie(const std::string& name)
 {
 	_csrfCookie = name;
@@ -107,6 +121,22 @@ void WebSessionManager::setCSRFCookie(const std::string& name)
 const std::string& WebSessionManager::getCSRFCookie() const
 {
 	return _csrfCookie;
+}
+
+
+void WebSessionManager::setSessionStore(WebSessionStore::Ptr pWebSessionStore)
+{
+	FastMutex::ScopedLock lock(_mutex);
+
+	_pStore = pWebSessionStore;
+}
+
+
+WebSessionStore::Ptr WebSessionManager::getSessionStore() const
+{
+	FastMutex::ScopedLock lock(_mutex);
+
+	return _pStore;
 }
 
 
@@ -123,14 +153,62 @@ bool WebSessionManager::isA(const std::type_info& otherType) const
 }
 
 
+WebSession::Ptr WebSessionManager::findById(const std::string& sessionId)
+{
+	FastMutex::ScopedLock lock(_mutex);
+
+	return findByIdImpl(sessionId, _pContext);
+}
+
+
 WebSession::Ptr WebSessionManager::find(const std::string& appName, const Poco::Net::HTTPServerRequest& request)
 {
 	FastMutex::ScopedLock lock(_mutex);
 
-	WebSession::Ptr pSession(_cache.get(getId(appName, request)));
+	return findImpl(appName, request, _pContext);
+}
+
+
+WebSession::Ptr WebSessionManager::get(const std::string& appName, const Poco::Net::HTTPServerRequest& request, int expireSeconds, BundleContext::Ptr pContext)
+{
+	FastMutex::ScopedLock lock(_mutex);
+
+	WebSession::Ptr pSession = findImpl(appName, request, pContext);
+	if (!pSession)
+	{
+		pSession = createImpl(appName, request, expireSeconds, pContext);
+	}
+	return pSession;
+}
+
+
+WebSession::Ptr WebSessionManager::create(const std::string& appName, const Poco::Net::HTTPServerRequest& request, int expireSeconds, BundleContext::Ptr pContext)
+{
+	FastMutex::ScopedLock lock(_mutex);
+
+	return createImpl(appName, request, expireSeconds, pContext);
+}
+
+
+void WebSessionManager::remove(WebSession::Ptr pSession)
+{
+	FastMutex::ScopedLock lock(_mutex);
+
+	removeImpl(pSession);
+}
+
+
+WebSession::Ptr WebSessionManager::findImpl(const std::string& appName, const Poco::Net::HTTPServerRequest& request, BundleContext::Ptr pContext)
+{
+	WebSession::Ptr pSession;
+	std::string sessionId(getId(appName, request));
+	if (!sessionId.empty())
+	{
+		pSession = findByIdImpl(sessionId, pContext);
+	}
 	if (pSession)
 	{
-		if (pSession->clientAddress() == request.clientAddress().host())
+		if (!_verifyAddress || pSession->clientAddress() == request.clientAddress().host())
 		{
 			pSession->access();
 			_cache.add(pSession->id(), pSession);
@@ -140,7 +218,7 @@ WebSession::Ptr WebSessionManager::find(const std::string& appName, const Poco::
 		else
 		{
 			// possible attack: same session ID from different host - invalidate session
-			_cache.remove(pSession->id());
+			removeImpl(pSession);
 			return 0;
 		}
 	}
@@ -148,31 +226,50 @@ WebSession::Ptr WebSessionManager::find(const std::string& appName, const Poco::
 }
 
 
-WebSession::Ptr WebSessionManager::get(const std::string& appName, const Poco::Net::HTTPServerRequest& request, int expireSeconds, BundleContext::Ptr pContext)
+WebSession::Ptr WebSessionManager::findByIdImpl(const std::string& sessionId, BundleContext::Ptr pContext)
 {
-	WebSession::Ptr pSession = find(appName, request);
-	if (!pSession)
-		pSession = create(appName, request, expireSeconds, pContext);
+	WebSession::Ptr pSession = _cache.get(sessionId);
+	if (_pStore)
+	{
+		if (pSession)
+		{
+			std::pair<WebSession::Ptr, bool> result = _pStore->loadSession(pContext, sessionId, pSession->version());
+			if (result.first && result.second)
+				pSession = result.first;
+			else if (!result.second)
+				pSession.reset();
+		}
+		else
+		{
+			std::pair<WebSession::Ptr, bool> result = _pStore->loadSession(pContext, sessionId);
+			if (result.second) pSession = result.first;
+		}
+	}
 	return pSession;
 }
 
 
-WebSession::Ptr WebSessionManager::create(const std::string& appName, const Poco::Net::HTTPServerRequest& request, int expireSeconds, BundleContext::Ptr pContext)
+WebSession::Ptr WebSessionManager::createImpl(const std::string& appName, const Poco::Net::HTTPServerRequest& request, int expireSeconds, BundleContext::Ptr pContext)
 {
-	FastMutex::ScopedLock lock(_mutex);
-	WebSession::Ptr pSession(new WebSession(createSessionId(request), expireSeconds, request.clientAddress().host(), pContext));
+	WebSession::Ptr pSession(new WebSession(createToken(request), createToken(request), 1, expireSeconds, request.clientAddress().host(), _pStore, pContext));
 	_cache.add(pSession->id(), pSession);
-	pSession->setValue(WebSession::CSRF_TOKEN, createSessionId(request));
 	addSessionCookie(appName, request, pSession);
 	addCSRFCookie(appName, request, pSession);
+	if (_pStore)
+	{
+		_pStore->saveSession(pSession);
+	}
 	return pSession;
 }
 
 
-void WebSessionManager::remove(WebSession::Ptr pSession)
+void WebSessionManager::removeImpl(WebSession::Ptr pSession)
 {
-	FastMutex::ScopedLock lock(_mutex);
 	_cache.remove(pSession->id());
+	if (_pStore)
+	{
+		_pStore->expireSession(pSession->id(), 0);
+	}
 }
 
 
@@ -184,8 +281,9 @@ std::string WebSessionManager::getId(const std::string& appName, const Poco::Net
 	request.getCookies(cookies);
 	NameValueCollection::ConstIterator it = cookies.find(name);
 	if (it != cookies.end())
+	{
 		id = it->second;
-
+	}
 	return id;
 }
 
@@ -221,7 +319,7 @@ void WebSessionManager::addCSRFCookie(const std::string& appName, const Poco::Ne
 }
 
 
-std::string WebSessionManager::createSessionId(const Poco::Net::HTTPServerRequest& request)
+std::string WebSessionManager::createToken(const Poco::Net::HTTPServerRequest& request)
 {
 	++_serial;
 

@@ -2,13 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Web">
-      <UniqueIdentifier>{36defb93-9571-401c-8973-92750f0d14b6}</UniqueIdentifier>
+      <UniqueIdentifier>{9df1c367-53ea-4afa-b13e-6416e8615b1d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Web\Header Files">
-      <UniqueIdentifier>{8c0c6c58-37f3-4faf-b7b0-c2adcf1e02c7}</UniqueIdentifier>
+      <UniqueIdentifier>{9da5cde7-0cc2-4f33-a058-7c5f81578d2f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Web\Source Files">
-      <UniqueIdentifier>{170f073b-7906-41ff-af2f-edccac1377a3}</UniqueIdentifier>
+      <UniqueIdentifier>{6115532b-e159-479b-aa41-01e84983c83b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -54,6 +54,9 @@
     <ClInclude Include="include\poco\osp\web\WebSessionService.h">
       <Filter>Web\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Web\WebSessionStore.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MediaTypeMapper.cpp">
@@ -90,6 +93,9 @@
       <Filter>Web\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\WebSessionManager.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WebSessionStore.cpp">
       <Filter>Web\Source Files</Filter>
     </ClCompile>
   </ItemGroup>

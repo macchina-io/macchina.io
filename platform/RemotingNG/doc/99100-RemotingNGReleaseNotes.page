@@ -1,6 +1,45 @@
 Remoting NG Release Notes
 Remoting NG
 
+!!!Release 2019.1
+
+!!Summary of Changes
+
+  - The TCP transport can now also be used with Unix Domain Sockets (which are
+    not TCP at all). In a future release, the TCP transport will therefore be
+    renamed to Socket transport.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
+!!!Release 2018.1
+
+!!Summary of Changes
+
+  - Serialization now supports arrays (Poco::Array or std::array).
+  - CORS: Send Access-Control-Allow-Headers in preflight response
+    (REST and JSON-RPC transports).
+  - REST JSON: fixed serialization/deserialization of a single scalar in the message body
+  - REST: Support custom authorization headers (AUTH_CUSTOM).
+  - JSON deserialization: fix a potential crash if an object is expected, but an array
+    is present
+  - RemoteGen: fixed issues with code generation for events
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2017.2
 
 !!Summary of Changes

@@ -53,12 +53,12 @@ public:
 
 	virtual WebSession::Ptr get(const std::string& appName, const Request& request, int expireSeconds, BundleContext::Ptr pContext) = 0;
 		/// Return a WebSession object for the application specified by appName and
-		/// the given HTTP request. If no session is associated with the given request, 
+		/// the given HTTP request. If no session is associated with the given request,
 		/// a new session is created with the given expiration time.
 
 	virtual WebSession::Ptr create(const std::string& appName, const Request& request, int expireSeconds, BundleContext::Ptr pContext) = 0;
-		/// Creates a new WebSession object with the given expiration time for the application 
-		/// given by appName and the given HTTP request, and associates the WebSession with 
+		/// Creates a new WebSession object with the given expiration time for the application
+		/// given by appName and the given HTTP request, and associates the WebSession with
 		/// the browser's user session.
 
 	virtual void remove(WebSession::Ptr ptr) = 0;
@@ -70,7 +70,7 @@ public:
 	{
 		return typeid(WebSessionService);
 	}
-	
+
 	bool isA(const std::type_info& otherType) const
 	{
 		std::string name(typeid(WebSessionService).name());
@@ -81,7 +81,7 @@ protected:
 	WebSessionService()
 	{
 	}
-	
+
 	~WebSessionService()
 	{
 	}

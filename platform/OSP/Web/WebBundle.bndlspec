@@ -3,7 +3,7 @@
   <manifest>
     <name>OSP Web Server Foundation</name>
     <symbolicName>osp.web</symbolicName>
-    <version>1.4.1</version>
+    <version>1.5.0</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2007-2019, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
@@ -11,7 +11,7 @@
       <library>osp.web</library>
     </activator>
     <lazyStart>false</lazyStart>
-    <runLevel>000</runLevel>
+    <runLevel>100</runLevel>
     <dependency>
       <symbolicName>poco.net</symbolicName>
       <version>[1.3.0, 2.0.0)</version>

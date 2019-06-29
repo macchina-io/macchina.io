@@ -2,76 +2,76 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Core">
-      <UniqueIdentifier>{31451090-6b23-4aa8-8281-20892af39826}</UniqueIdentifier>
+      <UniqueIdentifier>{a21a9522-2ed9-46f1-9502-e92ff7bab6a0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Header Files">
-      <UniqueIdentifier>{990a301d-adaa-438f-9389-08e26e2273dc}</UniqueIdentifier>
+      <UniqueIdentifier>{097276ae-eb0d-4185-8df1-f16250180478}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Source Files">
-      <UniqueIdentifier>{ea7f07dc-af6c-4451-9967-e5282369e714}</UniqueIdentifier>
+      <UniqueIdentifier>{148f10ea-9774-4e23-96af-c1eb338b810a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Util">
-      <UniqueIdentifier>{674b59d8-7ce7-48aa-9e66-613586642e7a}</UniqueIdentifier>
+      <UniqueIdentifier>{57a8ec9b-8651-4862-b5ab-c4bf103e5b95}</UniqueIdentifier>
     </Filter>
     <Filter Include="Util\Header Files">
-      <UniqueIdentifier>{5022e71e-fc10-4693-99c9-c0119d647f01}</UniqueIdentifier>
+      <UniqueIdentifier>{2d1ff4b9-e4cc-4464-9464-abd6016132a9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Util\Source Files">
-      <UniqueIdentifier>{2e27e3f1-c6f9-4eaa-af62-c7bf810a4e0d}</UniqueIdentifier>
+      <UniqueIdentifier>{dfdee473-0f75-400d-a155-5db547b6d2bf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Bundle">
-      <UniqueIdentifier>{3c75d9b4-f499-4414-bb25-4643f1418af8}</UniqueIdentifier>
+      <UniqueIdentifier>{a11d9e63-0cbd-43f7-8395-c33a5ca00eb0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Bundle\Header Files">
-      <UniqueIdentifier>{22f2048a-081b-414b-98fd-b0a32340ea7d}</UniqueIdentifier>
+      <UniqueIdentifier>{76b97a58-7afd-40a0-adae-81f052d43eea}</UniqueIdentifier>
     </Filter>
     <Filter Include="Bundle\Source Files">
-      <UniqueIdentifier>{3f7aeb5d-5be1-4f87-93c6-27cb4e4b3cc5}</UniqueIdentifier>
+      <UniqueIdentifier>{86ba7ee8-329a-44e4-8916-c2c9cb6426a2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Service">
-      <UniqueIdentifier>{a4bcf8cc-b294-44d3-9989-45768a511883}</UniqueIdentifier>
+      <UniqueIdentifier>{8d237eb0-94e7-4bf7-a307-6f7453314e9b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Service\Header Files">
-      <UniqueIdentifier>{b9ff872b-3964-4713-a99e-d2f6d5067b4a}</UniqueIdentifier>
+      <UniqueIdentifier>{c80735b1-711a-402b-be2e-0500ffcd67d0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Service\Source Files">
-      <UniqueIdentifier>{5c9f662b-c201-4158-8013-be46d545d40a}</UniqueIdentifier>
+      <UniqueIdentifier>{c5dabf7d-1bae-456b-a642-634daa663a0d}</UniqueIdentifier>
     </Filter>
     <Filter Include="ExtensionPointService">
-      <UniqueIdentifier>{386e313c-5b31-424f-87fd-527320ee09a0}</UniqueIdentifier>
+      <UniqueIdentifier>{2b6c120b-0f9f-4505-a308-36b92d24540c}</UniqueIdentifier>
     </Filter>
     <Filter Include="ExtensionPointService\Header Files">
-      <UniqueIdentifier>{8c4076a2-6dbe-4757-afcb-9f460572252d}</UniqueIdentifier>
+      <UniqueIdentifier>{5acd3660-e7c7-4181-a66a-809b14dbc59b}</UniqueIdentifier>
     </Filter>
     <Filter Include="ExtensionPointService\Source Files">
-      <UniqueIdentifier>{93092724-39dc-4943-8daa-287059a062aa}</UniqueIdentifier>
+      <UniqueIdentifier>{0b0aca4a-01b6-4a4f-843f-68b60b638f7f}</UniqueIdentifier>
     </Filter>
     <Filter Include="PreferencesService">
-      <UniqueIdentifier>{c3dfb78a-c75a-430a-93b5-5a3c7aff3708}</UniqueIdentifier>
+      <UniqueIdentifier>{7415cd2e-2b2f-4db9-80a5-5dcb38bab6fb}</UniqueIdentifier>
     </Filter>
     <Filter Include="PreferencesService\Header Files">
-      <UniqueIdentifier>{7f5ca093-76a1-4f6a-8b16-c220da83b5df}</UniqueIdentifier>
+      <UniqueIdentifier>{ab11aa8a-b1c9-498d-a151-4a65663b8bec}</UniqueIdentifier>
     </Filter>
     <Filter Include="PreferencesService\Source Files">
-      <UniqueIdentifier>{a9fa9ab2-05bd-471c-8c87-1822a0c012f9}</UniqueIdentifier>
+      <UniqueIdentifier>{c26f0a8a-6fb0-4e42-be64-e1ccf2064f59}</UniqueIdentifier>
     </Filter>
     <Filter Include="BundleInstallerService">
-      <UniqueIdentifier>{501fe68b-0348-4a6d-9bb4-f55868381f9c}</UniqueIdentifier>
+      <UniqueIdentifier>{bd34e9e8-66a5-48dc-9fda-6a04cae5c741}</UniqueIdentifier>
     </Filter>
     <Filter Include="BundleInstallerService\Header Files">
-      <UniqueIdentifier>{8122da4f-f935-4bde-9a38-5a380ad8fbbc}</UniqueIdentifier>
+      <UniqueIdentifier>{df6d19ff-d291-4bae-a651-4258f38fffba}</UniqueIdentifier>
     </Filter>
     <Filter Include="BundleInstallerService\Source Files">
-      <UniqueIdentifier>{ec23b344-bee8-4e71-bea3-dd8f21001a06}</UniqueIdentifier>
+      <UniqueIdentifier>{01238311-c45d-41a5-8023-549f5c55fa7c}</UniqueIdentifier>
     </Filter>
     <Filter Include="AuthService">
-      <UniqueIdentifier>{38b2822c-7029-4374-9d1f-5b49c51167f9}</UniqueIdentifier>
+      <UniqueIdentifier>{c4073f37-ab43-4af8-8e20-d2c19b767a54}</UniqueIdentifier>
     </Filter>
     <Filter Include="AuthService\Header Files">
-      <UniqueIdentifier>{fedd36e9-8d04-4015-9ace-72617adb7c22}</UniqueIdentifier>
+      <UniqueIdentifier>{70d826fa-a43a-4b97-bb1b-38540a1d1cfd}</UniqueIdentifier>
     </Filter>
     <Filter Include="AuthService\Source Files">
-      <UniqueIdentifier>{d47d7275-7e0d-4c6f-91d0-7d708f7554c8}</UniqueIdentifier>
+      <UniqueIdentifier>{4e465bed-2ecf-480a-ad9c-e0a9abcc05f7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +169,9 @@
       <Filter>Service\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Poco\OSP\ServiceFinder.h">
+      <Filter>Service\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\ServiceListener.h">
       <Filter>Service\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Poco\OSP\ServiceRef.h">
@@ -291,6 +294,9 @@
       <Filter>Service\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ServiceFactory.cpp">
+      <Filter>Service\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServiceListener.cpp">
       <Filter>Service\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ServiceRef.cpp">

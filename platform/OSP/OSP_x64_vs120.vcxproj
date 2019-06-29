@@ -150,6 +150,7 @@
     <ClInclude Include="include\Poco\OSP\ServiceEvent.h"/>
     <ClInclude Include="include\Poco\OSP\ServiceFactory.h"/>
     <ClInclude Include="include\Poco\OSP\ServiceFinder.h"/>
+    <ClInclude Include="include\Poco\OSP\ServiceListener.h"/>
     <ClInclude Include="include\Poco\OSP\ServiceRef.h"/>
     <ClInclude Include="include\Poco\OSP\ServiceRegistry.h"/>
     <ClInclude Include="include\Poco\OSP\SystemEvents.h"/>
@@ -192,6 +193,7 @@
     <ClCompile Include="src\Service.cpp"/>
     <ClCompile Include="src\ServiceEvent.cpp"/>
     <ClCompile Include="src\ServiceFactory.cpp"/>
+    <ClCompile Include="src\ServiceListener.cpp"/>
     <ClCompile Include="src\ServiceRef.cpp"/>
     <ClCompile Include="src\ServiceRegistry.cpp"/>
     <ClCompile Include="src\SystemEvents.cpp"/>

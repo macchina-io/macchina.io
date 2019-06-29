@@ -329,7 +329,7 @@ void Bundle::addExtensionBundle(Bundle* pExtensionBundle)
 		{
 			{
 				Poco::FastMutex::ScopedLock lock(_extensionBundlesMutex);
-	
+
 				_extensionBundles.insert(Bundle::Ptr(pExtensionBundle, true));
 			}
 			_pProperties->addProperties(pExtensionBundle->_pProperties, -static_cast<int>(_extensionBundles.size()), true);

@@ -36,17 +36,20 @@ namespace OSP {
 namespace Web {
 
 
+class WebSessionStore;
+
+
 class OSPWeb_API WebSession
-	/// A WebSession is used for tracking users between different 
+	/// A WebSession is used for tracking users between different
 	/// HTTP(S) requests. WebSession objects are managed by
 	/// a session manager (usually, an implementation of the WebSessionService).
 	///
-	/// The WebSession can also be used to store arbitrary data 
-	/// (attributes) in the form of key-value pairs between different 
+	/// The WebSession can also be used to store arbitrary data
+	/// (attributes) in the form of key-value pairs between different
 	/// requests. Poco::Any is used for storing values, so practically
 	/// any object can be attached to a session.
 	///
-	/// A WebSession has a time out. If a WebSession instance is not 
+	/// A WebSession has a time out. If a WebSession instance is not
 	/// accessed for a given time, it will be destroyed by the
 	/// session manager.
 	///
@@ -66,7 +69,10 @@ public:
 	typedef std::map<std::string, Poco::Any> Attributes;
 	typedef Poco::SharedPtr<WebSession> Ptr;
 
-	WebSession(const std::string& id, int timeoutSeconds, const Poco::Net::IPAddress& clientAddress, BundleContext::Ptr pContext);
+	WebSession(const std::string& id, const std::string& csrfToken, Poco::Int64 version, int timeoutSeconds, const Poco::Net::IPAddress& clientAddress, Poco::AutoPtr<WebSessionStore> pStore, BundleContext::Ptr pContext);
+		/// Creates a new WebSession with the given ID and time out.
+
+	WebSession(const std::string& id, Poco::Int64 version, int timeoutSeconds, const Poco::Net::IPAddress& clientAddress, Poco::AutoPtr<WebSessionStore> pStore, BundleContext::Ptr pContext, Poco::Timestamp created, const Attributes& attrs);
 		/// Creates a new WebSession with the given ID and time out.
 
 	virtual ~WebSession();
@@ -75,6 +81,9 @@ public:
 	const std::string& id() const;
 		/// The unique identifier of the session.
 
+	Poco::Int64 version() const;
+		/// Returns the version number of the session.
+
 	const Poco::Timestamp& created() const;
 		/// Returns the creation time of the session, i.e. the time the user sent the first request.
 
@@ -82,11 +91,11 @@ public:
 		/// Returns true iff the session has an attribute with the given value.
 
 	const Poco::Any& get(const std::string& key) const;
-		/// Returns the attribute with the given key. 
+		/// Returns the attribute with the given key.
 		///
 		/// Throws a Poco::NotFoundException
 		/// if the attribute does not exist.
-		
+
 	template <typename T>
 	T getValue(const std::string& key) const
 		/// Convenience function that returns the attribute with the given key,
@@ -98,7 +107,7 @@ public:
 		const Poco::Any& any = get(key);
 		return Poco::AnyCast<T>(any);
 	}
-	
+
 	template <typename T>
 	T getValue(const std::string& key, T deflt) const
 		/// Convenience function that returns the attribute with the given key,
@@ -118,17 +127,17 @@ public:
 
 	void set(const std::string& key, const Poco::Any& value);
 		/// Sets/Overwrites an attribute value.
-		
+
 	template <typename T>
 	void setValue(const std::string& key, T value)
 		/// Sets/Overwrites an attribute value.
 	{
 		set(key, Poco::Any(value));
 	}
-		
+
 	void erase(const std::string& key);
 		/// Erases an attribute value from the session.
-		
+
 	Attributes::const_iterator find(const std::string& key) const;
 		/// Searches for an attribute. Returns end() if not found.
 
@@ -137,26 +146,26 @@ public:
 
 	Attributes::const_iterator end() const;
 		/// Returns the end iterator for attributes.
-		
+
 	void clear();
-		/// Erases all attributes.	
-		
+		/// Erases all attributes.
+
 	int timeout() const;
 		/// Returns the timeout of the session in seconds.
-		
+
 	const Poco::Net::IPAddress& clientAddress() const;
 		/// Returns the IP address of the client holding the session.
-		
+
 	// UniqueExpireCache support
 	const Poco::Timestamp& getExpiration() const;
 		/// Return the time when the session will expire.
-	
+
 	void access();
 		/// Updates the expiration time.
-		
+
 	std::string csrfToken() const;
 		/// Returns the CSRF synchronizer token for this session.
-		
+
 	static const std::string CSRF_TOKEN;
 		/// The name of the attribute storing the CSRF synchronizer token.
 
@@ -169,15 +178,26 @@ protected:
 		/// might no longer be available. Therefore all attributes must be removed
 		/// while their object's destructors are still available.
 
+	void updateVersion(Poco::Int64 version);
+		/// Updates the version if the new version is one higher than the current version.
+
+	void accessImpl();
+		/// Updates the expiration time.
+
+	void clearImpl();
+		/// Erases all attributes.
+
 private:
 	std::string          _id;
+	Poco::Int64          _version;
 	Poco::Timespan       _timeout;
 	BundleContext::Ptr   _pContext;
 	Poco::Timestamp      _created;
 	Poco::Timestamp      _expiration;
 	Poco::Net::IPAddress _clientAddress;
 	Attributes           _attrs;
-	
+	Poco::AutoPtr<WebSessionStore> _pStore;
+
 	mutable Poco::FastMutex _mutex;
 };
 
@@ -188,6 +208,12 @@ private:
 inline const std::string& WebSession::id() const
 {
 	return _id;
+}
+
+
+inline Poco::Int64 WebSession::version() const
+{
+	return _version;
 }
 
 

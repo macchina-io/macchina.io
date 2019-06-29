@@ -127,6 +127,7 @@
     <ClInclude Include="include\poco\osp\web\WebSession.h"/>
     <ClInclude Include="include\poco\osp\web\WebSessionManager.h"/>
     <ClInclude Include="include\poco\osp\web\WebSessionService.h"/>
+    <ClInclude Include="include\Poco\OSP\Web\WebSessionStore.h"/>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MediaTypeMapper.cpp"/>
@@ -141,6 +142,7 @@
     <ClCompile Include="src\WebServerService.cpp"/>
     <ClCompile Include="src\WebSession.cpp"/>
     <ClCompile Include="src\WebSessionManager.cpp"/>
+    <ClCompile Include="src\WebSessionStore.cpp"/>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
   <ImportGroup Label="ExtensionTargets"/>

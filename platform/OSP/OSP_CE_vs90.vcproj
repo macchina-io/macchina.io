@@ -322,6 +322,8 @@
 				<File
 					RelativePath=".\include\Poco\OSP\ServiceFinder.h"/>
 				<File
+					RelativePath=".\include\Poco\OSP\ServiceListener.h"/>
+				<File
 					RelativePath=".\include\Poco\OSP\ServiceRef.h"/>
 				<File
 					RelativePath=".\include\Poco\OSP\ServiceRegistry.h"/>
@@ -334,6 +336,8 @@
 					RelativePath=".\src\ServiceEvent.cpp"/>
 				<File
 					RelativePath=".\src\ServiceFactory.cpp"/>
+				<File
+					RelativePath=".\src\ServiceListener.cpp"/>
 				<File
 					RelativePath=".\src\ServiceRef.cpp"/>
 				<File

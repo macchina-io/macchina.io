@@ -14,14 +14,17 @@
 #include "Poco/OSP/ServiceRegistry.h"
 #include "Poco/OSP/PreferencesService.h"
 #include "Poco/OSP/ExtensionPointService.h"
+#include "Poco/OSP/ServiceListener.h"
 #include "Poco/OSP/Web/MediaTypeMapper.h"
 #include "Poco/OSP/Web/WebServerDispatcher.h"
 #include "Poco/OSP/Web/WebSessionManager.h"
+#include "Poco/OSP/Web/WebSessionStore.h"
 #include "Poco/OSP/Web/WebServerExtensionPoint.h"
 #include "Poco/OSP/Web/WebFilterExtensionPoint.h"
 #include "Poco/StringTokenizer.h"
 #include "Poco/Format.h"
 #include "Poco/AutoPtr.h"
+#include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
 #include <memory>
 #include <istream>
@@ -38,9 +41,9 @@ using Poco::OSP::ExtensionPointService;
 using Poco::OSP::Web::MediaTypeMapper;
 using Poco::OSP::Web::WebServerDispatcher;
 using Poco::OSP::Web::WebSessionManager;
+using Poco::OSP::Web::WebSessionStore;
 using Poco::OSP::Web::WebServerExtensionPoint;
 using Poco::OSP::Web::WebFilterExtensionPoint;
-using Poco::AutoPtr;
 
 
 class WebBundleActivator: public BundleActivator
@@ -60,6 +63,8 @@ public:
 
 	void start(BundleContext::Ptr pContext)
 	{
+		_pContext = pContext;
+
 		MediaTypeMapper::Ptr pMediaTypeMapper = new MediaTypeMapper;
 #if __cplusplus < 201103L
 		std::auto_ptr<std::istream> pStream(pContext->thisBundle()->getResource("mime.types"));
@@ -81,6 +86,8 @@ public:
 		bool sessionCookieSecure(pContext->thisBundle()->properties().getBool("cookieSecure", false));
 		std::string csrfCookie(pContext->thisBundle()->properties().getString("csrfCookie", "XSRF-TOKEN"));
 		bool csrfProtectionEnabled(pContext->thisBundle()->properties().getBool("csrfProtectionEnabled", true));
+		bool verifyAddress(pContext->thisBundle()->properties().getBool("verifyAddress", true));
+		std::string webSessionStore;
 		if (pPrefsSvcRef)
 		{
 			Poco::AutoPtr<PreferencesService> pPrefsSvc = pPrefsSvcRef->castedInstance<PreferencesService>();
@@ -92,12 +99,14 @@ public:
 			sessionCookieSecure = pPrefsSvc->configuration()->getBool("osp.web.sessionManager.cookieSecure", sessionCookieSecure);
 			csrfCookie = pPrefsSvc->configuration()->getString("osp.web.sessionManager.csrfCookie", csrfCookie);
 			csrfProtectionEnabled = pPrefsSvc->configuration()->getBool("osp.web.csrfProtectionEnabled", csrfProtectionEnabled);
+			verifyAddress = pPrefsSvc->configuration()->getBool("osp.web.sessionManager.verifyAddress", verifyAddress);
+			webSessionStore = pPrefsSvc->configuration()->getString("osp.web.sessionManager.sessionStore", webSessionStore);
 		}
 
 		Poco::StringTokenizer tok(compressedMediaTypesString, ",", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 		std::set<std::string> compressedMediaTypes(tok.begin(), tok.end());
 
-		AutoPtr<WebServerDispatcher> pWebServerDispatcher = new WebServerDispatcher(pContext, pMediaTypeMapper, authServiceName, compressResponse, compressedMediaTypes, cacheResources);
+		Poco::AutoPtr<WebServerDispatcher> pWebServerDispatcher = new WebServerDispatcher(pContext, pMediaTypeMapper, authServiceName, compressResponse, compressedMediaTypes, cacheResources);
 		_pWebServerDispatcherSvc = pContext->registry().registerService(WebServerDispatcher::SERVICE_NAME, pWebServerDispatcher, Properties());
 
 		WebSessionManager::CookiePersistence cookiePersistence = WebSessionManager::COOKIE_PERSISTENT;
@@ -110,21 +119,22 @@ public:
 			pContext->logger().warning(Poco::format("Ignoring invalid value for osp.web.sessionManager.cookiePersistence: '%s'. Valid values are 'transient' or 'persistent'.", sessionCookiePersistence));
 		}
 
-		AutoPtr<WebSessionManager> pWebSessionManager = new WebSessionManager;
-		pWebSessionManager->setCookiePersistence(cookiePersistence);
-		pWebSessionManager->setCookieSecure(sessionCookieSecure);
+		_pWebSessionManager = new WebSessionManager(pContext);
+		_pWebSessionManager->setCookiePersistence(cookiePersistence);
+		_pWebSessionManager->setCookieSecure(sessionCookieSecure);
+		_pWebSessionManager->setVerifyAddress(verifyAddress);
 
 		if (csrfProtectionEnabled)
 		{
-			pWebSessionManager->setCSRFCookie(csrfCookie);
+			_pWebSessionManager->setCSRFCookie(csrfCookie);
 		}
 
-		_pWebSessionManagerSvc = pContext->registry().registerService(WebSessionManager::SERVICE_NAME, pWebSessionManager, Properties());
+		_pWebSessionManagerSvc = pContext->registry().registerService(WebSessionManager::SERVICE_NAME, _pWebSessionManager, Properties());
 
 		ServiceRef::Ptr pXPSRef = pContext->registry().findByName("osp.core.xp");
 		if (pXPSRef)
 		{
-			AutoPtr<ExtensionPointService> pXPS = pXPSRef->castedInstance<ExtensionPointService>();
+			Poco::AutoPtr<ExtensionPointService> pXPS = pXPSRef->castedInstance<ExtensionPointService>();
 			_pWebServerExtensionPoint = new WebServerExtensionPoint(pContext, pWebServerDispatcher);
 			pXPS->registerExtensionPoint(pContext->thisBundle(), WebServerExtensionPoint::EXTPOINT_DIRECTORY, _pWebServerExtensionPoint);
 			pXPS->registerExtensionPoint(pContext->thisBundle(), WebServerExtensionPoint::EXTPOINT_HANDLER, _pWebServerExtensionPoint);
@@ -135,13 +145,23 @@ public:
 		{
 			pContext->logger().error("The ExtensionPointService is not available.");
 		}
+
+		if (!webSessionStore.empty())
+		{
+			_pStoreListener = pContext->registry().createListener(Poco::format("name == \"%s\"", webSessionStore),
+				Poco::delegate(this, &WebBundleActivator::onStoreRegistered),
+				Poco::delegate(this, &WebBundleActivator::onStoreUnregistered));
+		}
 	}
 
 	void stop(BundleContext::Ptr pContext)
 	{
+		_pContext = 0;
+		_pStoreListener = 0;
 		pContext->registry().unregisterService(_pWebSessionManagerSvc);
 		pContext->registry().unregisterService(_pWebServerDispatcherSvc);
 		pContext->registry().unregisterService(_pMediaTypeMapperSvc);
+		_pWebSessionManager = 0;
 		_pWebSessionManagerSvc = 0;
 		_pWebServerDispatcherSvc = 0;
 		_pMediaTypeMapperSvc = 0;
@@ -149,12 +169,32 @@ public:
 		_pWebFilterExtensionPoint = 0;
 	}
 
+protected:
+	void onStoreRegistered(const Poco::OSP::ServiceRef::Ptr& pStoreRef)
+	{
+		_pContext->logger().information("WebSessionStore registered: %s", pStoreRef->name());
+		WebSessionStore::Ptr pStore = pStoreRef->castedInstance<WebSessionStore>();
+		_pWebSessionManager->setSessionStore(pStore);
+	}
+
+	void onStoreUnregistered(const Poco::OSP::ServiceRef::Ptr& pStoreRef)
+	{
+		_pContext->logger().information("WebSessionStore unregistered: %s", pStoreRef->name());
+		if (_pWebSessionManager)
+		{
+			_pWebSessionManager->setSessionStore(0);
+		}
+	}
+
 private:
+	Poco::OSP::BundleContext::Ptr _pContext;
+	Poco::OSP::ServiceListener::Ptr _pStoreListener;
+	Poco::AutoPtr<WebSessionManager> _pWebSessionManager;
 	ServiceRef::Ptr _pMediaTypeMapperSvc;
 	ServiceRef::Ptr _pWebServerDispatcherSvc;
 	ServiceRef::Ptr _pWebSessionManagerSvc;
-	AutoPtr<WebServerExtensionPoint> _pWebServerExtensionPoint;
-	AutoPtr<WebFilterExtensionPoint> _pWebFilterExtensionPoint;
+	Poco::AutoPtr<WebServerExtensionPoint> _pWebServerExtensionPoint;
+	Poco::AutoPtr<WebFilterExtensionPoint> _pWebFilterExtensionPoint;
 };
 
 

@@ -37,7 +37,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros"/>
   <PropertyGroup>
-    <_ProjectFileVersion>14.0.23107.0</_ProjectFileVersion>
+    <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='debug_shared|Win32'">PocoOSPWebd</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='release_shared|Win32'">PocoOSPWeb</TargetName>
   </PropertyGroup>
@@ -127,6 +127,7 @@
     <ClInclude Include="include\poco\osp\web\WebSession.h"/>
     <ClInclude Include="include\poco\osp\web\WebSessionManager.h"/>
     <ClInclude Include="include\poco\osp\web\WebSessionService.h"/>
+    <ClInclude Include="include\Poco\OSP\Web\WebSessionStore.h"/>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MediaTypeMapper.cpp"/>
@@ -141,6 +142,7 @@
     <ClCompile Include="src\WebServerService.cpp"/>
     <ClCompile Include="src\WebSession.cpp"/>
     <ClCompile Include="src\WebSessionManager.cpp"/>
+    <ClCompile Include="src\WebSessionStore.cpp"/>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
   <ImportGroup Label="ExtensionTargets"/>

@@ -1,6 +1,31 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2019.1
+
+!!Summary of Changes
+
+  - Added support for sealed bundles. Sealed bundles cannot be extended through
+    extension bundles.
+  - Poco::OSP::Auth::AuthAdminService: when user is deleted, also delete permissions, roles and attributes.
+  - Poco::OSP::Auth::AuthAdminService: added usersWithPermission(), usersWithRole(), usersWithAttribute(),
+    replaceRolesForUser(), replaceUserAttributes() and findUsersByAttribute() methods.
+  - Shell: added passwd command (allows hidden password entry)
+  - Web: added Poco::OSP::Web::WebSessionStore service, which allows for implementation of
+    persistent web sessions.
+  - Web: when checking whether a request is authenticated, check for HTTP Basic credentials
+    first before checking for an authenticated session.
+  - Web: don't show exception details in 500 error page
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2018.1
 
 !!Summary of Changes
@@ -14,7 +39,6 @@ Open Service Platform
   - Mail: A Message-ID header can now be generated for outgoing messages.
   - New Poco::OSP::ServiceListener class for dynamically reacting to the availability
     of services.
-
 
 !!Known Issues
 

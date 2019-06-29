@@ -190,6 +190,8 @@
 					RelativePath=".\include\poco\osp\web\WebSessionManager.h"/>
 				<File
 					RelativePath=".\include\poco\osp\web\WebSessionService.h"/>
+				<File
+					RelativePath=".\include\Poco\OSP\Web\WebSessionStore.h"/>
 			</Filter>
 			<Filter
 				Name="Source Files">
@@ -217,6 +219,8 @@
 					RelativePath=".\src\WebSession.cpp"/>
 				<File
 					RelativePath=".\src\WebSessionManager.cpp"/>
+				<File
+					RelativePath=".\src\WebSessionStore.cpp"/>
 			</Filter>
 		</Filter>
 	</Files>
