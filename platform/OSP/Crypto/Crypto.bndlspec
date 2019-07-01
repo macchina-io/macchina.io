@@ -3,7 +3,7 @@
   <manifest>
     <name>POCO Crypto Library (OpenSSL)</name>
     <symbolicName>poco.crypto</symbolicName>
-    <version>1.9.1</version>
+    <version>1.9.2</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2007-2019, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
