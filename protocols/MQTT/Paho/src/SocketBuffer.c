@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corp.
+ * Copyright (c) 2009, 2018 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution. 
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
- * The Eclipse Public License is available at 
+ * The Eclipse Public License is available at
  *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
+ * and the Eclipse Distribution License is available at
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  *    Ian Craggs - initial API and implementation and/or initial documentation
  *    Ian Craggs, Allan Stockdill-Mander - SSL updates
- *    Ian Craggs - fix for issue #244
+ *    Ian Craggs - fix for issue #244, issue #20
  *******************************************************************************/
 
 /**
@@ -30,7 +30,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <memory.h>
+#include <string.h>
 
 #include "Heap.h"
 
@@ -106,6 +106,7 @@ void SocketBuffer_freeDefQ(void)
 {
 	free(def_queue->buf);
 	free(def_queue);
+        def_queue = NULL;
 }
 
 
@@ -133,6 +134,7 @@ void SocketBuffer_terminate(void)
 void SocketBuffer_cleanup(int socket)
 {
 	FUNC_ENTRY;
+	SocketBuffer_writeComplete(socket); /* clean up write buffers */
 	if (ListFindItem(queues, &socket, socketcompare))
 	{
 		free(((socket_queue*)(queues->current->content))->buf);
@@ -205,7 +207,7 @@ int SocketBuffer_getQueuedChar(int socket, char* c)
 		if (queue->index < queue->headerlen)
 		{
 			*c = queue->fixed_header[(queue->index)++];
-			Log(TRACE_MAX, -1, "index is now %d, headerlen %d", queue->index, queue->headerlen);
+			Log(TRACE_MAX, -1, "index is now %d, headerlen %d", queue->index, (int)queue->headerlen);
 			rc = SOCKETBUFFER_COMPLETE;
 			goto exit;
 		}
@@ -239,9 +241,9 @@ void SocketBuffer_interrupted(int socket, size_t actual_len)
 		queue = def_queue;
 		/* if SocketBuffer_queueChar() has not yet been called, then the socket number
 		  in def_queue will not have been set.  Issue #244.
-		  If actual_len == 0 then we may not need to do anything - I'll leave that 
+		  If actual_len == 0 then we may not need to do anything - I'll leave that
 		  optimization for another time. */
-		queue->socket = socket; 
+		queue->socket = socket;
 		ListAppend(queues, def_queue, sizeof(socket_queue)+def_queue->buflen);
 		SocketBuffer_newDefQ();
 	}
@@ -307,7 +309,7 @@ void SocketBuffer_queueChar(int socket, char c)
 		curq->fixed_header[(curq->index)++] = c;
 		curq->headerlen = curq->index;
 	}
-	Log(TRACE_MAX, -1, "queueChar: index is now %d, headerlen %d", curq->index, curq->headerlen);
+	Log(TRACE_MAX, -1, "queueChar: index is now %d, headerlen %d", curq->index, (int)curq->headerlen);
 	FUNC_EXIT;
 }
 
@@ -317,6 +319,7 @@ void SocketBuffer_queueChar(int socket, char c)
  * @param socket the socket for which the write was interrupted
  * @param count the number of iovec buffers
  * @param iovecs buffer array
+ * @param frees a set of flags indicating which of the iovecs array should be freed
  * @param total total data length to be written
  * @param bytes actual data length that was written
  */

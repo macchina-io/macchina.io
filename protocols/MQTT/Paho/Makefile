@@ -34,7 +34,13 @@ objects = \
 	StackTrace \
 	Thread \
 	Tree \
-	utf-8
+	utf-8 \
+	Base64 \
+	MQTTProperties \
+	MQTTReasonCodes \
+	OsWrapper \
+	SHA1 \
+	WebSocket
 
 target         = PahoMQTT
 target_version = 1
