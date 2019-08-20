@@ -165,6 +165,8 @@
 				<File
 					RelativePath=".\include\Poco\OSP\Web\MediaTypeMapper.h"/>
 				<File
+					RelativePath=".\include\Poco\OSP\Web\TokenValidator.h"/>
+				<File
 					RelativePath=".\include\poco\osp\web\Web.h"/>
 				<File
 					RelativePath=".\include\Poco\OSP\Web\WebFilter.h"/>
@@ -197,6 +199,8 @@
 				Name="Source Files">
 				<File
 					RelativePath=".\src\MediaTypeMapper.cpp"/>
+				<File
+					RelativePath=".\src\TokenValidator.cpp"/>
 				<File
 					RelativePath=".\src\WebFilter.cpp"/>
 				<File

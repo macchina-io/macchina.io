@@ -23,6 +23,7 @@
 #include "Poco/OSP/Web/WebFilter.h"
 #include "Poco/OSP/Web/WebFilterFactory.h"
 #include "Poco/OSP/Web/WebSessionManager.h"
+#include "Poco/OSP/Web/TokenValidator.h"
 #include "Poco/OSP/BundleContext.h"
 #include "Poco/OSP/BundleEvent.h"
 #include "Poco/OSP/Service.h"
@@ -60,6 +61,14 @@ public:
 		SM_ALL   = 2  /// Everyone can register subdirectories
 	};
 
+	enum AuthMethod
+	{
+		AUTH_BASIC   = 1, /// HTTP Basic authentication
+		AUTH_SESSION = 2, /// Session-based authentication
+		AUTH_BEARER  = 4, /// Bearer token-based authentication (OAuth 2.0)
+		AUTH_ALL     = AUTH_BASIC | AUTH_SESSION | AUTH_BEARER
+	};
+
 	typedef Poco::SharedPtr<Poco::Net::HTTPRequestHandlerFactory> RequestHandlerFactoryPtr;
 	typedef Poco::SharedPtr<Poco::RegularExpression> RegularExpressionPtr;
 
@@ -68,6 +77,7 @@ public:
 	{
 		PathSecurity():
 			mode(SM_OWNER),
+			authMethods(),
 			secure(false),
 			csrfProtection(false)
 		{
@@ -77,6 +87,7 @@ public:
 			mode(aMode),
 			realm(aRealm),
 			permission(aPermission),
+			authMethods(),
 			secure(aSecure)
 		{
 		}
@@ -84,6 +95,7 @@ public:
 		SpecializationMode mode;            /// specialization mode (does not apply to pattern)
 		std::string        realm;           /// realm if a permission (and thus authentication) is required
 		std::string        permission;      /// required permission (empty for none)
+		int                authMethods;     /// enabled authentication methods (see AuthMethod)
 		std::string        session;         /// name of session for session-based authentication
 		bool               secure;          /// path requires secure connection
 		bool               csrfProtection;  /// enable/disable CSRF/XSRF protection
@@ -139,6 +151,32 @@ public:
 		Bundle::Ptr pBundle;
 	};
 
+	enum Options
+	{
+		CONF_OPT_COMPRESS_RESPONSES = 0x01,
+			/// Compress responses using gzip content encoding.
+
+		CONF_OPT_CACHE_RESOURCES    = 0x02,
+			/// Enable in-memory caching of bundle resources.
+
+		CONF_OPT_ADD_AUTH_HEADER    = 0x04
+			/// Add X-OSP-Authorized-User header to authenticated requests.
+	};
+
+	struct Config
+	{
+		Config(): options(), authMethods(AUTH_ALL) { }
+
+		BundleContext::Ptr pContext;
+		MediaTypeMapper::Ptr pMediaTypeMapper;
+		std::string authServiceName;
+		std::string tokenValidatorName;
+		std::set<std::string> compressedMediaTypes;
+		Poco::Net::NameValueCollection customResponseHeaders;
+		int options;
+		int authMethods;
+	};
+
 	typedef std::map<std::string, VirtualPath> PathMap;
 	typedef std::map<std::string, PathInfo> PathInfoMap;
 	typedef std::vector<VirtualPath> PatternVec;
@@ -146,7 +184,7 @@ public:
 	typedef Poco::SharedPtr<WebFilter> WebFilterPtr;
 	typedef Poco::SharedPtr<WebFilterFactory> WebFilterFactoryPtr;
 
-	WebServerDispatcher(BundleContext::Ptr pContext, MediaTypeMapper::Ptr pMediaTypeMapper, const std::string& authServiceName, bool compressResponses, const std::set<std::string>& compressedMediaTypes, bool cacheResources = false);
+	explicit WebServerDispatcher(const Config& config);
 		/// Creates the WebServerDispatcher.
 
 	virtual ~WebServerDispatcher();
@@ -190,6 +228,10 @@ public:
 
 	void removeFilter(const std::string& mediaType);
 		/// Removes the filter for the given mediaType.
+
+	static int parseAuthMethods(const std::string& methods);
+		/// Parses a comma-separated list of authentication method names and
+		/// returns a value with the corresponding AuthMethod flags set.
 
 	// Service
 	virtual const std::type_info& type() const;
@@ -235,8 +277,11 @@ protected:
 	bool authorizeSession(Poco::Net::HTTPServerRequest& request, const VirtualPath& vPath, std::string& username) const;
 		/// Authorizes the request using a session-based authentication.
 
-	bool authorizeBasic(Poco::Net::HTTPServerRequest& request, const VirtualPath& vPath, std::string& username) const;
+	bool authorizeBasic(Poco::Net::HTTPServerRequest& request, const std::string& creds, const VirtualPath& vPath, std::string& username) const;
 		/// Authorizes the request using a HTTP Basic Authentication.
+
+	bool authorizeBearer(Poco::Net::HTTPServerRequest& request, const std::string& token, const VirtualPath& vPath, std::string& username) const;
+		/// Authorizes the request using bearer token-based authentication.
 
 	void sendFound(Poco::Net::HTTPServerRequest& request, const std::string& path);
 		/// Sends a 302 Found response.
@@ -269,6 +314,10 @@ protected:
 		/// Returns a pointer to the auth service, if it is available,
 		/// or null otherwise.
 
+	TokenValidator::Ptr tokenValidator() const;
+		/// Returns a pointer to the token validator, if it is available,
+		/// or null otherwise.
+
 	WebSessionManager::Ptr sessionManager() const;
 		/// Returns a pointer to the WebSessionManager.
 
@@ -284,8 +333,14 @@ protected:
 		/// pointer if no WebFilterFactory has been registered for the given
 		/// mediaType.
 
+	void addCustomResponseHeaders(Poco::Net::HTTPServerResponse& response);
+		/// Adds any configured custom response headers.
+
 	void logRequest(const Poco::Net::HTTPServerRequest& request, const Poco::Net::HTTPServerResponse& response, const std::string& username);
 		/// Logs the HTTP request.
+
+	static const std::string BEARER;
+	static const std::string X_OSP_AUTHORIZED_USER;
 
 private:
 	struct WebFilterFactoryInfo
@@ -301,10 +356,15 @@ private:
 	PathMap _pathMap;
 	PatternVec _patternVec;
 	std::string _authServiceName;
+	std::string _tokenValidatorName;
 	bool _compressResponses;
-	std::set<std::string> _compressedMediaTypes;
 	bool _cacheResources;
+	bool _addAuthHeader;
+	int _authMethods;
+	std::set<std::string> _compressedMediaTypes;
+	Poco::Net::NameValueCollection _customResponseHeaders;
 	mutable Poco::OSP::Auth::AuthService::Ptr _pAuthService;
+	mutable TokenValidator::Ptr _pTokenValidator;
 	mutable WebSessionManager::Ptr _pSessionManager;
 	mutable ResourceCache _resourceCache;
 	mutable Poco::FastMutex _resourceCacheMutex;
@@ -313,6 +373,7 @@ private:
 	Poco::ThreadPool _threadPool;
 	mutable Poco::FastMutex _mutex;
 	mutable Poco::FastMutex _authServiceMutex;
+	mutable Poco::FastMutex _tokenValidatorMutex;
 	mutable Poco::FastMutex _sessionManagerMutex;
 	Poco::Logger& _accessLogger;
 };

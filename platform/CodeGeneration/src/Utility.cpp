@@ -72,6 +72,7 @@ const std::string Utility::FORMAT("format");
 const std::string Utility::PATH("path");
 const std::string Utility::PRODUCES("produces");
 const std::string Utility::CONSUMES("consumes");
+const std::string Utility::CONTENT_TYPE("contentType");
 const std::string Utility::PERMISSION("permission");
 const std::string Utility::AUTHENTICATED("authenticated");
 const std::string Utility::VAL_TRUE("true");

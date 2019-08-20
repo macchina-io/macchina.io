@@ -39,7 +39,7 @@ Example:
 
 is equivalent to:
 
-    //@ remote = true, synchronized = true
+    //@ remote=true, synchronized=true
 ----
 
 An attribute specified at class level is inherited by all member functions of the class.
@@ -52,7 +52,7 @@ attributes are defined as subattributes of the parameter attribute, placed in cu
 
 Example:
     //@ remote
-    //@ $i = {name = "value-i", type = "attr"}
+    //@ $i={name="value-i", type="attr"}
     void myMethod(int i);
 ----
 
@@ -83,7 +83,7 @@ Sets the time how long return values are cached. A cacheExpire value consists
 of a single positive integer number and a single appended unit. Valid units are: ms, s(ec), m(in), h(our)
 If no unit is specified milliseconds are assumed. The entire value must be written within quotes.
 If the value "infinite" is set, data will be cached infinitely. Note that setting this parameter is
-not enough to enable caching. The <[@cacheResult]> attribute must be specified as well.
+not enough to enable caching. The <[cacheResult]> attribute must be specified as well.
   * level: class, method
   * type: "infinite" or an unsigned integer, followed by an optional unit
 
@@ -92,7 +92,7 @@ Examples: "2h", "4min", "2000ms", "infinite"
 
 !!cacheResult
 Enables caching of return values. Will reduce the number of method calls if a remote method always
-returns the same value (for a certain time). See also the <[@cacheExpire]> attribute.
+returns the same value (for a certain time). See also the <[cacheExpire]> attribute.
   * level: method
   * type: boolean
   * default: true
@@ -100,9 +100,28 @@ returns the same value (for a certain time). See also the <[@cacheExpire]> attri
 
 !!consumes
 For the REST transport, specifies the MIME content type of the request body.
+If parameters are passed as form data (<[in]> attribute set to "form"), the
+<[consumes]> attribute can be used to change the form encoding to "multipart/form-data"
+(from the default "application/x-www-form-urlencoded").
   * level: method
   * type: string
   * default: "application/json" or "application/x-www-form-urlencoded"
+
+
+!!contentType
+For the REST transport, specifies the MIME content type of a specific parameter.
+Only used with parameters of type <[std::vector<char>]> passed as form data (the <[in]>
+attribute must be set to "form"), and only if the form is encoded as "multipart/form-data"
+(i.e., the <[consumes]> attribute must be set to "multipart/form-data" as well).
+  * level: parameter
+  * type: string
+  * default: "application/octet-stream"
+
+Example:
+    //@ $image={in="form", contentType="image/jpeg"}
+    //@ consumes="multipart/form-data"
+    void post(const std::string& imageName, const std::vector<char>& image);
+----
 
 
 !!direction
@@ -110,20 +129,20 @@ Specifies whether a parameter is input, output or input/output. Whether a parame
 input or input/output is normally determined automatically, depending on how the
 parameter is passed (by value or by const or non-const reference).
 However, a C++ function signature provides no way to designate a
-parameter as output only. The <[@direction]> attribute allows to rectify that.
+parameter as output only. The <[direction]> attribute allows to rectify that.
   * level: parameter
   * type: ["in"|"out"|"inout"]
   * default: "in" for parameters passed by value or const reference, "inout" for
     parameters passed by non-const reference
 
 Example:
-    //@ $image = {direction = "out"}
+    //@ $image={direction="out"}
     void retrieveImage(const std::string& id, std::vector<char>& image);
+----
 
-Without the <[@direction]> attribute, the <[image]> parameter would be
+Without the <[direction]> attribute, the <[image]> parameter would be
 first passed to the server, which in this case is unnecessary, and then
 passed back to the client, containing the desired result.
-----
 
 
 !!header
@@ -131,8 +150,8 @@ Serialize a parameter in the SOAP header instead of the SOAP body.
 Only useful with the SOAP Transport. Can be set at method parameters only.
 Can only be specified for parameters that have a complex data, user-defined data type
 (class or struct).
-Note that the <[@soapHeader]> attribute splits method parameters into
-two groups: the header group and the body group. The order value (see the <[@order]> attribute)
+Note that the <[soapHeader]> attribute splits method parameters into
+two groups: the header group and the body group. The order value (see the <[order]> attribute)
 of all header group members must be lower than the smallest order value of the body group,
 i.e. all header elements are serialized before the body elements.
   * level: parameter
@@ -162,7 +181,7 @@ Valid values are:
     for simple types, e.g. std::string and std::vector<char>.
     This is useful for passing raw binary data as a std::string or std::vector<char> in
     the request or response body. If specified, an appropriate content type should
-    also be specified using the <[@consumes]> or <[@produces]> attribute.
+    also be specified using the <[consumes]> or <[produces]> attribute.
   * json: The parameter is formatted as JSON. Can be used for simple and complex types.
 
 Example:
@@ -180,7 +199,7 @@ For the REST transport, defines the location of a parameter.
   * default: "body"
 
 Valid values are:
-  * path: The parameter is passed as part of the URI path. A <[@path]> attribute
+  * path: The parameter is passed as part of the URI path. A <[path]> attribute
     must also be specified for the method or object, containing a corresponding
     place holder for the parameter (<[{name}]>).
   * query: The parameter is a passed as URI query parameter.
@@ -227,15 +246,15 @@ To change that structure to:
         <second>22</second>
     </Time>
 ----
-the <[@replyName]> attribute can be specified, along with the <[@inline]> attribute on the return value,
+the <[replyName]> attribute can be specified, along with the <[inline]> attribute on the return value,
 as follows:
 
-    //@ replyName = "Time", return = {inline}
+    //@ replyName="Time", return={inline}
     Time currentTimeAsStruct() const;
 ----
 
 Note that inlining cannot be combined with attributes, only with elements. Furthermore, no other output parameters
-are permitted in the method signature if the <[@inline]> attribute is specified.
+are permitted in the method signature if the <[inline]> attribute is specified.
 
 
 !!mandatory
@@ -246,13 +265,13 @@ If not specified, the default value is true.
   * type: boolean
   * default: true
 
-See also <[@optional]>. If both <[@mandatory]> and <[@optional]> are specified, <[@mandatory]> takes precedence.
+See also <[optional]>. If both <[mandatory]> and <[optional]> are specified, <[mandatory]> takes precedence.
 
 
 !!name
 Rename a method, event, variable or parameter name. Useful for XML based transports, if the used schema requires
 a name which would be invalid in C++, like a name containing a minus sign. If used on a method,
-the <[@replyName]> attribute should be specified as well.
+the <[replyName]> attribute should be specified as well.
   * level: method/parameter/variable
   * type: string
 
@@ -265,13 +284,13 @@ Assigns an XML namespace to a class, method or parameter. Used by the SOAP Trans
 
 !!oneway
 Can be set on methods or events that do not have return values or output parameters. Ignored on all other methods.
-The <[@oneway]> attribute is an optimization that disables sending any response back to the caller. For example,
+The <[oneway]> attribute is an optimization that disables sending any response back to the caller. For example,
 calling a simple method like
     void foo();
 ----
 
 will result in sending a request and returning an empty response or in case of an error, an exception.
-Setting <[@oneway]> will force the skeleton and proxy to omit this response. While this will improve performance
+Setting <[oneway]> will force the skeleton and proxy to omit this response. While this will improve performance
 for most transports, it is a setting that should be used with care. It should only be used if the remote method
 is guaranteed not to throw an exception, or if it doesn't matter if an exception is thrown.
   * level: method/event
@@ -287,7 +306,7 @@ If not specified, the default value is false.
   * type: boolean
   * default: false
 
-See also <[@mandatory]>. If both <[@mandatory]> and <[@optional]> are specified, <[@mandatory]> takes precedence.
+See also <[mandatory]>. If both <[mandatory]> and <[optional]> are specified, <[mandatory]> takes precedence.
 
 
 !!order
@@ -301,7 +320,7 @@ order values lead to undefined results.
   * type: unsigned integer
 
 Example:
-    //@ remote, $first = {order = 1}, $second = {order = 2}
+    //@ remote, $first={order=1}, $second={order=2}
     void foo(int first, int second);
 ----
 
@@ -321,9 +340,9 @@ Example:
     class ItemCollection
     {
         ...
-    //@ $orderNo={in=path}
-    //@ $itemNo={in=path}
-    Item get(int orderNo, int itemNo);
+        //@ $orderNo={in=path}
+        //@ $itemNo={in=path}
+        Item get(int orderNo, int itemNo);
         ...
     };
 ----

@@ -3,7 +3,7 @@ Open Service Platform
 
 !!! Introduction
 
-The Open Service Platform provides a built-in web server that can be extended with static pages and 
+The Open Service Platform provides a built-in web server that can be extended with static pages and
 servlet-like request handler objects by any bundle. The web server is implemented in the following three bundles.
 
 
@@ -41,14 +41,14 @@ documentation for class Poco::OSP::Web::WebServerExtensionPoint.
 
 The <*WebPage*> sample (found in <[OSP/samples/WebPage]>) shows how a bundle can add static web
 pages and resources to the web server. The WebPage sample bundle does not contain any code, it simply
-contains a HTML page (<[html/index.html]>, a style sheet (<[html/css/styles.css]>) and a few images (<[html/images/*]>), 
+contains a HTML page (<[html/index.html]>, a style sheet (<[html/css/styles.css]>) and a few images (<[html/images/*]>),
 as well as an <[extensions.xml]> file.
 The <[extensions.xml]> file contains the extension for the <[osp.web.server.directory]> extension point:
 
     <extensions>
-        <extension point="osp.web.server.directory" 
-                   path="/sample" 
-                   resource="html" 
+        <extension point="osp.web.server.directory"
+                   path="/sample"
+                   resource="html"
                    allowSpecialization="none"
                    description="Sample Page"/>
     </extensions>
@@ -57,13 +57,14 @@ The <[extensions.xml]> file contains the extension for the <[osp.web.server.dire
 The following attributes are supported for static resources:
   - <[path]>: The URI on the server to which the resource or handler is mapped.
   - <[description]>: User-readable description of resource or handler.
-  - <[secure]>: If "true", require a secure (HTTPS) connection to access the resource.
+  - <[secure]>: If <[true]>, require a secure (HTTPS) connection to access the resource.
   - <[realm]>: Specify authentication realm (together with permission).
   - <[permission]>: Specify the necessary access permission for this resource.
-  - <[hidden]>: If "true", path is not included by WebServerDispatcher::listVirtualPaths().
+  - <[session]>: Specify the name of the application for session-based authentication.
+  - <[hidden]>: If <[true]>, path is not included by WebServerDispatcher::listVirtualPaths().
   - <[resource]>:  Specify a directory within the bundle where the HTML, image and other files are located.
   - <[index]>: Specify the name of the default document (defaults to "index.html").
-  - <[cache]>: If set to "false", disable caching of this resource.
+  - <[cache]>: If set to <[false]>, disable caching of this resource.
   - <[allowSpecialization]>: Control if and how sub directories can be mapped to resources.
 
 The <[path]> attribute specifies the path under which the files provided by the bundle can be accessed on the server.
@@ -75,7 +76,7 @@ subdirectories of the directory specified in <[path]>. The following values are 
   - <[none]>: it is impossible to map resources or request handlers to subdirectories
   - <[owner]>: only this bundle can map resources or request handlers to subdirectories
   - <[all]>: any bundle can map resources or request handlers to subdirectories
-  
+
 The <[description]> attribute can be used to provide a textual description of the resource to be found at the path.
 The <[path]> and <[description]> attributes can contain references to bundle properties (in the usual form ${property}).
 
@@ -97,21 +98,21 @@ The <[extensions.xml]> file contains the extension for both the <[osp.web.server
 <[osp.web.server.directory]> extension points:
 
     <extensions>
-        <extension point="osp.web.server.directory" 
-                   path="/info/css" 
-                   resource="css" 
-                   allowSpecialization="none" 
+        <extension point="osp.web.server.directory"
+                   path="/info/css"
+                   resource="css"
+                   allowSpecialization="none"
                    hidden="true"/>
-        <extension point="osp.web.server.directory" 
-                   path="/info/images" 
-                   resource="images" 
-                   allowSpecialization="none" 
+        <extension point="osp.web.server.directory"
+                   path="/info/images"
+                   resource="images"
+                   allowSpecialization="none"
                    hidden="true"/>
-        <extension point="osp.web.server.requesthandler" 
-                   path="/info" 
-                   class="InfoHandlerFactory" 
-                   library="WebInfo" 
-                   allowSpecialization="owner" 
+        <extension point="osp.web.server.requesthandler"
+                   path="/info"
+                   class="InfoHandlerFactory"
+                   library="WebInfo"
+                   allowSpecialization="owner"
                    description="OSP Server Information"/>
     </extensions>
 ----
@@ -120,15 +121,22 @@ The following attributes are supported for request handlers:
   - <[path]>: The URI on the server to which the resource or handler is mapped.
   - <[pattern]>: A regular expression for matching requests to the handler.
   - <[description]>: User-readable description of resource or handler.
-  - <[secure]>: If "true", require a secure (HTTPS) connection to access the resource.
+  - <[secure]>: If <[true]>, require a secure (HTTPS) connection to access the resource.
   - <[realm]>: Specify authentication realm (together with permission).
   - <[permission]>: Specify the necessary access permission for this resource.
-  - <[hidden]>: If "true", path is not included by WebServerDispatcher::listVirtualPaths().
+  - <[authMethods]>: Specify the enabled authentication methods. A comma-separated list
+    of method names (<[basic]>, <[session]>, <[bearer]>). If not specified the globally
+    enabled authentication methods are used.
+  - <[session]>: Specify the name of the application for session-based authentication.
+  - <[hidden]>: If <[true]>, path is not included by WebServerDispatcher::listVirtualPaths().
   - <[methods]>: Only allow specific HTTP request methods.
   - <[class]>: The class name of the request handler factory.
-  - <[library]>: The name of the shared library containing the request handler factory. 
-  
-Instead of the <[resource]> attribute used with the <[osp.web.server.directory]> extension point, the 
+  - <[library]>: The name of the shared library containing the request handler factory.
+  - <[csrfProtection]>: If set to <[true]>, enable protection against CSRF (Cross-Site Request Forgery) attacks.
+  - <[csrfTokenHeader]>: If CSRF protection is enabled, specifies the name of the HTTP request header
+    containing the CSRF token. Defaults to "X-XSRF-TOKEN".
+
+Instead of the <[resource]> attribute used with the <[osp.web.server.directory]> extension point, the
 <[osp.web.server.requesthandler]> extension element uses the <[class]> and <[library]> attributes to
 specify the name of the class and library containing the request handler factory.
 Despite containing code, the WebInfo bundle does not contain a bundle activator. The Web Server Foundation
@@ -144,7 +152,7 @@ The implementation of a request handler and its factory usually looks like the f
     #include "Poco/Net/HTTPServerResponse.h"
     #include "Poco/OSP/Web/WebRequestHandlerFactory.h"
     #include "Poco/ClassLibrary.h"
-    
+
     using Poco::Net::HTTPRequestHandler;
     using Poco::Net::HTTPServerRequest;
     using Poco::Net::HTTPServerResponse;
@@ -156,14 +164,14 @@ The implementation of a request handler and its factory usually looks like the f
         {
             response.setChunkedTransferEncoding(true);
             std::ostream& ostr = response.send();
-    
+
             ostr << "<HTML><HEAD><TITLE>Sample</TITLE>"
                     "</HEAD><BODY>"
                     "<H1>Hello, world!</H1>"
                     "</BODY></HTML>";
         }
     };
-     
+
     class MyRequestHandlerFactory: public WebRequestHandlerFactory
     {
     public:
@@ -172,7 +180,7 @@ The implementation of a request handler and its factory usually looks like the f
             return new MyRequestHandler;
         }
     };
-    
+
     POCO_BEGIN_NAMED_MANIFEST(WebServer, WebRequestHandlerFactory)
         POCO_EXPORT_CLASS(MyRequestHandlerFactory)
     POCO_END_MANIFEST
@@ -190,16 +198,25 @@ If the given request method is not in the set of supported methods, a 405 Method
 The same pattern (but not virtual path) can be mapped multiple times with a different set of request methods.
 This means that for a given pattern, different request handlers can be used to handle GET and POST requests.
 Note that method names are case sensitive and HTTP uses all-uppercase method names.
- 
+
 
 !!! Authentication and Authorization
 
-The OSP Web Server Foundation supports user authentication and authorization based on HTTP Basic Authorization.
-For both extension points, two additional attributes, <[permission]> and <[realm]> can be specified.
+The OSP Web Server Foundation supports user authentication and authorization based on HTTP Basic Authentication,
+sessions (using a session cookie) and bearer tokens.
+For both extension points, additional attributes, <[permission]>, <[realm]> and <[session]> can be specified.
 The <[permission]> attribute contains the necessary permission required to access the resource. For more information
 about permissions, please refer to the [[OSPAuth.html OSP Authorization and Authentication]] documentation.
-The optional <[realm]> attribute specifies name of the realm that is sent back to the browser. Detailed information
-about HTTP Basic Authentication can be found in RFC 2617.
+The optional <[realm]> attribute specifies name of the realm that is sent back to the browser in case of HTTP Basic Authentication.
+Detailed information about HTTP Basic Authentication can be found in RFC 2617.
+The optional <[session]> attribute enabled session-based authentication and specifies the
+application name used for obtaining the session from the Poco::OSP::Web::WebSessionManager service.
+
+It's possible to enable only certain authentication methods, either globally, by setting the
+<[osp.web.authMethods]> configuration property, or using the <[authMethods]> attribute for
+a specific request handler.
+
+!! HTTP Basic Authentication
 
 When a permission is specified for a resource, the web server requires the browser to send user credentials with
 each request for such a protected resource. The user name/password combination sent by the browser (using HTTP Basic Authentication)
@@ -209,11 +226,50 @@ whether the user has the necessary permission.
 To protect user names and passwords, HTTP Basic authentication works best when used over an encrypted (HTTPS) connection.
 The <[secure]> attribute can be used to specify that a certain resource is only available over an encrypted connection.
 
+!! Session-Based Authentication
+
+For session-based authentication, the name of the application (which in turn determines the
+name of the session cookie) must be specified using the <[session]> attribute. See
+the Poco::OSP::Web::WebSessionManager class for more information regarding the application name (appName).
+If a valid session cookie, and a valid corresponding session are found, the username is
+extracted from the session's "username" property and the request is considered authenticated.
+For request handlers serving REST APIs or <*XMLHttpRequest*>, CSRF protection (see below) should
+be enabled as well if session-based authentication is enabled.
+
+!! Bearer Token-Based Authentication
+
+For authentication based on a bearer token, the token must be given in the HTTP Authorization header
+(<[Authorization: Bearer <token>]>). The token is then validated using the
+Poco::OSP::Web::TokenValidator service. The name of the token validator service must be
+configured using the <[osp.web.tokenValidatorName]> configuration property. If not set,
+token-based authentication will be disabled.
+
+!! Obtaining the Authenticated User Name
+
+If authentication and authorization was successful, a header named "X-OSP-Authorized-User"
+containing the name of the authenticated user is added to the Poco::Net::HTTPRequest, for
+use by downstream request handlers. Adding this header can be disabled by setting the
+<[osp.web.addAuthHeader]> configuration property to <[false]>.
+
+
+!!! Protection Against Cross-Site Request Forgery Attacks
+
+The web server supports protection agains CSRF or XSRF (Cross-Site Request Forgery) attacks.
+To enable CSRF protection, the <[csrfProtection]> attribute must be set to <[true]>
+in the <[osp.web.server.requesthandler]> extension point.
+If enabled, the web server will check whether the request contains a CSRF token header
+(default header name is "X-XSRF-TOKEN") with a valid CSRF token. The token will be
+checked using the Poco::OSP::Web::WebSessionManager service. Requests will be rejected
+if they do not contain a valid token.
+The name of the header containing the token can be set with the <[csrfTokenHeader]> attribute.
+CSRF protection should be enabled for all REST API or <*XMLHttpRequest*> handlers that
+use session-based authentication.
+
 
 !!! Response Content Compression
 
 For static content stored in bundles, the OSP Web Server Foundation supports gzip compression.
-If the browser or client indicates that it supports gzip content encoding, by including an appropriate <*Accept-Encoding*> 
+If the browser or client indicates that it supports gzip content encoding, by including an appropriate <*Accept-Encoding*>
 header in the request, and if compression is enabled, the response content will be compressed using gzip.
 
 Compression can be enabled for specific content types in the global application configuration file, using the
@@ -270,7 +326,10 @@ The web server can be configured by setting the following properties in the glob
   - <[osp.web.server.keepAliveTime]>: Maximum time a persistent connection is kept open if no request arrives. Defaults to 10.
   - <[osp.web.server.maxKeepAlive]>: Maximum number of requests handled on a persistent connection. Defaults to 10.
   - <[osp.web.authServiceName]>: The name of the OSP authentication/authorization service to use. Defaults to "osp.auth".
-  - <[osp.web.compressResponses]>: Enable (default) or disable response content compression using gzip content encoding. 
+  - <[osp.web.authMethods]>: Specify a comma-separated list of enabled authentication methods (<[basic]>, <[session]>, <[bearer]>).
+    If not specified, all methods will be enabled.
+  - <[osp.web.tokenValidatorName]>: The name of the token validation service to use. Defaults to none (empty).
+  - <[osp.web.compressResponses]>: Enable (default) or disable response content compression using gzip content encoding.
     Specify <[true]> to enable or <[false]> to disable compression.
   - <[osp.web.compressedMediaTypes]>: A comma-separated list of media types for which compression is enabled. For the subtype,
     a wildcard (*) can be specified. Defaults to <[text/*]>.
@@ -281,7 +340,31 @@ The web server can be configured by setting the following properties in the glob
   - <[osp.web.sessionManager.cookiePersistence]>: Specifies whether session cookies used by the WebSessionManager are persistent
     (survive closing the browser) or transient (are removed when the browser is closed). Valid values are "persistent" (default)
     and "transient".
-    
+  - <[osp.web.csrfProtectionEnabled]>: Enable or disable Cross-Site Request Forgery protection. If enabled, the
+    WebSessionManager will create and set a CSRF cookie.
+  - <[osp.web.sessionManager.csrfCookie]>: The name of the CSRF cookie that will be automatically set by the WebSessionManager
+    in order to prevent Cross-Site Request Forgery attacks. Defaults to <[X-XSRF-TOKEN]>.
+  - <[osp.web.sessionManager.verifyAddress]>: Enable client address verification. If enabled (default), the
+    WebSessionManager will keep track of the client IP address associated with the session cookie. If the client
+    IP address changes, the session will be invalidated.
+  - <[osp.web.sessionManager.sessionStore]>: Specifies an optional service name for a WebSessionStore service
+    to be used by the WebSessionManager. This can be used to persistently store session data on the server.
+  - <[osp.web.hsts.enable]>: Enable HTTP Strict Transport Security (HSTS). If enabled, a <[Strict-Transport-Security]>
+    header will be included with every response the HTTP server sends. Defaults to false.
+  - <[osp.web.hsts.maxAge]>: Specify the maximum age for HSTS. Defaults to 21772800 seconds or 36 weeks.
+  - <[osp.web.hsts.includeSubdomains]>: If set to true (default), the <[Strict-Transport-Security]> includes the
+    <[includeSubdomains]> optional parameter.
+  - <[osp.web.xssProtection.enable]>: If set to true, a <[X-XSS-Protection]> header will be included with
+    every response the HTTP server sends. Defaults to false.
+  - <[osp.web.xssProtection.mode]>: Specifies the <[mode]> parameter for the <[X-XSS-Protection]> header and
+    defaults to "block".
+  - <[osp.web.contentTypeOptions]>: Specifies the value of the <[X-Content-Type-Options]> header sent with
+    every HTTP response. Defaults to <[nosniff]>.
+  - <[osp.web.addAuthHeader]>: If set to true (default), and authentication/authorization has been enabled for
+    a resource and has been successful, a header named "X-OSP-Authorized-User" containing the
+    authenticated and authorized username is added to the Poco::Net::HTTPRequest, for use
+    by the downstream request handler.
+
 
 !!! Request Logging
 
@@ -304,7 +387,7 @@ the console, use the following configuration:
     logging.loggers.access.channel = consoleAccess
     logging.loggers.access.level = information
     logging.channels.consoleAccess.class = ConsoleChannel
-    logging.channels.consoleAccess.pattern = %[client] - %[username] [%d/%b/%Y:%H:%M:%S %Z] "%t" %[status] %[size] 
+    logging.channels.consoleAccess.pattern = %[client] - %[username] [%d/%b/%Y:%H:%M:%S %Z] "%t" %[status] %[size]
 ----
 
 To use Extended log format and include referer and user agent, use the following pattern:

@@ -2,17 +2,20 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Web">
-      <UniqueIdentifier>{7f6c67e6-6a54-4f19-b7cf-bf773d3a98d6}</UniqueIdentifier>
+      <UniqueIdentifier>{fcc2c1ea-bca8-4b83-8af6-ec7b83ebd806}</UniqueIdentifier>
     </Filter>
     <Filter Include="Web\Header Files">
-      <UniqueIdentifier>{eeff4c31-c88f-491a-8974-22b8622f3526}</UniqueIdentifier>
+      <UniqueIdentifier>{adc3788c-4108-4607-a56b-450517a56113}</UniqueIdentifier>
     </Filter>
     <Filter Include="Web\Source Files">
-      <UniqueIdentifier>{e0d5cf57-991d-4760-86ac-deb5104c9150}</UniqueIdentifier>
+      <UniqueIdentifier>{9d328782-78c0-465e-870d-92ff09fa87dc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Poco\OSP\Web\MediaTypeMapper.h">
+      <Filter>Web\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Poco\OSP\Web\TokenValidator.h">
       <Filter>Web\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\poco\osp\web\Web.h">
@@ -60,6 +63,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MediaTypeMapper.cpp">
+      <Filter>Web\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TokenValidator.cpp">
       <Filter>Web\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\WebFilter.cpp">

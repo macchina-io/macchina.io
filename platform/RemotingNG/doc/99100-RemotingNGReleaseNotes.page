@@ -1,6 +1,26 @@
 Remoting NG Release Notes
 Remoting NG
 
+!!!Release 2019.2
+
+!!Summary of Changes
+
+  - REST: It's now possible to use <[multipart/form-data]> encoding for passing
+    parameters to REST methods. This includes parameters of type
+    std::vector<char> being transmitted as binary data. This can be
+    enabled by setting the <[consumes]> attribute of the method
+    to "multipart/form-data".
+  - REST: It's now possible to pass query parameters to POST requests.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2019.1
 
 !!Summary of Changes
@@ -8,6 +28,9 @@ Remoting NG
   - The TCP transport can now also be used with Unix Domain Sockets (which are
     not TCP at all). In a future release, the TCP transport will therefore be
     renamed to Socket transport.
+  - XSDGen: added support for rpc/literal style WSDL
+  - XSDGen: added support for loading WSDL/XSD documents via HTTPS.
+    XSDGen must be compiled with -DPOCO_XSD_ENABLE_HTTPS to enable HTTPS support.
 
 !!Known Issues
 

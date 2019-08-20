@@ -63,6 +63,9 @@ class OSPWeb_API WebServerExtensionPoint: public ExtensionPoint
 	///                   service.
 	///                   If the permission string is an asterisk ("*"), only the
 	///                   validity of the credentials is verified.
+	///    * authMethods: Specifies a comma-separated list of allowed authentication
+	///                   methods ("basic", "session", "bearer"). If not specified the
+	///                   globally enabled authentication methods will be used.
 	///    * session:     Specify the name of the session used for session-based
 	///                   authentication instead of HTTP Basic Authentication.
 	///                   If specified together with a permission, the session with the
@@ -132,6 +135,7 @@ protected:
 	static const std::string ATTR_SECURE;
 	static const std::string ATTR_REALM;
 	static const std::string ATTR_PERMISSION;
+	static const std::string ATTR_AUTHMETHODS;
 	static const std::string ATTR_SESSION;
 	static const std::string ATTR_CSRFPROTECTION;
 	static const std::string ATTR_CSRFTOKENHEADER;

@@ -79,6 +79,7 @@ public:
 		ServiceRef::Ptr pPrefsSvcRef = pContext->registry().findByName("osp.core.preferences");
 
 		std::string authServiceName(pContext->thisBundle()->properties().getString("authServiceName", ""));
+		std::string tokenValidatorName(pContext->thisBundle()->properties().getString("tokenValidatorName", ""));
 		bool cacheResources(pContext->thisBundle()->properties().getBool("cacheResources", false));
 		bool compressResponse(pContext->thisBundle()->properties().getBool("compressResponses", false));
 		std::string compressedMediaTypesString(pContext->thisBundle()->properties().getString("compressedMediaTypes", ""));
@@ -88,10 +89,19 @@ public:
 		bool csrfProtectionEnabled(pContext->thisBundle()->properties().getBool("csrfProtectionEnabled", true));
 		bool verifyAddress(pContext->thisBundle()->properties().getBool("verifyAddress", true));
 		std::string webSessionStore;
+		bool hstsEnable(pContext->thisBundle()->properties().getBool("hsts.enable", false));
+		int hstsMaxAge(pContext->thisBundle()->properties().getInt("hsts.maxAge", 21772800));
+		bool hstsIncludeSubdomains(pContext->thisBundle()->properties().getBool("hsts.includeSubdomains", true));
+		bool xssProtEnable(pContext->thisBundle()->properties().getBool("xssProtection.enable", false));
+		std::string xssProtMode(pContext->thisBundle()->properties().getString("xssProtection.mode", "block"));
+		std::string contentTypeOptions(pContext->thisBundle()->properties().getString("contentTypeOptions", "nosniff"));
+		bool addAuthHeader(pContext->thisBundle()->properties().getBool("addAuthHeader", true));
+		int authMethods = 0;
 		if (pPrefsSvcRef)
 		{
 			Poco::AutoPtr<PreferencesService> pPrefsSvc = pPrefsSvcRef->castedInstance<PreferencesService>();
 			authServiceName = pPrefsSvc->configuration()->getString("osp.web.authServiceName", authServiceName);
+			tokenValidatorName = pPrefsSvc->configuration()->getString("osp.web.tokenValidatorName", tokenValidatorName);
 			cacheResources = pPrefsSvc->configuration()->getBool("osp.web.cacheResources", cacheResources);
 			compressResponse = pPrefsSvc->configuration()->getBool("osp.web.compressResponses", compressResponse);
 			compressedMediaTypesString = pPrefsSvc->configuration()->getString("osp.web.compressedMediaTypes", compressedMediaTypesString);
@@ -101,12 +111,48 @@ public:
 			csrfProtectionEnabled = pPrefsSvc->configuration()->getBool("osp.web.csrfProtectionEnabled", csrfProtectionEnabled);
 			verifyAddress = pPrefsSvc->configuration()->getBool("osp.web.sessionManager.verifyAddress", verifyAddress);
 			webSessionStore = pPrefsSvc->configuration()->getString("osp.web.sessionManager.sessionStore", webSessionStore);
+			hstsEnable = pPrefsSvc->configuration()->getBool("osp.web.hsts.enable", hstsEnable);
+			hstsMaxAge = pPrefsSvc->configuration()->getInt("osp.web.hsts.maxAge", hstsMaxAge);
+			hstsIncludeSubdomains = pPrefsSvc->configuration()->getBool("osp.web.hsts.includeSubdomains", hstsIncludeSubdomains);
+			xssProtEnable = pPrefsSvc->configuration()->getBool("osp.web.xssProtection.enable", xssProtEnable);
+			xssProtMode = pPrefsSvc->configuration()->getString("osp.web.xssProtection.mode", xssProtMode);
+			contentTypeOptions = pPrefsSvc->configuration()->getString("osp.web.contentTypeOptions", contentTypeOptions);
+			addAuthHeader = pPrefsSvc->configuration()->getBool("osp.web.addAuthHeader", addAuthHeader);
+			authMethods = WebServerDispatcher::parseAuthMethods(pPrefsSvc->configuration()->getString("osp.web.authMethods", ""));
 		}
 
 		Poco::StringTokenizer tok(compressedMediaTypesString, ",", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 		std::set<std::string> compressedMediaTypes(tok.begin(), tok.end());
 
-		Poco::AutoPtr<WebServerDispatcher> pWebServerDispatcher = new WebServerDispatcher(pContext, pMediaTypeMapper, authServiceName, compressResponse, compressedMediaTypes, cacheResources);
+		Poco::Net::NameValueCollection customResponseHeaders;
+		if (hstsEnable)
+		{
+			std::string hstsHeader(Poco::format("maxAge=%d", hstsMaxAge));
+			if (hstsIncludeSubdomains) hstsHeader += "; includeSubdomains";
+			customResponseHeaders.add("Strict-Transport-Security", hstsHeader);
+		}
+		if (xssProtEnable)
+		{
+			customResponseHeaders.add("X-XSS-Protection", Poco::format("1; mode=%s", xssProtMode));
+		}
+		if (!contentTypeOptions.empty())
+		{
+			customResponseHeaders.add("X-Content-Type-Options", contentTypeOptions);
+		}
+
+		WebServerDispatcher::Config config;
+		config.pContext = pContext;
+		config.pMediaTypeMapper = pMediaTypeMapper;
+		config.authServiceName = authServiceName;
+		config.tokenValidatorName = tokenValidatorName;
+		if (compressResponse) config.options |= WebServerDispatcher::CONF_OPT_COMPRESS_RESPONSES;
+		config.compressedMediaTypes = compressedMediaTypes;
+		config.customResponseHeaders = customResponseHeaders;
+		if (cacheResources) config.options |= WebServerDispatcher::CONF_OPT_CACHE_RESOURCES;
+		if (addAuthHeader) config.options |= WebServerDispatcher::CONF_OPT_ADD_AUTH_HEADER;
+		if (authMethods) config.authMethods = authMethods;
+
+		Poco::AutoPtr<WebServerDispatcher> pWebServerDispatcher = new WebServerDispatcher(config);
 		_pWebServerDispatcherSvc = pContext->registry().registerService(WebServerDispatcher::SERVICE_NAME, pWebServerDispatcher, Properties());
 
 		WebSessionManager::CookiePersistence cookiePersistence = WebSessionManager::COOKIE_PERSISTENT;

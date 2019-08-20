@@ -9,7 +9,7 @@ include $(POCO_BASE)/build/rules/global
 objects = MediaTypeMapper WebServerDispatcher WebServerRequestHandlerFactory \
           WebServerExtensionPoint WebSession WebRequestHandlerFactory \
           WebServerRequestHandler WebSessionManager WebSessionStore WebServerService \
-          WebFilter WebFilterFactory WebFilterExtensionPoint
+          TokenValidator WebFilter WebFilterFactory WebFilterExtensionPoint
 
 target         = PocoOSPWeb
 target_version = 3

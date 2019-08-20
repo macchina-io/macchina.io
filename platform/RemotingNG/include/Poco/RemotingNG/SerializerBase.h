@@ -53,7 +53,7 @@ public:
 		MESSAGE_EVENT_REPLY,
 		MESSAGE_FAULT
 	};
-	
+
 	static const std::string PROP_NAMESPACE;
 	static const std::string PROP_HEADER;
 	static const std::string PROP_ACTION;
@@ -63,6 +63,8 @@ public:
 	static const std::string PROP_LOCATION;
 	static const std::string PROP_FORMAT;
 	static const std::string PROP_PATH;
+	static const std::string PROP_PRODUCES;
+	static const std::string PROP_CONSUMES;
 	static const std::string PROP_CONTENT_TYPE;
 
 	static const std::string RETURN_PARAM;
@@ -77,7 +79,7 @@ public:
 		/// Throws an exception if the property stack is empty or does not exist.
 
 	const std::string& getProperty(const std::string& name) const;
-		/// Gets the property with the given name from its stack. 
+		/// Gets the property with the given name from its stack.
 		///
 		/// Throws an exception if the stack is empty.
 

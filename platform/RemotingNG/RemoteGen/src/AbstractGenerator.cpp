@@ -632,6 +632,12 @@ std::string AbstractGenerator::resolveType(const std::string& in)
 			decl = pType->baseType();
 			return resolveType(decl);
 		}
+		else if (pSym->kind() == Poco::CppParser::Symbol::SYM_TYPEALIAS)
+		{
+			Poco::CppParser::TypeAlias* pType = static_cast<Poco::CppParser::TypeAlias*>(pSym);
+			decl = pType->baseType();
+			return resolveType(decl);
+		}
 	}
 	return Utility::resolveType(_pStructIn, decl);
 }

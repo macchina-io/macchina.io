@@ -49,7 +49,7 @@ void WebServerDispatcherTest::testVirtualDirectoryRoot()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("en", "US");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -57,10 +57,9 @@ void WebServerDispatcherTest::testVirtualDirectoryRoot()
 	BundleEvents events;
 
 	Bundle::Ptr pBundle = loader.createBundle("testBundle.zip");
-	BundleContext::Ptr pContext = pBundleContextFactory->createBundleContext(loader, pBundle, events);
-	MediaTypeMapper::Ptr pMapper;
-	std::set<std::string> compressedMediaTypes;
-	WebServerDispatcher disp(pContext, pMapper, "", false, compressedMediaTypes);
+	WebServerDispatcher::Config config;
+	config.pContext = pBundleContextFactory->createBundleContext(loader, pBundle, events);
+	WebServerDispatcher disp(config);
 	WebServerDispatcher::VirtualPath vPath;
 	vPath.path = "/";
 	vPath.resource = "/res";
@@ -83,7 +82,7 @@ void WebServerDispatcherTest::testVirtualDirectoryAllow()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("en", "US");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -91,10 +90,9 @@ void WebServerDispatcherTest::testVirtualDirectoryAllow()
 	BundleEvents events;
 
 	Bundle::Ptr pBundle = loader.createBundle("testBundle.zip");
-	BundleContext::Ptr pContext = pBundleContextFactory->createBundleContext(loader, pBundle, events);
-	MediaTypeMapper::Ptr pMapper;
-	std::set<std::string> compressedMediaTypes;
-	WebServerDispatcher disp(pContext, pMapper, "", false, compressedMediaTypes);
+	WebServerDispatcher::Config config;
+	config.pContext = pBundleContextFactory->createBundleContext(loader, pBundle, events);
+	WebServerDispatcher disp(config);
 	WebServerDispatcher::VirtualPath vPath;
 	vPath.path = "/";
 	vPath.resource = "res";
@@ -106,12 +104,12 @@ void WebServerDispatcherTest::testVirtualDirectoryAllow()
 	vPath.resource = "res2";
 	vPath.security.mode = WebServerDispatcher::SM_OWNER;
 	disp.addVirtualPath(vPath);
-	
+
 	vPath.path = "/sub/subsub";
 	vPath.resource = "res3";
 	vPath.security.mode = WebServerDispatcher::SM_NONE;
 	disp.addVirtualPath(vPath);
-	
+
 	try
 	{
 		vPath.path = "/sub/subsub/subsubsub";
@@ -133,7 +131,7 @@ void WebServerDispatcherTest::testVirtualDirectoryFail()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("en", "US");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -141,11 +139,10 @@ void WebServerDispatcherTest::testVirtualDirectoryFail()
 	BundleEvents events;
 
 	Bundle::Ptr pBundle = loader.createBundle("testBundle.zip");
-	BundleContext::Ptr pContext = pBundleContextFactory->createBundleContext(loader, pBundle, events);
-	MediaTypeMapper::Ptr pMapper;
-	std::set<std::string> compressedMediaTypes;
-	WebServerDispatcher disp(pContext, pMapper, "", false, compressedMediaTypes);
-	
+	WebServerDispatcher::Config config;
+	config.pContext = pBundleContextFactory->createBundleContext(loader, pBundle, events);
+	WebServerDispatcher disp(config);
+
 	WebServerDispatcher::VirtualPath vPath;
 	vPath.path = "/sub/subsub";
 	vPath.resource = "res";
@@ -157,7 +154,7 @@ void WebServerDispatcherTest::testVirtualDirectoryFail()
 	vPath.resource = "res2";
 	vPath.security.mode = WebServerDispatcher::SM_ALL;
 	disp.addVirtualPath(vPath);
-	
+
 	try
 	{
 		vPath.path = "/";
@@ -180,7 +177,7 @@ void WebServerDispatcherTest::testRemoveDir()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("en", "US");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
@@ -188,10 +185,9 @@ void WebServerDispatcherTest::testRemoveDir()
 	BundleEvents events;
 
 	Bundle::Ptr pBundle = loader.createBundle("testBundle.zip");
-	BundleContext::Ptr pContext = pBundleContextFactory->createBundleContext(loader, pBundle, events);
-	MediaTypeMapper::Ptr pMapper;
-	std::set<std::string> compressedMediaTypes;
-	WebServerDispatcher disp(pContext, pMapper, "", false, compressedMediaTypes);
+	WebServerDispatcher::Config config;
+	config.pContext = pBundleContextFactory->createBundleContext(loader, pBundle, events);
+	WebServerDispatcher disp(config);
 
 	WebServerDispatcher::VirtualPath vPath;
 	vPath.path = "/sub/";
@@ -204,7 +200,7 @@ void WebServerDispatcherTest::testRemoveDir()
 	vPath.resource = "res2";
 	vPath.security.mode = WebServerDispatcher::SM_NONE;
 	disp.addVirtualPath(vPath);
-	
+
 	disp.removeVirtualPath("/sub/subsub");
 
 	disp.addVirtualPath(vPath);
@@ -215,7 +211,7 @@ void WebServerDispatcherTest::setUp()
 {
 	// The following is a ZIP file containing the same
 	// directory hierarchy as is used in BundleDirectoryTest.
-	static const unsigned char TEST_BUNDLE_ZIP[] = 
+	static const unsigned char TEST_BUNDLE_ZIP[] =
 	{
 		0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x36, 0x46, 0x85, 0x36, 0x2a, 0x71,
 		0x30, 0xee, 0x9d, 0x00, 0x00, 0x00, 0xec, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0x4d, 0x45,

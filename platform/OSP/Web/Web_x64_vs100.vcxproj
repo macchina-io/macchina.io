@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Poco\OSP\Web\MediaTypeMapper.h"/>
+    <ClInclude Include="include\Poco\OSP\Web\TokenValidator.h"/>
     <ClInclude Include="include\poco\osp\web\Web.h"/>
     <ClInclude Include="include\Poco\OSP\Web\WebFilter.h"/>
     <ClInclude Include="include\Poco\OSP\Web\WebFilterExtensionPoint.h"/>
@@ -133,6 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MediaTypeMapper.cpp"/>
+    <ClCompile Include="src\TokenValidator.cpp"/>
     <ClCompile Include="src\WebFilter.cpp"/>
     <ClCompile Include="src\WebFilterExtensionPoint.cpp"/>
     <ClCompile Include="src\WebFilterFactory.cpp"/>

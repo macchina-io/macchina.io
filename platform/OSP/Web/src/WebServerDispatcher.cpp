@@ -37,6 +37,7 @@
 #include "Poco/DateTimeFormat.h"
 #include "Poco/DeflatingStream.h"
 #include "Poco/MemoryStream.h"
+#include "Poco/StringTokenizer.h"
 #include "Poco/Message.h"
 #include <memory>
 #include <limits>
@@ -60,15 +61,21 @@ namespace Web {
 
 
 const std::string WebServerDispatcher::SERVICE_NAME("osp.web.dispatcher");
+const std::string WebServerDispatcher::BEARER("Bearer");
+const std::string WebServerDispatcher::X_OSP_AUTHORIZED_USER("X-OSP-Authorized-User");
 
 
-WebServerDispatcher::WebServerDispatcher(BundleContext::Ptr pContext, MediaTypeMapper::Ptr pMediaTypeMapper, const std::string& authServiceName, bool compressResponses, const std::set<std::string>& compressedMediaTypes, bool cacheResources):
-	_pContext(pContext),
-	_pMediaTypeMapper(pMediaTypeMapper),
-	_authServiceName(authServiceName),
-	_compressResponses(compressResponses),
-	_compressedMediaTypes(compressedMediaTypes),
-	_cacheResources(cacheResources),
+WebServerDispatcher::WebServerDispatcher(const Config& config):
+	_pContext(config.pContext),
+	_pMediaTypeMapper(config.pMediaTypeMapper),
+	_authServiceName(config.authServiceName),
+	_tokenValidatorName(config.tokenValidatorName),
+	_compressResponses((config.options & CONF_OPT_COMPRESS_RESPONSES) != 0),
+	_cacheResources((config.options & CONF_OPT_CACHE_RESOURCES) != 0),
+	_addAuthHeader((config.options & CONF_OPT_ADD_AUTH_HEADER) != 0),
+	_authMethods(config.authMethods),
+	_compressedMediaTypes(config.compressedMediaTypes),
+	_customResponseHeaders(config.customResponseHeaders),
 	_threadPool("WebServer"),
 	_accessLogger(Poco::Logger::get("osp.web.access"))
 {
@@ -266,6 +273,8 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 	std::string username;
 	try
 	{
+		addCustomResponseHeaders(response);
+
 		URI uri(request.getURI());
 		std::string path(uri.getPath());
 		if (cleanPath(path))
@@ -773,22 +782,36 @@ bool WebServerDispatcher::cleanPath(std::string& path)
 
 bool WebServerDispatcher::authorize(Poco::Net::HTTPServerRequest& request, const VirtualPath& vPath, std::string& username) const
 {
+	bool authorized = false;
+	int authMethods = vPath.security.authMethods;
+	if (authMethods == 0) authMethods = _authMethods;
+
 	if (vPath.security.permission.empty())
 	{
-		return true;
+		authorized = true;
 	}
 	else
 	{
 		if (request.hasCredentials())
 		{
-			return authorizeBasic(request, vPath, username);
+			std::string scheme;
+			std::string authInfo;
+			request.getCredentials(scheme, authInfo);
+			if (scheme == Poco::Net::HTTPBasicCredentials::SCHEME && (authMethods & AUTH_BASIC) != 0)
+				authorized = authorizeBasic(request, authInfo, vPath, username);
+			else if (scheme == BEARER && (authMethods & AUTH_BEARER) != 0)
+				authorized = authorizeBearer(request, authInfo, vPath, username);
 		}
-		else if (!vPath.security.session.empty())
+		else if (!vPath.security.session.empty() && (authMethods & AUTH_SESSION) != 0)
 		{
-			return authorizeSession(request, vPath, username);
+			authorized = authorizeSession(request, vPath, username);
+		}
+		if (authorized && _addAuthHeader)
+		{
+			request.set(X_OSP_AUTHORIZED_USER, username);
 		}
 	}
-	return false;
+	return authorized;
 }
 
 
@@ -838,12 +861,12 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 }
 
 
-bool WebServerDispatcher::authorizeBasic(Poco::Net::HTTPServerRequest& request, const VirtualPath& vPath, std::string& username) const
+bool WebServerDispatcher::authorizeBasic(Poco::Net::HTTPServerRequest& request, const std::string& creds, const VirtualPath& vPath, std::string& username) const
 {
 	AuthService::Ptr pAuthService = authService();
 	if (pAuthService)
 	{
-		HTTPBasicCredentials cred(request);
+		HTTPBasicCredentials cred(creds);
 		username = cred.getUsername();
 		if (pAuthService->authenticate(username, cred.getPassword()))
 		{
@@ -859,6 +882,32 @@ bool WebServerDispatcher::authorizeBasic(Poco::Net::HTTPServerRequest& request, 
 		else
 		{
 			_pContext->logger().warning(Poco::format("User %s failed authentication.", username));
+		}
+	}
+	return false;
+}
+
+
+bool WebServerDispatcher::authorizeBearer(Poco::Net::HTTPServerRequest& request, const std::string& token, const VirtualPath& vPath, std::string& username) const
+{
+	AuthService::Ptr pAuthService = authService();
+	TokenValidator::Ptr pTokenValidator = tokenValidator();
+	if (pAuthService && pTokenValidator)
+	{
+		if (pTokenValidator->validateToken(token, username))
+		{
+			if (vPath.security.permission == "*" || pAuthService->authorize(username, vPath.security.permission))
+			{
+				return true;
+			}
+			else
+			{
+				_pContext->logger().warning(Poco::format("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI()));
+			}
+		}
+		else
+		{
+			_pContext->logger().warning(Poco::format("Bearer token %s failed validation.", token));
 		}
 	}
 	return false;
@@ -968,23 +1017,43 @@ Poco::OSP::Auth::AuthService::Ptr WebServerDispatcher::authService() const
 
 	if (!_pAuthService && !_authServiceName.empty())
 	{
-		if (!_authServiceName.empty())
+		ServiceRef::Ptr pAuthRef = _pContext->registry().findByName(_authServiceName);
+		if (pAuthRef)
 		{
-			ServiceRef::Ptr pAuthRef = _pContext->registry().findByName(_authServiceName);
-			if (pAuthRef)
-			{
-				_pAuthService = pAuthRef->castedInstance<AuthService>();
-			}
-			else
-			{
-				std::string msg("No auth service (");
-				msg += _authServiceName;
-				msg += ") is available.";
-				_pContext->logger().warning(msg);
-			}
+			_pAuthService = pAuthRef->castedInstance<AuthService>();
+		}
+		else
+		{
+			std::string msg("No auth service (");
+			msg += _authServiceName;
+			msg += ") is available.";
+			_pContext->logger().warning(msg);
 		}
 	}
 	return _pAuthService;
+}
+
+
+TokenValidator::Ptr WebServerDispatcher::tokenValidator() const
+{
+	Poco::FastMutex::ScopedLock lock(_tokenValidatorMutex);
+
+	if (!_pTokenValidator && !_tokenValidatorName.empty())
+	{
+		ServiceRef::Ptr pTokenValidatorRef = _pContext->registry().findByName(_tokenValidatorName);
+		if (pTokenValidatorRef)
+		{
+			_pTokenValidator = pTokenValidatorRef->castedInstance<TokenValidator>();
+		}
+		else
+		{
+			std::string msg("No token validator service (");
+			msg += _tokenValidatorName;
+			msg += ") is available.";
+			_pContext->logger().warning(msg);
+		}
+	}
+	return _pTokenValidator;
 }
 
 
@@ -1056,6 +1125,34 @@ bool WebServerDispatcher::shouldCompressMediaType(const std::string& mediaType) 
 		return _compressedMediaTypes.find(mt) != _compressedMediaTypes.end();
 	}
 	else return false;
+}
+
+
+void WebServerDispatcher::addCustomResponseHeaders(Poco::Net::HTTPServerResponse& response)
+{
+	for (Poco::Net::NameValueCollection::ConstIterator it = _customResponseHeaders.begin(); it != _customResponseHeaders.end(); ++it)
+	{
+		response.add(it->first, it->second);
+	}
+}
+
+
+int WebServerDispatcher::parseAuthMethods(const std::string& methods)
+{
+	int result = 0;
+	Poco::StringTokenizer tok(methods, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+	for (Poco::StringTokenizer::Iterator it = tok.begin(); it != tok.end(); ++it)
+	{
+		if (*it == "basic")
+			result |= AUTH_BASIC;
+		else if (*it == "session")
+			result |= AUTH_SESSION;
+		else if (*it == "bearer")
+			result |= AUTH_BEARER;
+		else
+			throw Poco::InvalidArgumentException("authentication method", *it);
+	}
+	return result;
 }
 
 

@@ -3,7 +3,7 @@
   <manifest>
     <name>OSP Web Server Foundation</name>
     <symbolicName>osp.web</symbolicName>
-    <version>1.5.0</version>
+    <version>1.7.0</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2007-2019, Applied Informatics Software Engineering GmbH</copyright>
     <activator>

@@ -334,7 +334,7 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 	GeneratorEngine::getStringProperty(funcProps, Utility::CONSUMES, funcRequestContentType);
 	if (!funcRequestContentType.empty())
 	{
-		std::string line("remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE, \"");
+		std::string line("remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_CONSUMES, \"");
 		line.append(funcRequestContentType);
 		line.append("\");");
 		gen.writeMethodImplementation(indentation+line);
@@ -378,7 +378,7 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 
 	if (!funcRequestContentType.empty())
 	{
-		gen.writeMethodImplementation(indentation + "remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE);");
+		gen.writeMethodImplementation(indentation + "remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_CONSUMES);");
 	}
 	if (!funcPath.empty())
 	{
@@ -484,7 +484,7 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 		GeneratorEngine::getStringProperty(funcProps, Utility::PRODUCES, funcResponseContentType);
 		if (!funcResponseContentType.empty())
 		{
-			gen.writeMethodImplementation(indentation + "remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE, \"" + funcResponseContentType + "\");");
+			gen.writeMethodImplementation(indentation + "remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_PRODUCES, \"" + funcResponseContentType + "\");");
 		}
 
 		gen.writeMethodImplementation(indentation + "Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);");
@@ -506,7 +506,7 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 
 		if (!funcResponseContentType.empty())
 		{
-			std::string line("remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE, \"");
+			std::string line("remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PRODUCES, \"");
 			line.append(funcResponseContentType);
 			line.append("\");");
 			gen.writeMethodImplementation(indentation + line);
@@ -566,6 +566,7 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 		{
 			std::string format;
 			std::string location;
+			std::string contentType;
 			std::string propStr;
 			GeneratorEngine::getStringProperty(funcProps, GenUtility::ATTR_RETURN, propStr);
 			if (!propStr.empty())
@@ -574,6 +575,7 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 				GeneratorEngine::parseElementProperties(propStr, paramProps);
 				GeneratorEngine::getStringProperty(paramProps, Utility::IN, location);
 				GeneratorEngine::getStringProperty(paramProps, Utility::FORMAT, format);
+				GeneratorEngine::getStringProperty(paramProps, Utility::CONTENT_TYPE, contentType);
 			}
 
 			if (!location.empty())
@@ -583,6 +585,10 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 			if (!format.empty())
 			{
 				gen.writeMethodImplementation(indentation + "remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_FORMAT, \"" + format + "\");");
+			}
+			if (!contentType.empty())
+			{
+				gen.writeMethodImplementation(indentation + "remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE, \"" + contentType + "\");");
 			}
 
 			std::string retType(Poco::CodeGeneration::Utility::resolveType(pGen->_pStructIn, retParam.declType()));
@@ -619,6 +625,10 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 			{
 				gen.writeMethodImplementation(indentation + "remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION);");
 			}
+			if (!contentType.empty())
+			{
+				gen.writeMethodImplementation(indentation + "remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE);");
+			}
 		}
 
 		writeTypeSerializer(pFunc, elems, outParams, indentation, false, funcNsIdx, gen);
@@ -632,7 +642,7 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 		}
 		if (!funcResponseContentType.empty())
 		{
-			gen.writeMethodImplementation(indentation + "remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE);");
+			gen.writeMethodImplementation(indentation + "remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_PRODUCES);");
 		}
 		if (!funcDefaultNS.empty())
 		{
@@ -760,6 +770,7 @@ void SkeletonGenerator::writeTypeDeserializers(const Poco::CppParser::Function* 
 		{
 			std::string location;
 			std::string format;
+			std::string contentType;
 			std::string propStr;
 			GeneratorEngine::getStringProperty(funcProps, "$" + itOP->second.varName, propStr);
 			if (!propStr.empty())
@@ -768,6 +779,7 @@ void SkeletonGenerator::writeTypeDeserializers(const Poco::CppParser::Function* 
 				GeneratorEngine::parseElementProperties(propStr, paramProps);
 				GeneratorEngine::getStringProperty(paramProps, Utility::IN, location);
 				GeneratorEngine::getStringProperty(paramProps, Utility::FORMAT, format);
+				GeneratorEngine::getStringProperty(paramProps, Utility::CONTENT_TYPE, contentType);
 			}
 			if (!location.empty())
 			{
@@ -776,6 +788,10 @@ void SkeletonGenerator::writeTypeDeserializers(const Poco::CppParser::Function* 
 			if (!format.empty())
 			{
 				gen.writeMethodImplementation(indentation + "remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_FORMAT, \"" + format + "\");");
+			}
+			if (!format.empty())
+			{
+				gen.writeMethodImplementation(indentation + "remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE, \"" + contentType + "\");");
 			}
 
 			poco_check_ptr (itOP->second.pParam);
@@ -834,6 +850,10 @@ void SkeletonGenerator::writeTypeDeserializers(const Poco::CppParser::Function* 
 			{
 				gen.writeMethodImplementation(indentation + "remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION);");
 			}
+			if (!contentType.empty())
+			{
+				gen.writeMethodImplementation(indentation + "remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE);");
+			}
 		}
 	}
 }
@@ -877,6 +897,7 @@ void SkeletonGenerator::writeTypeSerializer(const Poco::CppParser::Function* pFu
 
 				std::string location;
 				std::string format;
+				std::string contentType;
 				std::string propStr;
 				GeneratorEngine::getStringProperty(funcProps, "$" + itOP->second.varName, propStr);
 				if (!propStr.empty())
@@ -885,6 +906,7 @@ void SkeletonGenerator::writeTypeSerializer(const Poco::CppParser::Function* pFu
 					GeneratorEngine::parseElementProperties(propStr, paramProps);
 					GeneratorEngine::getStringProperty(paramProps, Utility::IN, location);
 					GeneratorEngine::getStringProperty(paramProps, Utility::FORMAT, format);
+					GeneratorEngine::getStringProperty(paramProps, Utility::CONTENT_TYPE, contentType);
 				}
 				if (!location.empty())
 				{
@@ -893,6 +915,10 @@ void SkeletonGenerator::writeTypeSerializer(const Poco::CppParser::Function* pFu
 				if (!format.empty())
 				{
 					gen.writeMethodImplementation(indentation + "remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_FORMAT, \"" + format + "\");");
+				}
+				if (!contentType.empty())
+				{
+					gen.writeMethodImplementation(indentation + "remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE, \"" + contentType + "\");");
 				}
 
 				std::string serLine("Poco::RemotingNG::TypeSerializer<");
@@ -921,6 +947,10 @@ void SkeletonGenerator::writeTypeSerializer(const Poco::CppParser::Function* pFu
 				if (!location.empty())
 				{
 					gen.writeMethodImplementation(indentation + "remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION);");
+				}
+				if (!contentType.empty())
+				{
+					gen.writeMethodImplementation(indentation + "remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE);");
 				}
 			}
 		}

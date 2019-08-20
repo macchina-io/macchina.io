@@ -1,0 +1,57 @@
+//
+// TokenValidator.h
+//
+// Library: OSP/Web
+// Package: Web
+// Module:  TokenValidator
+//
+// Definition of the TokenValidator class.
+//
+// Copyright (c) 2019, Applied Informatics Software Engineering GmbH.
+// All rights reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+
+#ifndef OSP_Web_TokenValidator_INCLUDED
+#define OSP_Web_TokenValidator_INCLUDED
+
+
+#include "Poco/OSP/Web/Web.h"
+#include "Poco/OSP/BundleContext.h"
+#include "Poco/OSP/Service.h"
+
+
+namespace Poco {
+namespace OSP {
+namespace Web {
+
+
+class OSPWeb_API TokenValidator: public Poco::OSP::Service
+	/// TokenValidator is an optional service that is used
+	/// by the WebServerDispatcher to validate bearer tokens
+	/// and obtain the associated user name.
+{
+public:
+	typedef Poco::AutoPtr<TokenValidator> Ptr;
+
+	virtual bool validateToken(const std::string& token, std::string& username) = 0;
+		/// Validates the given bearer token.
+		///
+		/// If valid, returns true and the associated username.
+		/// If invalid, returns false, leaving the username unchanged.
+		///
+		/// The format of the token (e.g., JWT) and method of validation
+		/// is left to the implementation.
+
+	// Service
+	const std::type_info& type() const;
+	bool isA(const std::type_info& otherType) const;
+};
+
+
+} } } // namespace Poco::OSP::Web
+
+
+#endif // OSP_Web_TokenValidator_INCLUDED

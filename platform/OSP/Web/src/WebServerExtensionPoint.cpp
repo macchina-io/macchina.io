@@ -40,6 +40,7 @@ const std::string WebServerExtensionPoint::ATTR_DESCRIPTION("description");
 const std::string WebServerExtensionPoint::ATTR_SECURE("secure");
 const std::string WebServerExtensionPoint::ATTR_REALM("realm");
 const std::string WebServerExtensionPoint::ATTR_PERMISSION("permission");
+const std::string WebServerExtensionPoint::ATTR_AUTHMETHODS("authMethods");
 const std::string WebServerExtensionPoint::ATTR_SESSION("session");
 const std::string WebServerExtensionPoint::ATTR_CSRFPROTECTION("csrfProtection");
 const std::string WebServerExtensionPoint::ATTR_CSRFTOKENHEADER("csrfTokenHeader");
@@ -151,6 +152,7 @@ void WebServerExtensionPoint::handleCommon(Bundle::ConstPtr pBundle, Poco::XML::
 	vPath.description              = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_DESCRIPTION));
 	vPath.security.realm           = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_REALM));
 	vPath.security.permission      = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_PERMISSION));
+	vPath.security.authMethods     = WebServerDispatcher::parseAuthMethods(pExtensionElem->getAttribute(ATTR_AUTHMETHODS));
 	vPath.security.session         = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_SESSION));
 	vPath.security.secure          = pExtensionElem->getAttribute(ATTR_SECURE) == "true";
 	vPath.security.csrfProtection  = pExtensionElem->getAttribute(ATTR_CSRFPROTECTION) == "true";
