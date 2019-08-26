@@ -86,6 +86,9 @@ public:
 	const Poco::Timespan& remoteTimeout() const;
 		/// Returns the timeout for the remote connection.
 
+	void updateProperties(const std::map<std::string, std::string>& props);
+		/// Transmits properties (key-value pairs) to the remote peer.
+
 protected:
 	bool multiplex(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, Poco::UInt16 channel, Poco::Buffer<char>& buffer);
 	void multiplexError(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket, Poco::UInt16 channel, Poco::Buffer<char>& buffer);

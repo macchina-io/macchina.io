@@ -285,7 +285,7 @@ void SocketDispatcher::stop()
 		{
 			Poco::FastMutex::ScopedLock lock(_stoppedMtx);
 
-		_stopped = true;
+			_stopped = true;
 		}
 		_mainQueue.wakeUpAll();
 		_workerQueue.wakeUpAll();
@@ -523,14 +523,26 @@ void SocketDispatcher::addSocketImpl(const Poco::Net::StreamSocket& socket, Sock
 void SocketDispatcher::removeSocketImpl(const Poco::Net::StreamSocket& socket)
 {
 	_socketMap.erase(socket);
-	_pollSet.remove(socket);
+	try
+	{
+		_pollSet.remove(socket);
+	}
+	catch (Poco::IOException&)
+	{
+	}
 }
 
 
 void SocketDispatcher::closeSocketImpl(Poco::Net::StreamSocket& socket)
 {
 	_socketMap.erase(socket);
-	_pollSet.remove(socket);
+	try
+	{
+		_pollSet.remove(socket);
+	}
+	catch (Poco::IOException&)
+	{
+	}
 	socket.shutdown();
 }
 

@@ -79,7 +79,7 @@ class WebTunnel_API Protocol
 	///
 	/// 5. Data
 	///
-	/// Data to be forwarded to the peer.
+	/// Data to be forwarded to the peer through a channel.
 	///
 	///     0        1        2        3
 	///     +--------+--------+--------+--------+
@@ -89,7 +89,24 @@ class WebTunnel_API Protocol
 	///     |                                   |
 	///     +-----------------------------------+
 	///
-	/// 6. General Error
+	/// 6. Properties Update
+	///
+	/// Updates to device properties.
+	///
+	///     0        1        2        3
+	///     +--------+--------+--------+--------+
+	///     | 0x40   | 0x00   | 0x00            |
+	///     +--------+--------+--------+--------+
+	///     | count  | <keyValuePair>*<count>   |
+	///     |                                   |
+	///     +-----------------------------------+
+	///
+	/// count is number of following key/value pairs (UInt8).
+	/// <keyValuePair> is two strings in Poco::BinaryWriter format
+	/// (7-bit encoded length followed by raw bytes; no terminating
+	/// zero).
+	///
+	/// 7. General Error
 	///
 	///     0        1        2        3
 	///     +--------+--------+--------+--------+
@@ -106,6 +123,7 @@ public:
 		WT_OP_OPEN_CONFIRM    = 0x11,  /// Confirms channel has been opened.
 		WT_OP_OPEN_FAULT      = 0x81,  /// Error opening a channel.
 		WT_OP_CLOSE           = 0x02,  /// Close a channel (uncomfirmed).
+		WT_OP_PROP_UPDATE     = 0x40,  /// Properties update
 		WT_OP_ERROR           = 0x80   /// General error notification, closes a channel.
 	};
 

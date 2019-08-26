@@ -6,8 +6,7 @@
 
 include $(POCO_BASE)/build/rules/global
 
-objects = LocalPortForwarder RemotePortForwarder PortReflector \
-	TunnelSocket TunnelSocketImpl \
+objects = LocalPortForwarder RemotePortForwarder \
 	SocketDispatcher Protocol
 
 target         = PocoWebTunnel

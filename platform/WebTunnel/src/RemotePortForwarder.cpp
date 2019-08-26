@@ -16,6 +16,9 @@
 #include "Poco/WebTunnel/Protocol.h"
 #include "Poco/Net/NetException.h"
 #include "Poco/Format.h"
+#include "Poco/BinaryWriter.h"
+#include "Poco/MemoryStream.h"
+#include "Poco/CountingStream.h"
 
 
 namespace Poco {
@@ -387,7 +390,7 @@ void RemotePortForwarder::closeWebSocket(CloseReason reason, bool active)
 		Poco::FastMutex::ScopedLock lock(_webSocketMutex);
 
 		if (!_pWebSocket || !_pWebSocket->impl()->initialized()) return;
-	
+
 		if (_logger.debug())
 		{
 			_logger.debug("Closing WebSocket, reason: %d, active: %b", static_cast<int>(reason), active);
@@ -423,6 +426,39 @@ void RemotePortForwarder::closeWebSocket(CloseReason reason, bool active)
 
 	int eventArg = reason;
 	webSocketClosed(this, eventArg);
+}
+
+
+namespace
+{
+	void writeProperties(Poco::BinaryWriter& writer, const std::map<std::string, std::string>& props)
+	{
+		writer << static_cast<Poco::UInt8>(props.size());
+		for (std::map<std::string, std::string>::const_iterator it = props.begin(); it != props.end(); ++it)
+		{
+			writer << it->first << it->second;
+		}
+	}
+}
+
+
+void RemotePortForwarder::updateProperties(const std::map<std::string, std::string>& props)
+{
+	poco_assert (props.size() < 256);
+
+	Poco::CountingOutputStream counterStream;
+	Poco::BinaryWriter counterWriter(counterStream, Poco::BinaryWriter::NETWORK_BYTE_ORDER);
+	writeProperties(counterWriter, props);
+	std::size_t payloadSize = counterStream.chars();
+
+	Poco::Buffer<char> buffer(payloadSize + Protocol::WT_FRAME_HEADER_SIZE);
+	std::size_t offset = Protocol::writeHeader(buffer.begin(), buffer.size(), Protocol::WT_OP_PROP_UPDATE, 0, 0);
+	Poco::MemoryOutputStream bufferStream(buffer.begin() + offset, buffer.size() - offset);
+	Poco::BinaryWriter bufferWriter(bufferStream, Poco::BinaryWriter::NETWORK_BYTE_ORDER);
+	writeProperties(bufferWriter, props);
+
+	Poco::FastMutex::ScopedLock lock(_webSocketMutex);
+	_pWebSocket->sendFrame(buffer.begin(), payloadSize + Protocol::WT_FRAME_HEADER_SIZE, Poco::Net::WebSocket::FRAME_BINARY);
 }
 
 
