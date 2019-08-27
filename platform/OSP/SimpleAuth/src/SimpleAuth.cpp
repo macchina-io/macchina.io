@@ -36,20 +36,20 @@ class SimpleAuthService: public Poco::OSP::Auth::AuthService
 	/// A very simple implementation of AuthService.
 	///
 	/// Only two users are known - "user" and "admin". The
-	/// names of these two users can be changed in the global 
+	/// names of these two users can be changed in the global
 	/// configuration using the "auth.simple.admin.name" and
 	/// "auth.simple.user.name" properties and default to
 	/// "admin" and "user", respectively.
 	///
-	/// The password for "admin" and "user" can be set in the global 
+	/// The password for "admin" and "user" can be set in the global
 	/// application configuration file as salted MD5 hashes with the
-	/// "auth.simple.admin.passwordHash" and "auth.simple.user.passwordHash" 
+	/// "auth.simple.admin.passwordHash" and "auth.simple.user.passwordHash"
 	/// properties. The (optional) salt can be specified with
 	/// the "auth.simple.salt" property.
-	/// 
+	///
 	/// The "admin" user has all permissions. The set of permissions
 	/// for "user" can be set in the global configuration file,
-	/// using the "auth.simple.user.permissions" property. The permissions are 
+	/// using the "auth.simple.user.permissions" property. The permissions are
 	/// specified as a comma-separated list.
 {
 public:
@@ -62,11 +62,11 @@ public:
 		_salt(salt)
 	{
 	}
-	
+
 	~SimpleAuthService()
 	{
 	}
-	
+
 	// AuthService
 	bool authenticate(const std::string& userName, const std::string& credentials) const
 	{
@@ -79,18 +79,23 @@ public:
 		return userName == _adminName || (userName == _userName && _userPermissions.find(permission) != _userPermissions.end());
 	}
 
+	bool userExists(const std::string& userName, const std::string& permission) const
+	{
+		return userName == _adminName || userName == _userName;
+	}
+
 	// Service
 	const std::type_info& type() const
 	{
 		return typeid(SimpleAuthService);
 	}
-	
+
 	bool isA(const std::type_info& otherType) const
 	{
 		std::string name(typeid(SimpleAuthService).name());
 		return name == otherType.name() || Poco::OSP::Auth::AuthService::isA(otherType);
 	}
-	
+
 protected:
 	std::string hashCredentials(const std::string& credentials) const
 	{
@@ -118,21 +123,21 @@ public:
 	SimpleAuthBundleActivator()
 	{
 	}
-	
+
 	~SimpleAuthBundleActivator()
 	{
 	}
-	
+
 	void start(BundleContext::Ptr pContext)
 	{
 		ServiceRef::Ptr pPrefsRef = pContext->registry().findByName(PreferencesService::SERVICE_NAME);
 		AutoPtr<PreferencesService> pPrefs = pPrefsRef->castedInstance<PreferencesService>();
-		
+
 		bool enable = pPrefs->configuration()->getBool("auth.simple.enable", true);
 		if (enable)
 		{
 			std::string adminName = pPrefs->configuration()->getString("auth.simple.admin.name", "admin");
-			std::string adminPasswordHash = pPrefs->configuration()->getString("auth.simple.admin.passwordHash", ""); 
+			std::string adminPasswordHash = pPrefs->configuration()->getString("auth.simple.admin.passwordHash", "");
 			std::string userName = pPrefs->configuration()->getString("auth.simple.user.name", "user");
 			std::string userPasswordHash = pPrefs->configuration()->getString("auth.simple.user.passwordHash", "");
 			std::string salt = pPrefs->configuration()->getString("auth.simple.salt", "");
@@ -143,7 +148,7 @@ public:
 			{
 				userPermissions.insert(*it);
 			}
-			
+
 			AutoPtr<SimpleAuthService> pService = new SimpleAuthService(adminName, adminPasswordHash, userName, userPasswordHash, userPermissions, salt);
 			_pService = pContext->registry().registerService("osp.auth", pService, Properties());
 		}
@@ -152,7 +157,7 @@ public:
 			pContext->logger().information("Simple authentication service disabled.");
 		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		if (_pService)
@@ -160,7 +165,7 @@ public:
 			pContext->registry().unregisterService(_pService);
 		}
 	}
-	
+
 private:
 	ServiceRef::Ptr _pService;
 };

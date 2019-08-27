@@ -827,35 +827,42 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 			if (!username.empty())
 			{
 				AuthService::Ptr pAuthService = authService();
-				if (vPath.security.permission == "*" || pAuthService->authorize(username, vPath.security.permission))
+				if (pAuthService->userExists(username))
 				{
-					if (vPath.security.csrfProtection && !vPath.security.csrfTokenHeader.empty())
+					if (vPath.security.permission == "*" || pAuthService->authorize(username, vPath.security.permission))
 					{
-						return request.get(vPath.security.csrfTokenHeader, "") == pSession->csrfToken();
+						if (vPath.security.csrfProtection && !vPath.security.csrfTokenHeader.empty())
+						{
+							return request.get(vPath.security.csrfTokenHeader, "") == pSession->csrfToken();
+						}
+						else
+						{
+							return true;
+						}
 					}
 					else
 					{
-						return true;
+						_pContext->logger().warning("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI());
 					}
 				}
 				else
 				{
-					_pContext->logger().warning(Poco::format("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI()));
+					_pContext->logger().warning("User %s (authenticated via session) does not exist.", username);
 				}
 			}
 			else
 			{
-				_pContext->logger().warning(Poco::format("Failed to authorize user for path %s because session is not authenticated.", request.getURI()));
+				_pContext->logger().warning("Failed to authorize user for path %s because session is not authenticated.", request.getURI());
 			}
 		}
 		else
 		{
-			_pContext->logger().warning(Poco::format("Failed to authorize user for path %s because no session is available.", request.getURI()));
+			_pContext->logger().warning("Failed to authorize user for path %s because no session is available.", request.getURI());
 		}
 	}
 	else
 	{
-		_pContext->logger().warning(Poco::format("Failed to authorize user for path %s via session because no WebSessionManager is available.", request.getURI()));
+		_pContext->logger().warning("Failed to authorize user for path %s via session because no WebSessionManager is available.", request.getURI());
 	}
 	return false;
 }
@@ -876,12 +883,12 @@ bool WebServerDispatcher::authorizeBasic(Poco::Net::HTTPServerRequest& request, 
 			}
 			else
 			{
-				_pContext->logger().warning(Poco::format("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI()));
+				_pContext->logger().warning("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI());
 			}
 		}
 		else
 		{
-			_pContext->logger().warning(Poco::format("User %s failed authentication.", username));
+			_pContext->logger().warning("User %s failed authentication.", username);
 		}
 	}
 	return false;
@@ -896,18 +903,25 @@ bool WebServerDispatcher::authorizeBearer(Poco::Net::HTTPServerRequest& request,
 	{
 		if (pTokenValidator->validateToken(token, username))
 		{
-			if (vPath.security.permission == "*" || pAuthService->authorize(username, vPath.security.permission))
+			if (pAuthService->userExists(username))
 			{
-				return true;
+				if (vPath.security.permission == "*" || pAuthService->authorize(username, vPath.security.permission))
+				{
+					return true;
+				}
+				else
+				{
+					_pContext->logger().warning("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI());
+				}
 			}
 			else
 			{
-				_pContext->logger().warning(Poco::format("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI()));
+				_pContext->logger().warning("User %s (authenticated via token) does not exist.", username);
 			}
 		}
 		else
 		{
-			_pContext->logger().warning(Poco::format("Bearer token %s failed validation.", token));
+			_pContext->logger().warning("Bearer token %s failed validation.", token);
 		}
 	}
 	return false;

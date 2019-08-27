@@ -40,10 +40,10 @@ class OSP_API AuthService: public Poco::OSP::Service
 {
 public:
 	typedef Poco::AutoPtr<AuthService> Ptr;
-	
+
 	AuthService();
 		/// Creates the AuthService.
-	
+
 	~AuthService();
 		/// Destroys the AuthService.
 
@@ -57,6 +57,11 @@ public:
 		/// Checks if a user has a specific permission.
 		///
 		/// Returns true if the user specified by userName has the specified permission.
+
+	virtual bool userExists(const std::string& userName) const = 0;
+		/// Checks if a user has exists.
+		///
+		/// Returns true if the user specified by userName exists, otherwise false.
 
 	// Service
 	const std::type_info& type() const;

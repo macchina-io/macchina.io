@@ -1,6 +1,32 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2019.2
+
+!!Summary of Changes
+
+  - OSP Web: added support for security-related HTTP headers like
+    <[Strict-Transport-Security]>, <[X-XSS-Protection]> and
+    <[X-Content-Type-Options]>.
+  - OSP Web: added support for bearer token-based authentication
+  - OSP Web: allowed authentication methods can be restricted
+  - OSP Web: for session and token-based authentication, also check that the
+    associated user account still exists before granting authentication
+  - OSP AuthAdminService: add support for SQL Server via ODBC
+  - Poco::OSP::Auth::AuthService: new pure virtual method userExists()
+    (has been moved to base class from Poco::OSP::Auth::AuthAdminService)
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - The Poco::OSP::Auth::AuthService service class has gained a new pure virtual method
+    userExists(), which subclasses must implement. The method was previously defined
+    in Poco::OSP::Auth::AuthAdminService and has been moved to the base class.
+
+
 !!!Release 2019.1
 
 !!Summary of Changes
@@ -10,12 +36,17 @@ Open Service Platform
   - Poco::OSP::Auth::AuthAdminService: when user is deleted, also delete permissions, roles and attributes.
   - Poco::OSP::Auth::AuthAdminService: added usersWithPermission(), usersWithRole(), usersWithAttribute(),
     replaceRolesForUser(), replaceUserAttributes() and findUsersByAttribute() methods.
+  - Poco::OSP::Auth::Data::AuthAdminServiceImpl: fixed a bug where some (implicit and read-only) transactions
+    would not be committed properly, leading to stale data to be used due to repeatable-read
+    transaction isolation.
   - Shell: added passwd command (allows hidden password entry)
   - Web: added Poco::OSP::Web::WebSessionStore service, which allows for implementation of
     persistent web sessions.
   - Web: when checking whether a request is authenticated, check for HTTP Basic credentials
     first before checking for an authenticated session.
   - Web: don't show exception details in 500 error page
+  - BundleCreator: warn if non-empty <files> or <code> element is in bundle specification file,
+    but no matching files can be found.
 
 !!Known Issues
 
