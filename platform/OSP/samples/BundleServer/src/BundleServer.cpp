@@ -17,6 +17,7 @@
 #include "Poco/Util/AbstractConfiguration.h"
 #include "Poco/OSP/OSPSubsystem.h"
 #include "Poco/OSP/ServiceRegistry.h"
+#include "Poco/SharedLibrary.h"
 #include "Poco/ErrorHandler.h"
 #include <iostream>
 
@@ -42,14 +43,14 @@ public:
 		Poco::ErrorHandler::set(&_errorHandler);
 		addSubsystem(_pOSP);
 	}
-	
+
 	~BundleServerApplication()
 	{
-		// wait until all threads have terminated 
+		// wait until all threads have terminated
 		// before we completely shut down.
 		Poco::ThreadPool::defaultPool().joinAll();
 	}
-	
+
 	ServiceRegistry& serviceRegistry()
 	{
 		return _pOSP->serviceRegistry();
@@ -63,7 +64,7 @@ protected:
 			_app(app)
 		{
 		}
-		
+
 		void exception(const Poco::Exception& exc)
 		{
 			log(exc.displayText());
@@ -78,18 +79,23 @@ protected:
 		{
 			log("unknown exception");
 		}
-		
+
 		void log(const std::string& message)
 		{
 			_app.logger().error("A thread was terminated by an unhandled exception: " + message);
 		}
-		
+
 	private:
 		BundleServerApplication& _app;
 	};
 
 	void initialize(Application& self)
 	{
+		// The following is a workaround for Windows so that DLLs
+		// loaded from bundles will also look for DLLs in the
+		// directory the .exe is located.
+		Poco::SharedLibrary::setSearchPath(config().getString("application.dir"));
+
 		loadConfiguration(); // load default configuration files, if present
 		Application::initialize(self);
 	}
@@ -111,7 +117,7 @@ protected:
 				.argument("file")
 				.callback(OptionCallback<BundleServerApplication>(this, &BundleServerApplication::handleConfig)));
 	}
-	
+
 	void handleHelp(const std::string& name, const std::string& value)
 	{
 		_showHelp = true;

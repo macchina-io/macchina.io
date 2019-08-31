@@ -29,7 +29,6 @@
 #include "Poco/File.h"
 #include "Poco/Glob.h"
 #include "Poco/DirectoryIterator.h"
-#include "Poco/String.h"
 #include "Poco/FileStream.h"
 #include "Poco/Thread.h"
 #include "Poco/Random.h"

@@ -17,6 +17,7 @@
 #include "Poco/Util/AbstractConfiguration.h"
 #include "Poco/OSP/OSPSubsystem.h"
 #include "Poco/OSP/ServiceRegistry.h"
+#include "Poco/SharedLibrary.h"
 #include <iostream>
 
 
@@ -39,7 +40,7 @@ public:
 	{
 		addSubsystem(_pOSP);
 	}
-	
+
 	ServiceRegistry& serviceRegistry()
 	{
 		return _pOSP->serviceRegistry();
@@ -48,6 +49,11 @@ public:
 protected:
 	void initialize(Application& self)
 	{
+		// The following is a workaround for Windows so that DLLs
+		// loaded from bundles will also look for DLLs in the
+		// directory the .exe is located.
+		Poco::SharedLibrary::setSearchPath(config().getString("application.dir"));
+
 		loadConfiguration(); // load default configuration files, if present
 		Application::initialize(self);
 	}
@@ -69,7 +75,7 @@ protected:
 				.argument("file")
 				.callback(OptionCallback<BundleContainerApplication>(this, &BundleContainerApplication::handleConfig)));
 	}
-	
+
 	void handleHelp(const std::string& name, const std::string& value)
 	{
 		_showHelp = true;
