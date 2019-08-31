@@ -364,6 +364,8 @@ The web server can be configured by setting the following properties in the glob
     a resource and has been successful, a header named "X-OSP-Authorized-User" containing the
     authenticated and authorized username is added to the Poco::Net::HTTPRequest, for use
     by the downstream request handler.
+  - <[osp.web.addSignature]>: If set to true (default), the server will include a signature in generated
+    HTML error pages.
 
 
 !!! Request Logging

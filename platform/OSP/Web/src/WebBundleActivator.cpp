@@ -96,6 +96,7 @@ public:
 		std::string xssProtMode(pContext->thisBundle()->properties().getString("xssProtection.mode", "block"));
 		std::string contentTypeOptions(pContext->thisBundle()->properties().getString("contentTypeOptions", "nosniff"));
 		bool addAuthHeader(pContext->thisBundle()->properties().getBool("addAuthHeader", true));
+		bool addSignature(pContext->thisBundle()->properties().getBool("addSignature", true));
 		int authMethods = 0;
 		if (pPrefsSvcRef)
 		{
@@ -118,6 +119,7 @@ public:
 			xssProtMode = pPrefsSvc->configuration()->getString("osp.web.xssProtection.mode", xssProtMode);
 			contentTypeOptions = pPrefsSvc->configuration()->getString("osp.web.contentTypeOptions", contentTypeOptions);
 			addAuthHeader = pPrefsSvc->configuration()->getBool("osp.web.addAuthHeader", addAuthHeader);
+			addSignature = pPrefsSvc->configuration()->getBool("osp.web.addSignature", addSignature);
 			authMethods = WebServerDispatcher::parseAuthMethods(pPrefsSvc->configuration()->getString("osp.web.authMethods", ""));
 		}
 
@@ -150,6 +152,7 @@ public:
 		config.customResponseHeaders = customResponseHeaders;
 		if (cacheResources) config.options |= WebServerDispatcher::CONF_OPT_CACHE_RESOURCES;
 		if (addAuthHeader) config.options |= WebServerDispatcher::CONF_OPT_ADD_AUTH_HEADER;
+		if (addSignature) config.options |= WebServerDispatcher::CONF_OPT_ADD_SIGNATURE;
 		if (authMethods) config.authMethods = authMethods;
 
 		Poco::AutoPtr<WebServerDispatcher> pWebServerDispatcher = new WebServerDispatcher(config);

@@ -73,6 +73,7 @@ WebServerDispatcher::WebServerDispatcher(const Config& config):
 	_compressResponses((config.options & CONF_OPT_COMPRESS_RESPONSES) != 0),
 	_cacheResources((config.options & CONF_OPT_CACHE_RESOURCES) != 0),
 	_addAuthHeader((config.options & CONF_OPT_ADD_AUTH_HEADER) != 0),
+	_addSignature((config.options & CONF_OPT_ADD_SIGNATURE) != 0),
 	_authMethods(config.authMethods),
 	_compressedMediaTypes(config.compressedMediaTypes),
 	_customResponseHeaders(config.customResponseHeaders),
@@ -975,25 +976,14 @@ void WebServerDispatcher::sendResponse(Poco::Net::HTTPServerRequest& request, Po
 {
 	if (!request.response().sent())
 	{
-		const std::string& softwareVersion = request.serverParams().getSoftwareVersion();
-		request.response().setContentType("text/html");
-		request.response().setStatusAndReason(status);
-		std::string html("<HTML><HEAD><TITLE>");
-		html += NumberFormatter::format(static_cast<int>(status));
-		html += " - ";
-		html += request.response().getReasonForStatus(status);
-		html += "</TITLE></HEAD><BODY><H1>";
-		html += NumberFormatter::format(static_cast<int>(status));
-		html += " - ";
-		html += request.response().getReasonForStatus(status);
-		html += "</H1><P>";
-		html += htmlize(message);
-		html += "</P><HR><ADDRESS>";
-		html += htmlize(softwareVersion);
-		html += " at ";
-		html += request.serverAddress().toString();
-		html += "</ADDRESS></BODY></HTML>";
-		request.response().sendBuffer(html.data(), html.size());
+		if (request.get("Accept", "").find("application/json") != std::string::npos)
+		{
+			sendJSONResponse(request, status, message);
+		}
+		else
+		{
+			sendHTMLResponse(request, status, message);
+		}
 	}
 	else
 	{
@@ -1002,6 +992,52 @@ void WebServerDispatcher::sendResponse(Poco::Net::HTTPServerRequest& request, Po
 		msg += "\") because a response has already been sent for this request.";
 		_pContext->logger().warning(msg);
 	}
+}
+
+
+void WebServerDispatcher::sendHTMLResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message)
+{
+	const std::string& softwareVersion = request.serverParams().getSoftwareVersion();
+	request.response().setContentType("text/html");
+	request.response().setStatusAndReason(status);
+	std::string html("<HTML><HEAD><TITLE>");
+	html += NumberFormatter::format(static_cast<int>(status));
+	html += " - ";
+	html += request.response().getReasonForStatus(status);
+	html += "</TITLE></HEAD><BODY><H1>";
+	html += NumberFormatter::format(static_cast<int>(status));
+	html += " - ";
+	html += request.response().getReasonForStatus(status);
+	html += "</H1><P>";
+	html += htmlize(message);
+	html += "</P><HR>";
+	if (_addSignature)
+	{
+		html += "<ADDRESS>";
+		html += htmlize(softwareVersion);
+		html += " at ";
+		html += request.serverAddress().toString();
+		html += "</ADDRESS>";
+	}
+	html += "</BODY></HTML>";
+	request.response().sendBuffer(html.data(), html.size());
+}
+
+
+void WebServerDispatcher::sendJSONResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message)
+{
+	const std::string& softwareVersion = request.serverParams().getSoftwareVersion();
+	request.response().setContentType("application/json");
+	request.response().setStatusAndReason(status);
+
+	std::string json(
+		Poco::format("{ \"error\": \"%s\", \"detail\": \"%s\", \"code\": %d }",
+			request.response().getReasonForStatus(status),
+			jsonize(message),
+			static_cast<int>(status)
+		)
+	);
+	request.response().sendBuffer(json.data(), json.size());
 }
 
 
@@ -1022,6 +1058,26 @@ std::string WebServerDispatcher::htmlize(const std::string& str)
 		}
 	}
 	return html;
+}
+
+
+std::string WebServerDispatcher::jsonize(const std::string& str)
+{
+	std::string::const_iterator it(str.begin());
+	std::string::const_iterator end(str.end());
+	std::string json;
+	for (; it != end; ++it)
+	{
+		switch (*it)
+		{
+		case '"': json += "\\\""; break;
+		case '\r': json += "\\r"; break;
+		case '\n': json += "\\n"; break;
+		case '\t': json += "\\t"; break;
+		default:  json += *it; break;
+		}
+	}
+	return json;
 }
 
 

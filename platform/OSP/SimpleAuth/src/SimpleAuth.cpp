@@ -79,7 +79,7 @@ public:
 		return userName == _adminName || (userName == _userName && _userPermissions.find(permission) != _userPermissions.end());
 	}
 
-	bool userExists(const std::string& userName, const std::string& permission) const
+	bool userExists(const std::string& userName) const
 	{
 		return userName == _adminName || userName == _userName;
 	}

@@ -159,8 +159,11 @@ public:
 		CONF_OPT_CACHE_RESOURCES    = 0x02,
 			/// Enable in-memory caching of bundle resources.
 
-		CONF_OPT_ADD_AUTH_HEADER    = 0x04
+		CONF_OPT_ADD_AUTH_HEADER    = 0x04,
 			/// Add X-OSP-Authorized-User header to authenticated requests.
+
+		CONF_OPT_ADD_SIGNATURE       = 0x08
+			/// Add server signature to generated HTML error responses.
 	};
 
 	struct Config
@@ -307,8 +310,17 @@ protected:
 	void sendResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message);
 		/// Sends a standard status/error response.
 
+	void sendHTMLResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message);
+		/// Sends a standard status/error response in HTML format.
+
+	void sendJSONResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message);
+		/// Sends a standard status/error response in JSON format.
+
 	static std::string htmlize(const std::string& str);
 		/// Returns a HTML-ized version of the given string.
+
+	static std::string jsonize(const std::string& str);
+		/// Returns a JSON-ized (escaped) version of the given string.
 
 	Poco::OSP::Auth::AuthService::Ptr authService() const;
 		/// Returns a pointer to the auth service, if it is available,
@@ -360,6 +372,7 @@ private:
 	bool _compressResponses;
 	bool _cacheResources;
 	bool _addAuthHeader;
+	bool _addSignature;
 	int _authMethods;
 	std::set<std::string> _compressedMediaTypes;
 	Poco::Net::NameValueCollection _customResponseHeaders;
