@@ -56,7 +56,7 @@ public:
 				{
 					Poco::MemoryInputStream istr(pFrame->payloadBegin(), pFrame->getPayloadSize());
 					Poco::BinaryReader reader(istr, Poco::BinaryReader::NETWORK_BYTE_ORDER);
-					
+
 					std::string mechanism;
 					Poco::UInt32 conversationID = 0;
 					if (pFrame->type() == Frame::FRAME_TYPE_AUTH)
@@ -82,7 +82,7 @@ public:
 						reader >> key >> value;
 						creds.setAttribute(key, value);
 					}
-					
+
 					Poco::RemotingNG::ScopedContext scopedContext;
 					Context::Ptr pContext = scopedContext.context();
 					pContext->setValue("transport", Transport::PROTOCOL);
@@ -108,21 +108,21 @@ public:
 		}
 		else return false;
 	}
-	
+
 	void sendAUTR(Connection::Ptr pConnection, Poco::UInt32 channel, const AuthenticateResult& authResult, Poco::UInt64 token)
 	{
 		Frame::Ptr pFrame = new Frame(Frame::FRAME_TYPE_AUTR, channel, Frame::FRAME_FLAG_EOM, 256);
 		Poco::MemoryOutputStream ostr(pFrame->payloadBegin(), pFrame->maxPayloadSize());
 		Poco::BinaryWriter writer(ostr, Poco::BinaryWriter::NETWORK_BYTE_ORDER);
-		
+
 		writer << static_cast<Poco::UInt8>(authResult.state());
 		writer << authResult.conversationID();
-		
+
 		// Write credentials only if state = continue.
 		if (authResult.cont())
 		{
 			writer << static_cast<Poco::UInt8>(authResult.credentials().countAttributes());
-	
+
 			std::vector<std::string> keys = authResult.credentials().enumerateAttributes();
 			for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 			{
@@ -160,7 +160,7 @@ public:
 		_pCredentialsStore(pCredentialsStore)
 	{
 	}
-	
+
 	bool handleFrame(Connection::Ptr pConnection, Frame::Ptr pFrame)
 	{
 		if (pFrame->type() == Frame::FRAME_TYPE_REQU && (pFrame->flags() & Frame::FRAME_FLAG_CONT) == 0)
@@ -175,7 +175,7 @@ public:
 				pReplyStream = new ChannelOutputStream(pConnection, Frame::FRAME_TYPE_REPL, pFrame->channel(), flags);
 			}
 			ServerTransport::Ptr pServerTransport = new ServerTransport(
-				*_pListener, _pCredentialsStore, pRequestStream, pReplyStream, 
+				*_pListener, _pCredentialsStore, pRequestStream, pReplyStream,
 				(pFrame->flags() & Frame::FRAME_FLAG_DEFLATE) != 0,
 				(pFrame->flags() & Frame::FRAME_FLAG_AUTH) != 0);
 			_pListener->connectionManager().threadPool().start(*pServerTransport);
@@ -186,7 +186,7 @@ public:
 		}
 		else return false;
 	}
-	
+
 private:
 	Listener::Ptr _pListener;
 	CredentialsStore::Ptr _pCredentialsStore;
@@ -255,6 +255,7 @@ void ServerConnection::run()
 	AuthFrameHandler::Ptr pAuthFrameHandler = new AuthFrameHandler(_pListener, _pCredentialsStore, _logger);
 	EventSubscriptionFrameHandler::Ptr pEventSubFrameHandler = new EventSubscriptionFrameHandler(_pListener);
 	RequestFrameHandler::Ptr pRequestFrameHandler = new RequestFrameHandler(_pListener, _pCredentialsStore);
+	pConnection->setHandshakeTimeout(_pListener->getHandshakeTimeout());
 	pConnection->pushFrameHandler(pAuthFrameHandler);
 	pConnection->pushFrameHandler(pEventSubFrameHandler);
 	pConnection->pushFrameHandler(pRequestFrameHandler);

@@ -78,6 +78,10 @@ public:
 
 			int connectionIdleTimeout = _pPrefs->configuration()->getInt("remoting.tcp.connection.idleTimeout", 60);
 			Poco::RemotingNG::TCP::ConnectionManager::defaultManager().setIdleTimeout(Poco::Timespan(connectionIdleTimeout, 0));
+
+			int handshakeTimeout = _pPrefs->configuration()->getInt("remoting.tcp.connection.handshakeTimeout", 8);
+			Poco::RemotingNG::TCP::ConnectionManager::defaultManager().setHandshakeTimeout(Poco::Timespan(handshakeTimeout, 0));
+			pListener->setHandshakeTimeout(Poco::Timespan(handshakeTimeout, 0));
 		}
 	}
 

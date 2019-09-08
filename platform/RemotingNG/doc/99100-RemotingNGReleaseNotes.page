@@ -11,6 +11,8 @@ Remoting NG
     enabled by setting the <[consumes]> attribute of the method
     to "multipart/form-data".
   - REST: It's now possible to pass query parameters to POST requests.
+  - TCP: Make connection handshake timeout configurable and increase
+    default handshake timeout to 8 seconds.
 
 !!Known Issues
 

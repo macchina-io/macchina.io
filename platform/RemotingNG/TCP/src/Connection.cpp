@@ -35,6 +35,7 @@ Connection::Connection(const Poco::Net::StreamSocket& socket, ConnectionMode mod
 	_socket(socket),
 	_id(++_idCounter),
 	_idleTimeout(0),
+	_handshakeTimeout(TIMEOUT_HELO),
 	_mode(mode),
 	_state(STATE_PRE_HANDSHAKE),
 	_framePool(256, 4096),
@@ -51,12 +52,12 @@ Connection::Connection(const Poco::Net::StreamSocket& socket, ConnectionMode mod
 	catch (...)
 	{
 	}
-	
+
 	_frameHandlers.reserve(64);
 	_tmpFrameHandlers.reserve(64);
 }
 
-	
+
 Connection::~Connection()
 {
 }
@@ -71,6 +72,12 @@ bool Connection::secure() const
 void Connection::setIdleTimeout(Poco::Timespan timeout)
 {
 	_idleTimeout = timeout;
+}
+
+
+void Connection::setHandshakeTimeout(Poco::Timespan timeout)
+{
+	_handshakeTimeout = timeout;
 }
 
 
@@ -127,7 +134,7 @@ bool Connection::hasCapability(Poco::UInt32 capability)
 	return _capabilities.find(capability) != _capabilities.end();
 }
 
-	
+
 bool Connection::peerHasCapability(Poco::UInt32 capability)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
@@ -193,7 +200,7 @@ void Connection::releaseChannel(Poco::UInt32 channel)
 	poco_assert (channel != 0);
 
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	_allocatedChannels.erase(channel);
 }
 
@@ -201,15 +208,15 @@ void Connection::releaseChannel(Poco::UInt32 channel)
 void Connection::pushFrameHandler(Poco::AutoPtr<FrameHandler> pHandler)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	_frameHandlers.push_back(pHandler);
 }
 
-	
+
 void Connection::popFrameHandler(Poco::AutoPtr<FrameHandler> pHandler)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	for (FrameHandlerVec::iterator it = _frameHandlers.begin(); it != _frameHandlers.end(); ++it)
 	{
 		if (*it == pHandler)
@@ -247,7 +254,7 @@ void Connection::run()
 void Connection::runImpl()
 {
 	Connection::Ptr pThis(this, true);
-	
+
 	if (_logger.debug())
 	{
 		_logger.debug("Starting handshake with " + remoteAddress().toString());
@@ -274,7 +281,7 @@ void Connection::runImpl()
 	_state = STATE_ESTABLISHED;
 	connectionEstablished(pThis);
 	_ready.set();
-	
+
 	while (_state == STATE_ESTABLISHED)
 	{
 		Frame::Ptr pFrame;
@@ -304,14 +311,14 @@ void Connection::runImpl()
 			_logger.error("Aborting connection due to unknown exception.");
 		}
 	}
-	
+
 	if (_state == STATE_CLOSING_ACTIVE || _state == STATE_CLOSING_PASSIVE)
 	{
 		_logger.debug("Closing connection to " + remoteAddress().toString());
 		sendBYE();
 		connectionClosing(pThis);
 	}
-	
+
 	if (_state == STATE_CLOSING_ACTIVE)
 	{
 		receiveBYE();
@@ -323,7 +330,7 @@ void Connection::runImpl()
 		_socket.poll(Connection::TIMEOUT_BYE, Poco::Net::Socket::SELECT_READ);
 		_state = STATE_CLOSED;
 	}
-	
+
 	_socket.close();
 	if (_state == STATE_CLOSED)
 	{
@@ -387,7 +394,7 @@ void Connection::processFrame(Frame::Ptr pFrame)
 
 void Connection::receiveHELO()
 {
-	if (_socket.poll(TIMEOUT_HELO, Poco::Net::Socket::SELECT_READ))
+	if (_socket.poll(_handshakeTimeout, Poco::Net::Socket::SELECT_READ))
 	{
 		Frame::Ptr pFrame = receiveFrame();
 		if (pFrame)

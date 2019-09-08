@@ -25,14 +25,16 @@ namespace TCP {
 ConnectionManager::ConnectionManager(Poco::ThreadPool& threadPool):
 	_pSocketFactory(new SocketFactory),
 	_idleTimeout(DEFAULT_IDLE_TIMEOUT, 0),
+	_handshakeTimeout(DEFAULT_HANDSHAKE_TIMEOUT, 0),
 	_threadPool(threadPool)
 {
 }
 
-	
+
 ConnectionManager::ConnectionManager(SocketFactory::Ptr pSocketFactory, Poco::ThreadPool& threadPool):
 	_pSocketFactory(pSocketFactory),
 	_idleTimeout(DEFAULT_IDLE_TIMEOUT, 0),
+	_handshakeTimeout(DEFAULT_HANDSHAKE_TIMEOUT, 0),
 	_threadPool(threadPool)
 {
 }
@@ -57,6 +59,12 @@ void ConnectionManager::setIdleTimeout(Poco::Timespan timeout)
 }
 
 
+void ConnectionManager::setHandshakeTimeout(Poco::Timespan timeout)
+{
+	_handshakeTimeout = timeout;
+}
+
+
 void ConnectionManager::registerConnection(Connection::Ptr pConnection)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
@@ -75,7 +83,7 @@ void ConnectionManager::registerConnection(Connection::Ptr pConnection)
 void ConnectionManager::unregisterConnection(Connection::Ptr pConnection)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	for (ConnectionMap::iterator it = _connections.begin(); it != _connections.end(); ++it)
 	{
 		if (it->second == pConnection)
@@ -107,7 +115,7 @@ Connection::Ptr ConnectionManager::findConnection(const Poco::Net::SocketAddress
 	return pConnection;
 }
 
-	
+
 Connection::Ptr ConnectionManager::getConnection(const Poco::URI& endpointURI)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
@@ -164,7 +172,7 @@ void ConnectionManager::shutdown()
 	{
 		it->second->close();
 	}
-	
+
 	_connections.clear();
 }
 
@@ -174,14 +182,15 @@ Connection::Ptr ConnectionManager::createConnection(const Poco::URI& endpointURI
 	Poco::Net::StreamSocket ss = _pSocketFactory->createSocket(endpointURI);
 	Connection::Ptr pConnection = new Connection(ss, Connection::MODE_CLIENT);
 	pConnection->setIdleTimeout(_idleTimeout);
+	pConnection->setHandshakeTimeout(_handshakeTimeout);
 	pConnection->addCapability(Frame::CAPA_REMOTING_PROTOCOL_1_0);
-	pConnection->addCapability(Frame::CAPA_REMOTING_PROTOCOL_1_1);	
+	pConnection->addCapability(Frame::CAPA_REMOTING_PROTOCOL_1_1);
 	_threadPool.start(*pConnection);
 	if (pConnection->waitReady())
 	{
 		return pConnection;
 	}
-	else 
+	else
 	{
 		pConnection->close();
 		throw Poco::TimeoutException("Timeout while waiting for handshake completion with endpoint", endpointURI.toString());

@@ -52,7 +52,7 @@ class RemotingNGTCP_API Connection: public Poco::Runnable, public Poco::Remoting
 	/// It is also used to send event messages from a server
 	/// to a client.
 	///
-	/// A Connection is split up into multiple channels, with 
+	/// A Connection is split up into multiple channels, with
 	/// each channel belonging to exactly one Proxy or EventSubscriber.
 	///
 	/// Messages sent between the client and the server are split
@@ -66,7 +66,7 @@ class RemotingNGTCP_API Connection: public Poco::Runnable, public Poco::Remoting
 {
 public:
 	typedef Poco::AutoPtr<Connection> Ptr;
-	
+
 	enum ConnectionMode
 	{
 		MODE_CLIENT,
@@ -75,11 +75,11 @@ public:
 		MODE_SERVER
 			/// A connection created by a server.
 	};
-	
+
 	enum ConnectionState
 	{
 		STATE_PRE_HANDSHAKE,
-			/// The connection has been established, but no handshake 
+			/// The connection has been established, but no handshake
 			///(HELO) frames have been exchanged.
 
 		STATE_HANDSHAKE,
@@ -93,7 +93,7 @@ public:
 			/// The connection is being actively closed and a
 			/// BYE frame has been sent to the peer. Waiting
 			/// for the confirming BYE frame from the peer.
-	
+
 		STATE_CLOSING_PASSIVE,
 			/// A BYE frame has been received and a confirming
 			/// BYE frame will be sent.
@@ -105,39 +105,39 @@ public:
 		STATE_CLOSED
 			/// The connection has been orderly closed.
 	};
-	
+
 	Poco::BasicEvent<Connection::Ptr> connectionEstablished;
 		/// Fired after the handshake is complete and the
 		/// connection has been established.
 
-	Poco::BasicEvent<Connection::Ptr> connectionClosing;	
+	Poco::BasicEvent<Connection::Ptr> connectionClosing;
 		/// Fired when the connection is about to be closed.
-		
-	Poco::BasicEvent<Connection::Ptr> connectionClosed;	
+
+	Poco::BasicEvent<Connection::Ptr> connectionClosed;
 		/// Fired after the connection has been closed.
-		
+
 	Poco::BasicEvent<Connection::Ptr> connectionAborted;
 		/// Fired after the connection has been aborted.
 
 	Connection(const Poco::Net::StreamSocket& socket, ConnectionMode mode);
 		/// Creates the Connection for the given socket and endpoint mode.
-		
+
 	~Connection();
 		/// Destroys the Connection.
-		
+
 	Poco::UInt32 id() const;
 		/// Returns the ID of the connection. This is unique within the
 		/// server or client process among all connections.
-	
+
 	ConnectionMode mode() const;
 		/// Returns the connection mode.
-		
+
 	ConnectionState state() const;
 		/// Returns the connection state.
-	
+
 	bool secure() const;
 		/// Returns true iff the connection uses a secure socket.
-	
+
 	void sendFrame(Frame::Ptr pFrame);
 		/// Send a single frame.
 		/// The connection must be in STATE_ESTABLISHED.
@@ -149,7 +149,7 @@ public:
 
 	bool hasCapability(Poco::UInt32 capability);
 		/// Returns true if the connection has the given capability.
-		
+
 	bool peerHasCapability(Poco::UInt32 capability);
 		/// Returns true if the peer has the given capability.
 		///
@@ -157,48 +157,54 @@ public:
 
 	void setIdleTimeout(Poco::Timespan timeout);
 		/// Sets the timeout after an idle connection is closed.
-		
+
 	Poco::Timespan getIdleTimeout() const;
 		/// Returns the idle connection timeout.
+
+	void setHandshakeTimeout(Poco::Timespan timeout);
+		/// Sets the timeout for the HELO handshake.
+
+	Poco::Timespan getHandshakeTimeout() const;
+		/// Returns the timeout for the HELO handshake.
 
 	Poco::Net::SocketAddress remoteAddress() const;
 		/// Returns the remote peer's socket address.
 
 	Poco::Net::SocketAddress localAddress() const;
 		/// Returns the socket's local address.
-		
+
 	Poco::Net::StreamSocket socket() const;
 		/// Returns the underlying socket.
-		
+
 	void close();
 		/// Orderly closes the connection.
-	
+
 	void abort();
 		/// Aborts the connection.
 
 	Poco::UInt32 allocChannel();
 		/// Allocates a channel number.
-		
+
 	void releaseChannel(Poco::UInt32 channel);
 		/// Releases the given channel number.
 
 	void pushFrameHandler(Poco::AutoPtr<FrameHandler> pHandler);
 		/// Pushes the FrameHandler to the internal stack.
-		
+
 	void popFrameHandler(Poco::AutoPtr<FrameHandler> pHandler);
 		/// Removes the FrameHandler from the internal stack.
-		
+
 	bool waitReady(Poco::Timespan timeout = 2*TIMEOUT_HELO);
 		/// Waits until the connection is established, or the
 		/// given timeout expires.
 
 	void returnFrame(Frame::Ptr pFrame);
 		/// Returns the frame to the pool.
-		
+
 protected:
 	void run();
 		/// Handle incoming frames.
-		
+
 	void runImpl();
 		/// Handle incoming frames.
 
@@ -207,13 +213,13 @@ protected:
 
 	void receiveHELO();
 		/// Waits for and receives the initial HELO frame.
-		
+
 	void sendHELO();
 		/// Sends the initial HELO frame.
-	
+
 	void receiveBYE();
 		/// Waits for and receives the final BYE frame.
-	
+
 	void sendBYE();
 		/// Sends the final BYE frame.
 
@@ -227,26 +233,27 @@ protected:
 
 	int receiveNBytes(char* buffer, int bytes);
 		/// Receive exactly the given number of bytes.
-	
+
 private:
 	Connection();
 	Connection(const Connection&);
 	Connection& operator = (const Connection&);
-	
+
 	enum Timeouts // microseconds
 	{
-		TIMEOUT_POLL  =  200000, 
-		TIMEOUT_HELO  = 2000000,
+		TIMEOUT_POLL  =  200000,
+		TIMEOUT_HELO  = 8000000,
 		TIMEOUT_BYE   = 2000000,
 		TIMEOUT_FRAME =  500000
 	};
-	
+
 	typedef Poco::ObjectPool<Frame, Frame::Ptr, FrameFactory> FramePool;
 	typedef std::vector<Poco::AutoPtr<FrameHandler> > FrameHandlerVec;
-	
+
 	Poco::Net::StreamSocket _socket;
 	Poco::UInt32 _id;
 	Poco::Timespan _idleTimeout;
+	Poco::Timespan _handshakeTimeout;
 	ConnectionMode _mode;
 	ConnectionState _state;
 	FramePool _framePool;
@@ -260,9 +267,9 @@ private:
 	Poco::Event _ready;
 	Poco::Logger& _logger;
 	Poco::FastMutex _mutex;
-	
+
 	static Poco::AtomicCounter _idCounter;
-	
+
 	friend class ServerConnection;
 };
 
@@ -279,6 +286,12 @@ inline Poco::UInt32 Connection::id() const
 inline Poco::Timespan Connection::getIdleTimeout() const
 {
 	return _idleTimeout;
+}
+
+
+inline Poco::Timespan Connection::getHandshakeTimeout() const
+{
+	return _handshakeTimeout;
 }
 
 

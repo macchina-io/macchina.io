@@ -35,7 +35,7 @@ public:
 		_pListener(pListener)
 	{
 	}
-	
+
 	bool handleFrame(Connection::Ptr pConnection, Frame::Ptr pFrame)
 	{
 		if (pFrame->type() == Frame::FRAME_TYPE_EVNT && (pFrame->flags() & Frame::FRAME_FLAG_CONT) == 0)
@@ -50,8 +50,8 @@ public:
 				pReplyStream = new ChannelOutputStream(pConnection, Frame::FRAME_TYPE_EVNR, pFrame->channel(), flags);
 			}
 			ServerTransport::Ptr pServerTransport = new ServerTransport(
-				*_pListener, 0, pRequestStream, pReplyStream, 
-				(pFrame->flags() & Frame::FRAME_FLAG_DEFLATE) != 0, 
+				*_pListener, 0, pRequestStream, pReplyStream,
+				(pFrame->flags() & Frame::FRAME_FLAG_DEFLATE) != 0,
 				false);
 			_pListener->connectionManager().threadPool().start(*pServerTransport);
 			Poco::Thread::yield();
@@ -61,7 +61,7 @@ public:
 		}
 		else return false;
 	}
-	
+
 private:
 	Listener::Ptr _pListener;
 };
@@ -76,6 +76,7 @@ Listener::Listener(ConnectionManager& connectionManager):
 	Poco::RemotingNG::EventListener("0.0.0.0:0"),
 	_connectionManager(connectionManager),
 	_timeout(DEFAULT_TIMEOUT, 0),
+	_handshakeTimeout(DEFAULT_HANDSHAKE_TIMEOUT, 0),
 	_eventSubscriptionTimeout(DEFAULT_EVENT_SUBSCR_TIMEOUT, 0),
 	_secure(false)
 {
@@ -86,6 +87,7 @@ Listener::Listener(const std::string& endPoint, ConnectionManager& connectionMan
 	Poco::RemotingNG::EventListener(encodeEndPoint(endPoint)),
 	_connectionManager(connectionManager),
 	_timeout(DEFAULT_TIMEOUT, 0),
+	_handshakeTimeout(DEFAULT_HANDSHAKE_TIMEOUT, 0),
 	_eventSubscriptionTimeout(DEFAULT_EVENT_SUBSCR_TIMEOUT, 0),
 	_secure(false)
 {
@@ -99,6 +101,7 @@ Listener::Listener(const std::string& endPoint, Poco::Net::TCPServerParams::Ptr 
 	Poco::RemotingNG::EventListener(encodeEndPoint(endPoint)),
 	_connectionManager(connectionManager),
 	_timeout(DEFAULT_TIMEOUT, 0),
+	_handshakeTimeout(DEFAULT_HANDSHAKE_TIMEOUT, 0),
 	_eventSubscriptionTimeout(DEFAULT_EVENT_SUBSCR_TIMEOUT, 0),
 	_secure(false)
 {
@@ -112,6 +115,7 @@ Listener::Listener(const std::string& endPoint, const Poco::Net::ServerSocket& s
 	Poco::RemotingNG::EventListener(encodeEndPoint(endPoint)),
 	_connectionManager(connectionManager),
 	_timeout(DEFAULT_TIMEOUT, 0),
+	_handshakeTimeout(DEFAULT_HANDSHAKE_TIMEOUT, 0),
 	_eventSubscriptionTimeout(DEFAULT_EVENT_SUBSCR_TIMEOUT, 0),
 	_secure(socket.secure())
 {
@@ -136,6 +140,18 @@ Poco::Timespan Listener::getTimeout() const
 }
 
 
+void Listener::setHandshakeTimeout(Poco::Timespan timeout)
+{
+	_handshakeTimeout = timeout;
+}
+
+
+Poco::Timespan Listener::getHandshakeTimeout() const
+{
+	return _handshakeTimeout;
+}
+
+
 void Listener::setEventSubscriptionTimeout(Poco::Timespan timeout)
 {
 	_eventSubscriptionTimeout = timeout;
@@ -157,7 +173,7 @@ ConnectionManager& Listener::connectionManager()
 std::string Listener::subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	EventSubscription::Ptr pEventSubscription = new EventSubscription(*this, pEventSubscriber->uri(), nextSubscriberId());
 	EventSubscriptionsMap::iterator it = _eventSubscriptions.find(pEventSubscriber);
 	if (it == _eventSubscriptions.end())
@@ -179,7 +195,7 @@ std::string Listener::subscribeToEvents(Poco::RemotingNG::EventSubscriber::Ptr p
 void Listener::unsubscribeFromEvents(Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	EventSubscriptionsMap::iterator it = _eventSubscriptions.find(pEventSubscriber);
 	if (it != _eventSubscriptions.end())
 	{
@@ -193,7 +209,7 @@ void Listener::unsubscribeFromEvents(Poco::RemotingNG::EventSubscriber::Ptr pEve
 Poco::RemotingNG::EventSubscriber::Ptr Listener::findEventSubscriber(const std::string& path) const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	for (EventSubscriptionsMap::const_iterator it = _eventSubscriptions.begin(); it != _eventSubscriptions.end(); ++it)
 	{
 		if (it->second->path() == path)
@@ -272,7 +288,7 @@ Listener::EventSubscription::EventSubscription(Listener& listener, const std::st
 		suri.setAuthority(_listener.endPoint());
 	else
 		suri.setAuthority(pConnection->localAddress().toString());
-	
+
 	suri.setFragment(Poco::NumberFormatter::format(id));
 	_suri = suri.toString();
 	_path = suri.getPathEtc().substr(1);

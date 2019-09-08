@@ -53,35 +53,41 @@ public:
 		///
 		/// Optionally, a Poco::ThreadPool can be specified
 		/// if the default pool should not be used.
-		
+
 	ConnectionManager(SocketFactory::Ptr pSocketFactory, Poco::ThreadPool& threadPool = Poco::ThreadPool::defaultPool());
 		/// Creates a ConnectionManager using the
 		/// given SocketFactory.
 		///
 		/// Optionally, a Poco::ThreadPool can be specified
 		/// if the default pool should not be used.
-	
+
 	~ConnectionManager();
 		/// Destroys the ConnectionManager.
 
 	void setIdleTimeout(Poco::Timespan timeout);
 		/// Sets the timeout after an idle connection is closed.
-		
+
 	Poco::Timespan getIdleTimeout() const;
 		/// Returns the idle connection timeout.
+
+	void setHandshakeTimeout(Poco::Timespan timeout);
+		/// Sets the timeout for the initial connection handshake.
+
+	Poco::Timespan getHandshakeTimeout() const;
+		/// Returns the timeout for the initial connection handshake.
 
 	void registerConnection(Connection::Ptr pConnection);
 		/// Registers an existing connection.
 
 	void unregisterConnection(Connection::Ptr pConnection);
 		/// Unregisters an existing connection.
-		
+
 	Connection::Ptr findConnection(const Poco::Net::SocketAddress& peerAddress);
 		/// Searches for a connection to the given peer address.
 		///
 		/// If a connection exists, and the connection is in established state,
 		/// it is returned. Otherwise, a null pointer is returned.
-		
+
 	Connection::Ptr getConnection(const Poco::URI& endpointURI);
 		/// Searches for a connection to the given endpoint.
 		///
@@ -91,10 +97,10 @@ public:
 
 	void shutdown();
 		/// Closes all connections.
-	
+
 	ThreadPool& threadPool();
 		/// Returns a reference to the ConnectionManager's thread pool.
-	
+
 	static ConnectionManager& defaultManager();
 		/// Returns the default ConnectionManager instance.
 
@@ -104,9 +110,10 @@ protected:
 private:
 	enum
 	{
-		DEFAULT_IDLE_TIMEOUT = 60
+		DEFAULT_IDLE_TIMEOUT      = 60,
+		DEFAULT_HANDSHAKE_TIMEOUT = 8
 	};
-	
+
 	ConnectionManager(const ConnectionManager&);
 	ConnectionManager& operator = (const ConnectionManager&);
 
@@ -115,6 +122,7 @@ private:
 
 	SocketFactory::Ptr _pSocketFactory;
 	Poco::Timespan _idleTimeout;
+	Poco::Timespan _handshakeTimeout;
 	Poco::ThreadPool& _threadPool;
 	ConnectionMap _connections;
 	SocketAddressSet _pendingConnections;
@@ -128,6 +136,12 @@ private:
 inline Poco::Timespan ConnectionManager::getIdleTimeout() const
 {
 	return _idleTimeout;
+}
+
+
+inline Poco::Timespan ConnectionManager::getHandshakeTimeout() const
+{
+	return _handshakeTimeout;
 }
 
 
