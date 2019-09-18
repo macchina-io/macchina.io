@@ -1026,7 +1026,6 @@ void WebServerDispatcher::sendHTMLResponse(Poco::Net::HTTPServerRequest& request
 
 void WebServerDispatcher::sendJSONResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message)
 {
-	const std::string& softwareVersion = request.serverParams().getSoftwareVersion();
 	request.response().setContentType("application/json");
 	request.response().setStatusAndReason(status);
 
