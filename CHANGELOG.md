@@ -1,3 +1,10 @@
+# Release 0.11.0 - 2019-09-18
+
+  * upgraded POCO to release 1.9.4
+  * updated OSP and Remoting frameworks
+  * Various smaller fixes and improvements
+
+
 # Release 0.10.0 - 2018-11-06
 
   * upgraded POCO to release 1.9.0
