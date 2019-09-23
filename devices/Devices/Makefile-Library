@@ -74,6 +74,12 @@ objects = Device DeviceException \
 	MagnetometerRemoteObject \
 	MagnetometerServerHelper \
 	MagnetometerSkeleton \
+	Camera \
+	ICamera \
+	CameraEventDispatcher \
+	CameraRemoteObject \
+	CameraServerHelper \
+	CameraSkeleton \
 	IO \
 	IIO \
 	IOEventDispatcher \
