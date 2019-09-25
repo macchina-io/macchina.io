@@ -1,0 +1,21 @@
+#
+# Makefile
+#
+# Makefile for macchina.io WebTunnel library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = \
+	IWebTunnelService \
+	WebTunnelService \
+	WebTunnelServiceEventDispatcher \
+	WebTunnelServiceRemoteObject \
+	WebTunnelServiceServerHelper \
+	WebTunnelServiceSkeleton
+
+target          = IoTWebTunnel
+target_version  = 1
+target_libs     = PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

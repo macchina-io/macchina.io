@@ -9,6 +9,8 @@
 
 
 #include "Poco/WebTunnel/RemotePortForwarder.h"
+#include "IoT/WebTunnel/WebTunnelService.h"
+#include "IoT/WebTunnel/WebTunnelServiceServerHelper.h"
 #include "Poco/Net/HTTPSessionFactory.h"
 #include "Poco/Net/HTTPSessionInstantiator.h"
 #include "Poco/Net/HTTPClientSession.h"
@@ -33,6 +35,7 @@
 #include "Poco/Buffer.h"
 #include "Poco/Event.h"
 #include "Poco/Clock.h"
+#include "Poco/Mutex.h"
 #include "Poco/Environment.h"
 #include "Poco/ClassLibrary.h"
 
@@ -50,6 +53,80 @@ namespace IoT {
 namespace WebTunnel {
 
 
+class WebTunnelServiceImpl: public WebTunnelService
+{
+public:
+	typedef Poco::SharedPtr<WebTunnelServiceImpl> Ptr;
+
+	WebTunnelServiceImpl() = default;
+	~WebTunnelServiceImpl() = default;
+
+	void update(Poco::WebTunnel::RemotePortForwarder* pForwarder)
+	{
+		Poco::ScopedLockWithUnlock<Poco::FastMutex> lock(_mutex);
+
+		if (pForwarder && !_pForwarder)
+		{
+			_pForwarder = pForwarder;
+			lock.unlock();
+			try
+			{
+				connected(this);
+			}
+			catch (Poco::Exception& exc)
+			{
+				_logger.error("Unhandled exception in connected delegate: %s", exc.displayText());
+			}
+		}
+		else if (!pForwarder && _pForwarder)
+		{
+			_pForwarder = pForwarder;
+			lock.unlock();
+			try
+			{
+				disconnected(this);
+			}
+			catch (Poco::Exception& exc)
+			{
+				_logger.error("Unhandled exception in disconnected delegate: %s", exc.displayText());
+			}
+		}
+	}
+
+	// WebTunnelService
+	bool isConnected() const
+	{
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		return !!_pForwarder;
+	}
+
+	void updateProperties(const std::vector<Property>& properties)
+	{
+		Poco::FastMutex::ScopedLock lock(_mutex);
+
+		if (_pForwarder)
+		{
+			std::map<std::string, std::string> propsMap;
+			for (const auto p: properties)
+			{
+				propsMap[p.name] = p.value;
+			}
+			_pForwarder->updateProperties(propsMap);
+		}
+		else throw Poco::IllegalStateException("WebTunnel connection not available");
+	}
+
+private:
+	Poco::WebTunnel::RemotePortForwarder* _pForwarder = nullptr;
+	mutable Poco::FastMutex _mutex;
+	Poco::Logger& _logger = Poco::Logger::get("IoT.WebTunnelService");
+};
+
+
+typedef Poco::RemotingNG::ServerHelper<WebTunnelService> ServerHelper;
+
+
 class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
@@ -62,7 +139,7 @@ public:
 		_retryDelay(1000)
 	{
 	}
-	
+
 	~BundleActivator()
 	{
 	}
@@ -72,7 +149,7 @@ public:
 		_pContext = pContext;
 		_pPrefsService = ServiceFinder::find<PreferencesService>(pContext);
 		_pPrefs = _pPrefsService->preferences(pContext->thisBundle()->symbolicName());
-	
+
 		if (getBoolConfig("webtunnel.enable", false))
 		{
 			try
@@ -98,10 +175,10 @@ public:
 						_pContext->logger().warning(Poco::format("Ignored out-of-range port number specified in configuration: %d", port));
 					}
 				}
-			
+
 				_httpPort = static_cast<Poco::UInt16>(_pPrefsService->configuration()->getInt("osp.web.server.port", 22080));
 				_ports.insert(_httpPort);
-				
+
 				_vncPort = static_cast<Poco::UInt16>(getIntConfig("webtunnel.vncPort", 0));
 				if (_vncPort != 0 && _ports.find(_vncPort) == _ports.end())
 				{
@@ -133,26 +210,33 @@ public:
 					_userAgent += "; ";
 					_userAgent += Poco::Environment::osArchitecture();
 					_userAgent += ") POCO/";
-					_userAgent += Poco::format("%d.%d.%d", 
-						static_cast<int>(Poco::Environment::libraryVersion() >> 24), 
-						static_cast<int>((Poco::Environment::libraryVersion() >> 16) & 0xFF), 
+					_userAgent += Poco::format("%d.%d.%d",
+						static_cast<int>(Poco::Environment::libraryVersion() >> 24),
+						static_cast<int>((Poco::Environment::libraryVersion() >> 16) & 0xFF),
 						static_cast<int>((Poco::Environment::libraryVersion() >> 8) & 0xFF));
 				}
-		
+
+				_pWebTunnelService = new WebTunnelServiceImpl;
+				ServerHelper::RemoteObjectPtr pWebTunnelServiceRemoteObject = ServerHelper::createRemoteObject(_pWebTunnelService, WebTunnelService::SERVICE_NAME);
+				Poco::OSP::Properties props;
+				props.set("io.macchina.protocol", "io.macchina.webtunnel");
+				props.set("io.macchina.webtunnel.serverURI", _reflectorURI.toString());
+				_pServiceRef = _pContext->registry().registerService(WebTunnelService::SERVICE_NAME, pWebTunnelServiceRemoteObject, props);
+
 				_pTimer = new Poco::Util::Timer;
 				_pTimer->schedule(new Poco::Util::TimerTaskAdapter<BundleActivator>(*this, &BundleActivator::reconnect), Poco::Timestamp());
 			}
 			catch (Poco::Exception& exc)
 			{
 				_pContext->logger().log(exc);
-			}	
+			}
 		}
 		else
 		{
 			_pContext->logger().information("WebTunnel disabled.");
 		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		if (_pTimer)
@@ -160,12 +244,16 @@ public:
 			_stopped.set();
 			disconnect();
 			_pTimer->cancel(true);
-			_pTimer = 0;
+			_pTimer.reset();
 		}
 
-		_pPrefs = 0;
-		_pPrefsService = 0;
-		_pContext = 0;
+		pContext->registry().unregisterService(_pServiceRef);
+		_pServiceRef.reset();
+		_pWebTunnelService.reset();
+
+		_pPrefs.reset();
+		_pPrefsService.reset();
+		_pContext.reset();
 	}
 
 protected:
@@ -188,12 +276,12 @@ protected:
 	{
 		return _pPrefs->getInt(key, _pPrefsService->configuration()->getInt(key, deflt));
 	}
-	
+
 	std::string getStringConfig(const std::string& key)
 	{
 		return _pPrefs->getString(key, _pPrefsService->configuration()->getString(key));
 	}
-	
+
 	std::string getStringConfig(const std::string& key, const std::string& deflt)
 	{
 		return _pPrefs->getString(key, _pPrefsService->configuration()->getString(key, deflt));
@@ -219,7 +307,7 @@ protected:
 		Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, path, Poco::Net::HTTPRequest::HTTP_1_1);
 		Poco::Net::HTTPResponse response;
 		request.set(SEC_WEBSOCKET_PROTOCOL, WEBTUNNEL_PROTOCOL);
-		
+
 		if (_httpPort != 0)
 		{
 			request.add("X-PTTH-Set-Property", Poco::format("device;httpPort=%hu", _httpPort));
@@ -233,7 +321,7 @@ protected:
 			request.add("X-PTTH-Set-Property", Poco::format("device;name=\"%s\"", _deviceName));
 		}
 		request.set("User-Agent", _userAgent);
-		
+
 		try
 		{
 			Poco::Net::DNS::reload();
@@ -262,6 +350,9 @@ protected:
 				_pForwarder->setConnectTimeout(_connectTimeout);
 				_pForwarder->setLocalTimeout(_localTimeout);
 				_pContext->logger().information("WebTunnel connection established.");
+
+				_pWebTunnelService->update(_pForwarder);
+
 				return;
 			}
 			else
@@ -298,12 +389,14 @@ protected:
 		}
 		scheduleReconnect();
 	}
-	
+
 	void disconnect()
 	{
 		if (_pForwarder)
 		{
 			_pContext->logger().information("Disconnecting from reflector server");
+
+			_pWebTunnelService->update(nullptr);
 
 			_pForwarder->webSocketClosed -= Poco::delegate(this, &BundleActivator::onClose);
 			_pForwarder->stop();
@@ -322,13 +415,14 @@ protected:
 			}
 		}
 	}
-	
+
 	void onClose(const int& reason)
 	{
 		_pContext->logger().information("WebTunnel connection closed.");
+		_pWebTunnelService->update(nullptr);
 		scheduleReconnect();
 	}
-	
+
 	void reconnect(Poco::Util::TimerTask&)
 	{
 		try
@@ -338,7 +432,7 @@ protected:
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().fatal(exc.displayText());	
+			_pContext->logger().fatal(exc.displayText());
 		}
 	}
 
@@ -382,6 +476,8 @@ private:
 	Poco::Event _stopped;
 	int _retryDelay;
 	Poco::SharedPtr<Poco::Util::Timer> _pTimer;
+	WebTunnelServiceImpl::Ptr _pWebTunnelService;
+	Poco::OSP::ServiceRef::Ptr _pServiceRef;
 };
 
 
