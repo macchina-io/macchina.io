@@ -300,7 +300,7 @@ you can <*source*> in order to set these and a few other useful environment vari
 Alternatively, you can also set <[$PROJECT_BASE]> and <[$POCO_BASE]> manually:
 
     $ export PROJECT_BASE=/path/to/macchina.io
-    $ export POCO_BASE=$PROJECT_BASE/poco
+    $ export POCO_BASE=$PROJECT_BASE/platform
 ----
 
 The HelloBundle sample files can be found in <*$PROJECT_BASE/samples/HelloBundle*>.
