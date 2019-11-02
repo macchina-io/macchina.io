@@ -8,8 +8,8 @@
 //
 
 
-#ifndef IoT_Simulation_LinuxThermalSensor_INCLUDED
-#define IoT_Simulation_LinuxThermalSensor_INCLUDED
+#ifndef IoT_LinuxThermalSensor_INCLUDED
+#define IoT_LinuxThermalSensor_INCLUDED
 
 
 #include "IoT/Devices/Sensor.h"
@@ -54,4 +54,4 @@ private:
 } } // namespace IoT::LinuxThermalSimple
 
 
-#endif // IoT_Simulation_LinuxThermalSensor_INCLUDED
+#endif // IoT_LinuxThermalSensor_INCLUDED

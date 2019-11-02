@@ -15,7 +15,6 @@
 #include "Poco/OSP/ServiceRef.h"
 #include "Poco/OSP/ServiceFinder.h"
 #include "Poco/OSP/PreferencesService.h"
-#include "Poco/RemotingNG/ORB.h"
 #include "Poco/File.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/SharedPtr.h"
