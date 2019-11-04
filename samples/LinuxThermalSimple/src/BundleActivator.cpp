@@ -39,7 +39,7 @@ class BundleActivator: public Poco::OSP::BundleActivator
 public:
 	Poco::OSP::ServiceRef::Ptr createSensor(const std::string& id, const std::string& path)
 	{
-		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor> ServerHelper;
+		using ServerHelper = Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor>;
 
 		Poco::SharedPtr<LinuxThermalSensor> pSensor = new LinuxThermalSensor(path);
 		ServerHelper::RemoteObjectPtr pSensorRemoteObject = ServerHelper::createRemoteObject(pSensor, id);

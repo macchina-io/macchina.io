@@ -24,21 +24,14 @@ const std::string LinuxThermalSensor::PHYSICAL_QUANTITY("temperature");
 
 
 LinuxThermalSensor::LinuxThermalSensor(const std::string& path):
-	_path(path)
+	_path(path + "/temp")
 {
-	_path += "/temp";
-
 	addProperty("displayValue", &LinuxThermalSensor::getDisplayValue);
 	addProperty("symbolicName", &LinuxThermalSensor::getSymbolicName);
 	addProperty("name", &LinuxThermalSensor::getName);
 	addProperty("type", &LinuxThermalSensor::getType);
 	addProperty("physicalQuantity", &LinuxThermalSensor::getPhysicalQuantity);
 	addProperty("physicalUnit", &LinuxThermalSensor::getPhysicalUnit);
-}
-
-
-LinuxThermalSensor::~LinuxThermalSensor()
-{
 }
 
 

@@ -26,7 +26,7 @@ public:
 	LinuxThermalSensor(const std::string& devicePath);
 		/// Creates a LinuxThermalSensor using the given devicePath, e.g. "/sys/class/thermal/thermal_zone0".
 
-	~LinuxThermalSensor();
+	~LinuxThermalSensor() = default;
 		/// Destroys the LinuxThermalSensor.
 
 	// Sensor
