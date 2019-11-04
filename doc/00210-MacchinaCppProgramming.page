@@ -65,6 +65,12 @@ instructions in the [[00150-MacchinaGettingStarted.html Getting Started]] docume
 To keep things simple for now, only the build steps for the host system will be shown.
 We assume that your host system is either a Linux or a macOS system.
 
+macchina.io heavily uses the [[https://pocoproject.org POCO C++ Libraries]].
+The POCO C++ Libraries are also used in the sample code shown in this tutorial.
+If you are not familiar with them, please refer to the
+[[https://pocoproject.org/documentation.html introductory slides]]
+for a quick overview.
+
 
 !!!Writing Your First Bundle in C++
 
@@ -407,7 +413,6 @@ by stopping only the bundle in the <*Bundles*> app, you will see its goodbye mes
 
     2018-02-20 15:22:37.991 [Information] osp.bundle.io.macchina.samples.hello<0>: Goodbye!
 ----
-
 
 
 !!Debugging the Bundle
@@ -1133,7 +1138,7 @@ method it sends the MQTT message:
 
 !!!Further Reading
 
-  - [[https://pocoproject.org/documentation/ POCO C++ Libraries Documentation]]
+  - [[https://pocoproject.org/documentation.html POCO C++ Libraries Documentation]]
   - [[00100-OSPOverview.html OSP Overview]] -- introduction to the Open Service Platform framework
   - [[00150-OSPTutorial.html OSP Tutorial]] -- Open Service Platform programming tutorial
   - [[00200-OSPBundles.html OSP Bundles]] -- detailed information about bundles
