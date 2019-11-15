@@ -40,13 +40,13 @@ class RTUPort
 {
 public:
 	enum ByteOrder
-		/// Byte order used by RTU protocol. 
+		/// Byte order used by RTU protocol.
 		/// The Modbus specification required big endian.
 	{
 		RTU_BIG_ENDIAN = 1,
 		RTU_LITTLE_ENDIAN = 2
 	};
-	
+
 	RTUPort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan frameTimeout = 10000, ByteOrder byteOrder = RTU_BIG_ENDIAN);
 		/// Creates a RTUPort using the given SerialPort.
 		///
@@ -54,7 +54,7 @@ public:
 		///
 		/// The SerialPort must be open and properly configured
 		/// for RS-485 communication with the Modbus slaves.
-		
+
 	~RTUPort();
 		/// Destroys the RTUPort.
 
@@ -78,7 +78,7 @@ public:
 		poco_assert (ostr.good());
 		_pSerialPort->write(_sendBuffer.begin(), ostr.charsWritten());
 	}
-	
+
 	Poco::UInt8 receiveFrame(const Poco::Timespan& timeout);
 		/// Receives the next frame from the wire. Returns the frame's function code.
 
@@ -93,17 +93,20 @@ public:
 		PDUReader pduReader(binaryReader);
 		pduReader.read(message);
 	}
-		
+
 	bool poll(const Poco::Timespan& timeout);
 		/// Waits for data to arrive at the port.
 		///
-		/// Returns true immediately if data is already in 
+		/// Returns true immediately if data is already in
 		/// the internal buffer, or if data arrives during the
 		/// specified time interval, otherwise false.
 
 	int maxSimultaneousTransactions() const;
 		/// Returns the maximum number of simultaneous transactions allowed by
 		/// the port.
+
+	void reset();
+		/// Resets the connection to the bus.
 
 protected:
 	Poco::UInt16 updateCRC16(Poco::UInt16 crc, Poco::UInt8 byte);
@@ -118,7 +121,7 @@ private:
 	RTUPort();
 	RTUPort(const RTUPort&);
 	RTUPort& operator = (const RTUPort&);
-	
+
 	Poco::SharedPtr<Poco::Serial::SerialPort> _pSerialPort;
 	Poco::Timespan _frameTimeout;
 	ByteOrder _byteOrder;

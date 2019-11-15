@@ -94,7 +94,7 @@ struct ModbusMessage
 		functionCode(fc)
 	{
 	}
-	
+
 	mutable Poco::UInt16 transactionID;
 		/// Transaction identifier for Modbus TCP.
 
@@ -143,7 +143,7 @@ struct ReadCoilsRequest: public ModbusMessage
 		ModbusMessage(MODBUS_READ_COILS)
 	{
 	}
-	
+
 	Poco::UInt16 startingAddress;
 		/// 0x0000 to 0xFFFF
 
@@ -173,7 +173,7 @@ struct ReadDiscreteInputsRequest: public ModbusMessage
 		ModbusMessage(MODBUS_READ_DISCRETE_INPUTS)
 	{
 	}
-	
+
 	Poco::UInt16 startingAddress;
 		/// 0x0000 to 0xFFFF
 
@@ -203,10 +203,10 @@ struct ReadHoldingRegistersRequest: public ModbusMessage
 		ModbusMessage(MODBUS_READ_HOLDING_REGISTERS)
 	{
 	}
-	
+
 	Poco::UInt16 startingAddress;
 		/// 0x0000 to 0xFFFF
-		
+
 	Poco::UInt16 nOfRegisters;
 		/// 1 to 125 (0x7D)
 };
@@ -232,10 +232,10 @@ struct ReadInputRegistersRequest: public ModbusMessage
 		ModbusMessage(MODBUS_READ_INPUT_REGISTERS)
 	{
 	}
-	
+
 	Poco::UInt16 startingAddress;
 		/// 0x0000 to 0xFFFF
-	
+
 	Poco::UInt16 nOfRegisters;
 		/// 1 to 125 (0x7D)
 };
@@ -261,7 +261,7 @@ struct WriteSingleCoilRequest: public ModbusMessage
 		ModbusMessage(MODBUS_WRITE_SINGLE_COIL)
 	{
 	}
-	
+
 	Poco::UInt16 outputAddress;
 		/// 0x0000 to 0xFFFF
 
@@ -351,7 +351,7 @@ struct WriteMultipleCoilsRequest: public ModbusMessage
 
 	Poco::UInt16 startingAddress;
 		/// 0x0000 to 0xFFFF
-		
+
 	std::vector<bool> values;
 		/// 0x0001 to 0x07B0 values
 };
@@ -384,7 +384,7 @@ struct WriteMultipleRegistersRequest: public ModbusMessage
 
 	Poco::UInt16 startingAddress;
 		/// 0x0000 to 0xFFFF
-		
+
 	std::vector<Poco::UInt16> values;
 		/// 0x0001 to 0x07B0 values
 };
@@ -417,7 +417,7 @@ struct MaskWriteRegisterRequest: public ModbusMessage
 
 	Poco::UInt16 referenceAddress;
 		/// 0x0000 to 0xFFFF
-		
+
 	Poco::UInt16 andMask;
 	Poco::UInt16 orMask;
 };
@@ -431,7 +431,7 @@ struct MaskWriteRegisterResponse: public ModbusMessage
 {
 	Poco::UInt16 referenceAddress;
 		/// 0x0000 to 0xFFFF
-		
+
 	Poco::UInt16 andMask;
 	Poco::UInt16 orMask;
 };
@@ -450,10 +450,10 @@ struct ReadWriteMultipleRegistersRequest: public ModbusMessage
 
 	Poco::UInt16 readStartingAddress;
 		/// 0x0000 to 0xFFFF
-		
+
 	Poco::UInt16 readCount;
 		/// 0x0001 to 0x007D
-		
+
 	Poco::UInt16 writeStartingAddress;
 		/// 0x0000 to 0xFFFF
 
@@ -533,7 +533,7 @@ public:
 		/// Fired when an empty or incomplete frame has been received.
 
 	Poco::BasicEvent<const Poco::UInt16> timeout;
-		/// Fired when no response has been received within the 
+		/// Fired when no response has been received within the
 		/// specified timeout for the transaction with the given
 		/// transaction ID.
 
@@ -544,63 +544,63 @@ public:
 		/// be decoded and the corresponding event will be fired. For valid messages
 		/// that don't have a corresponding event, this event will be fired.
 		///
-		/// Together with sendRequest(), this event can be used to handle Modbus messages 
+		/// Together with sendRequest(), this event can be used to handle Modbus messages
 		/// not directly supported by the ModbusMaster interface.
-	
+
 	Poco::BasicEvent<const ModbusExceptionMessage> exceptionReceived;
 		/// Fired when a Modbus exception message has been received.
-	
+
 	Poco::BasicEvent<const ReadCoilsResponse> readCoilsResponseReceived;
 		/// Fired when a response to a Read Coils request
 		/// (function code 0x01) has been received.
-		
+
 	Poco::BasicEvent<const ReadDiscreteInputsResponse> readDiscreteInputsResponseReceived;
-		/// Fired when a response to a Read Discrete Inputs request 
+		/// Fired when a response to a Read Discrete Inputs request
 		/// (function code 0x02) has been received.
-		
+
 	Poco::BasicEvent<const ReadHoldingRegistersResponse> readHoldingRegistersResponseReceived;
 		/// Fired when a response to a Read Holding Registers request
 		/// (function code 0x03) has been received.
-		
+
 	Poco::BasicEvent<const ReadInputRegistersResponse> readInputRegistersResponseReceived;
-		/// Fired when a response to a Read Input Registers request 
+		/// Fired when a response to a Read Input Registers request
 		/// (function code 0x04) has been received.
-		
+
 	Poco::BasicEvent<const WriteSingleCoilResponse> writeSingleCoilResponseReceived;
 		/// Fired when a response to a Write Single Coil request
 		/// (function code 0x05) has been received.
-		
+
 	Poco::BasicEvent<const WriteSingleRegisterResponse> writeSingleRegisterResponseReceived;
 		/// Fired when a response to a Write Single Register request
 		/// (function code 0x06) has been received.
-		
+
 	Poco::BasicEvent<const ReadExceptionStatusResponse> readExceptionStatusResponseReceived;
 		/// Fired when a response to a Read Exception Status request
 		/// (function code 0x07) has been received.
-	
+
 	Poco::BasicEvent<const WriteMultipleCoilsResponse> writeMultipleCoilsResponseReceived;
 		/// Fired when a response to a Write Multiple Coils request
 		/// (function code 0x0F) has been received.
-		
+
 	Poco::BasicEvent<const WriteMultipleRegistersResponse> writeMultipleRegistersResponseReceived;
 		/// Fired when a response to a Write Multiple Registers request
 		/// (function code 0x10) has been received.
-		
+
 	Poco::BasicEvent<const MaskWriteRegisterResponse> maskWriteRegisterResponseReceived;
 		/// Fired when a response to a Mask Write Register request
 		/// (function code 0x16) has been received.
-		
+
 	Poco::BasicEvent<const ReadWriteMultipleRegistersResponse> readWriteMultipleRegistersResponseReceived;
 		/// Fired when a response to a Read/Write Multiple Registers Response request
 		/// (function code 0x17) has been received.
-		
+
 	Poco::BasicEvent<const ReadFIFOQueueResponse> readFIFOQueueResponseReceived;
 		/// Fired when a response to a Read FIFO Queue Response request
 		/// (function code 0x18) has been received.
-	
+
 	ModbusMaster();
 		/// Creates a ModbusMaster.
-		
+
 	virtual ~ModbusMaster();
 		/// Destroys the ModbusMaster.
 
@@ -608,12 +608,12 @@ public:
 		/// Sends a generic Modbus message.
 		///
 		/// The caller is responsible for correct formatting of the
-		/// messages's data field. 
+		/// messages's data field.
 		///
 		/// This can be used to send Modbus requests not directly supported
 		/// by the ModbusMaster interface.
 		///
-		/// A response from the device will be reported via the responseReceived event 
+		/// A response from the device will be reported via the responseReceived event
 		/// or a more specific event if the response message type is supported.
 		///
 		/// Returns the transaction ID for the request.
@@ -625,7 +625,7 @@ public:
 		/// readCoilsResponseReceived event.
 		///
 		/// Returns the transaction ID for the request.
-		
+
 	virtual Poco::UInt16 sendReadDiscreteInputsRequest(const ReadDiscreteInputsRequest& request) = 0;
 		/// Sends a Read Discrete Inputs request.
 		///
@@ -633,7 +633,7 @@ public:
 		/// readDiscreteInputsResponseReceived event.
 		///
 		/// Returns the transaction ID for the request.
-		
+
 	virtual Poco::UInt16 sendReadHoldingRegistersRequest(const ReadHoldingRegistersRequest& request) = 0;
 		/// Sends a Read Holding Registers request.
 		///
@@ -641,7 +641,7 @@ public:
 		/// readHoldingRegistersResponseReceived event.
 		///
 		/// Returns the transaction ID for the request.
-		
+
 	virtual Poco::UInt16 sendReadInputRegistersRequest(const ReadInputRegistersRequest& request) = 0;
 		/// Sends a Read Input Registers request.
 		///
@@ -649,7 +649,7 @@ public:
 		/// readInputRegistersResponseReceived event.
 		///
 		/// Returns the transaction ID for the request.
-		
+
 	virtual Poco::UInt16 sendWriteSingleCoilRequest(const WriteSingleCoilRequest& request) = 0;
 		/// Sends a Write Single Coil request.
 		///
@@ -657,7 +657,7 @@ public:
 		/// writeSingleCoilResponseReceived event.
 		///
 		/// Returns the transaction ID for the request.
-		
+
 	virtual Poco::UInt16 sendWriteSingleRegisterRequest(const WriteSingleRegisterRequest& request) = 0;
 		/// Sends a Write Single Register request.
 		///
@@ -665,7 +665,7 @@ public:
 		/// writeSingleRegisterResponseReceived event.
 		///
 		/// Returns the transaction ID for the request.
-		
+
 	virtual Poco::UInt16 sendReadExceptionStatusRequest(const ReadExceptionStatusRequest& request) = 0;
 		/// Sends a Read Exception Status request.
 		///
@@ -689,7 +689,7 @@ public:
 		/// writeMultipleRegistersResponseReceived event.
 		///
 		/// Returns the transaction ID for the request.
-	
+
 	virtual Poco::UInt16 sendMaskWriteRegisterRequest(const MaskWriteRegisterRequest& request) = 0;
 		/// Sends a Mask Write Register request.
 		///
@@ -697,7 +697,7 @@ public:
 		/// maskWriteRegisterResponseReceived event.
 		///
 		/// Returns the transaction ID for the request.
-		
+
 	virtual Poco::UInt16 sendReadWriteMultipleRegistersRequest(const ReadWriteMultipleRegistersRequest& request) = 0;
 		/// Sends a Read Write Multiple Registers request.
 		///
@@ -705,7 +705,7 @@ public:
 		/// readWriteMultipleRegistersResponseReceived event.
 		///
 		/// Returns the transaction ID for the request.
-		
+
 	virtual Poco::UInt16 sendReadFIFOQueueRequest(const ReadFIFOQueueRequest& request) = 0;
 		/// Sends a Read FIFO Queue request.
 		///
@@ -713,14 +713,14 @@ public:
 		/// readFIFOQueueResponseReceived event.
 		///
 		/// Returns the transaction ID for the request.
-	
-	virtual std::vector<bool> readCoils(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfCoils) = 0; 
+
+	virtual std::vector<bool> readCoils(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfCoils) = 0;
 		/// Sends a Read Coils request to the device and waits for the response.
 		///
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
 		/// Throws a ModbusException if the device responds with an exception message.
 
-	virtual std::vector<bool> readDiscreteInputs(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfInputs) = 0; 
+	virtual std::vector<bool> readDiscreteInputs(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, Poco::UInt16 nOfInputs) = 0;
 		/// Sends a Read Discrete Inputs request to the device and waits for the response.
 		///
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
@@ -755,7 +755,7 @@ public:
 		///
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
 		/// Throws a ModbusException if the device responds with an exception message.
-		
+
 	virtual void writeMultipleCoils(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector<bool> values) = 0;
 		/// Sends a Write Multiple Coils request to the device and waits for the response.
 		///
@@ -785,6 +785,9 @@ public:
 		///
 		/// Throws a Poco::TimeoutException if the device does not respond within the specified timeout.
 		/// Throws a ModbusException if the device responds with an exception message.
+
+	virtual void reset() = 0;
+		/// Resets the connection to the bus or device.
 
 private:
 	ModbusMaster(const ModbusMaster&);

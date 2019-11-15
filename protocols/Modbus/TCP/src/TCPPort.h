@@ -143,6 +143,9 @@ public:
 		/// Returns the maximum number of simultaneous transactions allowed by
 		/// the port.
 
+	void reset();
+		/// Closes and re-opens the connection.
+
 private:
 	enum
 	{

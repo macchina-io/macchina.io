@@ -129,6 +129,9 @@ public:
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();
 		/// Returns the TypeId of the class.
 
+	virtual void reset() = 0;
+		/// Resets the connection to the bus or device.
+
 	virtual Poco::UInt16 sendMaskWriteRegisterRequest(const IoT::Modbus::MaskWriteRegisterRequest& request) = 0;
 		/// Sends a Mask Write Register request.
 		///
@@ -197,12 +200,12 @@ public:
 		/// Sends a generic Modbus message.
 		///
 		/// The caller is responsible for correct formatting of the
-		/// messages's data field. 
+		/// messages's data field.
 		///
 		/// This can be used to send Modbus requests not directly supported
 		/// by the ModbusMaster interface.
 		///
-		/// A response from the device will be reported via the responseReceived event 
+		/// A response from the device will be reported via the responseReceived event
 		/// or a more specific event if the response message type is supported.
 		///
 		/// Returns the transaction ID for the request.

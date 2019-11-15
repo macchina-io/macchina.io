@@ -62,7 +62,6 @@ Poco::UInt8 TCPPort::receiveFrame(const Poco::Timespan& timeout)
 
 	try
 	{
-
 		receiveBytes(_receiveBuffer.begin(), MBAP_HEADER_SIZE);
 
 		Poco::MemoryInputStream istr(_receiveBuffer.begin(), _receiveBuffer.size());
@@ -90,6 +89,20 @@ Poco::UInt8 TCPPort::receiveFrame(const Poco::Timespan& timeout)
 		disconnect();
 		throw;
 	}
+}
+
+
+void TCPPort::reset()
+{
+	try
+	{
+		disconnect(true);
+	}
+	catch (Poco::Exception& exc)
+	{
+		_logger.notice("Failed to disconnect: %s", exc.displayText());
+	}
+	connect();
 }
 
 
