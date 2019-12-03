@@ -70,7 +70,7 @@ void BlueZGATTClient::connect(const std::string& address, ConnectMode mode)
 			if (decodeValue(pResponse->get("state")) == "tryconn")
 			{
 				pResponse = expectResponse("stat", _timeout);
-			}	
+			}
 			std::string state = decodeValue(pResponse->get("state"));
 			if (state == "disc")
 			{
@@ -119,7 +119,7 @@ void BlueZGATTClient::disconnect()
 		}
 		changeState(GATT_STATE_DISCONNECTED);
 		_address.clear();
-		
+
 		_logger.debug("Disconnected.");
 	}
 	stopHelper();
@@ -176,13 +176,13 @@ std::vector<GATTClient::Service> BlueZGATTClient::services()
 			++it;
 		}
 	}
-	
+
 	std::vector<GATTClient::Service> result;
 	for (ServiceMap::const_iterator it = _services.begin(); it != _services.end(); ++it)
 	{
 		result.push_back(it->second->service);
 	}
-	
+
 	return result;
 }
 
@@ -205,7 +205,7 @@ std::vector<GATTClient::Characteristic> BlueZGATTClient::characteristics(const s
 	ServiceMap::iterator it = _services.find(serviceUUID);
 	if (it == _services.end())
 		throw Poco::NotFoundException("Service", serviceUUID);
-	
+
 	if (it->second->characteristics.empty())
 	{
 		sendCommand(Poco::format("char %hx %hx", it->second->service.firstHandle, it->second->service.lastHandle));
@@ -226,7 +226,7 @@ std::vector<GATTClient::Characteristic> BlueZGATTClient::characteristics(const s
 			else if (itr->first == "vhnd")
 			{
 				chara.valueHandle = decodeWord(itr->second);
-			}			
+			}
 			else if (itr->first == "uuid")
 			{
 				chara.uuid = decodeValue(itr->second);
@@ -235,7 +235,7 @@ std::vector<GATTClient::Characteristic> BlueZGATTClient::characteristics(const s
 			++itr;
 		}
 	}
-	
+
 	return it->second->characteristics;
 }
 
@@ -250,7 +250,7 @@ std::vector<GATTClient::Descriptor> BlueZGATTClient::descriptors(const std::stri
 	ServiceMap::iterator it = _services.find(serviceUUID);
 	if (it == _services.end())
 		throw Poco::NotFoundException("Service", serviceUUID);
-	
+
 	if (it->second->descriptors.empty())
 	{
 		sendCommand(Poco::format("desc %hx %hx", it->second->service.firstHandle, it->second->service.lastHandle));
@@ -272,7 +272,7 @@ std::vector<GATTClient::Descriptor> BlueZGATTClient::descriptors(const std::stri
 			++itr;
 		}
 	}
-	
+
 	return it->second->descriptors;
 }
 
@@ -296,7 +296,7 @@ void BlueZGATTClient::write(Poco::UInt16 handle, const std::string& value, bool 
 
 	if (state() != GATT_STATE_CONNECTED)
 		throw Poco::IllegalStateException("not connected");
-		
+
 	if (value.empty())
 		throw Poco::InvalidArgumentException("cannot write empty value");
 
@@ -399,7 +399,7 @@ void BlueZGATTClient::startHelper()
 			throw Poco::FileNotFoundException("helper executable not found", _helperPath);
 		if (!helperExec.canExecute())
 			throw Poco::FileException("helper executable does not have execute permission", _helperPath);
-		
+
 		Poco::Pipe inputPipe;
 		Poco::Pipe outputPipe;
 		Poco::Process::Args args;
@@ -514,7 +514,7 @@ void BlueZGATTClient::processResponse(const std::string& response)
 
 	ParsedResponse::Ptr pResponse = new ParsedResponse;
 	parseResponse(response, *pResponse);
-	
+
 	bool queueResponse = false;
 	if (pResponse->type() == "ind")
 	{
@@ -625,7 +625,7 @@ BlueZGATTClient::ParsedResponse::Ptr BlueZGATTClient::waitResponse(long timeout)
 	if (pNf)
 		return static_cast<ParsedResponse*>(pNf);
 	else
-		throw Poco::TimeoutException("timeout waiting for helper response");	
+		throw Poco::TimeoutException("timeout waiting for helper response");
 }
 
 
@@ -633,7 +633,9 @@ void BlueZGATTClient::parseResponse(const std::string& response, ParsedResponse&
 {
 	_logger.debug(Poco::format("[%s] Parsing response: %s", _address, response));
 
-	Poco::StringTokenizer tok(response, " ", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+	// Note: later versions of bluepy-helper use ASCII RS (Record Separator, 0x1e)
+	// instead of SPACE. We currently support both SPACE and RS.
+	Poco::StringTokenizer tok(response, " \036", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 	if (tok.count() > 0)
 	{
 		for (Poco::StringTokenizer::Iterator it = tok.begin(); it != tok.end(); ++it)
@@ -653,7 +655,7 @@ void BlueZGATTClient::parseResponse(const std::string& response, ParsedResponse&
 }
 
 
-namespace 
+namespace
 {
 	Poco::UInt8 nibble(char hex)
 	{
