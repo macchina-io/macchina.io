@@ -78,7 +78,6 @@ public:
 		ServerHelper::RemoteObjectPtr pRemoteObject = ServerHelper::createRemoteObject(pPeripheral, oid);
 
 		Properties props;
-		props.set("io.macchina.device", "io.macchina.btle.peripheral");
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		props.set("io.macchina.btle.name", name);
 
