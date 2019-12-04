@@ -528,7 +528,7 @@ std::string GATTPeripheral::readDeviceInformation(Poco::UInt32 assignedNumber)
 	if (!serviceUUID.empty())
 	{
 		Characteristic chara = characteristicForAssignedNumber(serviceUUID, assignedNumber);
-		result = readString(chara.valueHandle);
+		result = readString0(chara.valueHandle);
 	}
 	return result;
 }
