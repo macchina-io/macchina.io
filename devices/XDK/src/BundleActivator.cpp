@@ -64,7 +64,7 @@ public:
 	{
 	}
 
-	void handleHighPrioData(const std::string& data)
+	void handleHighPrioData(const std::vector<char>& data)
 	{
 		if (data.size() >= 12)
 		{
@@ -87,7 +87,7 @@ public:
 		}
 	}
 
-	void handleLowPrioData(const std::string& data)
+	void handleLowPrioData(const std::vector<char>& data)
 	{
 		if (data.size() == 20)
 		{
