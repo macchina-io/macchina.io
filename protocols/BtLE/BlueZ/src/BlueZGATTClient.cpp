@@ -583,7 +583,7 @@ void BlueZGATTClient::processResponse(const std::string& response)
 			code += msg;
 		}
 		error(code);
-		queueResponse = true;
+		queueResponse = _state != GATT_STATE_DISCONNECTED;
 	}
 	else
 	{
