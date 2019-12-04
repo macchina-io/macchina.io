@@ -63,7 +63,7 @@ public:
 	virtual void connectAsync();
 		/// Connects to the Bluetooth LE peripheral.
 		///
-		/// Successful connection or error will be reported through connected 
+		/// Successful connection or error will be reported through connected
 		/// and error events.
 
 	virtual void disconnect();
@@ -88,7 +88,7 @@ public:
 		/// Returns the peripheral's model number string obtained from the Device Information service.
 
 	virtual std::vector < char > readBytes(Poco::UInt16 valueHandle);
-		/// Reads a raw byte string from the given value handle.	
+		/// Reads a raw byte string from the given value handle.
 
 	virtual Poco::Int16 readInt16(Poco::UInt16 valueHandle);
 		/// Reads a signed 16-bit integer value from the given value handle.
@@ -100,7 +100,10 @@ public:
 		/// Reads a signed byte value from the given value handle.
 
 	virtual std::string readString(Poco::UInt16 valueHandle);
-		/// Reads a raw byte string from the given value handle.	
+		/// Reads a raw byte string from the given value handle.
+
+	virtual std::string readString0(Poco::UInt16 valueHandle);
+		/// Reads a 0-terminated character string from the given value handle.
 
 	virtual Poco::UInt16 readUInt16(Poco::UInt16 valueHandle);
 		/// Reads an unsigned 16-bit integer value from the given value handle.
@@ -123,7 +126,7 @@ public:
 		/// Returns the peripheral's serial number string obtained from the Device Information service.
 
 	virtual std::string serviceUUIDForAssignedNumber(Poco::UInt32 assignedNumber);
-		/// Returns the UUID of the service with the given 32-bit assigned number, 
+		/// Returns the UUID of the service with the given 32-bit assigned number,
 		/// or an empty string if no such service is available.
 
 	virtual std::vector < std::string > services();
@@ -134,49 +137,49 @@ public:
 
 	virtual void writeBytes(Poco::UInt16 valueHandle, const std::vector < char >& value, bool withResponse);
 		/// Writes a raw byte string to the given value handle.
-		/// 
+		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
 
 	virtual void writeInt16(Poco::UInt16 valueHandle, Poco::Int16 value, bool withResponse);
 		/// Writes a signed 16-bit integer value to the given value handle.
-		/// 
+		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
 
 	virtual void writeInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse);
 		/// Writes a signed 32-bit integer value to the given value handle.
-		/// 
+		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
 
 	virtual void writeInt8(Poco::UInt16 valueHandle, Poco::Int8 value, bool withResponse);
 		/// Writes a signed byte value to the given value handle.
-		/// 
+		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
 
 	virtual void writeString(Poco::UInt16 valueHandle, const std::string& value, bool withResponse);
 		/// Writes a raw byte string to the given value handle.
-		/// 
+		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
 
 	virtual void writeUInt16(Poco::UInt16 valueHandle, Poco::UInt16 value, bool withResponse);
 		/// Writes an unsigned 16-bit integer value to the given value handle.
-		/// 
+		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
 
 	virtual void writeUInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse);
 		/// Writes an unsigned 32-bit integer value to the given value handle.
-		/// 
+		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
 
 	virtual void writeUInt8(Poco::UInt16 valueHandle, Poco::UInt8 value, bool withResponse);
 		/// Writes an unsigned byte value to the given value handle.
-		/// 
+		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
 
@@ -301,6 +304,12 @@ inline Poco::Int8 PeripheralRemoteObject::readInt8(Poco::UInt16 valueHandle)
 inline std::string PeripheralRemoteObject::readString(Poco::UInt16 valueHandle)
 {
 	return _pServiceObject->readString(valueHandle);
+}
+
+
+inline std::string PeripheralRemoteObject::readString0(Poco::UInt16 valueHandle)
+{
+	return _pServiceObject->readString0(valueHandle);
 }
 
 

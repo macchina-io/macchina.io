@@ -21,6 +21,7 @@
 #include "Poco/Delegate.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/String.h"
+#include <cstring>
 
 
 namespace IoT {
@@ -89,7 +90,7 @@ std::string GATTPeripheral::address() const
 std::vector<std::string> GATTPeripheral::services()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
-	
+
 	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
 
 	std::vector<std::string> result;
@@ -98,7 +99,7 @@ std::vector<std::string> GATTPeripheral::services()
 	{
 		result.push_back(it->uuid);
 	}
-	
+
 	return result;
 }
 
@@ -106,7 +107,7 @@ std::vector<std::string> GATTPeripheral::services()
 std::string GATTPeripheral::serviceUUIDForAssignedNumber(Poco::UInt32 assignedNumber)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
-	
+
 	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
 
 	std::string uuid;
@@ -137,7 +138,7 @@ std::vector<std::string> GATTPeripheral::characteristics(const std::string& serv
 	{
 		result.push_back(it->uuid);
 	}
-	
+
 	return result;
 }
 
@@ -227,7 +228,7 @@ Poco::Int8 GATTPeripheral::readInt8(Poco::UInt16 valueHandle)
 	if (value.size() == 1)
 		return static_cast<Poco::Int8>(value[0]);
 	else
-		throw Poco::DataFormatException();	
+		throw Poco::DataFormatException();
 }
 
 
@@ -298,6 +299,14 @@ std::string GATTPeripheral::readString(Poco::UInt16 valueHandle)
 	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
 
 	return _pGATTClient->read(valueHandle);
+}
+
+
+std::string GATTPeripheral::readString0(Poco::UInt16 valueHandle)
+{
+	std::string value = readString(valueHandle);
+	value.resize(std::strlen(value.c_str()));
+	return value;
 }
 
 
@@ -515,7 +524,7 @@ void GATTPeripheral::onNotification(const GATTClient::Notification& gattNf)
 std::string GATTPeripheral::readDeviceInformation(Poco::UInt32 assignedNumber)
 {
 	std::string serviceUUID = serviceUUIDForAssignedNumber(0x180a);
-	std::string result;	
+	std::string result;
 	if (!serviceUUID.empty())
 	{
 		Characteristic chara = characteristicForAssignedNumber(serviceUUID, assignedNumber);

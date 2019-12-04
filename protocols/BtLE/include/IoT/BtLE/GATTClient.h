@@ -51,7 +51,7 @@ public:
 		GATT_STATE_CONNECTED,
 		GATT_STATE_DISCONNECTING
 	};
-	
+
 	enum SecurityLevel
 		/// Security level of the connection to the peripheral device.
 	{
@@ -59,7 +59,7 @@ public:
 		GATT_SECURITY_MEDIUM,
 		GATT_SECURITY_HIGH
 	};
-	
+
 	enum Property
 		/// Characteristic property flags.
 	{
@@ -72,7 +72,7 @@ public:
         GATT_PROP_WRITE_SIGNED  = 0x40,
         GATT_PROP_EXTENDED      = 0x80
 	};
-	
+
 	struct Service
 		/// Service description.
 	{
@@ -81,7 +81,7 @@ public:
 			lastHandle(0)
 		{
 		}
-		
+
 		std::string uuid;
 		Poco::UInt16 firstHandle;
 		Poco::UInt16 lastHandle;
@@ -98,7 +98,7 @@ public:
 		Poco::UInt16 handle;
 		std::string uuid;
 	};
-	
+
 	struct Characteristic
 		/// Characteristic description.
 	{
@@ -108,33 +108,33 @@ public:
 			valueHandle(0)
 		{
 		}
-		
+
 		std::string uuid;
 		Poco::UInt16 handle;
 		Poco::UInt16 properties;
 		Poco::UInt16 valueHandle;
 	};
-	
+
 	struct Indication
 	{
 		Indication():
 			handle(0)
 		{
 		}
-		
+
 		Poco::UInt16 handle;
-		std::string data;
+		std::vector<char> data;
 	};
-	
+
 	struct Notification
 	{
 		Notification():
 			handle(0)
 		{
 		}
-		
+
 		Poco::UInt16 handle;
-		std::string data;
+		std::vector<char> data;
 	};
 
 	Poco::BasicEvent<void> connected;
@@ -149,27 +149,27 @@ public:
 
 	Poco::BasicEvent<const Indication> indicationReceived;
 		/// Fired when an Indication has been received from the peripheral.
-		
+
 	Poco::BasicEvent<const Notification> notificationReceived;
 		/// Fired when a Notification has been received from the peripheral.
-	
+
 	virtual void connect(const std::string& address, ConnectMode mode = GATT_CONNECT_WAIT) = 0;
 		/// Connects the GATTClient to the Bluetooth LE peripheral with the
-		/// given address. The address consists of six hexadecimal byte values, 
+		/// given address. The address consists of six hexadecimal byte values,
 		/// separated by a colon, e.g.: "68:C9:0B:06:23:09".
 		///
 		/// If mode is GATT_CONNECT_WAIT, waits for the connection to be established (or
-		/// for an error to be reported). 
+		/// for an error to be reported).
 		///
 		/// If wait is GATT_CONNECT_NOWAIT, returns immediately. The connection state is
 		/// reported via the connected event.
 
 	virtual void disconnect() = 0;
 		/// Disconnects from the peripheral.
-		
+
 	virtual State state() const = 0;
 		/// Returns the current state of the client.
-		
+
 	virtual std::string address() const = 0;
 		/// Returns the address of the connected device, or an empty string
 		/// if no device is connected.
@@ -185,25 +185,25 @@ public:
 
 	virtual std::vector<Descriptor> descriptors(const std::string& serviceUUID) = 0;
 		/// Returns a list of all handle descriptors for the service with the given UUID.
-		
+
 	virtual std::string read(Poco::UInt16 handle) = 0;
 		/// Reads the value of the characteristic's value with the given value handle.
-		
+
 	virtual void write(Poco::UInt16 handle, const std::string& value, bool withResponse = true) = 0;
 		/// Writes the value of the characteristic's value with the given handle.
 		/// If withResponse is true, expects a response from the peripheral device.
 
 	virtual void setSecurityLevel(SecurityLevel level) = 0;
 		/// Sets the connection's security level.
-		
+
 	virtual SecurityLevel getSecurityLevel() const = 0;
 		/// Returns the connection's current security level.
-		
+
 	virtual void setMTU(Poco::UInt8 mtu) = 0;
 		/// Sets the connection's MTU size.
-		
+
 	virtual Poco::UInt8 getMTU() const = 0;
-		/// Returns the connection's MTU size, which may be 0 for 
+		/// Returns the connection's MTU size, which may be 0 for
 		/// the default size.
 
 	virtual void setTimeout(long milliseconds) = 0;

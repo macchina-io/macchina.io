@@ -518,9 +518,10 @@ void BlueZGATTClient::processResponse(const std::string& response)
 	bool queueResponse = false;
 	if (pResponse->type() == "ind")
 	{
+		std::string data = decodeValue(pResponse->get("d"));
 		Indication ind;
 		ind.handle = decodeWord(pResponse->get("hnd"));
-		ind.data = decodeValue(pResponse->get("d"));
+		ind.data.assign(data.begin(), data.end());
 		try
 		{
 			indicationReceived(this, ind);
@@ -531,9 +532,10 @@ void BlueZGATTClient::processResponse(const std::string& response)
 	}
 	else if (pResponse->type() == "ntfy")
 	{
+		std::string data = decodeValue(pResponse->get("d"));
 		Notification nf;
 		nf.handle = decodeWord(pResponse->get("hnd"));
-		nf.data = decodeValue(pResponse->get("d"));
+		nf.data.assign(data.begin(), data.end());
 		try
 		{
 			notificationReceived(this, nf);

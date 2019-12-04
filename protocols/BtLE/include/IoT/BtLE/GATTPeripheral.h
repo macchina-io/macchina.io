@@ -36,10 +36,10 @@ class IoTBtLE_API GATTPeripheral: public Peripheral
 public:
 	GATTPeripheral(const std::string& address, GATTClient::Ptr pGATTClient);
 		/// Creates the GATTPeripheral.
-		
+
 	~GATTPeripheral();
 		/// Destroys the GATTPeripheral.
-	
+
 	// Peripheral
 	void connect();
 	void connectAsync();
@@ -52,13 +52,14 @@ public:
 	Characteristic characteristic(const std::string& serviceUUID, const std::string& characteristicUUID);
 	Characteristic characteristicForAssignedNumber(const std::string& serviceUUID, Poco::UInt32 assignedNumber);
 	Poco::UInt16 handleForDescriptor(const std::string& serviceUUID, const std::string& descriptorUUID);
-	Poco::UInt8 readUInt8(Poco::UInt16 valueHandle);	
-	Poco::Int8 readInt8(Poco::UInt16 valueHandle);	
-	Poco::UInt16 readUInt16(Poco::UInt16 valueHandle);	
-	Poco::Int16 readInt16(Poco::UInt16 valueHandle);	
-	Poco::UInt32 readUInt32(Poco::UInt16 valueHandle);	
-	Poco::Int32 readInt32(Poco::UInt16 valueHandle);	
+	Poco::UInt8 readUInt8(Poco::UInt16 valueHandle);
+	Poco::Int8 readInt8(Poco::UInt16 valueHandle);
+	Poco::UInt16 readUInt16(Poco::UInt16 valueHandle);
+	Poco::Int16 readInt16(Poco::UInt16 valueHandle);
+	Poco::UInt32 readUInt32(Poco::UInt16 valueHandle);
+	Poco::Int32 readInt32(Poco::UInt16 valueHandle);
 	std::string readString(Poco::UInt16 valueHandle);
+	std::string readString0(Poco::UInt16 valueHandle);
 	std::vector<char> readBytes(Poco::UInt16 valueHandle);
 	void writeUInt8(Poco::UInt16 valueHandle, Poco::UInt8 value, bool withResponse);
 	void writeInt8(Poco::UInt16 valueHandle, Poco::Int8 value, bool withResponse);
