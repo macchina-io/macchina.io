@@ -48,13 +48,13 @@ class IoTBtLE_API BlueZGATTClient: public GATTClient, public Poco::Runnable
 public:
 	BlueZGATTClient(const std::string helperPath);
 		/// Creates the BlueZGATTClient using the given helper path.
-	
+
 	~BlueZGATTClient();
 		/// Destroys the BlueZGATTClient.
-	
+
 	static std::string decodeValue(const std::string& value);
 	static Poco::UInt16 decodeWord(const std::string& value);
-	
+
 	// GATTClient
 	void connect(const std::string& address, ConnectMode mode);
 	void disconnect();
@@ -86,7 +86,7 @@ protected:
 		{
 			return decodeValue(get("rsp"));
 		}
-		
+
 		const std::string& get(const std::string& key) const
 		{
 			const_iterator it = find(key);
@@ -95,22 +95,31 @@ protected:
 			else
 				throw Poco::NotFoundException(key);
 		}
-		
+
+		const std::string& get(const std::string& key, const std::string& deflt) const
+		{
+			const_iterator it = find(key);
+			if (it != end())
+				return it->second;
+			else
+				return deflt;
+		}
+
 		void add(const KeyValuePair& param)
 		{
 			_params.push_back(param);
 		}
-		
+
 		const_iterator begin() const
 		{
 			return _params.begin();
 		}
-		
+
 		const_iterator end() const
 		{
 			return _params.end();
 		}
-		
+
 		const_iterator find(const std::string& key) const
 		{
 			for (std::vector<KeyValuePair>::const_iterator it = _params.begin(); it != _params.end(); ++it)
@@ -120,7 +129,7 @@ protected:
 			}
 			return _params.end();
 		}
-		
+
 	private:
 		std::vector<KeyValuePair> _params;
 	};
@@ -145,29 +154,29 @@ protected:
 		std::vector<Descriptor> descriptors;
 	};
 	typedef std::map<std::string, ServiceDesc::Ptr> ServiceMap;
-	
+
 	struct HelperInfo: public Poco::RefCountedObject
 	{
 		typedef Poco::AutoPtr<HelperInfo> Ptr;
-	
+
 		HelperInfo(const Poco::ProcessHandle& ph, const Poco::Pipe& inputPipe, const Poco::Pipe& outputPipe):
 			processHandle(ph),
 			inputStream(outputPipe),
 			outputStream(inputPipe)
 		{
 		}
-		
+
 		Poco::ProcessHandle    processHandle;
 		Poco::PipeInputStream  inputStream;
 		Poco::PipeOutputStream outputStream;
 	};
-	
+
 	enum
 	{
 		DEFAULT_TIMEOUT = 30000,
 		DISCONNECT_TIMEOUT = 2000
 	};
-	
+
 private:
 	std::string _helperPath;
 	std::string _address;
