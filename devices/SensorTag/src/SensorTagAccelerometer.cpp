@@ -238,7 +238,7 @@ void SensorTag1Accelerometer::setRange(const std::string& name, const Poco::Any&
 }
 
 
-void SensorTag1Accelerometer::update(const std::string& data)
+void SensorTag1Accelerometer::update(const std::vector<char>& data)
 {
 	if (data.size() == 3)
 	{
@@ -409,7 +409,7 @@ void SensorTag2Accelerometer::setRange(const std::string&, const Poco::Any& valu
 }
 
 
-void SensorTag2Accelerometer::update(const std::string& data)
+void SensorTag2Accelerometer::update(const std::vector<char>& data)
 {
 	if (data.size() == 18)
 	{

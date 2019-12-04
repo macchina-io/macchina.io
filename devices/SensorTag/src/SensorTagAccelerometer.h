@@ -55,7 +55,7 @@ public:
 
 protected:
 	virtual void enable(bool enabled) = 0;
-	virtual void update(const std::string& data) = 0;
+	virtual void update(const std::vector<char>& data) = 0;
 	Poco::Any getConnected(const std::string&) const;
 	Poco::Any getDisplayValue(const std::string&) const;
 	Poco::Any getDeviceIdentifier(const std::string&) const;
@@ -99,7 +99,7 @@ public:
 		/// Destroys the SensorTag2Accelerometer.
 
 protected:
-	void update(const std::string& data);
+	void update(const std::vector<char>& data);
 	void enable(bool enable);
 	Poco::Any getEnabled(const std::string&) const;
 	void setEnabled(const std::string&, const Poco::Any& value);
@@ -123,7 +123,7 @@ public:
 
 protected:
 	void configure(Poco::UInt16 bits, Poco::UInt16 mask);
-	void update(const std::string& data);
+	void update(const std::vector<char>& data);
 	void enable(bool enable);
 	Poco::Any getEnabled(const std::string&) const;
 	void setEnabled(const std::string&, const Poco::Any& value);
