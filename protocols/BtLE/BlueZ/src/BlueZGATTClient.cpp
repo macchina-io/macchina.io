@@ -576,7 +576,7 @@ void BlueZGATTClient::processResponse(const std::string& response)
 	else if (pResponse->type() == "err")
 	{
 		std::string code = decodeValue(pResponse->get("code"));
-		std::string msg = decodeValue(pResponse->get("msg", std::string()));
+		std::string msg = decodeValue(pResponse->get("emsg", std::string()));
 		if (!msg.empty())
 		{
 			code += ": ";
@@ -606,7 +606,7 @@ BlueZGATTClient::ParsedResponse::Ptr BlueZGATTClient::expectResponse(const std::
 	else if (pResponse->type() == "err")
 	{
 		std::string code = decodeValue(pResponse->get("code"));
-		std::string msg = decodeValue(pResponse->get("msg", std::string()));
+		std::string msg = decodeValue(pResponse->get("emsg", std::string()));
 		if (code == "connfail")
 			throw Poco::IOException("cannot connect to peripheral", msg);
 		else if (code == "comerr")
