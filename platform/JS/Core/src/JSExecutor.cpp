@@ -892,7 +892,7 @@ public:
 		_pExecutor(pExecutor, true),
 		_function(pIsolate, function)
 	{
-		_pExecutor->stopped += Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
+		_pExecutor->_callFunctionTasks.insert(this);
 	}
 
 	CallFunctionTask(v8::Isolate* pIsolate, TimedJSExecutor* pExecutor, v8::Handle<v8::Function> function, v8::Handle<v8::Array> arguments):
@@ -900,7 +900,7 @@ public:
 		_function(pIsolate, function),
 		_arguments(pIsolate, arguments)
 	{
-		_pExecutor->stopped += Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
+		_pExecutor->_callFunctionTasks.insert(this);
 	}
 
 	~CallFunctionTask()
@@ -909,7 +909,7 @@ public:
 		{
 			if (_pExecutor)
 			{
-				_pExecutor->stopped -= Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
+				_pExecutor->_callFunctionTasks.erase(this);
 				_pExecutor = 0;
 			}
 		}
@@ -934,7 +934,6 @@ public:
 	{
 		if (_pExecutor)
 		{
-			_pExecutor->stopped -= Poco::delegate(this, &CallFunctionTask::onExecutorStopped);
 			_pExecutor = 0;
 		}
 	}
@@ -1023,9 +1022,15 @@ void TimedJSExecutor::stop()
 	}
 
 	StopScriptTask::Ptr pStopTask = new StopScriptTask(this);
-	_timer.schedule(pStopTask, Poco::Clock());
+	_timer.schedule(pStopTask, Poco::Clock(0));
 	pStopTask->wait();
 	pStopTask = 0;
+
+	for (auto pTask: _callFunctionTasks)
+	{
+		pTask->onExecutorStopped();
+	}
+	_callFunctionTasks.clear();
 
 	stopped(this);
 
@@ -1059,7 +1064,7 @@ void TimedJSExecutor::setImmediate(const v8::FunctionCallbackInfo<v8::Value>& ar
 	Poco::Timestamp ts;
 	pThis->_timer.schedule(pTask, ts);
 	TimerWrapper wrapper;
-	v8::Persistent<v8::Object> timerObject(args.GetIsolate(), wrapper.wrapNativePersistent(args.GetIsolate(), pTask));
+	v8::Persistent<v8::Object>& timerObject(wrapper.wrapNativePersistent(args.GetIsolate(), pTask));
 	args.GetReturnValue().Set(timerObject);
 }
 
@@ -1093,7 +1098,7 @@ void TimedJSExecutor::setTimeout(const v8::FunctionCallbackInfo<v8::Value>& args
 	ts += static_cast<Poco::Timestamp::TimeDiff>(millisecs*1000);
 	pThis->_timer.schedule(pTask, ts);
 	TimerWrapper wrapper;
-	v8::Persistent<v8::Object> timerObject(args.GetIsolate(), wrapper.wrapNativePersistent(args.GetIsolate(), pTask));
+	v8::Persistent<v8::Object>& timerObject(wrapper.wrapNativePersistent(args.GetIsolate(), pTask));
 	args.GetReturnValue().Set(timerObject);
 }
 
@@ -1125,7 +1130,7 @@ void TimedJSExecutor::setInterval(const v8::FunctionCallbackInfo<v8::Value>& arg
 	CallFunctionTask::Ptr pTask = new CallFunctionTask(args.GetIsolate(), pThis, function, argsArray);
 	pThis->_timer.scheduleAtFixedRate(pTask, static_cast<long>(millisecs), static_cast<long>(millisecs));
 	TimerWrapper wrapper;
-	v8::Persistent<v8::Object> timerObject(args.GetIsolate(), wrapper.wrapNativePersistent(args.GetIsolate(), pTask));
+	v8::Persistent<v8::Object>& timerObject(wrapper.wrapNativePersistent(args.GetIsolate(), pTask));
 	args.GetReturnValue().Set(timerObject);
 }
 

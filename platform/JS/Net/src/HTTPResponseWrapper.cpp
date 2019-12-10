@@ -112,12 +112,13 @@ v8::Handle<v8::ObjectTemplate> HTTPResponseWrapper::objectTemplate(v8::Isolate* 
 
 void HTTPResponseWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::EscapableHandleScope handleScope(args.GetIsolate());
+
 	ResponseHolder* pResponseHolder = new ResponseHolderImpl();
 	try
 	{
 		HTTPResponseWrapper wrapper;
-		v8::Persistent<v8::Object> responseObject(args.GetIsolate(), wrapper.wrapNative(args.GetIsolate(), pResponseHolder));
-		responseObject.SetWeak(pResponseHolder, destruct, v8::WeakCallbackType::kParameter);
+		v8::Persistent<v8::Object>& responseObject(wrapper.wrapNativePersistent(args.GetIsolate(), pResponseHolder));
 		args.GetReturnValue().Set(responseObject);
 	}
 	catch (Poco::Exception& exc)

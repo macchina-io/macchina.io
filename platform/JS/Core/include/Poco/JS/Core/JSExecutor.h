@@ -48,11 +48,11 @@ class JSCore_API JSExecutor: public Poco::Runnable, public Poco::RefCountedObjec
 public:
 	typedef Poco::AutoPtr<JSExecutor> Ptr;
 
-	enum 
+	enum
 	{
 		DEFAULT_MEMORY_LIMIT = 1024*1024
 	};
-	
+
 	struct ErrorInfo
 	{
 		std::string uri;
@@ -62,7 +62,7 @@ public:
 
 	Poco::BasicEvent<void> stopped;
 		/// Fired when the executor has been stopped.
-	
+
 	Poco::BasicEvent<const ErrorInfo> scriptError;
 		/// Fired when the script terminates with an error.
 		/// Reports the error message as argument.
@@ -72,10 +72,10 @@ public:
 
 	JSExecutor(const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit = DEFAULT_MEMORY_LIMIT);
 		/// Creates the JSExecutor with the given JavaScript source, sourceURI, module search paths and memoryLimit.
-		
+
 	virtual ~JSExecutor();
 		/// Destroys the JSExecutor.
-		
+
 	const Poco::URI& uri() const;
 		/// Returns the script's source URI.
 
@@ -99,7 +99,7 @@ public:
 		/// be given as a JSON string.
 		///
 		/// Sets up a script context scope for the call.
-		
+
 	void call(v8::Persistent<v8::Function>& function);
 		/// Calls a specific function defined in the script, without arguments.
 		///
@@ -113,10 +113,10 @@ public:
 
 	static Ptr current();
 		/// Returns the JSExecutor for the current thread.
-	
+
 	v8::Isolate* isolate();
 		/// Returns the JSExecutor's Isolate.
-		
+
 	v8::Persistent<v8::Context>& globalContext();
 		/// Returns the JSExecutor's global context.
 
@@ -125,7 +125,7 @@ public:
 
 	bool isRunning() const;
 		/// Returns true if the JSExecutor is currently executing a script.
-		
+
 	virtual void stop();
 		/// Stops the script's execution.
 		///
@@ -133,7 +133,7 @@ public:
 		/// used to execute a script by calling run() or call().
 		///
 		/// Will also fire the stopped event.
-		
+
 	void terminate();
 		/// Terminate the currently running script.
 		///
@@ -143,33 +143,33 @@ public:
 		/// After calling terminate(), the JSExecutor is still usable and
 		/// execution can be resumed at a later time by calling
 		/// run() or call().
-		
+
 	void cancelTerminate();
 		/// Cancels a previous terminate() call.
-		
+
 	bool isTerminating() const;
 		/// Returns true if the script is currently terminating due
 		/// to a call to terminate().
-	
+
 	void addModuleSearchPath(const std::string& path);
 		/// Adds a search path to the internal list of search paths.
 		///
 		/// Module search paths must be added before the script
 		/// is executed.
-		
+
 	void addModuleRegistry(ModuleRegistry::Ptr pRegistry);
 		/// Adds a module registry to the collection of registries.
 		///
 		/// Module registries must be added before the script
 		/// is executed.
-		
+
 	// Poco::Runnable
 	void run();
 		/// Runs the script.
 
 protected:
 	virtual void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
-		/// Set up global JavaScript objects in the global object template. 
+		/// Set up global JavaScript objects in the global object template.
 		/// Can be overridded by subclasses, but overrides must call the base class method.
 		///
 		/// Note that only other object templates or function templates, as
@@ -180,14 +180,14 @@ protected:
 		/// Called before initial compilation of the script.
 
 	virtual void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate);
-		/// Sets up the script's global object by adding properties to it. 
+		/// Sets up the script's global object by adding properties to it.
 		/// Can be overridded by subclasses, but overrides must call the base class method.
 		///
 		/// Called before initial compilation of the script, after setupGlobalObjectTemplate().
 
 	virtual void handleError(const ErrorInfo& errorInfo);
 		/// Called when the JavaScript terminates with an error.
-		
+
 	virtual void scriptCompleted();
 		/// Called after the script has completed, while still within the scope.
 
@@ -233,7 +233,7 @@ private:
 	JSExecutor(const JSExecutor&);
 	JSExecutor& operator = (const JSExecutor&);
 
-protected:	
+protected:
 	std::string _source;
 	Poco::URI _sourceURI;
 	std::vector<std::string> _moduleSearchPaths;
@@ -247,10 +247,13 @@ protected:
 	std::set<std::string> _imports;
 	Poco::AtomicCounter _running;
 	static Poco::ThreadLocal<JSExecutor*> _pCurrentExecutor;
-	
+
 	friend class RunScriptTask;
 	friend class CallFunctionTask;
 };
+
+
+class CallFunctionTask;
 
 
 class JSCore_API TimedJSExecutor: public JSExecutor
@@ -265,16 +268,16 @@ public:
 
 	TimedJSExecutor(const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit = JSExecutor::DEFAULT_MEMORY_LIMIT);
 		/// Creates the TimedJSExecutor.
-		
+
 	~TimedJSExecutor();
 		/// Destroys the TimedJSExecutor.
 
 	void schedule(Poco::Util::TimerTask::Ptr pTask);
 		/// Schedules a task using the timer-based event loop.
-			
+
 	void schedule(Poco::Util::TimerTask::Ptr pTask, const Poco::Clock& clock);
 		/// Schedules a task using the timer-based event loop.
-	
+
 	// JSExecutor
 	void run();
 		/// Runs the script as timer task. Note that run() will return immediately.
@@ -282,9 +285,9 @@ public:
 
 	void stop();
 		/// Stops the executor and cancels all timer events.
-	
+
 protected:
-	Poco::Util::Timer& timer();	
+	Poco::Util::Timer& timer();
 		/// Returns the executor's timer.
 
 	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
@@ -292,12 +295,13 @@ protected:
 	static void setTimeout(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void setInterval(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void cancelTimer(const v8::FunctionCallbackInfo<v8::Value>& args);
-	
+
 private:
 	Poco::Util::Timer _timer;
 	bool _stopped;
+	std::set<CallFunctionTask*> _callFunctionTasks;
 	Poco::FastMutex _mutex;
-	
+
 	friend class RunScriptTask;
 	friend class StopScriptTask;
 	friend class CallFunctionTask;
