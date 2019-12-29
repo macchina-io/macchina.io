@@ -46,7 +46,7 @@ For the impatient, using a Linux or macOS machine:
 
 Then, on Linux:
 
-    $ export LD_LIBRARY_PATH=`pwd`/platform/lib/Linux/x86_64
+    $ export LD_LIBRARY_PATH=`pwd`/platform/lib/Linux/x86_64:`pwd`/server/bin/Linux/x86_64/codeCache
     $ cd server
     $ bin/Linux/x86_64/macchina
 
@@ -73,5 +73,5 @@ as well as additional protocols.
 Please see our [CONTRIBUTING](https://github.com/macchina-io/macchina.io/blob/develop/CONTRIBUTING.md)
 document to get started.
 
-[logo]: doc/images/macchina_logo_320.png "Poco Logo"
+[logo]: doc/images/macchina_logo_320.png "macchina.io Logo"
 
