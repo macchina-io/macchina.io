@@ -172,20 +172,23 @@ After the macchina.io build completes, you can directly run macchina.io without 
 additional install step. To run the macchina.io server:
 
   1. Set your system's shared library search path to include the macchina.io libraries
-     and the <*codeCache*> directory (if necessary, see below).
+     and the <*codeCache*> directory (if necessary, see below). This can be done
+     by sourcing the `env.bash` script located in the macchina.io root directory.
   2. Run the macchina.io server program.
 
 To run macchina.io on a Linux system:
 
-    $ export LD_LIBRARY_PATH=/path/to/macchina.io/platform/lib/Linux/x86_64
-    $ cd /path/to/macchina.io/server
+    $ cd /path/to/macchina.io
+    $ . env.bash
+    $ cd server
     $ bin/Linux/x86_64/macchina
 ----
 
 To run macchina.io on an macOS system:
 
-    $ export DYLD_LIBRARY_PATH=/path/to/macchina.io/platform/lib/Darwin/x86_64
-    $ cd /path/to/macchina.io/server
+    $ cd /path/to/macchina.io
+    $ . env.bash
+    $ cd server
     $ bin/Darwin/x86_64/macchina
 ----
 
@@ -203,6 +206,8 @@ complaining about shared libraries that cannot be found, do this:
 
     $ export LD_LIBRARY_PATH=/path/to/macchina.io/platform/lib/Linux/x86_64:/path/to/macchina.io/server/bin/Linux/x86_64/codeCache
 ----
+
+Note: the `env.bash` script already does this for you.
 
 If you run on an embedded device using the directory structure created with the
 <*install_runtime*> make target, start as follows:
