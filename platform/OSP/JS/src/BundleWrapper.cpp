@@ -105,11 +105,7 @@ void BundleWrapper::getResourceString(const v8::FunctionCallbackInfo<v8::Value>&
 	std::string data;
 	try
 	{
-#if __cplusplus < 201103L
-		std::auto_ptr<std::istream> pStream(pBundle->getResource(name));
-#else
 		std::unique_ptr<std::istream> pStream(pBundle->getResource(name));
-#endif
 		if (pStream.get())
 		{
 			Poco::StreamCopier::copyToString(*pStream, data);
@@ -132,11 +128,7 @@ void BundleWrapper::getResourceBuffer(const v8::FunctionCallbackInfo<v8::Value>&
 	std::string data;
 	try
 	{
-#if __cplusplus < 201103L
-		std::auto_ptr<std::istream> pStream(pBundle->getResource(name));
-#else
 		std::unique_ptr<std::istream> pStream(pBundle->getResource(name));
-#endif
 		if (pStream.get())
 		{
 			Poco::StreamCopier::copyToString(*pStream, data);

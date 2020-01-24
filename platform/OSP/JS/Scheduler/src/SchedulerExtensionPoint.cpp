@@ -88,12 +88,12 @@ public:
 		_scheduler(scheduler)
 	{
 	}
-	
+
 	void run()
 	{
 		_scheduler.scheduleTasks();
 	}
-	
+
 private:
 	SchedulerExtensionPoint& _scheduler;
 };
@@ -109,7 +109,7 @@ public:
 		_function(function)
 	{
 	}
-	
+
 	void run()
 	{
 		try
@@ -151,17 +151,17 @@ public:
 		}
 		_done.set();
 	}
-	
+
 	void wait()
 	{
 		_done.wait();
 	}
-	
+
 	bool tryWait(long milliseconds)
 	{
 		return _done.tryWait(milliseconds);
 	}
-	
+
 private:
 	Poco::OSP::JS::TimedJSExecutor::Ptr _pExecutor;
 	std::string _function;
@@ -246,30 +246,26 @@ void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundl
 	{
 		memoryLimit = Poco::NumberParser::parseUnsigned64(strMemoryLimit);
 	}
-	
+
 	Poco::StringTokenizer tok(pExtensionElem->getAttribute("modulePath"), ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 	std::vector<std::string> moduleSearchPaths(tok.begin(), tok.end());
-	
+
 	std::string script;
-#if __cplusplus < 201103L	
-	std::auto_ptr<std::istream> pStream(pBundle->getResource(scriptPath));
-#else
 	std::unique_ptr<std::istream> pStream(pBundle->getResource(scriptPath));
-#endif
 	Poco::StreamCopier::copyToString(*pStream, script);
 	_pContext->logger().information(Poco::format("Starting script %s from bundle %s.", scriptPath, pBundle->symbolicName()));
 	std::string scriptURI("bndl://");
 	scriptURI += pBundle->symbolicName();
 	if (scriptPath.empty() || scriptPath[0] != '/') scriptURI += "/";
 	scriptURI += scriptPath;
-	
+
 	if (schedule.empty()) schedule = "@start";
-	
+
 	Task task;
 	task.pExecutor = new Poco::OSP::JS::TimedJSExecutor(_pContext->contextForBundle(pBundle), pBundle, script, Poco::URI(scriptURI), moduleSearchPaths, memoryLimit);
 	task.schedule.expression = schedule;
 	parseSchedule(task.schedule, schedule);
-	
+
 	if (!notBefore.empty())
 	{
 		int tzd;
@@ -289,7 +285,7 @@ void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundl
 	{
 		task.schedule.notAfter = Poco::DateTime(2200, 1, 1);
 	}
-	
+
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 		_tasks.push_back(task);
@@ -307,7 +303,7 @@ void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundl
 	{
 		Poco::MD5Engine md5;
 		md5.update(scriptPath);
-		
+
 		std::string onceFileName = ".once_";
 		onceFileName += Poco::DigestEngine::digestToHex(md5.digest());
 
@@ -321,7 +317,7 @@ void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundl
 			Poco::FileOutputStream ostr(onceFile.path());
 			ostr << scriptPath << "\n";
 			ostr.close();
-	
+
 			task.pExecutor->run();
 
 			CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(task.pExecutor, "start");
