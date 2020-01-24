@@ -420,6 +420,7 @@ void DocWriter::writeClass(const Struct* pStruct)
 	writeMethodSummary(ostr, pStruct);
 	writeNestedClasses(ostr, pStruct);
 	writeTypes(ostr, pStruct);
+	writeAliases(ostr, pStruct);
 	writeEnums(ostr, pStruct);
 	writeConstructors(ostr, pStruct);
 	writeDestructor(ostr, pStruct);
@@ -447,10 +448,12 @@ void DocWriter::writeNameSpace(const NameSpace* pNameSpace)
 	writeNameSpacesSummary(ostr, pNameSpace);
 	writeClassesSummary(ostr, pNameSpace);
 	writeTypesSummary(ostr, pNameSpace);
+	writeAliasesSummary(ostr, pNameSpace);
 	writeFunctionsSummary(ostr, pNameSpace);
 	writeNameSpaces(ostr, pNameSpace);
 	writeClasses(ostr, pNameSpace);
 	writeTypes(ostr, pNameSpace);
+	writeAliases(ostr, pNameSpace);
 	writeEnums(ostr, pNameSpace);
 	writeFunctions(ostr, pNameSpace);
 	writeVariables(ostr, pNameSpace);
@@ -1269,8 +1272,15 @@ bool DocWriter::writeSpecial(std::ostream& ostr, std::string& token, std::string
 	}
 	else if (token == "%>")
 	{
-		_htmlMode = false;
-		ostr << "<p>";
+		if (_htmlMode)
+		{
+			_htmlMode = false;
+			ostr << "<p>";
+		}
+		else
+		{
+			ostr << htmlize(token);
+		}
 	}
 	else if (token == "}>")
 	{
@@ -1319,6 +1329,19 @@ bool DocWriter::writeSpecial(std::ostream& ostr, std::string& token, std::string
 		ostr << "</tt>";
 		_literalMode = false;
 	}
+	else if (token == "`")
+	{
+		if (!_literalMode)
+		{
+			ostr << "<tt>";
+			_literalMode = true;
+		}
+		else
+		{
+			ostr << "</tt>";
+			_literalMode = false;
+		}
+	}
 	else if (token == "--" && !_literalMode)
 	{
 		ostr << "&mdash;";
@@ -1350,6 +1373,7 @@ void DocWriter::nextToken(std::string::const_iterator& it, const std::string::co
 	else if (it != end && *it == '<')
 	{
 		token += *it++;
+		if (it != end && std::ispunct(*it)) token += *it++;
 		if (it != end && std::ispunct(*it)) token += *it++;
 	}
 	else if (it != end && *it == '[')
@@ -1704,6 +1728,23 @@ void DocWriter::writeTypesSummary(std::ostream& ostr, const NameSpace* pNameSpac
 }
 
 
+void DocWriter::writeAliasesSummary(std::ostream& ostr, const NameSpace* pNameSpace)
+{
+	NameSpace::SymbolTable types;
+	pNameSpace->typeAliases(types);
+	if (!types.empty())
+	{
+		ostr << "<p><b>" << tr("Types Aliases") << ":</b> " << std::endl;
+		bool first = true;
+		for (NameSpace::Iterator it = types.begin(); it != types.end(); ++it)
+		{
+			writeNameListItem(ostr, it->second->name(), it->second, pNameSpace, first);
+		}
+		ostr << "</p>" << std::endl;
+	}
+}
+
+
 void DocWriter::writeTypes(std::ostream& ostr, const NameSpace* pNameSpace)
 {
 	NameSpace::SymbolTable types;
@@ -1717,6 +1758,28 @@ void DocWriter::writeTypes(std::ostream& ostr, const NameSpace* pNameSpace)
 	if (hasTypes)
 	{
 		writeSubTitle(ostr, tr("Types"));
+		for (NameSpace::Iterator it = types.begin(); it != types.end(); ++it)
+		{
+			if (it->second->getAccess() != Symbol::ACC_PRIVATE)
+				writeType(ostr, static_cast<const TypeDef*>(it->second));
+		}
+	}
+}
+
+
+void DocWriter::writeAliases(std::ostream& ostr, const NameSpace* pNameSpace)
+{
+	NameSpace::SymbolTable types;
+	pNameSpace->typeAliases(types);
+	bool hasTypes = false;
+	for (NameSpace::Iterator it = types.begin(); !hasTypes && it != types.end(); ++it)
+	{
+		if (it->second->getAccess() != Symbol::ACC_PRIVATE)
+			hasTypes = true;
+	}
+	if (hasTypes)
+	{
+		writeSubTitle(ostr, tr("Types Aliases"));
 		for (NameSpace::Iterator it = types.begin(); it != types.end(); ++it)
 		{
 			if (it->second->getAccess() != Symbol::ACC_PRIVATE)
@@ -1913,6 +1976,8 @@ void DocWriter::writeFunction(std::ostream& ostr, const Function* pFunc)
 		ostr << " override";
 	else if (pFunc->flags() & Function::FN_FINAL)
 		ostr << " final";
+	if (pFunc->flags() & Function::FN_NOEXCEPT)
+		ostr << " noexcept";
 	if (pFunc->flags() & Function::FN_DELETE)
 		ostr << " = delete";
 	else if (pFunc->flags() & Function::FN_DEFAULT)
