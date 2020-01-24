@@ -204,7 +204,7 @@ bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, Po
 }
 
 
-#ifdef POCO_LONG_IS_64_BIT
+#ifdef POCO_INT64_IS_LONG
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, long& value)
 {
 	v8::Local<v8::Value> jsValue = deserializeValue(name);

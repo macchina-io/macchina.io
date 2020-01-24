@@ -38,9 +38,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, Class1& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"aString","anEnum","anInt"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		bool ret = false;
 		std::string gen_aString;
 		ret = TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, gen_aString);

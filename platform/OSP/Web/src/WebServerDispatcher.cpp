@@ -38,6 +38,7 @@
 #include "Poco/DeflatingStream.h"
 #include "Poco/MemoryStream.h"
 #include "Poco/StringTokenizer.h"
+#include "Poco/String.h"
 #include "Poco/Message.h"
 #include <memory>
 #include <limits>
@@ -70,6 +71,7 @@ WebServerDispatcher::WebServerDispatcher(const Config& config):
 	_pMediaTypeMapper(config.pMediaTypeMapper),
 	_authServiceName(config.authServiceName),
 	_tokenValidatorName(config.tokenValidatorName),
+	_corsAllowedOrigin(config.corsAllowedOrigin),
 	_compressResponses((config.options & CONF_OPT_COMPRESS_RESPONSES) != 0),
 	_cacheResources((config.options & CONF_OPT_CACHE_RESOURCES) != 0),
 	_addAuthHeader((config.options & CONF_OPT_ADD_AUTH_HEADER) != 0),
@@ -288,70 +290,69 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 				lock.unlock();
 				sendResponse(request, HTTPResponse::HTTP_FORBIDDEN, formatMessage("secure", vpath));
 			}
-			else if (authorize(request, vPath, username))
+			else if (handleCORS(request, response, vPath))
 			{
-				if (vPath.pFactory)
+				if (authorize(request, vPath, username))
 				{
-					if (vPath.methods.empty() || vPath.methods.count(request.getMethod()) == 1)
+					if (vPath.pFactory)
 					{
-						RequestHandlerFactoryPtr pFactory(vPath.pFactory);
-						lock.unlock();
-#if __cplusplus < 201103L
-						std::auto_ptr<HTTPRequestHandler> pHandler(pFactory->createRequestHandler(request));
-#else
-						std::unique_ptr<HTTPRequestHandler> pHandler(pFactory->createRequestHandler(request));
-#endif
-						try
+						if (vPath.methods.empty() || vPath.methods.count(request.getMethod()) == 1)
 						{
-							if (pHandler.get())
-								pHandler->handleRequest(request, response);
-							else
-								sendNotFound(request, path);
+							RequestHandlerFactoryPtr pFactory(vPath.pFactory);
+							lock.unlock();
+							std::unique_ptr<HTTPRequestHandler> pHandler(pFactory->createRequestHandler(request));
+							try
+							{
+								if (pHandler.get())
+									pHandler->handleRequest(request, response);
+								else
+									sendNotFound(request, path);
+							}
+							catch (Poco::Exception& exc)
+							{
+								throw Poco::UnhandledException("Request Handler", exc);
+							}
 						}
-						catch (Poco::Exception& exc)
+						else
 						{
-							throw Poco::UnhandledException("Request Handler", exc);
+							sendMethodNotAllowed(request, formatMessage("method", request.getMethod(), request.getURI()));
 						}
 					}
-					else
+					else // static resource
 					{
-						sendMethodNotAllowed(request, formatMessage("method", request.getMethod(), request.getURI()));
+						if (path.size() >= vPath.path.size())
+						{
+							std::string vpath(vPath.path);
+							std::string resPath(path, vPath.path.size(), std::string::npos);
+							std::string resBase(vPath.resource);
+							std::string index(vPath.indexPage);
+							if (index.empty()) index = "index.html";
+							Bundle::ConstPtr pBundle(vPath.pOwnerBundle);
+							bool canCache = vPath.cache;
+							lock.unlock();
+							sendResource(request, path, vpath, resPath, resBase, index, pBundle, canCache);
+						}
+						else
+						{
+							std::string newPath(vPath.path);
+							lock.unlock();
+							sendFound(request, newPath);
+						}
 					}
 				}
-				else
+				else // !authorize
 				{
-					if (path.size() >= vPath.path.size())
+					if (vPath.security.session.empty())
 					{
-						std::string vpath(vPath.path);
-						std::string resPath(path, vPath.path.size(), std::string::npos);
-						std::string resBase(vPath.resource);
-						std::string index(vPath.indexPage);
-						if (index.empty()) index = "index.html";
-						Bundle::ConstPtr pBundle(vPath.pOwnerBundle);
-						bool canCache = vPath.cache;
-						lock.unlock();
-						sendResource(request, path, vpath, resPath, resBase, index, pBundle, canCache);
+						if (vPath.security.realm.empty())
+							response.requireAuthentication(vPath.path);
+						else
+							response.requireAuthentication(vPath.security.realm);
 					}
-					else
-					{
-						std::string newPath(vPath.path);
-						lock.unlock();
-						sendFound(request, newPath);
-					}
+					std::string vpath(vPath.path);
+					lock.unlock();
+					sendNotAuthorized(request, vpath);
 				}
-			}
-			else
-			{
-				if (vPath.security.session.empty())
-				{
-					if (vPath.security.realm.empty())
-						response.requireAuthentication(vPath.path);
-					else
-						response.requireAuthentication(vPath.security.realm);
-				}
-				std::string vpath(vPath.path);
-				lock.unlock();
-				sendNotAuthorized(request, vpath);
 			}
 		}
 		else
@@ -454,11 +455,7 @@ void WebServerDispatcher::sendResource(Poco::Net::HTTPServerRequest& request, co
 	Poco::Net::HTTPServerResponse& response(request.response());
 	std::string mediaType;
 	std::string resolvedPath;
-#if __cplusplus < 201103L
-	std::auto_ptr<std::istream> pResourceStream(findResource(pBundle, resBase, resPath, index, mediaType, resolvedPath, canCache));
-#else
 	std::unique_ptr<std::istream> pResourceStream(findResource(pBundle, resBase, resPath, index, mediaType, resolvedPath, canCache));
-#endif
 	if (pResourceStream.get())
 	{
 		response.setContentType(mediaType);
@@ -719,11 +716,7 @@ std::istream* WebServerDispatcher::getCachedResource(Bundle::ConstPtr pBundle, c
 		else
 		{
 			lockWithUnlock.unlock();
-#if __cplusplus < 201103L
-			std::auto_ptr<std::istream> pResourceStream(pBundle->getResource(path));
-#else
 			std::unique_ptr<std::istream> pResourceStream(pBundle->getResource(path));
-#endif
 			if (pResourceStream.get())
 			{
 				std::string cachedData;
@@ -781,6 +774,80 @@ bool WebServerDispatcher::cleanPath(std::string& path)
 }
 
 
+bool WebServerDispatcher::handleCORS(const Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const VirtualPath& vPath) const
+{
+	if (vPath.cors.enable && request.has("Origin"))
+	{
+		if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_OPTIONS)
+		{
+			if (enableCORS(request, response, vPath))
+			{
+				if (vPath.cors.allowMethods.empty())
+				{
+					if (vPath.methods.empty())
+					{
+						response.set("Access-Control-Allow-Methods", "*");
+					}
+					else
+					{
+						const std::string delim(", ");
+						response.set("Access-Control-Allow-Methods", Poco::cat(delim, vPath.methods.begin(), vPath.methods.end()));
+					}
+				}
+				else
+				{
+					response.set("Access-Control-Allow-Methods", vPath.cors.allowMethods);
+				}
+				if (!vPath.cors.allowHeaders.empty())
+				{
+					response.set("Access-Control-Allow-Headers", vPath.cors.allowHeaders);
+				}
+			}
+			response.setContentLength(0);
+			response.send();
+			return false;
+		}
+
+		if (!enableCORS(request, response, vPath))
+		{
+			response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_METHOD_NOT_ALLOWED);
+			response.setContentLength(0);
+			response.send();
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
+bool WebServerDispatcher::enableCORS(const Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const VirtualPath& vPath) const
+{
+	std::string allowOrigin = vPath.cors.allowOrigin;
+	if (allowOrigin.empty()) allowOrigin = _corsAllowedOrigin;
+
+	if (allowOrigin.empty() || allowOrigin == "**")
+	{
+		response.set("Access-Control-Allow-Origin", request.get("Origin"));
+		if (vPath.cors.allowCredentials)
+		{
+			response.set("Access-Control-Allow-Credentials", "true");
+		}
+		return true;
+	}
+	else if (allowOrigin == "*" || allowOrigin == request.get("Origin"))
+	{
+		response.set("Access-Control-Allow-Origin", allowOrigin);
+		if (vPath.cors.allowCredentials)
+		{
+			response.set("Access-Control-Allow-Credentials", "true");
+		}
+		return true;
+	}
+	return false;
+}
+
+
 bool WebServerDispatcher::authorize(Poco::Net::HTTPServerRequest& request, const VirtualPath& vPath, std::string& username) const
 {
 	bool authorized = false;
@@ -807,7 +874,11 @@ bool WebServerDispatcher::authorize(Poco::Net::HTTPServerRequest& request, const
 		{
 			authorized = authorizeSession(request, vPath, username);
 		}
-		if (authorized && _addAuthHeader)
+		else if (vPath.security.permission == "**")
+		{
+			authorized = true;
+		}
+		if (authorized && _addAuthHeader && !username.empty())
 		{
 			request.set(X_OSP_AUTHORIZED_USER, username);
 		}
@@ -830,7 +901,7 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 				AuthService::Ptr pAuthService = authService();
 				if (pAuthService->userExists(username))
 				{
-					if (vPath.security.permission == "*" || pAuthService->authorize(username, vPath.security.permission))
+					if (vPath.security.permission == "*" || vPath.security.permission == "**" || pAuthService->authorize(username, vPath.security.permission))
 					{
 						if (vPath.security.csrfProtection && !vPath.security.csrfTokenHeader.empty())
 						{
@@ -851,15 +922,27 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 					_pContext->logger().warning("User %s (authenticated via session) does not exist.", username);
 				}
 			}
+			else if (vPath.security.permission == "**")
+			{
+				return true;
+			}
 			else
 			{
 				_pContext->logger().warning("Failed to authorize user for path %s because session is not authenticated.", request.getURI());
 			}
 		}
+		else if (vPath.security.permission == "**")
+		{
+			return true;
+		}
 		else
 		{
 			_pContext->logger().warning("Failed to authorize user for path %s because no session is available.", request.getURI());
 		}
+	}
+	else if (vPath.security.permission == "**")
+	{
+		return true;
 	}
 	else
 	{
@@ -878,7 +961,7 @@ bool WebServerDispatcher::authorizeBasic(Poco::Net::HTTPServerRequest& request, 
 		username = cred.getUsername();
 		if (pAuthService->authenticate(username, cred.getPassword()))
 		{
-			if (vPath.security.permission == "*" || pAuthService->authorize(username, vPath.security.permission))
+			if (vPath.security.permission == "*" || vPath.security.permission == "**" || pAuthService->authorize(username, vPath.security.permission))
 			{
 				return true;
 			}
@@ -906,7 +989,7 @@ bool WebServerDispatcher::authorizeBearer(Poco::Net::HTTPServerRequest& request,
 		{
 			if (pAuthService->userExists(username))
 			{
-				if (vPath.security.permission == "*" || pAuthService->authorize(username, vPath.security.permission))
+				if (vPath.security.permission == "*" || vPath.security.permission == "**" || pAuthService->authorize(username, vPath.security.permission))
 				{
 					return true;
 				}

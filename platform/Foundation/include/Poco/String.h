@@ -103,9 +103,11 @@ S& trimInPlace(S& str)
 	while (first <= last && Ascii::isSpace(str[first])) ++first;
 	while (last >= first && Ascii::isSpace(str[last])) --last;
 
-	str.resize(last + 1);
-	str.erase(0, first);
-
+	if (last >= 0)
+	{
+		str.resize(last + 1);
+		str.erase(0, first);
+	}
 	return str;
 }
 
@@ -627,6 +629,22 @@ S cat(const S& delim, const It& begin, const It& end)
 }
 
 
+template <class S>
+bool startsWith(const S& str, const S& prefix)
+	/// Tests whether the string starts with the given prefix.
+{
+	return str.size() >= prefix.size() && equal(prefix.begin(), prefix.end(), str.begin());
+}
+
+
+template <class S>
+bool endsWith(const S& str, const S& suffix)
+	/// Tests whether the string ends with the given suffix.
+{
+	return str.size() >= suffix.size() && equal(suffix.rbegin(), suffix.rend(), str.rbegin());
+}
+
+
 //
 // case-insensitive string equality
 //
@@ -670,7 +688,7 @@ struct i_char_traits : public std::char_traits<charT>
 };
 
 
-typedef std::basic_string<char, i_char_traits<char> > istring;
+typedef std::basic_string<char, i_char_traits<char>> istring;
 	/// Case-insensitive std::string counterpart.
 
 

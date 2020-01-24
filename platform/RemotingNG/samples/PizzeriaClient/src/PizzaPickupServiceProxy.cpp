@@ -8,9 +8,6 @@
 // Warning: All changes to this will be lost when the file is re-generated.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
-// All rights reserved.
-// 
-// SPDX-License-Identifier: Apache-2.0
 //
 
 
@@ -55,9 +52,7 @@ PizzaPickupServiceProxy::~PizzaPickupServiceProxy()
 
 const Pizzeria::Pizza& PizzaPickupServiceProxy::getAnyPizza() const
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"getAnyPizza"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
@@ -68,9 +63,7 @@ const Pizzeria::Pizza& PizzaPickupServiceProxy::getAnyPizza() const
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getAnyPizzaReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Pizzeria::Pizza >::deserialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, true, remoting__deser, _getAnyPizzaRet);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -82,9 +75,7 @@ const Pizzeria::Pizza& PizzaPickupServiceProxy::getAnyPizza() const
 
 const Pizzeria::ExtTopping& PizzaPickupServiceProxy::getMostPopularTopping() const
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"getMostPopularTopping"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
@@ -95,9 +86,7 @@ const Pizzeria::ExtTopping& PizzaPickupServiceProxy::getMostPopularTopping() con
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getMostPopularToppingReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Pizzeria::ExtTopping >::deserialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, true, remoting__deser, _getMostPopularToppingRet);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -109,9 +98,7 @@ const Pizzeria::ExtTopping& PizzaPickupServiceProxy::getMostPopularTopping() con
 
 const std::set < std::string >& PizzaPickupServiceProxy::getPizzaNames() const
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"getPizzaNames"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	if (_cache.has(REMOTING__NAMES[0]))
 	{
 		return _getPizzaNamesRet;
@@ -126,9 +113,7 @@ const std::set < std::string >& PizzaPickupServiceProxy::getPizzaNames() const
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getPizzaNamesReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	_getPizzaNamesRet.clear();
 	Poco::RemotingNG::TypeDeserializer<std::set < std::string > >::deserialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, true, remoting__deser, _getPizzaNamesRet);
@@ -142,9 +127,7 @@ const std::set < std::string >& PizzaPickupServiceProxy::getPizzaNames() const
 
 const std::vector < Pizzeria::Pizza >& PizzaPickupServiceProxy::getPizzas() const
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"getPizzas"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	if (_cache.has(REMOTING__NAMES[0]))
 	{
 		return _getPizzasRet;
@@ -159,9 +142,7 @@ const std::vector < Pizzeria::Pizza >& PizzaPickupServiceProxy::getPizzas() cons
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getPizzasReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	_getPizzasRet.clear();
 	Poco::RemotingNG::TypeDeserializer<std::vector < Pizzeria::Pizza > >::deserialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, true, remoting__deser, _getPizzasRet);
@@ -175,9 +156,7 @@ const std::vector < Pizzeria::Pizza >& PizzaPickupServiceProxy::getPizzas() cons
 
 const std::vector < Pizzeria::ExtTopping >& PizzaPickupServiceProxy::getToppings() const
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"getToppings"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	if (_getToppingsResultIsSet)
 	{
 		return _getToppingsRet;
@@ -192,9 +171,7 @@ const std::vector < Pizzeria::ExtTopping >& PizzaPickupServiceProxy::getToppings
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getToppingsReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	_getToppingsRet.clear();
 	Poco::RemotingNG::TypeDeserializer<std::vector < Pizzeria::ExtTopping > >::deserialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, true, remoting__deser, _getToppingsRet);
@@ -208,9 +185,7 @@ const std::vector < Pizzeria::ExtTopping >& PizzaPickupServiceProxy::getToppings
 
 Poco::Timespan PizzaPickupServiceProxy::getWaitTime() const
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"getWaitTime"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	if (_cache.has(REMOTING__NAMES[0]))
 	{
 		return _getWaitTimeRet;
@@ -225,9 +200,7 @@ Poco::Timespan PizzaPickupServiceProxy::getWaitTime() const
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getWaitTimeReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Poco::Timespan >::deserialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, true, remoting__deser, _getWaitTimeRet);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -240,9 +213,7 @@ Poco::Timespan PizzaPickupServiceProxy::getWaitTime() const
 
 Poco::DateTime PizzaPickupServiceProxy::order(const Pizzeria::Pizza& pizza, const Pizzeria::DeliveryAddress& deliverTo)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"order","deliverTo","pizza"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::FastMutex::ScopedLock remoting__lock(remoting__mutex());
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
@@ -256,9 +227,7 @@ Poco::DateTime PizzaPickupServiceProxy::order(const Pizzeria::Pizza& pizza, cons
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("orderReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Poco::DateTime >::deserialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, true, remoting__deser, _orderRet);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -270,9 +239,7 @@ Poco::DateTime PizzaPickupServiceProxy::order(const Pizzeria::Pizza& pizza, cons
 
 Poco::DateTime PizzaPickupServiceProxy::orderForSelfPickup(const Pizzeria::Pizza& pizza, const std::string& phoneNumber)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"orderForSelfPickup","phoneNumber","pizza"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::FastMutex::ScopedLock remoting__lock(remoting__mutex());
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
@@ -286,9 +253,7 @@ Poco::DateTime PizzaPickupServiceProxy::orderForSelfPickup(const Pizzeria::Pizza
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("orderForSelfPickupReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Poco::DateTime >::deserialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, true, remoting__deser, _orderForSelfPickupRet);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -300,9 +265,7 @@ Poco::DateTime PizzaPickupServiceProxy::orderForSelfPickup(const Pizzeria::Pizza
 
 void PizzaPickupServiceProxy::setWaitTime(const Poco::Timespan& span)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"setWaitTime","span"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
@@ -314,9 +277,7 @@ void PizzaPickupServiceProxy::setWaitTime(const Poco::Timespan& span)
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("setWaitTimeReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);

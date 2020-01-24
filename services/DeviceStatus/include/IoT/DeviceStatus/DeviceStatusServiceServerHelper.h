@@ -36,7 +36,7 @@ class DeviceStatusServiceServerHelper
 	/// status of a device.
 {
 public:
-	typedef IoT::DeviceStatus::DeviceStatusService Service;
+	using Service = IoT::DeviceStatus::DeviceStatusService;
 
 	DeviceStatusServiceServerHelper();
 		/// Creates a DeviceStatusServiceServerHelper.

@@ -35,7 +35,7 @@ class IMobileConnectionService: public Poco::OSP::Service
 	/// and establish a mobile data connection.
 {
 public:
-	typedef Poco::AutoPtr<IMobileConnectionService> Ptr;
+	using Ptr = Poco::AutoPtr<IMobileConnectionService>;
 
 	IMobileConnectionService();
 		/// Creates a IMobileConnectionService.

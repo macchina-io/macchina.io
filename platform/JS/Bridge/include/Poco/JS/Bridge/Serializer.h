@@ -100,20 +100,20 @@ public:
 
 	~Serializer();
 		/// Destroys the Serializer.
-		
+
 	const v8::Global<v8::Object>& jsValue() const;
 		/// Returns the resulting JavaScript object.
-		
+
 	Poco::Exception* exception() const;
-		/// Returns a pointer to the exception object if one was thrown, or 
+		/// Returns a pointer to the exception object if one was thrown, or
 		/// null otherwise.
-		
+
 	const std::string& messageName() const;
 		/// Returns the message name.
-		
+
 	int totalSerialized() const;
 		/// Returns the number of serialized values.
-		
+
 	// Serializer
 	void serializeMessageBegin(const std::string& name, SerializerBase::MessageType type);
 	void serializeMessageEnd(const std::string& name, SerializerBase::MessageType type);
@@ -134,7 +134,7 @@ public:
 	void serialize(const std::string& name, Poco::UInt32 value);
 	void serialize(const std::string& name, long value);
 	void serialize(const std::string& name, unsigned long value);
-#ifndef POCO_LONG_IS_64_BIT
+#ifndef POCO_INT64_IS_LONG
 	void serialize(const std::string& name, Poco::Int64 value);
 	void serialize(const std::string& name, Poco::UInt64 value);
 #endif
@@ -149,7 +149,7 @@ public:
 protected:
 	void resetImpl();
 	void setupImpl(std::ostream&);
-	
+
 private:
 	v8::Isolate* _pIsolate;
 	PersistentValueStack<v8::Object> _jsObjectStack;

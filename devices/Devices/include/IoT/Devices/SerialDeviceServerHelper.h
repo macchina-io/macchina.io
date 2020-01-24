@@ -57,7 +57,7 @@ class SerialDeviceServerHelper
 	///     setFeature("events", true);
 {
 public:
-	typedef IoT::Devices::SerialDevice Service;
+	using Service = IoT::Devices::SerialDevice;
 
 	SerialDeviceServerHelper();
 		/// Creates a SerialDeviceServerHelper.

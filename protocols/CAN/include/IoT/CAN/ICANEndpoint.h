@@ -34,7 +34,7 @@ class ICANEndpoint: public Poco::OSP::Service
 	/// The CANEndpoint is used to receive and send CAN and CAN-FD frames.
 {
 public:
-	typedef Poco::AutoPtr<ICANEndpoint> Ptr;
+	using Ptr = Poco::AutoPtr<ICANEndpoint>;
 
 	ICANEndpoint();
 		/// Creates a ICANEndpoint.

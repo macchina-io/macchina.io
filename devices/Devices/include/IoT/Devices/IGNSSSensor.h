@@ -44,7 +44,7 @@ class IGNSSSensor: public IoT::Devices::IDevice
 	///     received from the GNSS receiver.
 {
 public:
-	typedef Poco::AutoPtr<IGNSSSensor> Ptr;
+	using Ptr = Poco::AutoPtr<IGNSSSensor>;
 
 	IGNSSSensor();
 		/// Creates a IGNSSSensor.

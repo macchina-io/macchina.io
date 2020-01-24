@@ -29,7 +29,7 @@ class LinuxGPIO: public IoT::Devices::DeviceImpl<IoT::Devices::IO, LinuxGPIO>
 	/// Default implementation for LinuxGPIO using the macchina.io IO class.
 {
 public:
-	typedef Poco::AutoPtr<LinuxGPIO> Ptr;
+	using Ptr = Poco::AutoPtr<LinuxGPIO>;
 
 	enum Direction
 	{

@@ -32,7 +32,7 @@ class NPIPort
 	/// over USB using the NPI protocol.
 {
 public:
-	typedef Poco::SharedPtr<NPIPort> Ptr;
+	using Ptr = Poco::SharedPtr<NPIPort>;
 
 	NPIPort(Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort);
 		/// Creates a NPIPort using the given SerialPort.

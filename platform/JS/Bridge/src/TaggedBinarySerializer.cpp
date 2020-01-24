@@ -195,7 +195,7 @@ void TaggedBinarySerializer::serialize(const std::string& name, unsigned long va
 }
 
 
-#ifndef POCO_LONG_IS_64_BIT
+#ifndef POCO_INT64_IS_LONG
 void TaggedBinarySerializer::serialize(const std::string& name, Poco::Int64 val)
 {
 	serializeTypeTag(TYPE_TAG_INT64);

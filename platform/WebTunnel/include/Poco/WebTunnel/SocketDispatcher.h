@@ -51,7 +51,7 @@ public:
 	class SocketHandler: public Poco::RefCountedObject
 	{
 	public:
-		typedef Poco::AutoPtr<SocketHandler> Ptr;
+		using Ptr = Poco::AutoPtr<SocketHandler>;
 
 		virtual bool readable(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket) = 0;
 		virtual void exception(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket) = 0;
@@ -86,7 +86,7 @@ public:
 protected:
 	struct SocketInfo: public Poco::RefCountedObject
 	{
-		typedef Poco::AutoPtr<SocketInfo> Ptr;
+		using Ptr = Poco::AutoPtr<SocketInfo>;
 
 		SocketInfo(SocketHandler::Ptr pHnd, Poco::Timespan tmo):
 			pHandler(pHnd),
@@ -103,9 +103,9 @@ protected:
 		bool polling;
 	};
 
-	typedef std::map<Poco::Net::Socket, SocketInfo::Ptr> SocketMap;
-	typedef Poco::SharedPtr<Poco::Thread> ThreadPtr;
-	typedef std::vector<ThreadPtr> ThreadVec;
+	using SocketMap = std::map<Poco::Net::Socket, SocketInfo::Ptr>;
+	using ThreadPtr = Poco::SharedPtr<Poco::Thread>;
+	using ThreadVec = std::vector<ThreadPtr>;
 
 	enum
 	{

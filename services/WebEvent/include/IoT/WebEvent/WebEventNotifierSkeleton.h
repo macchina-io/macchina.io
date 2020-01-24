@@ -28,7 +28,7 @@ namespace WebEvent {
 
 
 class WebEventNotifierSkeleton: public Poco::RemotingNG::Skeleton
-	/// A simplified Remoting-capable interface to the 
+	/// A simplified Remoting-capable interface to the
 	/// Poco::OSP::WebEvent::WebEventService,
 	/// usable from both C++ and JavaScript.
 {

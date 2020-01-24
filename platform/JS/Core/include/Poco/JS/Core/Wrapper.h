@@ -86,7 +86,7 @@ class JSCore_API WeakPersistentWrapperRegistry
 	/// C++ objects are properly deleted.
 {
 public:
-	typedef Poco::SharedPtr<WeakPersistentWrapperRegistry> Ptr;
+	using Ptr = Poco::SharedPtr<WeakPersistentWrapperRegistry>;
 
 	WeakPersistentWrapperRegistry();
 		/// Creates a new WeakPersistentWrapperRegistry.
@@ -115,8 +115,8 @@ protected:
 		/// Deletes all registered wrappers.
 
 private:
-	typedef std::set<WeakPersistentWrapperBase*> WrapperSet;
-	typedef std::map<v8::Isolate*, WeakPersistentWrapperRegistry::Ptr> RegistryMap;
+	using WrapperSet = std::set<WeakPersistentWrapperBase*>;
+	using RegistryMap = std::map<v8::Isolate*, WeakPersistentWrapperRegistry::Ptr>;
 
 	WrapperSet _wrappers;
 
@@ -221,7 +221,7 @@ public:
 	template <typename T>
 	v8::Persistent<v8::Object>& wrapNativePersistent(v8::Isolate* pIsolate, T* pNative)
 	{
-		typedef WeakPersistentWrapper<T*, Internal::DeletePolicy<T*> > WPW;
+		using WPW = WeakPersistentWrapper<T*, Internal::DeletePolicy<T*>>;
 
 		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative), pNative);
 		if (!pWPW->persistent().IsEmpty())
@@ -235,7 +235,7 @@ public:
 	template <typename T>
 	v8::Persistent<v8::Object>& wrapNativePersistent(v8::Isolate* pIsolate, Poco::SharedPtr<T> pNative)
 	{
-		typedef WeakPersistentWrapper<Poco::SharedPtr<T>, Internal::NoReleasePolicy<Poco::SharedPtr<T> > > WPW;
+		using WPW = WeakPersistentWrapper<Poco::SharedPtr<T>, Internal::NoReleasePolicy<Poco::SharedPtr<T>>>;
 
 		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative.get()), pNative);
 		if (!pWPW->persistent().IsEmpty())
@@ -249,7 +249,7 @@ public:
 	template <typename T>
 	v8::Persistent<v8::Object>& wrapNativePersistent(v8::Isolate* pIsolate, Poco::AutoPtr<T> pNative)
 	{
-		typedef WeakPersistentWrapper<Poco::AutoPtr<T>, Internal::NoReleasePolicy<Poco::AutoPtr<T> > > WPW;
+		using WPW = WeakPersistentWrapper<Poco::AutoPtr<T>, Internal::NoReleasePolicy<Poco::AutoPtr<T>>>;
 
 		WPW* pWPW = new WPW(pIsolate, wrapNative(pIsolate, pNative.get()), pNative);
 		if (!pWPW->persistent().IsEmpty())

@@ -8,9 +8,6 @@
 // Warning: All changes to this will be lost when the file is re-generated.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
-// All rights reserved.
-// 
-// SPDX-License-Identifier: Apache-2.0
 //
 
 
@@ -29,7 +26,7 @@ class IPizzaPickupService: public Pizzeria::IPizzaDeliveryService
 	/// Pizzeria that allows self pickup.
 {
 public:
-	typedef Poco::AutoPtr<IPizzaPickupService> Ptr;
+	using Ptr = Poco::AutoPtr<IPizzaPickupService>;
 
 	IPizzaPickupService();
 		/// Creates a IPizzaPickupService.

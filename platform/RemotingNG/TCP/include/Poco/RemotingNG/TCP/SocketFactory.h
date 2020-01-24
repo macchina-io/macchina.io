@@ -46,14 +46,14 @@ class RemotingNGTCP_API SocketFactory: public Poco::RefCountedObject
 	/// the URI scheme and create an appropriate socket.
 {
 public:
-	typedef Poco::AutoPtr<SocketFactory> Ptr;
-	
+	using Ptr = Poco::AutoPtr<SocketFactory>;
+
 	SocketFactory();
 		/// Creates the SocketFactory.
-		
+
 	~SocketFactory();
 		/// Destroys the SocketFactory.
-	
+
 	virtual Poco::Net::StreamSocket createSocket(const Poco::URI& uri);
 		/// Create and return a Poco::Net::StreamSocket (or subclass of it,
 		/// such as a Poco::Net::SecureStreamSocket), connected

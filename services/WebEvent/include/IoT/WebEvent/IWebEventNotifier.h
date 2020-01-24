@@ -30,12 +30,12 @@ namespace WebEvent {
 
 
 class IWebEventNotifier: public Poco::OSP::Service
-	/// A simplified Remoting-capable interface to the 
+	/// A simplified Remoting-capable interface to the
 	/// Poco::OSP::WebEvent::WebEventService,
 	/// usable from both C++ and JavaScript.
 {
 public:
-	typedef Poco::AutoPtr<IWebEventNotifier> Ptr;
+	using Ptr = Poco::AutoPtr<IWebEventNotifier>;
 
 	IWebEventNotifier();
 		/// Creates a IWebEventNotifier.
@@ -50,9 +50,9 @@ public:
 		/// Notify all registered subscribers to the given subject, using
 		/// the given data, which is typically a serialized JSON or
 		/// XML document in UTF-8 encoding.
-		/// 
+		///
 		/// Sending the notification is done asynchronously. If a notification cannot be
-		/// delivered to a subscriber due to a network issue, the subscriber will be removed 
+		/// delivered to a subscriber due to a network issue, the subscriber will be removed
 		/// and its WebSocket closed.
 
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();

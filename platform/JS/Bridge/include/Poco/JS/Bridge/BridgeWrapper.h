@@ -41,61 +41,61 @@ class JSBridge_API BridgeHolder: public Poco::RefCountedObject
 	/// information necessary for implementing event callbacks.
 {
 public:
-	typedef Poco::AutoPtr<BridgeHolder> Ptr;
-	
+	using Ptr = Poco::AutoPtr<BridgeHolder>;
+
 	BridgeHolder(const std::string& uri);
 		/// Creates the BridgeHolder.
-		
+
 	~BridgeHolder();
 		/// Destroys the BridgeHolder.
-		
+
 	const std::string& uri() const;
 		/// Returns the Remoting URI.
-		
+
 	const std::string& subscriberURI() const;
 		/// Returns the event subscriber URI.
-		
+
 	void setPersistent(const v8::Persistent<v8::Object>& jsObject);
 		/// Sets the associated JavaScript object.
-		
+
 	v8::Persistent<v8::Object>& getPersistent();
 		/// Returns the associated JavaScript object.
 
 	void enableEvents();
 		/// Enables remote events by setting up the necessary
 		/// Remoting machinery to deliver events.
-	
+
 	void fireEvent(const std::string& event, const std::string& args);
 		/// Fires the event with the given name in the
 		/// JavaScript environment.
-		
+
 	void clear();
 		/// Resets the associated JavaScript object.
-		
+
 	void enableEvent(const std::string& event);
 		/// Adds the given event to the set of handled events.
-		
+
 	void disableEvent(const std::string& event);
 		/// Removes the given event from the set of handled events.
-		
+
 	bool handleEvent(const std::string& event);
 		/// Returns true if the given event is handled.
-		
+
 	static Ptr find(const std::string& subscriberURI);
 		/// Finds the Holder in the global holder map.
 
 protected:
 	void onExecutorStopped();
-	
+
 protected:
 	void registerHolder();
 	void unregisterHolder();
 	void disableEvents();
-	
+
 	static void destruct(const v8::WeakCallbackInfo<BridgeHolder>& data);
 
 private:
-	typedef std::map<std::string, BridgeHolder*> HolderMap;
+	using HolderMap = std::map<std::string, BridgeHolder*>;
 
 	Poco::JS::Core::JSExecutor::Ptr _pExecutor;
 	std::string _uri;
@@ -103,7 +103,7 @@ private:
 	v8::Persistent<v8::Object> _persistent;
 	Poco::RemotingNG::EventDispatcher::Ptr _pEventDispatcher;
 	std::set<std::string> _handledEvents;
-	
+
 	static Poco::AtomicCounter _counter;
 	static HolderMap _holderMap;
 	static Poco::FastMutex _holderMapMutex;
@@ -115,19 +115,19 @@ class JSBridge_API BridgeWrapper: public Poco::JS::Core::Wrapper
 public:
 	BridgeWrapper();
 		/// Creates the BridgeWrapper.
-	
+
 	~BridgeWrapper();
 		/// Destroys the BridgeWrapper.
 
 	v8::Handle<v8::FunctionTemplate> constructor(v8::Isolate* pIsolate);
 		/// Creates and returns a V8 FunctionTemplate for the constructor function.
-		
+
 	static void registerTransportFactory();
 		/// Registers the RemotingNG TransportFactory for the Bridge Transport.
 
 	static void unregisterTransportFactory();
 		/// Unregisters the RemotingNG TransportFactory for the Bridge Transport.
-		
+
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
 

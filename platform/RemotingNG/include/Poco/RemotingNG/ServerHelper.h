@@ -38,13 +38,13 @@ class ServerHelper
 	///     class ServerHelper<SomeService>
 	///     {
 	///     public:
-	///         typedef SomeServiceServerHelper Helper;
-	///         typedef SomeService Service;
-	///         typedef Poco::SharedPtr<Service> ServicePtr;
-	///         typedef ISomeService Interface;
-	///         typedef Poco::AutoPtr<ISomeService> InterfacePtr;
-	///         typedef SomeServiceRemoteObject RemoteObject;
-	///         typedef Poco::AutoPtr<RemoteObject> RemoteObjectPtr;
+	///         using Helper = SomeServiceServerHelper;
+	///         using Service = SomeService;
+	///         using ServicePtr = Poco::SharedPtr<Service>;
+	///         using Interface = ISomeService;
+	///         using InterfacePtr = Poco::AutoPtr<ISomeService>;
+	///         using RemoteObject = SomeServiceRemoteObject;
+	///         using RemoteObjectPtr = Poco::AutoPtr<RemoteObject>;
 	///         
 	///         static std::string registerObject(ServicePtr pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId);
 	///         static std::string registerObject(RemoteObjectPtr pRemoteObject, const std::string listenerId);
@@ -65,13 +65,13 @@ class ServerHelper
 	class ServerHelper<namespc::clazz##ServerHelper::Service> \
 	{ \
 	public: \
-		typedef namespc::clazz##ServerHelper Helper; \
-		typedef Helper::Service Service; \
-		typedef Poco::SharedPtr<Service> ServicePtr; \
-		typedef namespc::I##clazz Interface; \
-		typedef Poco::AutoPtr<Interface> InterfacePtr; \
-		typedef namespc::clazz##RemoteObject RemoteObject; \
-		typedef Poco::AutoPtr<RemoteObject> RemoteObjectPtr; \
+		using Helper = namespc::clazz##ServerHelper; \
+		using Service = Helper::Service; \
+		using ServicePtr = Poco::SharedPtr<Service>; \
+		using Interface = namespc::I##clazz; \
+		using InterfacePtr = Poco::AutoPtr<Interface>; \
+		using RemoteObject = namespc::clazz##RemoteObject; \
+		using RemoteObjectPtr = Poco::AutoPtr<RemoteObject>; \
 		\
 		static std::string registerObject(ServicePtr pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId) \
 		{ \

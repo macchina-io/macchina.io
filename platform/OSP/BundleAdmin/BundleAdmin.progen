@@ -1,0 +1,13 @@
+vc.project.guid = 333A4F24-D552-419C-A5FE-B4D0DBFA34A7
+vc.project.name = BundleAdmin
+vc.project.target = com.appinf.osp.bundleadmin
+vc.project.type = plugin
+vc.project.pocobase = ..\\..
+vc.project.outdir = .
+vc.project.platforms = Win32
+vc.project.configurations = debug_shared, release_shared
+vc.project.prototype = ${vc.project.name}_vs90.vcproj
+vc.project.compiler.include = ..\\..\\Foundation\\include;..\\..\\XML\\include;..\\..\\Util\\include;..\\..\\Net\\include;..\\..\\OSP\\include;..\\..\\OSP\\Web\\include;..\\..\\Zip\\include
+vc.project.postbuild.debug_shared = bundled /osarch=${project.targetArchitecture} /output=../bundles $(ProjectName).bndlspec
+vc.project.postbuild.release_shared = bundle /osarch=${project.targetArchitecture} /output=../bundles $(ProjectName).bndlspec
+vc.solution.create = true

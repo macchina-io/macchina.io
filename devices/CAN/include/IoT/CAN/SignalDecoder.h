@@ -29,7 +29,7 @@ class IoTCANDevices_API SignalDecoder: public Poco::RefCountedObject
 	/// Base class for all CAN signal decoders.
 {
 public:
-	typedef Poco::AutoPtr<SignalDecoder> Ptr;
+	using Ptr = Poco::AutoPtr<SignalDecoder>;
 
 	SignalDecoder();
 		/// Creates a SignalDecoder.

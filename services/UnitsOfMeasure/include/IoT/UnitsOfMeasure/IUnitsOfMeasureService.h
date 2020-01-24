@@ -39,7 +39,7 @@ class IUnitsOfMeasureService: public Poco::OSP::Service
 	/// containing unit definitions.
 {
 public:
-	typedef Poco::AutoPtr<IUnitsOfMeasureService> Ptr;
+	using Ptr = Poco::AutoPtr<IUnitsOfMeasureService>;
 
 	IUnitsOfMeasureService();
 		/// Creates a IUnitsOfMeasureService.

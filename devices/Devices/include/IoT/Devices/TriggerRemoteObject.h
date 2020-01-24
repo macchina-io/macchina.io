@@ -40,7 +40,7 @@ class TriggerRemoteObject: public IoT::Devices::ITrigger, public Poco::RemotingN
 	///     formatted as string for display purposes.
 {
 public:
-	typedef Poco::AutoPtr<TriggerRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<TriggerRemoteObject>;
 
 	TriggerRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Trigger> pServiceObject);
 		/// Creates a TriggerRemoteObject.

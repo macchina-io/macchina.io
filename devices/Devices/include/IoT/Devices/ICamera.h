@@ -32,7 +32,7 @@ class ICamera: public IoT::Devices::IDevice
 	/// The base class for image sensors, also known as cameras.
 {
 public:
-	typedef Poco::AutoPtr<ICamera> Ptr;
+	using Ptr = Poco::AutoPtr<ICamera>;
 
 	ICamera();
 		/// Creates a ICamera.

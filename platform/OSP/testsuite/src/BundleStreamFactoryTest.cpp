@@ -53,26 +53,26 @@ void BundleStreamFactoryTest::testStreamFactory()
 	CodeCache cc("codeCache");
 	ServiceRegistry reg;
 	LanguageTag lang("en", "US");
-	
+
 	BundleFactory::Ptr pBundleFactory(new BundleFactory(lang));
 	Poco::OSP::SystemEvents systemEvents;
 	BundleContextFactory::Ptr pBundleContextFactory(new BundleContextFactory(reg, systemEvents));
 	BundleLoader loader(cc, pBundleFactory, pBundleContextFactory);
 
 	loader.loadBundle(findBundle("com.appinf.osp.bundle2_1.0.0"));
-	
+
 	Poco::URIStreamOpener opener;
 	opener.registerStreamFactory("bndl", new BundleStreamFactory(loader));
-	
-	std::auto_ptr<std::istream> pStream(opener.open("bndl://com.appinf.osp.bundle2/lang.txt"));
+
+	std::unique_ptr<std::istream> pStream(opener.open("bndl://com.appinf.osp.bundle2/lang.txt"));
 	assert (pStream.get() != 0);
 	std::string s;
 	*pStream >> s;
 	assert (s == "en-US");
-	
+
 	try
 	{
-		std::auto_ptr<std::istream> pStream(opener.open("bndl://com.appinf.osp.bundle2/notfound.txt"));
+		std::unique_ptr<std::istream> pStream(opener.open("bndl://com.appinf.osp.bundle2/notfound.txt"));
 		fail("resource not found - must throw");
 	}
 	catch (Poco::Exception&)
@@ -81,7 +81,7 @@ void BundleStreamFactoryTest::testStreamFactory()
 
 	try
 	{
-		std::auto_ptr<std::istream> pStream(opener.open("bndl://com.appinf.osp.bundle99/notfound.txt"));
+		std::unique_ptr<std::istream> pStream(opener.open("bndl://com.appinf.osp.bundle99/notfound.txt"));
 		fail("bundle not found - must throw");
 	}
 	catch (Poco::Exception&)

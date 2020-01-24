@@ -36,7 +36,7 @@ class PeripheralServerHelper
 	/// device using the Bluetooth Generic Attribute Profile (GATT).
 {
 public:
-	typedef IoT::BtLE::Peripheral Service;
+	using Service = IoT::BtLE::Peripheral;
 
 	PeripheralServerHelper();
 		/// Creates a PeripheralServerHelper.

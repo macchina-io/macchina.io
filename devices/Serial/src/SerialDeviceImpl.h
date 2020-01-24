@@ -35,15 +35,15 @@ class SerialDeviceImpl: public IoT::Devices::DeviceImpl<IoT::Devices::SerialDevi
 	/// Poco::Serial::SerialPort class.
 {
 public:
-	typedef Poco::AutoPtr<SerialDeviceImpl> Ptr;
-	typedef Poco::SharedPtr<Poco::Serial::SerialPort> SerialPortPtr;
+	using Ptr = Poco::AutoPtr<SerialDeviceImpl>;
+	using SerialPortPtr = Poco::SharedPtr<Poco::Serial::SerialPort>;
 
 	SerialDeviceImpl(SerialPortPtr pSerialPort);
 		/// Creates the SerialDeviceImpl using the given SerialPort object.
-		
+
 	~SerialDeviceImpl();
 		/// Destroys the SerialDeviceImpl.
-	
+
 	// SerialDevice
 	void reconfigure(int baudRate, const std::string& parameters, const std::string& flowControl);
 	bool poll(double timeout);
@@ -55,7 +55,7 @@ public:
 	void writeByte(Poco::UInt8 byte);
 	Poco::UInt8 readByte();
 	int available() const;
-	
+
 protected:
 	Poco::Any getName(const std::string&) const;
 	Poco::Any getType(const std::string&) const;
@@ -71,14 +71,14 @@ protected:
 
 	bool getEvents(const std::string&) const;
 	void setEvents(const std::string&, bool enable);
-	
+
 	void enableEvents();
 	void disableEvents();
-	
+
 	bool eventsCancelled();
-	
+
 	void run();
-	
+
 	static const std::string NAME;
 	static const std::string TYPE;
 	static const std::string SYMBOLIC_NAME;

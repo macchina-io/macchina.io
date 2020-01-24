@@ -40,7 +40,7 @@ class BooleanSensorRemoteObject: public IoT::Devices::IBooleanSensor, public Poc
 	///     formatted as string for display purposes.
 {
 public:
-	typedef Poco::AutoPtr<BooleanSensorRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<BooleanSensorRemoteObject>;
 
 	BooleanSensorRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::BooleanSensor> pServiceObject);
 		/// Creates a BooleanSensorRemoteObject.

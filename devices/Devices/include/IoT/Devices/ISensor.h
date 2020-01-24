@@ -46,7 +46,7 @@ class ISensor: public IoT::Devices::IDevice
 	///     formatted as string for display purposes.
 {
 public:
-	typedef Poco::AutoPtr<ISensor> Ptr;
+	using Ptr = Poco::AutoPtr<ISensor>;
 
 	ISensor();
 		/// Creates a ISensor.

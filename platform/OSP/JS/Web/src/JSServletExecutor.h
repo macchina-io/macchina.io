@@ -20,7 +20,7 @@
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
 #include "Poco/Net/HTMLForm.h"
-#include "Poco/SharedPtr.h"	
+#include "Poco/SharedPtr.h"
 
 
 namespace Poco {
@@ -39,7 +39,7 @@ class JSServletExecutor: public JSExecutor
 	///   - session (Poco::OSP::Web::WebSession wrapper)
 {
 public:
-	typedef Poco::AutoPtr<JSServletExecutor> Ptr;
+	using Ptr = Poco::AutoPtr<JSServletExecutor>;
 
 	JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit);
 		/// Creates the ServletExecutor.
@@ -49,10 +49,10 @@ public:
 
 	void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 		/// Handles the request by invoking the $servlet() function.
-		
+
 protected:
 	void handleError(const ErrorInfo& errorInfo);
-	
+
 private:
 	Poco::Net::HTTPServerResponse* _pResponse;
 	Poco::SharedPtr<Poco::JS::Net::RequestHolder> _pRequestHolder;

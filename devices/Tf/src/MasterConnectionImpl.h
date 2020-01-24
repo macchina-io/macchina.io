@@ -23,17 +23,17 @@ namespace Tf {
 class IoTTf_API MasterConnectionImpl: public MasterConnection
 {
 public:
-	typedef Poco::AutoPtr<MasterConnection> Ptr;
+	using Ptr = Poco::AutoPtr<MasterConnection>;
 
 	MasterConnectionImpl();
 		/// Creates an unconnected MasterConnection.
-		
+
 	~MasterConnectionImpl();
 		/// Destroys the MasterConnection.
-		
+
 	IPConnection* ipcon();
 		/// Returns the underlying ip_connection.
-		
+
 	// MasterConnection
 	void connect(const std::string& host, Poco::UInt16 port);
 	void disconnect();
@@ -41,15 +41,15 @@ public:
 
 protected:
 	static void enumerate(
-		const char *uid, 
+		const char *uid,
 		const char *masterUID,
-        char position, 
+        char position,
         uint8_t hardwareVersion[3],
-        uint8_t firmwareVersion[3], 
+        uint8_t firmwareVersion[3],
         uint16_t type,
         uint8_t eventType,
         void *data);
-        
+
 private:
 	IPConnection _ipcon;
 };

@@ -59,7 +59,7 @@ class ModbusMasterServerHelper
 	/// allow multiple simultaneous requests, the transaction ID will always be zero.
 {
 public:
-	typedef IoT::Modbus::ModbusMaster Service;
+	using Service = IoT::Modbus::ModbusMaster;
 
 	ModbusMasterServerHelper();
 		/// Creates a ModbusMasterServerHelper.

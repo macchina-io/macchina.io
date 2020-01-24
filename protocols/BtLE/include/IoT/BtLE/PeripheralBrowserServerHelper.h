@@ -35,7 +35,7 @@ class PeripheralBrowserServerHelper
 	/// This class provides browsing for available Bluetooth LE devices.
 {
 public:
-	typedef IoT::BtLE::PeripheralBrowser Service;
+	using Service = IoT::BtLE::PeripheralBrowser;
 
 	PeripheralBrowserServerHelper();
 		/// Creates a PeripheralBrowserServerHelper.

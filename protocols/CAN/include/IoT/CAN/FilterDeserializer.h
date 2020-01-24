@@ -43,9 +43,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::CAN::Filter& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"id","invert","mask"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES[0], true, deser, value.id);
 		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[1], false, deser, value.invert);
 		TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES[2], true, deser, value.mask);

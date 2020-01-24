@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::CAN::Filter& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"id","invert","mask",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES[0], value.id, ser);
 		TypeSerializer<bool >::serialize(REMOTING__NAMES[1], value.invert, ser);
 		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES[2], value.mask, ser);

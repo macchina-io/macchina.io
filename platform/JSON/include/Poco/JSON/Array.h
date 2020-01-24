@@ -58,10 +58,10 @@ class JSON_API Array
 	/// ----
 {
 public:
-	typedef std::vector<Dynamic::Var>                 ValueVec;
-	typedef std::vector<Dynamic::Var>::iterator       Iterator;
-	typedef std::vector<Dynamic::Var>::const_iterator ConstIterator;
-	typedef SharedPtr<Array> Ptr;
+	using ValueVec = std::vector<Dynamic::Var>;
+	using Iterator = std::vector<Dynamic::Var>::iterator;
+	using ConstIterator = std::vector<Dynamic::Var>::const_iterator;
+	using Ptr = SharedPtr<Array>;
 
 	Array(int options = 0);
 		/// Creates an empty Array.
@@ -73,20 +73,16 @@ public:
 	Array(const Array& copy);
 		/// Creates an Array by copying another one.
 
-#ifdef POCO_ENABLE_CPP11
-
-	Array(Array&& other);
+	Array(Array&& other) noexcept;
 		/// Move constructor
 
-	Array& operator=(Array&& other);
-		/// Move assignment operator.
-
-#endif // POCO_ENABLE_CPP11
-
-	Array& operator=(const Array& other);
+	Array& operator = (const Array& other);
 		/// Assignment operator.
 
-	virtual ~Array();
+	Array& operator = (Array&& other) noexcept;
+		/// Move assignment operator.
+
+	~Array();
 		/// Destroys the Array.
 
 	void setEscapeUnicode(bool escape = true);
@@ -172,10 +168,10 @@ public:
 		return value;
 	}
 
-	void add(const Dynamic::Var& value);
+	Array& add(const Dynamic::Var& value);
 		/// Add the given value to the array
 
-	void set(unsigned int index, const Dynamic::Var& value);
+	Array& set(unsigned int index, const Dynamic::Var& value);
 		/// Update the element on the given index to specified value
 
 	void stringify(std::ostream& out, unsigned int indent = 0, int step = -1) const;
@@ -264,18 +260,20 @@ inline bool Array::isArray(ConstIterator& it) const
 }
 
 
-inline void Array::add(const Dynamic::Var& value)
+inline Array& Array::add(const Dynamic::Var& value)
 {
 	_values.push_back(value);
 	_modified = true;
+	return *this;
 }
 
 
-inline void Array::set(unsigned int index, const Dynamic::Var& value)
+inline Array& Array::set(unsigned int index, const Dynamic::Var& value)
 {
 	if (index >= _values.size()) _values.resize(index + 1);
 	_values[index] = value;
 	_modified = true;
+	return *this;
 }
 
 

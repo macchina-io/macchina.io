@@ -33,7 +33,7 @@ class MagnetometerRemoteObject: public IoT::Devices::IMagnetometer, public Poco:
 	/// The interface for three-axis Magnetometers.
 {
 public:
-	typedef Poco::AutoPtr<MagnetometerRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<MagnetometerRemoteObject>;
 
 	MagnetometerRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Magnetometer> pServiceObject);
 		/// Creates a MagnetometerRemoteObject.

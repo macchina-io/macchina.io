@@ -31,17 +31,17 @@ class IoTWebEvent_API WebEventNotifierImpl: public WebEventNotifier
 	/// The implementation of the WebEventNotifier interface.
 {
 public:
-	typedef Poco::AutoPtr<WebEventNotifierImpl> Ptr;
+	using Ptr = Poco::AutoPtr<WebEventNotifierImpl>;
 
 	WebEventNotifierImpl(Poco::OSP::BundleContext::Ptr pContext);
 		/// Creates the Device.
-		
+
 	~WebEventNotifierImpl();
 		/// Destroys the Device.
-	
-	// WebEventNotifier	
+
+	// WebEventNotifier
 	 void notify(const std::string& subjectName, const std::string& data);
-	 
+
 private:
 	Poco::OSP::WebEvent::WebEventService::Ptr _pWebEventService;
 };

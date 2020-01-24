@@ -100,7 +100,7 @@ void LoggerWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 			loggerName = toString(args[0]);
 		}
 
-		bool isExistingLogger = Poco::Logger::has(loggerName) != 0;
+		bool isExistingLogger = !Poco::Logger::has(loggerName).isNull();
 		bool reconfigure = args.Length() > 2 && args[2]->BooleanValue();
 
 		pLogger = &Poco::Logger::get(loggerName);

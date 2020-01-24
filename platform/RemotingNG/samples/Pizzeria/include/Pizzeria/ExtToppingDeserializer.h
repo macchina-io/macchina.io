@@ -8,9 +8,6 @@
 // Warning: All changes to this will be lost when the file is re-generated.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
-// All rights reserved.
-// 
-// SPDX-License-Identifier: Apache-2.0
 //
 
 
@@ -45,9 +42,7 @@ public:
 	{
 		// Pizzeria::Topping
 		{
-		remoting__staticInitBegin(REMOTING__NAMES__PIZZERIA__TOPPING);
 		static const std::string REMOTING__NAMES__PIZZERIA__TOPPING[] = {"name","price"};
-		remoting__staticInitEnd(REMOTING__NAMES__PIZZERIA__TOPPING);
 		bool ret = false;
 		std::string gen_name;
 		ret = TypeDeserializer<std::string >::deserialize(REMOTING__NAMES__PIZZERIA__TOPPING[0], true, deser, gen_name);
@@ -57,9 +52,7 @@ public:
 		if (ret) value.setPrice(gen_price);
 		}
 		
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"addInfo"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		bool ret = false;
 		std::string gen_addInfo;
 		ret = TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, gen_addInfo);

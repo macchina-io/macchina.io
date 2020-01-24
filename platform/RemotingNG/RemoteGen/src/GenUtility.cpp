@@ -32,7 +32,7 @@ const std::string GenUtility::VAL_REQUEST("Request");
 const std::string GenUtility::VAL_REPLY("Reply");
 const std::string GenUtility::ATTR_RETURN("return");
 const std::string GenUtility::ATTR_HEADER("header");
-const std::string GenUtility::KEYS_VECTOR[KEYS_SIZE] = {"std::vector", "std::set", "std::multiset", "std::list", "std::array", "Poco::Array"};
+const std::string GenUtility::KEYS_VECTOR[KEYS_SIZE] = {"std::vector", "std::set", "std::multiset", "std::unordered_set", "std::unordered_multiset", "std::list", "std::array", "Poco::Array"};
 
 
 std::string GenUtility::getMethodName(const Poco::CppParser::Function* pFunc)
@@ -324,7 +324,9 @@ bool GenUtility::isPtrType(const std::string& type)
 	return type.compare(0, 7, "AutoPtr") == 0
 	    || type.compare(0, 13, "Poco::AutoPtr") == 0
 	    || type.compare(0, 9, "SharedPtr") == 0
-	    || type.compare(0, 15, "Poco::SharedPtr") == 0;
+	    || type.compare(0, 15, "Poco::SharedPtr") == 0
+	    || type.compare(0, 9, "std::shared_ptr") == 0
+	    || type.compare(0, 15, "std::unique_ptr") == 0;
 }
 
 

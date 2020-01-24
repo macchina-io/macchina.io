@@ -43,7 +43,7 @@ class IORemoteObject: public IoT::Devices::IIO, public Poco::RemotingNG::RemoteO
 	/// values "in" and "out".
 {
 public:
-	typedef Poco::AutoPtr<IORemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<IORemoteObject>;
 
 	IORemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::IO> pServiceObject);
 		/// Creates a IORemoteObject.

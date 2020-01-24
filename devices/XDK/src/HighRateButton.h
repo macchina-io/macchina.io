@@ -25,7 +25,7 @@ namespace XDK {
 class HighRateButton: public IoT::Devices::DeviceImpl<IoT::Devices::Trigger, HighRateButton>
 {
 public:
-	typedef Poco::SharedPtr<HighRateButton> Ptr;
+	using Ptr = Poco::SharedPtr<HighRateButton>;
 
 	HighRateButton(BtLE::Peripheral::Ptr pPeripheral);
 		/// Creates a HighRateButton.

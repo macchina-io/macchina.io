@@ -33,7 +33,7 @@ class AccelerometerRemoteObject: public IoT::Devices::IAccelerometer, public Poc
 	/// The interface for three-axis Accelerometers.
 {
 public:
-	typedef Poco::AutoPtr<AccelerometerRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<AccelerometerRemoteObject>;
 
 	AccelerometerRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Accelerometer> pServiceObject);
 		/// Creates a AccelerometerRemoteObject.

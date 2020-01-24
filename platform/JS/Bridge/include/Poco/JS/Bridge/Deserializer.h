@@ -58,7 +58,7 @@ public:
 	bool deserialize(const std::string& name, bool isMandatory, Poco::UInt32& value);
 	bool deserialize(const std::string& name, bool isMandatory, long& value);
 	bool deserialize(const std::string& name, bool isMandatory, unsigned long& value);
-#ifndef POCO_LONG_IS_64_BIT
+#ifndef POCO_INT64_IS_LONG
 	bool deserialize(const std::string& name, bool isMandatory, Poco::Int64& value);
 	bool deserialize(const std::string& name, bool isMandatory, Poco::UInt64& value);
 #endif

@@ -41,19 +41,19 @@ class IoTBtLE_API PeripheralFactory: public Poco::OSP::Service
 	/// object to communicate with the actual device.
 {
 public:
-	typedef Poco::AutoPtr<PeripheralFactory> Ptr;
+	using Ptr = Poco::AutoPtr<PeripheralFactory>;
 
 	virtual Peripheral::Ptr createPeripheral(const std::string& address) = 0;
 		/// Creates and returns a Peripheral object for the Peripheral with the
 		/// given address (e.g., "C4:BE:84:72:C5:06").
-		
+
 	virtual ~PeripheralFactory();
 		/// Destroys the PeripheralFactory.
 
 	// Poco::OSP::Service
 	const std::type_info& type() const;
 	bool isA(const std::type_info& otherType) const;
-	
+
 	static const std::string SERVICE_NAME;
 		/// The service name of the PeripheralFactory.
 };

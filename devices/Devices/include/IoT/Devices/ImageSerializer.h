@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::Devices::Image& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"encoding","height","image","step","width",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.encoding, ser);
 		TypeSerializer<int >::serialize(REMOTING__NAMES[1], value.height, ser);
 		TypeSerializer<Poco::SharedPtr < std::vector < char > > >::serialize(REMOTING__NAMES[2], value.image, ser);

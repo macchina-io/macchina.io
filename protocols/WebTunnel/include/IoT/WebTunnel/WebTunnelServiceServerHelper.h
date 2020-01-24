@@ -35,7 +35,7 @@ class WebTunnelServiceServerHelper
 	/// The interface for WebTunnel clients.
 {
 public:
-	typedef IoT::WebTunnel::WebTunnelService Service;
+	using Service = IoT::WebTunnel::WebTunnelService;
 
 	WebTunnelServiceServerHelper();
 		/// Creates a WebTunnelServiceServerHelper.

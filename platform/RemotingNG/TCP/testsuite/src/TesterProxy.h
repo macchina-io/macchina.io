@@ -22,7 +22,7 @@
 class TesterProxy: public ITester, public Poco::RemotingNG::Proxy
 {
 public:
-	typedef Poco::AutoPtr<TesterProxy> Ptr;
+	using Ptr = Poco::AutoPtr<TesterProxy>;
 
 	TesterProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a TesterProxy.

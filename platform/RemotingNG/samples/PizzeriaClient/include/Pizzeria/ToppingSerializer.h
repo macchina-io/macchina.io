@@ -8,9 +8,6 @@
 // Warning: All changes to this will be lost when the file is re-generated.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
-// All rights reserved.
-// 
-// SPDX-License-Identifier: Apache-2.0
 //
 
 
@@ -39,9 +36,7 @@ public:
 
 	static void serializeImpl(const Pizzeria::Topping& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"name","price",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.getName(), ser);
 		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES[1], value.getPrice(), ser);
 	}

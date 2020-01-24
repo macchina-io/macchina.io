@@ -66,11 +66,7 @@ public:
 		_pContext = pContext;
 
 		MediaTypeMapper::Ptr pMediaTypeMapper = new MediaTypeMapper;
-#if __cplusplus < 201103L
-		std::auto_ptr<std::istream> pStream(pContext->thisBundle()->getResource("mime.types"));
-#else
 		std::unique_ptr<std::istream> pStream(pContext->thisBundle()->getResource("mime.types"));
-#endif
 		if (pStream.get())
 		{
 			pMediaTypeMapper->load(*pStream);
@@ -98,6 +94,8 @@ public:
 		bool addAuthHeader(pContext->thisBundle()->properties().getBool("addAuthHeader", true));
 		bool addSignature(pContext->thisBundle()->properties().getBool("addSignature", true));
 		int authMethods = 0;
+		std::string defaultDomain;
+		std::string corsAllowedOrigin;
 		if (pPrefsSvcRef)
 		{
 			Poco::AutoPtr<PreferencesService> pPrefsSvc = pPrefsSvcRef->castedInstance<PreferencesService>();
@@ -111,6 +109,7 @@ public:
 			csrfCookie = pPrefsSvc->configuration()->getString("osp.web.sessionManager.csrfCookie", csrfCookie);
 			csrfProtectionEnabled = pPrefsSvc->configuration()->getBool("osp.web.csrfProtectionEnabled", csrfProtectionEnabled);
 			verifyAddress = pPrefsSvc->configuration()->getBool("osp.web.sessionManager.verifyAddress", verifyAddress);
+			defaultDomain = pPrefsSvc->configuration()->getString("osp.web.sessionManager.defaultDomain", "");
 			webSessionStore = pPrefsSvc->configuration()->getString("osp.web.sessionManager.sessionStore", webSessionStore);
 			hstsEnable = pPrefsSvc->configuration()->getBool("osp.web.hsts.enable", hstsEnable);
 			hstsMaxAge = pPrefsSvc->configuration()->getInt("osp.web.hsts.maxAge", hstsMaxAge);
@@ -121,6 +120,7 @@ public:
 			addAuthHeader = pPrefsSvc->configuration()->getBool("osp.web.addAuthHeader", addAuthHeader);
 			addSignature = pPrefsSvc->configuration()->getBool("osp.web.addSignature", addSignature);
 			authMethods = WebServerDispatcher::parseAuthMethods(pPrefsSvc->configuration()->getString("osp.web.authMethods", ""));
+			corsAllowedOrigin = pPrefsSvc->configuration()->getString("osp.web.cors.allowedOrigin", "");
 		}
 
 		Poco::StringTokenizer tok(compressedMediaTypesString, ",", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
@@ -147,6 +147,7 @@ public:
 		config.pMediaTypeMapper = pMediaTypeMapper;
 		config.authServiceName = authServiceName;
 		config.tokenValidatorName = tokenValidatorName;
+		config.corsAllowedOrigin = corsAllowedOrigin;
 		if (compressResponse) config.options |= WebServerDispatcher::CONF_OPT_COMPRESS_RESPONSES;
 		config.compressedMediaTypes = compressedMediaTypes;
 		config.customResponseHeaders = customResponseHeaders;
@@ -172,6 +173,7 @@ public:
 		_pWebSessionManager->setCookiePersistence(cookiePersistence);
 		_pWebSessionManager->setCookieSecure(sessionCookieSecure);
 		_pWebSessionManager->setVerifyAddress(verifyAddress);
+		_pWebSessionManager->setDefaultDomain(defaultDomain);
 
 		if (csrfProtectionEnabled)
 		{

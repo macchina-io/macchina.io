@@ -51,7 +51,7 @@ class LEDServerHelper
 	/// be non-zero.
 {
 public:
-	typedef IoT::Devices::LED Service;
+	using Service = IoT::Devices::LED;
 
 	LEDServerHelper();
 		/// Creates a LEDServerHelper.

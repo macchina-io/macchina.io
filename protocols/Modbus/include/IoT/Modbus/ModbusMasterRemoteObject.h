@@ -57,7 +57,7 @@ class ModbusMasterRemoteObject: public IoT::Modbus::IModbusMaster, public Poco::
 	/// allow multiple simultaneous requests, the transaction ID will always be zero.
 {
 public:
-	typedef Poco::AutoPtr<ModbusMasterRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<ModbusMasterRemoteObject>;
 
 	ModbusMasterRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Modbus::ModbusMaster> pServiceObject);
 		/// Creates a ModbusMasterRemoteObject.

@@ -239,9 +239,7 @@ void SerializerGenerator::serializeCodeGen(const Poco::CppParser::Function* pFun
 		std::string code("static const std::string REMOTING__NAMESPACE(\"");
 		code.append(defaultNS);
 		code.append("\");");
-		gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__NAMESPACE);");
 		gen.writeMethodImplementation(code);
-		gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__NAMESPACE);");
 		gen.writeMethodImplementation("ser.registerNamespace(REMOTING__NAMESPACE);");
 	}
 	
@@ -356,9 +354,7 @@ void SerializerGenerator::serializeImplCodeGenImpl(const Poco::CppParser::Struct
 		poco_assert_dbg (staticVarNames[staticVarNames.size() -1] == ',');
 		staticVarNames[staticVarNames.size() -1] = '}';
 		staticVarNames.append(";");
-		gen.writeMethodImplementation(Poco::format("remoting__staticInitBegin(REMOTING__NAMES%s);", suffix));
 		gen.writeMethodImplementation(staticVarNames);
-		gen.writeMethodImplementation(Poco::format("remoting__staticInitEnd(REMOTING__NAMES%s);", suffix));
 		// write elem code lines
 		writeAll(elemCodeLines, gen);
 	}
@@ -424,9 +420,7 @@ void SerializerGenerator::serializeAttributesCodeGenImpl(const Poco::CppParser::
 		poco_assert_dbg (staticVarNames[staticVarNames.size() -1] == ',');
 		staticVarNames[staticVarNames.size() -1] = '}';
 		staticVarNames.append(";");
-		gen.writeMethodImplementation(Poco::format("remoting__staticInitBegin(REMOTING__NAMES%s);", suffix));
 		gen.writeMethodImplementation(staticVarNames);
-		gen.writeMethodImplementation(Poco::format("remoting__staticInitEnd(REMOTING__NAMES%s);", suffix));
 		// write attr code lines
 		writeAll(attrCodeLines, gen);
 	}
@@ -514,9 +508,7 @@ void SerializerGenerator::prepareSerializeAttributesCodeGenImpl(const Poco::CppP
 		poco_assert_dbg (staticVarNames[staticVarNames.size() -1] == ',');
 		staticVarNames[staticVarNames.size() -1] = '}';
 		staticVarNames.append(";");
-		gen.writeMethodImplementation(Poco::format("remoting__staticInitBegin(REMOTING__NAMES%s);", suffix));
 		gen.writeMethodImplementation(staticVarNames);
-		gen.writeMethodImplementation(Poco::format("remoting__staticInitEnd(REMOTING__NAMES%s);", suffix));
 		// write attr code lines
 		writeAll(attrCodeLines, gen);
 	}

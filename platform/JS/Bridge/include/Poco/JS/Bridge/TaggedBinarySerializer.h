@@ -96,7 +96,7 @@ public:
 	void serialize(const std::string& name, Poco::UInt32 val);
 	void serialize(const std::string& name, long val);
 	void serialize(const std::string& name, unsigned long val);
-#ifndef POCO_LONG_IS_64_BIT
+#ifndef POCO_INT64_IS_LONG
 	void serialize(const std::string& name, Poco::Int64 val);
 	void serialize(const std::string& name, Poco::UInt64 val);
 #endif

@@ -35,7 +35,7 @@ class RemotingNG_API ProxyFactory: public Poco::RefCountedObject
 	/// A ProxyFactory is used to create instances of a given Proxy class.
 {
 public:
-	typedef Poco::AutoPtr<ProxyFactory> Ptr;
+	using Ptr = Poco::AutoPtr<ProxyFactory>;
 	
 	ProxyFactory();
 		/// Creates a ProxyFactory.

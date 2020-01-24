@@ -63,6 +63,8 @@ class OSPWeb_API WebServerExtensionPoint: public ExtensionPoint
 	///                   service.
 	///                   If the permission string is an asterisk ("*"), only the
 	///                   validity of the credentials is verified.
+	///                   If the permission string is two asterisks ("**"), then
+	///                   credentials are optional, but, if present, must be valid.
 	///    * authMethods: Specifies a comma-separated list of allowed authentication
 	///                   methods ("basic", "session", "bearer"). If not specified the
 	///                   globally enabled authentication methods will be used.
@@ -105,6 +107,20 @@ class OSPWeb_API WebServerExtensionPoint: public ExtensionPoint
 	///                   If not specified, all methods are passed to the handler.
 	///    * class:       The class name of the request handler factory.
 	///    * library:     The name of the shared library containing the request handler factory.
+	///    * cors:        If "true", enable CORS (Cross-Origin Resource Sharing)
+	///    * allowOrigin: Specify the allowed origin for CORS requests. Can be "*" or empty (default) to allow all
+	///                   domains. If empty, the response's "Access-Control-Allow-Origin" header will be set
+	///                   to the value of the request's "Origin" header. If "*" or a specific domain,
+	///                   the response's "Access-Control-Allow-Origin" header will be set to that value.
+	///    * allowMethods:
+	///                   Allowed methods for CORS requests. Defaults to the value of the methods attribute,
+	///                   or "*" if methods is empty.
+	///    * allowHeaders:
+	///                   A comma-separated list of header names. If not empty, a "Access-Control-Allow-Headers"
+	///                   header will be added with the given value.
+	///    * allowCredentials:
+	///                   If "true", an "Access-Control-Allow-Credentials" header with value "true" will
+	///                   be added to the response. Defaults to "true".
 {
 public:
 	WebServerExtensionPoint(BundleContext::Ptr pContext, WebServerDispatcher* pDispatcher);
@@ -146,14 +162,19 @@ protected:
 	static const std::string ATTR_INDEX;
 	static const std::string ATTR_HIDDEN;
 	static const std::string ATTR_CACHE;
+	static const std::string ATTR_CORS;
+	static const std::string ATTR_ALLOWORIGIN;
+	static const std::string ATTR_ALLOWMETHODS;
+	static const std::string ATTR_ALLOWHEADERS;
+	static const std::string ATTR_ALLOWCREDENTIALS;
 	static const std::string MANIFEST_NAME;
 
 private:
 	WebServerExtensionPoint();
 
-	typedef Poco::SharedPtr<WebRequestHandlerFactory> FactoryPtr;
-	typedef Poco::ClassLoader<WebRequestHandlerFactory> Loader;
-	typedef std::map<std::string, Bundle::Ptr> LibBundleMap;
+	using FactoryPtr = Poco::SharedPtr<WebRequestHandlerFactory>;
+	using Loader = Poco::ClassLoader<WebRequestHandlerFactory>;
+	using LibBundleMap = std::map<std::string, Bundle::Ptr>;
 
 	BundleContext::Ptr   _pContext;
 	WebServerDispatcher* _pDispatcher;

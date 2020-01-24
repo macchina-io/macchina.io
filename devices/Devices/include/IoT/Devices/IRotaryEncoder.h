@@ -33,7 +33,7 @@ class IRotaryEncoder: public IoT::Devices::ICounter
 	/// on the Counter interface.
 {
 public:
-	typedef Poco::AutoPtr<IRotaryEncoder> Ptr;
+	using Ptr = Poco::AutoPtr<IRotaryEncoder>;
 
 	IRotaryEncoder();
 		/// Creates a IRotaryEncoder.

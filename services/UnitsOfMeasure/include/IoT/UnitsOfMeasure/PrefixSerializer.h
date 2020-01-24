@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::UnitsOfMeasure::Prefix& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"code","icode","name","print","value",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.code, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.icode, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.name, ser);

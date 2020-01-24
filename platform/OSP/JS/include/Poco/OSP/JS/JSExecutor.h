@@ -38,35 +38,35 @@ class OSPJS_API JSExecutor: public Poco::JS::Core::JSExecutor
 	///   - DBSession (Database session constructor)
 {
 public:
-	typedef Poco::AutoPtr<JSExecutor> Ptr;
+	using Ptr = Poco::AutoPtr<JSExecutor>;
 
 	JSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit);
 		/// Creates the JSExecutor.
 
 	~JSExecutor();
 		/// Destroys the JSExecutor.
-		
+
 	Poco::OSP::Bundle::Ptr bundle() const;
 		/// Returns the bundle containing the script.
 
 	Poco::OSP::BundleContext::Ptr context() const;
 		/// Returns the bundle context.
-		
+
 	static const std::vector<std::string> getGlobalModuleSearchPaths();
 		/// Returns the global module search paths.
 
 	static void setGlobalModuleSearchPaths(const std::vector<std::string>& searchPaths);
 		/// Sets the global module search paths.
-		
+
 	static void setGlobalModuleRegistry(Poco::JS::Core::ModuleRegistry::Ptr pModuleRegistry);
 		/// Sets the global module registry.
-		
+
 	static Poco::JS::Core::ModuleRegistry::Ptr getGlobalModuleRegistry();
 		/// Returns the global module registry.
-		
+
 	static void setDefaultMemoryLimit(Poco::UInt64 memoryLimit);
 		/// Sets the global default memory limit for scripts.
-		
+
 	static Poco::UInt64 getDefaultMemoryLimit();
 		/// Returns the global default memory limit for scripts.
 
@@ -75,10 +75,10 @@ protected:
 	void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate);
 	void handleError(const ErrorInfo& errorInfo);
 
-private:	
+private:
 	Poco::OSP::BundleContext::Ptr _pContext;
 	Poco::OSP::Bundle::Ptr _pBundle;
-	
+
 	static std::vector<std::string> _globalModuleSearchPaths;
 	static Poco::JS::Core::ModuleRegistry::Ptr _globalModuleRegistry;
 	static Poco::UInt64 _defaultMemoryLimit;
@@ -101,27 +101,27 @@ class OSPJS_API TimedJSExecutor: public Poco::JS::Core::TimedJSExecutor
 	///   - DBSession (Database session constructor)
 {
 public:
-	typedef Poco::AutoPtr<TimedJSExecutor> Ptr;
+	using Ptr = Poco::AutoPtr<TimedJSExecutor>;
 
 	TimedJSExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit);
 		/// Creates the TimedJSExecutor.
-		
+
 	~TimedJSExecutor();
 		/// Destroys the TimedJSExecutor.
 
 	Poco::OSP::Bundle::Ptr bundle() const;
 		/// Returns the bundle containing the script.
-		
+
 	Poco::OSP::BundleContext::Ptr context() const;
 		/// Returns the bundle context.
-	
+
 protected:
 	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
 	void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate);
 	void handleError(const ErrorInfo& errorInfo);
 	void onBundleStopped(const void* pSender, Poco::OSP::BundleEvent& ev);
 
-private:	
+private:
 	Poco::OSP::BundleContext::Ptr _pContext;
 	Poco::OSP::Bundle::Ptr _pBundle;
 };

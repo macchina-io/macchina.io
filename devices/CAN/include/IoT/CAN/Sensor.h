@@ -27,7 +27,7 @@ namespace CAN {
 class IoTCANDevices_API Sensor: public IoT::Devices::DeviceImpl<IoT::Devices::Sensor, Sensor>
 {
 public:
-	typedef Poco::SharedPtr<Sensor> Ptr;
+	using ptr = Poco::SharedPtr<Sensor>;
 
 	Sensor(Poco::Util::Timer& timer, const std::string& signal, const std::string& physicalQuantity, const std::string& physicalUnit);
 		/// Creates a Sensor.
@@ -71,7 +71,7 @@ protected:
 	double _value;
 	double _valueChangedDelta;
 	int _valueChangedPeriod;
-	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double> > _pEventPolicy;
+	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double>> _pEventPolicy;
 	Poco::Any _signal;
 	Poco::Any _physicalQuantity;
 	Poco::Any _physicalUnit;

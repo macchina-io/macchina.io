@@ -66,8 +66,8 @@ public:
 	Poco::BasicEvent<const WebSession*> sessionEnds;
 		/// Fired before the session object is destroyed.
 
-	typedef std::map<std::string, Poco::Any> Attributes;
-	typedef Poco::SharedPtr<WebSession> Ptr;
+	using Attributes = std::map<std::string, Poco::Any>;
+	using Ptr = Poco::SharedPtr<WebSession>;
 
 	WebSession(const std::string& id, const std::string& csrfToken, Poco::Int64 version, int timeoutSeconds, const Poco::Net::IPAddress& clientAddress, Poco::AutoPtr<WebSessionStore> pStore, BundleContext::Ptr pContext);
 		/// Creates a new WebSession with the given ID and time out.

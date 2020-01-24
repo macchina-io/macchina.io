@@ -58,7 +58,7 @@ class IModbusMaster: public Poco::OSP::Service
 	/// allow multiple simultaneous requests, the transaction ID will always be zero.
 {
 public:
-	typedef Poco::AutoPtr<IModbusMaster> Ptr;
+	using Ptr = Poco::AutoPtr<IModbusMaster>;
 
 	IModbusMaster();
 		/// Creates a IModbusMaster.

@@ -32,7 +32,7 @@ class IoTNetworkEnvironment_API NetworkEnvironmentServiceImpl: public NetworkEnv
 	/// Implementation of the NetworkEnvironmentService interface.
 {
 public:
-	typedef Poco::SharedPtr<NetworkEnvironmentServiceImpl> Ptr;
+	using Ptr = Poco::SharedPtr<NetworkEnvironmentServiceImpl>;
 
 	NetworkEnvironmentServiceImpl();
 		/// Creates the NetworkEnvironmentServiceImpl.
@@ -43,7 +43,7 @@ public:
 	// NetworkEnvironmentService
 	std::string findActiveNetworkInterface(IPVersion ipVersion);
 	std::vector<NetworkInterface> enumerateInterfaces(int options = 0);
-	
+
 private:
 	NetworkMonitorThread* _pMonitorThread;
 };

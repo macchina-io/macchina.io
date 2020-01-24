@@ -32,7 +32,7 @@ class RemotingNG_API EventListener: public Listener
 	/// client side.
 {
 public:
-	typedef Poco::AutoPtr<EventListener> Ptr;
+	using Ptr = Poco::AutoPtr<EventListener>;
 
 	EventListener(const std::string& endPoint);
 		/// Creates an EventListener. 

@@ -35,11 +35,11 @@ class JSCore_API ModuleRegistry: public Poco::RefCountedObject
 	/// A registry of native JavaScript modules.
 {
 public:
-	typedef Poco::AutoPtr<ModuleRegistry> Ptr;
+	using Ptr = Poco::AutoPtr<ModuleRegistry>;
 
 	ModuleRegistry();
 		/// Creates the ModuleRegistry.
-	
+
 	~ModuleRegistry();
 		/// Destroys the ModuleRegistry.
 
@@ -48,19 +48,19 @@ public:
 		///
 		/// Throws a Poco::ExistsException if another module with the same
 		/// name has already been registered.
-		
+
 	void unregisterModule(const std::string& name);
 		/// Unregisters the module with the given name.
-		
+
 	Module::Ptr findModule(const std::string& name) const;
 		/// Searches for a Module with the given name.
 		///
 		/// Returns a pointer to the Module if found, otherwise
 		/// returns a null pointer.
-		
+
 private:
-	typedef std::map<std::string, Module::Ptr> ModuleMap;
-	
+	using ModuleMap = std::map<std::string, Module::Ptr>;
+
 	ModuleMap _modules;
 	mutable Poco::FastMutex _mutex;
 };

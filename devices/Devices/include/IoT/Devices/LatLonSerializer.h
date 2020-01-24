@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::Devices::LatLon& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"latitude","longitude",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.latitude, ser);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[1], value.longitude, ser);
 	}

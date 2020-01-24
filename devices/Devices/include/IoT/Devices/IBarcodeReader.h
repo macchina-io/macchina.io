@@ -36,7 +36,7 @@ class IBarcodeReader: public IoT::Devices::IDevice
 	/// done via device features and properties.
 {
 public:
-	typedef Poco::AutoPtr<IBarcodeReader> Ptr;
+	using Ptr = Poco::AutoPtr<IBarcodeReader>;
 
 	IBarcodeReader();
 		/// Creates a IBarcodeReader.

@@ -36,7 +36,7 @@ class NetworkEnvironmentServiceServerHelper
 	/// about network address and network interface changes.
 {
 public:
-	typedef IoT::NetworkEnvironment::NetworkEnvironmentService Service;
+	using Service = IoT::NetworkEnvironment::NetworkEnvironmentService;
 
 	NetworkEnvironmentServiceServerHelper();
 		/// Creates a NetworkEnvironmentServiceServerHelper.

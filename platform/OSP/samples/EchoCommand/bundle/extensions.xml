@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="com.appinf.osp.shell.command" command="echo" class="EchoCommandFactory"/>
+</extensions>

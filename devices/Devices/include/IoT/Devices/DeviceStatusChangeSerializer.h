@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::Devices::DeviceStatusChange& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"current","previous",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<int >::serialize(REMOTING__NAMES[0], value.current, ser);
 		TypeSerializer<int >::serialize(REMOTING__NAMES[1], value.previous, ser);
 	}

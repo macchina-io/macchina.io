@@ -40,7 +40,7 @@ class IMQTTClient: public Poco::OSP::Service
 	/// attempt to reconnect if the connection to the server is lost.
 {
 public:
-	typedef Poco::AutoPtr<IMQTTClient> Ptr;
+	using Ptr = Poco::AutoPtr<IMQTTClient>;
 
 	IMQTTClient();
 		/// Creates a IMQTTClient.

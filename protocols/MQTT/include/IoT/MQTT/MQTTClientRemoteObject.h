@@ -39,7 +39,7 @@ class MQTTClientRemoteObject: public IoT::MQTT::IMQTTClient, public Poco::Remoti
 	/// attempt to reconnect if the connection to the server is lost.
 {
 public:
-	typedef Poco::AutoPtr<MQTTClientRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<MQTTClientRemoteObject>;
 
 	MQTTClientRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::MQTT::MQTTClient> pServiceObject);
 		/// Creates a MQTTClientRemoteObject.

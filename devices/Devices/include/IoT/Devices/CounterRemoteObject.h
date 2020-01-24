@@ -33,7 +33,7 @@ class CounterRemoteObject: public IoT::Devices::ICounter, public Poco::RemotingN
 	/// A counter counts events.
 {
 public:
-	typedef Poco::AutoPtr<CounterRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<CounterRemoteObject>;
 
 	CounterRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Counter> pServiceObject);
 		/// Creates a CounterRemoteObject.

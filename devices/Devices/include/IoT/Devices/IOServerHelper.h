@@ -45,7 +45,7 @@ class IOServerHelper
 	/// values "in" and "out".
 {
 public:
-	typedef IoT::Devices::IO Service;
+	using Service = IoT::Devices::IO;
 
 	IOServerHelper();
 		/// Creates a IOServerHelper.

@@ -71,7 +71,7 @@ class Redis_API Client
 	///     command << "list";
 {
 public:
-	typedef SharedPtr<Client> Ptr;
+	using Ptr = SharedPtr<Client>;
 
 	Client();
 		/// Creates an unconnected Client.

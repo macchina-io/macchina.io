@@ -32,7 +32,7 @@ class ICounter: public IoT::Devices::IDevice
 	/// A counter counts events.
 {
 public:
-	typedef Poco::AutoPtr<ICounter> Ptr;
+	using Ptr = Poco::AutoPtr<ICounter>;
 
 	ICounter();
 		/// Creates a ICounter.

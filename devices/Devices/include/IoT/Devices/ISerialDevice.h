@@ -54,7 +54,7 @@ class ISerialDevice: public IoT::Devices::IDevice
 	///     setFeature("events", true);
 {
 public:
-	typedef Poco::AutoPtr<ISerialDevice> Ptr;
+	using Ptr = Poco::AutoPtr<ISerialDevice>;
 
 	ISerialDevice();
 		/// Creates a ISerialDevice.
@@ -75,7 +75,7 @@ public:
 	virtual bool poll(double timeout) = 0;
 		/// Waits for data to arrive at the port.
 		///
-		/// Returns true immediately if data is already in 
+		/// Returns true immediately if data is already in
 		/// the internal buffer, or if data arrives during the
 		/// specified time interval (given in seconds), otherwise false.
 
@@ -92,7 +92,7 @@ public:
 		/// is encountered, or no character is received for the specified timeout (in seconds).
 
 	virtual std::string readString() = 0;
-		/// Reads what's currently available from the serial port 
+		/// Reads what's currently available from the serial port
 		/// or internal buffer and returns it in data.
 		///
 		/// If the internal buffer is empty, blocks until data
@@ -107,7 +107,7 @@ public:
 		/// 4800, 9600, 19200, 38400, 57600, 115200 or 230400.
 		///
 		/// Specify -1 for baudRate to use the currently configured speed.
-		/// Note that not all platforms support all baud rates.		
+		/// Note that not all platforms support all baud rates.
 		///
 		/// To specify character size, parity and stop bits, use the
 		/// parameters argument. The parameters argument must be a three

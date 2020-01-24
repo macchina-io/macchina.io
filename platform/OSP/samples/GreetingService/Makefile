@@ -9,9 +9,9 @@ include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 objects = GreetingService
 
-target      = com.appinf.osp.samples.greetingservice
-target_libs = PocoOSP PocoUtil PocoXML PocoFoundation
+target         = com.appinf.osp.samples.greetingservice
+target_libs    = PocoOSP PocoUtil PocoXML PocoFoundation
 
-postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles GreetingService.bndlspec
+postbuild      = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles GreetingService.bndlspec
 
 include $(POCO_BASE)/build/rules/dylib

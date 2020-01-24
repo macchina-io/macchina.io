@@ -22,7 +22,7 @@
 class TesterProxy: public ITester, public Poco::RemotingNG::Proxy
 {
 public:
-	typedef Poco::AutoPtr<TesterProxy> Ptr;
+	using Ptr = Poco::AutoPtr<TesterProxy>;
 
 	TesterProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a TesterProxy.
@@ -84,6 +84,8 @@ public:
 
 	std::array < int, 4 > testStdArray(const std::array < int, 4 >& arr);
 
+	std::shared_ptr < Struct1 > testStdSharedPtr(const std::shared_ptr < Struct1 >& pStruct1);
+
 	Struct1 testStruct11(const Struct1& s1);
 
 	void testStruct12(Struct1& s1);
@@ -143,6 +145,7 @@ private:
 	mutable std::string _testOneWayResultRet;
 	mutable Poco::SharedPtr < Struct1 > _testPtrRet;
 	mutable std::array < int, 4 > _testStdArrayRet;
+	mutable std::shared_ptr < Struct1 > _testStdSharedPtrRet;
 	mutable Struct1 _testStruct11Ret;
 	mutable std::vector < Struct1 > _testStruct1Vec1Ret;
 	mutable Struct2 _testStruct21Ret;

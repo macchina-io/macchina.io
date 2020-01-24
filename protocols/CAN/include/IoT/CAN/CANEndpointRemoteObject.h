@@ -33,7 +33,7 @@ class CANEndpointRemoteObject: public IoT::CAN::ICANEndpoint, public Poco::Remot
 	/// The CANEndpoint is used to receive and send CAN and CAN-FD frames.
 {
 public:
-	typedef Poco::AutoPtr<CANEndpointRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<CANEndpointRemoteObject>;
 
 	CANEndpointRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::CAN::CANEndpoint> pServiceObject);
 		/// Creates a CANEndpointRemoteObject.

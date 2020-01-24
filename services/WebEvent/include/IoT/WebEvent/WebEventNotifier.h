@@ -28,26 +28,26 @@ namespace WebEvent {
 
 //@ remote
 class IoTWebEvent_API WebEventNotifier
-	/// A simplified Remoting-capable interface to the 
+	/// A simplified Remoting-capable interface to the
 	/// Poco::OSP::WebEvent::WebEventService,
 	/// usable from both C++ and JavaScript.
 {
 public:
-	typedef Poco::AutoPtr<WebEventNotifier> Ptr;
+	using Ptr = Poco::AutoPtr<WebEventNotifier>;
 
 	WebEventNotifier();
 		/// Creates the Device.
-		
+
 	virtual ~WebEventNotifier();
 		/// Destroys the Device.
-		
+
 	virtual void notify(const std::string& subjectName, const std::string& data) = 0;
 		/// Notify all registered subscribers to the given subject, using
 		/// the given data, which is typically a serialized JSON or
 		/// XML document in UTF-8 encoding.
-		/// 
+		///
 		/// Sending the notification is done asynchronously. If a notification cannot be
-		/// delivered to a subscriber due to a network issue, the subscriber will be removed 
+		/// delivered to a subscriber due to a network issue, the subscriber will be removed
 		/// and its WebSocket closed.
 };
 

@@ -22,113 +22,6 @@
 #include "Poco/UnWindows.h"
 
 
-#ifndef POCO_FORCE_MIN_WINDOWS_OS_SUPPORT
-	// Determine the real version.
-	// This setting can be forced from UnWindows.h
-	#if defined (_WIN32_WINNT_WINBLUE)
-		//Windows 8.1 _WIN32_WINNT_WINBLUE (0x0602)
-		#ifdef _WIN32_WINNT
-			#undef _WIN32_WINNT
-		#endif
-		#define _WIN32_WINNT _WIN32_WINNT_WINBLUE
-		#ifdef NTDDI_VERSION
-			#undef NTDDI_VERSION
-		#endif
-		#define NTDDI_VERSION NTDDI_WINBLUE
-	#elif defined (_WIN32_WINNT_WIN8)
-		//Windows 8	_WIN32_WINNT_WIN8 (0x0602)
-		#ifdef _WIN32_WINNT
-			#undef _WIN32_WINNT
-		#endif
-		#define _WIN32_WINNT _WIN32_WINNT_WIN8
-		#ifdef NTDDI_VERSION
-			#undef NTDDI_VERSION
-		#endif
-		#define NTDDI_VERSION NTDDI_WIN8
-	#elif defined (_WIN32_WINNT_WIN7)
-		//Windows 7	_WIN32_WINNT_WIN7 (0x0601)
-		#ifdef _WIN32_WINNT
-			#undef _WIN32_WINNT
-		#endif
-		#define _WIN32_WINNT _WIN32_WINNT_WIN7
-		#ifdef NTDDI_VERSION
-			#undef NTDDI_VERSION
-		#endif
-		#define NTDDI_VERSION NTDDI_WIN7
-	#elif defined (_WIN32_WINNT_WS08)
-		//Windows Server 2008 _WIN32_WINNT_WS08 (0x0600)
-		#ifdef _WIN32_WINNT
-			#undef _WIN32_WINNT
-		#endif
-		#define _WIN32_WINNT _WIN32_WINNT_WS08
-		#ifdef NTDDI_VERSION
-			#undef NTDDI_VERSION
-		#endif
-		#define NTDDI_VERSION NTDDI_WS08
-	#elif defined (_WIN32_WINNT_VISTA)
-		//Windows Vista	_WIN32_WINNT_VISTA (0x0600)
-		#ifdef _WIN32_WINNT
-			#undef _WIN32_WINNT
-		#endif
-		#define _WIN32_WINNT _WIN32_WINNT_VISTA
-		#ifdef NTDDI_VERSION
-			#undef NTDDI_VERSION
-		#endif
-		#define NTDDI_VERSION NTDDI_VISTA
-	#elif defined (_WIN32_WINNT_LONGHORN)
-		//Windows Vista	and server 2008 Development _WIN32_WINNT_LONGHORN (0x0600)
-		#ifdef _WIN32_WINNT
-			#undef _WIN32_WINNT
-		#endif
-		#define _WIN32_WINNT _WIN32_WINNT_LONGHORN
-		#ifdef NTDDI_VERSION
-			#undef NTDDI_VERSION
-		#endif
-		#define NTDDI_VERSION 0x06000000 // hardcoded, VS90 can't find NTDDI_* macros
-	#elif defined (_WIN32_WINNT_WS03)
-		//Windows Server 2003 with SP1,
-		//Windows XP with SP2 _WIN32_WINNT_WS03 (0x0502)
-		#ifdef _WIN32_WINNT
-			#undef _WIN32_WINNT
-		#endif
-		#define _WIN32_WINNT _WIN32_WINNT_WS03
-		#ifdef NTDDI_VERSION
-			#undef NTDDI_VERSION
-		#endif
-		#define NTDDI_VERSION NTDDI_WS03
-	#elif defined (_WIN32_WINNT_WINXP)
-		//Windows Server 2003, Windows XP _WIN32_WINNT_WINXP (0x0501)
-		#ifdef _WIN32_WINNT
-			#undef _WIN32_WINNT
-		#endif
-		#define _WIN32_WINNT _WIN32_WINNT_WINXP
-		#ifdef NTDDI_VERSION
-			#undef NTDDI_VERSION
-		#endif
-		#define NTDDI_VERSION NTDDI_WINXP
-	#elif defined (_WIN32_WINNT_WIN2K)
-		//Windows 2000 _WIN32_WINNT_WIN2K (0x0500)
-		#ifdef _WIN32_WINNT
-			#undef _WIN32_WINNT
-		#endif
-		#define _WIN32_WINNT _WIN32_WINNT_WIN2K
-	#elif defined (WINVER)
-		// fail back on WINVER
-		#ifdef _WIN32_WINNT
-			#undef _WIN32_WINNT
-		#endif
-		#define _WIN32_WINNT WINVER
-	#elif !defined(_WIN32_WINNT)
-		// last resort = Win XP, SP2 is minimum supported
-		#define _WIN32_WINNT 0x0502
-		#ifdef NTDDI_VERSION
-			#undef NTDDI_VERSION
-		#endif
-		#define NTDDI_VERSION 0x05020000
-	#endif
-#endif // POCO_FORCE_MIN_WINDOWS_OS_SUPPORT
-
-
 #if defined(_MSC_VER) && !defined(POCO_MSVC_SECURE_WARNINGS) && !defined(_CRT_SECURE_NO_DEPRECATE)
 	#define _CRT_SECURE_NO_DEPRECATE
 #endif 
@@ -174,17 +67,6 @@
 #endif
 
 
-// Unicode Support
-#if defined(UNICODE) && !defined(POCO_WIN32_UTF8)
-	#define POCO_WIN32_UTF8
-#endif
-
-
-#if !defined(POCO_WIN32_UTF8)
-	#pragma message("Compiling POCO on Windows without #define POCO_WIN32_UTF8 is deprecated.")
-#endif
-
-
 // Turn off some annoying warnings
 #if defined(_MSC_VER)
 	#pragma warning(disable:4018)	// signed/unsigned comparison
@@ -197,12 +79,6 @@
 	#pragma warning(disable:4355)	// 'this' : used in base member initializer list
 	#pragma warning(disable:4675)	// resolved overload was found by argument-dependent lookup
 	#pragma warning(disable:4996)	// VC++ 8.0 deprecation warnings
-#endif
-
-
-// Enable C++11 support for VS 2010 and newer
-#if defined(_MSC_VER) && (_MSC_VER >= 1700) && !defined(POCO_ENABLE_CPP11)
-	#define POCO_ENABLE_CPP11
 #endif
 
 

@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::XBee::RemoteATCommandResponse& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"command","data","deviceAddress","frameID","networkAddress","status",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.command, ser);
 		TypeSerializer<std::vector < Poco::UInt8 > >::serialize(REMOTING__NAMES[1], value.data, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.deviceAddress, ser);

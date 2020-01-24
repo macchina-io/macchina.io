@@ -39,10 +39,10 @@ class DeviceStatusServiceImpl: public DeviceStatusService, public Poco::ActiveDi
 public:
 	DeviceStatusServiceImpl(Poco::OSP::BundleContext::Ptr pContext, int maxAge);
 		/// Creates the DeviceStatusServiceImpl.
-		
+
 	~DeviceStatusServiceImpl();
 		/// Destroys the DeviceStatusService.
-	
+
 	// DeviceStatusService
 	DeviceStatus status() const;
 	DeviceStatus statusOfSource(const std::string& source) const;
@@ -65,7 +65,7 @@ private:
 	int _maxAge;
 	Poco::Clock _lastCleanup;
 	mutable Poco::SharedPtr<Poco::Data::Session> _pSession;
-	Poco::ActiveMethod<void, StatusUpdate, DeviceStatusServiceImpl, Poco::ActiveStarter<Poco::ActiveDispatcher> > _postStatusAsync;
+	Poco::ActiveMethod<void, StatusUpdate, DeviceStatusServiceImpl, Poco::ActiveStarter<Poco::ActiveDispatcher>> _postStatusAsync;
 	Poco::Logger& _logger;
 	mutable Poco::FastMutex _mutex;
 };

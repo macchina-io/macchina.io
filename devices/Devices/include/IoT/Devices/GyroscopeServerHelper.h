@@ -35,7 +35,7 @@ class GyroscopeServerHelper
 	/// The interface for three-axis Gyroscopes.
 {
 public:
-	typedef IoT::Devices::Gyroscope Service;
+	using Service = IoT::Devices::Gyroscope;
 
 	GyroscopeServerHelper();
 		/// Creates a GyroscopeServerHelper.

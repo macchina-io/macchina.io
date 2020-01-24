@@ -37,7 +37,7 @@ class MobileConnectionServiceImpl: public MobileConnectionService
 	/// should use the respective Legato C APIs.
 {
 public:
-	typedef Poco::SharedPtr<MobileConnectionServiceImpl> Ptr;
+	using Ptr = Poco::SharedPtr<MobileConnectionServiceImpl>;
 
 	MobileConnectionServiceImpl(const std::string& cmPath = DEFAULT_CM_PATH);
 		/// Creates the MobileConnectionService.

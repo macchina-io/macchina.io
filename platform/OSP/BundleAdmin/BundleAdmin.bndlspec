@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>${bundle.name}</name>
+    <symbolicName>com.appinf.osp.bundleadmin</symbolicName>
+    <version>1.1.2</version>
+    <vendor>${bundle.vendor}</vendor>
+    <copyright>${bundle.copyright}</copyright>
+    <lazyStart>false</lazyStart>
+    <runLevel>100</runLevel>
+    <dependency>
+      <symbolicName>osp.web</symbolicName>
+      <version>[1.0.0,2.0.0)</version>
+    </dependency>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib
+  </code>
+  <files>
+    bundle/*
+  </files>
+</bundlespec>

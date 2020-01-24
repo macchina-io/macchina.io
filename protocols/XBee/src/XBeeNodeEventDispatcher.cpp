@@ -504,9 +504,7 @@ void XBeeNodeEventDispatcher::event__zigBeeTransmitStatusReceived(const void* pS
 
 void XBeeNodeEventDispatcher::event__commandResponseReceivedImpl(const std::string& subscriberURI, const IoT::XBee::ATCommandResponse& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"commandResponseReceived","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -519,9 +517,7 @@ void XBeeNodeEventDispatcher::event__commandResponseReceivedImpl(const std::stri
 
 void XBeeNodeEventDispatcher::event__explicitAddressingZigBeePacketReceivedImpl(const std::string& subscriberURI, const IoT::XBee::ExplicitAddressingZigBeeReceivePacket& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"explicitAddressingZigBeePacketReceived","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -534,9 +530,7 @@ void XBeeNodeEventDispatcher::event__explicitAddressingZigBeePacketReceivedImpl(
 
 void XBeeNodeEventDispatcher::event__frameReceivedImpl(const std::string& subscriberURI, const IoT::XBee::APIFrame& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"frameReceived","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -549,9 +543,7 @@ void XBeeNodeEventDispatcher::event__frameReceivedImpl(const std::string& subscr
 
 void XBeeNodeEventDispatcher::event__ioDataReceivedImpl(const std::string& subscriberURI, const IoT::XBee::ReceivePacket& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"ioDataReceived","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -564,9 +556,7 @@ void XBeeNodeEventDispatcher::event__ioDataReceivedImpl(const std::string& subsc
 
 void XBeeNodeEventDispatcher::event__ioSampleReceivedImpl(const std::string& subscriberURI, const IoT::XBee::IOSample& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"ioSampleReceived","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -579,9 +569,7 @@ void XBeeNodeEventDispatcher::event__ioSampleReceivedImpl(const std::string& sub
 
 void XBeeNodeEventDispatcher::event__modemStatusReceivedImpl(const std::string& subscriberURI, const IoT::XBee::ModemStatus& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"modemStatusReceived","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -594,9 +582,7 @@ void XBeeNodeEventDispatcher::event__modemStatusReceivedImpl(const std::string& 
 
 void XBeeNodeEventDispatcher::event__packetReceivedImpl(const std::string& subscriberURI, const IoT::XBee::ReceivePacket& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"packetReceived","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -609,9 +595,7 @@ void XBeeNodeEventDispatcher::event__packetReceivedImpl(const std::string& subsc
 
 void XBeeNodeEventDispatcher::event__remoteCommandResponseReceivedImpl(const std::string& subscriberURI, const IoT::XBee::RemoteATCommandResponse& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"remoteCommandResponseReceived","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -624,9 +608,7 @@ void XBeeNodeEventDispatcher::event__remoteCommandResponseReceivedImpl(const std
 
 void XBeeNodeEventDispatcher::event__sensorReadReceivedImpl(const std::string& subscriberURI, const IoT::XBee::SensorRead& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"sensorReadReceived","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -639,9 +621,7 @@ void XBeeNodeEventDispatcher::event__sensorReadReceivedImpl(const std::string& s
 
 void XBeeNodeEventDispatcher::event__transmitStatusReceivedImpl(const std::string& subscriberURI, const IoT::XBee::TransmitStatus& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"transmitStatusReceived","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -654,9 +634,7 @@ void XBeeNodeEventDispatcher::event__transmitStatusReceivedImpl(const std::strin
 
 void XBeeNodeEventDispatcher::event__zigBeePacketReceivedImpl(const std::string& subscriberURI, const IoT::XBee::ZigBeeReceivePacket& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"zigBeePacketReceived","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -669,9 +647,7 @@ void XBeeNodeEventDispatcher::event__zigBeePacketReceivedImpl(const std::string&
 
 void XBeeNodeEventDispatcher::event__zigBeeTransmitStatusReceivedImpl(const std::string& subscriberURI, const IoT::XBee::ZigBeeTransmitStatus& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"zigBeeTransmitStatusReceived","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);

@@ -34,7 +34,7 @@ class IPeripheralBrowser: public Poco::OSP::Service
 	/// This class provides browsing for available Bluetooth LE devices.
 {
 public:
-	typedef Poco::AutoPtr<IPeripheralBrowser> Ptr;
+	using Ptr = Poco::AutoPtr<IPeripheralBrowser>;
 
 	IPeripheralBrowser();
 		/// Creates a IPeripheralBrowser.
@@ -65,7 +65,7 @@ public:
 		/// Returns the TypeId of the class.
 
 	virtual std::string serviceForPeripheral(const std::string& address) = 0;
-		/// Finds or creates and registers with the Service Registry, if necessary, 
+		/// Finds or creates and registers with the Service Registry, if necessary,
 		/// a Peripheral (remote) object for the device with the given address.
 		///
 		/// Returns the service name of the Peripheral service.

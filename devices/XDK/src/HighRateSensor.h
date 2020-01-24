@@ -28,7 +28,7 @@ namespace XDK {
 class HighRateSensor: public IoT::Devices::DeviceImpl<IoT::Devices::Sensor, HighRateSensor>
 {
 public:
-	typedef Poco::SharedPtr<HighRateSensor> Ptr;
+	using Ptr = Poco::SharedPtr<HighRateSensor>;
 
 	struct Params
 	{
@@ -81,7 +81,7 @@ protected:
 	bool _enabled;
 	double _value;
 	double _valueChangedDelta;
-	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double> > _pEventPolicy;
+	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double>> _pEventPolicy;
 	Poco::Any _deviceIdentifier;
 	Poco::Any _physicalQuantity;
 	Poco::Any _physicalUnit;

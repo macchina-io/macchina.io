@@ -34,7 +34,7 @@ class RemotingNG_API TransportFactory: public Poco::RefCountedObject
 	/// A TransportFactory creates Transport objects.
 {
 public:
-	typedef Poco::AutoPtr<TransportFactory> Ptr;
+	using Ptr = Poco::AutoPtr<TransportFactory>;
 
 	TransportFactory();
 		/// Creates a TransportFactory.

@@ -1,5 +1,3 @@
-set(TESTUNIT "${LIBNAME}-testrunner")
-
 # Sources
 file(GLOB SRCS_G "src/*.cpp")
 POCO_SOURCES_AUTO( TEST_SRCS ${SRCS_G})
@@ -16,11 +14,12 @@ POCO_SOURCES_AUTO_PLAT( TEST_SRCS WINCE
     src/WinCEDriver.cpp
 )
 
-add_executable( ${TESTUNIT} ${TEST_SRCS} )
+add_executable(XML-testrunner ${TEST_SRCS} )
 if(ANDROID)
-    add_test(NAME ${LIBNAME} WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} 
-            COMMAND ${CMAKE_COMMAND} -DANDROID_NDK=${ANDROID_NDK} -DLIBRARY_DIR=${CMAKE_BINARY_DIR}/lib -DUNITTEST=${CMAKE_BINARY_DIR}/bin/${TESTUNIT} -DTEST_PARAMETER=-all -P ${CMAKE_SOURCE_DIR}/cmake/ExecuteOnAndroid.cmake)
+	add_test(NAME XML WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+			COMMAND ${CMAKE_COMMAND} -DANDROID_NDK=${ANDROID_NDK} -DLIBRARY_DIR=${CMAKE_BINARY_DIR}/lib -DUNITTEST=${CMAKE_BINARY_DIR}/bin/XML-testrunner -DTEST_PARAMETER=-all -P ${CMAKE_SOURCE_DIR}/cmake/ExecuteOnAndroid.cmake)
 else()
-    add_test(NAME ${LIBNAME} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMAND ${TESTUNIT} -all)
+	add_test(NAME XML WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} COMMAND XML-testrunner -ignore ${CMAKE_SOURCE_DIR}/cppignore.lnx -all)
+    set_tests_properties(XML PROPERTIES ENVIRONMENT POCO_BASE=${CMAKE_SOURCE_DIR})
 endif()
-target_link_libraries( ${TESTUNIT} PocoXML PocoFoundation CppUnit)
+target_link_libraries(XML-testrunner PUBLIC Poco::XML CppUnit)

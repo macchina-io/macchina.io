@@ -34,7 +34,7 @@ class IUDPEndpoint: public Poco::OSP::Service
 	/// The UDPEndpoint is used to receive and send UDP packets.
 {
 public:
-	typedef Poco::AutoPtr<IUDPEndpoint> Ptr;
+	using Ptr = Poco::AutoPtr<IUDPEndpoint>;
 
 	IUDPEndpoint();
 		/// Creates a IUDPEndpoint.

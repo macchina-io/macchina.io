@@ -45,9 +45,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::NetworkEnvironment::NetworkInterface& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"adapterName","addresses","displayName","index","isLoopback","isPointToPoint","isRunning","isUp","macAddress","mtu","name","supportsBroadcast","supportsIP","supportsIPv4","supportsIPv6","supportsMulticast","type"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		bool ret = false;
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.adapterName);
 		TypeDeserializer<std::vector < IoT::NetworkEnvironment::AddressTuple > >::deserialize(REMOTING__NAMES[1], true, deser, value.addresses);

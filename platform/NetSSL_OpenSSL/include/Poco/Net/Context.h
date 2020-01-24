@@ -21,6 +21,7 @@
 #include "Poco/Net/NetSSL.h"
 #include "Poco/Net/SocketDefs.h"
 #include "Poco/Crypto/X509Certificate.h"
+#include "Poco/Crypto/EVPPKey.h"
 #include "Poco/Crypto/RSAKey.h"
 #include "Poco/RefCountedObject.h"
 #include "Poco/AutoPtr.h"
@@ -41,20 +42,39 @@ class NetSSL_API Context: public Poco::RefCountedObject
 	///
 	/// The Context class is also used to control
 	/// SSL session caching on the server and client side.
+	///
+	/// A Note Regarding TLSv1.3 Support:
+	///
+	/// TLSv1.3 support requires at least OpenSSL version 1.1.1.
+	/// Make sure that the TLSv1.3 cipher suites are enabled:
+	///
+	///   - TLS_AES_256_GCM_SHA384
+	///   - TLS_CHACHA20_POLY1305_SHA256
+	///   - TLS_AES_128_GCM_SHA256
+	///   - TLS_AES_128_CCM_8_SHA256
+	///   - TLS_AES_128_CCM_SHA256
+	///
+	/// The first three of the above cipher suites should be enabled
+	/// by default in OpenSSL if you do not provide an explicit
+	/// cipher configuration (cipherList).
 {
 public:
-	typedef Poco::AutoPtr<Context> Ptr;
+	using Ptr = Poco::AutoPtr<Context>;
 
 	enum Usage
 	{
-		CLIENT_USE, 	    /// Context is used by a client.
-		SERVER_USE,         /// Context is used by a server.
-		TLSV1_CLIENT_USE,   /// Context is used by a client requiring TLSv1.
-		TLSV1_SERVER_USE,   /// Context is used by a server requiring TLSv1.
-		TLSV1_1_CLIENT_USE, /// Context is used by a client requiring TLSv1.1 (OpenSSL 1.0.0 or newer).
-		TLSV1_1_SERVER_USE, /// Context is used by a server requiring TLSv1.1 (OpenSSL 1.0.0 or newer).
-		TLSV1_2_CLIENT_USE, /// Context is used by a client requiring TLSv1.2 (OpenSSL 1.0.1 or newer).
-		TLSV1_2_SERVER_USE  /// Context is used by a server requiring TLSv1.2 (OpenSSL 1.0.1 or newer).
+		TLS_CLIENT_USE,     /// Context is used by a client for TLSv1 or higher. Use requireMinimumProtocol() or disableProtocols() to disable undesired older versions.
+		TLS_SERVER_USE,     /// Context is used by a client for TLSv1 or higher. Use requireMinimumProtocol() or disableProtocols() to disable undesired older versions.
+		CLIENT_USE, 	    /// DEPRECATED. Context is used by a client.
+		SERVER_USE,         /// DEPRECATED. Context is used by a server.
+		TLSV1_CLIENT_USE,   /// DEPRECATED. Context is used by a client requiring TLSv1.
+		TLSV1_SERVER_USE,   /// DEPRECATED. Context is used by a server requiring TLSv1.
+		TLSV1_1_CLIENT_USE, /// DEPRECATED. Context is used by a client requiring TLSv1.1 (OpenSSL 1.0.0 or newer).
+		TLSV1_1_SERVER_USE, /// DEPRECATED. Context is used by a server requiring TLSv1.1 (OpenSSL 1.0.0 or newer).
+		TLSV1_2_CLIENT_USE, /// DEPRECATED. Context is used by a client requiring TLSv1.2 (OpenSSL 1.0.1 or newer).
+		TLSV1_2_SERVER_USE, /// DEPRECATED. Context is used by a server requiring TLSv1.2 (OpenSSL 1.0.1 or newer).
+		TLSV1_3_CLIENT_USE, /// DEPRECATED. Context is used by a client requiring TLSv1.3 (OpenSSL 1.1.1 or newer).
+		TLSV1_3_SERVER_USE  /// DEPRECATED. Context is used by a server requiring TLSv1.3 (OpenSSL 1.1.1 or newer).
 	};
 
 	enum VerificationMode
@@ -100,7 +120,8 @@ public:
 		PROTO_SSLV3   = 0x02,
 		PROTO_TLSV1   = 0x04,
 		PROTO_TLSV1_1 = 0x08,
-		PROTO_TLSV1_2 = 0x10
+		PROTO_TLSV1_2 = 0x10,
+		PROTO_TLSV1_3 = 0x20
 	};
 
 	struct NetSSL_API Params
@@ -236,6 +257,16 @@ public:
 		/// must have been setup with the SSLManager, or the SSLManager's PrivateKeyPassphraseRequired
 		/// event must be handled.
 
+	void usePrivateKey(const Poco::Crypto::EVPPKey &pkey);
+		/// Sets the private key to be used by the Context.
+		///
+		/// Note that useCertificate() must always be called before
+		/// usePrivateKey().
+		///
+		/// Note: If the private key is protected by a passphrase, a PrivateKeyPassphraseHandler
+		/// must have been setup with the SSLManager, or the SSLManager's PrivateKeyPassphraseRequired
+		/// event must be handled.
+
 	SSL_CTX* sslContext() const;
 		/// Returns the underlying OpenSSL SSL Context object.
 
@@ -336,6 +367,12 @@ public:
 		///
 		///   context.disableProtocols(PROTO_SSLV2 | PROTO_SSLV3);
 
+	void requireMinimumProtocol(Protocols protocol);
+		/// Disables all protocol version lower than the given one.
+		/// To require at least TLS 1.2 or later:
+		///
+		///   context.requireMinimumProtocol(PROTO_TLSV1_2);
+
 	void preferServerCiphers();
 		/// When choosing a cipher, use the server's preferences instead of the client
 		/// preferences. When not called, the SSL server will always follow the clients
@@ -375,9 +412,11 @@ inline Context::Usage Context::usage() const
 inline bool Context::isForServerUse() const
 {
 	return _usage == SERVER_USE
+		|| _usage == TLS_SERVER_USE
 		|| _usage == TLSV1_SERVER_USE
 		|| _usage == TLSV1_1_SERVER_USE
-		|| _usage == TLSV1_2_SERVER_USE;
+		|| _usage == TLSV1_2_SERVER_USE
+		|| _usage == TLSV1_3_SERVER_USE;
 }
 
 

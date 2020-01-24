@@ -48,9 +48,9 @@ class OSPWeb_API MediaTypeMapper: public Service
 	/// The name of the MediaTypeMapper service is "osp.web.mediatype".
 {
 public:
-	typedef Poco::AutoPtr<MediaTypeMapper> Ptr;
-	typedef std::map<std::string, std::string> SuffixToMediaTypeMap;
-	typedef SuffixToMediaTypeMap::const_iterator ConstIterator;
+	using Ptr = Poco::AutoPtr<MediaTypeMapper>;
+	using SuffixToMediaTypeMap = std::map<std::string, std::string>;
+	using ConstIterator = SuffixToMediaTypeMap::const_iterator;
 
 	MediaTypeMapper();
 		/// Creates an empty MediaTypeMapper.
@@ -68,7 +68,7 @@ public:
 		/// Suffix is not case sensitive.
 
 	ConstIterator find(const std::string& suffix) const;
-		/// Searches a MIME media type for the given suffix. Returns end() for unknown mappings. 
+		/// Searches a MIME media type for the given suffix. Returns end() for unknown mappings.
 		/// Note that the search is not case sensitive!
 
 	ConstIterator begin() const;
@@ -85,7 +85,7 @@ public:
 
 	void setDefault(const std::string& mediaType);
 		/// Sets a default MIME media type for unknown suffixes.
-		
+
 	const std::string& getDefault() const;
 		/// Returns the default MIME media type.
 		///
@@ -95,7 +95,7 @@ public:
 	// Service
 	virtual const std::type_info& type() const;
 	virtual bool isA(const std::type_info& otherType) const;
-	
+
 	static const std::string SERVICE_NAME;
 
 private:

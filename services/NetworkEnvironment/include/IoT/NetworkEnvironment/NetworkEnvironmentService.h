@@ -166,7 +166,7 @@ class IoTNetworkEnvironment_API NetworkEnvironmentService
 	/// about network address and network interface changes.
 {
 public:
-	typedef Poco::SharedPtr<NetworkEnvironmentService> Ptr;
+	using Ptr = Poco::SharedPtr<NetworkEnvironmentService>;
 
 	Poco::BasicEvent<const ChangeType> networkEnvironmentChanged;
 		/// A change in the network environment has been detected.

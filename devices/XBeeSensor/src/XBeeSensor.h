@@ -34,20 +34,20 @@ public:
 
 		int analogChannel;
 			/// The analog channel to read the measurement from.
-			
+
 		std::string physicalQuantity;
 			/// The physical quantity measured by the sensor.
-			
+
 		std::string physicalUnit;
 			/// The physical unit of the measurements obtained by the sensor.
 	};
-	
+
 	XBeeSensor(IXBeeNode::Ptr pXBeeNode, Params params);
 		/// Creates a XBeeSensor.
 
 	~XBeeSensor();
 		/// Destroys the XBeeSensor.
-	
+
 	// Sensor
 	double value() const;
 	bool ready() const;
@@ -76,7 +76,7 @@ protected:
 	bool _ready;
 	double _value;
 	double _valueChangedDelta;
-	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double> > _pEventPolicy;
+	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double>> _pEventPolicy;
 	Poco::Any _deviceIdentifier;
 	Poco::Any _physicalQuantity;
 	Poco::Any _physicalUnit;
@@ -91,7 +91,7 @@ public:
 
 	~XBeeTemperatureSensor();
 		/// Destroys the XBeeTemperatureSensor.
-		
+
 protected:
 	void onIOSampleReceived(const IOSample& ioSample);
 };
@@ -105,7 +105,7 @@ public:
 
 	~XBeeHumiditySensor();
 		/// Destroys the XBeeTemperatureSensor.
-		
+
 protected:
 	void onIOSampleReceived(const IOSample& ioSample);
 };
@@ -119,7 +119,7 @@ public:
 
 	~XBeeLightSensor();
 		/// Destroys the XBeeTemperatureSensor.
-		
+
 protected:
 	void onIOSampleReceived(const IOSample& ioSample);
 };

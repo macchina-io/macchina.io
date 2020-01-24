@@ -1,0 +1,98 @@
+OSP Bundle Administration Utility
+Open Service Platform
+
+!!! Introduction
+
+The <!BundleAdmin!> utility is a web-based application for managing, installing and upgrading bundles in an OSP application.
+The BundleAdmin utility is itself implemented in a bundle named <[com.appinf.osp.bundleadmin]> and requires the Web bundle
+to function.
+
+The following features are provided by the BundleAdmin utility:
+
+  - list all bundles installed in an OSP application
+  - get detailed information (version, dependencies) for installed bundles
+  - manage the lifecycle of bundles (install, resolve, start, stop, uninstall, upgrade)
+  
+
+!!! Accessing the BundleAdmin Utility
+
+The BundleAdmin utility can be accessed from anywhere on the network using a web browser such as
+Firefox, Internet Explorer or Safari. Since the BundleAdmin utility runs within the OSP web server,
+the TCP port number on which the OSP web server runs must be known. The default port for the
+OSP web server is 22080, and the default port for the secure (HTTPS) web server is 22443.
+Within the OSP web server, the BundleAdmin utility lives under the path <[/bundleAdmin]>.
+Depending on your authentication/authorization setup, you may need a password to access the
+BundleAdmin utility. 
+Assuming a default installation running on your local host, the BundleAdmin utility can be 
+accessed by directing your browser to <http://localhost:22080/bundleAdmin>. 
+The default user name and password is "admin", and "admin", respectively.
+See the [[OSPAuth.html AuthService documentation]] for information on how to change the password.
+
+Upon successful login, the BundleAdmin utility shows a list of all bundles installed in the
+current application:
+
+<%
+<img src="images/OSPAdmin_index.png" width="442" height="517" alt="BundleAdmin Installed Bundles Page" border="0">
+%>
+
+!!! Getting Information About a Bundle
+
+Clicking the name of bundle brings up a page showing detailed information about the bundle,
+including name, version, vendor information, copyright, current state and a list of all bundles
+that this bundle requires to function.
+
+<%
+<img src="images/OSPAdmin_bundle.png" width="347" height="315" alt="BundleAdmin Bundle Information Page" border="0">
+%>
+
+
+!!! Managing The Bundle Lifecycle
+
+Depending on the current state of the bundle, different buttons are available as well. For a bundle in
+<*running*> state, only the <!Stop!> button is available. For a button in <*resolved*> state, more
+buttons are available.
+
+<%
+<img src="images/OSPAdmin_stopped.png" width="347" height="315" alt="BundleAdmin Bundle Information Page" border="0">
+%>
+
+!! Stopping And Uninstalling Bundles
+
+Stopping a bundle can be a dangerous operation, as other bundles may require the bundle to do their work. Therefore,
+the BundleAdmin utility checks the dependencies of a bundle to be stopped and displays a warning and confirmation page if there
+are other bundles depending on the bundle to be stopped.
+
+<%
+<img src="images/OSPAdmin_stop.png" width="308" height="248" alt="BundleAdmin Bundle Stop Confirmation Page" border="0">
+%>
+
+Also, a confirmation page will be shown if the <!Uninstall!> button is clicked.
+
+!! Upgrading a Bundle
+
+An installed bundle can be upgraded, which involves the following steps:
+
+  - stopping the bundle
+  - uninstalling the bundle
+  - uploading a new version of the bundle
+  - installing the new version of the bundle
+  
+The steps required to upgrade a bundle are the same as for installing a bundle.
+
+!! Installing a Bundle
+
+A new bundle can be installed over the network by clicking the <!Install Bundle!> button at the bottom
+of the <*Installed Bundles*> page. Clicking the buttom will bring up a page that allows you to chose
+a bundle file in your local file system.
+
+<%
+<img src="images/OSPAdmin_install.png" width="360" height="294" alt="BundleAdmin Bundle Install Page" border="0">
+%>
+
+After selecting a bundle file, click the <!Upload and Install!> button to upload the bundle to the computer running
+the OSP application, and to install the bundle. After successfully installing a bundle, the following page
+will be shown.
+
+<%
+<img src="images/OSPAdmin_installed.png" width="360" height="294" alt="BundleAdmin Bundle Install Page" border="0">
+%>

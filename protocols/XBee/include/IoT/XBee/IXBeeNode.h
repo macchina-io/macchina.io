@@ -41,7 +41,7 @@ class IXBeeNode: public Poco::OSP::Service
 	/// information about the API.
 {
 public:
-	typedef Poco::AutoPtr<IXBeeNode> Ptr;
+	using Ptr = Poco::AutoPtr<IXBeeNode>;
 
 	IXBeeNode();
 		/// Creates a IXBeeNode.

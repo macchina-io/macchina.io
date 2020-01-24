@@ -34,17 +34,17 @@ class IoTUDP_API UDPEndpointImpl: public UDPEndpoint
 	/// The default implementation of UDPEndpoint
 {
 public:
-	typedef Poco::SharedPtr<UDPEndpointImpl> Ptr;
+	using Ptr = Poco::SharedPtr<UDPEndpointImpl>;
 
 	UDPEndpointImpl(const Poco::Net::SocketAddress& addr);
 		/// Creates the UDPEndpointImpl using the given socket address.
 
 	~UDPEndpointImpl();
 		/// Destroys the UDPEndpointImpl.
-		
+
 	void connect(const Poco::Net::SocketAddress& addr);
 		/// Connects the socket to the given address.
-		
+
 	const Poco::Net::DatagramSocket& socket() const;
 		/// Returns the underlying socket.
 
@@ -57,7 +57,7 @@ public:
 
 protected:
 	void handlePackets();
-	
+
 	enum
 	{
 		MAX_MESSAGE_SIZE = 4096,

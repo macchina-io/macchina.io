@@ -43,9 +43,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::BtLE::PeripheralInfo& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"address","name"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.address);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.name);
 	}

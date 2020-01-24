@@ -42,7 +42,7 @@ class TriggerServerHelper
 	///     formatted as string for display purposes.
 {
 public:
-	typedef IoT::Devices::Trigger Service;
+	using Service = IoT::Devices::Trigger;
 
 	TriggerServerHelper();
 		/// Creates a TriggerServerHelper.

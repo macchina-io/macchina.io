@@ -43,9 +43,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::UnitsOfMeasure::Unit& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"code","dim","group","icode","iunit","metric","name","print","property","unit","value"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.code);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.dim);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.group);

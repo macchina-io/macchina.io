@@ -8,9 +8,6 @@
 // Warning: All changes to this will be lost when the file is re-generated.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
-// All rights reserved.
-// 
-// SPDX-License-Identifier: Apache-2.0
 //
 
 
@@ -30,7 +27,7 @@ namespace Services {
 class TimeServiceRemoteObject: public Services::ITimeService, public Poco::RemotingNG::RemoteObject
 {
 public:
-	typedef Poco::AutoPtr<TimeServiceRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<TimeServiceRemoteObject>;
 
 	TimeServiceRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<Services::TimeService> pServiceObject);
 		/// Creates a TimeServiceRemoteObject.

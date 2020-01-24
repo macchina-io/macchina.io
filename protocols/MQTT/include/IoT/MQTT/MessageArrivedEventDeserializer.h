@@ -45,9 +45,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::MQTT::MessageArrivedEvent& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"dup","handled","message","topic"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[0], true, deser, value.dup);
 		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[1], true, deser, value.handled);
 		TypeDeserializer<IoT::MQTT::Message >::deserialize(REMOTING__NAMES[2], true, deser, value.message);

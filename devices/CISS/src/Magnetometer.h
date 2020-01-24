@@ -27,7 +27,7 @@ class Node;
 class Magnetometer: public IoT::Devices::DeviceImpl<IoT::Devices::Magnetometer, Magnetometer>
 {
 public:
-	typedef Poco::SharedPtr<Magnetometer> Ptr;
+	using Ptr = Poco::SharedPtr<Magnetometer>;
 
 	enum
 	{

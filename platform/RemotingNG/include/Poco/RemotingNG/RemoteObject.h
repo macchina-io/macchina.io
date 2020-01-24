@@ -38,7 +38,7 @@ class RemotingNG_API RemoteObject: public Identifiable
 	/// service object's interface class.
 {
 public:
-	typedef Poco::AutoPtr<RemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<RemoteObject>;
 
 	RemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a RemoteObject.

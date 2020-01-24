@@ -44,7 +44,7 @@ public:
 		POLL_ERROR = 0x04
 	};
 
-	typedef std::map<Poco::Net::Socket, int> SocketModeMap;
+	using SocketModeMap = std::map<Poco::Net::Socket, int>;
 
 	PollSet();
 		/// Creates an empty PollSet.
@@ -62,6 +62,12 @@ public:
 
 	void update(const Poco::Net::Socket& socket, int mode);
 		/// Updates the mode of the given socket.
+
+	bool has(const Socket& socket) const;
+		/// Returns true if socket is registered for polling.
+
+	bool empty() const;
+		/// Returns true if no socket is registered for polling.
 
 	void clear();
 		/// Removes all sockets from the PollSet.

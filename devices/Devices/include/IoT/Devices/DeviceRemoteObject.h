@@ -64,7 +64,7 @@ class DeviceRemoteObject: public IoT::Devices::IDevice, public Poco::RemotingNG:
 	///   - io.macchina.trigger (Trigger)
 {
 public:
-	typedef Poco::AutoPtr<DeviceRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<DeviceRemoteObject>;
 
 	DeviceRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Device> pServiceObject);
 		/// Creates a DeviceRemoteObject.

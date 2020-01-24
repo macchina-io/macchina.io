@@ -47,7 +47,7 @@ class ILED: public IoT::Devices::IDevice
 	/// be non-zero.
 {
 public:
-	typedef Poco::AutoPtr<ILED> Ptr;
+	using Ptr = Poco::AutoPtr<ILED>;
 
 	ILED();
 		/// Creates a ILED.

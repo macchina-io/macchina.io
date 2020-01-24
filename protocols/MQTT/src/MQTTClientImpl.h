@@ -35,7 +35,7 @@ class IoTMQTT_API MQTTClientImpl: public IoT::MQTT::MQTTClient
 	/// The default implementation of MQTTClient based on paho.
 {
 public:
-	typedef Poco::SharedPtr<MQTTClientImpl> Ptr;
+	using Ptr = Poco::SharedPtr<MQTTClientImpl>;
 
 	struct IoTMQTT_API ConnectOptions
 	{
@@ -64,7 +64,7 @@ public:
 
 		int connectTimeout;
 			/// Connect timeout in seconds.
-			
+
 		int initialConnectTimeout;
 			/// If non-zero, and if connectRetries is also non-zero, attempt to connect
 			/// first with this timeout, given in seconds.
@@ -72,13 +72,13 @@ public:
 			/// See also connectRetries.
 			///
 			/// Warning: This is an experimental feature and may be removed in the future.
-			
+
 		int connectRetries;
-			/// Number of retries if initial connect attempt does not succeed. 
-			/// 
+			/// Number of retries if initial connect attempt does not succeed.
+			///
 			/// If greater than zero:
 			///
-			///   - The first connect attempt to the broker will be made using 
+			///   - The first connect attempt to the broker will be made using
 			///     initialConnectTimeout if greater than zero, otherwise connectTimeout.
 			///   - If not successful, additional attempts will be made connecting to
 			///     the broker, again using initialConnectTimeout, if greater than zero,
@@ -91,11 +91,11 @@ public:
 			/// in connectTimeout.
 			///
 			/// Warning: This is an experimental feature and may be removed in the future.
-			
+
 		bool retryConnectWithExponentialBackoff;
 			/// If specified, and if both connectRetries and initialConnectTimeout are
-			/// greater than zero, then the connect timeout, starting with 
-			/// initialConnectTimeout, will be doubled after every unsuccessful 
+			/// greater than zero, then the connect timeout, starting with
+			/// initialConnectTimeout, will be doubled after every unsuccessful
 			/// connection attempt.
 			///
 			/// See also connectRetries.

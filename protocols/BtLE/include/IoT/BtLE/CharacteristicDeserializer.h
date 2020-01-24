@@ -43,9 +43,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::BtLE::Characteristic& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"properties","valueHandle"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[0], true, deser, value.properties);
 		TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[1], true, deser, value.valueHandle);
 	}

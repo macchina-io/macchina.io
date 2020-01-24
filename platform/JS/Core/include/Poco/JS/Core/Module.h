@@ -33,11 +33,11 @@ class JSCore_API Module: public Poco::RefCountedObject
 	/// A JavaScript native module, implemented in C++.
 {
 public:
-	typedef Poco::AutoPtr<Module> Ptr;
+	using Ptr = Poco::AutoPtr<Module>;
 
 	Module();
 		/// Creates the Module.
-	
+
 	virtual ~Module();
 		/// Destroys the Module.
 

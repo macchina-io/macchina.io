@@ -30,7 +30,7 @@ namespace UnitsOfMeasure {
 struct IoTUnitsOfMeasure_API Prefix
 	/// A multiplier prefix, e.g. Y (yotta) or k (kilo).
 {
-	typedef Poco::SharedPtr<Prefix> Ptr;
+	using Ptr = Poco::SharedPtr<Prefix>;
 
 	Prefix(): value(0) { }
 
@@ -55,7 +55,7 @@ struct IoTUnitsOfMeasure_API Prefix
 struct IoTUnitsOfMeasure_API Unit
 	/// A base or derived unit, e.g. m (meter).
 {
-	typedef Poco::SharedPtr<Unit> Ptr;
+	using Ptr = Poco::SharedPtr<Unit>;
 
 	Unit(): metric(false), value(0) { }
 
@@ -138,7 +138,7 @@ class IoTUnitsOfMeasure_API UnitsOfMeasureService
 	/// containing unit definitions.
 {
 public:
-	typedef Poco::SharedPtr<UnitsOfMeasureService> Ptr;
+	using Ptr = Poco::SharedPtr<UnitsOfMeasureService>;
 
 	UnitsOfMeasureService();
 		/// Creates the UnitsOfMeasureService.

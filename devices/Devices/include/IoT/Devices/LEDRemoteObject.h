@@ -49,7 +49,7 @@ class LEDRemoteObject: public IoT::Devices::ILED, public Poco::RemotingNG::Remot
 	/// be non-zero.
 {
 public:
-	typedef Poco::AutoPtr<LEDRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<LEDRemoteObject>;
 
 	LEDRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::LED> pServiceObject);
 		/// Creates a LEDRemoteObject.

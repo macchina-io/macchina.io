@@ -41,7 +41,7 @@ class UnitsOfMeasureServiceServerHelper
 	/// containing unit definitions.
 {
 public:
-	typedef IoT::UnitsOfMeasure::UnitsOfMeasureService Service;
+	using Service = IoT::UnitsOfMeasure::UnitsOfMeasureService;
 
 	UnitsOfMeasureServiceServerHelper();
 		/// Creates a UnitsOfMeasureServiceServerHelper.

@@ -30,9 +30,9 @@ class IoTUnitsOfMeasure_API UnitsOfMeasureServiceImpl: public UnitsOfMeasureServ
 	/// Implementation of UnitsOfMeasureService.
 {
 public:
-	typedef Poco::SharedPtr<UnitsOfMeasureServiceImpl> Ptr;
-	typedef std::map<std::string, Prefix::Ptr> PrefixMap;
-	typedef std::map<std::string, Unit::Ptr> UnitMap;
+	using Ptr = Poco::SharedPtr<UnitsOfMeasureServiceImpl>;
+	using PrefixMap = std::map<std::string, Prefix::Ptr>;
+	using UnitMap = std::map<std::string, Unit::Ptr>;
 
 	UnitsOfMeasureServiceImpl();
 		/// Creates the UnitsOfMeasureService.

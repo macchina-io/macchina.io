@@ -45,7 +45,7 @@ class GNSSSensorRemoteObject: public IoT::Devices::IGNSSSensor, public Poco::Rem
 	///     received from the GNSS receiver.
 {
 public:
-	typedef Poco::AutoPtr<GNSSSensorRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<GNSSSensorRemoteObject>;
 
 	GNSSSensorRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::GNSSSensor> pServiceObject);
 		/// Creates a GNSSSensorRemoteObject.

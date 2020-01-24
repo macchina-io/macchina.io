@@ -35,7 +35,7 @@ class CANEndpointServerHelper
 	/// The CANEndpoint is used to receive and send CAN and CAN-FD frames.
 {
 public:
-	typedef IoT::CAN::CANEndpoint Service;
+	using Service = IoT::CAN::CANEndpoint;
 
 	CANEndpointServerHelper();
 		/// Creates a CANEndpointServerHelper.

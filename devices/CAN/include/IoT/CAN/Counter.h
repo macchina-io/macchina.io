@@ -27,7 +27,7 @@ namespace CAN {
 class IoTCANDevices_API Counter: public IoT::Devices::DeviceImpl<IoT::Devices::Counter, Counter>
 {
 public:
-	typedef Poco::SharedPtr<Counter> Ptr;
+	using Ptr = Poco::SharedPtr<Counter>;
 
 	Counter(Poco::Util::Timer& timer, const std::string& signal);
 		/// Creates a Counter.
@@ -68,7 +68,7 @@ protected:
 	Poco::Int32 _value;
 	double _valueChangedDelta;
 	int _valueChangedPeriod;
-	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<Poco::Int32> > _pEventPolicy;
+	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<Poco::Int32>> _pEventPolicy;
 	Poco::Any _signal;
 };
 

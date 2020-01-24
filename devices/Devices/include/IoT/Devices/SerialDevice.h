@@ -54,17 +54,17 @@ class IoTDevices_API SerialDevice: public IoT::Devices::Device
 	///     setFeature("events", true);
 {
 public:
-	typedef Poco::AutoPtr<SerialDevice> Ptr;
-	
+	using Ptr = Poco::AutoPtr<SerialDevice>;
+
 	Poco::BasicEvent<const std::string> lineReceived;
 		/// Fired when a line of text has been received on the serial port.
 
 	SerialDevice();
 		/// Creates the SerialDevice.
-		
+
 	~SerialDevice();
 		/// Destroys the SerialDevice.
-		
+
 	virtual void reconfigure(int baudRate, const std::string& parameters, const std::string& flowControl) = 0;
 		/// Reconfigures the serial port with the given baud rate
 		/// and communication parameters.
@@ -74,7 +74,7 @@ public:
 		/// 4800, 9600, 19200, 38400, 57600, 115200 or 230400.
 		///
 		/// Specify -1 for baudRate to use the currently configured speed.
-		/// Note that not all platforms support all baud rates.		
+		/// Note that not all platforms support all baud rates.
 		///
 		/// To specify character size, parity and stop bits, use the
 		/// parameters argument. The parameters argument must be a three
@@ -87,17 +87,17 @@ public:
 		/// To specify flow control, use the flowControl argument.
 		/// Specify "none" or an empty string for no flow control.
 		/// Specify "rtscts" for hardware (RTS/CTS) flow control.
-		
+
 	virtual bool poll(double timeout) = 0;
 		/// Waits for data to arrive at the port.
 		///
-		/// Returns true immediately if data is already in 
+		/// Returns true immediately if data is already in
 		/// the internal buffer, or if data arrives during the
 		/// specified time interval (given in seconds), otherwise false.
 
 	virtual void setRTS(bool status) = 0;
 		/// Manually sets or clears RTS.
-		
+
 	virtual bool getRTS() const = 0;
 		/// Returns the RTS status.
 
@@ -106,12 +106,12 @@ public:
 		/// Returns the number of characters written.
 
 	virtual std::string readString() = 0;
-		/// Reads what's currently available from the serial port 
+		/// Reads what's currently available from the serial port
 		/// or internal buffer and returns it in data.
 		///
 		/// If the internal buffer is empty, blocks until data
 		/// arrives at the port.
-		
+
 	virtual std::string readLine(const std::string& delimiters, double timeout) = 0;
 		/// Reads a characters from the serial port.
 		///

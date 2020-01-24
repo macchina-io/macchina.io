@@ -27,8 +27,8 @@ namespace Launcher {
 class AppRegistry: public Poco::OSP::Service
 {
 public:
-	typedef Poco::AutoPtr<AppRegistry> Ptr;
-	
+	using Ptr = Poco::AutoPtr<AppRegistry>;
+
 	struct App
 	{
 		std::string id;
@@ -39,35 +39,35 @@ public:
 		std::string permission;
 		Poco::OSP::Bundle::Ptr pBundle;
 	};
-	typedef std::map<std::string, App> AppMap;
-	typedef std::vector<App> AppVec;
-	
+	using AppMap = std::map<std::string, App>;
+	using AppVec = std::vector<App>;
+
 	AppRegistry();
 		/// Creates the AppRegistry.
-			
+
 	~AppRegistry();
 		/// Destroys the AppRegistry.
-	
+
 	void add(const App& app);
 		/// Adds an application to the registry.
-	
+
 	void remove(const std::string& bundle);
 		/// Removes all applications defined in the bundle with
 		/// the given symbolic name.
-	
+
 	void list(AppVec& apps);
 		/// Returns a vector containing all registered applications.
 
 	// Service
 	const std::type_info& type() const;
 	bool isA(const std::type_info& otherType) const;
-	
+
 	static std::string SERVICE_NAME;
-	
+
 private:
 	AppRegistry(const AppRegistry&);
 	AppRegistry& operator = (const AppRegistry&);
-	
+
 	Poco::FastMutex _mutex;
 	AppMap _appMap;
 };

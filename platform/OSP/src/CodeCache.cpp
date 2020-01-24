@@ -52,7 +52,7 @@ bool CodeCache::hasLibrary(const std::string& name)
 	return f.exists();
 }
 
-	
+
 Poco::Timestamp CodeCache::libraryTimestamp(const std::string& name)
 {
 	Path p(_path, name);
@@ -75,7 +75,7 @@ void CodeCache::installLibrary(const std::string& name, std::istream& istr)
 	else throw CreateFileException(f.path());
 }
 
-	
+
 void CodeCache::uninstallLibrary(const std::string& name)
 {
 	Path p(_path, name);
@@ -83,14 +83,14 @@ void CodeCache::uninstallLibrary(const std::string& name)
 	f.remove();
 }
 
-	
+
 std::string CodeCache::pathFor(const std::string& name, bool appendSuffix)
 {
 	Path p(_path);
 	if (!name.empty())
 	{
 		if (appendSuffix)
-		p.setFileName(name + SharedLibrary::suffix());
+			p.setFileName(name + SharedLibrary::suffix());
 		else
 			p.setFileName(name);
 	}
@@ -111,7 +111,7 @@ void CodeCache::lock()
 	if (_pMutex) _pMutex->lock();
 }
 
-	
+
 void CodeCache::unlock()
 {
 	if (_pMutex) _pMutex->unlock();

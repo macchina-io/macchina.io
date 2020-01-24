@@ -41,7 +41,7 @@ class MQTTClientServerHelper
 	/// attempt to reconnect if the connection to the server is lost.
 {
 public:
-	typedef IoT::MQTT::MQTTClient Service;
+	using Service = IoT::MQTT::MQTTClient;
 
 	MQTTClientServerHelper();
 		/// Creates a MQTTClientServerHelper.

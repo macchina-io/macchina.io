@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::MQTT::TopicCount& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"messageCount","topic",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<int >::serialize(REMOTING__NAMES[0], value.messageCount, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.topic, ser);
 	}

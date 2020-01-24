@@ -50,7 +50,7 @@ public:
 
 	void unregisterDefaultCallback();
 		/// Unregisters the default callback.
-		
+
 	void registerPreClassCallback(MethodGenerator funcGen);
 		/// Allows to register a code generator that will write code to the implementation file
 		/// before the first constructor is written. Useful to initialize static members.
@@ -127,6 +127,9 @@ private:
 		/// Generates a single method.
 
 	void handleTypedefs(const Poco::CppParser::NameSpace::SymbolTable& typedefs, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen);
+		/// Iterates over all functions and writes them.
+
+	void handleUsings(const Poco::CppParser::NameSpace::SymbolTable& typedefs, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen);
 		/// Iterates over all functions and writes them.
 
 	static void handleSystemInclude(const std::string& typeDecl, CodeGenerator& gen);

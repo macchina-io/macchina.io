@@ -3,12 +3,10 @@ vc.project.name = ${vc.project.baseName}
 vc.project.target = com.appinf.osp.samples.webindex
 vc.project.type = plugin
 vc.project.pocobase = ..\\..\\..
-vc.project.platforms = Win32, x64, WinCE
+vc.project.platforms = Win32
 vc.project.configurations = debug_shared, release_shared
 vc.project.prototype = ${vc.project.name}_vs90.vcproj
 vc.project.compiler.include = ..\\..\\..\\Foundation\\include;..\\..\\..\\XML\\include;..\\..\\..\\Util\\include;..\\..\\..\\Net\\include;..\\..\\..\\OSP\\include;..\\..\\..\\OSP\\Web\\include;..\\..\\..\\OSP\\BundleSign\\include;..\\..\\..\\OSP\\Shell\\include
 vc.project.linker.dependencies.Win32 = ws2_32.lib iphlpapi.lib
-vc.project.linker.dependencies.x64 = ws2_32.lib iphlpapi.lib
-vc.project.linker.dependencies.WinCE = ws2.lib iphlpapi.lib
 vc.project.postbuild.debug_shared = bundled /osarch=${project.targetArchitecture} /output=../bundles $(ProjectName).bndlspec
 vc.project.postbuild.release_shared = bundle /osarch=${project.targetArchitecture} /output=../bundles $(ProjectName).bndlspec

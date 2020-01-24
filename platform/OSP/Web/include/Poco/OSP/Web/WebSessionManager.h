@@ -50,7 +50,7 @@ class OSPWeb_API WebSessionManager: public WebSessionService<Poco::Net::HTTPServ
 	/// to the host that has originally set it.
 {
 public:
-	typedef Poco::AutoPtr<WebSessionManager> Ptr;
+	using Ptr = Poco::AutoPtr<WebSessionManager>;
 
 	enum CookiePersistence
 	{

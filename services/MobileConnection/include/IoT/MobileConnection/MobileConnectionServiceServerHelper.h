@@ -36,7 +36,7 @@ class MobileConnectionServiceServerHelper
 	/// and establish a mobile data connection.
 {
 public:
-	typedef IoT::MobileConnection::MobileConnectionService Service;
+	using Service = IoT::MobileConnection::MobileConnectionService;
 
 	MobileConnectionServiceServerHelper();
 		/// Creates a MobileConnectionServiceServerHelper.

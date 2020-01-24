@@ -65,7 +65,7 @@ class IoTUDP_API UDPEndpoint
 	/// The UDPEndpoint is used to receive and send UDP packets.
 {
 public:
-	typedef Poco::SharedPtr<UDPEndpoint> Ptr;
+	using Ptr = Poco::SharedPtr<UDPEndpoint>;
 
 	Poco::BasicEvent<const Packet> packetReceived;
 		/// Fired when an UDP packet has been received.

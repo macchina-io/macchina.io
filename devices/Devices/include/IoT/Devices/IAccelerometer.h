@@ -32,7 +32,7 @@ class IAccelerometer: public IoT::Devices::IDevice
 	/// The interface for three-axis Accelerometers.
 {
 public:
-	typedef Poco::AutoPtr<IAccelerometer> Ptr;
+	using Ptr = Poco::AutoPtr<IAccelerometer>;
 
 	IAccelerometer();
 		/// Creates a IAccelerometer.

@@ -44,9 +44,7 @@ bool IDeviceStatusService::isA(const std::type_info& otherType) const
 
 const Poco::RemotingNG::Identifiable::TypeId& IDeviceStatusService::remoting__typeId()
 {
-	remoting__staticInitBegin(REMOTING__TYPE_ID);
 	static const std::string REMOTING__TYPE_ID("IoT.DeviceStatus.DeviceStatusService");
-	remoting__staticInitEnd(REMOTING__TYPE_ID);
 	return REMOTING__TYPE_ID;
 }
 

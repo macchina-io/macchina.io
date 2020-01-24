@@ -41,9 +41,7 @@ public:
 
 	static void serializeImpl(const IoT::NetworkEnvironment::NetworkInterface& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"adapterName","addresses","displayName","index","isLoopback","isPointToPoint","isRunning","isUp","macAddress","mtu","name","supportsBroadcast","supportsIP","supportsIPv4","supportsIPv6","supportsMulticast","type",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.adapterName, ser);
 		TypeSerializer<std::vector < IoT::NetworkEnvironment::AddressTuple > >::serialize(REMOTING__NAMES[1], value.addresses, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.displayName, ser);

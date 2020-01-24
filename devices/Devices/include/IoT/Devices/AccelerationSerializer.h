@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::Devices::Acceleration& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"x","y","z",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.x, ser);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[1], value.y, ser);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[2], value.z, ser);

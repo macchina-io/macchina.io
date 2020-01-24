@@ -35,7 +35,7 @@ class CameraServerHelper
 	/// The base class for image sensors, also known as cameras.
 {
 public:
-	typedef IoT::Devices::Camera Service;
+	using Service = IoT::Devices::Camera;
 
 	CameraServerHelper();
 		/// Creates a CameraServerHelper.

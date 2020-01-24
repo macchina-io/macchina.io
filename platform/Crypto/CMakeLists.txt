@@ -1,6 +1,3 @@
-set(LIBNAME "Crypto")
-set(POCO_LIBNAME "Poco${LIBNAME}")
-
 # Sources
 file(GLOB SRCS_G "src/*.cpp")
 POCO_SOURCES_AUTO( SRCS ${SRCS_G})
@@ -11,30 +8,37 @@ POCO_HEADERS_AUTO( SRCS ${HDRS_G})
 
 # Version Resource
 if(MSVC AND NOT POCO_STATIC)
-    source_group("Resources" FILES ${CMAKE_SOURCE_DIR}/DLLVersion.rc)
-    list(APPEND SRCS ${CMAKE_SOURCE_DIR}/DLLVersion.rc)
+    source_group("Resources" FILES ${PROJECT_SOURCE_DIR}/DLLVersion.rc)
+    list(APPEND SRCS ${PROJECT_SOURCE_DIR}/DLLVersion.rc)
 endif()
 
-add_library( "${LIBNAME}" ${LIB_MODE} ${SRCS} )
-add_library( "${POCO_LIBNAME}" ALIAS "${LIBNAME}")
-set_target_properties( "${LIBNAME}"
+add_library(Crypto ${SRCS} )
+add_library(Poco::Crypto ALIAS Crypto)
+set_target_properties(Crypto
     PROPERTIES
     VERSION ${SHARED_LIBRARY_VERSION} SOVERSION ${SHARED_LIBRARY_VERSION}
-    OUTPUT_NAME ${POCO_LIBNAME}
+    OUTPUT_NAME PocoCrypto
     DEFINE_SYMBOL Crypto_EXPORTS
     )
 
-target_link_libraries( "${LIBNAME}" Foundation ${OPENSSL_LIBRARIES} )
-target_include_directories( "${LIBNAME}"
+target_link_libraries(Crypto PUBLIC Poco::Foundation OpenSSL::SSL OpenSSL::Crypto)
+target_include_directories(Crypto
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
+    PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
-target_compile_definitions("${LIBNAME}" PUBLIC ${LIB_MODE_DEFINITIONS})
 
-POCO_INSTALL("${LIBNAME}")
-POCO_GENERATE_PACKAGE("${LIBNAME}")
+if(MSVC AND POCO_DISABLE_INTERNAL_OPENSSL)
+    target_compile_definitions(Crypto PUBLIC POCO_EXTERNAL_OPENSSL)
+	if(OPENSSL_USE_STATIC_LIBS)
+		target_link_libraries(Crypto PUBLIC ws2_32.lib Crypt32.lib)
+	endif()
+endif()
+
+POCO_INSTALL(Crypto)
+POCO_GENERATE_PACKAGE(Crypto)
 
 if (ENABLE_TESTS)
     add_subdirectory(samples)

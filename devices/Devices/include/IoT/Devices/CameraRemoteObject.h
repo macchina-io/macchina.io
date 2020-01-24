@@ -33,7 +33,7 @@ class CameraRemoteObject: public IoT::Devices::ICamera, public Poco::RemotingNG:
 	/// The base class for image sensors, also known as cameras.
 {
 public:
-	typedef Poco::AutoPtr<CameraRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<CameraRemoteObject>;
 
 	CameraRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Camera> pServiceObject);
 		/// Creates a CameraRemoteObject.

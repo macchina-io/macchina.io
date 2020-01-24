@@ -22,7 +22,7 @@ poco: libexecs $(if $(TESTS),tests) $(if $(SAMPLES),samples)
 all: libexecs tests samples
 
 INSTALLDIR = $(DESTDIR)$(POCO_PREFIX)
-COMPONENTS = Foundation XML JSON Util Net Data Data/SQLite Zip Crypto NetSSL_OpenSSL CppParser CodeGeneration JS/V8 JS/Core JS/Data JS/Bridge JS/Net RemotingNG RemotingNG/RemoteGen RemotingNG/TCP OSP OSP/BundleCreator OSP/CodeCacheUtility OSP/StripBundle OSP/Web OSP/Core OSP/Crypto OSP/Data OSP/Data/SQLite OSP/Net OSP/NetSSL_OpenSSL OSP/SecureWebServer OSP/WebServer OSP/JS OSP/JS/Net OSP/JS/Data OSP/JS/Web OSP/JS/Scheduler
+COMPONENTS = Foundation XML JSON Util Net Data Data/SQLite Zip Crypto NetSSL_OpenSSL JWT CppParser CodeGeneration JS/V8 JS/Core JS/Data JS/Bridge JS/Net RemotingNG RemotingNG/RemoteGen RemotingNG/TCP OSP OSP/BundleCreator OSP/CodeCacheUtility OSP/StripBundle OSP/Web OSP/Core OSP/Crypto OSP/Data OSP/Data/SQLite OSP/Net OSP/NetSSL_OpenSSL OSP/SecureWebServer OSP/WebServer OSP/JS OSP/JS/Net OSP/JS/Data OSP/JS/Web OSP/JS/Scheduler
 
 cppunit:
 	$(MAKE) -C $(POCO_BASE)/CppUnit
@@ -46,10 +46,10 @@ install: libexecs
 	find $(POCO_BUILD)/lib -name "libPoco*" -type l -exec cp -Rf {} $(INSTALLDIR)/lib \;
 
 # POCO C++ Libraries
-libexecs = Foundation-libexec XML-libexec JSON-libexec Util-libexec Net-libexec Crypto-libexec NetSSL_OpenSSL-libexec Data-libexec Data/SQLite-libexec Zip-libexec PageCompiler-libexec PageCompiler/File2Page-libexec
+libexecs = Foundation-libexec XML-libexec JSON-libexec Util-libexec Net-libexec Crypto-libexec NetSSL_OpenSSL-libexec Data-libexec Data/SQLite-libexec Zip-libexec JWT-libexec PageCompiler-libexec PageCompiler/File2Page-libexec
 tests    = Foundation-tests XML-tests JSON-tests Util-tests Net-tests Crypto-tests NetSSL_OpenSSL-tests Data-tests Data/SQLite-tests Zip-tests CppParser-tests
-samples  = Foundation-samples XML-samples JSON-samples Util-samples Net-samples Crypto-samples NetSSL_OpenSSL-samples Data-samples Zip-samples PageCompiler-samples
-cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-clean NetSSL_OpenSSL-clean Data-clean Data/SQLite-clean Zip-clean PageCompiler-clean PageCompiler/File2Page-clean CppParser-clean
+samples  = Foundation-samples XML-samples JSON-samples Util-samples Net-samples Crypto-samples NetSSL_OpenSSL-samples Data-samples Zip-samples JWT-tests PageCompiler-samples
+cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-clean NetSSL_OpenSSL-clean Data-clean Data/SQLite-clean Zip-clean JWT-clean PageCompiler-clean PageCompiler/File2Page-clean CppParser-clean
 
 # WebTunnel, JS, Redis, Remoting and OSP
 libexecs += \
@@ -221,6 +221,16 @@ Zip-clean:
 	$(MAKE) -C $(POCO_BASE)/Zip clean
 	$(MAKE) -C $(POCO_BASE)/Zip/testsuite clean
 	$(MAKE) -C $(POCO_BASE)/Zip/samples clean
+
+JWT-libexec:  Foundation-libexec JSON-libexec Crypto-libexec
+	$(MAKE) -C $(POCO_BASE)/JWT
+
+JWT-tests: JWT-libexec cppunit
+	$(MAKE) -C $(POCO_BASE)/JWT/testsuite
+
+JWT-clean:
+	$(MAKE) -C $(POCO_BASE)/JWT clean
+	$(MAKE) -C $(POCO_BASE)/JWT/testsuite clean
 
 WebTunnel-libexec:  Foundation-libexec Net-libexec Util-libexec XML-libexec
 	$(MAKE) -C $(POCO_BASE)/WebTunnel

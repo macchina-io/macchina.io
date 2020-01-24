@@ -8,9 +8,6 @@
 // Warning: All changes to this will be lost when the file is re-generated.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
-// All rights reserved.
-// 
-// SPDX-License-Identifier: Apache-2.0
 //
 
 
@@ -31,7 +28,7 @@ class PizzaPickupServiceProxy: public Pizzeria::IPizzaPickupService, public Poco
 	/// Pizzeria that allows self pickup.
 {
 public:
-	typedef Poco::AutoPtr<PizzaPickupServiceProxy> Ptr;
+	using Ptr = Poco::AutoPtr<PizzaPickupServiceProxy>;
 
 	PizzaPickupServiceProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a PizzaPickupServiceProxy.

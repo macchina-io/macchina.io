@@ -26,7 +26,7 @@ namespace Sensor2MQTT {
 class MQTTTask: public Poco::Util::TimerTask
 {
 public:
-	typedef Poco::AutoPtr<MQTTTask> Ptr;
+	using Ptr = Poco::AutoPtr<MQTTTask>;
 
 	MQTTTask(IoT::Devices::ISensor::Ptr pSensor, IoT::MQTT::IMQTTClient::Ptr pMQTTClient, const std::string& topic);
 

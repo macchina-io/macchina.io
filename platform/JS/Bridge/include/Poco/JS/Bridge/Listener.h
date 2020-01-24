@@ -30,14 +30,14 @@ namespace Bridge {
 class JSBridge_API Listener: public Poco::RemotingNG::Listener
 {
 public:
-	typedef Poco::AutoPtr<Listener> Ptr;
+	using Ptr = Poco::AutoPtr<Listener>;
 
 	Listener();
 		/// Creates a Listener.
 
 	~Listener();
 		/// Destroys the Listener.
-		
+
 	// Poco::RemotingNG::Listener
 	void start();
 	void stop();
@@ -46,7 +46,7 @@ public:
 	bool handlesURI(const std::string& uri);
 	void registerObject(Poco::RemotingNG::RemoteObject::Ptr pRemoteObject, Poco::RemotingNG::Skeleton::Ptr pSkeleton);
 	void unregisterObject(Poco::RemotingNG::RemoteObject::Ptr pRemoteObject);
-	
+
 	static const std::string PROTOCOL;
 };
 

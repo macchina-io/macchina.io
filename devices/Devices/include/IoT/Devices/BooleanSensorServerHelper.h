@@ -42,7 +42,7 @@ class BooleanSensorServerHelper
 	///     formatted as string for display purposes.
 {
 public:
-	typedef IoT::Devices::BooleanSensor Service;
+	using Service = IoT::Devices::BooleanSensor;
 
 	BooleanSensorServerHelper();
 		/// Creates a BooleanSensorServerHelper.

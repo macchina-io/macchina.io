@@ -40,9 +40,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, Struct2& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"aDateTime","aLocalDateTime","aTimestamp","aVector","anURI","anUUID","anotherVector"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<Poco::DateTime >::deserialize(REMOTING__NAMES[0], true, deser, value.aDateTime);
 		TypeDeserializer<Poco::LocalDateTime >::deserialize(REMOTING__NAMES[1], true, deser, value.aLocalDateTime);
 		TypeDeserializer<Poco::Timestamp >::deserialize(REMOTING__NAMES[2], true, deser, value.aTimestamp);

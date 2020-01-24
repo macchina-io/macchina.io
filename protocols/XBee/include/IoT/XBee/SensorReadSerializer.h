@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::XBee::SensorRead& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"analogSamples","deviceAddress","networkAddress","options","sensor","temperature",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<std::vector < Poco::Int16 > >::serialize(REMOTING__NAMES[0], value.analogSamples, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.deviceAddress, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.networkAddress, ser);

@@ -34,7 +34,7 @@ class IWebTunnelService: public Poco::OSP::Service
 	/// The interface for WebTunnel clients.
 {
 public:
-	typedef Poco::AutoPtr<IWebTunnelService> Ptr;
+	using Ptr = Poco::AutoPtr<IWebTunnelService>;
 
 	IWebTunnelService();
 		/// Creates a IWebTunnelService.

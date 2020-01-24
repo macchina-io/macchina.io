@@ -45,7 +45,7 @@ class SwitchRemoteObject: public IoT::Devices::ISwitch, public Poco::RemotingNG:
 	///     formatted as string for display purposes.
 {
 public:
-	typedef Poco::AutoPtr<SwitchRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<SwitchRemoteObject>;
 
 	SwitchRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Switch> pServiceObject);
 		/// Creates a SwitchRemoteObject.

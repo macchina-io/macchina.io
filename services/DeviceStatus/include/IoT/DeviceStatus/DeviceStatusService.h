@@ -178,8 +178,8 @@ class IoTDeviceStatus_API DeviceStatusService
 	/// status of a device.
 {
 public:
-	typedef Poco::SharedPtr<DeviceStatusService> Ptr;
-	typedef Poco::UInt32 StatusID;
+	using Ptr = Poco::SharedPtr<DeviceStatusService>;
+	using StatusID = Poco::UInt32;
 
 	Poco::BasicEvent<const DeviceStatusChange> statusChanged;
 		/// Fired when the device status level has changed.

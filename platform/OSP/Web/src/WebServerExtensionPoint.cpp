@@ -51,6 +51,11 @@ const std::string WebServerExtensionPoint::ATTR_ALLOWSPECIALIZATION("allowSpecia
 const std::string WebServerExtensionPoint::ATTR_INDEX("index");
 const std::string WebServerExtensionPoint::ATTR_HIDDEN("hidden");
 const std::string WebServerExtensionPoint::ATTR_CACHE("cache");
+const std::string WebServerExtensionPoint::ATTR_CORS("cors");
+const std::string WebServerExtensionPoint::ATTR_ALLOWORIGIN("allowOrigin");
+const std::string WebServerExtensionPoint::ATTR_ALLOWMETHODS("allowMethods");
+const std::string WebServerExtensionPoint::ATTR_ALLOWHEADERS("allowHeaders");
+const std::string WebServerExtensionPoint::ATTR_ALLOWCREDENTIALS("allowCredentials");
 const std::string WebServerExtensionPoint::MANIFEST_NAME("WebServer");
 
 
@@ -157,6 +162,11 @@ void WebServerExtensionPoint::handleCommon(Bundle::ConstPtr pBundle, Poco::XML::
 	vPath.security.secure          = pExtensionElem->getAttribute(ATTR_SECURE) == "true";
 	vPath.security.csrfProtection  = pExtensionElem->getAttribute(ATTR_CSRFPROTECTION) == "true";
 	vPath.security.csrfTokenHeader = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_CSRFTOKENHEADER));
+	vPath.cors.enable              = pExtensionElem->getAttribute(ATTR_CORS) == "true";
+	vPath.cors.allowOrigin         = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_ALLOWORIGIN));
+	vPath.cors.allowMethods        = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_ALLOWMETHODS));
+	vPath.cors.allowCredentials    = pExtensionElem->getAttribute(ATTR_ALLOWCREDENTIALS) != "false";
+	vPath.cors.allowHeaders        = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_ALLOWHEADERS));
 	vPath.hidden                   = pExtensionElem->getAttribute(ATTR_HIDDEN) == "true";
 	vPath.cache                    = pExtensionElem->getAttribute(ATTR_CACHE) != "false";
 

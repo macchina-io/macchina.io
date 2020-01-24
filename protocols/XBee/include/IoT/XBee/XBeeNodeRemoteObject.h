@@ -40,7 +40,7 @@ class XBeeNodeRemoteObject: public IoT::XBee::IXBeeNode, public Poco::RemotingNG
 	/// information about the API.
 {
 public:
-	typedef Poco::AutoPtr<XBeeNodeRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<XBeeNodeRemoteObject>;
 
 	XBeeNodeRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::XBee::XBeeNode> pServiceObject);
 		/// Creates a XBeeNodeRemoteObject.

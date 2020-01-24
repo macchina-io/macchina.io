@@ -28,29 +28,29 @@ class JSServletExecutorHolder
 	/// Helper class for storing JSServletExecutor objects in a shared cache.
 {
 public:
-	typedef Poco::SharedPtr<JSServletExecutorHolder> Ptr;
+	using Ptr = Poco::SharedPtr<JSServletExecutorHolder>;
 
 	JSServletExecutorHolder(JSServletExecutor::Ptr pExecutor);
 		/// Creates the JSServletExecutorHolder.
-	
+
 	JSServletExecutor::Ptr executor()
 		/// Returns the held JSServletExecutor.
 	{
 		return _pExecutor;
 	}
-	
+
 	void lock()
 		/// Locks access to the instance.
 	{
 		_mutex.lock();
 	}
-	
+
 	void unlock()
 		/// Unlocks access to the instance.
 	{
 		_mutex.unlock();
 	}
-	
+
 private:
 	JSServletExecutor::Ptr _pExecutor;
 	Poco::FastMutex _mutex;
@@ -69,13 +69,13 @@ public:
 	{
 		_mutex.lock();
 	}
-	
+
 	void unlock()
 		/// Unlocks access to the instance.
 	{
 		_mutex.unlock();
 	}
-	
+
 	static JSServletExecutorCache& instance();
 		/// Returns the shared instance of the JSServletExecutorCache.
 };

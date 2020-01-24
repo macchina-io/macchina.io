@@ -35,9 +35,9 @@ class RemotingNG_API Identifiable: public virtual Poco::RefCountedObject
 	/// is used to avoid name clashes with methods from subclasses.
 {
 public:
-	typedef Poco::AutoPtr<Identifiable> Ptr;
-	typedef std::string ObjectId;
-	typedef std::string TypeId;
+	using Ptr = Poco::AutoPtr<Identifiable>;
+	using ObjectId = std::string;
+	using TypeId = std::string;
 
 	Identifiable(const Identifiable::ObjectId& oid);
 		/// Creates the Identifiable using the given ObjectId.

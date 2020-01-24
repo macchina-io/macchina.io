@@ -32,7 +32,7 @@ class IMagnetometer: public IoT::Devices::IDevice
 	/// The interface for three-axis Magnetometers.
 {
 public:
-	typedef Poco::AutoPtr<IMagnetometer> Ptr;
+	using Ptr = Poco::AutoPtr<IMagnetometer>;
 
 	IMagnetometer();
 		/// Creates a IMagnetometer.

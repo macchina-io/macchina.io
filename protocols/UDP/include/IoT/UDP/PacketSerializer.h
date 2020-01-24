@@ -41,9 +41,7 @@ public:
 
 	static void serializeImpl(const IoT::UDP::Packet& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"destination","payload","source",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<IoT::UDP::EndpointAddress >::serialize(REMOTING__NAMES[0], value.destination, ser);
 		TypeSerializer<std::vector < char > >::serialize(REMOTING__NAMES[1], value.payload, ser);
 		TypeSerializer<IoT::UDP::EndpointAddress >::serialize(REMOTING__NAMES[2], value.source, ser);

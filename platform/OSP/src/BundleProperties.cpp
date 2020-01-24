@@ -27,27 +27,26 @@ BundleProperties::BundleProperties():
 
 BundleProperties::~BundleProperties()
 {
-	_pLayeredConfig->release();
 }
 
 
-void BundleProperties::addProperties(Poco::Util::AbstractConfiguration* pConfig, bool shared)
+void BundleProperties::addProperties(Poco::Util::AbstractConfiguration::Ptr pConfig)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
-	_pLayeredConfig->add(pConfig, shared);
+
+	_pLayeredConfig->add(pConfig);
 }
 
-	
-void BundleProperties::addProperties(Poco::Util::AbstractConfiguration* pConfig, int priority, bool shared)
+
+void BundleProperties::addProperties(Poco::Util::AbstractConfiguration::Ptr pConfig, int priority)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
-	_pLayeredConfig->add(pConfig, priority, shared);
+
+	_pLayeredConfig->add(pConfig, priority);
 }
 
 
-void BundleProperties::removeProperties(Poco::Util::AbstractConfiguration* pConfig)
+void BundleProperties::removeProperties(Poco::Util::AbstractConfiguration::Ptr pConfig)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 

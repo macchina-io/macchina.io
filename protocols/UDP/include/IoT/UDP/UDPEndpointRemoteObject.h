@@ -33,7 +33,7 @@ class UDPEndpointRemoteObject: public IoT::UDP::IUDPEndpoint, public Poco::Remot
 	/// The UDPEndpoint is used to receive and send UDP packets.
 {
 public:
-	typedef Poco::AutoPtr<UDPEndpointRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<UDPEndpointRemoteObject>;
 
 	UDPEndpointRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::UDP::UDPEndpoint> pServiceObject);
 		/// Creates a UDPEndpointRemoteObject.

@@ -25,7 +25,7 @@ namespace XDK {
 class HighRateAccelerometer: public IoT::Devices::DeviceImpl<IoT::Devices::Accelerometer, HighRateAccelerometer>
 {
 public:
-	typedef Poco::SharedPtr<HighRateAccelerometer> Ptr;
+	using Ptr = Poco::SharedPtr<HighRateAccelerometer>;
 
 	HighRateAccelerometer(BtLE::Peripheral::Ptr pPeripheral);
 		/// Creates a HighRateAccelerometer.

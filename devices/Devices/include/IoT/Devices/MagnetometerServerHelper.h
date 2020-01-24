@@ -35,7 +35,7 @@ class MagnetometerServerHelper
 	/// The interface for three-axis Magnetometers.
 {
 public:
-	typedef IoT::Devices::Magnetometer Service;
+	using Service = IoT::Devices::Magnetometer;
 
 	MagnetometerServerHelper();
 		/// Creates a MagnetometerServerHelper.

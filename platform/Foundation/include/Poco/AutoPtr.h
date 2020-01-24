@@ -47,7 +47,7 @@ class AutoPtr
 	/// AutoPtr works in the following way:
 	/// If an AutoPtr is assigned an ordinary pointer to
 	/// an object (via the constructor or the assignment operator),
-	/// it takes ownership of the object and the object's reference 
+	/// it takes ownership of the object and the object's reference
 	/// count remains unchanged.
 	/// If the AutoPtr is assigned another AutoPtr, the
 	/// object's reference count is incremented by one by
@@ -61,7 +61,7 @@ class AutoPtr
 	/// Note that AutoPtr allows casting of its encapsulated data types.
 {
 public:
-	AutoPtr(): _ptr(0)
+	AutoPtr(): _ptr(nullptr)
 	{
 	}
 
@@ -79,7 +79,12 @@ public:
 		if (_ptr) _ptr->duplicate();
 	}
 
-	template <class Other> 
+	AutoPtr(AutoPtr&& ptr) noexcept: _ptr(std::move(ptr._ptr))
+	{
+		ptr._ptr = nullptr;
+	}
+
+	template <class Other>
 	AutoPtr(const AutoPtr<Other>& ptr): _ptr(const_cast<Other*>(ptr.get()))
 	{
 		if (_ptr) _ptr->duplicate();
@@ -89,7 +94,7 @@ public:
 	{
 		if (_ptr) _ptr->release();
 	}
-	
+
 	AutoPtr& assign(C* ptr)
 	{
 		if (_ptr != ptr)
@@ -110,7 +115,7 @@ public:
 		}
 		return *this;
 	}
-	
+
 	AutoPtr& assign(const AutoPtr& ptr)
 	{
 		if (&ptr != this)
@@ -121,8 +126,8 @@ public:
 		}
 		return *this;
 	}
-	
-	template <class Other> 
+
+	template <class Other>
 	AutoPtr& assign(const AutoPtr<Other>& ptr)
 	{
 		if (ptr.get() != _ptr)
@@ -139,7 +144,7 @@ public:
 		if (_ptr)
 		{
 			_ptr->release();
-			_ptr = 0;
+			_ptr = nullptr;
 		}
 	}
 
@@ -173,8 +178,16 @@ public:
 	{
 		return assign(ptr);
 	}
-	
-	template <class Other> 
+
+	AutoPtr& operator = (AutoPtr&& ptr) noexcept
+	{
+		if (_ptr) _ptr->release();
+		_ptr = ptr._ptr;
+		ptr._ptr = nullptr;
+		return *this;
+	}
+
+	template <class Other>
 	AutoPtr& operator = (const AutoPtr<Other>& ptr)
 	{
 		return assign<Other>(ptr);
@@ -184,8 +197,8 @@ public:
 	{
 		std::swap(_ptr, ptr._ptr);
 	}
-	
-	template <class Other> 
+
+	template <class Other>
 	AutoPtr<Other> cast() const
 		/// Casts the AutoPtr via a dynamic cast to the given type.
 		/// Returns an AutoPtr containing NULL if the cast fails.
@@ -198,7 +211,7 @@ public:
 		return AutoPtr<Other>(pOther, true);
 	}
 
-	template <class Other> 
+	template <class Other>
 	AutoPtr<Other> unsafeCast() const
 		/// Casts the AutoPtr via a static cast to the given type.
 		/// Example: (assume class Sub: public Super)
@@ -256,22 +269,22 @@ public:
 	{
 		return _ptr;
 	}
-	
+
 	operator const C* () const
 	{
 		return _ptr;
 	}
-	
+
 	bool operator ! () const
 	{
-		return _ptr == 0;
+		return _ptr == nullptr;
 	}
 
 	bool isNull() const
 	{
-		return _ptr == 0;
+		return _ptr == nullptr;
 	}
-	
+
 	C* duplicate()
 	{
 		if (_ptr) _ptr->duplicate();
@@ -377,6 +390,13 @@ template <class C>
 inline void swap(AutoPtr<C>& p1, AutoPtr<C>& p2)
 {
 	p1.swap(p2);
+}
+
+
+template<typename T, typename... Args>
+AutoPtr<T> makeAuto(Args&&... args)
+{
+    return AutoPtr<T>(new T(std::forward<Args>(args)...));
 }
 
 

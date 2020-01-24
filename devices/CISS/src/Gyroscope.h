@@ -27,7 +27,7 @@ class Node;
 class Gyroscope: public IoT::Devices::DeviceImpl<IoT::Devices::Gyroscope, Gyroscope>
 {
 public:
-	typedef Poco::SharedPtr<Gyroscope> Ptr;
+	using Ptr = Poco::SharedPtr<Gyroscope>;
 
 	enum
 	{

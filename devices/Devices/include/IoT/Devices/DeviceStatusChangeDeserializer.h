@@ -43,9 +43,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::Devices::DeviceStatusChange& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"current","previous"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		bool ret = false;
 		int gencurrent;
 		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[0], true, deser, gencurrent);

@@ -24,6 +24,6 @@ objects = \
 
 target         = PizzeriaClient
 target_version = 1
-target_libs    = PocoRemotingNGTCP PocoRemotingNG PocoUtil PocoNet PocoJSON PocoXML PocoFoundation
+target_libs    = PocoRemotingNGSOAP PocoRemotingNG PocoUtil PocoNet PocoXML PocoFoundation
 
 include $(POCO_BASE)/build/rules/exec

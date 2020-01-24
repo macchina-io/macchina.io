@@ -33,7 +33,7 @@ class GyroscopeRemoteObject: public IoT::Devices::IGyroscope, public Poco::Remot
 	/// The interface for three-axis Gyroscopes.
 {
 public:
-	typedef Poco::AutoPtr<GyroscopeRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<GyroscopeRemoteObject>;
 
 	GyroscopeRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Gyroscope> pServiceObject);
 		/// Creates a GyroscopeRemoteObject.

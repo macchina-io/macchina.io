@@ -28,7 +28,7 @@ class Node;
 class Sensor: public IoT::Devices::DeviceImpl<IoT::Devices::Sensor, Sensor>
 {
 public:
-	typedef Poco::SharedPtr<Sensor> Ptr;
+	using Ptr = Poco::SharedPtr<Sensor>;
 
 	Sensor(Node& node, Poco::UInt8 id, Poco::UInt8 streamId, const std::string& physicalQuantity, const std::string& physicalUnit);
 		/// Creates a Sensor.
@@ -78,7 +78,7 @@ protected:
 	double _value;
 	double _valueChangedDelta;
 	int _samplingInterval;
-	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double> > _pEventPolicy;
+	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double>> _pEventPolicy;
 	Poco::Any _deviceIdentifier;
 	Poco::Any _physicalQuantity;
 	Poco::Any _physicalUnit;

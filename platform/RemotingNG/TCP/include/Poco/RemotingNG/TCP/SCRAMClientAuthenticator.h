@@ -27,15 +27,15 @@ namespace TCP {
 
 
 class RemotingNGTCP_API SCRAMClientAuthenticator: public ClientAuthenticator
-	/// This ClientAuthenticator implementation provides the SCRAM-SHA-1 
-	/// (Salted Challenge Response Authentication Mechanism with SHA-1) 
+	/// This ClientAuthenticator implementation provides the SCRAM-SHA-1
+	/// (Salted Challenge Response Authentication Mechanism with SHA-1)
 	/// authentication mechanism.
 	///
 	/// SCRAM specifies the authentication message exchange between the client
-	/// and the server. 
+	/// and the server.
 	/// It uses the PBKDF2 algorithm from the Public-Key Cryptography Standards (PKCS)
 	/// and has the following features:
-	/// 
+	///
 	///   - The password is never transmitted in plain text, only a hash of the
 	///     password is transmitted.
 	///   - The server does not need to store the passwords in plain text (or
@@ -44,26 +44,26 @@ class RemotingNGTCP_API SCRAMClientAuthenticator: public ClientAuthenticator
 	///     and also authentication the server against the client.
 {
 public:
-	typedef Poco::AutoPtr<SCRAMClientAuthenticator> Ptr;
-	
+	using Ptr = Poco::AutoPtr<SCRAMClientAuthenticator>;
+
 	static const std::string SCRAM_SHA1;
 		/// The name of the mechanism is "SCRAM-SHA-1".
-	
+
 	SCRAMClientAuthenticator();
 		/// Creates the SCRAMClientAuthenticator.
-		
+
 	~SCRAMClientAuthenticator();
 		/// Destroys the SCRAMClientAuthenticator.
-	
+
 	// ClientAuthenticator
 	std::string startAuthentication(Credentials& clientCredentials);
 	bool continueAuthentication(const Credentials& serverCredentials, Credentials& clientCredentials);
-	
+
 protected:
 	std::string hashCredentials(const Credentials& creds);
-	
+
 	static const std::string DEFAULT_CRED_MD5_SALT;
-	
+
 	enum State
 	{
 		STATE_INIT,

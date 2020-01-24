@@ -41,9 +41,7 @@ public:
 
 	static void serializeImpl(const IoT::MQTT::MessageArrivedEvent& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"dup","handled","message","topic",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<bool >::serialize(REMOTING__NAMES[0], value.dup, ser);
 		TypeSerializer<bool >::serialize(REMOTING__NAMES[1], value.handled, ser);
 		TypeSerializer<IoT::MQTT::Message >::serialize(REMOTING__NAMES[2], value.message, ser);

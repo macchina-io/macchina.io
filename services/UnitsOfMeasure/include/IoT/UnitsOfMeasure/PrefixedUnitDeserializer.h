@@ -47,9 +47,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::UnitsOfMeasure::PrefixedUnit& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"prefix","unit"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<Poco::SharedPtr < IoT::UnitsOfMeasure::Prefix > >::deserialize(REMOTING__NAMES[0], true, deser, value.prefix);
 		TypeDeserializer<Poco::SharedPtr < IoT::UnitsOfMeasure::Unit > >::deserialize(REMOTING__NAMES[1], true, deser, value.unit);
 	}

@@ -8,9 +8,6 @@
 // Warning: All changes to this will be lost when the file is re-generated.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
-// All rights reserved.
-// 
-// SPDX-License-Identifier: Apache-2.0
 //
 
 
@@ -30,7 +27,7 @@ namespace Pizzeria {
 class IPizzaDeliveryService: public virtual Poco::RefCountedObject
 {
 public:
-	typedef Poco::AutoPtr<IPizzaDeliveryService> Ptr;
+	using Ptr = Poco::AutoPtr<IPizzaDeliveryService>;
 
 	IPizzaDeliveryService();
 		/// Creates a IPizzaDeliveryService.

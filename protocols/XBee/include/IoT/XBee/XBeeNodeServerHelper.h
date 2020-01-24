@@ -42,7 +42,7 @@ class XBeeNodeServerHelper
 	/// information about the API.
 {
 public:
-	typedef IoT::XBee::XBeeNode Service;
+	using Service = IoT::XBee::XBeeNode;
 
 	XBeeNodeServerHelper();
 		/// Creates a XBeeNodeServerHelper.

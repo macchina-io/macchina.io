@@ -29,9 +29,7 @@ class TypeDeserializer<Struct3>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Struct3& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMESPACE);
 		static const std::string REMOTING__NAMESPACE("http://www.appinf.com/types");
-		remoting__staticInitEnd(REMOTING__NAMESPACE);
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		deser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMESPACE);
 		if (ret)
@@ -46,15 +44,14 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, Struct3& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"aCharVector","aComplexVector","aList","aMultiSet","aNullable","aSet"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		static const std::string REMOTING__NAMES[] = {"aCharVector","aComplexVector","aList","aMultiSet","aNullable","aSet","anotherComplexVector"};
 		TypeDeserializer<std::vector < char > >::deserialize(REMOTING__NAMES[0], true, deser, value.aCharVector);
 		TypeDeserializer<std::vector < Struct2 > >::deserialize(REMOTING__NAMES[1], true, deser, value.aComplexVector);
 		TypeDeserializer<std::list < Struct2 > >::deserialize(REMOTING__NAMES[2], true, deser, value.aList);
 		TypeDeserializer<std::multiset < int > >::deserialize(REMOTING__NAMES[3], true, deser, value.aMultiSet);
 		TypeDeserializer<Poco::Nullable < std::string > >::deserialize(REMOTING__NAMES[4], true, deser, value.aNullable);
 		TypeDeserializer<std::set < int > >::deserialize(REMOTING__NAMES[5], true, deser, value.aSet);
+		TypeDeserializer<std::vector < std::shared_ptr < Struct2 > > >::deserialize(REMOTING__NAMES[6], true, deser, value.anotherComplexVector);
 	}
 
 };

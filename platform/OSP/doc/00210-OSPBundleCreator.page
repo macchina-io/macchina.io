@@ -224,17 +224,17 @@ the <[postbuild]> Make variable, as shown below.
 
 
     BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(BINDIR)/bundle
-
+    
     include $(POCO_BASE)/build/rules/global
-
+    
     objects = Greeter
-
+    
     target         = com.appinf.osp.samples.greeter
     target_version = 1
     target_libs    = PocoOSP PocoUtil PocoXML PocoFoundation
-
+    
     postbuild      = $(BUNDLE_TOOL) -o../bundles Greeter.bndlspec
-
+    
     include $(POCO_BASE)/build/rules/dylib
 ----
 
@@ -268,16 +268,16 @@ the target system(s) can be kept in parallel. To support cross-compiling a bundl
 Makefile for building a bundle using the POCO build system must be modified as follows:
 
     BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/bin/$(POCO_HOST_OSNAME)/$(POCO_HOST_OSARCH)/bundle
-
+    
     include $(POCO_BASE)/build/rules/global
-
+    
     objects = Greeter
-
+    
     target         = com.appinf.osp.samples.greeter
     target_version = 1
     target_libs    = PocoOSP PocoUtil PocoXML PocoFoundation
-
+    
     postbuild      = $(BUNDLE_TOOL) -o../bundles Greeter.bndlspec -a$(OSARCH)
-
+    
     include $(POCO_BASE)/build/rules/dylib
 ----

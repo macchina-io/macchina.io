@@ -47,7 +47,7 @@ class SwitchServerHelper
 	///     formatted as string for display purposes.
 {
 public:
-	typedef IoT::Devices::Switch Service;
+	using Service = IoT::Devices::Switch;
 
 	SwitchServerHelper();
 		/// Creates a SwitchServerHelper.

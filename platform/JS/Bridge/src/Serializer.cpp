@@ -160,7 +160,7 @@ void Serializer::serialize(const std::string& name, unsigned long value)
 }
 
 
-#ifndef POCO_LONG_IS_64_BIT
+#ifndef POCO_INT64_IS_LONG
 void Serializer::serialize(const std::string& name, Poco::Int64 value)
 {
 	serializeValue(name, v8::Number::New(_pIsolate, static_cast<double>(value)));
@@ -232,7 +232,7 @@ void Serializer::serializeValue(const std::string& name, const v8::Local<v8::Val
 
 
 void Serializer::resetImpl()
-{	
+{
 	_jsObjectStack.clear();
 	_jsIndexStack.clear();
 	delete _pException;

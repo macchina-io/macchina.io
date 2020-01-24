@@ -187,9 +187,7 @@ void EventDispatcherGenerator::serializeCodeGen(const Poco::CppParser::Function*
 	std::map<std::string, int> nsIdx;
 	//static std::string REMOTING__NAMES[] = {"create", "protocol", "endPoint"}; // methodName followed by param names, followed by other than default namespaces
 	std::string staticIds = EventDispatcherGenerator::generateStaticIdString(pFunc, nsSet, attrs, elems, nsIdx);
-	gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__NAMES);");
 	gen.writeMethodImplementation(staticIds);
-	gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__NAMES);");
 
 	std::map<std::string, const Poco::CppParser::Parameter*> outParams;
 	detectOutParams(pFunc, outParams);
@@ -565,9 +563,7 @@ void EventDispatcherGenerator::writeDeserializingBlock(const Poco::CppParser::Fu
 		std::string messageType(isEvent ? "EVENT_REPLY" : "REPLY");
 		if (name != responseName)
 		{
-			gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__REPLY_NAME);");
 			gen.writeMethodImplementation("static const std::string REMOTING__REPLY_NAME(\"" + responseName + "\");");
-			gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__REPLY_NAME);");
 			gen.writeMethodImplementation("remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_" + messageType + ");");
 		}
 		else
@@ -681,9 +677,7 @@ void EventDispatcherGenerator::writeDeserializeReturnParam(const Poco::CppParser
 			std::string line("static const std::string REMOTING__RETURN_PARAM_NAME(\"");
 			line.append(retName);
 			line.append("\");");
-			gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__RETURN_PARAM_NAME);");
 			gen.writeMethodImplementation(line);
-			gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__RETURN_PARAM_NAME);");
 		}
 		Poco::CppParser::Symbol* pSym = pFunc->nameSpace()->lookup(retParamType);
 		bool enumMode = false;
@@ -993,9 +987,7 @@ void EventDispatcherGenerator::eventCodeGen(const Poco::CppParser::Function* pFu
 		std::string nameLine("static const std::string REMOTING__EVENT_NAME(\"");
 		nameLine.append(pFunc->name().substr(7)); // strip out "event__" prefix
 		nameLine.append("\");");
-		gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__EVENT_NAME);");
 		gen.writeMethodImplementation(nameLine);
-		gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__EVENT_NAME);");
 	}
 
 	// only forward to the network if the network is not the sender

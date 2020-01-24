@@ -46,7 +46,7 @@ class JSCore_API JSExecutor: public Poco::Runnable, public Poco::RefCountedObjec
 	/// set).
 {
 public:
-	typedef Poco::AutoPtr<JSExecutor> Ptr;
+	using Ptr = Poco::AutoPtr<JSExecutor>;
 
 	enum
 	{
@@ -264,7 +264,7 @@ class JSCore_API TimedJSExecutor: public JSExecutor
 	/// define timer-based callbacks.
 {
 public:
-	typedef Poco::AutoPtr<TimedJSExecutor> Ptr;
+	using Ptr = Poco::AutoPtr<TimedJSExecutor>;
 
 	TimedJSExecutor(const std::string& source, const Poco::URI& sourceURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit = JSExecutor::DEFAULT_MEMORY_LIMIT);
 		/// Creates the TimedJSExecutor.

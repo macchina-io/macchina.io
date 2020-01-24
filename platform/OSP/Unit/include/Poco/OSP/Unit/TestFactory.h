@@ -11,7 +11,7 @@
 // All rights reserved.
 //
 // This is unpublished proprietary source code of Applied Informatics.
-// The contents of this file may not be disclosed to third parties, 
+// The contents of this file may not be disclosed to third parties,
 // copied or duplicated in any form, in whole or in part.
 //
 //
@@ -49,12 +49,12 @@ class OSPUnit_API TestFactory
 	/// and later retrieved. Key is typically the bundle name.
 {
 public:
-	typedef Poco::SharedPtr<CppUnit::Test> Ptr;
-	typedef std::vector<Ptr> TestVec;
+	using Ptr = Poco::SharedPtr<CppUnit::Test>;
+	using TestVec = std::vector<Ptr>;
 
 	TestFactory();
 		/// Creates the TestFactory.
-		
+
 	~TestFactory();
 		/// Destroys the TestFactory.
 
@@ -72,7 +72,7 @@ public:
 		/// Retrieves a vector of tests for the given bundle.
 
 private:
-	typedef std::multimap<std::string, Ptr> TestMap;
+	using TestMap = std::multimap<std::string, Ptr>;
 
 	TestFactory(const TestFactory&);
 	TestFactory& operator = (const TestFactory&);

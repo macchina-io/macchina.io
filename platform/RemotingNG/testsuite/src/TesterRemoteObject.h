@@ -22,7 +22,7 @@
 class TesterRemoteObject: public ITester, public Poco::RemotingNG::RemoteObject
 {
 public:
-	typedef Poco::AutoPtr<TesterRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<TesterRemoteObject>;
 
 	TesterRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<Tester> pServiceObject);
 		/// Creates a TesterRemoteObject.
@@ -87,6 +87,8 @@ public:
 	Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1);
 
 	std::array < int, 4 > testStdArray(const std::array < int, 4 >& arr);
+
+	std::shared_ptr < Struct1 > testStdSharedPtr(const std::shared_ptr < Struct1 >& pStruct1);
 
 	Struct1 testStruct11(const Struct1& s1);
 
@@ -301,6 +303,12 @@ inline Poco::SharedPtr < Struct1 > TesterRemoteObject::testPtr(Poco::SharedPtr <
 inline std::array < int, 4 > TesterRemoteObject::testStdArray(const std::array < int, 4 >& arr)
 {
 	return _pServiceObject->testStdArray(arr);
+}
+
+
+inline std::shared_ptr < Struct1 > TesterRemoteObject::testStdSharedPtr(const std::shared_ptr < Struct1 >& pStruct1)
+{
+	return _pServiceObject->testStdSharedPtr(pStruct1);
 }
 
 

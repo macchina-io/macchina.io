@@ -34,7 +34,7 @@ class PeripheralRemoteObject: public IoT::BtLE::IPeripheral, public Poco::Remoti
 	/// device using the Bluetooth Generic Attribute Profile (GATT).
 {
 public:
-	typedef Poco::AutoPtr<PeripheralRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<PeripheralRemoteObject>;
 
 	PeripheralRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::BtLE::Peripheral> pServiceObject);
 		/// Creates a PeripheralRemoteObject.

@@ -39,20 +39,20 @@ void BundleDirectoryTest::testResource()
 {
 	std::string s;
 	BundleStorage::Ptr pBD(new BundleDirectory("testBundle"));
-	
-	std::auto_ptr<std::istream> istr1(pBD->getResource("META-INF/manifest.mf"));
+
+	std::unique_ptr<std::istream> istr1(pBD->getResource("META-INF/manifest.mf"));
 	assert (istr1.get() != 0);
 	std::getline(*istr1, s);
 	assert (s == "Manifest-Version: 1.0");
-	
-	std::auto_ptr<std::istream> istr2(pBD->getResource("bundle.properties"));
+
+	std::unique_ptr<std::istream> istr2(pBD->getResource("bundle.properties"));
 	assert (istr2.get() != 0);
 	std::getline(*istr2, s);
 	assert (s == "foo: bar");
-	
+
 	std::istream* istr3(pBD->getResource("nonexistent"));
 	assert (istr3 == 0);
-	
+
 	try
 	{
 		std::istream* istr3(pBD->getResource("/foo.bar"));
@@ -61,7 +61,7 @@ void BundleDirectoryTest::testResource()
 	catch (Poco::Exception&)
 	{
 	}
-	
+
 	try
 	{
 		std::istream* istr3(pBD->getResource("foo/../../bar"));
@@ -88,7 +88,7 @@ void BundleDirectoryTest::testDirectory()
 	std::vector<std::string> files;
 	pBD->list("", files);
 	assert (files.size() == 2);
-	
+
 	pBD->list("META-INF", files);
 	assert (files.size() == 1);
 	assert (files[0] == "manifest.mf");

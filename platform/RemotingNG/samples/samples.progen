@@ -1,0 +1,17 @@
+vc.project.platforms = Win32
+vc.project.configurations = debug_shared, release_shared, debug_static_mt, release_static_mt, debug_static_md, release_static_md
+vc.solution.create = true
+vc.solution.include = \
+	CheckVat\\CheckVat; \
+	ConvertTemperature\\ConvertTemperature; \
+	Weather\\Weather; \
+	TimeServer\\TimeServer; \
+	TimeClient\\TimeClient; \
+	Pizzeria\\Pizzeria; \
+	PizzeriaClient\\PizzeriaClient; \
+	PizzeriaClientWS\\PizzeriaClientWS; \
+	TimeServerTCP\\TimeServerTCP; \
+	TimeClientTCP\\TimeClientTCP; \
+	PizzeriaREST\\PizzeriaREST; \
+	PizzeriaClientREST\\PizzeriaClientREST; \
+	TwilioSMS\\TwilioSMS

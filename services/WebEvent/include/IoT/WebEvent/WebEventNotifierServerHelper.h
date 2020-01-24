@@ -32,12 +32,12 @@ namespace WebEvent {
 
 
 class WebEventNotifierServerHelper
-	/// A simplified Remoting-capable interface to the 
+	/// A simplified Remoting-capable interface to the
 	/// Poco::OSP::WebEvent::WebEventService,
 	/// usable from both C++ and JavaScript.
 {
 public:
-	typedef IoT::WebEvent::WebEventNotifier Service;
+	using Service = IoT::WebEvent::WebEventNotifier;
 
 	WebEventNotifierServerHelper();
 		/// Creates a WebEventNotifierServerHelper.

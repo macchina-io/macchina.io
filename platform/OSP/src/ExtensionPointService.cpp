@@ -134,11 +134,7 @@ void ExtensionPointService::onBundleStopped(const void* pSender, BundleEvent& ev
 
 void ExtensionPointService::handleExtensions(Bundle::ConstPtr pBundle, GenericHandler handler, Direction dir)
 {
-#if __cplusplus < 201103L
-	std::auto_ptr<std::istream> pStream(pBundle->getResource(EXTENSIONS_XML));
-#else
 	std::unique_ptr<std::istream> pStream(pBundle->getResource(EXTENSIONS_XML));
-#endif
 	if (pStream.get())
 	{
 		try

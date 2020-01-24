@@ -114,7 +114,7 @@ protected:
 			{
 				pSettings = new Poco::Util::PropertyFileConfiguration;
 			}
-			config().add(pSettings, "macchina.settings", Poco::Util::Application::PRIO_DEFAULT, true, true);
+			config().add(pSettings, "macchina.settings", Poco::Util::Application::PRIO_DEFAULT, true);
 		}
 		return settingsPath;
 	}
@@ -141,6 +141,26 @@ protected:
 
 		if (!_showHelp)
 		{
+			logger().information(
+				"\n"
+				"\n"
+				"      %%%%%%%%%%%%%%%%%%\n"
+				"    %%%%%%%%%%%%%%%%%%%%%%\n"
+				"    %%%%%%%%%%%%%%%%%%%%%%\n"
+				"    %%%%%%%%%%%%%%%%%%%%%%\n"
+				"    %%%%%%%%%%%%%%%%%%%%%%\n"
+				"    %%%%%%%%%            %\n"
+				"    %%%%%%%%%   %%   %%  \n"
+				"    %%%%%%%%%   %%   %% \n"
+				"    %%%%%%%%%   %%   %% \n"
+				"    %%%%%%%%%   %%   %% \n"
+				"      %%%%%%%   %%   %% \n"
+				"\n"
+				"    macchina.io IoT Edge Device SDK Server\n"
+				"\n"
+				"    Copyright (c) 2015-2020 by Applied Informatics Software Engineering GmbH.\n"
+				"    All rights reserved.\n"
+			);
 			logger().information("System information: %s (%s) on %s, %u CPU core(s).",
 				Poco::Environment::osDisplayName(),
 				Poco::Environment::osVersion(),
@@ -187,8 +207,8 @@ protected:
 		helpFormatter.setUsage("OPTIONS");
 		helpFormatter.setHeader(
 			"\n"
-			"The macchina.io server.\n"
-			"Copyright (c) 2015-2018 by Applied Informatics Software Engineering GmbH.\n"
+			"The macchina.io IoT Edge Device SDK Server.\n"
+			"Copyright (c) 2015-2020 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"The following command line options are supported:"
 		);

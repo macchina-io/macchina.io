@@ -33,7 +33,7 @@ class PeripheralBrowserRemoteObject: public IoT::BtLE::IPeripheralBrowser, publi
 	/// This class provides browsing for available Bluetooth LE devices.
 {
 public:
-	typedef Poco::AutoPtr<PeripheralBrowserRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<PeripheralBrowserRemoteObject>;
 
 	PeripheralBrowserRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::BtLE::PeripheralBrowser> pServiceObject);
 		/// Creates a PeripheralBrowserRemoteObject.
@@ -57,7 +57,7 @@ public:
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 	virtual std::string serviceForPeripheral(const std::string& address);
-		/// Finds or creates and registers with the Service Registry, if necessary, 
+		/// Finds or creates and registers with the Service Registry, if necessary,
 		/// a Peripheral (remote) object for the device with the given address.
 		///
 		/// Returns the service name of the Peripheral service.

@@ -25,7 +25,7 @@ namespace CAN {
 class IoTCANDevices_API BooleanSensor: public IoT::Devices::DeviceImpl<IoT::Devices::BooleanSensor, BooleanSensor>
 {
 public:
-	typedef Poco::SharedPtr<BooleanSensor> Ptr;
+	using Ptr = Poco::SharedPtr<BooleanSensor>;
 
 	BooleanSensor(const std::string& signal);
 		/// Creates a BooleanSensor.

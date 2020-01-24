@@ -37,7 +37,7 @@ class BarcodeReaderRemoteObject: public IoT::Devices::IBarcodeReader, public Poc
 	/// done via device features and properties.
 {
 public:
-	typedef Poco::AutoPtr<BarcodeReaderRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<BarcodeReaderRemoteObject>;
 
 	BarcodeReaderRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::BarcodeReader> pServiceObject);
 		/// Creates a BarcodeReaderRemoteObject.

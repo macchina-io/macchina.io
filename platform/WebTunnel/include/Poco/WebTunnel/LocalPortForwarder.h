@@ -45,7 +45,7 @@ class WebTunnel_API WebSocketFactory
 	/// the given URI.
 {
 public:
-	typedef Poco::SharedPtr<WebSocketFactory> Ptr;
+	using Ptr = Poco::SharedPtr<WebSocketFactory>;
 
 	WebSocketFactory();
 		/// Creates the WebSocketFactory.

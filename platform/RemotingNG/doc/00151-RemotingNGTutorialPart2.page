@@ -5,13 +5,368 @@ Remoting NG
 
 Welcome to part two of the Remoting tutorial.
 This part of the Remoting tutorial covers topics such as
-using user-defined argument types in remote methods and
+creating SOAP web services with Remoting, using
+user-defined argument types in remote methods and
 remote events.
 
-This tutorial assumes that you are familiar with basic POCO C++ Libraries
+This tuturial assumes that you are familiar with basic POCO C++ Libraries
 programming techniques. You should also have read the [[00100-RemotingNGOverview.html Remoting Overview]]
 and be familiar with basic Remoting concepts, such as presented in
 [[00150-RemotingNGTutorialPart1.html part 1 of the Remoting tutorial].
+
+
+!!!Creating a SOAP Web Service
+
+Lets take a look back at the <*TimeService*> remote service that we have
+created in part one of the tutorial. In part 1 of the tutorial, we have used
+to TCP Transport. While the TCP Transport is an efficient and
+fast transport implementation, it can only be used if both client
+and server have been built with Remoting.
+
+However, Remoting also provides a transport that allows us
+to provide (or invoke) a SOAP 1.1 (or 1.2) Web Service.
+This transport is called the <*SOAP*> Transport.
+
+If you are new to SOAP, WSDL and Web Services, please familiarize yourself
+with the basics of these technologies using the many tutorials and articles
+available on the Web.
+
+
+!!Adding The SOAP Transport
+
+The first thing we have to do to build a web service is to add
+the SOAP transport to both the server and client application.
+To keep things simple, we simply replace the TCP Transport with the
+SOAP Transport in our applications. We could as well
+simply add the SOAP Transport and keep using the TCP Transport
+as well. Remoting supports multiple simultaneous transports, and the same
+remote service object can be made available over multiple transports.
+
+Following is the updated server code.
+
+    #include "Poco/Util/ServerApplication.h"
+    #include "Poco/RemotingNG/SOAP/Listener.h"
+    #include "Poco/RemotingNG/ORB.h"
+    #include "TimeService.h"
+    #include "TimeServiceServerHelper.h"
+    #include <iostream>
+
+
+    class TimeServer: public Poco::Util::ServerApplication
+    {
+        int main(const std::vector<std::string>& args)
+        {
+            // 1. Create and register SOAP listener.
+            std::string listener = Poco::RemotingNG::ORB::instance().registerListener(
+                new Poco::RemotingNG::SOAP::Listener("localhost:8080", "")
+            );
+
+            // 2. Create the service object.
+            Poco::SharedPtr<Sample::TimeService> pTimeService = new Sample::TimeService;
+
+            // 3. Register service object with ORB.
+            std::string uri = Sample::TimeServiceServerHelper::registerRemoteObject(pTimeService, "TheTimeService", listener);
+            std::cout << "TimeService URI is: " << uri << std::endl;
+
+            // Wait for CTRL-C or kill.
+            waitForTerminationRequest();
+
+            // Stop the remoting machinery.
+            Poco::RemotingNG::ORB::instance().shutdown();
+
+            return Application::EXIT_OK;
+        }
+    };
+
+
+    POCO_SERVER_MAIN(TimeServer)
+----
+
+All we have done is to replace references to the TCP Transport with corresponding
+references to the SOAP transport. We have also changed the port number used by
+the listener from 9999 to 8080.
+
+We now do the same with the client code.
+
+    #include "TimeServiceProxy.h"
+    #include "TimeServiceClientHelper.h"
+    #include "Poco/RemotingNG/SOAP/TransportFactory.h"
+    #include <iostream>
+
+
+    int main(int argc, char** argv)
+    {
+        try
+        {
+            // Register SOAP transport.
+            Poco::RemotingNG::SOAP::TransportFactory::registerFactory();
+
+            // Get proxy for remote TimeService.
+            std::string uri("http://localhost:8080/soap/TimeService/TheTimeService");
+            Sample::ITimeService::Ptr pTimeService = Sample::TimeServiceClientHelper::find(uri);
+
+            // Invoke methods on remote object.
+            std::string currentTime = pTimeService->currentTimeAsString();
+            std::cout << "Current time: " << currentTime << std::endl;
+        }
+        catch (Poco::Exception& exc)
+        {
+            std::cerr << exc.displayText() << std::endl;
+            return 1;
+        }
+        return 0;
+    }
+----
+
+Both the server and the client are now ready to talk to each other using
+SOAP over HTTP. However, before we can build and run our applications,
+an additional step must be performed.
+
+
+!!Specifying the XML Namespace For The Web Service
+
+SOAP makes use of XML namespaces, and for the SOAP serializer to be
+able to serialize and deserialize SOAP messages, we must define
+a namespace for our web service. This is done by adding the
+<[@namespace]> attribute to our service class definition.
+We simply add the new attribute after the existing
+<[@remote]> attribute. The resulting header file is shown below.
+
+    #ifndef TimeService_INCLUDED
+    #define TimeService_INCLUDED
+
+
+    #include <string>
+
+
+    namespace Sample {
+
+
+    //@ remote
+    //@ namespace = "http://sample.com/webservices/TimeService"
+    class TimeService
+    {
+    public:
+        TimeService();
+            /// Creates the TimeService.
+
+        ~TimeService();
+            /// Destroys the TimeService.
+
+        std::string currentTimeAsString() const;
+            /// Returns the current time, formatted
+            /// as a string (HH:MM::SS).
+    };
+
+
+    } // namespace Sample
+
+
+    #endif // TimeService_INCLUDED
+----
+
+After updating the header file of the service class, we have to re-run the
+code generator for both the server and the client.
+
+Now we are ready to build and run our applications. Please note that,
+instead of the <*TCP*> Transport library, the <*SOAP*> Transport
+library must be linked to both the server and client applications.
+The client will also need the PocoXML library.
+
+
+!!Testing Server And Client
+
+Now that we have completed both the server and the client, it's time
+to test our new web service.
+
+!Starting The Server
+
+First, we start the server, by simple starting the server executable.
+There's no need to pass any command line arguments.
+Once started, the server will output the URI of the remote service class:
+
+    C:\poco\Remoting\tutorials\TimeServer>bin\TimeServer
+    TimeService URI is: http://localhost:8080/soap/TimeService/TheTimeService
+----
+
+We notice that the URI generated by the server has changed to reflect the
+fact that we are now using the SOAP Transport.
+The server is then ready to accept requests from clients.
+To stop the server, simply type CTRL-C (or, on Windows, close the console window).
+
+!Starting the Client
+
+The client can also be started by simply executing the client executable.
+No command line arguments must be passed.
+Once started, the client will connect to the server, obtain the current
+time, and quit.
+
+    C:\poco\RemotingNG\tutorials\TimeClient>bin\TimeClient
+    Current time: 14:22:18
+----
+
+
+!!Creating a WSDL Document
+
+Although we now have created a web service, this web service
+cannot yet be used from clients other than our own client.
+For other clients, such as .NET or Java applications, to
+use our web service, we must create a WSDL document.
+
+Creating a WSDL document for our web service is simple, though.
+By adding a few entries to the configuration file for the
+Remoting code generator, the code generator can be instructed
+to generate the WSDL document for us.
+
+Specifically, to enable generation of a WSDL document, we
+must add a <*schema*> element to the configuration file.
+For every class for which a WSDL document should be generated,
+a child element having the same name as the class must be added
+to the <*schema*> element. Under this element must be a
+<*serviceLocation*> element, having as content an URI
+specifying the location of the web service.
+
+The URI can be obtained simply by taking the URI reported by
+the server when registering the object. For our example,
+we therefore have to add the following section:
+
+    <schema>
+        <TimeService>
+            <serviceLocation>http://localhost:8080/soap/TimeService/TheTimeService</serviceLocation>
+        </TimeService>
+    </schema>
+----
+
+With the <*schema*> element added, the new code generator
+configuration now looks like this:
+
+    <AppConfig>
+        <RemoteGen>
+            <files>
+                <include>
+                    ${PCOO_BASE}/RemotingNG/include/Poco/RemotingNG/RemoteObject.h
+                    ${PCOO_BASE}/RemotingNG//include/Poco/RemotingNG/Proxy.h
+                    ${PCOO_BASE}/RemotingNG//include/Poco/RemotingNG/Skeleton.h
+                    ../TimeServer/include/TimeService.h
+                </include>
+            </files>
+            <output>
+                <mode>client</mode>
+                <include>include</include>
+                <src>src</src>
+                <namespace>Sample</namespace>
+                <copyright>Copyright (c) 2012</copyright>
+            </output>
+            <schema>
+                <TimeService>
+                    <serviceLocation>http://localhost:8080/soap/TimeService/TheTimeService</serviceLocation>
+                </TimeService>
+            </schema>
+            <compiler>
+                <exec>cl</exec>
+                <options>
+                    /I
+                    "${PCOO_BASE}\Foundation\include"
+                    /I
+                    "${PCOO_BASE}\RemotingNG\include"
+                    /nologo
+                    /C
+                    /P
+                    /TP
+                </options>
+            </compiler>
+        </RemoteGen>
+    </AppConfig>
+----
+
+After re-running the code generator (this time for the server only) we can
+find a WSDL document (TimeService.wsdl) in the TimeServer project directory.
+
+To instruct the code generator to place the generated WSDL document in another
+location, a <*schema*> element can be added to the <*output*> element.
+
+
+!!Serving a WSDL Document
+
+The HTTP server created by the SOAP listener can serve WSDL files
+to clients. For this to work, all WSDL files of the server must either
+be located in the working directory of the server, or the directory
+where the files are located must be specified when creating the
+SOAP listener object (as the second argument to the
+Poco::RemotingNG::SOAP::Listener constructor). If an empty string
+is passed, as in our example, the WSDL file is expected to be in
+the current working directory.
+
+Once the WSDL file is available in a location accessible to
+the SOAP listener, with the server application running,
+we can point a web browser to http://localhost:8080/soap/TimeService
+and look at the WSDL document in the web browser.
+
+Instead of the web browser, you can of course also direct the
+WSDL parser/code generator from another SOAP implementation
+to the WSDL document and have it generate client code
+for the platform of your choice.
+
+
+!!!Using Multiple Transports
+
+We have now seen how a remote service can be implemented
+using the TCP Transport and the SOAP Transport.
+It is also possible to use both transports simultaneously
+in an application. This is straightforward -- simply
+register both transport factories, and set-up and register
+two (or even more) listeners on the server.
+The remote object must also be registered with both
+listeners on the server.
+
+Following is the modified server code that sets up both
+a TCP Transport and a SOAP Transport listener, and
+makes the TimeService remote service available over both
+transports.
+
+    #include "Poco/Util/ServerApplication.h"
+    #include "Poco/RemotingNG/SOAP/Listener.h"
+    #include "Poco/RemotingNG/TCP/Listener.h"
+    #include "Poco/Remoting/ORB.h"
+    #include "TimeService.h"
+    #include "TimeServiceServerHelper.h"
+    #include <iostream>
+
+
+    class TimeServer: public Poco::Util::ServerApplication
+    {
+        int main(const std::vector<std::string>& args)
+        {
+            // Register listeners for TCP and SOAP Transport.
+            std::string tcpListener  = Poco::RemotingNG::ORB::instance().registerListener(
+            	new Poco::RemotingNG::TCP::Listener("localhost:9999")
+            );
+            std::string soapListener = Poco::RemotingNG::ORB::instance().registerListener(
+            	new Poco::RemotingNG::SOAP::Listener("localhost:8080", "")
+            );
+
+            // Create and register service object with both listeners.
+            Poco::SharedPtr<Sample::TimeService> pTimeService = new Sample::TimeService;
+
+            std::string tcpURI = Sample::TimeServiceServerHelper::registerObject(pTimeService, "TheTimeService", tcpListener);
+            std::cout << "TimeService URI for TCP Transport is: " << tcpURI << std::endl;
+
+            std::string soapURI = Sample::TimeServiceServerHelper::registerObject(pTimeService, "TheTimeService", soapListener);
+            std::cout << "TimeService URI for SOAP Transport is: " << soapURI << std::endl;
+
+            // Wait for CTRL-C or kill.
+            waitForTerminationRequest();
+
+            // Stop the Remoting machinery.
+            Poco::Remoting::ORB::instance().shutdown();
+
+            return Application::EXIT_OK;
+        }
+    };
+
+
+    POCO_SERVER_MAIN(TimeServer)
+----
 
 
 !!!Using User-Defined Classes as Parameters
@@ -20,7 +375,7 @@ Besides the built-in C++ types (with the exception of pointers),
 including enumerations (with some restrictions),
 <[std::string]>, <[std::vector]>, <[std::array]>, <[std::set]> and <[std::multiset]>, as
 well as Poco::DateTime, Poco::LocalDateTime, Poco::Timestamp, Poco::Timespan,
-Poco::Nullable, Poco::Optional, Poco::Array, Poco::AutoPtr and Poco::SharedPtr,
+Poco::Nullable, Poco::Optional, Poco::Array, Poco::AutoPtr and Poco::SharedPtr.
 Remoting also supports user-defined classes and structures as parameter types.
 
 For this to work, a serializer and a deserializer class must be generated for each
@@ -101,7 +456,7 @@ be generated for the client as well.
 We can now change the client to use the new method.
 
     #include "TimeServiceClientHelper.h"
-    #include "Poco/RemotingNG/TCP/TransportFactory.h"
+    #include "Poco/RemotingNG/SOAP/TransportFactory.h"
     #include <iostream>
     #include <iomanip>
 
@@ -110,11 +465,11 @@ We can now change the client to use the new method.
     {
         try
         {
-            // Register TCP Transport.
-            Poco::RemotingNG::TCP::TransportFactory::registerFactory();
+            // Register SOAP Transport.
+            Poco::RemotingNG::SOAP::TransportFactory::registerFactory();
 
             // Get proxy for remote TimeService.
-            std::string uri("http://localhost:7777/tcp/TimeService/TheTimeService");
+            std::string uri("http://localhost:8080/soap/TimeService/TheTimeService");
             Sample::ITimeService::Ptr pTimeService = Sample::TimeServiceClientHelper::find(uri);
 
             // invoke methods on remote object
@@ -193,6 +548,8 @@ polling model are:
   * there aren't any issues with firewalls -- as soon as the client
     is able to reach the server, it will also receive its notifications,
     because it is always the client that initiates the connection, and
+  * when interoperability with other SOAP implementations is needed,
+    polling might be the only way to implement server notifications.
 
 Polling has two serious disadvantages, though:
 
@@ -242,6 +599,7 @@ They are based on the Poco::BasicEvent event mechanism. Similarly to how
 Remoting makes the member functions of a class available remotely, it can
 also make Poco::BasicEvent members available remotely. However, not all transports
 support this feature. Currently, only the TCP transport supports remote events.
+The SOAP transport does not.
 
 
 !Implementing Remote Events On The Server
@@ -450,7 +808,8 @@ The complete sample code for server and client can be found in the TimeServerTCP
 and TimeClientTCP sample applications.
 
 
-This concludes the Remoting NG tutorial. You should now have a basic understanding
+
+This concludes part two of the Remoting NG tutorial. You should now have a basic understanding
 of all important Remoting NG capabilities and programming techniques.
 For a complete description of all Remoting capabilities and options,
 please refer to the [[00200-RemotingNGUserGuide.html Remoting NG User Guide]].

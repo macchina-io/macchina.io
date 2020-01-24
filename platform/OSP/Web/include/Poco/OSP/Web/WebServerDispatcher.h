@@ -69,8 +69,8 @@ public:
 		AUTH_ALL     = AUTH_BASIC | AUTH_SESSION | AUTH_BEARER
 	};
 
-	typedef Poco::SharedPtr<Poco::Net::HTTPRequestHandlerFactory> RequestHandlerFactoryPtr;
-	typedef Poco::SharedPtr<Poco::RegularExpression> RegularExpressionPtr;
+	using RequestHandlerFactoryPtr = Poco::SharedPtr<Poco::Net::HTTPRequestHandlerFactory>;
+	using RegularExpressionPtr = Poco::SharedPtr<Poco::RegularExpression>;
 
 	struct PathSecurity
 		/// Security attributes for a registered path.
@@ -92,14 +92,31 @@ public:
 		{
 		}
 
-		SpecializationMode mode;            /// specialization mode (does not apply to pattern)
-		std::string        realm;           /// realm if a permission (and thus authentication) is required
-		std::string        permission;      /// required permission (empty for none)
-		int                authMethods;     /// enabled authentication methods (see AuthMethod)
-		std::string        session;         /// name of session for session-based authentication
-		bool               secure;          /// path requires secure connection
-		bool               csrfProtection;  /// enable/disable CSRF/XSRF protection
-		std::string        csrfTokenHeader; /// name of header containing CSRF/XSRF token for CSRF/XSRF protection
+		SpecializationMode mode;             /// specialization mode (does not apply to pattern)
+		std::string        realm;            /// realm if a permission (and thus authentication) is required
+		std::string        permission;       /// required permission empty for none;
+		                                     /// can also be "*": credentials must be present and valid,
+		                                     /// or "**": credentials are optional, but if present must be valid.
+		int                authMethods;      /// enabled authentication methods (see AuthMethod)
+		std::string        session;          /// name of session for session-based authentication
+		bool               secure;           /// path requires secure connection
+		bool               csrfProtection;   /// enable/disable CSRF/XSRF protection
+		std::string        csrfTokenHeader;  /// name of header containing CSRF/XSRF token for CSRF/XSRF protection
+	};
+
+	struct PathCORS
+	{
+		PathCORS():
+			enable(false),
+			allowCredentials(true)
+		{
+		}
+
+		bool               enable;           /// enable or disable CORS
+		std::string        allowOrigin;      /// CORS allowed origin
+		std::string        allowMethods;     /// CORS allowed methods
+		bool               allowCredentials; /// allow credentials with CORS requests
+		std::string        allowHeaders;     /// allowed headers in CORS requests
 	};
 
 	struct VirtualPath
@@ -138,6 +155,7 @@ public:
 		std::string              indexPage;    /// index page (only used if resource path is set; defaults to "index.html")
 		RequestHandlerFactoryPtr pFactory;     /// request handler factory (null if resource path is specified)
 		PathSecurity             security;     /// security attributes
+		PathCORS                 cors;         /// CORS settings
 		bool                     hidden;       /// path is not included in list returned by listVirtualPaths()
 		bool                     cache;        /// resource can be cached
 		Bundle::Ptr              pOwnerBundle; /// bundle owning path
@@ -178,14 +196,15 @@ public:
 		Poco::Net::NameValueCollection customResponseHeaders;
 		int options;
 		int authMethods;
+		std::string corsAllowedOrigin;
 	};
 
-	typedef std::map<std::string, VirtualPath> PathMap;
-	typedef std::map<std::string, PathInfo> PathInfoMap;
-	typedef std::vector<VirtualPath> PatternVec;
+	using PathMap = std::map<std::string, VirtualPath>;
+	using PathInfoMap = std::map<std::string, PathInfo>;
+	using PatternVec = std::vector<VirtualPath>;
 
-	typedef Poco::SharedPtr<WebFilter> WebFilterPtr;
-	typedef Poco::SharedPtr<WebFilterFactory> WebFilterFactoryPtr;
+	using WebFilterPtr = Poco::SharedPtr<WebFilter>;
+	using WebFilterFactoryPtr = Poco::SharedPtr<WebFilterFactory>;
 
 	explicit WebServerDispatcher(const Config& config);
 		/// Creates the WebServerDispatcher.
@@ -274,6 +293,12 @@ protected:
 		///
 		/// Returns true if the path is okay, false otherwise.
 
+	bool handleCORS(const Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const VirtualPath& vPath) const;
+		/// Handles CORS preflight requests and headers.
+
+	bool enableCORS(const Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const VirtualPath& vPath) const;
+		/// Adds CORS headers on the response if required.
+
 	bool authorize(Poco::Net::HTTPServerRequest& request, const VirtualPath& vPath, std::string& username) const;
 		/// Authorizes the request.
 
@@ -360,8 +385,8 @@ private:
 		WebFilterFactoryPtr pFactory;
 		WebFilter::Args args;
 	};
-	typedef std::map<std::string, WebFilterFactoryInfo> FilterFactoryMap;
-	typedef std::map<std::string, std::string> ResourceCache;
+	using FilterFactoryMap = std::map<std::string, WebFilterFactoryInfo>;
+	using ResourceCache = std::map<std::string, std::string>;
 
 	BundleContext::Ptr _pContext;
 	MediaTypeMapper::Ptr _pMediaTypeMapper;
@@ -369,6 +394,7 @@ private:
 	PatternVec _patternVec;
 	std::string _authServiceName;
 	std::string _tokenValidatorName;
+	std::string _corsAllowedOrigin;
 	bool _compressResponses;
 	bool _cacheResources;
 	bool _addAuthHeader;

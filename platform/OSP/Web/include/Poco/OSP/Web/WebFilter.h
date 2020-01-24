@@ -36,10 +36,10 @@ class OSPWeb_API WebFilter
 	/// sent to the client. This can be used, e.g., to implement web
 	/// pages containing server-side scripts.
 {
-public:	
-	typedef std::map<std::string, std::string> Args;
+public:
+	using Args = std::map<std::string, std::string>;
 		/// Arguments for the WebFilter instance (from extension point).
-	
+
 	virtual ~WebFilter();
 		/// Destroys the WebFilter.
 

@@ -88,7 +88,7 @@ class IoTMobileConnection_API MobileConnectionService
 	/// and establish a mobile data connection.
 {
 public:
-	typedef Poco::SharedPtr<MobileConnectionService> Ptr;
+	using Ptr = Poco::SharedPtr<MobileConnectionService>;
 
 	Poco::BasicEvent<void> dataConnected;
 		/// The data connection has become available.

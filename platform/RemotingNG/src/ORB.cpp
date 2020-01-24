@@ -194,11 +194,11 @@ Identifiable::Ptr ORB::findObject(const std::string& uri, const Identifiable::Ty
 
 ORB::RemoteObjectInfo::Ptr ORB::findLocalObject(const Identifiable::TypeId& tid, const Identifiable::ObjectId& oid, const std::string& protocol) const
 {
-	for (ListenerMap::const_iterator it = _listeners.begin(); it != _listeners.end(); ++it)
+	for (const auto& lp: _listeners)
 	{
-		if (it->second->protocol() == protocol)
+		if (lp.second->protocol() == protocol)
 		{
-			Listener::Ptr pListener = it->second;
+			Listener::Ptr pListener = lp.second;
 			std::string uri = pListener->createURI(tid, oid);
 			RemoteObjects::const_iterator itRO = _remoteObjectURIs.find(uri);
 			if (itRO != _remoteObjectURIs.end())
@@ -269,9 +269,9 @@ ORB::ListenerVec ORB::listeners() const
 	Poco::FastMutex::ScopedLock lock(_mutex);
 	
 	ListenerVec result;
-	for (ListenerMap::const_iterator it = _listeners.begin(); it != _listeners.end(); ++it)
+	for (const auto& lp: _listeners)
 	{
-		result.push_back(it->second);
+		result.push_back(lp.second);
 	}
 	return result;
 }
@@ -282,9 +282,9 @@ std::vector<std::string> ORB::listenerIds() const
 	Poco::FastMutex::ScopedLock lock(_mutex);
 	
 	std::vector<std::string> result;
-	for (ListenerMap::const_iterator it = _listeners.begin(); it != _listeners.end(); ++it)
+	for (const auto& lp: _listeners)
 	{
-		result.push_back(it->first);
+		result.push_back(lp.first);
 	}
 	return result;
 }
@@ -295,10 +295,10 @@ std::vector<std::string> ORB::listenerIds(const std::string& protocol) const
 	Poco::FastMutex::ScopedLock lock(_mutex);
 	
 	std::vector<std::string> result;
-	for (ListenerMap::const_iterator it = _listeners.begin(); it != _listeners.end(); ++it)
+	for (const auto& lp: _listeners)
 	{
-		if (it->second->protocol() == protocol) 
-			result.push_back(it->first);
+		if (lp.second->protocol() == protocol) 
+			result.push_back(lp.first);
 	}
 	return result;
 }

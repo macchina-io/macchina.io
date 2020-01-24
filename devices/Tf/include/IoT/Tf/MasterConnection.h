@@ -25,7 +25,7 @@ namespace Tf {
 class IoTTf_API MasterConnection: public Poco::RefCountedObject
 {
 public:
-	typedef Poco::AutoPtr<MasterConnection> Ptr;
+	using Ptr = Poco::AutoPtr<MasterConnection>;
 
 	enum DeviceState
 	{
@@ -33,14 +33,14 @@ public:
 		DEVICE_CONNECTED,
 		DEVICE_DISCONNECTED
 	};
-	
+
 	struct Version
 	{
 		Poco::UInt8 major;
 		Poco::UInt8 minor;
 		Poco::UInt8 revision;
 	};
-	
+
 	struct DeviceEvent
 	{
 		DeviceState  state;
@@ -51,23 +51,23 @@ public:
 		char         position;
 		Poco::UInt16 type;
 	};
-	
+
 	Poco::BasicEvent<const DeviceEvent> deviceStateChanged;
 
 	~MasterConnection();
 		/// Destroys the MasterConnection.
-		
+
 	virtual void connect(const std::string& host = "localhost", Poco::UInt16 port = 4223) = 0;
 		/// Connects to the server/brick daemon at the given
-		/// host and port. 
-		
+		/// host and port.
+
 	virtual void disconnect() = 0;
 		/// Disconnects from the server.
-		
+
 	virtual bool connected() const = 0;
 		/// Returns true if the MasterConnection is connected
 		/// to a server.
-		
+
 	static Ptr create();
 		/// Creates a MasterConnection instance.
 

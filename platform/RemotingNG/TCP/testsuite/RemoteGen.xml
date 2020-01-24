@@ -45,8 +45,10 @@
 		<compiler id="msvc">
 			<exec>cl</exec>
 			<options>
-				/I "..\..\..\Foundation\include"
-				/I "..\..\..\RemotingNG\include"
+				/I 
+				"..\..\..\Foundation\include"
+				/I 
+				"..\..\..\RemotingNG\include"
 				/nologo
 				/C
 				/P

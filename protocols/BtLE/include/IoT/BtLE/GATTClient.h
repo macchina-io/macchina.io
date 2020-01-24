@@ -34,7 +34,7 @@ class IoTBtLE_API GATTClient
 	/// device using the Bluetooth Generic Attribute Profile (GATT).
 {
 public:
-	typedef Poco::SharedPtr<GATTClient> Ptr;
+	using Ptr = Poco::SharedPtr<GATTClient>;
 
 	enum ConnectMode
 		/// Connect mode - synchronous or asynchronous.

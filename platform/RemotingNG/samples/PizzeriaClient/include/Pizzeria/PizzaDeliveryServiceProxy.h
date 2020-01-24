@@ -8,9 +8,6 @@
 // Warning: All changes to this will be lost when the file is re-generated.
 //
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
-// All rights reserved.
-// 
-// SPDX-License-Identifier: Apache-2.0
 //
 
 
@@ -30,7 +27,7 @@ namespace Pizzeria {
 class PizzaDeliveryServiceProxy: public Pizzeria::IPizzaDeliveryService, public Poco::RemotingNG::Proxy
 {
 public:
-	typedef Poco::AutoPtr<PizzaDeliveryServiceProxy> Ptr;
+	using Ptr = Poco::AutoPtr<PizzaDeliveryServiceProxy>;
 
 	PizzaDeliveryServiceProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a PizzaDeliveryServiceProxy.

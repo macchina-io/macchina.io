@@ -42,7 +42,7 @@ class IIO: public IoT::Devices::IDevice
 	/// values "in" and "out".
 {
 public:
-	typedef Poco::AutoPtr<IIO> Ptr;
+	using Ptr = Poco::AutoPtr<IIO>;
 
 	IIO();
 		/// Creates a IIO.

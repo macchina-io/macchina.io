@@ -33,7 +33,7 @@ class WebTunnelServiceRemoteObject: public IoT::WebTunnel::IWebTunnelService, pu
 	/// The interface for WebTunnel clients.
 {
 public:
-	typedef Poco::AutoPtr<WebTunnelServiceRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<WebTunnelServiceRemoteObject>;
 
 	WebTunnelServiceRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::WebTunnel::WebTunnelService> pServiceObject);
 		/// Creates a WebTunnelServiceRemoteObject.

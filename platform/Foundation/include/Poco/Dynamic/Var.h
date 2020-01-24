@@ -21,37 +21,41 @@
 #include "Poco/Foundation.h"
 #include "Poco/Format.h"
 #include "Poco/SharedPtr.h"
+#include "Poco/OrderedMap.h"
+#include "Poco/OrderedSet.h"
 #include "Poco/Dynamic/VarHolder.h"
 #include "Poco/Dynamic/VarIterator.h"
 #include <typeinfo>
+#include <map>
+#include <set>
 
 
 namespace Poco {
 namespace Dynamic {
 
 
-template <typename T>
+template <typename K, typename M, typename S>
 class Struct;
 
 
 class Foundation_API Var
 	/// Var allows to store data of different types and to convert between these types transparently.
-	/// Var puts forth the best effort to provide intuitive and reasonable conversion semantics and prevent 
+	/// Var puts forth the best effort to provide intuitive and reasonable conversion semantics and prevent
 	/// unexpected data loss, particularly when performing narrowing or signedness conversions of numeric data types.
 	///
 	/// An attempt to convert or extract from a non-initialized ("empty") Var variable shall result
 	/// in an exception being thrown.
 	///
-	/// Loss of signedness is not allowed for numeric values. This means that if an attempt is made to convert 
-	/// the internal value which is a negative signed integer to an unsigned integer type storage, a RangeException is thrown. 
-	/// Overflow is not allowed, so if the internal value is a larger number than the target numeric type size can accommodate, 
+	/// Loss of signedness is not allowed for numeric values. This means that if an attempt is made to convert
+	/// the internal value which is a negative signed integer to an unsigned integer type storage, a RangeException is thrown.
+	/// Overflow is not allowed, so if the internal value is a larger number than the target numeric type size can accommodate,
 	/// a RangeException is thrown.
 	///
 	/// Precision loss, such as in conversion from floating-point types to integers or from double to float on platforms
 	/// where they differ in size (provided internal actual value fits in float min/max range), is allowed.
-	/// 
-	/// String truncation is allowed -- it is possible to convert between string and character when string length is 
-	/// greater than 1. An empty string gets converted to the char '\0', a non-empty string is truncated to the first character. 
+	///
+	/// String truncation is allowed -- it is possible to convert between string and character when string length is
+	/// greater than 1. An empty string gets converted to the char '\0', a non-empty string is truncated to the first character.
 	///
 	/// Boolean conversion is performed as follows:
 	///
@@ -62,29 +66,29 @@ class Foundation_API Var
 	///
 	/// Arithmetic operations with POD types as well as between Var's are supported, subject to following
 	/// limitations:
-	/// 
+	///
 	/// 	- for std::string and const char* values, only '+' and '+=' operations are supported
-	/// 
+	///
 	/// 	- for integral and floating point numeric values, following operations are supported:
-	/// 	  '+', '+=', '-', '-=', '*', '*=' , '/' and '/=' 
+	/// 	  '+', '+=', '-', '-=', '*', '*=' , '/' and '/='
 	///
 	/// 	- for integral values, following operations are supported:
 	///		  prefix and postfix increment (++) and decrement (--)
-	/// 
+	///
 	/// 	- for all other types, InvalidArgumentException is thrown upon attempt of an arithmetic operation
-	/// 
-	/// A Var can be created from and converted to a value of any type for which a specialization of 
+	///
+	/// A Var can be created from and converted to a value of any type for which a specialization of
 	/// VarHolderImpl is available. For supported types, see VarHolder documentation.
 {
 public:
-	typedef SharedPtr<Var>             Ptr;
-	typedef Poco::Dynamic::VarIterator Iterator;
-	typedef const VarIterator          ConstIterator;
+	using Ptr = SharedPtr<Var>;
+	using Iterator = Poco::Dynamic::VarIterator;
+	using ConstIterator = const VarIterator;
 
 	Var();
 		/// Creates an empty Var.
 
-	template <typename T> 
+	template <typename T>
 	Var(const T& val)
 		/// Creates the Var from the given value.
 #ifdef POCO_NO_SOO
@@ -121,7 +125,7 @@ public:
 	Iterator end();
 		/// Returns the Var iterator.
 
-	template <typename T> 
+	template <typename T>
 	void convert(T& val) const
 		/// Invoke this method to perform a safe conversion.
 		///
@@ -143,8 +147,8 @@ public:
 
 		pHolder->convert(val);
 	}
-	
-	template <typename T> 
+
+	template <typename T>
 	T convert() const
 		/// Invoke this method to perform a safe conversion.
 		///
@@ -169,12 +173,12 @@ public:
 		pHolder->convert(result);
 		return result;
 	}
-	
+
 	template <typename T>
 	operator T () const
 		/// Safe conversion operator for implicit type
-		/// conversions. If the requested type T is same as the 
-		/// type being held, the operation performed is direct 
+		/// conversions. If the requested type T is same as the
+		/// type being held, the operation performed is direct
 		/// extraction, otherwise it is the conversion of the value
 		/// from type currently held to the one requested.
 		///
@@ -223,7 +227,7 @@ public:
 				std::string(typeid(T).name())));
 	}
 
-	template <typename T> 
+	template <typename T>
 	Var& operator = (const T& other)
 		/// Assignment operator for assigning POD to Var
 	{
@@ -267,7 +271,7 @@ public:
 	const Var operator -- (int);
 		/// Post-decrement operator
 
-	template <typename T> 
+	template <typename T>
 	Var& operator += (const T& other)
 		/// Addition assignment operator for addition/assignment of POD to Var.
 	{
@@ -280,7 +284,7 @@ public:
 	Var& operator += (const char* other);
 		/// Addition assignment operator overload for const char*
 
-	template <typename T> 
+	template <typename T>
 	const Var operator - (const T& other) const
 		/// Subtraction operator for subtracting POD from Var
 	{
@@ -290,7 +294,7 @@ public:
 	const Var operator - (const Var& other) const;
 		/// Subtraction operator overload for Var
 
-	template <typename T> 
+	template <typename T>
 	Var& operator -= (const T& other)
 		/// Subtraction assignment operator
 	{
@@ -300,7 +304,7 @@ public:
 	Var& operator -= (const Var& other);
 		/// Subtraction assignment operator overload for Var
 
-	template <typename T> 
+	template <typename T>
 	const Var operator * (const T& other) const
 		/// Multiplication operator for multiplying Var with POD
 	{
@@ -310,7 +314,7 @@ public:
 	const Var operator * (const Var& other) const;
 		/// Multiplication operator overload for Var
 
-	template <typename T> 
+	template <typename T>
 	Var& operator *= (const T& other)
 		/// Multiplication assignment operator
 	{
@@ -320,7 +324,7 @@ public:
 	Var& operator *= (const Var& other);
 		/// Multiplication assignment operator overload for Var
 
-	template <typename T> 
+	template <typename T>
 	const Var operator / (const T& other) const
 		/// Division operator for dividing Var with POD
 	{
@@ -330,7 +334,7 @@ public:
 	const Var operator / (const Var& other) const;
 		/// Division operator overload for Var
 
-	template <typename T> 
+	template <typename T>
 	Var& operator /= (const T& other)
 		/// Division assignment operator
 	{
@@ -340,7 +344,7 @@ public:
 	Var& operator /= (const Var& other);
 		/// Division assignment operator specialization for Var
 
-	template <typename T> 
+	template <typename T>
 	bool operator == (const T& other) const
 		/// Equality operator
 	{
@@ -354,7 +358,7 @@ public:
 	bool operator == (const Var& other) const;
 		/// Equality operator overload for Var
 
-	template <typename T> 
+	template <typename T>
 	bool operator != (const T& other) const
 		/// Inequality operator
 	{
@@ -368,7 +372,7 @@ public:
 	bool operator != (const char* other) const;
 		/// Inequality operator overload for const char*
 
-	template <typename T> 
+	template <typename T>
 	bool operator < (const T& other) const
 		/// Less than operator
 	{
@@ -379,7 +383,7 @@ public:
 	bool operator < (const Var& other) const;
 		/// Less than operator overload for Var
 
-	template <typename T> 
+	template <typename T>
 	bool operator <= (const T& other) const
 		/// Less than or equal operator
 	{
@@ -390,7 +394,7 @@ public:
 	bool operator <= (const Var& other) const;
 		/// Less than or equal operator overload for Var
 
-	template <typename T> 
+	template <typename T>
 	bool operator > (const T& other) const
 		/// Greater than operator
 	{
@@ -401,7 +405,7 @@ public:
 	bool operator > (const Var& other) const;
 		/// Greater than operator overload for Var
 
-	template <typename T> 
+	template <typename T>
 	bool operator >= (const T& other) const
 		/// Greater than or equal operator
 	{
@@ -448,6 +452,10 @@ public:
 
 	bool isStruct() const;
 		/// Returns true if Var represents a struct.
+
+	bool isOrdered() const;
+		/// Returns true if Var represents an ordered struct,
+		/// false if struct is sorted.
 
 	char& at(std::size_t n);
 		/// Returns character at position n. This function only works with
@@ -544,7 +552,7 @@ public:
 	static std::string toString(const Var& var);
 		/// Converts the Var to a string in JSON format. Note that toString(const Var&) will return
 		/// a different result than Var::convert<std::string>() and Var::toString()!
-	
+
 private:
 	Var& getAt(std::size_t n);
 	Var& getAt(const std::string& n);
@@ -569,7 +577,7 @@ private:
 	{
 		return convert<T>() - other.convert<T>();
 	}
-	
+
 	template <typename T>
 	T multiply(const Var& other) const
 	{
@@ -595,7 +603,11 @@ private:
 			throw E(errorMessage);
 	}
 
-	Var& structIndexOperator(VarHolderImpl<Struct<int> >* pStr, int n) const;
+	template <typename T, typename N>
+	Var& structIndexOperator(T* pStr, N n) const
+	{
+		return pStr->operator[](n);
+	}
 
 #ifdef POCO_NO_SOO
 
@@ -786,8 +798,7 @@ inline bool Var::isEmpty() const
 
 inline bool Var::isArray() const
 {
-	if (isEmpty() || 
-		isString()) return false;
+	if (isEmpty() || isString()) return false;
 
 	VarHolder* pHolder = content();
 	return pHolder ? pHolder->isArray() : false;
@@ -819,6 +830,13 @@ inline bool Var::isStruct() const
 {
 	VarHolder* pHolder = content();
 	return pHolder ? pHolder->isStruct() : false;
+}
+
+
+inline bool Var::isOrdered() const
+{
+	VarHolder* pHolder = content();
+	return pHolder ? pHolder->isOrdered() : false;
 }
 
 
@@ -2105,7 +2123,7 @@ inline bool operator != (const char* other, const Var& da)
 }
 
 
-#ifndef POCO_LONG_IS_64_BIT
+#ifndef POCO_INT64_IS_LONG
 
 
 inline long operator + (const long& other, const Var& da)
@@ -2212,7 +2230,111 @@ inline bool operator >= (const long& other, const Var& da)
 }
 
 
-#endif // POCO_LONG_IS_64_BIT
+inline unsigned long operator + (const unsigned long& other, const Var& da)
+	/// Addition operator for adding Var to unsigned long
+{
+	return other + da.convert<unsigned long>();
+}
+
+
+inline unsigned long operator - (const unsigned long& other, const Var& da)
+	/// Subtraction operator for subtracting Var from unsigned long
+{
+	return other - da.convert<unsigned long>();
+}
+
+
+inline unsigned long operator * (const unsigned long& other, const Var& da)
+	/// Multiplication operator for multiplying Var with unsigned long
+{
+	return other * da.convert<unsigned long>();
+}
+
+
+inline unsigned long operator / (const unsigned long& other, const Var& da)
+	/// Division operator for dividing Var with unsigned long
+{
+	return other / da.convert<unsigned long>();
+}
+
+
+inline unsigned long operator += (unsigned long& other, const Var& da)
+	/// Addition assignment operator for adding Var to unsigned long
+{
+	return other += da.convert<unsigned long>();
+}
+
+
+inline unsigned long operator -= (unsigned long& other, const Var& da)
+	/// Subtraction assignment operator for subtracting Var from unsigned long
+{
+	return other -= da.convert<unsigned long>();
+}
+
+
+inline unsigned long operator *= (unsigned long& other, const Var& da)
+	/// Multiplication assignment operator for multiplying Var with unsigned long
+{
+	return other *= da.convert<unsigned long>();
+}
+
+
+inline unsigned long operator /= (unsigned long& other, const Var& da)
+	/// Division assignment operator for dividing Var with unsigned long
+{
+	return other /= da.convert<unsigned long>();
+}
+
+
+inline bool operator == (const unsigned long& other, const Var& da)
+	/// Equality operator for comparing Var with unsigned long
+{
+	if (da.isEmpty()) return false;
+	return other == da.convert<unsigned long>();
+}
+
+
+inline bool operator != (const unsigned long& other, const Var& da)
+	/// Inequality operator for comparing Var with unsigned long
+{
+	if (da.isEmpty()) return true;
+	return other != da.convert<unsigned long>();
+}
+
+
+inline bool operator < (const unsigned long& other, const Var& da)
+	/// Less than operator for comparing Var with unsigned long
+{
+	if (da.isEmpty()) return false;
+	return other < da.convert<unsigned long>();
+}
+
+
+inline bool operator <= (const unsigned long& other, const Var& da)
+	/// Less than or equal operator for comparing Var with unsigned long
+{
+	if (da.isEmpty()) return false;
+	return other <= da.convert<unsigned long>();
+}
+
+
+inline bool operator > (const unsigned long& other, const Var& da)
+	/// Greater than operator for comparing Var with unsigned long
+{
+	if (da.isEmpty()) return false;
+	return other > da.convert<unsigned long>();
+}
+
+
+inline bool operator >= (const unsigned long& other, const Var& da)
+	/// Greater than or equal operator for comparing Var with unsigned long
+{
+	if (da.isEmpty()) return false;
+	return other >= da.convert<unsigned long>();
+}
+
+
+#endif // POCO_INT64_IS_LONG
 
 
 } // namespace Dynamic

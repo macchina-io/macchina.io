@@ -39,7 +39,7 @@ class IBooleanSensor: public IoT::Devices::IDevice
 	///     formatted as string for display purposes.
 {
 public:
-	typedef Poco::AutoPtr<IBooleanSensor> Ptr;
+	using Ptr = Poco::AutoPtr<IBooleanSensor>;
 
 	IBooleanSensor();
 		/// Creates a IBooleanSensor.

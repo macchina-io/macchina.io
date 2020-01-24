@@ -30,7 +30,7 @@ public:
 		SIM_LINEAR, /// linear function
 		SIM_RANDOM  /// random function
 	};
-	
+
 	struct Params
 	{
 		std::string id;
@@ -38,11 +38,11 @@ public:
 
 		std::string physicalQuantity;
 			/// The physical quantity the sensor measures.
-		
+
 		std::string physicalUnit;
 			/// The physical unit used.
 
-		double initialValue; 
+		double initialValue;
 			/// Initial sensor value.
 
 		double delta;
@@ -56,17 +56,17 @@ public:
 
 		double updateRate;
 			/// The rate at which the sensor value is updated (updates/sec.).
-			
+
 		Mode mode;
 			/// Mode - linear or random.
 	};
-	
+
 	SimulatedSensor(const Params& params, Poco::Util::Timer& timer);
 		/// Creates a SimulatedSensor.
-		
+
 	~SimulatedSensor();
 		/// Destroys the SimulatedSensor.
-	
+
 	// Sensor
 	double value() const;
 	bool ready() const;
@@ -93,14 +93,14 @@ private:
 	double _value;
 	int _valueChangedPeriod;
 	double _valueChangedDelta;
-	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double> > _pEventPolicy;
+	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double>> _pEventPolicy;
 	Poco::Any _deviceIdentifier;
 	Poco::Any _symbolicName;
 	Poco::Any _name;
 	Poco::Any _physicalQuantity;
 	Poco::Any _physicalUnit;
 	Poco::Util::Timer& _timer;
-	
+
 	friend class LinearUpdateTimerTask;
 	friend class RandomUpdateTimerTask;
 };

@@ -48,12 +48,12 @@ class OSP_API BundleContext: public Poco::RefCountedObject
 	/// used to find other bundles in the system.
 {
 public:
-	typedef Poco::AutoPtr<BundleContext> Ptr;
-	typedef const Ptr ConstPtr;
+	using Ptr = Poco::AutoPtr<BundleContext>;
+	using ConstPtr = const Ptr;
 
 	Bundle::ConstPtr thisBundle() const;
 		/// Returns a pointer to the bundle's Bundle object.
-		
+
 	Bundle::ConstPtr findBundle(const std::string& name) const;
 		/// Returns a pointer to the Bundle object for the
 		/// bundle with the given name, if such a bundle
@@ -67,26 +67,26 @@ public:
 	void listBundles(std::vector<Bundle::Ptr>& bundles) const;
 		/// Fills the given vector with all bundles
 		/// known to the OSP framework.
-		
+
 	void listBundles(std::vector<Bundle::Ptr>& bundles, BundleFilter::Ptr pFilter) const;
 		/// Fills the given vector with all bundles
 		/// known to the OSP framework, filtered by the
 		/// given BundleFilter.
-		
+
 	ServiceRegistry& registry() const;
 		/// Returns a reference to the ServiceRegistry object, which
 		/// can be used to find or register services.
-		
+
 	BundleEvents& events() const;
 		/// Returns a reference to the global BundleEvents object
 		/// which can be used to subscribe to events reporting
 		/// state changes in installed bundles.
-		
-	SystemEvents& systemEvents() const;	
+
+	SystemEvents& systemEvents() const;
 		/// Returns a reference to the global SystemEvents object
 		/// which can be used to subscribe to events reporting
 		/// state changes in the OSP system.
-		
+
 	Poco::Logger& logger() const;
 		/// Returns a reference to a Poco::Logger that the bundle
 		/// can use to emit log messages.
@@ -95,7 +95,7 @@ public:
 		/// Returns the full path for the library with the given
 		/// libraryName. If libraryName is the empty string,
 		/// return the path to the code cache directory.
-		
+
 	const Poco::Path& temporaryDirectory() const;
 		/// Returns the path to the bundle's temporary (transient)
 		/// data directory.
@@ -107,10 +107,10 @@ public:
 		/// If the directory does not exist, it is created.
 		/// The directory is cleared whenever the bundle is
 		/// unloaded.
-		
+
 	const Poco::Path& persistentDirectory() const;
 		/// Returns the path to the bundle's persistent
-		/// data directory. 
+		/// data directory.
 		///
 		/// A bundle can use this directory to create files
 		/// that must be preserved between different runs
@@ -118,7 +118,7 @@ public:
 		///
 		/// If the directory does not exist, it is created.
 		/// The persistent data directory is never cleared.
-		
+
 	BundleContext::Ptr contextForBundle(Bundle::ConstPtr pBundle) const;
 		/// Returns the BundleContext for the given bundle.
 
@@ -128,10 +128,10 @@ protected:
 
 	~BundleContext();
 		/// Destroys the BundleContext.
-		
+
 	void initPersistency(const Poco::Path& persistencyPath);
-		/// Sets up the temporary and persistent data paths.	
-		
+		/// Sets up the temporary and persistent data paths.
+
 	static std::string loggerName(const Bundle* pBundle);
 		/// Returns a logger name for the bundle.
 		///
@@ -142,7 +142,7 @@ private:
 	BundleContext();
 	BundleContext(const BundleContext&);
 	BundleContext& operator = (const BundleContext&);
-	
+
 	BundleLoader&    _loader;
 	Bundle::ConstPtr _pBundle;
 	BundleEvents&    _events;
@@ -151,7 +151,7 @@ private:
 	Poco::Logger&    _logger;
 	Poco::Path       _temporaryDir;
 	Poco::Path       _persistentDir;
-	
+
 	friend class BundleContextFactory;
 };
 

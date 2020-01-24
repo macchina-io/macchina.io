@@ -47,7 +47,7 @@ class SensorRemoteObject: public IoT::Devices::ISensor, public Poco::RemotingNG:
 	///     formatted as string for display purposes.
 {
 public:
-	typedef Poco::AutoPtr<SensorRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<SensorRemoteObject>;
 
 	SensorRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::Sensor> pServiceObject);
 		/// Creates a SensorRemoteObject.

@@ -39,7 +39,7 @@ class BarcodeReaderServerHelper
 	/// done via device features and properties.
 {
 public:
-	typedef IoT::Devices::BarcodeReader Service;
+	using Service = IoT::Devices::BarcodeReader;
 
 	BarcodeReaderServerHelper();
 		/// Creates a BarcodeReaderServerHelper.

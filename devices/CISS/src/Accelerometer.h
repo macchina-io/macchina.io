@@ -27,7 +27,7 @@ class Node;
 class Accelerometer: public IoT::Devices::DeviceImpl<IoT::Devices::Accelerometer, Accelerometer>
 {
 public:
-	typedef Poco::SharedPtr<Accelerometer> Ptr;
+	using Ptr = Poco::SharedPtr<Accelerometer>;
 
 	enum
 	{

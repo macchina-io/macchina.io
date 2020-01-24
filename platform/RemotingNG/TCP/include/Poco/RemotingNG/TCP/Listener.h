@@ -41,7 +41,7 @@ class RemotingNGTCP_API Listener: public Poco::RemotingNG::EventListener
 	/// The RemotingNG Listener implementation for the TCP transport.
 {
 public:
-	typedef Poco::AutoPtr<Listener> Ptr;
+	using Ptr = Poco::AutoPtr<Listener>;
 
 	Poco::BasicEvent<Connection::Ptr> connectionAccepted;
 		/// Fired when a new client connection has been accepted.
@@ -170,7 +170,7 @@ private:
 	class RemotingNGTCP_API EventSubscription: public TimerTask
 	{
 	public:
-		typedef Poco::AutoPtr<EventSubscription> Ptr;
+		using Ptr = Poco::AutoPtr<EventSubscription>;
 
 		EventSubscription(Listener& listener, const std::string& uri, Poco::UInt32 id);
 		void run();
@@ -184,7 +184,7 @@ private:
 		std::string _path;
 	};
 
-	typedef std::map<Poco::RemotingNG::EventSubscriber::Ptr, EventSubscription::Ptr> EventSubscriptionsMap;
+	using EventSubscriptionsMap = std::map<Poco::RemotingNG::EventSubscriber::Ptr, EventSubscription::Ptr>;
 
 	static Poco::UInt32 nextSubscriberId();
 	static std::string encodeEndPoint(const std::string& endPoint);

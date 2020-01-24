@@ -44,7 +44,7 @@ class ISwitch: public IoT::Devices::IDevice
 	///     formatted as string for display purposes.
 {
 public:
-	typedef Poco::AutoPtr<ISwitch> Ptr;
+	using Ptr = Poco::AutoPtr<ISwitch>;
 
 	ISwitch();
 		/// Creates a ISwitch.

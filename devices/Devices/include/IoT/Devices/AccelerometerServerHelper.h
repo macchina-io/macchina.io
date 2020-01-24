@@ -35,7 +35,7 @@ class AccelerometerServerHelper
 	/// The interface for three-axis Accelerometers.
 {
 public:
-	typedef IoT::Devices::Accelerometer Service;
+	using Service = IoT::Devices::Accelerometer;
 
 	AccelerometerServerHelper();
 		/// Creates a AccelerometerServerHelper.

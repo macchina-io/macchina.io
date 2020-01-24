@@ -34,7 +34,7 @@ class MobileConnectionServiceRemoteObject: public IoT::MobileConnection::IMobile
 	/// and establish a mobile data connection.
 {
 public:
-	typedef Poco::AutoPtr<MobileConnectionServiceRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<MobileConnectionServiceRemoteObject>;
 
 	MobileConnectionServiceRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::MobileConnection::MobileConnectionService> pServiceObject);
 		/// Creates a MobileConnectionServiceRemoteObject.

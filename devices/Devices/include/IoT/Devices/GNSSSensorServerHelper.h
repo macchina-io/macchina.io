@@ -47,7 +47,7 @@ class GNSSSensorServerHelper
 	///     received from the GNSS receiver.
 {
 public:
-	typedef IoT::Devices::GNSSSensor Service;
+	using Service = IoT::Devices::GNSSSensor;
 
 	GNSSSensorServerHelper();
 		/// Creates a GNSSSensorServerHelper.

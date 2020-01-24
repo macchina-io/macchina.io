@@ -25,7 +25,7 @@ namespace XDK {
 class HighRateGyroscope: public IoT::Devices::DeviceImpl<IoT::Devices::Gyroscope, HighRateGyroscope>
 {
 public:
-	typedef Poco::SharedPtr<HighRateGyroscope> Ptr;
+	using Ptr = Poco::SharedPtr<HighRateGyroscope>;
 
 	HighRateGyroscope(BtLE::Peripheral::Ptr pPeripheral);
 		/// Creates a HighRateGyroscope.

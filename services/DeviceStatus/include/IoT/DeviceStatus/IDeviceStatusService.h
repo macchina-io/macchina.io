@@ -35,7 +35,7 @@ class IDeviceStatusService: public Poco::OSP::Service
 	/// status of a device.
 {
 public:
-	typedef Poco::AutoPtr<IDeviceStatusService> Ptr;
+	using Ptr = Poco::AutoPtr<IDeviceStatusService>;
 
 	IDeviceStatusService();
 		/// Creates a IDeviceStatusService.

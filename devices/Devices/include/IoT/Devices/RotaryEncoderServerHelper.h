@@ -36,7 +36,7 @@ class RotaryEncoderServerHelper
 	/// on the Counter interface.
 {
 public:
-	typedef IoT::Devices::RotaryEncoder Service;
+	using Service = IoT::Devices::RotaryEncoder;
 
 	RotaryEncoderServerHelper();
 		/// Creates a RotaryEncoderServerHelper.

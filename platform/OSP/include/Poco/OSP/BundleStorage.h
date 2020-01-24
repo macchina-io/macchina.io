@@ -43,17 +43,17 @@ class OSP_API BundleStorage: public Poco::RefCountedObject
 	/// a forward slash ('/').
 {
 public:
-	typedef Poco::AutoPtr<BundleStorage> Ptr;
-	typedef const Ptr ConstPtr;
+	using Ptr = Poco::AutoPtr<BundleStorage>;
+	using ConstPtr =  const Ptr;
 
 	virtual std::istream* getResource(const std::string& path) const = 0;
 		/// Returns an input stream for reading the resource with
 		/// the given path, if the resource exists.
 		/// Otherwise, returns NULL.
 		///
-		/// The caller receives ownership of, and is responsible for 
+		/// The caller receives ownership of, and is responsible for
 		/// deleting the input stream when it's no longer needed.
-		
+
 	virtual void list(const std::string& path, std::vector<std::string>& files) const = 0;
 		/// List all files in the directory specified by path.
 		/// If path is empty, all files in the bundle root directory

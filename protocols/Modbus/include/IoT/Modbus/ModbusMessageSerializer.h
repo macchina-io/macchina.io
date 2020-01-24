@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::Modbus::ModbusMessage& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"functionCode","slaveOrUnitAddress","transactionID",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[0], value.functionCode, ser);
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[1], value.slaveOrUnitAddress, ser);
 		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[2], value.transactionID, ser);

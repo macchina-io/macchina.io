@@ -259,9 +259,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 	std::map<std::string, int> nsIdx;
 	//static const std::string REMOTING__NAMES[] = {"create", "protocol", "endPoint"}; // methodName followed by param names, followed by other than default namespaces
 	std::string staticIds = ProxyGenerator::generateStaticIdString(pFunc, nsSet, attrs, elems, nsIdx);
-	gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__NAMES);");
 	gen.writeMethodImplementation(staticIds);
-	gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__NAMES);");
 	std::map<std::string, const Poco::CppParser::Parameter*> outParams;
 	ProxyGenerator::detectOutParams(pFunc, outParams);
 
@@ -445,9 +443,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 		std::string messageType(isEvent ? "EVENT_REPLY" : "REPLY");
 		if (name != responseName)
 		{
-			gen.writeMethodImplementation(indentation+"remoting__staticInitBegin(REMOTING__REPLY_NAME);");
 			gen.writeMethodImplementation(indentation+"static const std::string REMOTING__REPLY_NAME(\"" + responseName + "\");");
-			gen.writeMethodImplementation(indentation+"remoting__staticInitEnd(REMOTING__REPLY_NAME);");
 			gen.writeMethodImplementation(indentation+"remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_" + messageType + ");");
 		}
 		else
@@ -470,9 +466,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 				std::string line("static const std::string REMOTING__RETURN_PARAM_NAME(\"");
 				line.append(retName);
 				line.append("\");");
-				gen.writeMethodImplementation(indentation+"remoting__staticInitBegin(REMOTING__RETURN_PARAM_NAME);");
 				gen.writeMethodImplementation(indentation+line);
-				gen.writeMethodImplementation(indentation+"remoting__staticInitEnd(REMOTING__RETURN_PARAM_NAME);");
 				retName = "REMOTING__RETURN_PARAM_NAME";
 			}
 			else

@@ -4,7 +4,9 @@
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: Apache-2.0
+// This is unpublished proprietary source code of Applied Informatics.
+// The contents of this file may not be disclosed to third parties,
+// copied or duplicated in any form, in whole or in part.
 //
 
 
@@ -12,7 +14,7 @@
 #include "Pizzeria/PizzaPickupService.h"
 #include "Pizzeria/PizzaDeliveryServiceServerHelper.h"
 #include "Pizzeria/PizzaPickupServiceServerHelper.h"
-#include "Poco/RemotingNG/TCP/Listener.h"
+#include "Poco/RemotingNG/SOAP/Listener.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/Util/ServerApplication.h"
 #include "Poco/Util/Option.h"
@@ -38,7 +40,7 @@ public:
 	PizzeriaServer(): _helpRequested(false)
 	{
 	}
-	
+
 	~PizzeriaServer()
 	{
 	}
@@ -49,7 +51,7 @@ protected:
 		loadConfiguration(); // load default configuration files, if present
 		ServerApplication::initialize(self);
 	}
-		
+
 	void uninitialize()
 	{
 		ServerApplication::uninitialize();
@@ -58,7 +60,7 @@ protected:
 	void defineOptions(OptionSet& options)
 	{
 		ServerApplication::defineOptions(options);
-		
+
 		options.addOption(
 			Option("help", "h", "Display help information on command line arguments.")
 				.required(false)
@@ -87,25 +89,26 @@ protected:
 		if (!_helpRequested)
 		{
 			// create and register SOAP listener
-			Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener("0.0.0.0:8123");
+			Poco::RemotingNG::SOAP::Listener::Ptr pListener = new Poco::RemotingNG::SOAP::Listener("0.0.0.0:8080", "wsdl");
+			pListener->enableCompression(true);
 			std::string listener = Poco::RemotingNG::ORB::instance().registerListener(pListener);
 
 			// register Pizzeria remote object
 			std::string uri1 = Pizzeria::PizzaDeliveryServiceServerHelper::registerObject(new Pizzeria::PizzaDeliveryService, "ThePizzeria", listener);
 			std::string uri2 = Pizzeria::PizzaPickupServiceServerHelper::registerObject(new Pizzeria::PizzaPickupService, "ThePizzeria", listener);
-			
+
 			// wait for CTRL-C or kill
 			waitForTerminationRequest();
 
 			Pizzeria::PizzaDeliveryServiceServerHelper::unregisterObject(uri1);
 			Pizzeria::PizzaPickupServiceServerHelper::unregisterObject(uri2);
-			
+
 			// Stop the HTTPServer
 			Poco::RemotingNG::ORB::instance().shutdown();
 		}
 		return Application::EXIT_OK;
 	}
-	
+
 private:
 	bool _helpRequested;
 };

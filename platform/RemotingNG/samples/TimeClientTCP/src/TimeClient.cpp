@@ -4,7 +4,9 @@
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: Apache-2.0
+// This is unpublished proprietary source code of Applied Informatics.
+// The contents of this file may not be disclosed to third parties,
+// copied or duplicated in any form, in whole or in part.
 //
 
 
@@ -30,12 +32,12 @@ int main(int argc, char** argv)
 	{
 		// register transport
 		Poco::RemotingNG::TCP::TransportFactory::registerFactory();
-		
+
 		// create event listener
 		Poco::RemotingNG::TCP::Listener::Ptr pListener = new Poco::RemotingNG::TCP::Listener;
-		
+
 		// get proxy for remote object
-		Services::ITimeService::Ptr pClock = Services::TimeServiceClientHelper::find("remoting.tcp://localhost:7777/tcp/Services.TimeService/TheClock");
+		Services::ITimeService::Ptr pClock = Services::TimeServiceClientHelper::find("remoting.tcp://127.0.0.1:7777/tcp/Services.TimeService/TheClock");
 
 		// invoke method on remote object
 		Poco::DateTime dt = pClock->currentTime();
@@ -44,12 +46,12 @@ int main(int argc, char** argv)
 		// enable events
 		pClock->remoting__enableEvents(pListener);
 		pClock->wakeUp += Poco::delegate(onWakeUp);
-		
+
 		// schedule wake up call
 		Poco::DateTime wakeUpTime;
 		wakeUpTime += Poco::Timespan(5000000); // 5 seconds
 		pClock->wakeMeUp(wakeUpTime, "Good morning!");
-		
+
 		// wait for event
 		Poco::Thread::sleep(10000);
 

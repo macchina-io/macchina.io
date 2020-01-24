@@ -16,6 +16,7 @@
 
 
 using Poco::AutoPtr;
+using Poco::makeAuto;
 using Poco::NullPointerException;
 
 
@@ -27,6 +28,14 @@ namespace
 		TestObj(): _rc(1)
 		{
 			++_count;
+		}
+
+		explicit TestObj(int value): _rc(1)
+		{
+		}
+
+		TestObj(int value1, const std::string& value2): _rc(1)
+		{
 		}
 				
 		void duplicate()
@@ -79,21 +88,29 @@ void AutoPtrTest::testAutoPtr()
 {
 	{
 		AutoPtr<TestObj> ptr = new TestObj;
-		assert (ptr->rc() == 1);
+		assertTrue (ptr->rc() == 1);
 		AutoPtr<TestObj> ptr2 = ptr;
-		assert (ptr->rc() == 2);
+		assertTrue (ptr->rc() == 2);
 		ptr2 = new TestObj;
-		assert (ptr->rc() == 1);
+		assertTrue (ptr->rc() == 1);
 		AutoPtr<TestObj> ptr3;
 		ptr3 = ptr2;
-		assert (ptr2->rc() == 2);
+		assertTrue (ptr2->rc() == 2);
 		ptr3 = new TestObj;
-		assert (ptr2->rc() == 1);
+		assertTrue (ptr2->rc() == 1);
 		ptr3 = ptr2;
-		assert (ptr2->rc() == 2);
-		assert (TestObj::count() > 0);
+		assertTrue (ptr2->rc() == 2);
+		assertTrue (TestObj::count() > 0);
+
+		AutoPtr<TestObj> ptr4 = std::move(ptr);
+		assertTrue (ptr4->rc() == 1);
+		assertTrue (ptr.isNull());
+
+		ptr3 = std::move(ptr4);
+		assertTrue (ptr4.isNull());
+		assertTrue (ptr3->rc() == 1);
 	}
-	assert (TestObj::count() == 0);
+	assertTrue (TestObj::count() == 0);
 }
 
 
@@ -109,59 +126,72 @@ void AutoPtrTest::testOps()
 		pTO1 = pTO2;
 		pTO2 = pTmp;
 	}
-	assert (pTO1 < pTO2);
+	assertTrue (pTO1 < pTO2);
 	ptr1 = pTO1;
 	AutoPtr<TestObj> ptr2 = pTO2;
 	AutoPtr<TestObj> ptr3 = ptr1;
 	AutoPtr<TestObj> ptr4;
-	assert (ptr1.get() == pTO1);
-	assert (ptr1 == pTO1);
-	assert (ptr2.get() == pTO2);
-	assert (ptr2 == pTO2);
-	assert (ptr3.get() == pTO1);
-	assert (ptr3 == pTO1);
+	assertTrue (ptr1.get() == pTO1);
+	assertTrue (ptr1 == pTO1);
+	assertTrue (ptr2.get() == pTO2);
+	assertTrue (ptr2 == pTO2);
+	assertTrue (ptr3.get() == pTO1);
+	assertTrue (ptr3 == pTO1);
 	
-	assert (ptr1 == pTO1);
-	assert (ptr1 != pTO2);
-	assert (ptr1 < pTO2);
-	assert (ptr1 <= pTO2);
-	assert (ptr2 > pTO1);
-	assert (ptr2 >= pTO1);
+	assertTrue (ptr1 == pTO1);
+	assertTrue (ptr1 != pTO2);
+	assertTrue (ptr1 < pTO2);
+	assertTrue (ptr1 <= pTO2);
+	assertTrue (ptr2 > pTO1);
+	assertTrue (ptr2 >= pTO1);
 	
-	assert (ptr1 == ptr3);
-	assert (ptr1 != ptr2);
-	assert (ptr1 < ptr2);
-	assert (ptr1 <= ptr2);
-	assert (ptr2 > ptr1);
-	assert (ptr2 >= ptr1);
+	assertTrue (ptr1 == ptr3);
+	assertTrue (ptr1 != ptr2);
+	assertTrue (ptr1 < ptr2);
+	assertTrue (ptr1 <= ptr2);
+	assertTrue (ptr2 > ptr1);
+	assertTrue (ptr2 >= ptr1);
 	
 	ptr1 = pTO1;
 	ptr2 = pTO2;
 	ptr1.swap(ptr2);
-	assert (ptr2.get() == pTO1);
-	assert (ptr1.get() == pTO2);
+	assertTrue (ptr2.get() == pTO1);
+	assertTrue (ptr1.get() == pTO2);
 		
 	try
 	{
-		assert (ptr4->rc() > 0);
+		assertTrue (ptr4->rc() > 0);
 		fail ("must throw NullPointerException");
 	}
 	catch (NullPointerException&)
 	{
 	}
 
-	assert (!(ptr4 == ptr1));
-	assert (!(ptr4 == ptr2));
-	assert (ptr4 != ptr1);
-	assert (ptr4 != ptr2);
+	assertTrue (!(ptr4 == ptr1));
+	assertTrue (!(ptr4 == ptr2));
+	assertTrue (ptr4 != ptr1);
+	assertTrue (ptr4 != ptr2);
 	
 	ptr4 = ptr2;
-	assert (ptr4 == ptr2);
-	assert (!(ptr4 != ptr2));
+	assertTrue (ptr4 == ptr2);
+	assertTrue (!(ptr4 != ptr2));
 	
-	assert (!(!ptr1));
+	assertTrue (!(!ptr1));
 	ptr1 = 0;
-	assert (!ptr1);
+	assertTrue (!ptr1);
+}
+
+
+void AutoPtrTest::testMakeAuto()
+{
+	AutoPtr<TestObj> ptr = makeAuto<TestObj>();
+	assertTrue (ptr->rc() == 1);
+
+	ptr = makeAuto<TestObj>(42);
+	assertTrue (ptr->rc() == 1);
+
+	ptr = makeAuto<TestObj>(42, "fortytwo");
+	assertTrue (ptr->rc() == 1);
 }
 
 
@@ -181,6 +211,7 @@ CppUnit::Test* AutoPtrTest::suite()
 
 	CppUnit_addTest(pSuite, AutoPtrTest, testAutoPtr);
 	CppUnit_addTest(pSuite, AutoPtrTest, testOps);
+	CppUnit_addTest(pSuite, AutoPtrTest, testMakeAuto);
 
 	return pSuite;
 }

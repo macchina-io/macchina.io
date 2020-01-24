@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::CAN::CANFDFrame& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"id","flags","payload",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES[0], value.id(), ser);
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[1], value.flags(), ser);
 		TypeSerializer<std::vector < char > >::serialize(REMOTING__NAMES[2], value.payload(), ser);

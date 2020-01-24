@@ -45,9 +45,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::UDP::Packet& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"destination","payload","source"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<IoT::UDP::EndpointAddress >::deserialize(REMOTING__NAMES[0], true, deser, value.destination);
 		TypeDeserializer<std::vector < char > >::deserialize(REMOTING__NAMES[1], true, deser, value.payload);
 		TypeDeserializer<IoT::UDP::EndpointAddress >::deserialize(REMOTING__NAMES[2], true, deser, value.source);

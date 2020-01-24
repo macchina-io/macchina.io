@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::XBee::ModemStatus& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"status",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[0], value.status, ser);
 	}
 

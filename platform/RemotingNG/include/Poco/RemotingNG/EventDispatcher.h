@@ -55,8 +55,8 @@ class RemotingNG_API EventDispatcher: public Poco::RefCountedObject
 	/// in a very similar way to a Proxy.
 {
 public:
-	typedef Poco::AutoPtr<EventDispatcher> Ptr;
-	typedef Transport::NameValueMap NameValueMap;
+	using Ptr = Poco::AutoPtr<EventDispatcher>;
+	using NameValueMap = Transport::NameValueMap;
 
 	EventDispatcher(const std::string& protocol);
 		/// Creates an EventDispatcher. 
@@ -120,7 +120,7 @@ protected:
 		///
 		/// If the given filter is empty, removes the filter.
 		
-	typedef std::map<std::string, Poco::Any> FilterMap;
+	using FilterMap = std::map<std::string, Poco::Any>;
 	
 	template <typename T>
 	bool accept(const FilterMap& filters, const std::string& event, const T& value)
@@ -136,14 +136,14 @@ protected:
 
 	struct SubscriberInfo: public Poco::RefCountedObject
 	{
-		typedef Poco::AutoPtr<SubscriberInfo> Ptr;
+		using Ptr = Poco::AutoPtr<SubscriberInfo>;
 		
 		std::string     endpoint;
 		Transport::Ptr  pTransport;
 		Poco::Clock     expireTime;
 		FilterMap       filters;
 	};
-	typedef std::map<std::string, SubscriberInfo::Ptr> SubscriberMap;
+	using SubscriberMap = std::map<std::string, SubscriberInfo::Ptr>;
 
 	SubscriberMap   _subscribers;
 	Poco::FastMutex _mutex;

@@ -41,7 +41,7 @@ class IoTWebTunnel_API WebTunnelService
 	/// The interface for WebTunnel clients.
 {
 public:
-	typedef Poco::SharedPtr<WebTunnelService> Ptr;
+	using Ptr = Poco::SharedPtr<WebTunnelService>;
 
 	Poco::BasicEvent<void> connected;
 		/// Fired when the WebTunnel connection with the server

@@ -28,7 +28,7 @@ namespace SensorTag {
 class SensorTagSensor: public IoT::Devices::DeviceImpl<IoT::Devices::Sensor, SensorTagSensor>
 {
 public:
-	typedef Poco::SharedPtr<SensorTagSensor> Ptr;
+	using Ptr = Poco::SharedPtr<SensorTagSensor>;
 
 	struct Params
 	{
@@ -90,7 +90,7 @@ protected:
 	bool _enabled;
 	double _value;
 	double _valueChangedDelta;
-	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double> > _pEventPolicy;
+	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double>> _pEventPolicy;
 	Poco::Any _deviceIdentifier;
 	Poco::Any _physicalQuantity;
 	Poco::Any _physicalUnit;

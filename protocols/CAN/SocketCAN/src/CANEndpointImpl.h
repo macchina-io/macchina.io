@@ -32,7 +32,7 @@ class IoTCAN_API CANEndpointImpl: public IoT::CAN::CANEndpoint, public Poco::Run
 	/// CANEndpoint implementation for Linux SocketCAN interface.
 {
 public:
-	typedef Poco::SharedPtr<CANEndpointImpl> Ptr;
+	using Ptr = Poco::SharedPtr<CANEndpointImpl>;
 
 	CANEndpointImpl(const std::string& interfc);
 		/// Creates the CANEndpointImpl for the given interface.

@@ -66,7 +66,7 @@ class DeviceServerHelper
 	///   - io.macchina.trigger (Trigger)
 {
 public:
-	typedef IoT::Devices::Device Service;
+	using Service = IoT::Devices::Device;
 
 	DeviceServerHelper();
 		/// Creates a DeviceServerHelper.

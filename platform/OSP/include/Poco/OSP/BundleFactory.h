@@ -37,12 +37,12 @@ class OSP_API BundleFactory: public Poco::RefCountedObject
 	/// used by the BundleLoader.
 {
 public:
-	typedef Poco::AutoPtr<BundleFactory> Ptr;
-	typedef const Ptr ConstPtr;
+	using Ptr = Poco::AutoPtr<BundleFactory>;
+	using ConstPtr = const Ptr;
 
 	BundleFactory(const LanguageTag& language);
 		/// Creates the BundleFactory.
-		
+
 	virtual Bundle* createBundle(BundleLoader& loader, const std::string& path);
 		/// Creates and returns a new Bundle object for
 		/// the bundle stored in the given path, using

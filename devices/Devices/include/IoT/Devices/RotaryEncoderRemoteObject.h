@@ -34,7 +34,7 @@ class RotaryEncoderRemoteObject: public IoT::Devices::IRotaryEncoder, public Poc
 	/// on the Counter interface.
 {
 public:
-	typedef Poco::AutoPtr<RotaryEncoderRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<RotaryEncoderRemoteObject>;
 
 	RotaryEncoderRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::Devices::RotaryEncoder> pServiceObject);
 		/// Creates a RotaryEncoderRemoteObject.

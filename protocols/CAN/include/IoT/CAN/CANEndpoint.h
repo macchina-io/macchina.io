@@ -88,7 +88,7 @@ class IoTCAN_API CANEndpoint
 	/// The CANEndpoint is used to receive and send CAN and CAN-FD frames.
 {
 public:
-	typedef Poco::SharedPtr<CANEndpoint> Ptr;
+	using Ptr = Poco::SharedPtr<CANEndpoint>;
 
 	Poco::BasicEvent<const CANFDFrame> frameReceived;
 		/// Fired when an CAN or CAN-FD frame has been received.

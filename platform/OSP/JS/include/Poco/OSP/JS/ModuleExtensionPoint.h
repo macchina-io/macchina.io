@@ -40,8 +40,8 @@ class OSPJS_API ModuleExtensionPoint: public Poco::OSP::ExtensionPoint
 	/// JavaScript environment.
 	///
 	/// To register a native JavaScript Module:
-	///     <extension point="com.appinf.osp.js.module" 
-	///                module="<module>" 
+	///     <extension point="com.appinf.osp.js.module"
+	///                module="<module>"
 	///                class="<factory class>"
 	///                library="<library name>"/>
 	///
@@ -51,10 +51,10 @@ class OSPJS_API ModuleExtensionPoint: public Poco::OSP::ExtensionPoint
 	///    * module: the name of the module (e.g., "net"), as passed as argument to the
 	///      JavaScript require() function.
 	///    * class: the class name of the ModuleFactory (see the ModuleFactory and Poco::JS::Module classes).
-	///    * library: the name of the shared library containing the ModuleFactory. 
+	///    * library: the name of the shared library containing the ModuleFactory.
 {
 public:
-	typedef Poco::AutoPtr<ModuleExtensionPoint> Ptr;
+	using Ptr = Poco::AutoPtr<ModuleExtensionPoint>;
 
 	ModuleExtensionPoint(Poco::OSP::BundleContext::Ptr pContext);
 		/// Creates the ModuleExtensionPoint, using the given bundle context.
@@ -84,12 +84,12 @@ protected:
 
 private:
 	ModuleExtensionPoint();
-	
-	typedef Poco::SharedPtr<ModuleFactory> FactoryPtr;
-	typedef Poco::ClassLoader<ModuleFactory> Loader;
-	typedef std::map<std::string, Poco::OSP::Bundle::Ptr> LibBundleMap;
-	typedef std::map<std::string, Poco::OSP::Bundle::Ptr> ModBundleMap;
-	
+
+	using FactoryPtr = Poco::SharedPtr<ModuleFactory>;
+	using Loader = Poco::ClassLoader<ModuleFactory>;
+	using LibBundleMap = std::map<std::string, Poco::OSP::Bundle::Ptr>;
+	using ModBundleMap = std::map<std::string, Poco::OSP::Bundle::Ptr>;
+
 	BundleContext::Ptr _pContext;
 	Poco::JS::Core::ModuleRegistry::Ptr _pModuleRegistry;
 	Loader _loader;

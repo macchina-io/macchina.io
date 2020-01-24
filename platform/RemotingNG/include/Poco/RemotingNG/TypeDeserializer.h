@@ -36,9 +36,9 @@
 #include <vector>
 #include <list>
 #include <set>
-#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+#include <unordered_set>
 #include <array>
-#endif
+#include <memory>
 
 
 namespace Poco {
@@ -74,7 +74,7 @@ private:
 
 
 template <typename T>
-class TypeDeserializer<std::vector<T> >
+class TypeDeserializer<std::vector<T>>
 {
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::vector<T>& value)
@@ -100,7 +100,7 @@ public:
 			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, elem);
 			if (found)
 			{
-				value.push_back(elem);
+				value.push_back(std::move(elem));
 			}
 		}
 		while (found);
@@ -109,7 +109,7 @@ public:
 
 
 template <typename T, std::size_t N>
-class TypeDeserializer<Poco::Array<T, N> >
+class TypeDeserializer<Poco::Array<T, N>>
 {
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::Array<T, N>& value)
@@ -134,7 +134,7 @@ public:
 			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, elem);
 			if (found && index < value.size())
 			{
-				value[index++] = elem;
+				value[index++] = std::move(elem);
 			}
 		}
 		while (found);
@@ -142,11 +142,8 @@ public:
 };
 
 
-#ifdef POCO_REMOTING_HAVE_STD_ARRAY
-
-
 template <typename T, std::size_t N>
-class TypeDeserializer<std::array<T, N> >
+class TypeDeserializer<std::array<T, N>>
 {
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::array<T, N>& value)
@@ -171,7 +168,7 @@ public:
 			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, elem);
 			if (found && index < value.size())
 			{
-				value[index++] = elem;
+				value[index++] = std::move(elem);
 			}
 		}
 		while (found);
@@ -179,11 +176,8 @@ public:
 };
 
 
-#endif // POCO_REMOTING_HAVE_STD_ARRAY
-
-
 template <typename T>
-class TypeDeserializer<std::list<T> >
+class TypeDeserializer<std::list<T>>
 {
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::list<T>& value)
@@ -208,7 +202,7 @@ public:
 			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, elem);
 			if (found)
 			{
-				value.push_back(elem);
+				value.push_back(std::move(elem));
 			}
 		}
 		while (found);
@@ -217,7 +211,7 @@ public:
 
 
 template <typename T>
-class TypeDeserializer<std::set<T> >
+class TypeDeserializer<std::set<T>>
 {
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::set<T>& value)
@@ -242,7 +236,7 @@ public:
 			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, elem);
 			if (found)
 			{
-				value.insert(elem);
+				value.insert(std::move(elem));
 			}
 		}
 		while (found);
@@ -251,7 +245,7 @@ public:
 
 
 template <typename T>
-class TypeDeserializer<std::multiset<T> >
+class TypeDeserializer<std::multiset<T>>
 {
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::multiset<T>& value)
@@ -276,7 +270,7 @@ public:
 			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, elem);
 			if (found)
 			{
-				value.insert(elem);
+				value.insert(std::move(elem));
 			}
 		}
 		while (found);
@@ -285,7 +279,75 @@ public:
 
 
 template <typename T>
-class TypeDeserializer<Poco::Nullable<T> >
+class TypeDeserializer<std::unordered_set<T>>
+{
+public:
+	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::unordered_set<T>& value)
+	{
+		Poco::UInt32 sizeHint;
+		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
+		{
+			deserializeImpl(name, false, deser, value);
+			deser.deserializeSequenceEnd(name);
+			return true;
+		}
+		else return false;
+	}
+
+	static void deserializeImpl(const std::string& name, bool isMandatory, Deserializer& deser, std::unordered_set<T>& value)
+	{
+		value.clear();
+		bool found = true;
+		do
+		{
+			T elem; // recreate elem with default values in EACH iteration -> deserialize can return true even when no data was set!
+			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, elem);
+			if (found)
+			{
+				value.insert(std::move(elem));
+			}
+		}
+		while (found);
+	}
+};
+
+
+template <typename T>
+class TypeDeserializer<std::unordered_multiset<T>>
+{
+public:
+	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::unordered_multiset<T>& value)
+	{
+		Poco::UInt32 sizeHint;
+		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
+		{
+			deserializeImpl(name, false, deser, value);
+			deser.deserializeSequenceEnd(name);
+			return true;
+		}
+		else return false;
+	}
+
+	static void deserializeImpl(const std::string& name, bool isMandatory, Deserializer& deser, std::unordered_multiset<T>& value)
+	{
+		value.clear();
+		bool found = true;
+		do
+		{
+			T elem; // recreate elem with default values in EACH iteration -> deserialize can return true even when no data was set!
+			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, elem);
+			if (found)
+			{
+				value.insert(std::move(elem));
+			}
+		}
+		while (found);
+	}
+};
+
+
+template <typename T>
+class TypeDeserializer<Poco::Nullable<T>>
 {
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::Nullable<T>& value)
@@ -309,7 +371,7 @@ public:
 	{
 		T temp;
 		if (TypeDeserializer<T>::deserialize(name, isMandatory, deser, temp))
-			value = temp;
+			value = std::move(temp);
 		else
 			value.clear();
 	}
@@ -317,7 +379,7 @@ public:
 
 
 template <typename T>
-class TypeDeserializer<Poco::Optional<T> >
+class TypeDeserializer<Poco::Optional<T>>
 {
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::Optional<T>& value)
@@ -341,7 +403,7 @@ public:
 	{
 		T temp;
 		if (TypeDeserializer<T>::deserialize(name, isMandatory, deser, temp))
-			value = temp;
+			value = std::move(temp);
 		else
 			value.clear();
 	}
@@ -349,7 +411,7 @@ public:
 
 
 template <typename T>
-class TypeDeserializer<Poco::AutoPtr<T> >
+class TypeDeserializer<Poco::AutoPtr<T>>
 {
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::AutoPtr<T>& value)
@@ -358,11 +420,11 @@ public:
 		bool found = deser.deserializeNullableBegin(name, isMandatory, isNull);
 		if (found && !isNull)
 		{
-			Poco::AutoPtr<T> tmp(new T());
+			Poco::AutoPtr<T> tmp(Poco::makeAuto<T>());
 			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, *tmp.get());
 			if (found)
 			{
-				value = tmp;
+				value = std::move(tmp);
 				deser.deserializeNullableEnd(name);
 				return true;
 			}
@@ -374,7 +436,7 @@ public:
 
 
 template <typename T>
-class TypeDeserializer<Poco::SharedPtr<T> >
+class TypeDeserializer<Poco::SharedPtr<T>>
 {
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::SharedPtr<T>& value)
@@ -383,11 +445,61 @@ public:
 		bool found = deser.deserializeNullableBegin(name, isMandatory, isNull);
 		if (found && !isNull)
 		{
-			Poco::SharedPtr<T> tmp(new T());
+			Poco::SharedPtr<T> tmp(Poco::makeShared<T>());
 			found = TypeDeserializer<T> ::deserialize(name, isMandatory, deser, *tmp.get());
 			if (found)
 			{
-				value = tmp;
+				value = std::move(tmp);
+				deser.deserializeNullableEnd(name);
+				return true;
+			}
+		}
+		value = 0;
+		return found;
+	}
+};
+
+
+template <typename T>
+class TypeDeserializer<std::unique_ptr<T>>
+{
+public:
+	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::unique_ptr<T>& value)
+	{
+		bool isNull;
+		bool found = deser.deserializeNullableBegin(name, isMandatory, isNull);
+		if (found && !isNull)
+		{
+			std::unique_ptr<T> tmp(std::make_unique<T>());
+			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, *tmp.get());
+			if (found)
+			{
+				value = std::move(tmp);
+				deser.deserializeNullableEnd(name);
+				return true;
+			}
+		}
+		value = 0;
+		return found;
+	}
+};
+
+
+template <typename T>
+class TypeDeserializer<std::shared_ptr<T>>
+{
+public:
+	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::shared_ptr<T>& value)
+	{
+		bool isNull;
+		bool found = deser.deserializeNullableBegin(name, isMandatory, isNull);
+		if (found && !isNull)
+		{
+			std::shared_ptr<T> tmp(std::make_shared<T>());
+			found = TypeDeserializer<T>::deserialize(name, isMandatory, deser, *tmp.get());
+			if (found)
+			{
+				value = std::move(tmp);
 				deser.deserializeNullableEnd(name);
 				return true;
 			}
@@ -433,7 +545,7 @@ public:
 
 
 template <>
-class TypeDeserializer<std::vector<char> >
+class TypeDeserializer<std::vector<char>>
 {
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::vector<char>& value)

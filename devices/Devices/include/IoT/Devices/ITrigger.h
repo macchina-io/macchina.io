@@ -38,7 +38,7 @@ class ITrigger: public IoT::Devices::IBooleanSensor
 	///     formatted as string for display purposes.
 {
 public:
-	typedef Poco::AutoPtr<ITrigger> Ptr;
+	using Ptr = Poco::AutoPtr<ITrigger>;
 
 	ITrigger();
 		/// Creates a ITrigger.

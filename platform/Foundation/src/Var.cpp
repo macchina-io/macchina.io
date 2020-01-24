@@ -34,7 +34,7 @@ Var::Var()
 
 
 Var::Var(const char* pVal)
-#ifdef POCO_NO_SOO 
+#ifdef POCO_NO_SOO
 	: _pHolder(new VarHolderImpl<std::string>(pVal))
 {
 }
@@ -362,11 +362,17 @@ Var& Var::getAt(std::size_t n)
 		return holderImpl<std::deque<Var>,
 			InvalidAccessException>("Not a deque.")->operator[](n);
 	else if (isStruct())
-		return structIndexOperator(holderImpl<Struct<int>,
-			InvalidAccessException>("Not a struct."), static_cast<int>(n));
+	{
+		if (isOrdered())
+			return structIndexOperator(holderImpl<Struct<int, OrderedMap<int, Var>, OrderedSet<int>>,
+				InvalidAccessException>("Not a struct."), static_cast<int>(n));
+		else
+			return structIndexOperator(holderImpl<Struct<int, std::map<int, Var>, std::set<int>>,
+				InvalidAccessException>("Not a struct."), static_cast<int>(n));
+	}
 	else if (!isString() && !isEmpty() && (n == 0))
 		return *this;
-	
+
 	throw RangeException("Index out of bounds.");
 }
 
@@ -385,8 +391,15 @@ char& Var::at(std::size_t n)
 
 Var& Var::getAt(const std::string& name)
 {
-	return holderImpl<DynamicStruct,
-		InvalidAccessException>("Not a struct.")->operator[](name);
+	if (isStruct())
+	{
+		if (isOrdered())
+			return structIndexOperator(holderImpl<OrderedDynamicStruct, InvalidAccessException>("Not a struct."), name);
+		else
+			return structIndexOperator(holderImpl<DynamicStruct, InvalidAccessException>("Not a struct."), name);
+	}
+
+	throw InvalidAccessException("Not a struct.");
 }
 
 
@@ -490,7 +503,7 @@ Var Var::parseObject(const std::string& val, std::string::size_type& pos)
 		std::string key = parseString(val, pos);
 		skipWhiteSpace(val, pos);
 		if (val[pos] != ':')
-			throw DataFormatException("Incorrect object, must contain: key : value pairs"); 
+			throw DataFormatException("Incorrect object, must contain: key : value pairs");
 		++pos; // skip past :
 		Var value = parse(val, pos);
 		aStruct.insert(key, value);
@@ -502,7 +515,7 @@ Var Var::parseObject(const std::string& val, std::string::size_type& pos)
 		}
 	}
 	if (val[pos] != '}')
-		throw DataFormatException("Unterminated object"); 
+		throw DataFormatException("Unterminated object");
 	++pos;
 	return aStruct;
 }
@@ -525,7 +538,7 @@ Var Var::parseArray(const std::string& val, std::string::size_type& pos)
 		}
 	}
 	if (val[pos] != ']')
-		throw DataFormatException("Unterminated array"); 
+		throw DataFormatException("Unterminated array");
 	++pos;
 	return result;
 }
@@ -541,8 +554,8 @@ std::string Var::parseString(const std::string& val, std::string::size_type& pos
 	else
 	{
 		std::string result;
-		while (pos < val.size() 
-			&& !Poco::Ascii::isSpace(val[pos]) 
+		while (pos < val.size()
+			&& !Poco::Ascii::isSpace(val[pos])
 			&& val[pos] != ','
 			&& val[pos] != ']'
 			&& val[pos] != '}')
@@ -569,31 +582,30 @@ std::string Var::parseJSONString(const std::string& val, std::string::size_type&
 			++pos;
 			break;
 		case '\\':
-			if (pos < val.size())
+			if (pos < val.size() - 1)
 			{
 				++pos;
 				switch (val[pos])
 				{
 				case 'b':
 					result += '\b';
-					break; 
+					break;
 				case 'f':
 					result += '\f';
-					break; 
+					break;
 				case 'n':
 					result += '\n';
-					break; 
+					break;
 				case 'r':
 					result += '\r';
-					break; 
+					break;
 				case 't':
 					result += '\t';
-					break; 
+					break;
 				default:
 					result += val[pos];
 					break;
 				}
-				break;
 			}
 			else
 			{
@@ -626,11 +638,11 @@ std::string Var::toString(const Var& any)
 	return res;
 }
 
-
-Var& Var::structIndexOperator(VarHolderImpl<Struct<int> >* pStr, int n) const
+/*
+Var& Var::structIndexOperator(VarHolderImpl<Struct<int>>* pStr, int n) const
 {
 	return pStr->operator[](n);
 }
-
+*/
 
 } } // namespace Poco::Dynamic

@@ -36,19 +36,19 @@ class RemotingNGTCP_API CredentialsStore: public Poco::RefCountedObject
 	/// associated credentials.
 {
 public:
-	typedef Poco::AutoPtr<CredentialsStore> Ptr;
-	typedef std::map<Poco::UInt64, Credentials> CredentialsMap;
+	using Ptr = Poco::AutoPtr<CredentialsStore>;
+	using CredentialsMap = std::map<Poco::UInt64, Credentials>;
 
 	CredentialsStore();
 		/// Creates a CredentialsStore.
-		
+
 	~CredentialsStore();
 		/// Destroys the CredentialsStore.
-		
+
 	Poco::UInt64 addCredentials(const Credentials& creds);
 		/// Adds the credentials and return a new authentication
 		/// token representing them.
-		
+
 	const Credentials& getCredentials(Poco::UInt64 authToken) const;
 		/// Returns the Credentials identified by the given
 		/// authentication token.
@@ -56,9 +56,9 @@ public:
 		/// Throws a Poco::NotFoundException if no Credentials
 		/// are associated with the given authentication token.
 
-protected:	
+protected:
 	Poco::UInt64 generateAuthToken();
-	
+
 private:
 	Poco::Random _random;
 	CredentialsMap _credentials;

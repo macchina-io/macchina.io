@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::BtLE::PeripheralInfo& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"address","name",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.address, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.name, ser);
 	}

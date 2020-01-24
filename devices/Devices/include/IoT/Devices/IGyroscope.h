@@ -32,7 +32,7 @@ class IGyroscope: public IoT::Devices::IDevice
 	/// The interface for three-axis Gyroscopes.
 {
 public:
-	typedef Poco::AutoPtr<IGyroscope> Ptr;
+	using Ptr = Poco::AutoPtr<IGyroscope>;
 
 	IGyroscope();
 		/// Creates a IGyroscope.

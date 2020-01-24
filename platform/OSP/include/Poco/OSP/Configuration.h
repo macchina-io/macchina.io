@@ -32,22 +32,22 @@ class OSP_API Configuration: public Poco::Util::AbstractConfiguration
 	/// used by the PreferencesService.
 {
 public:
-	typedef Poco::AutoPtr<Configuration> Ptr;
-	typedef const Ptr ConstPtr;
-	
+	using Ptr = Poco::AutoPtr<Configuration>;
+	using ConstPtr = const Ptr;
+
 	Configuration(Poco::Util::AbstractConfiguration* pConfig);
 		/// Creates the Configuration.
 
 protected:
 	bool getRaw(const std::string& key, std::string& value) const;
-	void setRaw(const std::string& key, const std::string& value);		
+	void setRaw(const std::string& key, const std::string& value);
 	void enumerate(const std::string& key, Keys& range) const;
 	void removeRaw(const std::string& key);
 	~Configuration();
 
 private:
 	Configuration();
-	
+
 	AbstractConfiguration* _pConfig;
 };
 

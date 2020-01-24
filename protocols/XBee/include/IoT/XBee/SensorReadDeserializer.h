@@ -43,9 +43,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::XBee::SensorRead& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"analogSamples","deviceAddress","networkAddress","options","sensor","temperature"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<std::vector < Poco::Int16 > >::deserialize(REMOTING__NAMES[0], true, deser, value.analogSamples);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.deviceAddress);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.networkAddress);

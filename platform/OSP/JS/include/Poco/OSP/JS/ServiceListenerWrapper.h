@@ -28,7 +28,7 @@ namespace JS {
 class OSPJS_API ServiceListenerHolder: public Poco::RefCountedObject
 {
 public:
-	typedef Poco::AutoPtr<ServiceListenerHolder> Ptr;
+	using Ptr = Poco::AutoPtr<ServiceListenerHolder>;
 
 	ServiceListenerHolder(
 		v8::Isolate* pIsolate,

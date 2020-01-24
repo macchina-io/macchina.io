@@ -35,7 +35,7 @@ class UDPEndpointServerHelper
 	/// The UDPEndpoint is used to receive and send UDP packets.
 {
 public:
-	typedef IoT::UDP::UDPEndpoint Service;
+	using Service = IoT::UDP::UDPEndpoint;
 
 	UDPEndpointServerHelper();
 		/// Creates a UDPEndpointServerHelper.

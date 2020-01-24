@@ -39,7 +39,7 @@ class UnitsOfMeasureServiceRemoteObject: public IoT::UnitsOfMeasure::IUnitsOfMea
 	/// containing unit definitions.
 {
 public:
-	typedef Poco::AutoPtr<UnitsOfMeasureServiceRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<UnitsOfMeasureServiceRemoteObject>;
 
 	UnitsOfMeasureServiceRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::UnitsOfMeasure::UnitsOfMeasureService> pServiceObject);
 		/// Creates a UnitsOfMeasureServiceRemoteObject.

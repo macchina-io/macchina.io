@@ -26,13 +26,13 @@ namespace IoT {
 namespace Devices {
 
 
-typedef std::vector<char> ImageData;
+using ImageData = std::vector<char>;
 
 
 //@ serialize
 struct Image
 {
-	typedef Poco::SharedPtr<Image> Ptr;
+	using Ptr = Poco::SharedPtr<Image>;
 
 	int width = 0;
 		/// Width of the image, in pixels (= number of columns).

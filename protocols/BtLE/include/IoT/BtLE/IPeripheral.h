@@ -35,7 +35,7 @@ class IPeripheral: public Poco::OSP::Service
 	/// device using the Bluetooth Generic Attribute Profile (GATT).
 {
 public:
-	typedef Poco::AutoPtr<IPeripheral> Ptr;
+	using Ptr = Poco::AutoPtr<IPeripheral>;
 
 	IPeripheral();
 		/// Creates a IPeripheral.

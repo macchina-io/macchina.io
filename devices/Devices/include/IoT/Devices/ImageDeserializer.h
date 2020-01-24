@@ -43,9 +43,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::Devices::Image& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"encoding","height","image","step","width"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.encoding);
 		TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, deser, value.height);
 		TypeDeserializer<Poco::SharedPtr < std::vector < char > > >::deserialize(REMOTING__NAMES[2], true, deser, value.image);

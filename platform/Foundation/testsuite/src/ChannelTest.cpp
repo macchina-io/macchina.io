@@ -59,24 +59,24 @@ void ChannelTest::testSplitter()
 {
 	AutoPtr<TestChannel> pChannel = new TestChannel;
 	AutoPtr<SplitterChannel> pSplitter = new SplitterChannel;
-	pSplitter->addChannel(pChannel.get());
-	pSplitter->addChannel(pChannel.get());
+	pSplitter->addChannel(pChannel);
+	pSplitter->addChannel(pChannel);
 	Message msg;
 	pSplitter->log(msg);
-	assert (pChannel->list().size() == 2);
+	assertTrue (pChannel->list().size() == 2);
 }
 
 
 void ChannelTest::testAsync()
 {
 	AutoPtr<TestChannel> pChannel = new TestChannel;
-	AutoPtr<AsyncChannel> pAsync = new AsyncChannel(pChannel.get());
+	AutoPtr<AsyncChannel> pAsync = new AsyncChannel(pChannel);
 	pAsync->open();
 	Message msg;
 	pAsync->log(msg);
 	pAsync->log(msg);
 	pAsync->close();
-	assert (pChannel->list().size() == 2);
+	assertTrue (pChannel->list().size() == 2);
 }
 
 
@@ -84,11 +84,11 @@ void ChannelTest::testFormatting()
 {
 	AutoPtr<TestChannel> pChannel = new TestChannel;
 	AutoPtr<Formatter> pFormatter = new SimpleFormatter;
-	AutoPtr<FormattingChannel> pFormatterChannel = new FormattingChannel(pFormatter, pChannel.get());
+	AutoPtr<FormattingChannel> pFormatterChannel = new FormattingChannel(pFormatter, pChannel);
 	Message msg("Source", "Text", Message::PRIO_INFORMATION);
 	pFormatterChannel->log(msg);
-	assert (pChannel->list().size() == 1);
-	assert (pChannel->list().begin()->getText() == "Source: Text");
+	assertTrue (pChannel->list().size() == 1);
+	assertTrue (pChannel->list().begin()->getText() == "Source: Text");
 }
 
 
@@ -96,7 +96,7 @@ void ChannelTest::testConsole()
 {
 	AutoPtr<ConsoleChannel> pChannel = new ConsoleChannel;
 	AutoPtr<Formatter> pFormatter = new SimpleFormatter;
-	AutoPtr<FormattingChannel> pFormatterChannel = new FormattingChannel(pFormatter, pChannel.get());
+	AutoPtr<FormattingChannel> pFormatterChannel = new FormattingChannel(pFormatter, pChannel);
 	Message msg("Source", "Text", Message::PRIO_INFORMATION);
 	pFormatterChannel->log(msg);
 }
@@ -107,10 +107,10 @@ void ChannelTest::testStream()
 	std::ostringstream str;
 	AutoPtr<StreamChannel> pChannel = new StreamChannel(str);
 	AutoPtr<Formatter> pFormatter = new SimpleFormatter;
-	AutoPtr<FormattingChannel> pFormatterChannel = new FormattingChannel(pFormatter, pChannel.get());
+	AutoPtr<FormattingChannel> pFormatterChannel = new FormattingChannel(pFormatter, pChannel);
 	Message msg("Source", "Text", Message::PRIO_INFORMATION);
 	pFormatterChannel->log(msg);
-	assert (str.str().find("Source: Text") == 0);
+	assertTrue (str.str().find("Source: Text") == 0);
 }
 
 

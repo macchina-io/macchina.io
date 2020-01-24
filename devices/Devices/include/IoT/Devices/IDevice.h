@@ -65,7 +65,7 @@ class IDevice: public Poco::OSP::Service
 	///   - io.macchina.trigger (Trigger)
 {
 public:
-	typedef Poco::AutoPtr<IDevice> Ptr;
+	using Ptr = Poco::AutoPtr<IDevice>;
 
 	IDevice();
 		/// Creates a IDevice.

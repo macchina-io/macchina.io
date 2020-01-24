@@ -117,8 +117,8 @@ private:
 	ConnectionManager(const ConnectionManager&);
 	ConnectionManager& operator = (const ConnectionManager&);
 
-	typedef std::map<Poco::Net::SocketAddress, Connection::Ptr> ConnectionMap;
-	typedef std::set<Poco::Net::SocketAddress> SocketAddressSet;
+	using ConnectionMap = std::map<Poco::Net::SocketAddress, Connection::Ptr>;
+	using SocketAddressSet = std::set<Poco::Net::SocketAddress>;
 
 	SocketFactory::Ptr _pSocketFactory;
 	Poco::Timespan _idleTimeout;

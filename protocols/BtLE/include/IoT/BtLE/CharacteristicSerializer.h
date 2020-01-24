@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::BtLE::Characteristic& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"properties","valueHandle",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[0], value.properties, ser);
 		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[1], value.valueHandle, ser);
 	}

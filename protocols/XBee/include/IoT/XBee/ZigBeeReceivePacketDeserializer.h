@@ -43,9 +43,7 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::XBee::ZigBeeReceivePacket& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"deviceAddress","networkAddress","options","payload"};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.deviceAddress);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.networkAddress);
 		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[2], true, deser, value.options);

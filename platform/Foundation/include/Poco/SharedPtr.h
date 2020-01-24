@@ -44,7 +44,7 @@ public:
 	{
 		return --_cnt;
 	}
-	
+
 	int referenceCount() const
 	{
 		return _cnt.value();
@@ -61,9 +61,9 @@ class ReleasePolicy
 	/// simply uses the delete operator to delete an object.
 {
 public:
-	static void release(C* pObj)
+	static void release(C* pObj) noexcept
 		/// Delete the object.
-		/// Note that pObj can be 0.
+		/// Note that pObj can be nullptr.
 	{
 		delete pObj;
 	}
@@ -75,16 +75,16 @@ class ReleaseArrayPolicy
 	/// The release policy for SharedPtr holding arrays.
 {
 public:
-	static void release(C* pObj)
+	static void release(C* pObj) noexcept
 		/// Delete the object.
-		/// Note that pObj can be 0.
+		/// Note that pObj can be nullptr.
 	{
 		delete [] pObj;
 	}
 };
 
 
-template <class C, class RC = ReferenceCounter, class RP = ReleasePolicy<C> >
+template <class C, class RC = ReferenceCounter, class RP = ReleasePolicy<C>>
 class SharedPtr
 	/// SharedPtr is a "smart" pointer for classes implementing
 	/// reference counting based garbage collection.
@@ -94,11 +94,11 @@ class SharedPtr
 	/// can be used with any class. For this to work, a
 	/// SharedPtr manages a reference count for the object
 	/// it manages.
-	/// 
+	///
 	/// SharedPtr works in the following way:
 	/// If an SharedPtr is assigned an ordinary pointer to
 	/// an object (via the constructor or the assignment operator),
-	/// it takes ownership of the object and the object's reference 
+	/// it takes ownership of the object and the object's reference
 	/// count is initialized to one.
 	/// If the SharedPtr is assigned another SharedPtr, the
 	/// object's reference count is incremented by one.
@@ -113,42 +113,51 @@ class SharedPtr
 	/// is required.
 {
 public:
-	SharedPtr(): _pCounter(new RC), _ptr(0)
+	typedef C Type;
+
+	SharedPtr():
+		_pCounter(nullptr),
+		_ptr(nullptr)
 	{
 	}
 
 	SharedPtr(C* ptr)
 	try:
-		_pCounter(new RC), 
+		_pCounter(ptr ? new RC : nullptr),
 		_ptr(ptr)
 	{
 	}
-	catch (...) 
+	catch (...)
 	{
 		RP::release(ptr);
 	}
 
-	template <class Other, class OtherRP> 
-	SharedPtr(const SharedPtr<Other, RC, OtherRP>& ptr): _pCounter(ptr._pCounter), _ptr(const_cast<Other*>(ptr.get()))
+	template <class Other, class OtherRP>
+	SharedPtr(const SharedPtr<Other, RC, OtherRP>& ptr):
+		_pCounter(ptr._pCounter),
+		_ptr(const_cast<Other*>(ptr.get()))
 	{
-		_pCounter->duplicate();
+		if (_pCounter) _pCounter->duplicate();
 	}
 
-	SharedPtr(const SharedPtr& ptr): _pCounter(ptr._pCounter), _ptr(ptr._ptr)
+	SharedPtr(const SharedPtr& ptr):
+		_pCounter(ptr._pCounter),
+		_ptr(ptr._ptr)
 	{
-		_pCounter->duplicate();
+		if (_pCounter) _pCounter->duplicate();
+	}
+
+	SharedPtr(SharedPtr&& ptr) noexcept:
+		_pCounter(ptr._pCounter),
+		_ptr(ptr._ptr)
+	{
+		ptr._pCounter = nullptr;
+		ptr._ptr = nullptr;
 	}
 
 	~SharedPtr()
 	{
-		try
-		{
-			release();
-		}
-		catch (...)
-		{
-			poco_unexpected();
-		}
+		release();
 	}
 
 	SharedPtr& assign(C* ptr)
@@ -160,7 +169,7 @@ public:
 		}
 		return *this;
 	}
-	
+
 	SharedPtr& assign(const SharedPtr& ptr)
 	{
 		if (&ptr != this)
@@ -170,7 +179,7 @@ public:
 		}
 		return *this;
 	}
-	
+
 	template <class Other, class OtherRP>
 	SharedPtr& assign(const SharedPtr<Other, RC, OtherRP>& ptr)
 	{
@@ -184,7 +193,7 @@ public:
 
 	void reset()
 	{
-		assign(0);
+		assign(nullptr);
 	}
 
 	void reset(C* ptr)
@@ -213,6 +222,16 @@ public:
 		return assign(ptr);
 	}
 
+	SharedPtr& operator = (SharedPtr&& ptr) noexcept
+	{
+		release();
+		_ptr = ptr._ptr;
+		ptr._ptr = nullptr;
+		_pCounter = ptr._pCounter;
+		ptr._pCounter = nullptr;
+		return *this;
+	}
+
 	template <class Other, class OtherRP>
 	SharedPtr& operator = (const SharedPtr<Other, RC, OtherRP>& ptr)
 	{
@@ -225,7 +244,7 @@ public:
 		std::swap(_pCounter, ptr._pCounter);
 	}
 
-	template <class Other> 
+	template <class Other>
 	SharedPtr<Other, RC, RP> cast() const
 		/// Casts the SharedPtr via a dynamic cast to the given type.
 		/// Returns an SharedPtr containing NULL if the cast fails.
@@ -240,7 +259,7 @@ public:
 		return SharedPtr<Other, RC, RP>();
 	}
 
-	template <class Other> 
+	template <class Other>
 	SharedPtr<Other, RC, RP> unsafeCast() const
 		/// Casts the SharedPtr via a static cast to the given type.
 		/// Example: (assume class Sub: public Super)
@@ -286,7 +305,7 @@ public:
 	{
 		return _ptr;
 	}
-	
+
 	operator const C* () const
 	{
 		return _ptr;
@@ -294,12 +313,12 @@ public:
 
 	bool operator ! () const
 	{
-		return _ptr == 0;
+		return _ptr == nullptr;
 	}
 
 	bool isNull() const
 	{
-		return _ptr == 0;
+		return _ptr == nullptr;
 	}
 
 	bool operator == (const SharedPtr& ptr) const
@@ -391,10 +410,10 @@ public:
 	{
 		return get() >= ptr;
 	}
-	
+
 	int referenceCount() const
 	{
-		return _pCounter->referenceCount();
+		return _pCounter ? _pCounter->referenceCount() : 0;
 	}
 
 private:
@@ -406,17 +425,15 @@ private:
 		return _ptr;
 	}
 
-	void release()
+	void release() noexcept
 	{
-		poco_assert_dbg (_pCounter);
-		int i = _pCounter->release();
-		if (i == 0)
+		if (_pCounter && _pCounter->release() == 0)
 		{
 			RP::release(_ptr);
-			_ptr = 0;
+			_ptr = nullptr;
 
 			delete _pCounter;
-			_pCounter = 0;
+			_pCounter = nullptr;
 		}
 	}
 
@@ -439,6 +456,20 @@ template <class C, class RC, class RP>
 inline void swap(SharedPtr<C, RC, RP>& p1, SharedPtr<C, RC, RP>& p2)
 {
 	p1.swap(p2);
+}
+
+
+template <typename T, typename... Args>
+SharedPtr<T> makeShared(Args&&... args)
+{
+    return SharedPtr<T>(new T(std::forward<Args>(args)...));
+}
+
+
+template <typename T>
+SharedPtr<T, ReferenceCounter, ReleaseArrayPolicy<T>> makeSharedArray(std::size_t size)
+{
+	return new SharedPtr<T, ReferenceCounter, ReleaseArrayPolicy<T>>(new T[size]);
 }
 
 

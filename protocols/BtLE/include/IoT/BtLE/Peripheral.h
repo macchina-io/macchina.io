@@ -69,7 +69,7 @@ class IoTBtLE_API Peripheral
 	/// device using the Bluetooth Generic Attribute Profile (GATT).
 {
 public:
-	typedef Poco::SharedPtr<Peripheral> Ptr;
+	using Ptr = Poco::SharedPtr<Peripheral>;
 
 	Poco::BasicEvent<void> connected;
 		/// Fired when a connection with the peripheral has been established.

@@ -34,7 +34,7 @@ class NetworkEnvironmentServiceRemoteObject: public IoT::NetworkEnvironment::INe
 	/// about network address and network interface changes.
 {
 public:
-	typedef Poco::AutoPtr<NetworkEnvironmentServiceRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<NetworkEnvironmentServiceRemoteObject>;
 
 	NetworkEnvironmentServiceRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::NetworkEnvironment::NetworkEnvironmentService> pServiceObject);
 		/// Creates a NetworkEnvironmentServiceRemoteObject.

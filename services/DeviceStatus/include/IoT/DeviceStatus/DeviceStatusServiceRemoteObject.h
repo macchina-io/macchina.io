@@ -34,7 +34,7 @@ class DeviceStatusServiceRemoteObject: public IoT::DeviceStatus::IDeviceStatusSe
 	/// status of a device.
 {
 public:
-	typedef Poco::AutoPtr<DeviceStatusServiceRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<DeviceStatusServiceRemoteObject>;
 
 	DeviceStatusServiceRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<IoT::DeviceStatus::DeviceStatusService> pServiceObject);
 		/// Creates a DeviceStatusServiceRemoteObject.

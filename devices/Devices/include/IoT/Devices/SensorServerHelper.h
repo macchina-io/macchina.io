@@ -49,7 +49,7 @@ class SensorServerHelper
 	///     formatted as string for display purposes.
 {
 public:
-	typedef IoT::Devices::Sensor Service;
+	using Service = IoT::Devices::Sensor;
 
 	SensorServerHelper();
 		/// Creates a SensorServerHelper.

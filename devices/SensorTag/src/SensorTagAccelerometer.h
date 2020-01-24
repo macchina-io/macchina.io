@@ -26,7 +26,7 @@ namespace SensorTag {
 class SensorTagAccelerometer: public IoT::Devices::DeviceImpl<IoT::Devices::Accelerometer, SensorTagAccelerometer>
 {
 public:
-	typedef Poco::SharedPtr<SensorTagAccelerometer> Ptr;
+	using Ptr = Poco::SharedPtr<SensorTagAccelerometer>;
 
 	struct Params
 	{

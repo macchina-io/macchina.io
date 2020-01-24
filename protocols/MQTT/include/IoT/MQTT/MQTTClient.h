@@ -230,7 +230,7 @@ class IoTMQTT_API MQTTClient
 	/// attempt to reconnect if the connection to the server is lost.
 {
 public:
-	typedef Poco::SharedPtr<MQTTClient> Ptr;
+	using Ptr = Poco::SharedPtr<MQTTClient>;
 
 	Poco::BasicEvent<const MessageArrivedEvent> messageArrived;
 		/// Fired when a message has been received for one of

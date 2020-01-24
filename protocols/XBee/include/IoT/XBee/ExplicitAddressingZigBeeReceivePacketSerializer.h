@@ -39,9 +39,7 @@ public:
 
 	static void serializeImpl(const IoT::XBee::ExplicitAddressingZigBeeReceivePacket& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"clusterID","destinationEndpoint","deviceAddress","networkAddress","options","payload","profileID","sourceEndpoint",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[0], value.clusterID, ser);
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[1], value.destinationEndpoint, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.deviceAddress, ser);

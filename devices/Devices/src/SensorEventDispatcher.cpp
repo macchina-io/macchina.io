@@ -90,9 +90,7 @@ void SensorEventDispatcher::event__statusChanged(const void* pSender, const IoT:
 
 void SensorEventDispatcher::event__valueChanged(const void* pSender, const double& data)
 {
-	remoting__staticInitBegin(REMOTING__EVENT_NAME);
 	static const std::string REMOTING__EVENT_NAME("valueChanged");
-	remoting__staticInitEnd(REMOTING__EVENT_NAME);
 	if (pSender)
 	{
 		Poco::Clock now;
@@ -130,9 +128,7 @@ void SensorEventDispatcher::event__valueChanged(const void* pSender, const doubl
 
 void SensorEventDispatcher::event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"statusChanged","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -145,9 +141,7 @@ void SensorEventDispatcher::event__statusChangedImpl(const std::string& subscrib
 
 void SensorEventDispatcher::event__valueChangedImpl(const std::string& subscriberURI, const double& data)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"valueChanged","subscriberURI","data"};
-	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);

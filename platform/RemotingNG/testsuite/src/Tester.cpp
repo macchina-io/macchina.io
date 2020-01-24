@@ -166,9 +166,6 @@ Poco::Array<int, 4> Tester::testArray(const Poco::Array<int, 4>& arr)
 }
 
 
-#ifdef POCO_REMOTING_HAVE_STD_ARRAY
-
-
 Struct7 Tester::testStruct7(const Struct7& s1)
 {
 	return s1;
@@ -179,9 +176,6 @@ std::array<int, 4> Tester::testStdArray(const std::array<int, 4>& arr)
 {
 	return arr;
 }
-
-
-#endif // POCO_REMOTING_HAVE_STD_ARRAY
 
 
 Class1 Tester::testClass11(const Class1& c1)
@@ -221,6 +215,12 @@ void Tester::testStruct1Vec2(Struct1Vec& vec)
 void Tester::testStruct1Vec3(const Struct1Vec& vec1, Struct1Vec& vec2)
 {
 	vec2 = vec1;
+}
+
+
+std::shared_ptr<Struct1> Tester::testStdSharedPtr(const std::shared_ptr<Struct1>& pStruct1)
+{
+	return pStruct1;
 }
 
 

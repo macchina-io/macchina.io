@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.modbus.rtu</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2015-2019, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2015-2020, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::Modbus::RTU::BundleActivator</class>
 			<library>io.macchina.modbus.rtu</library>

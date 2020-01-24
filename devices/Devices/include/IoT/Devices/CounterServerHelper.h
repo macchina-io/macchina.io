@@ -35,7 +35,7 @@ class CounterServerHelper
 	/// A counter counts events.
 {
 public:
-	typedef IoT::Devices::Counter Service;
+	using Service = IoT::Devices::Counter;
 
 	CounterServerHelper();
 		/// Creates a CounterServerHelper.

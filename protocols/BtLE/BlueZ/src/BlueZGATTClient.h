@@ -74,13 +74,14 @@ public:
 	long getTimeout() const;
 
 protected:
-	typedef std::pair<std::string, std::string> KeyValuePair;
+	using KeyValuePair = std::pair<std::string, std::string>;
+
 	class ParsedResponse: public Poco::Notification
 	{
 	public:
-		typedef Poco::AutoPtr<ParsedResponse> Ptr;
-		typedef std::vector<KeyValuePair> KeyValueVec;
-		typedef KeyValueVec::const_iterator const_iterator;
+		using Ptr = Poco::AutoPtr<ParsedResponse>;
+		using KeyValueVec = std::vector<KeyValuePair>;
+		using const_iterator = KeyValueVec::const_iterator;
 
 		std::string type() const
 		{
@@ -147,17 +148,17 @@ protected:
 
 	struct ServiceDesc: public Poco::RefCountedObject
 	{
-		typedef Poco::AutoPtr<ServiceDesc> Ptr;
+		using Ptr = Poco::AutoPtr<ServiceDesc>;
 
 		Service service;
 		std::vector<Characteristic> characteristics;
 		std::vector<Descriptor> descriptors;
 	};
-	typedef std::map<std::string, ServiceDesc::Ptr> ServiceMap;
+	using ServiceMap = std::map<std::string, ServiceDesc::Ptr>;
 
 	struct HelperInfo: public Poco::RefCountedObject
 	{
-		typedef Poco::AutoPtr<HelperInfo> Ptr;
+		using Ptr = Poco::AutoPtr<HelperInfo>;
 
 		HelperInfo(const Poco::ProcessHandle& ph, const Poco::Pipe& inputPipe, const Poco::Pipe& outputPipe):
 			processHandle(ph),

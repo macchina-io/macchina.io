@@ -39,7 +39,7 @@ class RemotingNG_API EventSubscriber: public Skeleton
 	/// server via an EventListener to a Proxy object.
 {
 public:
-	typedef Poco::AutoPtr<EventSubscriber> Ptr;
+	using Ptr = Poco::AutoPtr<EventSubscriber>;
 
 	EventSubscriber(const std::string& uri);
 		/// Creates an EventSubscriber, using the given URI.

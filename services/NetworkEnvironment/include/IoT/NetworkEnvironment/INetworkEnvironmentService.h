@@ -35,7 +35,7 @@ class INetworkEnvironmentService: public Poco::OSP::Service
 	/// about network address and network interface changes.
 {
 public:
-	typedef Poco::AutoPtr<INetworkEnvironmentService> Ptr;
+	using Ptr = Poco::AutoPtr<INetworkEnvironmentService>;
 
 	INetworkEnvironmentService();
 		/// Creates a INetworkEnvironmentService.

@@ -59,7 +59,10 @@ The following attributes are supported for static resources:
   - <[description]>: User-readable description of resource or handler.
   - <[secure]>: If <[true]>, require a secure (HTTPS) connection to access the resource.
   - <[realm]>: Specify authentication realm (together with permission).
-  - <[permission]>: Specify the necessary access permission for this resource.
+  - <[permission]>: Specify the required access permission for this resource.
+    If permission is a single asterisk ("*"), no specific permission is required, but
+    credentials must be present and valid. If permission is two asterisks ("**"), credentials
+    are optional, but if present, must be valid.
   - <[session]>: Specify the name of the application for session-based authentication.
   - <[hidden]>: If <[true]>, path is not included by WebServerDispatcher::listVirtualPaths().
   - <[resource]>:  Specify a directory within the bundle where the HTML, image and other files are located.
@@ -123,7 +126,10 @@ The following attributes are supported for request handlers:
   - <[description]>: User-readable description of resource or handler.
   - <[secure]>: If <[true]>, require a secure (HTTPS) connection to access the resource.
   - <[realm]>: Specify authentication realm (together with permission).
-  - <[permission]>: Specify the necessary access permission for this resource.
+  - <[permission]>: Specify the required access permission for this resource.
+    If permission is a single asterisk ("*"), no specific permission is required, but
+    credentials must be present and valid. If permission is two asterisks ("**"), credentials
+    are optional, but if present, must be valid.
   - <[authMethods]>: Specify the enabled authentication methods. A comma-separated list
     of method names (<[basic]>, <[session]>, <[bearer]>). If not specified the globally
     enabled authentication methods are used.
@@ -135,6 +141,19 @@ The following attributes are supported for request handlers:
   - <[csrfProtection]>: If set to <[true]>, enable protection against CSRF (Cross-Site Request Forgery) attacks.
   - <[csrfTokenHeader]>: If CSRF protection is enabled, specifies the name of the HTTP request header
     containing the CSRF token. Defaults to "X-XSRF-TOKEN".
+  - <[cors]>: If "true", enable CORS (Cross-Origin Resource Sharing), and CORS preflight requests
+    as well as CORS response headers will be handled by the framework.
+  - <[allowOrigin]>: Specify the allowed origin for CORS requests. Can be "*" or "**" to allow all
+    domains. If "**", the response's "Access-Control-Allow-Origin" header will be set
+    to the value of the request's "Origin" header. If it is "*" or a specific domain,
+    the response's "Access-Control-Allow-Origin" header will be set to that value.
+    If empty or not specified, the globally configured allowed origin value will be used.
+  - <[allowMethods]>: Allowed methods for CORS requests. Defaults to the value of the <[methods]> attribute,
+    or "*" if <[methods]> is empty or not specified.
+  - <[allowHeaders]>: A comma-separated list of header names. If not empty, a "Access-Control-Allow-Headers"
+    header will be added with the given value.
+  - <[allowCredentials]>: If "true", an "Access-Control-Allow-Credentials" header with value "true" will
+    be added to the response. Defaults to "true".
 
 Instead of the <[resource]> attribute used with the <[osp.web.server.directory]> extension point, the
 <[osp.web.server.requesthandler]> extension element uses the <[class]> and <[library]> attributes to
@@ -347,6 +366,7 @@ The web server can be configured by setting the following properties in the glob
   - <[osp.web.sessionManager.verifyAddress]>: Enable client address verification. If enabled (default), the
     WebSessionManager will keep track of the client IP address associated with the session cookie. If the client
     IP address changes, the session will be invalidated.
+  - <[osp.web.sessionManager.defaultDomain]>: Specifies an optional default domain that session cookies are bound to.
   - <[osp.web.sessionManager.sessionStore]>: Specifies an optional service name for a WebSessionStore service
     to be used by the WebSessionManager. This can be used to persistently store session data on the server.
   - <[osp.web.hsts.enable]>: Enable HTTP Strict Transport Security (HSTS). If enabled, a <[Strict-Transport-Security]>
@@ -366,6 +386,8 @@ The web server can be configured by setting the following properties in the glob
     by the downstream request handler.
   - <[osp.web.addSignature]>: If set to true (default), the server will include a signature in generated
     HTML error pages.
+  - <[osp.web.cors.allowedOrigin]>: Specifies a global allowed origin for use with request handlers that have
+    no allowedOrigin value specified.
 
 
 !!! Request Logging

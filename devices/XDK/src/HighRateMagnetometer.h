@@ -25,7 +25,7 @@ namespace XDK {
 class HighRateMagnetometer: public IoT::Devices::DeviceImpl<IoT::Devices::Magnetometer, HighRateMagnetometer>
 {
 public:
-	typedef Poco::SharedPtr<HighRateMagnetometer> Ptr;
+	using Ptr = Poco::SharedPtr<HighRateMagnetometer>;
 
 	HighRateMagnetometer(BtLE::Peripheral::Ptr pPeripheral);
 		/// Creates a HighRateMagnetometer.
