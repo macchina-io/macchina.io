@@ -28,8 +28,8 @@ Prerequisites
 -------------
 
   - GNU Make 3.81 or newer
-  - Linux: GNU C++ (g++) 4.9 or newer; alternatively Clang++ 3.4 or newer
-  - macOS: Clang++ (Apple LLVM) 8.0 or newer
+  - Linux: GNU C++ (g++) 5.0 or newer; alternatively Clang++ 3.4 or newer (C++14)
+  - macOS: Clang++ (Apple LLVM) 10.0 or newer
   - OpenSSL headers and libraries (on macOS, via [Homebrew](http://brew.sh): `brew install openssl`)
   - Python 2.7 (for building V8)
 
