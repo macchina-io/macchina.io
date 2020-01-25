@@ -18,6 +18,7 @@
 #include "Poco/Util/PropertyFileConfiguration.h"
 #include "Poco/OSP/OSPSubsystem.h"
 #include "Poco/OSP/ServiceRegistry.h"
+#include "Poco/DataURIStreamFactory.h"
 #include "Poco/ErrorHandler.h"
 #include "Poco/Environment.h"
 #include "Poco/Format.h"
@@ -44,6 +45,7 @@ public:
 		_pOSP(new OSPSubsystem),
 		_showHelp(false)
 	{
+		Poco::DataURIStreamFactory::registerFactory();
 		Poco::ErrorHandler::set(&_errorHandler);
 		addSubsystem(_pOSP);
 	}
@@ -53,6 +55,7 @@ public:
 		// wait until all threads have terminated
 		// before we completely shut down.
 		Poco::ThreadPool::defaultPool().joinAll();
+		Poco::DataURIStreamFactory::unregisterFactory();
 	}
 
 	ServiceRegistry& serviceRegistry()

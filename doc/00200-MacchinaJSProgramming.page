@@ -138,7 +138,7 @@ Here it is again for reference:
 
 Finally, here is a simple "Hello, world!" script for "main.js":
 
-    logger.information("Hello, world!");
+    logger.information('Hello, world!');
 ----
 
 The easiest way to get such a bundle file is to use the Playground's "Export Bundle"
@@ -442,7 +442,7 @@ What we've essentially done is we've added the function to the module's exports 
 Assuming we've put the above function in a file named "sensors.js", whenever
 we need this function in a script, we can write:
 
-    var sensors = require("sensors");
+    var sensors = require('sensors');
     var temperatureSensor = sensors.findTemperatureSensor();
 ----
 
@@ -490,7 +490,7 @@ the bundle.
 
 Example:
 
-    var module = require("bndl://com.mycompany.mybundle/mymodule.js");
+    var module = require('bndl://com.mycompany.mybundle/mymodule.js');
 ----
 
 !!Finding Modules
@@ -542,7 +542,7 @@ See the description of Configuration objects for more information.
 
 Example:
 
-    var osName = application.config.getString("system.osName");
+    var osName = application.config.getString('system.osName');
 ----
 
 
@@ -552,7 +552,7 @@ The application's logger object. This can be used to write
 log messages. Note that in macchina.io, each bundle also has its own logger object,
 which should be preferred to the application's logger.
 
-    application.logger.information("Hello, world!");
+    application.logger.information('Hello, world!');
 ----
 
 See the description of Logger objects for more information.
@@ -621,7 +621,7 @@ the default value is returned. Otherwise, an exception is thrown.
 
 Example:
 
-    var username = system.get("LOGNAME");
+    var username = system.get('LOGNAME');
 ----
 
 
@@ -655,8 +655,9 @@ Sleeps the current thread for the given period, in milliseconds.
 !!!The uri Object
 
 The global <[uri]> object allows a script to load a string or Buffer from a URI.
-The URI can refer to a local file, a bundle resource ("bndl://"),
-a HTTP(S) or FTP server. It provides two methods, <[loadString()]> and <[loadBuffer()]>.
+The URI can refer to a local file ("file://"), a bundle resource ("bndl://"),
+a HTTP(S) or FTP server, or data (e.g., "data:;base64,SGVsbG8sIFdvcmxkIQ%3D%3D").
+It provides two methods, <[loadString()]> and <[loadBuffer()]>.
 
 
 !loadString(uri)
@@ -667,7 +668,7 @@ the content to a string may be undefined.
 
 Example:
 
-    var page = uri.loadString("http://macchina.io");
+    var page = uri.loadString('http://macchina.io);
 ----
 
 
@@ -678,7 +679,7 @@ non-UTF8 text from a resource.
 
 Example:
 
-    var page = uri.loadBuffer("http://macchina.io");
+    var page = uri.loadBuffer('http://macchina.io');
 ----
 
 
@@ -804,7 +805,7 @@ to two Logger objects. The global application logger, via the
 Example:
 
     var i = 42;
-    logger.information("The answer to live, the universe and everything: ", i);
+    logger.information('The answer to live, the universe and everything: ', i);
 ----
 
 !!Creating Logger Objects
@@ -927,12 +928,12 @@ properties.
 
 Example:
 
-    var testLogger = new Logger("TestLogger", {
-        level: "debug",
-        pattern: "%Y-%m-%d %H:%M:%S.%i [%p] %s<%I>: %t",
+    var testLogger = new Logger('TestLogger', {
+        level: 'debug',
+        pattern: '%Y-%m-%d %H:%M:%S.%i [%p] %s<%I>: %t',
         channel: {
-            class: "FileChannel",
-            path: "test.log"
+            class: 'FileChannel',
+            path: 'test.log'
         }
     });
 ----
@@ -1017,8 +1018,8 @@ The message can contain formatting specifiers.
 Example:
 
     logger.log(7, "A debug message");
-    logger.log("error", "An error message");
-    logger.log(Logger.WARNING, "A warning message");
+    logger.log('error', 'An error message');
+    logger.log(Logger.WARNING, 'A warning message');
 ----
 
 !dump(message, object [, level])
@@ -1048,7 +1049,7 @@ representation of the object is output instead.
 
 Examples:
 
-    logger.information("The answer to %s, the %s and everything: %d", "live", "universe", 42);
+    logger.information('The answer to %s, the %s and everything: %d', 'live', 'universe', 42);
 ----
 
 
@@ -1065,7 +1066,7 @@ Example:
 
     setTimeout(
         function() {
-            logger.information("Timeout!");
+            logger.information('Timeout!');
         },
         2000);
 ----
@@ -1082,7 +1083,7 @@ Example:
 
     setInterval(
         function() {
-            logger.information("Timeout!");
+            logger.information('Timeout!');
         },
         2000);
 ----
@@ -1091,7 +1092,7 @@ Example (with argument to callback):
 
     setInterval(
         function(arg) {
-            logger.information("Timeout! " + arg);
+            logger.information('Timeout! ' + arg);
         },
         2000,
         42);
@@ -1106,7 +1107,7 @@ Example:
 
     setInterval(
         function() {
-            logger.information("Timeout!");
+            logger.information('Timeout!');
         },
         2000);
 ----
@@ -1124,7 +1125,7 @@ Example:
 
     setImmediate(
         function() {
-            logger.information("Callback!");
+            logger.information('Callback!');
         });
 ----
 
@@ -1142,11 +1143,11 @@ Example:
     var timer = setInterval(
         function() {
             count++;
-            logger.information("Timeout ", count);
+            logger.information('Timeout ', count);
             if (count == 3)
             {
                 timer.cancel();
-                logger.information("Done");
+                logger.information('Done');
             }
         },
         2000);
@@ -1202,7 +1203,7 @@ constructor functions, passing a variable number of arguments:
 
 Examples:
 
-	var dt1 = new DateTime("2015-03-09 11:55:33");
+	var dt1 = new DateTime('2015-03-09 11:55:33');
 	var dt2 = new DateTime(2015, 3, 9, 11, 55, 33);
 ----
 
@@ -1614,7 +1615,7 @@ Packs the values in the given array into the buffer, using the byte order and ty
 found in the format string.
 
 Example:
-    buffer.pack("!4BH", {192, 168, 1, 2, 8080});
+    buffer.pack('!4BH', {192, 168, 1, 2, 8080});
 ----
 
 This will fill the buffer with the following content:
@@ -1637,7 +1638,7 @@ string. Returns an Array containing the unpacked values.
 
 Example:
     var buffer = new Buffer({192, 168, 1, 2, 31, 44});
-    var values = buffer.unpack("!4BH"); // {192, 168, 1, 2, 8080}
+    var values = buffer.unpack('!4BH'); // {192, 168, 1, 2, 8080}
 ----
 
 
