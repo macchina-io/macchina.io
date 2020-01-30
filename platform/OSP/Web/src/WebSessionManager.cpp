@@ -42,7 +42,8 @@ WebSessionManager::WebSessionManager(Poco::OSP::BundleContext::Ptr pContext):
 	_serial(0),
 	_cookiePersistence(COOKIE_PERSISTENT),
 	_cookieSecure(false),
-	_verifyAddress(true)
+	_verifyAddress(true),
+	_cookieSameSite(Poco::Net::HTTPCookie::SAME_SITE_NOT_SPECIFIED)
 {
 }
 
@@ -85,6 +86,18 @@ void WebSessionManager::setCookiePersistence(WebSessionManager::CookiePersistenc
 WebSessionManager::CookiePersistence WebSessionManager::getCookiePersistence() const
 {
 	return _cookiePersistence;
+}
+
+
+void WebSessionManager::setCookieSameSite(Poco::Net::HTTPCookie::SameSite sameSite)
+{
+	_cookieSameSite = sameSite;
+}
+
+
+Poco::Net::HTTPCookie::SameSite WebSessionManager::setCookieSameSite() const
+{
+	return _cookieSameSite;
 }
 
 
@@ -299,6 +312,7 @@ void WebSessionManager::addSessionCookie(const std::string& appName, const Poco:
 	cookie.setDomain(cookieDomain(appName));
 	cookie.setHttpOnly();
 	cookie.setSecure(_cookieSecure);
+	cookie.setSameSite(_cookieSameSite);
 	request.response().addCookie(cookie);
 }
 
@@ -314,6 +328,7 @@ void WebSessionManager::addCSRFCookie(const std::string& appName, const Poco::Ne
 		}
 		csrfCookie.setPath(cookiePath(appName));
 		csrfCookie.setSecure(_cookieSecure);
+		csrfCookie.setSameSite(Poco::Net::HTTPCookie::SAME_SITE_STRICT);
 		request.response().addCookie(csrfCookie);
 	}
 }

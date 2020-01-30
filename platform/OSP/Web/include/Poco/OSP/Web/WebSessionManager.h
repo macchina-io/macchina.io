@@ -24,6 +24,7 @@
 #include "Poco/OSP/Web/WebSessionStore.h"
 #include "Poco/OSP/BundleContext.h"
 #include "Poco/Net/HTTPServerRequest.h"
+#include "Poco/Net/HTTPCookie.h"
 #include "Poco/UniqueExpireCache.h"
 #include "Poco/Mutex.h"
 
@@ -95,6 +96,14 @@ public:
 		/// Returns true if the session cookie has the secure
 		/// attribute set, otherwise false.
 
+	void setCookieSameSite(Poco::Net::HTTPCookie::SameSite sameSite);
+		/// Sets the SameSite attribute for the session cookie.
+		///
+		/// The default is Poco::Net::HTTPCookie::SAME_SITE_NOT_SPECIFIED.
+
+	Poco::Net::HTTPCookie::SameSite setCookieSameSite() const;
+		/// Returns the SameSite attribute for the session cookie.
+
 	void setVerifyAddress(bool verify);
 		/// Enable or disable verification of client address
 		/// against the address stored in the session.
@@ -163,6 +172,7 @@ private:
 	CookiePersistence _cookiePersistence;
 	bool _cookieSecure;
 	bool _verifyAddress;
+	Poco::Net::HTTPCookie::SameSite _cookieSameSite;
 };
 
 
