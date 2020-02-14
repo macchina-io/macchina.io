@@ -654,7 +654,9 @@ void ModbusMasterEventDispatcher::event__writeSingleRegisterResponseReceived(con
 
 void ModbusMasterEventDispatcher::event__badFrameReceivedImpl(const std::string& subscriberURI)
 {
-	static const std::string REMOTING__NAMES[] = {"badFrameReceived","subscriberURI"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"badFrameReceived"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -666,7 +668,9 @@ void ModbusMasterEventDispatcher::event__badFrameReceivedImpl(const std::string&
 
 void ModbusMasterEventDispatcher::event__exceptionReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::ModbusExceptionMessage& data)
 {
-	static const std::string REMOTING__NAMES[] = {"exceptionReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"exceptionReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -679,7 +683,9 @@ void ModbusMasterEventDispatcher::event__exceptionReceivedImpl(const std::string
 
 void ModbusMasterEventDispatcher::event__maskWriteRegisterResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::MaskWriteRegisterResponse& data)
 {
-	static const std::string REMOTING__NAMES[] = {"maskWriteRegisterResponseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"maskWriteRegisterResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -692,7 +698,9 @@ void ModbusMasterEventDispatcher::event__maskWriteRegisterResponseReceivedImpl(c
 
 void ModbusMasterEventDispatcher::event__readCoilsResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::ReadCoilsResponse& data)
 {
-	static const std::string REMOTING__NAMES[] = {"readCoilsResponseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"readCoilsResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -705,7 +713,9 @@ void ModbusMasterEventDispatcher::event__readCoilsResponseReceivedImpl(const std
 
 void ModbusMasterEventDispatcher::event__readDiscreteInputsResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::ReadDiscreteInputsResponse& data)
 {
-	static const std::string REMOTING__NAMES[] = {"readDiscreteInputsResponseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"readDiscreteInputsResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -718,7 +728,9 @@ void ModbusMasterEventDispatcher::event__readDiscreteInputsResponseReceivedImpl(
 
 void ModbusMasterEventDispatcher::event__readExceptionStatusResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::ReadExceptionStatusResponse& data)
 {
-	static const std::string REMOTING__NAMES[] = {"readExceptionStatusResponseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"readExceptionStatusResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -731,7 +743,9 @@ void ModbusMasterEventDispatcher::event__readExceptionStatusResponseReceivedImpl
 
 void ModbusMasterEventDispatcher::event__readFIFOQueueResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::ReadFIFOQueueResponse& data)
 {
-	static const std::string REMOTING__NAMES[] = {"readFIFOQueueResponseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"readFIFOQueueResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -744,7 +758,9 @@ void ModbusMasterEventDispatcher::event__readFIFOQueueResponseReceivedImpl(const
 
 void ModbusMasterEventDispatcher::event__readHoldingRegistersResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::ReadHoldingRegistersResponse& data)
 {
-	static const std::string REMOTING__NAMES[] = {"readHoldingRegistersResponseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"readHoldingRegistersResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -757,7 +773,9 @@ void ModbusMasterEventDispatcher::event__readHoldingRegistersResponseReceivedImp
 
 void ModbusMasterEventDispatcher::event__readInputRegistersResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::ReadInputRegistersResponse& data)
 {
-	static const std::string REMOTING__NAMES[] = {"readInputRegistersResponseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"readInputRegistersResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -770,7 +788,9 @@ void ModbusMasterEventDispatcher::event__readInputRegistersResponseReceivedImpl(
 
 void ModbusMasterEventDispatcher::event__readWriteMultipleRegistersResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::ReadWriteMultipleRegistersResponse& data)
 {
-	static const std::string REMOTING__NAMES[] = {"readWriteMultipleRegistersResponseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"readWriteMultipleRegistersResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -783,7 +803,9 @@ void ModbusMasterEventDispatcher::event__readWriteMultipleRegistersResponseRecei
 
 void ModbusMasterEventDispatcher::event__responseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::GenericMessage& data)
 {
-	static const std::string REMOTING__NAMES[] = {"responseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"responseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -796,7 +818,9 @@ void ModbusMasterEventDispatcher::event__responseReceivedImpl(const std::string&
 
 void ModbusMasterEventDispatcher::event__timeoutImpl(const std::string& subscriberURI, const Poco::UInt16& data)
 {
-	static const std::string REMOTING__NAMES[] = {"timeout","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"timeout"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -809,7 +833,9 @@ void ModbusMasterEventDispatcher::event__timeoutImpl(const std::string& subscrib
 
 void ModbusMasterEventDispatcher::event__writeMultipleCoilsResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::WriteMultipleCoilsResponse& data)
 {
-	static const std::string REMOTING__NAMES[] = {"writeMultipleCoilsResponseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"writeMultipleCoilsResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -822,7 +848,9 @@ void ModbusMasterEventDispatcher::event__writeMultipleCoilsResponseReceivedImpl(
 
 void ModbusMasterEventDispatcher::event__writeMultipleRegistersResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::WriteMultipleRegistersResponse& data)
 {
-	static const std::string REMOTING__NAMES[] = {"writeMultipleRegistersResponseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"writeMultipleRegistersResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -835,7 +863,9 @@ void ModbusMasterEventDispatcher::event__writeMultipleRegistersResponseReceivedI
 
 void ModbusMasterEventDispatcher::event__writeSingleCoilResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::WriteSingleCoilResponse& data)
 {
-	static const std::string REMOTING__NAMES[] = {"writeSingleCoilResponseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"writeSingleCoilResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -848,7 +878,9 @@ void ModbusMasterEventDispatcher::event__writeSingleCoilResponseReceivedImpl(con
 
 void ModbusMasterEventDispatcher::event__writeSingleRegisterResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::WriteSingleRegisterResponse& data)
 {
-	static const std::string REMOTING__NAMES[] = {"writeSingleRegisterResponseReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"writeSingleRegisterResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);

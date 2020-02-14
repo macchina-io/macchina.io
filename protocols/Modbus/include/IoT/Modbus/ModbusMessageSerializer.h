@@ -32,6 +32,8 @@ class TypeSerializer<IoT::Modbus::ModbusMessage>
 public:
 	static void serialize(const std::string& name, const IoT::Modbus::ModbusMessage& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::Modbus::ModbusMessage& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"functionCode","slaveOrUnitAddress","transactionID",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"functionCode"s,"slaveOrUnitAddress"s,"transactionID"s,""s};
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[0], value.functionCode, ser);
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[1], value.slaveOrUnitAddress, ser);
 		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[2], value.transactionID, ser);

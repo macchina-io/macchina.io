@@ -32,6 +32,8 @@ class TypeSerializer<IoT::BtLE::Notification>
 public:
 	static void serialize(const std::string& name, const IoT::BtLE::Notification& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::BtLE::Notification& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"data","handle",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"data"s,"handle"s,""s};
 		TypeSerializer<std::vector < char > >::serialize(REMOTING__NAMES[0], value.data, ser);
 		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[1], value.handle, ser);
 	}

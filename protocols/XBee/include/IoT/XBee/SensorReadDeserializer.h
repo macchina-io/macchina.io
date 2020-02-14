@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::XBee::SensorRead>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::XBee::SensorRead& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,7 +45,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::XBee::SensorRead& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"analogSamples","deviceAddress","networkAddress","options","sensor","temperature"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"analogSamples"s,"deviceAddress"s,"networkAddress"s,"options"s,"sensor"s,"temperature"s};
 		TypeDeserializer<std::vector < Poco::Int16 > >::deserialize(REMOTING__NAMES[0], true, deser, value.analogSamples);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.deviceAddress);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.networkAddress);

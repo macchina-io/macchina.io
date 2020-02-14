@@ -35,7 +35,9 @@ class BarcodeReaderGetFeatureMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -88,7 +90,9 @@ class BarcodeReaderGetPropertyBoolMethodHandler: public Poco::RemotingNG::Method
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyBool","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyBool"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -141,7 +145,9 @@ class BarcodeReaderGetPropertyDoubleMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyDouble","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyDouble"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -194,7 +200,9 @@ class BarcodeReaderGetPropertyIntMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyInt","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyInt"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -247,7 +255,9 @@ class BarcodeReaderGetPropertyStringMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyString","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyString"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -300,7 +310,9 @@ class BarcodeReaderHasFeatureMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -353,7 +365,9 @@ class BarcodeReaderHasPropertyMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasProperty","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasProperty"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -406,7 +420,9 @@ class BarcodeReaderSetFeatureMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setFeature","name","enable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setFeature"s,"name"s,"enable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -460,7 +476,9 @@ class BarcodeReaderSetPropertyBoolMethodHandler: public Poco::RemotingNG::Method
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyBool","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyBool"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -514,7 +532,9 @@ class BarcodeReaderSetPropertyDoubleMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyDouble","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyDouble"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -568,7 +588,9 @@ class BarcodeReaderSetPropertyIntMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyInt","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyInt"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -622,7 +644,9 @@ class BarcodeReaderSetPropertyStringMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyString","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyString"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -675,18 +699,20 @@ BarcodeReaderSkeleton::BarcodeReaderSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("getFeature", new IoT::Devices::BarcodeReaderGetFeatureMethodHandler);
-	addMethodHandler("getPropertyBool", new IoT::Devices::BarcodeReaderGetPropertyBoolMethodHandler);
-	addMethodHandler("getPropertyDouble", new IoT::Devices::BarcodeReaderGetPropertyDoubleMethodHandler);
-	addMethodHandler("getPropertyInt", new IoT::Devices::BarcodeReaderGetPropertyIntMethodHandler);
-	addMethodHandler("getPropertyString", new IoT::Devices::BarcodeReaderGetPropertyStringMethodHandler);
-	addMethodHandler("hasFeature", new IoT::Devices::BarcodeReaderHasFeatureMethodHandler);
-	addMethodHandler("hasProperty", new IoT::Devices::BarcodeReaderHasPropertyMethodHandler);
-	addMethodHandler("setFeature", new IoT::Devices::BarcodeReaderSetFeatureMethodHandler);
-	addMethodHandler("setPropertyBool", new IoT::Devices::BarcodeReaderSetPropertyBoolMethodHandler);
-	addMethodHandler("setPropertyDouble", new IoT::Devices::BarcodeReaderSetPropertyDoubleMethodHandler);
-	addMethodHandler("setPropertyInt", new IoT::Devices::BarcodeReaderSetPropertyIntMethodHandler);
-	addMethodHandler("setPropertyString", new IoT::Devices::BarcodeReaderSetPropertyStringMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("getFeature"s, new IoT::Devices::BarcodeReaderGetFeatureMethodHandler);
+	addMethodHandler("getPropertyBool"s, new IoT::Devices::BarcodeReaderGetPropertyBoolMethodHandler);
+	addMethodHandler("getPropertyDouble"s, new IoT::Devices::BarcodeReaderGetPropertyDoubleMethodHandler);
+	addMethodHandler("getPropertyInt"s, new IoT::Devices::BarcodeReaderGetPropertyIntMethodHandler);
+	addMethodHandler("getPropertyString"s, new IoT::Devices::BarcodeReaderGetPropertyStringMethodHandler);
+	addMethodHandler("hasFeature"s, new IoT::Devices::BarcodeReaderHasFeatureMethodHandler);
+	addMethodHandler("hasProperty"s, new IoT::Devices::BarcodeReaderHasPropertyMethodHandler);
+	addMethodHandler("setFeature"s, new IoT::Devices::BarcodeReaderSetFeatureMethodHandler);
+	addMethodHandler("setPropertyBool"s, new IoT::Devices::BarcodeReaderSetPropertyBoolMethodHandler);
+	addMethodHandler("setPropertyDouble"s, new IoT::Devices::BarcodeReaderSetPropertyDoubleMethodHandler);
+	addMethodHandler("setPropertyInt"s, new IoT::Devices::BarcodeReaderSetPropertyIntMethodHandler);
+	addMethodHandler("setPropertyString"s, new IoT::Devices::BarcodeReaderSetPropertyStringMethodHandler);
 }
 
 

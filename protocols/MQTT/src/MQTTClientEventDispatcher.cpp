@@ -238,7 +238,9 @@ void MQTTClientEventDispatcher::event__messageDelivered(const void* pSender, con
 
 void MQTTClientEventDispatcher::event__connectionClosedImpl(const std::string& subscriberURI)
 {
-	static const std::string REMOTING__NAMES[] = {"connectionClosed","subscriberURI"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"connectionClosed"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -250,7 +252,9 @@ void MQTTClientEventDispatcher::event__connectionClosedImpl(const std::string& s
 
 void MQTTClientEventDispatcher::event__connectionEstablishedImpl(const std::string& subscriberURI, const IoT::MQTT::ConnectionEstablishedEvent& data)
 {
-	static const std::string REMOTING__NAMES[] = {"connectionEstablished","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"connectionEstablished"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -263,7 +267,9 @@ void MQTTClientEventDispatcher::event__connectionEstablishedImpl(const std::stri
 
 void MQTTClientEventDispatcher::event__connectionLostImpl(const std::string& subscriberURI, const IoT::MQTT::ConnectionLostEvent& data)
 {
-	static const std::string REMOTING__NAMES[] = {"connectionLost","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"connectionLost"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -276,7 +282,9 @@ void MQTTClientEventDispatcher::event__connectionLostImpl(const std::string& sub
 
 void MQTTClientEventDispatcher::event__messageArrivedImpl(const std::string& subscriberURI, const IoT::MQTT::MessageArrivedEvent& data)
 {
-	static const std::string REMOTING__NAMES[] = {"messageArrived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"messageArrived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -289,7 +297,9 @@ void MQTTClientEventDispatcher::event__messageArrivedImpl(const std::string& sub
 
 void MQTTClientEventDispatcher::event__messageDeliveredImpl(const std::string& subscriberURI, const IoT::MQTT::MessageDeliveredEvent& data)
 {
-	static const std::string REMOTING__NAMES[] = {"messageDelivered","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"messageDelivered"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);

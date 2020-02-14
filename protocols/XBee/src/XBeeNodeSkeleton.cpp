@@ -47,7 +47,9 @@ class XBeeNodeQueueCommandMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"queueCommand","command"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"queueCommand"s,"command"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -99,7 +101,9 @@ class XBeeNodeSendCommandMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendCommand","command"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendCommand"s,"command"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -151,7 +155,9 @@ class XBeeNodeSendExplicitAddressingZigBeeTransmitRequestMethodHandler: public P
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendExplicitAddressingZigBeeTransmitRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendExplicitAddressingZigBeeTransmitRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -203,7 +209,9 @@ class XBeeNodeSendFrameMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendFrame","frame"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendFrame"s,"frame"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -255,7 +263,9 @@ class XBeeNodeSendRemoteCommandMethodHandler: public Poco::RemotingNG::MethodHan
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendRemoteCommand","command"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendRemoteCommand"s,"command"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -307,7 +317,9 @@ class XBeeNodeSendTransmitRequestMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendTransmitRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendTransmitRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -359,7 +371,9 @@ class XBeeNodeSendZigBeeTransmitRequestMethodHandler: public Poco::RemotingNG::M
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendZigBeeTransmitRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendZigBeeTransmitRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -410,13 +424,15 @@ XBeeNodeSkeleton::XBeeNodeSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("queueCommand", new IoT::XBee::XBeeNodeQueueCommandMethodHandler);
-	addMethodHandler("sendCommand", new IoT::XBee::XBeeNodeSendCommandMethodHandler);
-	addMethodHandler("sendExplicitAddressingZigBeeTransmitRequest", new IoT::XBee::XBeeNodeSendExplicitAddressingZigBeeTransmitRequestMethodHandler);
-	addMethodHandler("sendFrame", new IoT::XBee::XBeeNodeSendFrameMethodHandler);
-	addMethodHandler("sendRemoteCommand", new IoT::XBee::XBeeNodeSendRemoteCommandMethodHandler);
-	addMethodHandler("sendTransmitRequest", new IoT::XBee::XBeeNodeSendTransmitRequestMethodHandler);
-	addMethodHandler("sendZigBeeTransmitRequest", new IoT::XBee::XBeeNodeSendZigBeeTransmitRequestMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("queueCommand"s, new IoT::XBee::XBeeNodeQueueCommandMethodHandler);
+	addMethodHandler("sendCommand"s, new IoT::XBee::XBeeNodeSendCommandMethodHandler);
+	addMethodHandler("sendExplicitAddressingZigBeeTransmitRequest"s, new IoT::XBee::XBeeNodeSendExplicitAddressingZigBeeTransmitRequestMethodHandler);
+	addMethodHandler("sendFrame"s, new IoT::XBee::XBeeNodeSendFrameMethodHandler);
+	addMethodHandler("sendRemoteCommand"s, new IoT::XBee::XBeeNodeSendRemoteCommandMethodHandler);
+	addMethodHandler("sendTransmitRequest"s, new IoT::XBee::XBeeNodeSendTransmitRequestMethodHandler);
+	addMethodHandler("sendZigBeeTransmitRequest"s, new IoT::XBee::XBeeNodeSendZigBeeTransmitRequestMethodHandler);
 }
 
 

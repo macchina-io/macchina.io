@@ -32,6 +32,8 @@ class TypeSerializer<IoT::XBee::ATCommandResponse>
 public:
 	static void serialize(const std::string& name, const IoT::XBee::ATCommandResponse& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::XBee::ATCommandResponse& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"command","data","frameID","status",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"command"s,"data"s,"frameID"s,"status"s,""s};
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.command, ser);
 		TypeSerializer<std::vector < Poco::UInt8 > >::serialize(REMOTING__NAMES[1], value.data, ser);
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[2], value.frameID, ser);

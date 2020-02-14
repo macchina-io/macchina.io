@@ -35,7 +35,9 @@ class IOGetFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -88,7 +90,9 @@ class IOGetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyBool","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyBool"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -141,7 +145,9 @@ class IOGetPropertyDoubleMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyDouble","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyDouble"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -194,7 +200,9 @@ class IOGetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyInt","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyInt"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -247,7 +255,9 @@ class IOGetPropertyStringMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyString","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyString"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -300,7 +310,9 @@ class IOHasFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -353,7 +365,9 @@ class IOHasPropertyMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasProperty","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasProperty"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -406,7 +420,9 @@ class IOSetFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setFeature","name","enable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setFeature"s,"name"s,"enable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -460,7 +476,9 @@ class IOSetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyBool","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyBool"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -514,7 +532,9 @@ class IOSetPropertyDoubleMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyDouble","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyDouble"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -568,7 +588,9 @@ class IOSetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyInt","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyInt"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -622,7 +644,9 @@ class IOSetPropertyStringMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyString","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyString"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -676,7 +700,9 @@ class IOSetMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"set","state"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"set"s,"state"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -728,7 +754,9 @@ class IOStateMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"state"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"state"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -779,7 +807,9 @@ class IOToggleMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"toggle"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"toggle"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -829,21 +859,23 @@ IOSkeleton::IOSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("getFeature", new IoT::Devices::IOGetFeatureMethodHandler);
-	addMethodHandler("getPropertyBool", new IoT::Devices::IOGetPropertyBoolMethodHandler);
-	addMethodHandler("getPropertyDouble", new IoT::Devices::IOGetPropertyDoubleMethodHandler);
-	addMethodHandler("getPropertyInt", new IoT::Devices::IOGetPropertyIntMethodHandler);
-	addMethodHandler("getPropertyString", new IoT::Devices::IOGetPropertyStringMethodHandler);
-	addMethodHandler("hasFeature", new IoT::Devices::IOHasFeatureMethodHandler);
-	addMethodHandler("hasProperty", new IoT::Devices::IOHasPropertyMethodHandler);
-	addMethodHandler("set", new IoT::Devices::IOSetMethodHandler);
-	addMethodHandler("setFeature", new IoT::Devices::IOSetFeatureMethodHandler);
-	addMethodHandler("setPropertyBool", new IoT::Devices::IOSetPropertyBoolMethodHandler);
-	addMethodHandler("setPropertyDouble", new IoT::Devices::IOSetPropertyDoubleMethodHandler);
-	addMethodHandler("setPropertyInt", new IoT::Devices::IOSetPropertyIntMethodHandler);
-	addMethodHandler("setPropertyString", new IoT::Devices::IOSetPropertyStringMethodHandler);
-	addMethodHandler("state", new IoT::Devices::IOStateMethodHandler);
-	addMethodHandler("toggle", new IoT::Devices::IOToggleMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("getFeature"s, new IoT::Devices::IOGetFeatureMethodHandler);
+	addMethodHandler("getPropertyBool"s, new IoT::Devices::IOGetPropertyBoolMethodHandler);
+	addMethodHandler("getPropertyDouble"s, new IoT::Devices::IOGetPropertyDoubleMethodHandler);
+	addMethodHandler("getPropertyInt"s, new IoT::Devices::IOGetPropertyIntMethodHandler);
+	addMethodHandler("getPropertyString"s, new IoT::Devices::IOGetPropertyStringMethodHandler);
+	addMethodHandler("hasFeature"s, new IoT::Devices::IOHasFeatureMethodHandler);
+	addMethodHandler("hasProperty"s, new IoT::Devices::IOHasPropertyMethodHandler);
+	addMethodHandler("set"s, new IoT::Devices::IOSetMethodHandler);
+	addMethodHandler("setFeature"s, new IoT::Devices::IOSetFeatureMethodHandler);
+	addMethodHandler("setPropertyBool"s, new IoT::Devices::IOSetPropertyBoolMethodHandler);
+	addMethodHandler("setPropertyDouble"s, new IoT::Devices::IOSetPropertyDoubleMethodHandler);
+	addMethodHandler("setPropertyInt"s, new IoT::Devices::IOSetPropertyIntMethodHandler);
+	addMethodHandler("setPropertyString"s, new IoT::Devices::IOSetPropertyStringMethodHandler);
+	addMethodHandler("state"s, new IoT::Devices::IOStateMethodHandler);
+	addMethodHandler("toggle"s, new IoT::Devices::IOToggleMethodHandler);
 }
 
 

@@ -35,7 +35,9 @@ class PeripheralBrowserBrowseMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"browse","seconds"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"browse"s,"seconds"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -87,7 +89,9 @@ class PeripheralBrowserServiceForPeripheralMethodHandler: public Poco::RemotingN
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"serviceForPeripheral","address"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"serviceForPeripheral"s,"address"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -139,8 +143,10 @@ PeripheralBrowserSkeleton::PeripheralBrowserSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("browse", new IoT::BtLE::PeripheralBrowserBrowseMethodHandler);
-	addMethodHandler("serviceForPeripheral", new IoT::BtLE::PeripheralBrowserServiceForPeripheralMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("browse"s, new IoT::BtLE::PeripheralBrowserBrowseMethodHandler);
+	addMethodHandler("serviceForPeripheral"s, new IoT::BtLE::PeripheralBrowserServiceForPeripheralMethodHandler);
 }
 
 

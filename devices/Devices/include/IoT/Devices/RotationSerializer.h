@@ -32,6 +32,8 @@ class TypeSerializer<IoT::Devices::Rotation>
 public:
 	static void serialize(const std::string& name, const IoT::Devices::Rotation& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::Devices::Rotation& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"x","y","z",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"x"s,"y"s,"z"s,""s};
 		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.x, ser);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[1], value.y, ser);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[2], value.z, ser);

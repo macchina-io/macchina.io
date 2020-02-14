@@ -37,7 +37,9 @@ class GNSSSensorGetFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -90,7 +92,9 @@ class GNSSSensorGetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodHan
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyBool","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyBool"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -143,7 +147,9 @@ class GNSSSensorGetPropertyDoubleMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyDouble","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyDouble"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -196,7 +202,9 @@ class GNSSSensorGetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyInt","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyInt"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -249,7 +257,9 @@ class GNSSSensorGetPropertyStringMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyString","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyString"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -302,7 +312,9 @@ class GNSSSensorHasFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -355,7 +367,9 @@ class GNSSSensorHasPropertyMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasProperty","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasProperty"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -408,7 +422,9 @@ class GNSSSensorSetFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setFeature","name","enable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setFeature"s,"name"s,"enable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -462,7 +478,9 @@ class GNSSSensorSetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodHan
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyBool","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyBool"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -516,7 +534,9 @@ class GNSSSensorSetPropertyDoubleMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyDouble","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyDouble"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -570,7 +590,9 @@ class GNSSSensorSetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyInt","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyInt"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -624,7 +646,9 @@ class GNSSSensorSetPropertyStringMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyString","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyString"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -678,7 +702,9 @@ class GNSSSensorAltitudeMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"altitude"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"altitude"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -729,7 +755,9 @@ class GNSSSensorCourseMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"course"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"course"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -780,7 +808,9 @@ class GNSSSensorHdopMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hdop"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hdop"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -831,7 +861,9 @@ class GNSSSensorMagneticVariationMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"magneticVariation"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"magneticVariation"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -882,7 +914,9 @@ class GNSSSensorPositionMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"position"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"position"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -933,7 +967,9 @@ class GNSSSensorPositionAvailableMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"positionAvailable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"positionAvailable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -984,7 +1020,9 @@ class GNSSSensorSpeedMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"speed"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"speed"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1034,25 +1072,27 @@ GNSSSensorSkeleton::GNSSSensorSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("altitude", new IoT::Devices::GNSSSensorAltitudeMethodHandler);
-	addMethodHandler("course", new IoT::Devices::GNSSSensorCourseMethodHandler);
-	addMethodHandler("getFeature", new IoT::Devices::GNSSSensorGetFeatureMethodHandler);
-	addMethodHandler("getPropertyBool", new IoT::Devices::GNSSSensorGetPropertyBoolMethodHandler);
-	addMethodHandler("getPropertyDouble", new IoT::Devices::GNSSSensorGetPropertyDoubleMethodHandler);
-	addMethodHandler("getPropertyInt", new IoT::Devices::GNSSSensorGetPropertyIntMethodHandler);
-	addMethodHandler("getPropertyString", new IoT::Devices::GNSSSensorGetPropertyStringMethodHandler);
-	addMethodHandler("hasFeature", new IoT::Devices::GNSSSensorHasFeatureMethodHandler);
-	addMethodHandler("hasProperty", new IoT::Devices::GNSSSensorHasPropertyMethodHandler);
-	addMethodHandler("hdop", new IoT::Devices::GNSSSensorHdopMethodHandler);
-	addMethodHandler("magneticVariation", new IoT::Devices::GNSSSensorMagneticVariationMethodHandler);
-	addMethodHandler("position", new IoT::Devices::GNSSSensorPositionMethodHandler);
-	addMethodHandler("positionAvailable", new IoT::Devices::GNSSSensorPositionAvailableMethodHandler);
-	addMethodHandler("setFeature", new IoT::Devices::GNSSSensorSetFeatureMethodHandler);
-	addMethodHandler("setPropertyBool", new IoT::Devices::GNSSSensorSetPropertyBoolMethodHandler);
-	addMethodHandler("setPropertyDouble", new IoT::Devices::GNSSSensorSetPropertyDoubleMethodHandler);
-	addMethodHandler("setPropertyInt", new IoT::Devices::GNSSSensorSetPropertyIntMethodHandler);
-	addMethodHandler("setPropertyString", new IoT::Devices::GNSSSensorSetPropertyStringMethodHandler);
-	addMethodHandler("speed", new IoT::Devices::GNSSSensorSpeedMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("altitude"s, new IoT::Devices::GNSSSensorAltitudeMethodHandler);
+	addMethodHandler("course"s, new IoT::Devices::GNSSSensorCourseMethodHandler);
+	addMethodHandler("getFeature"s, new IoT::Devices::GNSSSensorGetFeatureMethodHandler);
+	addMethodHandler("getPropertyBool"s, new IoT::Devices::GNSSSensorGetPropertyBoolMethodHandler);
+	addMethodHandler("getPropertyDouble"s, new IoT::Devices::GNSSSensorGetPropertyDoubleMethodHandler);
+	addMethodHandler("getPropertyInt"s, new IoT::Devices::GNSSSensorGetPropertyIntMethodHandler);
+	addMethodHandler("getPropertyString"s, new IoT::Devices::GNSSSensorGetPropertyStringMethodHandler);
+	addMethodHandler("hasFeature"s, new IoT::Devices::GNSSSensorHasFeatureMethodHandler);
+	addMethodHandler("hasProperty"s, new IoT::Devices::GNSSSensorHasPropertyMethodHandler);
+	addMethodHandler("hdop"s, new IoT::Devices::GNSSSensorHdopMethodHandler);
+	addMethodHandler("magneticVariation"s, new IoT::Devices::GNSSSensorMagneticVariationMethodHandler);
+	addMethodHandler("position"s, new IoT::Devices::GNSSSensorPositionMethodHandler);
+	addMethodHandler("positionAvailable"s, new IoT::Devices::GNSSSensorPositionAvailableMethodHandler);
+	addMethodHandler("setFeature"s, new IoT::Devices::GNSSSensorSetFeatureMethodHandler);
+	addMethodHandler("setPropertyBool"s, new IoT::Devices::GNSSSensorSetPropertyBoolMethodHandler);
+	addMethodHandler("setPropertyDouble"s, new IoT::Devices::GNSSSensorSetPropertyDoubleMethodHandler);
+	addMethodHandler("setPropertyInt"s, new IoT::Devices::GNSSSensorSetPropertyIntMethodHandler);
+	addMethodHandler("setPropertyString"s, new IoT::Devices::GNSSSensorSetPropertyStringMethodHandler);
+	addMethodHandler("speed"s, new IoT::Devices::GNSSSensorSpeedMethodHandler);
 }
 
 

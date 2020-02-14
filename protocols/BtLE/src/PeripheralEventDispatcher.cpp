@@ -234,7 +234,9 @@ void PeripheralEventDispatcher::event__notificationReceived(const void* pSender,
 
 void PeripheralEventDispatcher::event__connectedImpl(const std::string& subscriberURI)
 {
-	static const std::string REMOTING__NAMES[] = {"connected","subscriberURI"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"connected"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -246,7 +248,9 @@ void PeripheralEventDispatcher::event__connectedImpl(const std::string& subscrib
 
 void PeripheralEventDispatcher::event__disconnectedImpl(const std::string& subscriberURI)
 {
-	static const std::string REMOTING__NAMES[] = {"disconnected","subscriberURI"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"disconnected"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -258,7 +262,9 @@ void PeripheralEventDispatcher::event__disconnectedImpl(const std::string& subsc
 
 void PeripheralEventDispatcher::event__errorImpl(const std::string& subscriberURI, const std::string& data)
 {
-	static const std::string REMOTING__NAMES[] = {"error","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"error"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -271,7 +277,9 @@ void PeripheralEventDispatcher::event__errorImpl(const std::string& subscriberUR
 
 void PeripheralEventDispatcher::event__indicationReceivedImpl(const std::string& subscriberURI, const IoT::BtLE::Indication& data)
 {
-	static const std::string REMOTING__NAMES[] = {"indicationReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"indicationReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -284,7 +292,9 @@ void PeripheralEventDispatcher::event__indicationReceivedImpl(const std::string&
 
 void PeripheralEventDispatcher::event__notificationReceivedImpl(const std::string& subscriberURI, const IoT::BtLE::Notification& data)
 {
-	static const std::string REMOTING__NAMES[] = {"notificationReceived","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"notificationReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);

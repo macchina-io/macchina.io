@@ -35,7 +35,9 @@ class SensorGetFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -88,7 +90,9 @@ class SensorGetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyBool","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyBool"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -141,7 +145,9 @@ class SensorGetPropertyDoubleMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyDouble","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyDouble"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -194,7 +200,9 @@ class SensorGetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyInt","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyInt"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -247,7 +255,9 @@ class SensorGetPropertyStringMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyString","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyString"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -300,7 +310,9 @@ class SensorHasFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -353,7 +365,9 @@ class SensorHasPropertyMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasProperty","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasProperty"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -406,7 +420,9 @@ class SensorSetFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setFeature","name","enable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setFeature"s,"name"s,"enable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -460,7 +476,9 @@ class SensorSetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyBool","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyBool"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -514,7 +532,9 @@ class SensorSetPropertyDoubleMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyDouble","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyDouble"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -568,7 +588,9 @@ class SensorSetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyInt","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyInt"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -622,7 +644,9 @@ class SensorSetPropertyStringMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyString","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyString"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -676,7 +700,9 @@ class SensorClearValueChangedFilterMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"clearValueChangedFilter","subscriberURI"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"clearValueChangedFilter"s,"subscriberURI"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -728,7 +754,9 @@ class SensorReadyMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"ready"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"ready"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -779,7 +807,9 @@ class SensorSetValueChangedHysteresisFilterMethodHandler: public Poco::RemotingN
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setValueChangedHysteresisFilter","subscriberURI","lowerThreshold","upperThreshold"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setValueChangedHysteresisFilter"s,"subscriberURI"s,"lowerThreshold"s,"upperThreshold"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -835,7 +865,9 @@ class SensorSetValueChangedIsGreaterThanFilterMethodHandler: public Poco::Remoti
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setValueChangedIsGreaterThanFilter","subscriberURI","limit"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setValueChangedIsGreaterThanFilter"s,"subscriberURI"s,"limit"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -889,7 +921,9 @@ class SensorSetValueChangedIsGreaterThanOrEqualToFilterMethodHandler: public Poc
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setValueChangedIsGreaterThanOrEqualToFilter","subscriberURI","limit"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setValueChangedIsGreaterThanOrEqualToFilter"s,"subscriberURI"s,"limit"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -943,7 +977,9 @@ class SensorSetValueChangedIsLessThanOrEqualToFilterMethodHandler: public Poco::
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setValueChangedIsLessThanOrEqualToFilter","subscriberURI","limit"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setValueChangedIsLessThanOrEqualToFilter"s,"subscriberURI"s,"limit"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -997,7 +1033,9 @@ class SensorSetValueChangedIsLessThanThanFilterMethodHandler: public Poco::Remot
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setValueChangedIsLessThanThanFilter","subscriberURI","limit"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setValueChangedIsLessThanThanFilter"s,"subscriberURI"s,"limit"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1051,7 +1089,9 @@ class SensorSetValueChangedMinimumDeltaFilterMethodHandler: public Poco::Remotin
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setValueChangedMinimumDeltaFilter","subscriberURI","delta"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setValueChangedMinimumDeltaFilter"s,"subscriberURI"s,"delta"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1105,7 +1145,9 @@ class SensorSetValueChangedMinimumIntervalFilterMethodHandler: public Poco::Remo
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setValueChangedMinimumIntervalFilter","subscriberURI","milliseconds"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setValueChangedMinimumIntervalFilter"s,"subscriberURI"s,"milliseconds"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1159,7 +1201,9 @@ class SensorSetValueChangedMinimumIntervalOrDeltaFilterMethodHandler: public Poc
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setValueChangedMinimumIntervalOrDeltaFilter","subscriberURI","milliseconds","delta"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setValueChangedMinimumIntervalOrDeltaFilter"s,"subscriberURI"s,"milliseconds"s,"delta"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1215,7 +1259,9 @@ class SensorValueMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1265,29 +1311,31 @@ SensorSkeleton::SensorSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("clearValueChangedFilter", new IoT::Devices::SensorClearValueChangedFilterMethodHandler);
-	addMethodHandler("getFeature", new IoT::Devices::SensorGetFeatureMethodHandler);
-	addMethodHandler("getPropertyBool", new IoT::Devices::SensorGetPropertyBoolMethodHandler);
-	addMethodHandler("getPropertyDouble", new IoT::Devices::SensorGetPropertyDoubleMethodHandler);
-	addMethodHandler("getPropertyInt", new IoT::Devices::SensorGetPropertyIntMethodHandler);
-	addMethodHandler("getPropertyString", new IoT::Devices::SensorGetPropertyStringMethodHandler);
-	addMethodHandler("hasFeature", new IoT::Devices::SensorHasFeatureMethodHandler);
-	addMethodHandler("hasProperty", new IoT::Devices::SensorHasPropertyMethodHandler);
-	addMethodHandler("ready", new IoT::Devices::SensorReadyMethodHandler);
-	addMethodHandler("setFeature", new IoT::Devices::SensorSetFeatureMethodHandler);
-	addMethodHandler("setPropertyBool", new IoT::Devices::SensorSetPropertyBoolMethodHandler);
-	addMethodHandler("setPropertyDouble", new IoT::Devices::SensorSetPropertyDoubleMethodHandler);
-	addMethodHandler("setPropertyInt", new IoT::Devices::SensorSetPropertyIntMethodHandler);
-	addMethodHandler("setPropertyString", new IoT::Devices::SensorSetPropertyStringMethodHandler);
-	addMethodHandler("setValueChangedHysteresisFilter", new IoT::Devices::SensorSetValueChangedHysteresisFilterMethodHandler);
-	addMethodHandler("setValueChangedIsGreaterThanFilter", new IoT::Devices::SensorSetValueChangedIsGreaterThanFilterMethodHandler);
-	addMethodHandler("setValueChangedIsGreaterThanOrEqualToFilter", new IoT::Devices::SensorSetValueChangedIsGreaterThanOrEqualToFilterMethodHandler);
-	addMethodHandler("setValueChangedIsLessThanOrEqualToFilter", new IoT::Devices::SensorSetValueChangedIsLessThanOrEqualToFilterMethodHandler);
-	addMethodHandler("setValueChangedIsLessThanThanFilter", new IoT::Devices::SensorSetValueChangedIsLessThanThanFilterMethodHandler);
-	addMethodHandler("setValueChangedMinimumDeltaFilter", new IoT::Devices::SensorSetValueChangedMinimumDeltaFilterMethodHandler);
-	addMethodHandler("setValueChangedMinimumIntervalFilter", new IoT::Devices::SensorSetValueChangedMinimumIntervalFilterMethodHandler);
-	addMethodHandler("setValueChangedMinimumIntervalOrDeltaFilter", new IoT::Devices::SensorSetValueChangedMinimumIntervalOrDeltaFilterMethodHandler);
-	addMethodHandler("value", new IoT::Devices::SensorValueMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("clearValueChangedFilter"s, new IoT::Devices::SensorClearValueChangedFilterMethodHandler);
+	addMethodHandler("getFeature"s, new IoT::Devices::SensorGetFeatureMethodHandler);
+	addMethodHandler("getPropertyBool"s, new IoT::Devices::SensorGetPropertyBoolMethodHandler);
+	addMethodHandler("getPropertyDouble"s, new IoT::Devices::SensorGetPropertyDoubleMethodHandler);
+	addMethodHandler("getPropertyInt"s, new IoT::Devices::SensorGetPropertyIntMethodHandler);
+	addMethodHandler("getPropertyString"s, new IoT::Devices::SensorGetPropertyStringMethodHandler);
+	addMethodHandler("hasFeature"s, new IoT::Devices::SensorHasFeatureMethodHandler);
+	addMethodHandler("hasProperty"s, new IoT::Devices::SensorHasPropertyMethodHandler);
+	addMethodHandler("ready"s, new IoT::Devices::SensorReadyMethodHandler);
+	addMethodHandler("setFeature"s, new IoT::Devices::SensorSetFeatureMethodHandler);
+	addMethodHandler("setPropertyBool"s, new IoT::Devices::SensorSetPropertyBoolMethodHandler);
+	addMethodHandler("setPropertyDouble"s, new IoT::Devices::SensorSetPropertyDoubleMethodHandler);
+	addMethodHandler("setPropertyInt"s, new IoT::Devices::SensorSetPropertyIntMethodHandler);
+	addMethodHandler("setPropertyString"s, new IoT::Devices::SensorSetPropertyStringMethodHandler);
+	addMethodHandler("setValueChangedHysteresisFilter"s, new IoT::Devices::SensorSetValueChangedHysteresisFilterMethodHandler);
+	addMethodHandler("setValueChangedIsGreaterThanFilter"s, new IoT::Devices::SensorSetValueChangedIsGreaterThanFilterMethodHandler);
+	addMethodHandler("setValueChangedIsGreaterThanOrEqualToFilter"s, new IoT::Devices::SensorSetValueChangedIsGreaterThanOrEqualToFilterMethodHandler);
+	addMethodHandler("setValueChangedIsLessThanOrEqualToFilter"s, new IoT::Devices::SensorSetValueChangedIsLessThanOrEqualToFilterMethodHandler);
+	addMethodHandler("setValueChangedIsLessThanThanFilter"s, new IoT::Devices::SensorSetValueChangedIsLessThanThanFilterMethodHandler);
+	addMethodHandler("setValueChangedMinimumDeltaFilter"s, new IoT::Devices::SensorSetValueChangedMinimumDeltaFilterMethodHandler);
+	addMethodHandler("setValueChangedMinimumIntervalFilter"s, new IoT::Devices::SensorSetValueChangedMinimumIntervalFilterMethodHandler);
+	addMethodHandler("setValueChangedMinimumIntervalOrDeltaFilter"s, new IoT::Devices::SensorSetValueChangedMinimumIntervalOrDeltaFilterMethodHandler);
+	addMethodHandler("value"s, new IoT::Devices::SensorValueMethodHandler);
 }
 
 

@@ -1,7 +1,7 @@
 //
 // LauncherAppsJSON.cpp
 //
-// This file has been generated from LauncherAppsJSON.cpsp on 2017-09-04 17:34:19.
+// This file has been generated from LauncherAppsJSON.cpsp on 2020-02-14 12:01:52.
 //
 
 
@@ -13,12 +13,13 @@
 #include "Poco/OSP/Web/WebSessionManager.h"
 #include "Poco/OSP/ServiceRegistry.h"
 #include "Poco/DeflatingStream.h"
-
-
 #include "Poco/OSP/ServiceFinder.h"
 #include "Poco/OSP/Auth/AuthService.h"
 #include "AppRegistry.h"
 #include "Utility.h"
+
+
+using namespace std::string_literals;
 
 
 namespace IoT {
@@ -35,9 +36,9 @@ LauncherAppsJSON::LauncherAppsJSON(Poco::OSP::BundleContext::Ptr pContext):
 void LauncherAppsJSON::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
 	response.setChunkedTransferEncoding(true);
-	response.setContentType("application/json");
-	bool _compressResponse(request.hasToken("Accept-Encoding", "gzip"));
-	if (_compressResponse) response.set("Content-Encoding", "gzip");
+	response.setContentType("application/json"s);
+	bool _compressResponse(request.hasToken("Accept-Encoding"s, "gzip"s));
+	if (_compressResponse) response.set("Content-Encoding"s, "gzip"s);
 
 	Poco::OSP::Web::WebSession::Ptr session;
 	{
@@ -45,7 +46,7 @@ void LauncherAppsJSON::handleRequest(Poco::Net::HTTPServerRequest& request, Poco
 		if (pWebSessionManagerRef)
 		{
 			Poco::OSP::Web::WebSessionManager::Ptr pWebSessionManager = pWebSessionManagerRef->castedInstance<Poco::OSP::Web::WebSessionManager>();
-			session = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"), request);
+			session = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"s), request);
 		}
 	}
 	if (!(U::isAuthenticated(session, response))) return;

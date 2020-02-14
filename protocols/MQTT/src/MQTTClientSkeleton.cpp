@@ -43,7 +43,9 @@ class MQTTClientConnectMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"connect"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"connect"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -94,7 +96,9 @@ class MQTTClientConnectAsyncMethodHandler: public Poco::RemotingNG::MethodHandle
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"connectAsync"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"connectAsync"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -144,7 +148,9 @@ class MQTTClientConnectedMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"connected"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"connected"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -195,7 +201,9 @@ class MQTTClientConnectionInfoMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"connectionInfo"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"connectionInfo"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -246,7 +254,9 @@ class MQTTClientDisconnectMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"disconnect","timeout"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"disconnect"s,"timeout"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -298,7 +308,9 @@ class MQTTClientIdMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"id"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"id"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -349,7 +361,9 @@ class MQTTClientPublishMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"publish","topic","payload","qos"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"publish"s,"topic"s,"payload"s,"qos"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -406,7 +420,9 @@ class MQTTClientPublishMessageMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"publishMessage","topic","message"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"publishMessage"s,"topic"s,"message"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -461,7 +477,9 @@ class MQTTClientServerURIMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"serverURI"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"serverURI"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -512,7 +530,9 @@ class MQTTClientStatisticsMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"statistics"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"statistics"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -563,7 +583,9 @@ class MQTTClientSubscribeMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"subscribe","topic","qos"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"subscribe"s,"topic"s,"qos"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -617,7 +639,9 @@ class MQTTClientSubscribeManyMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"subscribeMany","topicsAndQoS"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"subscribeMany"s,"topicsAndQoS"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -669,7 +693,9 @@ class MQTTClientSubscribedTopicsMethodHandler: public Poco::RemotingNG::MethodHa
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"subscribedTopics"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"subscribedTopics"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -720,7 +746,9 @@ class MQTTClientUnsubscribeMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"unsubscribe","topic"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"unsubscribe"s,"topic"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -772,7 +800,9 @@ class MQTTClientUnsubscribeManyMethodHandler: public Poco::RemotingNG::MethodHan
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"unsubscribeMany","topics"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"unsubscribeMany"s,"topics"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -823,21 +853,23 @@ MQTTClientSkeleton::MQTTClientSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("connect", new IoT::MQTT::MQTTClientConnectMethodHandler);
-	addMethodHandler("connectAsync", new IoT::MQTT::MQTTClientConnectAsyncMethodHandler);
-	addMethodHandler("connected", new IoT::MQTT::MQTTClientConnectedMethodHandler);
-	addMethodHandler("connectionInfo", new IoT::MQTT::MQTTClientConnectionInfoMethodHandler);
-	addMethodHandler("disconnect", new IoT::MQTT::MQTTClientDisconnectMethodHandler);
-	addMethodHandler("id", new IoT::MQTT::MQTTClientIdMethodHandler);
-	addMethodHandler("publish", new IoT::MQTT::MQTTClientPublishMethodHandler);
-	addMethodHandler("publishMessage", new IoT::MQTT::MQTTClientPublishMessageMethodHandler);
-	addMethodHandler("serverURI", new IoT::MQTT::MQTTClientServerURIMethodHandler);
-	addMethodHandler("statistics", new IoT::MQTT::MQTTClientStatisticsMethodHandler);
-	addMethodHandler("subscribe", new IoT::MQTT::MQTTClientSubscribeMethodHandler);
-	addMethodHandler("subscribeMany", new IoT::MQTT::MQTTClientSubscribeManyMethodHandler);
-	addMethodHandler("subscribedTopics", new IoT::MQTT::MQTTClientSubscribedTopicsMethodHandler);
-	addMethodHandler("unsubscribe", new IoT::MQTT::MQTTClientUnsubscribeMethodHandler);
-	addMethodHandler("unsubscribeMany", new IoT::MQTT::MQTTClientUnsubscribeManyMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("connect"s, new IoT::MQTT::MQTTClientConnectMethodHandler);
+	addMethodHandler("connectAsync"s, new IoT::MQTT::MQTTClientConnectAsyncMethodHandler);
+	addMethodHandler("connected"s, new IoT::MQTT::MQTTClientConnectedMethodHandler);
+	addMethodHandler("connectionInfo"s, new IoT::MQTT::MQTTClientConnectionInfoMethodHandler);
+	addMethodHandler("disconnect"s, new IoT::MQTT::MQTTClientDisconnectMethodHandler);
+	addMethodHandler("id"s, new IoT::MQTT::MQTTClientIdMethodHandler);
+	addMethodHandler("publish"s, new IoT::MQTT::MQTTClientPublishMethodHandler);
+	addMethodHandler("publishMessage"s, new IoT::MQTT::MQTTClientPublishMessageMethodHandler);
+	addMethodHandler("serverURI"s, new IoT::MQTT::MQTTClientServerURIMethodHandler);
+	addMethodHandler("statistics"s, new IoT::MQTT::MQTTClientStatisticsMethodHandler);
+	addMethodHandler("subscribe"s, new IoT::MQTT::MQTTClientSubscribeMethodHandler);
+	addMethodHandler("subscribeMany"s, new IoT::MQTT::MQTTClientSubscribeManyMethodHandler);
+	addMethodHandler("subscribedTopics"s, new IoT::MQTT::MQTTClientSubscribedTopicsMethodHandler);
+	addMethodHandler("unsubscribe"s, new IoT::MQTT::MQTTClientUnsubscribeMethodHandler);
+	addMethodHandler("unsubscribeMany"s, new IoT::MQTT::MQTTClientUnsubscribeManyMethodHandler);
 }
 
 

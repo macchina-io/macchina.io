@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::Devices::LatLon>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::Devices::LatLon& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,7 +45,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::Devices::LatLon& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"latitude","longitude"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"latitude"s,"longitude"s};
 		TypeDeserializer<double >::deserialize(REMOTING__NAMES[0], true, deser, value.latitude);
 		TypeDeserializer<double >::deserialize(REMOTING__NAMES[1], true, deser, value.longitude);
 	}

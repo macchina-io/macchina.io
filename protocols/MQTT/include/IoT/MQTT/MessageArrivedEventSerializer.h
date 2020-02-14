@@ -34,6 +34,8 @@ class TypeSerializer<IoT::MQTT::MessageArrivedEvent>
 public:
 	static void serialize(const std::string& name, const IoT::MQTT::MessageArrivedEvent& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -41,7 +43,9 @@ public:
 
 	static void serializeImpl(const IoT::MQTT::MessageArrivedEvent& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"dup","handled","message","topic",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"dup"s,"handled"s,"message"s,"topic"s,""s};
 		TypeSerializer<bool >::serialize(REMOTING__NAMES[0], value.dup, ser);
 		TypeSerializer<bool >::serialize(REMOTING__NAMES[1], value.handled, ser);
 		TypeSerializer<IoT::MQTT::Message >::serialize(REMOTING__NAMES[2], value.message, ser);

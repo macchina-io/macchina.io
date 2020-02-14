@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::XBee::ExplicitAddressingZigBeeReceivePacket>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::XBee::ExplicitAddressingZigBeeReceivePacket& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,7 +45,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::XBee::ExplicitAddressingZigBeeReceivePacket& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"clusterID","destinationEndpoint","deviceAddress","networkAddress","options","payload","profileID","sourceEndpoint"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"clusterID"s,"destinationEndpoint"s,"deviceAddress"s,"networkAddress"s,"options"s,"payload"s,"profileID"s,"sourceEndpoint"s};
 		TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[0], true, deser, value.clusterID);
 		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[1], true, deser, value.destinationEndpoint);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.deviceAddress);

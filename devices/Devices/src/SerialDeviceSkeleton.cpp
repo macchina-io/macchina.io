@@ -35,7 +35,9 @@ class SerialDeviceGetFeatureMethodHandler: public Poco::RemotingNG::MethodHandle
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -88,7 +90,9 @@ class SerialDeviceGetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyBool","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyBool"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -141,7 +145,9 @@ class SerialDeviceGetPropertyDoubleMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyDouble","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyDouble"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -194,7 +200,9 @@ class SerialDeviceGetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHa
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyInt","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyInt"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -247,7 +255,9 @@ class SerialDeviceGetPropertyStringMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyString","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyString"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -300,7 +310,9 @@ class SerialDeviceHasFeatureMethodHandler: public Poco::RemotingNG::MethodHandle
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -353,7 +365,9 @@ class SerialDeviceHasPropertyMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasProperty","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasProperty"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -406,7 +420,9 @@ class SerialDeviceSetFeatureMethodHandler: public Poco::RemotingNG::MethodHandle
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setFeature","name","enable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setFeature"s,"name"s,"enable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -460,7 +476,9 @@ class SerialDeviceSetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyBool","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyBool"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -514,7 +532,9 @@ class SerialDeviceSetPropertyDoubleMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyDouble","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyDouble"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -568,7 +588,9 @@ class SerialDeviceSetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHa
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyInt","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyInt"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -622,7 +644,9 @@ class SerialDeviceSetPropertyStringMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyString","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyString"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -676,7 +700,9 @@ class SerialDeviceAvailableMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"available"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"available"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -727,7 +753,9 @@ class SerialDeviceGetRTSMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getRTS"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getRTS"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -778,7 +806,9 @@ class SerialDevicePollMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"poll","timeout"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"poll"s,"timeout"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -831,7 +861,9 @@ class SerialDeviceReadByteMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readByte"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readByte"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -882,7 +914,9 @@ class SerialDeviceReadLineMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readLine","delimiters","timeout"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readLine"s,"delimiters"s,"timeout"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -937,7 +971,9 @@ class SerialDeviceReadStringMethodHandler: public Poco::RemotingNG::MethodHandle
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readString"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readString"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -988,7 +1024,9 @@ class SerialDeviceReconfigureMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"reconfigure","baudRate","parameters","flowControl"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"reconfigure"s,"baudRate"s,"parameters"s,"flowControl"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1044,7 +1082,9 @@ class SerialDeviceSetRTSMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setRTS","status"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setRTS"s,"status"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1096,7 +1136,9 @@ class SerialDeviceWriteByteMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeByte","byte"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeByte"s,"byte"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1148,7 +1190,9 @@ class SerialDeviceWriteStringMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeString","data"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeString"s,"data"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1199,28 +1243,30 @@ SerialDeviceSkeleton::SerialDeviceSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("available", new IoT::Devices::SerialDeviceAvailableMethodHandler);
-	addMethodHandler("getFeature", new IoT::Devices::SerialDeviceGetFeatureMethodHandler);
-	addMethodHandler("getPropertyBool", new IoT::Devices::SerialDeviceGetPropertyBoolMethodHandler);
-	addMethodHandler("getPropertyDouble", new IoT::Devices::SerialDeviceGetPropertyDoubleMethodHandler);
-	addMethodHandler("getPropertyInt", new IoT::Devices::SerialDeviceGetPropertyIntMethodHandler);
-	addMethodHandler("getPropertyString", new IoT::Devices::SerialDeviceGetPropertyStringMethodHandler);
-	addMethodHandler("getRTS", new IoT::Devices::SerialDeviceGetRTSMethodHandler);
-	addMethodHandler("hasFeature", new IoT::Devices::SerialDeviceHasFeatureMethodHandler);
-	addMethodHandler("hasProperty", new IoT::Devices::SerialDeviceHasPropertyMethodHandler);
-	addMethodHandler("poll", new IoT::Devices::SerialDevicePollMethodHandler);
-	addMethodHandler("readByte", new IoT::Devices::SerialDeviceReadByteMethodHandler);
-	addMethodHandler("readLine", new IoT::Devices::SerialDeviceReadLineMethodHandler);
-	addMethodHandler("readString", new IoT::Devices::SerialDeviceReadStringMethodHandler);
-	addMethodHandler("reconfigure", new IoT::Devices::SerialDeviceReconfigureMethodHandler);
-	addMethodHandler("setFeature", new IoT::Devices::SerialDeviceSetFeatureMethodHandler);
-	addMethodHandler("setPropertyBool", new IoT::Devices::SerialDeviceSetPropertyBoolMethodHandler);
-	addMethodHandler("setPropertyDouble", new IoT::Devices::SerialDeviceSetPropertyDoubleMethodHandler);
-	addMethodHandler("setPropertyInt", new IoT::Devices::SerialDeviceSetPropertyIntMethodHandler);
-	addMethodHandler("setPropertyString", new IoT::Devices::SerialDeviceSetPropertyStringMethodHandler);
-	addMethodHandler("setRTS", new IoT::Devices::SerialDeviceSetRTSMethodHandler);
-	addMethodHandler("writeByte", new IoT::Devices::SerialDeviceWriteByteMethodHandler);
-	addMethodHandler("writeString", new IoT::Devices::SerialDeviceWriteStringMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("available"s, new IoT::Devices::SerialDeviceAvailableMethodHandler);
+	addMethodHandler("getFeature"s, new IoT::Devices::SerialDeviceGetFeatureMethodHandler);
+	addMethodHandler("getPropertyBool"s, new IoT::Devices::SerialDeviceGetPropertyBoolMethodHandler);
+	addMethodHandler("getPropertyDouble"s, new IoT::Devices::SerialDeviceGetPropertyDoubleMethodHandler);
+	addMethodHandler("getPropertyInt"s, new IoT::Devices::SerialDeviceGetPropertyIntMethodHandler);
+	addMethodHandler("getPropertyString"s, new IoT::Devices::SerialDeviceGetPropertyStringMethodHandler);
+	addMethodHandler("getRTS"s, new IoT::Devices::SerialDeviceGetRTSMethodHandler);
+	addMethodHandler("hasFeature"s, new IoT::Devices::SerialDeviceHasFeatureMethodHandler);
+	addMethodHandler("hasProperty"s, new IoT::Devices::SerialDeviceHasPropertyMethodHandler);
+	addMethodHandler("poll"s, new IoT::Devices::SerialDevicePollMethodHandler);
+	addMethodHandler("readByte"s, new IoT::Devices::SerialDeviceReadByteMethodHandler);
+	addMethodHandler("readLine"s, new IoT::Devices::SerialDeviceReadLineMethodHandler);
+	addMethodHandler("readString"s, new IoT::Devices::SerialDeviceReadStringMethodHandler);
+	addMethodHandler("reconfigure"s, new IoT::Devices::SerialDeviceReconfigureMethodHandler);
+	addMethodHandler("setFeature"s, new IoT::Devices::SerialDeviceSetFeatureMethodHandler);
+	addMethodHandler("setPropertyBool"s, new IoT::Devices::SerialDeviceSetPropertyBoolMethodHandler);
+	addMethodHandler("setPropertyDouble"s, new IoT::Devices::SerialDeviceSetPropertyDoubleMethodHandler);
+	addMethodHandler("setPropertyInt"s, new IoT::Devices::SerialDeviceSetPropertyIntMethodHandler);
+	addMethodHandler("setPropertyString"s, new IoT::Devices::SerialDeviceSetPropertyStringMethodHandler);
+	addMethodHandler("setRTS"s, new IoT::Devices::SerialDeviceSetRTSMethodHandler);
+	addMethodHandler("writeByte"s, new IoT::Devices::SerialDeviceWriteByteMethodHandler);
+	addMethodHandler("writeString"s, new IoT::Devices::SerialDeviceWriteStringMethodHandler);
 }
 
 

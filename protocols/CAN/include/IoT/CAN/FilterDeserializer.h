@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::CAN::Filter>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::CAN::Filter& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,7 +45,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::CAN::Filter& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"id","invert","mask"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"id"s,"invert"s,"mask"s};
 		TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES[0], true, deser, value.id);
 		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[1], false, deser, value.invert);
 		TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES[2], true, deser, value.mask);

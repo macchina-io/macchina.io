@@ -32,6 +32,8 @@ class TypeSerializer<IoT::Devices::MagneticFieldStrength>
 public:
 	static void serialize(const std::string& name, const IoT::Devices::MagneticFieldStrength& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::Devices::MagneticFieldStrength& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"r","x","y","z",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"r"s,"x"s,"y"s,"z"s,""s};
 		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.r, ser);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[1], value.x, ser);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[2], value.y, ser);

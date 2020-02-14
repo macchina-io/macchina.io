@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::NetworkEnvironment::AddressTuple>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::NetworkEnvironment::AddressTuple& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,7 +45,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::NetworkEnvironment::AddressTuple& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"address","broadcastOrDestinationAddress","subnetMask","version"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"address"s,"broadcastOrDestinationAddress"s,"subnetMask"s,"version"s};
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.address);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.broadcastOrDestinationAddress);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.subnetMask);

@@ -35,7 +35,9 @@ class BooleanSensorGetFeatureMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -88,7 +90,9 @@ class BooleanSensorGetPropertyBoolMethodHandler: public Poco::RemotingNG::Method
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyBool","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyBool"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -141,7 +145,9 @@ class BooleanSensorGetPropertyDoubleMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyDouble","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyDouble"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -194,7 +200,9 @@ class BooleanSensorGetPropertyIntMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyInt","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyInt"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -247,7 +255,9 @@ class BooleanSensorGetPropertyStringMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyString","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyString"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -300,7 +310,9 @@ class BooleanSensorHasFeatureMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -353,7 +365,9 @@ class BooleanSensorHasPropertyMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasProperty","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasProperty"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -406,7 +420,9 @@ class BooleanSensorSetFeatureMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setFeature","name","enable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setFeature"s,"name"s,"enable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -460,7 +476,9 @@ class BooleanSensorSetPropertyBoolMethodHandler: public Poco::RemotingNG::Method
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyBool","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyBool"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -514,7 +532,9 @@ class BooleanSensorSetPropertyDoubleMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyDouble","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyDouble"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -568,7 +588,9 @@ class BooleanSensorSetPropertyIntMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyInt","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyInt"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -622,7 +644,9 @@ class BooleanSensorSetPropertyStringMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyString","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyString"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -676,7 +700,9 @@ class BooleanSensorStateMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"state"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"state"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -726,19 +752,21 @@ BooleanSensorSkeleton::BooleanSensorSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("getFeature", new IoT::Devices::BooleanSensorGetFeatureMethodHandler);
-	addMethodHandler("getPropertyBool", new IoT::Devices::BooleanSensorGetPropertyBoolMethodHandler);
-	addMethodHandler("getPropertyDouble", new IoT::Devices::BooleanSensorGetPropertyDoubleMethodHandler);
-	addMethodHandler("getPropertyInt", new IoT::Devices::BooleanSensorGetPropertyIntMethodHandler);
-	addMethodHandler("getPropertyString", new IoT::Devices::BooleanSensorGetPropertyStringMethodHandler);
-	addMethodHandler("hasFeature", new IoT::Devices::BooleanSensorHasFeatureMethodHandler);
-	addMethodHandler("hasProperty", new IoT::Devices::BooleanSensorHasPropertyMethodHandler);
-	addMethodHandler("setFeature", new IoT::Devices::BooleanSensorSetFeatureMethodHandler);
-	addMethodHandler("setPropertyBool", new IoT::Devices::BooleanSensorSetPropertyBoolMethodHandler);
-	addMethodHandler("setPropertyDouble", new IoT::Devices::BooleanSensorSetPropertyDoubleMethodHandler);
-	addMethodHandler("setPropertyInt", new IoT::Devices::BooleanSensorSetPropertyIntMethodHandler);
-	addMethodHandler("setPropertyString", new IoT::Devices::BooleanSensorSetPropertyStringMethodHandler);
-	addMethodHandler("state", new IoT::Devices::BooleanSensorStateMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("getFeature"s, new IoT::Devices::BooleanSensorGetFeatureMethodHandler);
+	addMethodHandler("getPropertyBool"s, new IoT::Devices::BooleanSensorGetPropertyBoolMethodHandler);
+	addMethodHandler("getPropertyDouble"s, new IoT::Devices::BooleanSensorGetPropertyDoubleMethodHandler);
+	addMethodHandler("getPropertyInt"s, new IoT::Devices::BooleanSensorGetPropertyIntMethodHandler);
+	addMethodHandler("getPropertyString"s, new IoT::Devices::BooleanSensorGetPropertyStringMethodHandler);
+	addMethodHandler("hasFeature"s, new IoT::Devices::BooleanSensorHasFeatureMethodHandler);
+	addMethodHandler("hasProperty"s, new IoT::Devices::BooleanSensorHasPropertyMethodHandler);
+	addMethodHandler("setFeature"s, new IoT::Devices::BooleanSensorSetFeatureMethodHandler);
+	addMethodHandler("setPropertyBool"s, new IoT::Devices::BooleanSensorSetPropertyBoolMethodHandler);
+	addMethodHandler("setPropertyDouble"s, new IoT::Devices::BooleanSensorSetPropertyDoubleMethodHandler);
+	addMethodHandler("setPropertyInt"s, new IoT::Devices::BooleanSensorSetPropertyIntMethodHandler);
+	addMethodHandler("setPropertyString"s, new IoT::Devices::BooleanSensorSetPropertyStringMethodHandler);
+	addMethodHandler("state"s, new IoT::Devices::BooleanSensorStateMethodHandler);
 }
 
 

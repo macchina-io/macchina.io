@@ -35,7 +35,9 @@ class LEDGetFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -88,7 +90,9 @@ class LEDGetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyBool","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyBool"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -141,7 +145,9 @@ class LEDGetPropertyDoubleMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyDouble","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyDouble"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -194,7 +200,9 @@ class LEDGetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyInt","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyInt"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -247,7 +255,9 @@ class LEDGetPropertyStringMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyString","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyString"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -300,7 +310,9 @@ class LEDHasFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -353,7 +365,9 @@ class LEDHasPropertyMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasProperty","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasProperty"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -406,7 +420,9 @@ class LEDSetFeatureMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setFeature","name","enable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setFeature"s,"name"s,"enable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -460,7 +476,9 @@ class LEDSetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyBool","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyBool"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -514,7 +532,9 @@ class LEDSetPropertyDoubleMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyDouble","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyDouble"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -568,7 +588,9 @@ class LEDSetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyInt","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyInt"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -622,7 +644,9 @@ class LEDSetPropertyStringMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyString","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyString"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -676,7 +700,9 @@ class LEDBlinkMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"blink","onMilliseconds","offMilliseconds"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"blink"s,"onMilliseconds"s,"offMilliseconds"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -730,7 +756,9 @@ class LEDGetBrightnessMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getBrightness"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getBrightness"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -781,7 +809,9 @@ class LEDOffMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"off"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"off"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -831,7 +861,9 @@ class LEDOnMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"on"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"on"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -881,7 +913,9 @@ class LEDSetBrightnessMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setBrightness","brightness"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setBrightness"s,"brightness"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -932,23 +966,25 @@ LEDSkeleton::LEDSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("blink", new IoT::Devices::LEDBlinkMethodHandler);
-	addMethodHandler("getBrightness", new IoT::Devices::LEDGetBrightnessMethodHandler);
-	addMethodHandler("getFeature", new IoT::Devices::LEDGetFeatureMethodHandler);
-	addMethodHandler("getPropertyBool", new IoT::Devices::LEDGetPropertyBoolMethodHandler);
-	addMethodHandler("getPropertyDouble", new IoT::Devices::LEDGetPropertyDoubleMethodHandler);
-	addMethodHandler("getPropertyInt", new IoT::Devices::LEDGetPropertyIntMethodHandler);
-	addMethodHandler("getPropertyString", new IoT::Devices::LEDGetPropertyStringMethodHandler);
-	addMethodHandler("hasFeature", new IoT::Devices::LEDHasFeatureMethodHandler);
-	addMethodHandler("hasProperty", new IoT::Devices::LEDHasPropertyMethodHandler);
-	addMethodHandler("off", new IoT::Devices::LEDOffMethodHandler);
-	addMethodHandler("on", new IoT::Devices::LEDOnMethodHandler);
-	addMethodHandler("setBrightness", new IoT::Devices::LEDSetBrightnessMethodHandler);
-	addMethodHandler("setFeature", new IoT::Devices::LEDSetFeatureMethodHandler);
-	addMethodHandler("setPropertyBool", new IoT::Devices::LEDSetPropertyBoolMethodHandler);
-	addMethodHandler("setPropertyDouble", new IoT::Devices::LEDSetPropertyDoubleMethodHandler);
-	addMethodHandler("setPropertyInt", new IoT::Devices::LEDSetPropertyIntMethodHandler);
-	addMethodHandler("setPropertyString", new IoT::Devices::LEDSetPropertyStringMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("blink"s, new IoT::Devices::LEDBlinkMethodHandler);
+	addMethodHandler("getBrightness"s, new IoT::Devices::LEDGetBrightnessMethodHandler);
+	addMethodHandler("getFeature"s, new IoT::Devices::LEDGetFeatureMethodHandler);
+	addMethodHandler("getPropertyBool"s, new IoT::Devices::LEDGetPropertyBoolMethodHandler);
+	addMethodHandler("getPropertyDouble"s, new IoT::Devices::LEDGetPropertyDoubleMethodHandler);
+	addMethodHandler("getPropertyInt"s, new IoT::Devices::LEDGetPropertyIntMethodHandler);
+	addMethodHandler("getPropertyString"s, new IoT::Devices::LEDGetPropertyStringMethodHandler);
+	addMethodHandler("hasFeature"s, new IoT::Devices::LEDHasFeatureMethodHandler);
+	addMethodHandler("hasProperty"s, new IoT::Devices::LEDHasPropertyMethodHandler);
+	addMethodHandler("off"s, new IoT::Devices::LEDOffMethodHandler);
+	addMethodHandler("on"s, new IoT::Devices::LEDOnMethodHandler);
+	addMethodHandler("setBrightness"s, new IoT::Devices::LEDSetBrightnessMethodHandler);
+	addMethodHandler("setFeature"s, new IoT::Devices::LEDSetFeatureMethodHandler);
+	addMethodHandler("setPropertyBool"s, new IoT::Devices::LEDSetPropertyBoolMethodHandler);
+	addMethodHandler("setPropertyDouble"s, new IoT::Devices::LEDSetPropertyDoubleMethodHandler);
+	addMethodHandler("setPropertyInt"s, new IoT::Devices::LEDSetPropertyIntMethodHandler);
+	addMethodHandler("setPropertyString"s, new IoT::Devices::LEDSetPropertyStringMethodHandler);
 }
 
 

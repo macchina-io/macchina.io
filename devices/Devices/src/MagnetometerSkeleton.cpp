@@ -37,7 +37,9 @@ class MagnetometerGetFeatureMethodHandler: public Poco::RemotingNG::MethodHandle
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -90,7 +92,9 @@ class MagnetometerGetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyBool","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyBool"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -143,7 +147,9 @@ class MagnetometerGetPropertyDoubleMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyDouble","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyDouble"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -196,7 +202,9 @@ class MagnetometerGetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHa
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyInt","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyInt"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -249,7 +257,9 @@ class MagnetometerGetPropertyStringMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyString","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyString"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -302,7 +312,9 @@ class MagnetometerHasFeatureMethodHandler: public Poco::RemotingNG::MethodHandle
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -355,7 +367,9 @@ class MagnetometerHasPropertyMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasProperty","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasProperty"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -408,7 +422,9 @@ class MagnetometerSetFeatureMethodHandler: public Poco::RemotingNG::MethodHandle
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setFeature","name","enable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setFeature"s,"name"s,"enable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -462,7 +478,9 @@ class MagnetometerSetPropertyBoolMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyBool","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyBool"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -516,7 +534,9 @@ class MagnetometerSetPropertyDoubleMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyDouble","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyDouble"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -570,7 +590,9 @@ class MagnetometerSetPropertyIntMethodHandler: public Poco::RemotingNG::MethodHa
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyInt","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyInt"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -624,7 +646,9 @@ class MagnetometerSetPropertyStringMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyString","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyString"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -678,7 +702,9 @@ class MagnetometerFieldStrengthMethodHandler: public Poco::RemotingNG::MethodHan
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"fieldStrength"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"fieldStrength"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -728,19 +754,21 @@ MagnetometerSkeleton::MagnetometerSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("fieldStrength", new IoT::Devices::MagnetometerFieldStrengthMethodHandler);
-	addMethodHandler("getFeature", new IoT::Devices::MagnetometerGetFeatureMethodHandler);
-	addMethodHandler("getPropertyBool", new IoT::Devices::MagnetometerGetPropertyBoolMethodHandler);
-	addMethodHandler("getPropertyDouble", new IoT::Devices::MagnetometerGetPropertyDoubleMethodHandler);
-	addMethodHandler("getPropertyInt", new IoT::Devices::MagnetometerGetPropertyIntMethodHandler);
-	addMethodHandler("getPropertyString", new IoT::Devices::MagnetometerGetPropertyStringMethodHandler);
-	addMethodHandler("hasFeature", new IoT::Devices::MagnetometerHasFeatureMethodHandler);
-	addMethodHandler("hasProperty", new IoT::Devices::MagnetometerHasPropertyMethodHandler);
-	addMethodHandler("setFeature", new IoT::Devices::MagnetometerSetFeatureMethodHandler);
-	addMethodHandler("setPropertyBool", new IoT::Devices::MagnetometerSetPropertyBoolMethodHandler);
-	addMethodHandler("setPropertyDouble", new IoT::Devices::MagnetometerSetPropertyDoubleMethodHandler);
-	addMethodHandler("setPropertyInt", new IoT::Devices::MagnetometerSetPropertyIntMethodHandler);
-	addMethodHandler("setPropertyString", new IoT::Devices::MagnetometerSetPropertyStringMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("fieldStrength"s, new IoT::Devices::MagnetometerFieldStrengthMethodHandler);
+	addMethodHandler("getFeature"s, new IoT::Devices::MagnetometerGetFeatureMethodHandler);
+	addMethodHandler("getPropertyBool"s, new IoT::Devices::MagnetometerGetPropertyBoolMethodHandler);
+	addMethodHandler("getPropertyDouble"s, new IoT::Devices::MagnetometerGetPropertyDoubleMethodHandler);
+	addMethodHandler("getPropertyInt"s, new IoT::Devices::MagnetometerGetPropertyIntMethodHandler);
+	addMethodHandler("getPropertyString"s, new IoT::Devices::MagnetometerGetPropertyStringMethodHandler);
+	addMethodHandler("hasFeature"s, new IoT::Devices::MagnetometerHasFeatureMethodHandler);
+	addMethodHandler("hasProperty"s, new IoT::Devices::MagnetometerHasPropertyMethodHandler);
+	addMethodHandler("setFeature"s, new IoT::Devices::MagnetometerSetFeatureMethodHandler);
+	addMethodHandler("setPropertyBool"s, new IoT::Devices::MagnetometerSetPropertyBoolMethodHandler);
+	addMethodHandler("setPropertyDouble"s, new IoT::Devices::MagnetometerSetPropertyDoubleMethodHandler);
+	addMethodHandler("setPropertyInt"s, new IoT::Devices::MagnetometerSetPropertyIntMethodHandler);
+	addMethodHandler("setPropertyString"s, new IoT::Devices::MagnetometerSetPropertyStringMethodHandler);
 }
 
 

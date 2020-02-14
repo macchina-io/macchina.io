@@ -34,6 +34,8 @@ class TypeDeserializer<IoT::NetworkEnvironment::NetworkInterface>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::NetworkEnvironment::NetworkInterface& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -45,7 +47,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::NetworkEnvironment::NetworkInterface& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"adapterName","addresses","displayName","index","isLoopback","isPointToPoint","isRunning","isUp","macAddress","mtu","name","supportsBroadcast","supportsIP","supportsIPv4","supportsIPv6","supportsMulticast","type"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"adapterName"s,"addresses"s,"displayName"s,"index"s,"isLoopback"s,"isPointToPoint"s,"isRunning"s,"isUp"s,"macAddress"s,"mtu"s,"name"s,"supportsBroadcast"s,"supportsIP"s,"supportsIPv4"s,"supportsIPv6"s,"supportsMulticast"s,"type"s};
 		bool ret = false;
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.adapterName);
 		TypeDeserializer<std::vector < IoT::NetworkEnvironment::AddressTuple > >::deserialize(REMOTING__NAMES[1], true, deser, value.addresses);

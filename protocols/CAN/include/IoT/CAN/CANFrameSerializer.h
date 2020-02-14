@@ -32,6 +32,8 @@ class TypeSerializer<IoT::CAN::CANFrame>
 public:
 	static void serialize(const std::string& name, const IoT::CAN::CANFrame& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::CAN::CANFrame& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"id","flags","dlc","payload",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"id"s,"flags"s,"dlc"s,"payload"s,""s};
 		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES[0], value.id(), ser);
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[1], value.flags(), ser);
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[2], value.dlc(), ser);

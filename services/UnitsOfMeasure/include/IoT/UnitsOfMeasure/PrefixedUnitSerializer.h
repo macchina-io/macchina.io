@@ -36,6 +36,8 @@ class TypeSerializer<IoT::UnitsOfMeasure::PrefixedUnit>
 public:
 	static void serialize(const std::string& name, const IoT::UnitsOfMeasure::PrefixedUnit& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -43,7 +45,9 @@ public:
 
 	static void serializeImpl(const IoT::UnitsOfMeasure::PrefixedUnit& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"prefix","unit",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"prefix"s,"unit"s,""s};
 		TypeSerializer<Poco::SharedPtr < IoT::UnitsOfMeasure::Prefix > >::serialize(REMOTING__NAMES[0], value.prefix, ser);
 		TypeSerializer<Poco::SharedPtr < IoT::UnitsOfMeasure::Unit > >::serialize(REMOTING__NAMES[1], value.unit, ser);
 	}

@@ -37,7 +37,9 @@ class NetworkEnvironmentServiceEnumerateInterfacesMethodHandler: public Poco::Re
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"enumerateInterfaces","options"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"enumerateInterfaces"s,"options"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -90,7 +92,9 @@ class NetworkEnvironmentServiceFindActiveNetworkInterfaceMethodHandler: public P
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"findActiveNetworkInterface","ipVersion"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"findActiveNetworkInterface"s,"ipVersion"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -144,8 +148,10 @@ NetworkEnvironmentServiceSkeleton::NetworkEnvironmentServiceSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("enumerateInterfaces", new IoT::NetworkEnvironment::NetworkEnvironmentServiceEnumerateInterfacesMethodHandler);
-	addMethodHandler("findActiveNetworkInterface", new IoT::NetworkEnvironment::NetworkEnvironmentServiceFindActiveNetworkInterfaceMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("enumerateInterfaces"s, new IoT::NetworkEnvironment::NetworkEnvironmentServiceEnumerateInterfacesMethodHandler);
+	addMethodHandler("findActiveNetworkInterface"s, new IoT::NetworkEnvironment::NetworkEnvironmentServiceFindActiveNetworkInterfaceMethodHandler);
 }
 
 

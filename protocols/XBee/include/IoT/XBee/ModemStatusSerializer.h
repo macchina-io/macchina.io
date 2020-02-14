@@ -32,6 +32,8 @@ class TypeSerializer<IoT::XBee::ModemStatus>
 public:
 	static void serialize(const std::string& name, const IoT::XBee::ModemStatus& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::XBee::ModemStatus& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"status",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"status"s,""s};
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[0], value.status, ser);
 	}
 

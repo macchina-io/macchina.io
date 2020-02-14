@@ -37,7 +37,9 @@ class PeripheralAddressMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"address"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"address"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -88,7 +90,9 @@ class PeripheralCharacteristicMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"characteristic","serviceUUID","characteristicUUID"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"characteristic"s,"serviceUUID"s,"characteristicUUID"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -143,7 +147,9 @@ class PeripheralCharacteristicForAssignedNumberMethodHandler: public Poco::Remot
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"characteristicForAssignedNumber","serviceUUID","assignedNumber"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"characteristicForAssignedNumber"s,"serviceUUID"s,"assignedNumber"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -198,7 +204,9 @@ class PeripheralCharacteristicsMethodHandler: public Poco::RemotingNG::MethodHan
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"characteristics","serviceUUID"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"characteristics"s,"serviceUUID"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -251,7 +259,9 @@ class PeripheralConnectMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"connect"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"connect"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -301,7 +311,9 @@ class PeripheralConnectAsyncMethodHandler: public Poco::RemotingNG::MethodHandle
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"connectAsync"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"connectAsync"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -351,7 +363,9 @@ class PeripheralDisconnectMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"disconnect"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"disconnect"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -401,7 +415,9 @@ class PeripheralFirmwareRevisionMethodHandler: public Poco::RemotingNG::MethodHa
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"firmwareRevision"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"firmwareRevision"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -452,7 +468,9 @@ class PeripheralHandleForDescriptorMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"handleForDescriptor","serviceUUID","descriptorUUID"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"handleForDescriptor"s,"serviceUUID"s,"descriptorUUID"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -507,7 +525,9 @@ class PeripheralHardwareRevisionMethodHandler: public Poco::RemotingNG::MethodHa
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hardwareRevision"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hardwareRevision"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -558,7 +578,9 @@ class PeripheralIsConnectedMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"isConnected"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"isConnected"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -609,7 +631,9 @@ class PeripheralManufacturerNameMethodHandler: public Poco::RemotingNG::MethodHa
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"manufacturerName"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"manufacturerName"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -660,7 +684,9 @@ class PeripheralModelNumberMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"modelNumber"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"modelNumber"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -711,7 +737,9 @@ class PeripheralReadBytesMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readBytes","valueHandle"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readBytes"s,"valueHandle"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -764,7 +792,9 @@ class PeripheralReadInt16MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readInt16","valueHandle"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readInt16"s,"valueHandle"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -817,7 +847,9 @@ class PeripheralReadInt32MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readInt32","valueHandle"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readInt32"s,"valueHandle"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -870,7 +902,9 @@ class PeripheralReadInt8MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readInt8","valueHandle"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readInt8"s,"valueHandle"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -923,7 +957,9 @@ class PeripheralReadStringMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readString","valueHandle"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readString"s,"valueHandle"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -976,7 +1012,9 @@ class PeripheralReadString0MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readString0","valueHandle"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readString0"s,"valueHandle"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1029,7 +1067,9 @@ class PeripheralReadUInt16MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readUInt16","valueHandle"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readUInt16"s,"valueHandle"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1082,7 +1122,9 @@ class PeripheralReadUInt32MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readUInt32","valueHandle"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readUInt32"s,"valueHandle"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1135,7 +1177,9 @@ class PeripheralReadUInt8MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readUInt8","valueHandle"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readUInt8"s,"valueHandle"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1188,7 +1232,9 @@ class PeripheralSerialNumberMethodHandler: public Poco::RemotingNG::MethodHandle
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"serialNumber"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"serialNumber"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1239,7 +1285,9 @@ class PeripheralServiceUUIDForAssignedNumberMethodHandler: public Poco::Remoting
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"serviceUUIDForAssignedNumber","assignedNumber"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"serviceUUIDForAssignedNumber"s,"assignedNumber"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1292,7 +1340,9 @@ class PeripheralServicesMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"services"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"services"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1343,7 +1393,9 @@ class PeripheralSoftwareRevisionMethodHandler: public Poco::RemotingNG::MethodHa
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"softwareRevision"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"softwareRevision"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1394,7 +1446,9 @@ class PeripheralWriteBytesMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeBytes","valueHandle","value","withResponse"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeBytes"s,"valueHandle"s,"value"s,"withResponse"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1450,7 +1504,9 @@ class PeripheralWriteInt16MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeInt16","valueHandle","value","withResponse"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeInt16"s,"valueHandle"s,"value"s,"withResponse"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1506,7 +1562,9 @@ class PeripheralWriteInt32MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeInt32","valueHandle","value","withResponse"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeInt32"s,"valueHandle"s,"value"s,"withResponse"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1562,7 +1620,9 @@ class PeripheralWriteInt8MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeInt8","valueHandle","value","withResponse"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeInt8"s,"valueHandle"s,"value"s,"withResponse"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1618,7 +1678,9 @@ class PeripheralWriteStringMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeString","valueHandle","value","withResponse"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeString"s,"valueHandle"s,"value"s,"withResponse"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1674,7 +1736,9 @@ class PeripheralWriteUInt16MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeUInt16","valueHandle","value","withResponse"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeUInt16"s,"valueHandle"s,"value"s,"withResponse"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1730,7 +1794,9 @@ class PeripheralWriteUInt32MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeUInt32","valueHandle","value","withResponse"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeUInt32"s,"valueHandle"s,"value"s,"withResponse"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1786,7 +1852,9 @@ class PeripheralWriteUInt8MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeUInt8","valueHandle","value","withResponse"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeUInt8"s,"valueHandle"s,"value"s,"withResponse"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1841,40 +1909,42 @@ PeripheralSkeleton::PeripheralSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("address", new IoT::BtLE::PeripheralAddressMethodHandler);
-	addMethodHandler("characteristic", new IoT::BtLE::PeripheralCharacteristicMethodHandler);
-	addMethodHandler("characteristicForAssignedNumber", new IoT::BtLE::PeripheralCharacteristicForAssignedNumberMethodHandler);
-	addMethodHandler("characteristics", new IoT::BtLE::PeripheralCharacteristicsMethodHandler);
-	addMethodHandler("connect", new IoT::BtLE::PeripheralConnectMethodHandler);
-	addMethodHandler("connectAsync", new IoT::BtLE::PeripheralConnectAsyncMethodHandler);
-	addMethodHandler("disconnect", new IoT::BtLE::PeripheralDisconnectMethodHandler);
-	addMethodHandler("firmwareRevision", new IoT::BtLE::PeripheralFirmwareRevisionMethodHandler);
-	addMethodHandler("handleForDescriptor", new IoT::BtLE::PeripheralHandleForDescriptorMethodHandler);
-	addMethodHandler("hardwareRevision", new IoT::BtLE::PeripheralHardwareRevisionMethodHandler);
-	addMethodHandler("isConnected", new IoT::BtLE::PeripheralIsConnectedMethodHandler);
-	addMethodHandler("manufacturerName", new IoT::BtLE::PeripheralManufacturerNameMethodHandler);
-	addMethodHandler("modelNumber", new IoT::BtLE::PeripheralModelNumberMethodHandler);
-	addMethodHandler("readBytes", new IoT::BtLE::PeripheralReadBytesMethodHandler);
-	addMethodHandler("readInt16", new IoT::BtLE::PeripheralReadInt16MethodHandler);
-	addMethodHandler("readInt32", new IoT::BtLE::PeripheralReadInt32MethodHandler);
-	addMethodHandler("readInt8", new IoT::BtLE::PeripheralReadInt8MethodHandler);
-	addMethodHandler("readString", new IoT::BtLE::PeripheralReadStringMethodHandler);
-	addMethodHandler("readString0", new IoT::BtLE::PeripheralReadString0MethodHandler);
-	addMethodHandler("readUInt16", new IoT::BtLE::PeripheralReadUInt16MethodHandler);
-	addMethodHandler("readUInt32", new IoT::BtLE::PeripheralReadUInt32MethodHandler);
-	addMethodHandler("readUInt8", new IoT::BtLE::PeripheralReadUInt8MethodHandler);
-	addMethodHandler("serialNumber", new IoT::BtLE::PeripheralSerialNumberMethodHandler);
-	addMethodHandler("serviceUUIDForAssignedNumber", new IoT::BtLE::PeripheralServiceUUIDForAssignedNumberMethodHandler);
-	addMethodHandler("services", new IoT::BtLE::PeripheralServicesMethodHandler);
-	addMethodHandler("softwareRevision", new IoT::BtLE::PeripheralSoftwareRevisionMethodHandler);
-	addMethodHandler("writeBytes", new IoT::BtLE::PeripheralWriteBytesMethodHandler);
-	addMethodHandler("writeInt16", new IoT::BtLE::PeripheralWriteInt16MethodHandler);
-	addMethodHandler("writeInt32", new IoT::BtLE::PeripheralWriteInt32MethodHandler);
-	addMethodHandler("writeInt8", new IoT::BtLE::PeripheralWriteInt8MethodHandler);
-	addMethodHandler("writeString", new IoT::BtLE::PeripheralWriteStringMethodHandler);
-	addMethodHandler("writeUInt16", new IoT::BtLE::PeripheralWriteUInt16MethodHandler);
-	addMethodHandler("writeUInt32", new IoT::BtLE::PeripheralWriteUInt32MethodHandler);
-	addMethodHandler("writeUInt8", new IoT::BtLE::PeripheralWriteUInt8MethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("address"s, new IoT::BtLE::PeripheralAddressMethodHandler);
+	addMethodHandler("characteristic"s, new IoT::BtLE::PeripheralCharacteristicMethodHandler);
+	addMethodHandler("characteristicForAssignedNumber"s, new IoT::BtLE::PeripheralCharacteristicForAssignedNumberMethodHandler);
+	addMethodHandler("characteristics"s, new IoT::BtLE::PeripheralCharacteristicsMethodHandler);
+	addMethodHandler("connect"s, new IoT::BtLE::PeripheralConnectMethodHandler);
+	addMethodHandler("connectAsync"s, new IoT::BtLE::PeripheralConnectAsyncMethodHandler);
+	addMethodHandler("disconnect"s, new IoT::BtLE::PeripheralDisconnectMethodHandler);
+	addMethodHandler("firmwareRevision"s, new IoT::BtLE::PeripheralFirmwareRevisionMethodHandler);
+	addMethodHandler("handleForDescriptor"s, new IoT::BtLE::PeripheralHandleForDescriptorMethodHandler);
+	addMethodHandler("hardwareRevision"s, new IoT::BtLE::PeripheralHardwareRevisionMethodHandler);
+	addMethodHandler("isConnected"s, new IoT::BtLE::PeripheralIsConnectedMethodHandler);
+	addMethodHandler("manufacturerName"s, new IoT::BtLE::PeripheralManufacturerNameMethodHandler);
+	addMethodHandler("modelNumber"s, new IoT::BtLE::PeripheralModelNumberMethodHandler);
+	addMethodHandler("readBytes"s, new IoT::BtLE::PeripheralReadBytesMethodHandler);
+	addMethodHandler("readInt16"s, new IoT::BtLE::PeripheralReadInt16MethodHandler);
+	addMethodHandler("readInt32"s, new IoT::BtLE::PeripheralReadInt32MethodHandler);
+	addMethodHandler("readInt8"s, new IoT::BtLE::PeripheralReadInt8MethodHandler);
+	addMethodHandler("readString"s, new IoT::BtLE::PeripheralReadStringMethodHandler);
+	addMethodHandler("readString0"s, new IoT::BtLE::PeripheralReadString0MethodHandler);
+	addMethodHandler("readUInt16"s, new IoT::BtLE::PeripheralReadUInt16MethodHandler);
+	addMethodHandler("readUInt32"s, new IoT::BtLE::PeripheralReadUInt32MethodHandler);
+	addMethodHandler("readUInt8"s, new IoT::BtLE::PeripheralReadUInt8MethodHandler);
+	addMethodHandler("serialNumber"s, new IoT::BtLE::PeripheralSerialNumberMethodHandler);
+	addMethodHandler("serviceUUIDForAssignedNumber"s, new IoT::BtLE::PeripheralServiceUUIDForAssignedNumberMethodHandler);
+	addMethodHandler("services"s, new IoT::BtLE::PeripheralServicesMethodHandler);
+	addMethodHandler("softwareRevision"s, new IoT::BtLE::PeripheralSoftwareRevisionMethodHandler);
+	addMethodHandler("writeBytes"s, new IoT::BtLE::PeripheralWriteBytesMethodHandler);
+	addMethodHandler("writeInt16"s, new IoT::BtLE::PeripheralWriteInt16MethodHandler);
+	addMethodHandler("writeInt32"s, new IoT::BtLE::PeripheralWriteInt32MethodHandler);
+	addMethodHandler("writeInt8"s, new IoT::BtLE::PeripheralWriteInt8MethodHandler);
+	addMethodHandler("writeString"s, new IoT::BtLE::PeripheralWriteStringMethodHandler);
+	addMethodHandler("writeUInt16"s, new IoT::BtLE::PeripheralWriteUInt16MethodHandler);
+	addMethodHandler("writeUInt32"s, new IoT::BtLE::PeripheralWriteUInt32MethodHandler);
+	addMethodHandler("writeUInt8"s, new IoT::BtLE::PeripheralWriteUInt8MethodHandler);
 }
 
 

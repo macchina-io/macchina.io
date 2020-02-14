@@ -32,6 +32,8 @@ class TypeSerializer<IoT::Devices::Image>
 public:
 	static void serialize(const std::string& name, const IoT::Devices::Image& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::Devices::Image& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"encoding","height","image","step","width",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"encoding"s,"height"s,"image"s,"step"s,"width"s,""s};
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.encoding, ser);
 		TypeSerializer<int >::serialize(REMOTING__NAMES[1], value.height, ser);
 		TypeSerializer<Poco::SharedPtr < std::vector < char > > >::serialize(REMOTING__NAMES[2], value.image, ser);

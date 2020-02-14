@@ -34,6 +34,8 @@ class TypeDeserializer<IoT::MQTT::ConnectionEstablishedEvent>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::MQTT::ConnectionEstablishedEvent& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -45,7 +47,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::MQTT::ConnectionEstablishedEvent& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"connectionInfo"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"connectionInfo"s};
 		TypeDeserializer<IoT::MQTT::ConnectionInfo >::deserialize(REMOTING__NAMES[0], true, deser, value.connectionInfo);
 	}
 

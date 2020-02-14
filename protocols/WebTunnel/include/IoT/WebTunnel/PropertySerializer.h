@@ -32,6 +32,8 @@ class TypeSerializer<IoT::WebTunnel::Property>
 public:
 	static void serialize(const std::string& name, const IoT::WebTunnel::Property& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::WebTunnel::Property& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"name","value",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"name"s,"value"s,""s};
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.name, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.value, ser);
 	}

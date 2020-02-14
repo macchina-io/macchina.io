@@ -160,7 +160,9 @@ void RotaryEncoderEventDispatcher::event__statusChanged(const void* pSender, con
 
 void RotaryEncoderEventDispatcher::event__buttonStateChangedImpl(const std::string& subscriberURI, const bool& data)
 {
-	static const std::string REMOTING__NAMES[] = {"buttonStateChanged","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"buttonStateChanged"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -173,7 +175,9 @@ void RotaryEncoderEventDispatcher::event__buttonStateChangedImpl(const std::stri
 
 void RotaryEncoderEventDispatcher::event__countChangedImpl(const std::string& subscriberURI, const Poco::Int32& data)
 {
-	static const std::string REMOTING__NAMES[] = {"countChanged","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"countChanged"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -186,7 +190,9 @@ void RotaryEncoderEventDispatcher::event__countChangedImpl(const std::string& su
 
 void RotaryEncoderEventDispatcher::event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data)
 {
-	static const std::string REMOTING__NAMES[] = {"statusChanged","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"statusChanged"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);

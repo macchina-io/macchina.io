@@ -34,6 +34,8 @@ class TypeDeserializer<IoT::MQTT::MessageArrivedEvent>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::MQTT::MessageArrivedEvent& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -45,7 +47,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::MQTT::MessageArrivedEvent& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"dup","handled","message","topic"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"dup"s,"handled"s,"message"s,"topic"s};
 		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[0], true, deser, value.dup);
 		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[1], true, deser, value.handled);
 		TypeDeserializer<IoT::MQTT::Message >::deserialize(REMOTING__NAMES[2], true, deser, value.message);

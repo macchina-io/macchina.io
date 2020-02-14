@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::MQTT::TopicQoS>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::MQTT::TopicQoS& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,7 +45,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::MQTT::TopicQoS& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"qos","topic"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"qos"s,"topic"s};
 		TypeDeserializer<int >::deserialize(REMOTING__NAMES[0], true, deser, value.qos);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.topic);
 	}

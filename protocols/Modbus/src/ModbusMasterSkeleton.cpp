@@ -61,7 +61,9 @@ class ModbusMasterMaskWriteRegisterMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"maskWriteRegister","slaveAddress","outputAddress","andMask","orMask"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"maskWriteRegister"s,"slaveAddress"s,"outputAddress"s,"andMask"s,"orMask"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -119,7 +121,9 @@ class ModbusMasterReadCoilsMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readCoils","slaveAddress","startingAddress","nOfCoils"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readCoils"s,"slaveAddress"s,"startingAddress"s,"nOfCoils"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -176,7 +180,9 @@ class ModbusMasterReadDiscreteInputsMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readDiscreteInputs","slaveAddress","startingAddress","nOfInputs"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readDiscreteInputs"s,"slaveAddress"s,"startingAddress"s,"nOfInputs"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -233,7 +239,9 @@ class ModbusMasterReadExceptionStatusMethodHandler: public Poco::RemotingNG::Met
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readExceptionStatus","slaveAddress"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readExceptionStatus"s,"slaveAddress"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -286,7 +294,9 @@ class ModbusMasterReadFIFOQueueMethodHandler: public Poco::RemotingNG::MethodHan
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readFIFOQueue","slaveAddress","fifoPointerAddress"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readFIFOQueue"s,"slaveAddress"s,"fifoPointerAddress"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -341,7 +351,9 @@ class ModbusMasterReadHoldingRegistersMethodHandler: public Poco::RemotingNG::Me
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readHoldingRegisters","slaveAddress","startingAddress","nOfRegisters"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readHoldingRegisters"s,"slaveAddress"s,"startingAddress"s,"nOfRegisters"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -398,7 +410,9 @@ class ModbusMasterReadInputRegistersMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readInputRegisters","slaveAddress","startingAddress","nOfRegisters"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readInputRegisters"s,"slaveAddress"s,"startingAddress"s,"nOfRegisters"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -455,7 +469,9 @@ class ModbusMasterReadWriteMultipleRegistersMethodHandler: public Poco::Remoting
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"readWriteMultipleRegisters","slaveAddress","writeStartingAddress","writeValues","readStartingAddress","nOfReadRegisters"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"readWriteMultipleRegisters"s,"slaveAddress"s,"writeStartingAddress"s,"writeValues"s,"readStartingAddress"s,"nOfReadRegisters"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -516,7 +532,9 @@ class ModbusMasterResetMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"reset"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"reset"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -566,7 +584,9 @@ class ModbusMasterSendMaskWriteRegisterRequestMethodHandler: public Poco::Remoti
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendMaskWriteRegisterRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendMaskWriteRegisterRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -619,7 +639,9 @@ class ModbusMasterSendReadCoilsRequestMethodHandler: public Poco::RemotingNG::Me
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendReadCoilsRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendReadCoilsRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -672,7 +694,9 @@ class ModbusMasterSendReadDiscreteInputsRequestMethodHandler: public Poco::Remot
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendReadDiscreteInputsRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendReadDiscreteInputsRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -725,7 +749,9 @@ class ModbusMasterSendReadExceptionStatusRequestMethodHandler: public Poco::Remo
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendReadExceptionStatusRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendReadExceptionStatusRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -778,7 +804,9 @@ class ModbusMasterSendReadFIFOQueueRequestMethodHandler: public Poco::RemotingNG
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendReadFIFOQueueRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendReadFIFOQueueRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -831,7 +859,9 @@ class ModbusMasterSendReadHoldingRegistersRequestMethodHandler: public Poco::Rem
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendReadHoldingRegistersRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendReadHoldingRegistersRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -884,7 +914,9 @@ class ModbusMasterSendReadInputRegistersRequestMethodHandler: public Poco::Remot
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendReadInputRegistersRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendReadInputRegistersRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -937,7 +969,9 @@ class ModbusMasterSendReadWriteMultipleRegistersRequestMethodHandler: public Poc
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendReadWriteMultipleRegistersRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendReadWriteMultipleRegistersRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -990,7 +1024,9 @@ class ModbusMasterSendRequestMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendRequest","message"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendRequest"s,"message"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1043,7 +1079,9 @@ class ModbusMasterSendWriteMultipleCoilsRequestMethodHandler: public Poco::Remot
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendWriteMultipleCoilsRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendWriteMultipleCoilsRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1096,7 +1134,9 @@ class ModbusMasterSendWriteMultipleRegistersRequestMethodHandler: public Poco::R
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendWriteMultipleRegistersRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendWriteMultipleRegistersRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1149,7 +1189,9 @@ class ModbusMasterSendWriteSingleCoilRequestMethodHandler: public Poco::Remoting
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendWriteSingleCoilRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendWriteSingleCoilRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1202,7 +1244,9 @@ class ModbusMasterSendWriteSingleRegisterRequestMethodHandler: public Poco::Remo
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendWriteSingleRegisterRequest","request"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendWriteSingleRegisterRequest"s,"request"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1255,7 +1299,9 @@ class ModbusMasterWriteMultipleCoilsMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeMultipleCoils","slaveAddress","outputAddress","values"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeMultipleCoils"s,"slaveAddress"s,"outputAddress"s,"values"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1311,7 +1357,9 @@ class ModbusMasterWriteMultipleRegistersMethodHandler: public Poco::RemotingNG::
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeMultipleRegisters","slaveAddress","outputAddress","values"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeMultipleRegisters"s,"slaveAddress"s,"outputAddress"s,"values"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1367,7 +1415,9 @@ class ModbusMasterWriteSingleCoilMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeSingleCoil","slaveAddress","outputAddress","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeSingleCoil"s,"slaveAddress"s,"outputAddress"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1423,7 +1473,9 @@ class ModbusMasterWriteSingleRegisterMethodHandler: public Poco::RemotingNG::Met
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"writeSingleRegister","slaveAddress","outputAddress","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"writeSingleRegister"s,"slaveAddress"s,"outputAddress"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1478,32 +1530,34 @@ ModbusMasterSkeleton::ModbusMasterSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("maskWriteRegister", new IoT::Modbus::ModbusMasterMaskWriteRegisterMethodHandler);
-	addMethodHandler("readCoils", new IoT::Modbus::ModbusMasterReadCoilsMethodHandler);
-	addMethodHandler("readDiscreteInputs", new IoT::Modbus::ModbusMasterReadDiscreteInputsMethodHandler);
-	addMethodHandler("readExceptionStatus", new IoT::Modbus::ModbusMasterReadExceptionStatusMethodHandler);
-	addMethodHandler("readFIFOQueue", new IoT::Modbus::ModbusMasterReadFIFOQueueMethodHandler);
-	addMethodHandler("readHoldingRegisters", new IoT::Modbus::ModbusMasterReadHoldingRegistersMethodHandler);
-	addMethodHandler("readInputRegisters", new IoT::Modbus::ModbusMasterReadInputRegistersMethodHandler);
-	addMethodHandler("readWriteMultipleRegisters", new IoT::Modbus::ModbusMasterReadWriteMultipleRegistersMethodHandler);
-	addMethodHandler("reset", new IoT::Modbus::ModbusMasterResetMethodHandler);
-	addMethodHandler("sendMaskWriteRegisterRequest", new IoT::Modbus::ModbusMasterSendMaskWriteRegisterRequestMethodHandler);
-	addMethodHandler("sendReadCoilsRequest", new IoT::Modbus::ModbusMasterSendReadCoilsRequestMethodHandler);
-	addMethodHandler("sendReadDiscreteInputsRequest", new IoT::Modbus::ModbusMasterSendReadDiscreteInputsRequestMethodHandler);
-	addMethodHandler("sendReadExceptionStatusRequest", new IoT::Modbus::ModbusMasterSendReadExceptionStatusRequestMethodHandler);
-	addMethodHandler("sendReadFIFOQueueRequest", new IoT::Modbus::ModbusMasterSendReadFIFOQueueRequestMethodHandler);
-	addMethodHandler("sendReadHoldingRegistersRequest", new IoT::Modbus::ModbusMasterSendReadHoldingRegistersRequestMethodHandler);
-	addMethodHandler("sendReadInputRegistersRequest", new IoT::Modbus::ModbusMasterSendReadInputRegistersRequestMethodHandler);
-	addMethodHandler("sendReadWriteMultipleRegistersRequest", new IoT::Modbus::ModbusMasterSendReadWriteMultipleRegistersRequestMethodHandler);
-	addMethodHandler("sendRequest", new IoT::Modbus::ModbusMasterSendRequestMethodHandler);
-	addMethodHandler("sendWriteMultipleCoilsRequest", new IoT::Modbus::ModbusMasterSendWriteMultipleCoilsRequestMethodHandler);
-	addMethodHandler("sendWriteMultipleRegistersRequest", new IoT::Modbus::ModbusMasterSendWriteMultipleRegistersRequestMethodHandler);
-	addMethodHandler("sendWriteSingleCoilRequest", new IoT::Modbus::ModbusMasterSendWriteSingleCoilRequestMethodHandler);
-	addMethodHandler("sendWriteSingleRegisterRequest", new IoT::Modbus::ModbusMasterSendWriteSingleRegisterRequestMethodHandler);
-	addMethodHandler("writeMultipleCoils", new IoT::Modbus::ModbusMasterWriteMultipleCoilsMethodHandler);
-	addMethodHandler("writeMultipleRegisters", new IoT::Modbus::ModbusMasterWriteMultipleRegistersMethodHandler);
-	addMethodHandler("writeSingleCoil", new IoT::Modbus::ModbusMasterWriteSingleCoilMethodHandler);
-	addMethodHandler("writeSingleRegister", new IoT::Modbus::ModbusMasterWriteSingleRegisterMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("maskWriteRegister"s, new IoT::Modbus::ModbusMasterMaskWriteRegisterMethodHandler);
+	addMethodHandler("readCoils"s, new IoT::Modbus::ModbusMasterReadCoilsMethodHandler);
+	addMethodHandler("readDiscreteInputs"s, new IoT::Modbus::ModbusMasterReadDiscreteInputsMethodHandler);
+	addMethodHandler("readExceptionStatus"s, new IoT::Modbus::ModbusMasterReadExceptionStatusMethodHandler);
+	addMethodHandler("readFIFOQueue"s, new IoT::Modbus::ModbusMasterReadFIFOQueueMethodHandler);
+	addMethodHandler("readHoldingRegisters"s, new IoT::Modbus::ModbusMasterReadHoldingRegistersMethodHandler);
+	addMethodHandler("readInputRegisters"s, new IoT::Modbus::ModbusMasterReadInputRegistersMethodHandler);
+	addMethodHandler("readWriteMultipleRegisters"s, new IoT::Modbus::ModbusMasterReadWriteMultipleRegistersMethodHandler);
+	addMethodHandler("reset"s, new IoT::Modbus::ModbusMasterResetMethodHandler);
+	addMethodHandler("sendMaskWriteRegisterRequest"s, new IoT::Modbus::ModbusMasterSendMaskWriteRegisterRequestMethodHandler);
+	addMethodHandler("sendReadCoilsRequest"s, new IoT::Modbus::ModbusMasterSendReadCoilsRequestMethodHandler);
+	addMethodHandler("sendReadDiscreteInputsRequest"s, new IoT::Modbus::ModbusMasterSendReadDiscreteInputsRequestMethodHandler);
+	addMethodHandler("sendReadExceptionStatusRequest"s, new IoT::Modbus::ModbusMasterSendReadExceptionStatusRequestMethodHandler);
+	addMethodHandler("sendReadFIFOQueueRequest"s, new IoT::Modbus::ModbusMasterSendReadFIFOQueueRequestMethodHandler);
+	addMethodHandler("sendReadHoldingRegistersRequest"s, new IoT::Modbus::ModbusMasterSendReadHoldingRegistersRequestMethodHandler);
+	addMethodHandler("sendReadInputRegistersRequest"s, new IoT::Modbus::ModbusMasterSendReadInputRegistersRequestMethodHandler);
+	addMethodHandler("sendReadWriteMultipleRegistersRequest"s, new IoT::Modbus::ModbusMasterSendReadWriteMultipleRegistersRequestMethodHandler);
+	addMethodHandler("sendRequest"s, new IoT::Modbus::ModbusMasterSendRequestMethodHandler);
+	addMethodHandler("sendWriteMultipleCoilsRequest"s, new IoT::Modbus::ModbusMasterSendWriteMultipleCoilsRequestMethodHandler);
+	addMethodHandler("sendWriteMultipleRegistersRequest"s, new IoT::Modbus::ModbusMasterSendWriteMultipleRegistersRequestMethodHandler);
+	addMethodHandler("sendWriteSingleCoilRequest"s, new IoT::Modbus::ModbusMasterSendWriteSingleCoilRequestMethodHandler);
+	addMethodHandler("sendWriteSingleRegisterRequest"s, new IoT::Modbus::ModbusMasterSendWriteSingleRegisterRequestMethodHandler);
+	addMethodHandler("writeMultipleCoils"s, new IoT::Modbus::ModbusMasterWriteMultipleCoilsMethodHandler);
+	addMethodHandler("writeMultipleRegisters"s, new IoT::Modbus::ModbusMasterWriteMultipleRegistersMethodHandler);
+	addMethodHandler("writeSingleCoil"s, new IoT::Modbus::ModbusMasterWriteSingleCoilMethodHandler);
+	addMethodHandler("writeSingleRegister"s, new IoT::Modbus::ModbusMasterWriteSingleRegisterMethodHandler);
 }
 
 

@@ -35,7 +35,9 @@ class WebEventNotifierNotifyMethodHandler: public Poco::RemotingNG::MethodHandle
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"notify","subjectName","data"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"notify"s,"subjectName"s,"data"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -88,7 +90,9 @@ WebEventNotifierSkeleton::WebEventNotifierSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("notify", new IoT::WebEvent::WebEventNotifierNotifyMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("notify"s, new IoT::WebEvent::WebEventNotifierNotifyMethodHandler);
 }
 
 

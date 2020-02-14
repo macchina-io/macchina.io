@@ -41,7 +41,9 @@ class CANEndpointAddFilterMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"addFilter","filter"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"addFilter"s,"filter"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -94,7 +96,9 @@ class CANEndpointDeviceMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"device"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"device"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -145,7 +149,9 @@ class CANEndpointEnableEventsMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"enableEvents","enable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"enableEvents"s,"enable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -197,7 +203,9 @@ class CANEndpointEnableFDMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"enableFD","enable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"enableFD"s,"enable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -249,7 +257,9 @@ class CANEndpointEventsEnabledMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"eventsEnabled"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"eventsEnabled"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -300,7 +310,9 @@ class CANEndpointFdEnabledMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"fdEnabled"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"fdEnabled"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -351,7 +363,9 @@ class CANEndpointFdSupportedMethodHandler: public Poco::RemotingNG::MethodHandle
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"fdSupported"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"fdSupported"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -402,7 +416,9 @@ class CANEndpointGetFilterMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getFilter"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getFilter"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -453,7 +469,9 @@ class CANEndpointGetFilterModeMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getFilterMode"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getFilterMode"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -504,7 +522,9 @@ class CANEndpointRemoveFilterMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"removeFilter","filter"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"removeFilter"s,"filter"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -557,7 +577,9 @@ class CANEndpointSendCANFDFrameMethodHandler: public Poco::RemotingNG::MethodHan
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendCANFDFrame","frame"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendCANFDFrame"s,"frame"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -609,7 +631,9 @@ class CANEndpointSendCANFrameMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendCANFrame","frame"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendCANFrame"s,"frame"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -661,7 +685,9 @@ class CANEndpointSendFrameMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendFrame","frame","type"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendFrame"s,"frame"s,"type"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -717,7 +743,9 @@ class CANEndpointSetFilterMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setFilter","filter"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setFilter"s,"filter"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -769,7 +797,9 @@ class CANEndpointSetFilterModeMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setFilterMode","mode"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setFilterMode"s,"mode"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -822,21 +852,23 @@ CANEndpointSkeleton::CANEndpointSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("addFilter", new IoT::CAN::CANEndpointAddFilterMethodHandler);
-	addMethodHandler("device", new IoT::CAN::CANEndpointDeviceMethodHandler);
-	addMethodHandler("enableEvents", new IoT::CAN::CANEndpointEnableEventsMethodHandler);
-	addMethodHandler("enableFD", new IoT::CAN::CANEndpointEnableFDMethodHandler);
-	addMethodHandler("eventsEnabled", new IoT::CAN::CANEndpointEventsEnabledMethodHandler);
-	addMethodHandler("fdEnabled", new IoT::CAN::CANEndpointFdEnabledMethodHandler);
-	addMethodHandler("fdSupported", new IoT::CAN::CANEndpointFdSupportedMethodHandler);
-	addMethodHandler("getFilter", new IoT::CAN::CANEndpointGetFilterMethodHandler);
-	addMethodHandler("getFilterMode", new IoT::CAN::CANEndpointGetFilterModeMethodHandler);
-	addMethodHandler("removeFilter", new IoT::CAN::CANEndpointRemoveFilterMethodHandler);
-	addMethodHandler("sendCANFDFrame", new IoT::CAN::CANEndpointSendCANFDFrameMethodHandler);
-	addMethodHandler("sendCANFrame", new IoT::CAN::CANEndpointSendCANFrameMethodHandler);
-	addMethodHandler("sendFrame", new IoT::CAN::CANEndpointSendFrameMethodHandler);
-	addMethodHandler("setFilter", new IoT::CAN::CANEndpointSetFilterMethodHandler);
-	addMethodHandler("setFilterMode", new IoT::CAN::CANEndpointSetFilterModeMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("addFilter"s, new IoT::CAN::CANEndpointAddFilterMethodHandler);
+	addMethodHandler("device"s, new IoT::CAN::CANEndpointDeviceMethodHandler);
+	addMethodHandler("enableEvents"s, new IoT::CAN::CANEndpointEnableEventsMethodHandler);
+	addMethodHandler("enableFD"s, new IoT::CAN::CANEndpointEnableFDMethodHandler);
+	addMethodHandler("eventsEnabled"s, new IoT::CAN::CANEndpointEventsEnabledMethodHandler);
+	addMethodHandler("fdEnabled"s, new IoT::CAN::CANEndpointFdEnabledMethodHandler);
+	addMethodHandler("fdSupported"s, new IoT::CAN::CANEndpointFdSupportedMethodHandler);
+	addMethodHandler("getFilter"s, new IoT::CAN::CANEndpointGetFilterMethodHandler);
+	addMethodHandler("getFilterMode"s, new IoT::CAN::CANEndpointGetFilterModeMethodHandler);
+	addMethodHandler("removeFilter"s, new IoT::CAN::CANEndpointRemoveFilterMethodHandler);
+	addMethodHandler("sendCANFDFrame"s, new IoT::CAN::CANEndpointSendCANFDFrameMethodHandler);
+	addMethodHandler("sendCANFrame"s, new IoT::CAN::CANEndpointSendCANFrameMethodHandler);
+	addMethodHandler("sendFrame"s, new IoT::CAN::CANEndpointSendFrameMethodHandler);
+	addMethodHandler("setFilter"s, new IoT::CAN::CANEndpointSetFilterMethodHandler);
+	addMethodHandler("setFilterMode"s, new IoT::CAN::CANEndpointSetFilterModeMethodHandler);
 }
 
 

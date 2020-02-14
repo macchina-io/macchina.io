@@ -124,7 +124,9 @@ void PeripheralBrowserEventDispatcher::event__peripheralFound(const void* pSende
 
 void PeripheralBrowserEventDispatcher::event__browseCompleteImpl(const std::string& subscriberURI)
 {
-	static const std::string REMOTING__NAMES[] = {"browseComplete","subscriberURI"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"browseComplete"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -136,7 +138,9 @@ void PeripheralBrowserEventDispatcher::event__browseCompleteImpl(const std::stri
 
 void PeripheralBrowserEventDispatcher::event__peripheralFoundImpl(const std::string& subscriberURI, const IoT::BtLE::PeripheralInfo& data)
 {
-	static const std::string REMOTING__NAMES[] = {"peripheralFound","subscriberURI","data"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"peripheralFound"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);

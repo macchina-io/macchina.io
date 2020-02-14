@@ -43,7 +43,9 @@ class UnitsOfMeasureServiceCanonicalizeMethodHandler: public Poco::RemotingNG::M
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"canonicalize","value","prefixedCode"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"canonicalize"s,"value"s,"prefixedCode"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -98,7 +100,9 @@ class UnitsOfMeasureServiceConvertMethodHandler: public Poco::RemotingNG::Method
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"convert","value","fromPrefixedCode","toPrefixedCode"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"convert"s,"value"s,"fromPrefixedCode"s,"toPrefixedCode"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -155,7 +159,9 @@ class UnitsOfMeasureServiceFindPrefixMethodHandler: public Poco::RemotingNG::Met
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"findPrefix","code"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"findPrefix"s,"code"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -208,7 +214,9 @@ class UnitsOfMeasureServiceFindUnitMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"findUnit","code"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"findUnit"s,"code"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -261,7 +269,9 @@ class UnitsOfMeasureServiceFormatMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"format","prefixedCode"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"format"s,"prefixedCode"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -314,7 +324,9 @@ class UnitsOfMeasureServiceResolveMethodHandler: public Poco::RemotingNG::Method
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"resolve","prefixedCode"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"resolve"s,"prefixedCode"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -366,12 +378,14 @@ UnitsOfMeasureServiceSkeleton::UnitsOfMeasureServiceSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("canonicalize", new IoT::UnitsOfMeasure::UnitsOfMeasureServiceCanonicalizeMethodHandler);
-	addMethodHandler("convert", new IoT::UnitsOfMeasure::UnitsOfMeasureServiceConvertMethodHandler);
-	addMethodHandler("findPrefix", new IoT::UnitsOfMeasure::UnitsOfMeasureServiceFindPrefixMethodHandler);
-	addMethodHandler("findUnit", new IoT::UnitsOfMeasure::UnitsOfMeasureServiceFindUnitMethodHandler);
-	addMethodHandler("format", new IoT::UnitsOfMeasure::UnitsOfMeasureServiceFormatMethodHandler);
-	addMethodHandler("resolve", new IoT::UnitsOfMeasure::UnitsOfMeasureServiceResolveMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("canonicalize"s, new IoT::UnitsOfMeasure::UnitsOfMeasureServiceCanonicalizeMethodHandler);
+	addMethodHandler("convert"s, new IoT::UnitsOfMeasure::UnitsOfMeasureServiceConvertMethodHandler);
+	addMethodHandler("findPrefix"s, new IoT::UnitsOfMeasure::UnitsOfMeasureServiceFindPrefixMethodHandler);
+	addMethodHandler("findUnit"s, new IoT::UnitsOfMeasure::UnitsOfMeasureServiceFindUnitMethodHandler);
+	addMethodHandler("format"s, new IoT::UnitsOfMeasure::UnitsOfMeasureServiceFormatMethodHandler);
+	addMethodHandler("resolve"s, new IoT::UnitsOfMeasure::UnitsOfMeasureServiceResolveMethodHandler);
 }
 
 

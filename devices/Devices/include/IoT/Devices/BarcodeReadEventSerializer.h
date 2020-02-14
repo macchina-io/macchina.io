@@ -32,6 +32,8 @@ class TypeSerializer<IoT::Devices::BarcodeReadEvent>
 public:
 	static void serialize(const std::string& name, const IoT::Devices::BarcodeReadEvent& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::Devices::BarcodeReadEvent& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"code","type",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"code"s,"type"s,""s};
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.code, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.type, ser);
 	}

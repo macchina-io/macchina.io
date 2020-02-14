@@ -32,6 +32,8 @@ class TypeSerializer<IoT::MQTT::TopicQoS>
 public:
 	static void serialize(const std::string& name, const IoT::MQTT::TopicQoS& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::MQTT::TopicQoS& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"qos","topic",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"qos"s,"topic"s,""s};
 		TypeSerializer<int >::serialize(REMOTING__NAMES[0], value.qos, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.topic, ser);
 	}

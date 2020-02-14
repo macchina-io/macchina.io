@@ -32,6 +32,8 @@ class TypeSerializer<IoT::BtLE::Characteristic>
 public:
 	static void serialize(const std::string& name, const IoT::BtLE::Characteristic& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::BtLE::Characteristic& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"properties","valueHandle",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"properties"s,"valueHandle"s,""s};
 		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[0], value.properties, ser);
 		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[1], value.valueHandle, ser);
 	}

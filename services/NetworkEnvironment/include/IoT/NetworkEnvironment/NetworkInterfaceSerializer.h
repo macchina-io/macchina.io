@@ -34,6 +34,8 @@ class TypeSerializer<IoT::NetworkEnvironment::NetworkInterface>
 public:
 	static void serialize(const std::string& name, const IoT::NetworkEnvironment::NetworkInterface& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -41,7 +43,9 @@ public:
 
 	static void serializeImpl(const IoT::NetworkEnvironment::NetworkInterface& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"adapterName","addresses","displayName","index","isLoopback","isPointToPoint","isRunning","isUp","macAddress","mtu","name","supportsBroadcast","supportsIP","supportsIPv4","supportsIPv6","supportsMulticast","type",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"adapterName"s,"addresses"s,"displayName"s,"index"s,"isLoopback"s,"isPointToPoint"s,"isRunning"s,"isUp"s,"macAddress"s,"mtu"s,"name"s,"supportsBroadcast"s,"supportsIP"s,"supportsIPv4"s,"supportsIPv6"s,"supportsMulticast"s,"type"s,""s};
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.adapterName, ser);
 		TypeSerializer<std::vector < IoT::NetworkEnvironment::AddressTuple > >::serialize(REMOTING__NAMES[1], value.addresses, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.displayName, ser);

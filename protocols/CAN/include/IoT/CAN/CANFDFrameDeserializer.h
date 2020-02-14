@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::CAN::CANFDFrame>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::CAN::CANFDFrame& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,7 +45,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::CAN::CANFDFrame& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"id","flags","payload"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"id"s,"flags"s,"payload"s};
 		bool ret = false;
 		Poco::UInt32 gen_id;
 		ret = TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES[0], true, deser, gen_id);

@@ -32,6 +32,8 @@ class TypeSerializer<IoT::Devices::DeviceStatusChange>
 public:
 	static void serialize(const std::string& name, const IoT::Devices::DeviceStatusChange& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::Devices::DeviceStatusChange& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"current","previous",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"current"s,"previous"s,""s};
 		TypeSerializer<int >::serialize(REMOTING__NAMES[0], value.current, ser);
 		TypeSerializer<int >::serialize(REMOTING__NAMES[1], value.previous, ser);
 	}

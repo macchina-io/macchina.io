@@ -32,6 +32,8 @@ class TypeSerializer<IoT::BtLE::PeripheralInfo>
 public:
 	static void serialize(const std::string& name, const IoT::BtLE::PeripheralInfo& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::BtLE::PeripheralInfo& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"address","name",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"address"s,"name"s,""s};
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.address, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.name, ser);
 	}

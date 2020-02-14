@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::XBee::IOSample>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::XBee::IOSample& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,7 +45,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::XBee::IOSample& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"analogChannelMask","analogSamples","deviceAddress","digitalChannelMask","digitalSamples","nSampleSets","networkAddress","options"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"analogChannelMask"s,"analogSamples"s,"deviceAddress"s,"digitalChannelMask"s,"digitalSamples"s,"nSampleSets"s,"networkAddress"s,"options"s};
 		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[0], true, deser, value.analogChannelMask);
 		TypeDeserializer<std::vector < Poco::Int16 > >::deserialize(REMOTING__NAMES[1], true, deser, value.analogSamples);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.deviceAddress);

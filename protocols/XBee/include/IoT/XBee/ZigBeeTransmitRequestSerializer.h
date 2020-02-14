@@ -32,6 +32,8 @@ class TypeSerializer<IoT::XBee::ZigBeeTransmitRequest>
 public:
 	static void serialize(const std::string& name, const IoT::XBee::ZigBeeTransmitRequest& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::XBee::ZigBeeTransmitRequest& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"broadcastRadius","deviceAddress","frameID","networkAddress","options","payload",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"broadcastRadius"s,"deviceAddress"s,"frameID"s,"networkAddress"s,"options"s,"payload"s,""s};
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[0], value.broadcastRadius, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.deviceAddress, ser);
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[2], value.frameID, ser);

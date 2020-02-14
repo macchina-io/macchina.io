@@ -34,6 +34,8 @@ class TypeSerializer<IoT::Devices::PositionUpdate>
 public:
 	static void serialize(const std::string& name, const IoT::Devices::PositionUpdate& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -41,7 +43,9 @@ public:
 
 	static void serializeImpl(const IoT::Devices::PositionUpdate& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"course","magneticVariation","position","speed","timestamp",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"course"s,"magneticVariation"s,"position"s,"speed"s,"timestamp"s,""s};
 		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.course, ser);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[1], value.magneticVariation, ser);
 		TypeSerializer<IoT::Devices::LatLon >::serialize(REMOTING__NAMES[2], value.position, ser);

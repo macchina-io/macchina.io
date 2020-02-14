@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::Devices::BarcodeReadEvent>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::Devices::BarcodeReadEvent& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,7 +45,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::Devices::BarcodeReadEvent& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"code","type"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"code"s,"type"s};
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.code);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.type);
 	}

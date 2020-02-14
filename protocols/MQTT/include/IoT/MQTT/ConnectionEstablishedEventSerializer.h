@@ -34,6 +34,8 @@ class TypeSerializer<IoT::MQTT::ConnectionEstablishedEvent>
 public:
 	static void serialize(const std::string& name, const IoT::MQTT::ConnectionEstablishedEvent& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -41,7 +43,9 @@ public:
 
 	static void serializeImpl(const IoT::MQTT::ConnectionEstablishedEvent& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"connectionInfo",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"connectionInfo"s,""s};
 		TypeSerializer<IoT::MQTT::ConnectionInfo >::serialize(REMOTING__NAMES[0], value.connectionInfo, ser);
 	}
 

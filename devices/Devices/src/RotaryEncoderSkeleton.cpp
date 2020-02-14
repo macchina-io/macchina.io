@@ -35,7 +35,9 @@ class RotaryEncoderGetFeatureMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -88,7 +90,9 @@ class RotaryEncoderGetPropertyBoolMethodHandler: public Poco::RemotingNG::Method
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyBool","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyBool"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -141,7 +145,9 @@ class RotaryEncoderGetPropertyDoubleMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyDouble","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyDouble"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -194,7 +200,9 @@ class RotaryEncoderGetPropertyIntMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyInt","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyInt"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -247,7 +255,9 @@ class RotaryEncoderGetPropertyStringMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPropertyString","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPropertyString"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -300,7 +310,9 @@ class RotaryEncoderHasFeatureMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasFeature","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasFeature"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -353,7 +365,9 @@ class RotaryEncoderHasPropertyMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"hasProperty","name"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasProperty"s,"name"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -406,7 +420,9 @@ class RotaryEncoderSetFeatureMethodHandler: public Poco::RemotingNG::MethodHandl
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setFeature","name","enable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setFeature"s,"name"s,"enable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -460,7 +476,9 @@ class RotaryEncoderSetPropertyBoolMethodHandler: public Poco::RemotingNG::Method
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyBool","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyBool"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -514,7 +532,9 @@ class RotaryEncoderSetPropertyDoubleMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyDouble","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyDouble"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -568,7 +588,9 @@ class RotaryEncoderSetPropertyIntMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyInt","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyInt"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -622,7 +644,9 @@ class RotaryEncoderSetPropertyStringMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPropertyString","name","value"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPropertyString"s,"name"s,"value"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -676,7 +700,9 @@ class RotaryEncoderCountMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"count"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"count"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -727,7 +753,9 @@ class RotaryEncoderResetMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"reset"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"reset"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -778,7 +806,9 @@ class RotaryEncoderButtonStateMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"buttonState"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"buttonState"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -828,21 +858,23 @@ RotaryEncoderSkeleton::RotaryEncoderSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("buttonState", new IoT::Devices::RotaryEncoderButtonStateMethodHandler);
-	addMethodHandler("count", new IoT::Devices::RotaryEncoderCountMethodHandler);
-	addMethodHandler("getFeature", new IoT::Devices::RotaryEncoderGetFeatureMethodHandler);
-	addMethodHandler("getPropertyBool", new IoT::Devices::RotaryEncoderGetPropertyBoolMethodHandler);
-	addMethodHandler("getPropertyDouble", new IoT::Devices::RotaryEncoderGetPropertyDoubleMethodHandler);
-	addMethodHandler("getPropertyInt", new IoT::Devices::RotaryEncoderGetPropertyIntMethodHandler);
-	addMethodHandler("getPropertyString", new IoT::Devices::RotaryEncoderGetPropertyStringMethodHandler);
-	addMethodHandler("hasFeature", new IoT::Devices::RotaryEncoderHasFeatureMethodHandler);
-	addMethodHandler("hasProperty", new IoT::Devices::RotaryEncoderHasPropertyMethodHandler);
-	addMethodHandler("reset", new IoT::Devices::RotaryEncoderResetMethodHandler);
-	addMethodHandler("setFeature", new IoT::Devices::RotaryEncoderSetFeatureMethodHandler);
-	addMethodHandler("setPropertyBool", new IoT::Devices::RotaryEncoderSetPropertyBoolMethodHandler);
-	addMethodHandler("setPropertyDouble", new IoT::Devices::RotaryEncoderSetPropertyDoubleMethodHandler);
-	addMethodHandler("setPropertyInt", new IoT::Devices::RotaryEncoderSetPropertyIntMethodHandler);
-	addMethodHandler("setPropertyString", new IoT::Devices::RotaryEncoderSetPropertyStringMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("buttonState"s, new IoT::Devices::RotaryEncoderButtonStateMethodHandler);
+	addMethodHandler("count"s, new IoT::Devices::RotaryEncoderCountMethodHandler);
+	addMethodHandler("getFeature"s, new IoT::Devices::RotaryEncoderGetFeatureMethodHandler);
+	addMethodHandler("getPropertyBool"s, new IoT::Devices::RotaryEncoderGetPropertyBoolMethodHandler);
+	addMethodHandler("getPropertyDouble"s, new IoT::Devices::RotaryEncoderGetPropertyDoubleMethodHandler);
+	addMethodHandler("getPropertyInt"s, new IoT::Devices::RotaryEncoderGetPropertyIntMethodHandler);
+	addMethodHandler("getPropertyString"s, new IoT::Devices::RotaryEncoderGetPropertyStringMethodHandler);
+	addMethodHandler("hasFeature"s, new IoT::Devices::RotaryEncoderHasFeatureMethodHandler);
+	addMethodHandler("hasProperty"s, new IoT::Devices::RotaryEncoderHasPropertyMethodHandler);
+	addMethodHandler("reset"s, new IoT::Devices::RotaryEncoderResetMethodHandler);
+	addMethodHandler("setFeature"s, new IoT::Devices::RotaryEncoderSetFeatureMethodHandler);
+	addMethodHandler("setPropertyBool"s, new IoT::Devices::RotaryEncoderSetPropertyBoolMethodHandler);
+	addMethodHandler("setPropertyDouble"s, new IoT::Devices::RotaryEncoderSetPropertyDoubleMethodHandler);
+	addMethodHandler("setPropertyInt"s, new IoT::Devices::RotaryEncoderSetPropertyIntMethodHandler);
+	addMethodHandler("setPropertyString"s, new IoT::Devices::RotaryEncoderSetPropertyStringMethodHandler);
 }
 
 

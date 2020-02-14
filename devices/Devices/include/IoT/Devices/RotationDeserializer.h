@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::Devices::Rotation>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::Devices::Rotation& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,7 +45,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::Devices::Rotation& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"x","y","z"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"x"s,"y"s,"z"s};
 		TypeDeserializer<double >::deserialize(REMOTING__NAMES[0], true, deser, value.x);
 		TypeDeserializer<double >::deserialize(REMOTING__NAMES[1], true, deser, value.y);
 		TypeDeserializer<double >::deserialize(REMOTING__NAMES[2], true, deser, value.z);

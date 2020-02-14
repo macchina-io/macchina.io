@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::DeviceStatus::StatusUpdate>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::DeviceStatus::StatusUpdate& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,7 +45,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::DeviceStatus::StatusUpdate& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"acknowledgeable","messageClass","source","status","text"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"acknowledgeable"s,"messageClass"s,"source"s,"status"s,"text"s};
 		bool ret = false;
 		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[0], false, deser, value.acknowledgeable);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], false, deser, value.messageClass);

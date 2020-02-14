@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::XBee::ZigBeeTransmitStatus>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::XBee::ZigBeeTransmitStatus& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,7 +45,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::XBee::ZigBeeTransmitStatus& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"deliveryStatus","discoveryStatus","frameID","networkAddress"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"deliveryStatus"s,"discoveryStatus"s,"frameID"s,"networkAddress"s};
 		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[0], true, deser, value.deliveryStatus);
 		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[1], true, deser, value.discoveryStatus);
 		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[2], true, deser, value.frameID);

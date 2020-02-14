@@ -36,6 +36,8 @@ class TypeDeserializer<IoT::UnitsOfMeasure::PrefixedUnit>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::UnitsOfMeasure::PrefixedUnit& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -47,7 +49,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::UnitsOfMeasure::PrefixedUnit& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"prefix","unit"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"prefix"s,"unit"s};
 		TypeDeserializer<Poco::SharedPtr < IoT::UnitsOfMeasure::Prefix > >::deserialize(REMOTING__NAMES[0], true, deser, value.prefix);
 		TypeDeserializer<Poco::SharedPtr < IoT::UnitsOfMeasure::Unit > >::deserialize(REMOTING__NAMES[1], true, deser, value.unit);
 	}

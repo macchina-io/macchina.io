@@ -32,6 +32,8 @@ class TypeSerializer<IoT::XBee::IOSample>
 public:
 	static void serialize(const std::string& name, const IoT::XBee::IOSample& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::XBee::IOSample& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"analogChannelMask","analogSamples","deviceAddress","digitalChannelMask","digitalSamples","nSampleSets","networkAddress","options",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"analogChannelMask"s,"analogSamples"s,"deviceAddress"s,"digitalChannelMask"s,"digitalSamples"s,"nSampleSets"s,"networkAddress"s,"options"s,""s};
 		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[0], value.analogChannelMask, ser);
 		TypeSerializer<std::vector < Poco::Int16 > >::serialize(REMOTING__NAMES[1], value.analogSamples, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.deviceAddress, ser);

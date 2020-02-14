@@ -32,6 +32,8 @@ class TypeDeserializer<IoT::Modbus::GenericMessage>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::Modbus::GenericMessage& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -43,15 +45,17 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::Modbus::GenericMessage& value)
 	{
+		using namespace std::string_literals;
+		
 		// IoT::Modbus::ModbusMessage
 		{
-		static const std::string REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[] = {"functionCode","slaveOrUnitAddress","transactionID"};
+		static const std::string REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[] = {"functionCode"s,"slaveOrUnitAddress"s,"transactionID"s};
 		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[0], true, deser, value.functionCode);
 		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[1], true, deser, value.slaveOrUnitAddress);
 		TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[2], true, deser, value.transactionID);
 		}
 		
-		static const std::string REMOTING__NAMES[] = {"data"};
+		static const std::string REMOTING__NAMES[] = {"data"s};
 		TypeDeserializer<std::vector < Poco::UInt8 > >::deserialize(REMOTING__NAMES[0], true, deser, value.data);
 	}
 

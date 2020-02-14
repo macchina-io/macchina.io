@@ -37,7 +37,9 @@ class WebTunnelServiceIsConnectedMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"isConnected"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"isConnected"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -88,7 +90,9 @@ class WebTunnelServiceUpdatePropertiesMethodHandler: public Poco::RemotingNG::Me
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"updateProperties","properties"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"updateProperties"s,"properties"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -139,8 +143,10 @@ WebTunnelServiceSkeleton::WebTunnelServiceSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("isConnected", new IoT::WebTunnel::WebTunnelServiceIsConnectedMethodHandler);
-	addMethodHandler("updateProperties", new IoT::WebTunnel::WebTunnelServiceUpdatePropertiesMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("isConnected"s, new IoT::WebTunnel::WebTunnelServiceIsConnectedMethodHandler);
+	addMethodHandler("updateProperties"s, new IoT::WebTunnel::WebTunnelServiceUpdatePropertiesMethodHandler);
 }
 
 

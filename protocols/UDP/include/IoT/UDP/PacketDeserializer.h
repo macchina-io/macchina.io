@@ -34,6 +34,8 @@ class TypeDeserializer<IoT::UDP::Packet>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, IoT::UDP::Packet& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -45,7 +47,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, IoT::UDP::Packet& value)
 	{
-		static const std::string REMOTING__NAMES[] = {"destination","payload","source"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"destination"s,"payload"s,"source"s};
 		TypeDeserializer<IoT::UDP::EndpointAddress >::deserialize(REMOTING__NAMES[0], true, deser, value.destination);
 		TypeDeserializer<std::vector < char > >::deserialize(REMOTING__NAMES[1], true, deser, value.payload);
 		TypeDeserializer<IoT::UDP::EndpointAddress >::deserialize(REMOTING__NAMES[2], true, deser, value.source);

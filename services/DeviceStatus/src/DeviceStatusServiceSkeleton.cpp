@@ -41,7 +41,9 @@ class DeviceStatusServiceAcknowledgeMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"acknowledge","id"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"acknowledge"s,"id"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -94,7 +96,9 @@ class DeviceStatusServiceAcknowledgeUpToMethodHandler: public Poco::RemotingNG::
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"acknowledgeUpTo","id"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"acknowledgeUpTo"s,"id"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -147,7 +151,9 @@ class DeviceStatusServiceClearStatusMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"clearStatus","messageClass"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"clearStatus"s,"messageClass"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -200,7 +206,9 @@ class DeviceStatusServiceClearStatusOfSourceMethodHandler: public Poco::Remoting
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"clearStatusOfSource","source"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"clearStatusOfSource"s,"source"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -253,7 +261,9 @@ class DeviceStatusServiceMessagesMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"messages","maxMessages"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"messages"s,"maxMessages"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -306,7 +316,9 @@ class DeviceStatusServicePostStatusMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"postStatus","statusUpdate"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"postStatus"s,"statusUpdate"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -359,7 +371,9 @@ class DeviceStatusServicePostStatusAsyncMethodHandler: public Poco::RemotingNG::
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"postStatusAsync","statusUpdate"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"postStatusAsync"s,"statusUpdate"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -411,7 +425,9 @@ class DeviceStatusServiceRemoveMethodHandler: public Poco::RemotingNG::MethodHan
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"remove","id"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"remove"s,"id"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -464,7 +480,9 @@ class DeviceStatusServiceResetMethodHandler: public Poco::RemotingNG::MethodHand
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"reset"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"reset"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -514,7 +532,9 @@ class DeviceStatusServiceStatusMethodHandler: public Poco::RemotingNG::MethodHan
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"status"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"status"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -565,7 +585,9 @@ class DeviceStatusServiceStatusOfSourceMethodHandler: public Poco::RemotingNG::M
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"statusOfSource","source"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"statusOfSource"s,"source"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -617,17 +639,19 @@ DeviceStatusServiceSkeleton::DeviceStatusServiceSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("acknowledge", new IoT::DeviceStatus::DeviceStatusServiceAcknowledgeMethodHandler);
-	addMethodHandler("acknowledgeUpTo", new IoT::DeviceStatus::DeviceStatusServiceAcknowledgeUpToMethodHandler);
-	addMethodHandler("clearStatus", new IoT::DeviceStatus::DeviceStatusServiceClearStatusMethodHandler);
-	addMethodHandler("clearStatusOfSource", new IoT::DeviceStatus::DeviceStatusServiceClearStatusOfSourceMethodHandler);
-	addMethodHandler("messages", new IoT::DeviceStatus::DeviceStatusServiceMessagesMethodHandler);
-	addMethodHandler("postStatus", new IoT::DeviceStatus::DeviceStatusServicePostStatusMethodHandler);
-	addMethodHandler("postStatusAsync", new IoT::DeviceStatus::DeviceStatusServicePostStatusAsyncMethodHandler);
-	addMethodHandler("remove", new IoT::DeviceStatus::DeviceStatusServiceRemoveMethodHandler);
-	addMethodHandler("reset", new IoT::DeviceStatus::DeviceStatusServiceResetMethodHandler);
-	addMethodHandler("status", new IoT::DeviceStatus::DeviceStatusServiceStatusMethodHandler);
-	addMethodHandler("statusOfSource", new IoT::DeviceStatus::DeviceStatusServiceStatusOfSourceMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("acknowledge"s, new IoT::DeviceStatus::DeviceStatusServiceAcknowledgeMethodHandler);
+	addMethodHandler("acknowledgeUpTo"s, new IoT::DeviceStatus::DeviceStatusServiceAcknowledgeUpToMethodHandler);
+	addMethodHandler("clearStatus"s, new IoT::DeviceStatus::DeviceStatusServiceClearStatusMethodHandler);
+	addMethodHandler("clearStatusOfSource"s, new IoT::DeviceStatus::DeviceStatusServiceClearStatusOfSourceMethodHandler);
+	addMethodHandler("messages"s, new IoT::DeviceStatus::DeviceStatusServiceMessagesMethodHandler);
+	addMethodHandler("postStatus"s, new IoT::DeviceStatus::DeviceStatusServicePostStatusMethodHandler);
+	addMethodHandler("postStatusAsync"s, new IoT::DeviceStatus::DeviceStatusServicePostStatusAsyncMethodHandler);
+	addMethodHandler("remove"s, new IoT::DeviceStatus::DeviceStatusServiceRemoveMethodHandler);
+	addMethodHandler("reset"s, new IoT::DeviceStatus::DeviceStatusServiceResetMethodHandler);
+	addMethodHandler("status"s, new IoT::DeviceStatus::DeviceStatusServiceStatusMethodHandler);
+	addMethodHandler("statusOfSource"s, new IoT::DeviceStatus::DeviceStatusServiceStatusOfSourceMethodHandler);
 }
 
 

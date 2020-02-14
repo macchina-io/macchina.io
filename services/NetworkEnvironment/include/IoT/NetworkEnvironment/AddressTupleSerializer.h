@@ -32,6 +32,8 @@ class TypeSerializer<IoT::NetworkEnvironment::AddressTuple>
 public:
 	static void serialize(const std::string& name, const IoT::NetworkEnvironment::AddressTuple& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -39,7 +41,9 @@ public:
 
 	static void serializeImpl(const IoT::NetworkEnvironment::AddressTuple& value, Serializer& ser)
 	{
-		static const std::string REMOTING__NAMES[] = {"address","broadcastOrDestinationAddress","subnetMask","version",""};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"address"s,"broadcastOrDestinationAddress"s,"subnetMask"s,"version"s,""s};
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.address, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.broadcastOrDestinationAddress, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.subnetMask, ser);

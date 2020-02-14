@@ -37,7 +37,9 @@ class UDPEndpointAddressMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"address"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"address"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -88,7 +90,9 @@ class UDPEndpointSendPacketMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"sendPacket","payload","destination"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"sendPacket"s,"payload"s,"destination"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -141,8 +145,10 @@ UDPEndpointSkeleton::UDPEndpointSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("address", new IoT::UDP::UDPEndpointAddressMethodHandler);
-	addMethodHandler("sendPacket", new IoT::UDP::UDPEndpointSendPacketMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("address"s, new IoT::UDP::UDPEndpointAddressMethodHandler);
+	addMethodHandler("sendPacket"s, new IoT::UDP::UDPEndpointSendPacketMethodHandler);
 }
 
 
