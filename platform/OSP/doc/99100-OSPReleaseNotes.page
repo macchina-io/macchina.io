@@ -1,6 +1,29 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2020.1
+
+!!Summary of Changes
+
+  - The OSP framework now requires a C++14 compiler.
+  - OSP Web: add special permission "**" which required either valid or no credentials.
+    This is mostly useful for implementing REST APIs that support optional authentication.
+  - OSP Web: added CORS (Cross-Origin Resource Sharing) support. CORS preflight requests and
+    all CORS headers are optionally handled by the web server, configurable via
+    extension point attributes.
+  - OSP Auth: added support for "inline" user attributes, which are attributes directly
+    stored in the auth_user table.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - The OSP framework now requires a C++14 compiler
+    (Minimum compiler versions: Visual C++ 2015, GCC 5, Clang 3.4).
+
+
 !!!Release 2019.2
 
 !!Summary of Changes

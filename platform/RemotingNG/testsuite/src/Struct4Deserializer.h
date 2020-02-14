@@ -29,6 +29,8 @@ class TypeDeserializer<Struct4>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Struct4& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -40,9 +42,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, Struct4& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"ptr","value","vec"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"ptr"s,"value"s,"vec"s};
 		TypeDeserializer<Poco::SharedPtr < Struct4 > >::deserialize(REMOTING__NAMES[0], true, deser, value.ptr);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.value);
 		TypeDeserializer<std::vector < Struct4 > >::deserialize(REMOTING__NAMES[2], true, deser, value.vec);

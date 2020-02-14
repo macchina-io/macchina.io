@@ -66,11 +66,7 @@ public:
 		_pContext = pContext;
 
 		MediaTypeMapper::Ptr pMediaTypeMapper = new MediaTypeMapper;
-#if __cplusplus < 201103L
-		std::auto_ptr<std::istream> pStream(pContext->thisBundle()->getResource("mime.types"));
-#else
 		std::unique_ptr<std::istream> pStream(pContext->thisBundle()->getResource("mime.types"));
-#endif
 		if (pStream.get())
 		{
 			pMediaTypeMapper->load(*pStream);
@@ -85,6 +81,7 @@ public:
 		std::string compressedMediaTypesString(pContext->thisBundle()->properties().getString("compressedMediaTypes", ""));
 		std::string sessionCookiePersistence(pContext->thisBundle()->properties().getString("cookiePersistence", "persistent"));
 		bool sessionCookieSecure(pContext->thisBundle()->properties().getBool("cookieSecure", false));
+		std::string cookieSameSite(pContext->thisBundle()->properties().getString("cookieSameSite", ""));
 		std::string csrfCookie(pContext->thisBundle()->properties().getString("csrfCookie", "XSRF-TOKEN"));
 		bool csrfProtectionEnabled(pContext->thisBundle()->properties().getBool("csrfProtectionEnabled", true));
 		bool verifyAddress(pContext->thisBundle()->properties().getBool("verifyAddress", true));
@@ -110,6 +107,7 @@ public:
 			compressedMediaTypesString = pPrefsSvc->configuration()->getString("osp.web.compressedMediaTypes", compressedMediaTypesString);
 			sessionCookiePersistence = pPrefsSvc->configuration()->getString("osp.web.sessionManager.cookiePersistence", sessionCookiePersistence);
 			sessionCookieSecure = pPrefsSvc->configuration()->getBool("osp.web.sessionManager.cookieSecure", sessionCookieSecure);
+			cookieSameSite = pPrefsSvc->configuration()->getString("osp.web.sessionManager.cookieSameSite", cookieSameSite);
 			csrfCookie = pPrefsSvc->configuration()->getString("osp.web.sessionManager.csrfCookie", csrfCookie);
 			csrfProtectionEnabled = pPrefsSvc->configuration()->getBool("osp.web.csrfProtectionEnabled", csrfProtectionEnabled);
 			verifyAddress = pPrefsSvc->configuration()->getBool("osp.web.sessionManager.verifyAddress", verifyAddress);
@@ -183,6 +181,13 @@ public:
 		{
 			_pWebSessionManager->setCSRFCookie(csrfCookie);
 		}
+
+		if (cookieSameSite == "none")
+			_pWebSessionManager->setCookieSameSite(Poco::Net::HTTPCookie::SAME_SITE_NONE);
+		else if (cookieSameSite == "lax")
+			_pWebSessionManager->setCookieSameSite(Poco::Net::HTTPCookie::SAME_SITE_LAX);
+		else if (cookieSameSite == "strict")
+			_pWebSessionManager->setCookieSameSite(Poco::Net::HTTPCookie::SAME_SITE_STRICT);
 
 		_pWebSessionManagerSvc = pContext->registry().registerService(WebSessionManager::SERVICE_NAME, _pWebSessionManager, Properties());
 

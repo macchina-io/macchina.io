@@ -37,7 +37,7 @@ class RemotingNG_API Proxy: public Identifiable
 	/// code for all service object methods.
 {
 public:
-	typedef Poco::AutoPtr<Proxy> Ptr;
+	using Ptr = Poco::AutoPtr<Proxy>;
 
 	Proxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a Proxy.

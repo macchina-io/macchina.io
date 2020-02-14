@@ -17,6 +17,9 @@
 #include "Poco/JS/Core/PooledIsolate.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace JS {
 namespace Core {
@@ -37,7 +40,7 @@ v8::Handle<v8::ObjectTemplate> TimerWrapper::objectTemplate(v8::Isolate* pIsolat
 	v8::EscapableHandleScope handleScope(pIsolate);
 	Poco::JS::Core::PooledIsolate* pPooledIso = Poco::JS::Core::PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Core.Timer"));
+	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Core.Timer"s));
 	if (pooledObjectTemplate.IsEmpty())
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);

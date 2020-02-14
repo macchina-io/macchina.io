@@ -172,9 +172,9 @@ protected:
 private:
 	WebServerExtensionPoint();
 
-	typedef Poco::SharedPtr<WebRequestHandlerFactory> FactoryPtr;
-	typedef Poco::ClassLoader<WebRequestHandlerFactory> Loader;
-	typedef std::map<std::string, Bundle::Ptr> LibBundleMap;
+	using FactoryPtr = Poco::SharedPtr<WebRequestHandlerFactory>;
+	using Loader = Poco::ClassLoader<WebRequestHandlerFactory>;
+	using LibBundleMap = std::map<std::string, Bundle::Ptr>;
 
 	BundleContext::Ptr   _pContext;
 	WebServerDispatcher* _pDispatcher;

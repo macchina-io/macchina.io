@@ -33,7 +33,7 @@ namespace
 	class TestService: public Service
 	{
 	public:
-		typedef Poco::AutoPtr<TestService> Ptr;
+		using Ptr = Poco::AutoPtr<TestService>;
 
 		const std::type_info& type() const
 		{

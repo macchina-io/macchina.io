@@ -29,9 +29,9 @@ class TypeSerializer<Pizzeria::DeliveryAddressDetails>
 public:
 	static void serialize(const std::string& name, const Pizzeria::DeliveryAddressDetails& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMESPACE);
-		static const std::string REMOTING__NAMESPACE("http://www.appinf.com/webservices/PizzaDeliveryService/");
-		remoting__staticInitEnd(REMOTING__NAMESPACE);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMESPACE("http://www.appinf.com/webservices/PizzaDeliveryService/"s);
 		ser.registerNamespace(REMOTING__NAMESPACE);
 		ser.serializeStructBegin(name);
 		ser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMESPACE);
@@ -42,9 +42,9 @@ public:
 
 	static void serializeImpl(const Pizzeria::DeliveryAddressDetails& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"milesAway",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"milesAway"s,""s};
 		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.getMilesAway(), ser);
 	}
 

@@ -15,6 +15,9 @@
 #include "Poco/JS/Bridge/Listener.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace JS {
 namespace Bridge {
@@ -24,7 +27,7 @@ const std::string Listener::PROTOCOL("jsbridge");
 
 
 Listener::Listener():
-	Poco::RemotingNG::Listener("local")
+	Poco::RemotingNG::Listener("local"s)
 {
 }
 

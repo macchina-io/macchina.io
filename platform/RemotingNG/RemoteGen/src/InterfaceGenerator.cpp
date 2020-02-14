@@ -24,7 +24,7 @@
 using Poco::CodeGeneration::Utility;
 
 
-InterfaceGenerator::InterfaceGenerator(Poco::CodeGeneration::CppGenerator& cppGen, bool enableOSP): 
+InterfaceGenerator::InterfaceGenerator(Poco::CodeGeneration::CppGenerator& cppGen, bool enableOSP):
 	AbstractGenerator(cppGen),
 	_enableOSP(enableOSP)
 
@@ -50,7 +50,7 @@ std::string InterfaceGenerator::generateQualifiedClassName(const std::string& ns
 {
 	if (ns.empty())
 		return InterfaceGenerator::generateClassName(pStruct);
-	
+
 	return ns + "::" + InterfaceGenerator::generateClassName(pStruct);;
 }
 
@@ -88,9 +88,9 @@ void InterfaceGenerator::structStart(const Poco::CppParser::Struct* pStruct, con
 	Poco::CppParser::Function* pTypeId = new Poco::CppParser::Function(std::string("static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId()"), _pStruct);
 	pTypeId->addDocumentation(	" Returns the TypeId of the class.");
 
-	Poco::CppParser::TypeDef* pTypeDef = new Poco::CppParser::TypeDef("typedef Poco::AutoPtr<" + generateClassName(pStruct) + "> Ptr", _pStruct);
-	poco_check_ptr (pTypeDef); // just avoid unused variable warning
-	
+	Poco::CppParser::TypeAlias* pTypeAlias = new Poco::CppParser::TypeAlias("using Ptr = Poco::AutoPtr<" + generateClassName(pStruct) + ">", _pStruct);
+	poco_check_ptr (pTypeAlias); // just avoid unused variable warning
+
 	if (_enableOSP)
 	{
 		// implement service interface
@@ -130,14 +130,14 @@ void InterfaceGenerator::structStart(const Poco::CppParser::Struct* pStruct, con
 void InterfaceGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, const CodeGenerator::Properties& properties)
 {
 	poco_assert_dbg (_pStruct && _pStructIn);
-	
+
 	if (GenUtility::isOverride(pFuncOld->name(), _pStructIn)) return;
-	
+
 	// recreate a "rettype method signature" as "virtual retType method signature = 0"
 	// note that a decl contains only the string up to method, no params!
 	std::string decl (Poco::CodeGeneration::Utility::VIRTUAL+" ");
 	std::string resRetType = Utility::resolveType(_pStructIn, pFuncOld->getReturnParameter());
-	
+
 	if (resRetType != pFuncOld->getReturnParameter())
 	{
 		const std::string& oldRet = pFuncOld->getReturnParameter();
@@ -170,7 +170,7 @@ void InterfaceGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, 
 		pFunc->makeConst();
 
 	pFunc->makePureVirtual();
-	
+
 	Poco::CppParser::Function::Iterator it = pFuncOld->begin();
 	Poco::CppParser::Function::Iterator itEnd = pFuncOld->end();
 
@@ -181,7 +181,7 @@ void InterfaceGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, 
 		{
 			decl.append(" = ");
 			std::string type = Poco::CodeGeneration::Utility::resolveType(_pStructIn, (*it)->declType());
-			
+
 			decl.append(type);
 			decl.append("(");
 			Poco::CppParser::Symbol* pSym = Poco::CppParser::NameSpace::root()->lookup(type);
@@ -230,9 +230,7 @@ void InterfaceGenerator::ifaceTypeIdCodeGen(const Poco::CppParser::Function* pFu
 
 	const Poco::CppParser::Struct* pDataType = pIG->_pStructIn; // returns the data type for which pStruct was generated
 	poco_assert(pDataType);
-	gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__TYPE_ID);");
 	gen.writeMethodImplementation("static const std::string REMOTING__TYPE_ID(\"" + Poco::replace(pDataType->fullName(), "::", ".") + "\");");
-	gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__TYPE_ID);");
 	gen.writeMethodImplementation("return REMOTING__TYPE_ID;");
 }
 
@@ -246,7 +244,7 @@ void InterfaceGenerator::ifaceTypeCodeGen(const Poco::CppParser::Function* pFunc
 	poco_check_ptr (pIG);
 
 	const Poco::CppParser::Struct* pDataType = pIG->_pStructIn; // returns the data type for which pStruct was generated
-	
+
 	poco_assert(pDataType);
 	gen.writeMethodImplementation("return typeid(" + InterfaceGenerator::generateClassName(pDataType) + ");");
 }
@@ -264,12 +262,12 @@ void InterfaceGenerator::ifaceIsACodeGen(const Poco::CppParser::Function* pFunc,
 	poco_assert(pDataType);
 	//std::string name(type().name());
 	/// return name == otherType.name() || MyBaseClass::isA(otherType);
-	
+
 	std::string nameCheck("return name == otherType.name()");
 
 	Poco::CppParser::Struct::BaseIterator itB = pStruct->baseBegin();
 	Poco::CppParser::Struct::BaseIterator itBEnd = pStruct->baseEnd();
-	
+
 	for (; itB != itBEnd; ++itB)
 	{
 		const Poco::CppParser::Struct* pParent = itB->pClass;
@@ -289,10 +287,10 @@ std::vector<std::string> InterfaceGenerator::newBaseClasses(const Poco::CppParse
 {
 	std::vector<std::string> bases;
 	GenUtility::hasAnyRemoteParent(pStruct);
-	
+
 	Poco::CppParser::Struct::BaseIterator itB = pStruct->baseBegin();
 	Poco::CppParser::Struct::BaseIterator itBEnd = pStruct->baseEnd();
-	
+
 	for (; itB != itBEnd; ++itB)
 	{
 		const Poco::CppParser::Struct* pParent = itB->pClass;
@@ -321,13 +319,13 @@ bool InterfaceGenerator::checkForEventMembers(const Poco::CppParser::Struct* pSt
 		{
 			if (varType.find("Poco::BasicEvent") == 0 || varType.find("Poco::FIFOEvent") == 0)
 			{
-				// add a variable with the same name 
+				// add a variable with the same name
 				Poco::CppParser::Variable* pVarNew = new Poco::CppParser::Variable(pVar->declaration(), _pStruct);
 				pVarNew->setAccess(Poco::CppParser::Symbol::ACC_PUBLIC);
 				ev = true;
 			}
 		}
-			
+
 	}
 	return ev;
 }

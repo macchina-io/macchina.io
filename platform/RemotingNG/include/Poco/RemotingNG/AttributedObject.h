@@ -35,16 +35,22 @@ class RemotingNG_API AttributedObject
 	/// the form of name-value pairs.
 {
 public:
-	typedef std::map<std::string, std::string> NameValueMap;
+	using NameValueMap = std::map<std::string, std::string>;
 
 	AttributedObject();
 		/// Creates an AttributedObject.
 
 	AttributedObject(const AttributedObject& other);
 		/// Creates an AttributedObject by copying the attributes from another one.
+
+	AttributedObject(AttributedObject&& other) noexcept;
+		/// Creates an AttributedObject by moving the attributes from another one.
 		
 	AttributedObject& operator = (const AttributedObject& other);
 		/// Assigns the attributes from another AttributedObject.
+
+	AttributedObject& operator = (AttributedObject&& other) noexcept;
+		/// Moves the attributes from another AttributedObject.
 
 	virtual ~AttributedObject();
 		/// Destroys the AttributedObject.

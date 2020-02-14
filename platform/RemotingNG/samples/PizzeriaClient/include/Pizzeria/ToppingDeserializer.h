@@ -29,6 +29,8 @@ class TypeDeserializer<Pizzeria::Topping>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Pizzeria::Topping& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -40,9 +42,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, Pizzeria::Topping& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"name","price"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"name"s,"price"s};
 		bool ret = false;
 		std::string gen_name;
 		ret = TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, gen_name);

@@ -33,6 +33,8 @@ class TypeSerializer<Pizzeria::Pizza>
 public:
 	static void serialize(const std::string& name, const Pizzeria::Pizza& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -40,9 +42,9 @@ public:
 
 	static void serializeImpl(const Pizzeria::Pizza& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"basePrice","details","name","toppings",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"basePrice"s,"details"s,"name"s,"toppings"s,""s};
 		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES[0], value.getBasePrice(), ser);
 		TypeSerializer<Pizzeria::Pizza::Details >::serialize(REMOTING__NAMES[1], value.getDetails(), ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.getName(), ser);

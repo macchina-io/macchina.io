@@ -29,6 +29,8 @@ class TypeSerializer<Struct2>
 public:
 	static void serialize(const std::string& name, const Struct2& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -36,9 +38,9 @@ public:
 
 	static void serializeImpl(const Struct2& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"aDateTime","aLocalDateTime","aTimestamp","aVector","anURI","anUUID","anotherVector",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"aDateTime"s,"aLocalDateTime"s,"aTimestamp"s,"aVector"s,"anURI"s,"anUUID"s,"anotherVector"s,""s};
 		TypeSerializer<Poco::DateTime >::serialize(REMOTING__NAMES[0], value.aDateTime, ser);
 		TypeSerializer<Poco::LocalDateTime >::serialize(REMOTING__NAMES[1], value.aLocalDateTime, ser);
 		TypeSerializer<Poco::Timestamp >::serialize(REMOTING__NAMES[2], value.aTimestamp, ser);

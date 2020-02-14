@@ -26,6 +26,9 @@
 #include "Poco/MemoryStream.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace RemotingNG {
 namespace TCP {
@@ -85,11 +88,11 @@ public:
 
 					Poco::RemotingNG::ScopedContext scopedContext;
 					Context::Ptr pContext = scopedContext.context();
-					pContext->setValue("transport", Transport::PROTOCOL);
-					pContext->setValue("remoteAddress", pConnection->remoteAddress());
-					pContext->setValue("localAddress", pConnection->localAddress());
-					pContext->setValue("id", pConnection->id());
-					pContext->setValue("connection", pConnection.get());
+					pContext->setValue("transport"s, Transport::PROTOCOL);
+					pContext->setValue("remoteAddress"s, pConnection->remoteAddress());
+					pContext->setValue("localAddress"s, pConnection->localAddress());
+					pContext->setValue("id"s, pConnection->id());
+					pContext->setValue("connection"s, pConnection.get());
 					pContext->clearCredentials();
 
 					authResult = pAuthenticator->authenticate(creds, conversationID);
@@ -238,7 +241,7 @@ ServerConnection::ServerConnection(Listener::Ptr pListener, const Poco::Net::Str
 	Poco::Net::TCPServerConnection(socket),
 	_pListener(pListener),
 	_pCredentialsStore(new CredentialsStore),
-	_logger(Poco::Logger::get("RemotingNG.TCP.ServerConnection"))
+	_logger(Poco::Logger::get("RemotingNG.TCP.ServerConnection"s))
 {
 }
 
@@ -250,7 +253,7 @@ ServerConnection::~ServerConnection()
 
 void ServerConnection::run()
 {
-	if (_logger.debug()) _logger.debug("ServerConnection started.");
+	if (_logger.debug()) _logger.debug("ServerConnection started."s);
 	Connection::Ptr pConnection = new Connection(socket(), Connection::MODE_SERVER);
 	AuthFrameHandler::Ptr pAuthFrameHandler = new AuthFrameHandler(_pListener, _pCredentialsStore, _logger);
 	EventSubscriptionFrameHandler::Ptr pEventSubFrameHandler = new EventSubscriptionFrameHandler(_pListener);
@@ -267,11 +270,11 @@ void ServerConnection::run()
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error("connectionAccepted event handler threw exception: " + exc.displayText());
+		_logger.error("connectionAccepted event handler threw exception: %s"s, exc.displayText());
 	}
 	catch (...)
 	{
-		_logger.error("connectionAccepted event handler threw unknown exception");
+		_logger.error("connectionAccepted event handler threw unknown exception"s);
 	}
 	try
 	{
@@ -285,7 +288,7 @@ void ServerConnection::run()
 	pConnection->popFrameHandler(pRequestFrameHandler);
 	pConnection->popFrameHandler(pEventSubFrameHandler);
 	pConnection->popFrameHandler(pAuthFrameHandler);
-	if (_logger.debug()) _logger.debug("ServerConnection done.");
+	if (_logger.debug()) _logger.debug("ServerConnection done."s);
 }
 
 

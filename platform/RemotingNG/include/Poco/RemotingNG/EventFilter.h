@@ -36,8 +36,8 @@ class EventFilter: public Poco::RefCountedObject
 	/// The interface template for event filters.
 {
 public:
-	typedef T ArgType;
-	typedef Poco::AutoPtr<EventFilter<T> > Ptr;
+	using ArgType = T;
+	using Ptr = Poco::AutoPtr<EventFilter<T>>;
 
 	EventFilter()
 		/// Creates the EventFilter.

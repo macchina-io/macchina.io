@@ -31,9 +31,9 @@ class TypeDeserializer<WeatherWS::Forecast>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, WeatherWS::Forecast& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMESPACE);
-		static const std::string REMOTING__NAMESPACE("http://ws.cdyne.com/WeatherWS/");
-		remoting__staticInitEnd(REMOTING__NAMESPACE);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMESPACE("http://ws.cdyne.com/WeatherWS/"s);
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		deser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMESPACE);
 		if (ret)
@@ -48,9 +48,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, WeatherWS::Forecast& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"Date","WeatherID","Desciption","Temperatures","ProbabilityOfPrecipiation"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"Date"s,"WeatherID"s,"Desciption"s,"Temperatures"s,"ProbabilityOfPrecipiation"s};
 		bool ret = false;
 		Poco::DateTime gen_date;
 		ret = TypeDeserializer<Poco::DateTime >::deserialize(REMOTING__NAMES[0], true, deser, gen_date);

@@ -222,18 +222,18 @@ void DeserializerGenerator::deserializeCodeGen(const Poco::CppParser::Function* 
 	const Poco::CppParser::Struct* pDataType = pDeser->_pStructIn; // returns the data type for which pStruct was generated
 	poco_assert(pDataType);
 
+	gen.writeMethodImplementation("using namespace std::string_literals;\n");
+
 	CodeGenerator::Properties structProps;
 	GeneratorEngine::parseProperties(pDataType, structProps);
 	std::string defaultNS;
 	bool hasDefaultNS = GeneratorEngine::getStringProperty(structProps, Utility::NAMESPACE, defaultNS);
 	if (hasDefaultNS && !defaultNS.empty())
 	{
-		gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__NAMESPACE);");
 		std::string code("static const std::string REMOTING__NAMESPACE(\"");
 		code.append(defaultNS);
-		code.append("\");");
+		code.append("\"s);");
 		gen.writeMethodImplementation(code);
-		gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__NAMESPACE);");
 	}
 
 	bool hasAttr = hasAttributes(pDataType);
@@ -275,6 +275,8 @@ void DeserializerGenerator::deserializeImplCodeGen(const Poco::CppParser::Functi
 	// now seach for each variable a matching function
 	// if we don't find one assume that this is deliberate and the user doesn't want to send that member
 
+	gen.writeMethodImplementation("using namespace std::string_literals;\n");
+
 	pSer->handleSuperClassCalls(pDataType, &DeserializerGenerator::deserializeImplCodeGenImpl, false, gen);
 	pSer->deserializeImplCodeGenImpl(pDataType, gen, "");
 }
@@ -297,7 +299,6 @@ void DeserializerGenerator::deserializeImplCodeGenImpl(const Poco::CppParser::St
 	// the first line contains a static string array containing names
 	if (!elems.empty())
 	{
-		gen.writeMethodImplementation(Poco::format("remoting__staticInitBegin(REMOTING__NAMES%s);", suffix));
 		std::string staticVarNames(Poco::format("static const std::string REMOTING__NAMES%s[] = {", suffix));
 		int curNamesPos = 0;
 		int retUsage(0);
@@ -315,7 +316,6 @@ void DeserializerGenerator::deserializeImplCodeGenImpl(const Poco::CppParser::St
 		staticVarNames[staticVarNames.size() -1] = '}';
 		staticVarNames.append(";");
 		gen.writeMethodImplementation(staticVarNames);
-		gen.writeMethodImplementation(Poco::format("remoting__staticInitEnd(REMOTING__NAMES%s);", suffix));
 		// write elem code lines
 		if (!elemCodeLines.empty())
 		{
@@ -421,9 +421,7 @@ void DeserializerGenerator::prepareDeserializeAttributesCodeGenImpl(const Poco::
 		poco_assert_dbg (staticVarNames[staticVarNames.size() -1] == ',');
 		staticVarNames[staticVarNames.size() -1] = '}';
 		staticVarNames.append(";");
-		gen.writeMethodImplementation(Poco::format("remoting__staticInitBegin(REMOTING__NAMES%s);", suffix));
 		gen.writeMethodImplementation(staticVarNames);
-		gen.writeMethodImplementation(Poco::format("remoting__staticInitEnd(REMOTING__NAMES%s);", suffix));
 		// write attr code lines
 		SerializerGenerator::writeAll(attrCodeLines, gen);
 	}
@@ -483,9 +481,7 @@ void DeserializerGenerator::deserializeAttributesCodeGenImpl(const Poco::CppPars
 		poco_assert_dbg (staticVarNames[staticVarNames.size() -1] == ',');
 		staticVarNames[staticVarNames.size() -1] = '}';
 		staticVarNames.append(";");
-		gen.writeMethodImplementation(Poco::format("remoting__staticInitBegin(REMOTING__NAMES%s);", suffix));
 		gen.writeMethodImplementation(staticVarNames);
-		gen.writeMethodImplementation(Poco::format("remoting__staticInitEnd(REMOTING__NAMES%s);", suffix));
 		if (retUsage > 0)
 			gen.writeMethodImplementation("bool ret = false;");
 		// write attr code lines

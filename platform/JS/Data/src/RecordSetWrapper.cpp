@@ -21,6 +21,9 @@
 #include "Poco/Data/Time.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace JS {
 namespace Data {
@@ -154,7 +157,7 @@ v8::Handle<v8::ObjectTemplate> RecordSetWrapper::objectTemplate(v8::Isolate* pIs
 	v8::EscapableHandleScope handleScope(pIsolate);
 	Poco::JS::Core::PooledIsolate* pPooledIso = Poco::JS::Core::PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Data.RecordSet"));
+	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Data.RecordSet"s));
 	if (pooledObjectTemplate.IsEmpty())
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
@@ -283,7 +286,7 @@ void RecordSetWrapper::getName(const v8::FunctionCallbackInfo<v8::Value>& args)
 				return;
 			}
 		}
-		returnException(args, std::string("bad arguments: column index required"));
+		returnException(args, "bad arguments: column index required"s);
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -375,7 +378,7 @@ void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 			returnString(args, typeString);
 			return;
 		}
-		returnException(args, std::string("bad arguments: column name or index required"));
+		returnException(args, "bad arguments: column name or index required"s);
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -404,7 +407,7 @@ void RecordSetWrapper::getLength(const v8::FunctionCallbackInfo<v8::Value>& args
 			}
 			return;
 		}
-		returnException(args, std::string("bad arguments: column name or index required"));
+		returnException(args, "bad arguments: column name or index required"s);
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -433,7 +436,7 @@ void RecordSetWrapper::getPrecision(const v8::FunctionCallbackInfo<v8::Value>& a
 			}
 			return;
 		}
-		returnException(args, std::string("bad arguments: column name or index required"));
+		returnException(args, "bad arguments: column name or index required"s);
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -607,7 +610,7 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 	case Poco::Data::MetaColumn::FDT_WSTRING:
 	case Poco::Data::MetaColumn::FDT_UNKNOWN:
 	default:
-		returnException(args, std::string("cannot convert value"));
+		returnException(args, "cannot convert value"s);
 		break;
 	}
 }

@@ -28,6 +28,9 @@
 #include <sstream>
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace RemotingNG {
 namespace TCP {
@@ -38,7 +41,7 @@ SCRAMAuthenticator::SCRAMAuthenticator():
 {
 }
 
-	
+
 SCRAMAuthenticator::~SCRAMAuthenticator()
 {
 }
@@ -62,7 +65,7 @@ AuthenticateResult SCRAMAuthenticator::authenticate(const Credentials& creds, Po
 			serverCreds.setAttribute(Credentials::ATTR_NONCE, pConv->serverNonce);
 			serverCreds.setAttribute(Credentials::ATTR_SALT, pConv->salt);
 			serverCreds.setAttribute(Credentials::ATTR_ITERATIONS, Poco::NumberFormatter::format(pConv->iterations));
-		
+
 			_conversations.add(conversationID, pConv);
 			pConv->state = STATE_START;
 
@@ -78,20 +81,20 @@ AuthenticateResult SCRAMAuthenticator::authenticate(const Credentials& creds, Po
 			{
 				const std::string receivedServerNonce = creds.getAttribute(Credentials::ATTR_NONCE);
 				const std::string receivedClientProof = creds.getAttribute(Credentials::ATTR_PASSWORD);
-				
+
 				const std::string saltedPassword = hashForUser(pConv->username);
 				std::string clientAuthMessage;
 				const std::string computedClientProof = computeClientProof(pConv->username, pConv->clientNonce, pConv->salt, pConv->iterations, saltedPassword, pConv->serverNonce, clientAuthMessage);
-				
+
 				if (computedClientProof == receivedClientProof && pConv->serverNonce == receivedServerNonce)
 				{
 					std::string serverSignature = computeServerSignature(saltedPassword, clientAuthMessage);
-					
+
 					Credentials serverCreds;
 					serverCreds.setAttribute(Credentials::ATTR_SIGNATURE, serverSignature);
-					
+
 					pConv->state = STATE_CLIENT_AUTH;
-					return AuthenticateResult(AuthenticateResult::AUTH_CONTINUE, serverCreds, conversationID);		
+					return AuthenticateResult(AuthenticateResult::AUTH_CONTINUE, serverCreds, conversationID);
 				}
 				else
 				{
@@ -102,7 +105,7 @@ AuthenticateResult SCRAMAuthenticator::authenticate(const Credentials& creds, Po
 			{
 				_conversations.remove(conversationID);
 				Credentials serverCreds;
-				serverCreds.setAttribute(Credentials::ATTR_USERNAME, pConv->username);					
+				serverCreds.setAttribute(Credentials::ATTR_USERNAME, pConv->username);
 				return AuthenticateResult(AuthenticateResult::AUTH_DONE, serverCreds, conversationID);
 			}
 		}
@@ -114,7 +117,7 @@ AuthenticateResult SCRAMAuthenticator::authenticate(const Credentials& creds, Po
 Poco::UInt32 SCRAMAuthenticator::newConversationID()
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	Poco::UInt32 result = ++_nextConversationID;
 	return result;
 }
@@ -148,10 +151,10 @@ std::string SCRAMAuthenticator::createNonce()
 
 std::string SCRAMAuthenticator::computeClientProof(const std::string& username, const std::string& clientNonce, const std::string& salt, int iterations, const std::string& saltedPassword, const std::string& serverNonce, std::string& clientAuthMessage)
 {
-	const std::string clientFirstMessage = Poco::format("n=%s,r=%s", username, clientNonce);
-	const std::string clientFinalNoProof = Poco::format("c=biws,r=%s", serverNonce);
-	const std::string serverFirstMessage = Poco::format("r=%s,s=%s,i=%d", serverNonce, salt, iterations);
-	clientAuthMessage = Poco::format("%s,%s,%s", clientFirstMessage, serverFirstMessage, clientFinalNoProof);
+	const std::string clientFirstMessage = Poco::format("n=%s,r=%s"s, username, clientNonce);
+	const std::string clientFinalNoProof = Poco::format("c=biws,r=%s"s, serverNonce);
+	const std::string serverFirstMessage = Poco::format("r=%s,s=%s,i=%d"s, serverNonce, salt, iterations);
+	clientAuthMessage = Poco::format("%s,%s,%s"s, clientFirstMessage, serverFirstMessage, clientFinalNoProof);
 
 	Poco::HMACEngine<Poco::SHA1Engine> hmacKey(saltedPassword);
 	hmacKey.update("Client Key", 10);
@@ -170,7 +173,7 @@ std::string SCRAMAuthenticator::computeClientProof(const std::string& username, 
 	{
 		clientProof[i] ^= clientSignature[i];
 	}
-	
+
 	return clientProof;
 }
 
@@ -184,7 +187,7 @@ std::string SCRAMAuthenticator::computeServerSignature(const std::string& salted
 	Poco::HMACEngine<Poco::SHA1Engine> hmacSSig(serverKey);
 	hmacSSig.update(clientAuthMessage);
 	std::string serverSignature = SCRAMAuthenticator::digestToBinaryString(hmacSSig);
-	
+
 	return serverSignature;
 }
 

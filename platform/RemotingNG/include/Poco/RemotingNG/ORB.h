@@ -59,7 +59,7 @@ class RemotingNG_API ORB
 	/// findObject() directly.
 {
 public:
-	typedef std::vector<Listener::Ptr> ListenerVec;
+	using ListenerVec = std::vector<Listener::Ptr>;
 	
 	struct ObjectRegistration
 		/// Event argument for objectRegistered and objectUnregistered events.
@@ -252,11 +252,11 @@ public:
 		/// Throws a Poco::NotFoundException if no matching EventDispatcher has been registered.
 
 private:
-	typedef std::map<std::string, EventDispatcher::Ptr> EventDispatchers;
+	using EventDispatchers = std::map<std::string, EventDispatcher::Ptr>;
 	
 	struct RemoteObjectInfo: public Poco::RefCountedObject
 	{
-		typedef Poco::AutoPtr<RemoteObjectInfo> Ptr;
+		using Ptr = Poco::AutoPtr<RemoteObjectInfo>;
 
 		RemoteObject::Ptr pRemoteObject;
 		Skeleton::Ptr pSkeleton;
@@ -265,11 +265,11 @@ private:
 		std::string uri;
 		EventDispatchers eventDispatchers;
 	};
-	typedef std::map<std::string, Listener::Ptr> ListenerMap;
-	typedef std::map<std::string, RemoteObjectInfo::Ptr> RemoteObjects;
-	typedef std::map<Identifiable::TypeId, Skeleton::Ptr> Skeletons;
-	typedef std::map<std::string, std::string> URIAliases;
-	typedef std::set<std::string> LocalURIs;
+	using ListenerMap = std::map<std::string, Listener::Ptr>;
+	using RemoteObjects = std::map<std::string, RemoteObjectInfo::Ptr>;
+	using Skeletons = std::map<Identifiable::TypeId, Skeleton::Ptr>;
+	using URIAliases = std::map<std::string, std::string>;
+	using LocalURIs = std::set<std::string>;
 
 	ORB();
 	~ORB();

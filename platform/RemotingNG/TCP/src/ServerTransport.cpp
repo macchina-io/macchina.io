@@ -20,6 +20,9 @@
 #include "Poco/RemotingNG/Authorizer.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace RemotingNG {
 namespace TCP {
@@ -33,7 +36,7 @@ ServerTransport::ServerTransport(Listener& listener, CredentialsStore::Ptr pCred
 	_authenticated(authenticated),
 	_pInflater(0),
 	_pDeflater(0),
-	_logger(Poco::Logger::get("RemotingNG.TCP.ServerTransport"))
+	_logger(Poco::Logger::get("RemotingNG.TCP.ServerTransport"s))
 {
 	if (compressed)
 	{
@@ -45,14 +48,14 @@ ServerTransport::ServerTransport(Listener& listener, CredentialsStore::Ptr pCred
 	}
 }
 
-	
+
 ServerTransport::~ServerTransport()
 {
 	delete _pInflater;
 	delete _pDeflater;
 }
 
-	
+
 void ServerTransport::waitReady()
 {
 	_ready.wait();
@@ -78,7 +81,7 @@ bool ServerTransport::authorize(const std::string& method, const std::string& pe
 
 Deserializer& ServerTransport::beginRequest()
 {
-	if (_logger.debug()) _logger.debug("Beginning request...");
+	if (_logger.debug()) _logger.debug("Beginning request..."s);
 
 	return _deserializer;
 }
@@ -86,8 +89,8 @@ Deserializer& ServerTransport::beginRequest()
 
 Serializer& ServerTransport::sendReply(SerializerBase::MessageType messageType)
 {
-	if (_logger.debug()) _logger.debug("Sending reply...");
-	
+	if (_logger.debug()) _logger.debug("Sending reply..."s);
+
 	if (_pDeflater)
 		_serializer.setup(*_pDeflater);
 	else
@@ -98,7 +101,7 @@ Serializer& ServerTransport::sendReply(SerializerBase::MessageType messageType)
 
 void ServerTransport::endRequest()
 {
-	if (_logger.debug()) _logger.debug("Request done.");
+	if (_logger.debug()) _logger.debug("Request done."s);
 
 	if (_pDeflater)
 		_pDeflater->close();
@@ -116,13 +119,13 @@ void ServerTransport::run()
 		_deserializer.setup(*_pInflater);
 	else
 		_deserializer.setup(*_pRequestStream);
-	
+
 	Poco::UInt64 authToken(0);
 	if (_authenticated)
 	{
 		authToken = _deserializer.deserializeToken<Poco::UInt64>();
-	}	
-	
+	}
+
 	std::string oid;
 	std::string tid;
 	_deserializer.deserializeEndPoint(oid, tid);
@@ -141,7 +144,7 @@ void ServerTransport::run()
 	pContext->setValue("connection", _pRequestStream->rdbuf()->connection().get());
 	pContext->setValue("uri", path);
 	pContext->clearCredentials();
-	
+
 	if (_authenticated)
 	{
 		try
@@ -150,19 +153,19 @@ void ServerTransport::run()
 		}
 		catch (Poco::NotFoundException&)
 		{
-			_logger.error("Invalid authentication token");
+			_logger.error("Invalid authentication token"s);
 			InvalidCredentialsException exc("Authentication token");
 			sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT).serializeFaultMessage("fault", exc);
 			return;
 		}
 	}
-	
+
 	Poco::RemotingNG::ORB& orb = Poco::RemotingNG::ORB::instance();
 	if (oid.find('#') != std::string::npos)
 	{
-		if (_logger.debug()) 
+		if (_logger.debug())
 		{
-			_logger.debug("Dispatching event to subscriber: " + path);
+			_logger.debug("Dispatching event to subscriber: %s"s, path);
 		}
 		Poco::RemotingNG::EventSubscriber::Ptr pEventSubscriber = _listener.findEventSubscriber(path);
 		if (pEventSubscriber)
@@ -171,7 +174,7 @@ void ServerTransport::run()
 		}
 		else
 		{
-			_logger.error("Unknown event subscriber: " + path);
+			_logger.error("Unknown event subscriber: %s"s, path);
 			UnknownEventSubscriberException exc(path);
 			sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT).serializeFaultMessage("fault", exc);
 			endRequest();
@@ -181,13 +184,13 @@ void ServerTransport::run()
 	{
 		if (_logger.debug())
 		{
-			_logger.debug("Dispatching request to service object: " + path);
+			_logger.debug("Dispatching request to service object: %s"s, path);
 		}
-				
+
 		bool serviceFound = orb.invoke(_listener, path, *this);
 		if (!serviceFound)
 		{
-			_logger.error("Unknown service object: " + path);
+			_logger.error("Unknown service object: %s"s, path);
 			UnknownObjectException exc(path);
 			sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT).serializeFaultMessage("fault", exc);
 			endRequest();

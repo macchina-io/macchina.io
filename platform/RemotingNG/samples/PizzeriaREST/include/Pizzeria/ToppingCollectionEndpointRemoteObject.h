@@ -27,7 +27,7 @@ namespace Pizzeria {
 class ToppingCollectionEndpointRemoteObject: public Pizzeria::IToppingCollectionEndpoint, public Poco::RemotingNG::RemoteObject
 {
 public:
-	typedef Poco::AutoPtr<ToppingCollectionEndpointRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<ToppingCollectionEndpointRemoteObject>;
 
 	ToppingCollectionEndpointRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<Pizzeria::ToppingCollectionEndpoint> pServiceObject);
 		/// Creates a ToppingCollectionEndpointRemoteObject.

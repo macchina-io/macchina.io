@@ -31,6 +31,9 @@
 #include <cctype>
 
 
+using namespace std::string_literals;
+
+
 using Poco::File;
 using Poco::Path;
 using Poco::Timestamp;
@@ -50,7 +53,7 @@ BundleLoader::BundleLoader(CodeCache& codeCache, BundleFactory::Ptr pBundleFacto
 	_pBundleContextFactory(pBundleContextFactory),
 	_osName(osName),
 	_osArch(osArch),
-	_logger(Logger::get("osp.core.BundleLoader"))
+	_logger(Logger::get("osp.core.BundleLoader"s))
 {
 	makeValidFileName(_osName);
 	makeValidFileName(_osArch);
@@ -73,7 +76,7 @@ BundleLoader::BundleLoader(CodeCache& codeCache, BundleFactory::Ptr pBundleFacto
 #else
 	_osArch(Environment::osArchitecture()),
 #endif
-	_logger(Logger::get("osp.core.BundleLoader"))
+	_logger(Logger::get("osp.core.BundleLoader"s))
 {
 	makeValidFileName(_osName);
 #if (POCO_OS == POCO_OS_MAC_OS_X) && (POCO_ARCH == POCO_ARCH_AMD64)
@@ -84,7 +87,7 @@ BundleLoader::BundleLoader(CodeCache& codeCache, BundleFactory::Ptr pBundleFacto
 	makeValidFileName(_osArch);
 #endif
 
-	_logger.debug("os='%s' arch='%s'", _osName, _osArch);
+	_logger.debug("os='%s' arch='%s'"s, _osName, _osArch);
 }
 
 
@@ -354,7 +357,7 @@ void BundleLoader::resolveBundle(Bundle* pBundle)
 
 	if (_logger.debug())
 	{
-		_logger.debug(std::string("Resolving bundle ") + pBundle->symbolicName());
+		_logger.debug("Resolving bundle %s."s, pBundle->symbolicName());
 	}
 
 	_resolvingBundles.insert(pBundle);
@@ -384,7 +387,7 @@ void BundleLoader::resolveBundle(Bundle* pBundle)
 
 	if (_logger.debug())
 	{
-		_logger.debug(std::string("Installing libraries for ") + pBundle->symbolicName());
+		_logger.debug("Installing libraries for %s."s, pBundle->symbolicName());
 	}
 	installLibraries(pBundle);
 
@@ -397,25 +400,25 @@ void BundleLoader::resolveBundle(Bundle* pBundle)
 			{
 				if (_logger.information())
 				{
-					_logger.information(std::string("Extended bundle ") + pExtendedBundle->symbolicName() + " not yet resolved - resolving now.");
+					_logger.information("Extended bundle %s not yet resolved - resolving now."s, pExtendedBundle->symbolicName());
 				}
 				pExtendedBundle->resolve();
 			}
 			pExtendedBundle->addExtensionBundle(pBundle);
 			if (_logger.information())
 			{
-				_logger.information(std::string("Bundle ") + pBundle->symbolicName() + " successfully extended bundle " + pExtendedBundle->symbolicName());
+				_logger.information("Bundle %s successfully extended bundle %s."s, pBundle->symbolicName(), pExtendedBundle->symbolicName());
 			}
 		}
 		else if (_logger.warning())
 		{
-			_logger.warning("Bundle " + pBundle->symbolicName() + " cannot extend unknown bundle " + pBundle->manifest().extendedBundle() + ".");
+			_logger.warning("Bundle %s cannot extend unknown bundle %s."s, pBundle->symbolicName(), pBundle->manifest().extendedBundle());
 		}
 	}
 
 	if (_logger.information())
 	{
-		_logger.information(std::string("Bundle ") + pBundle->symbolicName() + " resolved");
+		_logger.information("Bundle %s resolved."s, pBundle->symbolicName());
 	}
 }
 
@@ -424,7 +427,7 @@ void BundleLoader::resolveDependencies(Bundle* pBundle, const BundleManifest::De
 {
 	if (_logger.debug())
 	{
-		_logger.debug("Resolving dependencies for bundle %s", pBundle->symbolicName());
+		_logger.debug("Resolving dependencies for bundle %s"s, pBundle->symbolicName());
 	}
 
 	for (BundleManifest::Dependencies::const_iterator it = deps.begin(); it != deps.end(); ++it)
@@ -438,7 +441,7 @@ Bundle::ModuleProviders BundleLoader::resolveModules(Bundle* pBundle) const
 {
 	if (_logger.debug())
 	{
-		_logger.debug("Resolving modules for bundle %s", pBundle->symbolicName());
+		_logger.debug("Resolving modules for bundle %s."s, pBundle->symbolicName());
 	}
 
 	Bundle::ModuleProviders providers;
@@ -478,7 +481,7 @@ void BundleLoader::resolveProviders(Bundle* pBundle, const Bundle::ModuleProvide
 {
 	if (_logger.debug())
 	{
-		_logger.debug("Resolving module providers for bundle %s", pBundle->symbolicName());
+		_logger.debug("Resolving module providers for bundle %s."s, pBundle->symbolicName());
 	}
 
 	for (Bundle::ModuleProviders::const_iterator itp = providers.begin(); itp != providers.end(); ++itp)
@@ -500,7 +503,7 @@ void BundleLoader::startBundle(Bundle* pBundle)
 
 	if (_logger.debug())
 	{
-		_logger.debug(std::string("Starting bundle ") + pBundle->symbolicName());
+		_logger.debug("Starting bundle %s."s, pBundle->symbolicName());
 	}
 
 	BundleMap::iterator it = _bundles.find(pBundle->symbolicName());
@@ -511,12 +514,12 @@ void BundleLoader::startBundle(Bundle* pBundle)
 		BundleActivator* pActivator = loadActivator(it->second);
 		if (pActivator)
 		{
-			_logger.debug("Invoking BundleActivator::start()");
+			_logger.debug("Invoking BundleActivator::start()"s);
 			pActivator->start(it->second.pContext);
 		}
 		if (_logger.information())
 		{
-			_logger.information(std::string("Bundle ") + pBundle->symbolicName() + " started");
+			_logger.information("Bundle %s started."s, pBundle->symbolicName());
 		}
 	}
 	else throw BundleException("The bundle loader does not know the bundle", pBundle->symbolicName());
@@ -529,7 +532,7 @@ void BundleLoader::stopBundle(Bundle* pBundle)
 
 	if (_logger.debug())
 	{
-		_logger.debug(std::string("Stopping bundle ") + pBundle->symbolicName());
+		_logger.debug("Stopping bundle %s."s, pBundle->symbolicName());
 	}
 
 	BundleMap::iterator it = _bundles.find(pBundle->symbolicName());
@@ -538,12 +541,12 @@ void BundleLoader::stopBundle(Bundle* pBundle)
 		BundleActivator* pActivator = pBundle->activator();
 		if (pActivator)
 		{
-			_logger.debug("Invoking BundleActivator::stop()");
+			_logger.debug("Invoking BundleActivator::stop()"s);
 			pActivator->stop(it->second.pContext);
 		}
 		if (_logger.information())
 		{
-			_logger.information(std::string("Bundle ") + pBundle->symbolicName() + " stopped");
+			_logger.information("Bundle %s stopped."s, pBundle->symbolicName());
 		}
 	}
 	else throw BundleException("The bundle loader does not know the bundle", pBundle->symbolicName());
@@ -556,7 +559,7 @@ void BundleLoader::uninstallBundle(Bundle* pBundle)
 
 	if (_logger.debug())
 	{
-		_logger.debug(std::string("Uninstalling bundle ") + pBundle->symbolicName());
+		_logger.debug("Uninstalling bundle %s."s, pBundle->symbolicName());
 	}
 
 	if (pBundle->isExtensionBundle())
@@ -588,7 +591,7 @@ void BundleLoader::uninstallBundle(Bundle* pBundle)
 
 	if (_logger.information())
 	{
-		_logger.information(std::string("Bundle ") + pBundle->symbolicName() + " uninstalled");
+		_logger.information("Bundle  %s uninstalled."s, pBundle->symbolicName());
 	}
 }
 
@@ -698,7 +701,7 @@ BundleActivator* BundleLoader::loadActivator(BundleInfo& bundleInfo)
 			std::string libPath(libraryPathFor(bundleInfo.pBundle));
 			if (_logger.debug())
 			{
-				_logger.debug(std::string("Loading library ") + libPath);
+				_logger.debug("Loading library %s."s, libPath);
 			}
 			pClassLoader->loadLibrary(libPath);
 			const ActivatorClassLoader::Meta& meta = pClassLoader->classFor(activatorClass);
@@ -733,7 +736,7 @@ void BundleLoader::unloadActivator(BundleInfo& bundleInfo)
 			std::string libPath(libraryPathFor(bundleInfo.pBundle));
 			if (_logger.debug())
 			{
-				_logger.debug(std::string("Unloading library ") + libPath);
+				_logger.debug("Unloading library %s."s, libPath);
 			}
 			bundleInfo.pClassLoader->unloadLibrary(libPath);
 		}
@@ -772,7 +775,7 @@ void BundleLoader::installLibraries(Bundle* pBundle)
 				{
 					if (_logger.debug())
 					{
-						_logger.debug(std::string("Same or newer version of library found in cache: ") + *it);
+						_logger.debug("Same or newer version of library found in cache: %s"s, *it);
 					}
 				}
 			}
@@ -780,7 +783,7 @@ void BundleLoader::installLibraries(Bundle* pBundle)
 			{
 				if (_logger.debug())
 				{
-					_logger.debug(std::string("Library found in cache: ") + *it);
+					_logger.debug("Library found in cache: %s"s, *it);
 				}
 			}
 		}
@@ -796,13 +799,9 @@ void BundleLoader::installLibrary(Bundle* pBundle, const Poco::Path& p, const Po
 {
 	if (_logger.debug())
 	{
-		_logger.debug(std::string("Installing library ") + p.toString(Path::PATH_UNIX));
+		_logger.debug("Installing library %s."s, p.toString(Path::PATH_UNIX));
 	}
-#if __cplusplus < 201103L
-	std::auto_ptr<std::istream> pStream(pBundle->storage().getResource(p.toString(Path::PATH_UNIX)));
-#else
 	std::unique_ptr<std::istream> pStream(pBundle->storage().getResource(p.toString(Path::PATH_UNIX)));
-#endif
 	if (pStream.get())
 	{
 		_codeCache.installLibrary(p.getFileName(), *pStream);
@@ -815,7 +814,7 @@ void BundleLoader::installLibrary(Bundle* pBundle, const Poco::Path& p, const Po
 			}
 			catch (Poco::Exception& exc)
 			{
-				_logger.warning(Poco::format("Failed to set timestamp on %s: %s", p.toString(), exc.displayText()));
+				_logger.warning("Failed to set timestamp on %s: %s"s, p.toString(), exc.displayText());
 			}
 		}
 	}
@@ -833,7 +832,7 @@ void BundleLoader::uninstallLibraries(Bundle* pBundle)
 	{
 		if (_logger.debug())
 		{
-			_logger.debug(std::string("Uninstalling library ") + *it);
+			_logger.debug("Uninstalling library %s."s, *it);
 		}
 		_codeCache.uninstallLibrary(*it);
 	}

@@ -35,8 +35,8 @@ class OSP_API ServiceRef: public Poco::RefCountedObject
 	/// to manage service registrations.
 {
 public:
-	typedef Poco::AutoPtr<ServiceRef> Ptr;
-	typedef const Ptr ConstPtr;
+	using Ptr = Poco::AutoPtr<ServiceRef>;
+	using ConstPtr = const Ptr;
 
 	ServiceRef(const std::string& name, const Properties& props, Service::Ptr pService);
 		/// Creates the ServiceRef, using the given arguments.
@@ -44,20 +44,20 @@ public:
 	const std::string& name() const;
 		/// Returns the name under which the service
 		/// has been registered.
-		
+
 	const Properties& properties() const;
 		/// Returns the service properties.
-		
+
 	Properties& properties();
 		/// Returns the service properties.
-		
+
 	Service::Ptr instance() const;
 		/// Returns an instance of the Service.
 		///
 		/// If a ServiceFactory has been registered for the service,
 		/// creates and returns a new instance of the Service class.
 		/// Otherwise, returns the registered Service object.
-		
+
 	template <class Svc>
 	Poco::AutoPtr<Svc> castedInstance() const
 		/// Returns an instance of the Service.
@@ -77,7 +77,7 @@ public:
 			Svc* pCasted = static_cast<Svc*>(pService.get());
 			return Poco::AutoPtr<Svc>(pCasted, true);
 		}
-		else 
+		else
 		{
 			std::string msg("Cannot cast from ");
 			msg += pService->type().name();
@@ -116,7 +116,7 @@ inline const Properties& ServiceRef::properties() const
 	return _props;
 }
 
-	
+
 inline Properties& ServiceRef::properties()
 {
 	return _props;

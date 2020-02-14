@@ -23,14 +23,14 @@ public:
 		std::string symbolicName;
 		std::string versions;
 	};
-	typedef std::vector<Dependency> Dependencies;
+	using Dependencies = std::vector<Dependency>;
 
 	struct ProvidedModule
 	{
 		std::string symbolicName;
 		std::string version;
 	};
-	typedef std::vector<ProvidedModule> ProvidedModules;
+	using ProvidedModules = std::vector<ProvidedModule>;
 
 	ManifestInfo(const std::string& name,
 		const std::string& symbolicName,

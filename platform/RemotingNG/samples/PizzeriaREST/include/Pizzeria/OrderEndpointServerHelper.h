@@ -29,7 +29,7 @@ namespace Pizzeria {
 class OrderEndpointServerHelper
 {
 public:
-	typedef Pizzeria::OrderEndpoint Service;
+	using Service = Pizzeria::OrderEndpoint;
 
 	OrderEndpointServerHelper();
 		/// Creates a OrderEndpointServerHelper.

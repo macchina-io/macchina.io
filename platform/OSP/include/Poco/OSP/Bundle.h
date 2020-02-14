@@ -51,12 +51,12 @@ class OSP_API Bundle: public Poco::RefCountedObject
 	/// The Bundle class also manages localized resources.
 {
 public:
-	typedef Poco::AutoPtr<Bundle> Ptr;
-	typedef const Ptr ConstPtr;
-	typedef BundleManifest::Dependency Dependency;
-	typedef BundleManifest::Dependencies Dependencies;
-	typedef BundleManifest::Module Module;
-	typedef BundleManifest::Modules Modules;
+	using Ptr = Poco::AutoPtr<Bundle>;
+	using ConstPtr = const Ptr;
+	using Dependency = BundleManifest::Dependency;
+	using Dependencies = BundleManifest::Dependencies;
+	using Module = BundleManifest::Module;
+	using Modules = BundleManifest::Modules;
 
 	enum State
 	{
@@ -73,14 +73,14 @@ public:
 		std::string symbolicName;
 		Version version;
 	};
-	typedef std::vector<ResolvedDependency> ResolvedDependencies;
+	using ResolvedDependencies = std::vector<ResolvedDependency>;
 
 	struct ModuleProvider
 	{
 		Dependency module;
 		std::vector<ResolvedDependency> bundles;
 	};
-	typedef std::vector<ModuleProvider> ModuleProviders;
+	using ModuleProviders = std::vector<ModuleProvider>;
 
 	int id() const;
 		/// Returns the internal ID of the bundle.

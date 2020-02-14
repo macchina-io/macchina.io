@@ -21,7 +21,9 @@
 #include <memory>
 
 
-using Poco::Util::LayeredConfiguration;
+using namespace std::string_literals;
+
+
 using Poco::Util::PropertyFileConfiguration;
 using Poco::Path;
 
@@ -273,11 +275,7 @@ Bundle::Ptr Bundle::extendedBundle() const
 
 void Bundle::loadManifest()
 {
-#if __cplusplus < 201103L
-	std::auto_ptr<std::istream> pStream(_pStorage->getResource(MANIFEST_FILE));
-#else
 	std::unique_ptr<std::istream> pStream(_pStorage->getResource(MANIFEST_FILE));
-#endif
 	if (pStream.get())
 		_pManifest = new BundleManifest(*pStream);
 	else
@@ -302,15 +300,11 @@ void Bundle::loadProperties()
 
 void Bundle::addProperties(const std::string& path)
 {
-#if __cplusplus < 201103L
-	std::auto_ptr<std::istream> pStream(getResource(path));
-#else
 	std::unique_ptr<std::istream> pStream(getResource(path));
-#endif
 	if (pStream.get())
 	{
-		PropertyFileConfiguration* pConfig = new PropertyFileConfiguration(*pStream);
-		_pProperties->addProperties(pConfig, false);
+		PropertyFileConfiguration::Ptr pConfig = new PropertyFileConfiguration(*pStream);
+		_pProperties->addProperties(pConfig);
 	}
 }
 
@@ -332,11 +326,11 @@ void Bundle::addExtensionBundle(Bundle* pExtensionBundle)
 
 				_extensionBundles.insert(Bundle::Ptr(pExtensionBundle, true));
 			}
-			_pProperties->addProperties(pExtensionBundle->_pProperties, -static_cast<int>(_extensionBundles.size()), true);
+			_pProperties->addProperties(pExtensionBundle->_pProperties, -static_cast<int>(_extensionBundles.size()));
 		}
 		else throw BundleStateException("addExtensionBundle() requires at least RESOLVED state");
 	}
-	else throw BundleSealedException(Poco::format("%s cannot extend %s", pExtensionBundle->symbolicName(), symbolicName()));
+	else throw BundleSealedException(Poco::format("%s cannot extend %s"s, pExtensionBundle->symbolicName(), symbolicName()));
 }
 
 

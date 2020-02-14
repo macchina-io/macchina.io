@@ -28,7 +28,7 @@
 using namespace Poco::CodeGeneration;
 
 
-EventSubscriberGenerator::EventSubscriberGenerator(Poco::CodeGeneration::CppGenerator& cppGen): 
+EventSubscriberGenerator::EventSubscriberGenerator(Poco::CodeGeneration::CppGenerator& cppGen):
 	AbstractGenerator(cppGen),
 	_pCurrent(0)
 {
@@ -106,7 +106,7 @@ void EventSubscriberGenerator::structStart(const Poco::CppParser::Struct* pStruc
 			includeTypeSerializers(*it, false, false);
 		}
 	}
-	
+
 	_cppGen.addSrcIncludeFile("Poco/RemotingNG/MethodHandler.h");
 	_cppGen.addSrcIncludeFile("Poco/RemotingNG/ServerTransport.h");
 	_cppGen.addSrcIncludeFile("Poco/RemotingNG/Serializer.h");
@@ -121,12 +121,12 @@ void EventSubscriberGenerator::structStart(const Poco::CppParser::Struct* pStruc
 
 	_cppGen.writeIncludes();
 	_cppGen.writeNameSpaceBegin(nameSpace());
-	
+
 	for (std::vector<const Poco::CppParser::Function*>::const_iterator it = eventFunctions.begin(); it != eventFunctions.end(); ++it)
 	{
 		Poco::CodeGeneration::CodeGenerator::Properties methodProperties;
 		Poco::CodeGeneration::GeneratorEngine::parseProperties(*it, methodProperties);
-	
+
 		generateEventFunction(*it, methodProperties);
 	}
 }
@@ -179,7 +179,7 @@ void EventSubscriberGenerator::generateEventFunction(const Poco::CppParser::Func
 	Poco::CppParser::Variable* pVar = new Poco::CppParser::Variable(ProxyGenerator::generateClassName(_pStructIn)+ "* _pProxy", pStruct);
 	pVar->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
 	_cppGen.registerConstructorHint(pVar, "pProxy");
-	
+
 	// add: void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Desrializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	Poco::CppParser::Function* pInvoke = new Poco::CppParser::Function("void invoke", pStruct);
 	Poco::CppParser::Parameter* pParam1 = new Poco::CppParser::Parameter("Poco::RemotingNG::ServerTransport& remoting__trans", 0);
@@ -188,7 +188,7 @@ void EventSubscriberGenerator::generateEventFunction(const Poco::CppParser::Func
 	pInvoke->addParameter(pParam1);
 	pInvoke->addParameter(pParam2);
 	pInvoke->addParameter(pParam3);
-	
+
 	// don't append the real method name. Use the renamed version!
 	CodeGenerator::Properties funcProps;
 	GeneratorEngine::parseProperties(pFuncOld, funcProps);
@@ -227,7 +227,9 @@ void EventSubscriberGenerator::constructorCodeGen(const Poco::CppParser::Functio
 	AbstractGenerator* pAGen = reinterpret_cast<AbstractGenerator*>(addParam);
 	EventSubscriberGenerator* pGen = dynamic_cast<EventSubscriberGenerator*>(pAGen);
 	poco_check_ptr (pGen);
-	
+
+	gen.writeMethodImplementation("using namespace std::string_literals;\n");
+
 	EventSubscriberGenerator::MethodHandlers::const_iterator it = pGen->_methodHandlers.begin();
 	EventSubscriberGenerator::MethodHandlers::const_iterator itEnd = pGen->_methodHandlers.end();
 	for (; it != itEnd; ++it)
@@ -235,7 +237,7 @@ void EventSubscriberGenerator::constructorCodeGen(const Poco::CppParser::Functio
 		// add: addMethodHandler("create", new TransportManagerCreateMethodHandler());
 		std::string codeLine("addMethodHandler(\"");
 		codeLine.append(it->first);
-		codeLine.append("\", new ");
+		codeLine.append("\"s, new ");
 		codeLine.append(it->second->fullName());
 		codeLine.append("(pProxy));");
 		gen.writeMethodImplementation(codeLine);
@@ -252,16 +254,16 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 	poco_check_ptr(pFunc);
 	bool isEvent = pGen->_isEvent;
 
+	gen.writeMethodImplementation("using namespace std::string_literals;\n");
+
 	ProxyGenerator::OrderedParameters attrs;
 	ProxyGenerator::OrderedParameters elems;
 	std::set<std::string> nsSet;
 	ProxyGenerator::doElemAttrSplit(pFunc, attrs, elems, nsSet);
 	std::map<std::string, int> nsIdx;
-	//static const std::string REMOTING__NAMES[] = {"create", "protocol", "endPoint"}; // methodName followed by param names, followed by other than default namespaces
+	//static const std::string REMOTING__NAMES[] = {"create"s, "protocol"s, "endPoint"s}; // methodName followed by param names, followed by other than default namespaces
 	std::string staticIds = ProxyGenerator::generateStaticIdString(pFunc, nsSet, attrs, elems, nsIdx);
-	gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__NAMES);");
 	gen.writeMethodImplementation(staticIds);
-	gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__NAMES);");
 	std::map<std::string, const Poco::CppParser::Parameter*> outParams;
 	ProxyGenerator::detectOutParams(pFunc, outParams);
 
@@ -361,7 +363,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 		invokeLine.append("(0");
 	else
 		invokeLine.append("(0, "); // 0 because it came from the network
-	
+
 	for (; it != itEnd; ++it)
 	{
 		invokeLine.append((*it)->name());
@@ -370,7 +372,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 		if (it != itBeforeEnd)
 			invokeLine.append(", ");
 	}
-	
+
 	invokeLine.append(");");
 	if (isOneWay)
 	{
@@ -445,9 +447,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 		std::string messageType(isEvent ? "EVENT_REPLY" : "REPLY");
 		if (name != responseName)
 		{
-			gen.writeMethodImplementation(indentation+"remoting__staticInitBegin(REMOTING__REPLY_NAME);");
 			gen.writeMethodImplementation(indentation+"static const std::string REMOTING__REPLY_NAME(\"" + responseName + "\");");
-			gen.writeMethodImplementation(indentation+"remoting__staticInitEnd(REMOTING__REPLY_NAME);");
 			gen.writeMethodImplementation(indentation+"remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_" + messageType + ");");
 		}
 		else
@@ -456,7 +456,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 		}
 
 		// write first the attrs, then the return param, then the other out params
-		
+
 		writeTypeSerializer(pFunc, attrs, outParams, indentation, true, funcNsIdx, gen);
 
 		std::string serLine("Poco::RemotingNG::TypeSerializer<");
@@ -470,9 +470,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 				std::string line("static const std::string REMOTING__RETURN_PARAM_NAME(\"");
 				line.append(retName);
 				line.append("\");");
-				gen.writeMethodImplementation(indentation+"remoting__staticInitBegin(REMOTING__RETURN_PARAM_NAME);");
 				gen.writeMethodImplementation(indentation+line);
-				gen.writeMethodImplementation(indentation+"remoting__staticInitEnd(REMOTING__RETURN_PARAM_NAME);");
 				retName = "REMOTING__RETURN_PARAM_NAME";
 			}
 			else
@@ -530,7 +528,7 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 
 void EventSubscriberGenerator::mhctorCodeGen(const Poco::CppParser::Function* pFuncNew, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
-	// FIXME: the following should actually be done using 
+	// FIXME: the following should actually be done using
 	// constructor member variable initialization syntax.
 	// Due to a bug in the code generator, this does not work,
 	// so we do it in the constructor body.
@@ -539,9 +537,9 @@ void EventSubscriberGenerator::mhctorCodeGen(const Poco::CppParser::Function* pF
 
 
 void EventSubscriberGenerator::writePushAttributes(EventSubscriberGenerator* pGen,
-											const Poco::CppParser::Function* pFunc, 
-											const ProxyGenerator::OrderedParameters& attrs, 
-											const std::map<std::string, const Poco::CppParser::Parameter*>& outParams, 
+											const Poco::CppParser::Function* pFunc,
+											const ProxyGenerator::OrderedParameters& attrs,
+											const std::map<std::string, const Poco::CppParser::Parameter*>& outParams,
 											const std::string& indentation,
 											CodeGenerator& gen)
 {
@@ -608,15 +606,15 @@ void EventSubscriberGenerator::writePrepareAttribute(EventSubscriberGenerator* p
 }
 
 
-void EventSubscriberGenerator::writeTypeDeserializers(const Poco::CppParser::Function* pFunc, 
-											const ProxyGenerator::OrderedParameters& params, 
+void EventSubscriberGenerator::writeTypeDeserializers(const Poco::CppParser::Function* pFunc,
+											const ProxyGenerator::OrderedParameters& params,
 											const std::string& indentation,
 											CodeGenerator& gen)
 {
 	std::string deserPre("Poco::RemotingNG::TypeDeserializer<");
 	ProxyGenerator::OrderedParameters::const_iterator itOP = params.begin();
 	ProxyGenerator::OrderedParameters::const_iterator itOPEnd = params.end();
-	
+
 	for (; itOP != itOPEnd; ++itOP)
 	{
 		poco_check_ptr (itOP->second.pParam);
@@ -654,12 +652,12 @@ void EventSubscriberGenerator::writeTypeDeserializers(const Poco::CppParser::Fun
 }
 
 
-void EventSubscriberGenerator::writeTypeSerializer(const Poco::CppParser::Function* pFunc, 
-											const ProxyGenerator::OrderedParameters& params, 
-											const std::map<std::string, const Poco::CppParser::Parameter*>& outParams, 
-											const std::string& indentation, 
-											bool isAttr, 
-											int funcNsIdx, 
+void EventSubscriberGenerator::writeTypeSerializer(const Poco::CppParser::Function* pFunc,
+											const ProxyGenerator::OrderedParameters& params,
+											const std::map<std::string, const Poco::CppParser::Parameter*>& outParams,
+											const std::string& indentation,
+											bool isAttr,
+											int funcNsIdx,
 											CodeGenerator& gen)
 {
 	ProxyGenerator::OrderedParameters::const_iterator itOP = params.begin();
@@ -693,13 +691,13 @@ void EventSubscriberGenerator::writeTypeSerializer(const Poco::CppParser::Functi
 				enumMode = true;
 				type = "int";
 			}
-			
+
 			serLine.append(type);
 
 			if (itOP->second.pParam->isPointer())
 				serLine.append("*");
 			serLine.append(" >::serialize(REMOTING__NAMES[");
-			
+
 			serLine.append(Poco::NumberFormatter::format(itOP->second.namePos));
 			serLine.append("], ");
 			if (enumMode)
@@ -814,18 +812,18 @@ void EventSubscriberGenerator::checkForEventMembersImpl(const Poco::CppParser::S
 					}
 					pFunc->setAttributes(funcAttr);
 					pFunc->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
-					
+
 					includeTypeSerializers(pFunc, false, false);
 					eventFunctions.push_back(pFunc);
 				}
 			}
-		}	
+		}
 	}
 
 	if (events)
 	{
 		Poco::Path file (Poco::CodeGeneration::Utility::createInclude(_pStruct, true));
-	
+
 		std::string newFileName = ProxyGenerator::generateClassName(_pStructIn);
 		file.setBaseName(newFileName);
 		std::string inclFile = file.toString(Poco::Path::PATH_UNIX);

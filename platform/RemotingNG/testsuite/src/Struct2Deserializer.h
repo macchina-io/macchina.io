@@ -29,6 +29,8 @@ class TypeDeserializer<Struct2>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Struct2& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -40,9 +42,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, Struct2& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"aDateTime","aLocalDateTime","aTimestamp","aVector","anURI","anUUID","anotherVector"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"aDateTime"s,"aLocalDateTime"s,"aTimestamp"s,"aVector"s,"anURI"s,"anUUID"s,"anotherVector"s};
 		TypeDeserializer<Poco::DateTime >::deserialize(REMOTING__NAMES[0], true, deser, value.aDateTime);
 		TypeDeserializer<Poco::LocalDateTime >::deserialize(REMOTING__NAMES[1], true, deser, value.aLocalDateTime);
 		TypeDeserializer<Poco::Timestamp >::deserialize(REMOTING__NAMES[2], true, deser, value.aTimestamp);

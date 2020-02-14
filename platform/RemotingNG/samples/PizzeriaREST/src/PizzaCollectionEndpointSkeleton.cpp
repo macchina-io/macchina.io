@@ -32,13 +32,13 @@ class PizzaCollectionEndpointGetMethodHandler: public Poco::RemotingNG::MethodHa
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"get"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"get"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
-			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PATH, "/pizzeria/pizzas");
+			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PATH, "/pizzeria/pizzas"s);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_PATH);
@@ -46,9 +46,7 @@ public:
 			std::vector < Pizzeria::Pizza > remoting__return = remoting__pCastedRO->get();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("getReply");
-			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			Poco::RemotingNG::TypeSerializer<std::vector < Pizzeria::Pizza > >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -88,7 +86,9 @@ PizzaCollectionEndpointSkeleton::PizzaCollectionEndpointSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("get", new Pizzeria::PizzaCollectionEndpointGetMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("get"s, new Pizzeria::PizzaCollectionEndpointGetMethodHandler);
 }
 
 

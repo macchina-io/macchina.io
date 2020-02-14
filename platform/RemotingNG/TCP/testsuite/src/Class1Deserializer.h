@@ -27,6 +27,8 @@ class TypeDeserializer<Class1>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Class1& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -38,9 +40,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, Class1& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"aString","anEnum","anInt"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"aString"s,"anEnum"s,"anInt"s};
 		bool ret = false;
 		std::string gen_aString;
 		ret = TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, gen_aString);

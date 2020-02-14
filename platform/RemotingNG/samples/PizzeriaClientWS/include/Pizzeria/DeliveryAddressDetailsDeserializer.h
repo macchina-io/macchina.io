@@ -29,9 +29,9 @@ class TypeDeserializer<Pizzeria::DeliveryAddressDetails>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Pizzeria::DeliveryAddressDetails& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMESPACE);
-		static const std::string REMOTING__NAMESPACE("http://www.appinf.com/webservices/PizzaDeliveryService/");
-		remoting__staticInitEnd(REMOTING__NAMESPACE);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMESPACE("http://www.appinf.com/webservices/PizzaDeliveryService/"s);
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		deser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMESPACE);
 		if (ret)
@@ -46,9 +46,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, Pizzeria::DeliveryAddressDetails& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"milesAway"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"milesAway"s};
 		bool ret = false;
 		double gen_milesAway;
 		ret = TypeDeserializer<double >::deserialize(REMOTING__NAMES[0], true, deser, gen_milesAway);

@@ -36,8 +36,8 @@ class OSP_API Service: public virtual Poco::RefCountedObject
 	/// the type() and isA() member functions.
 {
 public:
-	typedef Poco::AutoPtr<Service> Ptr;
-	typedef const Ptr ConstPtr;
+	using Ptr = Poco::AutoPtr<Service>;
+	using ConstPtr = const Ptr;
 
 	virtual const std::type_info& type() const;
 		/// Returns the type information for the object's class.
@@ -57,7 +57,7 @@ public:
 		///     {
 		///         return typeid(MyService);
 		///     }
-		
+
 	virtual bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class
 		/// given by type. Comparison must always be done by
@@ -71,7 +71,7 @@ public:
 		///     {
 		///         std::string name(typeid(MyService).name());
 		///         return name == otherType.name() || MyBaseClass::isA(otherType);
-		///     }   
+		///     }
 
 protected:
 	Service();

@@ -34,13 +34,13 @@ namespace
 	class TestService: public Service
 	{
 	public:
-		typedef Poco::AutoPtr<TestService> Ptr;
-		
+		using Ptr = Poco::AutoPtr<TestService>;
+
 		const std::type_info& type() const
 		{
 			return typeid(TestService);
 		}
-		
+
 		bool isA(const std::type_info& otherType) const
 		{
 			std::string name(typeid(TestService).name());
@@ -51,7 +51,7 @@ namespace
 	class OtherTestService: public Service
 	{
 	public:
-		typedef Poco::AutoPtr<OtherTestService> Ptr;
+		using Ptr = Poco::AutoPtr<OtherTestService>;
 
 		const std::type_info& type() const
 		{
@@ -64,7 +64,7 @@ namespace
 			return name == otherType.name() || Service::isA(otherType);
 		}
 	};
-	
+
 	class TestServiceFactory: public ServiceFactory
 	{
 	public:
@@ -91,23 +91,23 @@ void ServiceRegistryTest::testRegistry()
 	ServiceRegistry reg;
 	reg.serviceRegistered   += Delegate<ServiceRegistryTest, ServiceEvent>(this, &ServiceRegistryTest::handleEvent);
 	reg.serviceUnregistered += Delegate<ServiceRegistryTest, ServiceEvent>(this, &ServiceRegistryTest::handleEvent);
-	
+
 	_events.clear();
-	
+
 	Service::Ptr pService1 = new TestService;
 	reg.registerService("Service1", pService1, Properties());
-	
+
 	assert (_events.size() == 1);
 	assert (_events[0].service()->name() == "Service1");
 	assert (_events[0].what() == ServiceEvent::EV_SERVICE_REGISTERED);
-	
+
 	ServiceRef::Ptr pRef = reg.findByName("Service1");
 	assert (pRef->instance() == pService1);
 	assert (pRef->name() == "Service1");
-	
+
 	pRef = reg.findByName("Service2");
 	assert (pRef.isNull());
-	
+
 	std::vector<ServiceRef::Ptr> svcs;
 	std::size_t n = reg.find("name == \"Service1\"", svcs);
 	assert (n == 1);
@@ -115,13 +115,13 @@ void ServiceRegistryTest::testRegistry()
 	assert (svcs[0]->instance() == pService1);
 
 	Service::Ptr pService2 = new TestServiceFactory;
-	
+
 	Properties props;
 	props.set("foo", "bar");
-	
+
 	_events.clear();
 	pRef = reg.registerService("Service2", pService2, props);
-	
+
 	assert (_events.size() == 1);
 	assert (_events[0].service()->name() == "Service2");
 	assert (_events[0].what() == ServiceEvent::EV_SERVICE_REGISTERED);
@@ -129,10 +129,10 @@ void ServiceRegistryTest::testRegistry()
 	assert (pRef->name() == "Service2");
 	Service::Ptr pService21 = pRef->instance();
 	assert (pService21 != pService2);
-	
+
 	Service::Ptr pService22 = pRef->instance();
 	assert (pService22 != pService21);
-	
+
 	TestService::Ptr pTestService = pRef->castedInstance<TestService>();
 	assert (pTestService.get() != 0);
 
@@ -140,7 +140,7 @@ void ServiceRegistryTest::testRegistry()
 	{
 		OtherTestService::Ptr pOtherTestService = pRef->castedInstance<OtherTestService>();
 		fail("bad cast - must throw");
-	}	
+	}
 	catch (Poco::BadCastException&)
 	{
 	}
@@ -149,7 +149,7 @@ void ServiceRegistryTest::testRegistry()
 	assert (n == 1);
 	assert (svcs.size() == 1);
 	assert (svcs[0]->name() == "Service2");
-	
+
 	pRef->properties().set("foo", "BAR");
 	n = reg.find("foo == \"bar\"", svcs);
 	assert (n == 0);
@@ -166,7 +166,7 @@ void ServiceRegistryTest::testRegistry()
 
 	pRef = reg.findByName("Service2");
 	assert (pRef->name() == "Service2");
-	
+
 	try
 	{
 		Service::Ptr pService11 = new TestService;

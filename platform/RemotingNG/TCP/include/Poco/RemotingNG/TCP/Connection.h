@@ -65,7 +65,7 @@ class RemotingNGTCP_API Connection: public Poco::Runnable, public Poco::Remoting
 	/// the Connection object.
 {
 public:
-	typedef Poco::AutoPtr<Connection> Ptr;
+	using Ptr = Poco::AutoPtr<Connection>;
 
 	enum ConnectionMode
 	{
@@ -247,8 +247,8 @@ private:
 		TIMEOUT_FRAME =  500000
 	};
 
-	typedef Poco::ObjectPool<Frame, Frame::Ptr, FrameFactory> FramePool;
-	typedef std::vector<Poco::AutoPtr<FrameHandler> > FrameHandlerVec;
+	using FramePool = Poco::ObjectPool<Frame, Frame::Ptr, FrameFactory>;
+	using FrameHandlerVec = std::vector<Poco::AutoPtr<FrameHandler>>;
 
 	Poco::Net::StreamSocket _socket;
 	Poco::UInt32 _id;

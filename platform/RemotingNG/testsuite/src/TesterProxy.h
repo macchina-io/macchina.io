@@ -22,7 +22,7 @@
 class TesterProxy: public ITester, public Poco::RemotingNG::Proxy
 {
 public:
-	typedef Poco::AutoPtr<TesterProxy> Ptr;
+	using Ptr = Poco::AutoPtr<TesterProxy>;
 
 	TesterProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a TesterProxy.
@@ -82,6 +82,10 @@ public:
 
 	Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1);
 
+	std::array < int, 4 > testStdArray(const std::array < int, 4 >& arr);
+
+	std::shared_ptr < Struct1 > testStdSharedPtr(const std::shared_ptr < Struct1 >& pStruct1);
+
 	Struct1 testStruct11(const Struct1& s1);
 
 	void testStruct12(Struct1& s1);
@@ -120,6 +124,8 @@ public:
 
 	Struct6 testStruct6(const Struct6& s1);
 
+	Struct7 testStruct7(const Struct7& s1);
+
 	void testSynchronized();
 
 	void testSynchronizedProxy();
@@ -138,6 +144,8 @@ private:
 	mutable Poco::Int64 _testNestedTypeRet;
 	mutable std::string _testOneWayResultRet;
 	mutable Poco::SharedPtr < Struct1 > _testPtrRet;
+	mutable std::array < int, 4 > _testStdArrayRet;
+	mutable std::shared_ptr < Struct1 > _testStdSharedPtrRet;
 	mutable Struct1 _testStruct11Ret;
 	mutable std::vector < Struct1 > _testStruct1Vec1Ret;
 	mutable Struct2 _testStruct21Ret;
@@ -145,6 +153,7 @@ private:
 	mutable Struct4 _testStruct41Ret;
 	mutable Struct5 _testStruct51Ret;
 	mutable Struct6 _testStruct6Ret;
+	mutable Struct7 _testStruct7Ret;
 };
 
 

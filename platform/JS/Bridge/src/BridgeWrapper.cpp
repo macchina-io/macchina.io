@@ -34,6 +34,9 @@
 #include <sstream>
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace JS {
 namespace Bridge {
@@ -48,7 +51,7 @@ class Transport: public Poco::RemotingNG::Transport
 {
 public:
 	Transport():
-		_logger(Poco::Logger::get("JS.Bridge.Transport"))
+		_logger(Poco::Logger::get("JS.Bridge.Transport"s))
 	{
 	}
 
@@ -100,7 +103,7 @@ public:
 
 	Poco::RemotingNG::Serializer& beginRequest(const Poco::RemotingNG::Identifiable::ObjectId& oid, const Poco::RemotingNG::Identifiable::TypeId& tid, const std::string& messageName, Poco::RemotingNG::SerializerBase::MessageType messageType)
 	{
-		_logger.error("Cannot deliver event %s in class %s. Event has a non-const argument and is not declared oneway.", messageName, tid);
+		_logger.error("Cannot deliver event %s in class %s. Event has a non-const argument and is not declared oneway."s, messageName, tid);
 		throw Poco::NotImplementedException("beginRequest() not implemented for jsbridge Transport");
 	}
 
@@ -354,7 +357,7 @@ void BridgeHolder::enableEvents()
 		Poco::RemotingNG::RemoteObject::Ptr pRemoteObject = pIdentifiable.cast<Poco::RemotingNG::RemoteObject>();
 		if (pRemoteObject && pRemoteObject->remoting__hasEvents())
 		{
-			_pEventDispatcher = Poco::RemotingNG::ORB::instance().findEventDispatcher(_uri, "jsbridge");
+			_pEventDispatcher = Poco::RemotingNG::ORB::instance().findEventDispatcher(_uri, "jsbridge"s);
 			if (_pEventDispatcher)
 			{
 				_pEventDispatcher->subscribe(_subscriberURI, _subscriberURI);
@@ -445,7 +448,7 @@ v8::Handle<v8::ObjectTemplate> BridgeWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::EscapableHandleScope handleScope(pIsolate);
 	Poco::JS::Core::PooledIsolate* pPooledIso = Poco::JS::Core::PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Bridge.Bridge"));
+	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Bridge.Bridge"s));
 	if (pooledObjectTemplate.IsEmpty())
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
@@ -471,7 +474,7 @@ void BridgeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 		}
 		else
 		{
-			returnException(args, "invalid or missing arguments; object URI required");
+			returnException(args, "invalid or missing arguments; object URI required"s);
 			return;
 		}
 
@@ -602,8 +605,8 @@ void BridgeWrapper::bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& ar
 			}
 
 			Poco::RemotingNG::ScopedContext scopedContext;
-			scopedContext.context()->setValue("transport", Transport::PROTOCOL);
-			scopedContext.context()->setValue("uri", pHolder->uri());
+			scopedContext.context()->setValue("transport"s, Transport::PROTOCOL);
+			scopedContext.context()->setValue("uri"s, pHolder->uri());
 
 			Deserializer deserializer(method, Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST, args.GetIsolate(), argsArray);
 			Serializer serializer(args.GetIsolate());
@@ -636,7 +639,7 @@ void BridgeWrapper::bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& ar
 			returnException(args, exc);
 		}
 	}
-	else returnException(args, std::string("no object - bridge function cannot be called as standalone function"));
+	else returnException(args, "no object - bridge function cannot be called as standalone function"s);
 }
 
 
@@ -680,7 +683,7 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 			}
 			else if (args.Length() >= 2)
 			{
-				returnException(args, "Invalid argument: Second argument to on() must be a function");
+				returnException(args, "Invalid argument: Second argument to on() must be a function"s);
 			}
 			else
 			{
@@ -693,7 +696,7 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 		}
 		else
 		{
-			returnException(args, "Invalid argument: First argument to on() must be event name");
+			returnException(args, "Invalid argument: First argument to on() must be event name"s);
 		}
 	}
 }

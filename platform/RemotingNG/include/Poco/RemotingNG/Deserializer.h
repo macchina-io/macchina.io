@@ -78,7 +78,7 @@ public:
 	virtual bool deserializeStructBegin(const std::string& name, bool isMandatory) = 0;
 		/// Begin deserialization of a complex (structured) object.
 		///
-		/// Returns true if the element with the given name was found. 
+		/// Returns true if the element with the given name was found.
 		/// If the element was not found and isMandatory is true, an exception will be thrown.
 		///
 		/// Note that if this method returns false, deserializeComplexTypeEnd() will not be called.
@@ -89,7 +89,7 @@ public:
 	virtual bool deserializeSequenceBegin(const std::string& name, bool isMandatory, Poco::UInt32& lengthHint) = 0;
 		/// Begin deserialization of a vector or other sequence.
 		///
-		/// Returns true if the element with the given name was found. 
+		/// Returns true if the element with the given name was found.
 		/// If the element was not found and isMandatory is true, an exception may be thrown
 		/// (depending on whether the serialization format can distinguish between an empty
 		/// and a missing sequence).
@@ -103,12 +103,12 @@ public:
 	virtual bool deserializeNullableBegin(const std::string& name, bool isMandatory, bool& isNull) = 0;
 		/// Begin deserialization of a Nullable or pointer which may be NULL.
 		///
-		/// Returns true if the element with the given name was found. 
+		/// Returns true if the element with the given name was found.
 		/// If the element was not found and isMandatory is true, an exception may be thrown
 		/// (depending on whether the serialization format can distinguish between a NULL
 		/// and a missing value). IsNull will be set accordingly.
 		///
-		/// Note that if this method returns false or sets isNull to true, 
+		/// Note that if this method returns false or sets isNull to true,
 		/// deserializeNullableEnd() will not be called.
 
 	virtual void deserializeNullableEnd(const std::string& name) = 0;
@@ -117,12 +117,12 @@ public:
 	virtual bool deserializeOptionalBegin(const std::string& name, bool isMandatory, bool& isSpecified);
 		/// Begin deserialization of an Optional.
 		///
-		/// Returns true if the element with the given name was found. 
+		/// Returns true if the element with the given name was found.
 		/// If the element was not found and isMandatory is true, an exception may be thrown
 		/// (depending on whether the serialization format can distinguish between a NULL
 		/// and a missing value). IsSpecified will be set accordingly.
 		///
-		/// Note that if this method returns false or sets isSpecified to false, 
+		/// Note that if this method returns false or sets isSpecified to false,
 		/// deserializeOptionalEnd() will not be called.
 		///
 		/// The default implementation calls deserializeNullableBegin().
@@ -133,79 +133,79 @@ public:
 		/// The default implementation calls deserializeNullableEnd().
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::Int8& value) = 0;
-		/// Deserialize an Int8. 
+		/// Deserialize an Int8.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::UInt8& value) = 0;
-		/// Deserialize an UInt8. 
+		/// Deserialize an UInt8.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::Int16& value) = 0;
-		/// Deserialize an Int16. 
+		/// Deserialize an Int16.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::UInt16& value) = 0;
-		/// Deserialize an UInt16. 
+		/// Deserialize an UInt16.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::Int32& value) = 0;
-		/// Deserialize an Int32. 
+		/// Deserialize an Int32.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::UInt32& value) = 0;
-		/// Deserialize an UInt32. 
+		/// Deserialize an UInt32.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, long& value) = 0;
-		/// Deserialize a long. 
+		/// Deserialize a long.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, unsigned long& value) = 0;
-		/// Deserialize an unsigned long. 
+		/// Deserialize an unsigned long.
 
-#ifndef POCO_LONG_IS_64_BIT
+#ifndef POCO_INT64_IS_LONG
 	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::Int64& value) = 0;
-		/// Deserialize an Int64. 
+		/// Deserialize an Int64.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::UInt64& value) = 0;
-		/// Deserialize an UInt64. 
+		/// Deserialize an UInt64.
 #endif
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, float& value) = 0;
-		/// Deserialize a float. 
+		/// Deserialize a float.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, double& value) = 0;
-		/// Deserialize a double. 
+		/// Deserialize a double.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, bool& value) = 0;
-		/// Deserialize a boolean. 
+		/// Deserialize a boolean.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, char& value) = 0;
-		/// Deserialize a single character. 
+		/// Deserialize a single character.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, std::string& value) = 0;
-		/// Deserialize a std::string. 
+		/// Deserialize a std::string.
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, std::vector<char>& value) = 0;
-		/// Deserializes raw binary data. 
+		/// Deserializes raw binary data.
 
 	virtual void pushAttribute(const std::string& attrNamespace, const std::string& attrName, bool isMandatory);
 		/// For XML-based transports, this method allows for deserialization of data either as
 		/// element content (default) or attribute value.
 		///
 		/// The rule that deserializers follow is to first call pushAttribute() for every variable to
-		/// be deserialized as attribute, then call deserializeMessageBegin() or deserializeStructStart() 
+		/// be deserialized as attribute, then call deserializeMessageBegin() or deserializeStructStart()
 		/// for the element containing the attributes.
-		/// 
-		/// Example: The following code: 
-		/// 
+		///
+		/// Example: The following code:
+		///
 		///     ser.pushAttribute("", "attr1", true);
 		///     ser.pushAttribute("", "attr2", true);
 		///     ser.deserializeStructBegin("complexType", true);
-		///     ser.deserialize("attr1", attr1, true); 
-		///     ser.deserialize("attr2", attr2, true); 
-		///     ser.deserialize("variable", variable, true); 
-		///     ser.deserializeStructEnd("complexType"); 
+		///     ser.deserialize("attr1", attr1, true);
+		///     ser.deserialize("attr2", attr2, true);
+		///     ser.deserialize("variable", variable, true);
+		///     ser.deserializeStructEnd("complexType");
 		///
 		/// will read this XML fragment:
- 		///     <complexType attr1="foo" attr2="bar"><variable>42</variable>...</complexType> 
+ 		///     <complexType attr1="foo" attr2="bar"><variable>42</variable>...</complexType>
  		///
  		/// Should be overridden by subclasses supporting attributes. The default implementation
  		/// does nothing.
- 	
+
 protected:
 	virtual void setupImpl(std::istream& inStream) = 0;
 		/// Set up the Deserializer for reading

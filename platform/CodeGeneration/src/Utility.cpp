@@ -511,6 +511,11 @@ std::string Utility::resolveTypeImpl(const Poco::CppParser::NameSpace* pParent, 
 		std::string base = static_cast<Poco::CppParser::TypeDef*>(pSym)->baseType();
 		return result + resolveTypeImpl(pSym->nameSpace(), base) + post;
 	}
+	else if (pSym->kind() == Poco::CppParser::Symbol::SYM_TYPEALIAS)
+	{
+		std::string base = static_cast<Poco::CppParser::TypeAlias*>(pSym)->baseType();
+		return result + resolveTypeImpl(pSym->nameSpace(), base) + post;
+	}
 	else return result + fN + post;
 }
 

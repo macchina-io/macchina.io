@@ -35,13 +35,13 @@ CheckVatServiceProxy::~CheckVatServiceProxy()
 
 void CheckVatServiceProxy::checkVat(const std::string& countryCode, const std::string& vatNumber, std::string& countryCode2, std::string& vatNumber2, Poco::DateTime& requestDate, bool& valid, Poco::Nullable < std::string >& name, Poco::Nullable < std::string >& address)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"checkVat","countryCode","vatNumber","countryCode","vatNumber","requestDate","valid","name","address","urn:ec.europa.eu:taxud:vies:services:checkVat:types"};
-	remoting__staticInitEnd(REMOTING__NAMES);
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"checkVat"s,"countryCode"s,"vatNumber"s,"countryCode"s,"vatNumber"s,"requestDate"s,"valid"s,"name"s,"address"s,"urn:ec.europa.eu:taxud:vies:services:checkVat:types"s};
 	const std::string& remoting__namespace(REMOTING__NAMES[9]);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
-	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "true");
+	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "true"s);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
@@ -51,9 +51,7 @@ void CheckVatServiceProxy::checkVat(const std::string& countryCode, const std::s
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, REMOTING__NAMES[9]);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("checkVatResponse");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[3], true, remoting__deser, countryCode2);
 	Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[4], true, remoting__deser, vatNumber2);
@@ -69,13 +67,13 @@ void CheckVatServiceProxy::checkVat(const std::string& countryCode, const std::s
 
 void CheckVatServiceProxy::checkVatApprox(const std::string& countryCode, const std::string& vatNumber, const Poco::Optional < std::string >& traderName, const Poco::Optional < std::string >& traderCompanyType, const Poco::Optional < std::string >& traderStreet, const Poco::Optional < std::string >& traderPostcode, const Poco::Optional < std::string >& traderCity, const Poco::Optional < std::string >& requesterCountryCode, const Poco::Optional < std::string >& requesterVatNumber, std::string& countryCode2, std::string& vatNumber2, Poco::DateTime& requestDate, bool& valid, Poco::Nullable < std::string >& traderName2, Poco::Nullable < std::string >& traderCompanyType2, Poco::Optional < std::string >& traderAddress, Poco::Optional < std::string >& traderStreet2, Poco::Optional < std::string >& traderPostcode2, Poco::Optional < std::string >& traderCity2, Poco::Optional < std::string >& traderNameMatch, Poco::Optional < std::string >& traderCompanyTypeMatch, Poco::Optional < std::string >& traderStreetMatch, Poco::Optional < std::string >& traderPostcodeMatch, Poco::Optional < std::string >& traderCityMatch, std::string& requestIdentifier)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"checkVatApprox","countryCode","vatNumber","traderName","traderCompanyType","traderStreet","traderPostcode","traderCity","requesterCountryCode","requesterVatNumber","countryCode","vatNumber","requestDate","valid","traderName","traderCompanyType","traderAddress","traderStreet","traderPostcode","traderCity","traderNameMatch","traderCompanyTypeMatch","traderStreetMatch","traderPostcodeMatch","traderCityMatch","requestIdentifier","urn:ec.europa.eu:taxud:vies:services:checkVat:types"};
-	remoting__staticInitEnd(REMOTING__NAMES);
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"checkVatApprox"s,"countryCode"s,"vatNumber"s,"traderName"s,"traderCompanyType"s,"traderStreet"s,"traderPostcode"s,"traderCity"s,"requesterCountryCode"s,"requesterVatNumber"s,"countryCode"s,"vatNumber"s,"requestDate"s,"valid"s,"traderName"s,"traderCompanyType"s,"traderAddress"s,"traderStreet"s,"traderPostcode"s,"traderCity"s,"traderNameMatch"s,"traderCompanyTypeMatch"s,"traderStreetMatch"s,"traderPostcodeMatch"s,"traderCityMatch"s,"requestIdentifier"s,"urn:ec.europa.eu:taxud:vies:services:checkVat:types"s};
 	const std::string& remoting__namespace(REMOTING__NAMES[26]);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
-	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "true");
+	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "true"s);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
@@ -92,9 +90,7 @@ void CheckVatServiceProxy::checkVatApprox(const std::string& countryCode, const 
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, REMOTING__NAMES[26]);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("checkVatApproxResponse");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[10], true, remoting__deser, countryCode2);
 	Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[11], true, remoting__deser, vatNumber2);

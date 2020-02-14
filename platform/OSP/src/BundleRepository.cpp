@@ -31,6 +31,9 @@
 #include <set>
 
 
+using namespace std::string_literals;
+
+
 using Poco::StringTokenizer;
 using Poco::Path;
 using Poco::File;
@@ -48,7 +51,7 @@ namespace OSP {
 BundleRepository::BundleRepository(const std::string& path, BundleLoader& loader, BundleFilter::Ptr pFilter):
 	_loader(loader),
 	_pFilter(pFilter),
-	_logger(Logger::get("com.osp.BundleRepository"))
+	_logger(Logger::get("com.osp.BundleRepository"s))
 {
 #ifdef POCO_OS_FAMILY_UNIX
 	std::string pathSep(":;");
@@ -67,7 +70,7 @@ BundleRepository::BundleRepository(const std::vector<std::string>& paths, Bundle
 	_paths(paths),
 	_loader(loader),
 	_pFilter(pFilter),
-	_logger(Logger::get("com.osp.BundleRepository"))
+	_logger(Logger::get("com.osp.BundleRepository"s))
 {
 	if (_paths.empty())
 		throw Poco::InvalidArgumentException("At least one path must be supplied to a BundleRepository");
@@ -103,10 +106,9 @@ void BundleRepository::loadBundles()
 		_loader.loadBundle(it->second);
 		if (_logger.information())
 		{
-			_logger.information(std::string("Loaded bundle ")
-				+ it->second->symbolicName()
-				+ "/"
-				+ it->second->version().toString());
+			_logger.information("Loaded bundle %s/%s."s,
+				it->second->symbolicName(),
+				it->second->version().toString());
 		}
 	}
 }
@@ -133,7 +135,7 @@ void BundleRepository::loadBundles(const std::string& path, BundleMap& bundles)
 				{
 					if (_logger.debug())
 					{
-						_logger.debug(std::string("Found bundle ") + *git);
+						_logger.debug("Found bundle %s."s, *git);
 					}
 					loadBundle(*git, bundles);
 				}
@@ -171,7 +173,7 @@ void BundleRepository::loadBundles(const std::string& path, BundleMap& bundles)
 						{
 							if (_logger.debug())
 							{
-								_logger.debug(std::string("Found bundle ") + it->path());
+								_logger.debug("Found bundle %s."s, it->path());
 							}
 							loadBundle(it->path(), bundles);
 						}
@@ -319,13 +321,10 @@ Bundle::Ptr BundleRepository::installBundleImpl(std::istream& istr, const std::s
 			pBundle = _loader.loadBundle(np.toString());
 			if (_logger.information())
 			{
-				_logger.information(std::string("Installed bundle ")
-					+ pBundle->symbolicName()
-					+ "/"
-					+ pBundle->version().toString()
-					+ " to '"
-					+ f.path()
-					+ "'");
+				_logger.information("Installed bundle %s/%s to '%s'."s,
+					pBundle->symbolicName(),
+					pBundle->version().toString(),
+					f.path());
 			}
 			return pBundle;
 		}

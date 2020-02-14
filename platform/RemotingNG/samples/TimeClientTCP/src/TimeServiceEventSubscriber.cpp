@@ -35,9 +35,9 @@ public:
 
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"wakeUp","data"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"wakeUp"s,"data"s};
 		std::string data;
 		remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 		Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, data);
@@ -60,7 +60,9 @@ TimeServiceEventSubscriber::TimeServiceEventSubscriber(const std::string& uri, T
 	Poco::RemotingNG::EventSubscriber(uri)
 
 {
-	addMethodHandler("wakeUp", new Services::TimeServiceEvent__wakeUpMethodHandler(pProxy));
+	using namespace std::string_literals;
+	
+	addMethodHandler("wakeUp"s, new Services::TimeServiceEvent__wakeUpMethodHandler(pProxy));
 }
 
 

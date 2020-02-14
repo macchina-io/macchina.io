@@ -29,6 +29,8 @@ class TypeDeserializer<Pizzeria::ExtTopping>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Pizzeria::ExtTopping& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -40,11 +42,11 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, Pizzeria::ExtTopping& value)
 	{
+		using namespace std::string_literals;
+		
 		// Pizzeria::Topping
 		{
-		remoting__staticInitBegin(REMOTING__NAMES__PIZZERIA__TOPPING);
-		static const std::string REMOTING__NAMES__PIZZERIA__TOPPING[] = {"name","price"};
-		remoting__staticInitEnd(REMOTING__NAMES__PIZZERIA__TOPPING);
+		static const std::string REMOTING__NAMES__PIZZERIA__TOPPING[] = {"name"s,"price"s};
 		bool ret = false;
 		std::string gen_name;
 		ret = TypeDeserializer<std::string >::deserialize(REMOTING__NAMES__PIZZERIA__TOPPING[0], true, deser, gen_name);
@@ -54,9 +56,7 @@ public:
 		if (ret) value.setPrice(gen_price);
 		}
 		
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"addInfo"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		static const std::string REMOTING__NAMES[] = {"addInfo"s};
 		bool ret = false;
 		std::string gen_addInfo;
 		ret = TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, gen_addInfo);

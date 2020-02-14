@@ -17,6 +17,9 @@
 #include "Poco/Util/AbstractConfiguration.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace JS {
 namespace Core {
@@ -37,7 +40,7 @@ v8::Handle<v8::ObjectTemplate> ConfigurationWrapper::objectTemplate(v8::Isolate*
 	v8::EscapableHandleScope handleScope(pIsolate);
 	PooledIsolate* pPooledIso = PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledConfigurationTemplate(pPooledIso->objectTemplate("Core.Configuration"));
+	v8::Persistent<v8::ObjectTemplate>& pooledConfigurationTemplate(pPooledIso->objectTemplate("Core.Configuration"s));
 	if (pooledConfigurationTemplate.IsEmpty())
 	{
 		v8::Local<v8::ObjectTemplate> configurationTemplate = v8::ObjectTemplate::New(pIsolate);
@@ -173,7 +176,7 @@ void ConfigurationWrapper::getObject(const v8::FunctionCallbackInfo<v8::Value>& 
 			if (!value.IsEmpty())
 				args.GetReturnValue().Set(value.ToLocalChecked());
 			else
-				throw Poco::DataFormatException(std::string("Invalid JSON in configuration property ") + key, json);
+				throw Poco::DataFormatException("Invalid JSON in configuration property "s + key, json);
 		}
 	}
 	catch (Poco::Exception& exc)

@@ -18,6 +18,9 @@
 #include "Poco/Exception.h"
 
 
+using namespace std::string_literals;
+
+
 using Poco::Logger;
 using Poco::FastMutex;
 
@@ -31,7 +34,7 @@ const std::string ServiceRegistry::PROP_TYPE("type");
 
 
 ServiceRegistry::ServiceRegistry():
-	_logger(Logger::get("osp.core.ServiceRegistry"))
+	_logger(Logger::get("osp.core.ServiceRegistry"s))
 {
 }
 
@@ -58,7 +61,7 @@ ServiceRef::Ptr ServiceRegistry::registerService(const std::string& name, Servic
 		ServiceEvent registeredEvent(pServiceRef, ServiceEvent::EV_SERVICE_REGISTERED);
 		serviceRegistered(this, registeredEvent);
 
-		_logger.information(std::string("Service registered: ") + name);
+		_logger.information("Service registered: %s."s, name);
 
 		return pServiceRef;
 	}
@@ -80,7 +83,7 @@ void ServiceRegistry::unregisterService(const std::string& name)
 
 		serviceUnregistered(this, unregisteredEvent);
 
-		_logger.information(std::string("Service unregistered: ") + name);
+		_logger.information("Service unregistered: %s"s, name);
 	}
 	else throw Poco::NotFoundException(name);
 }

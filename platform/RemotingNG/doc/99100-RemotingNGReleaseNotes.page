@@ -1,6 +1,27 @@
 Remoting NG Release Notes
 Remoting NG
 
+!!!Release 2020.1
+
+!!Summary of Changes
+
+  - The RemotingNG framework now requires a C++14 compiler.
+  - Serialization support for C++11 and C++14 types:
+    std::array, std::unordered_set, std::unordered_multiset, std::shared_ptr, std::unique_ptr.
+  - Improved deserialization performance of complex types due to use of
+    move assignment.
+  - Modernized code base to use C++14 features.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - The RemotingNG framework now requires a C++14 compiler
+    (Minimum compiler versions: Visual C++ 2015, GCC 5, Clang 3.4).
+
+
 !!!Release 2019.2
 
 !!Summary of Changes

@@ -24,6 +24,9 @@
 #include <cmath>
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace JS {
 namespace Core {
@@ -53,7 +56,7 @@ v8::Handle<v8::ObjectTemplate> LocalDateTimeWrapper::objectTemplate(v8::Isolate*
 	v8::EscapableHandleScope handleScope(pIsolate);
 	PooledIsolate* pPooledIso = PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Core.LocalDateTime"));
+	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Core.LocalDateTime"s));
 	if (pooledObjectTemplate.IsEmpty())
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);

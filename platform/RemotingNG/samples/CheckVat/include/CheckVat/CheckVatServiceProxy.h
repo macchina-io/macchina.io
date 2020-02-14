@@ -23,7 +23,7 @@ namespace CheckVat {
 class CheckVatServiceProxy: public CheckVat::ICheckVatService, public Poco::RemotingNG::Proxy
 {
 public:
-	typedef Poco::AutoPtr<CheckVatServiceProxy> Ptr;
+	using Ptr = Poco::AutoPtr<CheckVatServiceProxy>;
 
 	CheckVatServiceProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a CheckVatServiceProxy.

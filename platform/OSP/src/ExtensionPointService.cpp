@@ -22,6 +22,9 @@
 #include <memory>
 
 
+using namespace std::string_literals;
+
+
 using Poco::AutoPtr;
 using Poco::XML::Document;
 using Poco::XML::Element;
@@ -74,10 +77,7 @@ void ExtensionPointService::registerExtensionPoint(Bundle::ConstPtr pBundle, con
 		_xpMap[id] = pExtensionPoint;
 		_bundleMap.insert(BundleMap::value_type(pBundle, id));
 
-		_logger.information(std::string("Extension point ")
-			+ id
-			+ " registered by bundle "
-			+ pBundle->symbolicName());
+		_logger.information("Extension point %s registered by bundle %s."s, id, pBundle->symbolicName());
 	}
 	else throw Poco::ExistsException("Extension point", id);
 }
@@ -92,10 +92,7 @@ void ExtensionPointService::unregisterExtensionPoint(const std::string& id)
 	{
 		_xpMap.erase(it);
 
-		_logger.information(std::string("Extension point ")
-			+ id
-			+ " unregistered");
-
+		_logger.information("Extension point %s unregistered."s, id);
 	}
 	else throw Poco::NotFoundException("Extension point", id);
 }
@@ -119,11 +116,9 @@ void ExtensionPointService::onBundleStopped(const void* pSender, BundleEvent& ev
 		XPMap::iterator itxp = _xpMap.find(it->second);
 		if (itxp != _xpMap.end())
 		{
-			_logger.information(std::string("Extension point ")
-				+ itxp->first
-				+ " unregistered because the bundle that defined it ("
-				+ event.bundle()->symbolicName()
-				+ ") was stopped.");
+			_logger.information("Extension point %s unregistered because the bundle that defined it (%s) was stopped."s,
+				itxp->first,
+				event.bundle()->symbolicName());
 
 			_xpMap.erase(itxp);
 		}
@@ -134,11 +129,7 @@ void ExtensionPointService::onBundleStopped(const void* pSender, BundleEvent& ev
 
 void ExtensionPointService::handleExtensions(Bundle::ConstPtr pBundle, GenericHandler handler, Direction dir)
 {
-#if __cplusplus < 201103L
-	std::auto_ptr<std::istream> pStream(pBundle->getResource(EXTENSIONS_XML));
-#else
 	std::unique_ptr<std::istream> pStream(pBundle->getResource(EXTENSIONS_XML));
-#endif
 	if (pStream.get())
 	{
 		try
@@ -147,12 +138,10 @@ void ExtensionPointService::handleExtensions(Bundle::ConstPtr pBundle, GenericHa
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.error(std::string("Failed to handle ")
-			    + EXTENSIONS_XML
-			    + " for bundle "
-				+ pBundle->symbolicName()
-				+ ": "
-				+ exc.displayText());
+			_logger.error("Failed to handle %s for bundle %s: %s"s,
+			    EXTENSIONS_XML,
+				pBundle->symbolicName(),
+				exc.displayText());
 		}
 	}
 }
@@ -187,18 +176,15 @@ void ExtensionPointService::handleExtensions(Bundle::ConstPtr pBundle, std::istr
 					}
 					else
 					{
-						_logger.error(std::string("No point attribute found in extension element of bundle ")
-							+ pBundle->symbolicName());
+						_logger.error("No point attribute found in extension element of bundle %s."s, pBundle->symbolicName());
 					}
 				}
 				else
 				{
-					_logger.warning(std::string("Unsupported element '")
-						+ pNode->nodeName()
-						+ "' found in "
-						+ EXTENSIONS_XML
-						+ " of bundle "
-						+ pBundle->symbolicName());
+					_logger.warning("Unsupported element '%s' found in %s of bundle %s."s,
+						pNode->nodeName(),
+						EXTENSIONS_XML,
+						pBundle->symbolicName());
 				}
 			}
 
@@ -218,12 +204,10 @@ void ExtensionPointService::handleExtension(Bundle::ConstPtr pBundle, const std:
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error(std::string("Error handling extension point ")
-			+ id
-			+ " in bundle "
-			+ pBundle->symbolicName()
-			+ ": "
-			+ exc.displayText());
+		_logger.error("Error handling extension point %s in bundle %s: %s"s,
+			id,
+			pBundle->symbolicName(),
+			exc.displayText());
 	}
 }
 
@@ -237,12 +221,10 @@ void ExtensionPointService::removeExtension(Bundle::ConstPtr pBundle, const std:
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error(std::string("Error removing extension point ")
-			+ id
-			+ " in bundle "
-			+ pBundle->symbolicName()
-			+ ": "
-			+ exc.displayText());
+		_logger.error("Error removing extension point %s in bundle %s: %s"s,
+			id,
+			pBundle->symbolicName(),
+			exc.displayText());
 	}
 }
 

@@ -43,13 +43,13 @@ PizzaDeliveryServiceProxy::~PizzaDeliveryServiceProxy()
 
 void PizzaDeliveryServiceProxy::getAnyPizza(Pizzeria::Pizza& return_)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"getAnyPizza","return"};
-	remoting__staticInitEnd(REMOTING__NAMES);
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"getAnyPizza"s,"return"s};
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
-	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/getAnyPizza");
+	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/getAnyPizza"s);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
@@ -57,9 +57,7 @@ void PizzaDeliveryServiceProxy::getAnyPizza(Pizzeria::Pizza& return_)
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getAnyPizzaReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Pizzeria::Pizza >::deserialize(REMOTING__NAMES[1], true, remoting__deser, return_);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -70,13 +68,13 @@ void PizzaDeliveryServiceProxy::getAnyPizza(Pizzeria::Pizza& return_)
 
 void PizzaDeliveryServiceProxy::getMostPopularTopping(Pizzeria::ExtTopping& return_)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"getMostPopularTopping","return"};
-	remoting__staticInitEnd(REMOTING__NAMES);
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"getMostPopularTopping"s,"return"s};
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
-	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/getMostPopularTopping");
+	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/getMostPopularTopping"s);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
@@ -84,9 +82,7 @@ void PizzaDeliveryServiceProxy::getMostPopularTopping(Pizzeria::ExtTopping& retu
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getMostPopularToppingReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Pizzeria::ExtTopping >::deserialize(REMOTING__NAMES[1], true, remoting__deser, return_);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -97,13 +93,13 @@ void PizzaDeliveryServiceProxy::getMostPopularTopping(Pizzeria::ExtTopping& retu
 
 void PizzaDeliveryServiceProxy::getPizzaNames(std::vector < std::string >& return_)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"getPizzaNames","return"};
-	remoting__staticInitEnd(REMOTING__NAMES);
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"getPizzaNames"s,"return"s};
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
-	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/getPizzaNames");
+	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/getPizzaNames"s);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
@@ -111,9 +107,7 @@ void PizzaDeliveryServiceProxy::getPizzaNames(std::vector < std::string >& retur
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getPizzaNamesReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<std::vector < std::string > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, return_);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -124,13 +118,13 @@ void PizzaDeliveryServiceProxy::getPizzaNames(std::vector < std::string >& retur
 
 void PizzaDeliveryServiceProxy::getPizzas(std::vector < Pizzeria::Pizza >& return_)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"getPizzas","return"};
-	remoting__staticInitEnd(REMOTING__NAMES);
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"getPizzas"s,"return"s};
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
-	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/getPizzas");
+	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/getPizzas"s);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
@@ -138,9 +132,7 @@ void PizzaDeliveryServiceProxy::getPizzas(std::vector < Pizzeria::Pizza >& retur
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getPizzasReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<std::vector < Pizzeria::Pizza > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, return_);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -151,13 +143,13 @@ void PizzaDeliveryServiceProxy::getPizzas(std::vector < Pizzeria::Pizza >& retur
 
 void PizzaDeliveryServiceProxy::getToppings(std::vector < Pizzeria::ExtTopping >& return_)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"getToppings","return"};
-	remoting__staticInitEnd(REMOTING__NAMES);
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"getToppings"s,"return"s};
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
-	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/getToppings");
+	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/getToppings"s);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
@@ -165,9 +157,7 @@ void PizzaDeliveryServiceProxy::getToppings(std::vector < Pizzeria::ExtTopping >
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getToppingsReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<std::vector < Pizzeria::ExtTopping > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, return_);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -178,13 +168,13 @@ void PizzaDeliveryServiceProxy::getToppings(std::vector < Pizzeria::ExtTopping >
 
 void PizzaDeliveryServiceProxy::getWaitTime(Poco::Int64& return_)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"getWaitTime","return"};
-	remoting__staticInitEnd(REMOTING__NAMES);
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"getWaitTime"s,"return"s};
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
-	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/getWaitTime");
+	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/getWaitTime"s);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
@@ -192,9 +182,7 @@ void PizzaDeliveryServiceProxy::getWaitTime(Poco::Int64& return_)
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getWaitTimeReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Poco::Int64 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, return_);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -205,13 +193,13 @@ void PizzaDeliveryServiceProxy::getWaitTime(Poco::Int64& return_)
 
 void PizzaDeliveryServiceProxy::order(const Pizzeria::DeliveryAddress& deliverTo, const Pizzeria::Pizza& pizza, Poco::DateTime& return_)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"order","deliverTo","pizza","return"};
-	remoting__staticInitEnd(REMOTING__NAMES);
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"order"s,"deliverTo"s,"pizza"s,"return"s};
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
-	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/order");
+	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_ACTION, "http://www.appinf.com/webservices/PizzaDeliveryService/order"s);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
@@ -221,9 +209,7 @@ void PizzaDeliveryServiceProxy::order(const Pizzeria::DeliveryAddress& deliverTo
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("orderReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Poco::DateTime >::deserialize(REMOTING__NAMES[3], true, remoting__deser, return_);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

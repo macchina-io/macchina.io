@@ -25,7 +25,7 @@ namespace WeatherWS {
 class IWeather: public virtual Poco::RefCountedObject
 {
 public:
-	typedef Poco::AutoPtr<IWeather> Ptr;
+	using Ptr = Poco::AutoPtr<IWeather>;
 
 	IWeather();
 		/// Creates a IWeather.

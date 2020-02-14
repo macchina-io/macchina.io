@@ -53,17 +53,15 @@ TimeServiceProxy::~TimeServiceProxy()
 
 Poco::DateTime TimeServiceProxy::currentTime() const
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"currentTime"};
-	remoting__staticInitEnd(REMOTING__NAMES);
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"currentTime"s};
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("currentTimeReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Poco::DateTime >::deserialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, true, remoting__deser, _currentTimeRet);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -112,9 +110,9 @@ std::string TimeServiceProxy::remoting__enableEvents(Poco::RemotingNG::Listener:
 
 void TimeServiceProxy::wakeMeUp(const Poco::DateTime& time, const std::string& message)
 {
-	remoting__staticInitBegin(REMOTING__NAMES);
-	static const std::string REMOTING__NAMES[] = {"wakeMeUp","time","message"};
-	remoting__staticInitEnd(REMOTING__NAMES);
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"wakeMeUp"s,"time"s,"message"s};
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
@@ -122,9 +120,7 @@ void TimeServiceProxy::wakeMeUp(const Poco::DateTime& time, const std::string& m
 	Poco::RemotingNG::TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], message, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("wakeMeUpReply");
-	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	remoting__trans.endRequest();

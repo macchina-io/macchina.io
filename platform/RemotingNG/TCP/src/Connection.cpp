@@ -23,6 +23,9 @@
 #include <set>
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace RemotingNG {
 namespace TCP {
@@ -41,7 +44,7 @@ Connection::Connection(const Poco::Net::StreamSocket& socket, ConnectionMode mod
 	_framePool(256, 4096),
 	_nextChannel(1),
 	_ready(false),
-	_logger(Poco::Logger::get("RemotingNG.TCP.Connection"))
+	_logger(Poco::Logger::get("RemotingNG.TCP.Connection"s))
 {
 	_socket.setReceiveTimeout(TIMEOUT_FRAME);
 	_socket.setSendTimeout(TIMEOUT_FRAME);
@@ -89,7 +92,7 @@ void Connection::sendFrame(Frame::Ptr pFrame)
 	{
 		if (_logger.debug())
 		{
-			std::string msg(Poco::format("Sending Frame, type=%08x, channel=%08x, flags=%04hx, psize=%hu",
+			std::string msg(Poco::format("Sending Frame, type=%08x, channel=%08x, flags=%04hx, psize=%hu"s,
 				pFrame->type(),
 				pFrame->channel(),
 				pFrame->flags(),
@@ -109,7 +112,7 @@ void Connection::sendProtocolFrame(Frame::Ptr pFrame)
 
 	if (_logger.debug())
 	{
-		std::string msg(Poco::format("Sending Protocol Frame, type=%08x, channel=%08x, flags=%04hx, psize=%hu",
+		std::string msg(Poco::format("Sending Protocol Frame, type=%08x, channel=%08x, flags=%04hx, psize=%hu"s,
 			pFrame->type(),
 			pFrame->channel(),
 			pFrame->flags(),
@@ -257,7 +260,7 @@ void Connection::runImpl()
 
 	if (_logger.debug())
 	{
-		_logger.debug("Starting handshake with " + remoteAddress().toString());
+		_logger.debug("Starting handshake with %s"s, remoteAddress().toString());
 	}
 	_state = STATE_HANDSHAKE;
 	if (_mode == MODE_CLIENT)
@@ -267,7 +270,7 @@ void Connection::runImpl()
 	receiveHELO();
 	if (_logger.debug())
 	{
-		_logger.debug("Peer HELO received from " + remoteAddress().toString());
+		_logger.debug("Peer HELO received from %s"s, remoteAddress().toString());
 	}
 	if (_mode == MODE_SERVER)
 	{
@@ -275,7 +278,7 @@ void Connection::runImpl()
 	}
 	if (_logger.debug())
 	{
-		_logger.debug("Connection established with " + remoteAddress().toString());
+		_logger.debug("Connection established with %s"s, remoteAddress().toString());
 	}
 
 	_state = STATE_ESTABLISHED;
@@ -295,26 +298,26 @@ void Connection::runImpl()
 			else if (_idleTimeout.totalMicroseconds() > 0 && _lastFrame.isElapsed(_idleTimeout.totalMicroseconds()))
 			{
 				_state = STATE_CLOSING_ACTIVE;
-				_logger.debug("Closing connection due to idle timeout.");
+				_logger.debug("Closing connection due to idle timeout."s);
 			}
 		}
 		catch (Poco::Exception& exc)
 		{
 			if (pFrame) _framePool.returnObject(pFrame);
 			_state = STATE_ABORTED;
-			_logger.error("Aborting connection due to exception: " + exc.displayText());
+			_logger.error("Aborting connection due to exception: %s"s, exc.displayText());
 		}
 		catch (...)
 		{
 			if (pFrame) _framePool.returnObject(pFrame);
 			_state = STATE_ABORTED;
-			_logger.error("Aborting connection due to unknown exception.");
+			_logger.error("Aborting connection due to unknown exception."s);
 		}
 	}
 
 	if (_state == STATE_CLOSING_ACTIVE || _state == STATE_CLOSING_PASSIVE)
 	{
-		_logger.debug("Closing connection to " + remoteAddress().toString());
+		_logger.debug("Closing connection to %s"s, remoteAddress().toString());
 		sendBYE();
 		connectionClosing(pThis);
 	}
@@ -335,12 +338,12 @@ void Connection::runImpl()
 	if (_state == STATE_CLOSED)
 	{
 		connectionClosed(pThis);
-		_logger.debug("Connection closed.");
+		_logger.debug("Connection closed."s);
 	}
 	else if (_state == STATE_ABORTED)
 	{
 		connectionAborted(pThis);
-		_logger.debug("Connection ABORTED.");
+		_logger.debug("Connection ABORTED."s);
 	}
 }
 
@@ -371,11 +374,11 @@ void Connection::processFrame(Frame::Ptr pFrame)
 			}
 			catch (Poco::Exception& exc)
 			{
-				_logger.warning("Frame handler exception: " + exc.displayText());
+				_logger.warning("Frame handler exception: %s"s, exc.displayText());
 			}
 			catch (...)
 			{
-				_logger.warning("Frame handler exception.");
+				_logger.warning("Frame handler exception."s);
 			}
 		}
 		_tmpFrameHandlers.clear();
@@ -385,7 +388,7 @@ void Connection::processFrame(Frame::Ptr pFrame)
 		}
 		else
 		{
-			_logger.warning(Poco::format("No handler for frame with type=%08x, channel=%08x.", pFrame->type(), pFrame->channel()));
+			_logger.warning("No handler for frame with type=%08x, channel=%08x."s, pFrame->type(), pFrame->channel());
 		}
 	}
 	_framePool.returnObject(pFrame);
@@ -413,7 +416,7 @@ void Connection::receiveHELO()
 					Poco::UInt8 nCaps(0);
 					reader >> majorVersion >> minorVersion >> flags >> nCaps;
 					if (majorVersion != Frame::PROTO_MAJOR_VERSION)
-						throw Poco::RemotingNG::ProtocolException(Poco::format("Unsupported protocol version: %u.%u", static_cast<unsigned>(majorVersion), static_cast<unsigned>(minorVersion)));
+						throw Poco::RemotingNG::ProtocolException(Poco::format("Unsupported protocol version: %u.%u"s, static_cast<unsigned>(majorVersion), static_cast<unsigned>(minorVersion)));
 					if (pFrame->getPayloadSize() != 4 + nCaps*4)
 						throw Poco::RemotingNG::ProtocolException("Invalid HELO frame received");
 					Poco::FastMutex::ScopedLock lock(_mutex);
@@ -426,7 +429,7 @@ void Connection::receiveHELO()
 					_framePool.returnObject(pFrame);
 					return;
 				}
-				else throw Poco::RemotingNG::ProtocolException(Poco::format("Unexpected frame received: %08x", pFrame->type()));
+				else throw Poco::RemotingNG::ProtocolException(Poco::format("Unexpected frame received: %08x"s, pFrame->type()));
 			}
 			catch (...)
 			{
@@ -471,7 +474,7 @@ void Connection::receiveBYE()
 				{
 					if (pFrame->type() != Frame::FRAME_TYPE_BYE)
 					{
-						_logger.notice(Poco::format("Unexpected frame (type=%08x) received while closing connection.", pFrame->type()));
+						_logger.notice("Unexpected frame (type=%08x) received while closing connection."s, pFrame->type());
 					}
 				}
 				catch (...)
@@ -536,7 +539,7 @@ Frame::Ptr Connection::receiveFrame()
 			}
 			if (_logger.debug())
 			{
-				std::string msg(Poco::format("Received Frame, type=%08x, channel=%08x, flags=%04hx, psize=%hu",
+				std::string msg(Poco::format("Received Frame, type=%08x, channel=%08x, flags=%04hx, psize=%hu"s,
 					pFrame->type(),
 					pFrame->channel(),
 					pFrame->flags(),

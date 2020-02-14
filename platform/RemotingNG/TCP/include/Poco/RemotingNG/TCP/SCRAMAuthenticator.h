@@ -31,15 +31,15 @@ namespace TCP {
 
 
 class RemotingNGTCP_API SCRAMAuthenticator: public Authenticator
-	/// This abstract Authenticator implementation provides the SCRAM-SHA-1 
-	/// (Salted Challenge Response Authentication Mechanism with SHA-1) 
+	/// This abstract Authenticator implementation provides the SCRAM-SHA-1
+	/// (Salted Challenge Response Authentication Mechanism with SHA-1)
 	/// authentication mechanism.
 	///
 	/// SCRAM specifies the authentication message exchange between the client
-	/// and the server. 
+	/// and the server.
 	/// It uses the PBKDF2 algorithm from the Public-Key Cryptography Standards (PKCS)
 	/// and has the following features:
-	/// 
+	///
 	///   - The password is never transmitted in plain text, only a hash of the
 	///     password is transmitted from client to server.
 	///   - The server does not need to store the passwords in plain text (or
@@ -55,17 +55,17 @@ class RemotingNGTCP_API SCRAMAuthenticator: public Authenticator
 	///   - hashForUser()
 {
 public:
-	typedef Poco::AutoPtr<SCRAMAuthenticator> Ptr;
+	using Ptr = Poco::AutoPtr<SCRAMAuthenticator>;
 
 	SCRAMAuthenticator();
 		/// Creates the SCRAMAuthenticator.
-		
+
 	~SCRAMAuthenticator();
 		/// Destroys the SCRAMAuthenticator.
-	
+
 	// Authenticator
 	AuthenticateResult authenticate(const Credentials& credentials, Poco::UInt32 conversationID);
-	
+
 	// Utility methods
 	static std::string createNonce();
 	static std::string digestToBinaryString(Poco::DigestEngine& engine);
@@ -95,12 +95,12 @@ protected:
 		STATE_START,
 		STATE_CLIENT_AUTH
 	};
-	
+
 	struct Conversation
 	{
-		typedef Poco::SharedPtr<Conversation> Ptr;
+		using Ptr = Poco::SharedPtr<Conversation>;
 
-		Conversation(): 
+		Conversation():
 			state(STATE_INIT),
 			iterations(0)
 		{
@@ -113,9 +113,9 @@ protected:
 		std::string salt;
 		int iterations;
 	};
-	
-	typedef Poco::ExpireCache<Poco::UInt32, Conversation> ConversationCache;
-		
+
+	using ConversationCache = Poco::ExpireCache<Poco::UInt32, Conversation>;
+
 private:
 	ConversationCache _conversations;
 	Poco::UInt32 _nextConversationID;

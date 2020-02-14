@@ -40,11 +40,11 @@ namespace WebEvent {
 class OSPWebEvent_API WebEventServiceImpl: public WebEventService
 {
 public:
-	typedef Poco::AutoPtr<WebEventServiceImpl> Ptr;
-	
+	using Ptr = Poco::AutoPtr<WebEventServiceImpl>;
+
 	WebEventServiceImpl(Poco::OSP::BundleContext::Ptr pContext, int maxSockets);
 		/// Creates the WebEventServiceImpl.
-		
+
 	~WebEventServiceImpl();
 		/// Destroys the WebEventServiceImpl.
 
@@ -53,7 +53,7 @@ public:
 	void notify(const std::string& subjectName, const std::string& data);
 
 	// Service
-	const std::type_info& type() const;	
+	const std::type_info& type() const;
 	bool isA(const std::type_info& otherType) const;
 
 protected:
@@ -67,7 +67,7 @@ protected:
 	void send(Poco::SharedPtr<Poco::Net::WebSocket> pWS, const std::string& message);
 	void receive(Poco::SharedPtr<Poco::Net::WebSocket> pWS);
 	void shutdown(Poco::SharedPtr<Poco::Net::WebSocket> pWS, Poco::UInt16 statusCode, const std::string& statusMessage, bool passive);
-	
+
 	void notifyImpl(const std::string& subjectName, const std::string& data);
 	void addSubscriberImpl(Poco::SharedPtr<Poco::Net::WebSocket> pWS);
 	void removeSubscriberImpl(Poco::SharedPtr<Poco::Net::WebSocket> pWS, bool clientShutdown);
@@ -91,24 +91,24 @@ private:
 	{
 		WEBEVENT_RECEIVE_TIMEOUT = 5,
 		WEBEVENT_SEND_TIMEOUT = 10,
-		WEBEVENT_SHUTDOWN_TIMEOUT = 2 
+		WEBEVENT_SHUTDOWN_TIMEOUT = 2
 	};
-	
+
 	struct Subscriber: public Poco::RefCountedObject
 	{
-		typedef Poco::AutoPtr<Subscriber> Ptr;
+		using Ptr = Poco::AutoPtr<Subscriber>;
 
 		Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket;
 		std::set<std::string> subjectNames;
 	};
-	typedef std::multimap<std::string, Subscriber::Ptr> SubjectMap;
-	typedef Poco::BasicEvent<const NotificationEvent> Event;
-	typedef Poco::SharedPtr<Event> EventPtr;
-	typedef std::multimap<std::string, EventPtr> EventMap;
-	typedef std::map<Poco::Net::Socket, Subscriber::Ptr> SocketMap;
-	typedef Poco::SharedPtr<Poco::Thread> ThreadPtr;
-	typedef std::vector<ThreadPtr> ThreadVec;
-	
+	using SubjectMap = std::multimap<std::string, Subscriber::Ptr>;
+	using Event = Poco::BasicEvent<const NotificationEvent>;
+	using EventPtr = Poco::SharedPtr<Event>;
+	using EventMap = std::multimap<std::string, EventPtr>;
+	using SocketMap = std::map<Poco::Net::Socket, Subscriber::Ptr>;
+	using ThreadPtr = Poco::SharedPtr<Poco::Thread>;
+	using ThreadVec = std::vector<ThreadPtr>;
+
 	Poco::OSP::BundleContext::Ptr _pContext;
 	int _maxSockets;
 	SubjectMap _subjectMap;

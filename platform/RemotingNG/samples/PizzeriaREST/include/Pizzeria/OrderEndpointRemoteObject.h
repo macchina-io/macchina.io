@@ -27,7 +27,7 @@ namespace Pizzeria {
 class OrderEndpointRemoteObject: public Pizzeria::IOrderEndpoint, public Poco::RemotingNG::RemoteObject
 {
 public:
-	typedef Poco::AutoPtr<OrderEndpointRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<OrderEndpointRemoteObject>;
 
 	OrderEndpointRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<Pizzeria::OrderEndpoint> pServiceObject);
 		/// Creates a OrderEndpointRemoteObject.

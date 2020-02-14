@@ -41,15 +41,15 @@ class OSP_API BundleContextFactory: public Poco::RefCountedObject
 	/// used by the BundleLoader.
 {
 public:
-	typedef Poco::AutoPtr<BundleContextFactory> Ptr;
-	typedef const Ptr ConstPtr;
+	using Ptr = Poco::AutoPtr<BundleContextFactory>;
+	using ConstPtr = const Ptr;
 
 	BundleContextFactory(ServiceRegistry& registry, SystemEvents& systemEvents);
 		/// Creates the BundleContextFactory.
 
 	BundleContextFactory(ServiceRegistry& registry, SystemEvents& systemEvents, const Path& persistencyDir);
 		/// Creates the BundleContextFactory.
-		
+
 	virtual BundleContext* createBundleContext(BundleLoader& loader, Bundle::ConstPtr pBundle, BundleEvents& events);
 		/// Creates and returns a new BundleContext object.
 

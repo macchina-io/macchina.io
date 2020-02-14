@@ -26,7 +26,7 @@ class GreetingService: public Poco::OSP::Service
 	/// "com.appinf.osp.samples.GreetingService".
 {
 public:
-	typedef Poco::AutoPtr<GreetingService> Ptr;
+	using Ptr = Poco::AutoPtr<GreetingService>;
 
 	virtual std::string greeting() = 0;
 		/// Return a greeting in the user's language, if the

@@ -27,6 +27,8 @@ class TypeSerializer<Class1>
 public:
 	static void serialize(const std::string& name, const Class1& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -34,9 +36,9 @@ public:
 
 	static void serializeImpl(const Class1& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"aString","anEnum","anInt",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"aString"s,"anEnum"s,"anInt"s,""s};
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.getAString(), ser);
 		TypeSerializer<int >::serialize(REMOTING__NAMES[1], value.getAnEnum(), ser);
 		TypeSerializer<int >::serialize(REMOTING__NAMES[2], value.getAnInt(), ser);

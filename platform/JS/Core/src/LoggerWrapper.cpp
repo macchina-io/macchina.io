@@ -24,6 +24,9 @@
 #include "Poco/NumberFormatter.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace JS {
 namespace Core {
@@ -62,7 +65,7 @@ v8::Handle<v8::ObjectTemplate> LoggerWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::EscapableHandleScope handleScope(pIsolate);
 	PooledIsolate* pPooledIso = PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledLoggerTemplate(pPooledIso->objectTemplate("Core.Logger"));
+	v8::Persistent<v8::ObjectTemplate>& pooledLoggerTemplate(pPooledIso->objectTemplate("Core.Logger"s));
 	if (pooledLoggerTemplate.IsEmpty())
 	{
 		v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New(pIsolate);

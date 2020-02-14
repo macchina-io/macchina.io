@@ -164,7 +164,7 @@ void BinarySerializer::serialize(const std::string& /*name*/, unsigned long valu
 }
 
 
-#ifndef POCO_LONG_IS_64_BIT
+#ifndef POCO_INT64_IS_LONG
 void BinarySerializer::serialize(const std::string& /*name*/, Poco::Int64 value)
 {
 	*_pWriter << value;

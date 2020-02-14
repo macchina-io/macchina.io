@@ -83,7 +83,7 @@ namespace
 	class MockListener: public Poco::RemotingNG::EventListener
 	{
 	public:
-		typedef Poco::AutoPtr<MockListener> Ptr;
+		using Ptr = Poco::AutoPtr<MockListener>;
 
 		MockListener(const std::string& protocol, const std::string& endPoint):
 			Poco::RemotingNG::EventListener(endPoint),
@@ -556,9 +556,6 @@ void RemotingTest::testArray()
 }
 
 
-#ifdef POCO_REMOTING_ENABLE_STD_ARRAY_TEST
-
-
 void RemotingTest::testStruct7()
 {
 	ITester::Ptr pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
@@ -571,9 +568,6 @@ void RemotingTest::testStdArray()
 	ITester::Ptr pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
 	testStdArray(pTester);
 }
-
-
-#endif // POCO_REMOTING_ENABLE_STD_ARRAY_TEST
 
 
 void RemotingTest::testClass1()
@@ -972,9 +966,6 @@ void RemotingTest::testArray(ITester::Ptr pTester)
 }
 
 
-#ifdef POCO_REMOTING_ENABLE_STD_ARRAY_TEST
-
-
 void RemotingTest::testStruct7(ITester::Ptr pTester)
 {
 	Struct7 s71;
@@ -1001,9 +992,6 @@ void RemotingTest::testStdArray(ITester::Ptr pTester)
 
 	assert (arr1 == arr2);
 }
-
-
-#endif
 
 
 void RemotingTest::testClass1(ITester::Ptr pTester)
@@ -1141,10 +1129,8 @@ CppUnit::Test* RemotingTest::suite()
 	CppUnit_addTest(pSuite, RemotingTest, testStruct5);
 	CppUnit_addTest(pSuite, RemotingTest, testStruct6);
 	CppUnit_addTest(pSuite, RemotingTest, testArray);
-#ifdef POCO_REMOTING_ENABLE_STD_ARRAY_TEST
 	CppUnit_addTest(pSuite, RemotingTest, testStruct7);
 	CppUnit_addTest(pSuite, RemotingTest, testStdArray);
-#endif
 	CppUnit_addTest(pSuite, RemotingTest, testClass1);
 	CppUnit_addTest(pSuite, RemotingTest, testPtr);
 	CppUnit_addTest(pSuite, RemotingTest, testStruct1Vec);

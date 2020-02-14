@@ -29,9 +29,9 @@ class TypeDeserializer<WeatherWS::ForecastReturn>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, WeatherWS::ForecastReturn& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMESPACE);
-		static const std::string REMOTING__NAMESPACE("http://ws.cdyne.com/WeatherWS/");
-		remoting__staticInitEnd(REMOTING__NAMESPACE);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMESPACE("http://ws.cdyne.com/WeatherWS/"s);
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		deser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMESPACE);
 		if (ret)
@@ -46,9 +46,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, WeatherWS::ForecastReturn& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"Success","ResponseText","State","City","WeatherStationCity","ForecastResult"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"Success"s,"ResponseText"s,"State"s,"City"s,"WeatherStationCity"s,"ForecastResult"s};
 		bool ret = false;
 		bool gen_success;
 		ret = TypeDeserializer<bool >::deserialize(REMOTING__NAMES[0], true, deser, gen_success);

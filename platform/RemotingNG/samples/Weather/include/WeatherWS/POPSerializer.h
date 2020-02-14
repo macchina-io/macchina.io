@@ -27,9 +27,9 @@ class TypeSerializer<WeatherWS::POP>
 public:
 	static void serialize(const std::string& name, const WeatherWS::POP& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMESPACE);
-		static const std::string REMOTING__NAMESPACE("http://ws.cdyne.com/WeatherWS/");
-		remoting__staticInitEnd(REMOTING__NAMESPACE);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMESPACE("http://ws.cdyne.com/WeatherWS/"s);
 		ser.registerNamespace(REMOTING__NAMESPACE);
 		ser.serializeStructBegin(name);
 		ser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMESPACE);
@@ -40,9 +40,9 @@ public:
 
 	static void serializeImpl(const WeatherWS::POP& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"Nighttime","Daytime",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"Nighttime"s,"Daytime"s,""s};
 		TypeSerializer<Poco::Optional < std::string > >::serialize(REMOTING__NAMES[0], value.getNighttime(), ser);
 		TypeSerializer<Poco::Optional < std::string > >::serialize(REMOTING__NAMES[1], value.getDaytime(), ser);
 	}

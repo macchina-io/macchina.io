@@ -43,11 +43,11 @@ class OSP_API PreferencesService: public Service
 	/// is "osp.core.preferences".
 {
 public:
-	typedef Poco::AutoPtr<PreferencesService> Ptr;
-	typedef const Ptr ConstPtr;
+	using Ptr = Poco::AutoPtr<PreferencesService>;
+	using ConstPtr = const Ptr;
 
 	PreferencesService(const Poco::Path& persistencyDir, Poco::Util::AbstractConfiguration* pGlobalConfig);
-		/// Creates the PreferencesService, usign the given global 
+		/// Creates the PreferencesService, usign the given global
 		/// configuration.
 
 	Preferences::Ptr preferences(const std::string& bundleOrServiceID);
@@ -69,8 +69,8 @@ protected:
 		/// Destroys the PreferencesService.
 
 private:
-	typedef std::map<std::string, Preferences::Ptr> PrefsMap;
-	
+	using PrefsMap = std::map<std::string, Preferences::Ptr>;
+
 	Poco::Path         _path;
 	Configuration::Ptr _pConfig;
 	PrefsMap           _prefsMap;

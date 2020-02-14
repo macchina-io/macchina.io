@@ -32,7 +32,7 @@ class CppGenerator;
 
 
 class AbstractGenerator: public Poco::CodeGeneration::CodeGenerator
-	/// AbstractGenerator generates a remote interface for a given class definition. C++ specific. 
+	/// AbstractGenerator generates a remote interface for a given class definition. C++ specific.
 	/// Has no members, a default constructor/destructor and only virtual = 0; methods
 {
 public:
@@ -100,6 +100,8 @@ public:
 
 	void writeTypeDef(const Poco::CppParser::TypeDef*);
 
+	void writeUsing(const Poco::CppParser::TypeAlias*);
+
 	static void addDocumentation(const Poco::CppParser::Symbol* pSymOld,Poco::CppParser::Symbol* pNew);
 		/// Takes the docu from the old symbol and adds it to the new one removing the remote property,
 		/// but adding the generated property.
@@ -134,7 +136,7 @@ protected:
 
 	Poco::CodeGeneration::CppGenerator& cppGen();
 		/// Returns the cpp code generator
-		
+
 private:
 	static const std::set<std::string> initBuiltinTypes();
 
@@ -151,7 +153,7 @@ private:
 
 
 protected:
-	Poco::CodeGeneration::CppGenerator& _cppGen; 
+	Poco::CodeGeneration::CppGenerator& _cppGen;
 	Poco::CppParser::Struct* _pStruct;
 	const Poco::CppParser::Struct* _pStructIn;
 	Poco::CppParser::NameSpace* _pNs;
@@ -227,6 +229,11 @@ inline void AbstractGenerator::endFile()
 
 
 inline void AbstractGenerator::writeTypeDef(const Poco::CppParser::TypeDef*)
+{
+}
+
+
+inline void AbstractGenerator::writeUsing(const Poco::CppParser::TypeAlias*)
 {
 }
 

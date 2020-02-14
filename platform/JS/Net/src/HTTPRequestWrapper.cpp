@@ -29,6 +29,9 @@
 #include "Poco/Exception.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace JS {
 namespace Net {
@@ -69,7 +72,7 @@ v8::Handle<v8::ObjectTemplate> HTTPRequestWrapper::objectTemplate(v8::Isolate* p
 	v8::EscapableHandleScope handleScope(pIsolate);
 	Poco::JS::Core::PooledIsolate* pPooledIso = Poco::JS::Core::PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Net.HTTPRequest"));
+	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Net.HTTPRequest"s));
 	if (pooledObjectTemplate.IsEmpty())
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
@@ -278,6 +281,16 @@ void HTTPRequestWrapper::getCredentials(v8::Local<v8::String> name, const v8::Pr
 			{
 				result->Set(v8::String::NewFromUtf8(info.GetIsolate(), "username"), v8::String::NewFromUtf8(info.GetIsolate(), creds.getUsername().c_str()));
 				result->Set(v8::String::NewFromUtf8(info.GetIsolate(), "password"), v8::String::NewFromUtf8(info.GetIsolate(), creds.getPassword().c_str()));
+			}
+			info.GetReturnValue().Set(result);
+			return;
+		}
+		else if (scheme == "Bearer")
+		{
+			v8::Local<v8::Object> result(v8::Object::New(info.GetIsolate()));
+			if (!result.IsEmpty())
+			{
+				result->Set(v8::String::NewFromUtf8(info.GetIsolate(), "bearer"), v8::String::NewFromUtf8(info.GetIsolate(), authInfo.c_str()));
 			}
 			info.GetReturnValue().Set(result);
 			return;

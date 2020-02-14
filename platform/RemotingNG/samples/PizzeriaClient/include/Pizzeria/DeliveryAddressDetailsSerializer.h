@@ -29,6 +29,8 @@ class TypeSerializer<Pizzeria::DeliveryAddress::Details>
 public:
 	static void serialize(const std::string& name, const Pizzeria::DeliveryAddress::Details& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -36,9 +38,9 @@ public:
 
 	static void serializeImpl(const Pizzeria::DeliveryAddress::Details& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"milesAway",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"milesAway"s,""s};
 		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.milesAway, ser);
 	}
 

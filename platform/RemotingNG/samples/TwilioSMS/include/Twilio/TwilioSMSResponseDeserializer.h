@@ -27,6 +27,8 @@ class TypeDeserializer<Twilio::TwilioSMSResponse>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Twilio::TwilioSMSResponse& value)
 	{
+		using namespace std::string_literals;
+		
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		if (ret)
 		{
@@ -38,9 +40,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, Twilio::TwilioSMSResponse& value)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"account_sid","api_version","body","date_created","date_sent","date_updated","direction","from","num_segments","price","price_unit","sid","status","to","uri"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"account_sid"s,"api_version"s,"body"s,"date_created"s,"date_sent"s,"date_updated"s,"direction"s,"from"s,"num_segments"s,"price"s,"price_unit"s,"sid"s,"status"s,"to"s,"uri"s};
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.accountSID);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.apiVersion);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.body);

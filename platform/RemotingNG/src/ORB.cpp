@@ -27,13 +27,16 @@
 #endif
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace RemotingNG {
 
 
-ORB::ORB(): 
+ORB::ORB():
 	_enabled(true),
-	_logger(Poco::Logger::get("RemotingNG.ORB"))
+	_logger(Poco::Logger::get("RemotingNG.ORB"s))
 {
 }
 
@@ -55,16 +58,16 @@ ORB& ORB::instance()
 
 void ORB::shutdown()
 {
-	_logger.information("Shutting down");
+	_logger.information("Shutting down"s);
 	_enabled = false;
-	
+
 	ListenerMap::iterator it = _listeners.begin();
 	ListenerMap::iterator itEnd = _listeners.end();
 	for (; it != itEnd; ++it)
 	{
 		it->second->stop();
 	}
-	
+
 	_listeners.clear();
 	_remoteObjects.clear();
 	_remoteObjectURIs.clear();
@@ -79,13 +82,13 @@ bool ORB::invoke(const Listener& listener, const std::string& uri, ServerTranspo
 
 	Poco::URI theURI(uri);
 	std::string uriPath = theURI.getPath();
-	
+
 	Skeleton::Ptr pSkeleton;
 	RemoteObject::Ptr pRemoteObject;
 	std::string objectPath;
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 		URIAliases::const_iterator ita = findAlias(uriPath);
 		if (ita == _uriAliases.end())
 		{
@@ -112,12 +115,12 @@ bool ORB::invoke(const Listener& listener, const std::string& uri, ServerTranspo
 		pRemoteObject = it->second->pRemoteObject;
 		pSkeleton = it->second->pSkeleton;
 	}
-	
+
 	if (_logger.information())
 	{
-		_logger.information("Invoking method on object: " + objectPath);
+		_logger.information("Invoking method on object: %s"s, objectPath);
 	}
-	
+
 	pSkeleton->invoke(transport, pRemoteObject);
 	return true;
 }
@@ -131,16 +134,16 @@ bool ORB::invoke(const std::string& objectPath, ServerTransport& transport) cons
 	RemoteObject::Ptr pRemoteObject;
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 		RemoteObjects::const_iterator it = _remoteObjects.find(objectPath);
 		if (it == _remoteObjects.end()) return false;
 		pRemoteObject = it->second->pRemoteObject;
 		pSkeleton = it->second->pSkeleton;
 	}
-	
+
 	if (_logger.information())
 	{
-		_logger.information("Invoking method on object: " + objectPath);
+		_logger.information("Invoking method on object: %s"s, objectPath);
 	}
 
 	pSkeleton->invoke(transport, pRemoteObject);
@@ -164,7 +167,7 @@ Identifiable::Ptr ORB::findObject(const std::string& uri) const
 	Identifiable::ObjectId oid;
 	std::string protocol;
 	URIUtility::parseURIPath(uri, oid, tid, protocol);
-	
+
 	RemoteObjectInfo::Ptr pRemoteObjectInfo = findLocalObject(tid, oid, protocol);
 	if (pRemoteObjectInfo && pRemoteObjectInfo->pListener->handlesURI(uri))
 		return pRemoteObjectInfo->pRemoteObject;
@@ -194,17 +197,17 @@ Identifiable::Ptr ORB::findObject(const std::string& uri, const Identifiable::Ty
 
 ORB::RemoteObjectInfo::Ptr ORB::findLocalObject(const Identifiable::TypeId& tid, const Identifiable::ObjectId& oid, const std::string& protocol) const
 {
-	for (ListenerMap::const_iterator it = _listeners.begin(); it != _listeners.end(); ++it)
+	for (const auto& lp: _listeners)
 	{
-		if (it->second->protocol() == protocol)
+		if (lp.second->protocol() == protocol)
 		{
-			Listener::Ptr pListener = it->second;
+			Listener::Ptr pListener = lp.second;
 			std::string uri = pListener->createURI(tid, oid);
 			RemoteObjects::const_iterator itRO = _remoteObjectURIs.find(uri);
 			if (itRO != _remoteObjectURIs.end())
 			{
 				return itRO->second;
-			}	
+			}
 		}
 	}
 	return 0;
@@ -214,18 +217,18 @@ ORB::RemoteObjectInfo::Ptr ORB::findLocalObject(const Identifiable::TypeId& tid,
 std::string ORB::registerListener(Listener::Ptr pListener)
 {
 	poco_check_ptr (pListener);
-	
+
 	if (_enabled)
 	{
 		std::string listenerId = pListener->protocol() + ":" + pListener->endPoint();
 		std::pair<ListenerMap::iterator, bool> res = _listeners.insert(std::make_pair(listenerId, pListener));
 		if (res.second)
 			pListener->start();
-		else 
+		else
 			throw Poco::IllegalStateException("Listener already registered for that endpoint");
 
-		_logger.information("Listener registered for protocol: " + pListener->protocol() + " and endpoint: " + pListener->endPoint());
-		
+		_logger.information("Listener registered for protocol: %s and endpoint: "s, pListener->protocol(), pListener->endPoint());
+
 		return listenerId;
 	}
 	throw ORBDisabledException();
@@ -235,7 +238,7 @@ std::string ORB::registerListener(Listener::Ptr pListener)
 void ORB::unregisterListener(const std::string& listenerId, bool autoRemoveObjects)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	ListenerMap::iterator itListener = _listeners.find(listenerId);
 	if (itListener == _listeners.end()) return;
 	Listener::Ptr pListener = itListener->second;
@@ -267,11 +270,11 @@ void ORB::unregisterListener(const std::string& listenerId, bool autoRemoveObjec
 ORB::ListenerVec ORB::listeners() const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	ListenerVec result;
-	for (ListenerMap::const_iterator it = _listeners.begin(); it != _listeners.end(); ++it)
+	for (const auto& lp: _listeners)
 	{
-		result.push_back(it->second);
+		result.push_back(lp.second);
 	}
 	return result;
 }
@@ -280,11 +283,11 @@ ORB::ListenerVec ORB::listeners() const
 std::vector<std::string> ORB::listenerIds() const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	std::vector<std::string> result;
-	for (ListenerMap::const_iterator it = _listeners.begin(); it != _listeners.end(); ++it)
+	for (const auto& lp: _listeners)
 	{
-		result.push_back(it->first);
+		result.push_back(lp.first);
 	}
 	return result;
 }
@@ -293,12 +296,12 @@ std::vector<std::string> ORB::listenerIds() const
 std::vector<std::string> ORB::listenerIds(const std::string& protocol) const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	std::vector<std::string> result;
-	for (ListenerMap::const_iterator it = _listeners.begin(); it != _listeners.end(); ++it)
+	for (const auto& lp: _listeners)
 	{
-		if (it->second->protocol() == protocol) 
-			result.push_back(it->first);
+		if (lp.second->protocol() == protocol)
+			result.push_back(lp.first);
 	}
 	return result;
 }
@@ -325,7 +328,7 @@ void ORB::registerSkeleton(const Identifiable::TypeId& tid, Skeleton::Ptr pSkele
 	poco_check_ptr (pSkeleton);
 
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	_skeletons.insert(make_pair(tid, pSkeleton));
 }
 
@@ -333,7 +336,7 @@ void ORB::registerSkeleton(const Identifiable::TypeId& tid, Skeleton::Ptr pSkele
 void ORB::unregisterSkeleton(const Identifiable::TypeId& tid, bool autoRemoveObjects)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	Skeletons::iterator itSkel = _skeletons.find(tid);
 	if (itSkel == _skeletons.end()) return;
 	Skeleton::Ptr pSkeleton = itSkel->second;
@@ -363,7 +366,7 @@ void ORB::unregisterSkeleton(const Identifiable::TypeId& tid, bool autoRemoveObj
 Skeleton::Ptr ORB::skeletonForClass(const Identifiable::TypeId& tid) const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	Skeletons::const_iterator it = _skeletons.find(tid);
 	if (it == _skeletons.end())
 	{
@@ -380,7 +383,7 @@ void ORB::registerProxyFactory(const Identifiable::TypeId& tid, ProxyFactory::Pt
 	poco_check_ptr (pProxyFactory);
 
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	_proxyFactories.registerProxyFactory(tid, pProxyFactory);
 }
 
@@ -388,7 +391,7 @@ void ORB::registerProxyFactory(const Identifiable::TypeId& tid, ProxyFactory::Pt
 inline void ORB::unregisterProxyFactory(const Identifiable::TypeId& tid)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	_proxyFactories.unregisterProxyFactory(tid);
 }
 
@@ -401,7 +404,7 @@ void ORB::registerClass(const Identifiable::TypeId& tid, ProxyFactory::Ptr pProx
 	poco_check_ptr (pSkeleton);
 
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	_skeletons.insert(make_pair(tid, pSkeleton));
 	_proxyFactories.registerProxyFactory(tid, pProxyFactory);
 }
@@ -428,7 +431,7 @@ std::string ORB::registerObject(RemoteObject::Ptr pRemoteObject, const std::stri
 		throw RemotingException("Listener not found", listenerId);
 	}
 	Listener::Ptr pListener = itListener->second;
-	
+
 	std::string objectPath;
 	objectPath.reserve(256);
 	objectPath += pListener->protocol();
@@ -438,7 +441,7 @@ std::string ORB::registerObject(RemoteObject::Ptr pRemoteObject, const std::stri
 	objectPath += pRemoteObject->remoting__typeId();
 	objectPath += '/';
 	objectPath += pRemoteObject->remoting__objectId();
-	
+
 	RemoteObjects::iterator it = _remoteObjects.find(objectPath);
 	if (it != _remoteObjects.end())
 	{
@@ -473,14 +476,14 @@ std::string ORB::registerObject(RemoteObject::Ptr pRemoteObject, const std::stri
 	else
 	{
 		_uriAliases.insert(std::make_pair(pRemoteObject->remoting__getURI().getPath(), objectPath));
-		_logger.debug("Registered alias path: " + pRemoteObject->remoting__getURI().getPath());
+		_logger.debug("Registered alias path: %s"s, pRemoteObject->remoting__getURI().getPath());
 	}
 
 	if (_logger.information())
 	{
-		_logger.information("Registered RemoteObject, path: " + objectPath + ", URI: " + uri);
+		_logger.information("Registered RemoteObject, path: %s, URI: %s"s, objectPath, uri);
 	}
-	
+
 	try
 	{
 		ObjectRegistration reg;
@@ -492,9 +495,9 @@ std::string ORB::registerObject(RemoteObject::Ptr pRemoteObject, const std::stri
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.warning("objectRegistered event handler leaked exception: %s", exc.displayText());
+		_logger.warning("objectRegistered event handler leaked exception: %s"s, exc.displayText());
 	}
-	
+
 	return uri;
 }
 
@@ -502,7 +505,7 @@ std::string ORB::registerObject(RemoteObject::Ptr pRemoteObject, const std::stri
 void ORB::unregisterObject(const std::string& uri)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	RemoteObjects::iterator itRO = _remoteObjectURIs.find(uri);
 	if (itRO != _remoteObjectURIs.end())
 	{
@@ -511,7 +514,7 @@ void ORB::unregisterObject(const std::string& uri)
 		reg.alias = itRO->second->pRemoteObject->remoting__getURI().toString();
 		reg.pRemoteObject = itRO->second->pRemoteObject;
 		reg.pListener = itRO->second->pListener;
-		
+
 		itRO->second->pListener->unregisterObject(itRO->second->pRemoteObject);
 		_remoteObjects.erase(itRO->second->objectPath);
 		URIAliases::iterator itAl = _uriAliases.find(itRO->second->pRemoteObject->remoting__getURI().getPath());
@@ -520,14 +523,14 @@ void ORB::unregisterObject(const std::string& uri)
 			_uriAliases.erase(itAl);
 		}
 		_remoteObjectURIs.erase(itRO);
-		
+
 		try
 		{
 			objectUnregistered(this, reg);
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.warning("objectUnegistered event handler leaked exception: %s", exc.displayText());
+			_logger.warning("objectUnegistered event handler leaked exception: %s"s, exc.displayText());
 		}
 	}
 }
@@ -536,7 +539,7 @@ void ORB::unregisterObject(const std::string& uri)
 void ORB::registerEventDispatcher(const std::string& uri, EventDispatcher::Ptr pDispatcher)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	RemoteObjects::iterator itRO = _remoteObjectURIs.find(uri);
 	if (itRO != _remoteObjectURIs.end())
 	{
@@ -545,11 +548,11 @@ void ORB::registerEventDispatcher(const std::string& uri, EventDispatcher::Ptr p
 	else throw Poco::NotFoundException("remote object", uri);
 }
 
-	
+
 void ORB::unregisterEventDispatcher(const std::string& uri, const std::string& protocol)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	RemoteObjects::iterator itRO = _remoteObjectURIs.find(uri);
 	if (itRO != _remoteObjectURIs.end())
 	{
@@ -558,11 +561,11 @@ void ORB::unregisterEventDispatcher(const std::string& uri, const std::string& p
 	else throw Poco::NotFoundException("remote object", uri);
 }
 
-	
+
 void ORB::unregisterEventDispatchers(const std::string& uri)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	RemoteObjects::iterator itRO = _remoteObjectURIs.find(uri);
 	if (itRO != _remoteObjectURIs.end())
 	{
@@ -571,11 +574,11 @@ void ORB::unregisterEventDispatchers(const std::string& uri)
 	else throw Poco::NotFoundException("remote object", uri);
 }
 
-	
+
 EventDispatcher::Ptr ORB::findEventDispatcher(const std::string& uri, const std::string& protocol) const
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	std::string eventProto = protocol;
 	RemoteObjectInfo::Ptr pRemoteObjectInfo;
 	RemoteObjects::const_iterator itRO = _remoteObjectURIs.find(uri);
@@ -599,7 +602,7 @@ EventDispatcher::Ptr ORB::findEventDispatcher(const std::string& uri, const std:
 		{
 			return itED->second;
 		}
-		else throw Poco::NotFoundException(Poco::format("event dispatcher for URI: %s and protocol: %s", uri, protocol));
+		else throw Poco::NotFoundException(Poco::format("event dispatcher for URI: %s and protocol: %s"s, uri, protocol));
 	}
 	else throw Poco::NotFoundException("event dispatcher for URI", uri);
 }

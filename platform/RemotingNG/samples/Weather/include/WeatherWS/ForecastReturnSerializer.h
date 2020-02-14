@@ -29,9 +29,9 @@ class TypeSerializer<WeatherWS::ForecastReturn>
 public:
 	static void serialize(const std::string& name, const WeatherWS::ForecastReturn& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMESPACE);
-		static const std::string REMOTING__NAMESPACE("http://ws.cdyne.com/WeatherWS/");
-		remoting__staticInitEnd(REMOTING__NAMESPACE);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMESPACE("http://ws.cdyne.com/WeatherWS/"s);
 		ser.registerNamespace(REMOTING__NAMESPACE);
 		ser.serializeStructBegin(name);
 		ser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMESPACE);
@@ -42,9 +42,9 @@ public:
 
 	static void serializeImpl(const WeatherWS::ForecastReturn& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"Success","ResponseText","State","City","WeatherStationCity","ForecastResult",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"Success"s,"ResponseText"s,"State"s,"City"s,"WeatherStationCity"s,"ForecastResult"s,""s};
 		TypeSerializer<bool >::serialize(REMOTING__NAMES[0], value.getSuccess(), ser);
 		TypeSerializer<Poco::Optional < std::string > >::serialize(REMOTING__NAMES[1], value.getResponseText(), ser);
 		TypeSerializer<Poco::Optional < std::string > >::serialize(REMOTING__NAMES[2], value.getState(), ser);

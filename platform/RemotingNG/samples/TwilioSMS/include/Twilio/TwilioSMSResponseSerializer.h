@@ -27,6 +27,8 @@ class TypeSerializer<Twilio::TwilioSMSResponse>
 public:
 	static void serialize(const std::string& name, const Twilio::TwilioSMSResponse& value, Serializer& ser)
 	{
+		using namespace std::string_literals;
+		
 		ser.serializeStructBegin(name);
 		serializeImpl(value, ser);
 		ser.serializeStructEnd(name);
@@ -34,9 +36,9 @@ public:
 
 	static void serializeImpl(const Twilio::TwilioSMSResponse& value, Serializer& ser)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"account_sid","api_version","body","date_created","date_sent","date_updated","direction","from","num_segments","price","price_unit","sid","status","to","uri",""};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"account_sid"s,"api_version"s,"body"s,"date_created"s,"date_sent"s,"date_updated"s,"direction"s,"from"s,"num_segments"s,"price"s,"price_unit"s,"sid"s,"status"s,"to"s,"uri"s,""s};
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.accountSID, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.apiVersion, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.body, ser);

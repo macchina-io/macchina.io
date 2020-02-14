@@ -23,7 +23,7 @@ namespace Twilio {
 class TwilioSMSEndpointProxy: public Twilio::ITwilioSMSEndpoint, public Poco::RemotingNG::Proxy
 {
 public:
-	typedef Poco::AutoPtr<TwilioSMSEndpointProxy> Ptr;
+	using Ptr = Poco::AutoPtr<TwilioSMSEndpointProxy>;
 
 	TwilioSMSEndpointProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a TwilioSMSEndpointProxy.

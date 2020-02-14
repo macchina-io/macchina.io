@@ -29,7 +29,7 @@ namespace Pizzeria {
 class ToppingCollectionEndpointServerHelper
 {
 public:
-	typedef Pizzeria::ToppingCollectionEndpoint Service;
+	using Service = Pizzeria::ToppingCollectionEndpoint;
 
 	ToppingCollectionEndpointServerHelper();
 		/// Creates a ToppingCollectionEndpointServerHelper.

@@ -22,7 +22,7 @@
 class TesterRemoteObject: public ITester, public Poco::RemotingNG::RemoteObject
 {
 public:
-	typedef Poco::AutoPtr<TesterRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<TesterRemoteObject>;
 
 	TesterRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<Tester> pServiceObject);
 		/// Creates a TesterRemoteObject.

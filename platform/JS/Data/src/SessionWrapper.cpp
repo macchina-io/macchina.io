@@ -21,6 +21,7 @@
 #include "Poco/LocalDateTime.h"
 
 
+using namespace std::string_literals;
 using namespace Poco::Data::Keywords;
 
 
@@ -64,7 +65,7 @@ v8::Handle<v8::ObjectTemplate> SessionWrapper::objectTemplate(v8::Isolate* pIsol
 	v8::EscapableHandleScope handleScope(pIsolate);
 	Poco::JS::Core::PooledIsolate* pPooledIso = Poco::JS::Core::PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Data.Session"));
+	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Data.Session"s));
 	if (pooledObjectTemplate.IsEmpty())
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
@@ -101,7 +102,7 @@ void SessionWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 	}
 	else
 	{
-		returnException(args, std::string("bad arguments: connector and connection string required"));
+		returnException(args, "bad arguments: connector and connection string required"s);
 		return;
 	}
 
@@ -165,7 +166,7 @@ void SessionWrapper::setPageSize(v8::Local<v8::String> name, v8::Local<v8::Value
 	}
 	else
 	{
-		returnException(info, std::string("invalid pageSize argument"));
+		returnException(info, "invalid pageSize argument"s);
 	}
 }
 
@@ -267,7 +268,7 @@ static void bindStatementArgs(Poco::Data::Statement& statement, const v8::Functi
 			{
 				statement.bind(*pDateTime);
 			}
-			else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::DateTime", i));
+			else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::DateTime"s, i));
 		}
 		else if (args[i]->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::LocalDateTime>(args.GetIsolate(), args[i]))
 		{
@@ -276,11 +277,11 @@ static void bindStatementArgs(Poco::Data::Statement& statement, const v8::Functi
 			{
 				statement.bind(pLocalDateTime->utc());
 			}
-			else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::LocalDateTime", i));
+			else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::LocalDateTime"s, i));
 		}
 		else
 		{
-			throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to native type", i));
+			throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to native type"s, i));
 		}
 	}
 }

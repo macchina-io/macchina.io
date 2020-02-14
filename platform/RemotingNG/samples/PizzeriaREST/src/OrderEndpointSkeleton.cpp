@@ -32,16 +32,16 @@ class OrderEndpointDelete_MethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"delete_","orderNumber"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"delete_"s,"orderNumber"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
 			int orderNumber;
-			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PATH, "/pizzeria/orders/{orderNumber}");
+			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PATH, "/pizzeria/orders/{orderNumber}"s);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION, "path");
+			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION, "path"s);
 			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, orderNumber);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
@@ -50,9 +50,7 @@ public:
 			remoting__pCastedRO->delete_(orderNumber);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("delete_Reply");
-			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
@@ -92,16 +90,16 @@ class OrderEndpointGetMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"get","orderNumber"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"get"s,"orderNumber"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
 			int orderNumber;
-			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PATH, "/pizzeria/orders/{orderNumber}");
+			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PATH, "/pizzeria/orders/{orderNumber}"s);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION, "path");
+			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION, "path"s);
 			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, orderNumber);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
@@ -110,9 +108,7 @@ public:
 			Pizzeria::Order remoting__return = remoting__pCastedRO->get(orderNumber);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("getReply");
-			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			Poco::RemotingNG::TypeSerializer<Pizzeria::Order >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -153,17 +149,17 @@ class OrderEndpointPatchMethodHandler: public Poco::RemotingNG::MethodHandler
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		remoting__staticInitBegin(REMOTING__NAMES);
-		static const std::string REMOTING__NAMES[] = {"patch","orderNumber","order"};
-		remoting__staticInitEnd(REMOTING__NAMES);
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"patch"s,"orderNumber"s,"order"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
 			int orderNumber;
 			Pizzeria::Order order;
-			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PATH, "/pizzeria/orders/{orderNumber}");
+			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PATH, "/pizzeria/orders/{orderNumber}"s);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION, "path");
+			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION, "path"s);
 			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, orderNumber);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION);
 			Poco::RemotingNG::TypeDeserializer<Pizzeria::Order >::deserialize(REMOTING__NAMES[2], true, remoting__deser, order);
@@ -173,9 +169,7 @@ public:
 			Pizzeria::Order remoting__return = remoting__pCastedRO->patch(orderNumber, order);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			remoting__staticInitBegin(REMOTING__REPLY_NAME);
 			static const std::string REMOTING__REPLY_NAME("patchReply");
-			remoting__staticInitEnd(REMOTING__REPLY_NAME);
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			Poco::RemotingNG::TypeSerializer<Pizzeria::Order >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -215,9 +209,11 @@ OrderEndpointSkeleton::OrderEndpointSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("delete_", new Pizzeria::OrderEndpointDelete_MethodHandler);
-	addMethodHandler("get", new Pizzeria::OrderEndpointGetMethodHandler);
-	addMethodHandler("patch", new Pizzeria::OrderEndpointPatchMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("delete_"s, new Pizzeria::OrderEndpointDelete_MethodHandler);
+	addMethodHandler("get"s, new Pizzeria::OrderEndpointGetMethodHandler);
+	addMethodHandler("patch"s, new Pizzeria::OrderEndpointPatchMethodHandler);
 }
 
 

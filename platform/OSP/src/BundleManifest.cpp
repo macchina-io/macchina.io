@@ -20,6 +20,9 @@
 #include <cctype>
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 
@@ -152,7 +155,7 @@ void BundleManifest::parseRequiredItems(const std::string& requiredItems, const 
 				while (it != end && !std::isspace(*it) && *it != '=') keyword += *it++;
 				if (keyword != versionKeyword) throw ManifestException(what, "Unknown keyword following item name");
 				while (it != end && std::isspace(*it)) ++it;
-				if (it == end || *it != '=') throw ManifestException(what, Poco::format("The %s keyword must be followed by '='", versionKeyword));
+				if (it == end || *it != '=') throw ManifestException(what, Poco::format("The %s keyword must be followed by '='"s, versionKeyword));
 				++it;
 				while (it != end && std::isspace(*it)) ++it;
 				if (it != end)
@@ -191,7 +194,7 @@ void BundleManifest::parseRequiredItems(const std::string& requiredItems, const 
 						dependency.versions = VersionRange(version, true, version, true);
 					}
 				}
-				else throw ManifestException(what, Poco::format("The %s keyword must be followed by a version or version range", versionKeyword));
+				else throw ManifestException(what, Poco::format("The %s keyword must be followed by a version or version range"s, versionKeyword));
 			}
 			dependencies.push_back(dependency);
 		}

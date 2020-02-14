@@ -29,7 +29,7 @@ namespace Pizzeria {
 class PizzaCollectionEndpointServerHelper
 {
 public:
-	typedef Pizzeria::PizzaCollectionEndpoint Service;
+	using Service = Pizzeria::PizzaCollectionEndpoint;
 
 	PizzaCollectionEndpointServerHelper();
 		/// Creates a PizzaCollectionEndpointServerHelper.

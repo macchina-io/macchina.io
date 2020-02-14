@@ -30,7 +30,7 @@ class PizzaPickupServiceServerHelper
 	/// Pizzeria that allows self pickup.
 {
 public:
-	typedef Pizzeria::PizzaPickupService Service;
+	using Service = Pizzeria::PizzaPickupService;
 
 	PizzaPickupServiceServerHelper();
 		/// Creates a PizzaPickupServiceServerHelper.

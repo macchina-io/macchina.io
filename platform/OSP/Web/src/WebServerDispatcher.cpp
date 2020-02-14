@@ -44,6 +44,9 @@
 #include <limits>
 
 
+using namespace std::string_literals;
+
+
 using Poco::OSP::Auth::AuthService;
 using Poco::OSP::ServiceRegistry;
 using Poco::OSP::ServiceRef;
@@ -79,8 +82,8 @@ WebServerDispatcher::WebServerDispatcher(const Config& config):
 	_authMethods(config.authMethods),
 	_compressedMediaTypes(config.compressedMediaTypes),
 	_customResponseHeaders(config.customResponseHeaders),
-	_threadPool("WebServer"),
-	_accessLogger(Poco::Logger::get("osp.web.access"))
+	_threadPool("WebServer"s),
+	_accessLogger(Poco::Logger::get("osp.web.access"s))
 {
 	_pContext->events().bundleStopping += Delegate<WebServerDispatcher, BundleEvent>(this, &WebServerDispatcher::onBundleStopping);
 }
@@ -288,7 +291,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 			{
 				std::string vpath(vPath.path);
 				lock.unlock();
-				sendResponse(request, HTTPResponse::HTTP_FORBIDDEN, formatMessage("secure", vpath));
+				sendResponse(request, HTTPResponse::HTTP_FORBIDDEN, formatMessage("secure"s, vpath));
 			}
 			else if (handleCORS(request, response, vPath))
 			{
@@ -300,11 +303,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 						{
 							RequestHandlerFactoryPtr pFactory(vPath.pFactory);
 							lock.unlock();
-#if __cplusplus < 201103L
-							std::auto_ptr<HTTPRequestHandler> pHandler(pFactory->createRequestHandler(request));
-#else
 							std::unique_ptr<HTTPRequestHandler> pHandler(pFactory->createRequestHandler(request));
-#endif
 							try
 							{
 								if (pHandler.get())
@@ -319,7 +318,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 						}
 						else
 						{
-							sendMethodNotAllowed(request, formatMessage("method", request.getMethod(), request.getURI()));
+							sendMethodNotAllowed(request, formatMessage("method"s, request.getMethod(), request.getURI()));
 						}
 					}
 					else // static resource
@@ -361,7 +360,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 		}
 		else
 		{
-			sendBadRequest(request, formatMessage("invalid"));
+			sendBadRequest(request, formatMessage("invalid"s));
 		}
 	}
 	catch (Poco::NotFoundException&)
@@ -399,7 +398,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 				excName = exc.name();
 			}
 			_pContext->logger().error(msg);
-			sendInternalError(request, formatMessage("internal", excName));
+			sendInternalError(request, formatMessage("internal"s, excName));
 		}
 		catch (Poco::Exception& exc)
 		{
@@ -410,7 +409,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 	// clear out any remaining data in request body
 	if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_POST || request.getMethod() == Poco::Net::HTTPRequest::HTTP_PUT)
 	{
-		if (Poco::icompare(request.get(Poco::Net::HTTPMessage::CONNECTION, ""), Poco::Net::HTTPRequest::UPGRADE) != 0)
+		if (Poco::icompare(request.get(Poco::Net::HTTPMessage::CONNECTION, ""s), Poco::Net::HTTPRequest::UPGRADE) != 0)
 		{
 			request.stream().ignore(std::numeric_limits<std::streamsize>::max());
 		}
@@ -434,20 +433,20 @@ void WebServerDispatcher::logRequest(const Poco::Net::HTTPServerRequest& request
 	Poco::Message message(_accessLogger.name(), reqText, Poco::Message::PRIO_INFORMATION);
 
 	if (username.empty())
-		message["username"] = "-";
+		message["username"s] = "-";
 	else
-		message["username"] = username;
+		message["username"s] = username;
 
-	message["status"] = Poco::NumberFormatter::format(static_cast<int>(response.getStatus()));
-	message["client"] = request.clientAddress().host().toString();
+	message["status"s] = Poco::NumberFormatter::format(static_cast<int>(response.getStatus()));
+	message["client"s] = request.clientAddress().host().toString();
 
 	if (response.getContentLength64() != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
-		message["size"] = Poco::NumberFormatter::format(response.getContentLength64());
+		message["size"s] = Poco::NumberFormatter::format(response.getContentLength64());
 	else
-		message["size"] = "-";
+		message["size"s] = "-";
 
-	message["referer"] = request.get("Referer", "");
-	message["useragent"] = request.get("User-Agent", "");
+	message["referer"s] = request.get("Referer"s, ""s);
+	message["useragent"s] = request.get("User-Agent"s, ""s);
 
 	_accessLogger.log(message);
 }
@@ -459,11 +458,7 @@ void WebServerDispatcher::sendResource(Poco::Net::HTTPServerRequest& request, co
 	Poco::Net::HTTPServerResponse& response(request.response());
 	std::string mediaType;
 	std::string resolvedPath;
-#if __cplusplus < 201103L
-	std::auto_ptr<std::istream> pResourceStream(findResource(pBundle, resBase, resPath, index, mediaType, resolvedPath, canCache));
-#else
 	std::unique_ptr<std::istream> pResourceStream(findResource(pBundle, resBase, resPath, index, mediaType, resolvedPath, canCache));
-#endif
 	if (pResourceStream.get())
 	{
 		response.setContentType(mediaType);
@@ -478,12 +473,12 @@ void WebServerDispatcher::sendResource(Poco::Net::HTTPServerRequest& request, co
 		{
 			Poco::File bundleFile(pBundle->path());
 			Poco::Timestamp lastModified = bundleFile.getLastModified();
-			response.set("Last-Modified", DateTimeFormatter::format(lastModified, DateTimeFormat::HTTP_FORMAT));
-			if (request.has("If-Modified-Since"))
+			response.set("Last-Modified"s, DateTimeFormatter::format(lastModified, DateTimeFormat::HTTP_FORMAT));
+			if (request.has("If-Modified-Since"s))
 			{
 				Poco::DateTime modifiedSince;
 				int tzd;
-				Poco::DateTimeParser::parse(request.get("If-Modified-Since"), modifiedSince, tzd);
+				Poco::DateTimeParser::parse(request.get("If-Modified-Since"s), modifiedSince, tzd);
 				if (lastModified <= modifiedSince.timestamp())
 				{
 					response.setContentLength(0);
@@ -494,8 +489,8 @@ void WebServerDispatcher::sendResource(Poco::Net::HTTPServerRequest& request, co
 			}
 
 			response.setChunkedTransferEncoding(true);
-			bool compressResponse(_compressResponses && request.hasToken("Accept-Encoding", "gzip") && shouldCompressMediaType(mediaType));
-			if (compressResponse) response.set("Content-Encoding", "gzip");
+			bool compressResponse(_compressResponses && request.hasToken("Accept-Encoding"s, "gzip"s) && shouldCompressMediaType(mediaType));
+			if (compressResponse) response.set("Content-Encoding"s, "gzip"s);
 
 			std::ostream& responseStream = response.send();
 			if (meth == "GET")
@@ -513,7 +508,7 @@ void WebServerDispatcher::sendResource(Poco::Net::HTTPServerRequest& request, co
 		}
 		else
 		{
-			sendMethodNotAllowed(request, formatMessage("method", meth, request.getURI()));
+			sendMethodNotAllowed(request, formatMessage("method"s, meth, request.getURI()));
 		}
 	}
 	else if (path.size() == vpath.size())
@@ -634,7 +629,7 @@ std::string WebServerDispatcher::normalizePath(const std::string& path)
 			return p.toString(Poco::Path::PATH_UNIX);
 		}
 	}
-	return "/";
+	return "/"s;
 }
 
 
@@ -724,11 +719,7 @@ std::istream* WebServerDispatcher::getCachedResource(Bundle::ConstPtr pBundle, c
 		else
 		{
 			lockWithUnlock.unlock();
-#if __cplusplus < 201103L
-			std::auto_ptr<std::istream> pResourceStream(pBundle->getResource(path));
-#else
 			std::unique_ptr<std::istream> pResourceStream(pBundle->getResource(path));
-#endif
 			if (pResourceStream.get())
 			{
 				std::string cachedData;
@@ -753,7 +744,7 @@ std::istream* WebServerDispatcher::getCachedResource(Bundle::ConstPtr pBundle, c
 	}
 	else
 	{
-		_pContext->logger().debug("Cannot cache: " + path);
+		_pContext->logger().debug("Cannot cache: %s"s, path);
 		return pBundle->getResource(path);
 	}
 }
@@ -788,7 +779,7 @@ bool WebServerDispatcher::cleanPath(std::string& path)
 
 bool WebServerDispatcher::handleCORS(const Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const VirtualPath& vPath) const
 {
-	if (vPath.cors.enable && request.has("Origin"))
+	if (vPath.cors.enable && request.has("Origin"s))
 	{
 		if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_OPTIONS)
 		{
@@ -798,21 +789,21 @@ bool WebServerDispatcher::handleCORS(const Poco::Net::HTTPServerRequest& request
 				{
 					if (vPath.methods.empty())
 					{
-						response.set("Access-Control-Allow-Methods", "*");
+						response.set("Access-Control-Allow-Methods"s, "*"s);
 					}
 					else
 					{
 						const std::string delim(", ");
-						response.set("Access-Control-Allow-Methods", Poco::cat(delim, vPath.methods.begin(), vPath.methods.end()));
+						response.set("Access-Control-Allow-Methods"s, Poco::cat(delim, vPath.methods.begin(), vPath.methods.end()));
 					}
 				}
 				else
 				{
-					response.set("Access-Control-Allow-Methods", vPath.cors.allowMethods);
+					response.set("Access-Control-Allow-Methods"s, vPath.cors.allowMethods);
 				}
 				if (!vPath.cors.allowHeaders.empty())
 				{
-					response.set("Access-Control-Allow-Headers", vPath.cors.allowHeaders);
+					response.set("Access-Control-Allow-Headers"s, vPath.cors.allowHeaders);
 				}
 			}
 			response.setContentLength(0);
@@ -840,19 +831,19 @@ bool WebServerDispatcher::enableCORS(const Poco::Net::HTTPServerRequest& request
 
 	if (allowOrigin.empty() || allowOrigin == "**")
 	{
-		response.set("Access-Control-Allow-Origin", request.get("Origin"));
+		response.set("Access-Control-Allow-Origin"s, request.get("Origin"s));
 		if (vPath.cors.allowCredentials)
 		{
-			response.set("Access-Control-Allow-Credentials", "true");
+			response.set("Access-Control-Allow-Credentials"s, "true"s);
 		}
 		return true;
 	}
-	else if (allowOrigin == "*" || allowOrigin == request.get("Origin"))
+	else if (allowOrigin == "*" || allowOrigin == request.get("Origin"s))
 	{
-		response.set("Access-Control-Allow-Origin", allowOrigin);
+		response.set("Access-Control-Allow-Origin"s, allowOrigin);
 		if (vPath.cors.allowCredentials)
 		{
-			response.set("Access-Control-Allow-Credentials", "true");
+			response.set("Access-Control-Allow-Credentials"s, "true"s);
 		}
 		return true;
 	}
@@ -894,6 +885,10 @@ bool WebServerDispatcher::authorize(Poco::Net::HTTPServerRequest& request, const
 		{
 			request.set(X_OSP_AUTHORIZED_USER, username);
 		}
+		else
+		{
+			request.erase(X_OSP_AUTHORIZED_USER);
+		}
 	}
 	return authorized;
 }
@@ -907,7 +902,7 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 		WebSession::Ptr pSession = pSessionManager->find(vPath.security.session, request);
 		if (pSession)
 		{
-			username = pSession->getValue<std::string>("username", "");
+			username = pSession->getValue<std::string>("username"s, ""s);
 			if (!username.empty())
 			{
 				AuthService::Ptr pAuthService = authService();
@@ -917,7 +912,7 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 					{
 						if (vPath.security.csrfProtection && !vPath.security.csrfTokenHeader.empty())
 						{
-							return request.get(vPath.security.csrfTokenHeader, "") == pSession->csrfToken();
+							return request.get(vPath.security.csrfTokenHeader, ""s) == pSession->csrfToken();
 						}
 						else
 						{
@@ -926,12 +921,12 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 					}
 					else
 					{
-						_pContext->logger().warning("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI());
+						_pContext->logger().warning("User %s does not have the permission (%s) to access %s."s, username, vPath.security.permission, request.getURI());
 					}
 				}
 				else
 				{
-					_pContext->logger().warning("User %s (authenticated via session) does not exist.", username);
+					_pContext->logger().warning("User %s (authenticated via session) does not exist."s, username);
 				}
 			}
 			else if (vPath.security.permission == "**")
@@ -940,7 +935,7 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 			}
 			else
 			{
-				_pContext->logger().warning("Failed to authorize user for path %s because session is not authenticated.", request.getURI());
+				_pContext->logger().warning("Failed to authorize user for path %s because session is not authenticated."s, request.getURI());
 			}
 		}
 		else if (vPath.security.permission == "**")
@@ -949,7 +944,7 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 		}
 		else
 		{
-			_pContext->logger().warning("Failed to authorize user for path %s because no session is available.", request.getURI());
+			_pContext->logger().warning("Failed to authorize user for path %s because no session is available."s, request.getURI());
 		}
 	}
 	else if (vPath.security.permission == "**")
@@ -958,7 +953,7 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 	}
 	else
 	{
-		_pContext->logger().warning("Failed to authorize user for path %s via session because no WebSessionManager is available.", request.getURI());
+		_pContext->logger().warning("Failed to authorize user for path %s via session because no WebSessionManager is available."s, request.getURI());
 	}
 	return false;
 }
@@ -979,12 +974,12 @@ bool WebServerDispatcher::authorizeBasic(Poco::Net::HTTPServerRequest& request, 
 			}
 			else
 			{
-				_pContext->logger().warning("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI());
+				_pContext->logger().warning("User %s does not have the permission (%s) to access %s."s, username, vPath.security.permission, request.getURI());
 			}
 		}
 		else
 		{
-			_pContext->logger().warning("User %s failed authentication.", username);
+			_pContext->logger().warning("User %s failed authentication."s, username);
 		}
 	}
 	return false;
@@ -1007,17 +1002,17 @@ bool WebServerDispatcher::authorizeBearer(Poco::Net::HTTPServerRequest& request,
 				}
 				else
 				{
-					_pContext->logger().warning("User %s does not have the permission (%s) to access %s.", username, vPath.security.permission, request.getURI());
+					_pContext->logger().warning("User %s does not have the permission (%s) to access %s."s, username, vPath.security.permission, request.getURI());
 				}
 			}
 			else
 			{
-				_pContext->logger().warning("User %s (authenticated via token) does not exist.", username);
+				_pContext->logger().warning("User %s (authenticated via token) does not exist."s, username);
 			}
 		}
 		else
 		{
-			_pContext->logger().warning("Bearer token %s failed validation.", token);
+			_pContext->logger().warning("Bearer token %s failed validation."s, token);
 		}
 	}
 	return false;
@@ -1026,26 +1021,26 @@ bool WebServerDispatcher::authorizeBearer(Poco::Net::HTTPServerRequest& request,
 
 void WebServerDispatcher::sendFound(Poco::Net::HTTPServerRequest& request, const std::string& path)
 {
-	request.response().set("Location", path);
-	sendResponse(request, HTTPResponse::HTTP_FOUND, formatMessage("redirect", path));
+	request.response().set("Location"s, path);
+	sendResponse(request, HTTPResponse::HTTP_FOUND, formatMessage("redirect"s, path));
 }
 
 
 void WebServerDispatcher::sendNotFound(Poco::Net::HTTPServerRequest& request, const std::string& path)
 {
-	sendResponse(request, HTTPResponse::HTTP_NOT_FOUND, formatMessage("notfound", path));
+	sendResponse(request, HTTPResponse::HTTP_NOT_FOUND, formatMessage("notfound"s, path));
 }
 
 
 void WebServerDispatcher::sendNotAuthorized(Poco::Net::HTTPServerRequest& request, const std::string& path)
 {
-	sendResponse(request, HTTPResponse::HTTP_UNAUTHORIZED, formatMessage("notauth", path));
+	sendResponse(request, HTTPResponse::HTTP_UNAUTHORIZED, formatMessage("notauth"s, path));
 }
 
 
 void WebServerDispatcher::sendForbidden(Poco::Net::HTTPServerRequest& request, const std::string& path)
 {
-	sendResponse(request, HTTPResponse::HTTP_FORBIDDEN, formatMessage("forbidden", path));
+	sendResponse(request, HTTPResponse::HTTP_FORBIDDEN, formatMessage("forbidden"s, path));
 }
 
 
@@ -1071,7 +1066,7 @@ void WebServerDispatcher::sendResponse(Poco::Net::HTTPServerRequest& request, Po
 {
 	if (!request.response().sent())
 	{
-		if (request.get("Accept", "").find("application/json") != std::string::npos)
+		if (request.get("Accept"s, ""s).find("application/json") != std::string::npos)
 		{
 			sendJSONResponse(request, status, message);
 		}
@@ -1093,7 +1088,7 @@ void WebServerDispatcher::sendResponse(Poco::Net::HTTPServerRequest& request, Po
 void WebServerDispatcher::sendHTMLResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message)
 {
 	const std::string& softwareVersion = request.serverParams().getSoftwareVersion();
-	request.response().setContentType("text/html");
+	request.response().setContentType("text/html"s);
 	request.response().setStatusAndReason(status);
 	std::string html("<HTML><HEAD><TITLE>");
 	html += NumberFormatter::format(static_cast<int>(status));
@@ -1121,11 +1116,11 @@ void WebServerDispatcher::sendHTMLResponse(Poco::Net::HTTPServerRequest& request
 
 void WebServerDispatcher::sendJSONResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message)
 {
-	request.response().setContentType("application/json");
+	request.response().setContentType("application/json"s);
 	request.response().setStatusAndReason(status);
 
 	std::string json(
-		Poco::format("{ \"error\": \"%s\", \"detail\": \"%s\", \"code\": %d }",
+		Poco::format("{ \"error\": \"%s\", \"detail\": \"%s\", \"code\": %d }"s,
 			request.response().getReasonForStatus(status),
 			jsonize(message),
 			static_cast<int>(status)
@@ -1240,7 +1235,7 @@ std::string WebServerDispatcher::formatMessage(const std::string& messageId, con
 	std::string message;
 	std::string realId("message.");
 	realId += messageId;
-	std::string rawMessage(_pContext->thisBundle()->properties().getString(realId, ""));
+	std::string rawMessage(_pContext->thisBundle()->properties().getString(realId, ""s));
 	if (rawMessage.empty())
 	{
 		message = "Message not found: ";
@@ -1304,7 +1299,7 @@ void WebServerDispatcher::addCustomResponseHeaders(Poco::Net::HTTPServerResponse
 int WebServerDispatcher::parseAuthMethods(const std::string& methods)
 {
 	int result = 0;
-	Poco::StringTokenizer tok(methods, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+	Poco::StringTokenizer tok(methods, ",;"s, Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 	for (Poco::StringTokenizer::Iterator it = tok.begin(); it != tok.end(); ++it)
 	{
 		if (*it == "basic")

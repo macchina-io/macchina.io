@@ -32,10 +32,10 @@ namespace TCP {
 
 class RemotingNGTCP_API FrameHandler: public Poco::RefCountedObject
 	/// A frame handler handles frames on behalf
-	/// of a Connection. 
+	/// of a Connection.
 {
 public:
-	typedef Poco::AutoPtr<FrameHandler> Ptr;
+	using Ptr = Poco::AutoPtr<FrameHandler>;
 
 	virtual bool handleFrame(Connection::Ptr pConnection, Frame::Ptr pFrame) = 0;
 		/// Handle the given frame.

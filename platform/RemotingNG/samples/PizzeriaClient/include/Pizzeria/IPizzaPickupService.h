@@ -26,7 +26,7 @@ class IPizzaPickupService: public Pizzeria::IPizzaDeliveryService
 	/// Pizzeria that allows self pickup.
 {
 public:
-	typedef Poco::AutoPtr<IPizzaPickupService> Ptr;
+	using Ptr = Poco::AutoPtr<IPizzaPickupService>;
 
 	IPizzaPickupService();
 		/// Creates a IPizzaPickupService.

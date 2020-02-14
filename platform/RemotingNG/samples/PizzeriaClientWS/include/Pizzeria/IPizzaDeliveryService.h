@@ -27,7 +27,7 @@ namespace Pizzeria {
 class IPizzaDeliveryService: public virtual Poco::RefCountedObject
 {
 public:
-	typedef Poco::AutoPtr<IPizzaDeliveryService> Ptr;
+	using Ptr = Poco::AutoPtr<IPizzaDeliveryService>;
 
 	IPizzaDeliveryService();
 		/// Creates a IPizzaDeliveryService.

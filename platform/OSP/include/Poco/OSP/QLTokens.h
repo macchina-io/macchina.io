@@ -33,7 +33,7 @@ class OSP_API QLToken: public Poco::Token
 public:
 	QLToken();
 	~QLToken();
-	
+
 protected:
 	void syntaxError(const std::string& expected, const std::string& actual);
 };
@@ -57,17 +57,17 @@ public:
 		OP_AND,             // &&
 		OP_OR               // ||
 	};
-	
+
 	OperatorToken();
 	~OperatorToken();
 	Poco::Token::Class tokenClass() const;
 	bool start(char c, std::istream& istr);
 	void finish(std::istream& istr);
 	int asInteger() const;
-	
+
 private:
-	typedef std::map<std::string, int> OpMap;
-	
+	using OpMap = std::map<std::string, int>;
+
 	OpMap _opMap;
 };
 
@@ -115,7 +115,7 @@ public:
 	Poco::Token::Class tokenClass() const;
 	bool start(char c, std::istream& istr);
 	void finish(std::istream& istr);
-	
+
 private:
 	bool _isFloat;
 };

@@ -27,7 +27,7 @@ namespace Services {
 class TimeServiceRemoteObject: public Services::ITimeService, public Poco::RemotingNG::RemoteObject
 {
 public:
-	typedef Poco::AutoPtr<TimeServiceRemoteObject> Ptr;
+	using Ptr = Poco::AutoPtr<TimeServiceRemoteObject>;
 
 	TimeServiceRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<Services::TimeService> pServiceObject);
 		/// Creates a TimeServiceRemoteObject.

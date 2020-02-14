@@ -42,8 +42,8 @@ class RemotingNG_API Context: public Poco::RefCountedObject
 	/// and are accessed via thread-local storage.
 {
 public:
-	typedef Poco::AutoPtr<Context> Ptr;
-	typedef std::map<std::string, Poco::Any> Attributes;
+	using Ptr = Poco::AutoPtr<Context>;
+	using Attributes = std::map<std::string, Poco::Any>;
 
 	Context();
 		/// Creates an empty Context. 

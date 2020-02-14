@@ -105,6 +105,8 @@ public:
 
 	void writeTypeDef(const Poco::CppParser::TypeDef* pType);
 
+	void writeUsing(const Poco::CppParser::TypeAlias* pType);
+
 private:
 	bool matches(const CodeGenerator::Properties& properties) const;
 		/// Returns true if it is superset of the internal properties
@@ -258,6 +260,12 @@ inline const std::string& MethodPropertyFilter::copyright() const
 inline void MethodPropertyFilter::writeTypeDef(const Poco::CppParser::TypeDef* pType)
 {
 	return _pGen->writeTypeDef(pType);
+}
+
+
+inline void MethodPropertyFilter::writeUsing(const Poco::CppParser::TypeAlias* pType)
+{
+	return _pGen->writeUsing(pType);
 }
 
 
