@@ -5,7 +5,7 @@
     <symbolicName>osp.web</symbolicName>
     <version>1.7.2</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2007-2020, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2007-2019, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>WebBundleActivator</class>
       <library>osp.web</library>

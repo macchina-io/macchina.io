@@ -29,7 +29,7 @@ namespace Services {
 class TimeServiceServerHelper
 {
 public:
-	using Service = Services::TimeService;
+	typedef Services::TimeService Service;
 
 	TimeServiceServerHelper();
 		/// Creates a TimeServiceServerHelper.

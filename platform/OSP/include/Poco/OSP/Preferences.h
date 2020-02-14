@@ -36,28 +36,28 @@ class OSP_API Preferences: public Poco::Util::AbstractConfiguration
 	/// stored preferences.
 {
 public:
-	using Ptr = Poco::AutoPtr<Preferences>;
-	using ConstPtr = const Ptr;
-
+	typedef Poco::AutoPtr<Preferences> Ptr;
+	typedef const Ptr ConstPtr;
+	
 	Poco::BasicEvent<PreferencesEvent> propertyChanged;
 		/// Fired whenever a property is about to be changed.
-
+	
 	Preferences(const std::string& path);
 		/// Creates the Preferences, using the given path.
-
+		
 	void save();
 		/// Saves the preferences to the file system.
 
 protected:
 	bool getRaw(const std::string& key, std::string& value) const;
-	void setRaw(const std::string& key, const std::string& value);
+	void setRaw(const std::string& key, const std::string& value);		
 	void enumerate(const std::string& key, Keys& range) const;
 	void removeRaw(const std::string& key);
 	~Preferences();
 
 private:
 	Preferences();
-
+	
 	std::string _path;
 	Poco::Util::PropertyFileConfiguration* _pConfig;
 	bool _dirty;

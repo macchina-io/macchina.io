@@ -76,7 +76,7 @@ private:
 	TransportFactoryManager(const TransportFactoryManager&);
 
 private:
-	using Factories = std::map<std::string, TransportFactory::Ptr>;
+	typedef std::map<std::string, TransportFactory::Ptr> Factories;
 
 	Factories _factories;
 	mutable Poco::FastMutex _mutex;

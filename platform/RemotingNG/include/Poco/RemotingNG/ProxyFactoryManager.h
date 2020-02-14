@@ -55,7 +55,7 @@ public:
 		/// Creates an unconnected Proxy for the given TypeId and ObjectId.
 
 private:
-	using Factories = std::map<Identifiable::TypeId, ProxyFactory::Ptr>;
+	typedef std::map<Identifiable::TypeId, ProxyFactory::Ptr> Factories;
 
 	Factories _factories;
 	mutable Poco::FastMutex _mutex;

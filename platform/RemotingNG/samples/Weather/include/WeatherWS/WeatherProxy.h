@@ -23,7 +23,7 @@ namespace WeatherWS {
 class WeatherProxy: public WeatherWS::IWeather, public Poco::RemotingNG::Proxy
 {
 public:
-	using Ptr = Poco::AutoPtr<WeatherProxy>;
+	typedef Poco::AutoPtr<WeatherProxy> Ptr;
 
 	WeatherProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a WeatherProxy.

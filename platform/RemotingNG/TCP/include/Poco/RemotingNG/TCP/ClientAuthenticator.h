@@ -34,8 +34,8 @@ class RemotingNGTCP_API ClientAuthenticator: public Poco::RefCountedObject
 	/// part of authentication.
 {
 public:
-	using Ptr = Poco::AutoPtr<ClientAuthenticator>;
-
+	typedef Poco::AutoPtr<ClientAuthenticator> Ptr;
+	
 	virtual std::string startAuthentication(Credentials& clientCredentials) = 0;
 		/// Begin the authentication process.
 		///
@@ -44,7 +44,7 @@ public:
 		///
 		/// For a simple username/password authentication mechanism, this
 		/// completes the authentication process.
-
+		
 	virtual bool continueAuthentication(const Credentials& serverCredentials, Credentials& clientCredentials) = 0;
 		/// Continues the authentication flow with the Credentials
 		/// received from the server.

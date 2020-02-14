@@ -64,7 +64,7 @@ void BinaryDeserializer::deserializeMessageEnd(const std::string& /*name*/, Seri
 {
 	_curLevel--;
 	poco_assert (_curLevel == 0);
-
+		
 	std::string endTag;
 	_pReader->readRaw(static_cast<std::streamsize>(BinarySerializer::MESSAGE_END_TAG.size()), endTag);
 	if (endTag != BinarySerializer::MESSAGE_END_TAG)
@@ -113,7 +113,7 @@ void BinaryDeserializer::deserializeSequenceEnd(const std::string& /*name*/)
 
 bool BinaryDeserializer::deserializeNullableBegin(const std::string& /*name*/, bool /*isMandatory*/, bool& isNull)
 {
-	if (!_sequenceLengths.empty())
+	if (!_sequenceLengths.empty()) 
 	{
 		if (_curLevel == _sequenceLengths.top().second)
 		{
@@ -188,7 +188,7 @@ bool BinaryDeserializer::deserialize(const std::string& /*name*/, bool /*isManda
 bool BinaryDeserializer::deserialize(const std::string& /*name*/, bool /*isMandatory*/, long& value)
 {
 	bool ok = handleVector();
-	if (ok)
+	if (ok) 
 	{
 		Poco::Int64 tmp;
 		*_pReader >> tmp;
@@ -201,7 +201,7 @@ bool BinaryDeserializer::deserialize(const std::string& /*name*/, bool /*isManda
 bool BinaryDeserializer::deserialize(const std::string& /*name*/, bool /*isMandatory*/, unsigned long& value)
 {
 	bool ok = handleVector();
-	if (ok)
+	if (ok) 
 	{
 		Poco::UInt64 tmp;
 		*_pReader >> tmp;
@@ -211,7 +211,7 @@ bool BinaryDeserializer::deserialize(const std::string& /*name*/, bool /*isManda
 }
 
 
-#ifndef POCO_INT64_IS_LONG
+#ifndef POCO_LONG_IS_64_BIT
 bool BinaryDeserializer::deserialize(const std::string& /*name*/, bool /*isMandatory*/, Poco::Int64& value)
 {
 	bool ok = handleVector();
@@ -304,7 +304,7 @@ void BinaryDeserializer::setupImpl(std::istream& istr)
 
 bool BinaryDeserializer::handleVector()
 {
-	if (!_sequenceLengths.empty())
+	if (!_sequenceLengths.empty()) 
 	{
 		if (_curLevel == _sequenceLengths.top().second)
 		{

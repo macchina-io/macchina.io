@@ -34,7 +34,7 @@ class OSPWeb_API TokenValidator: public Poco::OSP::Service
 	/// and obtain the associated user name.
 {
 public:
-	using Ptr = Poco::AutoPtr<TokenValidator>;
+	typedef Poco::AutoPtr<TokenValidator> Ptr;
 
 	virtual bool validateToken(const std::string& token, std::string& username) = 0;
 		/// Validates the given bearer token.

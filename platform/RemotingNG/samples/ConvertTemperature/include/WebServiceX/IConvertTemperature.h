@@ -25,7 +25,7 @@ namespace WebServiceX {
 class IConvertTemperature: public virtual Poco::RefCountedObject
 {
 public:
-	using Ptr = Poco::AutoPtr<IConvertTemperature>;
+	typedef Poco::AutoPtr<IConvertTemperature> Ptr;
 
 	IConvertTemperature();
 		/// Creates a IConvertTemperature.

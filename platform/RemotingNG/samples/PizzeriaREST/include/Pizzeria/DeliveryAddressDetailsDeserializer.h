@@ -40,7 +40,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, Pizzeria::DeliveryAddress::Details& value)
 	{
+		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"milesAway"};
+		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeDeserializer<double >::deserialize(REMOTING__NAMES[0], true, deser, value.milesAway);
 	}
 

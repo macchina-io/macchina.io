@@ -37,10 +37,10 @@ public:
 
 	~CppGenerator();
 		/// Destroys the CppGenerator.
-
+		
 	void enableAttributes(bool enable = true);
 		/// Enable or disable (default) writing of attributes.
-
+		
 	void enableTimestamps(bool enable = true);
 		/// Enable (default) or disable timestamps in file headers.
 
@@ -89,8 +89,6 @@ public:
 	void variablesEnd();
 
 	void writeTypeDef(const Poco::CppParser::TypeDef* pType);
-
-	void writeUsing(const Poco::CppParser::TypeAlias* pType);
 
 	void writeToHeader(const std::string& jsCode);
 

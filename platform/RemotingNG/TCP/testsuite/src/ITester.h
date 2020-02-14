@@ -23,7 +23,7 @@
 class ITester: public virtual Poco::RefCountedObject
 {
 public:
-	using Ptr = Poco::AutoPtr<ITester>;
+	typedef Poco::AutoPtr<ITester> Ptr;
 
 	ITester();
 		/// Creates a ITester.

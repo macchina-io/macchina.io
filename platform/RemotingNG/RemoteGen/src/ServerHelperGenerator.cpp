@@ -65,8 +65,8 @@ void ServerHelperGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 	std::string iFullName = InterfaceGenerator::generateQualifiedClassName(nameSpace(), pStruct);
 	std::string edFullName = EventDispatcherGenerator::generateQualifiedClassName(nameSpace(), pStruct);
 
-	Poco::CppParser::TypeAlias* pTypeAlias = new Poco::CppParser::TypeAlias("using Service = " + pStruct->fullName(), _pStruct);
-	poco_check_ptr (pTypeAlias); // just avoid unused variable warning
+	Poco::CppParser::TypeDef* pTypeDef = new Poco::CppParser::TypeDef("typedef " + pStruct->fullName() + " Service", _pStruct);
+	poco_check_ptr (pTypeDef); // just avoid unused variable warning
 
 	// add constructor/destructor
 	Poco::CppParser::Function* pConstr = new Poco::CppParser::Function(_pStruct->name(), _pStruct);
@@ -146,7 +146,7 @@ void ServerHelperGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 
 	Poco::CppParser::Function* pShutdown = new Poco::CppParser::Function("static void shutdown", _pStruct);
 	pShutdown->addDocumentation(" Removes the Skeleton for " + pStruct->fullName() + " from the ORB.");
-
+	
 	bool events = hasEvents(pStruct);
 	if (events)
 	{
@@ -160,7 +160,7 @@ void ServerHelperGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 		pEnableEvents->addParameter(pParam1);
 		pParam2 = new Poco::CppParser::Parameter("const std::string& protocol", 0);
 		pEnableEvents->addParameter(pParam2);
-
+	
 		pEnableEvents = new Poco::CppParser::Function("void enableEventsImpl", _pStruct);
 		pEnableEvents->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
 		pParam1= new Poco::CppParser::Parameter("const std::string& uri", 0);
@@ -189,14 +189,14 @@ void ServerHelperGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 	Poco::CodeGeneration::Utility::handleInclude(pRO, _cppGen);
 	Poco::CodeGeneration::Utility::handleSrcInclude(pS, _cppGen);
 	_cppGen.addSrcIncludeFile("Poco/SingletonHolder.h");
-
+	
 	if (events)
 	{
 		const Poco::CppParser::Struct* pED = dynamic_cast <const Poco::CppParser::Struct*>(pRoot->lookup(edFullName));
 		poco_check_ptr (pED);
 		Poco::CodeGeneration::Utility::handleSrcInclude(pED, _cppGen);
 	}
-
+	
 	_cppGen.addSrcIncludeFile("Poco/RemotingNG/URIUtility.h");
 
 	// add a method static ClassNameHelper& instance();
@@ -473,7 +473,7 @@ bool ServerHelperGenerator::hasEvents(const Poco::CppParser::Struct* pStruct)
 			{
 				return true;
 			}
-		}
+		}	
 	}
 	return false;
 }

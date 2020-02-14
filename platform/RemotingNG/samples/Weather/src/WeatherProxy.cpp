@@ -41,7 +41,9 @@ WeatherProxy::~WeatherProxy()
 
 void WeatherProxy::getCityForecastByZIP(const Poco::Optional < std::string >& zIP, Poco::Optional < WeatherWS::ForecastReturn >& getCityForecastByZIPResult)
 {
+	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"GetCityForecastByZIP","ZIP","GetCityForecastByZIPResult"};
+	remoting__staticInitEnd(REMOTING__NAMES);
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
@@ -54,7 +56,9 @@ void WeatherProxy::getCityForecastByZIP(const Poco::Optional < std::string >& zI
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
+	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("GetCityForecastByZIPResponse");
+	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Poco::Optional < WeatherWS::ForecastReturn > >::deserialize(REMOTING__NAMES[2], true, remoting__deser, getCityForecastByZIPResult);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -65,7 +69,9 @@ void WeatherProxy::getCityForecastByZIP(const Poco::Optional < std::string >& zI
 
 void WeatherProxy::getCityWeatherByZIP(const Poco::Optional < std::string >& zIP, WeatherWS::WeatherReturn& getCityWeatherByZIPResult)
 {
+	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"GetCityWeatherByZIP","ZIP","GetCityWeatherByZIPResult"};
+	remoting__staticInitEnd(REMOTING__NAMES);
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
@@ -78,7 +84,9 @@ void WeatherProxy::getCityWeatherByZIP(const Poco::Optional < std::string >& zIP
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
+	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("GetCityWeatherByZIPResponse");
+	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<WeatherWS::WeatherReturn >::deserialize(REMOTING__NAMES[2], true, remoting__deser, getCityWeatherByZIPResult);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
@@ -89,7 +97,9 @@ void WeatherProxy::getCityWeatherByZIP(const Poco::Optional < std::string >& zIP
 
 void WeatherProxy::getWeatherInformation(Poco::Optional < WeatherWS::ArrayOfWeatherDescription >& getWeatherInformationResult)
 {
+	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"GetWeatherInformation","GetWeatherInformationResult"};
+	remoting__staticInitEnd(REMOTING__NAMES);
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
@@ -101,7 +111,9 @@ void WeatherProxy::getWeatherInformation(Poco::Optional < WeatherWS::ArrayOfWeat
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
+	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("GetWeatherInformationResponse");
+	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Poco::Optional < WeatherWS::ArrayOfWeatherDescription > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, getWeatherInformationResult);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

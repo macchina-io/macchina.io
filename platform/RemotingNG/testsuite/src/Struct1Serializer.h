@@ -34,7 +34,9 @@ public:
 
 	static void serializeImpl(const Struct1& value, Serializer& ser)
 	{
+		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"aDouble","aString","anEnum","anEnum2","anInt",""};
+		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.aDouble, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.aString, ser);
 		TypeSerializer<int >::serialize(REMOTING__NAMES[2], value.anEnum, ser);

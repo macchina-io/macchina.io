@@ -47,8 +47,8 @@ class OSP_API ExtensionPoint: public Poco::RefCountedObject
 	/// is invoked.
 {
 public:
-	using Ptr = Poco::AutoPtr<ExtensionPoint>;
-	using ConstPtr = const Ptr;
+	typedef Poco::AutoPtr<ExtensionPoint> Ptr;
+	typedef const Ptr ConstPtr;
 
 	virtual void handleExtension(Bundle::ConstPtr pBundle, Poco::XML::Element* pExtensionElem) = 0;
 		/// Handles the "extension" element in a bundle's

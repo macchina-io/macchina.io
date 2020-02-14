@@ -35,7 +35,7 @@ class OSPWeb_API WebSessionStore: public Poco::OSP::Service
 	/// store WebSession objects.
 {
 public:
-	using Ptr = Poco::AutoPtr<WebSessionStore>;
+	typedef Poco::AutoPtr<WebSessionStore> Ptr;
 
 	virtual void saveSession(WebSession::Ptr pSession) = 0;
 		/// Saves the given session.

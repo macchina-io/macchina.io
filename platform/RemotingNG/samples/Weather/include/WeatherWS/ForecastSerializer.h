@@ -31,7 +31,9 @@ class TypeSerializer<WeatherWS::Forecast>
 public:
 	static void serialize(const std::string& name, const WeatherWS::Forecast& value, Serializer& ser)
 	{
+		remoting__staticInitBegin(REMOTING__NAMESPACE);
 		static const std::string REMOTING__NAMESPACE("http://ws.cdyne.com/WeatherWS/");
+		remoting__staticInitEnd(REMOTING__NAMESPACE);
 		ser.registerNamespace(REMOTING__NAMESPACE);
 		ser.serializeStructBegin(name);
 		ser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMESPACE);
@@ -42,7 +44,9 @@ public:
 
 	static void serializeImpl(const WeatherWS::Forecast& value, Serializer& ser)
 	{
+		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"Date","WeatherID","Desciption","Temperatures","ProbabilityOfPrecipiation",""};
+		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<Poco::DateTime >::serialize(REMOTING__NAMES[0], value.getDate(), ser);
 		TypeSerializer<Poco::Int16 >::serialize(REMOTING__NAMES[1], value.getWeatherID(), ser);
 		TypeSerializer<Poco::Optional < std::string > >::serialize(REMOTING__NAMES[2], value.getDesciption(), ser);

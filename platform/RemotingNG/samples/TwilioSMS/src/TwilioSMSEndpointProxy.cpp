@@ -37,7 +37,9 @@ TwilioSMSEndpointProxy::~TwilioSMSEndpointProxy()
 
 Twilio::TwilioSMSResponse TwilioSMSEndpointProxy::post(const std::string& accountSID, const std::string& from, const std::string& to, const std::string& body)
 {
+	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"post","accountSID","From","To","Body"};
+	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PATH, "/2010-04-01/Accounts/{accountSID}/SMS/Messages.json");
@@ -57,7 +59,9 @@ Twilio::TwilioSMSResponse TwilioSMSEndpointProxy::post(const std::string& accoun
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_PATH);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("postReply");
+	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<Twilio::TwilioSMSResponse >::deserialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, true, remoting__deser, _postRet);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

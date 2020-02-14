@@ -25,12 +25,12 @@ public:
 
 	~BundleInfoHandler();
 		/// Destroys the BundleInfoHandler.
-
+		
 	void run();
-
+	
 protected:
-	using BundleVec = std::vector<Poco::OSP::Bundle::Ptr>;
-
+	typedef std::vector<Poco::OSP::Bundle::Ptr> BundleVec;
+	
 	void dependencies(Poco::OSP::Bundle::Ptr pBundle);
 	void modules(Poco::OSP::Bundle::Ptr pBundle);
 	void provided(Poco::OSP::Bundle::Ptr pBundle);

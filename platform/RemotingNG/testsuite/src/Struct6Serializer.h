@@ -34,7 +34,9 @@ public:
 
 	static void serializeImpl(const Struct6& value, Serializer& ser)
 	{
+		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"arr",""};
+		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<Poco::Array < int, 4 > >::serialize(REMOTING__NAMES[0], value.arr, ser);
 	}
 

@@ -23,7 +23,7 @@
 class ITester: public virtual Poco::RefCountedObject
 {
 public:
-	using Ptr = Poco::AutoPtr<ITester>;
+	typedef Poco::AutoPtr<ITester> Ptr;
 
 	ITester();
 		/// Creates a ITester.
@@ -91,10 +91,6 @@ public:
 
 	virtual Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1) = 0;
 
-	virtual std::array < int, 4 > testStdArray(const std::array < int, 4 >& arr) = 0;
-
-	virtual std::shared_ptr < Struct1 > testStdSharedPtr(const std::shared_ptr < Struct1 >& pStruct1) = 0;
-
 	virtual Struct1 testStruct11(const Struct1& s1) = 0;
 
 	virtual void testStruct12(Struct1& s1) = 0;
@@ -132,8 +128,6 @@ public:
 	virtual void testStruct53(const Struct5& s1, Struct5& s2) = 0;
 
 	virtual Struct6 testStruct6(const Struct6& s1) = 0;
-
-	virtual Struct7 testStruct7(const Struct7& s1) = 0;
 
 	virtual void testSynchronized() = 0;
 

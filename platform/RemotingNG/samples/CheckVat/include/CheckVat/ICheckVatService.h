@@ -25,7 +25,7 @@ namespace CheckVat {
 class ICheckVatService: public virtual Poco::RefCountedObject
 {
 public:
-	using Ptr = Poco::AutoPtr<ICheckVatService>;
+	typedef Poco::AutoPtr<ICheckVatService> Ptr;
 
 	ICheckVatService();
 		/// Creates a ICheckVatService.

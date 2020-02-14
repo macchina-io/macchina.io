@@ -70,8 +70,8 @@ class OSP_API ExtensionPointService: public Service
 	/// is "osp.core.xp".
 {
 public:
-	using Ptr = Poco::AutoPtr<ExtensionPointService>;
-	using ConstPtr = const Ptr;
+	typedef Poco::AutoPtr<ExtensionPointService> Ptr;
+	typedef const Ptr ConstPtr;
 
 	ExtensionPointService(BundleEvents& events);
 		/// Creates the ExtensionPointService.
@@ -102,13 +102,13 @@ public:
 
 protected:
 	typedef void (ExtensionPointService::*GenericHandler)(Bundle::ConstPtr pBundle, const std::string& id, Poco::XML::Element* pExtensionElement);
-
+	
 	enum Direction /// The direction in which to traverse the extension points
 	{
 		DIR_FORWARD,
 		DIR_REVERSE
 	};
-
+	
 	void onBundleStarted(const void* pSender, BundleEvent& event);
 		/// Handles an EV_BUNDLE_STARTED event.
 
@@ -117,7 +117,7 @@ protected:
 
 	void handleExtensions(Bundle::ConstPtr pBundle, GenericHandler handler, Direction dir = DIR_FORWARD);
 		/// Handles the "extensions.xml" file, if it exists.
-
+		
 	void handleExtensions(Bundle::ConstPtr pBundle, std::istream& istr, GenericHandler handler, Direction dir = DIR_FORWARD);
 		/// Handles the "extensions.xml" file.
 
@@ -136,8 +136,8 @@ protected:
 private:
 	ExtensionPointService();
 
-	using XPMap = std::map<std::string, ExtensionPoint::Ptr>;
-	using BundleMap = std::multimap<Bundle::Ptr, std::string>;
+	typedef std::map<std::string, ExtensionPoint::Ptr> XPMap;
+	typedef std::multimap<Bundle::Ptr, std::string> BundleMap;
 
 	XPMap           _xpMap;
 	BundleMap       _bundleMap;

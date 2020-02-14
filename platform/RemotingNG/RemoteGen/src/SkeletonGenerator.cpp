@@ -248,7 +248,9 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 	std::map<std::string, int> nsIdx;
 	//static std::string REMOTING__NAMES[] = {"create", "protocol", "endPoint"}; // methodName followed by param names, followed by other than default namespaces
 	std::string staticIds = ProxyGenerator::generateStaticIdString(pFunc, nsSet, attrs, elems, nsIdx);
+	gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__NAMES);");
 	gen.writeMethodImplementation(staticIds);
+	gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__NAMES);");
 	std::map<std::string, const Poco::CppParser::Parameter*> outParams;
 	ProxyGenerator::detectOutParams(pFunc, outParams);
 
@@ -411,7 +413,9 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 
 	if (!funcPermission.empty())
 	{
+		gen.writeMethodImplementation(indentation + "remoting__staticInitBegin(REMOTING__PERMISSION);");
 		gen.writeMethodImplementation(indentation + "static const std::string REMOTING__PERMISSION(\"" + funcPermission + "\");");
+		gen.writeMethodImplementation(indentation + "remoting__staticInitEnd(REMOTING__PERMISSION);");
 
 		gen.writeMethodImplementation(indentation + "if (!remoting__trans.authorize(REMOTING__NAMES[0], REMOTING__PERMISSION))");
 		gen.writeMethodImplementation(indentation + "\tthrow Poco::RemotingNG::NoPermissionException(REMOTING__PERMISSION);");
@@ -543,7 +547,9 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 		std::string messageType(isEvent ? "EVENT" : "REPLY");
 		if (name != responseName)
 		{
+			gen.writeMethodImplementation(indentation + "remoting__staticInitBegin(REMOTING__REPLY_NAME);");
 			gen.writeMethodImplementation(indentation + "static const std::string REMOTING__REPLY_NAME(\"" + responseName + "\");");
+			gen.writeMethodImplementation(indentation + "remoting__staticInitEnd(REMOTING__REPLY_NAME);");
 			gen.writeMethodImplementation(indentation + "remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_" + messageType + ");");
 		}
 		else
@@ -598,7 +604,9 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 				std::string line("static const std::string REMOTING__RETURN_PARAM_NAME(\"");
 				line.append(retName);
 				line.append("\");");
+				gen.writeMethodImplementation(indentation + "remoting__staticInitBegin(REMOTING__RETURN_PARAM_NAME);");
 				gen.writeMethodImplementation(indentation+line);
+				gen.writeMethodImplementation(indentation + "remoting__staticInitBegin(REMOTING__RETURN_PARAM_NAME);");
 				retName = "REMOTING__RETURN_PARAM_NAME";
 			}
 			else

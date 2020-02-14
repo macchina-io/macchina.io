@@ -36,9 +36,9 @@ class OSP_API QLExpr: public Poco::RefCountedObject
 	/// The base class for all Query Language expressions.
 {
 public:
-	using Ptr = Poco::AutoPtr<QLExpr>;
-	using ConstPtr = const Ptr;
-
+	typedef Poco::AutoPtr<QLExpr> Ptr;
+	typedef const Ptr ConstPtr;
+	
 	virtual bool evaluate(const Properties& props) const = 0;
 		/// Evaluates the expression on the given properties.
 
@@ -81,7 +81,7 @@ class OSP_API QLNotExpr: public QLExpr
 public:
 	QLNotExpr(QLExpr::Ptr pExpr);
 	~QLNotExpr();
-
+	
 	bool evaluate(const Properties& props) const;
 
 private:
@@ -109,7 +109,7 @@ public:
 
 protected:
 	virtual bool evaluateImpl(const Properties& props) const = 0;
-
+	
 private:
 	std::string _prop;
 	Poco::Any   _value;

@@ -33,7 +33,9 @@ class TypeSerializer<Pizzeria::Pizza>
 public:
 	static void serialize(const std::string& name, const Pizzeria::Pizza& value, Serializer& ser)
 	{
+		remoting__staticInitBegin(REMOTING__NAMESPACE);
 		static const std::string REMOTING__NAMESPACE("http://www.appinf.com/webservices/PizzaDeliveryService/");
+		remoting__staticInitEnd(REMOTING__NAMESPACE);
 		ser.registerNamespace(REMOTING__NAMESPACE);
 		ser.serializeStructBegin(name);
 		ser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMESPACE);
@@ -44,7 +46,9 @@ public:
 
 	static void serializeImpl(const Pizzeria::Pizza& value, Serializer& ser)
 	{
+		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"basePrice","details","name","toppings",""};
+		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES[0], value.getBasePrice(), ser);
 		TypeSerializer<Pizzeria::PizzaDetails >::serialize(REMOTING__NAMES[1], value.getDetails(), ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.getName(), ser);

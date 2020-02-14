@@ -36,7 +36,9 @@ public:
 
 	static void serializeImpl(const Struct4& value, Serializer& ser)
 	{
+		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"ptr","value","vec","","http://www.appinf.com/types"};
+		remoting__staticInitEnd(REMOTING__NAMES);
 		ser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMES[4]);
 		TypeSerializer<Poco::SharedPtr < Struct4 > >::serialize(REMOTING__NAMES[0], value.ptr, ser);
 		ser.popProperty(SerializerBase::PROP_NAMESPACE);

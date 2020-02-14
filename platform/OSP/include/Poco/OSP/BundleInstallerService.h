@@ -40,8 +40,8 @@ class OSP_API BundleInstallerService: public Service
 	/// is "osp.core.installer".
 {
 public:
-	using Ptr = Poco::AutoPtr<BundleInstallerService>;
-	using ConstPtr = const Ptr;
+	typedef Poco::AutoPtr<BundleInstallerService> Ptr;
+	typedef const Ptr ConstPtr;
 
 	BundleInstallerService(BundleRepository& repository);
 		/// Creates the BundleInstallerService, using
@@ -70,7 +70,7 @@ public:
 		/// open a stream for the given URI.
 		///
 		/// Returns a pointer to the installed bundle.
-
+		
 	static const std::string SERVICE_NAME;
 
 	// Service
@@ -83,7 +83,7 @@ protected:
 
 private:
 	BundleInstallerService();
-
+	
 	BundleRepository& _bundleRepository;
 };
 

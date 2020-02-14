@@ -32,22 +32,22 @@ class OSP_API BundleProperties: public Poco::Util::AbstractConfiguration
 	/// that adds thread safety.
 {
 public:
-	using Ptr = Poco::AutoPtr<BundleProperties>;
+	typedef Poco::AutoPtr<BundleProperties> Ptr;
 
 	BundleProperties();
 		/// Creates the BundleProperties.
 
-	void addProperties(Poco::Util::AbstractConfiguration::Ptr pConfig);
+	void addProperties(Poco::Util::AbstractConfiguration* pConfig, bool shared);
 		/// Adds a configuration.
 		///
 		/// If shared is true, increments the configuration's reference count.
-
-	void addProperties(Poco::Util::AbstractConfiguration::Ptr pConfig, int priority);
+		
+	void addProperties(Poco::Util::AbstractConfiguration* pConfig, int priority, bool shared);
 		/// Adds a configuration with the given priority.
 		///
 		/// If shared is true, increments the configuration's reference count.
-
-	void removeProperties(Poco::Util::AbstractConfiguration::Ptr pConfig);
+		
+	void removeProperties(Poco::Util::AbstractConfiguration* pConfig);
 		/// Removes the given configuration.
 
 protected:
@@ -58,7 +58,7 @@ protected:
 	void enumerate(const std::string& key, Keys& range) const;
 	void removeRaw(const std::string& key);
 
-	Poco::Util::LayeredConfiguration::Ptr _pLayeredConfig;
+	Poco::Util::LayeredConfiguration* _pLayeredConfig;
 	mutable Poco::FastMutex _mutex;
 };
 

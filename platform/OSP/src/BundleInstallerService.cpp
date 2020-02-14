@@ -41,11 +41,15 @@ BundleInstallerService::~BundleInstallerService()
 
 Bundle::Ptr BundleInstallerService::installBundle(const std::string& uri)
 {
+#if __cplusplus < 201103L
+	std::auto_ptr<std::istream> pStream(URIStreamOpener::defaultOpener().open(uri));
+#else
 	std::unique_ptr<std::istream> pStream(URIStreamOpener::defaultOpener().open(uri));
+#endif
 	return _bundleRepository.installBundle(*pStream);
 }
 
-
+	
 Bundle::Ptr BundleInstallerService::installBundle(std::istream& istr)
 {
 	return _bundleRepository.installBundle(istr);
@@ -54,11 +58,15 @@ Bundle::Ptr BundleInstallerService::installBundle(std::istream& istr)
 
 Bundle::Ptr BundleInstallerService::replaceBundle(const std::string& symbolicName, const std::string& uri)
 {
+#if __cplusplus < 201103L
+	std::auto_ptr<std::istream> pStream(URIStreamOpener::defaultOpener().open(uri));
+#else
 	std::unique_ptr<std::istream> pStream(URIStreamOpener::defaultOpener().open(uri));
+#endif
 	return _bundleRepository.installBundle(*pStream, symbolicName);
 }
 
-
+	
 Bundle::Ptr BundleInstallerService::replaceBundle(const std::string& symbolicName, std::istream& istr)
 {
 	return _bundleRepository.installBundle(istr, symbolicName);

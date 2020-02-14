@@ -112,9 +112,8 @@ private:
 	SerializerBase(const SerializerBase&);
 	SerializerBase& operator = (const SerializerBase&);
 
-	using ValueStack = std::stack<std::string>;
-	using Properties = std::map<std::string, ValueStack>;
-
+	typedef std::stack<std::string> ValueStack;
+	typedef std::map<std::string, ValueStack> Properties;
 	Properties _props;
 };
 

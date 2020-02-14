@@ -35,7 +35,9 @@ ConvertTemperatureProxy::~ConvertTemperatureProxy()
 
 void ConvertTemperatureProxy::convertTemp(double temperature, const std::string& fromUnit, const std::string& toUnit, double& convertTempResult)
 {
+	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"ConvertTemp","Temperature","FromUnit","ToUnit","ConvertTempResult"};
+	remoting__staticInitEnd(REMOTING__NAMES);
 	const std::string& remoting__namespace(DEFAULT_NS);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	remoting__trans.setAttribute(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, remoting__namespace);
@@ -50,7 +52,9 @@ void ConvertTemperatureProxy::convertTemp(double temperature, const std::string&
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
+	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("ConvertTempResponse");
+	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	Poco::RemotingNG::TypeDeserializer<double >::deserialize(REMOTING__NAMES[4], true, remoting__deser, convertTempResult);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);

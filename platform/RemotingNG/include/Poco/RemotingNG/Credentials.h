@@ -43,14 +43,8 @@ public:
 
 	Credentials(const Credentials& other);
 		/// Creates a Credentials object by copying the attributes from another one.
-
-	Credentials(Credentials&& other) noexcept;
-		/// Creates a Credentials object by moving the attributes from another one.
 		
 	Credentials& operator = (const Credentials& other);
-		/// Assigns the attributes from another Credentials object.
-
-	Credentials& operator = (Credentials&& other) noexcept;
 		/// Assigns the attributes from another Credentials object.
 		
 	~Credentials();

@@ -18,9 +18,9 @@
 using Poco::OSP::Web::WebRequestHandlerFactory;
 
 
-using BundleListHandlerFactory = RequestHandlerFactory<BundleListHandler>;
-using BundleInfoHandlerFactory = RequestHandlerFactory<BundleInfoHandler>;
-using BundleInstallHandlerFactory = RequestHandlerFactory<BundleInstallHandler>;
+typedef RequestHandlerFactory<BundleListHandler> BundleListHandlerFactory;
+typedef RequestHandlerFactory<BundleInfoHandler> BundleInfoHandlerFactory;
+typedef RequestHandlerFactory<BundleInstallHandler> BundleInstallHandlerFactory;
 
 
 POCO_BEGIN_NAMED_MANIFEST(WebServer, WebRequestHandlerFactory)

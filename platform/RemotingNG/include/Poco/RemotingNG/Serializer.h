@@ -45,7 +45,7 @@ public:
 		/// Destroys the Serializer.
 
 	void setup(std::ostream& ostr);
-		/// Set up the Serializer for writing to the given output stream.
+		/// Set up the Serializer for writing to the given output stream. 
 		///
 		/// This must be called before any of the serialize*() methods.
 
@@ -65,7 +65,7 @@ public:
 		/// End serialization of a complex (structured) object.
 
 	virtual void serializeSequenceBegin(const std::string& name, Poco::UInt32 length) = 0;
-		/// Begin serialization of a vector or other sequence.
+		/// Begin serialization of a vector or other sequence. 
 		///
 		/// Length contains the number of elements in the sequence.
 
@@ -118,7 +118,7 @@ public:
 	virtual void serialize(const std::string& name, unsigned long value) = 0;
 		/// Serialize an unsigned long.
 
-#ifndef POCO_INT64_IS_LONG
+#ifndef POCO_LONG_IS_64_BIT
 	virtual void serialize(const std::string& name, Poco::Int64 value) = 0;
 		/// Serialize an Int64.
 
@@ -140,7 +140,7 @@ public:
 
 	virtual void serialize(const std::string& name, const std::string& value) = 0;
 		/// Serialize a std::string.
-
+		
 	virtual void serialize(const std::string& name, const std::vector<char>& value) = 0;
 		/// Serialize binary data.
 
@@ -149,21 +149,21 @@ public:
 		/// element content (default) or attribute value.
 		///
 		/// The rule that serializers follow is to first call pushAttribute() for every variable to
-		/// be serialized as attribute, then call serializeMessageBegin() or serializeStructBegin()
+		/// be serialized as attribute, then call serializeMessageBegin() or serializeStructBegin() 
 		/// for the element containing the attributes.
-		///
-		/// Example: The following code:
-		///
+		/// 
+		/// Example: The following code: 
+		/// 
 		///     ser.pushAttribute("", "attr1");
 		///     ser.pushAttribute("", "attr2");
 		///     ser.serializeStructBegin("complexType");
-		///     ser.serialize("attr1", "foo");
-		///     ser.serialize("attr2", "bar");
-		///     ser.serialize("variable", 42);
-		///     ser.serializeStructEnd("complexType");
+		///     ser.serialize("attr1", "foo"); 
+		///     ser.serialize("attr2", "bar"); 
+		///     ser.serialize("variable", 42); 
+		///     ser.serializeStructEnd("complexType"); 
 		///
 		/// will produce this XML fragment:
- 		///     <complexType attr1="foo" attr2="bar"><variable>42</variable>...</complexType>
+ 		///     <complexType attr1="foo" attr2="bar"><variable>42</variable>...</complexType> 
  		///
  		/// Should be overridden by subclasses supporting attributes. The default implementation
  		/// does nothing.

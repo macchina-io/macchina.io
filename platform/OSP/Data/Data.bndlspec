@@ -3,9 +3,9 @@
   <manifest>
     <name>POCO Data Library</name>
     <symbolicName>poco.data</symbolicName>
-    <version>1.10.1</version>
+    <version>1.9.4</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2007-2020, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2007-2019, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>DataBundleActivator</class>
       <library>poco.data</library>

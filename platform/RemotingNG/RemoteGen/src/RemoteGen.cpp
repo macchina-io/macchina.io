@@ -233,7 +233,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics Remoting NG Code Generator.\n"
-			"Copyright (c) 2006-2020 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2006-2019 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program parses C++ header files annotated with "
 			"Remoting attributes and generates C++ code for "

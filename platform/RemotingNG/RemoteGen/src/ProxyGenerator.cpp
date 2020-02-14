@@ -117,8 +117,8 @@ void ProxyGenerator::structStart(const Poco::CppParser::Struct* pStruct, const C
 	Poco::CppParser::Variable* pVar2 = new Poco::CppParser::Variable("static const std::string DEFAULT_NS", _pStruct);
 	pVar2->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
 
-	Poco::CppParser::TypeAlias* pTypeAlias = new Poco::CppParser::TypeAlias("using Ptr = Poco::AutoPtr<" + generateClassName(pStruct) + ">", _pStruct);
-	poco_check_ptr (pTypeAlias); // just avoid unused variable warning
+	Poco::CppParser::TypeDef* pTypeDef = new Poco::CppParser::TypeDef("typedef Poco::AutoPtr<" + generateClassName(pStruct) + "> Ptr", _pStruct);
+	poco_check_ptr (pTypeDef); // just avoid unused variable warning
 
 	// replicate parent functions
 	handleParentFunctions(pStruct);
@@ -289,7 +289,9 @@ void ProxyGenerator::serializeCodeGen(const Poco::CppParser::Function* pFunc, co
 	std::map<std::string, int> nsIdx;
 	//static std::string REMOTING__NAMES[] = {"create", "protocol", "endPoint"}; // methodName followed by param names, followed by other than default namespaces
 	std::string staticIds = ProxyGenerator::generateStaticIdString(pFunc, nsSet, attrs, elems, nsIdx);
+	gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__NAMES);");
 	gen.writeMethodImplementation(staticIds);
+	gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__NAMES);");
 
 	std::map<std::string, const Poco::CppParser::Parameter*> outParams;
 	detectOutParams(pFunc, outParams);
@@ -847,7 +849,9 @@ void ProxyGenerator::writeDeserializingBlock(const Poco::CppParser::Function* pF
 		std::string messageType(isEvent ? "EVENT" : "REPLY");
 		if (name != responseName)
 		{
+			gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__REPLY_NAME);");
 			gen.writeMethodImplementation("static const std::string REMOTING__REPLY_NAME(\"" + responseName + "\");");
+			gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__REPLY_NAME);");
 			gen.writeMethodImplementation("remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_" + messageType + ");");
 		}
 		else
@@ -1103,7 +1107,9 @@ void ProxyGenerator::writeDeserializeReturnParam(const Poco::CppParser::Function
 			std::string line("static const std::string REMOTING__RETURN_PARAM_NAME(\"");
 			line.append(retName);
 			line.append("\");");
+			gen.writeMethodImplementation("remoting__staticInitBegin(REMOTING__RETURN_PARAM_NAME);");
 			gen.writeMethodImplementation(line);
+			gen.writeMethodImplementation("remoting__staticInitEnd(REMOTING__RETURN_PARAM_NAME);");
 		}
 		Poco::CppParser::Symbol* pSym = pFunc->nameSpace()->lookup(retParamType);
 		bool enumMode = false;

@@ -28,7 +28,6 @@ namespace CodeGeneration {
 
 
 using Poco::CppParser::TypeDef;
-using Poco::CppParser::TypeAlias;
 
 
 //always choose names that real functions cannot have
@@ -65,7 +64,7 @@ void GeneratorEngine::generate(const Poco::CppParser::Struct* pStruct, CodeGener
 		gen.writeDefaultHeader(pStruct, pStruct->name(), pStruct->getLibrary(), pStruct->getPackage());
 		handleIncludes(pStruct, gen);
 
-		Callbacks::iterator itPreNS = _callbacks.find(PRENAMESPACE);
+		Callbacks::iterator itPreNS = _callbacks.find(PRENAMESPACE);	
 		if (itPreNS != _callbacks.end())
 		{
 			(*(itPreNS->second))(0, pStruct, gen, addParam);
@@ -74,7 +73,7 @@ void GeneratorEngine::generate(const Poco::CppParser::Struct* pStruct, CodeGener
 		gen.writeNameSpaceBegin(gen.nameSpace());
 	}
 
-	Callbacks::iterator itPreC = _callbacks.find(PRECLASS);
+	Callbacks::iterator itPreC = _callbacks.find(PRECLASS);	
 	if (itPreC != _callbacks.end())
 	{
 		(*(itPreC->second))(0, pStruct, gen, addParam);
@@ -87,10 +86,6 @@ void GeneratorEngine::generate(const Poco::CppParser::Struct* pStruct, CodeGener
 	Poco::CppParser::NameSpace::SymbolTable typeDefs;
 	pStruct->typeDefs(typeDefs);
 	handleTypedefs(typeDefs, pStruct, gen);
-
-	Poco::CppParser::NameSpace::SymbolTable typeAliases;
-	pStruct->typeAliases(typeAliases);
-	handleUsings(typeAliases, pStruct, gen);
 
 	Poco::CppParser::Struct::Functions functions;
 	pStruct->constructors(functions);
@@ -121,18 +116,18 @@ void GeneratorEngine::generate(const Poco::CppParser::Struct* pStruct, CodeGener
 	gen.variablesEnd();
 
 	gen.structEnd();
-
-	Callbacks::iterator itPostC = _callbacks.find(POSTCLASS);
+	
+	Callbacks::iterator itPostC = _callbacks.find(POSTCLASS);	
 	if (itPostC != _callbacks.end())
 	{
 		(*(itPostC->second))(0, pStruct, gen, addParam);
 	}
-
+	
 	if (isLastClass)
 	{
 		gen.writeNameSpaceEnd(gen.nameSpace());
 
-		Callbacks::iterator itPostNS = _callbacks.find(POSTNAMESPACE);
+		Callbacks::iterator itPostNS = _callbacks.find(POSTNAMESPACE);	
 		if (itPostNS != _callbacks.end())
 		{
 			(*(itPostNS->second))(0, pStruct, gen, addParam);
@@ -186,20 +181,6 @@ void GeneratorEngine::handleTypedefs(const Poco::CppParser::NameSpace::SymbolTab
 	}
 	if (cnt > 0)
 		gen.writeTypeDef(0);
-}
-
-
-void GeneratorEngine::handleUsings(const Poco::CppParser::NameSpace::SymbolTable& usings, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen)
-{
-	int cnt = 0;
-	Poco::CppParser::NameSpace::Iterator it = usings.begin();
-	for (; it != usings.end(); ++it, ++cnt)
-	{
-		const TypeAlias* pDef = static_cast<const TypeAlias*>(it->second);
-		gen.writeUsing(pDef);
-	}
-	if (cnt > 0)
-		gen.writeUsing(0);
 }
 
 
@@ -349,7 +330,7 @@ void GeneratorEngine::parseKeyValue(const std::string& keyValue, CodeGenerator::
 	Poco::trimInPlace(value);
 	if (key == "name" && Poco::toLower(value) == Utility::VAL_TRUE)
 		value.clear();
-
+	
 	std::pair<CodeGenerator::Properties::iterator, bool> ok = props.insert(std::make_pair(key, value));
 	if (!ok.second)
 	{
@@ -402,7 +383,7 @@ bool GeneratorEngine::getBoolProperty(const CodeGenerator::Properties& props, co
 		value = false;
 	else
 		value = true;
-
+	
 	return retVal;
 }
 

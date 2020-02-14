@@ -25,7 +25,7 @@ namespace Pizzeria {
 class PizzaDeliveryServiceProxy: public Pizzeria::IPizzaDeliveryService, public Poco::RemotingNG::Proxy
 {
 public:
-	using Ptr = Poco::AutoPtr<PizzaDeliveryServiceProxy>;
+	typedef Poco::AutoPtr<PizzaDeliveryServiceProxy> Ptr;
 
 	PizzaDeliveryServiceProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a PizzaDeliveryServiceProxy.

@@ -57,7 +57,7 @@ public:
 
 	void serializeEndPoint(const std::string& oid, const std::string& tid);
 		/// Serializes the object and type ID of the service object.
-
+		
 	template <typename T>
 	void serializeToken(T t)
 		/// Serializes the given value, which must be a type directly supported
@@ -84,7 +84,7 @@ public:
 	void serialize(const std::string& name, Poco::UInt32 value);
 	void serialize(const std::string& name, long value);
 	void serialize(const std::string& name, unsigned long value);
-#ifndef POCO_INT64_IS_LONG
+#ifndef POCO_LONG_IS_64_BIT
 	void serialize(const std::string& name, Poco::Int64 value);
 	void serialize(const std::string& name, Poco::UInt64 value);
 #endif
@@ -98,10 +98,10 @@ public:
 protected:
 	void resetImpl();
 	void setupImpl(std::ostream& ostr);
-
+	
 	static const std::string MESSAGE_START_TAG;
 	static const std::string MESSAGE_END_TAG;
-
+	
 	enum MessageCode
 	{
 		MESSAGE_CODE_REQUEST      = 0x01,
@@ -112,10 +112,14 @@ protected:
 	};
 
 private:
-	using BinaryWriterPtr = std::unique_ptr<Poco::BinaryWriter>;
+#if __cplusplus < 201103L
+	typedef std::auto_ptr<Poco::BinaryWriter> BinaryWriterPtr;
+#else
+	typedef std::unique_ptr<Poco::BinaryWriter> BinaryWriterPtr;
+#endif
 
 	BinaryWriterPtr _pWriter;
-
+	
 	friend class BinaryDeserializer;
 };
 

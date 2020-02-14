@@ -25,7 +25,7 @@ namespace Pizzeria {
 class PizzaCollectionEndpointProxy: public Pizzeria::IPizzaCollectionEndpoint, public Poco::RemotingNG::Proxy
 {
 public:
-	using Ptr = Poco::AutoPtr<PizzaCollectionEndpointProxy>;
+	typedef Poco::AutoPtr<PizzaCollectionEndpointProxy> Ptr;
 
 	PizzaCollectionEndpointProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a PizzaCollectionEndpointProxy.

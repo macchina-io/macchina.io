@@ -29,7 +29,7 @@ namespace Pizzeria {
 class PizzaDeliveryServiceServerHelper
 {
 public:
-	using Service = Pizzeria::PizzaDeliveryService;
+	typedef Pizzeria::PizzaDeliveryService Service;
 
 	PizzaDeliveryServiceServerHelper();
 		/// Creates a PizzaDeliveryServiceServerHelper.

@@ -39,7 +39,7 @@ class OSP_API AuthService: public Poco::OSP::Service
 	/// The AuthService itself does not care about the syntax and format of permissions.
 {
 public:
-	using Ptr = Poco::AutoPtr<AuthService>;
+	typedef Poco::AutoPtr<AuthService> Ptr;
 
 	AuthService();
 		/// Creates the AuthService.

@@ -798,7 +798,11 @@ void BundleLoader::installLibrary(Bundle* pBundle, const Poco::Path& p, const Po
 	{
 		_logger.debug(std::string("Installing library ") + p.toString(Path::PATH_UNIX));
 	}
+#if __cplusplus < 201103L
+	std::auto_ptr<std::istream> pStream(pBundle->storage().getResource(p.toString(Path::PATH_UNIX)));
+#else
 	std::unique_ptr<std::istream> pStream(pBundle->storage().getResource(p.toString(Path::PATH_UNIX)));
+#endif
 	if (pStream.get())
 	{
 		_codeCache.installLibrary(p.getFileName(), *pStream);

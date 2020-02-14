@@ -32,26 +32,10 @@ AttributedObject::AttributedObject(const AttributedObject& other):
 {
 }
 
-
-AttributedObject::AttributedObject(AttributedObject&& other) noexcept:
-	_attributes(std::move(other._attributes))
-{
-}
-
 	
 AttributedObject& AttributedObject::operator = (const AttributedObject& other)
 {
-	if (&other != this)
-	{
-		_attributes = other._attributes;
-	}
-	return *this;
-}
-
-
-AttributedObject& AttributedObject::operator = (AttributedObject&& other) noexcept
-{
-	_attributes = std::move(other._attributes);
+	_attributes = other._attributes;
 	return *this;
 }
 
@@ -115,9 +99,9 @@ std::vector<std::string> AttributedObject::enumerateAttributes() const
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
 	std::vector<std::string> result;
-	for (const auto& p: _attributes)
+	for (NameValueMap::const_iterator it = _attributes.begin(); it != _attributes.end(); ++it)
 	{
-		result.push_back(p.first);
+		result.push_back(it->first);
 	}
 	
 	return result;

@@ -39,7 +39,9 @@ ToppingCollectionEndpointProxy::~ToppingCollectionEndpointProxy()
 
 std::vector < Pizzeria::ExtTopping > ToppingCollectionEndpointProxy::get() const
 {
+	remoting__staticInitBegin(REMOTING__NAMES);
 	static const std::string REMOTING__NAMES[] = {"get"};
+	remoting__staticInitEnd(REMOTING__NAMES);
 	Poco::RemotingNG::Transport& remoting__trans = remoting__transport();
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PATH, "/pizzeria/toppings");
@@ -47,7 +49,9 @@ std::vector < Pizzeria::ExtTopping > ToppingCollectionEndpointProxy::get() const
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_PATH);
 	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(remoting__objectId(), remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+	remoting__staticInitBegin(REMOTING__REPLY_NAME);
 	static const std::string REMOTING__REPLY_NAME("getReply");
+	remoting__staticInitEnd(REMOTING__REPLY_NAME);
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 	_getRet.clear();
 	Poco::RemotingNG::TypeDeserializer<std::vector < Pizzeria::ExtTopping > >::deserialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, true, remoting__deser, _getRet);

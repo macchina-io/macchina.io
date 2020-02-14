@@ -43,7 +43,7 @@ class RemotingNG_API Authorizer: public Poco::RefCountedObject
 	///     the required permission for a specific method call.
 {
 public:
-	using Ptr = Poco::AutoPtr<Authorizer>;
+	typedef Poco::AutoPtr<Authorizer> Ptr;
 
 	Authorizer();
 		/// Creates the Authorizer.

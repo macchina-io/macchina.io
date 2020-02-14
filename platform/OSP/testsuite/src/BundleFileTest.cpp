@@ -38,17 +38,17 @@ void BundleFileTest::testResource()
 {
 	std::string s;
 	BundleStorage::Ptr pBF(new BundleFile("testBundle.zip"));
-
-	std::unique_ptr<std::istream> istr1(pBF->getResource("META-INF/manifest.mf"));
+	
+	std::auto_ptr<std::istream> istr1(pBF->getResource("META-INF/manifest.mf"));
 	assert (istr1.get() != 0);
 	std::getline(*istr1, s);
 	assert (s == "Manifest-Version: 1.0");
-
-	std::unique_ptr<std::istream> istr2(pBF->getResource("bundle.properties"));
+	
+	std::auto_ptr<std::istream> istr2(pBF->getResource("bundle.properties"));
 	assert (istr2.get() != 0);
 	std::getline(*istr2, s);
 	assert (s == "foo: bar");
-
+	
 	std::istream* istr3(pBF->getResource("nonexistent"));
 	assert (istr3 == 0);
 }
@@ -60,7 +60,7 @@ void BundleFileTest::testDirectory()
 	std::vector<std::string> files;
 	pBF->list("", files);
 	assert (files.size() == 2);
-
+	
 	pBF->list("META-INF", files);
 	assert (files.size() == 1);
 	assert (files[0] == "manifest.mf");
@@ -71,7 +71,7 @@ void BundleFileTest::setUp()
 {
 	// The following is a ZIP file containing the same
 	// directory hierarchy as is used in BundleDirectoryTest.
-	static const unsigned char TEST_BUNDLE_ZIP[] =
+	static const unsigned char TEST_BUNDLE_ZIP[] = 
 	{
 		0x50, 0x4b, 0x03, 0x04, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x76, 0x83, 0x36, 0xe8, 0x16,
 		0xfa, 0x93, 0x0a, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00, 0x62, 0x75,

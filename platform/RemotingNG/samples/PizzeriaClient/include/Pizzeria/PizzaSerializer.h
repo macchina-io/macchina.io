@@ -40,7 +40,9 @@ public:
 
 	static void serializeImpl(const Pizzeria::Pizza& value, Serializer& ser)
 	{
+		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"basePrice","details","name","toppings",""};
+		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES[0], value.getBasePrice(), ser);
 		TypeSerializer<Pizzeria::Pizza::Details >::serialize(REMOTING__NAMES[1], value.getDetails(), ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.getName(), ser);

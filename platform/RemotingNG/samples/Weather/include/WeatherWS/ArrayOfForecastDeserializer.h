@@ -29,7 +29,9 @@ class TypeDeserializer<WeatherWS::ArrayOfForecast>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, WeatherWS::ArrayOfForecast& value)
 	{
+		remoting__staticInitBegin(REMOTING__NAMESPACE);
 		static const std::string REMOTING__NAMESPACE("http://ws.cdyne.com/WeatherWS/");
+		remoting__staticInitEnd(REMOTING__NAMESPACE);
 		bool ret = deser.deserializeStructBegin(name, isMandatory);
 		deser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMESPACE);
 		if (ret)
@@ -44,7 +46,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, WeatherWS::ArrayOfForecast& value)
 	{
+		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"Forecast"};
+		remoting__staticInitEnd(REMOTING__NAMES);
 		bool ret = false;
 		std::vector < Poco::SharedPtr < WeatherWS::Forecast > > gen_forecast;
 		ret = TypeDeserializer<std::vector < Poco::SharedPtr < WeatherWS::Forecast > > >::deserialize(REMOTING__NAMES[0], false, deser, gen_forecast);

@@ -35,19 +35,19 @@ const std::string WebEventServiceImpl::SYSTEM_PONG("system.pong");
 class TaskNotification: public Poco::Notification
 {
 public:
-	using Ptr = Poco::AutoPtr<TaskNotification>;
-
+	typedef Poco::AutoPtr<TaskNotification> Ptr;
+	
 	TaskNotification(WebEventServiceImpl& service):
 		_service(service)
 	{
 	}
-
+	
 	~TaskNotification()
 	{
 	}
-
+	
 	virtual void execute() = 0;
-
+	
 protected:
 	WebEventServiceImpl& _service;
 };
@@ -61,12 +61,12 @@ public:
 		_pWS(pWS)
 	{
 	}
-
+	
 	void execute()
 	{
 		_service.addSubscriberImpl(_pWS);
 	}
-
+	
 private:
 	Poco::SharedPtr<Poco::Net::WebSocket> _pWS;
 };
@@ -81,12 +81,12 @@ public:
 		_clientShutdown(clientShutdown)
 	{
 	}
-
+	
 	void execute()
 	{
 		_service.removeSubscriberImpl(_pWS, _clientShutdown);
 	}
-
+	
 private:
 	Poco::SharedPtr<Poco::Net::WebSocket> _pWS;
 	bool _clientShutdown;
@@ -102,12 +102,12 @@ public:
 		_subjectNames(subjectNames)
 	{
 	}
-
+	
 	void execute()
 	{
 		_service.subscribeImpl(_pWS, _subjectNames);
 	}
-
+	
 private:
 	Poco::SharedPtr<Poco::Net::WebSocket> _pWS;
 	std::set<std::string> _subjectNames;
@@ -123,12 +123,12 @@ public:
 		_subjectNames(subjectNames)
 	{
 	}
-
+	
 	void execute()
 	{
 		_service.unsubscribeImpl(_pWS, _subjectNames);
 	}
-
+	
 private:
 	Poco::SharedPtr<Poco::Net::WebSocket> _pWS;
 	std::set<std::string> _subjectNames;
@@ -144,12 +144,12 @@ public:
 		_data(data)
 	{
 	}
-
+	
 	void execute()
 	{
 		_service.notifyImpl(_subjectName, _data);
 	}
-
+	
 private:
 	std::string _subjectName;
 	std::string _data;
@@ -165,12 +165,12 @@ public:
 		_message(message)
 	{
 	}
-
+	
 	void execute()
 	{
 		_service.sendImpl(_pWS, _message);
 	}
-
+	
 private:
 	Poco::SharedPtr<Poco::Net::WebSocket> _pWS;
 	std::string _message;
@@ -185,12 +185,12 @@ public:
 		_pWS(pWS)
 	{
 	}
-
+	
 	void execute()
 	{
 		_service.receiveImpl(_pWS);
 	}
-
+	
 private:
 	Poco::SharedPtr<Poco::Net::WebSocket> _pWS;
 };
@@ -207,12 +207,12 @@ public:
 		_passive(passive)
 	{
 	}
-
+	
 	void execute()
 	{
 		_service.shutdownImpl(_pWS, _statusCode, _statusMessage, _passive);
 	}
-
+	
 private:
 	Poco::SharedPtr<Poco::Net::WebSocket> _pWS;
 	Poco::UInt16 _statusCode;
@@ -229,12 +229,12 @@ public:
 		_socket(socket)
 	{
 	}
-
+	
 	void execute()
 	{
 		_service.watchSocketImpl(_socket);
 	}
-
+	
 private:
 	Poco::Net::Socket _socket;
 };
@@ -257,7 +257,7 @@ WebEventServiceImpl::WebEventServiceImpl(Poco::OSP::BundleContext::Ptr pContext,
 	_mainThread.start(_mainRunnable);
 }
 
-
+	
 WebEventServiceImpl::~WebEventServiceImpl()
 {
 	try
@@ -322,7 +322,7 @@ void WebEventServiceImpl::runMain()
 			Poco::Net::Socket::SocketList readList(_socketList);
 			Poco::Net::Socket::SocketList writeList;
 			Poco::Net::Socket::SocketList exceptList(_socketList);
-
+		
 			Poco::Timespan timeout(5000);
 			int n = Poco::Net::Socket::select(readList, writeList, exceptList, timeout);
 			if (n > 0)
@@ -345,7 +345,7 @@ void WebEventServiceImpl::runMain()
 					}
 				}
 			}
-
+		
 			Poco::Notification::Ptr pNf = _socketList.empty() ? _mainQueue.waitDequeueNotification() : _mainQueue.dequeueNotification();
 			while (pNf)
 			{
@@ -576,20 +576,20 @@ void WebEventServiceImpl::receiveImpl(Poco::SharedPtr<Poco::Net::WebSocket> pWS)
 		int flags;
 		int n = pWS->receiveFrame(buffer.begin(), buffer.size(), flags);
 		_pContext->logger().debug(Poco::format("Frame received (length=%d, flags=0x%x).", n, unsigned(flags)));
-
+		
 		if (flags & Poco::Net::WebSocket::FRAME_OP_PONG)
 		{
 			_pContext->logger().debug("Received unsolicited PONG frame - ignoring.");
 			_mainQueue.enqueueNotification(new WatchSocketNotification(*this, *pWS));
 			return;
 		}
-
+		
 		if ((flags & Poco::Net::WebSocket::FRAME_OP_CLOSE) || n == 0)
 		{
 			removeSubscriber(pWS, true);
 			return;
 		}
-
+		
 		const char* it  = buffer.begin();
 		const char* end = buffer.begin() + n;
 		std::string verb;
@@ -602,7 +602,7 @@ void WebEventServiceImpl::receiveImpl(Poco::SharedPtr<Poco::Net::WebSocket> pWS)
 			{
 				std::string subject;
 				while (it != end && *it != ',' && *it != ' ') subject += *it++;
-				if (it != end)
+				if (it != end) 
 				{
 					subjectNames.insert(subject);
 					if (*it == ',') it++; // skip ','
@@ -700,7 +700,7 @@ void WebEventServiceImpl::watchSocketImpl(const Poco::Net::Socket& socket)
 void WebEventServiceImpl::unwatchSocketImpl(const Poco::Net::Socket& socket)
 {
 	Poco::Net::Socket::SocketList::iterator itd = std::find(_socketList.begin(), _socketList.end(), socket);
-	if (itd != _socketList.end())
+	if (itd != _socketList.end()) 
 	{
 		_socketList.erase(itd);
 	}

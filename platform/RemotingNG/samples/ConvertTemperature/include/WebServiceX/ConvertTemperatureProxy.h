@@ -23,7 +23,7 @@ namespace WebServiceX {
 class ConvertTemperatureProxy: public WebServiceX::IConvertTemperature, public Poco::RemotingNG::Proxy
 {
 public:
-	using Ptr = Poco::AutoPtr<ConvertTemperatureProxy>;
+	typedef Poco::AutoPtr<ConvertTemperatureProxy> Ptr;
 
 	ConvertTemperatureProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a ConvertTemperatureProxy.

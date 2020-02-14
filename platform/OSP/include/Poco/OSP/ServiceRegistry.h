@@ -168,7 +168,7 @@ private:
 	ServiceRegistry(const ServiceRegistry&);
 	ServiceRegistry& operator = (const ServiceRegistry&);
 
-	using ServiceMap = std::map<std::string, ServiceRef::Ptr>;
+	typedef std::map<std::string, ServiceRef::Ptr> ServiceMap;
 
 	ServiceMap    _services;
 	Poco::Logger& _logger;

@@ -86,7 +86,7 @@ public:
 		/// Writes the system include file to the header.
 
 	virtual void writeNameSpaceBegin(const std::string& fullNameSpace) = 0;
-		/// Writes the enclosing namespace
+		/// Writes the enclosing namespace 
 
 	virtual void writeFwdDecls(const FwdDecls& decl) = 0;
 		/// Writes the fwd decl to the header file and the include file to the src file.
@@ -120,9 +120,6 @@ public:
 
 	virtual void writeTypeDef(const Poco::CppParser::TypeDef* pType) = 0;
 		/// Writes a single typedef
-
-	virtual void writeUsing(const Poco::CppParser::TypeAlias* pType) = 0;
-		/// Writes a single using
 
 	virtual void variablesEnd() = 0;
 		/// Ends variable definitions.

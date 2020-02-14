@@ -46,11 +46,11 @@ class RemotingNGTCP_API Frame: public Poco::RefCountedObject
 	/// only payloads up to a size of 1012 bytes are used.
 {
 public:
-	using Ptr = Poco::AutoPtr<Frame>;
+	typedef Poco::AutoPtr<Frame> Ptr;
 
 	enum Types
 	{
-		FRAME_TYPE_HELO = 0x48454C4F,
+		FRAME_TYPE_HELO = 0x48454C4F, 
 			/// "HELO" - first frame to be sent over channel 0 after connection
 			/// has been established. Sent by both parties. Payload is
 			/// protocol major version (8 bit unsigned), followed by
@@ -58,7 +58,7 @@ public:
 			/// flags (8 bit unsigned, currently unused), followed by
 			/// number of capabilities (8 bit unsigned), followed by
 			/// list of capabilities as 32 bit integers.
-
+			 
 		FRAME_TYPE_BYE  = 0x42594521,
 			/// "BYE!" - last frame to be sent over channel.
 			/// The endpoint wishing to close the connection
@@ -77,11 +77,11 @@ public:
 
 		FRAME_TYPE_AUTC = 0x41555443,
 			/// "AUTC" - A Remoting NG authentication continuation message.
-			///
+			/// 
 			/// Payload:
 			///   - conversation ID: UInt32
 			///   - payload: serialized credentials (key-value pairs)
-
+			
 		FRAME_TYPE_AUTR = 0x41555452,
 			/// "AUTR" - A Remoting NG authentication response message.
 			///
@@ -100,20 +100,20 @@ public:
 			/// "RESP" - A Remoting NG reply message.
 			///
 			/// Payload is serialized reply (see Poco::RemotingNG::BinarySerializer).
-
+			
 		FRAME_TYPE_EVNT = 0x45564E54,
 			/// "EVNT" - A Remoting NG event message.
 			///
 			/// Payload is serialized event (see Poco::RemotingNG::BinarySerializer).
-
+			
 		FRAME_TYPE_EVNR = 0x45564E52,
 			/// "EVNR" - A Remoting NG event reply message.
 			///
 			/// Payload is serialized event reply (see Poco::RemotingNG::BinarySerializer).
-
+			
 		FRAME_TYPE_EVSU = 0x45565355,
 			/// "EVSU" - A Remoting NG event subscribe/renewal message.
-
+			
 		FRAME_TYPE_EVUN = 0x4556554E,
 			/// "EVUN" - A Remoting NG event unsubscribe message.
 	};
@@ -124,7 +124,7 @@ public:
 			/// End Of Message - the last frame of a message.
 
 		FRAME_FLAG_CONT    = 0x0002,
-			/// Continuation frame - set on all frames except the
+			/// Continuation frame - set on all frames except the 
 			/// first one in a multi-frame message.
 
 		FRAME_FLAG_ONEWAY  = 0x0004,
@@ -136,7 +136,7 @@ public:
 
 		FRAME_FLAG_AUTH    = 0x0010,
 			/// Frame contains authentication token.
-
+			
 		FRAME_FLAG_EXTHDR  = 0x8000
 			/// Extended header - reserved for future use.
 	};
@@ -148,17 +148,17 @@ public:
 
 		FRAME_MAX_SIZE = 1024,
 			/// Maximum frame size (header + payload) currently used by protocol.
-
+			
 		FRAME_MAX_PAYLOAD_SIZE = FRAME_MAX_SIZE - FRAME_HEADER_SIZE
 			/// Maximum frame payload size currently used by protocol.
 	};
-
+	
 	enum Version
 	{
 		PROTO_MAJOR_VERSION = 1,
 		PROTO_MINOR_VERSION = 1
 	};
-
+	
 	enum Capabilities
 	{
 		CAPA_REMOTING_PROTOCOL_1_0 = 0x524D0100,
@@ -176,63 +176,63 @@ public:
 		/// Minimum buffer size is the size of the header, which is 12 bytes.
 		///
 		/// The initial payload size is 0.
-
+		
 	~Frame();
 		/// Destroys the frame.
-
+		
 	Poco::UInt32 type() const;
 		/// Returns the frame type.
-
+		
 	Poco::UInt32 channel() const;
 		/// Returns the channel.
 
 	Poco::UInt16 flags() const;
 		/// Returns the flags.
-
+		
 	void updateFlags(Poco::UInt16 flags);
 		/// Updates the flags.
-
+		
 	Poco::UInt16 getPayloadSize() const;
 		/// Returns the payload size.
-
+		
 	void setPayloadSize(Poco::UInt16 size);
 		/// Sets the payload size, which must not exceed the
 		/// buffer size minus header size.
-
+		
 	Poco::UInt16 bufferSize() const;
 		/// Returns the buffer size.
-
+		
 	Poco::UInt16 maxPayloadSize() const;
 		/// Returns the maximum payload size,
 		/// which is buffer size minus header size.
-
+		
 	Poco::UInt16 frameSize() const;
 		/// Returns the frame size, which is header size plus payload size.
-
+		
 	char* payloadBegin();
 		/// Returns a pointer to the begin of the payload in the buffer.
 
 	const char* payloadBegin() const;
 		/// Returns a pointer to the begin of the payload in the buffer.
-
+		
 	char* payloadEnd();
 		/// Returns a pointer to the end (one past last byte) of the payload in the buffer.
 
 	const char* payloadEnd() const;
 		/// Returns a pointer to the end (one past last byte) of the payload in the buffer.
-
+		
 	char* bufferBegin();
 		/// Returns a pointer to the begin of the buffer.
-
+		
 	const char* bufferBegin() const;
 		/// Returns a pointer to the begin of the buffer.
-
+		
 	char* bufferEnd();
 		/// Returns a pointer to the end (one past last byte) of the buffer.
 
 	const char* bufferEnd() const;
 		/// Returns a pointer to the end (one past last byte) of the buffer.
-
+	
 private:
 	enum
 	{
@@ -242,7 +242,7 @@ private:
 		FRAME_OFFSET_SIZE    = 10,
 		FRAME_OFFSET_PAYLOAD = 12
 	};
-
+	
 	Poco::Buffer<char> _buffer;
 };
 
@@ -273,13 +273,13 @@ inline void Frame::updateFlags(Poco::UInt16 flags)
 	*reinterpret_cast<Poco::UInt16*>(_buffer.begin() + FRAME_OFFSET_FLAGS) = Poco::ByteOrder::toNetwork(flags);
 }
 
-
+	
 inline Poco::UInt16 Frame::getPayloadSize() const
 {
 	return Poco::ByteOrder::fromNetwork(*reinterpret_cast<const Poco::UInt16*>(_buffer.begin() + FRAME_OFFSET_SIZE));
 }
 
-
+	
 inline void Frame::setPayloadSize(Poco::UInt16 size)
 {
 	poco_assert (size <= maxPayloadSize());
@@ -287,7 +287,7 @@ inline void Frame::setPayloadSize(Poco::UInt16 size)
 	*reinterpret_cast<Poco::UInt16*>(_buffer.begin() + FRAME_OFFSET_SIZE) = Poco::ByteOrder::toNetwork(size);
 }
 
-
+	
 inline Poco::UInt16 Frame::bufferSize() const
 {
 	return static_cast<Poco::UInt16>(_buffer.size());
@@ -305,7 +305,7 @@ inline Poco::UInt16 Frame::frameSize() const
 	return static_cast<Poco::UInt16>(getPayloadSize() + FRAME_OFFSET_PAYLOAD);
 }
 
-
+	
 inline char* Frame::payloadBegin()
 {
 	return _buffer.begin() + FRAME_OFFSET_PAYLOAD;
@@ -317,7 +317,7 @@ inline const char* Frame::payloadBegin() const
 	return _buffer.begin() + FRAME_OFFSET_PAYLOAD;
 }
 
-
+	
 inline char* Frame::payloadEnd()
 {
 	return _buffer.begin() + FRAME_OFFSET_PAYLOAD + getPayloadSize();
@@ -329,19 +329,19 @@ inline const char* Frame::payloadEnd() const
 	return _buffer.begin() + FRAME_OFFSET_PAYLOAD + getPayloadSize();
 }
 
-
+	
 inline char* Frame::bufferBegin()
 {
 	return _buffer.begin();
 }
 
-
+	
 inline const char* Frame::bufferBegin() const
 {
 	return _buffer.begin();
 }
 
-
+	
 inline char* Frame::bufferEnd()
 {
 	return _buffer.end();

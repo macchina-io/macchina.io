@@ -25,7 +25,7 @@ namespace Twilio {
 class ITwilioSMSEndpoint: public virtual Poco::RefCountedObject
 {
 public:
-	using Ptr = Poco::AutoPtr<ITwilioSMSEndpoint>;
+	typedef Poco::AutoPtr<ITwilioSMSEndpoint> Ptr;
 
 	ITwilioSMSEndpoint();
 		/// Creates a ITwilioSMSEndpoint.

@@ -18,11 +18,7 @@ classes and class templates from the STL are supported:
   * <[std::vector]>
   * <[std::set]>
   * <[std::multiset]>
-  * <[std::unordered_set]>
-  * <[std::unordered_multiset]>
   * <[std::array]>
-  * <[std::shared_ptr]>
-  * <[std::unique_ptr]>
 
 The following types from the POCO C++ Libraries are supported as well:
 
@@ -44,8 +40,8 @@ integer types in SOAP/WSDL interfaces.
 
 Plain C++ pointer types are not supported, due to the complexity they
 incur with regard to object creation and object membership.
-<[std::unique_ptr]> and <[std::shared_ptr]>, as well as Poco::AutoPtr and Poco::SharedPtr are
-supported, and are in virtually all cases better alternatives to using plain C++ pointers.
+Poco::AutoPtr and Poco::SharedPtr are supported, and are in virtually
+all cases better alternatives to using plain C++ pointers.
 
 Note that even arguments passed through a pointer or by reference in the
 service object interface are always passed by value as soon as process

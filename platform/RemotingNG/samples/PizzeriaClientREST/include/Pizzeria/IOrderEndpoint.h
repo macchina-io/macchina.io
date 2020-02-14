@@ -27,7 +27,7 @@ namespace Pizzeria {
 class IOrderEndpoint: public virtual Poco::RefCountedObject
 {
 public:
-	using Ptr = Poco::AutoPtr<IOrderEndpoint>;
+	typedef Poco::AutoPtr<IOrderEndpoint> Ptr;
 
 	IOrderEndpoint();
 		/// Creates a IOrderEndpoint.

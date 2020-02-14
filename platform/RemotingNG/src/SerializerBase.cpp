@@ -99,4 +99,13 @@ void SerializerBase::clearProperties()
 }
 
 
+#if !defined(POCO_LOCAL_STATIC_INIT_IS_THREADSAFE)
+
+
+Poco::FastMutex StaticInitGuard::_mutex;
+
+
+#endif
+
+
 } } // namespace Poco::RemotingNG

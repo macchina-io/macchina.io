@@ -30,8 +30,9 @@
 #include <vector>
 #include <list>
 #include <set>
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
 #include <array>
-#include <memory>
+#endif
 
 
 enum Enum1
@@ -55,8 +56,8 @@ struct Struct1
 	};
 
 	std::string aString;
-	int anInt = 42;
-	double aDouble = 0;
+	int anInt;
+	double aDouble;
 	Enum1 anEnum;
 	Enum2 anEnum2;
 };
@@ -89,7 +90,6 @@ struct Struct3
 	std::set<int> aSet;
 	std::multiset<int> aMultiSet;
 	Poco::Nullable<std::string> aNullable;
-	std::vector<std::shared_ptr<Struct2>> anotherComplexVector;
 };
 
 
@@ -117,11 +117,17 @@ struct Struct6
 };
 
 
+#ifdef POCO_REMOTING_ENABLE_STD_ARRAY_TEST
+
+
 //@ serialize
 struct Struct7
 {
 	std::array<int, 4> arr;
 };
+
+
+#endif // POCO_REMOTING_ENABLE_STD_ARRAY_TEST
 
 
 //@ serialize
@@ -251,9 +257,13 @@ public:
 
 	Poco::Array<int, 4> testArray(const Poco::Array<int, 4>& arr);
 
+#ifdef POCO_REMOTING_ENABLE_STD_ARRAY_TEST
+
 	Struct7 testStruct7(const Struct7& s1);
 
 	std::array<int, 4> testStdArray(const std::array<int, 4>& arr);
+
+#endif
 
 	Class1 testClass11(const Class1& c1);
 
@@ -270,8 +280,6 @@ public:
 
 	//@ $vec2={direction=out}
 	void testStruct1Vec3(const Struct1Vec& vec1, Struct1Vec& vec2);
-
-	std::shared_ptr<Struct1> testStdSharedPtr(const std::shared_ptr<Struct1>& pStruct1);
 
 	//@ oneway
 	void testOneWay(const std::string& arg);

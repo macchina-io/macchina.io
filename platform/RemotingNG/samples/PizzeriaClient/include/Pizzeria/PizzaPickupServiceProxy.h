@@ -28,7 +28,7 @@ class PizzaPickupServiceProxy: public Pizzeria::IPizzaPickupService, public Poco
 	/// Pizzeria that allows self pickup.
 {
 public:
-	using Ptr = Poco::AutoPtr<PizzaPickupServiceProxy>;
+	typedef Poco::AutoPtr<PizzaPickupServiceProxy> Ptr;
 
 	PizzaPickupServiceProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a PizzaPickupServiceProxy.

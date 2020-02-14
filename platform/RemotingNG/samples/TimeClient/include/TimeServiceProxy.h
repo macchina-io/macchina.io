@@ -25,7 +25,7 @@ namespace Services {
 class TimeServiceProxy: public Services::ITimeService, public Poco::RemotingNG::Proxy
 {
 public:
-	using Ptr = Poco::AutoPtr<TimeServiceProxy>;
+	typedef Poco::AutoPtr<TimeServiceProxy> Ptr;
 
 	TimeServiceProxy(const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates a TimeServiceProxy.

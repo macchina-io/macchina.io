@@ -27,7 +27,7 @@ namespace Pizzeria {
 class IToppingCollectionEndpoint: public virtual Poco::RefCountedObject
 {
 public:
-	using Ptr = Poco::AutoPtr<IToppingCollectionEndpoint>;
+	typedef Poco::AutoPtr<IToppingCollectionEndpoint> Ptr;
 
 	IToppingCollectionEndpoint();
 		/// Creates a IToppingCollectionEndpoint.

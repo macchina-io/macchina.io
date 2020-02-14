@@ -28,7 +28,7 @@ class PizzaPickupServiceRemoteObject: public Pizzeria::IPizzaPickupService, publ
 	/// Pizzeria that allows self pickup.
 {
 public:
-	using Ptr = Poco::AutoPtr<PizzaPickupServiceRemoteObject>;
+	typedef Poco::AutoPtr<PizzaPickupServiceRemoteObject> Ptr;
 
 	PizzaPickupServiceRemoteObject(const Poco::RemotingNG::Identifiable::ObjectId& oid, Poco::SharedPtr<Pizzeria::PizzaPickupService> pServiceObject);
 		/// Creates a PizzaPickupServiceRemoteObject.

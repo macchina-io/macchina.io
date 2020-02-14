@@ -55,7 +55,7 @@ public:
 		///
 		/// Paths may either reference a directory containing
 		/// bundles, or a bundle file (or bundle directory with
-		/// the extension ".bndl") directly.
+		/// the extension ".bndl") directly. 
 		///
 		/// Paths may contain Glob expressions (see Poco::Glob).
 
@@ -71,7 +71,7 @@ public:
 		///
 		/// Paths may either reference a directory containing
 		/// bundles, or a bundle file (or bundle directory with
-		/// the extension ".bndl") directly.
+		/// the extension ".bndl") directly. 
 		///
 		/// Paths may contain Glob expressions (see Poco::Glob).
 
@@ -84,7 +84,7 @@ public:
 		/// If two or more versions of a bundle are found,
 		/// the latest version of the bundle is loaded
 		/// and a warning message is logged.
-
+		
 	Bundle::Ptr installBundle(std::istream& istr);
 		/// Reads a bundle archive file from the given stream
 		/// and installs it in the primary path.
@@ -99,7 +99,7 @@ public:
 		/// Reads a bundle archive file from the given stream
 		/// and installs it in the specified repositoryPath.
 		///
-		/// The repositoryPath must be one of the bundle repository paths specified
+		/// The repositoryPath must be one of the bundle repository paths specified 
 		/// in the constructor, otherwise the bundle won't be found
 		/// the next time the application starts.
 		///
@@ -130,7 +130,7 @@ public:
 		/// Reads a bundle archive file from the given stream
 		/// and installs it in the primary repositoryPath.
 		///
-		/// The repositoryPath must be one of the bundle repository paths specified
+		/// The repositoryPath must be one of the bundle repository paths specified 
 		/// in the constructor, otherwise the bundle won't be found
 		/// the next time the application starts.
 		///
@@ -146,13 +146,13 @@ public:
 		///
 		/// Returns the newly installed bundle, which will
 		/// be in INSTALLED state.
-
+		
 	const std::vector<std::string>& paths() const;
 		/// Returns a vector containing all configured repository paths.
 
 protected:
-	using BundleMap = std::map<std::string, Bundle::Ptr>;
-
+	typedef std::map<std::string, Bundle::Ptr> BundleMap;
+	
 	void loadBundles(const std::string& path, BundleMap& bundles);
 		/// Loads all availble bundles from the given path.
 
@@ -166,16 +166,16 @@ protected:
 	std::string tempBundleName() const;
 		/// Returns a temporary bundle name in the
 		/// form "tmp.bundle-nnnn".
-
+		
 	void removeBundle(const std::string& symbolicName);
 		/// Removes the bundle, by first stopping (if necessary),
 		/// and then uninstalling it.
-
+		
 private:
 	BundleRepository();
 	BundleRepository(const BundleRepository&);
 	BundleRepository& operator = (const BundleRepository&);
-
+	
 	std::vector<std::string> _paths;
 	BundleLoader&            _loader;
 	BundleFilter::Ptr        _pFilter;

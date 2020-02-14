@@ -75,7 +75,7 @@ public:
 	bool deserialize(const std::string& name, bool isMandatory, Poco::UInt32& value);
 	bool deserialize(const std::string& name, bool isMandatory, long& value);
 	bool deserialize(const std::string& name, bool isMandatory, unsigned long& value);
-#ifndef POCO_INT64_IS_LONG
+#ifndef POCO_LONG_IS_64_BIT
 	bool deserialize(const std::string& name, bool isMandatory, Poco::Int64& value);
 	bool deserialize(const std::string& name, bool isMandatory, Poco::UInt64& value);
 #endif
@@ -95,9 +95,13 @@ private:
 	bool checkStream();
 	void findMessageImpl();
 
-	using BinaryReaderPtr = std::unique_ptr<Poco::BinaryReader>;
-	using LengthLevelPair = std::pair<int, int>;
-	using LevelLengthVec = std::stack<LengthLevelPair>;
+#if __cplusplus < 201103L
+	typedef std::auto_ptr<Poco::BinaryReader> BinaryReaderPtr;
+#else
+	typedef std::unique_ptr<Poco::BinaryReader> BinaryReaderPtr;
+#endif
+	typedef std::pair<int, int> LengthLevelPair;
+	typedef std::stack<LengthLevelPair> LevelLengthVec;
 
 	BinaryReaderPtr _pReader;
 	std::string _messageName;

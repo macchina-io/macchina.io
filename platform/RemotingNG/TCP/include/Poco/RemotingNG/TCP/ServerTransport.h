@@ -45,14 +45,14 @@ class RemotingNGTCP_API ServerTransport: public Poco::RemotingNG::ServerTranspor
 	/// The ServerTransport implementation for the RemotingNG TCP transport.
 {
 public:
-	using Ptr = Poco::AutoPtr<ServerTransport>;
+	typedef Poco::AutoPtr<ServerTransport> Ptr;
 
 	ServerTransport(Listener& _listener, CredentialsStore::Ptr pCredentialsStore, const Poco::SharedPtr<ChannelInputStream>& pRequestStream, const Poco::SharedPtr<ChannelOutputStream>& pReplyStream, bool compressed, bool authenticated);
 		/// Creates a ServerTransport.
-
+		
 	~ServerTransport();
 		/// Destroys the ServerTransport().
-
+		
 	void waitReady();
 		/// Waits until the server thread is ready.
 
@@ -65,7 +65,7 @@ public:
 
 	// Runnable
 	void run();
-
+	
 private:
 	Listener& _listener;
 	CredentialsStore::Ptr _pCredentialsStore;

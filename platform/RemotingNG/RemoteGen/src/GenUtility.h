@@ -140,7 +140,7 @@ private:
 
 	enum
 	{
-		KEYS_SIZE = 8
+		KEYS_SIZE = 6
 	};
 
 	static const std::string KEYS_VECTOR[KEYS_SIZE];

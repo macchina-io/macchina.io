@@ -34,7 +34,9 @@ public:
 
 	static void serializeImpl(const Twilio::TwilioSMSResponse& value, Serializer& ser)
 	{
+		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"account_sid","api_version","body","date_created","date_sent","date_updated","direction","from","num_segments","price","price_unit","sid","status","to","uri",""};
+		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.accountSID, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.apiVersion, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.body, ser);

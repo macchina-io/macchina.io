@@ -36,7 +36,7 @@ class RemotingNG_API Listener: public Poco::RefCountedObject
 	/// by accepting them and passing them to the ORB for processing.
 {
 public:
-	using Ptr = Poco::AutoPtr<Listener>;
+	typedef Poco::AutoPtr<Listener> Ptr;
 
 	Listener(const std::string& endPoint);
 		/// Creates a Listener. 

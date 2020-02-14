@@ -44,7 +44,9 @@ public:
 
 	static void deserializeImpl(Deserializer& deser, Pizzeria::Pizza& value)
 	{
+		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"basePrice","details","name","toppings"};
+		remoting__staticInitEnd(REMOTING__NAMES);
 		bool ret = false;
 		Poco::UInt32 gen_basePrice;
 		ret = TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES[0], true, deser, gen_basePrice);

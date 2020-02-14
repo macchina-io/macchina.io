@@ -39,23 +39,10 @@ Credentials::Credentials(const Credentials& other):
 {
 }
 
-
-Credentials::Credentials(Credentials&& other) noexcept:
-	AttributedObject(std::move(other))
-{
-}
-
 	
 Credentials& Credentials::operator = (const Credentials& other)
 {
 	AttributedObject::operator = (other);
-	return *this;
-}
-
-
-Credentials& Credentials::operator = (Credentials&& other) noexcept
-{
-	AttributedObject::operator = (std::move(other));
 	return *this;
 }
 

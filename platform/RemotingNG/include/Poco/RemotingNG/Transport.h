@@ -87,8 +87,8 @@ class RemotingNG_API Transport: public AttributedObject, public Poco::RefCounted
 	/// well-defined state.
 {
 public:
-	using Ptr = Poco::AutoPtr<Transport>;
-	using NameValueMap = std::map<std::string,std::string>;
+	typedef Poco::AutoPtr<Transport> Ptr;
+	typedef std::map<std::string,std::string> NameValueMap;
 
 	Transport();
 		/// Creates a Transport.

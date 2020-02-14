@@ -69,8 +69,8 @@ public:
 		AUTH_ALL     = AUTH_BASIC | AUTH_SESSION | AUTH_BEARER
 	};
 
-	using RequestHandlerFactoryPtr = Poco::SharedPtr<Poco::Net::HTTPRequestHandlerFactory>;
-	using RegularExpressionPtr = Poco::SharedPtr<Poco::RegularExpression>;
+	typedef Poco::SharedPtr<Poco::Net::HTTPRequestHandlerFactory> RequestHandlerFactoryPtr;
+	typedef Poco::SharedPtr<Poco::RegularExpression> RegularExpressionPtr;
 
 	struct PathSecurity
 		/// Security attributes for a registered path.
@@ -199,12 +199,12 @@ public:
 		std::string corsAllowedOrigin;
 	};
 
-	using PathMap = std::map<std::string, VirtualPath>;
-	using PathInfoMap = std::map<std::string, PathInfo>;
-	using PatternVec = std::vector<VirtualPath>;
+	typedef std::map<std::string, VirtualPath> PathMap;
+	typedef std::map<std::string, PathInfo> PathInfoMap;
+	typedef std::vector<VirtualPath> PatternVec;
 
-	using WebFilterPtr = Poco::SharedPtr<WebFilter>;
-	using WebFilterFactoryPtr = Poco::SharedPtr<WebFilterFactory>;
+	typedef Poco::SharedPtr<WebFilter> WebFilterPtr;
+	typedef Poco::SharedPtr<WebFilterFactory> WebFilterFactoryPtr;
 
 	explicit WebServerDispatcher(const Config& config);
 		/// Creates the WebServerDispatcher.
@@ -385,8 +385,8 @@ private:
 		WebFilterFactoryPtr pFactory;
 		WebFilter::Args args;
 	};
-	using FilterFactoryMap = std::map<std::string, WebFilterFactoryInfo>;
-	using ResourceCache = std::map<std::string, std::string>;
+	typedef std::map<std::string, WebFilterFactoryInfo> FilterFactoryMap;
+	typedef std::map<std::string, std::string> ResourceCache;
 
 	BundleContext::Ptr _pContext;
 	MediaTypeMapper::Ptr _pMediaTypeMapper;

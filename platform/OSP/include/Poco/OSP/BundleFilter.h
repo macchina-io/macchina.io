@@ -37,7 +37,7 @@ class OSP_API BundleFilter: public Poco::RefCountedObject
 	/// loaded.
 {
 public:
-	using Ptr = Poco::AutoPtr<BundleFilter>;
+	typedef Poco::AutoPtr<BundleFilter> Ptr;
 
 	virtual bool accept(Bundle::Ptr pBundle) = 0;
 		/// Check whether the given Bundle should be
@@ -45,7 +45,7 @@ public:
 		///
 		/// Returns true if given Bundle should be loaded,
 		/// or false otherwise.
-
+		
 	virtual ~BundleFilter();
 		/// Destroys the BundleFilter.
 };

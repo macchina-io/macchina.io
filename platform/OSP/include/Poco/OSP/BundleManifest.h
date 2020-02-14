@@ -37,22 +37,22 @@ class OSP_API BundleManifest: public Poco::RefCountedObject
 	/// manifest of a bundle.
 {
 public:
-	using Ptr = Poco::AutoPtr<BundleManifest>;
-	using ConstPtr = const Ptr;
+	typedef Poco::AutoPtr<BundleManifest> Ptr;
+	typedef const Ptr ConstPtr;
 
 	struct Dependency
 	{
 		std::string  symbolicName;
 		VersionRange versions;
 	};
-	using Dependencies = std::vector<Dependency>;
+	typedef std::vector<Dependency> Dependencies;
 
     struct Module
     {
     	std::string symbolicName;
     	Version version;
     };
-    using Modules = std::vector<Module>;
+    typedef std::vector<Module> Modules;
 
 	BundleManifest(std::istream& istr);
 		/// Creates the BundleManifest by parsing the

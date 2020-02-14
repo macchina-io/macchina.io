@@ -104,7 +104,7 @@ class RemotingNG_API Authenticator: public Poco::RefCountedObject
 	/// be able to handle multiple authentication conversations simultaneously.
 {
 public:
-	using Ptr = Poco::AutoPtr<Authenticator>;
+	typedef Poco::AutoPtr<Authenticator> Ptr;
 
 	Authenticator();
 		/// Creates the Authenticator.

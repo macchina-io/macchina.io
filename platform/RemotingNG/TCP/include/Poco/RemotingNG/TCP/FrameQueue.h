@@ -35,12 +35,12 @@ class RemotingNGTCP_API FrameQueue: public FrameHandler
 	/// A queue of frames.
 {
 public:
-	using Ptr = Poco::AutoPtr<FrameQueue>;
+	typedef Poco::AutoPtr<FrameQueue> Ptr;
 
 	FrameQueue(Connection::Ptr pConnection, Poco::UInt32 frameType, Poco::UInt32 channel);
 		/// Creates the FrameQueue, accepting frames having the
 		/// given type and channel.
-
+		
 	~FrameQueue();
 		/// Destroys the FrameQueue.
 
@@ -58,9 +58,9 @@ private:
 	{
 		MAX_QUEUE_SIZE = 256
 	};
-
-	using FrameDeque = std::deque<Frame::Ptr>;
-
+	
+	typedef std::deque<Frame::Ptr> FrameDeque;
+	
 	Connection::Ptr _pConnection;
 	Poco::UInt32 _frameType;
 	Poco::UInt32 _channel;

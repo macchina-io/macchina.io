@@ -39,8 +39,8 @@ class RemotingNG_API Skeleton: public AttributedObject, public Poco::RefCountedO
 	/// to the correct service object method, using MethodHandler objects.
 {
 public:
-	using Ptr = Poco::AutoPtr<Skeleton>;
-	using MethodHandlers = std::map<std::string, MethodHandler::Ptr>;
+	typedef Poco::AutoPtr<Skeleton> Ptr;
+	typedef std::map<std::string, MethodHandler::Ptr> MethodHandlers;
 
 	Skeleton();
 		/// Creates a Skeleton.

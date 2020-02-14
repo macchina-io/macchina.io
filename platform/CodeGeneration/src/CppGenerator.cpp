@@ -122,7 +122,7 @@ void CppGenerator::writeNameSpaceBegin(const std::string& nameSpace)
 void CppGenerator::writeNameSpaceBegin(const std::string& nameSpace, bool toHeaderOnly)
 {
 	_hOut << "\n\n";
-
+	
 	if (!nameSpace.empty())
 	{
 		Poco::StringTokenizer aTok(nameSpace, ":", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
@@ -172,7 +172,7 @@ void CppGenerator::writeFwdDecls(const CodeGenerator::FwdDecls& decl)
 				// fwd decl in template? not always possible/meaningful
 				_hOut << "#include \"" << itFwd->includeFile << "\"\n";
 			}
-			else
+			else 
 			{
 				if (lastNS != itFwd->fullNameSpace)
 				{
@@ -471,7 +471,7 @@ void CppGenerator::writeImplementation(const std::string& code)
 		_cppOut << code << "\n";
 	}
 }
-
+		
 
 void CppGenerator::writeMethodImplementationImpl(const std::string& code, std::ostream& out)
 {
@@ -512,7 +512,7 @@ void CppGenerator::variable(const Poco::CppParser::Variable* pVar)
 {
 	handleAccessChange(pVar->getAccess());
 	std::ostream& out = _pStruct->isInline()? _cppOut : _hOut;
-
+	
 	if (_attributesEnabled)
 	{
 		const Poco::CppParser::Attributes& attrs = pVar->attrs();
@@ -528,18 +528,6 @@ void CppGenerator::variablesEnd()
 
 
 void CppGenerator::writeTypeDef(const Poco::CppParser::TypeDef* pType)
-{
-	if (!pType)
-	{
-		_hOut << std::endl;
-		return;
-	}
-	handleAccessChange(pType->getAccess());
-	_hOut << "\t" << pType->declaration() << ";" << std::endl;
-}
-
-
-void CppGenerator::writeUsing(const Poco::CppParser::TypeAlias* pType)
 {
 	if (!pType)
 	{
@@ -610,7 +598,7 @@ void CppGenerator::handleMemberInitInConstructor(const Poco::CppParser::Function
 
 	Poco::CppParser::Struct::BaseIterator itB = _pStruct->baseBegin();
 	Poco::CppParser::Struct::BaseIterator itBEnd = _pStruct->baseEnd();
-
+	
 	it = vars.begin();
 	itEnd = vars.end();
 	if (itB != itBEnd || it != itEnd)
@@ -659,7 +647,7 @@ void CppGenerator::handleMemberInitInConstructor(const Poco::CppParser::Function
 				Poco::CppParser::Function::Iterator itPEnd = pBestConstr->end();
 				Poco::CppParser::Function::Iterator itPBeforeEnd = itPEnd;
 				--itPBeforeEnd;
-
+				
 				for (; itP != itPEnd; ++itP)
 				{
 					out << (*itP)->name();
@@ -682,7 +670,7 @@ void CppGenerator::handleMemberInitInConstructor(const Poco::CppParser::Function
 	}
 
 	// now search for each member in pFunc, the matching member in vars
-
+	
 	bool first = true;
 	for (; it != itEnd; ++it)
 	{
@@ -691,7 +679,7 @@ void CppGenerator::handleMemberInitInConstructor(const Poco::CppParser::Function
 			out << ",\n";
 		}
 		const Poco::CppParser::Variable* pVar = static_cast<const Poco::CppParser::Variable*>(it->second);
-
+		
 		out << "\t" << pVar->name() << "(";
 		// is there a matching member in pFunc?
 		// we assume that the only difference between member vars and init vars name is a "_"
@@ -727,7 +715,7 @@ void CppGenerator::handleMemberInitInConstructor(const Poco::CppParser::Function
 		else if (pVar->isPointer())
 			out << "0";
 		out << ")";
-
+		
 		first = false;
 	}
 }
@@ -737,7 +725,7 @@ const Poco::CppParser::Parameter* CppGenerator::findParameter(const Poco::CppPar
 {
 	Poco::CppParser::Function::Iterator it = pFunc->begin();
 	Poco::CppParser::Function::Iterator itEnd = pFunc->end();
-
+	
 	for (; it != itEnd; ++it)
 	{
 		if ((*it)->name() == paramName)
@@ -753,7 +741,7 @@ bool CppGenerator::findMatchingDecl(const Poco::CppParser::Function* pParentFunc
 	std::string resDT(Utility::resolveType(_pStruct->nameSpace(), pParam->declType()));
 	Poco::CppParser::Function::Iterator it = pParentFunc->begin();
 	Poco::CppParser::Function::Iterator itEnd = pParentFunc->end();
-
+	
 	for (; it != itEnd; ++it)
 	{
 		std::string res(Utility::resolveType(_pStruct, (*it)->declType()));

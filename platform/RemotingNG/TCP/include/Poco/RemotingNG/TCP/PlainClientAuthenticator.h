@@ -34,17 +34,17 @@ class RemotingNGTCP_API PlainClientAuthenticator: public ClientAuthenticator
 	/// should only be used over an encrypted transport.
 {
 public:
-	using Ptr = Poco::AutoPtr<PlainClientAuthenticator>;
+	typedef Poco::AutoPtr<PlainClientAuthenticator> Ptr;
 
 	static const std::string PLAIN;
 		/// The name of the mechanism is "PLAIN".
-
+	
 	PlainClientAuthenticator();
 		/// Creates the PlainClientAuthenticator.
-
+		
 	~PlainClientAuthenticator();
 		/// Destroys the PlainClientAuthenticator.
-
+	
 	// ClientAuthenticator
 	std::string startAuthentication(Credentials& clientCredentials);
 	bool continueAuthentication(const Credentials& serverCredentials, Credentials& clientCredentials);

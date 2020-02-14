@@ -221,7 +221,7 @@ void BundleTest::testProperties()
 
 	assert (pBundle->properties().getString("greeting") == "Hello, world!");
 
-	std::unique_ptr<std::istream> pStream(pBundle->getResource("lang.txt"));
+	std::auto_ptr<std::istream> pStream(pBundle->getResource("lang.txt"));
 	assert (pStream.get() != 0);
 	std::string s;
 	*pStream >> s;
@@ -250,7 +250,7 @@ void BundleTest::testPropertiesLocalization1()
 
 	assert (pBundle->properties().getString("greeting") == "Servus!");
 
-	std::unique_ptr<std::istream> pStream(pBundle->getLocalizedResource("lang.txt"));
+	std::auto_ptr<std::istream> pStream(pBundle->getLocalizedResource("lang.txt"));
 	assert (pStream.get() != 0);
 	std::string s;
 	*pStream >> s;
@@ -279,7 +279,7 @@ void BundleTest::testPropertiesLocalization2()
 
 	assert (pBundle->properties().getString("greeting") == "Guten Tag!");
 
-	std::unique_ptr<std::istream> pStream(pBundle->getLocalizedResource("lang.txt"));
+	std::auto_ptr<std::istream> pStream(pBundle->getLocalizedResource("lang.txt"));
 	assert (pStream.get() != 0);
 	std::string s;
 	*pStream >> s;
@@ -308,7 +308,7 @@ void BundleTest::testBundleFile()
 
 	assert (pBundle->properties().getString("greeting") == "Guten Tag!");
 
-	std::unique_ptr<std::istream> pStream(pBundle->getLocalizedResource("lang.txt"));
+	std::auto_ptr<std::istream> pStream(pBundle->getLocalizedResource("lang.txt"));
 	assert (pStream.get() != 0);
 	std::string s;
 	*pStream >> s;
@@ -683,13 +683,13 @@ void BundleTest::testExtensionBundle()
 
 	assert (pBundle2->properties().getString("greeting") == "Bonjour!");
 
-	std::unique_ptr<std::istream> pStream(pBundle2->getLocalizedResource("lang.txt"));
+	std::auto_ptr<std::istream> pStream(pBundle2->getLocalizedResource("lang.txt"));
 	assert (pStream.get() != 0);
 	std::string s;
 	*pStream >> s;
 	assert (s == "fr-FR");
 
-	std::unique_ptr<std::istream> pStream2(pBundle2->getLocalizedResource("lang.txt", LanguageTag("de", "AT")));
+	std::auto_ptr<std::istream> pStream2(pBundle2->getLocalizedResource("lang.txt", LanguageTag("de", "AT")));
 	assert (pStream2.get() != 0);
 	*pStream2 >> s;
 	assert (s == "de-AT");

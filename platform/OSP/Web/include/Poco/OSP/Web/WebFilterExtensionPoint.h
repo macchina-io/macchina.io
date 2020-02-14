@@ -51,7 +51,7 @@ class OSPWeb_API WebFilterExtensionPoint: public ExtensionPoint
 	///    * mediaType:   The media type this filter applies to. Every resource having
 	///                   this media type will be passed to the filter.
 	///    * class: the class name of the request handler factory.
-	///    * library: the name of the shared library containing the request handler factory.
+	///    * library: the name of the shared library containing the request handler factory. 
 	///
 	/// Any additional attributes are passed to the factory's createFilter() method.
 {
@@ -81,12 +81,12 @@ protected:
 
 private:
 	WebFilterExtensionPoint();
-
-	using FactoryPtr = Poco::SharedPtr<WebFilterFactory>;
-	using Loader = Poco::ClassLoader<WebFilterFactory>;
-	using LibBundleMap = std::map<std::string, Bundle::Ptr>;
-	using BundleFilterMap = std::multimap<Bundle::Ptr, std::string>;
-
+	
+	typedef Poco::SharedPtr<WebFilterFactory> FactoryPtr;
+	typedef Poco::ClassLoader<WebFilterFactory> Loader;
+	typedef std::map<std::string, Bundle::Ptr> LibBundleMap;
+	typedef std::multimap<Bundle::Ptr, std::string> BundleFilterMap;
+	
 	BundleContext::Ptr   _pContext;
 	WebServerDispatcher* _pDispatcher;
 	Loader               _loader;

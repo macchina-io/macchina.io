@@ -35,9 +35,9 @@
 #include <vector>
 #include <list>
 #include <set>
-#include <unordered_set>
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
 #include <array>
-#include <memory>
+#endif
 
 
 namespace Poco {
@@ -73,7 +73,7 @@ private:
 
 
 template <typename T>
-class TypeSerializer<std::vector<T>>
+class TypeSerializer<std::vector<T> >
 {
 public:
 	static void serialize(const std::string& name, const std::vector<T>& value, Serializer& ser)
@@ -85,16 +85,18 @@ public:
 
 	static void serializeImpl(const std::string& name, const std::vector<T>& value, Serializer& ser)
 	{
-		for (const auto& v: value)
+		typename std::vector<T>::const_iterator it = value.begin();
+		typename std::vector<T>::const_iterator itEnd = value.end();
+		for (; it != itEnd; ++it)
 		{
-			TypeSerializer<T>::serialize(name, v, ser);
+			TypeSerializer<T>::serialize(name, *it, ser);
 		}
 	}
 };
 
 
 template <typename T, std::size_t N>
-class TypeSerializer<Poco::Array<T, N>>
+class TypeSerializer<Poco::Array<T, N> >
 {
 public:
 	static void serialize(const std::string& name, const Poco::Array<T, N>& value, Serializer& ser)
@@ -106,16 +108,21 @@ public:
 
 	static void serializeImpl(const std::string& name, const Poco::Array<T, N>& value, Serializer& ser)
 	{
-		for (const auto& v: value)
+		typename Poco::Array<T, N>::const_iterator it = value.begin();
+		typename Poco::Array<T, N>::const_iterator itEnd = value.end();
+		for (; it != itEnd; ++it)
 		{
-			TypeSerializer<T>::serialize(name, v, ser);
+			TypeSerializer<T>::serialize(name, *it, ser);
 		}
 	}
 };
 
 
+#ifdef POCO_REMOTING_HAVE_STD_ARRAY
+
+
 template <typename T, std::size_t N>
-class TypeSerializer<std::array<T, N>>
+class TypeSerializer<std::array<T, N> >
 {
 public:
 	static void serialize(const std::string& name, const std::array<T, N>& value, Serializer& ser)
@@ -127,16 +134,21 @@ public:
 
 	static void serializeImpl(const std::string& name, const std::array<T, N>& value, Serializer& ser)
 	{
-		for (const auto& v: value)
+		typename std::array<T, N>::const_iterator it = value.begin();
+		typename std::array<T, N>::const_iterator itEnd = value.end();
+		for (; it != itEnd; ++it)
 		{
-			TypeSerializer<T>::serialize(name, v, ser);
+			TypeSerializer<T>::serialize(name, *it, ser);
 		}
 	}
 };
 
 
+#endif // POCO_REMOTING_HAVE_STD_ARRAY
+
+
 template <typename T>
-class TypeSerializer<std::list<T>>
+class TypeSerializer<std::list<T> >
 {
 public:
 	static void serialize(const std::string& name, const std::list<T>& value, Serializer& ser)
@@ -148,16 +160,18 @@ public:
 
 	static void serializeImpl(const std::string& name, const std::list<T>& value, Serializer& ser)
 	{
-		for (const auto& v: value)
+		typename std::list<T>::const_iterator it = value.begin();
+		typename std::list<T>::const_iterator itEnd = value.end();
+		for (; it != itEnd; ++it)
 		{
-			TypeSerializer<T>::serialize(name, v, ser);
+			TypeSerializer<T>::serialize(name, *it, ser);
 		}
 	}
 };
 
 
 template <typename T>
-class TypeSerializer<std::set<T>>
+class TypeSerializer<std::set<T> >
 {
 public:
 	static void serialize(const std::string& name, const std::set<T>& value, Serializer& ser)
@@ -169,16 +183,18 @@ public:
 
 	static void serializeImpl(const std::string& name, const std::set<T>& value, Serializer& ser)
 	{
-		for (const auto& v: value)
+		typename std::set<T>::const_iterator it = value.begin();
+		typename std::set<T>::const_iterator itEnd = value.end();
+		for (; it != itEnd; ++it)
 		{
-			TypeSerializer<T>::serialize(name, v, ser);
+			TypeSerializer<T>::serialize(name, *it, ser);
 		}
 	}
 };
 
 
 template <typename T>
-class TypeSerializer<std::multiset<T>>
+class TypeSerializer<std::multiset<T> >
 {
 public:
 	static void serialize(const std::string& name, const std::multiset<T>& value, Serializer& ser)
@@ -190,58 +206,18 @@ public:
 
 	static void serializeImpl(const std::string& name, const std::multiset<T>& value, Serializer& ser)
 	{
-		for (const auto& v: value)
+		typename std::multiset<T>::const_iterator it = value.begin();
+		typename std::multiset<T>::const_iterator itEnd = value.end();
+		for (; it != itEnd; ++it)
 		{
-			TypeSerializer<T>::serialize(name, v, ser);
+			TypeSerializer<T>::serialize(name, *it, ser);
 		}
 	}
 };
 
 
 template <typename T>
-class TypeSerializer<std::unordered_set<T>>
-{
-public:
-	static void serialize(const std::string& name, const std::unordered_set<T>& value, Serializer& ser)
-	{
-		ser.serializeSequenceBegin(name, static_cast<Poco::UInt32>(value.size()));
-		serializeImpl(name, value, ser);
-		ser.serializeSequenceEnd(name);
-	}
-
-	static void serializeImpl(const std::string& name, const std::unordered_set<T>& value, Serializer& ser)
-	{
-		for (const auto& v: value)
-		{
-			TypeSerializer<T>::serialize(name, v, ser);
-		}
-	}
-};
-
-
-template <typename T>
-class TypeSerializer<std::unordered_multiset<T>>
-{
-public:
-	static void serialize(const std::string& name, const std::unordered_multiset<T>& value, Serializer& ser)
-	{
-		ser.serializeSequenceBegin(name, static_cast<Poco::UInt32>(value.size()));
-		serializeImpl(name, value, ser);
-		ser.serializeSequenceEnd(name);
-	}
-
-	static void serializeImpl(const std::string& name, const std::unordered_multiset<T>& value, Serializer& ser)
-	{
-		for (const auto& v: value)
-		{
-			TypeSerializer<T>::serialize(name, v, ser);
-		}
-	}
-};
-
-
-template <typename T>
-class TypeSerializer<Poco::Nullable<T>>
+class TypeSerializer<Poco::Nullable<T> >
 {
 public:
 	static void serialize(const std::string& name, const Poco::Nullable<T>& value, Serializer& ser)
@@ -257,7 +233,7 @@ public:
 
 
 template <typename T>
-class TypeSerializer<Poco::Optional<T>>
+class TypeSerializer<Poco::Optional<T> >
 {
 public:
 	static void serialize(const std::string& name, const Poco::Optional<T>& value, Serializer& ser)
@@ -273,7 +249,7 @@ public:
 
 
 template <typename T>
-class TypeSerializer<Poco::AutoPtr<T>>
+class TypeSerializer<Poco::AutoPtr<T> >
 {
 public:
 	static void serialize(const std::string& name, Poco::AutoPtr<T> value, Serializer& ser)
@@ -294,52 +270,10 @@ public:
 
 
 template <typename T>
-class TypeSerializer<Poco::SharedPtr<T>>
+class TypeSerializer<Poco::SharedPtr<T> >
 {
 public:
 	static void serialize(const std::string& name, Poco::SharedPtr<T> value, Serializer& ser)
-	{
-		if (value)
-		{
-			ser.serializeNullableBegin(name, false);
-			TypeSerializer<T>::serialize(name, *value, ser);
-			ser.serializeNullableEnd(name);
-		}
-		else
-		{
-			ser.serializeNullableBegin(name, true);
-			ser.serializeNullableEnd(name);
-		}
-	}
-};
-
-
-template <typename T>
-class TypeSerializer<std::unique_ptr<T>>
-{
-public:
-	static void serialize(const std::string& name, std::unique_ptr<T> value, Serializer& ser)
-	{
-		if (value)
-		{
-			ser.serializeNullableBegin(name, false);
-			TypeSerializer<T>::serialize(name, *value, ser);
-			ser.serializeNullableEnd(name);
-		}
-		else
-		{
-			ser.serializeNullableBegin(name, true);
-			ser.serializeNullableEnd(name);
-		}
-	}
-};
-
-
-template <typename T>
-class TypeSerializer<std::shared_ptr<T>>
-{
-public:
-	static void serialize(const std::string& name, std::shared_ptr<T> value, Serializer& ser)
 	{
 		if (value)
 		{
@@ -381,7 +315,7 @@ public:
 
 
 template <>
-class TypeSerializer<std::vector<char>>
+class TypeSerializer<std::vector<char> >
 {
 public:
 	static void serialize(const std::string& name, const std::vector<char>& value, Serializer& ser)

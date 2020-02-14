@@ -40,7 +40,7 @@ class RemotingNG_API MethodHandler: public Poco::RefCountedObject
 	/// together with the Skeleton class, which manages them.
 {
 public:
-	using Ptr = Poco::AutoPtr<MethodHandler>;
+	typedef Poco::AutoPtr<MethodHandler> Ptr;
 
 	MethodHandler();
 		/// Creates a MethodHandler.

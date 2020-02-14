@@ -57,8 +57,8 @@ class OSP_API BundleLoader
 	/// write diagnostic messages.
 {
 public:
-	using ActivatorClassLoader = Poco::ClassLoader<BundleActivator>;
-	using ActivatorClassLoaderPtr = Poco::SharedPtr<ActivatorClassLoader>;
+	typedef Poco::ClassLoader<BundleActivator> ActivatorClassLoader;
+	typedef Poco::SharedPtr<ActivatorClassLoader> ActivatorClassLoaderPtr;
 
 	struct BundleInfo
 	{
@@ -66,8 +66,8 @@ public:
 		BundleContext::Ptr      pContext;
 		ActivatorClassLoaderPtr pClassLoader;
 	};
-	using BundleMap = std::map<std::string, BundleInfo>;
-	using BundleSet = std::set<Bundle*>;
+	typedef std::map<std::string, BundleInfo> BundleMap;
+	typedef std::set<Bundle*> BundleSet;
 
 	struct BundleError
 	{
@@ -189,7 +189,7 @@ public:
 		/// Returns a new unique bundle ID.
 
 #if defined(POCO_OSP_STATIC)
-	using BundleActivatorFactory = Poco::AbstractInstantiator<BundleActivator>;
+	typedef Poco::AbstractInstantiator<BundleActivator> BundleActivatorFactory;
 
 	void registerBundleActivator(const std::string& className, BundleActivatorFactory* pFactory);
 		/// Registers a factory object for the BundleActivator with the given class name.
@@ -296,7 +296,7 @@ private:
 	BundleLoader(const BundleLoader&);
 	BundleLoader& operator = (const BundleLoader&);
 
-	using BundleIdMap = std::map<int, Bundle::Ptr>;
+	typedef std::map<int, Bundle::Ptr> BundleIdMap;
 
 	int                       _nextBundleId;
 	CodeCache&                _codeCache;
@@ -314,7 +314,7 @@ private:
 	mutable Poco::Mutex       _mutex;
 
 #if defined(POCO_OSP_STATIC)
-	using BundleActivatorFactoryMap = std::map<std::string, BundleActivatorFactory*>;
+	typedef std::map<std::string, BundleActivatorFactory*> BundleActivatorFactoryMap;
 
 	BundleActivatorFactoryMap _bundleActivatorFactories;
 #endif

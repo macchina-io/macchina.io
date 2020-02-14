@@ -29,7 +29,9 @@ class TypeSerializer<WeatherWS::ArrayOfWeatherDescription>
 public:
 	static void serialize(const std::string& name, const WeatherWS::ArrayOfWeatherDescription& value, Serializer& ser)
 	{
+		remoting__staticInitBegin(REMOTING__NAMESPACE);
 		static const std::string REMOTING__NAMESPACE("http://ws.cdyne.com/WeatherWS/");
+		remoting__staticInitEnd(REMOTING__NAMESPACE);
 		ser.registerNamespace(REMOTING__NAMESPACE);
 		ser.serializeStructBegin(name);
 		ser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMESPACE);
@@ -40,7 +42,9 @@ public:
 
 	static void serializeImpl(const WeatherWS::ArrayOfWeatherDescription& value, Serializer& ser)
 	{
+		remoting__staticInitBegin(REMOTING__NAMES);
 		static const std::string REMOTING__NAMES[] = {"WeatherDescription",""};
+		remoting__staticInitEnd(REMOTING__NAMES);
 		TypeSerializer<std::vector < WeatherWS::WeatherDescription > >::serialize(REMOTING__NAMES[0], value.getWeatherDescription(), ser);
 	}
 

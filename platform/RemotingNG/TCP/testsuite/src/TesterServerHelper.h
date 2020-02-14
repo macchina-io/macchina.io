@@ -24,7 +24,7 @@
 class TesterServerHelper
 {
 public:
-	using Service = Tester;
+	typedef Tester Service;
 
 	TesterServerHelper();
 		/// Creates a TesterServerHelper.

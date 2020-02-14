@@ -5,7 +5,7 @@
     <symbolicName>com.appinf.osp.samples.auth</symbolicName>
     <version>1.0.2</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2007-2020, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2007-2019, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>SimpleAuthServiceBundleActivator</class>
       <library>com.appinf.osp.samples.auth</library>

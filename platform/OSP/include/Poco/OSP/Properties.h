@@ -155,7 +155,7 @@ protected:
 		}
 	};
 
-	using PropsMap = std::map<std::string, std::string, ILT>;
+	typedef std::map<std::string, std::string, ILT> PropsMap;
 
 	static const std::string PROP_TRUE;
 	static const std::string PROP_FALSE;

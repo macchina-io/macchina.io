@@ -54,8 +54,8 @@ class OSP_API ServiceListener: public Poco::RefCountedObject
 	/// is immediately called for each service.
 {
 public:
-	using Ptr = Poco::AutoPtr<ServiceListener>;
-	using ConstPtr = const Ptr;
+	typedef Poco::AutoPtr<ServiceListener> Ptr;
+	typedef const Ptr ConstPtr;
 
 	Poco::BasicEvent<const ServiceRef::Ptr> serviceRegistered;
 		/// Fired when a service matching the query string has

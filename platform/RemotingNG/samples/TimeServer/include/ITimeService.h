@@ -27,7 +27,7 @@ namespace Services {
 class ITimeService: public virtual Poco::RefCountedObject
 {
 public:
-	using Ptr = Poco::AutoPtr<ITimeService>;
+	typedef Poco::AutoPtr<ITimeService> Ptr;
 
 	ITimeService();
 		/// Creates a ITimeService.
