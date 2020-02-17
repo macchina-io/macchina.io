@@ -543,10 +543,25 @@ void RecordSetWrapper::toJSON(const v8::FunctionCallbackInfo<v8::Value>& args)
 	RecordSetHolder* pRecordSetHolder = Wrapper::unwrapNative<RecordSetHolder>(args);
 	if (!pRecordSetHolder->isOpen()) return;
 
-	pRecordSetHolder->recordSet().setRowFormatter(new JSONFormatter);
-	std::ostringstream ostr;
-	ostr << pRecordSetHolder->recordSet();
-	returnString(args, ostr.str());
+	try
+	{
+		Poco::Data::RecordSet& rs = pRecordSetHolder->recordSet();
+		if (rs.begin() != rs.end())
+		{
+			rs.setRowFormatter(new JSONFormatter);
+			std::ostringstream ostr;
+			ostr << rs;
+			returnString(args, ostr.str());
+		}
+		else
+		{
+			returnString(args, "[]"s);
+		}
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
 }
 
 
