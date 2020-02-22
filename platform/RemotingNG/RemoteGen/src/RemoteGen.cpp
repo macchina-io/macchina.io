@@ -1,7 +1,7 @@
 //
 // RemoteGen.cpp
 //
-// Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2006-2020, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -110,6 +110,8 @@ public:
 protected:
 	void initialize(Application& self)
 	{
+		loadConfiguration();
+
 		Application::initialize(self);
 		AbstractGenerator::EError += Poco::Delegate<RemoteGenApp, const std::string>(this, &RemoteGenApp::onError);
 	}
@@ -173,7 +175,7 @@ protected:
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleCompiler)));
 
 		options.addOption(
-			Option("osp", "o", "Create services for Applied Informatics Open Service Platform.")
+			Option("osp", "o", "Create services for Applied Informatics Open Service Platform (OSP).")
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleOSP)));
@@ -267,10 +269,11 @@ protected:
 		}
 		compilerKey += "]";
 		std::string compiler = config().getString(compilerKey + ".exec", "");
-		std::string opts = config().getString(compilerKey + ".options", "");
 		std::string path = config().getString(compilerKey + ".path", "");
+		std::string sysIncludes = config().getString("RemoteGen.system.include", "");
 		std::string includes = config().getString("RemoteGen.files.include");
 		std::string excludes = config().getString("RemoteGen.files.exclude", "");
+		std::string includePaths = config().getString("RemoteGen.files.include-paths", "");
 		_enableOSP = _enableOSP || config().getBool("RemoteGen.output.osp.enable", false);
 		_bundlePath = config().getString("RemoteGen.output.bundle", _bundlePath);
 		_bundleActivator = config().getString("RemoteGen.output.osp.bundleActivator", "");
@@ -281,19 +284,41 @@ protected:
 		if (config().hasProperty("RemoteGen.output.namespace"))
 			checkNameSpaceExists(config().getString("RemoteGen.output.namespace"));
 
-		StringTokenizer incTokenizer(includes, ",;\n", StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
 		std::vector<std::string> inc;
-		for (StringTokenizer::Iterator it = incTokenizer.begin(); it != incTokenizer.end(); ++it)
+		StringTokenizer sysIncludesTokenizer(sysIncludes, ",;\n", StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
+		for (const auto& p: sysIncludesTokenizer)
 		{
-			inc.push_back(Poco::Path::expand(*it));
+			inc.push_back(Poco::Path::expand(p));
 		}
-		StringTokenizer excTokenizer(excludes, ",;\n", StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
-		std::vector<std::string> exc;
-		for (StringTokenizer::Iterator it = excTokenizer.begin(); it != excTokenizer.end(); ++it)
+		StringTokenizer includesTokenizer(includes, ",;\n", StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
+		for (const auto& p: includesTokenizer)
 		{
-			exc.push_back(Poco::Path::expand(*it));
+			inc.push_back(Poco::Path::expand(p));
+		}
+		std::vector<std::string> exc;
+		StringTokenizer excludesTokenizer(excludes, ",;\n", StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
+		for (const auto& p: excludesTokenizer)
+		{
+			exc.push_back(Poco::Path::expand(p));
 		}
 
+		std::string gccIncludes;
+		std::string msvcIncludes;
+		StringTokenizer includePathsTokenizer(includePaths, ",;\n", StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
+		for (const auto& p: includePathsTokenizer)
+		{
+			Poco::Path fullPath(Poco::Path::expand(p));
+			gccIncludes += "-I;";
+			gccIncludes += fullPath.toString();
+			gccIncludes += ";";
+			msvcIncludes += "/I;";
+			msvcIncludes += fullPath.toString();
+			msvcIncludes += ";";
+		}
+		config().setString("RemoteGen.internal.gcc.includes", gccIncludes);
+		config().setString("RemoteGen.internal.msvc.includes", msvcIncludes);
+
+		std::string opts = config().getString(compilerKey + ".options", "");
 		Poco::CppParser::Utility::parseDir(inc, exc, _gst, compiler, opts, path);
 
 		// now generate the code
@@ -920,7 +945,7 @@ protected:
 					loadConfiguration(*it);
 				}
 
-				if (config().hasProperty("RemoteGen"))
+				if (config().hasProperty("RemoteGen.files.include"))
 				{
 					generateAll();
 				}

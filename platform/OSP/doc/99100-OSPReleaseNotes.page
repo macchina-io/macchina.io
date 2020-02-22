@@ -13,6 +13,7 @@ Open Service Platform
     extension point attributes.
   - OSP Auth: added support for "inline" user attributes, which are attributes directly
     stored in the auth_user table.
+  - Performance improvements due to use of C++14 features such as std::string literals.
 
 !!Known Issues
 

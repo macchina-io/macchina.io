@@ -2,9 +2,6 @@
 	<RemoteGen>
 		<files>
 			<include>
-				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/RemoteObject.h
-				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Proxy.h
-				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Skeleton.h
 				include/Pizzeria/PizzaDeliveryService.h
 				include/Pizzeria/PizzaPickupService.h
 				include/Pizzeria/Pizza.h
@@ -14,8 +11,9 @@
 				include/Pizzeria/DeliveryAddress.h
 				include/Pizzeria/DeliveryAddressDetails.h
 			</include>
-			<exclude>
-			</exclude>
+			<include-paths>
+				include
+			</include-paths>
 		</files>
 		<output>
 			<include>include/Pizzeria</include>
@@ -23,49 +21,9 @@
 			<src>src</src>
 			<namespace>Pizzeria</namespace>
 			<schema>wsdl</schema>
-			<copyright>Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.</copyright>
+			<copyright>Copyright (c) 2006-2020, Applied Informatics Software Engineering GmbH.</copyright>
 			<mode>client</mode>
 			<timestamps>false</timestamps>
 		</output>
-		<compiler id="gcc">
-			<exec>g++</exec>
-			<options>
-				-I${POCO_BASE}/Foundation/include
-				-I${POCO_BASE}/RemotingNG/include
-				-I./include
-				-E
-				-C
-				-DPOCO_NO_GCC_API_ATTRIBUTE
-				-o%.i
-			</options>
-		</compiler>
-		<compiler id="clang">
-			<exec>clang++</exec>
-			<options>
-				-I${POCO_BASE}/Foundation/include
-				-I${POCO_BASE}/RemotingNG/include
-				-I./include
-				-E
-				-C
-				-DPOCO_NO_GCC_API_ATTRIBUTE
-				-xc++
-				-o%.i
-			</options>
-		</compiler>
-		<compiler id="msvc">
-			<exec>cl</exec>
-			<options>
-				/I 
-				"${POCO_BASE}\Foundation\include"
-				/I 
-				"${POCO_BASE}\RemotingNG\include"
-				/I 
-				".\include"
-				/nologo
-				/C
-				/P
-				/TP
-			</options>
-		</compiler>
 	</RemoteGen>
 </AppConfig>

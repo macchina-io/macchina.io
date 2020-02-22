@@ -1,0 +1,56 @@
+<AppConfig>
+	<RemoteGen>
+		<system>
+			<include>
+				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/RemoteObject.h
+				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Proxy.h
+				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Skeleton.h
+				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/EventDispatcher.h
+				${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/EventSubscriber.h
+			</include>
+		</system>
+		<compiler id="gcc">
+			<exec>g++</exec>
+			<options>
+				-I
+				${POCO_BASE}/Foundation/include
+				-I
+				${POCO_BASE}/RemotingNG/include
+				${RemoteGen.internal.gcc.includes}
+				-E
+				-C
+				-DPOCO_NO_GCC_API_ATTRIBUTE
+				-o%.i
+			</options>
+		</compiler>
+		<compiler id="clang">
+			<exec>clang++</exec>
+			<options>
+				-I
+				${POCO_BASE}/Foundation/include
+				-I
+				${POCO_BASE}/RemotingNG/include
+				${RemoteGen.internal.gcc.includes}
+				-E
+				-C
+				-DPOCO_NO_GCC_API_ATTRIBUTE
+				-xc++
+				-o%.i
+			</options>
+		</compiler>
+		<compiler id="msvc">
+			<exec>cl</exec>
+			<options>
+				/I
+				${POCO_BASE}\Foundation\include
+				/I
+				${POCO_BASE}\RemotingNG\include
+				${RemoteGen.internal.msvc.includes}
+				/nologo
+				/C
+				/P
+				/TP
+			</options>
+		</compiler>
+	</RemoteGen>
+</AppConfig>

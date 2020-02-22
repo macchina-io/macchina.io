@@ -1,0 +1,26 @@
+<bundlespec>
+	<manifest>
+    	<name>macchina.io ROS Bridge Client</name>
+		<symbolicName>io.macchina.ros.client</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2019, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>IoT::ROS::BundleActivator</class>
+			<library>io.macchina.ros.client</library>
+		</activator>
+		<lazyStart>false</lazyStart>
+		<runLevel>610</runLevel>
+	</manifest>
+	<code>
+		bin/*.dll,
+		bin/*.pdb,
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+    	../../lib/${osName}/${osArch}/libIoTROS*.1.dylib,
+    	../../lib/${osName}/${osArch}/libIoTROS*.so.1
+	</code>
+	<files>
+		bundle/*
+	</files>
+</bundlespec>

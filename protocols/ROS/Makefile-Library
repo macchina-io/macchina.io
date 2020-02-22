@@ -1,0 +1,15 @@
+#
+# Makefile
+#
+# Makefile for macchina.io ROS Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = BridgeClient
+
+target          = IoTROS
+target_version  = 1
+target_libs     = PocoOSP PocoNet PocoUtil PocoXML PocoJSON PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

@@ -7,7 +7,7 @@
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
 //
-// Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2006-2020, Applied Informatics Software Engineering GmbH.
 //
 
 

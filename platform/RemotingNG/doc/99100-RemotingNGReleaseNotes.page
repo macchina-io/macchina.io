@@ -11,6 +11,7 @@ Remoting NG
   - Improved deserialization performance of complex types due to use of
     move assignment.
   - Modernized code base to use C++14 features.
+  - Performance improvements due to use of C++14 features such as std::string literals.
 
 !!Known Issues
 

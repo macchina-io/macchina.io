@@ -8,7 +8,7 @@
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
 //
-// Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2017-2020, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 // 
 // SPDX-License-Identifier: Apache-2.0
@@ -35,7 +35,9 @@ class MobileConnectionServiceAuthenticateMethodHandler: public Poco::RemotingNG:
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"authenticate","method","username","password"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"authenticate"s,"method"s,"username"s,"password"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -93,7 +95,9 @@ class MobileConnectionServiceConnectDataMethodHandler: public Poco::RemotingNG::
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"connectData"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"connectData"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -143,7 +147,9 @@ class MobileConnectionServiceDeviceNameMethodHandler: public Poco::RemotingNG::M
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"deviceName"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"deviceName"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -194,7 +200,9 @@ class MobileConnectionServiceDisconnectDataMethodHandler: public Poco::RemotingN
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"disconnectData"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"disconnectData"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -244,7 +252,9 @@ class MobileConnectionServiceEnableRadioMethodHandler: public Poco::RemotingNG::
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"enableRadio","enable"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"enableRadio"s,"enable"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -296,7 +306,9 @@ class MobileConnectionServiceEnterPINMethodHandler: public Poco::RemotingNG::Met
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"enterPIN","pin"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"enterPIN"s,"pin"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -348,7 +360,9 @@ class MobileConnectionServiceGetAPNMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getAPN"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getAPN"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -399,7 +413,9 @@ class MobileConnectionServiceGetPDPTypeMethodHandler: public Poco::RemotingNG::M
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"getPDPType"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"getPDPType"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -450,7 +466,9 @@ class MobileConnectionServiceIccidMethodHandler: public Poco::RemotingNG::Method
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"iccid"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"iccid"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -501,7 +519,9 @@ class MobileConnectionServiceImeiMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"imei"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"imei"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -552,7 +572,9 @@ class MobileConnectionServiceImsiMethodHandler: public Poco::RemotingNG::MethodH
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"imsi"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"imsi"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -603,7 +625,9 @@ class MobileConnectionServiceIsDataConnectedMethodHandler: public Poco::Remoting
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"isDataConnected"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"isDataConnected"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -654,7 +678,9 @@ class MobileConnectionServiceIsRadioEnabledMethodHandler: public Poco::RemotingN
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"isRadioEnabled"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"isRadioEnabled"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -705,7 +731,9 @@ class MobileConnectionServiceLockSIMMethodHandler: public Poco::RemotingNG::Meth
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"lockSIM","pin"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"lockSIM"s,"pin"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -757,7 +785,9 @@ class MobileConnectionServiceNetworkOperatorMethodHandler: public Poco::Remoting
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"networkOperator"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"networkOperator"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -808,7 +838,9 @@ class MobileConnectionServicePhoneNumberMethodHandler: public Poco::RemotingNG::
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"phoneNumber"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"phoneNumber"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -859,7 +891,9 @@ class MobileConnectionServiceRadioAccessTechnologyMethodHandler: public Poco::Re
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"radioAccessTechnology"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"radioAccessTechnology"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -910,7 +944,9 @@ class MobileConnectionServiceRegistrationStatusMethodHandler: public Poco::Remot
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"registrationStatus"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"registrationStatus"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -961,7 +997,9 @@ class MobileConnectionServiceSetAPNMethodHandler: public Poco::RemotingNG::Metho
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setAPN","apn"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setAPN"s,"apn"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1013,7 +1051,9 @@ class MobileConnectionServiceSetPDPTypeMethodHandler: public Poco::RemotingNG::M
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"setPDPType","type"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"setPDPType"s,"type"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1067,7 +1107,9 @@ class MobileConnectionServiceSignalStrengthMethodHandler: public Poco::RemotingN
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"signalStrength"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"signalStrength"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1118,7 +1160,9 @@ class MobileConnectionServiceSimStateMethodHandler: public Poco::RemotingNG::Met
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"simState"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"simState"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1169,7 +1213,9 @@ class MobileConnectionServiceUnlockSIMMethodHandler: public Poco::RemotingNG::Me
 public:
 	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
 	{
-		static const std::string REMOTING__NAMES[] = {"unlockSIM","pin"};
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"unlockSIM"s,"pin"s};
 		bool remoting__requestSucceeded = false;
 		try
 		{
@@ -1220,29 +1266,31 @@ MobileConnectionServiceSkeleton::MobileConnectionServiceSkeleton():
 	Poco::RemotingNG::Skeleton()
 
 {
-	addMethodHandler("authenticate", new IoT::MobileConnection::MobileConnectionServiceAuthenticateMethodHandler);
-	addMethodHandler("connectData", new IoT::MobileConnection::MobileConnectionServiceConnectDataMethodHandler);
-	addMethodHandler("deviceName", new IoT::MobileConnection::MobileConnectionServiceDeviceNameMethodHandler);
-	addMethodHandler("disconnectData", new IoT::MobileConnection::MobileConnectionServiceDisconnectDataMethodHandler);
-	addMethodHandler("enableRadio", new IoT::MobileConnection::MobileConnectionServiceEnableRadioMethodHandler);
-	addMethodHandler("enterPIN", new IoT::MobileConnection::MobileConnectionServiceEnterPINMethodHandler);
-	addMethodHandler("getAPN", new IoT::MobileConnection::MobileConnectionServiceGetAPNMethodHandler);
-	addMethodHandler("getPDPType", new IoT::MobileConnection::MobileConnectionServiceGetPDPTypeMethodHandler);
-	addMethodHandler("iccid", new IoT::MobileConnection::MobileConnectionServiceIccidMethodHandler);
-	addMethodHandler("imei", new IoT::MobileConnection::MobileConnectionServiceImeiMethodHandler);
-	addMethodHandler("imsi", new IoT::MobileConnection::MobileConnectionServiceImsiMethodHandler);
-	addMethodHandler("isDataConnected", new IoT::MobileConnection::MobileConnectionServiceIsDataConnectedMethodHandler);
-	addMethodHandler("isRadioEnabled", new IoT::MobileConnection::MobileConnectionServiceIsRadioEnabledMethodHandler);
-	addMethodHandler("lockSIM", new IoT::MobileConnection::MobileConnectionServiceLockSIMMethodHandler);
-	addMethodHandler("networkOperator", new IoT::MobileConnection::MobileConnectionServiceNetworkOperatorMethodHandler);
-	addMethodHandler("phoneNumber", new IoT::MobileConnection::MobileConnectionServicePhoneNumberMethodHandler);
-	addMethodHandler("radioAccessTechnology", new IoT::MobileConnection::MobileConnectionServiceRadioAccessTechnologyMethodHandler);
-	addMethodHandler("registrationStatus", new IoT::MobileConnection::MobileConnectionServiceRegistrationStatusMethodHandler);
-	addMethodHandler("setAPN", new IoT::MobileConnection::MobileConnectionServiceSetAPNMethodHandler);
-	addMethodHandler("setPDPType", new IoT::MobileConnection::MobileConnectionServiceSetPDPTypeMethodHandler);
-	addMethodHandler("signalStrength", new IoT::MobileConnection::MobileConnectionServiceSignalStrengthMethodHandler);
-	addMethodHandler("simState", new IoT::MobileConnection::MobileConnectionServiceSimStateMethodHandler);
-	addMethodHandler("unlockSIM", new IoT::MobileConnection::MobileConnectionServiceUnlockSIMMethodHandler);
+	using namespace std::string_literals;
+	
+	addMethodHandler("authenticate"s, new IoT::MobileConnection::MobileConnectionServiceAuthenticateMethodHandler);
+	addMethodHandler("connectData"s, new IoT::MobileConnection::MobileConnectionServiceConnectDataMethodHandler);
+	addMethodHandler("deviceName"s, new IoT::MobileConnection::MobileConnectionServiceDeviceNameMethodHandler);
+	addMethodHandler("disconnectData"s, new IoT::MobileConnection::MobileConnectionServiceDisconnectDataMethodHandler);
+	addMethodHandler("enableRadio"s, new IoT::MobileConnection::MobileConnectionServiceEnableRadioMethodHandler);
+	addMethodHandler("enterPIN"s, new IoT::MobileConnection::MobileConnectionServiceEnterPINMethodHandler);
+	addMethodHandler("getAPN"s, new IoT::MobileConnection::MobileConnectionServiceGetAPNMethodHandler);
+	addMethodHandler("getPDPType"s, new IoT::MobileConnection::MobileConnectionServiceGetPDPTypeMethodHandler);
+	addMethodHandler("iccid"s, new IoT::MobileConnection::MobileConnectionServiceIccidMethodHandler);
+	addMethodHandler("imei"s, new IoT::MobileConnection::MobileConnectionServiceImeiMethodHandler);
+	addMethodHandler("imsi"s, new IoT::MobileConnection::MobileConnectionServiceImsiMethodHandler);
+	addMethodHandler("isDataConnected"s, new IoT::MobileConnection::MobileConnectionServiceIsDataConnectedMethodHandler);
+	addMethodHandler("isRadioEnabled"s, new IoT::MobileConnection::MobileConnectionServiceIsRadioEnabledMethodHandler);
+	addMethodHandler("lockSIM"s, new IoT::MobileConnection::MobileConnectionServiceLockSIMMethodHandler);
+	addMethodHandler("networkOperator"s, new IoT::MobileConnection::MobileConnectionServiceNetworkOperatorMethodHandler);
+	addMethodHandler("phoneNumber"s, new IoT::MobileConnection::MobileConnectionServicePhoneNumberMethodHandler);
+	addMethodHandler("radioAccessTechnology"s, new IoT::MobileConnection::MobileConnectionServiceRadioAccessTechnologyMethodHandler);
+	addMethodHandler("registrationStatus"s, new IoT::MobileConnection::MobileConnectionServiceRegistrationStatusMethodHandler);
+	addMethodHandler("setAPN"s, new IoT::MobileConnection::MobileConnectionServiceSetAPNMethodHandler);
+	addMethodHandler("setPDPType"s, new IoT::MobileConnection::MobileConnectionServiceSetPDPTypeMethodHandler);
+	addMethodHandler("signalStrength"s, new IoT::MobileConnection::MobileConnectionServiceSignalStrengthMethodHandler);
+	addMethodHandler("simState"s, new IoT::MobileConnection::MobileConnectionServiceSimStateMethodHandler);
+	addMethodHandler("unlockSIM"s, new IoT::MobileConnection::MobileConnectionServiceUnlockSIMMethodHandler);
 }
 
 

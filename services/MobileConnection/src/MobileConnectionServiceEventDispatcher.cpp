@@ -8,7 +8,7 @@
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
 //
-// Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2017-2020, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 // 
 // SPDX-License-Identifier: Apache-2.0
@@ -122,7 +122,9 @@ void MobileConnectionServiceEventDispatcher::event__dataDisconnected(const void*
 
 void MobileConnectionServiceEventDispatcher::event__dataConnectedImpl(const std::string& subscriberURI)
 {
-	static const std::string REMOTING__NAMES[] = {"dataConnected","subscriberURI"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"dataConnected"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
@@ -134,7 +136,9 @@ void MobileConnectionServiceEventDispatcher::event__dataConnectedImpl(const std:
 
 void MobileConnectionServiceEventDispatcher::event__dataDisconnectedImpl(const std::string& subscriberURI)
 {
-	static const std::string REMOTING__NAMES[] = {"dataDisconnected","subscriberURI"};
+	using namespace std::string_literals;
+	
+	static const std::string REMOTING__NAMES[] = {"dataDisconnected"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
 	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
