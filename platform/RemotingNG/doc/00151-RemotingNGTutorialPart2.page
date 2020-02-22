@@ -128,9 +128,9 @@ an additional step must be performed.
 SOAP makes use of XML namespaces, and for the SOAP serializer to be
 able to serialize and deserialize SOAP messages, we must define
 a namespace for our web service. This is done by adding the
-<[@namespace]> attribute to our service class definition.
+<[namespace]> attribute to our service class definition.
 We simply add the new attribute after the existing
-<[@remote]> attribute. The resulting header file is shown below.
+<[remote]> attribute. The resulting header file is shown below.
 
     #ifndef TimeService_INCLUDED
     #define TimeService_INCLUDED
@@ -244,9 +244,6 @@ configuration now looks like this:
         <RemoteGen>
             <files>
                 <include>
-                    ${PCOO_BASE}/RemotingNG/include/Poco/RemotingNG/RemoteObject.h
-                    ${PCOO_BASE}/RemotingNG//include/Poco/RemotingNG/Proxy.h
-                    ${PCOO_BASE}/RemotingNG//include/Poco/RemotingNG/Skeleton.h
                     ../TimeServer/include/TimeService.h
                 </include>
             </files>
@@ -255,26 +252,13 @@ configuration now looks like this:
                 <include>include</include>
                 <src>src</src>
                 <namespace>Sample</namespace>
-                <copyright>Copyright (c) 2012</copyright>
+                <copyright>Copyright (c) 2020</copyright>
             </output>
             <schema>
                 <TimeService>
                     <serviceLocation>http://localhost:8080/soap/TimeService/TheTimeService</serviceLocation>
                 </TimeService>
             </schema>
-            <compiler>
-                <exec>cl</exec>
-                <options>
-                    /I
-                    "${PCOO_BASE}\Foundation\include"
-                    /I
-                    "${PCOO_BASE}\RemotingNG\include"
-                    /nologo
-                    /C
-                    /P
-                    /TP
-                </options>
-            </compiler>
         </RemoteGen>
     </AppConfig>
 ----
@@ -381,7 +365,7 @@ Remoting also supports user-defined classes and structures as parameter types.
 For this to work, a serializer and a deserializer class must be generated for each
 class or structure used as parameter or return value type. Serializers and deserializers
 can be generated automatically by the Remoting code generator. For this to work,
-the respective class or struct must be annotated with the <[@serialize]> attribute.
+the respective class or struct must be annotated with the <[serialize]> attribute.
 
 To demonstrate this, we extend the TimeService class with a new method,
 <[currentTimeAsStruct()]>, that returns the current time in a struct.
@@ -439,7 +423,7 @@ left as an exercise to the reader.
 
 Now that we have updated the header file, we have to re-run the code generator.
 This time, the code generator will notice that there is a <[Time]> structure
-annotated as <[@serialize]>, and it will generate a serializer and a deserializer
+annotated as <[serialize]>, and it will generate a serializer and a deserializer
 class for it. Serializers and deserializers are implemented as template specializations
 of the Poco::RemotingNG::TypeSerializer (or Poco::RemotingNG::TypeDeserializer, respectively)
 class template, and thus header file only.
@@ -657,26 +641,7 @@ We've also added a Poco::Util::Timer member variable, which we'll use to schedul
 the callback events.
 
 When we run RemoteGenNG on the header file to generate the server code, it will
-generate a new class, <[TimeServiceEventDispatcher]>. However, before running RemoteGenNG,
-we must make a small change to its configuration file. In order to generate code supporting remote
-events, the code generator must know about the Poco::RemotingNG::EventDispatcher class
-for server code, and about the Poco::RemotingNG::EventSubscriber class for client code.
-So we'll have to add the corresponding headers to the configuration file:
-
-    <RemoteGen>
-        <files>
-            <include>
-                ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/RemoteObject.h
-                ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Proxy.h
-                ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Skeleton.h
-                ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/EventDispatcher.h <!-- needed for events on server -->
-                ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/EventSubscriber.h <!-- needed for events on client -->
-                ../TimeServerTCP/include/TimeService.h
-            </include>
-            <exclude>
-            </exclude>
-        </files>
-----
+generate a new class, <[TimeServiceEventDispatcher]>.
 
 The generated <[TimeServiceEventDispatcher]> class must be added to our server project.
 To implement the event in our TimeService class we use the Poco::Util::Timer task,

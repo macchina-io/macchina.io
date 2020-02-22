@@ -37,9 +37,9 @@ So, let's start with the class definition:
 ----
 
 So far, our class looks like any other ordinary C++ class. To turn the class into
-a remote service, we have to add the <[@remote]> attribute, either to the class,
+a remote service, we have to add the <[remote]> attribute, either to the class,
 or to the <[currentTimeAsString()]> member function.
-The complete header file (<*TimeService.h*>) for the class is shown below. The <[@remote]> attribute
+The complete header file (<*TimeService.h*>) for the class is shown below. The <[remote]> attribute
 has been added at class level, which means that all public member functions of
 the class will be available remotely.
 
@@ -125,15 +125,12 @@ The configuration file uses the XML format.
 
 The following configuration file configures the code generator
 to create the server code for our TimeService remote service.
-It uses the preprocessor from the Visual C++ compiler.
+It uses the preprocessor from the C++ compiler.
 
     <AppConfig>
         <RemoteGen>
             <files>
                 <include>
-                    ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/RemoteObject.h
-                    ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Proxy.h
-                    ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Skeleton.h
                     include/TimeService.h
                 </include>
             </files>
@@ -142,21 +139,8 @@ It uses the preprocessor from the Visual C++ compiler.
                 <include>include</include>
                 <src>src</src>
                 <namespace>Sample</namespace>
-                <copyright>Copyright (c) 2012</copyright>
+                <copyright>Copyright (c) 2020</copyright>
             </output>
-            <compiler>
-                <exec>cl</exec>
-                <options>
-                    /I
-                    "${POCO_BASE}/RemotingNG\Foundation\include"
-                    /I
-                    "${POCO_BASE}/RemotingNG\RemotingNG\include"
-                    /nologo
-                    /C
-                    /P
-                    /TP
-                </options>
-            </compiler>
         </RemoteGen>
     </AppConfig>
 ----
@@ -219,108 +203,6 @@ be in.
 
 This specifies a copyright (or other) message that will be added
 to the header comment section of each generated file.
-
-!compiler/exec
-
-This specifies the name of the C++ compiler executable to use.
-In the above example, we use the Visual C++ compiler.
-
-!compiler/options
-
-This specifies the command line options passed to the compiler.
-The options should direct the compiler to simply run the
-preprocessor, and write the preprocessed output to a
-file named <*header.i*> in the current directory. This
-file is then parsed by the code generator.
-Options must be separated with either a newline, a comma
-or a semicolon.
-
-In the above example, the command line options have the following
-meaning:
-
-  * /I: specify search path for include files. Note that the actual
-    path is passed as separate argument and thus placed on the
-    next line.
-  * /nologo: do not display the startup banner.
-  * /C: preserve comments during preprocessing (important, otherwise
-    the code generator would not see the attributes).
-  * /P: preprocess to a file.
-  * /TP: assume a C++ header file.
-
-
-!!Configuring The Code Generator For GCC
-
-To run the code generator on a Linux or Unix platform that uses GCC,
-the compiler section of the configuration file must be changed
-as follows:
-
-    <exec>g++</exec>
-    <options>
-        -I${POCO_BASE}/RemotingNG/Foundation/include
-        -I${POCO_BASE}/RemotingNG/Remoting/include
-        -I./include
-        -E
-        -C
-        -o%.i
-    </options>
-----
-
-The following options are passed to the compiler:
-
-  * -I: specify search path for include files.
-  * -E: run the preprocessor only.
-  * -C: preserve comments during preprocessing (important, otherwise
-    the code generator would not see the attributes).
-  * -o: specify the file where preprocessor output is written to.
-
-
-!!Configuring The Code Generator For Multiple Compilers
-
-With Remoting NG it is possible to have multiple <[compiler]> elements in
-the configuration file. In this case, every <[compiler]> element should
-have an <[id]> attribute with a name identifying the element. When invoking
-the code generator, the compiler can then be specified on the command line.
-This makes it possible to use the same configuration file on multiple platforms.
-In the following example, compiler definitions for GCC, Clang and Visual C++
-are provided:
-
-    <compiler id="gcc">
-        <exec>g++</exec>
-        <options>
-            -I${POCO_BASE}/RemotingNG/Foundation/include
-            -I${POCO_BASE}/RemotingNG/include
-            -I./include
-            -E
-            -C
-            -o%.i
-        </options>
-    </compiler>
-    <compiler id="clang">
-        <exec>clang++</exec>
-        <options>
-            -I${POCO_BASE}/Foundation/include
-            -I${POCO_BASE}/RemotingNG/include
-            -I./include
-            -E
-            -C
-            -xc++
-            -o%.i
-        </options>
-    </compiler>
-    <compiler id="msvc">
-        <exec>cl</exec>
-        <options>
-            /I
-            "${POCO_BASE}\Foundation\include"
-            /I
-            "${POCO_BASE}\RemotingNG\include"
-            /nologo
-            /C
-            /P
-            /T
-        </options>
-    </compiler>
-----
 
 
 !!Invoking The Code Generator
@@ -521,9 +403,6 @@ to create the client code for our TimeService remote service.
         <RemoteGen>
             <files>
                 <include>
-                    ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/RemoteObject.h
-                    ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Proxy.h
-                    ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Skeleton.h
                     ../TimeServer/include/TimeService.h
                 </include>
             </files>
@@ -532,21 +411,8 @@ to create the client code for our TimeService remote service.
                 <include>include</include>
                 <src>src</src>
                 <namespace>Sample</namespace>
-                <copyright>Copyright (c) 2012</copyright>
+                <copyright>Copyright (c) 2020</copyright>
             </output>
-            <compiler>
-                <exec>cl</exec>
-                <options>
-                    /I
-                    "${POCO_BASE}\Foundation\include"
-                    /I
-                    "${POCO_BASE}\RemotingNG\include"
-                    /nologo
-                    /C
-                    /P
-                    /TP
-                </options>
-            </compiler>
         </RemoteGen>
     </AppConfig>
 ----

@@ -12,6 +12,10 @@ Remoting NG
     move assignment.
   - Modernized code base to use C++14 features.
   - Performance improvements due to use of C++14 features such as std::string literals.
+  - Simplified the RemotingNG code generator configuration via the RemoteGen.xml
+    configuration file. Compiler configurations, and the list of RemotingNG header files
+    that need to be parsed by the code generator for each project are now in a global
+    configuration file and don't need to be specified for each project.
 
 !!Known Issues
 

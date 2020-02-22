@@ -61,14 +61,14 @@ always passes objects by value, even if a Poco::SharedPtr or a Poco::AutoPtr is 
 
 The Remoting framework itself is completely thread safe, with a few
 restrictions. Proxy objects are normally <!not!> thread safe, unless the
-<[@synchronized]> attribute is specified on the service class or on
+<[synchronized]> attribute is specified on the service class or on
 individual methods. Nevertheless, it is strongly recommended that
 each thread has its own proxy object for a shared remote object.
 
 Service objects can be invoked by multiple clients, and thus multiple
 threads simultaneously. Therefore, the implementation of a service class
 should be fully thread safe. If a service class is not thread safe,
-again the <[@synchronized]> can be used to serialize access to
+again the <[synchronized]> can be used to serialize access to
 the service object at framework level.
 
 
@@ -82,7 +82,7 @@ classes and structures as parameter types.
 For this to work, a serializer and a deserializer class must be generated for each
 class or structure used as parameter or return value type. Serializers and deserializers
 can be generated automatically by the Remoting code generator.
-The respective class or struct must be annotated with the <[@serialize]> attribute.
+The respective class or struct must be annotated with the <[serialize]> attribute.
 
 Serializers and deserializers are implemented as template specializations
 of the Poco::RemotingNG::TypeSerializer (or Poco::RemotingNG::TypeDeserializer, respectively)
@@ -177,7 +177,7 @@ to both the server and the client applications.
 !!Serialization And Inheritance
 
 Inheritance is supported as well, provided all base classes of a serializable
-class also have the <[@serialize]> attribute set.
+class also have the <[serialize]> attribute set.
 
 Note however, that objects passed as parameters or returned as return values
 will always be truncated to the static parameter type specified in the member function
@@ -252,7 +252,7 @@ the number of event notifications sent out to remote clients. Each client can in
 own filter for a specific event. To allow clients to install filters, the service object
 must provide remote methods to install (and remove) filters.
 
-Events that should support filtering must have the <[@filter]> attribute set to <[true]>.
+Events that should support filtering must have the <[filter]> attribute set to <[true]>.
 Event filtering is done by the generated EventDispatcher subclass.
 
 Events, and therefore, event filtering, are only supported by the TCP transport.
@@ -432,7 +432,7 @@ by a 32 bit unsigned integer).
 
 Authentication is enabled on a service class or method level. Authentication is
 mandatory if a class or method requires permissions. Authentication can also be
-enforced for a class or method with the <[@authenticated]> attribute.
+enforced for a class or method with the <[authenticated]> attribute.
 
 Example: Enforce authentication for all methods of class <[UserManager]>:
 
@@ -454,7 +454,7 @@ Example: Enforce authentication for all methods of class <[UserManager]>:
     };
 ----
 
-The <[@authenticated]> attribute will be reflected in the generated skeleton
+The <[authenticated]> attribute will be reflected in the generated skeleton
 class. Before calling the actual service object method, a call to the
 request's Poco::RemotingNG::ServerTransport will be made to authenticate
 the credentials associated with the request. The ServerTransport will usually
@@ -468,7 +468,7 @@ properly authenticated, using an implementation-specific mechanism.
 
 !!Authorization
 
-Authorization in Remoting is declarative, using the <[@permission]> attribute
+Authorization in Remoting is declarative, using the <[permission]> attribute
 in a service class or method definition to specify the permission required
 to invoke the method or all methods of a class. A permission is a string,
 the format of which is entirely up to a specific application.
@@ -502,7 +502,7 @@ Example: Enforce permissions for some methods of class <[UserManager]>:
 In the above example, calling the methods <[addUser()]>, <[updateUser()]> and
 <[deleteUser()]> will require specific permissions or privileges.
 
-Like the <[@authenticated]> attribute, the <[@permission]> attribute will be reflected in
+Like the <[authenticated]> attribute, the <[permission]> attribute will be reflected in
 the generated Skeleton class. Before invoking the actual service method, a call to the
 Poco::RemotingNG::ServerTransport will be made to verify that the user associated with the
 request has the required permission. The Transport will use a Poco::RemotingNG::Authorizer
@@ -561,11 +561,11 @@ Following is an example for a typical configuration file.
         <RemoteGen>
             <files>
                 <include>
-                    ${POCO_BASE/RemotingNG/include/Poco/RemotingNG/RemoteObject.h
-                    ${POCO_BASE/RemotingNG/include/Poco/RemotingNG/Proxy.h
-                    ${POCO_BASE/RemotingNG/include/Poco/RemotingNG/Skeleton.h
                     ../TimeServer/include/TimeService.h
                 </include>
+                <include-paths>
+                    ../TimeServer/include
+                </include-paths>
             </files>
             <output>
                 <mode>client</mode>
@@ -573,26 +573,13 @@ Following is an example for a typical configuration file.
                 <src>src</src>
                 <schema>wsdl</schema>
                 <namespace>Sample</namespace>
-                <copyright>Copyright (c) 2012</copyright>
+                <copyright>Copyright (c) 2020</copyright>
             </output>
             <schema>
                 <TimeService>
                     <serviceLocation>http://localhost:8080/soap/TimeService/TheTimeService</serviceLocation>
                 </TimeService>
             </schema>
-            <compiler>
-                <exec>cl</exec>
-                <options>
-                    /I
-                    "${POCO_BASE}\Foundation\include"
-                    /I
-                    "${POCO_BASE}\RemotingNG\include"
-                    /nologo
-                    /C
-                    /P
-                    /TP
-                </options>
-            </compiler>
         </RemoteGen>
     </AppConfig>
 ----
@@ -635,6 +622,29 @@ a very general Glob expression, and certain files resulting from
 this Glob expression should be excluded. This is not recommended,
 however.
 
+
+!files/include-paths
+
+The content of this element is a list of header file search paths,
+which are passed to the compiler using the compiler's appropriate
+command-line arguments.
+
+
+!system/include
+
+This is similar to <*files/include*> in that it specifies a list of
+files for the code generator to parse. The content of this element
+is merged with the content of <*files/include*>. This element is
+used in the global RemoteGen configuration file to specify the
+RemotingNG header files that need to be parsed by the code generator
+(which are the same for every project):
+
+    - ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/RemoteObject.h
+    - ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Proxy.h
+    - ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/Skeleton.h
+    - ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/EventDispatcher.h
+    - ${POCO_BASE}/RemotingNG/include/Poco/RemotingNG/EventSubscriber.h
+
 !output/mode
 
 This specifies what code the code generator should generate.
@@ -676,7 +686,7 @@ The element is optional. The default is the current
 working directory. A WSDL file is only generated if
 a <*schema/class/serviceLocation*> element for
 the service class is present, and the service class
-has the <[@namespace]> attribute set.
+has the <[namespace]> attribute set.
 
 !output/namespace
 
@@ -885,6 +895,8 @@ preprocessor. Multiple <*compiler*> elements can be specified. If this is the ca
 every <*compiler*> element should have an <*id*> attribute, giving it a unique name.
 The <*compiler*> command line option can then be used to specify which compiler to use.
 This way, the same configuration file can be used on multiple platforms.
+The <*compiler*> element and its children are usually used in the global configuration file,
+but can also be used in a project-specific configuration.
 
 !compiler/exec
 
@@ -1157,7 +1169,7 @@ the respective file has been generated:
     <output>
         ...
         <copyright>This file has been generated on ${system.nodeName}.
-        Copyright (c) 2012 ...</copyright>
+        Copyright (c) 2020 ...</copyright>
         ...
     </output>
 ----
@@ -1178,14 +1190,14 @@ Whether a parameter is input or input/output is normally determined automaticall
 depending on how the parameter is passed (by value or by const or non-const reference).
 Parameters passed by value or const reference are input, parameters passed by non-const
 reference are input/output. However, a C++ function signature provides no way to designate a
-parameter as output only. The <[@direction]> attribute allows to rectify that.
+parameter as output only. The <[direction]> attribute allows to rectify that.
 
 Example:
 
     //@ $image = {direction = "out"}
     void retrieveImage(const std::string& id, std::vector<char>& image);
 
-Without the <[@direction]> attribute, the <[image]> parameter would be
+Without the <[direction]> attribute, the <[image]> parameter would be
 first passed to the server, which in this case is unnecessary, and then
 passed back to the client, containing the desired result. Note that "$"
 in front of the parameter name in the attribute definition.
@@ -1198,7 +1210,7 @@ declared in the method signature, and class/struct member variables
 are serialized in alphabetical order based on their name.
 
 The ordering can be changed by annotating the respective parameter or member variable
-with the <[@order]> attribute. For parameters, the <[@order]> attribute must be
+with the <[order]> attribute. For parameters, the <[order]> attribute must be
 nested in another attribute having the same name as the parameter.
 
 Example (struct):
@@ -1232,8 +1244,8 @@ name of methods, parameters or variables in the remote interface
 or wire format. This might be the case if a certain XML schema
 for an XML-based Transport such as the SOAP Transport must
 be matched. To rename a method, parameter or variable, the
-<[@name]> attribute can be used. If a method name is renamed,
-it is usually a good idea to also specify the <[@replyName]>
+<[name]> attribute can be used. If a method name is renamed,
+it is usually a good idea to also specify the <[replyName]>
 attribute to change the name for the reply message
 accordingly as well.
 
@@ -1333,10 +1345,10 @@ are described in the following.
 
 When the SOAP wire format is used, certain parameters can be
 serialized in the header part of the SOAP message, instead of the body part.
-This can be accomplished by specifying the <[@header]> attribute for
-a parameter. Note that the <[@header]> attribute can only be
+This can be accomplished by specifying the <[header]> attribute for
+a parameter. Note that the <[header]> attribute can only be
 used on a parameter that has a complex type (user defined class
-or struct). Using <[@header]> on a parameter with a scalar type
+or struct). Using <[header]> on a parameter with a scalar type
 will result in an error at runtime, when serializing
 the request.
 
@@ -1357,7 +1369,7 @@ Example:
 
 It is also possible to change the way return values are serialized.
 Normally, a return value is enclosed within a <[return]> element.
-By specifying the <[@inline]> attribute for the return value, the <[return]>
+By specifying the <[inline]> attribute for the return value, the <[return]>
 element is omitted.
 
 For example a method:
@@ -1383,7 +1395,7 @@ To change that structure to:
         <second>22</second>
     </Time>
 ----
-the <[@replyName]> attribute can be specified, along with the <[@inline]> attribute on the return value,
+the <[replyName]> attribute can be specified, along with the <[inline]> attribute on the return value,
 as follows:
 
     //@ replyName = "Time", return = {inline}
@@ -1393,7 +1405,7 @@ as follows:
 !Parameters as XML Attributes
 
 Finally, a parameter value can be serialized as an XML attribute instead of an XML element.
-This is enabled by specifying the <[@type]> attribute for the parameter with the value "attr".
+This is enabled by specifying the <[type]> attribute for the parameter with the value "attr".
 
     //@ $format = {type = "attr"}
     std::string currentTimeAsString2(const std::string& format) const;
@@ -1417,7 +1429,7 @@ reducing the network overhead of a distributed application. However, a one-way m
 way to signal its caller wheter it was successful or not. This must be taken into consideration
 when using one-way methods. Similar to methods, events can also be one-way.
 
-The <[@oneway]> attribute is used to mark a method or event as one-way.
+The <[oneway]> attribute is used to mark a method or event as one-way.
 
 Example:
     //@ oneway
@@ -1435,9 +1447,9 @@ to that method, the cached return value is simply returned to the caller, withou
 any remote call actually taking place. Return value caching only makes sense for methods
 that do not take any parameters, and that return values that do not change very often.
 
-To enable return value caching, the <[@cacheResult]> attribute is specified for
+To enable return value caching, the <[cacheResult]> attribute is specified for
 the respective method. It is also possible to specify the time interval for
-which a return value is cached, using the <[@cacheExpire]> attribute.
+which a return value is cached, using the <[cacheExpire]> attribute.
 
 Example:
 
@@ -1450,16 +1462,16 @@ Example:
 
 Service objects can be invoked from multiple clients, and thus multiple threads
 simultaneously. Therefore, service classes should be threadsafe. If a service
-class is not threadsafe, the <[@synchronized]> attribute can be used
+class is not threadsafe, the <[synchronized]> attribute can be used
 to have the Remoting framework synchronize calls to the service object, thus
 guaranteeing that only one thread at a time can invoke a method on the
-service object. The <[@synchronized]> can be specified for the entire class,
+service object. The <[synchronized]> can be specified for the entire class,
 or for single methods. At most one thread can call any method marked
-as <[@synchronized]> at any given time.
+as <[synchronized]> at any given time.
 
-The <[@synchronized]> attribute also affects proxy code. Normally, a proxy
+The <[synchronized]> attribute also affects proxy code. Normally, a proxy
 object is not threadsafe, and should not be shared by multiple threads.
-With the <[@synchronized]> attribute set, calls to the proxy object
+With the <[synchronized]> attribute set, calls to the proxy object
 are serialized as well. Nevertheless, it is not recommended to share
 a proxy object with multiple threads.
 
@@ -1469,7 +1481,7 @@ Example:
     std::string currentTimeAsString() const;
 ----
 
-The <[@synchronized]> attribute also takes optional parameters. This allows to
+The <[synchronized]> attribute also takes optional parameters. This allows to
 control whether only the RemoteObject, only the Proxy or both should have
 synchronization code. Supported values are:
 

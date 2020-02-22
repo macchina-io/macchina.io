@@ -7,7 +7,7 @@ Following is a list of limitations of Remoting and the Remoting code generator.
 When designing and building remote services with Remoting, knowing the limitations of 
 Remoting is recommended to avoid troubles later on.
 
-  * Plain pointers are not supported. The use of Poco::SharedPtr or Poco::AutoPtr is recommended instead.
+  * Plain pointers are not supported. The use of Poco::SharedPtr, Poco::AutoPtr or std::shared_ptr is recommended instead.
   * Enumerations are supported, with the restriction that enumeration values are serialized as integers. 
     Furthermore, enumeration types are reduced to integers in SOAP/WSDL interfaces.
   * Function overloading is not supported. Two (remote) member functions in a service object 
@@ -18,8 +18,9 @@ Remoting is recommended to avoid troubles later on.
     truncated to the static parameter type (even if passed as pointer or reference).
   * All classes used as parameter or return value types must implement value semantics (implement a copy
     constructor and an assignment operator) and must provide a public default constructor.
-  * Class templates are not supported with the exception of std::vector, std::set, std::multiset, Poco::AutoPtr,
-    Poco::SharedPtr, Poco::Nullable and Poco::Optional.
+  * Class templates are not supported with the exception of std::vector, std::set, std::multiset, the
+    other STL container and smart pointer classes supported by Remoting, Poco::AutoPtr, Poco::SharedPtr,
+    Poco::Nullable and Poco::Optional.
   * For each non-public data member of a class which needs to be serialized or deserialized, 
     a getter and a setter member function must be provided. Otherwise the proxy/skeleton has no way 
     to access these members. 
@@ -35,8 +36,8 @@ Remoting is recommended to avoid troubles later on.
   * SOAP: Inlining of a return parameter will only work with elements, not with attributes. Also the return parameter must be the only value 
     returned by the method, i.e., no output parameters are allowed (otherwise the generated WSDL file will be invalid). 
     Return parameters can be renamed but the order when they are serialized/deserialized cannot be changed. 
-    They are always serialized/deserialized first. Also <[@header]> is not supported for return parameters.
-  * SOAP: The <[@header]> attribute can only be specified for parameters that have a complex user-defined
+    They are always serialized/deserialized first. Also <[header]> is not supported for return parameters.
+  * SOAP: The <[header]> attribute can only be specified for parameters that have a complex user-defined
     type (struct or class).
   * Output parameters: only parameters that are passed by non-const reference are serialized back to the caller. 
     This also applies to Poco::SharedPtr and Poco::AutoPtr. Because plain pointers are not supported, 

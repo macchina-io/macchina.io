@@ -37,23 +37,6 @@ the server stub (skeleton), an interface class, serializers and deserializers fo
 return values, as well as various utility classes.
 
 
-!!!Remoting NG vs. "Classic" Remoting
-
-There are actually two versions of the Remoting framework available: the original ("classic")
-Remoting framework and the new Remoting NG ("Next Generation") framework. Remoting NG has
-a much improved design, a cleaner API and supports additional features, such as events and
-improved serialization.
-
-However, Remoting NG is not fully backwards compatible to classic Remoting. Upgrading an
-existing application from classic Remoting to Remoting NG requires a few minor changes to
-the source code. Remoting NG has first been used for the Applied Informatics Universal
-Plug and Play framework, and the UPnP SOAP and GENA transports were the only transports
-available for some time. In order to make it possible to use both UPnP (which depends
-on Remoting NG) and classic Remoting in the same application, the Remoting NG framework
-uses the RemotingNG namespace, therefore allowing it to coexist with the classic Remoting
-framework in the same application.
-
-
 !!!How Remoting Works
 
 As a first example, we look at the following C++ class, implementing a very simple
@@ -229,11 +212,12 @@ orthogonal. This means that as soon as a remote object has been registered
 with the server ORB, it can be reached via every Transport implementation
 available on the server, even by multiple transports simultaneously.
 
-Remoting currently ships with two Transport implementations, a fast TCP
-Transport using a proprietary binary protocol, and a SOAP transport
-which supports SOAP 1.1 and 1.2, as well as the Message Transport
-Optimization Mechanism (MTOM), and which works with SOAP implementations
-for other platforms.
+Remoting comes with multiple Transport implementations: a fast TCP
+transport using a proprietary binary protocol, a HTTP-based transport also
+using the binary serialization protocol, a JSON-RPC transport, a REST
+transport, and a SOAP transport which supports SOAP 1.1 and 1.2, as well as
+the Message Transport Optimization Mechanism (MTOM), and which works with
+SOAP implementations for other platforms.
 
 !The TCP Transport
 
@@ -247,6 +231,29 @@ and byte order of the client and server systems differ. The serialization
 format is quite efficient, making the TCP Transport a good choice
 where fast communication between Remoting-based applications is required.
 The TCP Transport can also be used over a secure SSL/TLS connection.
+
+!The HTTP Transport
+
+The HTTP Transport is a very lightweight HTTP-based Transport implementation,
+using the Remoting NG binary serialization format with a HTTP connection.
+
+This transport is a good choice if a Remoting NG based C++ application needs
+to communicate with another one if only a HTTP connection is possible between
+them (e.g., due to a proxy server or firewall).
+
+!The JSON-RPC Transport
+
+The JSON-RPC Transport is a very lightweight HTTP-based Transport implementation,
+supporting the [[http://www.jsonrpc.org/specification JSON-RPC 2.0]]
+protocol specification.
+
+This transport is a good choice if web browser-based JavaScript applications
+need to invoke native methods on the server.
+
+! The REST Transport
+
+The REST Transport is a HTTP-based Transport implementation,
+enabling RESTful web services.
 
 !The SOAP Transport
 

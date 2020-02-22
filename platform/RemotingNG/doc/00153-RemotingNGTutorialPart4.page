@@ -318,8 +318,6 @@ that's specified in the endpoint class using the <[path]> attribute, even if it 
 placeholders. 
 
 
-
-
 This concludes the Remoting NG tutorials. Please look at the sample applications
 provided with Remoting NG for more examples showing how to invoke RESTful
 web services.
