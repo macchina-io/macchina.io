@@ -20,6 +20,7 @@
 				-E
 				-C
 				-DPOCO_NO_GCC_API_ATTRIBUTE
+				-DPOCO_REMOTEGEN
 				-o%.i
 			</options>
 		</compiler>
@@ -34,6 +35,7 @@
 				-E
 				-C
 				-DPOCO_NO_GCC_API_ATTRIBUTE
+				-DPOCO_REMOTEGEN
 				-xc++
 				-o%.i
 			</options>
@@ -46,6 +48,7 @@
 				/I
 				${POCO_BASE}\RemotingNG\include
 				${RemoteGen.internal.msvc.includes}
+				-DPOCO_REMOTEGEN
 				/nologo
 				/C
 				/P

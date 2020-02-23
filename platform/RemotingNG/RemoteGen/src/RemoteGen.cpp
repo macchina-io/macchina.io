@@ -86,6 +86,7 @@ class RemoteGenApp: public Application
 public:
 	RemoteGenApp():
 	  _helpRequested(false),
+	  _noGlobalConfig(false),
 	  _enableOSP(false),
 	  _bundlePath("bundle"),
 	  _enableTimestamps(true)
@@ -110,7 +111,10 @@ public:
 protected:
 	void initialize(Application& self)
 	{
-		loadConfiguration();
+		if (!_noGlobalConfig)
+		{
+			loadConfiguration();
+		}
 
 		Application::initialize(self);
 		AbstractGenerator::EError += Poco::Delegate<RemoteGenApp, const std::string>(this, &RemoteGenApp::onError);
@@ -167,7 +171,7 @@ protected:
 
 		options.addOption(
 			Option("compiler", "C",
-				"Specify the compiler to use. Compilers are defined in the configuration file. "
+				"Specify the compiler to use. Compilers are defined in the (global) configuration file. "
 				"If not specified, the first compiler defined in the configuration file will be used.")
 				.required(false)
 				.repeatable(false)
@@ -179,6 +183,12 @@ protected:
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleOSP)));
+
+		options.addOption(
+			Option("noglobal", "n", "Do not load global configuration. If specified, compilers must be configured in the project configuration.")
+				.required(false)
+				.repeatable(false)
+				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleNoGlobal)));
 	}
 
 	void handleConfig(const std::string& name, const std::string& value)
@@ -189,6 +199,11 @@ protected:
 	void handleCompiler(const std::string& name, const std::string& value)
 	{
 		_compiler = value;
+	}
+
+	void handleNoGlobal(const std::string& name, const std::string& value)
+	{
+		_noGlobalConfig = true;
 	}
 
 	void handleDefine(const std::string& name, const std::string& value)
@@ -971,6 +986,7 @@ protected:
 
 private:
 	bool _helpRequested;
+	bool _noGlobalConfig;
 	bool _enableOSP;
 	std::string _compiler;
 	std::string _bundleActivator;
