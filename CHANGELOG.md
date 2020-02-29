@@ -1,3 +1,21 @@
+# Release 2020.1 - 2020-02-29
+
+  * upgraded POCO to release 1.10.1
+  * updated OSP and Remoting frameworks (see their respective release notes for details)
+  * modernized codebase to use C++14
+  * JavaScript: fixed an unhandled exception in RecordSet.toJSON() if record set is empty
+  * JavaScript: fixed potential memory leaks due to wrong v8::Persistent use in
+    some places
+  * JavaScript: optimized handling of timer callbacks to avoid excessive delays when
+    stopping a script with 10000s of timers
+  * Bluetooth support (BtLE) has been upgraded to work with current versions
+    of bluepy-helper
+  * BtLE: it's now possible create basic Peripheral devices and use them from JavaScript
+  * Modbus: added ModbusMaster::reset() method
+  * added device interface for cameras
+  * various minor improvements and fixes
+
+
 # Release 0.11.0 - 2019-09-18
 
   * upgraded POCO to release 1.9.4
