@@ -1,0 +1,29 @@
+<AppConfig>
+	<RemoteGen>
+		<files>
+			<include>
+				../Pizzeria/include/Pizzeria/PizzaDeliveryService.h
+				../Pizzeria/include/Pizzeria/PizzaPickupService.h
+				../Pizzeria/include/Pizzeria/Pizza.h
+				../Pizzeria/include/Pizzeria/Topping.h
+				../Pizzeria/include/Pizzeria/DeliveryAddress.h
+			</include>
+			<include-paths>
+				../Pizzeria/include
+			</include-paths>
+		</files>
+		<output>
+			<include>include/Pizzeria</include>
+			<includeRoot>include</includeRoot>
+			<src>src</src>
+			<namespace>Pizzeria</namespace>
+			<schema>wsdl</schema>
+			<copyright>Copyright (c) 2006-2020, Applied Informatics Software Engineering GmbH.
+			           All rights reserved.
+
+			           SPDX-License-Identifier: Apache-2.0</copyright>
+			<mode>server</mode>
+			<timestamps>false</timestamps>
+		</output>
+	</RemoteGen>
+</AppConfig>

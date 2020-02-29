@@ -4,15 +4,14 @@
 			<include>
 				../TimeServerTCP/include/TimeService.h
 			</include>
-			<include-paths>
-				${POCO_BASE}/Util/include
-				include
-			</include-paths>
 		</files>
 		<output>
 			<include>include</include>
 			<src>src</src>
-			<copyright>Copyright (c) 2006-2020, Applied Informatics Software Engineering GmbH.</copyright>
+			<copyright>Copyright (c) 2006-2020, Applied Informatics Software Engineering GmbH.
+			           All rights reserved.
+
+			           SPDX-License-Identifier: Apache-2.0</copyright>
 			<mode>server</mode>
 			<timestamps>false</timestamps>
 		</output>

@@ -8,6 +8,9 @@
 // Warning: All changes to this will be lost when the file is re-generated.
 //
 // Copyright (c) 2006-2020, Applied Informatics Software Engineering GmbH.
+// All rights reserved.
+// 
+// SPDX-License-Identifier: Apache-2.0
 //
 
 
