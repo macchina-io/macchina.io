@@ -61,13 +61,11 @@ void SerialPortImpl::openImpl(const std::string& device, int baudRate, const std
 		rc = tcgetattr(_fd, &term);
 		if (rc == -1) throw Poco::IOException("cannot get serial port configuration for " + device, strerror(errno));
 
-		term.c_cflag &= ~CSIZE;
-		term.c_cflag &= ~PARENB;
-		term.c_cflag &= ~PARODD;
-		term.c_cflag &= ~CSTOPB;
-		term.c_cflag &= ~CRTSCTS;
-		term.c_cflag |= CLOCAL;
-		term.c_cflag |= CREAD;
+		term.c_cflag &= ~(CSIZE | PARENB | PARODD | CSTOPB | CRTSCTS);
+		term.c_cflag |= CLOCAL | CREAD;
+		term.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+		term.c_oflag &= ~(OPOST | ONLCR | OCRNL | ONOCR | ONLRET);
+		term.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
 
 		switch (parameters[0])
 		{
@@ -81,7 +79,7 @@ void SerialPortImpl::openImpl(const std::string& device, int baudRate, const std
 		{
 		case 'N':
 		case 'n':
-			term.c_iflag = IGNPAR;
+			term.c_iflag |= IGNPAR;
 			break;
 		case 'E':
 		case 'e':
@@ -114,9 +112,6 @@ void SerialPortImpl::openImpl(const std::string& device, int baudRate, const std
 			term.c_cflag |= CRTSCTS;
 			break;
 		}
-
-		term.c_oflag &= ~OPOST;
-		term.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
 
 		speed_t speed(B0);
 		switch (baudRate)
