@@ -34,7 +34,7 @@ class JSCore_API LoggerWrapper: public Wrapper
 public:
 	LoggerWrapper();
 		/// Creates the LoggerWrapper for the root logger.
-	
+
 	~LoggerWrapper();
 		/// Destroys the LoggerWrapper.
 
@@ -43,10 +43,11 @@ public:
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-		
+
 protected:
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void isLogger(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void close(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void log(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void format(int prio, const v8::FunctionCallbackInfo<v8::Value>& args, int firstArgIndex = 0, const std::string& prefix = "");
 	static void trace(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -58,7 +59,7 @@ protected:
 	static void critical(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void fatal(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void dump(const v8::FunctionCallbackInfo<v8::Value>& args);
-	
+
 	friend class ConsoleWrapper;
 };
 

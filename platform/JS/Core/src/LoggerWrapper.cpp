@@ -55,6 +55,7 @@ v8::Handle<v8::FunctionTemplate> LoggerWrapper::constructor(v8::Isolate* pIsolat
 	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "CRITICAL"), v8::Integer::New(pIsolate, 2));
 	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "FATAL"), v8::Integer::New(pIsolate, 1));
 	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isLogger"), v8::FunctionTemplate::New(pIsolate, isLogger));
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "close"), v8::FunctionTemplate::New(pIsolate, close));
 
 	return handleScope.Escape(funcTemplate);
 }
@@ -80,6 +81,7 @@ v8::Handle<v8::ObjectTemplate> LoggerWrapper::objectTemplate(v8::Isolate* pIsola
 		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "fatal"), v8::FunctionTemplate::New(pIsolate, fatal));
 		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "log"), v8::FunctionTemplate::New(pIsolate, log));
 		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "dump"), v8::FunctionTemplate::New(pIsolate, dump));
+		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "close"), v8::FunctionTemplate::New(pIsolate, close));
 		pooledLoggerTemplate.Reset(pIsolate, loggerTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> localLoggerTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledLoggerTemplate);
@@ -422,6 +424,14 @@ void LoggerWrapper::dump(const v8::FunctionCallbackInfo<v8::Value>& args)
 	catch (...)
 	{
 	}
+}
+
+
+void LoggerWrapper::close(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+    v8::HandleScope scope(args.GetIsolate());
+    Poco::Logger* pLogger = Wrapper::unwrapNative<Poco::Logger>(args);
+    Poco::Logger::destroy(pLogger->name());
 }
 
 
