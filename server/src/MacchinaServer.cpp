@@ -42,8 +42,7 @@ class MacchinaServer: public ServerApplication
 public:
 	MacchinaServer():
 		_errorHandler(*this),
-		_pOSP(new OSPSubsystem),
-		_showHelp(false)
+		_pOSP(new OSPSubsystem)
 	{
 		Poco::DataURIStreamFactory::registerFactory();
 		Poco::ErrorHandler::set(&_errorHandler);
@@ -124,7 +123,14 @@ protected:
 
 	void initialize(Application& self)
 	{
-		loadConfiguration(); // load default configuration files, if present
+		if (!_skipDefaultConfig)
+		{
+			loadConfiguration();
+		}
+		for (const auto& cf: _configs)
+		{
+			loadConfiguration(cf);
+		}
 
 		int defaultThreadPoolCapacity = config().getInt("poco.threadPool.default.capacity", 32);
 		int defaultThreadPoolCapacityDelta = defaultThreadPoolCapacity - Poco::ThreadPool::defaultPool().capacity();
@@ -188,6 +194,12 @@ protected:
 				.repeatable(true)
 				.argument("file")
 				.callback(OptionCallback<MacchinaServer>(this, &MacchinaServer::handleConfig)));
+
+		options.addOption(
+			Option("skip-default-config", "", "Don't load default configuration file.")
+				.required(false)
+				.repeatable(false)
+				.callback(OptionCallback<MacchinaServer>(this, &MacchinaServer::handleSkipDefaultConfig)));
 	}
 
 	void handleHelp(const std::string& name, const std::string& value)
@@ -200,7 +212,12 @@ protected:
 
 	void handleConfig(const std::string& name, const std::string& value)
 	{
-		loadConfiguration(value);
+		_configs.push_back(value);
+	}
+
+	void handleSkipDefaultConfig(const std::string& name, const std::string& value)
+	{
+		_skipDefaultConfig = true;
 	}
 
 	void displayHelp()
@@ -235,7 +252,9 @@ protected:
 private:
 	ErrorHandler _errorHandler;
 	OSPSubsystem* _pOSP;
-	bool _showHelp;
+	bool _showHelp = false;
+	bool _skipDefaultConfig = false;
+	std::vector<std::string> _configs;
 };
 
 

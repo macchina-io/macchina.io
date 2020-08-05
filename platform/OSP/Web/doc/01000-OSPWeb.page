@@ -381,7 +381,11 @@ The web server can be configured by setting the following properties in the glob
   - <[osp.web.xssProtection.mode]>: Specifies the <[mode]> parameter for the <[X-XSS-Protection]> header and
     defaults to "block".
   - <[osp.web.contentTypeOptions]>: Specifies the value of the <[X-Content-Type-Options]> header sent with
-    every HTTP response. Defaults to <[nosniff]>.
+    every HTTP response. Defaults to <[nosniff]>. Can be set to an empty string to disable
+    this header, which is not recommended.
+  - <[osp.web.frameOptions]>: Specivies the value of the <[X-Frame-Options]> header sent with every
+    HTTP response. Defaults to none (no <[X-Frame-Options]> header sent). Valid values are
+    <[DENY]> and <[SAMEORIGIN]>.
   - <[osp.web.addAuthHeader]>: If set to true (default), and authentication/authorization has been enabled for
     a resource and has been successful, a header named "X-OSP-Authorized-User" containing the
     authenticated and authorized username is added to the Poco::Net::HTTPRequest, for use

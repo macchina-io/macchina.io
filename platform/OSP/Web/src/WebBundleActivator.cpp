@@ -22,6 +22,7 @@
 #include "Poco/OSP/Web/WebServerExtensionPoint.h"
 #include "Poco/OSP/Web/WebFilterExtensionPoint.h"
 #include "Poco/StringTokenizer.h"
+#include "Poco/String.h"
 #include "Poco/Format.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/Delegate.h"
@@ -92,6 +93,7 @@ public:
 		bool xssProtEnable(pContext->thisBundle()->properties().getBool("xssProtection.enable", false));
 		std::string xssProtMode(pContext->thisBundle()->properties().getString("xssProtection.mode", "block"));
 		std::string contentTypeOptions(pContext->thisBundle()->properties().getString("contentTypeOptions", "nosniff"));
+		std::string frameOptions(pContext->thisBundle()->properties().getString("frameOptions", ""));
 		bool addAuthHeader(pContext->thisBundle()->properties().getBool("addAuthHeader", true));
 		bool addSignature(pContext->thisBundle()->properties().getBool("addSignature", true));
 		int authMethods = 0;
@@ -119,6 +121,7 @@ public:
 			xssProtEnable = pPrefsSvc->configuration()->getBool("osp.web.xssProtection.enable", xssProtEnable);
 			xssProtMode = pPrefsSvc->configuration()->getString("osp.web.xssProtection.mode", xssProtMode);
 			contentTypeOptions = pPrefsSvc->configuration()->getString("osp.web.contentTypeOptions", contentTypeOptions);
+			frameOptions = pPrefsSvc->configuration()->getString("osp.web.frameOptions", frameOptions);
 			addAuthHeader = pPrefsSvc->configuration()->getBool("osp.web.addAuthHeader", addAuthHeader);
 			addSignature = pPrefsSvc->configuration()->getBool("osp.web.addSignature", addSignature);
 			authMethods = WebServerDispatcher::parseAuthMethods(pPrefsSvc->configuration()->getString("osp.web.authMethods", ""));
@@ -131,7 +134,7 @@ public:
 		Poco::Net::NameValueCollection customResponseHeaders;
 		if (hstsEnable)
 		{
-			std::string hstsHeader(Poco::format("maxAge=%d", hstsMaxAge));
+			std::string hstsHeader(Poco::format("max-age=%d", hstsMaxAge));
 			if (hstsIncludeSubdomains) hstsHeader += "; includeSubdomains";
 			customResponseHeaders.add("Strict-Transport-Security", hstsHeader);
 		}
@@ -142,6 +145,10 @@ public:
 		if (!contentTypeOptions.empty())
 		{
 			customResponseHeaders.add("X-Content-Type-Options", contentTypeOptions);
+		}
+		if (!frameOptions.empty())
+		{
+			customResponseHeaders.add("X-Frame-Options", Poco::toUpper(frameOptions));
 		}
 
 		WebServerDispatcher::Config config;
