@@ -1642,6 +1642,82 @@ Example:
 ----
 
 
+!!!UUID Objects
+
+A universally unique identifier (UUID) is a 128-bit number used to identify information.
+A UUID can be used for multiple purposes, from tagging objects with an extremely short
+lifetime, to reliably identifying very persistent objects across a network.
+
+!!Creating UUIDs
+
+UUID objects can be created by calling the UUID constructor function.
+The function takes an optional argument, which is an UUID in string representation.
+If no argument is given, a null UUID ("00000000-0000-0000-0000-000000000000") is
+created. If a stringified UUID is given as argument, the stringified UUID is parsed.
+
+New UUID values can be created with the following functions:
+
+!UUID.create()
+
+Creates and returns either a time-based UUID (if the system has a MAC address), or
+a random UUID otherwise.
+
+!UUID.createRandom()
+
+Creates and returns a random UUID.
+
+!UUID.createTimeBased()
+
+Creates and returns a time-based UUID.
+
+
+!!Checking for UUID Objects
+
+The <[UUID.isUUID()]> method can be used to check whether a given object is a UUID.
+
+!DateTime.IsUUID(object)
+
+Returns true if the given object is a UUID object, otherwise false.
+
+
+!!UUID Properties
+
+!version
+
+Returns the UUID version as a number. The following values can be returned:
+
+  - 1: identifies a time-based UUID
+  - 2: identifies a DCE UUID
+  - 3: identifies a name-based UUID (MD5)
+  - 4: identifies a random UUID
+  - 5: identifies a name-based UUID (SHA1)
+
+!variant
+
+Returns the UUID variant number. The following values can be returned:
+
+  - 0: reserved for NCS backward compatibility
+  - 2: the Leach-Salz variant (used by this implementation)
+  - 6: reserved, Microsoft Corporation backward compatibility
+  - 7: reserved for future definition
+
+
+!!UUID Methods
+
+!toString
+
+Returns a string representation of the UUID in the form "2d4c2edb-aa55-4a5f-9112-51ecc594082f",
+i.e. using lowercase characters.
+
+!equals
+
+Compares the UUID with another one given as argument. Returns true if both UUIDs
+are equal, false if they differ and undefined if the argument is no valid UUID object.
+
+!isNull
+
+Returns true if the UUID is a null UUID ("00000000-0000-0000-0000-000000000000").
+
 
 !!!HTTPRequest and HTTPResponse Objects
 
