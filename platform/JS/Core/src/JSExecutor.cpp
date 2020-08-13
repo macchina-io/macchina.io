@@ -21,6 +21,7 @@
 #include "Poco/JS/Core/TimerWrapper.h"
 #include "Poco/JS/Core/LoggerWrapper.h"
 #include "Poco/JS/Core/BufferWrapper.h"
+#include "Poco/JS/Core/UUIDWrapper.h"
 #include "Poco/JS/Core/JSException.h"
 #include "Poco/Delegate.h"
 #include "Poco/URIStreamOpener.h"
@@ -498,6 +499,9 @@ void JSExecutor::setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global
 
 	Poco::JS::Core::BufferWrapper bufferWrapper;
 	global->Set(v8::String::NewFromUtf8(pIsolate, "Buffer"), bufferWrapper.constructor(pIsolate));
+
+	Poco::JS::Core::UUIDWrapper uuidWrapper;
+	global->Set(v8::String::NewFromUtf8(pIsolate, "UUID"), uuidWrapper.constructor(pIsolate));
 
 	Poco::JS::Core::LoggerWrapper loggerWrapper;
 	global->Set(v8::String::NewFromUtf8(pIsolate, "Logger"), loggerWrapper.constructor(pIsolate));
