@@ -34,7 +34,7 @@ class JSCore_API DateTimeWrapper: public Wrapper
 public:
 	DateTimeWrapper();
 		/// Creates the DateTimeWrapper.
-	
+
 	~DateTimeWrapper();
 		/// Destroys the DateTimeWrapper.
 
@@ -43,7 +43,7 @@ public:
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-		
+
 protected:
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void isDateTime(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -69,6 +69,7 @@ protected:
 	static void local(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void format(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void toDate(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void toJSON(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static std::string mapFormat(const std::string& formatString);
 
 	friend class LocalDateTimeWrapper;

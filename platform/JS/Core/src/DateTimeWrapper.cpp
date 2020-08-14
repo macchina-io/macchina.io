@@ -85,6 +85,7 @@ v8::Handle<v8::ObjectTemplate> DateTimeWrapper::objectTemplate(v8::Isolate* pIso
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "format"), v8::FunctionTemplate::New(pIsolate, format));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toString"), v8::FunctionTemplate::New(pIsolate, format));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toDate"), v8::FunctionTemplate::New(pIsolate, toDate));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toJSON"), v8::FunctionTemplate::New(pIsolate, toJSON));
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
@@ -399,6 +400,21 @@ void DateTimeWrapper::toDate(const v8::FunctionCallbackInfo<v8::Value>& args)
 		double millis = pDateTime->timestamp().epochMicroseconds()/1000.0;
 		v8::Local<v8::Value> jsDate(v8::Date::New(args.GetIsolate(), millis));
 		args.GetReturnValue().Set(jsDate);
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
+}
+
+
+void DateTimeWrapper::toJSON(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::HandleScope scope(args.GetIsolate());
+	Poco::DateTime* pDateTime = Wrapper::unwrapNative<Poco::DateTime>(args);
+	try
+	{
+		returnString(args, Poco::DateTimeFormatter::format(*pDateTime, Poco::DateTimeFormat::ISO8601_FRAC_FORMAT));
 	}
 	catch (Poco::Exception& exc)
 	{

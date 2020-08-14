@@ -62,6 +62,7 @@ v8::Handle<v8::ObjectTemplate> UUIDWrapper::objectTemplate(v8::Isolate* pIsolate
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "variant"), variant);
 
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toString"), v8::FunctionTemplate::New(pIsolate, toString));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toJSON"), v8::FunctionTemplate::New(pIsolate, toString));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "equals"), v8::FunctionTemplate::New(pIsolate, equals));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isNull"), v8::FunctionTemplate::New(pIsolate, isNull));
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);

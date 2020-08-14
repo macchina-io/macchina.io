@@ -86,6 +86,7 @@ v8::Handle<v8::ObjectTemplate> BufferWrapper::objectTemplate(v8::Isolate* pIsola
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toBase64"), v8::FunctionTemplate::New(pIsolate, toBase64));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "fromBase64"), v8::FunctionTemplate::New(pIsolate, fromBase64));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toString"), v8::FunctionTemplate::New(pIsolate, makeString));
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toJSON"), v8::FunctionTemplate::New(pIsolate, toBase64));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "decodeString"), v8::FunctionTemplate::New(pIsolate, decodeString));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "encodeString"), v8::FunctionTemplate::New(pIsolate, encodeString));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "pack"), v8::FunctionTemplate::New(pIsolate, pack));

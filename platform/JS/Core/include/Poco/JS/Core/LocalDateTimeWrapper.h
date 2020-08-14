@@ -34,7 +34,7 @@ class JSCore_API LocalDateTimeWrapper: public Wrapper
 public:
 	LocalDateTimeWrapper();
 		/// Creates the LocalDateTimeWrapper for the root logger.
-	
+
 	~LocalDateTimeWrapper();
 		/// Destroys the LocalDateTimeWrapper.
 
@@ -43,7 +43,7 @@ public:
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-		
+
 protected:
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void isLocalDateTime(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -69,6 +69,7 @@ protected:
 	static void addDays(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void format(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void toDate(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void toJSON(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void utc(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 	friend class DateTimeWrapper;
