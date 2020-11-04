@@ -64,12 +64,16 @@ the [documentation](http://macchina.io/docs/index.html), specifically
 [Introduction and Overview](http://macchina.io/docs/00100-MacchinaIntroduction.html) and
 [Getting Started with macchina.io](http://macchina.io/docs/00100-MacchinaIntroduction.html).
 
+License
+-------
+
+macchina.io IoT Edge Device SDK is dual-licensed under a [commercial license](https://macchina.io/sdk_pricing.html) and the [GPLv3](LICENSE.html). The commercial license gives you the full rights to create and distribute software and devices on your own terms without any GPL obligations. With the commercial license you also have access to professional support and maintenance, as well as additional features.
+See [this table](https://macchina.io/sdk_pricing.html#table) for a comparison between
+GPLv3-licensed and commercial-licensed macchina.io IoT Edge Device SDK features.
 
 Contributions
 -------------
 
-We welcome contributions! Specifically we're looking for new sensor and device implementations,
-as well as additional protocols.
 Please see our [CONTRIBUTING](https://github.com/macchina-io/macchina.io/blob/develop/CONTRIBUTING.md)
 document to get started.
 

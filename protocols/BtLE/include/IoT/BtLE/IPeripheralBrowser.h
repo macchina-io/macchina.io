@@ -11,7 +11,7 @@
 // Copyright (c) 2017-2020, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 // 
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: GPL-3.0-only
 //
 
 

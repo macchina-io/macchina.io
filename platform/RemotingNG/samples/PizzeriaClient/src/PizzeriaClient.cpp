@@ -4,7 +4,7 @@
 // Copyright (c) 2006-2016, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: GPL-3.0-only
 //
 // Note: The code for invoking the PizzaDeliveryService has been directly
 // generated from the PizzaDeliveryService class, using the RemoteGenNG
