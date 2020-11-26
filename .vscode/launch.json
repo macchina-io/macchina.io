@@ -10,7 +10,7 @@
     "cwd": "${workspaceFolder}",
     "env": {
       "POCO_ENABLE_DEBUGGER": "1",
-      "DYLD_LIBRARY_PATH": "${workspaceFolder}/macchina.io/platform/lib/Darwin/x86_64"
+      "DYLD_LIBRARY_PATH": "${workspaceFolder}/macchina.io/platform/lib/Darwin/x86_64:${workspaceFolder}/macchina.io/server/bin/Darwin/x86_64/codeCache"
     },
     "terminal": "external"
   },
@@ -24,7 +24,7 @@
     "cwd": "${workspaceFolder}",
     "environment": [
       { "name": "POCO_ENABLE_DEBUGGER", "value": "1" },
-      { "name": "LD_LIBRARY_PATH", "value": "${workspaceFolder}/platform/lib/Linux/x86_64:${workspaceFolder}/bin/Linux/x86_64/codeCache" }
+      { "name": "LD_LIBRARY_PATH", "value": "${workspaceFolder}/platform/lib/Linux/x86_64:${workspaceFolder}/server/bin/Linux/x86_64/codeCache" }
     ],
     "externalConsole": false,
     "MIMode": "gdb"
@@ -39,7 +39,7 @@
     "cwd": "${workspaceFolder}",
     "environment": [
       { "name": "POCO_ENABLE_DEBUGGER", "value": "1" },
-      { "name": "LD_LIBRARY_PATH", "value": "${workspaceFolder}/platform/lib/Linux/armv7l:${workspaceFolder}/bin/Linux/armv7l/codeCache" }
+      { "name": "LD_LIBRARY_PATH", "value": "${workspaceFolder}/platform/lib/Linux/armv7l:${workspaceFolder}/server/bin/Linux/armv7l/codeCache" }
     ],
     "externalConsole": false,
     "MIMode": "gdb"
