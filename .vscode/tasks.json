@@ -1,0 +1,113 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "Build all",
+      "command": "make",
+      "args": [
+        "-s"
+      ],
+      "options": {
+        "env": {
+          "PROJECT_BASE": "${workspaceFolder}",
+          "MACCHINA_BASE": "${workspaceFolder}",
+          "POCO_BASE": "${workspaceFolder}/platform"
+        }
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "type": "shell",
+      "label": "Clean all",
+      "command": "make",
+      "args": [
+        "-s",
+        "clean"
+      ],
+      "options": {
+        "env": {
+          "PROJECT_BASE": "${workspaceFolder}",
+          "MACCHINA_BASE": "${workspaceFolder}",
+          "POCO_BASE": "${workspaceFolder}/platform"
+        }
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "build"
+    },
+    {
+      "type": "shell",
+      "label": "Build single project",
+      "command": "make",
+      "args": [
+        "-s"
+      ],
+      "options": {
+        "env": {
+          "PROJECT_BASE": "${workspaceFolder}",
+          "MACCHINA_BASE": "${workspaceFolder}",
+          "POCO_BASE": "${workspaceFolder}/platform"
+        },
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "build"
+    },
+    {
+      "type": "shell",
+      "label": "Clean single project",
+      "command": "make",
+      "args": [
+        "-s",
+        "clean"
+      ],
+      "options": {
+        "env": {
+          "PROJECT_BASE": "${workspaceFolder}",
+          "MACCHINA_BASE": "${workspaceFolder}",
+          "POCO_BASE": "${workspaceFolder}/platform"
+        },
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "build"
+    },
+    {
+      "type": "shell",
+      "label": "RemoteGen",
+      "command": "${workspaceFolder}/RemoteGen.sh",
+      "osx": {
+        "args": [
+          "${file}",
+          "-Cclang"
+        ]
+      },
+      "linux": {
+        "args": [
+          "${file}",
+          "-Cgcc"
+        ]
+      },
+      "options": {
+        "env": {
+          "POCO_BASE": "${workspaceFolder}/platform"
+        },
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [],
+      "group": "build"
+    }
+  ]
+}
