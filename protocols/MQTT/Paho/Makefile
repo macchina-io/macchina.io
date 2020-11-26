@@ -15,26 +15,33 @@ endif
 CFLAGS += -DOPENSSL
 
 objects = \
+	Base64 \
 	Clients \
 	Heap \
 	LinkedList \
 	Log \
+	Messages \
 	MQTTClient \
 	MQTTPacket \
 	MQTTPacketOut \
 	MQTTPersistence \
 	MQTTPersistenceDefault \
+	MQTTProperties \
 	MQTTProtocolClient \
 	MQTTProtocolOut \
+	MQTTReasonCodes \
+	MQTTTime \
 	MQTTVersion \
-	Messages \
-	SSLSocket \
+	OsWrapper \
+	SHA1 \
 	Socket \
 	SocketBuffer \
+	SSLSocket \
 	StackTrace \
 	Thread \
 	Tree \
-	utf-8
+	utf-8 \
+	WebSocket
 
 target         = PahoMQTT
 target_version = 1
