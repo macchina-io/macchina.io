@@ -49,9 +49,13 @@ public:
 
 	void event__connectionLost(const void* pSender, const IoT::MQTT::ConnectionLostEvent& data);
 
+	void event__disconnected(const void* pSender, const IoT::MQTT::DisconnectedEvent& data);
+
 	void event__messageArrived(const void* pSender, const IoT::MQTT::MessageArrivedEvent& data);
 
 	void event__messageDelivered(const void* pSender, const IoT::MQTT::MessageDeliveredEvent& data);
+
+	void event__messagePublished(const void* pSender, const IoT::MQTT::MessagePublishedEvent& data);
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
@@ -62,9 +66,13 @@ private:
 
 	void event__connectionLostImpl(const std::string& subscriberURI, const IoT::MQTT::ConnectionLostEvent& data);
 
+	void event__disconnectedImpl(const std::string& subscriberURI, const IoT::MQTT::DisconnectedEvent& data);
+
 	void event__messageArrivedImpl(const std::string& subscriberURI, const IoT::MQTT::MessageArrivedEvent& data);
 
 	void event__messageDeliveredImpl(const std::string& subscriberURI, const IoT::MQTT::MessageDeliveredEvent& data);
+
+	void event__messagePublishedImpl(const std::string& subscriberURI, const IoT::MQTT::MessagePublishedEvent& data);
 
 	static const std::string DEFAULT_NS;
 	MQTTClientRemoteObject* _pRemoteObject;

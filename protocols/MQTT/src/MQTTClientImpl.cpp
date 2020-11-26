@@ -68,6 +68,126 @@ private:
 };
 
 
+namespace
+{
+	MQTTLenString convertString(const std::string& str)
+	{
+		MQTTLenString result;
+		result.data = reinterpret_cast<char*>(std::malloc(str.length()));
+		if (result.data)
+		{
+			std::memcpy(result.data, str.data(), str.length());
+			result.len = str.length();
+		}
+		return result;
+	}
+
+
+	MQTTProperty convertProperty(const Property& property)
+	{
+		MQTTProperty mqttProp;
+		mqttProp.identifier = static_cast<MQTTPropertyCodes>(property.identifier);
+
+		int type = MQTTProperty_getType(mqttProp.identifier);
+		if (type < 0) throw Poco::InvalidArgumentException("invalid property identifier", property.identifier);
+
+		switch (type)
+		{
+		case MQTTPROPERTY_TYPE_BYTE:
+			mqttProp.value.byte = property.byteValue.value();
+			break;
+
+		case MQTTPROPERTY_TYPE_TWO_BYTE_INTEGER:
+			mqttProp.value.integer2 = property.uint16Value.value();
+			break;
+
+		case MQTTPROPERTY_TYPE_FOUR_BYTE_INTEGER:
+		case MQTTPROPERTY_TYPE_VARIABLE_BYTE_INTEGER:
+			mqttProp.value.integer4 = property.uint32Value.value();
+			break;
+
+		case MQTTPROPERTY_TYPE_BINARY_DATA:
+		case MQTTPROPERTY_TYPE_UTF_8_ENCODED_STRING:
+			mqttProp.value.data = convertString(property.stringValue.value());
+			break;
+
+		case MQTTPROPERTY_TYPE_UTF_8_STRING_PAIR:
+			mqttProp.value.data = convertString(property.name.value());
+			mqttProp.value.value = convertString(property.stringValue.value());
+			break;
+		}
+
+		return mqttProp;
+	}
+
+
+	Property convertProperty(const MQTTProperty& mqttProp)
+	{
+		Property property;
+		property.identifier = static_cast<PropertyID>(mqttProp.identifier);
+
+		int type = MQTTProperty_getType(mqttProp.identifier);
+		if (type < 0) throw Poco::InvalidArgumentException("invalid property identifier", mqttProp.identifier);
+
+		switch (type)
+		{
+		case MQTTPROPERTY_TYPE_BYTE:
+			property.byteValue = mqttProp.value.byte;
+			break;
+
+		case MQTTPROPERTY_TYPE_TWO_BYTE_INTEGER:
+			property.uint16Value = mqttProp.value.integer2;
+			break;
+
+		case MQTTPROPERTY_TYPE_FOUR_BYTE_INTEGER:
+		case MQTTPROPERTY_TYPE_VARIABLE_BYTE_INTEGER:
+			property.uint32Value = mqttProp.value.integer4;
+			break;
+
+		case MQTTPROPERTY_TYPE_BINARY_DATA:
+		case MQTTPROPERTY_TYPE_UTF_8_ENCODED_STRING:
+			property.stringValue = std::string(mqttProp.value.data.data, mqttProp.value.data.len);
+			break;
+
+		case MQTTPROPERTY_TYPE_UTF_8_STRING_PAIR:
+			property.stringValue = std::string(mqttProp.value.value.data, mqttProp.value.value.len);
+			property.name = std::string(mqttProp.value.data.data, mqttProp.value.data.len);
+			break;
+		}
+
+		return property;
+	}
+
+
+	MQTTProperties convertProperties(const std::vector<Property>& properties)
+	{
+		MQTTProperties mqttProps = MQTTProperties_initializer;
+		for (const auto& prop: properties)
+		{
+			MQTTProperty mqttProp = convertProperty(prop);
+			int err = MQTTProperties_add(&mqttProps, &mqttProp);
+			if (err)
+			{
+				MQTTProperties_free(&mqttProps);
+				throw Poco::SystemException("Failed to convert property", err);
+			}
+		}
+		return mqttProps;
+	}
+
+
+	std::vector<Property> convertProperties(const MQTTProperties& mqttProps)
+	{
+		std::vector<Property> result;
+		for (int i = 0; i < mqttProps.count; i++)
+		{
+			result.push_back(convertProperty(mqttProps.array[i]));
+		}
+		return result;
+	}
+}
+
+
 MQTTClientImpl::MQTTClientImpl(const std::string& serverURI, const std::string& clientId, Persistence persistence, const std::string& persistencePath, const ConnectOptions& connectOptions):
 	_clientId(clientId),
 	_serverURI(serverURI),
@@ -186,6 +306,13 @@ ConnectionInfo MQTTClientImpl::connect()
 }
 
 
+ConnectionInfo MQTTClientImpl::connect5(const std::vector<Property>& connectProperties, const std::vector<Property>& willProperties)
+{
+	// TODO
+	throw Poco::NotImplementedException();
+}
+
+
 void MQTTClientImpl::connectAsync()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -194,6 +321,13 @@ void MQTTClientImpl::connectAsync()
 	{
 		_timer.schedule(new ReconnectTask(*this), Poco::Clock());
 	}
+}
+
+
+void MQTTClientImpl::connectAsync5(const std::vector<Property>& connectProperties, const std::vector<Property>& willProperties)
+{
+	// TODO
+	throw Poco::NotImplementedException();
 }
 
 
@@ -296,7 +430,7 @@ void MQTTClientImpl::connectImpl(const ConnectOptions& options)
 	{
 		connectOptions.connectTimeout = options.initialConnectTimeout;
 	}
-	
+
 	int rc = 0;
 	int attempt = 0;
 	while (remainingAttempts > 0)
@@ -312,12 +446,12 @@ void MQTTClientImpl::connectImpl(const ConnectOptions& options)
 		Poco::Timestamp ts;
 		rc = MQTTClient_connect(_mqttClient, &connectOptions);
 		time += ts.elapsed();
-		if (rc == MQTTCLIENT_SUCCESS) 
+		if (rc == MQTTCLIENT_SUCCESS)
 		{
 			remainingAttempts = 0;
 		}
 		else
-		{	
+		{
 			Poco::Timestamp::TimeVal remainingTime = timeout - time;
 			int remainingSeconds = (remainingTime + Poco::Timestamp::resolution()/2)/Poco::Timestamp::resolution();
 			if (remainingSeconds > 0 && options.initialConnectTimeout > 0 && options.connectRetries > 0)
@@ -329,7 +463,7 @@ void MQTTClientImpl::connectImpl(const ConnectOptions& options)
 				else if (options.retryConnectWithExponentialBackoff && connectOptions.connectTimeout < remainingSeconds)
 				{
 					connectOptions.connectTimeout *= 2;
-				}	
+				}
 				if (connectOptions.connectTimeout > remainingSeconds)
 				{
 					connectOptions.connectTimeout = remainingSeconds;
@@ -345,7 +479,7 @@ void MQTTClientImpl::connectImpl(const ConnectOptions& options)
 			}
 		}
 	}
-	
+
 	if (rc != MQTTCLIENT_SUCCESS)
 		throw Poco::IOException(Poco::format("Cannot connect to MQTT server \"%s\"", _serverURI), errorMessage(rc), rc);
 
@@ -408,6 +542,13 @@ void MQTTClientImpl::disconnect(int timeout)
 }
 
 
+void MQTTClientImpl::disconnect5(int timeout, ReasonCode reason, const std::vector<Property>& properties)
+{
+	// TODO
+	throw Poco::NotImplementedException();
+}
+
+
 int MQTTClientImpl::publish(const std::string& topic, const std::string& payload, int qos)
 {
 	int token = 0;
@@ -427,6 +568,13 @@ int MQTTClientImpl::publish(const std::string& topic, const std::string& payload
 	}
 
 	return token;
+}
+
+
+int MQTTClientImpl::publish5(const std::string& topic, const std::string& payload, int qos, bool retained, const std::vector<Property>& properties)
+{
+	// TODO
+	throw Poco::NotImplementedException();
 }
 
 
@@ -460,6 +608,13 @@ int MQTTClientImpl::publishMessage(const std::string& topic, const Message& mess
 }
 
 
+int MQTTClientImpl::publishMessage5(const std::string& topic, const Message& message)
+{
+	// TODO
+	throw Poco::NotImplementedException();
+}
+
+
 void MQTTClientImpl::subscribe(const std::string& topic, int qos)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -474,6 +629,13 @@ void MQTTClientImpl::subscribe(const std::string& topic, int qos)
 }
 
 
+void MQTTClientImpl::subscribe5(const std::string& topic, int qos, const SubscribeOptions& options, const std::vector<Property>& properties)
+{
+	// TODO
+	throw Poco::NotImplementedException();
+}
+
+
 void MQTTClientImpl::unsubscribe(const std::string& topic)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -485,6 +647,13 @@ void MQTTClientImpl::unsubscribe(const std::string& topic)
 			throw Poco::IOException(Poco::format("Failed to unsubscribe from topic \"%s\"", topic), errorMessage(rc), rc);
 	}
 	_subscribedTopics.erase(topic);
+}
+
+
+void MQTTClientImpl::unsubscribe5(const std::string& topic, const std::vector<Property>& properties)
+{
+	// TODO
+	throw Poco::NotImplementedException();
 }
 
 
@@ -514,6 +683,13 @@ void MQTTClientImpl::subscribeMany(const std::vector<TopicQoS>& topicsAndQoS)
 }
 
 
+void MQTTClientImpl::subscribeMany5(const std::vector<TopicQoS>& topicsAndQoS, const SubscribeOptions& options, const std::vector<Property>& properties)
+{
+	// TODO
+	throw Poco::NotImplementedException();
+}
+
+
 void MQTTClientImpl::unsubscribeMany(const std::vector<std::string>& topics)
 {
 	if (topics.empty()) return;
@@ -535,6 +711,13 @@ void MQTTClientImpl::unsubscribeMany(const std::vector<std::string>& topics)
 	{
 		_subscribedTopics.erase(*it);
 	}
+}
+
+
+void MQTTClientImpl::unsubscribeMany5(const std::vector<std::string>& topics, const std::vector<Property>& properties)
+{
+	// TODO
+	throw Poco::NotImplementedException();
 }
 
 

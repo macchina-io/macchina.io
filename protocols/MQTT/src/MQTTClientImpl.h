@@ -195,16 +195,25 @@ public:
 	const std::string& serverURI() const;
 	bool connected() const;
 	ConnectionInfo connect();
+	ConnectionInfo connect5(const std::vector<Property>& connectProperties, const std::vector<Property>& willProperties);
 	void connectAsync();
+	void connectAsync5(const std::vector<Property>& connectProperties, const std::vector<Property>& willProperties);
 	void disconnect(int timeout);
+	void disconnect5(int timeout, ReasonCode reason, const std::vector<Property>& properties);
 	std::vector<TopicQoS> subscribedTopics() const;
 	Statistics statistics() const;
 	int publish(const std::string& topic, const std::string& payload, int qos);
+	int publish5(const std::string& topic, const std::string& payload, int qos, bool retained, const std::vector<Property>& properties);
 	int publishMessage(const std::string& topic, const Message& message);
+	int publishMessage5(const std::string& topic, const Message& message);
 	void subscribe(const std::string& topic, int qos);
+	void subscribe5(const std::string& topic, int qos, const SubscribeOptions& options, const std::vector<Property>& properties);
 	void unsubscribe(const std::string& topic);
+	void unsubscribe5(const std::string& topic, const std::vector<Property>& properties);
 	void subscribeMany(const std::vector<TopicQoS>& topicsAndQoS);
+	void subscribeMany5(const std::vector<TopicQoS>& topicsAndQoS, const SubscribeOptions& options, const std::vector<Property>& properties);
 	void unsubscribeMany(const std::vector<std::string>& topics);
+	void unsubscribeMany5(const std::vector<std::string>& topics, const std::vector<Property>& properties);
 	ConnectionInfo connectionInfo() const;
 
 protected:

@@ -19,6 +19,7 @@
 
 
 #include "IoT/MQTT/MQTT.h"
+#include "IoT/MQTT/Types.h"
 #include "Poco/BasicEvent.h"
 #include "Poco/SharedPtr.h"
 #include <vector>
@@ -26,197 +27,6 @@
 
 namespace IoT {
 namespace MQTT {
-
-
-//@ serialize
-struct Message
-	/// This structure encapsulates a MQTT message.
-{
-	Message(int q = 0):
-		qos(q),
-		retained(false)
-	{
-	}
-
-	Message(const std::string& p, int q):
-		payload(p),
-		qos(q),
-		retained(false)
-	{
-	}
-
-	Message(const std::vector<char>& p, int q):
-		binaryPayload(p),
-		qos(q),
-		retained(false)
-	{
-	}
-
-#if __cplusplus >= 201103L || (defined(_MSC_VER) && MSC_VER >= 1700)
-	Message(std::string&& p, int q) :
-		payload(p),
-		qos(q),
-		retained(false)
-	{
-	}
-
-	Message(std::vector<char>&& p, int q) :
-		binaryPayload(p),
-		qos(q),
-		retained(false)
-	{
-	}
-#endif
-
-	//@ optional
-	std::string payload;
-		/// The payload of the MQTT message.
-
-	//@ optional
-	std::vector<char> binaryPayload;
-		/// Alternative binary payload, considered if payload is empty.
-
-	int qos;
-		/// The quality of service (QoS) assigned to the message.
-		/// There are three levels of QoS:
-		///   * 0: Fire and forget - the message may not be delivered.
-		///   * 1: At least once - the message will be delivered, but may be
-		///        delivered more than once in some circumstances.
-		///   * 2: Once and one only - the message will be delivered exactly once.
-
-	//@ optional
-	bool retained;
-		/// The retained flag serves two purposes depending on whether the message
-		/// it is associated with is being published or received.
-		///
-		///   * retained = true: For messages being published, a true setting
-		///     indicates that the MQTT server should retain a copy of the message.
-		///     The message will then be transmitted to new subscribers to a topic
-		///     that matches the message topic. For subscribers registering a new
-		///     subscription, the flag being true indicates that the received message
-		///     is not a new one, but one that has been retained by the MQTT server.
-		///
-		///   * retained = false: For publishers, this indicates that this message
-		///     should not be retained by the MQTT server. For subscribers, a false
-		///     setting indicates this is a normal message, received as a result of it
-		///     being published to the server.
-};
-
-
-//@ serialize
-struct MessageArrivedEvent
-	/// Event arguments for MQTTClient::messageArrived.
-{
-	std::string topic;
-		/// The topic the message has been published to.
-
-	Message message;
-		/// The published message.
-
-	bool dup;
-		/// The dup flag indicates whether or not this message is a duplicate.
-		/// It is only meaningful when receiving QoS1 messages.
-		/// When true, the client application should take appropriate action to
-		/// deal with the duplicate message.
-
-	bool handled;
-		/// The handled flag must be set by the event delegate after processing
-		/// of the message to indicate whether the message has been successfully
-		/// processed. If set to false, the MQTT client will attempt to deliver
-		/// the message again. The handled flag defaults to true. If the event delegate
-		/// throws, the handled flag will be set to false by the framework. This
-		/// means that in most cases the delegate does not need to concern itself with
-		/// this flag.
-};
-
-
-//@ serialize
-struct MessageDeliveredEvent
-	/// Event arguments for MQTTClient::messageDelivered.
-{
-	int token;
-		/// The delivery token.
-};
-
-
-//@ serialize
-struct ConnectionLostEvent
-	/// Event arguments for MQTTClient::connectionLost.
-{
-	std::string cause;
-};
-
-
-//@ serialize
-struct ConnectionInfo
-{
-	std::string serverURI;
-		/// URI of server the client is connected to.
-
-	bool sessionPresent;
-		/// True if a previously set up session is present on the server.
-};
-
-
-//@ serialize
-struct ConnectionEstablishedEvent
-	/// Event arguments for MQTTClient::connected.
-{
-	ConnectionInfo connectionInfo;
-};
-
-
-//@ serialize
-struct TopicQoS
-	/// A vector of these is given to MQTTClient::subscribeMany.
-{
-	TopicQoS():
-		qos(0)
-	{
-	}
-
-	TopicQoS(const std::string& t, int q = 0):
-		topic(t),
-		qos(q)
-	{
-	}
-
-	std::string topic;
-		/// The topic name, which may contain wildcards.
-
-	int qos;
-		/// The QoS level (0, 1 or 2).
-};
-
-
-//@ serialize
-struct TopicCount
-{
-	TopicCount():
-		messageCount(0)
-	{
-	}
-
-	TopicCount(const std::string& t, int c):
-		topic(t),
-		messageCount(c)
-	{
-	}
-
-	std::string topic;
-		/// The topic name.
-
-	int messageCount;
-		/// The number of messages published or received on this topic.
-};
-
-
-//@ serialize
-struct Statistics
-{
-	std::vector<TopicCount> receivedMessages;
-	std::vector<TopicCount> publishedMessages;
-};
 
 
 //@ remote
@@ -248,6 +58,14 @@ public:
 	Poco::BasicEvent<const ConnectionLostEvent> connectionLost;
 		/// Fired when the connection to the MQTT server has been lost.
 
+	Poco::BasicEvent<const DisconnectedEvent> disconnected;
+		/// Fired when a disconnect packed has been received from the server
+		/// (MQTT V5 only).
+
+	Poco::BasicEvent<const MessagePublishedEvent> messagePublished;
+		/// Fired when a message has been delivered.
+		/// This is the MQTT V5 version of messageDelivered.
+
 	MQTTClient();
 		/// Creates the MQTTClient.
 
@@ -276,6 +94,23 @@ public:
 		///
 		/// Throws a Poco::IOException if the connection cannot be established.
 
+	virtual ConnectionInfo connect5(const std::vector<Property>& connectProperties, const std::vector<Property>& willProperties) = 0;
+		/// MQTT V5 version of connect().
+		///
+		/// Connects to the server if not already connected.
+		///
+		/// MQTT V5 connect and will properties can be specified.
+		///
+		/// Normally, the client connects automatically when a message is
+		/// published or a topic is subscribed to.
+		///
+		/// Returns a ConnectionInfo object containing information about the
+		/// connection.
+		///
+		/// Fires the connected event if successful.
+		///
+		/// Throws a Poco::IOException if the connection cannot be established.
+
 	virtual void connectAsync() = 0;
 		/// Connects to the server if not already connected.
 		///
@@ -283,8 +118,34 @@ public:
 		///
 		/// A successful connection will be reported by firing the connected event.
 
+	virtual void connectAsync5(const std::vector<Property>& connectProperties, const std::vector<Property>& willProperties) = 0;
+		/// MQTT V5 version of connectAsync().
+		///
+		/// Connects to the server if not already connected.
+		///
+		/// MQTT V5 connect and will properties can be specified.
+		///
+		/// Connecting will be done asynchronously in a background thread.
+		///
+		/// A successful connection will be reported by firing the connected event.
+
 	virtual void disconnect(int timeout) = 0;
 		/// Disconnects from the server.
+		///
+		/// In order to allow the client time to complete handling of messages that are
+		/// in-flight when this function is called, a timeout period is specified (in milliseconds).
+		/// When the timeout period has expired, the client disconnects even if there
+		/// are still outstanding message acknowledgements. The next time the client
+		/// connects to the same server, any QoS 1 or 2 messages which have not completed
+		/// will be retried depending on the clean session settings for both the previous
+		/// and the new connection.
+
+	virtual void disconnect5(int timeout, ReasonCode reason, const std::vector<Property>& properties) = 0;
+		/// MQTT V5 version of disconnect().
+		///
+		/// Disconnects from the server.
+		///
+		/// MQTT V5 reason code and properties can be given.
 		///
 		/// In order to allow the client time to complete handling of messages that are
 		/// in-flight when this function is called, a timeout period is specified (in milliseconds).
@@ -309,7 +170,27 @@ public:
 		///
 		/// Throws a Poco::IOException if the message cannot be published.
 
+	virtual int publish5(const std::string& topic, const std::string& payload, int qos, bool retained, const std::vector<Property>& properties) = 0;
+		/// MQTT V5 version of publish().
+		///
+		/// Publishes the given message on the given topic, using the given QoS.
+		///
+		/// Returns a delivery token which can be used with the messageDelivered
+		/// event to verify that the message has been delivered.
+		///
+		/// Throws a Poco::IOException if the message cannot be published.
+
 	virtual int publishMessage(const std::string& topic, const Message& message) = 0;
+		/// Publishes the given message on the given topic.
+		///
+		/// Returns a delivery token which can be used with the messageDelivered
+		/// event to verify that the message has been delivered.
+		///
+		/// Throws a Poco::IOException if the message cannot be published.
+
+	virtual int publishMessage5(const std::string& topic, const Message& message) = 0;
+		/// MQTT V5 version of publishMessage().
+		///
 		/// Publishes the given message on the given topic.
 		///
 		/// Returns a delivery token which can be used with the messageDelivered
@@ -325,7 +206,25 @@ public:
 		/// Throws a Poco::IOException if there was a problem registering the
 		/// subscription.
 
+	virtual void subscribe5(const std::string& topic, int qos, const SubscribeOptions& options, const std::vector<Property>& properties) = 0;
+		/// MQTT V5 version of subscribe(), which allows to specify options and properties.
+		///
+		/// This function attempts to subscribe the client to a single topic,
+		/// which may contain wildcards. This call also specifies the Quality of service
+		/// requested for the subscription.
+		///
+		/// Throws a Poco::IOException if there was a problem registering the
+		/// subscription.
+
 	virtual void unsubscribe(const std::string& topic) = 0;
+		/// This function attempts to remove an existing subscription made by the client.
+		///
+		/// Throws a Poco::IOException if there was a problem removing the
+		/// subscription.
+
+	virtual void unsubscribe5(const std::string& topic, const std::vector<Property>& properties) = 0;
+		/// MQTT V5 version of unsubscribe(), which allows to specify properties.
+		///
 		/// This function attempts to remove an existing subscription made by the client.
 		///
 		/// Throws a Poco::IOException if there was a problem removing the
@@ -338,7 +237,25 @@ public:
 		/// Throws a Poco::IOException if there was a problem registering the
 		/// subscriptions.
 
+	virtual void subscribeMany5(const std::vector<TopicQoS>& topicsAndQoS, const SubscribeOptions& options, const std::vector<Property>& properties) = 0;
+		/// MQTT V5 version of subscribeMany(), which allows to specify options and properties.
+		///
+		/// This function attempts to subscribe the client to a list of topics (with
+		/// associated QoS levels), which may contain wildcards.
+		///
+		/// Throws a Poco::IOException if there was a problem registering the
+		/// subscriptions.
+
 	virtual void unsubscribeMany(const std::vector<std::string>& topics) = 0;
+		/// This function attempts to remove existing subscriptions to a list of
+		/// topics made by the specified client.
+		///
+		/// Throws a Poco::IOException if there was a problem removing the
+		/// subscriptions.
+
+	virtual void unsubscribeMany5(const std::vector<std::string>& topics, const std::vector<Property>& properties) = 0;
+		/// MQTT V5 version of unsubscribeMany(), which allows to specify properties.
+		///
 		/// This function attempts to remove existing subscriptions to a list of
 		/// topics made by the specified client.
 		///

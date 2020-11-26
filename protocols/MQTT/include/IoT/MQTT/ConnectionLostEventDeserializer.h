@@ -18,7 +18,7 @@
 #define TypeDeserializer_IoT_MQTT_ConnectionLostEvent_INCLUDED
 
 
-#include "IoT/MQTT/MQTTClient.h"
+#include "IoT/MQTT/Types.h"
 #include "Poco/RemotingNG/TypeDeserializer.h"
 
 

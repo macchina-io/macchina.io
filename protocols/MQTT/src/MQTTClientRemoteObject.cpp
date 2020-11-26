@@ -33,8 +33,10 @@ MQTTClientRemoteObject::MQTTClientRemoteObject(const Poco::RemotingNG::Identifia
 	_pServiceObject->connectionClosed += Poco::delegate(this, &MQTTClientRemoteObject::event__connectionClosed);
 	_pServiceObject->connectionEstablished += Poco::delegate(this, &MQTTClientRemoteObject::event__connectionEstablished);
 	_pServiceObject->connectionLost += Poco::delegate(this, &MQTTClientRemoteObject::event__connectionLost);
+	_pServiceObject->disconnected += Poco::delegate(this, &MQTTClientRemoteObject::event__disconnected);
 	_pServiceObject->messageArrived += Poco::delegate(this, &MQTTClientRemoteObject::event__messageArrived);
 	_pServiceObject->messageDelivered += Poco::delegate(this, &MQTTClientRemoteObject::event__messageDelivered);
+	_pServiceObject->messagePublished += Poco::delegate(this, &MQTTClientRemoteObject::event__messagePublished);
 }
 
 
@@ -45,8 +47,10 @@ MQTTClientRemoteObject::~MQTTClientRemoteObject()
 		_pServiceObject->connectionClosed -= Poco::delegate(this, &MQTTClientRemoteObject::event__connectionClosed);
 		_pServiceObject->connectionEstablished -= Poco::delegate(this, &MQTTClientRemoteObject::event__connectionEstablished);
 		_pServiceObject->connectionLost -= Poco::delegate(this, &MQTTClientRemoteObject::event__connectionLost);
+		_pServiceObject->disconnected -= Poco::delegate(this, &MQTTClientRemoteObject::event__disconnected);
 		_pServiceObject->messageArrived -= Poco::delegate(this, &MQTTClientRemoteObject::event__messageArrived);
 		_pServiceObject->messageDelivered -= Poco::delegate(this, &MQTTClientRemoteObject::event__messageDelivered);
+		_pServiceObject->messagePublished -= Poco::delegate(this, &MQTTClientRemoteObject::event__messagePublished);
 	}
 	catch (...)
 	{
@@ -92,6 +96,12 @@ void MQTTClientRemoteObject::event__connectionLost(const IoT::MQTT::ConnectionLo
 }
 
 
+void MQTTClientRemoteObject::event__disconnected(const IoT::MQTT::DisconnectedEvent& data)
+{
+	disconnected(this, data);
+}
+
+
 void MQTTClientRemoteObject::event__messageArrived(const IoT::MQTT::MessageArrivedEvent& data)
 {
 	messageArrived(this, data);
@@ -101,6 +111,12 @@ void MQTTClientRemoteObject::event__messageArrived(const IoT::MQTT::MessageArriv
 void MQTTClientRemoteObject::event__messageDelivered(const IoT::MQTT::MessageDeliveredEvent& data)
 {
 	messageDelivered(this, data);
+}
+
+
+void MQTTClientRemoteObject::event__messagePublished(const IoT::MQTT::MessagePublishedEvent& data)
+{
+	messagePublished(this, data);
 }
 
 
