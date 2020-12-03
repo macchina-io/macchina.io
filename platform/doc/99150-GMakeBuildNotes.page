@@ -569,7 +569,7 @@ you'll usually create a new build configuration file (by copying an existing one
     STATICOPT_LINK  = -static
     SHAREDOPT_CC    = -fPIC
     SHAREDOPT_CXX   = -fPIC
-    SHAREDOPT_LINK  = -Wl,-rpath,$(LIBPATH)
+    SHAREDOPT_LINK  = -Wl,-rpath,$(LIBPATH),-rpath,$(LIBPLATFORMPATH)
     DEBUGOPT_CC     = -g -D_DEBUG
     DEBUGOPT_CXX    = -g -D_DEBUG
     DEBUGOPT_LINK   = -g
