@@ -13,6 +13,7 @@
 
 
 #include "Poco/JS/Core/SystemWrapper.h"
+#include "Poco/JS/Core/JSExecutor.h"
 #include "Poco/Environment.h"
 #include "Poco/Thread.h"
 #include "Poco/Process.h"
@@ -115,7 +116,11 @@ void SystemWrapper::sleep(const v8::FunctionCallbackInfo<v8::Value>& args)
 	if (args.Length() < 1) return;
 	if (!args[0]->IsNumber()) return;
 	double millisecs = args[0]->NumberValue(pIsolate->GetCurrentContext()).FromMaybe(0.0);
-	Poco::Thread::sleep(static_cast<long>(millisecs));
+	JSExecutor::Ptr pExecutor = JSExecutor::current();
+	if (pExecutor->sleep(static_cast<long>(millisecs)))
+	{
+		returnException(args, "terminated while in system.sleep()"s);
+	}
 }
 
 

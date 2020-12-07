@@ -18,13 +18,13 @@
 #define JS_Core_JSExecutor_INCLUDED
 
 
-#include "Poco/Poco.h"
 #include "Poco/Thread.h"
 #include "Poco/ThreadLocal.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/URI.h"
 #include "Poco/BasicEvent.h"
+#include "Poco/Event.h"
 #include "Poco/Util/Timer.h"
 #include "Poco/Util/TimerTask.h"
 #include "Poco/JS/Core/PooledIsolate.h"
@@ -152,6 +152,13 @@ public:
 		/// Returns true if the script is currently terminating due
 		/// to a call to terminate().
 
+	bool sleep(long milliseconds);
+		/// Sleeps execution for the given number of milliseconds.
+		///
+		/// Sleep can be interrupted by calling terminate().
+		///
+		/// Returns true if sleep() was interrupted, otherwise false.
+
 	void addModuleSearchPath(const std::string& path);
 		/// Adds a search path to the internal list of search paths.
 		///
@@ -271,6 +278,7 @@ protected:
 	std::vector<Poco::URI> _importStack;
 	std::set<std::string> _imports;
 	Poco::AtomicCounter _running;
+	Poco::Event _terminated;
 	static Poco::ThreadLocal<JSExecutor*> _pCurrentExecutor;
 
 	friend class RunScriptTask;

@@ -138,11 +138,13 @@ void JSExecutor::stop()
 void JSExecutor::terminate()
 {
 	_pooledIso.isolate()->TerminateExecution();
+	_terminated.set();
 }
 
 
 void JSExecutor::cancelTerminate()
 {
+	_terminated.reset();
 	_pooledIso.isolate()->CancelTerminateExecution();
 }
 
@@ -150,6 +152,12 @@ void JSExecutor::cancelTerminate()
 bool JSExecutor::isTerminating() const
 {
 	return _pooledIso.isolate()->IsExecutionTerminating();
+}
+
+
+bool JSExecutor::sleep(long milliseconds)
+{
+	return _terminated.tryWait(milliseconds);
 }
 
 
@@ -948,7 +956,7 @@ public:
 	void run()
 	{
 		TimedJSExecutor::Ptr pExecutor = _pExecutor;
-		if (pExecutor)
+		if (pExecutor && !pExecutor->isTerminating())
 		{
 			pExecutor->call(_function, _arguments);
 		}
