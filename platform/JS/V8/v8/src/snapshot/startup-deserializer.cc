@@ -4,8 +4,11 @@
 
 #include "src/snapshot/startup-deserializer.h"
 
-#include "src/assembler-inl.h"
+#include "src/api/api.h"
+#include "src/codegen/assembler-inl.h"
+#include "src/execution/v8threads.h"
 #include "src/heap/heap-inl.h"
+#include "src/logging/log.h"
 #include "src/snapshot/snapshot.h"
 
 namespace v8 {
@@ -13,87 +16,99 @@ namespace internal {
 
 void StartupDeserializer::DeserializeInto(Isolate* isolate) {
   Initialize(isolate);
-  if (!ReserveSpace()) V8::FatalProcessOutOfMemory("StartupDeserializer");
+
+  if (!allocator()->ReserveSpace()) {
+    V8::FatalProcessOutOfMemory(isolate, "StartupDeserializer");
+  }
 
   // No active threads.
   DCHECK_NULL(isolate->thread_manager()->FirstThreadStateInUse());
   // No active handles.
-  DCHECK(isolate->handle_scope_implementer()->blocks()->is_empty());
-  // Partial snapshot cache is not yet populated.
-  DCHECK(isolate->partial_snapshot_cache()->empty());
+  DCHECK(isolate->handle_scope_implementer()->blocks()->empty());
+  // Startup object cache is not yet populated.
+  DCHECK(isolate->startup_object_cache()->empty());
   // Builtins are not yet created.
   DCHECK(!isolate->builtins()->is_initialized());
 
   {
-    DisallowHeapAllocation no_gc;
-    isolate->heap()->IterateStrongRoots(this, VISIT_ONLY_STRONG_ROOT_LIST);
+    DisallowGarbageCollection no_gc;
     isolate->heap()->IterateSmiRoots(this);
-    isolate->heap()->IterateStrongRoots(this, VISIT_ONLY_STRONG);
-    isolate->heap()->RepairFreeListsAfterDeserialization();
-    isolate->heap()->IterateWeakRoots(this, VISIT_ALL);
+    isolate->heap()->IterateRoots(
+        this,
+        base::EnumSet<SkipRoot>{SkipRoot::kUnserializable, SkipRoot::kWeak});
+    Iterate(isolate, this);
+    DeserializeStringTable();
+
+    isolate->heap()->IterateWeakRoots(
+        this, base::EnumSet<SkipRoot>{SkipRoot::kUnserializable});
     DeserializeDeferredObjects();
-    FlushICacheForNewIsolate();
-    RestoreExternalReferenceRedirectors(accessor_infos());
+    RestoreExternalReferenceRedirectors(isolate, accessor_infos());
+    RestoreExternalReferenceRedirectors(isolate, call_handler_infos());
+
+    // Flush the instruction cache for the entire code-space. Must happen after
+    // builtins deserialization.
+    FlushICache();
   }
 
-  isolate->heap()->set_native_contexts_list(isolate->heap()->undefined_value());
+  CheckNoArrayBufferBackingStores();
+
+  isolate->heap()->set_native_contexts_list(
+      ReadOnlyRoots(isolate).undefined_value());
   // The allocation site list is build during root iteration, but if no sites
   // were encountered then it needs to be initialized to undefined.
-  if (isolate->heap()->allocation_sites_list() == Smi::kZero) {
+  if (isolate->heap()->allocation_sites_list() == Smi::zero()) {
     isolate->heap()->set_allocation_sites_list(
-        isolate->heap()->undefined_value());
+        ReadOnlyRoots(isolate).undefined_value());
   }
-
-  // Issue code events for newly deserialized code objects.
-  LOG_CODE_EVENT(isolate, LogCodeObjects());
-  LOG_CODE_EVENT(isolate, LogBytecodeHandlers());
-  LOG_CODE_EVENT(isolate, LogCompiledFunctions());
+  isolate->heap()->set_dirty_js_finalization_registries_list(
+      ReadOnlyRoots(isolate).undefined_value());
+  isolate->heap()->set_dirty_js_finalization_registries_list_tail(
+      ReadOnlyRoots(isolate).undefined_value());
 
   isolate->builtins()->MarkInitialized();
 
-  // If needed, print the dissassembly of deserialized code objects.
-  // Needs to be called after the builtins are marked as initialized, in order
-  // to display the builtin names.
-  PrintDisassembledCodeObjects();
+  LogNewMapEvents();
 
-  if (FLAG_rehash_snapshot && can_rehash()) Rehash();
+  if (FLAG_rehash_snapshot && can_rehash()) {
+    // Hash seed was initalized in ReadOnlyDeserializer.
+    Rehash();
+  }
 }
 
-void StartupDeserializer::FlushICacheForNewIsolate() {
+void StartupDeserializer::DeserializeStringTable() {
+  // See StartupSerializer::SerializeStringTable.
+
+  // Get the string table size.
+  int string_table_size = source()->GetInt();
+
+  // Add each string to the Isolate's string table.
+  // TODO(leszeks): Consider pre-sizing the string table.
+  for (int i = 0; i < string_table_size; ++i) {
+    String string = String::cast(ReadObject());
+    Address handle_storage = string.ptr();
+    Handle<String> handle(&handle_storage);
+    StringTableInsertionKey key(handle);
+    String result = *isolate()->string_table()->LookupKey(isolate(), &key);
+    USE(result);
+
+    // This is startup, so there should be no duplicate entries in the string
+    // table, and the lookup should unconditionally add the given string.
+    DCHECK_EQ(result, string);
+  }
+
+  DCHECK_EQ(string_table_size, isolate()->string_table()->NumberOfElements());
+}
+
+void StartupDeserializer::LogNewMapEvents() {
+  if (FLAG_trace_maps) LOG(isolate(), LogAllMaps());
+}
+
+void StartupDeserializer::FlushICache() {
   DCHECK(!deserializing_user_code());
   // The entire isolate is newly deserialized. Simply flush all code pages.
   for (Page* p : *isolate()->heap()->code_space()) {
-    Assembler::FlushICache(isolate(), p->area_start(),
-                           p->area_end() - p->area_start());
+    FlushInstructionCache(p->area_start(), p->area_end() - p->area_start());
   }
-}
-
-void StartupDeserializer::PrintDisassembledCodeObjects() {
-#ifdef ENABLE_DISASSEMBLER
-  if (FLAG_print_builtin_code) {
-    Heap* heap = isolate()->heap();
-    HeapIterator iterator(heap);
-    DisallowHeapAllocation no_gc;
-
-    CodeTracer::Scope tracing_scope(isolate()->GetCodeTracer());
-    OFStream os(tracing_scope.file());
-
-    for (HeapObject* obj = iterator.next(); obj != NULL;
-         obj = iterator.next()) {
-      if (obj->IsCode()) {
-        Code::cast(obj)->Disassemble(nullptr, os);
-      }
-    }
-  }
-#endif
-}
-
-void StartupDeserializer::Rehash() {
-  DCHECK(FLAG_rehash_snapshot && can_rehash());
-  isolate()->heap()->InitializeHashSeed();
-  isolate()->heap()->string_table()->Rehash();
-  isolate()->heap()->weak_object_to_code_table()->Rehash();
-  SortMapDescriptors();
 }
 
 }  // namespace internal

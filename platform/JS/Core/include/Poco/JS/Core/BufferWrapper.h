@@ -34,11 +34,11 @@ class JSCore_API BufferWrapper: public Wrapper
 	/// JavaScript wrapper for Poco::Buffer<char>.
 {
 public:
-	typedef Poco::Buffer<char> Buffer;
+	using Buffer = Poco::Buffer<char>;
 
 	BufferWrapper();
 		/// Creates the BufferWrapper.
-	
+
 	~BufferWrapper();
 		/// Destroys the BufferWrapper.
 
@@ -50,7 +50,7 @@ public:
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-	
+
 protected:
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getLength(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
@@ -72,7 +72,7 @@ protected:
 	static void makeString(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static std::size_t calculatePackBufferSize(const std::string& format);
 
-	static void encode(Buffer* pBuffer, const v8::Local<v8::Value>& str, const std::string& encoding);
+	static void encode(v8::Isolate* pIsolate, Buffer* pBuffer, const v8::Local<v8::Value>& str, const std::string& encoding);
 	static void decode(const v8::FunctionCallbackInfo<v8::Value>& args, const std::string& encoding);
 
 	static const std::string ENCODING_UTF8;

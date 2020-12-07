@@ -5,7 +5,10 @@
 #ifndef V8_OBJECTS_ARGUMENTS_H_
 #define V8_OBJECTS_ARGUMENTS_H_
 
-#include "src/objects.h"
+#include "src/objects/fixed-array.h"
+#include "src/objects/js-objects.h"
+#include "src/objects/struct.h"
+#include "torque-generated/field-offsets.h"
 
 // Has to be the last include (doesn't have include guards):
 #include "src/objects/object-macros.h"
@@ -13,92 +16,46 @@
 namespace v8 {
 namespace internal {
 
-// Common superclass for JSSloppyArgumentsObject and JSStrictArgumentsObject.
-// Note that the instance type {JS_ARGUMENTS_TYPE} does _not_ guarantee the
-// below layout, the in-object properties might have transitioned to dictionary
-// mode already. Only use the below layout with the specific initial maps.
-class JSArgumentsObject : public JSObject {
+// Superclass for all objects with instance type {JS_ARGUMENTS_OBJECT_TYPE}
+class JSArgumentsObject
+    : public TorqueGeneratedJSArgumentsObject<JSArgumentsObject, JSObject> {
  public:
-  // Offsets of object fields.
-  static const int kLengthOffset = JSObject::kHeaderSize;
-  static const int kSize = kLengthOffset + kPointerSize;
-  // Indices of in-object properties.
-  static const int kLengthIndex = 0;
-
   DECL_VERIFIER(JSArgumentsObject)
-  DECL_CAST(JSArgumentsObject)
-
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(JSArgumentsObject);
+  DECL_PRINTER(JSArgumentsObject)
+  TQ_OBJECT_CONSTRUCTORS(JSArgumentsObject)
 };
 
-// JSSloppyArgumentsObject is just a JSObject with specific initial map.
-// This initial map adds in-object properties for "length" and "callee".
+// JSSloppyArgumentsObject is just a JSArgumentsObject with specific initial
+// map. This initial map adds in-object properties for "length" and "callee".
 class JSSloppyArgumentsObject : public JSArgumentsObject {
  public:
-  // Offsets of object fields.
-  static const int kCalleeOffset = JSArgumentsObject::kSize;
-  static const int kSize = kCalleeOffset + kPointerSize;
+  DEFINE_FIELD_OFFSET_CONSTANTS(
+      JSArgumentsObject::kHeaderSize,
+      TORQUE_GENERATED_JS_SLOPPY_ARGUMENTS_OBJECT_FIELDS)
+
   // Indices of in-object properties.
+  static const int kLengthIndex = 0;
   static const int kCalleeIndex = kLengthIndex + 1;
 
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(JSSloppyArgumentsObject);
 };
 
-// JSStrictArgumentsObject is just a JSObject with specific initial map.
-// This initial map adds an in-object property for "length".
+// JSStrictArgumentsObject is just a JSArgumentsObject with specific initial
+// map. This initial map adds an in-object property for "length".
 class JSStrictArgumentsObject : public JSArgumentsObject {
  public:
-  // Offsets of object fields.
-  static const int kSize = JSArgumentsObject::kSize;
+  // Layout description.
+  DEFINE_FIELD_OFFSET_CONSTANTS(
+      JSArgumentsObject::kHeaderSize,
+      TORQUE_GENERATED_JS_STRICT_ARGUMENTS_OBJECT_FIELDS)
+
+  // Indices of in-object properties.
+  static const int kLengthIndex = 0;
+  STATIC_ASSERT(kLengthIndex == JSSloppyArgumentsObject::kLengthIndex);
 
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(JSStrictArgumentsObject);
-};
-
-// Helper class to access FAST_ and SLOW_SLOPPY_ARGUMENTS_ELEMENTS
-//
-// +---+-----------------------+
-// | 0 | Context* context      |
-// +---------------------------+
-// | 1 | FixedArray* arguments +----+ HOLEY_ELEMENTS
-// +---------------------------+    v-----+-----------+
-// | 2 | Object* param_1_map   |    |  0  | the_hole  |
-// |...| ...                   |    | ... | ...       |
-// |n+1| Object* param_n_map   |    | n-1 | the_hole  |
-// +---------------------------+    |  n  | element_1 |
-//                                  | ... | ...       |
-//                                  |n+m-1| element_m |
-//                                  +-----------------+
-//
-// Parameter maps give the index into the provided context. If a map entry is
-// the_hole it means that the given entry has been deleted from the arguments
-// object.
-// The arguments backing store kind depends on the ElementsKind of the outer
-// JSArgumentsObject:
-// - FAST_SLOPPY_ARGUMENTS_ELEMENTS: HOLEY_ELEMENTS
-// - SLOW_SLOPPY_ARGUMENTS_ELEMENTS: DICTIONARY_ELEMENTS
-class SloppyArgumentsElements : public FixedArray {
- public:
-  static const int kContextIndex = 0;
-  static const int kArgumentsIndex = 1;
-  static const uint32_t kParameterMapStart = 2;
-
-  inline Context* context();
-  inline FixedArray* arguments();
-  inline void set_arguments(FixedArray* arguments);
-  inline uint32_t parameter_map_length();
-  inline Object* get_mapped_entry(uint32_t entry);
-  inline void set_mapped_entry(uint32_t entry, Object* object);
-
-  DECL_CAST(SloppyArgumentsElements)
-#ifdef VERIFY_HEAP
-  void SloppyArgumentsElementsVerify(JSObject* holder);
-#endif
-
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(SloppyArgumentsElements);
 };
 
 // Representation of a slow alias as part of a sloppy arguments objects.
@@ -109,22 +66,11 @@ class SloppyArgumentsElements : public FixedArray {
 // - the parameter map contains no fast alias mapping (i.e. the hole)
 // - this struct (in the slow backing store) contains an index into the context
 // - all attributes are available as part if the property details
-class AliasedArgumentsEntry : public Struct {
+class AliasedArgumentsEntry
+    : public TorqueGeneratedAliasedArgumentsEntry<AliasedArgumentsEntry,
+                                                  Struct> {
  public:
-  inline int aliased_context_slot() const;
-  inline void set_aliased_context_slot(int count);
-
-  DECL_CAST(AliasedArgumentsEntry)
-
-  // Dispatched behavior.
-  DECL_PRINTER(AliasedArgumentsEntry)
-  DECL_VERIFIER(AliasedArgumentsEntry)
-
-  static const int kAliasedContextSlot = HeapObject::kHeaderSize;
-  static const int kSize = kAliasedContextSlot + kPointerSize;
-
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(AliasedArgumentsEntry);
+  TQ_OBJECT_CONSTRUCTORS(AliasedArgumentsEntry)
 };
 
 }  // namespace internal

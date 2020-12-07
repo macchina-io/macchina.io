@@ -45,14 +45,17 @@ v8::Handle<v8::ObjectTemplate> HTMLFormWrapper::objectTemplate(v8::Isolate* pIso
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, hasField));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "get"), v8::FunctionTemplate::New(pIsolate, getField));
+		objectTemplate->Set(toV8Internalized(pIsolate, "has"s), v8::FunctionTemplate::New(pIsolate, hasField));
+		objectTemplate->Set(toV8Internalized(pIsolate, "get"s), v8::FunctionTemplate::New(pIsolate, getField));
 
 		// deprecated - for backwards compatibility, will be removed eventually
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "hasField"), v8::FunctionTemplate::New(pIsolate, hasField));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getField"), v8::FunctionTemplate::New(pIsolate, getField));
+		objectTemplate->Set(toV8Internalized(pIsolate, "hasField"s), v8::FunctionTemplate::New(pIsolate, hasField));
+		objectTemplate->Set(toV8Internalized(pIsolate, "getField"s), v8::FunctionTemplate::New(pIsolate, getField));
 
-		objectTemplate->SetNamedPropertyHandler(getProperty);
+		v8::NamedPropertyHandlerConfiguration nph(getProperty);
+		nph.flags = v8::PropertyHandlerFlags::kOnlyInterceptStrings;
+		objectTemplate->SetHandler(nph);
+
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> formTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
@@ -63,8 +66,9 @@ v8::Handle<v8::ObjectTemplate> HTMLFormWrapper::objectTemplate(v8::Isolate* pIso
 void HTMLFormWrapper::hasField(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
+	v8::Isolate* pIsolate(args.GetIsolate());
 	Poco::Net::HTMLForm* pForm = Wrapper::unwrapNative<Poco::Net::HTMLForm>(args);
-	std::string name = toString(args[0]);
+	std::string name = toString(pIsolate, args[0]);
 	bool result = pForm->has(name);
 	args.GetReturnValue().Set(result);
 }
@@ -73,30 +77,35 @@ void HTMLFormWrapper::hasField(const v8::FunctionCallbackInfo<v8::Value>& args)
 void HTMLFormWrapper::getField(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
+	v8::Isolate* pIsolate(args.GetIsolate());
 	Poco::Net::HTMLForm* pForm = Wrapper::unwrapNative<Poco::Net::HTMLForm>(args);
-	std::string name = toString(args[0]);
+	std::string name = toString(pIsolate, args[0]);
 	std::string deflt;
-	if (args.Length() > 1) deflt = toString(args[1]);
+	if (args.Length() > 1) deflt = toString(pIsolate, args[1]);
 	std::string value = pForm->get(name, deflt);
 	returnString(args, value);
 }
 
 
-void HTMLFormWrapper::getProperty(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info)
+void HTMLFormWrapper::getProperty(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
+	v8::Isolate* pIsolate(info.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	v8::Local<v8::Object> object = info.Holder();
-	if (object->HasRealNamedProperty(property))
+	if (object->HasRealNamedProperty(context, property).FromMaybe(false))
 	{
-		v8::MaybeLocal<v8::Value> prop = object->GetRealNamedProperty(info.GetIsolate()->GetCurrentContext(), property);
-		if (!prop.IsEmpty())
+		v8::MaybeLocal<v8::Value> maybeProp = object->GetRealNamedProperty(context, property);
+		v8::Local<v8::Value> prop;
+		if (maybeProp.ToLocal(&prop))
 		{
-			info.GetReturnValue().Set(prop.ToLocalChecked());
+			info.GetReturnValue().Set(prop);
 		}
 	}
 	else
 	{
 		Poco::Net::HTMLForm* pForm = Wrapper::unwrapNative<Poco::Net::HTMLForm>(info);
-		std::string name = toString(property);
+		std::string name = toString(pIsolate, property);
 		if (pForm->has(name))
 		{
 			std::string value = pForm->get(name);

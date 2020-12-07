@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Flags: --harmony-async-iteration --allow-natives-syntax
+// Flags: --allow-natives-syntax
 
 let testFailed = false;
 let testFailure;
@@ -24,7 +24,7 @@ function assertThrowsAsync(run, errorType, message) {
 
   assertFalse(hadValue || hadError);
 
-  %RunMicrotasks();
+  %PerformMicrotaskCheckpoint();
 
   if (!hadError) {
     throw new MjsUnitAssertionError(
@@ -185,7 +185,7 @@ class MyError extends Error {};
   testFailure = error;
 });
 
-%RunMicrotasks();
+%PerformMicrotaskCheckpoint();
 if (testFailed) {
   throw testFailure;
 }
@@ -619,7 +619,7 @@ if (testFailed) {
   testFailure = error;
 });
 
-%RunMicrotasks();
+%PerformMicrotaskCheckpoint();
 if (testFailed) {
   throw testFailure;
 }
@@ -663,7 +663,7 @@ if (testFailed) {
 
   // Cycle through `f` to extract iterator methods
   f().catch(function() { %AbortJS("No error should have occurred"); });
-  %RunMicrotasks();
+  %PerformMicrotaskCheckpoint();
 
   assertEquals(typeof extractedNext, "function");
   assertThrowsAsync(() => extractedNext.call(undefined), TypeError);
@@ -717,8 +717,8 @@ if (testFailed) {
     next_: 0,
     get next() {
       log.push("get syncIterable.next");
-      let i = this.next_++;
       return (...args) => {
+        let i = this.next_++;
         log.push("call syncIterable.next(" + args.join(", ") + ")");
         return results[i];
       }
@@ -748,14 +748,12 @@ if (testFailed) {
       "get nextValue#1.then",
       "call nextValue#1.then",
       "got value value1",
-      "get syncIterable.next",
       "call syncIterable.next()",
       "get iterResult #2.done",
       "get iterResult #2.value",
       "get nextValue#2.then",
       "call nextValue#2.then",
       "got value value2",
-      "get syncIterable.next",
       "call syncIterable.next()",
       "get iterResult #3.done",
       "get iterResult #3.value",

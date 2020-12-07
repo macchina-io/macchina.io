@@ -3,13 +3,13 @@
 // found in the LICENSE file.
 
 // Test enabled only on supported architectures.
-#if defined(V8_TARGET_ARCH_X64) || defined(V8_TARGET_ARCH_ARM) || \
-    defined(V8_TARGET_ARCH_ARM64)
+#if V8_OS_LINUX &&                                                 \
+    (defined(V8_TARGET_ARCH_X64) || defined(V8_TARGET_ARCH_ARM) || \
+     defined(V8_TARGET_ARCH_ARM64))
 
-#include "src/flags.h"
-#include "src/objects-inl.h"
-#include "src/objects.h"
-#include "src/unicode-cache.h"
+#include "src/flags/flags.h"
+#include "src/objects/objects-inl.h"
+#include "src/objects/objects.h"
 #include "test/cctest/compiler/function-tester.h"
 
 namespace v8 {
@@ -28,7 +28,7 @@ TEST(RunUnwindingInfo) {
 
   tester.Call(tester.Val(-1));
 
-  CHECK(tester.function->code()->has_unwinding_info());
+  CHECK(tester.function->code().has_unwinding_info());
 }
 
 // TODO(ssanfilippo) Build low-level graph and check that state is correctly

@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "src/compiler/common-operator.h"
 #include "src/compiler/common-operator-reducer.h"
+#include "src/codegen/machine-type.h"
+#include "src/compiler/common-operator.h"
 #include "src/compiler/machine-operator.h"
 #include "src/compiler/operator.h"
 #include "src/compiler/simplified-operator.h"
-#include "src/machine-type.h"
 #include "test/unittests/compiler/graph-reducer-unittest.h"
 #include "test/unittests/compiler/graph-unittest.h"
 #include "test/unittests/compiler/node-test-utils.h"
@@ -17,20 +17,23 @@ using testing::StrictMock;
 namespace v8 {
 namespace internal {
 namespace compiler {
+namespace common_operator_reducer_unittest {
 
 class CommonOperatorReducerTest : public GraphTest {
  public:
   explicit CommonOperatorReducerTest(int num_parameters = 1)
       : GraphTest(num_parameters), machine_(zone()), simplified_(zone()) {}
-  ~CommonOperatorReducerTest() override {}
+  ~CommonOperatorReducerTest() override = default;
 
  protected:
   Reduction Reduce(
       AdvancedReducer::Editor* editor, Node* node,
       MachineOperatorBuilder::Flags flags = MachineOperatorBuilder::kNoFlags) {
+    JSHeapBroker broker(isolate(), zone());
     MachineOperatorBuilder machine(zone(), MachineType::PointerRepresentation(),
                                    flags);
-    CommonOperatorReducer reducer(editor, graph(), common(), &machine);
+    CommonOperatorReducer reducer(editor, graph(), &broker, common(), &machine,
+                                  zone());
     return reducer.Reduce(node);
   }
 
@@ -491,6 +494,53 @@ TEST_F(CommonOperatorReducerTest, SelectToFloat64Abs) {
   EXPECT_THAT(r.replacement(), IsFloat64Abs(p0));
 }
 
+// -----------------------------------------------------------------------------
+// Switch
+
+TEST_F(CommonOperatorReducerTest, SwitchInputMatchesCaseWithDefault) {
+  Node* const control = graph()->start();
+
+  Node* sw = graph()->NewNode(common()->Switch(2), Int32Constant(1), control);
+  Node* const if_1 = graph()->NewNode(common()->IfValue(1), sw);
+  graph()->NewNode(common()->IfDefault(), sw);
+
+  StrictMock<MockAdvancedReducerEditor> editor;
+  EXPECT_CALL(editor, Replace(if_1, control));
+  Reduction r = Reduce(&editor, sw);
+  ASSERT_TRUE(r.Changed());
+  EXPECT_THAT(r.replacement(), IsDead());
+}
+
+TEST_F(CommonOperatorReducerTest, SwitchInputMatchesDefaultWithCase) {
+  Node* const control = graph()->start();
+
+  Node* sw = graph()->NewNode(common()->Switch(2), Int32Constant(0), control);
+  graph()->NewNode(common()->IfValue(1), sw);
+  Node* const if_default = graph()->NewNode(common()->IfDefault(), sw);
+
+  StrictMock<MockAdvancedReducerEditor> editor;
+  EXPECT_CALL(editor, Replace(if_default, control));
+  Reduction r = Reduce(&editor, sw);
+  ASSERT_TRUE(r.Changed());
+  EXPECT_THAT(r.replacement(), IsDead());
+}
+
+TEST_F(CommonOperatorReducerTest, SwitchInputMatchesCaseExtraCaseWithDefault) {
+  Node* const control = graph()->start();
+
+  Node* sw = graph()->NewNode(common()->Switch(3), Int32Constant(0), control);
+  Node* const if_0 = graph()->NewNode(common()->IfValue(0), sw);
+  graph()->NewNode(common()->IfValue(1), sw);
+  graph()->NewNode(common()->IfDefault(), sw);
+
+  StrictMock<MockAdvancedReducerEditor> editor;
+  EXPECT_CALL(editor, Replace(if_0, control));
+  Reduction r = Reduce(&editor, sw);
+  ASSERT_TRUE(r.Changed());
+  EXPECT_THAT(r.replacement(), IsDead());
+}
+
+}  // namespace common_operator_reducer_unittest
 }  // namespace compiler
 }  // namespace internal
 }  // namespace v8

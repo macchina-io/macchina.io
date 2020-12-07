@@ -12,12 +12,11 @@
 namespace v8 {
 namespace internal {
 namespace compiler {
+namespace simplified_operator_unittest {
 
 // -----------------------------------------------------------------------------
+
 // Pure operators.
-
-
-namespace {
 
 struct PureOperator {
   const Operator* (SimplifiedOperatorBuilder::*constructor)();
@@ -67,11 +66,9 @@ const PureOperator kPureOperators[] = {
     PURE(TruncateTaggedToBit, Operator::kNoProperties, 1),
     PURE(ObjectIsNumber, Operator::kNoProperties, 1),
     PURE(ObjectIsReceiver, Operator::kNoProperties, 1),
-    PURE(ObjectIsSmi, Operator::kNoProperties, 1)
+    PURE(ObjectIsSmi, Operator::kNoProperties, 1),
 #undef PURE
 };
-
-}  // namespace
 
 
 class SimplifiedPureOperatorTest
@@ -118,15 +115,12 @@ TEST_P(SimplifiedPureOperatorTest, Properties) {
   EXPECT_EQ(pop.properties, op->properties() & pop.properties);
 }
 
-INSTANTIATE_TEST_CASE_P(SimplifiedOperatorTest, SimplifiedPureOperatorTest,
-                        ::testing::ValuesIn(kPureOperators));
-
+INSTANTIATE_TEST_SUITE_P(SimplifiedOperatorTest, SimplifiedPureOperatorTest,
+                         ::testing::ValuesIn(kPureOperators));
 
 // -----------------------------------------------------------------------------
+
 // Element access operators.
-
-
-namespace {
 
 const ElementAccess kElementAccesses[] = {
     {kTaggedBase, FixedArray::kHeaderSize, Type::Any(),
@@ -152,27 +146,24 @@ const ElementAccess kElementAccesses[] = {
     {kUntaggedBase, 0, Type::Number(),
      MachineType(MachineRepresentation::kFloat64, MachineSemantic::kNone),
      kNoWriteBarrier},
-    {kTaggedBase, FixedTypedArrayBase::kDataOffset, Type::Signed32(),
-     MachineType::Int8(), kNoWriteBarrier},
-    {kTaggedBase, FixedTypedArrayBase::kDataOffset, Type::Unsigned32(),
+    {kTaggedBase, ByteArray::kHeaderSize, Type::Signed32(), MachineType::Int8(),
+     kNoWriteBarrier},
+    {kTaggedBase, ByteArray::kHeaderSize, Type::Unsigned32(),
      MachineType::Uint8(), kNoWriteBarrier},
-    {kTaggedBase, FixedTypedArrayBase::kDataOffset, Type::Signed32(),
+    {kTaggedBase, ByteArray::kHeaderSize, Type::Signed32(),
      MachineType::Int16(), kNoWriteBarrier},
-    {kTaggedBase, FixedTypedArrayBase::kDataOffset, Type::Unsigned32(),
+    {kTaggedBase, ByteArray::kHeaderSize, Type::Unsigned32(),
      MachineType::Uint16(), kNoWriteBarrier},
-    {kTaggedBase, FixedTypedArrayBase::kDataOffset, Type::Signed32(),
+    {kTaggedBase, ByteArray::kHeaderSize, Type::Signed32(),
      MachineType::Int32(), kNoWriteBarrier},
-    {kTaggedBase, FixedTypedArrayBase::kDataOffset, Type::Unsigned32(),
+    {kTaggedBase, ByteArray::kHeaderSize, Type::Unsigned32(),
      MachineType::Uint32(), kNoWriteBarrier},
-    {kTaggedBase, FixedTypedArrayBase::kDataOffset, Type::Number(),
+    {kTaggedBase, ByteArray::kHeaderSize, Type::Number(),
      MachineType(MachineRepresentation::kFloat32, MachineSemantic::kNone),
      kNoWriteBarrier},
-    {kTaggedBase, FixedTypedArrayBase::kDataOffset, Type::Number(),
+    {kTaggedBase, ByteArray::kHeaderSize, Type::Number(),
      MachineType(MachineRepresentation::kFloat32, MachineSemantic::kNone),
      kNoWriteBarrier}};
-
-}  // namespace
-
 
 class SimplifiedElementAccessOperatorTest
     : public TestWithZone,
@@ -220,11 +211,11 @@ TEST_P(SimplifiedElementAccessOperatorTest, StoreElement) {
   EXPECT_EQ(0, op->ControlOutputCount());
 }
 
+INSTANTIATE_TEST_SUITE_P(SimplifiedOperatorTest,
+                         SimplifiedElementAccessOperatorTest,
+                         ::testing::ValuesIn(kElementAccesses));
 
-INSTANTIATE_TEST_CASE_P(SimplifiedOperatorTest,
-                        SimplifiedElementAccessOperatorTest,
-                        ::testing::ValuesIn(kElementAccesses));
-
+}  // namespace simplified_operator_unittest
 }  // namespace compiler
 }  // namespace internal
 }  // namespace v8

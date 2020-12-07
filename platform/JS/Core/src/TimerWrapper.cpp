@@ -45,8 +45,8 @@ v8::Handle<v8::ObjectTemplate> TimerWrapper::objectTemplate(v8::Isolate* pIsolat
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "cancelled"), cancelled);
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "cancel"), v8::FunctionTemplate::New(pIsolate, cancel));
+		objectTemplate->SetAccessor(toV8String(pIsolate, "cancelled"s), cancelled);
+		objectTemplate->Set(toV8String(pIsolate, "cancel"s), v8::FunctionTemplate::New(pIsolate, cancel));
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> timerTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);

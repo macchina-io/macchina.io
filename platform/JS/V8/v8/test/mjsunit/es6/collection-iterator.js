@@ -5,6 +5,7 @@
 // Flags: --allow-natives-syntax
 
 function test(f) {
+  %PrepareFunctionForOptimization(f);
   f();
   f();
   %OptimizeFunctionOnNextCall(f);
@@ -14,7 +15,6 @@ function test(f) {
 test(function TestSetIterator() {
   var s = new Set;
   var iter = s.values();
-  assertEquals('Set Iterator', %_ClassOf(iter));
 
   var SetIteratorPrototype = iter.__proto__;
   assertFalse(SetIteratorPrototype.hasOwnProperty('constructor'));
@@ -160,7 +160,6 @@ test(function TestSetIteratorSymbol() {
 test(function TestMapIterator() {
   var m = new Map;
   var iter = m.values();
-  assertEquals('Map Iterator', %_ClassOf(iter));
 
   var MapIteratorPrototype = iter.__proto__;
   assertFalse(MapIteratorPrototype.hasOwnProperty('constructor'));

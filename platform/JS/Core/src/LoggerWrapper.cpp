@@ -46,16 +46,16 @@ v8::Handle<v8::FunctionTemplate> LoggerWrapper::constructor(v8::Isolate* pIsolat
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "TRACE"), v8::Integer::New(pIsolate, 8));
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "DEBUG"), v8::Integer::New(pIsolate, 7));
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "INFORMATION"), v8::Integer::New(pIsolate, 6));
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "NOTICE"), v8::Integer::New(pIsolate, 5));
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "WARNING"), v8::Integer::New(pIsolate, 4));
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "ERROR"), v8::Integer::New(pIsolate, 3));
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "CRITICAL"), v8::Integer::New(pIsolate, 2));
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "FATAL"), v8::Integer::New(pIsolate, 1));
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isLogger"), v8::FunctionTemplate::New(pIsolate, isLogger));
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "close"), v8::FunctionTemplate::New(pIsolate, close));
+	funcTemplate->Set(toV8String(pIsolate, "TRACE"s), v8::Integer::New(pIsolate, 8));
+	funcTemplate->Set(toV8String(pIsolate, "DEBUG"s), v8::Integer::New(pIsolate, 7));
+	funcTemplate->Set(toV8String(pIsolate, "INFORMATION"s), v8::Integer::New(pIsolate, 6));
+	funcTemplate->Set(toV8String(pIsolate, "NOTICE"s), v8::Integer::New(pIsolate, 5));
+	funcTemplate->Set(toV8String(pIsolate, "WARNING"s), v8::Integer::New(pIsolate, 4));
+	funcTemplate->Set(toV8String(pIsolate, "ERROR"s), v8::Integer::New(pIsolate, 3));
+	funcTemplate->Set(toV8String(pIsolate, "CRITICAL"s), v8::Integer::New(pIsolate, 2));
+	funcTemplate->Set(toV8String(pIsolate, "FATAL"s), v8::Integer::New(pIsolate, 1));
+	funcTemplate->Set(toV8String(pIsolate, "isLogger"s), v8::FunctionTemplate::New(pIsolate, isLogger));
+	funcTemplate->Set(toV8String(pIsolate, "close"s), v8::FunctionTemplate::New(pIsolate, close));
 
 	return handleScope.Escape(funcTemplate);
 }
@@ -71,17 +71,17 @@ v8::Handle<v8::ObjectTemplate> LoggerWrapper::objectTemplate(v8::Isolate* pIsola
 	{
 		v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New(pIsolate);
 		loggerTemplate->SetInternalFieldCount(1);
-		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "trace"), v8::FunctionTemplate::New(pIsolate, trace));
-		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "debug"), v8::FunctionTemplate::New(pIsolate, debug));
-		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "information"), v8::FunctionTemplate::New(pIsolate, information));
-		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "notice"), v8::FunctionTemplate::New(pIsolate, notice));
-		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "warning"), v8::FunctionTemplate::New(pIsolate, warning));
-		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "error"), v8::FunctionTemplate::New(pIsolate, error));
-		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "critical"), v8::FunctionTemplate::New(pIsolate, critical));
-		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "fatal"), v8::FunctionTemplate::New(pIsolate, fatal));
-		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "log"), v8::FunctionTemplate::New(pIsolate, log));
-		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "dump"), v8::FunctionTemplate::New(pIsolate, dump));
-		loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "close"), v8::FunctionTemplate::New(pIsolate, close));
+		loggerTemplate->Set(toV8String(pIsolate, "trace"s), v8::FunctionTemplate::New(pIsolate, trace));
+		loggerTemplate->Set(toV8String(pIsolate, "debug"s), v8::FunctionTemplate::New(pIsolate, debug));
+		loggerTemplate->Set(toV8String(pIsolate, "information"s), v8::FunctionTemplate::New(pIsolate, information));
+		loggerTemplate->Set(toV8String(pIsolate, "notice"s), v8::FunctionTemplate::New(pIsolate, notice));
+		loggerTemplate->Set(toV8String(pIsolate, "warning"s), v8::FunctionTemplate::New(pIsolate, warning));
+		loggerTemplate->Set(toV8String(pIsolate, "error"s), v8::FunctionTemplate::New(pIsolate, error));
+		loggerTemplate->Set(toV8String(pIsolate, "critical"s), v8::FunctionTemplate::New(pIsolate, critical));
+		loggerTemplate->Set(toV8String(pIsolate, "fatal"s), v8::FunctionTemplate::New(pIsolate, fatal));
+		loggerTemplate->Set(toV8String(pIsolate, "log"s), v8::FunctionTemplate::New(pIsolate, log));
+		loggerTemplate->Set(toV8String(pIsolate, "dump"s), v8::FunctionTemplate::New(pIsolate, dump));
+		loggerTemplate->Set(toV8String(pIsolate, "close"s), v8::FunctionTemplate::New(pIsolate, close));
 		pooledLoggerTemplate.Reset(pIsolate, loggerTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> localLoggerTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledLoggerTemplate);
@@ -91,7 +91,9 @@ v8::Handle<v8::ObjectTemplate> LoggerWrapper::objectTemplate(v8::Isolate* pIsola
 
 void LoggerWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	v8::HandleScope handleScope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 
 	Poco::Logger* pLogger = 0;
 	try
@@ -102,65 +104,73 @@ void LoggerWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 		std::string loggerName;
 		if (args.Length() > 0)
 		{
-			loggerName = toString(args[0]);
+			loggerName = toString(pIsolate, args[0]);
 		}
 
 		bool isExistingLogger = !Poco::Logger::has(loggerName).isNull();
-		bool reconfigure = args.Length() > 2 && args[2]->BooleanValue();
+		bool reconfigure = args.Length() > 2 && args[2]->BooleanValue(pIsolate);
 
 		pLogger = &Poco::Logger::get(loggerName);
 
 		if ((!isExistingLogger || reconfigure) && args.Length() > 1 && args[1]->IsObject())
 		{
-			v8::Local<v8::String> levelProp = v8::String::NewFromUtf8(args.GetIsolate(), "level");
-			v8::Local<v8::String> patternProp = v8::String::NewFromUtf8(args.GetIsolate(), "pattern");
-			v8::Local<v8::String> channelProp = v8::String::NewFromUtf8(args.GetIsolate(), "channel");
-			v8::Local<v8::String> classProp = v8::String::NewFromUtf8(args.GetIsolate(), "class");
+			v8::Local<v8::String> levelProp = toV8String(pIsolate, "level"s);
+			v8::Local<v8::String> patternProp = toV8String(pIsolate, "pattern"s);
+			v8::Local<v8::String> channelProp = toV8String(pIsolate, "channel"s);
+			v8::Local<v8::String> classProp = toV8String(pIsolate, "class"s);
 
 			v8::Local<v8::Object> config = args[1].As<v8::Object>();
 			Poco::AutoPtr<Poco::Channel> pChannel;
 
-			if (config->Has(levelProp))
+			if (config->Has(context, levelProp).FromMaybe(false))
 			{
-				std::string level = toString(config->Get(levelProp));
+				std::string level = toString(pIsolate, config->Get(context, levelProp).ToLocalChecked());
 				pLogger->setLevel(level);
 			}
 
-			if (config->Has(channelProp))
+			if (config->Has(context, channelProp).FromMaybe(false))
 			{
-				v8::Local<v8::Value> channelArg = config->Get(channelProp);
-				if (channelArg->IsObject())
+				v8::MaybeLocal<v8::Value> maybeChannelArg = config->Get(context, channelProp);
+				v8::Local<v8::Value> channelArg;
+				if (maybeChannelArg.ToLocal(&channelArg))
 				{
-					std::string channelClass;
-					v8::Local<v8::Object> channelConfig = channelArg.As<v8::Object>();
-					if (channelConfig->Has(classProp))
+					if (channelArg->IsObject())
 					{
-						channelClass = toString(channelConfig->Get(classProp));
-					}
-					else throw Poco::NotFoundException("Missing channel configuration property", "class");
-					pChannel = Poco::LoggingFactory::defaultFactory().createChannel(channelClass);
-
-					v8::Local<v8::Array> channelProps = channelConfig->GetOwnPropertyNames();
-					for (unsigned i = 0; i < channelProps->Length(); i++)
-					{
-						std::string prop = toString(channelProps->Get(i));
-						if (prop != "class")
+						std::string channelClass;
+						v8::Local<v8::Object> channelConfig = channelArg.As<v8::Object>();
+						if (channelConfig->Has(context, classProp).FromMaybe(false))
 						{
-							std::string value = toString(channelConfig->Get(channelProps->Get(i)));
-							pChannel->setProperty(prop, value);
+							channelClass = toString(pIsolate, channelConfig->Get(context, classProp));
+						}
+						else throw Poco::NotFoundException("Missing channel configuration property", "class");
+						pChannel = Poco::LoggingFactory::defaultFactory().createChannel(channelClass);
+
+						v8::MaybeLocal<v8::Array> maybeChannelProps = channelConfig->GetOwnPropertyNames(context);
+						v8::Local<v8::Array> channelProps;
+						if (maybeChannelProps.ToLocal(&channelProps))
+						{
+							for (unsigned i = 0; i < channelProps->Length(); i++)
+							{
+								std::string prop = toString(pIsolate, channelProps->Get(context, i));
+								if (prop != "class")
+								{
+									std::string value = toString(pIsolate, channelConfig->Get(context, i));
+									pChannel->setProperty(prop, value);
+								}
+							}
 						}
 					}
-				}
-				else
-				{
-					std::string channelName = toString(channelArg);
-					pChannel.assign(Poco::LoggingRegistry::defaultRegistry().channelForName(channelName), true);
+					else
+					{
+						std::string channelName = toString(pIsolate, channelArg);
+						pChannel.assign(Poco::LoggingRegistry::defaultRegistry().channelForName(channelName), true);
+					}
 				}
 			}
 
-			if (config->Has(patternProp))
+			if (config->Has(context, patternProp).FromMaybe(false))
 			{
-				std::string pattern = toString(config->Get(patternProp));
+				std::string pattern = toString(pIsolate, config->Get(context, patternProp));
 				Poco::AutoPtr<Poco::PatternFormatter> pPatternFormatter = new Poco::PatternFormatter(pattern);
 				pChannel = new Poco::FormattingChannel(pPatternFormatter, pChannel);
 			}
@@ -169,8 +179,12 @@ void LoggerWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 		}
 
 		LoggerWrapper wrapper;
-		v8::Local<v8::Object> loggerObject(wrapper.wrapNative(args.GetIsolate(), pLogger));
-		args.GetReturnValue().Set(loggerObject);
+		v8::MaybeLocal<v8::Object> maybeLoggerObject(wrapper.wrapNative(pIsolate, pLogger));
+		v8::Local<v8::Object> loggerObject;
+		if (maybeLoggerObject.ToLocal(&loggerObject))
+		{
+			args.GetReturnValue().Set(loggerObject);
+		}
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -194,9 +208,10 @@ void LoggerWrapper::isLogger(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void LoggerWrapper::log(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	if (args.Length() < 2) return;
-	v8::HandleScope scope(args.GetIsolate());
-	std::string prioStr = toString(args[0]);
+	v8::HandleScope scope(pIsolate);
+	std::string prioStr = toString(pIsolate, args[0]);
 	int prio = 0;
 	try
 	{
@@ -214,8 +229,11 @@ void LoggerWrapper::log(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& args, int firstArgIndex, const std::string& prefix)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+
 	if (args.Length() <= firstArgIndex) return;
-	v8::HandleScope scope(args.GetIsolate());
 	Poco::Logger* pLogger = Wrapper::unwrapNative<Poco::Logger>(args);
 	try
 	{
@@ -225,7 +243,7 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 			int nextArgIndex = firstArgIndex;
 			if (args[nextArgIndex]->IsString())
 			{
-				std::string fmt(toString(args[nextArgIndex]));
+				std::string fmt(toString(pIsolate, args[nextArgIndex]));
 				nextArgIndex++;
 				std::string::const_iterator it = fmt.begin();
 				while (it != fmt.end())
@@ -243,12 +261,12 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 								{
 									if (args[nextArgIndex]->IsNumber())
 									{
-										Poco::Int64 intValue = args[nextArgIndex]->IntegerValue();
+										Poco::Int64 intValue = args[nextArgIndex]->IntegerValue(context).FromMaybe(0);
 										Poco::NumberFormatter::append(text, intValue);
 									}
 									else
 									{
-										text.append(toString(args[nextArgIndex]));
+										text.append(toString(pIsolate, args[nextArgIndex]));
 									}
 								}
 								nextArgIndex++;
@@ -258,12 +276,12 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 								{
 									if (args[nextArgIndex]->IsNumber())
 									{
-										double doubleValue = args[nextArgIndex]->NumberValue();
+										double doubleValue = args[nextArgIndex]->NumberValue(context).FromMaybe(0.0);
 										Poco::NumberFormatter::append(text, doubleValue);
 									}
 									else
 									{
-										text.append(toString(args[nextArgIndex]));
+										text.append(toString(pIsolate, args[nextArgIndex]));
 									}
 								}
 								nextArgIndex++;
@@ -271,7 +289,7 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 							case 's':
 								if (nextArgIndex < args.Length())
 								{
-									text.append(toString(args[nextArgIndex]));
+									text.append(toString(pIsolate, args[nextArgIndex]));
 								}
 								nextArgIndex++;
 								break;
@@ -279,23 +297,8 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 							case 'O':
 								if (nextArgIndex < args.Length())
 								{
-									// use built-in JSON.stringify()
-									v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
-									v8::Local<v8::Object> global = context->Global();
-									v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
-									if (!json.IsEmpty())
-									{
-										v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
-										if (!stringify.IsEmpty())
-										{
-											v8::Local<v8::Value> argv[3] = {
-												args[nextArgIndex],
-												v8::Null(args.GetIsolate()),
-												v8::Integer::New(args.GetIsolate(), *it == 'O' ? 4 : 0)
-											};
-											text.append(toString(stringify->Call(json, 3, argv)));
-										}
-									}
+									v8::Local<v8::String> gap = toV8String(pIsolate, std::string(*it == 'O' ? 4U : 0U, ' '));
+									text.append(toString(pIsolate, v8::JSON::Stringify(context, args[nextArgIndex], gap)));
 								}
 								nextArgIndex++;
 								break;
@@ -315,7 +318,7 @@ void LoggerWrapper::format(int prio, const v8::FunctionCallbackInfo<v8::Value>& 
 			}
 			for (int i = nextArgIndex; i < args.Length(); i++)
 			{
-				text.append(toString(args[i]));
+				text.append(toString(pIsolate, args[i]));
 			}
 			Poco::Message msg(pLogger->name(), text, static_cast<Poco::Message::Priority>(prio));
 			pLogger->log(msg);
@@ -377,46 +380,33 @@ void LoggerWrapper::fatal(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void LoggerWrapper::dump(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+
 	if (args.Length() < 2) return;
-	v8::HandleScope scope(args.GetIsolate());
 	Poco::Logger* pLogger = Wrapper::unwrapNative<Poco::Logger>(args);
 	int prio = Poco::Message::PRIO_DEBUG;
 	try
 	{
-		std::string message = toString(args[0]);
+		std::string message = toString(pIsolate, args[0]);
 		if (args.Length() > 2)
 		{
-			std::string prioStr = toString(args[2]);
+			std::string prioStr = toString(pIsolate, args[2]);
 			if (!Poco::NumberParser::tryParse(prioStr, prio))
 			{
 				prio = Poco::Logger::parseLevel(prioStr);
 			}
 		}
-		if (Wrapper::isWrapper<BufferWrapper::Buffer>(args.GetIsolate(), args[1]))
+		if (Wrapper::isWrapper<BufferWrapper::Buffer>(pIsolate, args[1]))
 		{
 			BufferWrapper::Buffer* pBuffer = Wrapper::unwrapNativeObject<BufferWrapper::Buffer>(args[1]);
 			pLogger->dump(message, pBuffer->begin(), pBuffer->size(), static_cast<Poco::Message::Priority>(prio));
 		}
 		else
 		{
-			// use built-in JSON.stringify()
-			v8::Local<v8::Context> context = args.GetIsolate()->GetCurrentContext();
-			v8::Local<v8::Object> global = context->Global();
-			v8::Local<v8::Object> json = global->Get(v8::String::NewFromUtf8(args.GetIsolate(), "JSON"))->ToObject();
-			if (!json.IsEmpty())
-			{
-				v8::Local<v8::Function> stringify = v8::Handle<v8::Function>::Cast(json->Get(v8::String::NewFromUtf8(args.GetIsolate(), "stringify")));
-				if (!stringify.IsEmpty())
-				{
-					v8::Local<v8::Value> argv[3] = {
-						args[1],
-						v8::Null(args.GetIsolate()),
-						v8::Integer::New(args.GetIsolate(), 4)
-					};
-					message += "\n";
-					message += toString(stringify->Call(json, 3, argv));
-				}
-			}
+			v8::Local<v8::String> gap = toV8String(pIsolate, std::string(4U, ' '));
+			message += toString(pIsolate, v8::JSON::Stringify(context, args[1], gap));
 			Poco::Message msg(pLogger->name(), message, static_cast<Poco::Message::Priority>(prio));
 			pLogger->log(msg);
 		}

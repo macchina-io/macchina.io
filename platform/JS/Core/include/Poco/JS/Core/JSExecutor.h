@@ -28,6 +28,7 @@
 #include "Poco/Util/Timer.h"
 #include "Poco/Util/TimerTask.h"
 #include "Poco/JS/Core/PooledIsolate.h"
+#include "Poco/JS/Core/Wrapper.h"
 #include "Poco/JS/Core/ModuleRegistry.h"
 #include "Poco/JS/Core/Module.h"
 #include "v8.h"
@@ -84,12 +85,12 @@ public:
 		///
 		/// Sets up a script context scope for the call.
 
-	void callInContext(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>& receiver, int argc, v8::Handle<v8::Value> argv[]);
+	void callInContext(v8::Isolate* pIsolate, v8::Local<v8::Context>& context, v8::Handle<v8::Function>& function, v8::Handle<v8::Value>& receiver, int argc, v8::Handle<v8::Value> argv[]);
 		/// Calls a specific function defined in the script, using the given arguments.
 		///
 		/// A script context scope for the call must have been set up by the caller.
 
-	void callInContext(v8::Persistent<v8::Object>& jsObject, const std::string& method, int argc, v8::Handle<v8::Value> argv[]);
+	void callInContext(v8::Isolate* pIsolate, v8::Local<v8::Context>& context, v8::Persistent<v8::Object>& jsObject, const std::string& method, int argc, v8::Handle<v8::Value> argv[]);
 		/// Calls a specific method defined in the given object with the given arguments.
 		///
 		/// A script context scope for the call must have been set up by the caller.
@@ -197,7 +198,7 @@ protected:
 	static void require(const v8::FunctionCallbackInfo<v8::Value>& args);
 		/// Implements the JavaScript require function to import a module.
 
-	void includeScript(const std::string& uri);
+	void includeScript(v8::Isolate* pIsolate, const std::string& uri);
 		/// Includes another script.
 
 	void importModule(const v8::FunctionCallbackInfo<v8::Value>& args, const std::string& uri);
@@ -222,9 +223,33 @@ protected:
 	void runImpl();
 	void setup();
 	void cleanup();
-	void compile();
-	void reportError(v8::TryCatch& tryCatch);
-	void reportError(const ErrorInfo& errorInfo);
+	void compile(v8::Local<v8::Context>& context);
+	void reportError(v8::Isolate* pIsolate, v8::TryCatch& tryCatch);
+	void reportError(v8::Isolate* pIsolate, const ErrorInfo& errorInfo);
+
+	template <typename W>
+	static void setWrapperProperty(v8::Local<v8::Object>& object, v8::Isolate* pIsolate, const std::string& name)
+	{
+		W wrapper;
+		v8::MaybeLocal<v8::Object> maybeWrapperObject = wrapper.wrapNative(pIsolate);
+		v8::Local<v8::Object> wrapperObject;
+		if (maybeWrapperObject.ToLocal(&wrapperObject))
+		{
+			(void) object->Set(pIsolate->GetCurrentContext(), Wrapper::toV8Internalized(pIsolate, name), wrapperObject);
+		}
+	}
+
+	template <typename W, typename N>
+	static void setWrapperProperty(v8::Local<v8::Object>& object, v8::Isolate* pIsolate, const std::string& name, N* pNative)
+	{
+		W wrapper;
+		v8::MaybeLocal<v8::Object> maybeWrapperObject = wrapper.wrapNative(pIsolate, pNative);
+		v8::Local<v8::Object> wrapperObject;
+		if (maybeWrapperObject.ToLocal(&wrapperObject))
+		{
+			(void) object->Set(pIsolate->GetCurrentContext(), Wrapper::toV8Internalized(pIsolate, name), wrapperObject);
+		}
+	}
 
 private:
 	void init();

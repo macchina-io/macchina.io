@@ -28,21 +28,24 @@
 #include <stdlib.h>
 #include <iostream>  // NOLINT(readability/streams)
 
-#include "src/v8.h"
+#include "src/init/v8.h"
 #include "test/cctest/cctest.h"
 
 #include "src/base/utils/random-number-generator.h"
-#include "src/macro-assembler.h"
-#include "src/mips64/macro-assembler-mips64.h"
-#include "src/mips64/simulator-mips64.h"
+#include "src/codegen/macro-assembler.h"
+#include "src/execution/simulator.h"
+#include "src/objects/heap-number.h"
+#include "src/utils/ostreams.h"
+#include "src/objects/objects-inl.h"
 
+namespace v8 {
+namespace internal {
 
-using namespace v8::internal;
-
-typedef void* (*F)(int64_t x, int64_t y, int p2, int p3, int p4);
-typedef Object* (*F1)(int x, int p1, int p2, int p3, int p4);
-typedef Object* (*F3)(void* p, int p1, int p2, int p3, int p4);
-typedef Object* (*F4)(void* p0, void* p1, int p2, int p3, int p4);
+// TODO(mips64): Refine these signatures per test case.
+using FV = void*(int64_t x, int64_t y, int p2, int p3, int p4);
+using F1 = void*(int x, int p1, int p2, int p3, int p4);
+using F3 = void*(void* p, int p1, int p2, int p3, int p4);
+using F4 = void*(void* p0, void* p1, int p2, int p3, int p4);
 
 #define __ masm->
 
@@ -53,81 +56,82 @@ TEST(BYTESWAP) {
   HandleScope scope(isolate);
 
   struct T {
-    int64_t r1;
-    int64_t r2;
-    int64_t r3;
-    int64_t r4;
-    int64_t r5;
-    int64_t r6;
-    int64_t r7;
+    uint64_t s8;
+    uint64_t s4;
+    uint64_t s2;
+    uint64_t u4;
+    uint64_t u2;
   };
-  T t;
 
-  MacroAssembler assembler(isolate, NULL, 0,
-                           v8::internal::CodeObjectRequired::kYes);
+  T t;
+  uint64_t test_values[] = {0x5612FFCD9D327ACC,
+                            0x781A15C3,
+                            0xFCDE,
+                            0x9F,
+                            0xC81A15C3,
+                            0x8000000000000000,
+                            0xFFFFFFFFFFFFFFFF,
+                            0x0000000080000000,
+                            0x0000000000008000};
+
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes);
 
   MacroAssembler* masm = &assembler;
 
-  __ Ld(a4, MemOperand(a0, offsetof(T, r1)));
+  __ Ld(a4, MemOperand(a0, offsetof(T, s8)));
   __ nop();
   __ ByteSwapSigned(a4, a4, 8);
-  __ Sd(a4, MemOperand(a0, offsetof(T, r1)));
+  __ Sd(a4, MemOperand(a0, offsetof(T, s8)));
 
-  __ Ld(a4, MemOperand(a0, offsetof(T, r2)));
+  __ Ld(a4, MemOperand(a0, offsetof(T, s4)));
   __ nop();
   __ ByteSwapSigned(a4, a4, 4);
-  __ Sd(a4, MemOperand(a0, offsetof(T, r2)));
+  __ Sd(a4, MemOperand(a0, offsetof(T, s4)));
 
-  __ Ld(a4, MemOperand(a0, offsetof(T, r3)));
+  __ Ld(a4, MemOperand(a0, offsetof(T, s2)));
   __ nop();
   __ ByteSwapSigned(a4, a4, 2);
-  __ Sd(a4, MemOperand(a0, offsetof(T, r3)));
+  __ Sd(a4, MemOperand(a0, offsetof(T, s2)));
 
-  __ Ld(a4, MemOperand(a0, offsetof(T, r4)));
-  __ nop();
-  __ ByteSwapSigned(a4, a4, 1);
-  __ Sd(a4, MemOperand(a0, offsetof(T, r4)));
-
-  __ Ld(a4, MemOperand(a0, offsetof(T, r5)));
-  __ nop();
-  __ ByteSwapUnsigned(a4, a4, 1);
-  __ Sd(a4, MemOperand(a0, offsetof(T, r5)));
-
-  __ Ld(a4, MemOperand(a0, offsetof(T, r6)));
-  __ nop();
-  __ ByteSwapUnsigned(a4, a4, 2);
-  __ Sd(a4, MemOperand(a0, offsetof(T, r6)));
-
-  __ Ld(a4, MemOperand(a0, offsetof(T, r7)));
+  __ Ld(a4, MemOperand(a0, offsetof(T, u4)));
   __ nop();
   __ ByteSwapUnsigned(a4, a4, 4);
-  __ Sd(a4, MemOperand(a0, offsetof(T, r7)));
+  __ Sd(a4, MemOperand(a0, offsetof(T, u4)));
+
+  __ Ld(a4, MemOperand(a0, offsetof(T, u2)));
+  __ nop();
+  __ ByteSwapUnsigned(a4, a4, 2);
+  __ Sd(a4, MemOperand(a0, offsetof(T, u2)));
 
   __ jr(ra);
   __ nop();
 
   CodeDesc desc;
   masm->GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
-  ::F3 f = FUNCTION_CAST<::F3>(code->entry());
-  t.r1 = 0x5612FFCD9D327ACC;
-  t.r2 = 0x781A15C3;
-  t.r3 = 0xFCDE;
-  t.r4 = 0x9F;
-  t.r5 = 0x9F;
-  t.r6 = 0xFCDE;
-  t.r7 = 0xC81A15C3;
-  Object* dummy = CALL_GENERATED_CODE(isolate, f, &t, 0, 0, 0, 0);
-  USE(dummy);
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
+  auto f = GeneratedCode<F3>::FromCode(*code);
 
-  CHECK_EQ(static_cast<int64_t>(0xCC7A329DCDFF1256), t.r1);
-  CHECK_EQ(static_cast<int64_t>(0xC3151A7800000000), t.r2);
-  CHECK_EQ(static_cast<int64_t>(0xDEFCFFFFFFFFFFFF), t.r3);
-  CHECK_EQ(static_cast<int64_t>(0x9FFFFFFFFFFFFFFF), t.r4);
-  CHECK_EQ(static_cast<int64_t>(0x9F00000000000000), t.r5);
-  CHECK_EQ(static_cast<int64_t>(0xDEFC000000000000), t.r6);
-  CHECK_EQ(static_cast<int64_t>(0xC3151AC800000000), t.r7);
+  for (size_t i = 0; i < arraysize(test_values); i++) {
+    int32_t in_s4 = static_cast<int32_t>(test_values[i]);
+    int16_t in_s2 = static_cast<int16_t>(test_values[i]);
+    uint32_t in_u4 = static_cast<uint32_t>(test_values[i]);
+    uint16_t in_u2 = static_cast<uint16_t>(test_values[i]);
+
+    t.s8 = test_values[i];
+    t.s4 = static_cast<uint64_t>(in_s4);
+    t.s2 = static_cast<uint64_t>(in_s2);
+    t.u4 = static_cast<uint64_t>(in_u4);
+    t.u2 = static_cast<uint64_t>(in_u2);
+
+    f.Call(&t, 0, 0, 0, 0);
+
+    CHECK_EQ(ByteReverse<uint64_t>(test_values[i]), t.s8);
+    CHECK_EQ(ByteReverse<int32_t>(in_s4), static_cast<int32_t>(t.s4));
+    CHECK_EQ(ByteReverse<int16_t>(in_s2), static_cast<int16_t>(t.s2));
+    CHECK_EQ(ByteReverse<uint32_t>(in_u4), static_cast<uint32_t>(t.u4));
+    CHECK_EQ(ByteReverse<uint16_t>(in_u2), static_cast<uint16_t>(t.u2));
+  }
 }
 
 TEST(LoadConstants) {
@@ -143,8 +147,7 @@ TEST(LoadConstants) {
     refConstants[i] = ~(mask << i);
   }
 
-  MacroAssembler assembler(isolate, NULL, 0,
-                           v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assembler;
 
   __ mov(a4, a0);
@@ -160,12 +163,11 @@ TEST(LoadConstants) {
 
   CodeDesc desc;
   masm->GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
 
-  ::F f = FUNCTION_CAST< ::F>(code->entry());
-  (void)CALL_GENERATED_CODE(isolate, f, reinterpret_cast<int64_t>(result), 0, 0,
-                            0, 0);
+  auto f = GeneratedCode<FV>::FromCode(*code);
+  (void)f.Call(reinterpret_cast<int64_t>(result), 0, 0, 0, 0);
   // Check results.
   for (int i = 0; i < 64; i++) {
     CHECK(refConstants[i] == result[i]);
@@ -178,8 +180,7 @@ TEST(LoadAddress) {
   Isolate* isolate = CcTest::i_isolate();
   HandleScope handles(isolate);
 
-  MacroAssembler assembler(isolate, NULL, 0,
-                           v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assembler;
   Label to_jump, skip;
   __ mov(a4, a0);
@@ -196,20 +197,20 @@ TEST(LoadAddress) {
   CHECK_EQ(4, check_size);
   __ jr(a4);
   __ nop();
-  __ stop("invalid");
-  __ stop("invalid");
-  __ stop("invalid");
-  __ stop("invalid");
-  __ stop("invalid");
+  __ stop();
+  __ stop();
+  __ stop();
+  __ stop();
+  __ stop();
 
 
   CodeDesc desc;
   masm->GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
 
-  ::F f = FUNCTION_CAST< ::F>(code->entry());
-  (void)CALL_GENERATED_CODE(isolate, f, 0, 0, 0, 0, 0);
+  auto f = GeneratedCode<FV>::FromCode(*code);
+  (void)f.Call(0, 0, 0, 0, 0);
   // Check results.
 }
 
@@ -222,8 +223,7 @@ TEST(jump_tables4) {
   CcTest::InitializeVM();
   Isolate* isolate = CcTest::i_isolate();
   HandleScope scope(isolate);
-  MacroAssembler assembler(isolate, nullptr, 0,
-                           v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assembler;
 
   const int kNumCases = 512;
@@ -263,15 +263,14 @@ TEST(jump_tables4) {
 
   CodeDesc desc;
   masm->GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
 #ifdef OBJECT_PRINT
   code->Print(std::cout);
 #endif
-  F1 f = FUNCTION_CAST<F1>(code->entry());
+  auto f = GeneratedCode<F1>::FromCode(*code);
   for (int i = 0; i < kNumCases; ++i) {
-    int64_t res = reinterpret_cast<int64_t>(
-        CALL_GENERATED_CODE(isolate, f, i, 0, 0, 0, 0));
+    int64_t res = reinterpret_cast<int64_t>(f.Call(i, 0, 0, 0, 0));
     ::printf("f(%d) = %" PRId64 "\n", i, res);
     CHECK_EQ(values[i], res);
   }
@@ -286,8 +285,7 @@ TEST(jump_tables5) {
   CcTest::InitializeVM();
   Isolate* isolate = CcTest::i_isolate();
   HandleScope scope(isolate);
-  MacroAssembler assembler(isolate, nullptr, 0,
-                           v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assembler;
 
   const int kNumCases = 512;
@@ -306,8 +304,6 @@ TEST(jump_tables5) {
 
   {
     __ BlockTrampolinePoolFor(kNumCases * 2 + 6 + 1);
-    PredictableCodeSizeScope predictable(
-        masm, kNumCases * kPointerSize + ((6 + 1) * Assembler::kInstrSize));
 
     __ addiupc(at, 6 + 1);
     __ Dlsa(at, at, a0, 3);
@@ -337,15 +333,14 @@ TEST(jump_tables5) {
 
   CodeDesc desc;
   masm->GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
 #ifdef OBJECT_PRINT
   code->Print(std::cout);
 #endif
-  F1 f = FUNCTION_CAST<F1>(code->entry());
+  auto f = GeneratedCode<F1>::FromCode(*code);
   for (int i = 0; i < kNumCases; ++i) {
-    int64_t res = reinterpret_cast<int64_t>(
-        CALL_GENERATED_CODE(isolate, f, i, 0, 0, 0, 0));
+    int64_t res = reinterpret_cast<int64_t>(f.Call(i, 0, 0, 0, 0));
     ::printf("f(%d) = %" PRId64 "\n", i, res);
     CHECK_EQ(values[i], res);
   }
@@ -361,13 +356,11 @@ TEST(jump_tables6) {
   CcTest::InitializeVM();
   Isolate* isolate = CcTest::i_isolate();
   HandleScope scope(isolate);
-  MacroAssembler assembler(isolate, nullptr, 0,
-                           v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assembler;
 
   const int kSwitchTableCases = 40;
 
-  const int kInstrSize = Assembler::kInstrSize;
   const int kMaxBranchOffset = Assembler::kMaxBranchOffset;
   const int kTrampolineSlotsSize = Assembler::kTrampolineSlotsSize;
   const int kSwitchTablePrologueSize = MacroAssembler::kSwitchTablePrologueSize;
@@ -429,15 +422,14 @@ TEST(jump_tables6) {
 
   CodeDesc desc;
   masm->GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
 #ifdef OBJECT_PRINT
   code->Print(std::cout);
 #endif
-  F1 f = FUNCTION_CAST<F1>(code->entry());
+  auto f = GeneratedCode<F1>::FromCode(*code);
   for (int i = 0; i < kSwitchTableCases; ++i) {
-    int64_t res = reinterpret_cast<int64_t>(
-        CALL_GENERATED_CODE(isolate, f, i, 0, 0, 0, 0));
+    int64_t res = reinterpret_cast<int64_t>(f.Call(i, 0, 0, 0, 0));
     ::printf("f(%d) = %" PRId64 "\n", i, res);
     CHECK_EQ(values[i], res);
   }
@@ -446,8 +438,7 @@ TEST(jump_tables6) {
 static uint64_t run_lsa(uint32_t rt, uint32_t rs, int8_t sa) {
   Isolate* isolate = CcTest::i_isolate();
   HandleScope scope(isolate);
-  MacroAssembler assembler(isolate, nullptr, 0,
-                           v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assembler;
 
   __ Lsa(v0, a0, a1, sa);
@@ -456,13 +447,12 @@ static uint64_t run_lsa(uint32_t rt, uint32_t rs, int8_t sa) {
 
   CodeDesc desc;
   assembler.GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
 
-  F1 f = FUNCTION_CAST<F1>(code->entry());
+  auto f = GeneratedCode<F1>::FromCode(*code);
 
-  uint64_t res = reinterpret_cast<uint64_t>(
-      CALL_GENERATED_CODE(isolate, f, rt, rs, 0, 0, 0));
+  uint64_t res = reinterpret_cast<uint64_t>(f.Call(rt, rs, 0, 0, 0));
 
   return res;
 }
@@ -480,7 +470,7 @@ TEST(Lsa) {
   struct TestCaseLsa tc[] = {// rt, rs, sa, expected_res
                              {0x4, 0x1, 1, 0x6},
                              {0x4, 0x1, 2, 0x8},
-                             {0x4, 0x1, 3, 0xc},
+                             {0x4, 0x1, 3, 0xC},
                              {0x4, 0x1, 4, 0x14},
                              {0x4, 0x1, 5, 0x24},
                              {0x0, 0x1, 1, 0x2},
@@ -497,16 +487,16 @@ TEST(Lsa) {
                              // Shift overflow.
                              {0x4, INT32_MAX, 1, 0x2},
                              {0x4, INT32_MAX >> 1, 2, 0x0},
-                             {0x4, INT32_MAX >> 2, 3, 0xfffffffffffffffc},
-                             {0x4, INT32_MAX >> 3, 4, 0xfffffffffffffff4},
-                             {0x4, INT32_MAX >> 4, 5, 0xffffffffffffffe4},
+                             {0x4, INT32_MAX >> 2, 3, 0xFFFFFFFFFFFFFFFC},
+                             {0x4, INT32_MAX >> 3, 4, 0xFFFFFFFFFFFFFFF4},
+                             {0x4, INT32_MAX >> 4, 5, 0xFFFFFFFFFFFFFFE4},
 
                              // Signed addition overflow.
-                             {INT32_MAX - 1, 0x1, 1, 0xffffffff80000000},
-                             {INT32_MAX - 3, 0x1, 2, 0xffffffff80000000},
-                             {INT32_MAX - 7, 0x1, 3, 0xffffffff80000000},
-                             {INT32_MAX - 15, 0x1, 4, 0xffffffff80000000},
-                             {INT32_MAX - 31, 0x1, 5, 0xffffffff80000000},
+                             {INT32_MAX - 1, 0x1, 1, 0xFFFFFFFF80000000},
+                             {INT32_MAX - 3, 0x1, 2, 0xFFFFFFFF80000000},
+                             {INT32_MAX - 7, 0x1, 3, 0xFFFFFFFF80000000},
+                             {INT32_MAX - 15, 0x1, 4, 0xFFFFFFFF80000000},
+                             {INT32_MAX - 31, 0x1, 5, 0xFFFFFFFF80000000},
 
                              // Addition overflow.
                              {-2, 0x1, 1, 0x0},
@@ -528,8 +518,7 @@ TEST(Lsa) {
 static uint64_t run_dlsa(uint64_t rt, uint64_t rs, int8_t sa) {
   Isolate* isolate = CcTest::i_isolate();
   HandleScope scope(isolate);
-  MacroAssembler assembler(isolate, nullptr, 0,
-                           v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assembler;
 
   __ Dlsa(v0, a0, a1, sa);
@@ -538,13 +527,12 @@ static uint64_t run_dlsa(uint64_t rt, uint64_t rs, int8_t sa) {
 
   CodeDesc desc;
   assembler.GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
 
-  ::F f = FUNCTION_CAST<::F>(code->entry());
+  auto f = GeneratedCode<FV>::FromCode(*code);
 
-  uint64_t res = reinterpret_cast<uint64_t>(
-      CALL_GENERATED_CODE(isolate, f, rt, rs, 0, 0, 0));
+  uint64_t res = reinterpret_cast<uint64_t>(f.Call(rt, rs, 0, 0, 0));
 
   return res;
 }
@@ -562,7 +550,7 @@ TEST(Dlsa) {
   struct TestCaseLsa tc[] = {// rt, rs, sa, expected_res
                              {0x4, 0x1, 1, 0x6},
                              {0x4, 0x1, 2, 0x8},
-                             {0x4, 0x1, 3, 0xc},
+                             {0x4, 0x1, 3, 0xC},
                              {0x4, 0x1, 4, 0x14},
                              {0x4, 0x1, 5, 0x24},
                              {0x0, 0x1, 1, 0x2},
@@ -579,9 +567,9 @@ TEST(Dlsa) {
                              // Shift overflow.
                              {0x4, INT64_MAX, 1, 0x2},
                              {0x4, INT64_MAX >> 1, 2, 0x0},
-                             {0x4, INT64_MAX >> 2, 3, 0xfffffffffffffffc},
-                             {0x4, INT64_MAX >> 3, 4, 0xfffffffffffffff4},
-                             {0x4, INT64_MAX >> 4, 5, 0xffffffffffffffe4},
+                             {0x4, INT64_MAX >> 2, 3, 0xFFFFFFFFFFFFFFFC},
+                             {0x4, INT64_MAX >> 3, 4, 0xFFFFFFFFFFFFFFF4},
+                             {0x4, INT64_MAX >> 4, 5, 0xFFFFFFFFFFFFFFE4},
 
                              // Signed addition overflow.
                              {INT64_MAX - 1, 0x1, 1, 0x8000000000000000},
@@ -608,40 +596,40 @@ TEST(Dlsa) {
 }
 
 static const std::vector<uint32_t> cvt_trunc_uint32_test_values() {
-  static const uint32_t kValues[] = {0x00000000, 0x00000001, 0x00ffff00,
-                                     0x7fffffff, 0x80000000, 0x80000001,
-                                     0x80ffff00, 0x8fffffff, 0xffffffff};
+  static const uint32_t kValues[] = {0x00000000, 0x00000001, 0x00FFFF00,
+                                     0x7FFFFFFF, 0x80000000, 0x80000001,
+                                     0x80FFFF00, 0x8FFFFFFF, 0xFFFFFFFF};
   return std::vector<uint32_t>(&kValues[0], &kValues[arraysize(kValues)]);
 }
 
 static const std::vector<int32_t> cvt_trunc_int32_test_values() {
   static const int32_t kValues[] = {
       static_cast<int32_t>(0x00000000), static_cast<int32_t>(0x00000001),
-      static_cast<int32_t>(0x00ffff00), static_cast<int32_t>(0x7fffffff),
+      static_cast<int32_t>(0x00FFFF00), static_cast<int32_t>(0x7FFFFFFF),
       static_cast<int32_t>(0x80000000), static_cast<int32_t>(0x80000001),
-      static_cast<int32_t>(0x80ffff00), static_cast<int32_t>(0x8fffffff),
-      static_cast<int32_t>(0xffffffff)};
+      static_cast<int32_t>(0x80FFFF00), static_cast<int32_t>(0x8FFFFFFF),
+      static_cast<int32_t>(0xFFFFFFFF)};
   return std::vector<int32_t>(&kValues[0], &kValues[arraysize(kValues)]);
 }
 
 static const std::vector<uint64_t> cvt_trunc_uint64_test_values() {
   static const uint64_t kValues[] = {
-      0x0000000000000000, 0x0000000000000001, 0x0000ffffffff0000,
-      0x7fffffffffffffff, 0x8000000000000000, 0x8000000000000001,
-      0x8000ffffffff0000, 0x8fffffffffffffff, 0xffffffffffffffff};
+      0x0000000000000000, 0x0000000000000001, 0x0000FFFFFFFF0000,
+      0x7FFFFFFFFFFFFFFF, 0x8000000000000000, 0x8000000000000001,
+      0x8000FFFFFFFF0000, 0x8FFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF};
   return std::vector<uint64_t>(&kValues[0], &kValues[arraysize(kValues)]);
 }
 
 static const std::vector<int64_t> cvt_trunc_int64_test_values() {
   static const int64_t kValues[] = {static_cast<int64_t>(0x0000000000000000),
                                     static_cast<int64_t>(0x0000000000000001),
-                                    static_cast<int64_t>(0x0000ffffffff0000),
-                                    static_cast<int64_t>(0x7fffffffffffffff),
+                                    static_cast<int64_t>(0x0000FFFFFFFF0000),
+                                    static_cast<int64_t>(0x7FFFFFFFFFFFFFFF),
                                     static_cast<int64_t>(0x8000000000000000),
                                     static_cast<int64_t>(0x8000000000000001),
-                                    static_cast<int64_t>(0x8000ffffffff0000),
-                                    static_cast<int64_t>(0x8fffffffffffffff),
-                                    static_cast<int64_t>(0xffffffffffffffff)};
+                                    static_cast<int64_t>(0x8000FFFFFFFF0000),
+                                    static_cast<int64_t>(0x8FFFFFFFFFFFFFFF),
+                                    static_cast<int64_t>(0xFFFFFFFFFFFFFFFF)};
   return std::vector<int64_t>(&kValues[0], &kValues[arraysize(kValues)]);
 }
 
@@ -675,12 +663,11 @@ static const std::vector<int64_t> cvt_trunc_int64_test_values() {
 
 template <typename RET_TYPE, typename IN_TYPE, typename Func>
 RET_TYPE run_Cvt(IN_TYPE x, Func GenerateConvertInstructionFunc) {
-  typedef RET_TYPE (*F_CVT)(IN_TYPE x0, int x1, int x2, int x3, int x4);
+  using F_CVT = RET_TYPE(IN_TYPE x0, int x1, int x2, int x3, int x4);
 
   Isolate* isolate = CcTest::i_isolate();
   HandleScope scope(isolate);
-  MacroAssembler assm(isolate, nullptr, 0,
-                      v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assm(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assm;
 
   GenerateConvertInstructionFunc(masm);
@@ -690,13 +677,12 @@ RET_TYPE run_Cvt(IN_TYPE x, Func GenerateConvertInstructionFunc) {
 
   CodeDesc desc;
   assm.GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
 
-  F_CVT f = FUNCTION_CAST<F_CVT>(code->entry());
+  auto f = GeneratedCode<F_CVT>::FromCode(*code);
 
-  return reinterpret_cast<RET_TYPE>(
-      CALL_GENERATED_CODE(isolate, f, x, 0, 0, 0, 0));
+  return reinterpret_cast<RET_TYPE>(f.Call(x, 0, 0, 0, 0));
 }
 
 TEST(Cvt_s_uw_Trunc_uw_s) {
@@ -779,339 +765,120 @@ TEST(cvt_d_w_Trunc_w_d) {
 }
 
 static const std::vector<int64_t> overflow_int64_test_values() {
-  static const int64_t kValues[] = {static_cast<int64_t>(0xf000000000000000),
+  static const int64_t kValues[] = {static_cast<int64_t>(0xF000000000000000),
                                     static_cast<int64_t>(0x0000000000000001),
-                                    static_cast<int64_t>(0xff00000000000000),
-                                    static_cast<int64_t>(0x0000f00111111110),
-                                    static_cast<int64_t>(0x0f00001000000000),
-                                    static_cast<int64_t>(0x991234ab12a96731),
-                                    static_cast<int64_t>(0xb0ffff0f0f0f0f01),
-                                    static_cast<int64_t>(0x00006fffffffffff),
-                                    static_cast<int64_t>(0xffffffffffffffff)};
+                                    static_cast<int64_t>(0xFF00000000000000),
+                                    static_cast<int64_t>(0x0000F00111111110),
+                                    static_cast<int64_t>(0x0F00001000000000),
+                                    static_cast<int64_t>(0x991234AB12A96731),
+                                    static_cast<int64_t>(0xB0FFFF0F0F0F0F01),
+                                    static_cast<int64_t>(0x00006FFFFFFFFFFF),
+                                    static_cast<int64_t>(0xFFFFFFFFFFFFFFFF)};
   return std::vector<int64_t>(&kValues[0], &kValues[arraysize(kValues)]);
 }
 
-enum OverflowBranchType {
-  kAddBranchOverflow,
-  kSubBranchOverflow,
-};
-
-struct OverflowRegisterCombination {
-  Register dst;
-  Register left;
-  Register right;
-  Register scratch;
-};
-
-static const std::vector<enum OverflowBranchType> overflow_branch_type() {
-  static const enum OverflowBranchType kValues[] = {kAddBranchOverflow,
-                                                    kSubBranchOverflow};
-  return std::vector<enum OverflowBranchType>(&kValues[0],
-                                              &kValues[arraysize(kValues)]);
-}
-
-static const std::vector<struct OverflowRegisterCombination>
-overflow_register_combination() {
-  static const struct OverflowRegisterCombination kValues[] = {
-      {t0, t1, t2, t3}, {t0, t0, t2, t3}, {t0, t1, t0, t3}, {t0, t1, t1, t3}};
-  return std::vector<struct OverflowRegisterCombination>(
-      &kValues[0], &kValues[arraysize(kValues)]);
-}
-
-template <typename T>
-static bool IsAddOverflow(T x, T y) {
-  DCHECK(std::numeric_limits<T>::is_integer);
-  T max = std::numeric_limits<T>::max();
-  T min = std::numeric_limits<T>::min();
-
-  return (x > 0 && y > (max - x)) || (x < 0 && y < (min - x));
-}
-
-template <typename T>
-static bool IsSubOverflow(T x, T y) {
-  DCHECK(std::numeric_limits<T>::is_integer);
-  T max = std::numeric_limits<T>::max();
-  T min = std::numeric_limits<T>::min();
-
-  return (y > 0 && x < (min + y)) || (y < 0 && x > (max + y));
-}
-
-template <typename IN_TYPE, typename Func>
-static bool runOverflow(IN_TYPE valLeft, IN_TYPE valRight,
-                        Func GenerateOverflowInstructions) {
-  typedef int64_t (*F_CVT)(char* x0, int x1, int x2, int x3, int x4);
-
+TEST(OverflowInstructions) {
+  CcTest::InitializeVM();
   Isolate* isolate = CcTest::i_isolate();
-  HandleScope scope(isolate);
-  MacroAssembler assm(isolate, nullptr, 0,
-                      v8::internal::CodeObjectRequired::kYes);
-  MacroAssembler* masm = &assm;
+  HandleScope handles(isolate);
 
-  GenerateOverflowInstructions(masm, valLeft, valRight);
-  __ jr(ra);
-  __ nop();
+  struct T {
+    int64_t lhs;
+    int64_t rhs;
+    int64_t output_add;
+    int64_t output_add2;
+    int64_t output_sub;
+    int64_t output_sub2;
+    int64_t output_mul;
+    int64_t output_mul2;
+    int64_t overflow_add;
+    int64_t overflow_add2;
+    int64_t overflow_sub;
+    int64_t overflow_sub2;
+    int64_t overflow_mul;
+    int64_t overflow_mul2;
+  };
+  T t;
 
-  CodeDesc desc;
-  assm.GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
-
-  F_CVT f = FUNCTION_CAST<F_CVT>(code->entry());
-
-  int64_t r =
-      reinterpret_cast<int64_t>(CALL_GENERATED_CODE(isolate, f, 0, 0, 0, 0, 0));
-
-  DCHECK(r == 0 || r == 1);
-  return r;
-}
-
-TEST(BranchOverflowInt64BothLabels) {
   FOR_INT64_INPUTS(i, overflow_int64_test_values) {
     FOR_INT64_INPUTS(j, overflow_int64_test_values) {
-      FOR_ENUM_INPUTS(br, OverflowBranchType, overflow_branch_type) {
-        FOR_STRUCT_INPUTS(regComb, OverflowRegisterCombination,
-                          overflow_register_combination) {
-          int64_t ii = *i;
-          int64_t jj = *j;
-          enum OverflowBranchType branchType = *br;
-          struct OverflowRegisterCombination rc = *regComb;
+      int64_t ii = *i;
+      int64_t jj = *j;
+      int64_t expected_add, expected_sub;
+      int32_t ii32 = static_cast<int32_t>(ii);
+      int32_t jj32 = static_cast<int32_t>(jj);
+      int32_t expected_mul;
+      int64_t expected_add_ovf, expected_sub_ovf, expected_mul_ovf;
+      MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes);
+      MacroAssembler* masm = &assembler;
 
-          // If left and right register are same then left and right
-          // test values must also be same, otherwise we skip the test
-          if (rc.left.code() == rc.right.code()) {
-            if (ii != jj) {
-              continue;
-            }
-          }
+      __ ld(t0, MemOperand(a0, offsetof(T, lhs)));
+      __ ld(t1, MemOperand(a0, offsetof(T, rhs)));
 
-          bool res1 = runOverflow<int64_t>(
-              ii, jj, [branchType, rc](MacroAssembler* masm, int64_t valLeft,
-                                       int64_t valRight) {
-                Label overflow, no_overflow, end;
-                __ li(rc.left, valLeft);
-                __ li(rc.right, valRight);
-                switch (branchType) {
-                  case kAddBranchOverflow:
-                    __ DaddBranchOvf(rc.dst, rc.left, rc.right, &overflow,
-                                     &no_overflow, rc.scratch);
-                    break;
-                  case kSubBranchOverflow:
-                    __ DsubBranchOvf(rc.dst, rc.left, rc.right, &overflow,
-                                     &no_overflow, rc.scratch);
-                    break;
-                }
-                __ li(v0, 2);
-                __ Branch(&end);
-                __ bind(&overflow);
-                __ li(v0, 1);
-                __ Branch(&end);
-                __ bind(&no_overflow);
-                __ li(v0, 0);
-                __ bind(&end);
-              });
+      __ DaddOverflow(t2, t0, Operand(t1), t3);
+      __ sd(t2, MemOperand(a0, offsetof(T, output_add)));
+      __ sd(t3, MemOperand(a0, offsetof(T, overflow_add)));
+      __ mov(t3, zero_reg);
+      __ DaddOverflow(t0, t0, Operand(t1), t3);
+      __ sd(t0, MemOperand(a0, offsetof(T, output_add2)));
+      __ sd(t3, MemOperand(a0, offsetof(T, overflow_add2)));
 
-          bool res2 = runOverflow<int64_t>(
-              ii, jj, [branchType, rc](MacroAssembler* masm, int64_t valLeft,
-                                       int64_t valRight) {
-                Label overflow, no_overflow, end;
-                __ li(rc.left, valLeft);
-                switch (branchType) {
-                  case kAddBranchOverflow:
-                    __ DaddBranchOvf(rc.dst, rc.left, Operand(valRight),
-                                     &overflow, &no_overflow, rc.scratch);
-                    break;
-                  case kSubBranchOverflow:
-                    __ DsubBranchOvf(rc.dst, rc.left, Operand(valRight),
-                                     &overflow, &no_overflow, rc.scratch);
-                    break;
-                }
-                __ li(v0, 2);
-                __ Branch(&end);
-                __ bind(&overflow);
-                __ li(v0, 1);
-                __ Branch(&end);
-                __ bind(&no_overflow);
-                __ li(v0, 0);
-                __ bind(&end);
-              });
+      __ ld(t0, MemOperand(a0, offsetof(T, lhs)));
+      __ ld(t1, MemOperand(a0, offsetof(T, rhs)));
 
-          switch (branchType) {
-            case kAddBranchOverflow:
-              CHECK_EQ(IsAddOverflow<int64_t>(ii, jj), res1);
-              CHECK_EQ(IsAddOverflow<int64_t>(ii, jj), res2);
-              break;
-            case kSubBranchOverflow:
-              CHECK_EQ(IsSubOverflow<int64_t>(ii, jj), res1);
-              CHECK_EQ(IsSubOverflow<int64_t>(ii, jj), res2);
-              break;
-            default:
-              UNREACHABLE();
-          }
-        }
-      }
-    }
-  }
-}
+      __ DsubOverflow(t2, t0, Operand(t1), t3);
+      __ sd(t2, MemOperand(a0, offsetof(T, output_sub)));
+      __ sd(t3, MemOperand(a0, offsetof(T, overflow_sub)));
+      __ mov(t3, zero_reg);
+      __ DsubOverflow(t0, t0, Operand(t1), t3);
+      __ sd(t0, MemOperand(a0, offsetof(T, output_sub2)));
+      __ sd(t3, MemOperand(a0, offsetof(T, overflow_sub2)));
 
-TEST(BranchOverflowInt64LeftLabel) {
-  FOR_INT64_INPUTS(i, overflow_int64_test_values) {
-    FOR_INT64_INPUTS(j, overflow_int64_test_values) {
-      FOR_ENUM_INPUTS(br, OverflowBranchType, overflow_branch_type) {
-        FOR_STRUCT_INPUTS(regComb, OverflowRegisterCombination,
-                          overflow_register_combination) {
-          int64_t ii = *i;
-          int64_t jj = *j;
-          enum OverflowBranchType branchType = *br;
-          struct OverflowRegisterCombination rc = *regComb;
+      __ ld(t0, MemOperand(a0, offsetof(T, lhs)));
+      __ ld(t1, MemOperand(a0, offsetof(T, rhs)));
+      __ sll(t0, t0, 0);
+      __ sll(t1, t1, 0);
 
-          // If left and right register are same then left and right
-          // test values must also be same, otherwise we skip the test
-          if (rc.left.code() == rc.right.code()) {
-            if (ii != jj) {
-              continue;
-            }
-          }
+      __ MulOverflow(t2, t0, Operand(t1), t3);
+      __ sd(t2, MemOperand(a0, offsetof(T, output_mul)));
+      __ sd(t3, MemOperand(a0, offsetof(T, overflow_mul)));
+      __ mov(t3, zero_reg);
+      __ MulOverflow(t0, t0, Operand(t1), t3);
+      __ sd(t0, MemOperand(a0, offsetof(T, output_mul2)));
+      __ sd(t3, MemOperand(a0, offsetof(T, overflow_mul2)));
 
-          bool res1 = runOverflow<int64_t>(
-              ii, jj, [branchType, rc](MacroAssembler* masm, int64_t valLeft,
-                                       int64_t valRight) {
-                Label overflow, end;
-                __ li(rc.left, valLeft);
-                __ li(rc.right, valRight);
-                switch (branchType) {
-                  case kAddBranchOverflow:
-                    __ DaddBranchOvf(rc.dst, rc.left, rc.right, &overflow, NULL,
-                                     rc.scratch);
-                    break;
-                  case kSubBranchOverflow:
-                    __ DsubBranchOvf(rc.dst, rc.left, rc.right, &overflow, NULL,
-                                     rc.scratch);
-                    break;
-                }
-                __ li(v0, 0);
-                __ Branch(&end);
-                __ bind(&overflow);
-                __ li(v0, 1);
-                __ bind(&end);
-              });
+      __ jr(ra);
+      __ nop();
 
-          bool res2 = runOverflow<int64_t>(
-              ii, jj, [branchType, rc](MacroAssembler* masm, int64_t valLeft,
-                                       int64_t valRight) {
-                Label overflow, end;
-                __ li(rc.left, valLeft);
-                switch (branchType) {
-                  case kAddBranchOverflow:
-                    __ DaddBranchOvf(rc.dst, rc.left, Operand(valRight),
-                                     &overflow, NULL, rc.scratch);
-                    break;
-                  case kSubBranchOverflow:
-                    __ DsubBranchOvf(rc.dst, rc.left, Operand(valRight),
-                                     &overflow, NULL, rc.scratch);
-                    break;
-                }
-                __ li(v0, 0);
-                __ Branch(&end);
-                __ bind(&overflow);
-                __ li(v0, 1);
-                __ bind(&end);
-              });
+      CodeDesc desc;
+      masm->GetCode(isolate, &desc);
+      Handle<Code> code =
+          Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
+      auto f = GeneratedCode<F3>::FromCode(*code);
+      t.lhs = ii;
+      t.rhs = jj;
+      f.Call(&t, 0, 0, 0, 0);
 
-          switch (branchType) {
-            case kAddBranchOverflow:
-              CHECK_EQ(IsAddOverflow<int64_t>(ii, jj), res1);
-              CHECK_EQ(IsAddOverflow<int64_t>(ii, jj), res2);
-              break;
-            case kSubBranchOverflow:
-              CHECK_EQ(IsSubOverflow<int64_t>(ii, jj), res1);
-              CHECK_EQ(IsSubOverflow<int64_t>(ii, jj), res2);
-              break;
-            default:
-              UNREACHABLE();
-          }
-        }
-      }
-    }
-  }
-}
+      expected_add_ovf = base::bits::SignedAddOverflow64(ii, jj, &expected_add);
+      expected_sub_ovf = base::bits::SignedSubOverflow64(ii, jj, &expected_sub);
+      expected_mul_ovf =
+          base::bits::SignedMulOverflow32(ii32, jj32, &expected_mul);
 
-TEST(BranchOverflowInt64RightLabel) {
-  FOR_INT64_INPUTS(i, overflow_int64_test_values) {
-    FOR_INT64_INPUTS(j, overflow_int64_test_values) {
-      FOR_ENUM_INPUTS(br, OverflowBranchType, overflow_branch_type) {
-        FOR_STRUCT_INPUTS(regComb, OverflowRegisterCombination,
-                          overflow_register_combination) {
-          int64_t ii = *i;
-          int64_t jj = *j;
-          enum OverflowBranchType branchType = *br;
-          struct OverflowRegisterCombination rc = *regComb;
+      CHECK_EQ(expected_add_ovf, t.overflow_add < 0);
+      CHECK_EQ(expected_sub_ovf, t.overflow_sub < 0);
+      CHECK_EQ(expected_mul_ovf, t.overflow_mul != 0);
 
-          // If left and right register are same then left and right
-          // test values must also be same, otherwise we skip the test
-          if (rc.left.code() == rc.right.code()) {
-            if (ii != jj) {
-              continue;
-            }
-          }
+      CHECK_EQ(t.overflow_add, t.overflow_add2);
+      CHECK_EQ(t.overflow_sub, t.overflow_sub2);
+      CHECK_EQ(t.overflow_mul, t.overflow_mul2);
 
-          bool res1 = runOverflow<int64_t>(
-              ii, jj, [branchType, rc](MacroAssembler* masm, int64_t valLeft,
-                                       int64_t valRight) {
-                Label no_overflow, end;
-                __ li(rc.left, valLeft);
-                __ li(rc.right, valRight);
-                switch (branchType) {
-                  case kAddBranchOverflow:
-                    __ DaddBranchOvf(rc.dst, rc.left, rc.right, NULL,
-                                     &no_overflow, rc.scratch);
-                    break;
-                  case kSubBranchOverflow:
-                    __ DsubBranchOvf(rc.dst, rc.left, rc.right, NULL,
-                                     &no_overflow, rc.scratch);
-                    break;
-                }
-                __ li(v0, 1);
-                __ Branch(&end);
-                __ bind(&no_overflow);
-                __ li(v0, 0);
-                __ bind(&end);
-              });
-
-          bool res2 = runOverflow<int64_t>(
-              ii, jj, [branchType, rc](MacroAssembler* masm, int64_t valLeft,
-                                       int64_t valRight) {
-                Label no_overflow, end;
-                __ li(rc.left, valLeft);
-                switch (branchType) {
-                  case kAddBranchOverflow:
-                    __ DaddBranchOvf(rc.dst, rc.left, Operand(valRight), NULL,
-                                     &no_overflow, rc.scratch);
-                    break;
-                  case kSubBranchOverflow:
-                    __ DsubBranchOvf(rc.dst, rc.left, Operand(valRight), NULL,
-                                     &no_overflow, rc.scratch);
-                    break;
-                }
-                __ li(v0, 1);
-                __ Branch(&end);
-                __ bind(&no_overflow);
-                __ li(v0, 0);
-                __ bind(&end);
-              });
-
-          switch (branchType) {
-            case kAddBranchOverflow:
-              CHECK_EQ(IsAddOverflow<int64_t>(ii, jj), res1);
-              CHECK_EQ(IsAddOverflow<int64_t>(ii, jj), res2);
-              break;
-            case kSubBranchOverflow:
-              CHECK_EQ(IsSubOverflow<int64_t>(ii, jj), res1);
-              CHECK_EQ(IsSubOverflow<int64_t>(ii, jj), res2);
-              break;
-            default:
-              UNREACHABLE();
-          }
-        }
+      CHECK_EQ(expected_add, t.output_add);
+      CHECK_EQ(expected_add, t.output_add2);
+      CHECK_EQ(expected_sub, t.output_sub);
+      CHECK_EQ(expected_sub, t.output_sub2);
+      if (!expected_mul_ovf) {
+        CHECK_EQ(expected_mul, t.output_mul);
+        CHECK_EQ(expected_mul, t.output_mul2);
       }
     }
   }
@@ -1121,8 +888,7 @@ TEST(min_max_nan) {
   CcTest::InitializeVM();
   Isolate* isolate = CcTest::i_isolate();
   HandleScope scope(isolate);
-  MacroAssembler assembler(isolate, nullptr, 0,
-                           v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assembler;
 
   struct TestFloat {
@@ -1166,7 +932,7 @@ TEST(min_max_nan) {
 
   auto handle_dnan = [masm](FPURegister dst, Label* nan, Label* back) {
     __ bind(nan);
-    __ LoadRoot(t8, Heap::kNanValueRootIndex);
+    __ LoadRoot(t8, RootIndex::kNanValue);
     __ Ldc1(dst, FieldMemOperand(t8, HeapNumber::kValueOffset));
     __ Branch(back);
   };
@@ -1209,16 +975,16 @@ TEST(min_max_nan) {
 
   CodeDesc desc;
   masm->GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
-  ::F3 f = FUNCTION_CAST<::F3>(code->entry());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
+  auto f = GeneratedCode<F3>::FromCode(*code);
   for (int i = 0; i < kTableLength; i++) {
     test.a = inputsa[i];
     test.b = inputsb[i];
     test.e = inputse[i];
     test.f = inputsf[i];
 
-    CALL_GENERATED_CODE(isolate, f, &test, 0, 0, 0, 0);
+    f.Call(&test, 0, 0, 0, 0);
 
     CHECK_EQ(0, memcmp(&test.c, &outputsdmin[i], sizeof(test.c)));
     CHECK_EQ(0, memcmp(&test.d, &outputsdmax[i], sizeof(test.d)));
@@ -1230,12 +996,11 @@ TEST(min_max_nan) {
 template <typename IN_TYPE, typename Func>
 bool run_Unaligned(char* memory_buffer, int32_t in_offset, int32_t out_offset,
                    IN_TYPE value, Func GenerateUnalignedInstructionFunc) {
-  typedef int32_t (*F_CVT)(char* x0, int x1, int x2, int x3, int x4);
+  using F_CVT = int32_t(char* x0, int x1, int x2, int x3, int x4);
 
   Isolate* isolate = CcTest::i_isolate();
   HandleScope scope(isolate);
-  MacroAssembler assm(isolate, nullptr, 0,
-                      v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assm(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assm;
   IN_TYPE res;
 
@@ -1245,13 +1010,13 @@ bool run_Unaligned(char* memory_buffer, int32_t in_offset, int32_t out_offset,
 
   CodeDesc desc;
   assm.GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
 
-  F_CVT f = FUNCTION_CAST<F_CVT>(code->entry());
+  auto f = GeneratedCode<F_CVT>::FromCode(*code);
 
   MemCopy(memory_buffer + in_offset, &value, sizeof(IN_TYPE));
-  CALL_GENERATED_CODE(isolate, f, memory_buffer, 0, 0, 0, 0);
+  f.Call(memory_buffer, 0, 0, 0, 0);
   MemCopy(&res, memory_buffer + out_offset, sizeof(IN_TYPE));
 
   return res == value;
@@ -1259,8 +1024,8 @@ bool run_Unaligned(char* memory_buffer, int32_t in_offset, int32_t out_offset,
 
 static const std::vector<uint64_t> unsigned_test_values() {
   static const uint64_t kValues[] = {
-      0x2180f18a06384414, 0x000a714532102277, 0xbc1acccf180649f0,
-      0x8000000080008000, 0x0000000000000001, 0xffffffffffffffff,
+      0x2180F18A06384414, 0x000A714532102277, 0xBC1ACCCF180649F0,
+      0x8000000080008000, 0x0000000000000001, 0xFFFFFFFFFFFFFFFF,
   };
   return std::vector<uint64_t>(&kValues[0], &kValues[arraysize(kValues)]);
 }
@@ -1578,30 +1343,29 @@ static const std::vector<uint64_t> sltu_test_values() {
   static const uint64_t kValues[] = {
       0,
       1,
-      0x7ffe,
-      0x7fff,
+      0x7FFE,
+      0x7FFF,
       0x8000,
       0x8001,
-      0xfffe,
-      0xffff,
-      0xffffffffffff7ffe,
-      0xffffffffffff7fff,
-      0xffffffffffff8000,
-      0xffffffffffff8001,
-      0xfffffffffffffffe,
-      0xffffffffffffffff,
+      0xFFFE,
+      0xFFFF,
+      0xFFFFFFFFFFFF7FFE,
+      0xFFFFFFFFFFFF7FFF,
+      0xFFFFFFFFFFFF8000,
+      0xFFFFFFFFFFFF8001,
+      0xFFFFFFFFFFFFFFFE,
+      0xFFFFFFFFFFFFFFFF,
   };
   return std::vector<uint64_t>(&kValues[0], &kValues[arraysize(kValues)]);
 }
 
 template <typename Func>
 bool run_Sltu(uint64_t rs, uint64_t rd, Func GenerateSltuInstructionFunc) {
-  typedef int64_t (*F_CVT)(uint64_t x0, uint64_t x1, int x2, int x3, int x4);
+  using F_CVT = int64_t(uint64_t x0, uint64_t x1, int x2, int x3, int x4);
 
   Isolate* isolate = CcTest::i_isolate();
   HandleScope scope(isolate);
-  MacroAssembler assm(isolate, nullptr, 0,
-                      v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assm(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assm;
 
   GenerateSltuInstructionFunc(masm, rd);
@@ -1610,12 +1374,11 @@ bool run_Sltu(uint64_t rs, uint64_t rd, Func GenerateSltuInstructionFunc) {
 
   CodeDesc desc;
   assm.GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
 
-  F_CVT f = FUNCTION_CAST<F_CVT>(code->entry());
-  int64_t res = reinterpret_cast<int64_t>(
-      CALL_GENERATED_CODE(isolate, f, rs, rd, 0, 0, 0));
+  auto f = GeneratedCode<F_CVT>::FromCode(*code);
+  int64_t res = reinterpret_cast<int64_t>(f.Call(rs, rd, 0, 0, 0));
   return res == 1;
 }
 
@@ -1641,7 +1404,7 @@ TEST(Sltu) {
 }
 
 template <typename T, typename Inputs, typename Results>
-static ::F4 GenerateMacroFloat32MinMax(MacroAssembler* masm) {
+static GeneratedCode<F4> GenerateMacroFloat32MinMax(MacroAssembler* masm) {
   T a = T::from_code(4);  // f4
   T b = T::from_code(6);  // f6
   T c = T::from_code(8);  // f8
@@ -1705,13 +1468,13 @@ static ::F4 GenerateMacroFloat32MinMax(MacroAssembler* masm) {
 
   CodeDesc desc;
   masm->GetCode(masm->isolate(), &desc);
-  Handle<Code> code = masm->isolate()->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(masm->isolate(), desc, CodeKind::STUB).Build();
 #ifdef DEBUG
-  OFStream os(stdout);
+  StdoutStream os;
   code->Print(os);
 #endif
-  return FUNCTION_CAST<::F4>(code->entry());
+  return GeneratedCode<F4>::FromCode(*code);
 }
 
 TEST(macro_float_minmax_f32) {
@@ -1720,8 +1483,7 @@ TEST(macro_float_minmax_f32) {
   Isolate* isolate = CcTest::i_isolate();
   HandleScope scope(isolate);
 
-  MacroAssembler assembler(isolate, NULL, 0,
-                           v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assembler;
 
   struct Inputs {
@@ -1740,15 +1502,14 @@ TEST(macro_float_minmax_f32) {
     float max_aba_;
   };
 
-  ::F4 f = GenerateMacroFloat32MinMax<FPURegister, Inputs, Results>(masm);
-  Object* dummy = nullptr;
-  USE(dummy);
+  GeneratedCode<F4> f =
+      GenerateMacroFloat32MinMax<FPURegister, Inputs, Results>(masm);
 
 #define CHECK_MINMAX(src1, src2, min, max)                                   \
   do {                                                                       \
     Inputs inputs = {src1, src2};                                            \
     Results results;                                                         \
-    dummy = CALL_GENERATED_CODE(isolate, f, &inputs, &results, 0, 0, 0);     \
+    f.Call(&inputs, &results, 0, 0, 0);                                      \
     CHECK_EQ(bit_cast<uint32_t>(min), bit_cast<uint32_t>(results.min_abc_)); \
     CHECK_EQ(bit_cast<uint32_t>(min), bit_cast<uint32_t>(results.min_aab_)); \
     CHECK_EQ(bit_cast<uint32_t>(min), bit_cast<uint32_t>(results.min_aba_)); \
@@ -1784,7 +1545,7 @@ TEST(macro_float_minmax_f32) {
 }
 
 template <typename T, typename Inputs, typename Results>
-static ::F4 GenerateMacroFloat64MinMax(MacroAssembler* masm) {
+static GeneratedCode<F4> GenerateMacroFloat64MinMax(MacroAssembler* masm) {
   T a = T::from_code(4);  // f4
   T b = T::from_code(6);  // f6
   T c = T::from_code(8);  // f8
@@ -1848,13 +1609,13 @@ static ::F4 GenerateMacroFloat64MinMax(MacroAssembler* masm) {
 
   CodeDesc desc;
   masm->GetCode(masm->isolate(), &desc);
-  Handle<Code> code = masm->isolate()->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(masm->isolate(), desc, CodeKind::STUB).Build();
 #ifdef DEBUG
-  OFStream os(stdout);
+  StdoutStream os;
   code->Print(os);
 #endif
-  return FUNCTION_CAST<::F4>(code->entry());
+  return GeneratedCode<F4>::FromCode(*code);
 }
 
 TEST(macro_float_minmax_f64) {
@@ -1863,8 +1624,7 @@ TEST(macro_float_minmax_f64) {
   Isolate* isolate = CcTest::i_isolate();
   HandleScope scope(isolate);
 
-  MacroAssembler assembler(isolate, NULL, 0,
-                           v8::internal::CodeObjectRequired::kYes);
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes);
   MacroAssembler* masm = &assembler;
 
   struct Inputs {
@@ -1883,15 +1643,14 @@ TEST(macro_float_minmax_f64) {
     double max_aba_;
   };
 
-  ::F4 f = GenerateMacroFloat64MinMax<DoubleRegister, Inputs, Results>(masm);
-  Object* dummy = nullptr;
-  USE(dummy);
+  GeneratedCode<F4> f =
+      GenerateMacroFloat64MinMax<DoubleRegister, Inputs, Results>(masm);
 
 #define CHECK_MINMAX(src1, src2, min, max)                                   \
   do {                                                                       \
     Inputs inputs = {src1, src2};                                            \
     Results results;                                                         \
-    dummy = CALL_GENERATED_CODE(isolate, f, &inputs, &results, 0, 0, 0);     \
+    f.Call(&inputs, &results, 0, 0, 0);                                      \
     CHECK_EQ(bit_cast<uint64_t>(min), bit_cast<uint64_t>(results.min_abc_)); \
     CHECK_EQ(bit_cast<uint64_t>(min), bit_cast<uint64_t>(results.min_aab_)); \
     CHECK_EQ(bit_cast<uint64_t>(min), bit_cast<uint64_t>(results.min_aba_)); \
@@ -1927,3 +1686,6 @@ TEST(macro_float_minmax_f64) {
 }
 
 #undef __
+
+}  // namespace internal
+}  // namespace v8

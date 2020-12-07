@@ -10,7 +10,7 @@
 #include "src/compiler/operator-properties.h"
 #include "src/compiler/simplified-operator.h"
 #include "src/compiler/type-cache.h"
-#include "src/conversions-inl.h"
+#include "src/numbers/conversions-inl.h"
 
 namespace v8 {
 namespace internal {
@@ -33,15 +33,18 @@ Decision DecideObjectIsSmi(Node* const input) {
 }  // namespace
 
 SimplifiedOperatorReducer::SimplifiedOperatorReducer(Editor* editor,
-                                                     JSGraph* jsgraph)
-    : AdvancedReducer(editor), jsgraph_(jsgraph) {}
+                                                     JSGraph* jsgraph,
+                                                     JSHeapBroker* broker)
+    : AdvancedReducer(editor), jsgraph_(jsgraph), broker_(broker) {}
 
-SimplifiedOperatorReducer::~SimplifiedOperatorReducer() {}
+SimplifiedOperatorReducer::~SimplifiedOperatorReducer() = default;
 
 
 Reduction SimplifiedOperatorReducer::Reduce(Node* node) {
+  DisallowHeapAccess no_heap_access;
   switch (node->opcode()) {
     case IrOpcode::kBooleanNot: {
+      // TODO(neis): Provide HeapObjectRefMatcher?
       HeapObjectMatcher m(node->InputAt(0));
       if (m.Is(factory()->true_value())) return ReplaceBoolean(false);
       if (m.Is(factory()->false_value())) return ReplaceBoolean(true);
@@ -57,7 +60,9 @@ Reduction SimplifiedOperatorReducer::Reduce(Node* node) {
     }
     case IrOpcode::kChangeTaggedToBit: {
       HeapObjectMatcher m(node->InputAt(0));
-      if (m.HasValue()) return ReplaceInt32(m.Value()->BooleanValue());
+      if (m.HasValue()) {
+        return ReplaceInt32(m.Ref(broker()).BooleanValue());
+      }
       if (m.IsChangeBitToTagged()) return Replace(m.InputAt(0));
       break;
     }
@@ -138,6 +143,7 @@ Reduction SimplifiedOperatorReducer::Reduce(Node* node) {
       }
       break;
     }
+    case IrOpcode::kCheckedTaggedToArrayIndex:
     case IrOpcode::kCheckedTaggedToInt32:
     case IrOpcode::kCheckedTaggedSignedToInt32: {
       NodeMatcher m(node->InputAt(0));
@@ -214,6 +220,41 @@ Reduction SimplifiedOperatorReducer::Reduce(Node* node) {
       if (m.left().node() == m.right().node()) return ReplaceBoolean(true);
       break;
     }
+    case IrOpcode::kCheckedInt32Add: {
+      // (x + a) + b => x + (a + b) where a and b are constants and have the
+      // same sign.
+      Int32BinopMatcher m(node);
+      if (m.right().HasValue()) {
+        Node* checked_int32_add = m.left().node();
+        if (checked_int32_add->opcode() == IrOpcode::kCheckedInt32Add) {
+          Int32BinopMatcher n(checked_int32_add);
+          if (n.right().HasValue() &&
+              (n.right().Value() >= 0) == (m.right().Value() >= 0)) {
+            int32_t val;
+            bool overflow = base::bits::SignedAddOverflow32(
+                n.right().Value(), m.right().Value(), &val);
+            if (!overflow) {
+              bool has_no_other_value_uses = true;
+              for (Edge edge : checked_int32_add->use_edges()) {
+                if (!edge.from()->IsDead() &&
+                    !NodeProperties::IsEffectEdge(edge) &&
+                    edge.from() != node) {
+                  has_no_other_value_uses = false;
+                  break;
+                }
+              }
+              if (has_no_other_value_uses) {
+                node->ReplaceInput(0, n.left().node());
+                node->ReplaceInput(1, jsgraph()->Int32Constant(val));
+                RelaxEffectsAndControls(checked_int32_add);
+                return Changed(node);
+              }
+            }
+          }
+        }
+      }
+      break;
+    }
     default:
       break;
   }
@@ -253,17 +294,17 @@ Reduction SimplifiedOperatorReducer::ReplaceNumber(int32_t value) {
 }
 
 Factory* SimplifiedOperatorReducer::factory() const {
-  return isolate()->factory();
+  return jsgraph()->isolate()->factory();
 }
 
 Graph* SimplifiedOperatorReducer::graph() const { return jsgraph()->graph(); }
 
-Isolate* SimplifiedOperatorReducer::isolate() const {
-  return jsgraph()->isolate();
-}
-
 MachineOperatorBuilder* SimplifiedOperatorReducer::machine() const {
   return jsgraph()->machine();
+}
+
+SimplifiedOperatorBuilder* SimplifiedOperatorReducer::simplified() const {
+  return jsgraph()->simplified();
 }
 
 }  // namespace compiler

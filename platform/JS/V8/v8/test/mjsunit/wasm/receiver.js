@@ -4,7 +4,6 @@
 
 // Flags: --expose-wasm
 
-load("test/mjsunit/wasm/wasm-constants.js");
 load("test/mjsunit/wasm/wasm-module-builder.js");
 
 function testCallImport(func, expected, a, b) {
@@ -14,8 +13,8 @@ function testCallImport(func, expected, a, b) {
   builder.addImport("mod", "func", sig_index);
   builder.addFunction("main", sig_index)
     .addBody([
-      kExprGetLocal, 0,            // --
-      kExprGetLocal, 1,            // --
+      kExprLocalGet, 0,            // --
+      kExprLocalGet, 1,            // --
       kExprCallFunction, 0])         // --
     .exportAs("main");
 

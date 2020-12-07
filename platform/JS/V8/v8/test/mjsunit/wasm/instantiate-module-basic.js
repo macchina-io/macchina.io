@@ -4,7 +4,6 @@
 
 // Flags: --expose-wasm --allow-natives-syntax
 
-load('test/mjsunit/wasm/wasm-constants.js');
 load('test/mjsunit/wasm/wasm-module-builder.js');
 
 let kReturnValue = 17;
@@ -97,11 +96,8 @@ assertFalse(WebAssembly.validate(bytes(88, 88, 88, 88, 88, 88, 88, 88)));
   print('InvalidBinaryAsyncCompilation...');
   let builder = new WasmModuleBuilder();
   builder.addFunction('f', kSig_i_i).addBody([kExprCallFunction, 0]);
-  let promise = WebAssembly.compile(builder.toBuffer());
-  assertPromiseResult(
-      promise, compiled => assertUnreachable(
-                   'should not be able to compile invalid blob.'),
-      e => assertInstanceof(e, WebAssembly.CompileError));
+  assertThrowsAsync(
+      WebAssembly.compile(builder.toBuffer()), WebAssembly.CompileError);
 })();
 
 // Multiple instances tests.
@@ -134,8 +130,8 @@ assertFalse(WebAssembly.validate(bytes(88, 88, 88, 88, 88, 88, 88, 88)));
 
   builder.addFunction('main', kSig_i_i)
       .addBody([
-        kExprGetLocal, 0, kExprI32LoadMem, 0, 0, kExprI32Const, 1,
-        kExprCallIndirect, signature, kTableZero, kExprGetLocal, 0,
+        kExprLocalGet, 0, kExprI32LoadMem, 0, 0, kExprI32Const, 1,
+        kExprCallIndirect, signature, kTableZero, kExprLocalGet, 0,
         kExprI32LoadMem, 0, 0, kExprCallFunction, 0, kExprI32Add
       ])
       .exportFunc();
@@ -143,7 +139,7 @@ assertFalse(WebAssembly.validate(bytes(88, 88, 88, 88, 88, 88, 88, 88)));
   // writer(mem[i]);
   // return mem[i] + some_value();
   builder.addFunction('_wrap_writer', signature).addBody([
-    kExprGetLocal, 0, kExprCallFunction, 1
+    kExprLocalGet, 0, kExprCallFunction, 1
   ]);
   builder.appendToTable([2, 3]);
 
@@ -180,11 +176,11 @@ assertFalse(WebAssembly.validate(bytes(88, 88, 88, 88, 88, 88, 88, 88)));
   var builder = new WasmModuleBuilder();
   builder.addGlobal(kWasmI32, true);
   builder.addFunction('read', kSig_i_v)
-      .addBody([kExprGetGlobal, 0])
+      .addBody([kExprGlobalGet, 0])
       .exportFunc();
 
   builder.addFunction('write', kSig_v_i)
-      .addBody([kExprGetLocal, 0, kExprSetGlobal, 0])
+      .addBody([kExprLocalGet, 0, kExprGlobalSet, 0])
       .exportFunc();
 
   var module = new WebAssembly.Module(builder.toBuffer());

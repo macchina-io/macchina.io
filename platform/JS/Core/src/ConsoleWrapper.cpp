@@ -18,6 +18,9 @@
 #include "Poco/Logger.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace JS {
 namespace Core {
@@ -38,33 +41,34 @@ v8::Handle<v8::ObjectTemplate> ConsoleWrapper::objectTemplate(v8::Isolate* pIsol
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New(pIsolate);
 	loggerTemplate->SetInternalFieldCount(1);
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "trace"), v8::FunctionTemplate::New(pIsolate, trace));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "assert"), v8::FunctionTemplate::New(pIsolate, xassert));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "log"), v8::FunctionTemplate::New(pIsolate, log));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "debug"), v8::FunctionTemplate::New(pIsolate, debug));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "info"), v8::FunctionTemplate::New(pIsolate, info));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "warn"), v8::FunctionTemplate::New(pIsolate, warn));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "error"), v8::FunctionTemplate::New(pIsolate, error));
-	loggerTemplate->Set(v8::String::NewFromUtf8(pIsolate, "dump"), v8::FunctionTemplate::New(pIsolate, dump));
+	loggerTemplate->Set(toV8String(pIsolate, "trace"s), v8::FunctionTemplate::New(pIsolate, trace));
+	loggerTemplate->Set(toV8String(pIsolate, "assert"s), v8::FunctionTemplate::New(pIsolate, xassert));
+	loggerTemplate->Set(toV8String(pIsolate, "log"s), v8::FunctionTemplate::New(pIsolate, log));
+	loggerTemplate->Set(toV8String(pIsolate, "debug"s), v8::FunctionTemplate::New(pIsolate, debug));
+	loggerTemplate->Set(toV8String(pIsolate, "info"s), v8::FunctionTemplate::New(pIsolate, info));
+	loggerTemplate->Set(toV8String(pIsolate, "warn"s), v8::FunctionTemplate::New(pIsolate, warn));
+	loggerTemplate->Set(toV8String(pIsolate, "error"s), v8::FunctionTemplate::New(pIsolate, error));
+	loggerTemplate->Set(toV8String(pIsolate, "dump"s), v8::FunctionTemplate::New(pIsolate, dump));
 	return handleScope.Escape(loggerTemplate);
 }
 
 
 void ConsoleWrapper::trace(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	std::string text("Stack Trace:")	;
-	v8::HandleScope scope(args.GetIsolate());
-	v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(args.GetIsolate(), 128, v8::StackTrace::kDetailed);
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(pIsolate, 128, v8::StackTrace::kDetailed);
 	for (int i = 0; i < stackTrace->GetFrameCount(); i++)
 	{
 		text.append("\n  Frame #");
 		Poco::NumberFormatter::append(text, i);
-		v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(i);
+		v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(pIsolate, i);
 
 		v8::Local<v8::String> function = frame->GetFunctionName();
 		if (!function.IsEmpty())
 		{
-			std::string functionName(toString(frame->GetFunctionName()));
+			std::string functionName(toString(pIsolate, frame->GetFunctionName()));
 			if (!functionName.empty())
 			{
 				text.append(" ");
@@ -81,7 +85,7 @@ void ConsoleWrapper::trace(const v8::FunctionCallbackInfo<v8::Value>& args)
 		else
 		{
 			text.append("\"");
-			text.append(toString(script));
+			text.append(toString(pIsolate, script));
 			text.append("\"");
 		}
 		if (frame->GetLineNumber() > 0)
@@ -98,7 +102,7 @@ void ConsoleWrapper::trace(const v8::FunctionCallbackInfo<v8::Value>& args)
 void ConsoleWrapper::xassert(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 2) return;
-	if (!args[0]->BooleanValue())
+	if (!args[0]->BooleanValue(args.GetIsolate()))
 	{
 		LoggerWrapper::format(Poco::Message::PRIO_ERROR, args, 1, "Assertion failed: ");
 		trace(args);

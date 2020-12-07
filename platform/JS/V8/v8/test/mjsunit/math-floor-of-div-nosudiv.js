@@ -26,6 +26,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Flags: --allow-natives-syntax --noenable-sudiv --noenable-armv8
+// Flags: --opt --noturbo-inlining
 
 // Use this function as reference. Make sure it is not inlined.
 function div(a, b) {
@@ -180,6 +181,7 @@ function test_div() {
   }
 }
 
+%PrepareFunctionForOptimization(test_div);
 test_div();
 %OptimizeFunctionOnNextCall(test_div);
 test_div();
@@ -201,6 +203,7 @@ function test_div2() {
   }
 }
 
+%PrepareFunctionForOptimization(test_div2);
 test_div2();
 %OptimizeFunctionOnNextCall(test_div2);
 test_div2();
@@ -244,6 +247,9 @@ function test_div_deopt_div_by_zero() {
   }
 }
 
+%PrepareFunctionForOptimization(test_div_deopt_minus_zero);
+%PrepareFunctionForOptimization(test_div_deopt_overflow);
+%PrepareFunctionForOptimization(test_div_deopt_div_by_zero);
 test_div_deopt_minus_zero();
 test_div_deopt_overflow();
 test_div_deopt_div_by_zero();
@@ -277,6 +283,9 @@ function test_div_deopt_div_by_zero_v() {
   }
 }
 
+%PrepareFunctionForOptimization(test_div_deopt_minus_zero_v);
+%PrepareFunctionForOptimization(test_div_deopt_overflow_v);
+%PrepareFunctionForOptimization(test_div_deopt_div_by_zero_v);
 test_div_deopt_minus_zero_v();
 test_div_deopt_overflow_v();
 test_div_deopt_div_by_zero_v();

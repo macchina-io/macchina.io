@@ -32,7 +32,7 @@ namespace Core {
 class JSCore_API PooledIsolate
 {
 public:
-	typedef Poco::ObjectPool<PooledIsolate> Pool;
+	using Pool = Poco::ObjectPool<PooledIsolate>;
 
 	explicit PooledIsolate(Poco::UInt64 memoryLimit);
 		/// Creates the PooledIsolate with the given memoryLimit.
@@ -89,7 +89,7 @@ private:
 		v8::Persistent<v8::ObjectTemplate> _ot;
 	};
 
-	typedef std::map<std::string, OTHolder> OTMap;
+	using OTMap = std::map<std::string, OTHolder>;
 
 	v8::Isolate* _pIsolate;
 	v8::ArrayBuffer::Allocator* _pArrayBufferAllocator;

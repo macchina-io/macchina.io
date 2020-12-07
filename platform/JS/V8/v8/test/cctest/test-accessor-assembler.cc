@@ -7,7 +7,8 @@
 #include "src/base/utils/random-number-generator.h"
 #include "src/ic/accessor-assembler.h"
 #include "src/ic/stub-cache.h"
-#include "src/objects-inl.h"
+#include "src/objects/objects-inl.h"
+#include "src/objects/smi.h"
 #include "test/cctest/compiler/code-assembler-tester.h"
 #include "test/cctest/compiler/function-tester.h"
 
@@ -23,13 +24,14 @@ namespace {
 void TestStubCacheOffsetCalculation(StubCache::Table table) {
   Isolate* isolate(CcTest::InitIsolateOnce());
   const int kNumParams = 2;
-  CodeAssemblerTester data(isolate, kNumParams);
+  CodeAssemblerTester data(isolate, kNumParams + 1);  // Include receiver.
   AccessorAssembler m(data.state());
 
   {
-    Node* name = m.Parameter(0);
-    Node* map = m.Parameter(1);
-    Node* primary_offset = m.StubCachePrimaryOffsetForTesting(name, map);
+    TNode<Name> name = m.CAST(m.Parameter(1));
+    TNode<Map> map = m.CAST(m.Parameter(2));
+    TNode<IntPtrT> primary_offset =
+        m.StubCachePrimaryOffsetForTesting(name, map);
     Node* result;
     if (table == StubCache::kPrimary) {
       result = primary_offset;
@@ -58,7 +60,6 @@ void TestStubCacheOffsetCalculation(StubCache::Table table) {
   };
 
   Handle<Map> maps[] = {
-      Handle<Map>(nullptr, isolate),
       factory->cell_map(),
       Map::Create(isolate, 0),
       factory->meta_map(),
@@ -88,7 +89,7 @@ void TestStubCacheOffsetCalculation(StubCache::Table table) {
       }
       Handle<Object> result = ft.Call(name, map).ToHandleChecked();
 
-      Smi* expected = Smi::FromInt(expected_result & Smi::kMaxValue);
+      Smi expected = Smi::FromInt(expected_result & Smi::kMaxValue);
       CHECK_EQ(expected, Smi::cast(*result));
     }
   }
@@ -106,9 +107,9 @@ TEST(StubCacheSecondaryOffset) {
 
 namespace {
 
-Handle<Code> CreateCodeWithFlags(Code::Flags flags) {
+Handle<Code> CreateCodeOfKind(CodeKind kind) {
   Isolate* isolate(CcTest::InitIsolateOnce());
-  CodeAssemblerTester data(isolate, flags);
+  CodeAssemblerTester data(isolate, kind);
   CodeStubAssembler m(data.state());
   m.Return(m.UndefinedConstant());
   return data.GenerateCodeCloseAndEscape();
@@ -117,35 +118,34 @@ Handle<Code> CreateCodeWithFlags(Code::Flags flags) {
 }  // namespace
 
 TEST(TryProbeStubCache) {
-  typedef CodeStubAssembler::Label Label;
-  typedef CodeStubAssembler::Variable Variable;
+  using Label = CodeStubAssembler::Label;
   Isolate* isolate(CcTest::InitIsolateOnce());
   const int kNumParams = 3;
-  CodeAssemblerTester data(isolate, kNumParams);
+  CodeAssemblerTester data(isolate, kNumParams + 1);  // Include receiver.
   AccessorAssembler m(data.state());
 
-  Code::Kind ic_kind = Code::LOAD_IC;
-  StubCache stub_cache(isolate, ic_kind);
+  StubCache stub_cache(isolate);
   stub_cache.Clear();
 
   {
-    Node* receiver = m.Parameter(0);
-    Node* name = m.Parameter(1);
-    Node* expected_handler = m.Parameter(2);
+    TNode<Object> receiver = m.CAST(m.Parameter(1));
+    TNode<Name> name = m.CAST(m.Parameter(2));
+    TNode<MaybeObject> expected_handler =
+        m.UncheckedCast<MaybeObject>(m.Parameter(3));
 
     Label passed(&m), failed(&m);
 
-    Variable var_handler(&m, MachineRepresentation::kTagged);
+    CodeStubAssembler::TVariable<MaybeObject> var_handler(&m);
     Label if_handler(&m), if_miss(&m);
 
     m.TryProbeStubCache(&stub_cache, receiver, name, &if_handler, &var_handler,
                         &if_miss);
     m.BIND(&if_handler);
-    m.Branch(m.WordEqual(expected_handler, var_handler.value()), &passed,
+    m.Branch(m.TaggedEqual(expected_handler, var_handler.value()), &passed,
              &failed);
 
     m.BIND(&if_miss);
-    m.Branch(m.WordEqual(expected_handler, m.IntPtrConstant(0)), &passed,
+    m.Branch(m.TaggedEqual(expected_handler, m.SmiConstant(0)), &passed,
              &failed);
 
     m.BIND(&passed);
@@ -204,8 +204,7 @@ TEST(TryProbeStubCache) {
 
   // Generate some number of handlers.
   for (int i = 0; i < 30; i++) {
-    Code::Flags flags = Code::ComputeHandlerFlags(ic_kind);
-    handlers.push_back(CreateCodeWithFlags(flags));
+    handlers.push_back(CreateCodeOfKind(CodeKind::STUB));
   }
 
   // Ensure that GC does happen because from now on we are going to fill our
@@ -219,7 +218,7 @@ TEST(TryProbeStubCache) {
     Handle<Name> name = names[index % names.size()];
     Handle<JSObject> receiver = receivers[index % receivers.size()];
     Handle<Code> handler = handlers[index % handlers.size()];
-    stub_cache.Set(*name, receiver->map(), *handler);
+    stub_cache.Set(*name, receiver->map(), MaybeObject::FromObject(*handler));
   }
 
   // Perform some queries.
@@ -229,14 +228,14 @@ TEST(TryProbeStubCache) {
     int index = rand_gen.NextInt();
     Handle<Name> name = names[index % names.size()];
     Handle<JSObject> receiver = receivers[index % receivers.size()];
-    Object* handler = stub_cache.Get(*name, receiver->map());
-    if (handler == nullptr) {
+    MaybeObject handler = stub_cache.Get(*name, receiver->map());
+    if (handler.ptr() == kNullAddress) {
       queried_non_existing = true;
     } else {
       queried_existing = true;
     }
 
-    Handle<Object> expected_handler(handler, isolate);
+    Handle<Object> expected_handler(handler->GetHeapObjectOrSmi(), isolate);
     ft.CheckTrue(receiver, name, expected_handler);
   }
 
@@ -245,14 +244,14 @@ TEST(TryProbeStubCache) {
     int index2 = rand_gen.NextInt();
     Handle<Name> name = names[index1 % names.size()];
     Handle<JSObject> receiver = receivers[index2 % receivers.size()];
-    Object* handler = stub_cache.Get(*name, receiver->map());
-    if (handler == nullptr) {
+    MaybeObject handler = stub_cache.Get(*name, receiver->map());
+    if (handler.ptr() == kNullAddress) {
       queried_non_existing = true;
     } else {
       queried_existing = true;
     }
 
-    Handle<Object> expected_handler(handler, isolate);
+    Handle<Object> expected_handler(handler->GetHeapObjectOrSmi(), isolate);
     ft.CheckTrue(receiver, name, expected_handler);
   }
   // Ensure we performed both kind of queries.

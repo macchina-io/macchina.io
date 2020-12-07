@@ -40,10 +40,10 @@ v8::Handle<v8::FunctionTemplate> UUIDWrapper::constructor(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isUUID"), v8::FunctionTemplate::New(pIsolate, isUUID));
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "create"), v8::FunctionTemplate::New(pIsolate, create));
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "createRandom"), v8::FunctionTemplate::New(pIsolate, createRandom));
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "createTimeBased"), v8::FunctionTemplate::New(pIsolate, createTimeBased));
+	funcTemplate->Set(toV8String(pIsolate, "isUUID"s), v8::FunctionTemplate::New(pIsolate, isUUID));
+	funcTemplate->Set(toV8String(pIsolate, "create"s), v8::FunctionTemplate::New(pIsolate, create));
+	funcTemplate->Set(toV8String(pIsolate, "createRandom"s), v8::FunctionTemplate::New(pIsolate, createRandom));
+	funcTemplate->Set(toV8String(pIsolate, "createTimeBased"s), v8::FunctionTemplate::New(pIsolate, createTimeBased));
 	return handleScope.Escape(funcTemplate);
 }
 
@@ -58,13 +58,13 @@ v8::Handle<v8::ObjectTemplate> UUIDWrapper::objectTemplate(v8::Isolate* pIsolate
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "version"), version);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "variant"), variant);
+		objectTemplate->SetAccessor(toV8String(pIsolate, "version"s), version);
+		objectTemplate->SetAccessor(toV8String(pIsolate, "variant"s), variant);
 
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toString"), v8::FunctionTemplate::New(pIsolate, toString));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toJSON"), v8::FunctionTemplate::New(pIsolate, toString));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "equals"), v8::FunctionTemplate::New(pIsolate, equals));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isNull"), v8::FunctionTemplate::New(pIsolate, isNull));
+		objectTemplate->Set(toV8String(pIsolate, "toString"s), v8::FunctionTemplate::New(pIsolate, toString));
+		objectTemplate->Set(toV8String(pIsolate, "toJSON"s), v8::FunctionTemplate::New(pIsolate, toString));
+		objectTemplate->Set(toV8String(pIsolate, "equals"s), v8::FunctionTemplate::New(pIsolate, equals));
+		objectTemplate->Set(toV8String(pIsolate, "isNull"s), v8::FunctionTemplate::New(pIsolate, isNull));
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
@@ -74,6 +74,7 @@ v8::Handle<v8::ObjectTemplate> UUIDWrapper::objectTemplate(v8::Isolate* pIsolate
 
 void UUIDWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	Poco::UUID* pUUID = 0;
 	try
 	{
@@ -85,13 +86,13 @@ void UUIDWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 		{
 			if (args[0]->IsString())
 			{
-				pUUID = new Poco::UUID(Wrapper::toString(args[0]));
+				pUUID = new Poco::UUID(Wrapper::toString(pIsolate, args[0]));
 			}
 			else throw Poco::InvalidArgumentException("Invalid arguments to construct UUID");
 		}
 		UUIDWrapper wrapper;
-		v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(args.GetIsolate(), pUUID));
-		args.GetReturnValue().Set(uuidObject);
+		v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(pIsolate, pUUID));
+		args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, uuidObject));
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -116,13 +117,14 @@ void UUIDWrapper::isUUID(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void UUIDWrapper::createRandom(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	Poco::UUID* pUUID = nullptr;
 	try
 	{
 		pUUID = new Poco::UUID(Poco::UUIDGenerator().createRandom());
 		UUIDWrapper wrapper;
-		v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(args.GetIsolate(), pUUID));
-		args.GetReturnValue().Set(uuidObject);
+		v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(pIsolate, pUUID));
+		args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, uuidObject));
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -134,13 +136,14 @@ void UUIDWrapper::createRandom(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void UUIDWrapper::createTimeBased(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	Poco::UUID* pUUID = nullptr;
 	try
 	{
 		pUUID = new Poco::UUID(Poco::UUIDGenerator().create());
 		UUIDWrapper wrapper;
-		v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(args.GetIsolate(), pUUID));
-		args.GetReturnValue().Set(uuidObject);
+		v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(pIsolate, pUUID));
+		args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, uuidObject));
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -152,13 +155,14 @@ void UUIDWrapper::createTimeBased(const v8::FunctionCallbackInfo<v8::Value>& arg
 
 void UUIDWrapper::create(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	Poco::UUID* pUUID = nullptr;
 	try
 	{
 		pUUID = new Poco::UUID(Poco::UUIDGenerator().createOne());
 		UUIDWrapper wrapper;
-		v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(args.GetIsolate(), pUUID));
-		args.GetReturnValue().Set(uuidObject);
+		v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(pIsolate, pUUID));
+		args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, uuidObject));
 	}
 	catch (Poco::Exception& exc)
 	{

@@ -5,7 +5,7 @@
 #ifndef V8_BUILTINS_BUILTINS_CONSTRUCTOR_GEN_H_
 #define V8_BUILTINS_BUILTINS_CONSTRUCTOR_GEN_H_
 
-#include "src/code-stub-assembler.h"
+#include "src/codegen/code-stub-assembler.h"
 
 namespace v8 {
 namespace internal {
@@ -15,39 +15,42 @@ class ConstructorBuiltinsAssembler : public CodeStubAssembler {
   explicit ConstructorBuiltinsAssembler(compiler::CodeAssemblerState* state)
       : CodeStubAssembler(state) {}
 
-  Node* EmitFastNewClosure(Node* shared_info, Node* feedback_vector, Node* slot,
-                           Node* context);
-  Node* EmitFastNewFunctionContext(Node* closure, Node* slots, Node* context,
-                                   ScopeType scope_type);
+  TNode<Context> FastNewFunctionContext(TNode<ScopeInfo> scope_info,
+                                        TNode<Uint32T> slots,
+                                        TNode<Context> context,
+                                        ScopeType scope_type);
 
-  Node* EmitFastCloneRegExp(Node* closure, Node* literal_index, Node* pattern,
-                            Node* flags, Node* context);
-  Node* EmitFastCloneShallowArray(Node* closure, Node* literal_index,
-                                  Node* context, Label* call_runtime,
-                                  AllocationSiteMode allocation_site_mode);
+  TNode<JSRegExp> CreateRegExpLiteral(TNode<HeapObject> maybe_feedback_vector,
+                                      TNode<TaggedIndex> slot,
+                                      TNode<Object> pattern, TNode<Smi> flags,
+                                      TNode<Context> context);
 
-  Node* EmitCreateEmptyArrayLiteral(Node* closure, Node* iteral_index,
-                                    Node* context);
-  void CreateFastCloneShallowArrayBuiltin(
-      AllocationSiteMode allocation_site_mode);
+  TNode<JSArray> CreateShallowArrayLiteral(
+      TNode<FeedbackVector> feedback_vector, TNode<TaggedIndex> slot,
+      TNode<Context> context, AllocationSiteMode allocation_site_mode,
+      Label* call_runtime);
 
-  Node* EmitFastCloneShallowObject(Label* call_runtime, Node* closure,
-                                   Node* literals_index);
-  Node* EmitCreateEmptyObjectLiteral(Node* context);
+  TNode<JSArray> CreateEmptyArrayLiteral(TNode<FeedbackVector> feedback_vector,
+                                         TNode<TaggedIndex> slot,
+                                         TNode<Context> context);
 
-  Node* EmitFastNewObject(Node* context, Node* target, Node* new_target);
+  TNode<HeapObject> CreateShallowObjectLiteral(
+      TNode<FeedbackVector> feedback_vector, TNode<TaggedIndex> slot,
+      Label* call_runtime);
+  TNode<JSObject> CreateEmptyObjectLiteral(TNode<Context> context);
 
-  Node* EmitFastNewObject(Node* context, Node* target, Node* new_target,
-                          Label* call_runtime);
+  TNode<JSObject> FastNewObject(TNode<Context> context,
+                                TNode<JSFunction> target,
+                                TNode<JSReceiver> new_target);
 
- private:
-  Node* NonEmptyShallowClone(Node* boilerplate, Node* boilerplate_map,
-                             Node* boilerplate_elements, Node* allocation_site,
-                             Node* capacity, ElementsKind kind);
-  Node* CopyFixedArrayBase(Node* elements);
+  TNode<JSObject> FastNewObject(TNode<Context> context,
+                                TNode<JSFunction> target,
+                                TNode<JSReceiver> new_target,
+                                Label* call_runtime);
 
-  Node* NotHasBoilerplate(Node* literal_site);
-  Node* LoadAllocationSiteBoilerplate(Node* allocation_site);
+  void CopyMutableHeapNumbersInObject(TNode<HeapObject> copy,
+                                      TNode<IntPtrT> start_offset,
+                                      TNode<IntPtrT> instance_size);
 };
 
 }  // namespace internal

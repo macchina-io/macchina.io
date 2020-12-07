@@ -5,9 +5,10 @@
 #ifndef V8_INTERPRETER_HANDLER_TABLE_BUILDER_H_
 #define V8_INTERPRETER_HANDLER_TABLE_BUILDER_H_
 
-#include "src/frames.h"
+#include "src/codegen/handler-table.h"
 #include "src/interpreter/bytecode-register.h"
 #include "src/interpreter/bytecodes.h"
+#include "src/objects/fixed-array.h"
 #include "src/zone/zone-containers.h"
 
 namespace v8 {
@@ -21,13 +22,14 @@ class Isolate;
 namespace interpreter {
 
 // A helper class for constructing exception handler tables for the interpreter.
-class V8_EXPORT_PRIVATE HandlerTableBuilder final BASE_EMBEDDED {
+class V8_EXPORT_PRIVATE HandlerTableBuilder final {
  public:
   explicit HandlerTableBuilder(Zone* zone);
 
   // Builds the actual handler table by copying the current values into a heap
   // object. Any further mutations to the builder won't be reflected.
-  Handle<HandlerTable> ToHandlerTable(Isolate* isolate);
+  template <typename LocalIsolate>
+  Handle<ByteArray> ToHandlerTable(LocalIsolate* isolate);
 
   // Creates a new handler table entry and returns a {hander_id} identifying the
   // entry, so that it can be referenced by below setter functions.

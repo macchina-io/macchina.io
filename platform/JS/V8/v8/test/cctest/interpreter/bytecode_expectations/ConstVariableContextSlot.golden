@@ -9,24 +9,21 @@ wrap: yes
 snippet: "
   const x = 10; function f1() {return x;}
 "
-frame size: 2
+frame size: 1
 parameter count: 1
-bytecode array length: 20
+bytecode array length: 14
 bytecodes: [
-                B(CreateFunctionContext), U8(1),
-                B(PushContext), R(1),
+  /*   30 E> */ B(CreateFunctionContext), U8(0), U8(1),
+                B(PushContext), R(0),
                 B(LdaTheHole),
-                B(StaCurrentContextSlot), U8(4),
-                B(CreateClosure), U8(0), U8(0), U8(2),
-                B(Star), R(0),
-  /*   30 E> */ B(StackCheck),
+                B(StaCurrentContextSlot), U8(2),
   /*   44 S> */ B(LdaSmi), I8(10),
-  /*   44 E> */ B(StaCurrentContextSlot), U8(4),
+  /*   44 E> */ B(StaCurrentContextSlot), U8(2),
                 B(LdaUndefined),
   /*   74 S> */ B(Return),
 ]
 constant pool: [
-  SHARED_FUNCTION_INFO_TYPE,
+  SCOPE_INFO_TYPE,
 ]
 handlers: [
 ]
@@ -35,24 +32,21 @@ handlers: [
 snippet: "
   const x = 10; function f1() {return x;} return x;
 "
-frame size: 2
+frame size: 1
 parameter count: 1
-bytecode array length: 21
+bytecode array length: 15
 bytecodes: [
-                B(CreateFunctionContext), U8(1),
-                B(PushContext), R(1),
+  /*   30 E> */ B(CreateFunctionContext), U8(0), U8(1),
+                B(PushContext), R(0),
                 B(LdaTheHole),
-                B(StaCurrentContextSlot), U8(4),
-                B(CreateClosure), U8(0), U8(0), U8(2),
-                B(Star), R(0),
-  /*   30 E> */ B(StackCheck),
+                B(StaCurrentContextSlot), U8(2),
   /*   44 S> */ B(LdaSmi), I8(10),
-  /*   44 E> */ B(StaCurrentContextSlot), U8(4),
-  /*   74 S> */ B(LdaImmutableCurrentContextSlot), U8(4),
+  /*   44 E> */ B(StaCurrentContextSlot), U8(2),
+  /*   74 S> */ B(LdaImmutableCurrentContextSlot), U8(2),
   /*   83 S> */ B(Return),
 ]
 constant pool: [
-  SHARED_FUNCTION_INFO_TYPE,
+  SCOPE_INFO_TYPE,
 ]
 handlers: [
 ]
@@ -61,28 +55,25 @@ handlers: [
 snippet: "
   const x = (x = 20); function f1() {return x;}
 "
-frame size: 3
+frame size: 2
 parameter count: 1
-bytecode array length: 31
+bytecode array length: 25
 bytecodes: [
-                B(CreateFunctionContext), U8(1),
-                B(PushContext), R(1),
+  /*   30 E> */ B(CreateFunctionContext), U8(0), U8(1),
+                B(PushContext), R(0),
                 B(LdaTheHole),
-                B(StaCurrentContextSlot), U8(4),
-                B(CreateClosure), U8(0), U8(0), U8(2),
-                B(Star), R(0),
-  /*   30 E> */ B(StackCheck),
+                B(StaCurrentContextSlot), U8(2),
   /*   44 S> */ B(LdaSmi), I8(20),
-                B(Star), R(2),
-                B(LdaCurrentContextSlot), U8(4),
+                B(Star), R(1),
+                B(LdaCurrentContextSlot), U8(2),
   /*   47 E> */ B(ThrowReferenceErrorIfHole), U8(1),
                 B(CallRuntime), U16(Runtime::kThrowConstAssignError), R(0), U8(0),
-  /*   44 E> */ B(StaCurrentContextSlot), U8(4),
+  /*   44 E> */ B(StaCurrentContextSlot), U8(2),
                 B(LdaUndefined),
   /*   80 S> */ B(Return),
 ]
 constant pool: [
-  SHARED_FUNCTION_INFO_TYPE,
+  SCOPE_INFO_TYPE,
   ONE_BYTE_INTERNALIZED_STRING_TYPE ["x"],
 ]
 handlers: [
@@ -92,26 +83,23 @@ handlers: [
 snippet: "
   const x = 10; x = 20; function f1() {return x;}
 "
-frame size: 2
+frame size: 1
 parameter count: 1
-bytecode array length: 27
+bytecode array length: 21
 bytecodes: [
-                B(CreateFunctionContext), U8(1),
-                B(PushContext), R(1),
+  /*   30 E> */ B(CreateFunctionContext), U8(0), U8(1),
+                B(PushContext), R(0),
                 B(LdaTheHole),
-                B(StaCurrentContextSlot), U8(4),
-                B(CreateClosure), U8(0), U8(0), U8(2),
-                B(Star), R(0),
-  /*   30 E> */ B(StackCheck),
+                B(StaCurrentContextSlot), U8(2),
   /*   44 S> */ B(LdaSmi), I8(10),
-  /*   44 E> */ B(StaCurrentContextSlot), U8(4),
+  /*   44 E> */ B(StaCurrentContextSlot), U8(2),
   /*   48 S> */ B(LdaSmi), I8(20),
   /*   50 E> */ B(CallRuntime), U16(Runtime::kThrowConstAssignError), R(0), U8(0),
                 B(LdaUndefined),
   /*   82 S> */ B(Return),
 ]
 constant pool: [
-  SHARED_FUNCTION_INFO_TYPE,
+  SCOPE_INFO_TYPE,
 ]
 handlers: [
 ]

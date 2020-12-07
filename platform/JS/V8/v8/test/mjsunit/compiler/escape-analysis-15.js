@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Flags: --allow-natives-syntax --turbo-escape --turbo-experimental --no-turbo-load-elimination
+// Flags: --allow-natives-syntax --turbo-escape --no-turbo-load-elimination
 
 function f(i) {
   var o1 = {a: 1, b: 2};
@@ -12,6 +12,7 @@ function f(i) {
   o2.a = o1;
   if (i == 4) return o3;
 }
+%PrepareFunctionForOptimization(f);
 for (var i = 0; i < 100; ++i){
   f(i%5)
 }

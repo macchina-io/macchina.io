@@ -7,46 +7,63 @@ import os
 from testrunner.local import testsuite
 from testrunner.objects import testcase
 
+SUB_TESTS = [
+  'json',
+  'parser',
+  'regexp_builtins',
+  'regexp',
+  'multi_return',
+  'wasm',
+  'wasm_async',
+  'wasm_code',
+  'wasm_compile',
+]
 
-class FuzzerVariantGenerator(testsuite.VariantGenerator):
-  # Only run the fuzzer with standard variant.
-  def FilterVariantsByTest(self, testcase):
-    return self.standard_variant
-
-  def GetFlagSets(self, testcase, variant):
-    return testsuite.FAST_VARIANT_FLAGS[variant]
-
-
-class FuzzerTestSuite(testsuite.TestSuite):
-  SUB_TESTS = ( 'json', 'parser', 'regexp', 'wasm', 'wasm_async',
-          'wasm_call', 'wasm_code', 'wasm_compile', 'wasm_data_section',
-          'wasm_function_sigs_section', 'wasm_globals_section',
-          'wasm_imports_section', 'wasm_memory_section', 'wasm_names_section',
-          'wasm_types_section' )
-
-  def __init__(self, name, root):
-    super(FuzzerTestSuite, self).__init__(name, root)
-
-  def ListTests(self, context):
-    tests = []
-    for subtest in FuzzerTestSuite.SUB_TESTS:
-      shell = 'v8_simple_%s_fuzzer' % subtest
-      for fname in os.listdir(os.path.join(self.root, subtest)):
-        if not os.path.isfile(os.path.join(self.root, subtest, fname)):
-          continue
-        test = testcase.TestCase(self, '%s/%s' % (subtest, fname),
-                                 override_shell=shell)
-        tests.append(test)
-    tests.sort()
-    return tests
-
-  def GetFlagsForTestCase(self, testcase, context):
-    suite, name = testcase.path.split('/')
-    return [os.path.join(self.root, suite, name)]
-
-  def _VariantGeneratorFactory(self):
-    return FuzzerVariantGenerator
+class VariantsGenerator(testsuite.VariantsGenerator):
+  def _get_variants(self, test):
+    return self._standard_variant
 
 
-def GetSuite(name, root):
-  return FuzzerTestSuite(name, root)
+class TestLoader(testsuite.GenericTestLoader):
+  @property
+  def test_dirs(self):
+    return SUB_TESTS
+
+  def _to_relpath(self, abspath, _):
+    return os.path.relpath(abspath, self.suite.root)
+
+  def _should_filter_by_name(self, _):
+    return False
+
+class TestSuite(testsuite.TestSuite):
+  def _test_loader_class(self):
+    return TestLoader
+
+  def _test_class(self):
+    return TestCase
+
+  def _variants_gen_class(self):
+    return VariantsGenerator
+
+
+class TestCase(testcase.TestCase):
+  def _get_files_params(self):
+    suite, name = self.path.split(os.path.sep)
+    return [os.path.join(self.suite.root, suite, name)]
+
+  def _get_variant_flags(self):
+    return []
+
+  def _get_statusfile_flags(self):
+    return []
+
+  def _get_mode_flags(self):
+    return []
+
+  def get_shell(self):
+    group, _ = self.path.split(os.path.sep, 1)
+    return 'v8_simple_%s_fuzzer' % group
+
+
+def GetSuite(*args, **kwargs):
+  return TestSuite(*args, **kwargs)

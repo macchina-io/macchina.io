@@ -3,6 +3,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# for py2/py3 compatibility
+from __future__ import print_function
+
 import argparse
 import os
 import sys
@@ -27,7 +30,7 @@ class PrepareBranchRevision(Step):
     self["push_hash"] = (self._options.revision or
                          self.GitLog(n=1, format="%H", branch="origin/master"))
     assert self["push_hash"]
-    print "Release revision %s" % self["push_hash"]
+    print("Release revision %s" % self["push_hash"])
 
 
 class IncrementVersion(Step):
@@ -74,62 +77,19 @@ class DetectLastRelease(Step):
     self["last_push_master"] = self.GetLatestReleaseBase()
 
 
-class PrepareChangeLog(Step):
-  MESSAGE = "Prepare raw ChangeLog entry."
+class DeleteBranchRef(Step):
+  MESSAGE = "Delete branch ref."
 
   def RunStep(self):
-    self["date"] = self.GetDate()
-    output = "%s: Version %s\n\n" % (self["date"], self["version"])
-    TextToFile(output, self.Config("CHANGELOG_ENTRY_FILE"))
-    commits = self.GitLog(format="%H",
-        git_hash="%s..%s" % (self["last_push_master"],
-                             self["push_hash"]))
-
-    # Cache raw commit messages.
-    commit_messages = [
-      [
-        self.GitLog(n=1, format="%s", git_hash=commit),
-        self.GitLog(n=1, format="%B", git_hash=commit),
-        self.GitLog(n=1, format="%an", git_hash=commit),
-      ] for commit in commits.splitlines()
-    ]
-
-    # Auto-format commit messages.
-    body = MakeChangeLogBody(commit_messages, auto_format=True)
-    AppendToFile(body, self.Config("CHANGELOG_ENTRY_FILE"))
-
-    msg = ("        Performance and stability improvements on all platforms."
-           "\n#\n# The change log above is auto-generated. Please review if "
-           "all relevant\n# commit messages from the list below are included."
-           "\n# All lines starting with # will be stripped.\n#\n")
-    AppendToFile(msg, self.Config("CHANGELOG_ENTRY_FILE"))
-
-    # Include unformatted commit messages as a reference in a comment.
-    comment_body = MakeComment(MakeChangeLogBody(commit_messages))
-    AppendToFile(comment_body, self.Config("CHANGELOG_ENTRY_FILE"))
-
-
-class EditChangeLog(Step):
-  MESSAGE = "Edit ChangeLog entry."
-
-  def RunStep(self):
-    print ("Please press <Return> to have your EDITOR open the ChangeLog "
-           "entry, then edit its contents to your liking. When you're done, "
-           "save the file and exit your EDITOR. ")
-    self.ReadLine(default="")
-    self.Editor(self.Config("CHANGELOG_ENTRY_FILE"))
-
-    # Strip comments and reformat with correct indentation.
-    changelog_entry = FileToText(self.Config("CHANGELOG_ENTRY_FILE")).rstrip()
-    changelog_entry = StripComments(changelog_entry)
-    changelog_entry = "\n".join(map(Fill80, changelog_entry.splitlines()))
-    changelog_entry = changelog_entry.lstrip()
-
-    if changelog_entry == "":  # pragma: no cover
-      self.Die("Empty ChangeLog entry.")
-
-    # Safe new change log for adding it later to the candidates patch.
-    TextToFile(changelog_entry, self.Config("CHANGELOG_ENTRY_FILE"))
+    cmd = "push origin :refs/heads/%s" % self["version"]
+    if self._options.dry_run:
+      print("Dry run. Command:\ngit %s" % cmd)
+    else:
+      try:
+        self.Git(cmd)
+      except Exception:
+        # Be forgiving if branch ref does not exist.
+        pass
 
 
 class PushBranchRef(Step):
@@ -138,7 +98,7 @@ class PushBranchRef(Step):
   def RunStep(self):
     cmd = "push origin %s:refs/heads/%s" % (self["push_hash"], self["version"])
     if self._options.dry_run:
-      print "Dry run. Command:\ngit %s" % cmd
+      print("Dry run. Command:\ngit %s" % cmd)
     else:
       self.Git(cmd)
 
@@ -149,19 +109,7 @@ class MakeBranch(Step):
   def RunStep(self):
     self.Git("reset --hard origin/master")
     self.Git("new-branch work-branch --upstream origin/%s" % self["version"])
-    self.GitCheckoutFile(CHANGELOG_FILE, self["latest_version"])
     self.GitCheckoutFile(VERSION_FILE, self["latest_version"])
-    self.GitCheckoutFile(WATCHLISTS_FILE, self["latest_version"])
-
-
-class AddChangeLog(Step):
-  MESSAGE = "Add ChangeLog changes to release branch."
-
-  def RunStep(self):
-    changelog_entry = FileToText(self.Config("CHANGELOG_ENTRY_FILE"))
-    old_change_log = FileToText(os.path.join(self.default_cwd, CHANGELOG_FILE))
-    new_change_log = "%s\n\n\n%s" % (changelog_entry, old_change_log)
-    TextToFile(new_change_log, os.path.join(self.default_cwd, CHANGELOG_FILE))
 
 
 class SetVersion(Step):
@@ -185,31 +133,14 @@ class EnableMergeWatchlist(Step):
 
 
 class CommitBranch(Step):
-  MESSAGE = "Commit version and changelog to new branch."
+  MESSAGE = "Commit version to new branch."
 
   def RunStep(self):
-    # Convert the ChangeLog entry to commit message format.
-    text = FileToText(self.Config("CHANGELOG_ENTRY_FILE"))
-
-    # Remove date and trailing white space.
-    text = re.sub(r"^%s: " % self["date"], "", text.rstrip())
-
-    # Remove indentation and merge paragraphs into single long lines, keeping
-    # empty lines between them.
-    def SplitMapJoin(split_text, fun, join_text):
-      return lambda text: join_text.join(map(fun, text.split(split_text)))
-    text = SplitMapJoin(
-        "\n\n", SplitMapJoin("\n", str.strip, " "), "\n\n")(text)
-
-    if not text:  # pragma: no cover
-      self.Die("Commit message editing failed.")
-    text += "\n\nTBR=%s" % self._options.reviewer
-    self["commit_title"] = text.splitlines()[0]
+    self["commit_title"] = "Version %s" % self["version"]
+    text = "%s\n\nTBR=%s" % (self["commit_title"], self._options.reviewer)
     TextToFile(text, self.Config("COMMITMSG_FILE"))
 
-    self.GitCommit(file_name = self.Config("COMMITMSG_FILE"))
-    os.remove(self.Config("COMMITMSG_FILE"))
-    os.remove(self.Config("CHANGELOG_ENTRY_FILE"))
+    self.GitCommit(file_name=self.Config("COMMITMSG_FILE"))
 
 
 class LandBranch(Step):
@@ -217,17 +148,19 @@ class LandBranch(Step):
 
   def RunStep(self):
     if self._options.dry_run:
-      print "Dry run - upload CL."
+      print("Dry run - upload CL.")
     else:
-      self.GitUpload(author=self._options.author,
-                     force=True,
+      self.GitUpload(force=True,
                      bypass_hooks=True,
-                     private=True)
+                     no_autocc=True,
+                     message_file=self.Config("COMMITMSG_FILE"))
     cmd = "cl land --bypass-hooks -f"
     if self._options.dry_run:
-      print "Dry run. Command:\ngit %s" % cmd
+      print("Dry run. Command:\ngit %s" % cmd)
     else:
       self.Git(cmd)
+
+    os.remove(self.Config("COMMITMSG_FILE"))
 
 
 class TagRevision(Step):
@@ -269,15 +202,13 @@ class CreateRelease(ScriptsBase):
 
   def _ProcessOptions(self, options):  # pragma: no cover
     if not options.author or not options.reviewer:
-      print "Reviewer (-r) and author (-a) are required."
+      print("Reviewer (-r) and author (-a) are required.")
       return False
     return True
 
   def _Config(self):
     return {
       "PERSISTFILE_BASENAME": "/tmp/create-releases-tempfile",
-      "CHANGELOG_ENTRY_FILE":
-          "/tmp/v8-create-releases-tempfile-changelog-entry",
       "COMMITMSG_FILE": "/tmp/v8-create-releases-tempfile-commitmsg",
     }
 
@@ -287,11 +218,9 @@ class CreateRelease(ScriptsBase):
       PrepareBranchRevision,
       IncrementVersion,
       DetectLastRelease,
-      PrepareChangeLog,
-      EditChangeLog,
+      DeleteBranchRef,
       PushBranchRef,
       MakeBranch,
-      AddChangeLog,
       SetVersion,
       EnableMergeWatchlist,
       CommitBranch,

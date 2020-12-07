@@ -10,6 +10,8 @@
 
 #include "src/asmjs/asm-scanner.h"
 #include "src/asmjs/asm-types.h"
+#include "src/base/enum-set.h"
+#include "src/utils/vector.h"
 #include "src/wasm/wasm-module-builder.h"
 #include "src/zone/zone-containers.h"
 
@@ -47,7 +49,7 @@ class AsmJsParser {
   };
   // clang-format on
 
-  typedef EnumSet<StandardMember, uint64_t> StdlibSet;
+  using StdlibSet = base::EnumSet<StandardMember, uint64_t>;
 
   explicit AsmJsParser(Zone* zone, uintptr_t stack_limit,
                        Utf16CharacterStream* stream);
@@ -76,9 +78,16 @@ class AsmJsParser {
   };
   // clang-format on
 
+  // A single import in asm.js can require multiple imports in wasm, if the
+  // function is used with different signatures. {cache} keeps the wasm
+  // imports for the single asm.js import of name {function_name}.
   struct FunctionImportInfo {
     Vector<const char> function_name;
-    WasmModuleBuilder::SignatureMap cache;
+    ZoneUnorderedMap<FunctionSig, uint32_t> cache;
+
+    // Constructor.
+    FunctionImportInfo(Vector<const char> name, Zone* zone)
+        : function_name(name), cache(zone) {}
   };
 
   struct VarInfo {
@@ -98,8 +107,20 @@ class AsmJsParser {
     VarInfo* var_info;
   };
 
-  enum class BlockKind { kRegular, kLoop, kOther };
+  // Distinguish different kinds of blocks participating in {block_stack}. Each
+  // entry on that stack represents one block in the wasm code, and determines
+  // which block 'break' and 'continue' target in the current context:
+  //  - kRegular: The target of a 'break' (with & without identifier).
+  //              Pushed by an IterationStatement and a SwitchStatement.
+  //  - kLoop   : The target of a 'continue' (with & without identifier).
+  //              Pushed by an IterationStatement.
+  //  - kNamed  : The target of a 'break' with a specific identifier.
+  //              Pushed by a BlockStatement.
+  //  - kOther  : Only used for internal blocks, can never be targeted.
+  enum class BlockKind { kRegular, kLoop, kNamed, kOther };
 
+  // One entry in the {block_stack}, see {BlockKind} above for details. Blocks
+  // without a label have {kTokenNone} set as their label.
   struct BlockInfo {
     BlockKind kind;
     AsmJsScanner::token_t label;
@@ -133,9 +154,9 @@ class AsmJsParser {
   template <typename T>
   class CachedVector final : public ZoneVector<T> {
    public:
-    explicit CachedVector(CachedVectors<T>& cache)
-        : ZoneVector<T>(cache.zone()), cache_(&cache) {
-      cache.fill(this);
+    explicit CachedVector(CachedVectors<T>* cache)
+        : ZoneVector<T>(cache->zone()), cache_(cache) {
+      cache->fill(this);
     }
     ~CachedVector() { cache_->reuse(this); }
 
@@ -147,11 +168,12 @@ class AsmJsParser {
   AsmJsScanner scanner_;
   WasmModuleBuilder* module_builder_;
   WasmFunctionBuilder* current_function_builder_;
-  AsmType* return_type_;
+  AsmType* return_type_ = nullptr;
   uintptr_t stack_limit_;
   StdlibSet stdlib_uses_;
-  ZoneVector<VarInfo> global_var_info_;
-  ZoneVector<VarInfo> local_var_info_;
+  Vector<VarInfo> global_var_info_;
+  Vector<VarInfo> local_var_info_;
+  size_t num_globals_ = 0;
 
   CachedVectors<ValueType> cached_valuetype_vectors_{zone_};
   CachedVectors<AsmType*> cached_asm_type_p_vectors_{zone_};
@@ -163,27 +185,26 @@ class AsmJsParser {
   int function_temp_locals_depth_;
 
   // Error Handling related
-  bool failed_;
+  bool failed_ = false;
   const char* failure_message_;
-  int failure_location_;
+  int failure_location_ = kNoSourcePosition;
 
   // Module Related.
-  AsmJsScanner::token_t stdlib_name_;
-  AsmJsScanner::token_t foreign_name_;
-  AsmJsScanner::token_t heap_name_;
+  AsmJsScanner::token_t stdlib_name_ = kTokenNone;
+  AsmJsScanner::token_t foreign_name_ = kTokenNone;
+  AsmJsScanner::token_t heap_name_ = kTokenNone;
 
   static const AsmJsScanner::token_t kTokenNone = 0;
 
   // Track if parsing a heap assignment.
-  bool inside_heap_assignment_;
-  AsmType* heap_access_type_;
+  bool inside_heap_assignment_ = false;
+  AsmType* heap_access_type_ = nullptr;
 
   ZoneVector<BlockInfo> block_stack_;
 
   // Types used for stdlib function and their set up.
   AsmType* stdlib_dq2d_;
   AsmType* stdlib_dqdq2d_;
-  AsmType* stdlib_fq2f_;
   AsmType* stdlib_i2s_;
   AsmType* stdlib_ii2s_;
   AsmType* stdlib_minmax_;
@@ -194,7 +215,7 @@ class AsmJsParser {
   // When making calls, the return type is needed to lookup signatures.
   // For `+callsite(..)` or `fround(callsite(..))` use this value to pass
   // along the coercion.
-  AsmType* call_coercion_;
+  AsmType* call_coercion_ = nullptr;
 
   // The source position associated with the above {call_coercion}.
   size_t call_coercion_position_;
@@ -202,7 +223,7 @@ class AsmJsParser {
   // When making calls, the coercion can also appear in the source stream
   // syntactically "behind" the call site. For `callsite(..)|0` use this
   // value to flag that such a coercion must happen.
-  AsmType* call_coercion_deferred_;
+  AsmType* call_coercion_deferred_ = nullptr;
 
   // The source position at which requesting a deferred coercion via the
   // aforementioned {call_coercion_deferred} is allowed.
@@ -218,7 +239,7 @@ class AsmJsParser {
 
   // Used to track the last label we've seen so it can be matched to later
   // statements it's attached to.
-  AsmJsScanner::token_t pending_label_;
+  AsmJsScanner::token_t pending_label_ = kTokenNone;
 
   // Global imports. The list of imported variables that are copied during
   // module instantiation into a corresponding global variable.
@@ -228,6 +249,10 @@ class AsmJsParser {
 
   inline bool Peek(AsmJsScanner::token_t token) {
     return scanner_.Token() == token;
+  }
+
+  inline bool PeekForZero() {
+    return (scanner_.IsUnsigned() && scanner_.AsUnsigned() == 0);
   }
 
   inline bool Check(AsmJsScanner::token_t token) {
@@ -289,8 +314,7 @@ class AsmJsParser {
   VarInfo* GetVarInfo(AsmJsScanner::token_t token);
   uint32_t VarIndex(VarInfo* info);
   void DeclareGlobal(VarInfo* info, bool mutable_variable, AsmType* type,
-                     ValueType vtype,
-                     const WasmInitExpr& init = WasmInitExpr());
+                     ValueType vtype, WasmInitExpr init = WasmInitExpr());
   void DeclareStdlibFunc(VarInfo* info, VarKind kind, AsmType* type);
   void AddGlobalImport(Vector<const char> name, AsmType* type, ValueType vtype,
                        bool mutable_variable, VarInfo* info);
@@ -304,8 +328,7 @@ class AsmJsParser {
 
   // Use to set up block stack layers (including synthetic ones for if-else).
   // Begin/Loop/End below are implemented with these plus code generation.
-  void BareBegin(BlockKind kind = BlockKind::kOther,
-                 AsmJsScanner::token_t label = 0);
+  void BareBegin(BlockKind kind, AsmJsScanner::token_t label = 0);
   void BareEnd();
   int FindContinueLabelDepth(AsmJsScanner::token_t label);
   int FindBreakLabelDepth(AsmJsScanner::token_t label);

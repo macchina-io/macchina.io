@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef V8_INSPECTOR_V8VALUEUTILS_H_
-#define V8_INSPECTOR_V8VALUEUTILS_H_
+#ifndef V8_INSPECTOR_V8_VALUE_UTILS_H_
+#define V8_INSPECTOR_V8_VALUE_UTILS_H_
 
 #include "src/inspector/protocol/Protocol.h"
 
@@ -18,9 +18,6 @@ v8::Maybe<bool> createDataProperty(v8::Local<v8::Context>,
 v8::Maybe<bool> createDataProperty(v8::Local<v8::Context>, v8::Local<v8::Array>,
                                    int index, v8::Local<v8::Value>);
 
-protocol::Response toProtocolValue(v8::Local<v8::Context>, v8::Local<v8::Value>,
-                                   std::unique_ptr<protocol::Value>* result);
-
 }  // namespace v8_inspector
 
-#endif  // V8_INSPECTOR_V8VALUEUTILS_H_
+#endif  // V8_INSPECTOR_V8_VALUE_UTILS_H_

@@ -4,15 +4,17 @@ Running test: testLoadedModulesOnDebuggerEnable
 {
     method : Debugger.scriptParsed
     params : {
+        embedderName : module1.js
         endColumn : 1
         endLine : 3
         executionContextId : <executionContextId>
         hasSourceURL : false
-        hash : F8E59942466284E2766FD161CA6FFD024048A807
+        hash : 03b276dd81b75bf832afbeccbbd273c62dad100c
         isLiveEdit : false
         isModule : true
         length : 39
         scriptId : <scriptId>
+        scriptLanguage : JavaScript
         sourceMapURL : 
         startColumn : 0
         startLine : 0
@@ -24,15 +26,17 @@ Running test: testScriptEventsWhenDebuggerIsEnabled
 {
     method : Debugger.scriptParsed
     params : {
+        embedderName : module2.js
         endColumn : 1
         endLine : 3
         executionContextId : <executionContextId>
         hasSourceURL : false
-        hash : F8E59942466284E2766FD161CA6FFD024048A807
+        hash : 03b276dd81b75bf832afbeccbbd273c62dad100c
         isLiveEdit : false
         isModule : true
         length : 39
         scriptId : <scriptId>
+        scriptLanguage : JavaScript
         sourceMapURL : 
         startColumn : 0
         startLine : 0
@@ -42,14 +46,16 @@ Running test: testScriptEventsWhenDebuggerIsEnabled
 {
     method : Debugger.scriptFailedToParse
     params : {
+        embedderName : module-with-syntax-error-2.js
         endColumn : 1
         endLine : 0
         executionContextId : <executionContextId>
         hasSourceURL : false
-        hash : FF746120E4E4F1BA4CB5762843D429DC872EBA18
+        hash : 021647ffab1f4e4e82675bc4cd924d3481abe278
         isModule : true
         length : 1
         scriptId : <scriptId>
+        scriptLanguage : JavaScript
         sourceMapURL : 
         startColumn : 0
         startLine : 0

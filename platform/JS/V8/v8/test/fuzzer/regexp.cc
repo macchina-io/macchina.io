@@ -7,10 +7,9 @@
 #include <stdint.h>
 
 #include "include/v8.h"
-#include "src/factory.h"
-#include "src/objects-inl.h"
-#include "src/objects.h"
-#include "src/regexp/jsregexp.h"
+#include "src/heap/factory.h"
+#include "src/objects/objects-inl.h"
+#include "src/regexp/regexp.h"
 #include "test/fuzzer/fuzzer-support.h"
 
 namespace i = v8::internal;
@@ -19,8 +18,8 @@ void Test(v8::Isolate* isolate, i::Handle<i::JSRegExp> regexp,
           i::Handle<i::String> subject,
           i::Handle<i::RegExpMatchInfo> results_array) {
   v8::TryCatch try_catch(isolate);
-  if (i::RegExpImpl::Exec(regexp, subject, 0, results_array).is_null()) {
-    i::Isolate* i_isolate = reinterpret_cast<i::Isolate*>(isolate);
+  i::Isolate* i_isolate = reinterpret_cast<i::Isolate*>(isolate);
+  if (i::RegExp::Exec(i_isolate, regexp, subject, 0, results_array).is_null()) {
     i_isolate->OptionalRescheduleException(true);
   }
 }
@@ -33,8 +32,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   v8::HandleScope handle_scope(isolate);
   v8::Context::Scope context_scope(support->GetContext());
   v8::TryCatch try_catch(isolate);
-
-  i::FLAG_harmony_regexp_lookbehind = true;
 
   i::Isolate* i_isolate = reinterpret_cast<i::Isolate*>(isolate);
   i::Factory* factory = i_isolate->factory();
@@ -51,7 +48,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
   static const int kAllFlags = i::JSRegExp::kGlobal | i::JSRegExp::kIgnoreCase |
                                i::JSRegExp::kMultiline | i::JSRegExp::kSticky |
-                               i::JSRegExp::kUnicode;
+                               i::JSRegExp::kUnicode | i::JSRegExp::kDotAll;
 
   const uint8_t one_byte_array[6] = {'f', 'o', 'o', 'b', 'a', 'r'};
   const i::uc16 two_byte_array[6] = {'f', 0xD83D, 0xDCA9, 'b', 'a', 0x2603};
@@ -73,7 +70,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     std::string str = std::string(reinterpret_cast<const char*>(data), size);
     i::JSRegExp::Flags flag = static_cast<i::JSRegExp::Flags>(
         std::hash<std::string>()(str) % (kAllFlags + 1));
-    i::MaybeHandle<i::JSRegExp> maybe_regexp = i::JSRegExp::New(source, flag);
+    i::MaybeHandle<i::JSRegExp> maybe_regexp =
+        i::JSRegExp::New(i_isolate, source, flag);
     if (!maybe_regexp.ToHandle(&regexp)) {
       i_isolate->clear_pending_exception();
       return 0;

@@ -28,7 +28,7 @@ ConditionVariable::ConditionVariable() {
   DCHECK_EQ(0, result);
   result = pthread_condattr_destroy(&attr);
 #else
-  int result = pthread_cond_init(&native_handle_, NULL);
+  int result = pthread_cond_init(&native_handle_, nullptr);
 #endif
   DCHECK_EQ(0, result);
   USE(result);
@@ -41,7 +41,7 @@ ConditionVariable::~ConditionVariable() {
   // Darwin kernel. http://crbug.com/517681.
   {
     Mutex lock;
-    LockGuard<Mutex> l(&lock);
+    MutexGuard l(&lock);
     struct timespec ts;
     ts.tv_sec = 0;
     ts.tv_nsec = 1;
@@ -159,7 +159,37 @@ bool ConditionVariable::WaitFor(Mutex* mutex, const TimeDelta& rel_time) {
   return result != 0;
 }
 
-#endif  // V8_OS_POSIX
+#elif V8_OS_STARBOARD
+
+ConditionVariable::ConditionVariable() {
+  SbConditionVariableCreate(&native_handle_, nullptr);
+}
+
+ConditionVariable::~ConditionVariable() {
+  SbConditionVariableDestroy(&native_handle_);
+}
+
+void ConditionVariable::NotifyOne() {
+  SbConditionVariableSignal(&native_handle_);
+}
+
+void ConditionVariable::NotifyAll() {
+  SbConditionVariableBroadcast(&native_handle_);
+}
+
+void ConditionVariable::Wait(Mutex* mutex) {
+  SbConditionVariableWait(&native_handle_, &mutex->native_handle());
+}
+
+bool ConditionVariable::WaitFor(Mutex* mutex, const TimeDelta& rel_time) {
+  SbTime microseconds = static_cast<SbTime>(rel_time.InMicroseconds());
+  SbConditionVariableResult result = SbConditionVariableWaitTimed(
+      &native_handle_, &mutex->native_handle(), microseconds);
+  DCHECK(result != kSbConditionVariableFailed);
+  return result == kSbConditionVariableSignaled;
+}
+
+#endif  // V8_OS_STARBOARD
 
 }  // namespace base
 }  // namespace v8

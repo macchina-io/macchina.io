@@ -2,17 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "src/assembler.h"
+#include "src/codegen/assembler.h"
 #include "src/compiler/js-graph.h"
+#include "src/compiler/js-heap-broker.h"
 #include "src/compiler/node-properties.h"
-#include "src/factory.h"
-// FIXME(mstarzinger, marja): This is weird, but required because of the missing
-// (disallowed) include: src/factory.h -> src/objects-inl.h
-#include "src/objects-inl.h"
-// FIXME(mstarzinger, marja): This is weird, but required because of the missing
-// (disallowed) include: src/feedback-vector.h ->
-// src/feedback-vector-inl.h
-#include "src/feedback-vector-inl.h"
+#include "src/heap/factory-inl.h"
 #include "test/cctest/cctest.h"
 #include "test/cctest/compiler/value-helper.h"
 
@@ -22,7 +16,7 @@ namespace compiler {
 
 class JSCacheTesterHelper {
  protected:
-  JSCacheTesterHelper(Isolate* isolate, Zone* zone)
+  explicit JSCacheTesterHelper(Zone* zone)
       : main_graph_(zone),
         main_common_(zone),
         main_javascript_(zone),
@@ -40,9 +34,12 @@ class JSConstantCacheTester : public HandleAndZoneScope,
                               public JSGraph {
  public:
   JSConstantCacheTester()
-      : JSCacheTesterHelper(main_isolate(), main_zone()),
+      : HandleAndZoneScope(kCompressGraphZone),
+        JSCacheTesterHelper(main_zone()),
         JSGraph(main_isolate(), &main_graph_, &main_common_, &main_javascript_,
-                nullptr, &main_machine_) {
+                nullptr, &main_machine_),
+        canonical_(main_isolate()),
+        broker_(main_isolate(), main_zone()) {
     main_graph_.SetStart(main_graph_.NewNode(common()->Start(0)));
     main_graph_.SetEnd(
         main_graph_.NewNode(common()->End(1), main_graph_.start()));
@@ -50,10 +47,15 @@ class JSConstantCacheTester : public HandleAndZoneScope,
 
   Handle<HeapObject> handle(Node* node) {
     CHECK_EQ(IrOpcode::kHeapConstant, node->opcode());
-    return OpParameter<Handle<HeapObject>>(node);
+    return HeapConstantOf(node->op());
   }
 
   Factory* factory() { return main_isolate()->factory(); }
+  JSHeapBroker* broker() { return &broker_; }
+
+ private:
+  CanonicalHandleScope canonical_;
+  JSHeapBroker broker_;
 };
 
 
@@ -82,8 +84,8 @@ TEST(MinusZeroConstant) {
   CHECK_EQ(minus_zero, T.Constant(-0.0));
   CHECK_NE(zero, minus_zero);
 
-  double zero_value = OpParameter<double>(zero);
-  double minus_zero_value = OpParameter<double>(minus_zero);
+  double zero_value = OpParameter<double>(zero->op());
+  double minus_zero_value = OpParameter<double>(minus_zero->op());
 
   CHECK(bit_cast<uint64_t>(0.0) == bit_cast<uint64_t>(zero_value));
   CHECK(bit_cast<uint64_t>(-0.0) != bit_cast<uint64_t>(zero_value));
@@ -174,9 +176,9 @@ TEST(CanonicalizingNumbers) {
   JSConstantCacheTester T;
 
   FOR_FLOAT64_INPUTS(i) {
-    Node* node = T.Constant(*i);
+    Node* node = T.Constant(i);
     for (int j = 0; j < 5; j++) {
-      CHECK_EQ(node, T.Constant(*i));
+      CHECK_EQ(node, T.Constant(i));
     }
   }
 }
@@ -185,13 +187,12 @@ TEST(CanonicalizingNumbers) {
 TEST(HeapNumbers) {
   JSConstantCacheTester T;
 
-  FOR_FLOAT64_INPUTS(i) {
-    double value = *i;
+  FOR_FLOAT64_INPUTS(value) {
     Handle<Object> num = T.factory()->NewNumber(value);
     Handle<HeapNumber> heap = T.factory()->NewHeapNumber(value);
     Node* node1 = T.Constant(value);
-    Node* node2 = T.Constant(num);
-    Node* node3 = T.Constant(heap);
+    Node* node2 = T.Constant(ObjectRef(T.broker(), num));
+    Node* node3 = T.Constant(ObjectRef(T.broker(), heap));
     CHECK_EQ(node1, node2);
     CHECK_EQ(node1, node3);
   }
@@ -201,12 +202,18 @@ TEST(HeapNumbers) {
 TEST(OddballHandle) {
   JSConstantCacheTester T;
 
-  CHECK_EQ(T.UndefinedConstant(), T.Constant(T.factory()->undefined_value()));
-  CHECK_EQ(T.TheHoleConstant(), T.Constant(T.factory()->the_hole_value()));
-  CHECK_EQ(T.TrueConstant(), T.Constant(T.factory()->true_value()));
-  CHECK_EQ(T.FalseConstant(), T.Constant(T.factory()->false_value()));
-  CHECK_EQ(T.NullConstant(), T.Constant(T.factory()->null_value()));
-  CHECK_EQ(T.NaNConstant(), T.Constant(T.factory()->nan_value()));
+  CHECK_EQ(T.UndefinedConstant(),
+           T.Constant(ObjectRef(T.broker(), T.factory()->undefined_value())));
+  CHECK_EQ(T.TheHoleConstant(),
+           T.Constant(ObjectRef(T.broker(), T.factory()->the_hole_value())));
+  CHECK_EQ(T.TrueConstant(),
+           T.Constant(ObjectRef(T.broker(), T.factory()->true_value())));
+  CHECK_EQ(T.FalseConstant(),
+           T.Constant(ObjectRef(T.broker(), T.factory()->false_value())));
+  CHECK_EQ(T.NullConstant(),
+           T.Constant(ObjectRef(T.broker(), T.factory()->null_value())));
+  CHECK_EQ(T.NaNConstant(),
+           T.Constant(ObjectRef(T.broker(), T.factory()->nan_value())));
 }
 
 

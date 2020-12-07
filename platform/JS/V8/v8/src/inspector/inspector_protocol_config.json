@@ -1,6 +1,6 @@
 {
     "protocol": {
-        "path": "js_protocol.json",
+        "path": "../../include/js_protocol.pdl",
         "package": "src/inspector/protocol",
         "output": "protocol",
         "namespace": ["v8_inspector", "protocol"],
@@ -11,12 +11,11 @@
             },
             {
                 "domain": "Runtime",
-                "async": ["evaluate", "awaitPromise", "callFunctionOn", "runScript"],
-                "exported": ["StackTrace", "RemoteObject", "ExecutionContextId"]
+                "async": ["evaluate", "awaitPromise", "callFunctionOn", "runScript", "terminateExecution"],
+                "exported": ["StackTrace", "StackTraceId", "RemoteObject", "ExecutionContextId"]
             },
             {
                 "domain": "Debugger",
-                "async": [ "scheduleStepIntoAsync" ],
                 "exported": ["SearchMatch", "paused.reason"]
             },
             {
@@ -26,7 +25,8 @@
                 "domain": "Profiler"
             },
             {
-                "domain": "HeapProfiler"
+                "domain": "HeapProfiler",
+                "async": ["collectGarbage"]
             }
         ]
     },
@@ -37,7 +37,7 @@
         "string_header": "v8-inspector.h",
         "string_in": "StringView",
         "string_out": "std::unique_ptr<StringBuffer>",
-        "to_string_out": "StringBufferImpl::adopt(%s)",
+        "to_string_out": "StringBufferFrom(std::move(%s))",
         "export_macro": "V8_EXPORT"
     },
 
@@ -45,5 +45,9 @@
         "package": "src/inspector/protocol",
         "output": "protocol",
         "string_header": "src/inspector/string-util.h"
+    },
+
+    "crdtp": {
+        "namespace": "v8_crdtp"
     }
 }

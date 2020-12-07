@@ -22,6 +22,9 @@
 #include "Poco/Clock.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace JS {
 namespace Core {
@@ -42,29 +45,31 @@ v8::Handle<v8::ObjectTemplate> SystemWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::ObjectTemplate> systemTemplate = v8::ObjectTemplate::New(pIsolate);
 	systemTemplate->SetInternalFieldCount(1);
-	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osName"), osName);
-	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osDisplayName"), osDisplayName);
-	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osArchitecture"), osArchitecture);
-	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "osVersion"), osVersion);
-	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "nodeName"), nodeName);
-	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "nodeId"), nodeId);
-	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "processorCount"), processorCount);
-	systemTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "clock"), clock);
-	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, has));
-	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "get"), v8::FunctionTemplate::New(pIsolate, get));
-	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "set"), v8::FunctionTemplate::New(pIsolate, set));
-	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "sleep"), v8::FunctionTemplate::New(pIsolate, sleep));
-	systemTemplate->Set(v8::String::NewFromUtf8(pIsolate, "exec"), v8::FunctionTemplate::New(pIsolate, exec));
+	systemTemplate->SetAccessor(toV8String(pIsolate, "osName"s), osName);
+	systemTemplate->SetAccessor(toV8String(pIsolate, "osDisplayName"s), osDisplayName);
+	systemTemplate->SetAccessor(toV8String(pIsolate, "osArchitecture"s), osArchitecture);
+	systemTemplate->SetAccessor(toV8String(pIsolate, "osVersion"s), osVersion);
+	systemTemplate->SetAccessor(toV8String(pIsolate, "nodeName"s), nodeName);
+	systemTemplate->SetAccessor(toV8String(pIsolate, "nodeId"s), nodeId);
+	systemTemplate->SetAccessor(toV8String(pIsolate, "processorCount"s), processorCount);
+	systemTemplate->SetAccessor(toV8String(pIsolate, "clock"s), clock);
+	systemTemplate->Set(toV8String(pIsolate, "has"s), v8::FunctionTemplate::New(pIsolate, has));
+	systemTemplate->Set(toV8String(pIsolate, "get"s), v8::FunctionTemplate::New(pIsolate, get));
+	systemTemplate->Set(toV8String(pIsolate, "set"s), v8::FunctionTemplate::New(pIsolate, set));
+	systemTemplate->Set(toV8String(pIsolate, "sleep"s), v8::FunctionTemplate::New(pIsolate, sleep));
+	systemTemplate->Set(toV8String(pIsolate, "exec"s), v8::FunctionTemplate::New(pIsolate, exec));
 	return handleScope.Escape(systemTemplate);
 }
 
 
 void SystemWrapper::exec(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	v8::EscapableHandleScope handleScope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::EscapableHandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 
 	if (args.Length() < 1) return;
-	std::string command = toString(args[0]);
+	std::string command = toString(pIsolate, args[0]);
 	std::string output;
 	try
 	{
@@ -84,14 +89,15 @@ void SystemWrapper::exec(const v8::FunctionCallbackInfo<v8::Value>& args)
 		Poco::StreamCopier::copyToString(istr, output);
 		int rc = ph.wait();
 
-		v8::Local<v8::String> outputString(v8::String::NewFromUtf8(args.GetIsolate(), output.c_str(), v8::String::kNormalString, static_cast<int>(output.length())));
-		v8::Local<v8::Value> outputStringObject = v8::StringObject::New(outputString);
+		v8::Local<v8::String> outputString(toV8String(pIsolate, output));
+		v8::Local<v8::Value> outputStringObject = v8::StringObject::New(pIsolate, outputString);
 		if (!outputStringObject.IsEmpty())
 		{
-			v8::Local<v8::Object> outputObject = outputStringObject->ToObject();
-			if (!outputObject.IsEmpty())
+			v8::MaybeLocal<v8::Object> maybeOutputObject = outputStringObject->ToObject(context);
+			v8::Local<v8::Object> outputObject;
+			if (maybeOutputObject.ToLocal(&outputObject))
 			{
-				outputObject->Set(v8::String::NewFromUtf8(args.GetIsolate(), "exitStatus"), v8::Integer::New(args.GetIsolate(), rc));
+				(void) outputObject->Set(context, toV8String(pIsolate, "exitStatus"s), v8::Integer::New(pIsolate, rc));
 			}
 		}
 		args.GetReturnValue().Set(outputStringObject);
@@ -105,19 +111,21 @@ void SystemWrapper::exec(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void SystemWrapper::sleep(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	if (args.Length() < 1) return;
 	if (!args[0]->IsNumber()) return;
-	double millisecs = args[0]->NumberValue();
+	double millisecs = args[0]->NumberValue(pIsolate->GetCurrentContext()).FromMaybe(0.0);
 	Poco::Thread::sleep(static_cast<long>(millisecs));
 }
 
 
 void SystemWrapper::get(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	if (args.Length() < 1) return;
-	std::string name = toString(args[0]);
+	std::string name = toString(pIsolate, args[0]);
 	std::string deflt;
-	if (args.Length() > 1) deflt = toString(args[1]);
+	if (args.Length() > 1) deflt = toString(pIsolate, args[1]);
 	std::string value = Poco::Environment::get(name, deflt);
 	returnString(args, value);
 }
@@ -125,8 +133,9 @@ void SystemWrapper::get(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void SystemWrapper::has(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	if (args.Length() < 1) return;
-	std::string name = toString(args[0]);
+	std::string name = toString(pIsolate, args[0]);
 	bool result = Poco::Environment::has(name);
 	args.GetReturnValue().Set(result);
 }
@@ -134,9 +143,10 @@ void SystemWrapper::has(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void SystemWrapper::set(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	if (args.Length() < 2) return;
-	std::string name = toString(args[0]);
-	std::string value = toString(args[1]);
+	std::string name = toString(pIsolate, args[0]);
+	std::string value = toString(pIsolate, args[1]);
 	Poco::Environment::set(name, value);
 }
 

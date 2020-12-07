@@ -19,29 +19,25 @@ Running test: testRejectedPromise
         exceptionDetails : {
             columnNumber : 0
             exception : {
-                type : object
-                value : {
-                    a : 1
+                className : Object
+                description : Object
+                objectId : <objectId>
+                preview : {
+                    description : Object
+                    overflow : false
+                    properties : [
+                        [0] : {
+                            name : a
+                            type : number
+                            value : 1
+                        }
+                    ]
+                    type : object
                 }
+                type : object
             }
             exceptionId : <exceptionId>
             lineNumber : 0
-            stackTrace : {
-                callFrames : [
-                ]
-                parent : {
-                    callFrames : [
-                        [0] : {
-                            columnNumber : 8
-                            functionName : 
-                            lineNumber : 0
-                            scriptId : <scriptId>
-                            url : 
-                        }
-                    ]
-                    description : Promise.reject
-                }
-            }
             text : Uncaught (in promise)
         }
         result : {
@@ -66,29 +62,6 @@ Running test: testRejectedPromiseWithStack
             }
             exceptionId : <exceptionId>
             lineNumber : 0
-            stackTrace : {
-                callFrames : [
-                ]
-                parent : {
-                    callFrames : [
-                        [0] : {
-                            columnNumber : 4
-                            functionName : rejectPromise
-                            lineNumber : 17
-                            scriptId : <scriptId>
-                            url : test.js
-                        }
-                        [1] : {
-                            columnNumber : 0
-                            functionName : 
-                            lineNumber : 0
-                            scriptId : <scriptId>
-                            url : 
-                        }
-                    ]
-                    description : Promise.reject
-                }
-            }
             text : Uncaught (in promise)
         }
         result : {
@@ -114,29 +87,6 @@ Running test: testRejectedPromiseWithError
             }
             exceptionId : <exceptionId>
             lineNumber : 0
-            stackTrace : {
-                callFrames : [
-                ]
-                parent : {
-                    callFrames : [
-                        [0] : {
-                            columnNumber : 4
-                            functionName : rejectPromiseWithAnError
-                            lineNumber : 24
-                            scriptId : <scriptId>
-                            url : test.js
-                        }
-                        [1] : {
-                            columnNumber : 0
-                            functionName : 
-                            lineNumber : 0
-                            scriptId : <scriptId>
-                            url : 
-                        }
-                    ]
-                    description : Promise.reject
-                }
-            }
             text : Uncaught (in promise) Error: MyError
         }
         result : {
@@ -169,13 +119,4 @@ Running test: testResolvedWithoutArgsPromise
             type : undefined
         }
     }
-}
-
-Running test: testGarbageCollectedPromise
-{
-    error : {
-        code : -32000
-        message : Promise was collected
-    }
-    id : <messageId>
 }

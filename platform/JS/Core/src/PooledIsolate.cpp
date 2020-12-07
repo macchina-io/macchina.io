@@ -27,7 +27,7 @@ PooledIsolate::PooledIsolate(Poco::UInt64 memoryLimit):
 	_pArrayBufferAllocator(v8::ArrayBuffer::Allocator::NewDefaultAllocator())
 {
 	v8::Isolate::CreateParams params;
-	params.constraints.ConfigureDefaults(memoryLimit, memoryLimit);
+	params.constraints.ConfigureDefaultsFromHeapSize(0, memoryLimit);
 	params.array_buffer_allocator = _pArrayBufferAllocator;
 	_pIsolate = v8::Isolate::New(params);
 	if (!_pIsolate) throw JSException("Cannot create isolate");

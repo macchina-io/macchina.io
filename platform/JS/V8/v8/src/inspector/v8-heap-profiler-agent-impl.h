@@ -2,8 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef V8_INSPECTOR_V8HEAPPROFILERAGENTIMPL_H_
-#define V8_INSPECTOR_V8HEAPPROFILERAGENTIMPL_H_
+#ifndef V8_INSPECTOR_V8_HEAP_PROFILER_AGENT_IMPL_H_
+#define V8_INSPECTOR_V8_HEAP_PROFILER_AGENT_IMPL_H_
+
+#include <memory>
 
 #include "src/base/macros.h"
 #include "src/inspector/protocol/Forward.h"
@@ -25,15 +27,19 @@ class V8HeapProfilerAgentImpl : public protocol::HeapProfiler::Backend {
   ~V8HeapProfilerAgentImpl() override;
   void restore();
 
-  Response collectGarbage() override;
+  void collectGarbage(
+      std::unique_ptr<CollectGarbageCallback> callback) override;
 
   Response enable() override;
   Response startTrackingHeapObjects(Maybe<bool> trackAllocations) override;
-  Response stopTrackingHeapObjects(Maybe<bool> reportProgress) override;
+  Response stopTrackingHeapObjects(
+      Maybe<bool> reportProgress,
+      Maybe<bool> treatGlobalObjectsAsRoots) override;
 
   Response disable() override;
 
-  Response takeHeapSnapshot(Maybe<bool> reportProgress) override;
+  Response takeHeapSnapshot(Maybe<bool> reportProgress,
+                            Maybe<bool> treatGlobalObjectsAsRoots) override;
 
   Response getObjectByHeapObjectId(
       const String16& heapSnapshotObjectId, Maybe<String16> objectGroup,
@@ -46,8 +52,13 @@ class V8HeapProfilerAgentImpl : public protocol::HeapProfiler::Backend {
   Response startSampling(Maybe<double> samplingInterval) override;
   Response stopSampling(
       std::unique_ptr<protocol::HeapProfiler::SamplingHeapProfile>*) override;
+  Response getSamplingProfile(
+      std::unique_ptr<protocol::HeapProfiler::SamplingHeapProfile>*) override;
 
  private:
+  struct AsyncGC;
+  class GCTask;
+
   void startTrackingHeapObjectsInternal(bool trackAllocations);
   void stopTrackingHeapObjectsInternal();
   void requestHeapStatsUpdate();
@@ -58,10 +69,11 @@ class V8HeapProfilerAgentImpl : public protocol::HeapProfiler::Backend {
   protocol::HeapProfiler::Frontend m_frontend;
   protocol::DictionaryValue* m_state;
   bool m_hasTimer;
+  std::shared_ptr<AsyncGC> m_async_gc;
 
   DISALLOW_COPY_AND_ASSIGN(V8HeapProfilerAgentImpl);
 };
 
 }  // namespace v8_inspector
 
-#endif  // V8_INSPECTOR_V8HEAPPROFILERAGENTIMPL_H_
+#endif  // V8_INSPECTOR_V8_HEAP_PROFILER_AGENT_IMPL_H_

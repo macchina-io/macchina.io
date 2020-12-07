@@ -5,7 +5,10 @@
 // Flags: --allow-natives-syntax
 
 (function TestNonCallableForEach() {
-  function foo() { [].forEach(undefined) }
+  function foo() {
+    [].forEach(undefined);
+  };
+  %PrepareFunctionForOptimization(foo);
   assertThrows(foo, TypeError);
   assertThrows(foo, TypeError);
   %OptimizeFunctionOnNextCall(foo);
@@ -13,7 +16,14 @@
 })();
 
 (function TestNonCallableForEachCaught() {
-  function foo() { try { [].forEach(undefined) } catch(e) { return e } }
+  function foo() {
+    try {
+      [].forEach(undefined);
+    } catch (e) {
+      return e;
+    }
+  };
+  %PrepareFunctionForOptimization(foo);
   assertInstanceof(foo(), TypeError);
   assertInstanceof(foo(), TypeError);
   %OptimizeFunctionOnNextCall(foo);
@@ -21,7 +31,10 @@
 })();
 
 (function TestNonCallableMap() {
-  function foo() { [].map(undefined); }
+  function foo() {
+    [].map(undefined);
+  };
+  %PrepareFunctionForOptimization(foo);
   assertThrows(foo, TypeError);
   assertThrows(foo, TypeError);
   %OptimizeFunctionOnNextCall(foo);
@@ -29,7 +42,40 @@
 })();
 
 (function TestNonCallableMapCaught() {
-  function foo() { try { [].map(undefined) } catch(e) { return e } }
+  function foo() {
+    try {
+      [].map(undefined);
+    } catch (e) {
+      return e;
+    }
+  };
+  %PrepareFunctionForOptimization(foo);
+  assertInstanceof(foo(), TypeError);
+  assertInstanceof(foo(), TypeError);
+  %OptimizeFunctionOnNextCall(foo);
+  assertInstanceof(foo(), TypeError);
+})();
+
+(function TestNonCallableFilter() {
+  function foo() {
+    [].filter(undefined);
+  };
+  %PrepareFunctionForOptimization(foo);
+  assertThrows(foo, TypeError);
+  assertThrows(foo, TypeError);
+  %OptimizeFunctionOnNextCall(foo);
+  assertThrows(foo, TypeError);
+})();
+
+(function TestNonCallableFilterCaught() {
+  function foo() {
+    try {
+      [].filter(undefined);
+    } catch (e) {
+      return e;
+    }
+  };
+  %PrepareFunctionForOptimization(foo);
   assertInstanceof(foo(), TypeError);
   assertInstanceof(foo(), TypeError);
   %OptimizeFunctionOnNextCall(foo);

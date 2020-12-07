@@ -7,8 +7,7 @@
 #include "src/ast/ast-value-factory.h"
 #include "src/ast/ast.h"
 #include "src/builtins/builtins-constructor.h"
-#include "src/code-stubs.h"
-#include "src/objects-inl.h"
+#include "src/objects/objects-inl.h"
 
 namespace v8 {
 namespace internal {
@@ -31,10 +30,10 @@ uint8_t CreateObjectLiteralFlags::Encode(int runtime_flags,
 }
 
 // static
-uint8_t CreateClosureFlags::Encode(bool pretenure, bool is_function_scope) {
+uint8_t CreateClosureFlags::Encode(bool pretenure, bool is_function_scope,
+                                   bool might_always_opt) {
   uint8_t result = PretenuredBit::encode(pretenure);
-  if (!FLAG_always_opt && !FLAG_prepare_always_opt &&
-      pretenure == NOT_TENURED && is_function_scope) {
+  if (!might_always_opt && !pretenure && is_function_scope) {
     result |= FastNewClosureBit::encode(true);
   }
   return result;
@@ -43,7 +42,7 @@ uint8_t CreateClosureFlags::Encode(bool pretenure, bool is_function_scope) {
 // static
 TestTypeOfFlags::LiteralFlag TestTypeOfFlags::GetFlagForLiteral(
     const AstStringConstants* ast_constants, Literal* literal) {
-  const AstRawString* raw_literal = literal->raw_value()->AsString();
+  const AstRawString* raw_literal = literal->AsRawString();
   if (raw_literal == ast_constants->number_string()) {
     return LiteralFlag::kNumber;
   } else if (raw_literal == ast_constants->string_string()) {
@@ -52,6 +51,8 @@ TestTypeOfFlags::LiteralFlag TestTypeOfFlags::GetFlagForLiteral(
     return LiteralFlag::kSymbol;
   } else if (raw_literal == ast_constants->boolean_string()) {
     return LiteralFlag::kBoolean;
+  } else if (raw_literal == ast_constants->bigint_string()) {
+    return LiteralFlag::kBigInt;
   } else if (raw_literal == ast_constants->undefined_string()) {
     return LiteralFlag::kUndefined;
   } else if (raw_literal == ast_constants->function_string()) {
@@ -78,7 +79,7 @@ TestTypeOfFlags::LiteralFlag TestTypeOfFlags::Decode(uint8_t raw_flag) {
 uint8_t StoreLookupSlotFlags::Encode(LanguageMode language_mode,
                                      LookupHoistingMode lookup_hoisting_mode) {
   DCHECK_IMPLIES(lookup_hoisting_mode == LookupHoistingMode::kLegacySloppy,
-                 language_mode == SLOPPY);
+                 language_mode == LanguageMode::kSloppy);
   return LanguageModeBit::encode(language_mode) |
          LookupHoistingModeBit::encode(static_cast<bool>(lookup_hoisting_mode));
 }

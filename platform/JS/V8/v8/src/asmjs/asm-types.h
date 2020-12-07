@@ -9,7 +9,7 @@
 
 #include "src/base/compiler-specific.h"
 #include "src/base/macros.h"
-#include "src/globals.h"
+#include "src/common/globals.h"
 #include "src/zone/zone-containers.h"
 #include "src/zone/zone.h"
 
@@ -60,7 +60,7 @@ class AsmOverloadedFunctionType;
 
 class AsmValueType {
  public:
-  typedef uint32_t bitset_t;
+  using bitset_t = uint32_t;
 
   enum : uint32_t {
 #define DEFINE_TAG(CamelName, string_name, number, parent_types) \
@@ -83,8 +83,8 @@ class AsmValueType {
   }
 
   bitset_t Bitset() const {
-    DCHECK((reinterpret_cast<uintptr_t>(this) & kAsmValueTypeTag) ==
-           kAsmValueTypeTag);
+    DCHECK_EQ(reinterpret_cast<uintptr_t>(this) & kAsmValueTypeTag,
+              kAsmValueTypeTag);
     return static_cast<bitset_t>(reinterpret_cast<uintptr_t>(this) &
                                  ~kAsmValueTypeTag);
   }
@@ -139,6 +139,7 @@ class V8_EXPORT_PRIVATE AsmFunctionType final : public AsmCallableType {
 
  private:
   friend AsmType;
+  friend Zone;
 
   std::string Name() override;
   bool IsA(AsmType* other) override;
@@ -160,6 +161,7 @@ class V8_EXPORT_PRIVATE AsmOverloadedFunctionType final
 
  private:
   friend AsmType;
+  friend Zone;
 
   explicit AsmOverloadedFunctionType(Zone* zone) : overloads_(zone) {}
 
@@ -196,14 +198,14 @@ class V8_EXPORT_PRIVATE AsmType {
   // A function returning ret. Callers still need to invoke AddArgument with the
   // returned type to fully create this type.
   static AsmType* Function(Zone* zone, AsmType* ret) {
-    AsmFunctionType* f = new (zone) AsmFunctionType(zone, ret);
+    AsmFunctionType* f = zone->New<AsmFunctionType>(zone, ret);
     return reinterpret_cast<AsmType*>(f);
   }
 
   // Overloaded function types. Not creatable by asm source, but useful to
   // represent the overloaded stdlib functions.
   static AsmType* OverloadedFunction(Zone* zone) {
-    auto* f = new (zone) AsmOverloadedFunctionType(zone);
+    auto* f = zone->New<AsmOverloadedFunctionType>(zone);
     return reinterpret_cast<AsmType*>(f);
   }
 
@@ -214,9 +216,9 @@ class V8_EXPORT_PRIVATE AsmType {
   static AsmType* MinMaxType(Zone* zone, AsmType* dest, AsmType* src);
 
   std::string Name();
-  // IsExactly returns true if this is the exact same type as that. For
-  // non-value types (e.g., callables), this returns this == that.
-  bool IsExactly(AsmType* that);
+  // IsExactly returns true if x is the exact same type as y. For
+  // non-value types (e.g., callables), this returns x == y.
+  static bool IsExactly(AsmType* x, AsmType* y);
   // IsA is used to query whether this is an instance of that (i.e., if this is
   // a type derived from that.) For non-value types (e.g., callables), this
   // returns this == that.

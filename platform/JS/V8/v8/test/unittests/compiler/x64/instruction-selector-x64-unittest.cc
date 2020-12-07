@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "test/unittests/compiler/instruction-selector-unittest.h"
+#include <limits>
 
 #include "src/compiler/node-matchers.h"
-#include "src/objects-inl.h"
+#include "src/objects/objects-inl.h"
+#include "test/unittests/compiler/backend/instruction-selector-unittest.h"
 
 namespace v8 {
 namespace internal {
@@ -91,8 +92,8 @@ static const LoadWithToInt64Extension kLoadWithToInt64Extensions[] = {
 
 }  // namespace
 
-typedef InstructionSelectorTestWithParam<LoadWithToInt64Extension>
-    InstructionSelectorChangeInt32ToInt64Test;
+using InstructionSelectorChangeInt32ToInt64Test =
+    InstructionSelectorTestWithParam<LoadWithToInt64Extension>;
 
 TEST_P(InstructionSelectorChangeInt32ToInt64Test, ChangeInt32ToInt64WithLoad) {
   const LoadWithToInt64Extension extension = GetParam();
@@ -103,9 +104,9 @@ TEST_P(InstructionSelectorChangeInt32ToInt64Test, ChangeInt32ToInt64WithLoad) {
   EXPECT_EQ(extension.expected_opcode, s[0]->arch_opcode());
 }
 
-INSTANTIATE_TEST_CASE_P(InstructionSelectorTest,
-                        InstructionSelectorChangeInt32ToInt64Test,
-                        ::testing::ValuesIn(kLoadWithToInt64Extensions));
+INSTANTIATE_TEST_SUITE_P(InstructionSelectorTest,
+                         InstructionSelectorChangeInt32ToInt64Test,
+                         ::testing::ValuesIn(kLoadWithToInt64Extensions));
 
 // -----------------------------------------------------------------------------
 // Loads and stores
@@ -139,10 +140,8 @@ static const MemoryAccess kMemoryAccesses[] = {
 
 }  // namespace
 
-
-typedef InstructionSelectorTestWithParam<MemoryAccess>
-    InstructionSelectorMemoryAccessTest;
-
+using InstructionSelectorMemoryAccessTest =
+    InstructionSelectorTestWithParam<MemoryAccess>;
 
 TEST_P(InstructionSelectorMemoryAccessTest, LoadWithParameters) {
   const MemoryAccess memacc = GetParam();
@@ -171,11 +170,9 @@ TEST_P(InstructionSelectorMemoryAccessTest, StoreWithParameters) {
   EXPECT_EQ(0U, s[0]->OutputCount());
 }
 
-
-INSTANTIATE_TEST_CASE_P(InstructionSelectorTest,
-                        InstructionSelectorMemoryAccessTest,
-                        ::testing::ValuesIn(kMemoryAccesses));
-
+INSTANTIATE_TEST_SUITE_P(InstructionSelectorTest,
+                         InstructionSelectorMemoryAccessTest,
+                         ::testing::ValuesIn(kMemoryAccesses));
 
 // -----------------------------------------------------------------------------
 // ChangeUint32ToUint64.
@@ -183,8 +180,7 @@ INSTANTIATE_TEST_CASE_P(InstructionSelectorTest,
 
 namespace {
 
-typedef Node* (RawMachineAssembler::*Constructor)(Node*, Node*);
-
+using Constructor = Node* (RawMachineAssembler::*)(Node*, Node*);
 
 struct BinaryOperation {
   Constructor constructor;
@@ -221,10 +217,8 @@ const BinaryOperation kWord32BinaryOperations[] = {
 
 }  // namespace
 
-
-typedef InstructionSelectorTestWithParam<BinaryOperation>
-    InstructionSelectorChangeUint32ToUint64Test;
-
+using InstructionSelectorChangeUint32ToUint64Test =
+    InstructionSelectorTestWithParam<BinaryOperation>;
 
 TEST_P(InstructionSelectorChangeUint32ToUint64Test, ChangeUint32ToUint64) {
   const BinaryOperation& bop = GetParam();
@@ -237,10 +231,9 @@ TEST_P(InstructionSelectorChangeUint32ToUint64Test, ChangeUint32ToUint64) {
   ASSERT_EQ(1U, s.size());
 }
 
-
-INSTANTIATE_TEST_CASE_P(InstructionSelectorTest,
-                        InstructionSelectorChangeUint32ToUint64Test,
-                        ::testing::ValuesIn(kWord32BinaryOperations));
+INSTANTIATE_TEST_SUITE_P(InstructionSelectorTest,
+                         InstructionSelectorChangeUint32ToUint64Test,
+                         ::testing::ValuesIn(kWord32BinaryOperations));
 
 // -----------------------------------------------------------------------------
 // CanElideChangeUint32ToUint64
@@ -255,7 +248,7 @@ struct MachInst {
   MachineType machine_type;
 };
 
-typedef MachInst<Node* (RawMachineAssembler::*)(Node*, Node*)> MachInst2;
+using MachInst2 = MachInst<Node* (RawMachineAssembler::*)(Node*, Node*)>;
 
 // X64 instructions that clear the top 32 bits of the destination.
 const MachInst2 kCanElideChangeUint32ToUint64[] = {
@@ -303,8 +296,8 @@ const MachInst2 kCanElideChangeUint32ToUint64[] = {
 
 }  // namespace
 
-typedef InstructionSelectorTestWithParam<MachInst2>
-    InstructionSelectorElidedChangeUint32ToUint64Test;
+using InstructionSelectorElidedChangeUint32ToUint64Test =
+    InstructionSelectorTestWithParam<MachInst2>;
 
 TEST_P(InstructionSelectorElidedChangeUint32ToUint64Test, Parameter) {
   const MachInst2 binop = GetParam();
@@ -320,9 +313,9 @@ TEST_P(InstructionSelectorElidedChangeUint32ToUint64Test, Parameter) {
   EXPECT_EQ(1U, s[0]->OutputCount());
 }
 
-INSTANTIATE_TEST_CASE_P(InstructionSelectorTest,
-                        InstructionSelectorElidedChangeUint32ToUint64Test,
-                        ::testing::ValuesIn(kCanElideChangeUint32ToUint64));
+INSTANTIATE_TEST_SUITE_P(InstructionSelectorTest,
+                         InstructionSelectorElidedChangeUint32ToUint64Test,
+                         ::testing::ValuesIn(kCanElideChangeUint32ToUint64));
 
 // ChangeUint32ToUint64AfterLoad
 TEST_F(InstructionSelectorTest, ChangeUint32ToUint64AfterLoad) {
@@ -984,6 +977,37 @@ TEST_F(InstructionSelectorTest, Int32AddScaled2Other) {
   EXPECT_EQ(s.ToVreg(a1), s.ToVreg(s[1]->OutputAt(0)));
 }
 
+TEST_F(InstructionSelectorTest, Int32AddMinNegativeDisplacement) {
+  // This test case is simplified from a Wasm fuzz test in
+  // https://crbug.com/1091892. The key here is that we match on a
+  // sequence like: Int32Add(Int32Sub(-524288, -2147483648), -26048), which
+  // matches on an EmitLea, with -2147483648 as the displacement. Since we
+  // have a Int32Sub node, it sets kNegativeDisplacement, and later we try to
+  // negate -2147483648, which overflows.
+  StreamBuilder m(this, MachineType::Int32());
+  Node* const c0 = m.Int32Constant(-524288);
+  Node* const c1 = m.Int32Constant(std::numeric_limits<int32_t>::min());
+  Node* const c2 = m.Int32Constant(-26048);
+  Node* const a0 = m.Int32Sub(c0, c1);
+  Node* const a1 = m.Int32Add(a0, c2);
+  m.Return(a1);
+  Stream s = m.Build();
+  ASSERT_EQ(2U, s.size());
+
+  EXPECT_EQ(kX64Sub32, s[0]->arch_opcode());
+  ASSERT_EQ(2U, s[0]->InputCount());
+  EXPECT_EQ(kMode_None, s[0]->addressing_mode());
+  EXPECT_EQ(s.ToVreg(c0), s.ToVreg(s[0]->InputAt(0)));
+  EXPECT_EQ(s.ToVreg(c1), s.ToVreg(s[0]->InputAt(1)));
+  EXPECT_EQ(s.ToVreg(a0), s.ToVreg(s[0]->OutputAt(0)));
+
+  EXPECT_EQ(kX64Add32, s[1]->arch_opcode());
+  ASSERT_EQ(2U, s[1]->InputCount());
+  EXPECT_EQ(kMode_None, s[1]->addressing_mode());
+  EXPECT_EQ(s.ToVreg(a0), s.ToVreg(s[1]->InputAt(0)));
+  EXPECT_TRUE(s[1]->InputAt(1)->IsImmediate());
+  EXPECT_EQ(s.ToVreg(a1), s.ToVreg(s[1]->OutputAt(0)));
+}
 
 // -----------------------------------------------------------------------------
 // Multiplication.
@@ -1205,9 +1229,113 @@ TEST_F(InstructionSelectorTest, Int32Shl4BecomesLea) {
   EXPECT_EQ(s.ToVreg(p0), s.ToVreg(s[0]->InputAt(0)));
 }
 
-
 // -----------------------------------------------------------------------------
 // Binops with a memory operand.
+
+TEST_F(InstructionSelectorTest, LoadCmp32) {
+  {
+    // Word32Equal(Load[Int8](p0, p1), Int32Constant(0)) -> cmpb [p0,p1], 0
+    StreamBuilder m(this, MachineType::Int32(), MachineType::Int64(),
+                    MachineType::Int64());
+    Node* const p0 = m.Parameter(0);
+    Node* const p1 = m.Parameter(1);
+    m.Return(
+        m.Word32Equal(m.Load(MachineType::Int8(), p0, p1), m.Int32Constant(0)));
+    Stream s = m.Build();
+    ASSERT_EQ(1U, s.size());
+    EXPECT_EQ(kX64Cmp8, s[0]->arch_opcode());
+    EXPECT_EQ(kMode_MR1, s[0]->addressing_mode());
+    ASSERT_EQ(3U, s[0]->InputCount());
+    EXPECT_EQ(s.ToVreg(p0), s.ToVreg(s[0]->InputAt(0)));
+    EXPECT_EQ(s.ToVreg(p1), s.ToVreg(s[0]->InputAt(1)));
+    EXPECT_TRUE(s[0]->InputAt(2)->IsImmediate());
+  }
+  {
+    // Word32Equal(Load[Uint8](p0, p1), Int32Constant(0)) -> cmpb [p0,p1], 0
+    StreamBuilder m(this, MachineType::Int32(), MachineType::Int64(),
+                    MachineType::Int64());
+    Node* const p0 = m.Parameter(0);
+    Node* const p1 = m.Parameter(1);
+    m.Return(m.Word32Equal(m.Load(MachineType::Uint8(), p0, p1),
+                           m.Int32Constant(0)));
+    Stream s = m.Build();
+    ASSERT_EQ(1U, s.size());
+    EXPECT_EQ(kX64Cmp8, s[0]->arch_opcode());
+    EXPECT_EQ(kMode_MR1, s[0]->addressing_mode());
+    ASSERT_EQ(3U, s[0]->InputCount());
+    EXPECT_EQ(s.ToVreg(p0), s.ToVreg(s[0]->InputAt(0)));
+    EXPECT_EQ(s.ToVreg(p1), s.ToVreg(s[0]->InputAt(1)));
+    EXPECT_TRUE(s[0]->InputAt(2)->IsImmediate());
+  }
+  {
+    // Word32Equal(Load[Int16](p0, p1), Int32Constant(0)) -> cmpw [p0,p1], 0
+    StreamBuilder m(this, MachineType::Int32(), MachineType::Int64(),
+                    MachineType::Int64());
+    Node* const p0 = m.Parameter(0);
+    Node* const p1 = m.Parameter(1);
+    m.Return(m.Word32Equal(m.Load(MachineType::Int16(), p0, p1),
+                           m.Int32Constant(0)));
+    Stream s = m.Build();
+    ASSERT_EQ(1U, s.size());
+    EXPECT_EQ(kX64Cmp16, s[0]->arch_opcode());
+    EXPECT_EQ(kMode_MR1, s[0]->addressing_mode());
+    ASSERT_EQ(3U, s[0]->InputCount());
+    EXPECT_EQ(s.ToVreg(p0), s.ToVreg(s[0]->InputAt(0)));
+    EXPECT_EQ(s.ToVreg(p1), s.ToVreg(s[0]->InputAt(1)));
+    EXPECT_TRUE(s[0]->InputAt(2)->IsImmediate());
+  }
+  {
+    // Word32Equal(Load[Uint16](p0, p1), Int32Constant(0)) -> cmpw [p0,p1], 0
+    StreamBuilder m(this, MachineType::Int32(), MachineType::Int64(),
+                    MachineType::Int64());
+    Node* const p0 = m.Parameter(0);
+    Node* const p1 = m.Parameter(1);
+    m.Return(m.Word32Equal(m.Load(MachineType::Uint16(), p0, p1),
+                           m.Int32Constant(0)));
+    Stream s = m.Build();
+    ASSERT_EQ(1U, s.size());
+    EXPECT_EQ(kX64Cmp16, s[0]->arch_opcode());
+    EXPECT_EQ(kMode_MR1, s[0]->addressing_mode());
+    ASSERT_EQ(3U, s[0]->InputCount());
+    EXPECT_EQ(s.ToVreg(p0), s.ToVreg(s[0]->InputAt(0)));
+    EXPECT_EQ(s.ToVreg(p1), s.ToVreg(s[0]->InputAt(1)));
+    EXPECT_TRUE(s[0]->InputAt(2)->IsImmediate());
+  }
+  {
+    // Word32Equal(Load[Int32](p0, p1), Int32Constant(0)) -> cmpl [p0,p1], 0
+    StreamBuilder m(this, MachineType::Int32(), MachineType::Int64(),
+                    MachineType::Int64());
+    Node* const p0 = m.Parameter(0);
+    Node* const p1 = m.Parameter(1);
+    m.Return(m.Word32Equal(m.Load(MachineType::Int32(), p0, p1),
+                           m.Int32Constant(0)));
+    Stream s = m.Build();
+    ASSERT_EQ(1U, s.size());
+    EXPECT_EQ(kX64Cmp32, s[0]->arch_opcode());
+    EXPECT_EQ(kMode_MR1, s[0]->addressing_mode());
+    ASSERT_EQ(3U, s[0]->InputCount());
+    EXPECT_EQ(s.ToVreg(p0), s.ToVreg(s[0]->InputAt(0)));
+    EXPECT_EQ(s.ToVreg(p1), s.ToVreg(s[0]->InputAt(1)));
+    EXPECT_TRUE(s[0]->InputAt(2)->IsImmediate());
+  }
+  {
+    // Word32Equal(Load[Uint32](p0, p1), Int32Constant(0)) -> cmpl [p0,p1], 0
+    StreamBuilder m(this, MachineType::Int32(), MachineType::Int64(),
+                    MachineType::Int64());
+    Node* const p0 = m.Parameter(0);
+    Node* const p1 = m.Parameter(1);
+    m.Return(m.Word32Equal(m.Load(MachineType::Uint32(), p0, p1),
+                           m.Int32Constant(0)));
+    Stream s = m.Build();
+    ASSERT_EQ(1U, s.size());
+    EXPECT_EQ(kX64Cmp32, s[0]->arch_opcode());
+    EXPECT_EQ(kMode_MR1, s[0]->addressing_mode());
+    ASSERT_EQ(3U, s[0]->InputCount());
+    EXPECT_EQ(s.ToVreg(p0), s.ToVreg(s[0]->InputAt(0)));
+    EXPECT_EQ(s.ToVreg(p1), s.ToVreg(s[0]->InputAt(1)));
+    EXPECT_TRUE(s[0]->InputAt(2)->IsImmediate());
+  }
+}
 
 TEST_F(InstructionSelectorTest, LoadAnd32) {
   StreamBuilder m(this, MachineType::Int32(), MachineType::Int32(),
@@ -1463,25 +1591,6 @@ TEST_F(InstructionSelectorTest, Float64BinopArithmetic) {
 // Miscellaneous.
 
 
-TEST_F(InstructionSelectorTest, Uint64LessThanWithLoadAndLoadStackPointer) {
-  StreamBuilder m(this, MachineType::Bool());
-  Node* const sl = m.Load(
-      MachineType::Pointer(),
-      m.ExternalConstant(ExternalReference::address_of_stack_limit(isolate())));
-  Node* const sp = m.LoadStackPointer();
-  Node* const n = m.Uint64LessThan(sl, sp);
-  m.Return(n);
-  Stream s = m.Build();
-  ASSERT_EQ(1U, s.size());
-  EXPECT_EQ(kX64StackCheck, s[0]->arch_opcode());
-  ASSERT_EQ(0U, s[0]->InputCount());
-  ASSERT_EQ(1U, s[0]->OutputCount());
-  EXPECT_EQ(s.ToVreg(n), s.ToVreg(s[0]->Output()));
-  EXPECT_EQ(kFlags_set, s[0]->flags_mode());
-  EXPECT_EQ(kUnsignedGreaterThan, s[0]->flags_condition());
-}
-
-
 TEST_F(InstructionSelectorTest, Word64ShlWithChangeInt32ToInt64) {
   TRACED_FORRANGE(int64_t, x, 32, 63) {
     StreamBuilder m(this, MachineType::Int64(), MachineType::Int32());
@@ -1519,12 +1628,11 @@ TEST_F(InstructionSelectorTest, Word64ShlWithChangeUint32ToUint64) {
   }
 }
 
-
-TEST_F(InstructionSelectorTest, Word32AndWith0xff) {
+TEST_F(InstructionSelectorTest, Word32AndWith0xFF) {
   {
     StreamBuilder m(this, MachineType::Int32(), MachineType::Int32());
     Node* const p0 = m.Parameter(0);
-    Node* const n = m.Word32And(p0, m.Int32Constant(0xff));
+    Node* const n = m.Word32And(p0, m.Int32Constant(0xFF));
     m.Return(n);
     Stream s = m.Build();
     ASSERT_EQ(1U, s.size());
@@ -1537,7 +1645,7 @@ TEST_F(InstructionSelectorTest, Word32AndWith0xff) {
   {
     StreamBuilder m(this, MachineType::Int32(), MachineType::Int32());
     Node* const p0 = m.Parameter(0);
-    Node* const n = m.Word32And(m.Int32Constant(0xff), p0);
+    Node* const n = m.Word32And(m.Int32Constant(0xFF), p0);
     m.Return(n);
     Stream s = m.Build();
     ASSERT_EQ(1U, s.size());
@@ -1549,12 +1657,11 @@ TEST_F(InstructionSelectorTest, Word32AndWith0xff) {
   }
 }
 
-
-TEST_F(InstructionSelectorTest, Word32AndWith0xffff) {
+TEST_F(InstructionSelectorTest, Word32AndWith0xFFFF) {
   {
     StreamBuilder m(this, MachineType::Int32(), MachineType::Int32());
     Node* const p0 = m.Parameter(0);
-    Node* const n = m.Word32And(p0, m.Int32Constant(0xffff));
+    Node* const n = m.Word32And(p0, m.Int32Constant(0xFFFF));
     m.Return(n);
     Stream s = m.Build();
     ASSERT_EQ(1U, s.size());
@@ -1567,7 +1674,7 @@ TEST_F(InstructionSelectorTest, Word32AndWith0xffff) {
   {
     StreamBuilder m(this, MachineType::Int32(), MachineType::Int32());
     Node* const p0 = m.Parameter(0);
-    Node* const n = m.Word32And(m.Int32Constant(0xffff), p0);
+    Node* const n = m.Word32And(m.Int32Constant(0xFFFF), p0);
     m.Return(n);
     Stream s = m.Build();
     ASSERT_EQ(1U, s.size());

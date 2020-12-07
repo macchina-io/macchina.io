@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Flags: --max-old-space-size=8
+// Flags: --max-old-space-size=16
 
 let {session, contextGroup, Protocol} = InspectorTest.start('Check pause on OOM');
 
@@ -11,7 +11,7 @@ var arr = [];
 var stop = false;
 function generateGarbage() {
   while(!stop) {
-    arr.push(42);
+    arr.push(new Array(1000));
   }
 }
 //# sourceURL=test.js`, 10, 26);

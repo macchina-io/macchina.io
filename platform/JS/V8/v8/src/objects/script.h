@@ -5,17 +5,29 @@
 #ifndef V8_OBJECTS_SCRIPT_H_
 #define V8_OBJECTS_SCRIPT_H_
 
-#include "src/objects.h"
+#include <memory>
+
+#include "src/base/export-template.h"
+#include "src/objects/fixed-array.h"
+#include "src/objects/objects.h"
+#include "src/objects/struct.h"
+#include "torque-generated/bit-fields.h"
 
 // Has to be the last include (doesn't have include guards):
 #include "src/objects/object-macros.h"
 
 namespace v8 {
+
 namespace internal {
 
 // Script describes a script which has been added to the VM.
-class Script : public Struct {
+class Script : public TorqueGeneratedScript<Script, Struct> {
  public:
+  // Script ID used for temporary scripts, which shouldn't be added to the
+  // script list.
+  static constexpr int kTemporaryScriptId = -2;
+
+  NEVER_READ_ONLY_SPACE
   // Script types.
   enum Type {
     TYPE_NATIVE = 0,
@@ -34,37 +46,24 @@ class Script : public Struct {
     COMPILATION_STATE_COMPILED = 1
   };
 
-  // [source]: the script source.
-  DECL_ACCESSORS(source, Object)
-
-  // [name]: the script name.
-  DECL_ACCESSORS(name, Object)
-
-  // [id]: the script id.
-  DECL_INT_ACCESSORS(id)
-
-  // [line_offset]: script line offset in resource from where it was extracted.
-  DECL_INT_ACCESSORS(line_offset)
-
-  // [column_offset]: script column offset in resource from where it was
-  // extracted.
-  DECL_INT_ACCESSORS(column_offset)
-
-  // [context_data]: context data for the context this script was compiled in.
-  DECL_ACCESSORS(context_data, Object)
-
-  // [wrapper]: the wrapper cache.  This is either undefined or a WeakCell.
-  DECL_ACCESSORS(wrapper, HeapObject)
-
   // [type]: the script type.
   DECL_INT_ACCESSORS(type)
 
-  // [line_ends]: FixedArray of line ends positions.
-  DECL_ACCESSORS(line_ends, Object)
+  DECL_ACCESSORS(eval_from_shared_or_wrapped_arguments, Object)
 
   // [eval_from_shared]: for eval scripts the shared function info for the
   // function from which eval was called.
-  DECL_ACCESSORS(eval_from_shared, Object)
+  DECL_ACCESSORS(eval_from_shared, SharedFunctionInfo)
+
+  // [wrapped_arguments]: for the list of arguments in a wrapped script.
+  DECL_ACCESSORS(wrapped_arguments, FixedArray)
+
+  // Whether the script is implicitly wrapped in a function.
+  inline bool is_wrapped() const;
+
+  // Whether the eval_from_shared field is set with a shared function info
+  // for the eval site.
+  inline bool has_eval_from_shared() const;
 
   // [eval_from_position]: the source position in the code for the function
   // from which eval was called, as positive integer. Or the code offset in the
@@ -73,20 +72,23 @@ class Script : public Struct {
 
   // [shared_function_infos]: weak fixed array containing all shared
   // function infos created from this script.
-  DECL_ACCESSORS(shared_function_infos, FixedArray)
+  DECL_ACCESSORS(shared_function_infos, WeakFixedArray)
 
-  // [flags]: Holds an exciting bitfield.
-  DECL_INT_ACCESSORS(flags)
-
-  // [source_url]: sourceURL from magic comment
-  DECL_ACCESSORS(source_url, Object)
-
-  // [source_mapping_url]: sourceMappingURL magic comment
-  DECL_ACCESSORS(source_mapping_url, Object)
-
-  // [wasm_compiled_module]: the compiled wasm module this script belongs to.
+  // [wasm_breakpoint_infos]: the list of {BreakPointInfo} objects describing
+  // all WebAssembly breakpoints for modules/instances managed via this script.
   // This must only be called if the type of this script is TYPE_WASM.
-  DECL_ACCESSORS(wasm_compiled_module, Object)
+  DECL_ACCESSORS(wasm_breakpoint_infos, FixedArray)
+  inline bool has_wasm_breakpoint_infos() const;
+
+  // [wasm_native_module]: the wasm {NativeModule} this script belongs to.
+  // This must only be called if the type of this script is TYPE_WASM.
+  DECL_ACCESSORS(wasm_managed_native_module, Object)
+  inline wasm::NativeModule* wasm_native_module() const;
+
+  // [wasm_weak_instance_list]: the list of all {WasmInstanceObject} being
+  // affected by breakpoints that are managed via this script.
+  // This must only be called if the type of this script is TYPE_WASM.
+  DECL_ACCESSORS(wasm_weak_instance_list, WeakArrayList)
 
   // [compilation_type]: how the the script was compiled. Encoded in the
   // 'flags' field.
@@ -98,29 +100,33 @@ class Script : public Struct {
   inline CompilationState compilation_state();
   inline void set_compilation_state(CompilationState state);
 
+  // [is_repl_mode]: whether this script originated from a REPL via debug
+  // evaluate and therefore has different semantics, e.g. re-declaring let.
+  inline bool is_repl_mode() const;
+  inline void set_is_repl_mode(bool value);
+
   // [origin_options]: optional attributes set by the embedder via ScriptOrigin,
   // and used by the embedder to make decisions about the script. V8 just passes
   // this through. Encoded in the 'flags' field.
   inline v8::ScriptOriginOptions origin_options();
   inline void set_origin_options(ScriptOriginOptions origin_options);
 
-  DECL_CAST(Script)
-
   // If script source is an external string, check that the underlying
   // resource is accessible. Otherwise, always return true.
   inline bool HasValidSource();
 
-  Object* GetNameOrSourceURL();
+  Object GetNameOrSourceURL();
 
-  // Set eval origin for stack trace formatting.
-  static void SetEvalOrigin(Handle<Script> script,
-                            Handle<SharedFunctionInfo> outer,
-                            int eval_position);
   // Retrieve source position from where eval was called.
-  int GetEvalPosition();
+  static int GetEvalPosition(Isolate* isolate, Handle<Script> script);
+
+  // Check if the script contains any Asm modules.
+  bool ContainsAsmModule();
 
   // Init line_ends array with source code positions of line ends.
-  static void InitLineEnds(Handle<Script> script);
+  template <typename LocalIsolate>
+  EXPORT_TEMPLATE_DECLARE(V8_EXPORT_PRIVATE)
+  static void InitLineEnds(LocalIsolate* isolate, Handle<Script> script);
 
   // Carries information about a source position.
   struct PositionInfo {
@@ -144,33 +150,32 @@ class Script : public Struct {
   // callsites.
   static bool GetPositionInfo(Handle<Script> script, int position,
                               PositionInfo* info, OffsetFlag offset_flag);
-  bool GetPositionInfo(int position, PositionInfo* info,
-                       OffsetFlag offset_flag) const;
+  V8_EXPORT_PRIVATE bool GetPositionInfo(int position, PositionInfo* info,
+                                         OffsetFlag offset_flag) const;
 
-  bool IsUserJavaScript();
+  bool IsUserJavaScript() const;
 
   // Wrappers for GetPositionInfo
   static int GetColumnNumber(Handle<Script> script, int code_offset);
   int GetColumnNumber(int code_pos) const;
-  static int GetLineNumber(Handle<Script> script, int code_offset);
+  V8_EXPORT_PRIVATE static int GetLineNumber(Handle<Script> script,
+                                             int code_offset);
   int GetLineNumber(int code_pos) const;
-
-  // Get the JS object wrapping the given script; create it if none exists.
-  static Handle<JSObject> GetWrapper(Handle<Script> script);
 
   // Look through the list of existing shared function infos to find one
   // that matches the function literal.  Return empty handle if not found.
+  template <typename LocalIsolate>
   MaybeHandle<SharedFunctionInfo> FindSharedFunctionInfo(
-      Isolate* isolate, const FunctionLiteral* fun);
+      LocalIsolate* isolate, int function_literal_id);
 
   // Iterate over all script objects on the heap.
-  class Iterator {
+  class V8_EXPORT_PRIVATE Iterator {
    public:
     explicit Iterator(Isolate* isolate);
-    Script* Next();
+    Script Next();
 
    private:
-    WeakFixedArray::Iterator iterator_;
+    WeakArrayList::Iterator iterator_;
     DISALLOW_COPY_AND_ASSIGN(Iterator);
   };
 
@@ -178,35 +183,11 @@ class Script : public Struct {
   DECL_PRINTER(Script)
   DECL_VERIFIER(Script)
 
-  static const int kSourceOffset = HeapObject::kHeaderSize;
-  static const int kNameOffset = kSourceOffset + kPointerSize;
-  static const int kLineOffsetOffset = kNameOffset + kPointerSize;
-  static const int kColumnOffsetOffset = kLineOffsetOffset + kPointerSize;
-  static const int kContextOffset = kColumnOffsetOffset + kPointerSize;
-  static const int kWrapperOffset = kContextOffset + kPointerSize;
-  static const int kTypeOffset = kWrapperOffset + kPointerSize;
-  static const int kLineEndsOffset = kTypeOffset + kPointerSize;
-  static const int kIdOffset = kLineEndsOffset + kPointerSize;
-  static const int kEvalFromSharedOffset = kIdOffset + kPointerSize;
-  static const int kEvalFromPositionOffset =
-      kEvalFromSharedOffset + kPointerSize;
-  static const int kSharedFunctionInfosOffset =
-      kEvalFromPositionOffset + kPointerSize;
-  static const int kFlagsOffset = kSharedFunctionInfosOffset + kPointerSize;
-  static const int kSourceUrlOffset = kFlagsOffset + kPointerSize;
-  static const int kSourceMappingUrlOffset = kSourceUrlOffset + kPointerSize;
-  static const int kSize = kSourceMappingUrlOffset + kPointerSize;
-
  private:
   // Bit positions in the flags field.
-  static const int kCompilationTypeBit = 0;
-  static const int kCompilationStateBit = 1;
-  static const int kOriginOptionsShift = 2;
-  static const int kOriginOptionsSize = 4;
-  static const int kOriginOptionsMask = ((1 << kOriginOptionsSize) - 1)
-                                        << kOriginOptionsShift;
+  DEFINE_TORQUE_GENERATED_SCRIPT_FLAGS()
 
-  DISALLOW_IMPLICIT_CONSTRUCTORS(Script);
+  TQ_OBJECT_CONSTRUCTORS(Script)
 };
 
 }  // namespace internal

@@ -50,11 +50,6 @@ function force_to_fast_double_array(a) {
   assertTrue(%HasDoubleElements(a));
 }
 
-function make_object_like_array(size) {
-  obj = new Object();
-  obj.length = size;
-  return obj;
-}
 
 function testOneArrayType(allocator) {
   var large_array = new allocator(large_array_size);
@@ -153,6 +148,13 @@ function testOneArrayType(allocator) {
     a[7] = value_7;
     assertTrue(%HasDoubleElements(a));
   }
+
+  %PrepareFunctionForOptimization(test_various_loads);
+  %PrepareFunctionForOptimization(test_various_loads2);
+  %PrepareFunctionForOptimization(test_various_loads3);
+  %PrepareFunctionForOptimization(test_various_loads6);
+  %PrepareFunctionForOptimization(test_various_loads7);
+  %PrepareFunctionForOptimization(test_various_stores);
 
   // Test double and integer values
   test_various_loads(large_array,
@@ -349,11 +351,18 @@ function testOneArrayType(allocator) {
   assertTrue(%HasDoubleElements(large_array));
 }
 
+class ArraySubclass extends Array {
+  constructor(...args) {
+    super(...args);
+    this.marker = 42;
+  }
+}
+
 // Force gc here to start with a clean heap if we repeat this test multiple
 // times.
 gc();
-testOneArrayType(make_object_like_array);
 testOneArrayType(Array);
+testOneArrayType(ArraySubclass);
 
 var large_array = new Array(large_array_size);
 force_to_fast_double_array(large_array);
@@ -461,6 +470,7 @@ function call_apply() {
   called_by_apply.apply({}, large_array3);
 }
 
+%PrepareFunctionForOptimization(call_apply);
 call_apply();
 call_apply();
 call_apply();
@@ -481,6 +491,7 @@ function test_for_in() {
   assertTrue(next_expected == 96);
 }
 
+%PrepareFunctionForOptimization(test_for_in);
 test_for_in();
 test_for_in();
 test_for_in();
@@ -501,6 +512,7 @@ function test_getter() {
   assertEquals(expected_array_value(10), large_array3[2]);
 }
 
+%PrepareFunctionForOptimization(test_getter);
 test_getter();
 test_getter();
 test_getter();
@@ -529,6 +541,7 @@ function test_setter() {
   assertEquals(expected_array_value(2), large_array4[2]);
 }
 
+%PrepareFunctionForOptimization(test_setter);
 test_setter();
 test_setter();
 test_setter();

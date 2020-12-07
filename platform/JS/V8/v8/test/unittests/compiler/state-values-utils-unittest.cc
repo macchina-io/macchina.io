@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "src/compiler/state-values-utils.h"
-#include "src/bit-vector.h"
+#include "src/utils/bit-vector.h"
 #include "test/unittests/compiler/graph-unittest.h"
 #include "test/unittests/compiler/node-test-utils.h"
 #include "test/unittests/test-utils.h"
@@ -45,10 +45,12 @@ TEST_F(StateValuesIteratorTest, SimpleIteration) {
 TEST_F(StateValuesIteratorTest, EmptyIteration) {
   NodeVector inputs(zone());
   Node* state_values = StateValuesFromVector(&inputs);
+  bool empty = true;
   for (auto node : StateValuesAccess(state_values)) {
     USE(node);
-    FAIL();
+    empty = false;
   }
+  EXPECT_TRUE(empty);
 }
 
 
@@ -151,11 +153,13 @@ TEST_F(StateValuesIteratorTest, TreeFromVectorWithLiveness) {
 
     // Check the tree contents with vector.
     int i = 0;
-    for (StateValuesAccess::TypedNode node : StateValuesAccess(values_node)) {
+    for (StateValuesAccess::iterator it =
+             StateValuesAccess(values_node).begin();
+         !it.done(); ++it) {
       if (liveness.Contains(i)) {
-        EXPECT_THAT(node.node, IsInt32Constant(i));
+        EXPECT_THAT(it.node(), IsInt32Constant(i));
       } else {
-        EXPECT_EQ(node.node, nullptr);
+        EXPECT_EQ(it.node(), nullptr);
       }
       i++;
     }

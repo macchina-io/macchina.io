@@ -59,7 +59,7 @@ void JSONTraceWriter::AppendArgValue(uint8_t type,
                                      TraceObject::ArgValue value) {
   switch (type) {
     case TRACE_VALUE_TYPE_BOOL:
-      stream_ << (value.as_bool ? "true" : "false");
+      stream_ << (value.as_uint ? "true" : "false");
       break;
     case TRACE_VALUE_TYPE_UINT:
       stream_ << value.as_uint;
@@ -102,14 +102,13 @@ void JSONTraceWriter::AppendArgValue(uint8_t type,
     case TRACE_VALUE_TYPE_STRING:
     case TRACE_VALUE_TYPE_COPY_STRING:
       if (value.as_string == nullptr) {
-        stream_ << "\"NULL\"";
+        stream_ << "\"nullptr\"";
       } else {
         WriteJSONStringToStream(value.as_string, stream_);
       }
       break;
     default:
       UNREACHABLE();
-      break;
   }
 }
 
@@ -119,8 +118,12 @@ void JSONTraceWriter::AppendArgValue(ConvertableToTraceFormat* value) {
   stream_ << arg_stringified;
 }
 
-JSONTraceWriter::JSONTraceWriter(std::ostream& stream) : stream_(stream) {
-  stream_ << "{\"traceEvents\":[";
+JSONTraceWriter::JSONTraceWriter(std::ostream& stream)
+    : JSONTraceWriter(stream, "traceEvents") {}
+
+JSONTraceWriter::JSONTraceWriter(std::ostream& stream, const std::string& tag)
+    : stream_(stream) {
+  stream_ << "{\"" << tag << "\":[";
 }
 
 JSONTraceWriter::~JSONTraceWriter() { stream_ << "]}"; }
@@ -138,6 +141,17 @@ void JSONTraceWriter::AppendTraceEvent(TraceObject* trace_event) {
           << "\",\"name\":\"" << trace_event->name()
           << "\",\"dur\":" << trace_event->duration()
           << ",\"tdur\":" << trace_event->cpu_duration();
+  if (trace_event->flags() &
+      (TRACE_EVENT_FLAG_FLOW_IN | TRACE_EVENT_FLAG_FLOW_OUT)) {
+    stream_ << ",\"bind_id\":\"0x" << std::hex << trace_event->bind_id() << "\""
+            << std::dec;
+    if (trace_event->flags() & TRACE_EVENT_FLAG_FLOW_IN) {
+      stream_ << ",\"flow_in\":true";
+    }
+    if (trace_event->flags() & TRACE_EVENT_FLAG_FLOW_OUT) {
+      stream_ << ",\"flow_out\":true";
+    }
+  }
   if (trace_event->flags() & TRACE_EVENT_FLAG_HAS_ID) {
     if (trace_event->scope() != nullptr) {
       stream_ << ",\"scope\":\"" << trace_event->scope() << "\"";
@@ -169,6 +183,11 @@ void JSONTraceWriter::Flush() {}
 
 TraceWriter* TraceWriter::CreateJSONTraceWriter(std::ostream& stream) {
   return new JSONTraceWriter(stream);
+}
+
+TraceWriter* TraceWriter::CreateJSONTraceWriter(std::ostream& stream,
+                                                const std::string& tag) {
+  return new JSONTraceWriter(stream, tag);
 }
 
 }  // namespace tracing

@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// Flags: --no-stress-incremental-marking
+
 let {session, contextGroup, Protocol} = InspectorTest.start("Checks that inspector correctly process compiled scripts");
 
 function addScripts() {
@@ -33,6 +35,8 @@ function addScripts() {
     .then(() => addScript("function foo13(){}"))
   // script in eval
     .then(() => addScript("function foo15(){}; eval(\"function foo14(){}//# sourceURL=eval.js\")//# sourceURL=eval-wrapper.js"))
+  // // inside sourceURL
+    .then(() => addScript("{a:2:\n//# sourceURL=http://a.js"))
   // sourceURL and sourceMappingURL works even for script with syntax error
     .then(() => addScript("}//# sourceURL=failed.js\n//# sourceMappingURL=failed-map"))
   // empty lines at end

@@ -368,13 +368,17 @@ assertEquals(undefined, fake_error.stack);
 
 // Check that overwriting the stack property during stack trace formatting
 // does not crash.
-error = new Error();
+error = new Error("foobar");
 error.__defineGetter__("name", function() { error.stack = "abc"; });
-assertEquals("abc", error.stack);
+assertTrue(error.stack.startsWith("Error"));
+assertTrue(error.stack.includes("foobar"));
 
-error = new Error();
+error = new Error("foobar");
 error.__defineGetter__("name", function() { delete error.stack; });
-assertEquals(undefined, error.stack);
+// The first time, Error.stack returns the formatted stack trace,
+// not the content of the property.
+assertTrue(error.stack.startsWith("Error"));
+assertEquals(error.stack, undefined);
 
 // Check that repeated trace collection does not crash.
 error = new Error();
@@ -435,3 +439,23 @@ var constructor = new Error().stack[0].constructor;
 assertThrows(() => constructor.call());
 assertThrows(() => constructor.call(
     null, {}, () => undefined, {valueOf() { return 0 }}, false));
+
+// Test stack frames populated with line/column information for both call site
+// and enclosing function:
+Error.prepareStackTrace = function(e, frames) {
+  assertMatches(/stack-traces\.js/, frames[0].getFileName());
+  assertEquals(3, frames[0].getEnclosingColumnNumber());
+  assertEquals(11, frames[0].getColumnNumber());
+  assertTrue(frames[0].getEnclosingLineNumber() < frames[0].getLineNumber());
+}
+try {
+  function a() {
+    b();
+  }
+  function b() {
+    throw Error('hello world');
+  }
+  a();
+} catch (err) {
+  err.stack;
+}

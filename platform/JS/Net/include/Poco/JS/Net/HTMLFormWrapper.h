@@ -34,17 +34,17 @@ class JSNet_API HTMLFormWrapper: public JS::Core::Wrapper
 public:
 	HTMLFormWrapper();
 		/// Creates the HTMLFormWrapper for the root logger.
-	
+
 	~HTMLFormWrapper();
 		/// Destroys the HTMLFormWrapper.
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-		
+
 protected:
 	static void hasField(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getField(const v8::FunctionCallbackInfo<v8::Value>& args);
-	static void getProperty(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info);
+	static void getProperty(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 };
 
 

@@ -6,9 +6,9 @@
 
 #include "src/debug/debug.h"
 
-#include "src/codegen.h"
+#include "src/codegen/macro-assembler.h"
 #include "src/debug/liveedit.h"
-#include "src/frames-inl.h"
+#include "src/execution/frames-inl.h"
 
 namespace v8 {
 namespace internal {
@@ -33,19 +33,17 @@ void DebugCodegen::GenerateFrameDropperTrampoline(MacroAssembler* masm) {
   // - Leave the frame.
   // - Restart the frame by calling the function.
   __ mov(fp, a1);
-  __ Ld(a1, MemOperand(fp, JavaScriptFrameConstants::kFunctionOffset));
+  __ Ld(a1, MemOperand(fp, StandardFrameConstants::kFunctionOffset));
 
   // Pop return address and frame.
   __ LeaveFrame(StackFrame::INTERNAL);
 
   __ Ld(a0, FieldMemOperand(a1, JSFunction::kSharedFunctionInfoOffset));
-  __ Lw(a0,
-        FieldMemOperand(a0, SharedFunctionInfo::kFormalParameterCountOffset));
+  __ Lhu(a0,
+         FieldMemOperand(a0, SharedFunctionInfo::kFormalParameterCountOffset));
   __ mov(a2, a0);
 
-  ParameterCount dummy1(a2);
-  ParameterCount dummy2(a0);
-  __ InvokeFunction(a1, dummy1, dummy2, JUMP_FUNCTION);
+  __ InvokeFunction(a1, a2, a0, JUMP_FUNCTION);
 }
 
 

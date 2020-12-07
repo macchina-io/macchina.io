@@ -10,7 +10,7 @@ namespace v8 {
 namespace internal {
 namespace compiler {
 
-class ZoneStatsTest : public TestWithIsolate {
+class ZoneStatsTest : public ::testing::Test {
  public:
   ZoneStatsTest() : zone_stats_(&allocator_) {}
 
@@ -33,7 +33,7 @@ class ZoneStatsTest : public TestWithIsolate {
   size_t Allocate(Zone* zone) {
     size_t bytes = rng.NextInt(25) + 7;
     size_t size_before = zone->allocation_size();
-    zone->New(bytes);
+    zone->Allocate<void>(bytes);
     return zone->allocation_size() - size_before;
   }
 

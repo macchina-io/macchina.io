@@ -2,35 +2,26 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef V8_BASE_TEMPLATE_UTILS_H
-#define V8_BASE_TEMPLATE_UTILS_H
+#ifndef V8_BASE_TEMPLATE_UTILS_H_
+#define V8_BASE_TEMPLATE_UTILS_H_
 
 #include <array>
-#include <memory>
+#include <functional>
+#include <iosfwd>
+#include <type_traits>
+#include <utility>
 
 namespace v8 {
 namespace base {
 
 namespace detail {
 
-// make_array_helper statically iteratively creates the index list 0 .. Size-1.
-// A specialization for the base case (first index is 0) finally constructs the
-// array.
-// TODO(clemensh): Use std::index_sequence once we have C++14 support.
-template <class Function, std::size_t... Indexes>
-struct make_array_helper;
-
-template <class Function, std::size_t... Indexes>
-struct make_array_helper<Function, 0, Indexes...> {
-  constexpr static auto make_array(Function f)
-      -> std::array<decltype(f(std::size_t{0})), sizeof...(Indexes) + 1> {
-    return {{f(0), f(Indexes)...}};
-  }
-};
-
-template <class Function, std::size_t FirstIndex, std::size_t... Indexes>
-struct make_array_helper<Function, FirstIndex, Indexes...>
-    : make_array_helper<Function, FirstIndex - 1, FirstIndex, Indexes...> {};
+template <typename Function, std::size_t... Indexes>
+constexpr inline auto make_array_helper(Function f,
+                                        std::index_sequence<Indexes...>)
+    -> std::array<decltype(f(0)), sizeof...(Indexes)> {
+  return {{f(Indexes)...}};
+}
 
 }  // namespace detail
 
@@ -41,25 +32,8 @@ struct make_array_helper<Function, FirstIndex, Indexes...>
 //       [](std::size_t i) { return static_cast<int>(2 * i); });
 // The resulting array will be constexpr if the passed function is constexpr.
 template <std::size_t Size, class Function>
-constexpr auto make_array(Function f)
-    -> std::array<decltype(f(std::size_t{0})), Size> {
-  static_assert(Size > 0, "Can only create non-empty arrays");
-  return detail::make_array_helper<Function, Size - 1>::make_array(f);
-}
-
-// base::make_unique<T>: Construct an object of type T and wrap it in a
-// std::unique_ptr.
-// Replacement for C++14's std::make_unique.
-template <typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args&&... args) {
-  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
-// implicit_cast<A>(x) triggers an implicit cast from {x} to type {A}. This is
-// useful in situations where static_cast<A>(x) would do too much.
-template <class A>
-A implicit_cast(A x) {
-  return x;
+constexpr auto make_array(Function f) {
+  return detail::make_array_helper(f, std::make_index_sequence<Size>{});
 }
 
 // Helper to determine how to pass values: Pass scalars and arrays by value,
@@ -78,7 +52,53 @@ struct pass_value_or_ref {
                                          decay_t, const decay_t&>::type;
 };
 
+// Uses expression SFINAE to detect whether using operator<< would work.
+template <typename T, typename = void>
+struct has_output_operator : std::false_type {};
+template <typename T>
+struct has_output_operator<T, decltype(void(std::declval<std::ostream&>()
+                                            << std::declval<T>()))>
+    : std::true_type {};
+
+// Fold all arguments from left to right with a given function.
+template <typename Func, typename T>
+constexpr auto fold(Func func, T&& t) {
+  return std::forward<T>(t);
+}
+
+template <typename Func, typename T1, typename T2, typename... Ts>
+constexpr auto fold(Func func, T1&& first, T2&& second, Ts&&... more) {
+  auto&& folded = func(std::forward<T1>(first), std::forward<T2>(second));
+  return fold(std::move(func), std::forward<decltype(folded)>(folded),
+              std::forward<Ts>(more)...);
+}
+
+// {is_same<Ts...>::value} is true if all Ts are the same, false otherwise.
+template <typename... Ts>
+struct is_same : public std::false_type {};
+template <>
+struct is_same<> : public std::true_type {};
+template <typename T>
+struct is_same<T> : public std::true_type {};
+template <typename T, typename... Ts>
+struct is_same<T, T, Ts...> : public is_same<T, Ts...> {};
+
+// Returns true, iff all values (implicitly converted to bool) are trueish.
+template <typename... Args>
+constexpr bool all(Args... rest) {
+  return fold(std::logical_and<>{}, true, rest...);
+}
+
+template <class... Ts>
+struct make_void {
+  using type = void;
+};
+// Corresponds to C++17's std::void_t.
+// Used for SFINAE based on type errors.
+template <class... Ts>
+using void_t = typename make_void<Ts...>::type;
+
 }  // namespace base
 }  // namespace v8
 
-#endif  // V8_BASE_TEMPLATE_UTILS_H
+#endif  // V8_BASE_TEMPLATE_UTILS_H_

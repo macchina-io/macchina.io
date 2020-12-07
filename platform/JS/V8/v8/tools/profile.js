@@ -25,6 +25,52 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// TODO: move to separate modules
+class SourcePosition {
+  constructor(script, line, column) {
+    this.script = script;
+    this.line = line;
+    this.column = column;
+    this.entries = [];
+  }
+  addEntry(entry) {
+    this.entries.push(entry);
+  }
+}
+
+class Script {
+
+  constructor(id, name, source) {
+    this.id = id;
+    this.name = name;
+    this.source = source;
+    this.sourcePositions = [];
+    // Map<line, Map<column, SourcePosition>>
+    this.lineToColumn = new Map();
+  }
+
+  addSourcePosition(line, column, entry) {
+    let sourcePosition = this.lineToColumn.get(line)?.get(column);
+    if (sourcePosition === undefined) {
+      sourcePosition = new SourcePosition(this, line, column, )
+      this.#addSourcePosition(line, column, sourcePosition);
+    }
+    sourcePosition.addEntry(entry);
+    return sourcePosition;
+  }
+
+  #addSourcePosition(line, column, sourcePosition) {
+    let columnToSourcePosition;
+    if (this.lineToColumn.has(line)) {
+      columnToSourcePosition = this.lineToColumn.get(line);
+    } else {
+      columnToSourcePosition = new Map();
+      this.lineToColumn.set(line, columnToSourcePosition);
+    }
+    this.sourcePositions.push(sourcePosition);
+    columnToSourcePosition.set(column, sourcePosition);
+  }
+}
 
 /**
  * Creates a profile object for processing profiling-related events
@@ -38,6 +84,8 @@ function Profile() {
   this.bottomUpTree_ = new CallTree();
   this.c_entries_ = {};
   this.ticks_ = [];
+  this.scripts_ = [];
+  this.urlToScript_ = new Map();
 };
 
 
@@ -47,7 +95,7 @@ function Profile() {
  *
  * @param {string} name Function name.
  */
-Profile.prototype.skipThisFunction = function(name) {
+Profile.prototype.skipThisFunction = function (name) {
   return false;
 };
 
@@ -89,8 +137,8 @@ Profile.CodeState = {
  *     during stack strace processing, specifies a position of the frame
  *     containing the address.
  */
-Profile.prototype.handleUnknownCode = function(
-    operation, addr, opt_stackPos) {
+Profile.prototype.handleUnknownCode = function (
+  operation, addr, opt_stackPos) {
 };
 
 
@@ -101,10 +149,10 @@ Profile.prototype.handleUnknownCode = function(
  * @param {number} startAddr Starting address.
  * @param {number} endAddr Ending address.
  */
-Profile.prototype.addLibrary = function(
-    name, startAddr, endAddr) {
+Profile.prototype.addLibrary = function (
+  name, startAddr, endAddr) {
   var entry = new CodeMap.CodeEntry(
-      endAddr - startAddr, name, 'SHARED_LIB');
+    endAddr - startAddr, name, 'SHARED_LIB');
   this.codeMap_.addLibrary(startAddr, entry);
   return entry;
 };
@@ -117,10 +165,10 @@ Profile.prototype.addLibrary = function(
  * @param {number} startAddr Starting address.
  * @param {number} endAddr Ending address.
  */
-Profile.prototype.addStaticCode = function(
-    name, startAddr, endAddr) {
+Profile.prototype.addStaticCode = function (
+  name, startAddr, endAddr) {
   var entry = new CodeMap.CodeEntry(
-      endAddr - startAddr, name, 'CPP');
+    endAddr - startAddr, name, 'CPP');
   this.codeMap_.addStaticCode(startAddr, entry);
   return entry;
 };
@@ -134,8 +182,8 @@ Profile.prototype.addStaticCode = function(
  * @param {number} start Starting address.
  * @param {number} size Code entry size.
  */
-Profile.prototype.addCode = function(
-    type, name, timestamp, start, size) {
+Profile.prototype.addCode = function (
+  type, name, timestamp, start, size) {
   var entry = new Profile.DynamicCodeEntry(size, type, name);
   this.codeMap_.addCode(start, entry);
   return entry;
@@ -152,8 +200,8 @@ Profile.prototype.addCode = function(
  * @param {number} funcAddr Shared function object address.
  * @param {Profile.CodeState} state Optimization state.
  */
-Profile.prototype.addFuncCode = function(
-    type, name, timestamp, start, size, funcAddr, state) {
+Profile.prototype.addFuncCode = function (
+  type, name, timestamp, start, size, funcAddr, state) {
   // As code and functions are in the same address space,
   // it is safe to put them in a single code map.
   var func = this.codeMap_.findDynamicEntryByStartAddress(funcAddr);
@@ -169,8 +217,12 @@ Profile.prototype.addFuncCode = function(
     if (entry.size === size && entry.func === func) {
       // Entry state has changed.
       entry.state = state;
+    } else {
+      this.codeMap_.deleteCode(start);
+      entry = null;
     }
-  } else {
+  }
+  if (!entry) {
     entry = new Profile.DynamicFuncCodeEntry(size, type, func, state);
     this.codeMap_.addCode(start, entry);
   }
@@ -184,7 +236,7 @@ Profile.prototype.addFuncCode = function(
  * @param {number} from Current code entry address.
  * @param {number} to New code entry address.
  */
-Profile.prototype.moveCode = function(from, to) {
+Profile.prototype.moveCode = function (from, to) {
   try {
     this.codeMap_.moveCode(from, to);
   } catch (e) {
@@ -192,9 +244,9 @@ Profile.prototype.moveCode = function(from, to) {
   }
 };
 
-Profile.prototype.deoptCode = function(
-    timestamp, code, inliningId, scriptOffset, bailoutType,
-    sourcePositionText, deoptReasonText) {
+Profile.prototype.deoptCode = function (
+  timestamp, code, inliningId, scriptOffset, bailoutType,
+  sourcePositionText, deoptReasonText) {
 };
 
 /**
@@ -202,7 +254,7 @@ Profile.prototype.deoptCode = function(
  *
  * @param {number} start Starting address.
  */
-Profile.prototype.deleteCode = function(start) {
+Profile.prototype.deleteCode = function (start) {
   try {
     this.codeMap_.deleteCode(start);
   } catch (e) {
@@ -213,17 +265,27 @@ Profile.prototype.deleteCode = function(start) {
 /**
  * Adds source positions for given code.
  */
-Profile.prototype.addSourcePositions = function(
-    start, script, startPos, endPos, sourcePositions, inliningPositions,
-    inlinedFunctions) {
+Profile.prototype.addSourcePositions = function (
+  start, script, startPos, endPos, sourcePositions, inliningPositions,
+  inlinedFunctions) {
   // CLI does not need source code => ignore.
 };
 
 /**
  * Adds script source code.
  */
-Profile.prototype.addScriptSource = function(script, source) {
-  // CLI does not need source code => ignore.
+Profile.prototype.addScriptSource = function (id, url, source) {
+  const script = new Script(id, url, source);
+  this.scripts_[id] = script;
+  this.urlToScript_.set(url, script);
+};
+
+
+/**
+ * Adds script source code.
+ */
+Profile.prototype.getScript = function (url) {
+  return this.urlToScript_.get(url);
 };
 
 /**
@@ -232,7 +294,7 @@ Profile.prototype.addScriptSource = function(script, source) {
  * @param {number} from Current code entry address.
  * @param {number} to New code entry address.
  */
-Profile.prototype.moveFunc = function(from, to) {
+Profile.prototype.moveFunc = function (from, to) {
   if (this.codeMap_.findDynamicEntryByStartAddress(from)) {
     this.codeMap_.moveCode(from, to);
   }
@@ -244,7 +306,7 @@ Profile.prototype.moveFunc = function(from, to) {
  *
  * @param {number} addr Entry address.
  */
-Profile.prototype.findEntry = function(addr) {
+Profile.prototype.findEntry = function (addr) {
   return this.codeMap_.findEntry(addr);
 };
 
@@ -255,7 +317,7 @@ Profile.prototype.findEntry = function(addr) {
  *
  * @param {Array<number>} stack Stack sample.
  */
-Profile.prototype.recordTick = function(time_ns, vmState, stack) {
+Profile.prototype.recordTick = function (time_ns, vmState, stack) {
   var processedStack = this.resolveAndFilterFuncs_(stack);
   this.bottomUpTree_.addPath(processedStack);
   processedStack.reverse();
@@ -269,7 +331,7 @@ Profile.prototype.recordTick = function(time_ns, vmState, stack) {
  *
  * @param {Array<number>} stack Stack sample.
  */
-Profile.prototype.resolveAndFilterFuncs_ = function(stack) {
+Profile.prototype.resolveAndFilterFuncs_ = function (stack) {
   var result = [];
   var last_seen_c_function = '';
   var look_for_first_c_function = false;
@@ -291,9 +353,9 @@ Profile.prototype.resolveAndFilterFuncs_ = function(stack) {
       if (i === 0) result.push("UNKNOWN");
     }
     if (look_for_first_c_function &&
-        i > 0 &&
-        (!entry || entry.type !== 'CPP') &&
-        last_seen_c_function !== '') {
+      i > 0 &&
+      (!entry || entry.type !== 'CPP') &&
+      last_seen_c_function !== '') {
       if (this.c_entries_[last_seen_c_function] === undefined) {
         this.c_entries_[last_seen_c_function] = 0;
       }
@@ -310,7 +372,7 @@ Profile.prototype.resolveAndFilterFuncs_ = function(stack) {
  *
  * @param {function(CallTree.Node)} f Visitor function.
  */
-Profile.prototype.traverseTopDownTree = function(f) {
+Profile.prototype.traverseTopDownTree = function (f) {
   this.topDownTree_.traverse(f);
 };
 
@@ -320,7 +382,7 @@ Profile.prototype.traverseTopDownTree = function(f) {
  *
  * @param {function(CallTree.Node)} f Visitor function.
  */
-Profile.prototype.traverseBottomUpTree = function(f) {
+Profile.prototype.traverseBottomUpTree = function (f) {
   this.bottomUpTree_.traverse(f);
 };
 
@@ -331,7 +393,7 @@ Profile.prototype.traverseBottomUpTree = function(f) {
  *
  * @param {string} opt_label Node label.
  */
-Profile.prototype.getTopDownProfile = function(opt_label) {
+Profile.prototype.getTopDownProfile = function (opt_label) {
   return this.getTreeProfile_(this.topDownTree_, opt_label);
 };
 
@@ -342,7 +404,7 @@ Profile.prototype.getTopDownProfile = function(opt_label) {
  *
  * @param {string} opt_label Node label.
  */
-Profile.prototype.getBottomUpProfile = function(opt_label) {
+Profile.prototype.getBottomUpProfile = function (opt_label) {
   return this.getTreeProfile_(this.bottomUpTree_, opt_label);
 };
 
@@ -353,7 +415,7 @@ Profile.prototype.getBottomUpProfile = function(opt_label) {
  * @param {Profile.CallTree} tree Call tree.
  * @param {string} opt_label Node label.
  */
-Profile.prototype.getTreeProfile_ = function(tree, opt_label) {
+Profile.prototype.getTreeProfile_ = function (tree, opt_label) {
   if (!opt_label) {
     tree.computeTotalWeights();
     return tree;
@@ -371,7 +433,7 @@ Profile.prototype.getTreeProfile_ = function(tree, opt_label) {
  *
  * @param {string} opt_label Starting node label.
  */
-Profile.prototype.getFlatProfile = function(opt_label) {
+Profile.prototype.getFlatProfile = function (opt_label) {
   var counters = new CallTree();
   var rootLabel = opt_label || CallTree.ROOT_NODE_LABEL;
   var precs = {};
@@ -420,13 +482,13 @@ Profile.prototype.getFlatProfile = function(opt_label) {
 };
 
 
-Profile.CEntryNode = function(name, ticks) {
+Profile.CEntryNode = function (name, ticks) {
   this.name = name;
   this.ticks = ticks;
 }
 
 
-Profile.prototype.getCEntryProfile = function() {
+Profile.prototype.getCEntryProfile = function () {
   var result = [new Profile.CEntryNode("TOTAL", 0)];
   var total_ticks = 0;
   for (var f in this.c_entries_) {
@@ -435,7 +497,7 @@ Profile.prototype.getCEntryProfile = function() {
     result.push(new Profile.CEntryNode(f, ticks));
   }
   result[0].ticks = total_ticks;  // Sorting will keep this at index 0.
-  result.sort(function(n1, n2) {
+  result.sort(function (n1, n2) {
     return n2.ticks - n1.ticks || (n2.name < n1.name ? -1 : 1)
   });
   return result;
@@ -445,7 +507,7 @@ Profile.prototype.getCEntryProfile = function() {
 /**
  * Cleans up function entries that are not referenced by code entries.
  */
-Profile.prototype.cleanUpFuncEntries = function() {
+Profile.prototype.cleanUpFuncEntries = function () {
   var referencedFuncEntries = [];
   var entries = this.codeMap_.getAllDynamicEntriesWithAddresses();
   for (var i = 0, l = entries.length; i < l; ++i) {
@@ -460,7 +522,7 @@ Profile.prototype.cleanUpFuncEntries = function() {
   }
   for (var i = 0, l = entries.length; i < l; ++i) {
     if (entries[i][1].constructor === Profile.FunctionEntry &&
-        !entries[i][1].used) {
+      !entries[i][1].used) {
       this.codeMap_.deleteCode(entries[i][0]);
     }
   }
@@ -475,7 +537,7 @@ Profile.prototype.cleanUpFuncEntries = function() {
  * @param {string} name Function name.
  * @constructor
  */
-Profile.DynamicCodeEntry = function(size, type, name) {
+Profile.DynamicCodeEntry = function (size, type, name) {
   CodeMap.CodeEntry.call(this, size, name, type);
 };
 
@@ -483,7 +545,7 @@ Profile.DynamicCodeEntry = function(size, type, name) {
 /**
  * Returns node name.
  */
-Profile.DynamicCodeEntry.prototype.getName = function() {
+Profile.DynamicCodeEntry.prototype.getName = function () {
   return this.type + ': ' + this.name;
 };
 
@@ -491,17 +553,17 @@ Profile.DynamicCodeEntry.prototype.getName = function() {
 /**
  * Returns raw node name (without type decoration).
  */
-Profile.DynamicCodeEntry.prototype.getRawName = function() {
+Profile.DynamicCodeEntry.prototype.getRawName = function () {
   return this.name;
 };
 
 
-Profile.DynamicCodeEntry.prototype.isJSFunction = function() {
+Profile.DynamicCodeEntry.prototype.isJSFunction = function () {
   return false;
 };
 
 
-Profile.DynamicCodeEntry.prototype.toString = function() {
+Profile.DynamicCodeEntry.prototype.toString = function () {
   return this.getName() + ': ' + this.size.toString(16);
 };
 
@@ -515,7 +577,7 @@ Profile.DynamicCodeEntry.prototype.toString = function() {
  * @param {Profile.CodeState} state Code optimization state.
  * @constructor
  */
-Profile.DynamicFuncCodeEntry = function(size, type, func, state) {
+Profile.DynamicFuncCodeEntry = function (size, type, func, state) {
   CodeMap.CodeEntry.call(this, size, '', type);
   this.func = func;
   this.state = state;
@@ -526,14 +588,14 @@ Profile.DynamicFuncCodeEntry.STATE_PREFIX = ["", "~", "*"];
 /**
  * Returns state.
  */
-Profile.DynamicFuncCodeEntry.prototype.getState = function() {
+Profile.DynamicFuncCodeEntry.prototype.getState = function () {
   return Profile.DynamicFuncCodeEntry.STATE_PREFIX[this.state];
 };
 
 /**
  * Returns node name.
  */
-Profile.DynamicFuncCodeEntry.prototype.getName = function() {
+Profile.DynamicFuncCodeEntry.prototype.getName = function () {
   var name = this.func.getName();
   return this.type + ': ' + this.getState() + name;
 };
@@ -542,17 +604,17 @@ Profile.DynamicFuncCodeEntry.prototype.getName = function() {
 /**
  * Returns raw node name (without type decoration).
  */
-Profile.DynamicFuncCodeEntry.prototype.getRawName = function() {
+Profile.DynamicFuncCodeEntry.prototype.getRawName = function () {
   return this.func.getName();
 };
 
 
-Profile.DynamicFuncCodeEntry.prototype.isJSFunction = function() {
+Profile.DynamicFuncCodeEntry.prototype.isJSFunction = function () {
   return true;
 };
 
 
-Profile.DynamicFuncCodeEntry.prototype.toString = function() {
+Profile.DynamicFuncCodeEntry.prototype.toString = function () {
   return this.getName() + ': ' + this.size.toString(16);
 };
 
@@ -563,7 +625,7 @@ Profile.DynamicFuncCodeEntry.prototype.toString = function() {
  * @param {string} name Function name.
  * @constructor
  */
-Profile.FunctionEntry = function(name) {
+Profile.FunctionEntry = function (name) {
   CodeMap.CodeEntry.call(this, 0, name);
 };
 
@@ -571,7 +633,7 @@ Profile.FunctionEntry = function(name) {
 /**
  * Returns node name.
  */
-Profile.FunctionEntry.prototype.getName = function() {
+Profile.FunctionEntry.prototype.getName = function () {
   var name = this.name;
   if (name.length == 0) {
     name = '<anonymous>';
@@ -591,7 +653,7 @@ Profile.FunctionEntry.prototype.toString = CodeMap.CodeEntry.prototype.toString;
  */
 function CallTree() {
   this.root_ = new CallTree.Node(
-      CallTree.ROOT_NODE_LABEL);
+    CallTree.ROOT_NODE_LABEL);
 };
 
 
@@ -610,7 +672,7 @@ CallTree.prototype.totalsComputed_ = false;
 /**
  * Returns the tree root.
  */
-CallTree.prototype.getRoot = function() {
+CallTree.prototype.getRoot = function () {
   return this.root_;
 };
 
@@ -620,7 +682,7 @@ CallTree.prototype.getRoot = function() {
  *
  * @param {Array<string>} path Call path.
  */
-CallTree.prototype.addPath = function(path) {
+CallTree.prototype.addPath = function (path) {
   if (path.length == 0) {
     return;
   }
@@ -640,7 +702,7 @@ CallTree.prototype.addPath = function(path) {
  *
  * @param {string} label Child node label.
  */
-CallTree.prototype.findOrAddChild = function(label) {
+CallTree.prototype.findOrAddChild = function (label) {
   return this.root_.findOrAddChild(label);
 };
 
@@ -661,9 +723,9 @@ CallTree.prototype.findOrAddChild = function(label) {
  *
  * @param {string} label The label of the new root node.
  */
-CallTree.prototype.cloneSubtree = function(label) {
+CallTree.prototype.cloneSubtree = function (label) {
   var subTree = new CallTree();
-  this.traverse(function(node, parent) {
+  this.traverse(function (node, parent) {
     if (!parent && node.label != label) {
       return null;
     }
@@ -678,7 +740,7 @@ CallTree.prototype.cloneSubtree = function(label) {
 /**
  * Computes total weights in the call graph.
  */
-CallTree.prototype.computeTotalWeights = function() {
+CallTree.prototype.computeTotalWeights = function () {
   if (this.totalsComputed_) {
     return;
   }
@@ -702,16 +764,17 @@ CallTree.prototype.computeTotalWeights = function() {
  * @param {function(CallTree.Node, *)} f Visitor function.
  *    The second parameter is the result of calling 'f' on the parent node.
  */
-CallTree.prototype.traverse = function(f) {
+CallTree.prototype.traverse = function (f) {
   var pairsToProcess = new ConsArray();
-  pairsToProcess.concat([{node: this.root_, param: null}]);
+  pairsToProcess.concat([{ node: this.root_, param: null }]);
   while (!pairsToProcess.atEnd()) {
     var pair = pairsToProcess.next();
     var node = pair.node;
     var newParam = f(node, pair.param);
     var morePairsToProcess = [];
     node.forEachChild(function (child) {
-        morePairsToProcess.push({node: child, param: newParam}); });
+      morePairsToProcess.push({ node: child, param: newParam });
+    });
     pairsToProcess.concat(morePairsToProcess);
   }
 };
@@ -725,7 +788,7 @@ CallTree.prototype.traverse = function(f) {
  * @param {function(CallTree.Node)} exit A function called
  *     after visiting node's children.
  */
-CallTree.prototype.traverseInDepth = function(enter, exit) {
+CallTree.prototype.traverseInDepth = function (enter, exit) {
   function traverse(node) {
     enter(node);
     node.forEachChild(traverse);
@@ -741,7 +804,7 @@ CallTree.prototype.traverseInDepth = function(enter, exit) {
  * @param {string} label Node label.
  * @param {CallTree.Node} opt_parent Node parent.
  */
-CallTree.Node = function(label, opt_parent) {
+CallTree.Node = function (label, opt_parent) {
   this.label = label;
   this.parent = opt_parent;
   this.children = {};
@@ -768,7 +831,7 @@ CallTree.Node.prototype.totalWeight = 0;
  *
  * @param {string} label Child node label.
  */
-CallTree.Node.prototype.addChild = function(label) {
+CallTree.Node.prototype.addChild = function (label) {
   var child = new CallTree.Node(label, this);
   this.children[label] = child;
   return child;
@@ -779,18 +842,19 @@ CallTree.Node.prototype.addChild = function(label) {
  * Computes node's total weight.
  */
 CallTree.Node.prototype.computeTotalWeight =
-    function() {
-  var totalWeight = this.selfWeight;
-  this.forEachChild(function(child) {
-      totalWeight += child.computeTotalWeight(); });
-  return this.totalWeight = totalWeight;
-};
+  function () {
+    var totalWeight = this.selfWeight;
+    this.forEachChild(function (child) {
+      totalWeight += child.computeTotalWeight();
+    });
+    return this.totalWeight = totalWeight;
+  };
 
 
 /**
  * Returns all node's children as an array.
  */
-CallTree.Node.prototype.exportChildren = function() {
+CallTree.Node.prototype.exportChildren = function () {
   var result = [];
   this.forEachChild(function (node) { result.push(node); });
   return result;
@@ -802,7 +866,7 @@ CallTree.Node.prototype.exportChildren = function() {
  *
  * @param {string} label Child node label.
  */
-CallTree.Node.prototype.findChild = function(label) {
+CallTree.Node.prototype.findChild = function (label) {
   return this.children[label] || null;
 };
 
@@ -813,7 +877,7 @@ CallTree.Node.prototype.findChild = function(label) {
  *
  * @param {string} label Child node label.
  */
-CallTree.Node.prototype.findOrAddChild = function(label) {
+CallTree.Node.prototype.findOrAddChild = function (label) {
   return this.findChild(label) || this.addChild(label);
 };
 
@@ -823,7 +887,7 @@ CallTree.Node.prototype.findOrAddChild = function(label) {
  *
  * @param {function(CallTree.Node)} f Visitor function.
  */
-CallTree.Node.prototype.forEachChild = function(f) {
+CallTree.Node.prototype.forEachChild = function (f) {
   for (var c in this.children) {
     f(this.children[c]);
   }
@@ -835,7 +899,7 @@ CallTree.Node.prototype.forEachChild = function(f) {
  *
  * @param {function(CallTree.Node)} f Visitor function.
  */
-CallTree.Node.prototype.walkUpToRoot = function(f) {
+CallTree.Node.prototype.walkUpToRoot = function (f) {
   for (var curr = this; curr != null; curr = curr.parent) {
     f(curr);
   }
@@ -848,8 +912,8 @@ CallTree.Node.prototype.walkUpToRoot = function(f) {
  * @param {Array<string>} labels The path.
  * @param {function(CallTree.Node)} opt_f Visitor function.
  */
-CallTree.Node.prototype.descendToChild = function(
-    labels, opt_f) {
+CallTree.Node.prototype.descendToChild = function (
+  labels, opt_f) {
   for (var pos = 0, curr = this; pos < labels.length && curr != null; pos++) {
     var child = curr.findChild(labels[pos]);
     if (opt_f) {
@@ -868,46 +932,54 @@ function JsonProfile() {
   this.scripts_ = [];
 }
 
-JsonProfile.prototype.addLibrary = function(
-    name, startAddr, endAddr) {
+JsonProfile.prototype.addLibrary = function (
+  name, startAddr, endAddr) {
   var entry = new CodeMap.CodeEntry(
-      endAddr - startAddr, name, 'SHARED_LIB');
+    endAddr - startAddr, name, 'SHARED_LIB');
   this.codeMap_.addLibrary(startAddr, entry);
 
   entry.codeId = this.codeEntries_.length;
-  this.codeEntries_.push({name : entry.name, type : entry.type});
+  this.codeEntries_.push({ name: entry.name, type: entry.type });
   return entry;
 };
 
-JsonProfile.prototype.addStaticCode = function(
-    name, startAddr, endAddr) {
+JsonProfile.prototype.addStaticCode = function (
+  name, startAddr, endAddr) {
   var entry = new CodeMap.CodeEntry(
-      endAddr - startAddr, name, 'CPP');
+    endAddr - startAddr, name, 'CPP');
   this.codeMap_.addStaticCode(startAddr, entry);
 
   entry.codeId = this.codeEntries_.length;
-  this.codeEntries_.push({name : entry.name, type : entry.type});
+  this.codeEntries_.push({ name: entry.name, type: entry.type });
   return entry;
 };
 
-JsonProfile.prototype.addCode = function(
-    kind, name, timestamp, start, size) {
+JsonProfile.prototype.addCode = function (
+  kind, name, timestamp, start, size) {
+  let codeId = this.codeEntries_.length;
+  // Find out if we have a static code entry for the code. If yes, we will
+  // make sure it is written to the JSON file just once.
+  let staticEntry = this.codeMap_.findAddress(start);
+  if (staticEntry && staticEntry.entry.type === 'CPP') {
+    codeId = staticEntry.entry.codeId;
+  }
+
   var entry = new CodeMap.CodeEntry(size, name, 'CODE');
   this.codeMap_.addCode(start, entry);
 
-  entry.codeId = this.codeEntries_.length;
-  this.codeEntries_.push({
-    name : entry.name,
+  entry.codeId = codeId;
+  this.codeEntries_[codeId] = {
+    name: entry.name,
     timestamp: timestamp,
-    type : entry.type,
-    kind : kind
-  });
+    type: entry.type,
+    kind: kind
+  };
 
   return entry;
 };
 
-JsonProfile.prototype.addFuncCode = function(
-    kind, name, timestamp, start, size, funcAddr, state) {
+JsonProfile.prototype.addFuncCode = function (
+  kind, name, timestamp, start, size, funcAddr, state) {
   // As code and functions are in the same address space,
   // it is safe to put them in a single code map.
   var func = this.codeMap_.findDynamicEntryByStartAddress(funcAddr);
@@ -916,25 +988,27 @@ JsonProfile.prototype.addFuncCode = function(
     this.codeMap_.addCode(funcAddr, func);
 
     func.funcId = this.functionEntries_.length;
-    this.functionEntries_.push({name : name, codes : []});
+    this.functionEntries_.push({ name: name, codes: [] });
   } else if (func.name !== name) {
     // Function object has been overwritten with a new one.
     func.name = name;
 
     func.funcId = this.functionEntries_.length;
-    this.functionEntries_.push({name : name, codes : []});
+    this.functionEntries_.push({ name: name, codes: [] });
   }
   // TODO(jarin): Insert the code object into the SFI's code list.
   var entry = this.codeMap_.findDynamicEntryByStartAddress(start);
   if (entry) {
-    // TODO(jarin) This does not look correct, we should really
-    // update the code object (remove the old one and insert this one).
     if (entry.size === size && entry.func === func) {
       // Entry state has changed.
       entry.state = state;
+    } else {
+      this.codeMap_.deleteCode(start);
+      entry = null;
     }
-  } else {
-    var entry = new CodeMap.CodeEntry(size, name, 'JS');
+  }
+  if (!entry) {
+    entry = new CodeMap.CodeEntry(size, name, 'JS');
     this.codeMap_.addCode(start, entry);
 
     entry.codeId = this.codeEntries_.length;
@@ -950,17 +1024,17 @@ JsonProfile.prototype.addFuncCode = function(
     }
 
     this.codeEntries_.push({
-        name : entry.name,
-        type : entry.type,
-        kind : kind,
-        func : func.funcId,
-        tm : timestamp
+      name: entry.name,
+      type: entry.type,
+      kind: kind,
+      func: func.funcId,
+      tm: timestamp
     });
   }
   return entry;
 };
 
-JsonProfile.prototype.moveCode = function(from, to) {
+JsonProfile.prototype.moveCode = function (from, to) {
   try {
     this.codeMap_.moveCode(from, to);
   } catch (e) {
@@ -968,14 +1042,14 @@ JsonProfile.prototype.moveCode = function(from, to) {
   }
 };
 
-JsonProfile.prototype.addSourcePositions = function(
-    start, script, startPos, endPos, sourcePositions, inliningPositions,
-    inlinedFunctions) {
+JsonProfile.prototype.addSourcePositions = function (
+  start, script, startPos, endPos, sourcePositions, inliningPositions,
+  inlinedFunctions) {
   var entry = this.codeMap_.findDynamicEntryByStartAddress(start);
   if (!entry) return;
   var codeId = entry.codeId;
 
-  // Resolve the inlined fucntions list.
+  // Resolve the inlined functions list.
   if (inlinedFunctions.length > 0) {
     inlinedFunctions = inlinedFunctions.substring(1).split("S");
     for (var i = 0; i < inlinedFunctions.length; i++) {
@@ -993,49 +1067,23 @@ JsonProfile.prototype.addSourcePositions = function(
   }
 
   this.codeEntries_[entry.codeId].source = {
-    script : script,
-    start : startPos,
-    end : endPos,
-    positions : sourcePositions,
-    inlined : inliningPositions,
-    fns : inlinedFunctions
+    script: script,
+    start: startPos,
+    end: endPos,
+    positions: sourcePositions,
+    inlined: inliningPositions,
+    fns: inlinedFunctions
   };
 };
 
-function unescapeString(s) {
-  s = s.split("\\");
-  for (var i = 1; i < s.length; i++) {
-    if (s[i] === "") {
-      // Double backslash.
-      s[i] = "\\";
-    } else if (i > 0 && s[i].startsWith("x")) {
-      // Escaped Ascii character.
-      s[i] = String.fromCharCode(parseInt(s[i].substring(1, 3), 16)) +
-          s[i].substring(3);
-    } else if (i > 0 && s[i].startsWith("u")) {
-      // Escaped unicode character.
-      s[i] = String.fromCharCode(parseInt(s[i].substring(1, 5), 16)) +
-          s[i].substring(5);
-    } else {
-      if (i > 0 && s[i - 1] !== "\\") {
-        printErr("Malformed source string");
-      }
-    }
-  }
-  return s.join("");
-}
-
-JsonProfile.prototype.addScriptSource = function(script, url, source) {
-  this.scripts_[script] = {
-    name : unescapeString(url),
-    source : unescapeString(source)
-  };
+JsonProfile.prototype.addScriptSource = function (id, url, source) {
+  this.scripts_[id] = new Script(id, url, source);
 };
 
 
-JsonProfile.prototype.deoptCode = function(
-    timestamp, code, inliningId, scriptOffset, bailoutType,
-    sourcePositionText, deoptReasonText) {
+JsonProfile.prototype.deoptCode = function (
+  timestamp, code, inliningId, scriptOffset, bailoutType,
+  sourcePositionText, deoptReasonText) {
   let entry = this.codeMap_.findDynamicEntryByStartAddress(code);
   if (entry) {
     let codeId = entry.codeId;
@@ -1044,18 +1092,18 @@ JsonProfile.prototype.deoptCode = function(
       // The subsequent deoptimizations should be lazy deopts for
       // other on-stack activations.
       this.codeEntries_[codeId].deopt = {
-          tm : timestamp,
-          inliningId : inliningId,
-          scriptOffset : scriptOffset,
-          posText : sourcePositionText,
-          reason : deoptReasonText,
-          bailoutType : bailoutType
+        tm: timestamp,
+        inliningId: inliningId,
+        scriptOffset: scriptOffset,
+        posText: sourcePositionText,
+        reason: deoptReasonText,
+        bailoutType: bailoutType
       };
     }
   }
 };
 
-JsonProfile.prototype.deleteCode = function(start) {
+JsonProfile.prototype.deleteCode = function (start) {
   try {
     this.codeMap_.deleteCode(start);
   } catch (e) {
@@ -1063,17 +1111,17 @@ JsonProfile.prototype.deleteCode = function(start) {
   }
 };
 
-JsonProfile.prototype.moveFunc = function(from, to) {
+JsonProfile.prototype.moveFunc = function (from, to) {
   if (this.codeMap_.findDynamicEntryByStartAddress(from)) {
     this.codeMap_.moveCode(from, to);
   }
 };
 
-JsonProfile.prototype.findEntry = function(addr) {
+JsonProfile.prototype.findEntry = function (addr) {
   return this.codeMap_.findEntry(addr);
 };
 
-JsonProfile.prototype.recordTick = function(time_ns, vmState, stack) {
+JsonProfile.prototype.recordTick = function (time_ns, vmState, stack) {
   // TODO(jarin) Resolve the frame-less case (when top of stack is
   // known code).
   var processedStack = [];
@@ -1085,14 +1133,14 @@ JsonProfile.prototype.recordTick = function(time_ns, vmState, stack) {
       processedStack.push(-1, stack[i]);
     }
   }
-  this.ticks_.push({ tm : time_ns, vm : vmState, s : processedStack });
+  this.ticks_.push({ tm: time_ns, vm: vmState, s: processedStack });
 };
 
 function writeJson(s) {
   write(JSON.stringify(s, null, 2));
 }
 
-JsonProfile.prototype.writeJson = function() {
+JsonProfile.prototype.writeJson = function () {
   // Write out the JSON in a partially manual way to avoid creating too-large
   // strings in one JSON.stringify call when there are a lot of ticks.
   write('{\n')

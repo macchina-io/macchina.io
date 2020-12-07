@@ -25,7 +25,6 @@ function testFunction() {
     debugger;
   }
 
-  %OptimizeFunctionOnNextCall(generateAsmJs);
   var fun = generateAsmJs(this, {'call_debugger': call_debugger}, undefined);
   fun();
 

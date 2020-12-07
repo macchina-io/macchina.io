@@ -5,9 +5,10 @@
 #ifndef V8_BUILTINS_BUILTINS_CONSTRUCTOR_H_
 #define V8_BUILTINS_BUILTINS_CONSTRUCTOR_H_
 
-#include "src/contexts.h"
-#include "src/objects.h"
+#include "src/objects/contexts.h"
 #include "src/objects/dictionary.h"
+#include "src/objects/js-array.h"
+#include "src/objects/objects.h"
 
 namespace v8 {
 namespace internal {
@@ -22,7 +23,7 @@ class ConstructorBuiltins {
   // Maximum number of elements in copied array (chosen so that even an array
   // backed by a double backing store will fit into new-space).
   static const int kMaximumClonedShallowArrayElements =
-      JSArray::kInitialMaxFastElementArray * kPointerSize / kDoubleSize;
+      JSArray::kInitialMaxFastElementArray;
   // Maximum number of properties in copied object so that the properties store
   // will fit into new-space. This constant is based on the assumption that
   // NameDictionaries are 50% over-allocated.
@@ -30,13 +31,14 @@ class ConstructorBuiltins {
       NameDictionary::kMaxRegularCapacity / 3 * 2;
 
  private:
-  static const int kMaximumSlots = 0x8000;
+  static const int kMaximumSlots =
+      (kMaxRegularHeapObjectSize - Context::kTodoHeaderSize) / kTaggedSize - 1;
   static const int kSmallMaximumSlots = 10;
 
   // FastNewFunctionContext can only allocate closures which fit in the
   // new space.
-  STATIC_ASSERT(((kMaximumSlots + Context::MIN_CONTEXT_SLOTS) * kPointerSize +
-                 FixedArray::kHeaderSize) < kMaxRegularHeapObjectSize);
+  STATIC_ASSERT(Context::SizeFor(kMaximumSlots + Context::MIN_CONTEXT_SLOTS) <
+                kMaxRegularHeapObjectSize);
 };
 
 }  // namespace internal

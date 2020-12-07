@@ -20,6 +20,7 @@
     return maxWithZero(x, y);
   }
 
+  %PrepareFunctionForOptimization(testMax);
   testMax(1, 2);
   testMax(1, 2);
   %OptimizeFunctionOnNextCall(testMax);
@@ -37,6 +38,8 @@
 
   var r2 = testMax(1, 2);
 
-  assertEquals(3, called);
+  // .next() is only loaded once during the iteration prologue (see
+  // https://github.com/tc39/ecma262/pull/988/ and v8:6861)
+  assertEquals(1, called);
   assertEquals(2, r2);
 })();

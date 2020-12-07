@@ -169,7 +169,7 @@ We can then return two lists as output:
 * `compile_targets`, which is a list of pruned targets to be
   passed to Ninja to build. It is acceptable to replace a list of
   pruned targets by a meta target if it turns out that all of the
-  dependendencies of the target are affected by the patch (i.e.,
+  dependencies of the target are affected by the patch (i.e.,
   all ten binaries that blink_tests depends on), but doing so is
   not required.
 * `test_targets`, which is a list of unpruned targets to be mapped
@@ -411,9 +411,9 @@ config file change, however.
 ### Non-goals
 
 * MB is not intended to replace direct invocation of GN or GYP for
-  complicated build scenarios (aka ChromeOS), where multiple flags need
+  complicated build scenarios (a.k.a. Chrome OS), where multiple flags need
   to be set to user-defined paths for specific toolchains (e.g., where
-  ChromeOS needs to specify specific board types and compilers).
+  Chrome OS needs to specify specific board types and compilers).
 
 * MB is not intended at this time to be something developers use frequently,
   or to add a lot of features to. We hope to be able to get rid of it once

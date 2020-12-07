@@ -4,7 +4,6 @@
 
 // Flags: --expose-wasm
 
-load("test/mjsunit/wasm/wasm-constants.js");
 load("test/mjsunit/wasm/wasm-module-builder.js");
 
 // Collect the Callsite objects instead of just a string:
@@ -14,12 +13,16 @@ Error.prepareStackTrace = function(error, frames) {
 
 function testTrapLocations(instance, expected_stack_length) {
   function testWasmTrap(value, reason, position) {
+    let function_name = arguments.callee.name;
     try {
       instance.exports.main(value);
       fail('expected wasm exception');
     } catch (e) {
       assertEquals(kTrapMsgs[reason], e.message, 'trap reason');
-      assertEquals(expected_stack_length, e.stack.length, 'number of frames');
+      // Check that the trapping function is the one which was called from this
+      // function.
+      assertTrue(
+          e.stack[1].toString().startsWith(function_name), 'stack depth');
       assertEquals(0, e.stack[0].getLineNumber(), 'wasmFunctionIndex');
       assertEquals(position, e.stack[0].getPosition(), 'position');
     }
@@ -51,27 +54,27 @@ builder.addFunction("main", kSig_i_i)
   .addBody([
       // offset 1
         kExprBlock, kWasmI32,
-            kExprGetLocal, 0,
+            kExprLocalGet, 0,
             kExprI32Const, 2,
           kExprI32LtU,
         kExprIf, kWasmStmt,
         // offset 9
               kExprI32Const, 0x7e /* -2 */,
-              kExprGetLocal, 0,
+              kExprLocalGet, 0,
             kExprI32DivU,
           // offset 15
           kExprI32LoadMem, 0, 0,
           kExprBr, 1,
         kExprEnd,
         // offset 21
-            kExprGetLocal, 0,
+            kExprLocalGet, 0,
             kExprI32Const, 2,
           kExprI32Eq,
         kExprIf, kWasmStmt,
           kExprUnreachable,
         kExprEnd,
         // offset 30
-        kExprGetLocal, 0,
+        kExprLocalGet, 0,
         kExprCallIndirect, sig_index, kTableZero,
       kExprEnd,
   ])
@@ -82,7 +85,7 @@ let buffer = builder.toBuffer();
 
 // Test async compilation and instantiation.
 assertPromiseResult(WebAssembly.instantiate(buffer), pair => {
-  testTrapLocations(pair.instance, 6);
+  testTrapLocations(pair.instance, 5);
 });
 
 // Test sync compilation and instantiation.
