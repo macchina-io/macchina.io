@@ -13,6 +13,6 @@ objects = SessionWrapper RecordSetWrapper
 target         = PocoJSData
 target_version = 1
 target_libs    = PocoJSCore PocoData PocoFoundation
-target_extlibs = v8 v8_libplatform v8_libbase
+target_extlibs = v8
 
 include $(POCO_BASE)/build/rules/lib

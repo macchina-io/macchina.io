@@ -15,6 +15,8 @@
 #include "Poco/JS/Data/SessionWrapper.h"
 #include "Poco/JS/Data/RecordSetWrapper.h"
 #include "Poco/JS/Core/PooledIsolate.h"
+#include "Poco/JS/Core/BufferWrapper.h"
+#include "Poco/Data/LOB.h"
 #include "Poco/Format.h"
 #include "Poco/Version.h"
 #include "Poco/DateTime.h"
@@ -70,18 +72,18 @@ v8::Handle<v8::ObjectTemplate> SessionWrapper::objectTemplate(v8::Isolate* pIsol
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "connector"), getConnector);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "connectionString"), getConnectionString);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "isConnected"), getIsConnected);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "isTransaction"), getIsTransaction);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "pageSize"), getPageSize, setPageSize);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "connector"s), getConnector);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "connectionString"s), getConnectionString);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "isConnected"s), getIsConnected);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "isTransaction"s), getIsTransaction);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "pageSize"s), getPageSize, setPageSize);
 
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "begin"), v8::FunctionTemplate::New(pIsolate, begin));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "commit"), v8::FunctionTemplate::New(pIsolate, commit));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "rollback"), v8::FunctionTemplate::New(pIsolate, rollback));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "close"), v8::FunctionTemplate::New(pIsolate, close));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "execute"), v8::FunctionTemplate::New(pIsolate, execute));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "executeNonQuery"), v8::FunctionTemplate::New(pIsolate, executeNonQuery));
+		objectTemplate->Set(toV8Internalized(pIsolate, "begin"s), v8::FunctionTemplate::New(pIsolate, begin));
+		objectTemplate->Set(toV8Internalized(pIsolate, "commit"s), v8::FunctionTemplate::New(pIsolate, commit));
+		objectTemplate->Set(toV8Internalized(pIsolate, "rollback"s), v8::FunctionTemplate::New(pIsolate, rollback));
+		objectTemplate->Set(toV8Internalized(pIsolate, "close"s), v8::FunctionTemplate::New(pIsolate, close));
+		objectTemplate->Set(toV8Internalized(pIsolate, "execute"s), v8::FunctionTemplate::New(pIsolate, execute));
+		objectTemplate->Set(toV8Internalized(pIsolate, "executeNonQuery"s), v8::FunctionTemplate::New(pIsolate, executeNonQuery));
 
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
@@ -92,13 +94,14 @@ v8::Handle<v8::ObjectTemplate> SessionWrapper::objectTemplate(v8::Isolate* pIsol
 
 void SessionWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	std::string connector;
 	std::string connectionString;
 
 	if (args.Length() == 2)
 	{
-		connector = toString(args[0]);
-		connectionString = toString(args[1]);
+		connector = toString(pIsolate, args[0]);
+		connectionString = toString(pIsolate, args[1]);
 	}
 	else
 	{
@@ -112,7 +115,7 @@ void SessionWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 		pSessionHolder = new SessionHolder(connector, connectionString);
 		SessionWrapper wrapper;
 		v8::Persistent<v8::Object>& sessionObject(wrapper.wrapNativePersistent(args.GetIsolate(), pSessionHolder));
-		args.GetReturnValue().Set(sessionObject);
+		args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, sessionObject));
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -159,10 +162,13 @@ void SessionWrapper::getPageSize(v8::Local<v8::String> name, const v8::PropertyC
 
 void SessionWrapper::setPageSize(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
+	v8::Isolate* pIsolate(info.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	SessionHolder* pSessionHolder = Wrapper::unwrapNative<SessionHolder>(info);
 	if (value->IsNumber())
 	{
-		pSessionHolder->setPageSize(value->Uint32Value());
+		pSessionHolder->setPageSize(value->Uint32Value(context).FromMaybe(0));
 	}
 	else
 	{
@@ -231,27 +237,30 @@ static void bindStatementArgs(Poco::Data::Statement& statement, const v8::Functi
 {
 	using Poco::JS::Core::Wrapper;
 
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	for (int i = 1; i < args.Length(); i++)
 	{
 		if (args[i]->IsString())
 		{
-			statement.bind(Wrapper::toString(args[i]));
+			statement.bind(Core::Wrapper::toString(pIsolate, args[i]));
 		}
 		else if (args[i]->IsBoolean())
 		{
-			statement.bind(args[i]->BooleanValue());
+			statement.bind(args[i]->BooleanValue(pIsolate));
 		}
 		else if (args[i]->IsInt32())
 		{
-			statement.bind(args[i]->Int32Value());
+			statement.bind(args[i]->Int32Value(context).FromMaybe(0));
 		}
 		else if (args[i]->IsUint32())
 		{
-			statement.bind(args[i]->Uint32Value());
+			statement.bind(args[i]->Uint32Value(context).FromMaybe(0));
 		}
 		else if (args[i]->IsNumber())
 		{
-			statement.bind(args[i]->NumberValue());
+			statement.bind(args[i]->NumberValue(context).FromMaybe(0.0));
 		}
 		else if (args[i]->IsDate())
 		{
@@ -261,7 +270,7 @@ static void bindStatementArgs(Poco::Data::Statement& statement, const v8::Functi
 			Poco::DateTime dateTime(ts);
 			statement.bind(dateTime);
 		}
-		else if (args[i]->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::DateTime>(args.GetIsolate(), args[i]))
+		else if (args[i]->IsObject() && Core::Wrapper::isWrapper<Poco::DateTime>(pIsolate, args[i]))
 		{
 			Poco::DateTime* pDateTime = Wrapper::unwrapNativeObject<Poco::DateTime>(args[i]);
 			if (pDateTime)
@@ -270,7 +279,7 @@ static void bindStatementArgs(Poco::Data::Statement& statement, const v8::Functi
 			}
 			else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::DateTime"s, i));
 		}
-		else if (args[i]->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::LocalDateTime>(args.GetIsolate(), args[i]))
+		else if (args[i]->IsObject() && Core::Wrapper::isWrapper<Poco::LocalDateTime>(pIsolate, args[i]))
 		{
 			Poco::LocalDateTime* pLocalDateTime = Wrapper::unwrapNativeObject<Poco::LocalDateTime>(args[i]);
 			if (pLocalDateTime)
@@ -278,6 +287,16 @@ static void bindStatementArgs(Poco::Data::Statement& statement, const v8::Functi
 				statement.bind(pLocalDateTime->utc());
 			}
 			else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::LocalDateTime"s, i));
+		}
+		else if (args[i]->IsObject() && Core::Wrapper::isWrapper<Poco::JS::Core::BufferWrapper::Buffer>(pIsolate, args[i]))
+		{
+			Poco::JS::Core::BufferWrapper::Buffer* pBuffer = Wrapper::unwrapNativeObject<Poco::JS::Core::BufferWrapper::Buffer>(args[i]);
+			if (pBuffer)
+			{
+				Poco::Data::BLOB blob(reinterpret_cast<const unsigned char*>(*pBuffer->begin()), pBuffer->size());
+				statement.bind(blob);
+			}
+			else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::Data::BLOB"s, i));
 		}
 		else
 		{
@@ -289,6 +308,7 @@ static void bindStatementArgs(Poco::Data::Statement& statement, const v8::Functi
 
 void SessionWrapper::execute(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	SessionHolder* pSessionHolder = Wrapper::unwrapNative<SessionHolder>(args);
 	Poco::SharedPtr<Poco::Data::Session> pSession = pSessionHolder->session();
 	if (args.Length() > 0)
@@ -296,7 +316,7 @@ void SessionWrapper::execute(const v8::FunctionCallbackInfo<v8::Value>& args)
 		RecordSetHolder* pRecordSetHolder = new RecordSetHolder(pSession);
 		try
 		{
-			Poco::Data::Statement statement = (*pSession << toString(args[0]));
+			Poco::Data::Statement statement = (*pSession << toString(pIsolate, args[0]));
 			bindStatementArgs(statement, args);
 			if (pSessionHolder->getPageSize() > 0)
 			{
@@ -306,8 +326,8 @@ void SessionWrapper::execute(const v8::FunctionCallbackInfo<v8::Value>& args)
 			pRecordSetHolder->assignStatement(statement);
 			pRecordSetHolder->updateRecordSet();
 			RecordSetWrapper wrapper;
-			v8::Persistent<v8::Object>& recordSetObject(wrapper.wrapNativePersistent(args.GetIsolate(), pRecordSetHolder));
-			args.GetReturnValue().Set(recordSetObject);
+			v8::Persistent<v8::Object>& recordSetObject(wrapper.wrapNativePersistent(pIsolate, pRecordSetHolder));
+			args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, recordSetObject));
 		}
 		catch (Poco::Exception& exc)
 		{
@@ -320,13 +340,14 @@ void SessionWrapper::execute(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void SessionWrapper::executeNonQuery(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	SessionHolder* pSessionHolder = Wrapper::unwrapNative<SessionHolder>(args);
 	Poco::SharedPtr<Poco::Data::Session> pSession = pSessionHolder->session();
 	if (args.Length() > 0)
 	{
 		try
 		{
-			Poco::Data::Statement statement = (*pSession << toString(args[0]));
+			Poco::Data::Statement statement = (*pSession << toString(pIsolate, args[0]));
 			bindStatementArgs(statement, args);
 			std::size_t n = statement.execute();
 			args.GetReturnValue().Set(static_cast<Poco::UInt32>(n));

@@ -14,13 +14,14 @@
 #include "Poco/JS/Core/ConfigurationWrapper.h"
 #include "Poco/JS/Core/ConsoleWrapper.h"
 #include "Poco/JS/Net/HTTPRequestWrapper.h"
-//#include "Poco/JS/Data/SessionWrapper.h"
+#include "Poco/JS/Data/SessionWrapper.h"
 #include "Poco/Net/HTTPStreamFactory.h"
 #include "Poco/Net/FTPStreamFactory.h"
 #include "Poco/Net/HTTPSessionInstantiator.h"
 #include "Poco/Net/HTTPClientSession.h"
 #include "Poco/Net/HTTPSStreamFactory.h"
 #include "Poco/Net/HTTPSSessionInstantiator.h"
+#include "Poco/Data/SQLite/Connector.h"
 #include "Poco/Util/ServerApplication.h"
 #include "Poco/Util/Option.h"
 #include "Poco/Util/OptionSet.h"
@@ -63,8 +64,8 @@ protected:
 		Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
 		global->Set(Wrapper::toV8String(pIsolate, "HTTPRequest"s), httpRequestWrapper.constructor(pIsolate));
 
-		//Poco::JS::Data::SessionWrapper sessionWrapper;
-		//global->Set(Wrapper::toV8String(pIsolate, "DBSession"s), sessionWrapper.constructor(pIsolate));
+		Poco::JS::Data::SessionWrapper sessionWrapper;
+		global->Set(Wrapper::toV8String(pIsolate, "DBSession"s), sessionWrapper.constructor(pIsolate));
 	}
 
 	void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate)
@@ -112,12 +113,16 @@ protected:
 		Poco::Net::HTTPSStreamFactory::registerFactory();
 		Poco::Net::HTTPSSessionInstantiator::registerInstantiator();
 
+		Poco::Data::SQLite::Connector::registerConnector();
+
 		Poco::JS::Core::initialize();
 	}
 
 	void uninitialize()
 	{
 		ServerApplication::uninitialize();
+
+		Poco::Data::SQLite::Connector::unregisterConnector();
 
 		Poco::Net::HTTPSessionInstantiator::unregisterInstantiator();
 		Poco::Net::HTTPStreamFactory::unregisterFactory();

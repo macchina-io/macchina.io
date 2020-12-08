@@ -106,6 +106,7 @@ protected:
 	static void close(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void toJSON(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value>& args, const Poco::DynamicAny& value, Poco::Data::MetaColumn::ColumnDataType typeHint);
+	static std::string typeToString(Poco::Data::MetaColumn::ColumnDataType type);
 
 	friend class SessionWrapper;
 };
