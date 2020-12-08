@@ -11,8 +11,11 @@ SYSLIBS += -lssl -lcrypto
 ifeq ($(OSNAME),Darwin)
 CFLAGS += -DOSX -Wno-deprecated-declarations
 endif
+ifeq ($(OSNAME),Linux)
+CFLAGS += -D_DEFAULT_SOURCE
+endif
 
-CFLAGS += -DOPENSSL
+CFLAGS += -DOPENSSL 
 
 objects = \
 	Base64 \
