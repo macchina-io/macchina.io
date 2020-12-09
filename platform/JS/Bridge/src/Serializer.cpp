@@ -194,13 +194,13 @@ void Serializer::serialize(const std::string& name, bool value)
 
 void Serializer::serialize(const std::string& name, char value)
 {
-	serializeValue(name, v8::String::NewFromUtf8(_pIsolate, &value, v8::String::kNormalString, 1));
+	serializeValue(name, Core::Wrapper::toV8String(_pIsolate, std::string(1, value)));
 }
 
 
 void Serializer::serialize(const std::string& name, const std::string& value)
 {
-	serializeValue(name, v8::String::NewFromUtf8(_pIsolate, value.c_str(), v8::String::kNormalString, static_cast<int>(value.size())));
+	serializeValue(name, Core::Wrapper::toV8String(_pIsolate, value));
 }
 
 
@@ -216,16 +216,19 @@ void Serializer::serialize(const std::string& name, const std::vector<char>& val
 
 void Serializer::serializeValue(const std::string& name, const v8::Local<v8::Value>& value)
 {
+	v8::HandleScope handleScope(_pIsolate);
+	v8::Local<v8::Context> context(_pIsolate->GetCurrentContext());
 	v8::Local<v8::Object> object(v8::Local<v8::Object>::New(_pIsolate, _jsObjectStack.back()));
 	if (_jsIndexStack.back() == -1)
 	{
 		object->Set(
-			v8::String::NewFromUtf8(_pIsolate, name.c_str(), v8::String::kNormalString, static_cast<int>(name.size())),
+			context,
+			Core::Wrapper::toV8String(_pIsolate, name),
 			value);
 	}
 	else
 	{
-		object->Set(_jsIndexStack.back()++, value);
+		object->Set(context, _jsIndexStack.back()++, value);
 	}
 	if (_jsObjectStack.size() == 1) _totalSerialized++;
 }
