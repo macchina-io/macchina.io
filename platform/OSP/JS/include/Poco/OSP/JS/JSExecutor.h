@@ -74,6 +74,8 @@ protected:
 	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
 	void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate);
 	void handleError(const ErrorInfo& errorInfo);
+	void handleOutOfMemory(std::size_t currentHeapLimit, std::size_t initialHeapLimit);
+	void handleMemoryWarning(std::size_t currentHeapLimit, std::size_t initialHeapLimit);
 
 private:
 	Poco::OSP::BundleContext::Ptr _pContext;

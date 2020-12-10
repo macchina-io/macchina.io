@@ -61,12 +61,27 @@ public:
 		int lineNo;
 	};
 
+	struct MemoryWarning
+	{
+		std::size_t initialHeapLimit = 0;
+		std::size_t currentHeapLimit = 0;
+	};
+
 	Poco::BasicEvent<void> stopped;
 		/// Fired when the executor has been stopped.
 
 	Poco::BasicEvent<const ErrorInfo> scriptError;
 		/// Fired when the script terminates with an error.
 		/// Reports the error message as argument.
+
+	Poco::BasicEvent<const MemoryWarning> memoryWarning;
+		/// Fired when the script is using too much
+		/// memory, exceeding the set heap limit.
+
+	Poco::BasicEvent<void> outOfMemory;
+		/// Fired when the script has run out of memory
+		/// because the heap limit has been exceeded,
+		/// and has therefore been terminated.
 
 	JSExecutor(const std::string& source, const Poco::URI& sourceURI, Poco::UInt64 memoryLimit = DEFAULT_MEMORY_LIMIT);
 		/// Creates the JSExecutor with the given JavaScript source, sourceURI and memoryLimit.
@@ -196,6 +211,12 @@ protected:
 	virtual void handleError(const ErrorInfo& errorInfo);
 		/// Called when the JavaScript terminates with an error.
 
+	virtual void handleOutOfMemory(std::size_t currentHeapLimit, std::size_t initialHeapLimit);
+		/// Called when the script has exhausted its memory limit and is terminated.
+
+	virtual void handleMemoryWarning(std::size_t currentHeapLimit, std::size_t initialHeapLimit);
+		/// Called when the script is near its set memory limit.
+
 	virtual void scriptCompleted();
 		/// Called after the script has completed, while still within the scope.
 
@@ -283,6 +304,7 @@ protected:
 
 	friend class RunScriptTask;
 	friend class CallFunctionTask;
+	friend class PooledIsolate;
 };
 
 

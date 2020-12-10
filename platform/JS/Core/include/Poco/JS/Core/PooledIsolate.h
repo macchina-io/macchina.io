@@ -49,6 +49,9 @@ public:
 	v8::Persistent<v8::ObjectTemplate>& objectTemplate(const std::string& name);
 		/// Returns the persistent handle for the object template with the given name.
 
+protected:
+	static std::size_t onNearHeapLimit(void* data, std::size_t currentHeapLimit, std::size_t initialHeapLimit);
+
 private:
 	PooledIsolate();
 	PooledIsolate(const PooledIsolate&);

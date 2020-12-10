@@ -124,7 +124,7 @@ void ServiceRefWrapper::toJSON(const v8::FunctionCallbackInfo<v8::Value>& args)
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string value = props.get(*it);
-			object->Set(
+			(void) object->Set(
 				context,
 				Wrapper::toV8String(pIsolate, *it),
 				Wrapper::toV8String(pIsolate, value)

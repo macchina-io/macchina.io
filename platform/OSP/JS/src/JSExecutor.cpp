@@ -82,8 +82,8 @@ void JSExecutor::setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* p
 	}
 
 	setWrapperProperty<ServiceRegistryWrapper>(global, pIsolate, "serviceRegistry"s, &_pContext->registry());
-	setWrapperProperty<ServiceRegistryWrapper>(global, pIsolate, "logger"s, &_pContext->logger());
-	setWrapperProperty<ServiceRegistryWrapper>(global, pIsolate, "console"s, &_pContext->logger());
+	setWrapperProperty<Poco::JS::Core::LoggerWrapper>(global, pIsolate, "logger"s, &_pContext->logger());
+	setWrapperProperty<Poco::JS::Core::ConsoleWrapper>(global, pIsolate, "console"s, &_pContext->logger());
 }
 
 
@@ -103,6 +103,22 @@ void JSExecutor::handleError(const ErrorInfo& errorInfo)
 		_pContext->logger().notice(fullMessage);
 	else
 		_pContext->logger().error(fullMessage);
+}
+
+
+void JSExecutor::handleOutOfMemory(std::size_t currentHeapLimit, std::size_t initialHeapLimit)
+{
+	Poco::JS::Core::JSExecutor::handleOutOfMemory(currentHeapLimit, initialHeapLimit);
+
+	_pContext->logger().fatal("Script %s has exhausted its memory limit and has been terminated."s, uri().toString());
+}
+
+
+void JSExecutor::handleMemoryWarning(std::size_t currentHeapLimit, std::size_t initialHeapLimit)
+{
+	Poco::JS::Core::JSExecutor::handleMemoryWarning(currentHeapLimit, initialHeapLimit);
+
+	_pContext->logger().warning("Script %s is nearing its memory limit of %z bytes. Limit temporarily increased to %z bytes."s, uri().toString(), initialHeapLimit, currentHeapLimit);
 }
 
 
@@ -182,15 +198,15 @@ void TimedJSExecutor::setupGlobalObject(v8::Local<v8::Object>& global, v8::Isola
 	v8::Local<v8::Object> bundleObject;
 	if (maybeBundleObject.ToLocal(&bundleObject))
 	{
-		bundleObject->Set(context, Wrapper::toV8Internalized(pIsolate, "temporaryDirectory"s), Wrapper::toV8String(pIsolate, _pContext->temporaryDirectory().toString()));
-		bundleObject->Set(context, Wrapper::toV8Internalized(pIsolate, "persistentDirectory"s), Wrapper::toV8String(pIsolate, _pContext->persistentDirectory().toString()));
-		global->Set(context, Wrapper::toV8Internalized(pIsolate, "bundle"s), bundleObject);
+		(void) bundleObject->Set(context, Wrapper::toV8Internalized(pIsolate, "temporaryDirectory"s), Wrapper::toV8String(pIsolate, _pContext->temporaryDirectory().toString()));
+		(void) bundleObject->Set(context, Wrapper::toV8Internalized(pIsolate, "persistentDirectory"s), Wrapper::toV8String(pIsolate, _pContext->persistentDirectory().toString()));
+		(void) global->Set(context, Wrapper::toV8Internalized(pIsolate, "bundle"s), bundleObject);
 	}
 
 	setWrapperProperty<Poco::JS::Core::ConfigurationWrapper>(global, pIsolate, "properties"s, const_cast<Poco::Util::AbstractConfiguration*>(&_pBundle->properties()));
 	setWrapperProperty<ServiceRegistryWrapper>(global, pIsolate, "serviceRegistry"s, &_pContext->registry());
 	setWrapperProperty<Poco::JS::Core::LoggerWrapper>(global, pIsolate, "logger"s, &_pContext->logger());
-	setWrapperProperty<Poco::JS::Core::LoggerWrapper>(global, pIsolate, "console"s, &_pContext->logger());
+	setWrapperProperty<Poco::JS::Core::ConsoleWrapper>(global, pIsolate, "console"s, &_pContext->logger());
 }
 
 

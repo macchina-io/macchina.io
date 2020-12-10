@@ -547,6 +547,34 @@ void JSExecutor::handleError(const ErrorInfo& errorInfo)
 }
 
 
+void JSExecutor::handleOutOfMemory(std::size_t currentHeapLimit, std::size_t initialHeapLimit)
+{
+	try
+	{
+		outOfMemory();
+	}
+	catch (...)
+	{
+	}
+	stop();
+}
+
+
+void JSExecutor::handleMemoryWarning(std::size_t currentHeapLimit, std::size_t initialHeapLimit)
+{
+	try
+	{
+		MemoryWarning mw;
+		mw.currentHeapLimit = currentHeapLimit;
+		mw.initialHeapLimit = initialHeapLimit;
+		memoryWarning(mw);
+	}
+	catch (...)
+	{
+	}
+}
+
+
 void JSExecutor::reportError(v8::Isolate* pIsolate, v8::TryCatch& tryCatch)
 {
 	ErrorInfo errorInfo;

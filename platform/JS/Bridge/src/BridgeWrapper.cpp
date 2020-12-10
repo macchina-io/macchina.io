@@ -550,13 +550,13 @@ void BridgeWrapper::getProperty(v8::Local<v8::Name> property, const v8::Property
 		}
 		else
 		{
-			v8::MaybeLocal<v8::Function> maybeFunction = v8::Function::New(context, bridgeFunction);
-			v8::Local<v8::Function> function;
-			if (maybeFunction.ToLocal(&function))
+			v8::MaybeLocal<v8::String> maybeName = property->ToString(context);
+			v8::Local<v8::String> name;
+			if (maybeName.ToLocal(&name))
 			{
-				v8::MaybeLocal<v8::String> maybeName = property->ToString(context);
-				v8::Local<v8::String> name;
-				if (maybeName.ToLocal(&name))
+				v8::MaybeLocal<v8::Function> maybeFunction = v8::Function::New(context, bridgeFunction, name);
+				v8::Local<v8::Function> function;
+				if (maybeFunction.ToLocal(&function))
 				{
 					function->SetName(name);
 					info.GetReturnValue().Set(function);
@@ -572,14 +572,13 @@ void BridgeWrapper::bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& ar
 	v8::Isolate* pIsolate(args.GetIsolate());
 	v8::HandleScope scope(pIsolate);
 	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
-
 	BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(args);
 	if (pHolder)
 	{
 		try
 		{
-			v8::Local<v8::Function> callee = v8::Local<v8::Function>::Cast(args.Data());
-			std::string method(toString(pIsolate, callee->GetName()));
+			v8::Local<v8::String> name = v8::Local<v8::String>::Cast(args.Data());
+			std::string method(toString(pIsolate, name));
 			v8::Local<v8::Object> argsArray = v8::Array::New(pIsolate, args.Length());
 			for (int i = 0; i < args.Length(); i++)
 			{
