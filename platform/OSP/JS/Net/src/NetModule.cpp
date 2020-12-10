@@ -16,6 +16,10 @@
 #include "v8.h"
 
 
+using Poco::JS::Core::Wrapper;
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 namespace JS {
@@ -30,13 +34,13 @@ public:
 		v8::EscapableHandleScope handleScope(pIsolate);
 		Poco::JS::Core::PooledIsolate* pPooledIso = Poco::JS::Core::PooledIsolate::fromIsolate(pIsolate);
 		poco_check_ptr (pPooledIso);
-		v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("OSP.Net"));
+		v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("OSP.Net"s));
 		if (pooledObjectTemplate.IsEmpty())
 		{
 			v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 			objectTemplate->SetInternalFieldCount(1);
 
-			objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "HTTPRequest"), v8::FunctionTemplate::New(pIsolate, Poco::JS::Net::HTTPRequestWrapper::construct));
+			objectTemplate->Set(Wrapper::toV8Internalized(pIsolate, "HTTPRequest"s), v8::FunctionTemplate::New(pIsolate, Poco::JS::Net::HTTPRequestWrapper::construct));
 
 			pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 		}
@@ -54,9 +58,16 @@ public:
 		v8::EscapableHandleScope handleScope(pIsolate);
 
 		NetWrapper netWrapper;
-		v8::Local<v8::Object> moduleObject = netWrapper.wrapNative(pIsolate);
-
-		return handleScope.Escape(moduleObject);
+		v8::MaybeLocal<v8::Object> maybeModuleObject = netWrapper.wrapNative(pIsolate);
+		v8::Local<v8::Object> moduleObject;
+		if (maybeModuleObject.ToLocal(&moduleObject))
+		{
+			return handleScope.Escape(moduleObject);
+		}
+		else
+		{
+			return moduleObject;
+		}
 	}
 };
 

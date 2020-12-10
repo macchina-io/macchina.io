@@ -98,17 +98,11 @@ out/Makefile:
 shared_debug: v8deps
 	$(MAKE) -C out BUILDTYPE=Debug CFLAGS="$(CFLAGS) $(SHAREDOPT_CC)" CXXFLAGS="$(CXXFLAGS) $(SHAREDOPT_CXX)" v8 v8_libplatform
 	cp out/Debug/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
-	cp out/Debug/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)
-	cp out/Debug/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)
 
 shared_release: v8deps
 	$(MAKE) -C out BUILDTYPE=Release CFLAGS="$(CFLAGS) $(SHAREDOPT_CC)" CXXFLAGS="$(CXXFLAGS) $(SHAREDOPT_CXX)" v8 v8_libplatform
 	cp out/Release/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
-	cp out/Release/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)
-	cp out/Release/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)
 	$(V8STRIPCMD) $(LIBPATH)/libv8$(SHAREDLIBLINKEXT)
-	$(V8STRIPCMD) $(LIBPATH)/libv8_libbase$(SHAREDLIBLINKEXT)
-	$(V8STRIPCMD) $(LIBPATH)/libv8_libplatform$(SHAREDLIBLINKEXT)
 
 all_shared: shared_debug shared_release
 

@@ -19,6 +19,9 @@
 #include "SchedulerExtensionPoint.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 namespace JS {
@@ -31,25 +34,25 @@ public:
 	BundleActivator()
 	{
 	}
-	
+
 	~BundleActivator()
 	{
 	}
-	
+
 	void start(Poco::OSP::BundleContext::Ptr pContext)
 	{
 		_pContext = pContext;
-	
+
 		_pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(_pContext);
 		_pXPS = Poco::OSP::ServiceFinder::find<Poco::OSP::ExtensionPointService>(_pContext);
 
 		Poco::OSP::ExtensionPoint::Ptr pXP = new SchedulerExtensionPoint(pContext);
-		_pXPS->registerExtensionPoint(pContext->thisBundle(), "com.appinf.osp.js.schedule", pXP);
+		_pXPS->registerExtensionPoint(pContext->thisBundle(), "com.appinf.osp.js.schedule"s, pXP);
 	}
-		
+
 	void stop(Poco::OSP::BundleContext::Ptr pContext)
 	{
-		_pXPS->unregisterExtensionPoint("com.appinf.osp.js.schedule");
+		_pXPS->unregisterExtensionPoint("com.appinf.osp.js.schedule"s);
 		_pXPS = 0;
 		_pPrefs = 0;
 		_pContext = 0;

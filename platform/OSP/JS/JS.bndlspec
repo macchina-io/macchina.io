@@ -49,10 +49,6 @@
     ../../lib/${osName}/${osArch}/libPocoOSPJS.*.dylib
     ../../lib/${osName}/${osArch}/libPocoOSPJSd.*.dylib
     ../../lib/${osName}/${osArch}/libv8.so
-    ../../lib/${osName}/${osArch}/libv8_libbase.so
-    ../../lib/${osName}/${osArch}/libv8_libplatform.so
     ../../lib/${osName}/${osArch}/libv8.dylib
-    ../../lib/${osName}/${osArch}/libv8_libbase.dylib
-    ../../lib/${osName}/${osArch}/libv8_libplatform.dylib
   </code>
 </bundlespec>

@@ -29,6 +29,10 @@
 #include <memory>
 
 
+using Poco::JS::Core::Wrapper;
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 namespace JS {
@@ -127,20 +131,23 @@ public:
 
 				v8::Local<v8::Object> global = context->Global();
 
-				v8::Local<v8::Value> moduleValue = global->Get(v8::String::NewFromUtf8(pIsolate, "module"));
-				if (!moduleValue.IsEmpty() && moduleValue->IsObject())
+				v8::MaybeLocal<v8::Value> maybeModuleValue = global->Get(context, Wrapper::toV8Internalized(pIsolate, "module"s));
+				v8::Local<v8::Value> moduleValue;
+				if (maybeModuleValue.ToLocal(&moduleValue) && moduleValue->IsObject())
 				{
 					v8::Local<v8::Object> module = moduleValue.As<v8::Object>();
-					v8::Local<v8::Value> exportsValue = module->Get(v8::String::NewFromUtf8(pIsolate, "exports"));
-					if (!exportsValue.IsEmpty() && exportsValue->IsObject())
+					v8::MaybeLocal<v8::Value> maybeExportsValue = module->Get(context, Wrapper::toV8Internalized(pIsolate, "exports"s));
+					v8::Local<v8::Value> exportsValue;
+					if (maybeExportsValue.ToLocal(&exportsValue) && exportsValue->IsObject())
 					{
 						v8::Local<v8::Object> exports = exportsValue.As<v8::Object>();
-						v8::Local<v8::Value> startValue = exports->Get(v8::String::NewFromUtf8(pIsolate, _function.c_str()));
-						if (!startValue.IsEmpty() && startValue->IsFunction())
+						v8::MaybeLocal<v8::Value> maybeStartValue = exports->Get(context, Wrapper::toV8String(pIsolate, _function));
+						v8::Local<v8::Value> startValue;
+						if (maybeStartValue.ToLocal(&startValue) && startValue->IsFunction())
 						{
 							v8::Local<v8::Function> start = startValue.As<v8::Function>();
 							v8::Handle<v8::Value> arg;
-							_pExecutor->callInContext(start, exportsValue, 0, &arg);
+							_pExecutor->callInContext(pIsolate, context, start, exportsValue, 0, &arg);
 						}
 					}
 				}
@@ -235,25 +242,25 @@ void SchedulerExtensionPoint::scheduleTasks()
 
 void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundle, Poco::XML::Element* pExtensionElem)
 {
-	std::string schedule = pExtensionElem->getAttribute("schedule");
-	std::string notBefore = pExtensionElem->getAttribute("notBefore");
-	std::string notAfter = pExtensionElem->getAttribute("notAfter");
-	std::string scriptPath = pExtensionElem->getAttribute("script");
-	std::string runtimeLimit = pExtensionElem->getAttribute("runtimeLimit");
-	Poco::UInt64 memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit", JSExecutor::getDefaultMemoryLimit());
-	std::string strMemoryLimit = pExtensionElem->getAttribute("memoryLimit");
+	std::string schedule = pExtensionElem->getAttribute("schedule"s);
+	std::string notBefore = pExtensionElem->getAttribute("notBefore"s);
+	std::string notAfter = pExtensionElem->getAttribute("notAfter"s);
+	std::string scriptPath = pExtensionElem->getAttribute("script"s);
+	std::string runtimeLimit = pExtensionElem->getAttribute("runtimeLimit"s);
+	Poco::UInt64 memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit"s, JSExecutor::getDefaultMemoryLimit());
+	std::string strMemoryLimit = pExtensionElem->getAttribute("memoryLimit"s);
 	if (!strMemoryLimit.empty())
 	{
 		memoryLimit = Poco::NumberParser::parseUnsigned64(strMemoryLimit);
 	}
 
-	Poco::StringTokenizer tok(pExtensionElem->getAttribute("modulePath"), ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+	Poco::StringTokenizer tok(pExtensionElem->getAttribute("modulePath"s), ",;"s, Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 	std::vector<std::string> moduleSearchPaths(tok.begin(), tok.end());
 
 	std::string script;
 	std::unique_ptr<std::istream> pStream(pBundle->getResource(scriptPath));
 	Poco::StreamCopier::copyToString(*pStream, script);
-	_pContext->logger().information(Poco::format("Starting script %s from bundle %s.", scriptPath, pBundle->symbolicName()));
+	_pContext->logger().information(Poco::format("Starting script %s from bundle %s."s, scriptPath, pBundle->symbolicName()));
 	std::string scriptURI("bndl://");
 	scriptURI += pBundle->symbolicName();
 	if (scriptPath.empty() || scriptPath[0] != '/') scriptURI += "/";
@@ -295,7 +302,7 @@ void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundl
 	{
 		task.pExecutor->run();
 
-		CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(task.pExecutor, "start");
+		CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(task.pExecutor, "start"s);
 		task.pExecutor->schedule(pStartTask);
 		pStartTask->wait();
 	}
@@ -320,7 +327,7 @@ void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundl
 
 			task.pExecutor->run();
 
-			CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(task.pExecutor, "start");
+			CallExportedFunctionTask::Ptr pStartTask = new CallExportedFunctionTask(task.pExecutor, "start"s);
 			task.pExecutor->schedule(pStartTask);
 		}
 	}
@@ -342,7 +349,7 @@ void SchedulerExtensionPoint::onBundleStopped(const void* pSender, Poco::OSP::Bu
 		{
 			_pContext->logger().information(Poco::format("Stopping script %s.", it->pExecutor->uri().toString()));
 			it->pExecutor->terminate();
-			CallExportedFunctionTask::Ptr pStopTask = new CallExportedFunctionTask(it->pExecutor, "stop");
+			CallExportedFunctionTask::Ptr pStopTask = new CallExportedFunctionTask(it->pExecutor, "stop"s);
 			it->pExecutor->schedule(pStopTask);
 			pStopTask->wait();
 			it->pExecutor->stop();
@@ -396,11 +403,11 @@ void SchedulerExtensionPoint::parseSchedule(Schedule& schedule, const std::strin
 
 void SchedulerExtensionPoint::parseSchedule(Schedule& schedule, std::string::const_iterator& it, const std::string::const_iterator& end)
 {
-	schedule.minutesMask = parseScheduleItem(it, end, 0, 59, "");
-	schedule.hoursMask = static_cast<Poco::UInt32>(parseScheduleItem(it, end, 0, 23, ""));
-	schedule.daysOfMonthMask = static_cast<Poco::UInt32>(parseScheduleItem(it, end, 1, 31, ""));
-	schedule.monthsMask = static_cast<Poco::UInt16>(parseScheduleItem(it, end, 1, 12, "#,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC"));
-	schedule.daysOfWeekMask = static_cast<Poco::UInt8>(parseScheduleItem(it, end, 0, 7, "SUN,MON,TUE,WED,THU,FRI,SAT"));
+	schedule.minutesMask = parseScheduleItem(it, end, 0, 59, ""s);
+	schedule.hoursMask = static_cast<Poco::UInt32>(parseScheduleItem(it, end, 0, 23, ""s));
+	schedule.daysOfMonthMask = static_cast<Poco::UInt32>(parseScheduleItem(it, end, 1, 31, ""s));
+	schedule.monthsMask = static_cast<Poco::UInt16>(parseScheduleItem(it, end, 1, 12, "#,JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC"s));
+	schedule.daysOfWeekMask = static_cast<Poco::UInt8>(parseScheduleItem(it, end, 0, 7, "SUN,MON,TUE,WED,THU,FRI,SAT"s));
 	if (schedule.daysOfWeekMask & 0x80) // special case - 7 = SUN
 	{
 		schedule.daysOfWeekMask |= 0x01;
@@ -413,7 +420,7 @@ Poco::UInt64 SchedulerExtensionPoint::parseScheduleItem(std::string::const_itera
 	Poco::UInt64 mask = 0;
 	while (it != end && Poco::Ascii::isSpace(*it)) ++it;
 
-	Poco::StringTokenizer tok(symbols, ",", 0);
+	Poco::StringTokenizer tok(symbols, ","s, 0);
 
 	if (it == end || *it == '*')
 	{
