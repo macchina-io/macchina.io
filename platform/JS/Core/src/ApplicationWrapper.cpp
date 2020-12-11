@@ -42,11 +42,11 @@ v8::Handle<v8::ObjectTemplate> ApplicationWrapper::objectTemplate(v8::Isolate* p
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::ObjectTemplate> applicationTemplate = v8::ObjectTemplate::New(pIsolate);
 	applicationTemplate->SetInternalFieldCount(1);
-	applicationTemplate->SetAccessor(toV8String(pIsolate, "name"s), name);
-	applicationTemplate->SetAccessor(toV8String(pIsolate, "startTime"s), startTime);
-	applicationTemplate->SetAccessor(toV8String(pIsolate, "uptime"s), uptime);
-	applicationTemplate->SetAccessor(toV8String(pIsolate, "config"s), config);
-	applicationTemplate->SetAccessor(toV8String(pIsolate, "logger"s), logger);
+	applicationTemplate->SetAccessor(toV8Internalized(pIsolate, "name"s), name);
+	applicationTemplate->SetAccessor(toV8Internalized(pIsolate, "startTime"s), startTime);
+	applicationTemplate->SetAccessor(toV8Internalized(pIsolate, "uptime"s), uptime);
+	applicationTemplate->SetAccessor(toV8Internalized(pIsolate, "config"s), config);
+	applicationTemplate->SetAccessor(toV8Internalized(pIsolate, "logger"s), logger);
 	return handleScope.Escape(applicationTemplate);
 }
 

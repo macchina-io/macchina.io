@@ -183,8 +183,8 @@ v8::Handle<v8::ObjectTemplate> RecordSetWrapper::objectTemplate(v8::Isolate* pIs
 
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
-	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
-	return handleScope.Escape(dateTimeTemplate);
+	v8::Local<v8::ObjectTemplate> recordSetTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
+	return handleScope.Escape(recordSetTemplate);
 }
 
 

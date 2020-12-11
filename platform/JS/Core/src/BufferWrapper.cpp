@@ -79,22 +79,22 @@ v8::Handle<v8::ObjectTemplate> BufferWrapper::objectTemplate(v8::Isolate* pIsola
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
-		objectTemplate->SetAccessor(toV8String(pIsolate, "length"s), getLength, setLength);
-		objectTemplate->SetAccessor(toV8String(pIsolate, "capacity"s), getCapacity, setCapacity);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "length"s), getLength, setLength);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "capacity"s), getCapacity, setCapacity);
 		objectTemplate->SetIndexedPropertyHandler(getAt, setAt);
 
-		objectTemplate->Set(toV8String(pIsolate, "toBase64"s), v8::FunctionTemplate::New(pIsolate, toBase64));
-		objectTemplate->Set(toV8String(pIsolate, "fromBase64"s), v8::FunctionTemplate::New(pIsolate, fromBase64));
-		objectTemplate->Set(toV8String(pIsolate, "toString"s), v8::FunctionTemplate::New(pIsolate, makeString));
-		objectTemplate->Set(toV8String(pIsolate, "toJSON"s), v8::FunctionTemplate::New(pIsolate, toBase64));
-		objectTemplate->Set(toV8String(pIsolate, "decodeString"s), v8::FunctionTemplate::New(pIsolate, decodeString));
-		objectTemplate->Set(toV8String(pIsolate, "encodeString"s), v8::FunctionTemplate::New(pIsolate, encodeString));
-		objectTemplate->Set(toV8String(pIsolate, "pack"s), v8::FunctionTemplate::New(pIsolate, pack));
-		objectTemplate->Set(toV8String(pIsolate, "unpack"s), v8::FunctionTemplate::New(pIsolate, unpack));
-		objectTemplate->Set(toV8String(pIsolate, "concat"s), v8::FunctionTemplate::New(pIsolate, concat));
-		objectTemplate->Set(toV8String(pIsolate, "slice"s), v8::FunctionTemplate::New(pIsolate, slice));
-		objectTemplate->Set(toV8String(pIsolate, "push"s), v8::FunctionTemplate::New(pIsolate, push));
-		objectTemplate->Set(toV8String(pIsolate, "pop"s), v8::FunctionTemplate::New(pIsolate, pop));
+		objectTemplate->Set(toV8Internalized(pIsolate, "toBase64"s), v8::FunctionTemplate::New(pIsolate, toBase64));
+		objectTemplate->Set(toV8Internalized(pIsolate, "fromBase64"s), v8::FunctionTemplate::New(pIsolate, fromBase64));
+		objectTemplate->Set(toV8Internalized(pIsolate, "toString"s), v8::FunctionTemplate::New(pIsolate, makeString));
+		objectTemplate->Set(toV8Internalized(pIsolate, "toJSON"s), v8::FunctionTemplate::New(pIsolate, toBase64));
+		objectTemplate->Set(toV8Internalized(pIsolate, "decodeString"s), v8::FunctionTemplate::New(pIsolate, decodeString));
+		objectTemplate->Set(toV8Internalized(pIsolate, "encodeString"s), v8::FunctionTemplate::New(pIsolate, encodeString));
+		objectTemplate->Set(toV8Internalized(pIsolate, "pack"s), v8::FunctionTemplate::New(pIsolate, pack));
+		objectTemplate->Set(toV8Internalized(pIsolate, "unpack"s), v8::FunctionTemplate::New(pIsolate, unpack));
+		objectTemplate->Set(toV8Internalized(pIsolate, "concat"s), v8::FunctionTemplate::New(pIsolate, concat));
+		objectTemplate->Set(toV8Internalized(pIsolate, "slice"s), v8::FunctionTemplate::New(pIsolate, slice));
+		objectTemplate->Set(toV8Internalized(pIsolate, "push"s), v8::FunctionTemplate::New(pIsolate, push));
+		objectTemplate->Set(toV8Internalized(pIsolate, "pop"s), v8::FunctionTemplate::New(pIsolate, pop));
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> bufferTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);

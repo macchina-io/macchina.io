@@ -221,14 +221,14 @@ void Serializer::serializeValue(const std::string& name, const v8::Local<v8::Val
 	v8::Local<v8::Object> object(v8::Local<v8::Object>::New(_pIsolate, _jsObjectStack.back()));
 	if (_jsIndexStack.back() == -1)
 	{
-		object->Set(
+		(void) object->Set(
 			context,
 			Core::Wrapper::toV8String(_pIsolate, name),
 			value);
 	}
 	else
 	{
-		object->Set(context, _jsIndexStack.back()++, value);
+		(void) object->Set(context, _jsIndexStack.back()++, value);
 	}
 	if (_jsObjectStack.size() == 1) _totalSerialized++;
 }

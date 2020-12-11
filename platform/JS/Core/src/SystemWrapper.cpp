@@ -46,19 +46,19 @@ v8::Handle<v8::ObjectTemplate> SystemWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::ObjectTemplate> systemTemplate = v8::ObjectTemplate::New(pIsolate);
 	systemTemplate->SetInternalFieldCount(1);
-	systemTemplate->SetAccessor(toV8String(pIsolate, "osName"s), osName);
-	systemTemplate->SetAccessor(toV8String(pIsolate, "osDisplayName"s), osDisplayName);
-	systemTemplate->SetAccessor(toV8String(pIsolate, "osArchitecture"s), osArchitecture);
-	systemTemplate->SetAccessor(toV8String(pIsolate, "osVersion"s), osVersion);
-	systemTemplate->SetAccessor(toV8String(pIsolate, "nodeName"s), nodeName);
-	systemTemplate->SetAccessor(toV8String(pIsolate, "nodeId"s), nodeId);
-	systemTemplate->SetAccessor(toV8String(pIsolate, "processorCount"s), processorCount);
-	systemTemplate->SetAccessor(toV8String(pIsolate, "clock"s), clock);
-	systemTemplate->Set(toV8String(pIsolate, "has"s), v8::FunctionTemplate::New(pIsolate, has));
-	systemTemplate->Set(toV8String(pIsolate, "get"s), v8::FunctionTemplate::New(pIsolate, get));
-	systemTemplate->Set(toV8String(pIsolate, "set"s), v8::FunctionTemplate::New(pIsolate, set));
-	systemTemplate->Set(toV8String(pIsolate, "sleep"s), v8::FunctionTemplate::New(pIsolate, sleep));
-	systemTemplate->Set(toV8String(pIsolate, "exec"s), v8::FunctionTemplate::New(pIsolate, exec));
+	systemTemplate->SetAccessor(toV8Internalized(pIsolate, "osName"s), osName);
+	systemTemplate->SetAccessor(toV8Internalized(pIsolate, "osDisplayName"s), osDisplayName);
+	systemTemplate->SetAccessor(toV8Internalized(pIsolate, "osArchitecture"s), osArchitecture);
+	systemTemplate->SetAccessor(toV8Internalized(pIsolate, "osVersion"s), osVersion);
+	systemTemplate->SetAccessor(toV8Internalized(pIsolate, "nodeName"s), nodeName);
+	systemTemplate->SetAccessor(toV8Internalized(pIsolate, "nodeId"s), nodeId);
+	systemTemplate->SetAccessor(toV8Internalized(pIsolate, "processorCount"s), processorCount);
+	systemTemplate->SetAccessor(toV8Internalized(pIsolate, "clock"s), clock);
+	systemTemplate->Set(toV8Internalized(pIsolate, "has"s), v8::FunctionTemplate::New(pIsolate, has));
+	systemTemplate->Set(toV8Internalized(pIsolate, "get"s), v8::FunctionTemplate::New(pIsolate, get));
+	systemTemplate->Set(toV8Internalized(pIsolate, "set"s), v8::FunctionTemplate::New(pIsolate, set));
+	systemTemplate->Set(toV8Internalized(pIsolate, "sleep"s), v8::FunctionTemplate::New(pIsolate, sleep));
+	systemTemplate->Set(toV8Internalized(pIsolate, "exec"s), v8::FunctionTemplate::New(pIsolate, exec));
 	return handleScope.Escape(systemTemplate);
 }
 

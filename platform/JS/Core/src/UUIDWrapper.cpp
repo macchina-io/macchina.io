@@ -40,10 +40,10 @@ v8::Handle<v8::FunctionTemplate> UUIDWrapper::constructor(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
-	funcTemplate->Set(toV8String(pIsolate, "isUUID"s), v8::FunctionTemplate::New(pIsolate, isUUID));
-	funcTemplate->Set(toV8String(pIsolate, "create"s), v8::FunctionTemplate::New(pIsolate, create));
-	funcTemplate->Set(toV8String(pIsolate, "createRandom"s), v8::FunctionTemplate::New(pIsolate, createRandom));
-	funcTemplate->Set(toV8String(pIsolate, "createTimeBased"s), v8::FunctionTemplate::New(pIsolate, createTimeBased));
+	funcTemplate->Set(toV8Internalized(pIsolate, "isUUID"s), v8::FunctionTemplate::New(pIsolate, isUUID));
+	funcTemplate->Set(toV8Internalized(pIsolate, "create"s), v8::FunctionTemplate::New(pIsolate, create));
+	funcTemplate->Set(toV8Internalized(pIsolate, "createRandom"s), v8::FunctionTemplate::New(pIsolate, createRandom));
+	funcTemplate->Set(toV8Internalized(pIsolate, "createTimeBased"s), v8::FunctionTemplate::New(pIsolate, createTimeBased));
 	return handleScope.Escape(funcTemplate);
 }
 
@@ -58,17 +58,17 @@ v8::Handle<v8::ObjectTemplate> UUIDWrapper::objectTemplate(v8::Isolate* pIsolate
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
-		objectTemplate->SetAccessor(toV8String(pIsolate, "version"s), version);
-		objectTemplate->SetAccessor(toV8String(pIsolate, "variant"s), variant);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "version"s), version);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "variant"s), variant);
 
-		objectTemplate->Set(toV8String(pIsolate, "toString"s), v8::FunctionTemplate::New(pIsolate, toString));
-		objectTemplate->Set(toV8String(pIsolate, "toJSON"s), v8::FunctionTemplate::New(pIsolate, toString));
-		objectTemplate->Set(toV8String(pIsolate, "equals"s), v8::FunctionTemplate::New(pIsolate, equals));
-		objectTemplate->Set(toV8String(pIsolate, "isNull"s), v8::FunctionTemplate::New(pIsolate, isNull));
+		objectTemplate->Set(toV8Internalized(pIsolate, "toString"s), v8::FunctionTemplate::New(pIsolate, toString));
+		objectTemplate->Set(toV8Internalized(pIsolate, "toJSON"s), v8::FunctionTemplate::New(pIsolate, toString));
+		objectTemplate->Set(toV8Internalized(pIsolate, "equals"s), v8::FunctionTemplate::New(pIsolate, equals));
+		objectTemplate->Set(toV8Internalized(pIsolate, "isNull"s), v8::FunctionTemplate::New(pIsolate, isNull));
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
-	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
-	return handleScope.Escape(dateTimeTemplate);
+	v8::Local<v8::ObjectTemplate> uuidTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
+	return handleScope.Escape(uuidTemplate);
 }
 
 

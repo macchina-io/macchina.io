@@ -46,16 +46,16 @@ v8::Handle<v8::FunctionTemplate> LoggerWrapper::constructor(v8::Isolate* pIsolat
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
-	funcTemplate->Set(toV8String(pIsolate, "TRACE"s), v8::Integer::New(pIsolate, 8));
-	funcTemplate->Set(toV8String(pIsolate, "DEBUG"s), v8::Integer::New(pIsolate, 7));
-	funcTemplate->Set(toV8String(pIsolate, "INFORMATION"s), v8::Integer::New(pIsolate, 6));
-	funcTemplate->Set(toV8String(pIsolate, "NOTICE"s), v8::Integer::New(pIsolate, 5));
-	funcTemplate->Set(toV8String(pIsolate, "WARNING"s), v8::Integer::New(pIsolate, 4));
-	funcTemplate->Set(toV8String(pIsolate, "ERROR"s), v8::Integer::New(pIsolate, 3));
-	funcTemplate->Set(toV8String(pIsolate, "CRITICAL"s), v8::Integer::New(pIsolate, 2));
-	funcTemplate->Set(toV8String(pIsolate, "FATAL"s), v8::Integer::New(pIsolate, 1));
-	funcTemplate->Set(toV8String(pIsolate, "isLogger"s), v8::FunctionTemplate::New(pIsolate, isLogger));
-	funcTemplate->Set(toV8String(pIsolate, "close"s), v8::FunctionTemplate::New(pIsolate, close));
+	funcTemplate->Set(toV8Internalized(pIsolate, "TRACE"s), v8::Integer::New(pIsolate, 8));
+	funcTemplate->Set(toV8Internalized(pIsolate, "DEBUG"s), v8::Integer::New(pIsolate, 7));
+	funcTemplate->Set(toV8Internalized(pIsolate, "INFORMATION"s), v8::Integer::New(pIsolate, 6));
+	funcTemplate->Set(toV8Internalized(pIsolate, "NOTICE"s), v8::Integer::New(pIsolate, 5));
+	funcTemplate->Set(toV8Internalized(pIsolate, "WARNING"s), v8::Integer::New(pIsolate, 4));
+	funcTemplate->Set(toV8Internalized(pIsolate, "ERROR"s), v8::Integer::New(pIsolate, 3));
+	funcTemplate->Set(toV8Internalized(pIsolate, "CRITICAL"s), v8::Integer::New(pIsolate, 2));
+	funcTemplate->Set(toV8Internalized(pIsolate, "FATAL"s), v8::Integer::New(pIsolate, 1));
+	funcTemplate->Set(toV8Internalized(pIsolate, "isLogger"s), v8::FunctionTemplate::New(pIsolate, isLogger));
+	funcTemplate->Set(toV8Internalized(pIsolate, "close"s), v8::FunctionTemplate::New(pIsolate, close));
 
 	return handleScope.Escape(funcTemplate);
 }
@@ -71,17 +71,17 @@ v8::Handle<v8::ObjectTemplate> LoggerWrapper::objectTemplate(v8::Isolate* pIsola
 	{
 		v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New(pIsolate);
 		loggerTemplate->SetInternalFieldCount(1);
-		loggerTemplate->Set(toV8String(pIsolate, "trace"s), v8::FunctionTemplate::New(pIsolate, trace));
-		loggerTemplate->Set(toV8String(pIsolate, "debug"s), v8::FunctionTemplate::New(pIsolate, debug));
-		loggerTemplate->Set(toV8String(pIsolate, "information"s), v8::FunctionTemplate::New(pIsolate, information));
-		loggerTemplate->Set(toV8String(pIsolate, "notice"s), v8::FunctionTemplate::New(pIsolate, notice));
-		loggerTemplate->Set(toV8String(pIsolate, "warning"s), v8::FunctionTemplate::New(pIsolate, warning));
-		loggerTemplate->Set(toV8String(pIsolate, "error"s), v8::FunctionTemplate::New(pIsolate, error));
-		loggerTemplate->Set(toV8String(pIsolate, "critical"s), v8::FunctionTemplate::New(pIsolate, critical));
-		loggerTemplate->Set(toV8String(pIsolate, "fatal"s), v8::FunctionTemplate::New(pIsolate, fatal));
-		loggerTemplate->Set(toV8String(pIsolate, "log"s), v8::FunctionTemplate::New(pIsolate, log));
-		loggerTemplate->Set(toV8String(pIsolate, "dump"s), v8::FunctionTemplate::New(pIsolate, dump));
-		loggerTemplate->Set(toV8String(pIsolate, "close"s), v8::FunctionTemplate::New(pIsolate, close));
+		loggerTemplate->Set(toV8Internalized(pIsolate, "trace"s), v8::FunctionTemplate::New(pIsolate, trace));
+		loggerTemplate->Set(toV8Internalized(pIsolate, "debug"s), v8::FunctionTemplate::New(pIsolate, debug));
+		loggerTemplate->Set(toV8Internalized(pIsolate, "information"s), v8::FunctionTemplate::New(pIsolate, information));
+		loggerTemplate->Set(toV8Internalized(pIsolate, "notice"s), v8::FunctionTemplate::New(pIsolate, notice));
+		loggerTemplate->Set(toV8Internalized(pIsolate, "warning"s), v8::FunctionTemplate::New(pIsolate, warning));
+		loggerTemplate->Set(toV8Internalized(pIsolate, "error"s), v8::FunctionTemplate::New(pIsolate, error));
+		loggerTemplate->Set(toV8Internalized(pIsolate, "critical"s), v8::FunctionTemplate::New(pIsolate, critical));
+		loggerTemplate->Set(toV8Internalized(pIsolate, "fatal"s), v8::FunctionTemplate::New(pIsolate, fatal));
+		loggerTemplate->Set(toV8Internalized(pIsolate, "log"s), v8::FunctionTemplate::New(pIsolate, log));
+		loggerTemplate->Set(toV8Internalized(pIsolate, "dump"s), v8::FunctionTemplate::New(pIsolate, dump));
+		loggerTemplate->Set(toV8Internalized(pIsolate, "close"s), v8::FunctionTemplate::New(pIsolate, close));
 		pooledLoggerTemplate.Reset(pIsolate, loggerTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> localLoggerTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledLoggerTemplate);

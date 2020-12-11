@@ -45,14 +45,14 @@ v8::Handle<v8::ObjectTemplate> ConfigurationWrapper::objectTemplate(v8::Isolate*
 	{
 		v8::Local<v8::ObjectTemplate> configurationTemplate = v8::ObjectTemplate::New(pIsolate);
 		configurationTemplate->SetInternalFieldCount(1);
-		configurationTemplate->Set(toV8String(pIsolate, "getInt"s), v8::FunctionTemplate::New(pIsolate, getInt));
-		configurationTemplate->Set(toV8String(pIsolate, "getDouble"s), v8::FunctionTemplate::New(pIsolate, getDouble));
-		configurationTemplate->Set(toV8String(pIsolate, "getBool"s), v8::FunctionTemplate::New(pIsolate, getBool));
-		configurationTemplate->Set(toV8String(pIsolate, "getString"s), v8::FunctionTemplate::New(pIsolate, getString));
-		configurationTemplate->Set(toV8String(pIsolate, "getObject"s), v8::FunctionTemplate::New(pIsolate, getObject));
-		configurationTemplate->Set(toV8String(pIsolate, "has"s), v8::FunctionTemplate::New(pIsolate, has));
-		configurationTemplate->Set(toV8String(pIsolate, "set"s), v8::FunctionTemplate::New(pIsolate, set));
-		configurationTemplate->Set(toV8String(pIsolate, "keys"s), v8::FunctionTemplate::New(pIsolate, keys));
+		configurationTemplate->Set(toV8Internalized(pIsolate, "getInt"s), v8::FunctionTemplate::New(pIsolate, getInt));
+		configurationTemplate->Set(toV8Internalized(pIsolate, "getDouble"s), v8::FunctionTemplate::New(pIsolate, getDouble));
+		configurationTemplate->Set(toV8Internalized(pIsolate, "getBool"s), v8::FunctionTemplate::New(pIsolate, getBool));
+		configurationTemplate->Set(toV8Internalized(pIsolate, "getString"s), v8::FunctionTemplate::New(pIsolate, getString));
+		configurationTemplate->Set(toV8Internalized(pIsolate, "getObject"s), v8::FunctionTemplate::New(pIsolate, getObject));
+		configurationTemplate->Set(toV8Internalized(pIsolate, "has"s), v8::FunctionTemplate::New(pIsolate, has));
+		configurationTemplate->Set(toV8Internalized(pIsolate, "set"s), v8::FunctionTemplate::New(pIsolate, set));
+		configurationTemplate->Set(toV8Internalized(pIsolate, "keys"s), v8::FunctionTemplate::New(pIsolate, keys));
 		pooledConfigurationTemplate.Reset(pIsolate, configurationTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> localConfigurationTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledConfigurationTemplate);

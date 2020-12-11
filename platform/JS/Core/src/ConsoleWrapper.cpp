@@ -41,14 +41,14 @@ v8::Handle<v8::ObjectTemplate> ConsoleWrapper::objectTemplate(v8::Isolate* pIsol
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::ObjectTemplate> loggerTemplate = v8::ObjectTemplate::New(pIsolate);
 	loggerTemplate->SetInternalFieldCount(1);
-	loggerTemplate->Set(toV8String(pIsolate, "trace"s), v8::FunctionTemplate::New(pIsolate, trace));
-	loggerTemplate->Set(toV8String(pIsolate, "assert"s), v8::FunctionTemplate::New(pIsolate, xassert));
-	loggerTemplate->Set(toV8String(pIsolate, "log"s), v8::FunctionTemplate::New(pIsolate, log));
-	loggerTemplate->Set(toV8String(pIsolate, "debug"s), v8::FunctionTemplate::New(pIsolate, debug));
-	loggerTemplate->Set(toV8String(pIsolate, "info"s), v8::FunctionTemplate::New(pIsolate, info));
-	loggerTemplate->Set(toV8String(pIsolate, "warn"s), v8::FunctionTemplate::New(pIsolate, warn));
-	loggerTemplate->Set(toV8String(pIsolate, "error"s), v8::FunctionTemplate::New(pIsolate, error));
-	loggerTemplate->Set(toV8String(pIsolate, "dump"s), v8::FunctionTemplate::New(pIsolate, dump));
+	loggerTemplate->Set(toV8Internalized(pIsolate, "trace"s), v8::FunctionTemplate::New(pIsolate, trace));
+	loggerTemplate->Set(toV8Internalized(pIsolate, "assert"s), v8::FunctionTemplate::New(pIsolate, xassert));
+	loggerTemplate->Set(toV8Internalized(pIsolate, "log"s), v8::FunctionTemplate::New(pIsolate, log));
+	loggerTemplate->Set(toV8Internalized(pIsolate, "debug"s), v8::FunctionTemplate::New(pIsolate, debug));
+	loggerTemplate->Set(toV8Internalized(pIsolate, "info"s), v8::FunctionTemplate::New(pIsolate, info));
+	loggerTemplate->Set(toV8Internalized(pIsolate, "warn"s), v8::FunctionTemplate::New(pIsolate, warn));
+	loggerTemplate->Set(toV8Internalized(pIsolate, "error"s), v8::FunctionTemplate::New(pIsolate, error));
+	loggerTemplate->Set(toV8Internalized(pIsolate, "dump"s), v8::FunctionTemplate::New(pIsolate, dump));
 	return handleScope.Escape(loggerTemplate);
 }
 

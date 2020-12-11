@@ -41,8 +41,8 @@ v8::Handle<v8::ObjectTemplate> URIWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::ObjectTemplate> uriTemplate = v8::ObjectTemplate::New(pIsolate);
-	uriTemplate->Set(toV8String(pIsolate, "loadString"s), v8::FunctionTemplate::New(pIsolate, loadString));
-	uriTemplate->Set(toV8String(pIsolate, "loadBuffer"s), v8::FunctionTemplate::New(pIsolate, loadBuffer));
+	uriTemplate->Set(toV8Internalized(pIsolate, "loadString"s), v8::FunctionTemplate::New(pIsolate, loadString));
+	uriTemplate->Set(toV8Internalized(pIsolate, "loadBuffer"s), v8::FunctionTemplate::New(pIsolate, loadBuffer));
 	return handleScope.Escape(uriTemplate);
 }
 
