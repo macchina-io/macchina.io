@@ -87,7 +87,7 @@ public:
 			v8::V8::SetFlagsFromString(it->data(), it->size());
 		}
 
-		Poco::UInt64 memoryLimit = _pPrefs->configuration()->getUInt64("osp.js.memoryLimit", 16*1024*1024);
+		Poco::UInt64 memoryLimit = _pPrefs->configuration()->getUInt64("osp.js.memoryLimit", JSExecutor::getDefaultMemoryLimit());
 		JSExecutor::setDefaultMemoryLimit(memoryLimit);
 
 		std::string v8Version =  v8::V8::GetVersion();

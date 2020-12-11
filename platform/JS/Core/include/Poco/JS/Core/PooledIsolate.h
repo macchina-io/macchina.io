@@ -96,6 +96,7 @@ private:
 
 	v8::Isolate* _pIsolate;
 	v8::ArrayBuffer::Allocator* _pArrayBufferAllocator;
+	Poco::UInt64 _memoryLimit;
 	OTMap _objectTemplates;
 };
 

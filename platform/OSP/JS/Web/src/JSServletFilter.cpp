@@ -27,12 +27,14 @@ namespace Web {
 JSServletFilter::JSServletFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args, JSServletExecutorCache& cache):
 	_pContext(pContext),
 	_cache(cache),
-	_memoryLimit(JSExecutor::getDefaultMemoryLimit())
+	_memoryLimit(JSExecutor::getDefaultMemoryLimit()),
+	_hasFilterMemoryLimit(false)
 {
 	Poco::OSP::Web::WebFilter::Args::const_iterator it = args.find("memoryLimit"s);
 	if (it != args.end())
 	{
 		_memoryLimit = Poco::NumberParser::parseUnsigned64(it->second);
+		_hasFilterMemoryLimit = true;
 	}
 	it = args.find("searchPaths"s);
 	if (it != args.end())
@@ -71,7 +73,11 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 				std::string servlet;
 				preprocess(request, response, scriptURI, resourceStream, servlet);
 
-				Poco::UInt64 memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit"s, _memoryLimit);
+				Poco::UInt64 memoryLimit = _memoryLimit;
+				if (!_hasFilterMemoryLimit)
+				{
+					memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit"s, _memoryLimit);
+				}
 
 				std::string moduleSearchPaths = pBundle->properties().getString("osp.js.moduleSearchPaths"s, ""s);
 				Poco::StringTokenizer tok(moduleSearchPaths, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);

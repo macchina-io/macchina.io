@@ -75,7 +75,7 @@ JSExecutor::JSExecutor(const std::string& source, const Poco::URI& sourceURI, Po
 	_sourceURI(sourceURI),
 	_pooledIso(memoryLimit)
 {
-	init();
+ 	init();
 }
 
 

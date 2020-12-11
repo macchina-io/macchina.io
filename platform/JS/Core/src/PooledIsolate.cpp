@@ -25,7 +25,8 @@ namespace Core {
 
 PooledIsolate::PooledIsolate(Poco::UInt64 memoryLimit):
 	_pIsolate(0),
-	_pArrayBufferAllocator(v8::ArrayBuffer::Allocator::NewDefaultAllocator())
+	_pArrayBufferAllocator(v8::ArrayBuffer::Allocator::NewDefaultAllocator()),
+	_memoryLimit(memoryLimit)
 {
 	v8::Isolate::CreateParams params;
 	params.constraints.ConfigureDefaultsFromHeapSize(0, memoryLimit);
@@ -72,24 +73,25 @@ v8::Persistent<v8::ObjectTemplate>& PooledIsolate::objectTemplate(const std::str
 std::size_t PooledIsolate::onNearHeapLimit(void* data, std::size_t currentHeapLimit, std::size_t initialHeapLimit)
 {
 	v8::Isolate* pIsolate = reinterpret_cast<v8::Isolate*>(data);
+	PooledIsolate* pSelf = fromIsolate(pIsolate);
 
-	if (currentHeapLimit <= initialHeapLimit)
+	if (currentHeapLimit <= pSelf->_memoryLimit)
 	{
 		JSExecutor::Ptr pExecutor = JSExecutor::current();
 		if (pExecutor)
 		{
-			pExecutor->handleMemoryWarning(initialHeapLimit*2, initialHeapLimit);
+			pExecutor->handleMemoryWarning(pSelf->_memoryLimit*2, pSelf->_memoryLimit);
 		}
-		return initialHeapLimit*2;
+		return pSelf->_memoryLimit*2;
 	}
 	else
 	{
 		JSExecutor::Ptr pExecutor = JSExecutor::current();
 		if (pExecutor)
 		{
-			pExecutor->handleOutOfMemory(currentHeapLimit, initialHeapLimit);
+			pExecutor->handleOutOfMemory(currentHeapLimit, pSelf->_memoryLimit);
 		}
-		return currentHeapLimit + currentHeapLimit/2;
+		return pSelf->_memoryLimit + pSelf->_memoryLimit/2;
 	}
 }
 

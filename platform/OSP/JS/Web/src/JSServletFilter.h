@@ -31,20 +31,21 @@ class JSServletFilter: public Poco::OSP::Web::WebFilter
 public:
 	JSServletFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args, JSServletExecutorCache& cache);
 		/// Creates the JSServletFilter using the given BundleContext.
-	
+
 	// Poco::OSP::Web::WebFilter
 	void process(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& path, std::istream& resourceStream, Poco::OSP::Bundle::ConstPtr pBundle);
 
 protected:
 	virtual void preprocess(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const std::string& uri, std::istream& resourceStream, std::string& servlet);
 	Poco::OSP::BundleContext::Ptr context() const;
-	void sendErrorResponse(Poco::Net::HTTPServerResponse& response, const std::string& message); 
-		
+	void sendErrorResponse(Poco::Net::HTTPServerResponse& response, const std::string& message);
+
 private:
 	BundleContext::Ptr _pContext;
 	JSServletExecutorCache& _cache;
 	std::vector<std::string> _moduleSearchPaths;
 	Poco::UInt64 _memoryLimit;
+	bool _hasFilterMemoryLimit;
 };
 
 
@@ -61,7 +62,7 @@ public:
 	{
 		return new JSServletFilter(context(), args, _cache);
 	}
-	
+
 private:
 	JSServletExecutorCache& _cache;
 };
