@@ -73,7 +73,7 @@ GYPFLAGS += -Dclang=1
 endif
 
 ifeq ($(POCO_HOST_OSNAME),Linux)
-v8targetlibdir = lib.target/
+#v8targetlibdir = lib.target/
 endif
 
 # Reduce linker memory usage on ARM systems
