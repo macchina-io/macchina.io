@@ -222,6 +222,7 @@ public:
 	// MQTTClient
 	const std::string& id() const;
 	const std::string& serverURI() const;
+	int mqttVersion() const;
 	bool connected() const;
 	ConnectionInfo connect();
 	ConnectionInfo connect5(const std::vector<Property>& connectProperties, const std::vector<Property>& willProperties);
@@ -261,6 +262,8 @@ protected:
 	void connect5Impl(const ConnectOptions& options, MQTTPropertiesHolder& connectProperties, MQTTPropertiesHolder& willProperties);
 	void resubscribe();
 	void resubscribe5();
+	void requireMQTT3();
+	void requireMQTT5();
 
 	static void onConnectionLost(void* context, char* cause);
 	static void onMessageDelivered(void* context, int token);

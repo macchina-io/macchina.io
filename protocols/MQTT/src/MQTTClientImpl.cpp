@@ -465,6 +465,12 @@ const std::string& MQTTClientImpl::serverURI() const
 }
 
 
+int MQTTClientImpl::mqttVersion() const
+{
+	return _options.mqttVersion;
+}
+
+
 bool MQTTClientImpl::connected() const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -509,6 +515,8 @@ Statistics MQTTClientImpl::statistics() const
 
 ConnectionInfo MQTTClientImpl::connect()
 {
+	requireMQTT3();
+
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	if (!MQTTClient_isConnected(_mqttClient))
@@ -528,6 +536,8 @@ ConnectionInfo MQTTClientImpl::connect()
 
 ConnectionInfo MQTTClientImpl::connect5(const std::vector<Property>& connectProperties, const std::vector<Property>& willProperties)
 {
+	requireMQTT5();
+
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	if (!MQTTClient_isConnected(_mqttClient))
@@ -549,6 +559,8 @@ ConnectionInfo MQTTClientImpl::connect5(const std::vector<Property>& connectProp
 
 void MQTTClientImpl::connectAsync()
 {
+	requireMQTT3();
+
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	if (!MQTTClient_isConnected(_mqttClient))
@@ -560,6 +572,8 @@ void MQTTClientImpl::connectAsync()
 
 void MQTTClientImpl::connectAsync5(const std::vector<Property>& connectProperties, const std::vector<Property>& willProperties)
 {
+	requireMQTT5();
+
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	_connectProperties = connectProperties;
@@ -970,6 +984,8 @@ void MQTTClientImpl::connect5Impl(const ConnectOptions& options, MQTTPropertiesH
 
 void MQTTClientImpl::disconnect(int timeout)
 {
+	requireMQTT3();
+
 	Poco::ScopedLockWithUnlock<Poco::Mutex> lock(_mutex);
 
 	if (MQTTClient_isConnected(_mqttClient))
@@ -982,6 +998,7 @@ void MQTTClientImpl::disconnect(int timeout)
 
 		_connectionInfo.serverURI.clear();
 		_connectionInfo.sessionPresent = false;
+		_connectionInfo.mqttVersion = 0;
 
 		lock.unlock();
 		connectionClosed(this);
@@ -991,6 +1008,8 @@ void MQTTClientImpl::disconnect(int timeout)
 
 void MQTTClientImpl::disconnect5(int timeout, ReasonCode reason, const std::vector<Property>& properties)
 {
+	requireMQTT5();
+
 	Poco::ScopedLockWithUnlock<Poco::Mutex> lock(_mutex);
 
 	if (MQTTClient_isConnected(_mqttClient))
@@ -1004,6 +1023,7 @@ void MQTTClientImpl::disconnect5(int timeout, ReasonCode reason, const std::vect
 
 		_connectionInfo.serverURI.clear();
 		_connectionInfo.sessionPresent = false;
+		_connectionInfo.mqttVersion = 0;
 
 		lock.unlock();
 		connectionClosed(this);
@@ -1013,7 +1033,10 @@ void MQTTClientImpl::disconnect5(int timeout, ReasonCode reason, const std::vect
 
 int MQTTClientImpl::publish(const std::string& topic, const std::string& payload, int qos)
 {
+	requireMQTT3();
+
 	int token = 0;
+
 	{
 		Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -1035,6 +1058,8 @@ int MQTTClientImpl::publish(const std::string& topic, const std::string& payload
 
 PublishResult MQTTClientImpl::publish5(const std::string& topic, const std::string& payload, int qos, bool retained, const std::vector<Property>& properties)
 {
+	requireMQTT5();
+
 	PublishResult result;
 
 	int token = 0;
@@ -1061,6 +1086,8 @@ PublishResult MQTTClientImpl::publish5(const std::string& topic, const std::stri
 
 int MQTTClientImpl::publishMessage(const std::string& topic, const Message& message)
 {
+	requireMQTT3();
+
 	int token = 0;
 	{
 		Poco::Mutex::ScopedLock lock(_mutex);
@@ -1091,6 +1118,8 @@ int MQTTClientImpl::publishMessage(const std::string& topic, const Message& mess
 
 PublishResult MQTTClientImpl::publishMessage5(const std::string& topic, const Message& message)
 {
+	requireMQTT5();
+
 	PublishResult result;
 	{
 		Poco::Mutex::ScopedLock lock(_mutex);
@@ -1123,6 +1152,8 @@ PublishResult MQTTClientImpl::publishMessage5(const std::string& topic, const Me
 
 void MQTTClientImpl::subscribe(const std::string& topic, int qos)
 {
+	requireMQTT3();
+
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	connectOnce();
@@ -1139,6 +1170,8 @@ void MQTTClientImpl::subscribe(const std::string& topic, int qos)
 
 Response MQTTClientImpl::subscribe5(const std::string& topic, int qos, const SubscribeOptions& options, const std::vector<Property>& properties)
 {
+	requireMQTT5();
+
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	connectOnce();
@@ -1161,6 +1194,8 @@ Response MQTTClientImpl::subscribe5(const std::string& topic, int qos, const Sub
 
 void MQTTClientImpl::unsubscribe(const std::string& topic)
 {
+	requireMQTT3();
+
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	if (MQTTClient_isConnected(_mqttClient))
@@ -1175,6 +1210,8 @@ void MQTTClientImpl::unsubscribe(const std::string& topic)
 
 Response MQTTClientImpl::unsubscribe5(const std::string& topic, const std::vector<Property>& properties)
 {
+	requireMQTT5();
+
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	MQTTResponseHolder response;
@@ -1193,6 +1230,8 @@ Response MQTTClientImpl::unsubscribe5(const std::string& topic, const std::vecto
 
 void MQTTClientImpl::subscribeMany(const std::vector<TopicQoS>& topicsAndQoS)
 {
+	requireMQTT3();
+
 	if (topicsAndQoS.empty()) return;
 
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -1221,6 +1260,8 @@ void MQTTClientImpl::subscribeMany(const std::vector<TopicQoS>& topicsAndQoS)
 
 Response MQTTClientImpl::subscribeMany5(const std::vector<TopicQoS>& topicsAndQoS, const SubscribeOptions& options, const std::vector<Property>& properties)
 {
+	requireMQTT5();
+
 	if (topicsAndQoS.empty()) return Response();
 
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -1256,6 +1297,8 @@ Response MQTTClientImpl::subscribeMany5(const std::vector<TopicQoS>& topicsAndQo
 
 void MQTTClientImpl::unsubscribeMany(const std::vector<std::string>& topics)
 {
+	requireMQTT3();
+
 	if (topics.empty()) return;
 
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -1280,6 +1323,8 @@ void MQTTClientImpl::unsubscribeMany(const std::vector<std::string>& topics)
 
 Response MQTTClientImpl::unsubscribeMany5(const std::vector<std::string>& topics, const std::vector<Property>& properties)
 {
+	requireMQTT5();
+
 	if (topics.empty()) return Response();
 
 	Poco::Mutex::ScopedLock lock(_mutex);
@@ -1529,6 +1574,18 @@ ConnectionInfo MQTTClientImpl::connectionInfo() const
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	return _connectionInfo;
+}
+
+
+void MQTTClientImpl::requireMQTT3()
+{
+	if (_options.mqttVersion > 4) throw Poco::InvalidAccessException("Method only supported for MQTT version 3.x client"s);
+}
+
+
+void MQTTClientImpl::requireMQTT5()
+{
+	if (_options.mqttVersion < 5) throw Poco::InvalidAccessException("Method only supported for MQTT version 5 client"s);
 }
 
 

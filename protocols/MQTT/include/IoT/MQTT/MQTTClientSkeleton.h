@@ -35,6 +35,13 @@ class MQTTClientSkeleton: public Poco::RemotingNG::Skeleton
 	/// Once configured, a MQTTClient always uses the same client ID and
 	/// connects to the same server. A MQTT client should automatically
 	/// attempt to reconnect if the connection to the server is lost.
+	///
+	/// A single client instance can either support MQTT version 3.1/3.1.1
+	/// or version 5. Which MQTT version is supported by the client is
+	/// determined when configuring the client.
+	///
+	/// Users of the class must call the appropriate methods supporting
+	/// the client's configured MQTT version.
 {
 public:
 	MQTTClientSkeleton();
