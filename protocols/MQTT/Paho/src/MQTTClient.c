@@ -2817,6 +2817,7 @@ int MQTTClient_waitForCompletion(MQTTClient handle, MQTTClient_deliveryToken mdt
 		Thread_lock_mutex(mqttclient_mutex);
 		elapsed = MQTTTime_elapsed(start);
 	}
+	rc = MQTTCLIENT_TIMEOUT;
 
 exit:
 	Thread_unlock_mutex(mqttclient_mutex);

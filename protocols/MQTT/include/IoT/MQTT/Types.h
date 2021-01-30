@@ -27,6 +27,16 @@ namespace IoT {
 namespace MQTT {
 
 
+enum MQTTVersion
+	/// MQTT protocol version numbers.
+{
+	MQTT_VERSION_DEFAULT = 0,
+	MQTT_VERSION_3_1     = 3,
+	MQTT_VERSION_3_1_1   = 4,
+	MQTT_VERSION_5       = 5
+};
+
+
 enum ReasonCode
 	/// MQTT V5 Reason Codes
 {
@@ -141,6 +151,29 @@ struct SubscribeOptions
 		///   * 0 - send retained messages at the time of the subscribe (original MQTT behaviour)
 		///   * 1 - send retained messages on subscribe only if the subscription is new
 		///   * 2 - do not send retained messages at all
+};
+
+
+//@ serialize
+struct Response
+	/// MQTT V5 Response
+{
+	Poco::UInt8 reasonCode = REASON_SUCCESS;
+	std::vector<Poco::UInt8> reasonCodes;
+	std::vector<Property> properties;
+};
+
+
+//@ serialize
+struct PublishResult
+	/// The result of a MQTT V5 publish operation.
+{
+	Response response;
+		/// The MQTT response.
+
+	int deliveryToken = 0;
+		/// The delivery token, which can be used with the MQTTClient::messageDelivered
+		/// event to verify that the message has been delivered.
 };
 
 
@@ -295,11 +328,17 @@ struct MessagePublishedEvent
 //@ serialize
 struct ConnectionInfo
 {
+	int mqttVersion = MQTT_VERSION_DEFAULT;
+		/// The MQTT version used in the connection (see MQTTVersion).
+
 	std::string serverURI;
 		/// URI of server the client is connected to.
 
 	bool sessionPresent = false;
 		/// True if a previously set up session is present on the server.
+
+	std::vector<Property> properties;
+		/// MQTT V5 properties returned by the server.
 };
 
 

@@ -170,12 +170,13 @@ public:
 		///
 		/// Throws a Poco::IOException if the message cannot be published.
 
-	virtual int publish5(const std::string& topic, const std::string& payload, int qos, bool retained, const std::vector<Property>& properties) = 0;
+	virtual PublishResult publish5(const std::string& topic, const std::string& payload, int qos, bool retained, const std::vector<Property>& properties) = 0;
 		/// MQTT V5 version of publish().
 		///
 		/// Publishes the given message on the given topic, using the given QoS.
 		///
-		/// Returns a delivery token which can be used with the messageDelivered
+		/// Returns a PublishResult containing the result of the operation,
+		/// as well as the delivery token, which can be used with the messageDelivered
 		/// event to verify that the message has been delivered.
 		///
 		/// Throws a Poco::IOException if the message cannot be published.
@@ -188,12 +189,13 @@ public:
 		///
 		/// Throws a Poco::IOException if the message cannot be published.
 
-	virtual int publishMessage5(const std::string& topic, const Message& message) = 0;
+	virtual PublishResult publishMessage5(const std::string& topic, const Message& message) = 0;
 		/// MQTT V5 version of publishMessage().
 		///
 		/// Publishes the given message on the given topic.
 		///
-		/// Returns a delivery token which can be used with the messageDelivered
+		/// Returns a PublishResult containing the result of the operation,
+		/// as well as the delivery token, which can be used with the messageDelivered
 		/// event to verify that the message has been delivered.
 		///
 		/// Throws a Poco::IOException if the message cannot be published.
@@ -206,7 +208,7 @@ public:
 		/// Throws a Poco::IOException if there was a problem registering the
 		/// subscription.
 
-	virtual void subscribe5(const std::string& topic, int qos, const SubscribeOptions& options, const std::vector<Property>& properties) = 0;
+	virtual Response subscribe5(const std::string& topic, int qos, const SubscribeOptions& options, const std::vector<Property>& properties) = 0;
 		/// MQTT V5 version of subscribe(), which allows to specify options and properties.
 		///
 		/// This function attempts to subscribe the client to a single topic,
@@ -222,7 +224,7 @@ public:
 		/// Throws a Poco::IOException if there was a problem removing the
 		/// subscription.
 
-	virtual void unsubscribe5(const std::string& topic, const std::vector<Property>& properties) = 0;
+	virtual Response unsubscribe5(const std::string& topic, const std::vector<Property>& properties) = 0;
 		/// MQTT V5 version of unsubscribe(), which allows to specify properties.
 		///
 		/// This function attempts to remove an existing subscription made by the client.
@@ -237,7 +239,7 @@ public:
 		/// Throws a Poco::IOException if there was a problem registering the
 		/// subscriptions.
 
-	virtual void subscribeMany5(const std::vector<TopicQoS>& topicsAndQoS, const SubscribeOptions& options, const std::vector<Property>& properties) = 0;
+	virtual Response subscribeMany5(const std::vector<TopicQoS>& topicsAndQoS, const SubscribeOptions& options, const std::vector<Property>& properties) = 0;
 		/// MQTT V5 version of subscribeMany(), which allows to specify options and properties.
 		///
 		/// This function attempts to subscribe the client to a list of topics (with
@@ -253,7 +255,7 @@ public:
 		/// Throws a Poco::IOException if there was a problem removing the
 		/// subscriptions.
 
-	virtual void unsubscribeMany5(const std::vector<std::string>& topics, const std::vector<Property>& properties) = 0;
+	virtual Response unsubscribeMany5(const std::vector<std::string>& topics, const std::vector<Property>& properties) = 0;
 		/// MQTT V5 version of unsubscribeMany(), which allows to specify properties.
 		///
 		/// This function attempts to remove existing subscriptions to a list of
@@ -261,6 +263,17 @@ public:
 		///
 		/// Throws a Poco::IOException if there was a problem removing the
 		/// subscriptions.
+
+	virtual void waitForCompletion(int deliveryToken, int timeout) = 0;
+		/// Waits for delivery of the message associated with the given deliveryToken.
+		///
+		/// Waits at most for the length of the given timeout in milliseconds.
+		/// Throws a Poco::TimeoutException if timeout expires without the
+		/// message delivery being completed.
+
+	virtual std::vector<int> pendingDeliveryTokens() = 0;
+		/// Returns a vector containing the delivery tokens for all messages
+		/// still pending delivery.
 
 	virtual ConnectionInfo connectionInfo() const = 0;
 		/// Returns a ConnectionInfo structure describing the currently active

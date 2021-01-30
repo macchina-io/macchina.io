@@ -63,25 +63,31 @@ public:
 			options.initialConnectTimeout = getIntConfig(baseConfig + ".initialConnectTimeout", 0);
 			options.connectRetries = getIntConfig(baseConfig + ".connectRetries", 0);
 			options.retryConnectWithExponentialBackoff = getBoolConfig(baseConfig + ".retryConnectWithExponentialBackoff", false);
-			options.cleanSession = getBoolConfig(baseConfig + ".cleanSession", true);
+			options.cleanSession = getBoolConfig(baseConfig + ".cleanSession", false);
+			options.cleanStart = getBoolConfig(baseConfig + ".cleanStart", false);
+			options.maxInflightMessages = getIntConfig(baseConfig + ".maxInflightMessages", 0);
 			options.reliable = getBoolConfig(baseConfig + ".reliable", false);
 			options.username = getStringConfig(baseConfig + ".username", "");
 			options.password = getStringConfig(baseConfig + ".password", "");
-			options.willQoS = getIntConfig(baseConfig + ".will.qos", 0);
 			options.mqttVersion = getIntConfig(baseConfig + ".mqttVersion", 0);
+
 			Poco::StringTokenizer tok(getStringConfig(baseConfig + ".serverURIs", ""), ";,", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 			options.serverURIs.assign(tok.begin(), tok.end());
 
 			options.willTopic = getStringConfig(baseConfig + ".will.topic", "");
 			options.willMessage = getStringConfig(baseConfig + ".will.message", "");
+			options.willQoS = getIntConfig(baseConfig + ".will.qos", 0);
 			options.willRetained = getBoolConfig(baseConfig + ".will.retained", false);
 
 			options.sslTrustStore = getStringConfig(baseConfig + ".ssl.trustStore", "");
+			options.sslDisableDefaultTrustStore = getBoolConfig(baseConfig + ".ssl.disableDefaultTrustStore", false);
+			options.sslCAPath = getStringConfig(baseConfig + ".ssl.caPath", "");
 			options.sslKeyStore = getStringConfig(baseConfig + ".ssl.keyStore", "");
 			options.sslPrivateKey = getStringConfig(baseConfig + ".ssl.privateKey", "");
 			options.sslPrivateKeyPassword = getStringConfig(baseConfig + ".ssl.privateKeyPassword", "");
 			options.sslEnabledCipherSuites = getStringConfig(baseConfig + ".ssl.enabledCipherSuites", "");
 			options.sslEnableServerCertAuth = getBoolConfig(baseConfig + ".ssl.enableServerCertAuth", false);
+			options.sslVerify = getBoolConfig(baseConfig + ".ssl.verify", false);
 			options.sslVersion = 0;
 			std::string sslVersion = getStringConfig(baseConfig + ".ssl.version", "");
 			if (Poco::icompare(sslVersion, "default") == 0)

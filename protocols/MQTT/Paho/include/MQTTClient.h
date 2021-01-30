@@ -196,6 +196,10 @@
   * Return code: 0 length will topic on connect
   */
  #define MQTTCLIENT_0_LEN_WILL_TOPIC -17
+ /**
+  * Return code: Timeout has expired while waiting for completion of a message delivery
+  */
+ #define MQTTCLIENT_TIMEOUT -18
 
 
 /**
@@ -1285,8 +1289,8 @@ LIBMQTT_API MQTTResponse MQTTClient_publishMessage5(MQTTClient handle, const cha
   * publishing functions MQTTClient_publish() and MQTTClient_publishMessage().
   * @param timeout The maximum time to wait in milliseconds.
   * @return ::MQTTCLIENT_SUCCESS if the message was successfully delivered.
-  * An error code is returned if the timeout expires or there was a problem
-  * checking the token.
+  * An error code is returned if the timeout expires (MQTTCLIENT_TIMEOUT)
+  * or there was a problem checking the token.
   */
 LIBMQTT_API int MQTTClient_waitForCompletion(MQTTClient handle, MQTTClient_deliveryToken dt, unsigned long timeout);
 

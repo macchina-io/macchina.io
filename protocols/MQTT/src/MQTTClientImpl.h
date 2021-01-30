@@ -31,6 +31,30 @@ namespace IoT {
 namespace MQTT {
 
 
+class IoTMQTT_API MQTTPropertiesHolder
+{
+public:
+	MQTTPropertiesHolder();
+	explicit MQTTPropertiesHolder(MQTTProperties& mqttProps);
+	explicit MQTTPropertiesHolder(const std::vector<Property>& properties);
+	~MQTTPropertiesHolder();
+
+	MQTTPropertiesHolder& operator = (const std::vector<Property>& properties);
+
+	MQTTProperties& value();
+	const MQTTProperties& value() const;
+	std::vector<Property> convert() const;
+
+private:
+	MQTTProperties _mqttProps;
+
+	MQTTPropertiesHolder(const MQTTPropertiesHolder&) = delete;
+	MQTTPropertiesHolder(MQTTPropertiesHolder&&) = delete;
+	MQTTPropertiesHolder& operator = (const MQTTPropertiesHolder&) = delete;
+	MQTTPropertiesHolder& operator = (MQTTPropertiesHolder&&) = delete;
+};
+
+
 class IoTMQTT_API MQTTClientImpl: public IoT::MQTT::MQTTClient
 	/// The default implementation of MQTTClient based on paho.
 {
@@ -39,33 +63,16 @@ public:
 
 	struct IoTMQTT_API ConnectOptions
 	{
-		ConnectOptions():
-			keepAliveInterval(60),
-			retryInterval(30),
-			connectTimeout(30),
-			initialConnectTimeout(0),
-			connectRetries(0),
-			retryConnectWithExponentialBackoff(false),
-			cleanSession(true),
-			reliable(false),
-			willRetained(false),
-			willQoS(0),
-			mqttVersion(0),
-			sslEnableServerCertAuth(false),
-			sslVersion(0)
-		{
-		}
-
-		int keepAliveInterval;
+		int keepAliveInterval = 60;
 			/// Keep-alive interval in seconds.
 
-		int retryInterval;
+		int retryInterval = 30;
 			/// Retry interval in seconds.
 
-		int connectTimeout;
+		int connectTimeout = 30;
 			/// Connect timeout in seconds.
 
-		int initialConnectTimeout;
+		int initialConnectTimeout = 0;
 			/// If non-zero, and if connectRetries is also non-zero, attempt to connect
 			/// first with this timeout, given in seconds.
 			///
@@ -73,7 +80,7 @@ public:
 			///
 			/// Warning: This is an experimental feature and may be removed in the future.
 
-		int connectRetries;
+		int connectRetries = 0;
 			/// Number of retries if initial connect attempt does not succeed.
 			///
 			/// If greater than zero:
@@ -92,7 +99,7 @@ public:
 			///
 			/// Warning: This is an experimental feature and may be removed in the future.
 
-		bool retryConnectWithExponentialBackoff;
+		bool retryConnectWithExponentialBackoff = false;
 			/// If specified, and if both connectRetries and initialConnectTimeout are
 			/// greater than zero, then the connect timeout, starting with
 			/// initialConnectTimeout, will be doubled after every unsuccessful
@@ -102,10 +109,10 @@ public:
 			///
 			/// Warning: This is an experimental feature and may be removed in the future.
 
-		bool cleanSession;
+		bool cleanSession = false;
 			/// Start with a clean session.
 
-		bool reliable;
+		bool reliable = false;
 			/// If set to true, only one message at a time can be "in flight".
 
 		std::string username;
@@ -120,24 +127,39 @@ public:
 		std::string willMessage;
 			/// Last will message.
 
-		bool willRetained;
+		bool willRetained = false;
 			/// Retained flag for will message.
 
-		int willQoS;
+		int willQoS = 0;
 			/// Quality of Service level for will message (0-2).
+
+		int maxInflightMessages = 0;
+			/// Maximum number of messages in flight.
+
+		bool cleanStart = false;
+			/// MQTT V5 clean start flag.
+			/// Only clears state at the beginning of the session.
+			/// Must only be set of mqttVersion == 5.
 
 		std::vector<std::string> serverURIs;
 			/// Optional list of server URIs.
 
-		int mqttVersion;
+		int mqttVersion = 0;
 			/// Sets the version of MQTT to be used on the connect. Valid values are
 			/// 0, 3 and 4.
 			///   * 0 = default: start with 3.1.1, and if that fails, fall back to 3.1
 			///   * 3 = only try version 3.1
 			///   * 4 = only try version 3.1.1
+			///   * 5 = only try version 5
 
 		std::string sslTrustStore;
 			/// The file in PEM format containing the public digital certificates trusted by the client.
+
+		bool sslDisableDefaultTrustStore = false;
+			/// If true, don't load OpenSSL default CA certificates.
+
+		std::string sslCAPath;
+			/// If not empty, specifies a directory containing CA certificates in PEM format.
 
 		std::string sslKeyStore;
 			/// The file in PEM format containing the public certificate chain of the client.
@@ -160,10 +182,14 @@ public:
 			/// considered. This setting can be used to set an SSL anonymous connection
 			/// ("aNULL" string value, for instance).
 
-		bool sslEnableServerCertAuth;
+		bool sslEnableServerCertAuth = false;
 			/// Enable or disable verification of the server certificate.
 
-		int sslVersion;
+		bool sslVerify = false;
+			/// Enable or disable post-connect checks, including that a certificate
+     		/// matches the given host name.
+
+		int sslVersion = 0;
 			/// SSL/TLS Version to use.
 			///   * 0 = default
 			///   * 1 = TLS 1.0
@@ -190,6 +216,9 @@ public:
 	~MQTTClientImpl();
 		/// Destroys the MQTTClientImpl.
 
+	static std::string errorMessage(int code);
+		/// Returns a message for the given error code.
+
 	// MQTTClient
 	const std::string& id() const;
 	const std::string& serverURI() const;
@@ -203,17 +232,19 @@ public:
 	std::vector<TopicQoS> subscribedTopics() const;
 	Statistics statistics() const;
 	int publish(const std::string& topic, const std::string& payload, int qos);
-	int publish5(const std::string& topic, const std::string& payload, int qos, bool retained, const std::vector<Property>& properties);
+	PublishResult publish5(const std::string& topic, const std::string& payload, int qos, bool retained, const std::vector<Property>& properties);
 	int publishMessage(const std::string& topic, const Message& message);
-	int publishMessage5(const std::string& topic, const Message& message);
+	PublishResult publishMessage5(const std::string& topic, const Message& message);
 	void subscribe(const std::string& topic, int qos);
-	void subscribe5(const std::string& topic, int qos, const SubscribeOptions& options, const std::vector<Property>& properties);
+	Response subscribe5(const std::string& topic, int qos, const SubscribeOptions& options, const std::vector<Property>& properties);
 	void unsubscribe(const std::string& topic);
-	void unsubscribe5(const std::string& topic, const std::vector<Property>& properties);
+	Response unsubscribe5(const std::string& topic, const std::vector<Property>& properties);
 	void subscribeMany(const std::vector<TopicQoS>& topicsAndQoS);
-	void subscribeMany5(const std::vector<TopicQoS>& topicsAndQoS, const SubscribeOptions& options, const std::vector<Property>& properties);
+	Response subscribeMany5(const std::vector<TopicQoS>& topicsAndQoS, const SubscribeOptions& options, const std::vector<Property>& properties);
 	void unsubscribeMany(const std::vector<std::string>& topics);
-	void unsubscribeMany5(const std::vector<std::string>& topics, const std::vector<Property>& properties);
+	Response unsubscribeMany5(const std::vector<std::string>& topics, const std::vector<Property>& properties);
+	void waitForCompletion(int deliveryToken, int timeout);
+	std::vector<int> pendingDeliveryTokens();
 	ConnectionInfo connectionInfo() const;
 
 protected:
@@ -225,20 +256,31 @@ protected:
 
 	void connectOnce();
 	void reconnect();
+	void reconnect5();
 	void connectImpl(const ConnectOptions& options);
+	void connect5Impl(const ConnectOptions& options, MQTTPropertiesHolder& connectProperties, MQTTPropertiesHolder& willProperties);
 	void resubscribe();
+	void resubscribe5();
 
-	static std::string errorMessage(int code);
 	static void onConnectionLost(void* context, char* cause);
 	static void onMessageDelivered(void* context, int token);
 	static int onMessageArrived(void* context, char* topicName, int topicLen, MQTTClient_message* message);
 
 private:
+	struct Subscription
+	{
+		int qos = 0;
+		SubscribeOptions options;
+		std::vector<Property> properties;
+	};
+
 	std::string _clientId;
 	std::string _serverURI;
 	ConnectOptions _options;
+	MQTTPropertiesHolder _connectProperties;
+	MQTTPropertiesHolder _willProperties;
 	long _reconnectDelay;
-	std::map<std::string, int> _subscribedTopics;
+	std::map<std::string, Subscription> _subscribedTopics;
 	std::map<std::string, int> _receivedMessages;
 	std::map<std::string, int> _publishedMessages;
 	::MQTTClient _mqttClient;
@@ -250,7 +292,23 @@ private:
 	mutable Poco::Mutex _statsMutex;
 
 	friend class ReconnectTask;
+	friend class Reconnect5Task;
 };
+
+
+//
+// inlines
+//
+inline MQTTProperties& MQTTPropertiesHolder::value()
+{
+	return _mqttProps;
+}
+
+
+inline const MQTTProperties& MQTTPropertiesHolder::value() const
+{
+	return _mqttProps;
+}
 
 
 } } // namespace IoT::MQTT

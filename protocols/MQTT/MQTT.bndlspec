@@ -22,7 +22,4 @@
     	../../lib/${osName}/${osArch}/libPahoMQTT*.1.dylib
     	../../lib/${osName}/${osArch}/libPahoMQTT*.so.1
 	</code>
-	<files>
-		bundle/*
-	</files>
 </bundlespec>
