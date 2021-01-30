@@ -154,7 +154,14 @@ public:
 		{
 			try
 			{
-				pClient->disconnect(200);
+				if (pClient->mqttVersion() < MQTT_VERSION_5)
+				{
+					pClient->disconnect(200);
+				}
+				else
+				{
+					pClient->disconnect5(200, REASON_NORMAL_DISCONNECTION, std::vector<Property>());
+				}
 			}
 			catch (Poco::Exception& exc)
 			{

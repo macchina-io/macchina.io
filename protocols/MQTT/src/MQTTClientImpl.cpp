@@ -444,7 +444,14 @@ MQTTClientImpl::~MQTTClientImpl()
 {
 	try
 	{
-		disconnect(200);
+		if (_options.mqttVersion < MQTT_VERSION_5)
+		{
+			disconnect(200);
+		}
+		else
+		{
+			disconnect5(200, REASON_NORMAL_DISCONNECTION, std::vector<Property>());
+		}
 	}
 	catch (...)
 	{
