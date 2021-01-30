@@ -318,7 +318,7 @@ namespace
 
 		bool success() const
 		{
-			return _mqttResponse.reasonCode == MQTTREASONCODE_SUCCESS;
+			return _mqttResponse.reasonCode >= MQTTREASONCODE_SUCCESS && _mqttResponse.reasonCode < MQTTREASONCODE_UNSPECIFIED_ERROR;
 		}
 
 		ReasonCode reasonCode() const
@@ -561,13 +561,13 @@ void MQTTClientImpl::connectAsync()
 void MQTTClientImpl::connectAsync5(const std::vector<Property>& connectProperties, const std::vector<Property>& willProperties)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
-	// MQTTProperties convConnectProperties = convertProperties(connectProperties);
-	// MQTTProperties convWillProperties = convertProperties(willProperties);
-	// if (MQTTClient_connect5(_mqttClient, NULL, &convConnectProperties, &convWillProperties).reasonCode != MQTTREASONCODE_SUCCESS)
+
+	_connectProperties = connectProperties;
+	_willProperties = willProperties;
 
 	if (!MQTTClient_isConnected(_mqttClient))
 	{
-		_timer.schedule(new ReconnectTask(*this), Poco::Clock());
+		_timer.schedule(new Reconnect5Task(*this), Poco::Clock());
 	}
 }
 
