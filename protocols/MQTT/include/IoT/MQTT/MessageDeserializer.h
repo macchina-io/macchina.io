@@ -53,7 +53,7 @@ public:
 		TypeDeserializer<std::vector < char > >::deserialize(REMOTING__NAMES[0], false, deser, value.binaryPayload);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], false, deser, value.payload);
 		TypeDeserializer<std::vector < IoT::MQTT::Property > >::deserialize(REMOTING__NAMES[2], false, deser, value.properties);
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[3], true, deser, value.qos);
+		TypeDeserializer<int >::deserialize(REMOTING__NAMES[3], false, deser, value.qos);
 		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[4], false, deser, value.retained);
 	}
 

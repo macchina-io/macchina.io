@@ -47,16 +47,17 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"byteValue"s,"identifier"s,"name"s,"stringValue"s,"uint16Value"s,"uint32Value"s};
+		static const std::string REMOTING__NAMES[] = {"binaryValue"s,"byteValue"s,"identifier"s,"name"s,"stringValue"s,"uint16Value"s,"uint32Value"s};
 		bool ret = false;
-		TypeDeserializer<Poco::Optional < Poco::UInt8 > >::deserialize(REMOTING__NAMES[0], true, deser, value.byteValue);
+		TypeDeserializer<Poco::Optional < std::vector < char > > >::deserialize(REMOTING__NAMES[0], true, deser, value.binaryValue);
+		TypeDeserializer<Poco::Optional < Poco::UInt8 > >::deserialize(REMOTING__NAMES[1], true, deser, value.byteValue);
 		int genidentifier;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, deser, genidentifier);
+		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], false, deser, genidentifier);
 		if (ret) value.identifier = static_cast<IoT::MQTT::PropertyID>(genidentifier);
-		TypeDeserializer<Poco::Optional < std::string > >::deserialize(REMOTING__NAMES[2], true, deser, value.name);
-		TypeDeserializer<Poco::Optional < std::string > >::deserialize(REMOTING__NAMES[3], true, deser, value.stringValue);
-		TypeDeserializer<Poco::Optional < Poco::UInt16 > >::deserialize(REMOTING__NAMES[4], true, deser, value.uint16Value);
-		TypeDeserializer<Poco::Optional < Poco::UInt32 > >::deserialize(REMOTING__NAMES[5], true, deser, value.uint32Value);
+		TypeDeserializer<Poco::Optional < std::string > >::deserialize(REMOTING__NAMES[3], true, deser, value.name);
+		TypeDeserializer<Poco::Optional < std::string > >::deserialize(REMOTING__NAMES[4], true, deser, value.stringValue);
+		TypeDeserializer<Poco::Optional < Poco::UInt16 > >::deserialize(REMOTING__NAMES[5], true, deser, value.uint16Value);
+		TypeDeserializer<Poco::Optional < Poco::UInt32 > >::deserialize(REMOTING__NAMES[6], true, deser, value.uint32Value);
 	}
 
 };

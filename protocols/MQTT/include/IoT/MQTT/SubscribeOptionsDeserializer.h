@@ -48,9 +48,9 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"noLocal"s,"retainAsPublished"s,"retainHandling"s};
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[0], true, deser, value.noLocal);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[1], true, deser, value.retainAsPublished);
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], true, deser, value.retainHandling);
+		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[0], false, deser, value.noLocal);
+		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[1], false, deser, value.retainAsPublished);
+		TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], false, deser, value.retainHandling);
 	}
 
 };

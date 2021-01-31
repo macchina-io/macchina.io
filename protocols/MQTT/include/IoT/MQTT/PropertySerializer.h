@@ -43,13 +43,14 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"byteValue"s,"identifier"s,"name"s,"stringValue"s,"uint16Value"s,"uint32Value"s,""s};
-		TypeSerializer<Poco::Optional < Poco::UInt8 > >::serialize(REMOTING__NAMES[0], value.byteValue, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[1], value.identifier, ser);
-		TypeSerializer<Poco::Optional < std::string > >::serialize(REMOTING__NAMES[2], value.name, ser);
-		TypeSerializer<Poco::Optional < std::string > >::serialize(REMOTING__NAMES[3], value.stringValue, ser);
-		TypeSerializer<Poco::Optional < Poco::UInt16 > >::serialize(REMOTING__NAMES[4], value.uint16Value, ser);
-		TypeSerializer<Poco::Optional < Poco::UInt32 > >::serialize(REMOTING__NAMES[5], value.uint32Value, ser);
+		static const std::string REMOTING__NAMES[] = {"binaryValue"s,"byteValue"s,"identifier"s,"name"s,"stringValue"s,"uint16Value"s,"uint32Value"s,""s};
+		TypeSerializer<Poco::Optional < std::vector < char > > >::serialize(REMOTING__NAMES[0], value.binaryValue, ser);
+		TypeSerializer<Poco::Optional < Poco::UInt8 > >::serialize(REMOTING__NAMES[1], value.byteValue, ser);
+		TypeSerializer<int >::serialize(REMOTING__NAMES[2], value.identifier, ser);
+		TypeSerializer<Poco::Optional < std::string > >::serialize(REMOTING__NAMES[3], value.name, ser);
+		TypeSerializer<Poco::Optional < std::string > >::serialize(REMOTING__NAMES[4], value.stringValue, ser);
+		TypeSerializer<Poco::Optional < Poco::UInt16 > >::serialize(REMOTING__NAMES[5], value.uint16Value, ser);
+		TypeSerializer<Poco::Optional < Poco::UInt32 > >::serialize(REMOTING__NAMES[6], value.uint32Value, ser);
 	}
 
 };

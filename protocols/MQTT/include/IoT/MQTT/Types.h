@@ -89,48 +89,59 @@ enum ReasonCode
 
 
 enum PropertyID
-	/// MQTT V5 Property Identifier
+	/// MQTT V5 Property Identifier.
+	///
+	/// A Property consists of an identifier which defines its usage and data type, followed by a value.
+	///
+	/// Property identifiers are defined in the MQTT V5 specification.
 {
-	PROP_PAYLOAD_FORMAT_INDICATOR = 1,
-	PROP_MESSAGE_EXPIRY_INTERVAL = 2,
-	PROP_CONTENT_TYPE = 3,
-	PROP_RESPONSE_TOPIC = 8,
-	PROP_CORRELATION_DATA = 9,
-	PROP_SUBSCRIPTION_IDENTIFIER = 11,
-	PROP_SESSION_EXPIRY_INTERVAL = 17,
-	PROP_ASSIGNED_CLIENT_IDENTIFER = 18,
-	PROP_SERVER_KEEP_ALIVE = 19,
-	PROP_AUTHENTICATION_METHOD = 21,
-	PROP_AUTHENTICATION_DATA = 22,
-	PROP_REQUEST_PROBLEM_INFORMATION = 23,
-	PROP_WILL_DELAY_INTERVAL = 24,
-	PROP_REQUEST_RESPONSE_INFORMATION = 25,
-	PROP_RESPONSE_INFORMATION = 26,
-	PROP_SERVER_REFERENCE = 28,
-	PROP_REASON_STRING = 31,
-	PROP_RECEIVE_MAXIMUM = 33,
-	PROP_TOPIC_ALIAS_MAXIMUM = 34,
-	PROP_TOPIC_ALIAS = 35,
-	PROP_MAXIMUM_QOS = 36,
-	PROP_RETAIN_AVAILABLE = 37,
-	PROP_USER_PROPERTY = 38,
-	PROP_MAXIMUM_PACKET_SIZE = 39,
-	PROP_WILDCARD_SUBSCRIPTION_AVAILABLE = 40,
-	PROP_SUBSCRIPTION_IDENTIFIERS_AVAILABLE = 41,
-	PROP_SHARED_SUBSCRIPTION_AVAILABLE = 42
+	PROP_PAYLOAD_FORMAT_INDICATOR = 1,            /// Payload Format Indicator (byteValue)
+	PROP_MESSAGE_EXPIRY_INTERVAL = 2,             /// Message Expiry Interval (uint32Value)
+	PROP_CONTENT_TYPE = 3,                        /// Content Type (stringValue)
+	PROP_RESPONSE_TOPIC = 8,                      /// Response Topic (stringValue)
+	PROP_CORRELATION_DATA = 9,                    /// Correlation Data (binaryValue)
+	PROP_SUBSCRIPTION_IDENTIFIER = 11,            /// Subscription Identifier (uint32Value)
+	PROP_SESSION_EXPIRY_INTERVAL = 17,            /// Session Expiry Interval (uint32Value)
+	PROP_ASSIGNED_CLIENT_IDENTIFER = 18,          /// Assigned Client Identifier (stringValue)
+	PROP_SERVER_KEEP_ALIVE = 19,                  /// Server Keep Alive (uint16Value)
+	PROP_AUTHENTICATION_METHOD = 21,              /// Authentication Method (stringValue)
+	PROP_AUTHENTICATION_DATA = 22,                /// Authentication Data (binaryValue)
+	PROP_REQUEST_PROBLEM_INFORMATION = 23,        /// Request Problem Information (byteValue)
+	PROP_WILL_DELAY_INTERVAL = 24,                /// Will Delay Interval (uint32Value)
+	PROP_REQUEST_RESPONSE_INFORMATION = 25,       /// Request Response Information (stringValue)
+	PROP_RESPONSE_INFORMATION = 26,               /// Response Information (stringValue)
+	PROP_SERVER_REFERENCE = 28,                   /// Server Reference(stringValue)
+	PROP_REASON_STRING = 31,                      /// Reason String(string16Value)
+	PROP_RECEIVE_MAXIMUM = 33,                    /// Receive Maximum (uint16Value)
+	PROP_TOPIC_ALIAS_MAXIMUM = 34,                /// Topic Alias Maximum (uint16Value)
+	PROP_TOPIC_ALIAS = 35,                        /// Topic Alias (uint16Value)
+	PROP_MAXIMUM_QOS = 36,                        /// Maximum QoS (byteValue)
+	PROP_RETAIN_AVAILABLE = 37,                   /// Retain Available (byteValue)
+	PROP_USER_PROPERTY = 38,                      /// User property (name, stringValue)
+	PROP_MAXIMUM_PACKET_SIZE = 39,                /// Maximum Packet Size (uint32Value)
+	PROP_WILDCARD_SUBSCRIPTION_AVAILABLE = 40,    /// Wildcard Subscription Available (byteValue)
+	PROP_SUBSCRIPTION_IDENTIFIERS_AVAILABLE = 41, /// Subscription Identifiers Available (byteValue)
+	PROP_SHARED_SUBSCRIPTION_AVAILABLE = 42       /// Shared Subscription Available (byteValue)
 };
 
 
 //@ serialize
 struct Property
-	/// MQTT V5 Property
+	/// MQTT V5 Property.
+	///
+	/// Only one of the value members must be specified.
+	/// The specified value member must correspond to the
+	/// specified identifier.
 {
-	PropertyID identifier = PROP_USER_PROPERTY;
-	Poco::Optional<Poco::UInt8> byteValue;
-	Poco::Optional<Poco::UInt16> uint16Value;
-	Poco::Optional<Poco::UInt32> uint32Value;
-	Poco::Optional<std::string> stringValue;
-	Poco::Optional<std::string> name;
+	//@ optional
+	PropertyID identifier = PROP_USER_PROPERTY;    /// Property Identifier
+
+	Poco::Optional<Poco::UInt8> byteValue;         /// Byte value
+	Poco::Optional<Poco::UInt16> uint16Value;      /// Two Byte Integer value
+	Poco::Optional<Poco::UInt32> uint32Value;      /// Four Byte Integer or Variable Byte Integer value
+	Poco::Optional<std::vector<char>> binaryValue; /// Binary Data value
+	Poco::Optional<std::string> stringValue;       /// UTF-8 Encoded String value
+	Poco::Optional<std::string> name;              /// Name of User Property (UTF-8 encoded)
 };
 
 
@@ -138,15 +149,18 @@ struct Property
 struct SubscribeOptions
 	/// MQTT V5 Subscribe Options
 {
+	//@ optional
 	bool noLocal = false;
 		/// Set to true to not receive own publications.
 		/// Set to false for original MQTT behaviour - all messages matching the subscription are received.
 
+	//@ optional
 	bool retainAsPublished = false;
 		/// To keep the retain flag as on the original publish message, set to true.
 		/// If false, defaults to the original MQTT behaviour where the retain flag is only set on
 	    /// publications sent by a broker if in response to a subscribe request.
 
+	//@ optional
 	int retainHandling = 0;
 		///   * 0 - send retained messages at the time of the subscribe (original MQTT behaviour)
 		///   * 1 - send retained messages on subscribe only if the subscription is new
@@ -181,37 +195,36 @@ struct PublishResult
 struct Message
 	/// This structure encapsulates a MQTT message.
 {
-	Message(int q = 0):
-		qos(q),
-		retained(false)
+	Message()
+	{
+	}
+
+	explicit Message(int q):
+		qos(q)
 	{
 	}
 
 	Message(const std::string& p, int q):
 		payload(p),
-		qos(q),
-		retained(false)
+		qos(q)
 	{
 	}
 
 	Message(const std::vector<char>& p, int q):
 		binaryPayload(p),
-		qos(q),
-		retained(false)
+		qos(q)
 	{
 	}
 
 	Message(std::string&& p, int q) :
 		payload(p),
-		qos(q),
-		retained(false)
+		qos(q)
 	{
 	}
 
 	Message(std::vector<char>&& p, int q) :
 		binaryPayload(p),
-		qos(q),
-		retained(false)
+		qos(q)
 	{
 	}
 
@@ -223,7 +236,8 @@ struct Message
 	std::vector<char> binaryPayload;
 		/// Alternative binary payload, considered if payload is empty.
 
-	int qos;
+	//@ optional
+	int qos = 0;
 		/// The quality of service (QoS) assigned to the message.
 		/// There are three levels of QoS:
 		///   * 0: Fire and forget - the message may not be delivered.
@@ -232,7 +246,7 @@ struct Message
 		///   * 2: Once and one only - the message will be delivered exactly once.
 
 	//@ optional
-	bool retained;
+	bool retained = false;
 		/// The retained flag serves two purposes depending on whether the message
 		/// it is associated with is being published or received.
 		///
@@ -354,8 +368,7 @@ struct ConnectionEstablishedEvent
 struct TopicQoS
 	/// A vector of these is given to MQTTClient::subscribeMany.
 {
-	TopicQoS():
-		qos(0)
+	TopicQoS()
 	{
 	}
 
@@ -368,7 +381,7 @@ struct TopicQoS
 	std::string topic;
 		/// The topic name, which may contain wildcards.
 
-	int qos;
+	int qos = 0;
 		/// The QoS level (0, 1 or 2).
 };
 
@@ -376,8 +389,7 @@ struct TopicQoS
 //@ serialize
 struct TopicCount
 {
-	TopicCount():
-		messageCount(0)
+	TopicCount()
 	{
 	}
 

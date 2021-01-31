@@ -116,10 +116,24 @@ namespace
 	}
 
 
+	MQTTLenString convertBinary(const std::vector<char>& value)
+	{
+		MQTTLenString result;
+		result.data = reinterpret_cast<char*>(std::malloc(value.size()));
+		if (result.data)
+		{
+			std::memcpy(result.data, value.data(), value.size());
+			result.len = value.size();
+		}
+		return result;
+	}
+
+
 	void cleanUpMQTTLenString(MQTTLenString& str)
 	{
 		std::free(str.data);
 		str.data = nullptr;
+		str.len = 0;
 	}
 
 
@@ -147,6 +161,9 @@ namespace
 			break;
 
 		case MQTTPROPERTY_TYPE_BINARY_DATA:
+			mqttProp.value.data = convertBinary(property.binaryValue.value());
+			break;
+
 		case MQTTPROPERTY_TYPE_UTF_8_ENCODED_STRING:
 			mqttProp.value.data = convertString(property.stringValue.value());
 			break;
@@ -185,13 +202,16 @@ namespace
 			break;
 
 		case MQTTPROPERTY_TYPE_BINARY_DATA:
+			property.binaryValue = std::vector<char>(mqttProp.value.data.data, mqttProp.value.data.data + mqttProp.value.data.len);
+			break;
+
 		case MQTTPROPERTY_TYPE_UTF_8_ENCODED_STRING:
 			property.stringValue = std::string(mqttProp.value.data.data, mqttProp.value.data.len);
 			break;
 
 		case MQTTPROPERTY_TYPE_UTF_8_STRING_PAIR:
-			property.stringValue = std::string(mqttProp.value.value.data, mqttProp.value.value.len);
 			property.name = std::string(mqttProp.value.data.data, mqttProp.value.data.len);
+			property.stringValue = std::string(mqttProp.value.value.data, mqttProp.value.value.len);
 			break;
 		}
 
@@ -1021,8 +1041,8 @@ void MQTTClientImpl::disconnect5(int timeout, ReasonCode reason, const std::vect
 
 	if (MQTTClient_isConnected(_mqttClient))
 	{
-		MQTTPropertiesHolder convertedProperties(properties);
-		int rc = MQTTClient_disconnect5(_mqttClient, timeout, static_cast<MQTTReasonCodes>(reason), &convertedProperties.value());
+		MQTTPropertiesHolder mqttProperties(properties);
+		int rc = MQTTClient_disconnect5(_mqttClient, timeout, static_cast<MQTTReasonCodes>(reason), &mqttProperties.value());
 		if (rc != MQTTCLIENT_SUCCESS)
 			throw Poco::IOException("Failed to disconnect from MQTT server"s, errorMessage(rc), rc);
 		_logger.debug("Disconnected MQTT client \"%s\" from server \"%s\"."s, _clientId, _serverURI);
@@ -1074,8 +1094,8 @@ PublishResult MQTTClientImpl::publish5(const std::string& topic, const std::stri
 		Poco::Mutex::ScopedLock lock(_mutex);
 
 		connectOnce();
-		MQTTPropertiesHolder convertedProperties(properties);
-		MQTTResponseHolder mqttResponse(MQTTClient_publish5(_mqttClient, topic.c_str(), static_cast<int>(payload.size()), const_cast<char*>(payload.data()), qos, retained, &convertedProperties.value(), &token));
+		MQTTPropertiesHolder mqttProperties(properties);
+		MQTTResponseHolder mqttResponse(MQTTClient_publish5(_mqttClient, topic.c_str(), static_cast<int>(payload.size()), const_cast<char*>(payload.data()), qos, retained, &mqttProperties.value(), &token));
 		if (!mqttResponse.success())
 			throw Poco::IOException(Poco::format("Failed to publish message on topic \"%s\""s, topic), mqttResponse.reasonString(), mqttResponse.reasonCode());
 		result.deliveryToken = token;
@@ -1133,15 +1153,15 @@ PublishResult MQTTClientImpl::publishMessage5(const std::string& topic, const Me
 
 		connectOnce();
 
-		MQTTPropertiesHolder convertedProperties(message.properties);
+		MQTTPropertiesHolder mqttProperties(message.properties);
 		MQTTResponseHolder response;
 		if (message.payload.empty())
 		{
-			response = MQTTClient_publish5(_mqttClient, topic.c_str(), static_cast<int>(message.binaryPayload.size()), const_cast<char*>(&message.binaryPayload[0]), message.qos, message.retained, &convertedProperties.value(), &result.deliveryToken);
+			response = MQTTClient_publish5(_mqttClient, topic.c_str(), static_cast<int>(message.binaryPayload.size()), const_cast<char*>(&message.binaryPayload[0]), message.qos, message.retained, &mqttProperties.value(), &result.deliveryToken);
 		}
 		else
 		{
-			response = MQTTClient_publish5(_mqttClient, topic.c_str(), static_cast<int>(message.payload.size()), const_cast<char*>(message.payload.data()), message.qos, message.retained, &convertedProperties.value(), &result.deliveryToken);
+			response = MQTTClient_publish5(_mqttClient, topic.c_str(), static_cast<int>(message.payload.size()), const_cast<char*>(message.payload.data()), message.qos, message.retained, &mqttProperties.value(), &result.deliveryToken);
 		}
 		if (!response.success())
 			throw Poco::IOException(Poco::format("Failed to publish message on topic \"%s\""s, topic), response.reasonString(), response.reasonCode());
@@ -1182,10 +1202,10 @@ Response MQTTClientImpl::subscribe5(const std::string& topic, int qos, const Sub
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	connectOnce();
-	MQTTPropertiesHolder convertedProperties(properties);
+	MQTTPropertiesHolder mqttProperties(properties);
 	MQTTSubscribe_options convSubscribeOptions = convertOptions(options);
 
-	MQTTResponseHolder response(MQTTClient_subscribe5(_mqttClient, const_cast<char*>(topic.c_str()), qos, &convSubscribeOptions, &convertedProperties.value()));
+	MQTTResponseHolder response(MQTTClient_subscribe5(_mqttClient, const_cast<char*>(topic.c_str()), qos, &convSubscribeOptions, &mqttProperties.value()));
 	if (!response.success())
 		throw Poco::IOException(Poco::format("Failed to subscribe to topic \"%s\""s, topic), response.reasonString(), response.reasonCode());
 
@@ -1224,8 +1244,8 @@ Response MQTTClientImpl::unsubscribe5(const std::string& topic, const std::vecto
 	MQTTResponseHolder response;
 	if (MQTTClient_isConnected(_mqttClient))
 	{
-		MQTTPropertiesHolder convertedProperties(properties);
-		response = MQTTClient_unsubscribe5(_mqttClient, const_cast<char*>(topic.c_str()), &convertedProperties.value());
+		MQTTPropertiesHolder mqttProperties(properties);
+		response = MQTTClient_unsubscribe5(_mqttClient, const_cast<char*>(topic.c_str()), &mqttProperties.value());
 		if (!response.success())
 			throw Poco::IOException(Poco::format("Failed to unsubscribe from topic \"%s\""s, topic), response.reasonString(), response.reasonCode());
 	}
@@ -1282,10 +1302,10 @@ Response MQTTClientImpl::subscribeMany5(const std::vector<TopicQoS>& topicsAndQo
 		ctopics.push_back(const_cast<char*>(t.topic.c_str()));
 		qoss.push_back(t.qos);
 	}
-	MQTTPropertiesHolder convertedProperties(properties);
-	MQTTSubscribe_options convSubscribeOptions = convertOptions(options);
+	MQTTSubscribe_options mqttSubscribeOptions = convertOptions(options);
+	MQTTPropertiesHolder mqttProperties(properties);
 
-	MQTTResponseHolder response(MQTTClient_subscribeMany5(_mqttClient, static_cast<int>(ctopics.size()), &ctopics[0], &qoss[0], &convSubscribeOptions, &convertedProperties.value()));
+	MQTTResponseHolder response(MQTTClient_subscribeMany5(_mqttClient, static_cast<int>(ctopics.size()), &ctopics[0], &qoss[0], &mqttSubscribeOptions, &mqttProperties.value()));
 	if (!response.success())
 		throw Poco::IOException("Failed to subscribe to multiple topics"s, response.reasonString(), response.reasonCode());
 
@@ -1343,8 +1363,8 @@ Response MQTTClientImpl::unsubscribeMany5(const std::vector<std::string>& topics
 	{
 		ctopics.push_back(const_cast<char*>(t.c_str()));
 	}
-	MQTTPropertiesHolder convertedProperties(properties);
-	MQTTResponseHolder response(MQTTClient_unsubscribeMany5(_mqttClient, static_cast<int>(ctopics.size()), &ctopics[0], &convertedProperties.value()));
+	MQTTPropertiesHolder mqttProperties(properties);
+	MQTTResponseHolder response(MQTTClient_unsubscribeMany5(_mqttClient, static_cast<int>(ctopics.size()), &ctopics[0], &mqttProperties.value()));
 	if (!response.success())
 		throw Poco::IOException("Failed to unsubscribe from multiple topics"s, response.reasonString(), response.reasonCode());
 
