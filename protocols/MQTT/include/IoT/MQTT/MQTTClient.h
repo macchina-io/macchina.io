@@ -118,7 +118,9 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual ConnectionInfo connect5(const std::vector<Property>& connectProperties, const std::vector<Property>& willProperties) = 0;
+	//@ $connectProperties={optional}
+	//@ $willProperties={optional}
+	virtual ConnectionInfo connect5(const std::vector<Property>& connectProperties = std::vector<Property>(), const std::vector<Property>& willProperties = std::vector<Property>()) = 0;
 		/// MQTT V5 version of connect().
 		///
 		/// Connects to the server if not already connected.
@@ -146,7 +148,9 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual void connectAsync5(const std::vector<Property>& connectProperties, const std::vector<Property>& willProperties) = 0;
+	//@ $connectProperties={optional}
+	//@ $willProperties={optional}
+	virtual void connectAsync5(const std::vector<Property>& connectProperties = std::vector<Property>(), const std::vector<Property>& willProperties = std::vector<Property>()) = 0;
 		/// MQTT V5 version of connectAsync().
 		///
 		/// Connects to the server if not already connected.
@@ -172,7 +176,9 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual void disconnect5(int timeout, ReasonCode reason, const std::vector<Property>& properties) = 0;
+	//@ $properties={optional}
+	//@ $reason={optional}
+	virtual void disconnect5(int timeout, ReasonCode reason = REASON_NORMAL_DISCONNECTION, const std::vector<Property>& properties = std::vector<Property>()) = 0;
 		/// MQTT V5 version of disconnect().
 		///
 		/// Disconnects from the server.
@@ -200,7 +206,7 @@ public:
 		///
 		/// This method is only supported for all MQTT versions.
 
-	virtual int publish(const std::string& topic, const std::string& payload, int qos) = 0;
+	virtual int publish(const std::string& topic, const std::string& payload, int qos = 0) = 0;
 		/// Publishes the given message on the given topic, using the given QoS.
 		///
 		/// Returns a delivery token which can be used with the messageDelivered
@@ -210,7 +216,9 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual PublishResult publish5(const std::string& topic, const std::string& payload, int qos, bool retained, const std::vector<Property>& properties) = 0;
+	//@ $retained={optional}
+	//@ $properties={optional}
+	virtual PublishResult publish5(const std::string& topic, const std::string& payload, int qos = 0, bool retained = false, const std::vector<Property>& properties = std::vector<Property>()) = 0;
 		/// MQTT V5 version of publish().
 		///
 		/// Publishes the given message on the given topic, using the given QoS.
@@ -246,7 +254,7 @@ public:
 		///
 		/// This method is only supported for MQTT 5.
 
-	virtual void subscribe(const std::string& topic, int qos) = 0;
+	virtual void subscribe(const std::string& topic, int qos = 0) = 0;
 		/// This function attempts to subscribe the client to a single topic,
 		/// which may contain wildcards. This call also specifies the Quality of service
 		/// requested for the subscription.
@@ -256,7 +264,9 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual Response subscribe5(const std::string& topic, int qos, const SubscribeOptions& options, const std::vector<Property>& properties) = 0;
+	//@ $options={optional}
+	//@ $properties={optional}
+	virtual Response subscribe5(const std::string& topic, int qos = 0, const SubscribeOptions& options = SubscribeOptions(), const std::vector<Property>& properties = std::vector<Property>()) = 0;
 		/// MQTT V5 version of subscribe(), which allows to specify options and properties.
 		///
 		/// This function attempts to subscribe the client to a single topic,
@@ -276,7 +286,8 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual Response unsubscribe5(const std::string& topic, const std::vector<Property>& properties) = 0;
+	//@ $properties={optional}
+	virtual Response unsubscribe5(const std::string& topic, const std::vector<Property>& properties = std::vector<Property>()) = 0;
 		/// MQTT V5 version of unsubscribe(), which allows to specify properties.
 		///
 		/// This function attempts to remove an existing subscription made by the client.
@@ -295,7 +306,9 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual Response subscribeMany5(const std::vector<TopicQoS>& topicsAndQoS, const SubscribeOptions& options, const std::vector<Property>& properties) = 0;
+	//@ $options={optional}
+	//@ $properties={optional}
+	virtual Response subscribeMany5(const std::vector<TopicQoS>& topicsAndQoS, const SubscribeOptions& options = SubscribeOptions(), const std::vector<Property>& properties = std::vector<Property>()) = 0;
 		/// MQTT V5 version of subscribeMany(), which allows to specify options and properties.
 		///
 		/// This function attempts to subscribe the client to a list of topics (with
@@ -315,7 +328,8 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual Response unsubscribeMany5(const std::vector<std::string>& topics, const std::vector<Property>& properties) = 0;
+	//@ $properties={optional}
+	virtual Response unsubscribeMany5(const std::vector<std::string>& topics, const std::vector<Property>& properties = std::vector<Property>()) = 0;
 		/// MQTT V5 version of unsubscribeMany(), which allows to specify properties.
 		///
 		/// This function attempts to remove existing subscriptions to a list of
