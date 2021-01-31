@@ -49,7 +49,8 @@
             <h1>{{client.id}} [{{client.clientId}}]
             <span ng-if="client.connected">&#x2192;</span>
             <span ng-if="!client.connected">&#x219b;</span>
-            {{client.serverURI}}</h1>
+            {{client.serverURI}}
+            ({{client.version}})</h1>
             <div ng-if="client.subscribedTopics.length == 0">
               No subscriptions
             </div>
