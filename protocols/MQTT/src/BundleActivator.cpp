@@ -20,6 +20,7 @@
 #include "Poco/ClassLibrary.h"
 #include "Poco/StringTokenizer.h"
 #include "Poco/Environment.h"
+#include "Poco/NumberFormatter.h"
 
 
 using Poco::OSP::BundleContext;
@@ -28,6 +29,7 @@ using Poco::OSP::ServiceRef;
 using Poco::OSP::ServiceFinder;
 using Poco::OSP::Properties;
 using Poco::OSP::PreferencesService;
+using namespace std::string_literals;
 
 
 namespace IoT {
@@ -49,58 +51,76 @@ public:
 
 	void createClient(const std::string& baseConfig, const std::string& id)
 	{
-		std::string serverURI = getStringConfig(baseConfig + ".serverURI", "");
-		std::string clientId = getStringConfig(baseConfig + ".clientId", "");
-		std::string persistencePath = getStringConfig(baseConfig + ".persistence.path", "");
+		std::string serverURI = getStringConfig(baseConfig + ".serverURI"s, ""s);
+		std::string clientId = getStringConfig(baseConfig + ".clientId"s, ""s);
+		std::string persistencePath = getStringConfig(baseConfig + ".persistence.path"s, ""s);
 		MQTTClientImpl::Persistence persistence = persistencePath.empty() ? MQTTClientImpl::MQTT_PERSISTENCE_NONE : MQTTClientImpl::MQTT_PERSISTENCE_FILE;
 
 		if (!serverURI.empty())
 		{
 			MQTTClientImpl::ConnectOptions options;
-			options.keepAliveInterval = getIntConfig(baseConfig + ".keepAliveInterval", 60);
-			options.retryInterval = getIntConfig(baseConfig + ".retryInterval", 30);
-			options.connectTimeout = getIntConfig(baseConfig + ".connectTimeout", 30);
-			options.initialConnectTimeout = getIntConfig(baseConfig + ".initialConnectTimeout", 0);
-			options.connectRetries = getIntConfig(baseConfig + ".connectRetries", 0);
-			options.retryConnectWithExponentialBackoff = getBoolConfig(baseConfig + ".retryConnectWithExponentialBackoff", false);
-			options.cleanSession = getBoolConfig(baseConfig + ".cleanSession", true);
-			options.reliable = getBoolConfig(baseConfig + ".reliable", false);
-			options.username = getStringConfig(baseConfig + ".username", "");
-			options.password = getStringConfig(baseConfig + ".password", "");
-			options.willQoS = getIntConfig(baseConfig + ".will.qos", 0);
-			options.mqttVersion = getIntConfig(baseConfig + ".mqttVersion", 0);
-			Poco::StringTokenizer tok(getStringConfig(baseConfig + ".serverURIs", ""), ";,", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+			options.keepAliveInterval = getIntConfig(baseConfig + ".keepAliveInterval"s, 60);
+			options.retryInterval = getIntConfig(baseConfig + ".retryInterval"s, 30);
+			options.connectTimeout = getIntConfig(baseConfig + ".connectTimeout"s, 30);
+			options.initialConnectTimeout = getIntConfig(baseConfig + ".initialConnectTimeout"s, 0);
+			options.connectRetries = getIntConfig(baseConfig + ".connectRetries"s, 0);
+			options.retryConnectWithExponentialBackoff = getBoolConfig(baseConfig + ".retryConnectWithExponentialBackoff"s, false);
+			options.cleanSession = getBoolConfig(baseConfig + ".cleanSession"s, false);
+			options.cleanStart = getBoolConfig(baseConfig + ".cleanStart"s, false);
+			options.maxInflightMessages = getIntConfig(baseConfig + ".maxInflightMessages"s, 0);
+			options.reliable = getBoolConfig(baseConfig + ".reliable"s, false);
+			options.username = getStringConfig(baseConfig + ".username"s, "");
+			options.password = getStringConfig(baseConfig + ".password"s, "");
+			options.mqttVersion = getIntConfig(baseConfig + ".mqttVersion"s, 0);
+
+			if (options.mqttVersion == 5 && options.cleanSession)
+			{
+				_pContext->logger().warning("Cannot enable cleanSession for MQTT version 5 client %s. Use cleanStart instead."s, id);
+				options.cleanSession = false;
+			}
+			if (options.mqttVersion < 5 && options.cleanStart)
+			{
+				_pContext->logger().warning("Cannot enable cleanStart for MQTT version 3.x client %s. Use cleanSession instead."s, id);
+				options.cleanStart = false;
+			}
+
+			Poco::StringTokenizer tok(getStringConfig(baseConfig + ".serverURIs"s, ""s), ";,"s, Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 			options.serverURIs.assign(tok.begin(), tok.end());
 
-			options.willTopic = getStringConfig(baseConfig + ".will.topic", "");
-			options.willMessage = getStringConfig(baseConfig + ".will.message", "");
-			options.willRetained = getBoolConfig(baseConfig + ".will.retained", false);
+			options.willTopic = getStringConfig(baseConfig + ".will.topic"s, ""s);
+			options.willMessage = getStringConfig(baseConfig + ".will.message"s, ""s);
+			options.willQoS = getIntConfig(baseConfig + ".will.qos"s, 0);
+			options.willRetained = getBoolConfig(baseConfig + ".will.retained"s, false);
 
-			options.sslTrustStore = getStringConfig(baseConfig + ".ssl.trustStore", "");
-			options.sslKeyStore = getStringConfig(baseConfig + ".ssl.keyStore", "");
-			options.sslPrivateKey = getStringConfig(baseConfig + ".ssl.privateKey", "");
-			options.sslPrivateKeyPassword = getStringConfig(baseConfig + ".ssl.privateKeyPassword", "");
-			options.sslEnabledCipherSuites = getStringConfig(baseConfig + ".ssl.enabledCipherSuites", "");
+			options.sslTrustStore = getStringConfig(baseConfig + ".ssl.trustStore"s, ""s);
+			options.sslDisableDefaultTrustStore = getBoolConfig(baseConfig + ".ssl.disableDefaultTrustStore"s, false);
+			options.sslCAPath = getStringConfig(baseConfig + ".ssl.caPath"s, ""s);
+			options.sslKeyStore = getStringConfig(baseConfig + ".ssl.keyStore"s, ""s);
+			options.sslPrivateKey = getStringConfig(baseConfig + ".ssl.privateKey"s, ""s);
+			options.sslPrivateKeyPassword = getStringConfig(baseConfig + ".ssl.privateKeyPassword"s, ""s);
+			options.sslEnabledCipherSuites = getStringConfig(baseConfig + ".ssl.enabledCipherSuites"s, ""s);
 			options.sslEnableServerCertAuth = getBoolConfig(baseConfig + ".ssl.enableServerCertAuth", false);
+			options.sslVerify = getBoolConfig(baseConfig + ".ssl.verify"s, false);
 			options.sslVersion = 0;
-			std::string sslVersion = getStringConfig(baseConfig + ".ssl.version", "");
-			if (Poco::icompare(sslVersion, "default") == 0)
+			std::string sslVersion = getStringConfig(baseConfig + ".ssl.version"s, ""s);
+			if (Poco::icompare(sslVersion, "default"s) == 0)
 				options.sslVersion = 0;
-			else if (Poco::icompare(sslVersion, "tls1.0") == 0)
+			else if (Poco::icompare(sslVersion, "tls1.0"s) == 0)
 				options.sslVersion = 1;
-			else if (Poco::icompare(sslVersion, "tls1.1") == 0)
+			else if (Poco::icompare(sslVersion, "tls1.1"s) == 0)
 				options.sslVersion = 2;
-			else if (Poco::icompare(sslVersion, "tls1.2") == 0)
+			else if (Poco::icompare(sslVersion, "tls1.2"s) == 0)
 				options.sslVersion = 3;
 
 			MQTTClientImpl::Ptr pMQTTClient = new MQTTClientImpl(serverURI, clientId, persistence, persistencePath, options);
-			std::string oid(Poco::format("io.macchina.mqtt.client#%z", _clients.size()));
+			std::string oid(Poco::format("io.macchina.mqtt.client#%z"s, _clients.size()));
 			ServerHelper::RemoteObjectPtr pMQTTClientRemoteObject = ServerHelper::createRemoteObject(pMQTTClient, oid);
 			Poco::OSP::Properties props;
-			props.set("io.macchina.protocol", "io.macchina.mqtt");
-			props.set("io.macchina.mqtt.clientId", clientId);
-			props.set("io.macchina.mqtt.serverURI", serverURI);
-			props.set("io.macchina.mqtt.id", id);
+			props.set("io.macchina.protocol"s, "io.macchina.mqtt"s);
+			props.set("io.macchina.mqtt.clientId"s, clientId);
+			props.set("io.macchina.mqtt.serverURI"s, serverURI);
+			props.set("io.macchina.mqtt.id"s, id);
+			props.set("io.macchina.mqtt.version"s, Poco::NumberFormatter::format(options.mqttVersion));
 			Poco::OSP::ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pMQTTClientRemoteObject, props);
 
 			_clients.push_back(pMQTTClient);
@@ -114,27 +134,34 @@ public:
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
 
 		Poco::Util::AbstractConfiguration::Keys keys;
-		_pPrefs->configuration()->keys("mqtt.clients", keys);
-		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
+		_pPrefs->configuration()->keys("mqtt.clients"s, keys);
+		for (const auto& k: keys)
 		{
 			std::string baseKey = "mqtt.clients.";
-			baseKey += *it;
-			createClient(baseKey, *it);
+			baseKey += k;
+			createClient(baseKey, k);
 		}
 	}
 
 	void stop(BundleContext::Ptr pContext)
 	{
-		for (std::vector<Poco::OSP::ServiceRef::Ptr>::iterator it = _serviceRefs.begin(); it != _serviceRefs.end(); ++it)
+		for (const auto& pRef: _serviceRefs)
 		{
-			pContext->registry().unregisterService(*it);
+			pContext->registry().unregisterService(pRef);
 		}
 		_serviceRefs.clear();
-		for (std::vector<MQTTClientImpl::Ptr>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+		for (auto& pClient: _clients)
 		{
 			try
 			{
-				(*it)->disconnect(200);
+				if (pClient->mqttVersion() < MQTT_VERSION_5)
+				{
+					pClient->disconnect(200);
+				}
+				else
+				{
+					pClient->disconnect5(200, REASON_NORMAL_DISCONNECTION, std::vector<Property>());
+				}
 			}
 			catch (Poco::Exception& exc)
 			{

@@ -11,30 +11,40 @@ SYSLIBS += -lssl -lcrypto
 ifeq ($(OSNAME),Darwin)
 CFLAGS += -DOSX -Wno-deprecated-declarations
 endif
+ifeq ($(OSNAME),Linux)
+CFLAGS += -D_DEFAULT_SOURCE
+endif
 
-CFLAGS += -DOPENSSL
+CFLAGS += -DOPENSSL 
 
 objects = \
+	Base64 \
 	Clients \
 	Heap \
 	LinkedList \
 	Log \
+	Messages \
 	MQTTClient \
 	MQTTPacket \
 	MQTTPacketOut \
 	MQTTPersistence \
 	MQTTPersistenceDefault \
+	MQTTProperties \
 	MQTTProtocolClient \
 	MQTTProtocolOut \
+	MQTTReasonCodes \
+	MQTTTime \
 	MQTTVersion \
-	Messages \
-	SSLSocket \
+	OsWrapper \
+	SHA1 \
 	Socket \
 	SocketBuffer \
+	SSLSocket \
 	StackTrace \
 	Thread \
 	Tree \
-	utf-8
+	utf-8 \
+	WebSocket
 
 target         = PahoMQTT
 target_version = 1

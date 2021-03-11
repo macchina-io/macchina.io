@@ -27,8 +27,10 @@ IMQTTClient::IMQTTClient():
 	connectionClosed(),
 	connectionEstablished(),
 	connectionLost(),
+	disconnected(),
 	messageArrived(),
-	messageDelivered()
+	messageDelivered(),
+	messagePublished()
 {
 }
 

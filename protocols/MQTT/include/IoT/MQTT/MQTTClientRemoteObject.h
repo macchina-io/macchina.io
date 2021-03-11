@@ -37,6 +37,13 @@ class MQTTClientRemoteObject: public IoT::MQTT::IMQTTClient, public Poco::Remoti
 	/// Once configured, a MQTTClient always uses the same client ID and
 	/// connects to the same server. A MQTT client should automatically
 	/// attempt to reconnect if the connection to the server is lost.
+	///
+	/// A single client instance can either support MQTT version 3.1/3.1.1
+	/// or version 5. Which MQTT version is supported by the client is
+	/// determined when configuring the client.
+	///
+	/// Users of the class must call the appropriate methods supporting
+	/// the client's configured MQTT version.
 {
 public:
 	using Ptr = Poco::AutoPtr<MQTTClientRemoteObject>;
@@ -59,6 +66,27 @@ public:
 		/// Fires the connected event if successful.
 		///
 		/// Throws a Poco::IOException if the connection cannot be established.
+		///
+		/// This method is only supported for MQTT 3.1 and 3.1.1.
+
+	IoT::MQTT::ConnectionInfo connect5(const std::vector < IoT::MQTT::Property >& connectProperties = std::vector < IoT::MQTT::Property >(), const std::vector < IoT::MQTT::Property >& willProperties = std::vector < IoT::MQTT::Property >());
+		/// MQTT V5 version of connect().
+		///
+		/// Connects to the server if not already connected.
+		///
+		/// MQTT V5 connect and will properties can be specified.
+		///
+		/// Normally, the client connects automatically when a message is
+		/// published or a topic is subscribed to.
+		///
+		/// Returns a ConnectionInfo object containing information about the
+		/// connection.
+		///
+		/// Fires the connected event if successful.
+		///
+		/// Throws a Poco::IOException if the connection cannot be established.
+		///
+		/// This method is only supported for MQTT 5.
 
 	virtual void connectAsync();
 		/// Connects to the server if not already connected.
@@ -66,13 +94,32 @@ public:
 		/// Connecting will be done asynchronously in a background thread.
 		///
 		/// A successful connection will be reported by firing the connected event.
+		///
+		/// This method is only supported for MQTT 3.1 and 3.1.1.
+
+	virtual void connectAsync5(const std::vector < IoT::MQTT::Property >& connectProperties = std::vector < IoT::MQTT::Property >(), const std::vector < IoT::MQTT::Property >& willProperties = std::vector < IoT::MQTT::Property >());
+		/// MQTT V5 version of connectAsync().
+		///
+		/// Connects to the server if not already connected.
+		///
+		/// MQTT V5 connect and will properties can be specified.
+		///
+		/// Connecting will be done asynchronously in a background thread.
+		///
+		/// A successful connection will be reported by firing the connected event.
+		///
+		/// This method is only supported for MQTT 5.
 
 	virtual bool connected() const;
 		/// Returns true if the client is currently connected to the server.
+		///
+		/// This method is supported for all MQTT versions.
 
 	IoT::MQTT::ConnectionInfo connectionInfo() const;
 		/// Returns a ConnectionInfo structure describing the currently active
 		/// connection. If not connected, the ConnectionInfo's serverURI will be empty.
+		///
+		/// This method is only supported for all MQTT versions.
 
 	virtual void disconnect(int timeout);
 		/// Disconnects from the server.
@@ -84,17 +131,68 @@ public:
 		/// connects to the same server, any QoS 1 or 2 messages which have not completed
 		/// will be retried depending on the clean session settings for both the previous
 		/// and the new connection.
+		///
+		/// This method is only supported for MQTT 3.1 and 3.1.1.
+
+	virtual void disconnect5(int timeout, IoT::MQTT::ReasonCode reason = IoT::MQTT::ReasonCode(IoT::MQTT::REASON_NORMAL_DISCONNECTION), const std::vector < IoT::MQTT::Property >& properties = std::vector < IoT::MQTT::Property >());
+		/// MQTT V5 version of disconnect().
+		///
+		/// Disconnects from the server.
+		///
+		/// MQTT V5 reason code and properties can be given.
+		///
+		/// In order to allow the client time to complete handling of messages that are
+		/// in-flight when this function is called, a timeout period is specified (in milliseconds).
+		/// When the timeout period has expired, the client disconnects even if there
+		/// are still outstanding message acknowledgements. The next time the client
+		/// connects to the same server, any QoS 1 or 2 messages which have not completed
+		/// will be retried depending on the clean session settings for both the previous
+		/// and the new connection.
+		///
+		/// This method is only supported for MQTT 5.
 
 	const std::string& id() const;
 		/// Returns the configured client ID.
+		///
+		/// This method is only supported for all MQTT versions.
 
-	virtual int publish(const std::string& topic, const std::string& payload, int qos);
+	virtual int mqttVersion() const;
+		/// Returns the MQTT version supported by this client.
+		///
+		/// Possible return values are:
+		///   - 0: client supports version 3.1 and 3.1.1
+		///   - 3: client supports only version 3.1
+		///   - 4: client supports only version 3.1.1
+		///   - 5: client supports only version 5
+
+	virtual std::vector < int > pendingDeliveryTokens();
+		/// Returns a vector containing the delivery tokens for all messages
+		/// still pending delivery.
+		///
+		/// This method is only supported for all MQTT versions.
+
+	virtual int publish(const std::string& topic, const std::string& payload, int qos = int(0));
 		/// Publishes the given message on the given topic, using the given QoS.
 		///
 		/// Returns a delivery token which can be used with the messageDelivered
 		/// event to verify that the message has been delivered.
 		///
 		/// Throws a Poco::IOException if the message cannot be published.
+		///
+		/// This method is only supported for MQTT 3.1 and 3.1.1.
+
+	IoT::MQTT::PublishResult publish5(const std::string& topic, const std::string& payload, int qos = int(0), bool retained = bool(false), const std::vector < IoT::MQTT::Property >& properties = std::vector < IoT::MQTT::Property >());
+		/// MQTT V5 version of publish().
+		///
+		/// Publishes the given message on the given topic, using the given QoS.
+		///
+		/// Returns a PublishResult containing the result of the operation,
+		/// as well as the delivery token, which can be used with the messageDelivered
+		/// event to verify that the message has been delivered.
+		///
+		/// Throws a Poco::IOException if the message cannot be published.
+		///
+		/// This method is only supported for MQTT 5.
 
 	virtual int publishMessage(const std::string& topic, const IoT::MQTT::Message& message);
 		/// Publishes the given message on the given topic.
@@ -103,6 +201,21 @@ public:
 		/// event to verify that the message has been delivered.
 		///
 		/// Throws a Poco::IOException if the message cannot be published.
+		///
+		/// This method is only supported for MQTT 3.1 and 3.1.1.
+
+	IoT::MQTT::PublishResult publishMessage5(const std::string& topic, const IoT::MQTT::Message& message);
+		/// MQTT V5 version of publishMessage().
+		///
+		/// Publishes the given message on the given topic.
+		///
+		/// Returns a PublishResult containing the result of the operation,
+		/// as well as the delivery token, which can be used with the messageDelivered
+		/// event to verify that the message has been delivered.
+		///
+		/// Throws a Poco::IOException if the message cannot be published.
+		///
+		/// This method is only supported for MQTT 5.
 
 	virtual std::string remoting__enableEvents(Poco::RemotingNG::Listener::Ptr pListener, bool enable = bool(true));
 
@@ -114,17 +227,35 @@ public:
 
 	const std::string& serverURI() const;
 		/// Returns the configured server URI.
+		///
+		/// This method is only supported for all MQTT versions.
 
 	IoT::MQTT::Statistics statistics() const;
 		/// Returns statistics about published and received topics and message counts.
+		///
+		/// This method is only supported for all MQTT versions.
 
-	virtual void subscribe(const std::string& topic, int qos);
+	virtual void subscribe(const std::string& topic, int qos = int(0));
 		/// This function attempts to subscribe the client to a single topic,
 		/// which may contain wildcards. This call also specifies the Quality of service
 		/// requested for the subscription.
 		///
 		/// Throws a Poco::IOException if there was a problem registering the
 		/// subscription.
+		///
+		/// This method is only supported for MQTT 3.1 and 3.1.1.
+
+	IoT::MQTT::Response subscribe5(const std::string& topic, int qos = int(0), const IoT::MQTT::SubscribeOptions& options = IoT::MQTT::SubscribeOptions(), const std::vector < IoT::MQTT::Property >& properties = std::vector < IoT::MQTT::Property >());
+		/// MQTT V5 version of subscribe(), which allows to specify options and properties.
+		///
+		/// This function attempts to subscribe the client to a single topic,
+		/// which may contain wildcards. This call also specifies the Quality of service
+		/// requested for the subscription.
+		///
+		/// Throws a Poco::IOException if there was a problem registering the
+		/// subscription.
+		///
+		/// This method is only supported for MQTT 5.
 
 	virtual void subscribeMany(const std::vector < IoT::MQTT::TopicQoS >& topicsAndQoS);
 		/// This function attempts to subscribe the client to a list of topics (with
@@ -132,16 +263,43 @@ public:
 		///
 		/// Throws a Poco::IOException if there was a problem registering the
 		/// subscriptions.
+		///
+		/// This method is only supported for MQTT 3.1 and 3.1.1.
+
+	IoT::MQTT::Response subscribeMany5(const std::vector < IoT::MQTT::TopicQoS >& topicsAndQoS, const IoT::MQTT::SubscribeOptions& options = IoT::MQTT::SubscribeOptions(), const std::vector < IoT::MQTT::Property >& properties = std::vector < IoT::MQTT::Property >());
+		/// MQTT V5 version of subscribeMany(), which allows to specify options and properties.
+		///
+		/// This function attempts to subscribe the client to a list of topics (with
+		/// associated QoS levels), which may contain wildcards.
+		///
+		/// Throws a Poco::IOException if there was a problem registering the
+		/// subscriptions.
+		///
+		/// This method is only supported for MQTT 5.
 
 	std::vector < IoT::MQTT::TopicQoS > subscribedTopics() const;
 		/// Returns a vector containing all currently subscribed
 		/// topics with their QoS level.
+		///
+		/// This method is supported for all MQTT versions.
 
 	virtual void unsubscribe(const std::string& topic);
 		/// This function attempts to remove an existing subscription made by the client.
 		///
 		/// Throws a Poco::IOException if there was a problem removing the
 		/// subscription.
+		///
+		/// This method is only supported for MQTT 3.1 and 3.1.1.
+
+	IoT::MQTT::Response unsubscribe5(const std::string& topic, const std::vector < IoT::MQTT::Property >& properties = std::vector < IoT::MQTT::Property >());
+		/// MQTT V5 version of unsubscribe(), which allows to specify properties.
+		///
+		/// This function attempts to remove an existing subscription made by the client.
+		///
+		/// Throws a Poco::IOException if there was a problem removing the
+		/// subscription.
+		///
+		/// This method is only supported for MQTT 5.
 
 	virtual void unsubscribeMany(const std::vector < std::string >& topics);
 		/// This function attempts to remove existing subscriptions to a list of
@@ -149,6 +307,28 @@ public:
 		///
 		/// Throws a Poco::IOException if there was a problem removing the
 		/// subscriptions.
+		///
+		/// This method is only supported for MQTT 3.1 and 3.1.1.
+
+	IoT::MQTT::Response unsubscribeMany5(const std::vector < std::string >& topics, const std::vector < IoT::MQTT::Property >& properties = std::vector < IoT::MQTT::Property >());
+		/// MQTT V5 version of unsubscribeMany(), which allows to specify properties.
+		///
+		/// This function attempts to remove existing subscriptions to a list of
+		/// topics made by the specified client.
+		///
+		/// Throws a Poco::IOException if there was a problem removing the
+		/// subscriptions.
+		///
+		/// This method is only supported for MQTT 5.
+
+	virtual void waitForCompletion(int deliveryToken, int timeout);
+		/// Waits for delivery of the message associated with the given deliveryToken.
+		///
+		/// Waits at most for the length of the given timeout in milliseconds.
+		/// Throws a Poco::TimeoutException if timeout expires without the
+		/// message delivery being completed.
+		///
+		/// This method is only supported for all MQTT versions.
 
 protected:
 	void event__connectionClosed();
@@ -157,9 +337,13 @@ protected:
 
 	void event__connectionLost(const IoT::MQTT::ConnectionLostEvent& data);
 
+	void event__disconnected(const IoT::MQTT::DisconnectedEvent& data);
+
 	void event__messageArrived(const IoT::MQTT::MessageArrivedEvent& data);
 
 	void event__messageDelivered(const IoT::MQTT::MessageDeliveredEvent& data);
+
+	void event__messagePublished(const IoT::MQTT::MessagePublishedEvent& data);
 
 private:
 	Poco::SharedPtr<IoT::MQTT::MQTTClient> _pServiceObject;
@@ -172,9 +356,21 @@ inline IoT::MQTT::ConnectionInfo MQTTClientRemoteObject::connect()
 }
 
 
+inline IoT::MQTT::ConnectionInfo MQTTClientRemoteObject::connect5(const std::vector < IoT::MQTT::Property >& connectProperties, const std::vector < IoT::MQTT::Property >& willProperties)
+{
+	return _pServiceObject->connect5(connectProperties, willProperties);
+}
+
+
 inline void MQTTClientRemoteObject::connectAsync()
 {
 	_pServiceObject->connectAsync();
+}
+
+
+inline void MQTTClientRemoteObject::connectAsync5(const std::vector < IoT::MQTT::Property >& connectProperties, const std::vector < IoT::MQTT::Property >& willProperties)
+{
+	_pServiceObject->connectAsync5(connectProperties, willProperties);
 }
 
 
@@ -196,9 +392,27 @@ inline void MQTTClientRemoteObject::disconnect(int timeout)
 }
 
 
+inline void MQTTClientRemoteObject::disconnect5(int timeout, IoT::MQTT::ReasonCode reason, const std::vector < IoT::MQTT::Property >& properties)
+{
+	_pServiceObject->disconnect5(timeout, reason, properties);
+}
+
+
 inline const std::string& MQTTClientRemoteObject::id() const
 {
 	return _pServiceObject->id();
+}
+
+
+inline int MQTTClientRemoteObject::mqttVersion() const
+{
+	return _pServiceObject->mqttVersion();
+}
+
+
+inline std::vector < int > MQTTClientRemoteObject::pendingDeliveryTokens()
+{
+	return _pServiceObject->pendingDeliveryTokens();
 }
 
 
@@ -208,9 +422,21 @@ inline int MQTTClientRemoteObject::publish(const std::string& topic, const std::
 }
 
 
+inline IoT::MQTT::PublishResult MQTTClientRemoteObject::publish5(const std::string& topic, const std::string& payload, int qos, bool retained, const std::vector < IoT::MQTT::Property >& properties)
+{
+	return _pServiceObject->publish5(topic, payload, qos, retained, properties);
+}
+
+
 inline int MQTTClientRemoteObject::publishMessage(const std::string& topic, const IoT::MQTT::Message& message)
 {
 	return _pServiceObject->publishMessage(topic, message);
+}
+
+
+inline IoT::MQTT::PublishResult MQTTClientRemoteObject::publishMessage5(const std::string& topic, const IoT::MQTT::Message& message)
+{
+	return _pServiceObject->publishMessage5(topic, message);
 }
 
 
@@ -238,9 +464,21 @@ inline void MQTTClientRemoteObject::subscribe(const std::string& topic, int qos)
 }
 
 
+inline IoT::MQTT::Response MQTTClientRemoteObject::subscribe5(const std::string& topic, int qos, const IoT::MQTT::SubscribeOptions& options, const std::vector < IoT::MQTT::Property >& properties)
+{
+	return _pServiceObject->subscribe5(topic, qos, options, properties);
+}
+
+
 inline void MQTTClientRemoteObject::subscribeMany(const std::vector < IoT::MQTT::TopicQoS >& topicsAndQoS)
 {
 	_pServiceObject->subscribeMany(topicsAndQoS);
+}
+
+
+inline IoT::MQTT::Response MQTTClientRemoteObject::subscribeMany5(const std::vector < IoT::MQTT::TopicQoS >& topicsAndQoS, const IoT::MQTT::SubscribeOptions& options, const std::vector < IoT::MQTT::Property >& properties)
+{
+	return _pServiceObject->subscribeMany5(topicsAndQoS, options, properties);
 }
 
 
@@ -256,9 +494,27 @@ inline void MQTTClientRemoteObject::unsubscribe(const std::string& topic)
 }
 
 
+inline IoT::MQTT::Response MQTTClientRemoteObject::unsubscribe5(const std::string& topic, const std::vector < IoT::MQTT::Property >& properties)
+{
+	return _pServiceObject->unsubscribe5(topic, properties);
+}
+
+
 inline void MQTTClientRemoteObject::unsubscribeMany(const std::vector < std::string >& topics)
 {
 	_pServiceObject->unsubscribeMany(topics);
+}
+
+
+inline IoT::MQTT::Response MQTTClientRemoteObject::unsubscribeMany5(const std::vector < std::string >& topics, const std::vector < IoT::MQTT::Property >& properties)
+{
+	return _pServiceObject->unsubscribeMany5(topics, properties);
+}
+
+
+inline void MQTTClientRemoteObject::waitForCompletion(int deliveryToken, int timeout)
+{
+	_pServiceObject->waitForCompletion(deliveryToken, timeout);
 }
 
 

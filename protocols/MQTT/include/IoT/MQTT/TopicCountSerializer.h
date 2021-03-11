@@ -18,7 +18,7 @@
 #define TypeSerializer_IoT_MQTT_TopicCount_INCLUDED
 
 
-#include "IoT/MQTT/MQTTClient.h"
+#include "IoT/MQTT/Types.h"
 #include "Poco/RemotingNG/TypeSerializer.h"
 
 

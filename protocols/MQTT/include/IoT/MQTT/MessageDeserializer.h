@@ -18,7 +18,9 @@
 #define TypeDeserializer_IoT_MQTT_Message_INCLUDED
 
 
-#include "IoT/MQTT/MQTTClient.h"
+#include "IoT/MQTT/PropertyDeserializer.h"
+#include "IoT/MQTT/PropertySerializer.h"
+#include "IoT/MQTT/Types.h"
 #include "Poco/RemotingNG/TypeDeserializer.h"
 
 
@@ -47,11 +49,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"binaryPayload"s,"payload"s,"qos"s,"retained"s};
+		static const std::string REMOTING__NAMES[] = {"binaryPayload"s,"payload"s,"properties"s,"qos"s,"retained"s};
 		TypeDeserializer<std::vector < char > >::deserialize(REMOTING__NAMES[0], false, deser, value.binaryPayload);
 		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], false, deser, value.payload);
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], true, deser, value.qos);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[3], false, deser, value.retained);
+		TypeDeserializer<std::vector < IoT::MQTT::Property > >::deserialize(REMOTING__NAMES[2], false, deser, value.properties);
+		TypeDeserializer<int >::deserialize(REMOTING__NAMES[3], false, deser, value.qos);
+		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[4], false, deser, value.retained);
 	}
 
 };
