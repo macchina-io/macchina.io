@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 IBM Corp.
+ * Copyright (c) 2009, 2018 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -301,7 +301,7 @@ static char* Log_formatTraceEntry(traceEntry* cur_entry)
 	int buf_pos = 31;
 
 #if defined(GETTIMEOFDAY)
-	timeinfo = localtime(&cur_entry->ts.tv_sec);
+	timeinfo = localtime((time_t *)&cur_entry->ts.tv_sec);
 #else
 	timeinfo = localtime(&cur_entry->ts.time);
 #endif
@@ -406,7 +406,6 @@ void Log(enum LOG_LEVELS log_level, int msgno, const char *format, ...)
 	if (log_level >= trace_settings.trace_level)
 	{
 		const char *temp = NULL;
-		static char msg_buf[512];
 		va_list args;
 
 		/* we're using a static character buffer, so we need to make sure only one thread uses it at a time */
@@ -421,13 +420,6 @@ void Log(enum LOG_LEVELS log_level, int msgno, const char *format, ...)
 		va_end(args);
 		Thread_unlock_mutex(log_mutex); 
 	}
-
-	/*if (log_level >= LOG_ERROR)
-	{
-		char* filename = NULL;
-		Log_recordFFDC(&msg_buf[7]);
-	}
-	*/
 }
 
 

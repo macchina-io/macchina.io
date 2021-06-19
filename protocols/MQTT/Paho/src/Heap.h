@@ -24,7 +24,6 @@
 #endif
 
 #include <stdio.h>
-#include <memory.h>
 #include <stdlib.h>
 
 #if !defined(NO_HEAP_TRACKING)
@@ -60,6 +59,9 @@ typedef struct
 	size_t max_size;		/**< max size the heap has reached in bytes */
 } heap_info;
 
+#if defined(__cplusplus)
+ extern "C" {
+#endif
 
 void* mymalloc(char*, int, size_t size);
 void* myrealloc(char*, int, void* p, size_t size);
@@ -73,5 +75,8 @@ int HeapDump(FILE* file);
 int HeapDumpString(FILE* file, char* str);
 void* Heap_findItem(void* p);
 void Heap_unlink(char* file, int line, void* p);
+#ifdef __cplusplus
+     }
+#endif
 
 #endif

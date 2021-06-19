@@ -1,19 +1,20 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 IBM Corp.
+ * Copyright (c) 2009, 2018 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution. 
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
- * The Eclipse Public License is available at 
+ * The Eclipse Public License is available at
  *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
+ * and the Eclipse Distribution License is available at
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  *    Ian Craggs - initial API and implementation and/or initial documentation
  *    Ian Craggs - async client updates
  *    Ian Craggs - fix for bug 484496
+ *    Ian Craggs - fix for issue 285
  *******************************************************************************/
 
 /**
@@ -28,6 +29,8 @@
  */
 
 #if !defined(NO_PERSISTENCE)
+
+#include "OsWrapper.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -53,7 +56,6 @@
 #include "MQTTPersistenceDefault.h"
 #include "StackTrace.h"
 #include "Heap.h"
-
 
 /** Create persistence directory for the client: context/clientID-serverURI.
  *  See ::Persistence_open
@@ -85,15 +87,25 @@ int pstopen(void **handle, const char* clientID, const char* serverURI, void* co
 	/* create clientDir directory */
 
 	/* pCrtDirName - holds the directory name we are currently trying to create.           */
-	/*               This gets built up level by level until the full path name is created.*/
+	/*               This gets built up level by level untipwdl the full path name is created.*/
 	/* pTokDirName - holds the directory name that gets used by strtok.         */
 	pCrtDirName = (char*)malloc( strlen(clientDir) + 1 );
 	pTokDirName = (char*)malloc( strlen(clientDir) + 1 );
 	strcpy( pTokDirName, clientDir );
 
-	pToken = strtok_r( pTokDirName, "\\/", &save_ptr );
+	/* If first character is directory separator, make sure it's in the created directory name #285 */
+	if (*pTokDirName == '/' || *pTokDirName == '\\')
+	{
+		*pCrtDirName = *pTokDirName;
+		pToken = strtok_r( pTokDirName + 1, "\\/", &save_ptr );
+		strcpy( pCrtDirName + 1, pToken );
+	}
+	else
+	{
+		pToken = strtok_r( pTokDirName, "\\/", &save_ptr );
+		strcpy( pCrtDirName, pToken );
+	}
 
-	strcpy( pCrtDirName, pToken );
 	rc = pstmkdir( pCrtDirName );
 	pToken = strtok_r( NULL, "\\/", &save_ptr );
 	while ( (pToken != NULL) && (rc == 0) )
@@ -128,7 +140,11 @@ int pstmkdir( char *pPathname )
 	{
 #else
 	/* Create a directory with read, write and execute access for the owner and read access for the group */
+#if !defined(_WRS_KERNEL)
 	if ( mkdir( pPathname, S_IRWXU | S_IRGRP ) != 0 )
+#else
+	if ( mkdir( pPathname ) != 0 )
+#endif /* !defined(_WRS_KERNEL) */
 	{
 #endif
 		if ( errno != EEXIST )
@@ -255,7 +271,7 @@ int pstremove(void* handle, char* key)
 	FUNC_ENTRY;
 	if (clientDir == NULL)
 	{
-		return rc = MQTTCLIENT_PERSISTENCE_ERROR;
+		rc = MQTTCLIENT_PERSISTENCE_ERROR;
 		goto exit;
 	}
 
@@ -512,7 +528,7 @@ int clearUnix(char *dirname)
 			lstat(dir_entry->d_name, &stat_info);
 			if(S_ISREG(stat_info.st_mode))
 			{
-				if ( remove(dir_entry->d_name) != 0 )
+				if (remove(dir_entry->d_name) != 0 && errno != ENOENT)
 					rc = MQTTCLIENT_PERSISTENCE_ERROR;
 			}
 		}
@@ -674,7 +690,7 @@ int keysUnix(char *dirname, char ***keys, int *nkeys)
 			while((dir_entry = readdir(dp)) != NULL)
 			{
 				char* temp = malloc(strlen(dirname)+strlen(dir_entry->d_name)+2);
-	
+
 				sprintf(temp, "%s/%s", dirname, dir_entry->d_name);
 				if (lstat(temp, &stat_info) == 0 && S_ISREG(stat_info.st_mode))
 				{
@@ -739,7 +755,7 @@ int main (int argc, char *argv[])
 		buflens[i]=strlen(bufs[i]);
 
 	/* open */
-	//printf("Persistence directory : %s\n", perdir);
+	/* printf("Persistence directory : %s\n", perdir); */
 	rc = pstopen((void**)&handle, clientID, serverURI, perdir);
 	printf("%s Persistence directory for client %s : %s\n", RC, clientID, handle);
 
