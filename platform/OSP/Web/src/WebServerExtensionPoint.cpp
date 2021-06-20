@@ -51,11 +51,13 @@ const std::string WebServerExtensionPoint::ATTR_ALLOWSPECIALIZATION("allowSpecia
 const std::string WebServerExtensionPoint::ATTR_INDEX("index");
 const std::string WebServerExtensionPoint::ATTR_HIDDEN("hidden");
 const std::string WebServerExtensionPoint::ATTR_CACHE("cache");
+const std::string WebServerExtensionPoint::ATTR_EXACTMATCH("exactMatch");
 const std::string WebServerExtensionPoint::ATTR_CORS("cors");
 const std::string WebServerExtensionPoint::ATTR_ALLOWORIGIN("allowOrigin");
 const std::string WebServerExtensionPoint::ATTR_ALLOWMETHODS("allowMethods");
 const std::string WebServerExtensionPoint::ATTR_ALLOWHEADERS("allowHeaders");
 const std::string WebServerExtensionPoint::ATTR_ALLOWCREDENTIALS("allowCredentials");
+const std::string WebServerExtensionPoint::ATTR_RESPONSEFORMAT("responseFormat");
 const std::string WebServerExtensionPoint::MANIFEST_NAME("WebServer");
 
 
@@ -169,6 +171,7 @@ void WebServerExtensionPoint::handleCommon(Bundle::ConstPtr pBundle, Poco::XML::
 	vPath.cors.allowHeaders        = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_ALLOWHEADERS));
 	vPath.hidden                   = pExtensionElem->getAttribute(ATTR_HIDDEN) == "true";
 	vPath.cache                    = pExtensionElem->getAttribute(ATTR_CACHE) != "false";
+	vPath.exactMatch               = pExtensionElem->getAttribute(ATTR_EXACTMATCH) == "true";
 
 	if (vPath.security.csrfProtection && vPath.security.csrfTokenHeader.empty())
 	{
@@ -184,6 +187,14 @@ void WebServerExtensionPoint::handleCommon(Bundle::ConstPtr pBundle, Poco::XML::
 		vPath.security.mode = WebServerDispatcher::SM_ALL;
 	else
 		throw BundleException("Failed to parse extension point: Illegal attribute value " + specialization + " for attribute " + ATTR_ALLOWSPECIALIZATION);
+
+	const std::string& responseFormat = Poco::toLower(pExtensionElem->getAttribute(ATTR_RESPONSEFORMAT));
+	if (responseFormat.empty() || responseFormat == "html")
+		vPath.responseFormat = WebServerDispatcher::RESPONSE_FORMAT_HTML;
+	else if (responseFormat == "json")
+		vPath.responseFormat = WebServerDispatcher::RESPONSE_FORMAT_JSON;
+	else
+		throw BundleException("Failed to parse extension point: Illegal attribute value " + responseFormat + " for attribute " + ATTR_RESPONSEFORMAT);
 }
 
 

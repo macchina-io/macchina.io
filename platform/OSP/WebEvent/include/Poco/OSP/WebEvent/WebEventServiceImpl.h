@@ -42,7 +42,7 @@ class OSPWebEvent_API WebEventServiceImpl: public WebEventService
 public:
 	using Ptr = Poco::AutoPtr<WebEventServiceImpl>;
 
-	WebEventServiceImpl(Poco::OSP::BundleContext::Ptr pContext, int maxSockets);
+	WebEventServiceImpl(Poco::OSP::BundleContext::Ptr pContext, int maxSockets, int workerCount);
 		/// Creates the WebEventServiceImpl.
 
 	~WebEventServiceImpl();
@@ -121,6 +121,7 @@ private:
 	ThreadVec _workerThreads;
 	Poco::RunnableAdapter<WebEventServiceImpl> _mainRunnable;
 	Poco::RunnableAdapter<WebEventServiceImpl> _workerRunnable;
+	Poco::FastMutex _sendMutex;
 	bool _stopped;
 
 	friend class WebEventRequestHandler;

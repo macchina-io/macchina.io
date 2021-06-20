@@ -20,7 +20,7 @@
 
 #include "Poco/JS/Core/Core.h"
 #include "Poco/JS/Core/Wrapper.h"
-#include "Poco/DateTime.h"
+#include "Poco/UUID.h"
 
 
 namespace Poco {
@@ -29,7 +29,7 @@ namespace Core {
 
 
 class JSCore_API UUIDWrapper: public Wrapper
-	/// JavaScript wrapper for Poco::DateTime.
+	/// JavaScript wrapper for Poco::UUID.
 {
 public:
 	UUIDWrapper();

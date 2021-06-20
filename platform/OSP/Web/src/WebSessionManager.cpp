@@ -26,6 +26,7 @@
 using Poco::Net::NameValueCollection;
 using Poco::FastMutex;
 using Poco::NumberFormatter;
+using namespace std::string_literals;
 
 
 namespace Poco {
@@ -43,7 +44,8 @@ WebSessionManager::WebSessionManager(Poco::OSP::BundleContext::Ptr pContext):
 	_cookiePersistence(COOKIE_PERSISTENT),
 	_cookieSecure(false),
 	_verifyAddress(true),
-	_cookieSameSite(Poco::Net::HTTPCookie::SAME_SITE_NOT_SPECIFIED)
+	_cookieSameSite(Poco::Net::HTTPCookie::SAME_SITE_NOT_SPECIFIED),
+	_logger(Poco::Logger::get("osp.web.session"))
 {
 }
 
@@ -189,6 +191,7 @@ WebSession::Ptr WebSessionManager::get(const std::string& appName, const Poco::N
 	WebSession::Ptr pSession = findImpl(appName, request, pContext);
 	if (!pSession)
 	{
+		_logger.debug("No existing session, creating new one."s);
 		pSession = createImpl(appName, request, expireSeconds, pContext);
 	}
 	return pSession;
@@ -211,16 +214,61 @@ void WebSessionManager::remove(WebSession::Ptr pSession)
 }
 
 
+void WebSessionManager::removeForUser(const std::string& username)
+{
+	FastMutex::ScopedLock lock(_mutex);
+
+	std::vector<std::string> sessionsToRemove;
+
+	_cache.forEach(
+		[&sessionsToRemove, &username](const std::string& id, const WebSession& session)
+		{
+			auto it = session.find("username"s);
+			if (it != session.end())
+			{
+				try
+				{
+					if (Poco::AnyCast<std::string>(it->second) == username)
+					{
+						sessionsToRemove.push_back(id);
+					}
+				}
+				catch (...)
+				{
+				}
+			}
+		}
+	);
+
+	for (const auto& id: sessionsToRemove)
+	{
+		removeImpl(id);
+	}
+}
+
+
 WebSession::Ptr WebSessionManager::findImpl(const std::string& appName, const Poco::Net::HTTPServerRequest& request, BundleContext::Ptr pContext)
 {
 	WebSession::Ptr pSession;
 	std::string sessionId(getId(appName, request));
 	if (!sessionId.empty())
 	{
+		if (_logger.debug())
+		{
+			_logger.debug("Looking up session %s..."s, sessionId);
+		}
 		pSession = findByIdImpl(sessionId, pContext);
+	}
+	else
+	{
+		_logger.debug("No session cookie found in request."s);
 	}
 	if (pSession)
 	{
+		if (_logger.debug())
+		{
+			_logger.debug("Existing session %s found."s, sessionId);
+		}
 		if (!_verifyAddress || pSession->clientAddress() == request.clientAddress().host())
 		{
 			pSession->access();
@@ -230,6 +278,9 @@ WebSession::Ptr WebSessionManager::findImpl(const std::string& appName, const Po
 		}
 		else
 		{
+			_logger.notice("Client address mismatch for session %s (known address: %s, request address: %s). Session will be removed."s,
+				sessionId, pSession->clientAddress().toString(), request.clientAddress().host().toString());
+
 			// possible attack: same session ID from different host - invalidate session
 			removeImpl(pSession);
 			return 0;
@@ -242,8 +293,16 @@ WebSession::Ptr WebSessionManager::findImpl(const std::string& appName, const Po
 WebSession::Ptr WebSessionManager::findByIdImpl(const std::string& sessionId, BundleContext::Ptr pContext)
 {
 	WebSession::Ptr pSession = _cache.get(sessionId);
+	if (_logger.debug() && pSession)
+	{
+		_logger.debug("Session %s found in cache."s, sessionId);
+	}
 	if (_pStore)
 	{
+		if (_logger.debug())
+		{
+			_logger.debug("Looking up session %s in session store..."s, sessionId);
+		}
 		if (pSession)
 		{
 			std::pair<WebSession::Ptr, bool> result = _pStore->loadSession(pContext, sessionId, pSession->version());
@@ -272,16 +331,30 @@ WebSession::Ptr WebSessionManager::createImpl(const std::string& appName, const 
 	{
 		_pStore->saveSession(pSession);
 	}
+	if (_logger.debug())
+	{
+		_logger.debug("New session %s created."s, pSession->id());
+	}
 	return pSession;
 }
 
 
 void WebSessionManager::removeImpl(WebSession::Ptr pSession)
 {
-	_cache.remove(pSession->id());
+	removeImpl(pSession->id());
+}
+
+
+void WebSessionManager::removeImpl(const std::string& id)
+{
+	if (_logger.debug())
+	{
+		_logger.debug("Removing session %s."s, id);
+	}
+	_cache.remove(id);
 	if (_pStore)
 	{
-		_pStore->expireSession(pSession->id(), 0);
+		_pStore->expireSession(id, 0);
 	}
 }
 

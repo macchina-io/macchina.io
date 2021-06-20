@@ -46,12 +46,12 @@ install: libexecs
 	find $(POCO_BUILD)/lib -name "libPoco*" -type l -exec cp -Rf {} $(INSTALLDIR)/lib \;
 
 # POCO C++ Libraries
-libexecs = Foundation-libexec XML-libexec JSON-libexec Util-libexec Net-libexec Crypto-libexec NetSSL_OpenSSL-libexec Data-libexec Data/SQLite-libexec Zip-libexec JWT-libexec PageCompiler-libexec PageCompiler/File2Page-libexec
-tests    = Foundation-tests XML-tests JSON-tests Util-tests Net-tests Crypto-tests NetSSL_OpenSSL-tests Data-tests Data/SQLite-tests Zip-tests CppParser-tests
+libexecs = Foundation-libexec XML-libexec JSON-libexec Util-libexec Net-libexec Crypto-libexec NetSSL_OpenSSL-libexec Data-libexec Data/SQLite-libexec Zip-libexec JWT-libexec PageCompiler-libexec PageCompiler/File2Page-libexec Redis-libexec ActiveRecord-libexec ActiveRecord/Compiler-libexec
+tests    = Foundation-tests XML-tests JSON-tests Util-tests Net-tests Crypto-tests NetSSL_OpenSSL-tests Data-tests Data/SQLite-tests Zip-tests CppParser-tests Redis-tests ActiveRecord-tests
 samples  = Foundation-samples XML-samples JSON-samples Util-samples Net-samples Crypto-samples NetSSL_OpenSSL-samples Data-samples Zip-samples JWT-tests PageCompiler-samples
-cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-clean NetSSL_OpenSSL-clean Data-clean Data/SQLite-clean Zip-clean JWT-clean PageCompiler-clean PageCompiler/File2Page-clean CppParser-clean
+cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-clean NetSSL_OpenSSL-clean Data-clean Data/SQLite-clean Zip-clean JWT-clean PageCompiler-clean PageCompiler/File2Page-clean CppParser-clean Redis-clean ActiveRecord-clean ActiveRecord/Compiler-clean
 
-# WebTunnel, JS, Redis, Remoting and OSP
+# WebTunnel, JS, Remoting and OSP
 libexecs += \
     WebTunnel-libexec \
     JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec \
@@ -59,10 +59,9 @@ libexecs += \
     OSP-libexec OSP/BundleCreator-libexec OSP/CodeCacheUtility-libexec OSP/StripBundle-libexec OSP/Web-libexec OSP/Core-libexec OSP/Crypto-libexec OSP/Data-libexec OSP/Data/SQLite-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec OSP/SecureWebServer-libexec OSP/WebServer-libexec OSP/JS-libexec OSP/JS/Net-libexec OSP/JS/Data-libexec OSP/JS/Web-libexec OSP/JS/Scheduler-libexec OSP/WebEvent-libexec OSP/SimpleAuth-libexec \
     OSP/RemotingNG/TCP-libexec \
     Geo-libexec \
-    Serial-libexec \
-    Redis-libexec
+    Serial-libexec
 
-tests    += CodeGeneration-tests RemotingNG-tests RemotingNG/TCP-tests OSP-tests OSP/Web-tests Geo-tests Redis-tests
+tests    += CodeGeneration-tests RemotingNG-tests RemotingNG/TCP-tests OSP-tests OSP/Web-tests Geo-tests
 
 samples  += WebTunnel-samples
 
@@ -73,8 +72,7 @@ cleans   += \
     OSP-clean OSP/BundleCreator-clean OSP/CodeCacheUtility-clean OSP/StripBundle-clean OSP/Web-clean OSP/Core-clean OSP/Crypto-clean OSP/Data-clean OSP/Data/SQLite-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean OSP/SecureWebServer-clean OSP/WebServer-clean OSP/JS-clean OSP/JS/Net-clean OSP/JS/Data-clean OSP/JS/Web-clean OSP/JS/Scheduler-clean OSP/WebEvent-clean OSP/SimpleAuth-clean \
     OSP/RemotingNG/TCP-clean \
     Geo-clean \
-    Serial-clean \
-    Redis-clean
+    Serial-clean
 
 .PHONY: $(libexecs)
 .PHONY: $(tests)
@@ -492,6 +490,22 @@ Redis-tests: Redis-libexec cppunit
 Redis-clean:
 	$(MAKE) -C $(POCO_BASE)/Redis clean
 	$(MAKE) -C $(POCO_BASE)/Redis/testsuite clean
+
+ActiveRecord-libexec: Foundation-libexec Data-libexec
+	$(MAKE) -C $(POCO_BASE)/ActiveRecord
+
+ActiveRecord-tests: ActiveRecord-libexec Data/SQLite-libexec cppunit
+	$(MAKE) -C $(POCO_BASE)/ActiveRecord/testsuite
+
+ActiveRecord-clean:
+	$(MAKE) -C $(POCO_BASE)/ActiveRecord clean
+	$(MAKE) -C $(POCO_BASE)/ActiveRecord/testsuite clean
+
+ActiveRecord/Compiler-libexec: Foundation-libexec Util-libexec
+	$(MAKE) -C $(POCO_BASE)/ActiveRecord/Compiler
+
+ActiveRecord/Compiler-clean:
+	$(MAKE) -C $(POCO_BASE)/ActiveRecord/Compiler clean
 
 clean: cleans CppUnit-clean
 

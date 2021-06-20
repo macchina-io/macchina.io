@@ -229,6 +229,7 @@ The following configuration properties are available:
   * auth.ldap.bindDN
   * auth.ldap.permissionAttribute
   * auth.ldap.roleAttribute 
+  * auth.ldap.extraAttributes
   
 
 ! auth.db.connector
@@ -353,6 +354,16 @@ LDAP server containing application-specific information. The attribute
 names must be comma-separated. Once obtained from the LDAP server, the 
 attributes and their values can be queried using
 the <[getUserAttribute()]> and <[attributesForUser()]> methods.
+
+It is also possible to map an LDAP attribute name to a user attribute name,
+by specifying both names separated by a colon. Example:
+
+  auth.ldap.extraAttributes = givenname:firstName,surname:lastName
+----
+
+In the given example, the LDAP attribute <[givenname]> will be mapped to the
+user attribute <[firstName]> and the LDAP attribute <[surname]> will be mapped
+to <[lastName]>.
 
 
 !! Using the AuthAdminService

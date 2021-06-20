@@ -14,9 +14,11 @@
 
 ITester::ITester():
 	Poco::RefCountedObject(),
+	testEnumEvent(),
 	testEvent(),
 	testFilteredEvent(),
 	testOneWayEvent(),
+	testScopedEnumEvent(),
 	testVoidEvent()
 {
 }

@@ -14,6 +14,7 @@
 
 #include "Poco/JS/Data/SessionWrapper.h"
 #include "Poco/JS/Data/RecordSetWrapper.h"
+#include "Poco/JS/Core/UUIDWrapper.h"
 #include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/JS/Core/BufferWrapper.h"
 #include "Poco/Data/LOB.h"
@@ -297,6 +298,15 @@ static void bindStatementArgs(Poco::Data::Statement& statement, const v8::Functi
 				statement.bind(blob);
 			}
 			else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::Data::BLOB"s, i));
+		}
+		else if (args[i]->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::UUID>(args.GetIsolate(), args[i]))
+		{
+			Poco::UUID* pUUID = Wrapper::unwrapNativeObject<Poco::UUID>(args[i]);
+			if (pUUID)
+			{
+				statement.bind(*pUUID);
+			}
+			else throw Poco::InvalidArgumentException(Poco::format("Cannot convert argument %d to Poco::UUID"s, i));
 		}
 		else
 		{

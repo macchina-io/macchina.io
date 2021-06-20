@@ -17,6 +17,7 @@
 #include "Poco/OSP/WebEvent/WebEventServiceImpl.h"
 #include "Poco/OSP/WebEvent/WebEventRequestHandler.h"
 #include "Poco/OSP/Web/WebRequestHandlerFactory.h"
+#include "Poco/Environment.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/ClassLibrary.h"
 
@@ -76,15 +77,18 @@ public:
 	void start(BundleContext::Ptr pContext)
 	{
 		Poco::OSP::PreferencesService::Ptr pPrefs = Poco::OSP::ServiceFinder::find<Poco::OSP::PreferencesService>(pContext);
+
+		int workerCount = pPrefs->configuration()->getInt("osp.web.event.workers", 2*Poco::Environment::processorCount());
 		int maxWebSockets = pPrefs->configuration()->getInt("osp.web.event.maxWebSockets", 0);
-		WebEventServiceImpl::Ptr pService = new WebEventServiceImpl(pContext, maxWebSockets);
+
+		WebEventServiceImpl::Ptr pService = new WebEventServiceImpl(pContext, maxWebSockets, workerCount);
 		_pWebEventServiceRef = pContext->registry().registerService(WebEventService::SERVICE_NAME, pService, Properties());
 	}
 		
 	void stop(BundleContext::Ptr pContext)
 	{
 		pContext->registry().unregisterService(_pWebEventServiceRef);
-		_pWebEventServiceRef = 0;
+		_pWebEventServiceRef.reset();
 	}
 	
 private:

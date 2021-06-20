@@ -11,7 +11,8 @@ objects = AbstractGenerator ProxyFactoryGenerator SerializerGenerator XSDGenerat
 	BundleActivatorGenerator ExtensionsGenerator \
 	DeserializerGenerator RemoteGen SkeletonGenerator \
 	InterfaceGenerator RemoteObjectGenerator WSDLGenerator GenUtility \
-	EventDispatcherGenerator EventSubscriberGenerator
+	EventDispatcherGenerator EventSubscriberGenerator \
+	SwaggerGenerator
 
 target         = RemoteGenNG
 target_version = 1

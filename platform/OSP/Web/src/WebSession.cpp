@@ -126,9 +126,19 @@ void WebSession::clear()
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	std::string token = csrfToken();
+	Poco::Any token;
+	auto it = _attrs.find(CSRF_TOKEN);
+	if (it != _attrs.end())
+	{
+		token = it->second;
+	}
+
 	clearImpl();
-	_attrs[CSRF_TOKEN] = token;
+
+	if (!token.empty())
+	{
+		_attrs[CSRF_TOKEN] = token;
+	}
 }
 
 

@@ -804,12 +804,13 @@ const Token* Parser::parseEnum(const Token* pNext)
 {
 	poco_assert (isKeyword(pNext, IdentifierToken::KW_ENUM));
 
+	std::string baseType;
 	int flags = 0;
 	_pCurrentSymbol = 0;
 	int line = _istr.getCurrentLineNumber();
 	pNext = next();
 
-	if (isKeyword(pNext, IdentifierToken::KW_CLASS))
+	if (isKeyword(pNext, IdentifierToken::KW_CLASS) || isKeyword(pNext, IdentifierToken::KW_STRUCT))
 	{
 		flags = Enum::ENUM_IS_CLASS;
 		pNext = next();
@@ -821,8 +822,27 @@ const Token* Parser::parseEnum(const Token* pNext)
 		name = pNext->tokenString();
 		pNext = next();
 	}
+
+	if (isOperator(pNext, OperatorToken::OP_COLON))
+	{
+		pNext = next();
+		if (pNext->is(Token::KEYWORD_TOKEN))
+		{
+			while (pNext->is(Token::KEYWORD_TOKEN)) // int, unsigned int, etc.
+			{
+				if (!baseType.empty()) baseType += ' ';
+				baseType += pNext->tokenString();
+				pNext = next();
+			}
+		}
+		else
+		{
+			pNext = parseIdentifier(pNext, baseType);
+		}
+	}
+
 	expectOperator(pNext, OperatorToken::OP_OPENBRACE, "{");
-	Enum* pEnum = new Enum(name, currentNameSpace(), flags);
+	Enum* pEnum = new Enum(name, currentNameSpace(), baseType, flags);
 	addSymbol(pEnum, line);
 	pNext = next();
 	while (pNext->is(Token::IDENTIFIER_TOKEN))

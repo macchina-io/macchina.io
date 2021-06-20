@@ -16,6 +16,7 @@
 #include "Poco/CppParser/Function.h"
 #include "Poco/CppParser/Utility.h"
 #include "Poco/CppParser/TypeDef.h"
+#include "Poco/CppParser/Enum.h"
 #include "Poco/Exception.h"
 #include "Poco/Path.h"
 #include "Poco/String.h"
@@ -181,13 +182,14 @@ void InterfaceGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, 
 		{
 			decl.append(" = ");
 			std::string type = Poco::CodeGeneration::Utility::resolveType(_pStructIn, (*it)->declType());
-
-			decl.append(type);
-			decl.append("(");
 			Poco::CppParser::Symbol* pSym = Poco::CppParser::NameSpace::root()->lookup(type);
 			if (pSym && pSym->kind() == Poco::CppParser::Symbol::SYM_ENUM)
 			{
-				decl.append(pSym->nameSpace()->fullName());
+				Poco::CppParser::Enum* pEnum = static_cast<Poco::CppParser::Enum*>(pSym);
+				if (pEnum->flags() & Poco::CppParser::Enum::ENUM_IS_CLASS)
+					decl.append(pEnum->fullName());
+				else
+					decl.append(pEnum->nameSpace()->fullName());
 				decl.append("::");
 				std::string defaultValue((*it)->defaultValue());
 				std::string::size_type scpos = defaultValue.find_last_of("::");
@@ -199,9 +201,11 @@ void InterfaceGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, 
 			}
 			else
 			{
+				decl.append(type);
+				decl.append("(");
 				decl.append((*it)->defaultValue());
+				decl.append(")");
 			}
-			decl.append(")");
 		}
 		if ((*it)->isPointer())
 			throw Poco::InvalidArgumentException("Pointer parameters are not supported: " + pFuncOld->nameSpace()->fullName() + "::" + pFuncOld->name() + "::" + (*it)->name());

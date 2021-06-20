@@ -16,6 +16,8 @@
 				${POCO_BASE}/Foundation/include
 				-I
 				${POCO_BASE}/RemotingNG/include
+				-I
+				${POCO_BASE}/OSP/include
 				${RemoteGen.internal.gcc.includes}
 				-E
 				-C
@@ -31,6 +33,8 @@
 				${POCO_BASE}/Foundation/include
 				-I
 				${POCO_BASE}/RemotingNG/include
+				-I
+				${POCO_BASE}/OSP/include
 				${RemoteGen.internal.gcc.includes}
 				-E
 				-C
@@ -47,6 +51,8 @@
 				${POCO_BASE}\Foundation\include
 				/I
 				${POCO_BASE}\RemotingNG\include
+				/I
+				${POCO_BASE}\OSP\include
 				${RemoteGen.internal.msvc.includes}
 				-DPOCO_REMOTEGEN
 				/nologo

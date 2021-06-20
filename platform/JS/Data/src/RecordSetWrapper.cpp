@@ -15,6 +15,7 @@
 #include "Poco/JS/Data/RecordSetWrapper.h"
 #include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/JS/Core/BufferWrapper.h"
+#include "Poco/JS/Core/UUIDWrapper.h"
 #include "Poco/Data/MetaColumn.h"
 #include "Poco/Data/RowFormatter.h"
 #include "Poco/Data/LOB.h"
@@ -591,22 +592,58 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 			}
 		}
 		break;
+	case Poco::Data::MetaColumn::FDT_UUID:
+		{
+			Poco::UUID uuid = value.extract<Poco::UUID>();
+			Poco::UUID* pUUID = nullptr;
+			try
+			{
+				pUUID = new Poco::UUID(uuid);
+				Poco::JS::Core::UUIDWrapper wrapper;
+				v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(args.GetIsolate(), pUUID));
+				args.GetReturnValue().Set(uuidObject);
+			}
+			catch (...)
+			{
+				delete pUUID;
+				throw;
+			}
+		}
+		break;
 	case Poco::Data::MetaColumn::FDT_BLOB:
 		{
 			Poco::Data::BLOB blob = value.extract<Poco::Data::BLOB>();
-			Poco::JS::Core::BufferWrapper::Buffer* pBuffer = new Poco::JS::Core::BufferWrapper::Buffer(reinterpret_cast<const char*>(blob.rawContent()), blob.size());
-			Poco::JS::Core::BufferWrapper wrapper;
-			v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(pIsolate, pBuffer));
-			args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, bufferObject));
+			Poco::JS::Core::BufferWrapper::Buffer* pBuffer = nullptr;
+			try
+			{
+				pBuffer = new Poco::JS::Core::BufferWrapper::Buffer(reinterpret_cast<const char*>(blob.rawContent()), blob.size());
+				Poco::JS::Core::BufferWrapper wrapper;
+				v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(pIsolate, pBuffer));
+				args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, bufferObject));
+			}
+			catch (...)
+			{
+				delete pBuffer;
+				throw;
+			}
 		}
 		break;
 	case Poco::Data::MetaColumn::FDT_CLOB:
 		{
 			Poco::Data::CLOB clob = value.extract<Poco::Data::CLOB>();
-			Poco::JS::Core::BufferWrapper::Buffer* pBuffer = new Poco::JS::Core::BufferWrapper::Buffer(clob.rawContent(), clob.size());
-			Poco::JS::Core::BufferWrapper wrapper;
-			v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(pIsolate, pBuffer));
-			args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, bufferObject));
+			Poco::JS::Core::BufferWrapper::Buffer* pBuffer = nullptr;
+			try
+			{
+				pBuffer = new Poco::JS::Core::BufferWrapper::Buffer(clob.rawContent(), clob.size());
+				Poco::JS::Core::BufferWrapper wrapper;
+				v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(pIsolate, pBuffer));
+				args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, bufferObject));
+			}
+			catch (...)
+			{
+				delete pBuffer;
+				throw;
+			}
 		}
 		break;
 	case Poco::Data::MetaColumn::FDT_WSTRING:
@@ -648,20 +685,22 @@ std::string RecordSetWrapper::typeToString(Poco::Data::MetaColumn::ColumnDataTyp
 		return "string"s;
 	case Poco::Data::MetaColumn::FDT_BLOB:
 		return "BLOB"s;
-	case Poco::Data::MetaColumn::FDT_UNKNOWN:
-		return "unknown"s;
-	case Poco::Data::MetaColumn::FDT_TIMESTAMP:
-		return "DateTime"s;
 	case Poco::Data::MetaColumn::FDT_CLOB:
 		return "CLOB"s;
+	case Poco::Data::MetaColumn::FDT_TIMESTAMP:
+		return "DateTime"s;
 	case Poco::Data::MetaColumn::FDT_WSTRING:
 		return "wstring"s;
 	case Poco::Data::MetaColumn::FDT_DATE:
 		return "Date"s;
 	case Poco::Data::MetaColumn::FDT_TIME:
 		return "Time"s;
+	case Poco::Data::MetaColumn::FDT_UUID:
+		return "UUID"s;
+	case Poco::Data::MetaColumn::FDT_UNKNOWN:
+		return "unknown"s;
 	default:
-		return "unknown";
+		return "unknown"s;
 	}
 }
 

@@ -69,6 +69,12 @@ public:
 		AUTH_ALL     = AUTH_BASIC | AUTH_SESSION | AUTH_BEARER
 	};
 
+	enum ResponseFormat
+	{
+		RESPONSE_FORMAT_HTML = 1, /// HTML-formatted error page
+		RESPONSE_FORMAT_JSON = 2  /// JSON-formatted error page
+	};
+
 	using RequestHandlerFactoryPtr = Poco::SharedPtr<Poco::Net::HTTPRequestHandlerFactory>;
 	using RegularExpressionPtr = Poco::SharedPtr<Poco::RegularExpression>;
 
@@ -123,7 +129,10 @@ public:
 		/// A VirtualPath struct is used to specify a path mapping for a bundle.
 	{
 		VirtualPath():
-			hidden(false)
+			hidden(false),
+			cache(true),
+			exactMatch(false),
+			responseFormat(RESPONSE_FORMAT_HTML)
 		{
 		}
 
@@ -133,6 +142,8 @@ public:
 			security(aSecurity),
 			hidden(false),
 			cache(true),
+			exactMatch(false),
+			responseFormat(RESPONSE_FORMAT_HTML),
 			pOwnerBundle(pOwner)
 		{
 		}
@@ -143,22 +154,26 @@ public:
 			security(aSecurity),
 			hidden(false),
 			cache(true),
+			exactMatch(false),
+			responseFormat(RESPONSE_FORMAT_HTML),
 			pOwnerBundle(pOwner)
 		{
 		}
 
-		RegularExpressionPtr     pPattern;     /// pattern for matching request handlers
-		std::string              path;         /// virtual server path (e.g., /images)
-		std::set<std::string>    methods;      /// allowed methods ("GET", "POST", etc.)
-		std::string              description;  /// user-readable description of resource or service
-		std::string              resource;     /// resource path (if mapped to resource)
-		std::string              indexPage;    /// index page (only used if resource path is set; defaults to "index.html")
-		RequestHandlerFactoryPtr pFactory;     /// request handler factory (null if resource path is specified)
-		PathSecurity             security;     /// security attributes
-		PathCORS                 cors;         /// CORS settings
-		bool                     hidden;       /// path is not included in list returned by listVirtualPaths()
-		bool                     cache;        /// resource can be cached
-		Bundle::Ptr              pOwnerBundle; /// bundle owning path
+		RegularExpressionPtr     pPattern;            /// pattern for matching request handlers
+		std::string              path;                /// virtual server path (e.g., /images)
+		std::set<std::string>    methods;             /// allowed methods ("GET", "POST", etc.)
+		std::string              description;         /// user-readable description of resource or service
+		std::string              resource;            /// resource path (if mapped to resource)
+		std::string              indexPage;           /// index page (only used if resource path is set; defaults to "index.html")
+		RequestHandlerFactoryPtr pFactory;            /// request handler factory (null if resource path is specified)
+		PathSecurity             security;            /// security attributes
+		PathCORS                 cors;                /// CORS settings
+		bool                     hidden;              /// path is not included in list returned by listVirtualPaths()
+		bool                     cache;               /// resource can be cached
+		bool                     exactMatch;          /// request path must match exactly
+		ResponseFormat           responseFormat;      /// error response format (HTML or JSON)
+		Bundle::Ptr              pOwnerBundle;        /// bundle owning path
 	};
 
 	struct PathInfo
@@ -171,17 +186,23 @@ public:
 
 	enum Options
 	{
-		CONF_OPT_COMPRESS_RESPONSES = 0x01,
+		CONF_OPT_COMPRESS_RESPONSES  = 0x01,
 			/// Compress responses using gzip content encoding.
 
-		CONF_OPT_CACHE_RESOURCES    = 0x02,
+		CONF_OPT_CACHE_RESOURCES     = 0x02,
 			/// Enable in-memory caching of bundle resources.
 
-		CONF_OPT_ADD_AUTH_HEADER    = 0x04,
+		CONF_OPT_ADD_AUTH_HEADER     = 0x04,
 			/// Add X-OSP-Authorized-User header to authenticated requests.
 
-		CONF_OPT_ADD_SIGNATURE       = 0x08
+		CONF_OPT_ADD_SIGNATURE       = 0x08,
 			/// Add server signature to generated HTML error responses.
+
+		CONF_OPT_LOG_FULL_REQUEST    = 0x10,
+			/// Enable full logging of request and response headers.
+
+		CONF_OPT_ENABLE_CORS         = 0x20
+			/// Globally enable or disable CORS handling.
 	};
 
 	struct Config
@@ -311,28 +332,28 @@ protected:
 	bool authorizeBearer(Poco::Net::HTTPServerRequest& request, const std::string& token, const VirtualPath& vPath, std::string& username) const;
 		/// Authorizes the request using bearer token-based authentication.
 
-	void sendFound(Poco::Net::HTTPServerRequest& request, const std::string& path);
+	void sendFound(Poco::Net::HTTPServerRequest& request, const std::string& path, ResponseFormat format = RESPONSE_FORMAT_HTML);
 		/// Sends a 302 Found response.
 
-	void sendNotFound(Poco::Net::HTTPServerRequest& request, const std::string& path);
+	void sendNotFound(Poco::Net::HTTPServerRequest& request, const std::string& path, ResponseFormat format = RESPONSE_FORMAT_HTML);
 		/// Sends a 404 Not Found error response.
 
-	void sendNotAuthorized(Poco::Net::HTTPServerRequest& request, const std::string& path);
+	void sendNotAuthorized(Poco::Net::HTTPServerRequest& request, const std::string& path, ResponseFormat format = RESPONSE_FORMAT_HTML);
 		/// Sends a 401 Unauthorized error response.
 
-	void sendForbidden(Poco::Net::HTTPServerRequest& request, const std::string& path);
+	void sendForbidden(Poco::Net::HTTPServerRequest& request, const std::string& path, ResponseFormat format = RESPONSE_FORMAT_HTML);
 		/// Sends a 403 Forbidden error response.
 
-	void sendBadRequest(Poco::Net::HTTPServerRequest& request, const std::string& message);
+	void sendBadRequest(Poco::Net::HTTPServerRequest& request, const std::string& message, ResponseFormat format = RESPONSE_FORMAT_HTML);
 		/// Sends a 404 Not Found error response.
 
-	void sendMethodNotAllowed(Poco::Net::HTTPServerRequest& request, const std::string& message);
+	void sendMethodNotAllowed(Poco::Net::HTTPServerRequest& request, const std::string& message, ResponseFormat format = RESPONSE_FORMAT_HTML);
 		/// Sends a 405 Method Not Allowed error response.
 
-	void sendInternalError(Poco::Net::HTTPServerRequest& request, const std::string& message);
+	void sendInternalError(Poco::Net::HTTPServerRequest& request, const std::string& message, ResponseFormat format = RESPONSE_FORMAT_HTML);
 		/// Sends a 500 Internal Server Error response.
 
-	void sendResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message);
+	void sendResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message, ResponseFormat format = RESPONSE_FORMAT_HTML);
 		/// Sends a standard status/error response.
 
 	void sendHTMLResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message);
@@ -394,11 +415,13 @@ private:
 	PatternVec _patternVec;
 	std::string _authServiceName;
 	std::string _tokenValidatorName;
+	bool _corsEnabled;
 	std::string _corsAllowedOrigin;
 	bool _compressResponses;
 	bool _cacheResources;
 	bool _addAuthHeader;
 	bool _addSignature;
+	bool _logFullRequest;
 	int _authMethods;
 	std::set<std::string> _compressedMediaTypes;
 	Poco::Net::NameValueCollection _customResponseHeaders;

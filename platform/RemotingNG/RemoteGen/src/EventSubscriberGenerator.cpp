@@ -17,9 +17,11 @@
 #include "Poco/CodeGeneration/GeneratorEngine.h"
 #include "Poco/CppParser/Function.h"
 #include "Poco/CppParser/Utility.h"
+#include "Poco/CppParser/Enum.h"
 #include "Poco/Exception.h"
 #include "Poco/Path.h"
 #include "Poco/NumberFormatter.h"
+#include "Poco/Format.h"
 #include "Poco/String.h"
 #include "Poco/RemotingNG/SerializerBase.h"
 #include <cctype>
@@ -625,12 +627,18 @@ void EventSubscriberGenerator::writeTypeDeserializers(const Poco::CppParser::Fun
 			std::string cntStr(Poco::NumberFormatter::format(itOP->second.namePos));
 			Poco::CppParser::Symbol* pSym = pFunc->nameSpace()->lookup(retType);
 			bool enumMode = false;
+			std::string enumBaseType;
 			if (pSym && pSym->kind() == Poco::CppParser::Symbol::SYM_ENUM)
 			{
 				enumMode = true;
-				retType = "int";
+				enumBaseType = static_cast<Poco::CppParser::Enum*>(pSym)->baseType();
+				if (enumBaseType.empty()) enumBaseType = "int";
 			}
-			std::string codeLine(deserPre + retType);
+			std::string codeLine(deserPre);
+			if (enumMode)
+				codeLine += enumBaseType;
+			else
+				codeLine += retType;
 			codeLine.append(" >::deserialize(REMOTING__NAMES[");
 			codeLine.append(cntStr);
 			codeLine.append("], ");
@@ -641,12 +649,19 @@ void EventSubscriberGenerator::writeTypeDeserializers(const Poco::CppParser::Fun
 			codeLine.append("remoting__deser, ");
 			if (enumMode)
 			{
-				codeLine.append("(int&)");
+				gen.writeMethodImplementation(Poco::format("%s%s remoting__%sTmp;", indentation, enumBaseType, itOP->second.varName));
+				codeLine.append("remoting__" + itOP->second.varName + "Tmp");
 			}
-
-			codeLine.append(itOP->second.varName);
+			else
+			{
+				codeLine.append(itOP->second.varName);
+			}
 			codeLine.append(");");
 			gen.writeMethodImplementation(indentation+codeLine);
+			if (enumMode)
+			{
+				gen.writeMethodImplementation(indentation + itOP->second.varName + " = static_cast<" + retType + ">(remoting__" + itOP->second.varName + "Tmp);");
+			}
 		}
 	}
 }

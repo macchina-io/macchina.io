@@ -26,6 +26,7 @@
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPCookie.h"
 #include "Poco/UniqueExpireCache.h"
+#include "Poco/Logger.h"
 #include "Poco/Mutex.h"
 
 
@@ -138,6 +139,7 @@ public:
 	WebSession::Ptr get(const std::string& appName, const Poco::Net::HTTPServerRequest& request, int expireSeconds, BundleContext::Ptr pContext);
 	WebSession::Ptr create(const std::string& appName, const Poco::Net::HTTPServerRequest& request, int expireSeconds, BundleContext::Ptr pContext);
 	void remove(WebSession::Ptr ptr);
+	void removeForUser(const std::string& username);
 
 	// Service
 	virtual const std::type_info& type() const;
@@ -150,6 +152,7 @@ protected:
 	WebSession::Ptr findByIdImpl(const std::string& sessionId, BundleContext::Ptr pContext);
 	WebSession::Ptr createImpl(const std::string& appName, const Poco::Net::HTTPServerRequest& request, int expireSeconds, BundleContext::Ptr pContext);
 	void removeImpl(WebSession::Ptr pSession);
+	void removeImpl(const std::string& id);
 	std::string getId(const std::string& appName, const Poco::Net::HTTPServerRequest& request);
 	void addSessionCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr ptrSes);
 	void addCSRFCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr ptrSes);
@@ -173,6 +176,7 @@ private:
 	bool _cookieSecure;
 	bool _verifyAddress;
 	Poco::Net::HTTPCookie::SameSite _cookieSameSite;
+	Poco::Logger& _logger;
 };
 
 

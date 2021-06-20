@@ -141,9 +141,11 @@ public:
 
 	virtual void testSynchronizedRemote() = 0;
 
+	Poco::BasicEvent < Enum1 > testEnumEvent;
 	Poco::BasicEvent < std::string > testEvent;
 	Poco::BasicEvent < const int > testFilteredEvent;
 	Poco::BasicEvent < std::string > testOneWayEvent;
+	Poco::BasicEvent < ScopedEnum > testScopedEnumEvent;
 	Poco::BasicEvent < void > testVoidEvent;
 };
 

@@ -5,7 +5,7 @@
     <symbolicName>com.appinf.osp.samples.servicelistener</symbolicName>
     <version>1.0.1</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2007-2020, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2007-2021, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>ServiceListenerBundleActivator</class>
       <library>com.appinf.osp.samples.servicelistener</library>
