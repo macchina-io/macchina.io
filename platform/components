@@ -11,6 +11,7 @@ Data/SQLite
 Zip
 CppParser
 CodeGeneration
+ActiveRecord
 JS/V8
 JS/Core
 JS/Data

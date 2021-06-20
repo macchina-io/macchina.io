@@ -53,7 +53,7 @@ MethodPropertyFilter::~MethodPropertyFilter()
 void MethodPropertyFilter::methodStart(const Poco::CppParser::Function* pFunc, const CodeGenerator::Properties& properties)
 {
 	_inMethod = true;
-	_forwardMethod = matches(properties) && !(pFunc->isConstructor() || pFunc->isDestructor()) && pFunc->getAccess() == Poco::CppParser::Symbol::ACC_PUBLIC;
+	_forwardMethod = matches(properties) && !(pFunc->isConstructor() || pFunc->isDestructor() || pFunc->isDeleted()) && pFunc->getAccess() == Poco::CppParser::Symbol::ACC_PUBLIC;
 	
 	if (_forwardMethod)
 		_pGen->methodStart(pFunc, properties);
