@@ -21,7 +21,7 @@ For more information, including [documentation](https://macchina.io/docs), pleas
 Build Status
 ------------
 
-- Travis: [![Travis Build Status](https://travis-ci.org/macchina-io/macchina.io.png?branch=develop)](https://travis-ci.org/macchina-io/macchina.io/)
+[![macchina.io-ci](https://github.com/macchina-io/macchina.io/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/macchina-io/macchina.io/actions/workflows/ci.yml)
 
 
 Prerequisites
