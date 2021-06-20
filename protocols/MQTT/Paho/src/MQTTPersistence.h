@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 IBM Corp.
+ * Copyright (c) 2009, 2020 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License v2.0
  * and Eclipse Distribution License v1.0 which accompany this distribution. 
  *
  * The Eclipse Public License is available at 
- *    http://www.eclipse.org/legal/epl-v10.html
+ *    https://www.eclipse.org/legal/epl-2.0/
  * and the Eclipse Distribution License is available at 
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
@@ -44,21 +44,26 @@
 /** Stem of the key for an async client command */
 #define PERSISTENCE_COMMAND_KEY "c-"
 /** Stem of the key for an MQTT V5 async client command */
-#define PERSISTENCE_V5_COMMAND_KEY "c-"
-/** Stem of the key for an async client message queue */
+#define PERSISTENCE_V5_COMMAND_KEY "c5-"
+/** Stem of the key for an client incoming message queue */
 #define PERSISTENCE_QUEUE_KEY "q-"
-/** Stem of the key for an MQTT V5 message queue */
+/** Stem of the key for an MQTT V5 incoming message queue */
 #define PERSISTENCE_V5_QUEUE_KEY "q5-"
-#define PERSISTENCE_MAX_KEY_LENGTH 8
+/** Maximum length of a stem for a persistence key */
+#define PERSISTENCE_MAX_STEM_LENGTH 3
+/** Maximum allowed length of a persistence key */
+#define PERSISTENCE_MAX_KEY_LENGTH 9
+/** Maximum size of an integer sequence number appended to a persistence key */
+#define PERSISTENCE_SEQNO_LIMIT 1000000 /*10^(PERSISTENCE_MAX_KEY_LENGTH - PERSISTENCE_MAX_STEM_LENGTH)*/
 
 int MQTTPersistence_create(MQTTClient_persistence** per, int type, void* pcontext);
 int MQTTPersistence_initialize(Clients* c, const char* serverURI);
 int MQTTPersistence_close(Clients* c);
 int MQTTPersistence_clear(Clients* c);
-int MQTTPersistence_restore(Clients* c);
+int MQTTPersistence_restorePackets(Clients* c);
 void* MQTTPersistence_restorePacket(int MQTTVersion, char* buffer, size_t buflen);
 void MQTTPersistence_insertInOrder(List* list, void* content, size_t size);
-int MQTTPersistence_put(int socket, char* buf0, size_t buf0len, int count, 
+int MQTTPersistence_putPacket(int socket, char* buf0, size_t buf0len, int count,
 						char** buffers, size_t* buflens, int htype, int msgId, int scr, int MQTTVersion);
 int MQTTPersistence_remove(Clients* c, char* type, int qos, int msgId);
 void MQTTPersistence_wrapMsgID(Clients *c);

@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 IBM Corp.
+ * Copyright (c) 2009, 2020 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License v2.0
  * and Eclipse Distribution License v1.0 which accompany this distribution. 
  *
  * The Eclipse Public License is available at 
- *    http://www.eclipse.org/legal/epl-v10.html
+ *    https://www.eclipse.org/legal/epl-2.0/
  * and the Eclipse Distribution License is available at 
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
@@ -204,6 +204,7 @@ typedef struct
 	int payloadlen;	/**< payload length */
 	int MQTTVersion;  /**< the version of MQTT */
 	MQTTProperties properties; /**< MQTT 5.0 properties.  Not used for MQTT < 5.0 */
+	uint8_t mask[4]; /**< the websockets mask the payload is masked with, if any */
 } Publish;
 
 
@@ -238,7 +239,7 @@ const char* MQTTPacket_name(int ptype);
 
 void* MQTTPacket_Factory(int MQTTVersion, networkHandles* net, int* error);
 int MQTTPacket_send(networkHandles* net, Header header, char* buffer, size_t buflen, int free, int MQTTVersion);
-int MQTTPacket_sends(networkHandles* net, Header header, int count, char** buffers, size_t* buflens, int* frees, int MQTTVersion);
+int MQTTPacket_sends(networkHandles* net, Header header, PacketBuffers* buffers, int MQTTVersion);
 
 void* MQTTPacket_header_only(int MQTTVersion, unsigned char aHeader, char* data, size_t datalen);
 int MQTTPacket_send_disconnect(Clients* client, enum MQTTReasonCodes reason, MQTTProperties* props);
@@ -246,15 +247,15 @@ int MQTTPacket_send_disconnect(Clients* client, enum MQTTReasonCodes reason, MQT
 void* MQTTPacket_publish(int MQTTVersion, unsigned char aHeader, char* data, size_t datalen);
 void MQTTPacket_freePublish(Publish* pack);
 int MQTTPacket_send_publish(Publish* pack, int dup, int qos, int retained, networkHandles* net, const char* clientID);
-int MQTTPacket_send_puback(int msgid, networkHandles* net, const char* clientID);
+int MQTTPacket_send_puback(int MQTTVersion, int msgid, networkHandles* net, const char* clientID);
 void* MQTTPacket_ack(int MQTTVersion, unsigned char aHeader, char* data, size_t datalen);
 
 void MQTTPacket_freeAck(Ack* pack);
 void MQTTPacket_freeSuback(Suback* pack);
 void MQTTPacket_freeUnsuback(Unsuback* pack);
-int MQTTPacket_send_pubrec(int msgid, networkHandles* net, const char* clientID);
-int MQTTPacket_send_pubrel(int msgid, int dup, networkHandles* net, const char* clientID);
-int MQTTPacket_send_pubcomp(int msgid, networkHandles* net, const char* clientID);
+int MQTTPacket_send_pubrec(int MQTTVersion, int msgid, networkHandles* net, const char* clientID);
+int MQTTPacket_send_pubrel(int MQTTVersion, int msgid, int dup, networkHandles* net, const char* clientID);
+int MQTTPacket_send_pubcomp(int MQTTVersion, int msgid, networkHandles* net, const char* clientID);
 
 void MQTTPacket_free_packet(MQTTPacket* pack);
 
@@ -263,7 +264,7 @@ int readInt4(char** pptr);
 void writeMQTTLenString(char** pptr, MQTTLenString lenstring);
 int MQTTLenStringRead(MQTTLenString* lenstring, char** pptr, char* enddata);
 int MQTTPacket_VBIlen(int rem_len);
-int MQTTPacket_decodeBuf(char* buf, int* value);
+int MQTTPacket_decodeBuf(char* buf, unsigned int* value);
 
 #include "MQTTPacketOut.h"
 

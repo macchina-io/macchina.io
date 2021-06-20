@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 IBM Corp.
+ * Copyright (c) 2009, 2020 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License v2.0
  * and Eclipse Distribution License v1.0 which accompany this distribution. 
  *
  * The Eclipse Public License is available at 
- *    http://www.eclipse.org/legal/epl-v10.html
+ *    https://www.eclipse.org/legal/epl-2.0/
  * and the Eclipse Distribution License is available at 
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
@@ -30,6 +30,10 @@
 #include "MQTTPersistenceDefault.h"
 #include "MQTTProtocolClient.h"
 #include "Heap.h"
+
+#if defined(_WIN32) || defined(_WIN64)
+	#define snprintf _snprintf
+#endif
 
 
 static MQTTPersistence_qEntry* MQTTPersistence_restoreQueueEntry(char* buffer, size_t buflen, int MQTTVersion);
@@ -60,13 +64,15 @@ int MQTTPersistence_create(MQTTClient_persistence** persistence, int type, void*
 			per = malloc(sizeof(MQTTClient_persistence));
 			if ( per != NULL )
 			{
-				if ( pcontext != NULL )
+				if ( pcontext == NULL )
+					pcontext = "."; /* working directory */
+				if ((per->context = malloc(strlen(pcontext) + 1)) == NULL)
 				{
-					per->context = malloc(strlen(pcontext) + 1);
-					strcpy(per->context, pcontext);
+					free(per);
+					rc = PAHO_MEMORY_ERROR;
+					goto exit;
 				}
-				else
-					per->context = ".";  /* working directory */
+				strcpy(per->context, pcontext);
 				/* file system functions */
 				per->popen        = pstopen;
 				per->pclose       = pstclose;
@@ -78,7 +84,7 @@ int MQTTPersistence_create(MQTTClient_persistence** persistence, int type, void*
 				per->pcontainskey = pstcontainskey;
 			}
 			else
-				rc = MQTTCLIENT_PERSISTENCE_ERROR;
+				rc = PAHO_MEMORY_ERROR;
 			break;
 		case MQTTCLIENT_PERSISTENCE_USER :
 			per = (MQTTClient_persistence *)pcontext;
@@ -94,7 +100,7 @@ int MQTTPersistence_create(MQTTClient_persistence** persistence, int type, void*
 #endif
 
 	*persistence = per;
-
+exit:
 	FUNC_EXIT_RC(rc);
 	return rc;
 }
@@ -115,7 +121,7 @@ int MQTTPersistence_initialize(Clients *c, const char *serverURI)
 	{
 		rc = c->persistence->popen(&(c->phandle), c->clientID, serverURI, c->persistence->context);
 		if ( rc == 0 )
-			rc = MQTTPersistence_restore(c);
+			rc = MQTTPersistence_restorePackets(c);
 	}
 
 	FUNC_EXIT_RC(rc);
@@ -130,20 +136,24 @@ int MQTTPersistence_initialize(Clients *c, const char *serverURI)
  */
 int MQTTPersistence_close(Clients *c)
 {
-	int rc =0;
+	int rc = 0;
 
 	FUNC_ENTRY;
+#if !defined(NO_PERSISTENCE)
 	if (c->persistence != NULL)
 	{
 		rc = c->persistence->pclose(c->phandle);
-		c->phandle = NULL;
-#if !defined(NO_PERSISTENCE)
-		if ( c->persistence->popen == pstopen )
+
+		if (c->persistence->popen == pstopen) {
+			if (c->persistence->context)
+				free(c->persistence->context);
 			free(c->persistence);
-#endif
+		}
+
+		c->phandle = NULL;
 		c->persistence = NULL;
 	}
-
+#endif
 	FUNC_EXIT_RC(rc);
 	return rc;
 }
@@ -172,7 +182,7 @@ int MQTTPersistence_clear(Clients *c)
  * @param client the client as ::Clients.
  * @return 0 if success, #MQTTCLIENT_PERSISTENCE_ERROR otherwise.
  */
-int MQTTPersistence_restore(Clients *c)
+int MQTTPersistence_restorePackets(Clients *c)
 {
 	int rc = 0;
 	char **msgkeys = NULL,
@@ -187,20 +197,24 @@ int MQTTPersistence_restore(Clients *c)
 	{
 		while (rc == 0 && i < nkeys)
 		{
-			if (strncmp(msgkeys[i], PERSISTENCE_COMMAND_KEY, strlen(PERSISTENCE_COMMAND_KEY)) == 0)
+			if (strncmp(msgkeys[i], PERSISTENCE_COMMAND_KEY, strlen(PERSISTENCE_COMMAND_KEY)) == 0 ||
+				strncmp(msgkeys[i], PERSISTENCE_V5_COMMAND_KEY, strlen(PERSISTENCE_V5_COMMAND_KEY)) == 0)
 			{
 				;
 			}
-			else if (strncmp(msgkeys[i], PERSISTENCE_QUEUE_KEY, strlen(PERSISTENCE_QUEUE_KEY)) == 0)
+			else if (strncmp(msgkeys[i], PERSISTENCE_QUEUE_KEY, strlen(PERSISTENCE_QUEUE_KEY)) == 0 ||
+					 strncmp(msgkeys[i], PERSISTENCE_V5_QUEUE_KEY, strlen(PERSISTENCE_V5_QUEUE_KEY)) == 0)
 			{
 				;
 			}
-			else if ((rc = c->persistence->pget(c->phandle, msgkeys[i], &buffer, &buflen)) == 0)
+			else if ((rc = c->persistence->pget(c->phandle, msgkeys[i], &buffer, &buflen)) == 0 &&
+					(c->afterRead == NULL || (rc = c->afterRead(c->afterRead_context, &buffer, &buflen)) == 0))
 			{
 				int data_MQTTVersion = MQTTVERSION_3_1_1;
 				char* cur_key = msgkeys[i];
+				MQTTPacket* pack = NULL;
 
-				if (	strncmp(cur_key, PERSISTENCE_V5_PUBLISH_RECEIVED,
+				if (strncmp(cur_key, PERSISTENCE_V5_PUBLISH_RECEIVED,
 							strlen(PERSISTENCE_V5_PUBLISH_RECEIVED)) == 0)
 				{
 					data_MQTTVersion = MQTTVERSION_5;
@@ -225,7 +239,7 @@ int MQTTPersistence_restore(Clients *c)
 					goto exit;
 				}
 
-				MQTTPacket* pack = MQTTPersistence_restorePacket(data_MQTTVersion, buffer, buflen);
+				pack = MQTTPersistence_restorePacket(data_MQTTVersion, buffer, buflen);
 				if ( pack != NULL )
 				{
 					if (strncmp(cur_key, PERSISTENCE_PUBLISH_RECEIVED,
@@ -234,7 +248,7 @@ int MQTTPersistence_restore(Clients *c)
 						Publish* publish = (Publish*)pack;
 						Messages* msg = NULL;
 						publish->MQTTVersion = c->MQTTVersion;
-						msg = MQTTProtocol_createMessage(publish, &msg, publish->header.bits.qos, publish->header.bits.retain);
+						msg = MQTTProtocol_createMessage(publish, &msg, publish->header.bits.qos, publish->header.bits.retain, 1);
 						msg->nextMessageType = PUBREL;
 						/* order does not matter for persisted received messages */
 						ListAppend(c->inboundMsgs, msg, msg->len);
@@ -242,6 +256,7 @@ int MQTTPersistence_restore(Clients *c)
 						{
 							free(msg->publish->payload);
 							free(msg->publish->topic);
+							msg->publish->payload = msg->publish->topic = NULL;
 						}
 						publish->topic = NULL;
 						MQTTPacket_freePublish(publish);
@@ -252,38 +267,65 @@ int MQTTPersistence_restore(Clients *c)
 					{
 						Publish* publish = (Publish*)pack;
 						Messages* msg = NULL;
-						char *key = malloc(MESSAGE_FILENAME_LENGTH + 1);
+						const size_t keysize = MESSAGE_FILENAME_LENGTH + 1;
+						char *key = malloc(keysize);
+						int chars = 0;
 
+						if (!key)
+						{
+							rc = PAHO_MEMORY_ERROR;
+							goto exit;
+						}
 						publish->MQTTVersion = c->MQTTVersion;
 						if (publish->MQTTVersion >= MQTTVERSION_5)
-							sprintf(key, "%s%d", PERSISTENCE_V5_PUBREL, publish->msgId);
+							chars = snprintf(key, keysize, "%s%d", PERSISTENCE_V5_PUBREL, publish->msgId);
 						else
-							sprintf(key, "%s%d", PERSISTENCE_PUBREL, publish->msgId);
-						msg = MQTTProtocol_createMessage(publish, &msg, publish->header.bits.qos, publish->header.bits.retain);
-						if (c->persistence->pcontainskey(c->phandle, key) == 0)
-							/* PUBLISH Qo2 and PUBREL sent */
-							msg->nextMessageType = PUBCOMP;
-						/* else: PUBLISH QoS1, or PUBLISH QoS2 and PUBREL not sent */
-						/* retry at the first opportunity */
-						msg->lastTouch = 0;
-						MQTTPersistence_insertInOrder(c->outboundMsgs, msg, msg->len);
-						publish->topic = NULL;
-						MQTTPacket_freePublish(publish);
+							chars = snprintf(key, keysize, "%s%d", PERSISTENCE_PUBREL, publish->msgId);
+						if (chars >= keysize)
+						{
+						    rc = MQTTCLIENT_PERSISTENCE_ERROR;
+						    Log(LOG_ERROR, 0, "Error writing %d chars with snprintf", chars);
+						}
+						else
+						{
+							msg = MQTTProtocol_createMessage(publish, &msg, publish->header.bits.qos, publish->header.bits.retain, 1);
+							if (c->persistence->pcontainskey(c->phandle, key) == 0)
+								/* PUBLISH Qo2 and PUBREL sent */
+								msg->nextMessageType = PUBCOMP;
+							/* else: PUBLISH QoS1, or PUBLISH QoS2 and PUBREL not sent */
+							/* retry at the first opportunity */
+							memset(&msg->lastTouch, '\0', sizeof(msg->lastTouch));
+							MQTTPersistence_insertInOrder(c->outboundMsgs, msg, msg->len);
+							publish->topic = NULL;
+							MQTTPacket_freePublish(publish);
+							msgs_sent++;
+						}
 						free(key);
-						msgs_sent++;
 					}
 					else if (strncmp(cur_key, PERSISTENCE_PUBREL, strlen(PERSISTENCE_PUBREL)) == 0)
 					{
 						/* orphaned PUBRELs ? */
 						Pubrel* pubrel = (Pubrel*)pack;
-						char *key = malloc(MESSAGE_FILENAME_LENGTH + 1);
+						const size_t keysize = MESSAGE_FILENAME_LENGTH + 1;
+						char *key = malloc(keysize);
+						int chars = 0;
 
+						if (!key)
+						{
+							rc = PAHO_MEMORY_ERROR;
+							goto exit;
+						}
 						pubrel->MQTTVersion = c->MQTTVersion;
 						if (pubrel->MQTTVersion >= MQTTVERSION_5)
-							sprintf(key, "%s%d", PERSISTENCE_V5_PUBLISH_SENT, pubrel->msgId);
+							chars = snprintf(key, keysize, "%s%d", PERSISTENCE_V5_PUBLISH_SENT, pubrel->msgId);
 						else
-							sprintf(key, "%s%d", PERSISTENCE_PUBLISH_SENT, pubrel->msgId);
-						if (c->persistence->pcontainskey(c->phandle, key) != 0)
+							chars = snprintf(key, keysize, "%s%d", PERSISTENCE_PUBLISH_SENT, pubrel->msgId);
+						if (chars >= keysize)
+						{
+						    rc = MQTTCLIENT_PERSISTENCE_ERROR;
+						    Log(LOG_ERROR, 0, "Error writing %d chars with snprintf", chars);
+						}
+						else if (c->persistence->pcontainskey(c->phandle, key) != 0)
 							rc = c->persistence->premove(c->phandle, msgkeys[i]);
 						free(pubrel);
 						free(key);
@@ -389,7 +431,7 @@ void MQTTPersistence_insertInOrder(List* list, void* content, size_t size)
  * @param the MQTT version being used (>= MQTTVERSION_5 means properties included)
  * @return 0 if success, #MQTTCLIENT_PERSISTENCE_ERROR otherwise.
  */
-int MQTTPersistence_put(int socket, char* buf0, size_t buf0len, int count,
+int MQTTPersistence_putPacket(int socket, char* buf0, size_t buf0len, int count,
 						char** buffers, size_t* buflens, int htype, int msgId, int scr, int MQTTVersion)
 {
 	int rc = 0;
@@ -404,10 +446,26 @@ int MQTTPersistence_put(int socket, char* buf0, size_t buf0len, int count,
 	client = (Clients*)(ListFindItem(bstate->clients, &socket, clientSocketCompare)->content);
 	if (client->persistence != NULL)
 	{
-		key = malloc(MESSAGE_FILENAME_LENGTH + 1);
+		const size_t keysize = MESSAGE_FILENAME_LENGTH + 1;
+		if ((key = malloc(keysize)) == NULL)
+		{
+			rc = PAHO_MEMORY_ERROR;
+			goto exit;
+		}
 		nbufs = 1 + count;
-		lens = (int *)malloc(nbufs * sizeof(int));
-		bufs = (char **)malloc(nbufs * sizeof(char *));
+		if ((lens = (int *)malloc(nbufs * sizeof(int))) == NULL)
+		{
+			free(key);
+			rc = PAHO_MEMORY_ERROR;
+			goto exit;
+		}
+		if ((bufs = (char **)malloc(nbufs * sizeof(char *))) == NULL)
+		{
+			free(key);
+			free(lens);
+			rc = PAHO_MEMORY_ERROR;
+			goto exit;
+		}
 		lens[0] = (int)buf0len;
 		bufs[0] = buf0;
 		for (i = 0; i < count; i++)
@@ -433,7 +491,8 @@ int MQTTPersistence_put(int socket, char* buf0, size_t buf0len, int count,
 				else
 					key_id = PERSISTENCE_PUBREL;
 			}
-			sprintf(key, "%s%d", key_id, msgId);
+			if (snprintf(key, keysize, "%s%d", key_id, msgId) >= keysize)
+				rc = MQTTCLIENT_PERSISTENCE_ERROR;
 		}
 		else if (scr == 1)  /* receiving PUBLISH QoS2 */
 		{
@@ -441,16 +500,22 @@ int MQTTPersistence_put(int socket, char* buf0, size_t buf0len, int count,
 
 			if (MQTTVersion >= MQTTVERSION_5)
 				key_id = PERSISTENCE_V5_PUBLISH_RECEIVED;
-			sprintf(key, "%s%d", key_id, msgId);
+			if (snprintf(key, keysize, "%s%d", key_id, msgId) >= keysize)
+				rc = MQTTCLIENT_PERSISTENCE_ERROR;
 		}
 
-		rc = client->persistence->pput(client->phandle, key, nbufs, bufs, lens);
+		if (rc == 0 && client->beforeWrite)
+			rc = client->beforeWrite(client->beforeWrite_context, nbufs, bufs, lens);
+
+		if (rc == 0)
+			rc = client->persistence->pput(client->phandle, key, nbufs, bufs, lens);
 
 		free(key);
 		free(lens);
 		free(bufs);
 	}
 
+exit:
 	FUNC_EXIT_RC(rc);
 	return rc;
 }
@@ -472,30 +537,61 @@ int MQTTPersistence_remove(Clients* c, char *type, int qos, int msgId)
 	FUNC_ENTRY;
 	if (c->persistence != NULL)
 	{
-		char *key = malloc(MESSAGE_FILENAME_LENGTH + 1);
+		const size_t keysize = MESSAGE_FILENAME_LENGTH + 1;
+		char *key = malloc(keysize);
+		int chars = 0;
+
+		if (!key)
+		{
+			rc = PAHO_MEMORY_ERROR;
+			goto exit;
+		}
 		if (strcmp(type, PERSISTENCE_PUBLISH_SENT) == 0 ||
 				strcmp(type, PERSISTENCE_V5_PUBLISH_SENT) == 0)
 		{
-			sprintf(key, "%s%d", PERSISTENCE_V5_PUBLISH_SENT, msgId) ;
-			rc = c->persistence->premove(c->phandle, key);
-			sprintf(key, "%s%d", PERSISTENCE_V5_PUBREL, msgId) ;
-			rc += c->persistence->premove(c->phandle, key);
-			sprintf(key, "%s%d", PERSISTENCE_PUBLISH_SENT, msgId) ;
-			rc += c->persistence->premove(c->phandle, key);
-			sprintf(key, "%s%d", PERSISTENCE_PUBREL, msgId) ;
-			rc += c->persistence->premove(c->phandle, key);
+			if ((chars = snprintf(key, keysize, "%s%d", PERSISTENCE_V5_PUBLISH_SENT, msgId)) >= keysize)
+				rc = MQTTCLIENT_PERSISTENCE_ERROR;
+			else
+			{
+				rc = c->persistence->premove(c->phandle, key);
+				if ((chars = snprintf(key, keysize, "%s%d", PERSISTENCE_V5_PUBREL, msgId)) >= keysize)
+					rc = MQTTCLIENT_PERSISTENCE_ERROR;
+				else
+				{
+					rc += c->persistence->premove(c->phandle, key);
+					if ((chars = snprintf(key, keysize, "%s%d", PERSISTENCE_PUBLISH_SENT, msgId)) >= keysize)
+						rc = MQTTCLIENT_PERSISTENCE_ERROR;
+					else
+					{
+						rc += c->persistence->premove(c->phandle, key);
+						if ((chars = snprintf(key, keysize, "%s%d", PERSISTENCE_PUBREL, msgId)) >= keysize)
+							rc = MQTTCLIENT_PERSISTENCE_ERROR;
+						else
+							rc += c->persistence->premove(c->phandle, key);
+					}
+				}
+			}
 		}
 		else /* PERSISTENCE_PUBLISH_SENT && qos == 1 */
 		{    /* or PERSISTENCE_PUBLISH_RECEIVED */
 
-			sprintf(key, "%s%d", PERSISTENCE_V5_PUBLISH_RECEIVED, msgId);
-			rc = c->persistence->premove(c->phandle, key);
-			sprintf(key, "%s%d", PERSISTENCE_PUBLISH_RECEIVED, msgId);
-			rc += c->persistence->premove(c->phandle, key);
+			if ((chars = snprintf(key, keysize, "%s%d", PERSISTENCE_V5_PUBLISH_RECEIVED, msgId)) >= keysize)
+				rc = MQTTCLIENT_PERSISTENCE_ERROR;
+			else
+			{
+				rc = c->persistence->premove(c->phandle, key);
+				if ((chars = snprintf(key, keysize, "%s%d", PERSISTENCE_PUBLISH_RECEIVED, msgId)) >= keysize)
+					rc = MQTTCLIENT_PERSISTENCE_ERROR;
+				else
+					rc += c->persistence->premove(c->phandle, key);
+			}
 		}
+		if (rc == MQTTCLIENT_PERSISTENCE_ERROR)
+			Log(LOG_ERROR, 0, "Error writing %d chars with snprintf", chars);
 		free(key);
 	}
 
+exit:
 	FUNC_EXIT_RC(rc);
 	return rc;
 }
@@ -550,11 +646,25 @@ void MQTTPersistence_wrapMsgID(Clients *client)
 int MQTTPersistence_unpersistQueueEntry(Clients* client, MQTTPersistence_qEntry* qe)
 {
 	int rc = 0;
-	char key[PERSISTENCE_MAX_KEY_LENGTH + 1];
+#if defined(_WIN32) || defined(_WIN64)
+#define KEYSIZE PERSISTENCE_MAX_KEY_LENGTH + 1
+#else
+	const size_t KEYSIZE = PERSISTENCE_MAX_KEY_LENGTH + 1;
+#endif
+	char key[KEYSIZE];
+	int chars = 0;
 	
 	FUNC_ENTRY;
-	sprintf(key, "%s%u", PERSISTENCE_QUEUE_KEY, qe->seqno);
-	if ((rc = client->persistence->premove(client->phandle, key)) != 0)
+	if (client->MQTTVersion >= MQTTVERSION_5)
+		chars = snprintf(key, KEYSIZE, "%s%u", PERSISTENCE_V5_QUEUE_KEY, qe->seqno);
+	else
+		chars = snprintf(key, KEYSIZE, "%s%u", PERSISTENCE_QUEUE_KEY, qe->seqno);
+	if (chars >= KEYSIZE)
+	{
+		Log(LOG_ERROR, 0, "Error writing %d chars with snprintf", chars);
+		rc = MQTTCLIENT_PERSISTENCE_ERROR;
+	}
+	else if ((rc = client->persistence->premove(client->phandle, key)) != 0)
 		Log(LOG_ERROR, 0, "Error %d removing qEntry from persistence", rc);
 	FUNC_EXIT_RC(rc);
 	return rc;
@@ -566,7 +676,11 @@ int MQTTPersistence_persistQueueEntry(Clients* aclient, MQTTPersistence_qEntry* 
 {
 	int rc = 0;
 	int bufindex = 0;
-	char key[PERSISTENCE_MAX_KEY_LENGTH + 1];
+#if !defined(_WIN32) && !defined(_WIN64)
+	const size_t KEYSIZE = PERSISTENCE_MAX_KEY_LENGTH + 1;
+#endif
+	char key[KEYSIZE];
+	int chars = 0;
 	int lens[MAX_NO_OF_BUFFERS];
 	void* bufs[MAX_NO_OF_BUFFERS];
 	int props_allocated = 0;
@@ -596,6 +710,9 @@ int MQTTPersistence_persistQueueEntry(Clients* aclient, MQTTPersistence_qEntry* 
 	bufs[bufindex] = &qe->topicLen;
 	lens[bufindex++] = sizeof(qe->topicLen);
 
+	if (++aclient->qentry_seqno == PERSISTENCE_SEQNO_LIMIT)
+		aclient->qentry_seqno = 0;
+
 	if (aclient->MQTTVersion >= MQTTVERSION_5)  		/* persist properties */
 	{
 		MQTTProperties no_props = MQTTProperties_initializer;
@@ -608,23 +725,36 @@ int MQTTPersistence_persistQueueEntry(Clients* aclient, MQTTPersistence_qEntry* 
 
 		temp_len = MQTTProperties_len(props);
 		ptr = bufs[bufindex] = malloc(temp_len);
+		if (!ptr)
+		{
+			rc = PAHO_MEMORY_ERROR;
+			goto exit;
+		}
 		props_allocated = bufindex;
 		rc = MQTTProperties_write(&ptr, props);
 		lens[bufindex++] = temp_len;
 
-		sprintf(key, "%s%u", PERSISTENCE_V5_QUEUE_KEY, ++aclient->qentry_seqno);
+		chars = snprintf(key, KEYSIZE, "%s%u", PERSISTENCE_V5_QUEUE_KEY, aclient->qentry_seqno);
 	}
 	else
-		sprintf(key, "%s%u", PERSISTENCE_QUEUE_KEY, ++aclient->qentry_seqno);
+		chars = snprintf(key, KEYSIZE, "%s%u", PERSISTENCE_QUEUE_KEY, aclient->qentry_seqno);
 
-	qe->seqno = aclient->qentry_seqno;
+	if (chars >= KEYSIZE)
+		rc = MQTTCLIENT_PERSISTENCE_ERROR;
+	else
+	{
+		qe->seqno = aclient->qentry_seqno;
 
-	if ((rc = aclient->persistence->pput(aclient->phandle, key, bufindex, (char**)bufs, lens)) != 0)
-		Log(LOG_ERROR, 0, "Error persisting queue entry, rc %d", rc);
+		if (aclient->beforeWrite)
+			rc = aclient->beforeWrite(aclient->beforeWrite_context, bufindex, (char**)bufs, lens);
 
+		if (rc == 0 && (rc = aclient->persistence->pput(aclient->phandle, key, bufindex, (char**)bufs, lens)) != 0)
+			Log(LOG_ERROR, 0, "Error persisting queue entry, rc %d", rc);
+	}
 	if (props_allocated != 0)
 		free(bufs[props_allocated]);
 
+exit:
 	FUNC_EXIT_RC(rc);
 	return rc;
 }
@@ -637,10 +767,16 @@ static MQTTPersistence_qEntry* MQTTPersistence_restoreQueueEntry(char* buffer, s
 	int data_size;
 	
 	FUNC_ENTRY;
-	qe = malloc(sizeof(MQTTPersistence_qEntry));
+	if ((qe = malloc(sizeof(MQTTPersistence_qEntry))) == NULL)
+		goto exit;
 	memset(qe, '\0', sizeof(MQTTPersistence_qEntry));
 	
-	qe->msg = malloc(sizeof(MQTTPersistence_message));
+	if ((qe->msg = malloc(sizeof(MQTTPersistence_message))) == NULL)
+	{
+		free(qe);
+		qe = NULL;
+		goto exit;
+	}
 	memset(qe->msg, '\0', sizeof(MQTTPersistence_message));
 	
 	qe->msg->struct_version = 1;
@@ -649,7 +785,13 @@ static MQTTPersistence_qEntry* MQTTPersistence_restoreQueueEntry(char* buffer, s
 	ptr += sizeof(int);
 	
 	data_size = qe->msg->payloadlen;
-	qe->msg->payload = malloc(data_size);
+	if ((qe->msg->payload = malloc(data_size)) == NULL)
+	{
+		free(qe->msg);
+		free(qe);
+		qe = NULL;
+		goto exit;
+	}
 	memcpy(qe->msg->payload, ptr, data_size);
 	ptr += data_size;
 	
@@ -666,7 +808,14 @@ static MQTTPersistence_qEntry* MQTTPersistence_restoreQueueEntry(char* buffer, s
 	ptr += sizeof(int);
 	
 	data_size = (int)strlen(ptr) + 1;	
-	qe->topicName = malloc(data_size);
+	if ((qe->topicName = malloc(data_size)) == NULL)
+	{
+		free(qe->msg->payload);
+		free(qe->msg);
+		free(qe);
+		qe = NULL;
+		goto exit;
+	}
 	strcpy(qe->topicName, ptr);
 	ptr += data_size;
 	
@@ -677,6 +826,7 @@ static MQTTPersistence_qEntry* MQTTPersistence_restoreQueueEntry(char* buffer, s
 		MQTTProperties_read(&qe->msg->properties, &ptr, buffer + buflen) != 1)
 			Log(LOG_ERROR, -1, "Error restoring properties from persistence");
 
+exit:
 	FUNC_EXIT;
 	return qe;
 }
@@ -724,7 +874,8 @@ int MQTTPersistence_restoreMessageQueue(Clients* c)
 			{
 				; /* ignore if not a queue entry key */
 			}
-			else if ((rc = c->persistence->pget(c->phandle, msgkeys[i], &buffer, &buflen)) == 0)
+			else if ((rc = c->persistence->pget(c->phandle, msgkeys[i], &buffer, &buflen)) == 0 &&
+				(c->afterRead == NULL || (rc = c->afterRead(c->afterRead_context, &buffer, &buflen)) == 0))
 			{
 				int MQTTVersion =
 					(strncmp(msgkeys[i], PERSISTENCE_V5_QUEUE_KEY, strlen(PERSISTENCE_V5_QUEUE_KEY)) == 0)

@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 IBM Corp.
+ * Copyright (c) 2009, 2020 IBM Corp. and others
  *
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License v2.0
  * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
  * The Eclipse Public License is available at
- *    http://www.eclipse.org/legal/epl-v10.html
+ *    https://www.eclipse.org/legal/epl-2.0/
  * and the Eclipse Distribution License is available at
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
@@ -51,19 +51,20 @@ int isReady(int socket, fd_set* read_set, fd_set* write_set);
 int Socket_writev(int socket, iobuf* iovecs, int count, unsigned long* bytes);
 int Socket_close_only(int socket);
 int Socket_continueWrite(int socket);
-int Socket_continueWrites(fd_set* pwset);
+int Socket_continueWrites(fd_set* pwset, int* socket);
 char* Socket_getaddrname(struct sockaddr* sa, int sock);
 int Socket_abortWrite(int socket);
 
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 #define iov_len len
 #define iov_base buf
+#define snprintf _snprintf
 #endif
 
 /**
- * Structure to hold all socket data for the module
+ * Structure to hold all socket data for this module
  */
-Sockets s;
+Sockets mod_s;
 static fd_set wset;
 
 /**
@@ -74,7 +75,7 @@ static fd_set wset;
 int Socket_setnonblocking(int sock)
 {
 	int rc;
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 	u_long flag = 1L;
 
 	FUNC_ENTRY;
@@ -100,19 +101,19 @@ int Socket_setnonblocking(int sock)
  */
 int Socket_error(char* aString, int sock)
 {
-#if defined(WIN32) || defined(WIN64)
-	int errno;
-#endif
+	int err;
 
-#if defined(WIN32) || defined(WIN64)
-	errno = WSAGetLastError();
+#if defined(_WIN32) || defined(_WIN64)
+	err = WSAGetLastError();
+#else
+	err = errno;
 #endif
-	if (errno != EINTR && errno != EAGAIN && errno != EINPROGRESS && errno != EWOULDBLOCK)
+	if (err != EINTR && err != EAGAIN && err != EINPROGRESS && err != EWOULDBLOCK)
 	{
-		if (strcmp(aString, "shutdown") != 0 || (errno != ENOTCONN && errno != ECONNRESET))
-			Log(TRACE_MINIMUM, -1, "Socket error %s(%d) in %s for socket %d", strerror(errno), errno, aString, sock);
+		if (strcmp(aString, "shutdown") != 0 || (err != ENOTCONN && err != ECONNRESET))
+			Log(TRACE_MINIMUM, -1, "Socket error %s(%d) in %s for socket %d", strerror(err), err, aString, sock);
 	}
-	return errno;
+	return err;
 }
 
 
@@ -121,7 +122,7 @@ int Socket_error(char* aString, int sock)
  */
 void Socket_outInitialize(void)
 {
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 	WORD    winsockVer = 0x0202;
 	WSADATA wsd;
 
@@ -133,14 +134,14 @@ void Socket_outInitialize(void)
 #endif
 
 	SocketBuffer_initialize();
-	s.clientsds = ListInitialize();
-	s.connect_pending = ListInitialize();
-	s.write_pending = ListInitialize();
-	s.cur_clientsds = NULL;
-	FD_ZERO(&(s.rset));														/* Initialize the descriptor set */
-	FD_ZERO(&(s.pending_wset));
-	s.maxfdp1 = 0;
-	memcpy((void*)&(s.rset_saved), (void*)&(s.rset), sizeof(s.rset_saved));
+	mod_s.clientsds = ListInitialize();
+	mod_s.connect_pending = ListInitialize();
+	mod_s.write_pending = ListInitialize();
+	mod_s.cur_clientsds = NULL;
+	FD_ZERO(&(mod_s.rset));														/* Initialize the descriptor set */
+	FD_ZERO(&(mod_s.pending_wset));
+	mod_s.maxfdp1 = 0;
+	memcpy((void*)&(mod_s.rset_saved), (void*)&(mod_s.rset), sizeof(mod_s.rset_saved));
 	FUNC_EXIT;
 }
 
@@ -151,11 +152,11 @@ void Socket_outInitialize(void)
 void Socket_outTerminate(void)
 {
 	FUNC_ENTRY;
-	ListFree(s.connect_pending);
-	ListFree(s.write_pending);
-	ListFree(s.clientsds);
+	ListFree(mod_s.connect_pending);
+	ListFree(mod_s.write_pending);
+	ListFree(mod_s.clientsds);
 	SocketBuffer_terminate();
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 	WSACleanup();
 #endif
 	FUNC_EXIT;
@@ -171,9 +172,9 @@ int Socket_addSocket(int newSd)
 	int rc = 0;
 
 	FUNC_ENTRY;
-	if (ListFindItem(s.clientsds, &newSd, intcompare) == NULL) /* make sure we don't add the same socket twice */
+	if (ListFindItem(mod_s.clientsds, &newSd, intcompare) == NULL) /* make sure we don't add the same socket twice */
 	{
-		if (s.clientsds->count >= FD_SETSIZE)
+		if (mod_s.clientsds->count >= FD_SETSIZE)
 		{
 			Log(LOG_ERROR, -1, "addSocket: exceeded FD_SETSIZE %d", FD_SETSIZE);
 			rc = SOCKET_ERROR;
@@ -181,10 +182,21 @@ int Socket_addSocket(int newSd)
 		else
 		{
 			int* pnewSd = (int*)malloc(sizeof(newSd));
+
+			if (!pnewSd)
+			{
+				rc = PAHO_MEMORY_ERROR;
+				goto exit;
+			}
 			*pnewSd = newSd;
-			ListAppend(s.clientsds, pnewSd, sizeof(newSd));
-			FD_SET(newSd, &(s.rset_saved));
-			s.maxfdp1 = max(s.maxfdp1, newSd + 1);
+			if (!ListAppend(mod_s.clientsds, pnewSd, sizeof(newSd)))
+			{
+				free(pnewSd);
+				rc = PAHO_MEMORY_ERROR;
+				goto exit;
+			}
+			FD_SET(newSd, &(mod_s.rset_saved));
+			mod_s.maxfdp1 = max(mod_s.maxfdp1, newSd + 1);
 			rc = Socket_setnonblocking(newSd);
 			if (rc == SOCKET_ERROR)
 				Log(LOG_ERROR, -1, "addSocket: setnonblocking");
@@ -193,6 +205,7 @@ int Socket_addSocket(int newSd)
 	else
 		Log(LOG_ERROR, -1, "addSocket: socket %d already in the list", newSd);
 
+exit:
 	FUNC_EXIT_RC(rc);
 	return rc;
 }
@@ -211,8 +224,8 @@ int isReady(int socket, fd_set* read_set, fd_set* write_set)
 	int rc = 1;
 
 	FUNC_ENTRY;
-	if  (ListFindItem(s.connect_pending, &socket, intcompare) && FD_ISSET(socket, write_set))
-		ListRemoveItem(s.connect_pending, &socket, intcompare);
+	if  (ListFindItem(mod_s.connect_pending, &socket, intcompare) && FD_ISSET(socket, write_set))
+		ListRemoveItem(mod_s.connect_pending, &socket, intcompare);
 	else
 		rc = FD_ISSET(socket, read_set) && FD_ISSET(socket, write_set) && Socket_noPendingWrites(socket);
 	FUNC_EXIT_RC(rc);
@@ -225,18 +238,20 @@ int isReady(int socket, fd_set* read_set, fd_set* write_set)
  *  @param more_work flag to indicate more work is waiting, and thus a timeout value of 0 should
  *  be used for the select
  *  @param tp the timeout to be used for the select, unless overridden
+ *  @param rc a value other than 0 indicates an error of the returned socket
  *  @return the socket next ready, or 0 if none is ready
  */
-int Socket_getReadySocket(int more_work, struct timeval *tp, mutex_type mutex)
+int Socket_getReadySocket(int more_work, struct timeval *tp, mutex_type mutex, int* rc)
 {
-	int rc = 0;
+	int sock = 0;
+	*rc = 0;
 	static struct timeval zero = {0L, 0L}; /* 0 seconds */
 	static struct timeval one = {1L, 0L}; /* 1 second */
 	struct timeval timeout = one;
 
 	FUNC_ENTRY;
 	Thread_lock_mutex(mutex);
-	if (s.clientsds->count == 0)
+	if (mod_s.clientsds->count == 0)
 		goto exit;
 
 	if (more_work)
@@ -244,70 +259,74 @@ int Socket_getReadySocket(int more_work, struct timeval *tp, mutex_type mutex)
 	else if (tp)
 		timeout = *tp;
 
-	while (s.cur_clientsds != NULL)
+	while (mod_s.cur_clientsds != NULL)
 	{
-		if (isReady(*((int*)(s.cur_clientsds->content)), &(s.rset), &wset))
+		if (isReady(*((int*)(mod_s.cur_clientsds->content)), &(mod_s.rset), &wset))
 			break;
-		ListNextElement(s.clientsds, &s.cur_clientsds);
+		ListNextElement(mod_s.clientsds, &mod_s.cur_clientsds);
 	}
 
-	if (s.cur_clientsds == NULL)
+	if (mod_s.cur_clientsds == NULL)
 	{
 		int rc1;
 		fd_set pwset;
 
-		memcpy((void*)&(s.rset), (void*)&(s.rset_saved), sizeof(s.rset));
-		memcpy((void*)&(pwset), (void*)&(s.pending_wset), sizeof(pwset));
+		memcpy((void*)&(mod_s.rset), (void*)&(mod_s.rset_saved), sizeof(mod_s.rset));
+		memcpy((void*)&(pwset), (void*)&(mod_s.pending_wset), sizeof(pwset));
 		/* Prevent performance issue by unlocking the socket_mutex while waiting for a ready socket. */
 		Thread_unlock_mutex(mutex);
-		rc = select(s.maxfdp1, &(s.rset), &pwset, NULL, &timeout);
+		*rc = select(mod_s.maxfdp1, &(mod_s.rset), &pwset, NULL, &timeout);
 		Thread_lock_mutex(mutex);
-		if (rc == SOCKET_ERROR)
+		if (*rc == SOCKET_ERROR)
 		{
 			Socket_error("read select", 0);
 			goto exit;
 		}
-		Log(TRACE_MAX, -1, "Return code %d from read select", rc);
+		Log(TRACE_MAX, -1, "Return code %d from read select", *rc);
 
-		if (Socket_continueWrites(&pwset) == SOCKET_ERROR)
+		if (Socket_continueWrites(&pwset, &sock) == SOCKET_ERROR)
 		{
-			rc = 0;
+			*rc = SOCKET_ERROR;
 			goto exit;
 		}
 
-		memcpy((void*)&wset, (void*)&(s.rset_saved), sizeof(wset));
-		if ((rc1 = select(s.maxfdp1, NULL, &(wset), NULL, &zero)) == SOCKET_ERROR)
+		memcpy((void*)&wset, (void*)&(mod_s.rset_saved), sizeof(wset));
+		if ((rc1 = select(mod_s.maxfdp1, NULL, &(wset), NULL, &zero)) == SOCKET_ERROR)
 		{
 			Socket_error("write select", 0);
-			rc = rc1;
+			*rc = rc1;
 			goto exit;
 		}
 		Log(TRACE_MAX, -1, "Return code %d from write select", rc1);
 
-		if (rc == 0 && rc1 == 0)
-			goto exit; /* no work to do */
-
-		s.cur_clientsds = s.clientsds->first;
-		while (s.cur_clientsds != NULL)
+		if (*rc == 0 && rc1 == 0)
 		{
-			int cursock = *((int*)(s.cur_clientsds->content));
-			if (isReady(cursock, &(s.rset), &wset))
+			sock = 0;
+			goto exit; /* no work to do */
+		}
+
+		mod_s.cur_clientsds = mod_s.clientsds->first;
+		while (mod_s.cur_clientsds != NULL)
+		{
+			int cursock = *((int*)(mod_s.cur_clientsds->content));
+			if (isReady(cursock, &(mod_s.rset), &wset))
 				break;
-			ListNextElement(s.clientsds, &s.cur_clientsds);
+			ListNextElement(mod_s.clientsds, &mod_s.cur_clientsds);
 		}
 	}
 
-	if (s.cur_clientsds == NULL)
-		rc = 0;
+	*rc = 0;
+	if (mod_s.cur_clientsds == NULL)
+		sock = 0;
 	else
 	{
-		rc = *((int*)(s.cur_clientsds->content));
-		ListNextElement(s.clientsds, &s.cur_clientsds);
+		sock = *((int*)(mod_s.cur_clientsds->content));
+		ListNextElement(mod_s.clientsds, &mod_s.cur_clientsds);
 	}
 exit:
 	Thread_unlock_mutex(mutex);
-	FUNC_EXIT_RC(rc);
-	return rc;
+	FUNC_EXIT_RC(sock);
+	return sock;
 } /* end getReadySocket */
 
 
@@ -355,9 +374,8 @@ exit:
  *  @param actual_len the actual number of bytes read
  *  @return completion code
  */
-char *Socket_getdata(int socket, size_t bytes, size_t* actual_len)
+char *Socket_getdata(int socket, size_t bytes, size_t* actual_len, int *rc)
 {
-	int rc;
 	char* buf;
 
 	FUNC_ENTRY;
@@ -369,22 +387,22 @@ char *Socket_getdata(int socket, size_t bytes, size_t* actual_len)
 
 	buf = SocketBuffer_getQueuedData(socket, bytes, actual_len);
 
-	if ((rc = recv(socket, buf + (*actual_len), (int)(bytes - (*actual_len)), 0)) == SOCKET_ERROR)
+	if ((*rc = recv(socket, buf + (*actual_len), (int)(bytes - (*actual_len)), 0)) == SOCKET_ERROR)
 	{
-		rc = Socket_error("recv - getdata", socket);
-		if (rc != EAGAIN && rc != EWOULDBLOCK)
+		*rc = Socket_error("recv - getdata", socket);
+		if (*rc != EAGAIN && *rc != EWOULDBLOCK)
 		{
 			buf = NULL;
 			goto exit;
 		}
 	}
-	else if (rc == 0) /* rc 0 means the other end closed the socket, albeit "gracefully" */
+	else if (*rc == 0) /* rc 0 means the other end closed the socket, albeit "gracefully" */
 	{
 		buf = NULL;
 		goto exit;
 	}
 	else
-		*actual_len += rc;
+		*actual_len += *rc;
 
 	if (*actual_len == bytes)
 		SocketBuffer_complete(socket);
@@ -406,7 +424,7 @@ exit:
 int Socket_noPendingWrites(int socket)
 {
 	int cursock = socket;
-	return ListFindItem(s.write_pending, &cursock, intcompare) == NULL;
+	return ListFindItem(mod_s.write_pending, &cursock, intcompare) == NULL;
 }
 
 
@@ -425,7 +443,7 @@ int Socket_writev(int socket, iobuf* iovecs, int count, unsigned long* bytes)
 
 	FUNC_ENTRY;
 	*bytes = 0L;
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 	rc = WSASend(socket, iovecs, count, (LPDWORD)bytes, 0, NULL, NULL);
 	if (rc == SOCKET_ERROR)
 	{
@@ -491,7 +509,7 @@ for testing purposes only!
  *  @param buflens an array of corresponding buffer lengths
  *  @return completion code, especially TCPSOCKET_INTERRUPTED
  */
-int Socket_putdatas(int socket, char* buf0, size_t buf0len, int count, char** buffers, size_t* buflens, int* frees)
+int Socket_putdatas(int socket, char* buf0, size_t buf0len, PacketBuffers bufs)
 {
 	unsigned long bytes = 0L;
 	iobuf iovecs[5];
@@ -507,46 +525,51 @@ int Socket_putdatas(int socket, char* buf0, size_t buf0len, int count, char** bu
 		goto exit;
 	}
 
-	for (i = 0; i < count; i++)
-		total += buflens[i];
+	for (i = 0; i < bufs.count; i++)
+		total += bufs.buflens[i];
 
 	iovecs[0].iov_base = buf0;
 	iovecs[0].iov_len = (ULONG)buf0len;
 	frees1[0] = 1; /* this buffer should be freed by SocketBuffer if the write is interrupted */
-	for (i = 0; i < count; i++)
+	for (i = 0; i < bufs.count; i++)
 	{
-		iovecs[i+1].iov_base = buffers[i];
-		iovecs[i+1].iov_len = (ULONG)buflens[i];
-		frees1[i+1] = frees[i];
+		iovecs[i+1].iov_base = bufs.buffers[i];
+		iovecs[i+1].iov_len = (ULONG)bufs.buflens[i];
+		frees1[i+1] = bufs.frees[i];
 	}
 
-	if ((rc = Socket_writev(socket, iovecs, count+1, &bytes)) != SOCKET_ERROR)
+	if ((rc = Socket_writev(socket, iovecs, bufs.count+1, &bytes)) != SOCKET_ERROR)
 	{
 		if (bytes == total)
 			rc = TCPSOCKET_COMPLETE;
 		else
 		{
 			int* sockmem = (int*)malloc(sizeof(int));
+
+			if (!sockmem)
+			{
+				rc = PAHO_MEMORY_ERROR;
+				goto exit;
+			}
 			Log(TRACE_MIN, -1, "Partial write: %lu bytes of %lu actually written on socket %d",
 					bytes, total, socket);
 #if defined(OPENSSL)
-			SocketBuffer_pendingWrite(socket, NULL, count+1, iovecs, frees1, total, bytes);
+			SocketBuffer_pendingWrite(socket, NULL, bufs.count+1, iovecs, frees1, total, bytes);
 #else
-			SocketBuffer_pendingWrite(socket, count+1, iovecs, frees1, total, bytes);
+			SocketBuffer_pendingWrite(socket, bufs.count+1, iovecs, frees1, total, bytes);
 #endif
 			*sockmem = socket;
-			ListAppend(s.write_pending, sockmem, sizeof(int));
-			FD_SET(socket, &(s.pending_wset));
+			if (!ListAppend(mod_s.write_pending, sockmem, sizeof(int)))
+			{
+				free(sockmem);
+				rc = PAHO_MEMORY_ERROR;
+				goto exit;
+			}
+			FD_SET(socket, &(mod_s.pending_wset));
 			rc = TCPSOCKET_INTERRUPTED;
 		}
 	}
 exit:
-#if 0
-        if (rc == TCPSOCKET_INTERRUPTED)
-        {
-            Log(LOG_ERROR, -1, "Socket_putdatas: TCPSOCKET_INTERRUPTED");
-        }
-#endif
 	FUNC_EXIT_RC(rc);
 	return rc;
 }
@@ -560,7 +583,7 @@ exit:
  */
 void Socket_addPendingWrite(int socket)
 {
-	FD_SET(socket, &(s.pending_wset));
+	FD_SET(socket, &(mod_s.pending_wset));
 }
 
 
@@ -570,8 +593,8 @@ void Socket_addPendingWrite(int socket)
  */
 void Socket_clearPendingWrite(int socket)
 {
-	if (FD_ISSET(socket, &(s.pending_wset)))
-		FD_CLR(socket, &(s.pending_wset));
+	if (FD_ISSET(socket, &(mod_s.pending_wset)))
+		FD_CLR(socket, &(mod_s.pending_wset));
 }
 
 
@@ -585,7 +608,7 @@ int Socket_close_only(int socket)
 	int rc;
 
 	FUNC_ENTRY;
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 	if (shutdown(socket, SD_BOTH) == SOCKET_ERROR)
 		Socket_error("shutdown", socket);
 	if ((rc = closesocket(socket)) == SOCKET_ERROR)
@@ -612,30 +635,30 @@ void Socket_close(int socket)
 {
 	FUNC_ENTRY;
 	Socket_close_only(socket);
-	FD_CLR(socket, &(s.rset_saved));
-	if (FD_ISSET(socket, &(s.pending_wset)))
-		FD_CLR(socket, &(s.pending_wset));
-	if (s.cur_clientsds != NULL && *(int*)(s.cur_clientsds->content) == socket)
-		s.cur_clientsds = s.cur_clientsds->next;
+	FD_CLR(socket, &(mod_s.rset_saved));
+	if (FD_ISSET(socket, &(mod_s.pending_wset)))
+		FD_CLR(socket, &(mod_s.pending_wset));
+	if (mod_s.cur_clientsds != NULL && *(int*)(mod_s.cur_clientsds->content) == socket)
+		mod_s.cur_clientsds = mod_s.cur_clientsds->next;
 	Socket_abortWrite(socket);
 	SocketBuffer_cleanup(socket);
-	ListRemoveItem(s.connect_pending, &socket, intcompare);
-	ListRemoveItem(s.write_pending, &socket, intcompare);
+	ListRemoveItem(mod_s.connect_pending, &socket, intcompare);
+	ListRemoveItem(mod_s.write_pending, &socket, intcompare);
 
-	if (ListRemoveItem(s.clientsds, &socket, intcompare))
+	if (ListRemoveItem(mod_s.clientsds, &socket, intcompare))
 		Log(TRACE_MIN, -1, "Removed socket %d", socket);
 	else
 		Log(LOG_ERROR, -1, "Failed to remove socket %d", socket);
-	if (socket + 1 >= s.maxfdp1)
+	if (socket + 1 >= mod_s.maxfdp1)
 	{
-		/* now we have to reset s.maxfdp1 */
+		/* now we have to reset mod_s.maxfdp1 */
 		ListElement* cur_clientsds = NULL;
 
-		s.maxfdp1 = 0;
-		while (ListNextElement(s.clientsds, &cur_clientsds))
-			s.maxfdp1 = max(*((int*)(cur_clientsds->content)), s.maxfdp1);
-		++(s.maxfdp1);
-		Log(TRACE_MAX, -1, "Reset max fdp1 to %d", s.maxfdp1);
+		mod_s.maxfdp1 = 0;
+		while (ListNextElement(mod_s.clientsds, &cur_clientsds))
+			mod_s.maxfdp1 = max(*((int*)(cur_clientsds->content)), mod_s.maxfdp1);
+		++(mod_s.maxfdp1);
+		Log(TRACE_MAX, -1, "Reset max fdp1 to %d", mod_s.maxfdp1);
 	}
 	FUNC_EXIT;
 }
@@ -646,9 +669,14 @@ void Socket_close(int socket)
  *  @param addr the address string
  *  @param port the TCP port
  *  @param sock returns the new socket
+ *  @param timeout the timeout in milliseconds
  *  @return completion code
  */
+#if defined(__GNUC__) && defined(__linux__)
+int Socket_new(const char* addr, size_t addr_len, int port, int* sock, long timeout)
+#else
 int Socket_new(const char* addr, size_t addr_len, int port, int* sock)
+#endif
 {
 	int type = SOCK_STREAM;
 	char *addr_mem;
@@ -657,7 +685,7 @@ int Socket_new(const char* addr, size_t addr_len, int port, int* sock)
 	struct sockaddr_in6 address6;
 #endif
 	int rc = SOCKET_ERROR;
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 	short family;
 #else
 	sa_family_t family = AF_INET;
@@ -675,11 +703,40 @@ int Socket_new(const char* addr, size_t addr_len, int port, int* sock)
 		--addr_len;
 	}
 
-	addr_mem = malloc( addr_len + 1u );
+	if ((addr_mem = malloc( addr_len + 1u )) == NULL)
+	{
+		rc = PAHO_MEMORY_ERROR;
+		goto exit;
+	}
 	memcpy( addr_mem, addr, addr_len );
 	addr_mem[addr_len] = '\0';
 
-	if ((rc = getaddrinfo(addr_mem, NULL, &hints, &result)) == 0)
+#if 0 /*defined(__GNUC__) && defined(__linux__)*/
+	/* Commented out because the CI tests get intermittent ECONNABORTED return values
+	 * and I don't know why yet.
+	 */
+	/* set getaddrinfo timeout if available */
+	struct gaicb ar = {addr_mem, NULL, &hints, NULL};
+	struct gaicb *reqs[] = {&ar};
+
+	unsigned long int seconds = timeout / 1000L;
+	unsigned long int nanos = (timeout - (seconds * 1000L)) * 1000000L;
+	struct timespec timeoutspec = {seconds, nanos};
+
+	rc = getaddrinfo_a(GAI_NOWAIT, reqs, 1, NULL);
+	if (rc == 0)
+		rc = gai_suspend((const struct gaicb* const *) reqs, 1, &timeoutspec);
+
+	if (rc == 0)
+	{
+		rc = gai_error(reqs[0]);
+		result = ar.ar_result;
+	}
+#else
+	rc = getaddrinfo(addr_mem, NULL, &hints, &result);
+#endif
+
+	if (rc == 0)
 	{
 		struct addrinfo* res = result;
 
@@ -750,7 +807,7 @@ int Socket_new(const char* addr, size_t addr_len, int port, int* sock)
 				rc = Socket_error("addSocket", *sock);
 			else
 			{
-				/* this could complete immmediately, even though we are non-blocking */
+				/* this could complete immediately, even though we are non-blocking */
 				if (family == AF_INET)
 					rc = connect(*sock, (struct sockaddr*)&address, sizeof(address));
 	#if defined(AF_INET6)
@@ -762,23 +819,33 @@ int Socket_new(const char* addr, size_t addr_len, int port, int* sock)
 				if (rc == EINPROGRESS || rc == EWOULDBLOCK)
 				{
 					int* pnewSd = (int*)malloc(sizeof(int));
+
+					if (!pnewSd)
+					{
+						rc = PAHO_MEMORY_ERROR;
+						goto exit;
+					}
 					*pnewSd = *sock;
-					ListAppend(s.connect_pending, pnewSd, sizeof(int));
+					if (!ListAppend(mod_s.connect_pending, pnewSd, sizeof(int)))
+					{
+						free(pnewSd);
+						rc = PAHO_MEMORY_ERROR;
+						goto exit;
+					}
 					Log(TRACE_MIN, 15, "Connect pending");
 				}
 			}
-                        /* Prevent socket leak by closing unusable sockets,
-                         * as reported in
-                         * https://github.com/eclipse/paho.mqtt.c/issues/135
-                         */
-                        if (rc != 0 && (rc != EINPROGRESS) && (rc != EWOULDBLOCK))
-                        {
-                            Socket_close(*sock); /* close socket and remove from our list of sockets */
-                            *sock = -1; /* as initialized before */
-                        }
+            /* Prevent socket leak by closing unusable sockets,
+               as reported in https://github.com/eclipse/paho.mqtt.c/issues/135 */
+            if (rc != 0 && (rc != EINPROGRESS) && (rc != EWOULDBLOCK))
+            {
+            	Socket_close(*sock); /* close socket and remove from our list of sockets */
+                *sock = -1; /* as initialized before */
+            }
 		}
 	}
 
+exit:
 	if (addr_mem)
 		free(addr_mem);
 
@@ -835,7 +902,6 @@ int Socket_continueWrite(int socket)
 			size_t offset = pw->bytes - curbuflen;
 			iovecs1[++curbuf].iov_len = pw->iovecs[i].iov_len - (ULONG)offset;
 			iovecs1[curbuf].iov_base = (char*)pw->iovecs[i].iov_base + offset;
-			break;
 		}
 		curbuflen += pw->iovecs[i].iov_len;
 	}
@@ -848,10 +914,10 @@ int Socket_continueWrite(int socket)
 			for (i = 0; i < pw->count; i++)
 			{
 				if (pw->frees[i])
-                                {
+                {
 					free(pw->iovecs[i].iov_base);
-                                        pw->iovecs[i].iov_base = NULL;
-                                }
+                    pw->iovecs[i].iov_base = NULL;
+                }
 			}
 			rc = 1; /* signal complete */
 			Log(TRACE_MIN, -1, "ContinueWrite: partial write now complete for socket %d", socket);
@@ -867,10 +933,10 @@ int Socket_continueWrite(int socket)
 		for (i = 0; i < pw->count; i++)
 		{
 			if (pw->frees[i])
-                        {
+            {
 				free(pw->iovecs[i].iov_base);
-                                pw->iovecs[i].iov_base = NULL;
-                        }
+                pw->iovecs[i].iov_base = NULL;
+            }
 		}
 	}
 #if defined(OPENSSL)
@@ -905,7 +971,7 @@ int Socket_abortWrite(int socket)
 	{
 		if (pw->frees[i])
 		{
-			printf("cleaning in abortwrite for socket %d\n", socket);
+			Log(TRACE_MIN, -1, "Cleaning in abortWrite for socket %d", socket);
 			free(pw->iovecs[i].iov_base);
 		}
 	}
@@ -918,15 +984,16 @@ exit:
 /**
  *  Continue any outstanding writes for a socket set
  *  @param pwset the set of sockets
- *  @return completion code
+ *  @param sock in case of a socket error contains the affected socket
+ *  @return completion code, 0 or SOCKET_ERROR
  */
-int Socket_continueWrites(fd_set* pwset)
+int Socket_continueWrites(fd_set* pwset, int* sock)
 {
 	int rc1 = 0;
-	ListElement* curpending = s.write_pending->first;
+	ListElement* curpending = mod_s.write_pending->first;
 
 	FUNC_ENTRY;
-	while (curpending)
+	while (curpending && curpending->content)
 	{
 		int socket = *(int*)(curpending->content);
 		int rc = 0;
@@ -935,19 +1002,25 @@ int Socket_continueWrites(fd_set* pwset)
 		{
 			if (!SocketBuffer_writeComplete(socket))
 				Log(LOG_SEVERE, -1, "Failed to remove pending write from socket buffer list");
-			FD_CLR(socket, &(s.pending_wset));
-			if (!ListRemove(s.write_pending, curpending->content))
+			FD_CLR(socket, &(mod_s.pending_wset));
+			if (!ListRemove(mod_s.write_pending, curpending->content))
 			{
 				Log(LOG_SEVERE, -1, "Failed to remove pending write from list");
-				ListNextElement(s.write_pending, &curpending);
+				ListNextElement(mod_s.write_pending, &curpending);
 			}
-			curpending = s.write_pending->current;
+			curpending = mod_s.write_pending->current;
 
 			if (writecomplete)
 				(*writecomplete)(socket, rc);
 		}
 		else
-			ListNextElement(s.write_pending, &curpending);
+			ListNextElement(mod_s.write_pending, &curpending);
+
+		if(rc == SOCKET_ERROR)
+		{
+			*sock = socket;
+			rc1 = SOCKET_ERROR;
+		}
 	}
 	FUNC_EXIT_RC(rc1);
 	return rc1;
@@ -972,7 +1045,7 @@ char* Socket_getaddrname(struct sockaddr* sa, int sock)
 #define PORTLEN 10
 	static char addr_string[ADDRLEN + PORTLEN];
 
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 	int buflen = ADDRLEN*2;
 	wchar_t buf[ADDRLEN*2];
 	if (WSAAddressToStringW(sa, sizeof(struct sockaddr_in6), NULL, buf, (LPDWORD)&buflen) == SOCKET_ERROR)
@@ -983,8 +1056,11 @@ char* Socket_getaddrname(struct sockaddr* sa, int sock)
 	/* strcpy(&addr_string[strlen(addr_string)], "what?"); */
 #else
 	struct sockaddr_in *sin = (struct sockaddr_in *)sa;
+	size_t buflen = sizeof(addr_string) - strlen(addr_string);
+
 	inet_ntop(sin->sin_family, &sin->sin_addr, addr_string, ADDRLEN);
-	sprintf(&addr_string[strlen(addr_string)], ":%d", ntohs(sin->sin_port));
+	if (snprintf(&addr_string[strlen(addr_string)], buflen, ":%d", ntohs(sin->sin_port)) >= buflen)
+		addr_string[sizeof(addr_string)-1] = '\0'; /* just in case of snprintf buffer filling */
 #endif
 	return addr_string;
 }

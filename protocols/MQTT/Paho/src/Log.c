@@ -1,13 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 IBM Corp.
+ * Copyright (c) 2009, 2020 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution. 
+ * are made available under the terms of the Eclipse Public License v2.0
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
- * The Eclipse Public License is available at 
- *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
+ * The Eclipse Public License is available at
+ *    https://www.eclipse.org/legal/epl-2.0/
+ * and the Eclipse Distribution License is available at
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
@@ -20,7 +20,7 @@
  * @file
  * \brief Logging and tracing module
  *
- * 
+ *
  */
 
 #include "Log.h"
@@ -38,7 +38,7 @@
 #include <time.h>
 #include <string.h>
 
-#if !defined(WIN32) && !defined(WIN64)
+#if !defined(_WIN32) && !defined(_WIN64)
 #include <syslog.h>
 #include <sys/stat.h>
 #define GETTIMEOFDAY 1
@@ -52,7 +52,7 @@
 	#include <sys/timeb.h>
 #endif
 
-#if !defined(WIN32) && !defined(WIN64)
+#if !defined(_WIN32) && !defined(_WIN64)
 /**
  * _unlink mapping for linux
  */
@@ -115,13 +115,13 @@ static int Log_compareEntries(const char *entry1, const char *entry2);
 
 static int sametime_count = 0;
 #if defined(GETTIMEOFDAY)
-struct timeval ts, last_ts;
+struct timeval now_ts, last_ts;
 #else
-struct timeb ts, last_ts;
+struct timeb now_ts, last_ts;
 #endif
 static char msg_buf[512];
 
-#if defined(WIN32) || defined(WIN64)
+#if defined(_WIN32) || defined(_WIN64)
 mutex_type log_mutex;
 #else
 static pthread_mutex_t log_mutex_store = PTHREAD_MUTEX_INITIALIZER;
@@ -131,11 +131,14 @@ static mutex_type log_mutex = &log_mutex_store;
 
 int Log_initialize(Log_nameValue* info)
 {
-	int rc = -1;
+	int rc = SOCKET_ERROR;
 	char* envval = NULL;
+#if !defined(_WIN32) && !defined(_WIN64)
+	struct stat buf;
+#endif
 
 	if ((trace_queue = malloc(sizeof(traceEntry) * trace_settings.max_trace_entries)) == NULL)
-		return rc;
+		goto exit;
 	trace_queue_size = trace_settings.max_trace_entries;
 
 	if ((envval = getenv("MQTT_C_CLIENT_TRACE")) != NULL && strlen(envval) > 0)
@@ -144,10 +147,23 @@ int Log_initialize(Log_nameValue* info)
 			trace_destination = stdout;
 		else
 		{
-			trace_destination_name = malloc(strlen(envval) + 1);
+			size_t namelen = 0;
+
+			if ((trace_destination_name = malloc(strlen(envval) + 1)) == NULL)
+			{
+				free(trace_queue);
+				goto exit;
+			}
 			strcpy(trace_destination_name, envval);
-			trace_destination_backup_name = malloc(strlen(envval) + 3);
-			sprintf(trace_destination_backup_name, "%s.0", trace_destination_name);
+			namelen = strlen(envval) + 3;
+			if ((trace_destination_backup_name = malloc(namelen)) == NULL)
+			{
+				free(trace_queue);
+				free(trace_destination_name);
+				goto exit;
+			}
+			if (snprintf(trace_destination_backup_name, namelen, "%s.0", trace_destination_name) >= namelen)
+				trace_destination_backup_name[namelen-1] = '\0';
 		}
 	}
 	if ((envval = getenv("MQTT_C_CLIENT_TRACE_MAX_LINES")) != NULL && strlen(envval) > 0)
@@ -162,7 +178,7 @@ int Log_initialize(Log_nameValue* info)
 			trace_settings.trace_level = TRACE_MAXIMUM;
 		else if (strcmp(envval, "MEDIUM") == 0 || strcmp(envval, "TRACE_MEDIUM") == 0)
 			trace_settings.trace_level = TRACE_MEDIUM;
-		else if (strcmp(envval, "MINIMUM") == 0 || strcmp(envval, "TRACE_MEDIUM") == 0)
+		else if (strcmp(envval, "MINIMUM") == 0 || strcmp(envval, "TRACE_MINIMUM") == 0)
 			trace_settings.trace_level = TRACE_MINIMUM;
 		else if (strcmp(envval, "PROTOCOL") == 0  || strcmp(envval, "TRACE_PROTOCOL") == 0)
 			trace_output_level = TRACE_PROTOCOL;
@@ -180,16 +196,15 @@ int Log_initialize(Log_nameValue* info)
 			info++;
 		}
 	}
-#if !defined(WIN32) && !defined(WIN64)
-	struct stat buf;
+#if !defined(_WIN32) && !defined(_WIN64)
 	if (stat("/proc/version", &buf) != -1)
 	{
 		FILE* vfile;
-		
+
 		if ((vfile = fopen("/proc/version", "r")) != NULL)
 		{
 			int len;
-			
+
 			strcpy(msg_buf, "/proc/version: ");
 			len = strlen(msg_buf);
 			if (fgets(&msg_buf[len], sizeof(msg_buf) - len, vfile))
@@ -199,7 +214,7 @@ int Log_initialize(Log_nameValue* info)
 	}
 #endif
 	Log_output(TRACE_MINIMUM, "=========================================================");
-		
+exit:
 	return rc;
 }
 
@@ -212,7 +227,7 @@ void Log_setTraceCallback(Log_traceCallback* callback)
 
 void Log_setTraceLevel(enum LOG_LEVELS level)
 {
-	if (level < TRACE_MINIMUM) /* the lowest we can go is TRACE_MINIMUM*/
+	if (level < LOG_ERROR) /* the lowest we can go is LOG_ERROR */
 		trace_settings.trace_level = level;
 	trace_output_level = level;
 }
@@ -252,15 +267,15 @@ static traceEntry* Log_pretrace(void)
 	if (++sametime_count % 20 == 0)
 	{
 #if defined(GETTIMEOFDAY)
-		gettimeofday(&ts, NULL);
-		if (ts.tv_sec != last_ts.tv_sec || ts.tv_usec != last_ts.tv_usec)
+		gettimeofday(&now_ts, NULL);
+		if (now_ts.tv_sec != last_ts.tv_sec || now_ts.tv_usec != last_ts.tv_usec)
 #else
-		ftime(&ts);
-		if (ts.time != last_ts.time || ts.millitm != last_ts.millitm)
+		ftime(&now_ts);
+		if (now_ts.time != last_ts.time || now_ts.millitm != last_ts.millitm)
 #endif
 		{
 			sametime_count = 0;
-			last_ts = ts;
+			last_ts = now_ts;
 		}
 	}
 
@@ -268,6 +283,8 @@ static traceEntry* Log_pretrace(void)
 	{
 		traceEntry* new_trace_queue = malloc(sizeof(traceEntry) * trace_settings.max_trace_entries);
 
+		if (new_trace_queue == NULL)
+			goto exit;
 		memcpy(new_trace_queue, trace_queue, min(trace_queue_size, trace_settings.max_trace_entries) * sizeof(traceEntry));
 		free(trace_queue);
 		trace_queue = new_trace_queue;
@@ -291,7 +308,7 @@ static traceEntry* Log_pretrace(void)
 		start_index = 0;
 	if (++next_index == trace_settings.max_trace_entries)
 		next_index = 0;
-
+exit:
 	return cur_entry;
 }
 
@@ -307,13 +324,13 @@ static char* Log_formatTraceEntry(traceEntry* cur_entry)
 #endif
 	strftime(&msg_buf[7], 80, "%Y%m%d %H%M%S ", timeinfo);
 #if defined(GETTIMEOFDAY)
-	sprintf(&msg_buf[22], ".%.3lu ", cur_entry->ts.tv_usec / 1000L);
+	snprintf(&msg_buf[22], sizeof(msg_buf)-22, ".%.3lu ", cur_entry->ts.tv_usec / 1000L);
 #else
-	sprintf(&msg_buf[22], ".%.3hu ", cur_entry->ts.millitm);
+	snprintf(&msg_buf[22], sizeof(msg_buf)-22, ".%.3hu ", cur_entry->ts.millitm);
 #endif
 	buf_pos = 27;
 
-	sprintf(msg_buf, "(%.4d)", cur_entry->sametime_count);
+	snprintf(msg_buf, sizeof(msg_buf), "(%.4d)", cur_entry->sametime_count);
 	msg_buf[6] = ' ';
 
 	if (cur_entry->has_rc == 2)
@@ -339,9 +356,9 @@ static void Log_output(enum LOG_LEVELS log_level, const char *msg)
 		fprintf(trace_destination, "%s\n", msg);
 
 		if (trace_destination != stdout && ++lines_written >= max_lines_per_file)
-		{	
+		{
 
-			fclose(trace_destination);		
+			fclose(trace_destination);
 			_unlink(trace_destination_backup_name); /* remove any old backup trace file */
 			rename(trace_destination_name, trace_destination_backup_name); /* rename recently closed to backup */
 			trace_destination = fopen(trace_destination_name, "w"); /* open new trace file */
@@ -352,7 +369,7 @@ static void Log_output(enum LOG_LEVELS log_level, const char *msg)
 		else
 			fflush(trace_destination);
 	}
-		
+
 	if (trace_callback)
 		(*trace_callback)(log_level, msg);
 }
@@ -363,10 +380,10 @@ static void Log_posttrace(enum LOG_LEVELS log_level, traceEntry* cur_entry)
 	if (((trace_output_level == -1) ? log_level >= trace_settings.trace_level : log_level >= trace_output_level))
 	{
 		char* msg = NULL;
-		
+
 		if (trace_destination || trace_callback)
 			msg = &Log_formatTraceEntry(cur_entry)[7];
-		
+
 		Log_output(log_level, msg);
 	}
 }
@@ -381,7 +398,7 @@ static void Log_trace(enum LOG_LEVELS log_level, const char *buf)
 
 	cur_entry = Log_pretrace();
 
-	memcpy(&(cur_entry->ts), &ts, sizeof(ts));
+	memcpy(&(cur_entry->ts), &now_ts, sizeof(now_ts));
 	cur_entry->sametime_count = sametime_count;
 
 	cur_entry->has_rc = 2;
@@ -409,7 +426,7 @@ void Log(enum LOG_LEVELS log_level, int msgno, const char *format, ...)
 		va_list args;
 
 		/* we're using a static character buffer, so we need to make sure only one thread uses it at a time */
-		Thread_lock_mutex(log_mutex); 
+		Thread_lock_mutex(log_mutex);
 		if (format == NULL && (temp = Messages_get(msgno, log_level)) != NULL)
 			format = temp;
 
@@ -418,7 +435,7 @@ void Log(enum LOG_LEVELS log_level, int msgno, const char *format, ...)
 
 		Log_trace(log_level, msg_buf);
 		va_end(args);
-		Thread_unlock_mutex(log_mutex); 
+		Thread_unlock_mutex(log_mutex);
 	}
 }
 
@@ -445,7 +462,7 @@ void Log_stackTrace(enum LOG_LEVELS log_level, int msgno, int thread_id, int cur
 	Thread_lock_mutex(log_mutex);
 	cur_entry = Log_pretrace();
 
-	memcpy(&(cur_entry->ts), &ts, sizeof(ts));
+	memcpy(&(cur_entry->ts), &now_ts, sizeof(now_ts));
 	cur_entry->sametime_count = sametime_count;
 	cur_entry->number = msgno;
 	cur_entry->thread_id = thread_id;

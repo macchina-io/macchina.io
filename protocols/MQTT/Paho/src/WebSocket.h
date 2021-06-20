@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2018 Wind River Systems, Inc. All Rights Reserved.
+ * Copyright (c) 2018, 2020 Wind River Systems, Inc. and others. All Rights Reserved.
  *
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License v2.0
  * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
  * The Eclipse Public License is available at
- *    http://www.eclipse.org/legal/epl-v10.html
+ *    https://www.eclipse.org/legal/epl-2.0/
  * and the Eclipse Distribution License is available at
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
@@ -17,7 +17,7 @@
 #if !defined(WEBSOCKET_H)
 #define WEBSOCKET_H
 
-#include "Clients.h"
+#include "MQTTPacket.h"
 
 /**
  * WebSocket op codes
@@ -56,22 +56,22 @@ void WebSocket_close(networkHandles *net, int status_code, const char *reason);
 /* sends upgrade request */
 int WebSocket_connect(networkHandles *net, const char *uri);
 
-/* calculates the extra data required in a packet to hold a WebSocket frame header */
-size_t WebSocket_calculateFrameHeaderSize(networkHandles *net, int mask_data,
-	size_t data_len);
-
 /* obtain data from network socket */
 int WebSocket_getch(networkHandles *net, char* c);
 char *WebSocket_getdata(networkHandles *net, size_t bytes, size_t* actual_len);
+size_t WebSocket_framePos();
+void WebSocket_framePosSeekTo(size_t);
 
 /* send data out, in websocket format only if required */
-int WebSocket_putdatas(networkHandles* net, char* buf0, size_t buf0len,
-	int count, char** buffers, size_t* buflens, int* freeData);
+int WebSocket_putdatas(networkHandles* net, char** buf0, size_t* buf0len, PacketBuffers* bufs);
 
 /* releases any resources used by the websocket system */
 void WebSocket_terminate(void);
 
 /* handles websocket upgrade request */
 int WebSocket_upgrade(networkHandles *net);
+
+/* Notify the IP address and port of the endpoint to proxy, and wait connection to endpoint */
+int WebSocket_proxy_connect( networkHandles *net, int ssl, const char *hostname);
 
 #endif /* WEBSOCKET_H */

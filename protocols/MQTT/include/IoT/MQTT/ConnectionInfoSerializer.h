@@ -18,7 +18,9 @@
 #define TypeSerializer_IoT_MQTT_ConnectionInfo_INCLUDED
 
 
-#include "IoT/MQTT/MQTTClient.h"
+#include "IoT/MQTT/PropertyDeserializer.h"
+#include "IoT/MQTT/PropertySerializer.h"
+#include "IoT/MQTT/Types.h"
 #include "Poco/RemotingNG/TypeSerializer.h"
 
 
@@ -43,9 +45,11 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"serverURI"s,"sessionPresent"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.serverURI, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[1], value.sessionPresent, ser);
+		static const std::string REMOTING__NAMES[] = {"mqttVersion"s,"properties"s,"serverURI"s,"sessionPresent"s,""s};
+		TypeSerializer<int >::serialize(REMOTING__NAMES[0], value.mqttVersion, ser);
+		TypeSerializer<std::vector < IoT::MQTT::Property > >::serialize(REMOTING__NAMES[1], value.properties, ser);
+		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.serverURI, ser);
+		TypeSerializer<bool >::serialize(REMOTING__NAMES[3], value.sessionPresent, ser);
 	}
 
 };

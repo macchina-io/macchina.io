@@ -2,11 +2,11 @@
  * Copyright (c) 2017, 2018 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * are made available under the terms of the Eclipse Public License v2.0
  * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
  * The Eclipse Public License is available at
- *    http://www.eclipse.org/legal/epl-v10.html
+ *    https://www.eclipse.org/legal/epl-2.0/
  * and the Eclipse Distribution License is available at
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
@@ -16,6 +16,7 @@
 
 #include "MQTTReasonCodes.h"
 
+#include "MQTTPacket.h"
 #include "Heap.h"
 #include "StackTrace.h"
 
@@ -33,7 +34,7 @@ static struct {
   {MQTTREASONCODE_GRANTED_QOS_0, "Granted QoS 0"},
   {MQTTREASONCODE_GRANTED_QOS_1, "Granted QoS 1"},
   {MQTTREASONCODE_GRANTED_QOS_2, "Granted QoS 2"},
-  {MQTTREASONCODE_DISCONNECT_WITH_WILL_MESSAGE, "Disconnect with Will Messge"},
+  {MQTTREASONCODE_DISCONNECT_WITH_WILL_MESSAGE, "Disconnect with Will Message"},
   {MQTTREASONCODE_NO_MATCHING_SUBSCRIBERS, "No matching subscribers"},
   {MQTTREASONCODE_NO_SUBSCRIPTION_FOUND, "No subscription found"},
   {MQTTREASONCODE_CONTINUE_AUTHENTICATION, "Continue authentication"},
