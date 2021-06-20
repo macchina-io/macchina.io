@@ -36,6 +36,70 @@
 #include "Struct7Serializer.h"
 
 
+class TesterEvent__testEnumEventMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	TesterEvent__testEnumEventMethodHandler(TesterProxy* pProxy)
+	{
+		_pProxy = pProxy;
+	}
+
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"testEnumEvent"s,"data"s};
+		bool remoting__requestSucceeded = false;
+		try
+		{
+			Enum1 data;
+			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+			int remoting__dataTmp;
+			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__dataTmp);
+			data = static_cast<Enum1>(remoting__dataTmp);
+			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+			_pProxy->testEnumEvent(0, data);
+			remoting__requestSucceeded = true;
+			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterEventSubscriber::DEFAULT_NS);
+			static const std::string REMOTING__REPLY_NAME("testEnumEventReply");
+			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_EVENT_REPLY);
+			Poco::RemotingNG::TypeSerializer<int >::serialize(REMOTING__NAMES[1], (int)data, remoting__ser);
+			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_EVENT_REPLY);
+		}
+		catch (Poco::Exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
+			}
+		}
+		catch (std::exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc(e.what());
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+		catch (...)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc("Unknown Exception");
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+	}
+
+private:
+	TesterProxy* _pProxy;
+};
+
+
 class TesterEvent__testEventMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
@@ -160,6 +224,70 @@ private:
 };
 
 
+class TesterEvent__testScopedEnumEventMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	TesterEvent__testScopedEnumEventMethodHandler(TesterProxy* pProxy)
+	{
+		_pProxy = pProxy;
+	}
+
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"testScopedEnumEvent"s,"data"s};
+		bool remoting__requestSucceeded = false;
+		try
+		{
+			ScopedEnum data;
+			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+			unsigned short remoting__dataTmp;
+			Poco::RemotingNG::TypeDeserializer<unsigned short >::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__dataTmp);
+			data = static_cast<ScopedEnum>(remoting__dataTmp);
+			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+			_pProxy->testScopedEnumEvent(0, data);
+			remoting__requestSucceeded = true;
+			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterEventSubscriber::DEFAULT_NS);
+			static const std::string REMOTING__REPLY_NAME("testScopedEnumEventReply");
+			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_EVENT_REPLY);
+			Poco::RemotingNG::TypeSerializer<int >::serialize(REMOTING__NAMES[1], (int)data, remoting__ser);
+			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_EVENT_REPLY);
+		}
+		catch (Poco::Exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
+			}
+		}
+		catch (std::exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc(e.what());
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+		catch (...)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				Poco::Exception exc("Unknown Exception");
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+	}
+
+private:
+	TesterProxy* _pProxy;
+};
+
+
 class TesterEvent__testVoidEventMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
@@ -195,14 +323,21 @@ TesterEventSubscriber::TesterEventSubscriber(const std::string& uri, TesterProxy
 {
 	using namespace std::string_literals;
 	
+	addMethodHandler("testEnumEvent"s, new TesterEvent__testEnumEventMethodHandler(pProxy));
 	addMethodHandler("testEvent"s, new TesterEvent__testEventMethodHandler(pProxy));
 	addMethodHandler("testFilteredEvent"s, new TesterEvent__testFilteredEventMethodHandler(pProxy));
 	addMethodHandler("testOneWayEvent"s, new TesterEvent__testOneWayEventMethodHandler(pProxy));
+	addMethodHandler("testScopedEnumEvent"s, new TesterEvent__testScopedEnumEventMethodHandler(pProxy));
 	addMethodHandler("testVoidEvent"s, new TesterEvent__testVoidEventMethodHandler(pProxy));
 }
 
 
 TesterEventSubscriber::~TesterEventSubscriber()
+{
+}
+
+
+void TesterEventSubscriber::event__testEnumEvent(Enum1& data)
 {
 }
 
@@ -218,6 +353,11 @@ void TesterEventSubscriber::event__testFilteredEvent(const int& data)
 
 
 void TesterEventSubscriber::event__testOneWayEvent(std::string& data)
+{
+}
+
+
+void TesterEventSubscriber::event__testScopedEnumEvent(ScopedEnum& data)
 {
 }
 

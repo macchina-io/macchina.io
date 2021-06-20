@@ -42,6 +42,14 @@ enum Enum1
 };
 
 
+enum class ScopedEnum: unsigned short
+{
+	VALUE_A,
+	VALUE_B,
+	VALUE_C
+};
+
+
 //@ serialize
 struct Struct1
 {
@@ -318,6 +326,10 @@ public:
 
 	//@ filter=true
 	Poco::BasicEvent<const int> testFilteredEvent;
+
+	Poco::BasicEvent<Enum1> testEnumEvent;
+
+	Poco::BasicEvent<ScopedEnum> testScopedEnumEvent;
 
 private:
 	std::string _oneWayResult;

@@ -121,6 +121,13 @@ class OSPWeb_API WebServerExtensionPoint: public ExtensionPoint
 	///    * allowCredentials:
 	///                   If "true", an "Access-Control-Allow-Credentials" header with value "true" will
 	///                   be added to the response. Defaults to "true".
+	///    * exactMatch:  If set to "true", the request URI path must exactly match the value specified in the
+	///                   "path" attribute. If set to "false" (default), will also match if the path
+	///                   specified in the "path" attribute is a parent of the request URI path.
+	///    * errorResponseFormat:
+	///                   Format of error response. Can be "html" or "json". Defaults to "html", but can be
+	///                   overridden by client if the request contains an "Accept" header
+	///                   ("application/json" or "text/html").
 {
 public:
 	WebServerExtensionPoint(BundleContext::Ptr pContext, WebServerDispatcher* pDispatcher);
@@ -162,11 +169,13 @@ protected:
 	static const std::string ATTR_INDEX;
 	static const std::string ATTR_HIDDEN;
 	static const std::string ATTR_CACHE;
+	static const std::string ATTR_EXACTMATCH;
 	static const std::string ATTR_CORS;
 	static const std::string ATTR_ALLOWORIGIN;
 	static const std::string ATTR_ALLOWMETHODS;
 	static const std::string ATTR_ALLOWHEADERS;
 	static const std::string ATTR_ALLOWCREDENTIALS;
+	static const std::string ATTR_RESPONSEFORMAT;
 	static const std::string MANIFEST_NAME;
 
 private:

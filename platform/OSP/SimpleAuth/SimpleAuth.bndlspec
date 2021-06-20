@@ -5,7 +5,7 @@
     <symbolicName>com.appinf.osp.simple-auth</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2007-2020, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2007-2021, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>SimpleAuthBundleActivator</class>
       <library>com.appinf.osp.simple-auth</library>

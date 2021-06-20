@@ -20,9 +20,11 @@ TesterRemoteObject::TesterRemoteObject(const Poco::RemotingNG::Identifiable::Obj
 	Poco::RemotingNG::RemoteObject(oid),
 	_pServiceObject(pServiceObject)
 {
+	_pServiceObject->testEnumEvent += Poco::delegate(this, &TesterRemoteObject::event__testEnumEvent);
 	_pServiceObject->testEvent += Poco::delegate(this, &TesterRemoteObject::event__testEvent);
 	_pServiceObject->testFilteredEvent += Poco::delegate(this, &TesterRemoteObject::event__testFilteredEvent);
 	_pServiceObject->testOneWayEvent += Poco::delegate(this, &TesterRemoteObject::event__testOneWayEvent);
+	_pServiceObject->testScopedEnumEvent += Poco::delegate(this, &TesterRemoteObject::event__testScopedEnumEvent);
 	_pServiceObject->testVoidEvent += Poco::delegate(this, &TesterRemoteObject::event__testVoidEvent);
 }
 
@@ -31,9 +33,11 @@ TesterRemoteObject::~TesterRemoteObject()
 {
 	try
 	{
+		_pServiceObject->testEnumEvent -= Poco::delegate(this, &TesterRemoteObject::event__testEnumEvent);
 		_pServiceObject->testEvent -= Poco::delegate(this, &TesterRemoteObject::event__testEvent);
 		_pServiceObject->testFilteredEvent -= Poco::delegate(this, &TesterRemoteObject::event__testFilteredEvent);
 		_pServiceObject->testOneWayEvent -= Poco::delegate(this, &TesterRemoteObject::event__testOneWayEvent);
+		_pServiceObject->testScopedEnumEvent -= Poco::delegate(this, &TesterRemoteObject::event__testScopedEnumEvent);
 		_pServiceObject->testVoidEvent -= Poco::delegate(this, &TesterRemoteObject::event__testVoidEvent);
 	}
 	catch (...)
@@ -62,6 +66,12 @@ bool TesterRemoteObject::remoting__hasEvents() const
 }
 
 
+void TesterRemoteObject::event__testEnumEvent(Enum1& data)
+{
+	testEnumEvent(this, data);
+}
+
+
 void TesterRemoteObject::event__testEvent(std::string& data)
 {
 	testEvent(this, data);
@@ -77,6 +87,12 @@ void TesterRemoteObject::event__testFilteredEvent(const int& data)
 void TesterRemoteObject::event__testOneWayEvent(std::string& data)
 {
 	testOneWayEvent(this, data);
+}
+
+
+void TesterRemoteObject::event__testScopedEnumEvent(ScopedEnum& data)
+{
+	testScopedEnumEvent(this, data);
 }
 
 

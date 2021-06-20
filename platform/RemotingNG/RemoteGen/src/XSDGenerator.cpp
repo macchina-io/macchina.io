@@ -18,6 +18,7 @@
 #include "Poco/CodeGeneration/CppGenerator.h"
 #include "Poco/CppParser/Function.h"
 #include "Poco/CppParser/Utility.h"
+#include "Poco/CppParser/Enum.h"
 #include "Poco/Exception.h"
 #include "Poco/Path.h"
 #include "Poco/StringTokenizer.h"
@@ -735,7 +736,9 @@ std::string XSDGenerator::generateComplexType(const Poco::CppParser::Struct* pTy
 				if (pSym && pSym->kind() == Poco::CppParser::Symbol::SYM_ENUM)
 				{
 					// map to integer
-					const std::string& xsdType = mapToSchemaType("int");
+					std::string enumBaseType = static_cast<const Poco::CppParser::Enum*>(pSym)->baseType();
+					if (enumBaseType.empty()) enumBaseType = "int";
+					const std::string& xsdType = mapToSchemaType(enumBaseType);
 					elemAttrs.addAttribute(EMPTYSTRING, TYPE, TYPE, EMPTYSTRING, SCHEMA_PREFIX+":"+xsdType);
 				}	
 				else
@@ -889,7 +892,6 @@ void XSDGenerator::detectProperties(const Poco::CppParser::Variable* pVar, bool&
 	}
 	isMandatory = isMandatory || GenUtility::getIsMandatory(pVar);
 	name = GenUtility::getVariableName(pVar);
-	Poco::XML::AttributesImpl attrs;
 	
 	do
 	{

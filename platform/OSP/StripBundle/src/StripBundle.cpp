@@ -71,7 +71,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics OSP Strip Bundle Utility.\n"
-			"Copyright (c) 2018-2019 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2018-2021 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program removes all binaries (shared libraries) from a bundle. "
 			"A typical use case is systems using a read-only file system, where "

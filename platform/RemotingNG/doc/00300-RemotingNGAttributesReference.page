@@ -171,7 +171,7 @@ If disabled, all installed event filters will be ignored when dispatching the ev
 
 !!format
 For the REST transport, describes the format of a parameter passed in the request
-or response body.
+body or response body.
   * level: parameter
   * type: string
   * default: "json"
@@ -182,7 +182,13 @@ Valid values are:
     This is useful for passing raw binary data as a std::string or std::vector<char> in
     the request or response body. If specified, an appropriate content type should
     also be specified using the <[consumes]> or <[produces]> attribute.
+  * binary: Same as "raw".
   * json: The parameter is formatted as JSON. Can be used for simple and complex types.
+
+This parameter can also be specified on a form parameter or type <[std::string]>
+if "multipart/form-data" encoding is used.
+In this case, only the values "raw" or "binary" are valid. This will change
+the parameter's schema <*format*> generated in the OpenAPI document to "binary".
 
 Example:
     //@ $file={in=path}

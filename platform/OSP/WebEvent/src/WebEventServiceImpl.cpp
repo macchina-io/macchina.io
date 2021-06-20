@@ -14,7 +14,6 @@
 
 #include "Poco/OSP/WebEvent/WebEventServiceImpl.h"
 #include "Poco/Net/HTTPServerResponse.h"
-#include "Poco/Environment.h"
 #include "Poco/Buffer.h"
 #include <algorithm>
 
@@ -240,14 +239,13 @@ private:
 };
 
 
-WebEventServiceImpl::WebEventServiceImpl(Poco::OSP::BundleContext::Ptr pContext, int maxSockets):
+WebEventServiceImpl::WebEventServiceImpl(Poco::OSP::BundleContext::Ptr pContext, int maxSockets, int workerCount):
 	_pContext(pContext),
 	_maxSockets(maxSockets),
 	_mainRunnable(*this, &WebEventServiceImpl::runMain),
 	_workerRunnable(*this, &WebEventServiceImpl::runWorker),
 	_stopped(false)
 {
-	unsigned workerCount = 2*Poco::Environment::processorCount();
 	for (unsigned i = 0; i < workerCount; i++)
 	{
 		ThreadPtr pThread = new Poco::Thread;
@@ -558,6 +556,8 @@ void WebEventServiceImpl::sendImpl(Poco::SharedPtr<Poco::Net::WebSocket> pWS, co
 {
 	try
 	{
+		Poco::FastMutex::ScopedLock lock(_sendMutex);
+
 		pWS->sendFrame(message.data(), message.size());
 	}
 	catch (Poco::Exception& exc)

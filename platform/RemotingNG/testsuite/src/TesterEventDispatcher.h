@@ -26,22 +26,30 @@ public:
 	virtual ~TesterEventDispatcher();
 		/// Destroys the TesterEventDispatcher.
 
+	void event__testEnumEvent(const void* pSender, Enum1& data);
+
 	void event__testEvent(const void* pSender, std::string& data);
 
 	void event__testFilteredEvent(const void* pSender, const int& data);
 
 	void event__testOneWayEvent(const void* pSender, std::string& data);
 
+	void event__testScopedEnumEvent(const void* pSender, ScopedEnum& data);
+
 	void event__testVoidEvent(const void* pSender);
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
+	void event__testEnumEventImpl(const std::string& subscriberURI, Enum1& data);
+
 	void event__testEventImpl(const std::string& subscriberURI, std::string& data);
 
 	void event__testFilteredEventImpl(const std::string& subscriberURI, const int& data);
 
 	void event__testOneWayEventImpl(const std::string& subscriberURI, std::string& data);
+
+	void event__testScopedEnumEventImpl(const std::string& subscriberURI, ScopedEnum& data);
 
 	void event__testVoidEventImpl(const std::string& subscriberURI);
 

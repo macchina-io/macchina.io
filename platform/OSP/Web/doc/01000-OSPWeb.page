@@ -154,6 +154,9 @@ The following attributes are supported for request handlers:
     header will be added with the given value.
   - <[allowCredentials]>: If "true", an "Access-Control-Allow-Credentials" header with value "true" will
     be added to the response. Defaults to "true".
+  - <[responseFormat]>: Specify the default format for error responses. Can be "html" (default) or "json".
+    Can be overridded by the request via the "Accept" header. This is useful for implementing REST APIs.
+    The error JSON format is compatible with that of Remoting NG REST transport.
 
 Instead of the <[resource]> attribute used with the <[osp.web.server.directory]> extension point, the
 <[osp.web.server.requesthandler]> extension element uses the <[class]> and <[library]> attributes to
@@ -383,7 +386,7 @@ The web server can be configured by setting the following properties in the glob
   - <[osp.web.contentTypeOptions]>: Specifies the value of the <[X-Content-Type-Options]> header sent with
     every HTTP response. Defaults to <[nosniff]>. Can be set to an empty string to disable
     this header, which is not recommended.
-  - <[osp.web.frameOptions]>: Specivies the value of the <[X-Frame-Options]> header sent with every
+  - <[osp.web.frameOptions]>: Specifies the value of the <[X-Frame-Options]> header sent with every
     HTTP response. Defaults to none (no <[X-Frame-Options]> header sent). Valid values are
     <[DENY]> and <[SAMEORIGIN]>.
   - <[osp.web.addAuthHeader]>: If set to true (default), and authentication/authorization has been enabled for
@@ -392,8 +395,15 @@ The web server can be configured by setting the following properties in the glob
     by the downstream request handler.
   - <[osp.web.addSignature]>: If set to true (default), the server will include a signature in generated
     HTML error pages.
-  - <[osp.web.cors.allowedOrigin]>: Specifies a global allowed origin for use with request handlers that have
-    no allowedOrigin value specified.
+  - <[osp.web.cors.enable]>: If set to true (default), globally enable CORS handling for all request handlers
+    supporting CORS. If set to false, globally disable CORS handling.
+  - <[osp.web.cors.allowedOrigin]>: Specifies the allowed origin for CORS requests.
+    For requests without credentials, the literal value "*" can be specified, as a wildcard.
+    The value tells browsers to allow requesting code from any origin to access the resource.
+    For requests with credentials, the literal value “**” can be specified, as wildcard.
+    This tells the server to send back as allowed origin whatever origin the browser has specified.
+    Can also be set to a specific domain name, to accept CORS requests only from that specific origin.
+  - <[osp.web.logFullRequest]>: If set to true, log all HTTP requests and responses with all HTTP headers.
 
 
 !!! Request Logging

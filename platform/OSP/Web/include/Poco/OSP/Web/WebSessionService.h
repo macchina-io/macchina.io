@@ -65,6 +65,9 @@ public:
 		/// Removes a session from the manager, if it exists. Does nothing if the
 		/// session is not known to the session manager.
 
+	virtual void removeForUser(const std::string& username) = 0;
+		/// Removes all sessions for the given username.
+
 	// Service
 	const std::type_info& type() const
 	{

@@ -150,7 +150,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics OSP Code Cache Utility.\n"
-			"Copyright (c) 2017-2019 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2017-2021 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program populates a code cache directory with the "
 			"shared libraries contained in all bundles in the given "

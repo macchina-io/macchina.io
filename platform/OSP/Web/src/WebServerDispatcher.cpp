@@ -26,6 +26,7 @@
 #include "Poco/Net/HTTPBasicCredentials.h"
 #include "Poco/Delegate.h"
 #include "Poco/URI.h"
+#include "Poco/UUIDGenerator.h"
 #include "Poco/StreamCopier.h"
 #include "Poco/Exception.h"
 #include "Poco/NumberFormatter.h"
@@ -42,6 +43,7 @@
 #include "Poco/Message.h"
 #include <memory>
 #include <limits>
+#include <sstream>
 
 
 using namespace std::string_literals;
@@ -74,11 +76,13 @@ WebServerDispatcher::WebServerDispatcher(const Config& config):
 	_pMediaTypeMapper(config.pMediaTypeMapper),
 	_authServiceName(config.authServiceName),
 	_tokenValidatorName(config.tokenValidatorName),
+	_corsEnabled((config.options & CONF_OPT_ENABLE_CORS) != 0),
 	_corsAllowedOrigin(config.corsAllowedOrigin),
 	_compressResponses((config.options & CONF_OPT_COMPRESS_RESPONSES) != 0),
 	_cacheResources((config.options & CONF_OPT_CACHE_RESOURCES) != 0),
 	_addAuthHeader((config.options & CONF_OPT_ADD_AUTH_HEADER) != 0),
 	_addSignature((config.options & CONF_OPT_ADD_SIGNATURE) != 0),
+	_logFullRequest((config.options & CONF_OPT_LOG_FULL_REQUEST) != 0),
 	_authMethods(config.authMethods),
 	_compressedMediaTypes(config.compressedMediaTypes),
 	_customResponseHeaders(config.customResponseHeaders),
@@ -291,7 +295,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 			{
 				std::string vpath(vPath.path);
 				lock.unlock();
-				sendResponse(request, HTTPResponse::HTTP_FORBIDDEN, formatMessage("secure"s, vpath));
+				sendResponse(request, HTTPResponse::HTTP_FORBIDDEN, formatMessage("secure"s, vpath), vPath.responseFormat);
 			}
 			else if (handleCORS(request, response, vPath))
 			{
@@ -309,7 +313,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 								if (pHandler.get())
 									pHandler->handleRequest(request, response);
 								else
-									sendNotFound(request, path);
+									sendNotFound(request, path, vPath.responseFormat);
 							}
 							catch (Poco::Exception& exc)
 							{
@@ -318,7 +322,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 						}
 						else
 						{
-							sendMethodNotAllowed(request, formatMessage("method"s, request.getMethod(), request.getURI()));
+							sendMethodNotAllowed(request, formatMessage("method"s, request.getMethod(), request.getURI()), vPath.responseFormat);
 						}
 					}
 					else // static resource
@@ -354,7 +358,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 					}
 					std::string vpath(vPath.path);
 					lock.unlock();
-					sendNotAuthorized(request, vpath);
+					sendNotAuthorized(request, vpath, vPath.responseFormat);
 				}
 			}
 		}
@@ -378,6 +382,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 	{
 		try
 		{
+			std::string reference = Poco::UUIDGenerator::defaultGenerator().createRandom().toString();
 			std::string excName;
 			std::string msg("Error processing ");
 			msg += request.getMethod();
@@ -389,16 +394,14 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 			msg += exc.displayText();
 			if (exc.nested())
 			{
-				excName = exc.nested()->name();
 				msg += ": ";
 				msg += exc.nested()->displayText();
 			}
-			else
-			{
-				excName = exc.name();
-			}
+			msg += " [reference: ";
+			msg += reference;
+			msg += "]";
 			_pContext->logger().error(msg);
-			sendInternalError(request, formatMessage("internal"s, excName));
+			sendInternalError(request, formatMessage("internal"s, reference));
 		}
 		catch (Poco::Exception& exc)
 		{
@@ -424,11 +427,23 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 
 void WebServerDispatcher::logRequest(const Poco::Net::HTTPServerRequest& request, const Poco::Net::HTTPServerResponse& response, const std::string& username)
 {
-	std::string reqText(request.getMethod());
-	reqText += ' ';
-	reqText += request.getURI();
-	reqText += ' ';
-	reqText += request.getVersion();
+	std::string reqText;
+	if (_logFullRequest)
+	{
+		std::ostringstream ostr;
+		ostr << request.clientAddress().host().toString() << " [" << username << "]\n";
+		request.write(ostr);
+		response.write(ostr);
+		reqText = ostr.str();
+	}
+	else
+	{
+		reqText += request.getMethod();
+		reqText += ' ';
+		reqText += request.getURI();
+		reqText += ' ';
+		reqText += request.getVersion();
+	}
 
 	Poco::Message message(_accessLogger.name(), reqText, Poco::Message::PRIO_INFORMATION);
 
@@ -674,9 +689,10 @@ const WebServerDispatcher::VirtualPath& WebServerDispatcher::mapPath(const std::
 		}
 		if (foundIt != _pathMap.end())
 		{
-			return foundIt->second;
+			if (!foundIt->second.exactMatch || foundIt->second.path == normPath)
+				return foundIt->second;
 		}
-		else throw Poco::NotFoundException(path);
+		throw Poco::NotFoundException(path);
 	}
 }
 
@@ -779,7 +795,7 @@ bool WebServerDispatcher::cleanPath(std::string& path)
 
 bool WebServerDispatcher::handleCORS(const Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, const VirtualPath& vPath) const
 {
-	if (vPath.cors.enable && request.has("Origin"s))
+	if (_corsEnabled && vPath.cors.enable && request.has("Origin"s))
 	{
 		if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_OPTIONS)
 		{
@@ -793,8 +809,7 @@ bool WebServerDispatcher::handleCORS(const Poco::Net::HTTPServerRequest& request
 					}
 					else
 					{
-						const std::string delim(", ");
-						response.set("Access-Control-Allow-Methods"s, Poco::cat(delim, vPath.methods.begin(), vPath.methods.end()));
+						response.set("Access-Control-Allow-Methods"s, Poco::cat(", "s, vPath.methods.begin(), vPath.methods.end()));
 					}
 				}
 				else
@@ -1019,54 +1034,54 @@ bool WebServerDispatcher::authorizeBearer(Poco::Net::HTTPServerRequest& request,
 }
 
 
-void WebServerDispatcher::sendFound(Poco::Net::HTTPServerRequest& request, const std::string& path)
+void WebServerDispatcher::sendFound(Poco::Net::HTTPServerRequest& request, const std::string& path, ResponseFormat format)
 {
 	request.response().set("Location"s, path);
-	sendResponse(request, HTTPResponse::HTTP_FOUND, formatMessage("redirect"s, path));
+	sendResponse(request, HTTPResponse::HTTP_FOUND, formatMessage("redirect"s, path), format);
 }
 
 
-void WebServerDispatcher::sendNotFound(Poco::Net::HTTPServerRequest& request, const std::string& path)
+void WebServerDispatcher::sendNotFound(Poco::Net::HTTPServerRequest& request, const std::string& path, ResponseFormat format)
 {
-	sendResponse(request, HTTPResponse::HTTP_NOT_FOUND, formatMessage("notfound"s, path));
+	sendResponse(request, HTTPResponse::HTTP_NOT_FOUND, formatMessage("notfound"s, path), format);
 }
 
 
-void WebServerDispatcher::sendNotAuthorized(Poco::Net::HTTPServerRequest& request, const std::string& path)
+void WebServerDispatcher::sendNotAuthorized(Poco::Net::HTTPServerRequest& request, const std::string& path, ResponseFormat format)
 {
-	sendResponse(request, HTTPResponse::HTTP_UNAUTHORIZED, formatMessage("notauth"s, path));
+	sendResponse(request, HTTPResponse::HTTP_UNAUTHORIZED, formatMessage("notauth"s, path), format);
 }
 
 
-void WebServerDispatcher::sendForbidden(Poco::Net::HTTPServerRequest& request, const std::string& path)
+void WebServerDispatcher::sendForbidden(Poco::Net::HTTPServerRequest& request, const std::string& path, ResponseFormat format)
 {
-	sendResponse(request, HTTPResponse::HTTP_FORBIDDEN, formatMessage("forbidden"s, path));
+	sendResponse(request, HTTPResponse::HTTP_FORBIDDEN, formatMessage("forbidden"s, path), format);
 }
 
 
-void WebServerDispatcher::sendBadRequest(Poco::Net::HTTPServerRequest& request, const std::string& message)
+void WebServerDispatcher::sendBadRequest(Poco::Net::HTTPServerRequest& request, const std::string& message, ResponseFormat format)
 {
-	sendResponse(request, HTTPResponse::HTTP_BAD_REQUEST, message);
+	sendResponse(request, HTTPResponse::HTTP_BAD_REQUEST, message, format);
 }
 
 
-void WebServerDispatcher::sendMethodNotAllowed(Poco::Net::HTTPServerRequest& request, const std::string& message)
+void WebServerDispatcher::sendMethodNotAllowed(Poco::Net::HTTPServerRequest& request, const std::string& message, ResponseFormat format)
 {
-	sendResponse(request, HTTPResponse::HTTP_METHOD_NOT_ALLOWED, message);
+	sendResponse(request, HTTPResponse::HTTP_METHOD_NOT_ALLOWED, message, format);
 }
 
 
-void WebServerDispatcher::sendInternalError(Poco::Net::HTTPServerRequest& request, const std::string& message)
+void WebServerDispatcher::sendInternalError(Poco::Net::HTTPServerRequest& request, const std::string& message, ResponseFormat format)
 {
-	sendResponse(request, HTTPResponse::HTTP_INTERNAL_SERVER_ERROR, message);
+	sendResponse(request, HTTPResponse::HTTP_INTERNAL_SERVER_ERROR, message, format);
 }
 
 
-void WebServerDispatcher::sendResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message)
+void WebServerDispatcher::sendResponse(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPResponse::HTTPStatus status, const std::string& message, ResponseFormat format)
 {
 	if (!request.response().sent())
 	{
-		if (request.get("Accept"s, ""s).find("application/json") != std::string::npos)
+		if (request.get("Accept"s, ""s).find("application/json") != std::string::npos || format == RESPONSE_FORMAT_JSON)
 		{
 			sendJSONResponse(request, status, message);
 		}
@@ -1090,26 +1105,29 @@ void WebServerDispatcher::sendHTMLResponse(Poco::Net::HTTPServerRequest& request
 	const std::string& softwareVersion = request.serverParams().getSoftwareVersion();
 	request.response().setContentType("text/html"s);
 	request.response().setStatusAndReason(status);
-	std::string html("<HTML><HEAD><TITLE>");
+	request.response().setChunkedTransferEncoding(false);
+	request.response().erase("Content-Encoding"s);
+
+	std::string html("<!DOCTYPE html>\n<html><head><title>");
 	html += NumberFormatter::format(static_cast<int>(status));
 	html += " - ";
 	html += request.response().getReasonForStatus(status);
-	html += "</TITLE></HEAD><BODY><H1>";
+	html += "</title></head><body><header class=\"osp-web-error\"><h1>"s;
 	html += NumberFormatter::format(static_cast<int>(status));
 	html += " - ";
 	html += request.response().getReasonForStatus(status);
-	html += "</H1><P>";
+	html += "</h1></header><section class=\"osp-web-error\"><p>"s;
 	html += htmlize(message);
-	html += "</P><HR>";
+	html += "</p></section><hr>"s;
 	if (_addSignature)
 	{
-		html += "<ADDRESS>";
+		html += "<footer class=\"osp-web-error\"><address>"s;
 		html += htmlize(softwareVersion);
 		html += " at ";
 		html += request.serverAddress().toString();
-		html += "</ADDRESS>";
+		html += "</address></footer>"s;
 	}
-	html += "</BODY></HTML>";
+	html += "</body></html>"s;
 	request.response().sendBuffer(html.data(), html.size());
 }
 
@@ -1118,6 +1136,8 @@ void WebServerDispatcher::sendJSONResponse(Poco::Net::HTTPServerRequest& request
 {
 	request.response().setContentType("application/json"s);
 	request.response().setStatusAndReason(status);
+	request.response().setChunkedTransferEncoding(false);
+	request.response().erase("Content-Encoding"s);
 
 	std::string json(
 		Poco::format("{ \"error\": \"%s\", \"detail\": \"%s\", \"code\": %d }"s,

@@ -8,6 +8,11 @@
 //
 
 
+#if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
+
 #include "StringTest.h"
 #include "CppUnit/TestCaller.h"
 #include "CppUnit/TestSuite.h"
@@ -89,8 +94,12 @@ void StringTest::testTrimLeft()
 		std::string s = " abc ";
 		assertTrue (trimLeft(s) == "abc ");
 	{
-	std::string s = "  ab c ";
-	assertTrue (trimLeft(s) == "ab c ");
+		std::string s = "  ab c ";
+		assertTrue (trimLeft(s) == "ab c ");
+	}
+	{
+		std::string s;
+		assertTrue (trimLeft(s) == "");
 	}
 }
 
@@ -109,6 +118,10 @@ void StringTest::testTrimLeftInPlace()
 		std::string s = "  ab c ";
 		assertTrue (trimLeftInPlace(s) == "ab c ");
 	}
+	{
+		std::string s;
+		assertTrue (trimLeftInPlace(s) == "");
+	}
 }
 
 
@@ -125,6 +138,10 @@ void StringTest::testTrimRight()
 	{
 		std::string s = "  ab c  ";
 		assertTrue (trimRight(s) == "  ab c");
+	}
+	{
+		std::string s;
+		assertTrue (trimRight(s) == "");
 	}
 }
 
@@ -143,6 +160,10 @@ void StringTest::testTrimRightInPlace()
 		std::string s = "  ab c  ";
 		assertTrue (trimRightInPlace(s) == "  ab c");
 	}
+	{
+		std::string s;
+		assertTrue (trimRightInPlace(s) == "");
+	}
 }
 
 
@@ -160,6 +181,10 @@ void StringTest::testTrim()
 		std::string s = "  ab c  ";
 		assertTrue (trim(s) == "ab c");
 	}
+	{
+		std::string s;
+		assertTrue (trim(s) == "");
+	}
 }
 
 
@@ -176,6 +201,10 @@ void StringTest::testTrimInPlace()
 	{
 		std::string s = "  ab c  ";
 		assertTrue (trimInPlace(s) == "ab c");
+	}
+	{
+		std::string s;
+		assertTrue (trimInPlace(s) == "");
 	}
 }
 
@@ -1378,7 +1407,6 @@ void StringTest::testJSONString()
 {
 	assertTrue (toJSON("\\", false) == "\\\\");
 	assertTrue (toJSON("\"", false) == "\\\"");
-	assertTrue (toJSON("/", false) == "\\/");
 	assertTrue (toJSON("\a", false) == "\\u0007");
 	assertTrue (toJSON("\b", false) == "\\b");
 	assertTrue (toJSON("\f", false) == "\\f");
@@ -1395,7 +1423,7 @@ void StringTest::testJSONString()
 	std::string str = "\"foo\\\\\"";
 	assertTrue (toJSON("foo\\") == str);
 
-	assertTrue (toJSON("bar/") == "\"bar\\/\"");
+	assertTrue (toJSON("bar/") == "\"bar/\"");
 	assertTrue (toJSON("baz") == "\"baz\"");
 	assertTrue (toJSON("q\"uote\"d") == "\"q\\\"uote\\\"d\"");
 	assertTrue (toJSON("bs\b") == "\"bs\\b\"");
@@ -1412,7 +1440,7 @@ void StringTest::testJSONString()
 	ostr.str("");
 
 	toJSON("foo\\", ostr);
-	assertTrue (toJSON("bar/") == "\"bar\\/\"");
+	assertTrue (toJSON("bar/") == "\"bar/\"");
 	ostr.str("");
 	toJSON("baz", ostr);
 	assertTrue (ostr.str() == "\"baz\"");

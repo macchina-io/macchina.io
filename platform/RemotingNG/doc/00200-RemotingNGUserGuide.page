@@ -40,7 +40,7 @@ The following types from the POCO C++ Libraries are supported as well:
 
 Enumerations can also be used, with the restriction that enumerations are
 serialized as integers, and that enumeration types are reduced to
-integer types in SOAP/WSDL interfaces.
+integer types in SOAP/WSDL and REST interfaces.
 
 Plain C++ pointer types are not supported, due to the complexity they
 incur with regard to object creation and object membership.
@@ -650,12 +650,13 @@ RemotingNG header files that need to be parsed by the code generator
 This specifies what code the code generator should generate.
 The following values are supported:
 
-  * <[server]>: generate server code only (interface, remote object,
-    skeleton, server helper)
-  * <[client]>: generate client code only (interface, proxy,
-    proxy factory, client helper)
+  * <[server]>: generate server code only (interfaces, serializers, remote objects,
+    skeletons, server helpers)
+  * <[client]>: generate client code only (interfaces, serializers, proxies,
+    proxy factories, client helpers)
   * <[both]>: generate both client and server code
-  * <[interface]>: generate interface class only
+  * <[skeleton]>: generate server-side skeleton and serializers, but no interface classes
+  * <[interface]>: generate interface classes only
 
 This element is optional, the default is <[both]>.
 The setting can be overridden with the <*mode*> command
@@ -855,6 +856,92 @@ Specify whether a bundle activator for use with the Open
 Service Platform should be generated. A class name for the
 bundle activator class must be specified.
 
+!output/openAPI
+
+Under the output/openAPI element, all configuration elements affecting the
+generation of OpenAPI documents are located. At least the <*path*> and
+<*info/title*> elements must be provided to enable creation of an
+OpenAPI document.
+
+!output/openAPI/path
+
+Enable OpenAPI file generation and specify the path to the OpenAPI file.
+Only supported for REST-style remote services implemented with the REST transport.
+OpenAPI, also known as Swagger, is a standard format for formally describing
+REST APIs. This is required to enable generation of an OpenAPI document.
+
+!output/openAPI/info
+
+Specify various informational properties (see below) for the
+generated OpenAPI document. At least the <*title*> must be
+specified.
+
+!output/openAPI/info/title
+
+Specify the title which is written to the <*info*> object of the generated
+OpenAPI document. This element is required when generating an OpenAPI document.
+
+!output/openAPI/info/description
+
+Specify the description which is written to the <*info*> object of the generated
+OpenAPI document.
+
+!output/openAPI/info/version
+
+Specify the API version which is written to the <*info*> object of the generated
+OpenAPI document. If not specified, defaults to "1.0.0". A version is
+required by the OpenAPI specification.
+
+!output/openAPI/info/termsOfService
+
+Specify the optional URL of a Terms of Service document for the API.
+
+!output/openAPI/info/contact
+
+Specify optional contact information (name, URL, email) to be written to the generated OpenAPI
+document.
+
+!output/openAPI/info/contact/name
+
+Specify the optional contact name for the OpenAPI document.
+
+!output/openAPI/info/contact/url
+
+Specify the optional contact URL for the OpenAPI document.
+
+!output/openAPI/info/contact/email
+
+Specify the optional contact email address for the OpenAPI document.
+
+!output/openAPI/info/license
+
+Specify licensing information (name, URL) for the generated OpenAPI document.
+
+!output/openAPI/info/license/name
+
+Specify the optional license name for the OpenAPI document.
+
+!output/openAPI/info/license/url
+
+Specify the optional license URL for the OpenAPI document.
+
+!output/openAPI/server
+
+Specify the server's base URL and optional description for the OpenAPI document.
+At least one server element is required. Can be specified multiple times.
+
+!output/openAPI/server/url
+
+Specify a server's base URL. This element is required.
+
+!output/openAPI/server/description
+
+Specify a server's optional description.
+
+!output./openAPI/json/indent
+
+Specify the indentation width (number of space characters) for the generated OpenAPI JSON
+document. Defaults to 2.
 
 !schema/<serviceClass>/serviceLocation
 
@@ -987,7 +1074,7 @@ line options:
     as command line arguments.
   * <[/mode:<mode>]>, <[--mode=<mode>]>, <[-m<mode>]>: Override generation mode specified in configuration
     file. Valid values for <[<mode>]> are "client", "server",
-    "both" or "interface".
+    "both", "skeleton" or "interface".
   * <[/compiler:<id>]>, <[--compiler=<id>]>, <[-C<id>]>: Specify which compiler definition to use for
     preprocessing. See the <*compiler*> element in the configuration file. If not specified,
     the first compiler definition in the configuration will be used.

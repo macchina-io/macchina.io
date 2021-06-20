@@ -29,11 +29,15 @@ public:
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
+	void event__testEnumEvent(Enum1& data);
+
 	void event__testEvent(std::string& data);
 
 	void event__testFilteredEvent(const int& data);
 
 	void event__testOneWayEvent(std::string& data);
+
+	void event__testScopedEnumEvent(ScopedEnum& data);
 
 	void event__testVoidEvent();
 

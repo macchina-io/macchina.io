@@ -318,6 +318,51 @@ that's specified in the endpoint class using the <[path]> attribute, even if it 
 placeholders.
 
 
+!!!Generating OpenAPI (Swagger) Documents
+
+The <*RemoteGenNG*> tool supports the creation of [[https://www.openapis.org OpenAPI]]
+specifications (also known as Swagger documents).
+The OpenAPI specification is a broadly adopted industry standard
+for describing RESTful APIs. Version 3.0 of the specification is supported.
+
+An OpenAPI specification document can be used to generate documentation
+for an API, or to generate client and server code for implementing the API with
+different programming languages and libraries.
+
+In order to enable generation of an OpenAPI document, a few elements must be
+added to the <*RemoteGenNG*> configuration file. Most OpenAPI-related
+elements are optional, but three elements must be provided:
+
+  - <*output/openAPI/path*>: This setting specifies the path and file name of the OpenAPI
+    specification file. This setting will also enable generation of the OpenAPI
+    specification file.
+  - <*output/openAPI/info/title*>: This setting specifies the title of the API,
+    which is a required part of an OpenAPI document.
+  - <*output/openAPI/server/url*>: This setting specifies the URL of the
+    server providing the API.
+
+Here is an example <*openAPI*> fragment:
+
+    <openAPI>
+        <path>openapi/api.json</path>
+        <info>
+            <title>Sample REST API</title>
+            <description>An example for a RESTful API.</description>
+            <version>1.0.0</version>
+            <contact>
+                <name>Applied Informatics Software Engineering GmbH</name>
+                <url>https://pocoproject.org/pro/</url>
+            </contact>
+        </info>
+        <server>
+            <url>http://localhost:8080/</url>
+        </server>
+    </openAPI>
+----
+
+OpenAPI documents can only be generated for services that follow the RESTful
+style required by the RemotingNG REST Transport.
+
 This concludes the Remoting NG tutorials. Please look at the sample applications
 provided with Remoting NG for more examples showing how to invoke RESTful
 web services.

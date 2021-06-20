@@ -1,7 +1,7 @@
 //
 // RemoteGen.cpp
 //
-// Copyright (c) 2006-2020, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2006-2021, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
 // SPDX-License-Identifier: GPL-3.0-only
@@ -17,6 +17,7 @@
 #include "Poco/NumberFormatter.h"
 #include "Poco/Exception.h"
 #include "Poco/NullStream.h"
+#include "Poco/FileStream.h"
 #include "Poco/Delegate.h"
 #include "Poco/Format.h"
 #include "Poco/XML/XMLWriter.h"
@@ -47,6 +48,7 @@
 #include "DeserializerGenerator.h"
 #include "XSDGenerator.h"
 #include "WSDLGenerator.h"
+#include "SwaggerGenerator.h"
 #include "ExtensionsGenerator.h"
 #include "EventDispatcherGenerator.h"
 #include "EventSubscriberGenerator.h"
@@ -163,7 +165,7 @@ protected:
 		options.addOption(
 			Option("mode", "m",
 				"Override generation mode specified in configuration file. "
-				"Valid values for <mode> are \"client\", \"server\", \"both\" or \"interface\".")
+				"Valid values for <mode> are \"client\", \"server\", \"both\", \"skeleton\" or \"interface\".")
 				.required(false)
 				.repeatable(false)
 				.argument("<mode>")
@@ -228,9 +230,9 @@ protected:
 	void handleMode(const std::string& name, const std::string& value)
 	{
 		_mode = Poco::toLower(value);
-		if (_mode != BOTH && _mode != SERVER && _mode != CLIENT && _mode != INTERFACE)
+		if (_mode != BOTH && _mode != SERVER && _mode != CLIENT && _mode != INTERFACE && _mode != SKELETON)
 		{
-			throw Poco::InvalidArgumentException("invalid option value for mode: only use client|server|both|interface");
+			throw Poco::InvalidArgumentException("invalid option value for mode: only use client|server|both|skeleton|interface");
 			_mode.clear();
 		}
 	}
@@ -250,7 +252,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics Remoting NG Code Generator.\n"
-			"Copyright (c) 2006-2020 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2006-2021 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program parses C++ header files annotated with "
 			"Remoting attributes and generates C++ code for "
@@ -371,49 +373,16 @@ protected:
 		{
 			handleStruct(*itV);
 		}
+
+		std::string swaggerPath = config().getString("RemoteGen.output.openAPI.path", "");
+		if (!swaggerPath.empty())
+		{
+			generateSwagger(swaggerPath);
+		}
 		_structsToProcess.clear();
 
-		itV = _schemaGen.begin();
-		itVEnd = _schemaGen.end();
-		for (; itV != itVEnd; ++itV)
-		{
-			const Poco::CppParser::Struct* pStruct = *itV;
-			const std::string& outFile = pStruct->getFile();
-			Poco::Path incPath(outFile);
+		generateWSDL();
 
-			while (incPath.depth() > 0 &&
-				Poco::toLower(incPath.directory(incPath.depth()-1)).find("include") == std::string::npos &&
-				Poco::toLower(incPath.directory(incPath.depth()-1)).find("src") == std::string::npos)
-				incPath.popDirectory();
-			if (incPath.depth() > 0)
-			{
-				incPath.popDirectory();
-			}
-			else
-				incPath = outFile;
-
-			incPath.setFileName("");
-
-			std::string schemaPath = config().getString("RemoteGen.output.schema", "");
-			if (!schemaPath.empty())
-			{
-				Poco::File schemaDir(schemaPath);
-				schemaDir.createDirectories();
-			}
-			else schemaPath = Poco::Path::current();
-
-			std::string cfgPath("RemoteGen.schema.");
-			cfgPath.append(pStruct->name());
-			// targetNS must be set at the class
-			Poco::CodeGeneration::CodeGenerator::Properties structProps;
-			Poco::CodeGeneration::GeneratorEngine::parseProperties(pStruct, structProps);
-			std::string targetNS;
-			Poco::CodeGeneration::GeneratorEngine::getStringProperty(structProps, Poco::CodeGeneration::Utility::NAMESPACE, targetNS);
-			if (targetNS.empty())
-				throw CodeGenerationException("A SOAP/WSDL web service requires an XML namespace. Add a @namespace attribute to class " + pStruct->fullName() + ".");
-
-			generateWSDL(pStruct, schemaPath, targetNS);
-		}
 		// now generate bundle
 		if (_enableOSP && !_bundleServices.empty())
 		{
@@ -529,21 +498,30 @@ protected:
 			mode = _mode;
 		Poco::trimInPlace(mode);
 		Poco::toLowerInPlace(mode);
+		bool genInterface = true;
 		bool genClient = true;
 		bool genServer = true;
 		if (mode == CLIENT || mode == INTERFACE)
 			genServer = false;
-		if (mode == SERVER || mode == INTERFACE)
+		if (mode == SERVER || mode == INTERFACE || mode == SKELETON)
 			genClient = false;
 		if (mode == INTERFACE)
 			genBundle = false;
+		if (mode == SKELETON)
+			genInterface = false;
 		bool usePocoIncludeStyle = config().getBool("RemoteGen.output.pocostyleincludes", true);
 		if (extension == H_EXT)
 		{
 			if (Poco::CodeGeneration::Utility::hasAnyRemoteProperty(pStruct))
 			{
-				generateInterface(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright, _enableOSP);
-
+				if (genInterface)
+				{
+					generateInterface(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright, _enableOSP);
+				}
+				else
+				{
+					generateInternalInterface(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright, _enableOSP);
+				}
 				if (genBundle)
 				{
 					BundleActivatorGenerator::BundleService bs(pStruct, genClient, genServer);
@@ -630,6 +608,18 @@ protected:
 
 		hOut.close();
 		cppOut.close();
+	}
+
+	void generateInternalInterface(const Poco::CppParser::Struct* pStruct, const Poco::Path& incPath, const Poco::Path& srcPath, const std::string& defaultNameSpace, const std::string& libraryName, bool usePocoIncludeStyle, const std::string& copyright, bool enableOSP)
+	{
+		Poco::NullOutputStream hOut;
+		Poco::NullOutputStream cppOut;
+		Poco::CodeGeneration::CppGenerator cppGen(defaultNameSpace, libraryName, usePocoIncludeStyle, copyright, hOut, cppOut);
+		InterfaceGenerator* pI = new InterfaceGenerator(cppGen, enableOSP);
+		Poco::CodeGeneration::MethodPropertyFilter mi(pI, Poco::CodeGeneration::Utility::REMOTE);
+
+		GeneratorEngine e;
+		e.generate(pStruct, mi);
 	}
 
 	void generateBundleActivator(const Poco::Path& incPath, const Poco::Path& srcPath, const std::string& defaultNameSpace, const std::string& libraryName, bool usePocoIncludeStyle, const std::string& copyright)
@@ -857,26 +847,49 @@ protected:
 		hOut.close();
 	}
 
-	void generateSchema(const Poco::CppParser::Struct* pStruct, const Poco::Path& aPath, const std::string& targetNamespace)
+	void generateWSDL()
 	{
-		Poco::NullOutputStream hOut;
-		Poco::NullOutputStream cppOut;
-		Poco::Path xsdPath(aPath);
-		xsdPath.setFileName(XSDGenerator::generateFileName(pStruct));
+		auto itV = _schemaGen.begin();
+		auto itVEnd = _schemaGen.end();
+		for (; itV != itVEnd; ++itV)
+		{
+			const Poco::CppParser::Struct* pStruct = *itV;
+			const std::string& outFile = pStruct->getFile();
+			Poco::Path incPath(outFile);
 
-		std::ofstream xsdOut(xsdPath.toString().c_str());
-		if (!xsdOut)
-			throw Poco::FileException("Failed to create file " + xsdPath.toString());
+			while (incPath.depth() > 0 &&
+				Poco::toLower(incPath.directory(incPath.depth()-1)).find("include") == std::string::npos &&
+				Poco::toLower(incPath.directory(incPath.depth()-1)).find("src") == std::string::npos)
+				incPath.popDirectory();
+			if (incPath.depth() > 0)
+			{
+				incPath.popDirectory();
+			}
+			else
+				incPath = outFile;
 
-		Poco::XML::XMLWriter aWriter(xsdOut, Poco::XML::XMLWriter::PRETTY_PRINT);
-		Poco::CodeGeneration::CppGenerator cppGen("Poco::RemotingNG", "RemotingNG", true, "", hOut, cppOut);
-		cppGen.enableTimestamps(_enableTimestamps);
-		XSDGenerator gen(cppGen, targetNamespace, aWriter, false);
+			incPath.setFileName("");
 
-		GeneratorEngine e;
-		e.generate(pStruct, gen);
+			std::string schemaPath = config().getString("RemoteGen.output.schema", "");
+			if (!schemaPath.empty())
+			{
+				Poco::File schemaDir(schemaPath);
+				schemaDir.createDirectories();
+			}
+			else schemaPath = Poco::Path::current();
 
-		xsdOut.close();
+			std::string cfgPath("RemoteGen.schema.");
+			cfgPath.append(pStruct->name());
+			// targetNS must be set at the class
+			Poco::CodeGeneration::CodeGenerator::Properties structProps;
+			Poco::CodeGeneration::GeneratorEngine::parseProperties(pStruct, structProps);
+			std::string targetNS;
+			Poco::CodeGeneration::GeneratorEngine::getStringProperty(structProps, Poco::CodeGeneration::Utility::NAMESPACE, targetNS);
+			if (targetNS.empty())
+				throw CodeGenerationException("A SOAP/WSDL web service requires an XML namespace. Add a @namespace attribute to class " + pStruct->fullName() + ".");
+
+			generateWSDL(pStruct, schemaPath, targetNS);
+		}
 	}
 
 	void generateWSDL(const Poco::CppParser::Struct* pStruct, const Poco::Path& aPath, const std::string& targetNamespace)
@@ -887,7 +900,7 @@ protected:
 		wsdlPath.makeDirectory();
 		wsdlPath.setFileName(WSDLGenerator::generateFileName(pStruct));
 
-		std::ofstream wsdlOut(wsdlPath.toString().c_str(), std::ios::binary);
+		Poco::FileOutputStream wsdlOut(wsdlPath.toString().c_str());
 		if (!wsdlOut)
 			throw Poco::FileException("Failed to create file " + wsdlPath.toString());
 
@@ -900,6 +913,59 @@ protected:
 		e.generate(pStruct, gen);
 
 		wsdlOut.close();
+	}
+
+	void generateSwagger(const std::string& swaggerPath)
+	{
+		Poco::NullOutputStream hOut;
+		Poco::NullOutputStream cppOut;
+		Poco::CodeGeneration::CppGenerator cppGen("Poco::RemotingNG", "RemotingNG", true, "", hOut, cppOut);
+		cppGen.enableTimestamps(_enableTimestamps);
+
+		SwaggerGenerator::Info info;
+		info.title = config().getString("RemoteGen.output.openAPI.info.title");
+		info.description = config().getString("RemoteGen.output.openAPI.info.description", "");
+		info.version = config().getString("RemoteGen.output.openAPI.info.version", "1.0.0");
+		info.termsOfService = config().getString("RemoteGen.output.openAPI.info.termsOfService", "");
+		info.contactName = config().getString("RemoteGen.output.openAPI.info.contact.name", "");
+		info.contactUrl = config().getString("RemoteGen.output.openAPI.info.contact.url", "");
+		info.contactEmail = config().getString("RemoteGen.output.openAPI.info.contact.email", "");
+		info.licenseName = config().getString("RemoteGen.output.openAPI.info.license.name", "");
+		info.licenseUrl = config().getString("RemoteGen.output.openAPI.info.license.url", "");
+
+		std::vector<SwaggerGenerator::Server> servers;
+		int serverIndex = 0;
+		std::string serverUrlFmt = "RemoteGen.output.openAPI.server[%d].url";
+		std::string serverDescriptionFmt = "RemoteGen.output.openAPI.server[%d].description";
+		while (config().has(Poco::format(serverUrlFmt, serverIndex)))
+		{
+			SwaggerGenerator::Server server;
+			server.url = config().getString(Poco::format(serverUrlFmt, serverIndex));
+			server.description = config().getString(Poco::format(serverDescriptionFmt, serverIndex), "");
+			servers.push_back(server);
+			serverIndex++;
+		}
+
+		SwaggerGenerator swaggerGen(cppGen, info, servers);
+
+		for (auto pStruct: _structsToProcess)
+		{
+			GeneratorEngine e;
+			e.generate(pStruct, swaggerGen);
+		}
+
+		Poco::Path path(swaggerPath);
+		path.makeAbsolute();
+		Poco::Path dirPath(path.parent());
+		if (dirPath.depth() > 0)
+		{
+			Poco::File dir(dirPath.toString());
+			dir.createDirectories();
+		}
+		Poco::FileOutputStream swaggerStream(swaggerPath);
+
+		int indent = config().getInt("RemoteGen.output.openAPI.json.indent", 2);
+		swaggerGen.json()->stringify(swaggerStream, indent, indent);
 	}
 
 	void openFiles(const Poco::Path& incPath, const Poco::Path& srcPath, const std::string& baseName, std::ofstream& hOut, std::ofstream& cppOut)
@@ -1005,6 +1071,7 @@ private:
 	static const std::string BOTH;
 	static const std::string CLIENT;
 	static const std::string SERVER;
+	static const std::string SKELETON;
 	static const std::string INTERFACE;
 };
 
@@ -1016,6 +1083,7 @@ const std::string RemoteGenApp::SRC("src");
 const std::string RemoteGenApp::BOTH("both");
 const std::string RemoteGenApp::CLIENT("client");
 const std::string RemoteGenApp::SERVER("server");
+const std::string RemoteGenApp::SKELETON("skeleton");
 const std::string RemoteGenApp::INTERFACE("interface");
 
 
