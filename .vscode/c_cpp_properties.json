@@ -1,0 +1,86 @@
+{
+	"env": {
+		"MACCHINA_BASE": "${workspaceFolder}",
+		"POCO_BASE": "${MACCHINA_BASE}/platform",
+		"macchinaIncludePath": [
+			"${POCO_BASE}/CppUnit/include",
+			"${POCO_BASE}/Foundation/include",
+			"${POCO_BASE}/XML/include",
+			"${POCO_BASE}/JSON/include",
+			"${POCO_BASE}/Util/include",
+			"${POCO_BASE}/Net/include",
+			"${POCO_BASE}/Crypto/include",
+			"${POCO_BASE}/NetSSL_OpenSSL/include",
+			"${POCO_BASE}/Data/include",
+			"${POCO_BASE}/Data/SQLite/include",
+			"${POCO_BASE}/Zip/include",
+			"${POCO_BASE}/CppParser/include",
+			"${POCO_BASE}/CodeGeneration/include",
+			"${POCO_BASE}/JS/V8/include",
+			"${POCO_BASE}/JS/Core/include",
+			"${POCO_BASE}/JS/Data/include",
+			"${POCO_BASE}/JS/Bridge/include",
+			"${POCO_BASE}/JS/Net/include",
+			"${POCO_BASE}/RemotingNG/include",
+			"${POCO_BASE}/RemotingNG/TCP/include",
+			"${POCO_BASE}/OSP/include",
+			"${POCO_BASE}/OSP/Web/include",
+			"${POCO_BASE}/OSP/JS/include",
+			"${POCO_BASE}/Geo/include",
+			"${POCO_BASE}/Serial/include",
+			"${POCO_BASE}/Redis/include",
+			"${POCO_BASE}/WebTunnel/include",
+			"${POCO_BASE}/JWT/include",
+			"${MACCHINA_BASE}/protocols/BtLE/include",
+			"${MACCHINA_BASE}/protocols/CAN/include",
+			"${MACCHINA_BASE}/protocols/MQTT/include",
+			"${MACCHINA_BASE}/protocols/MQTT/Paho/include",
+			"${MACCHINA_BASE}/protocols/Modbus/include",
+			"${MACCHINA_BASE}/protocols/UDP/include",
+			"${MACCHINA_BASE}/protocols/XBee/include",
+			"${MACCHINA_BASE}/services/DeviceStatus/include",
+			"${MACCHINA_BASE}/services/MobileConnection/include",
+			"${MACCHINA_BASE}/services/NetworkEnvironment/include",
+			"${MACCHINA_BASE}/services/UnitsOfMeasure/include",
+			"${MACCHINA_BASE}/services/WebEvent/include",
+			"${MACCHINA_BASE}/devices/Devices/include"
+		]
+  },
+  "configurations": [
+    {
+      "name": "Mac",
+      "intelliSenseMode": "clang-x64",
+      "includePath": ["${macchinaIncludePath}"],
+      "macFrameworkPath": ["/System/Library/Frameworks"],
+      "defines": [],
+      "forcedInclude": [],
+      "compilerPath": "/usr/bin/clang",
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "compileCommands": "",
+      "browse": {
+        "path": ["${workspaceFolder}"],
+        "limitSymbolsToIncludedHeaders": true,
+        "databaseFilename": ""
+      }
+    },
+    {
+      "name": "Linux",
+      "intelliSenseMode": "gcc-x64",
+      "includePath": ["${macchinaIncludePath}"],
+      "macFrameworkPath": ["/System/Library/Frameworks"],
+      "defines": [],
+      "forcedInclude": [],
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "compileCommands": "",
+      "browse": {
+        "path": ["${workspaceFolder}"],
+        "limitSymbolsToIncludedHeaders": true,
+        "databaseFilename": ""
+      }
+    }
+  ],
+  "version": 4
+}
