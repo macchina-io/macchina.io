@@ -67,8 +67,8 @@ v8::Handle<v8::ObjectTemplate> UUIDWrapper::objectTemplate(v8::Isolate* pIsolate
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isNull"), v8::FunctionTemplate::New(pIsolate, isNull));
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
-	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
-	return handleScope.Escape(dateTimeTemplate);
+	v8::Local<v8::ObjectTemplate> uuidTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
+	return handleScope.Escape(uuidTemplate);
 }
 
 

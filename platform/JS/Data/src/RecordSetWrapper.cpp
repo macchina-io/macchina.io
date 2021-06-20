@@ -14,6 +14,7 @@
 
 #include "Poco/JS/Data/RecordSetWrapper.h"
 #include "Poco/JS/Core/PooledIsolate.h"
+#include "Poco/JS/Core/UUIDWrapper.h"
 #include "Poco/Data/MetaColumn.h"
 #include "Poco/Data/RowFormatter.h"
 #include "Poco/Version.h"
@@ -374,6 +375,9 @@ void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 			case Poco::Data::MetaColumn::FDT_TIME:
 				typeString = "Time";
 				break;
+			case Poco::Data::MetaColumn::FDT_UUID:
+				typeString = "UUID";
+				break;
 			}
 			returnString(args, typeString);
 			return;
@@ -618,6 +622,24 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 			double millis = dt.timestamp().epochMicroseconds()/1000.0;
 			v8::Local<v8::Value> jsDate(v8::Date::New(args.GetIsolate(), millis));
 			args.GetReturnValue().Set(jsDate);
+		}
+		break;
+	case Poco::Data::MetaColumn::FDT_UUID:
+		{
+			Poco::UUID uuid = value.extract<Poco::UUID>();
+			Poco::UUID* pUUID = nullptr;
+			try
+			{
+				pUUID = new Poco::UUID(uuid);
+				Poco::JS::Core::UUIDWrapper wrapper;
+				v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(args.GetIsolate(), pUUID));
+				args.GetReturnValue().Set(uuidObject);
+			}
+			catch (...)
+			{
+				delete pUUID;
+				throw;
+			}
 		}
 		break;
 	case Poco::Data::MetaColumn::FDT_BLOB:
