@@ -108,7 +108,7 @@ public:
 		if (_pForwarder)
 		{
 			std::map<std::string, std::string> propsMap;
-			for (const auto p: properties)
+			for (const auto& p: properties)
 			{
 				propsMap[p.name] = p.value;
 			}
@@ -380,7 +380,7 @@ protected:
 		}
 		catch (Poco::Exception& exc)
 		{
-			std::string msg = response.get("X-WebTunnel-Error", exc.displayText());
+			std::string msg = response.get("X-PTTH-Error", exc.displayText());
 			_pContext->logger().error(Poco::format("Cannot connect to reflector at %s: %s", _reflectorURI.toString(), msg));
 			if (_retryDelay < 30000)
 			{
