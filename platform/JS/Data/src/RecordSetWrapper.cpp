@@ -601,7 +601,7 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 				pUUID = new Poco::UUID(uuid);
 				Poco::JS::Core::UUIDWrapper wrapper;
 				v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(args.GetIsolate(), pUUID));
-				args.GetReturnValue().Set(uuidObject);
+				args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, uuidObject));
 			}
 			catch (...)
 			{
