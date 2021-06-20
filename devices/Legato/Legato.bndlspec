@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.legato</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2017-2020, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2017-2021, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::Legato::BundleActivator</class>
 			<library>io.macchina.legato</library>
