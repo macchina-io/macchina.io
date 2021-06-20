@@ -5,5 +5,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - run: sudo apt update && sudo apt install libssl-dev
+      - run: sudo apt update && sudo apt install libssl-dev python2
+      - run: sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+      - run: sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+      - run: sudo update-alternatives --set python /usr/bin/python2
       - run: make -s -j2 DEFAULT_TARGET=shared_release
