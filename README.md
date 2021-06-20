@@ -21,7 +21,7 @@ For more information, including [documentation](https://macchina.io/docs), pleas
 Build Status
 ------------
 
-[![macchina.io-ci](https://github.com/macchina-io/macchina.io/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/macchina-io/macchina.io/actions/workflows/ci.yml)
+[![macchina.io-ci](https://github.com/macchina-io/macchina.io/actions/workflows/ci.yml/badge.svg?branch=feature/v8-8.6)](https://github.com/macchina-io/macchina.io/actions/workflows/ci.yml)
 
 
 Prerequisites
