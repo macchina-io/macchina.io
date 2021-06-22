@@ -364,9 +364,9 @@ private:
 		bndlDir.createDirectories();
 		try
 		{
-			handleBin(bndlPath);
+			handleBin(bndlPath, mi);
 			handleMeta(bndlPath, mi);
-			handleOther(bndlPath);
+			handleOther(bndlPath, mi);
 			if (!_noFile)
 			{
 				Path bndlFilePath(bndlPath);
@@ -592,7 +592,7 @@ private:
 		}
 	}
 
-	void handleBin(const Path& root)
+	void handleBin(const Path& root, const ManifestInfo& mi)
 	{
 		Path binDir(root, "bin");
 		binDir.makeDirectory();
@@ -641,7 +641,7 @@ private:
 			}
 			if (files.empty() && incTokenizer.count() > 0)
 			{
-				std::cerr << Poco::format("Warning: Non-empty <code> element, but no files found for expression '%s'.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end())) << std::endl;
+				std::cerr << Poco::format("Warning: Non-empty <code> element, but no files found for expression '%s' while building bundle %s.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end()), mi.symbolicName()) << std::endl;
 			}
 
 			path = "code[";
@@ -665,7 +665,7 @@ private:
 		BundleManifest::Ptr pManifest = new BundleManifest(in);
 	}
 
-	void handleOther(const Path& root)
+	void handleOther(const Path& root, const ManifestInfo& mi)
 	{
 		if (_ptrCfg->hasProperty("files"))
 		{
@@ -686,7 +686,7 @@ private:
 
 			if (files.empty() && incTokenizer.count() > 0)
 			{
-				std::cerr << Poco::format("Warning: Non-empty <files> element, but no files found for expression '%s'.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end())) << std::endl;
+				std::cerr << Poco::format("Warning: Non-empty <files> element, but no files found for expression '%s' while building bundle %s.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end()), mi.symbolicName()) << std::endl;
 			}
 		}
 	}
