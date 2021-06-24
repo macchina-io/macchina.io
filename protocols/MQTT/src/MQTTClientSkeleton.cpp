@@ -1587,7 +1587,7 @@ MQTTClientSkeleton::~MQTTClientSkeleton()
 }
 
 
-const std::string MQTTClientSkeleton::DEFAULT_NS("");
+const std::string MQTTClientSkeleton::DEFAULT_NS;
 } // namespace MQTT
 } // namespace IoT
 

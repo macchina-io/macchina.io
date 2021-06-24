@@ -28,7 +28,7 @@ namespace CAN {
 
 namespace
 {
-	static Poco::SingletonHolder<CANEndpointServerHelper> shCANEndpointServerHelper;
+	Poco::SingletonHolder<CANEndpointServerHelper> shCANEndpointServerHelper;
 }
 
 

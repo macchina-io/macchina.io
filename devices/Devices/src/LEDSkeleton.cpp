@@ -993,7 +993,7 @@ LEDSkeleton::~LEDSkeleton()
 }
 
 
-const std::string LEDSkeleton::DEFAULT_NS("");
+const std::string LEDSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

@@ -155,7 +155,7 @@ PeripheralBrowserSkeleton::~PeripheralBrowserSkeleton()
 }
 
 
-const std::string PeripheralBrowserSkeleton::DEFAULT_NS("");
+const std::string PeripheralBrowserSkeleton::DEFAULT_NS;
 } // namespace BtLE
 } // namespace IoT
 

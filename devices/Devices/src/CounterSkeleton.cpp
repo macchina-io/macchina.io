@@ -829,7 +829,7 @@ CounterSkeleton::~CounterSkeleton()
 }
 
 
-const std::string CounterSkeleton::DEFAULT_NS("");
+const std::string CounterSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

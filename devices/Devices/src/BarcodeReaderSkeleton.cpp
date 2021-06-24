@@ -721,7 +721,7 @@ BarcodeReaderSkeleton::~BarcodeReaderSkeleton()
 }
 
 
-const std::string BarcodeReaderSkeleton::DEFAULT_NS("");
+const std::string BarcodeReaderSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

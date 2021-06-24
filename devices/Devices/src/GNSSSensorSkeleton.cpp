@@ -1101,7 +1101,7 @@ GNSSSensorSkeleton::~GNSSSensorSkeleton()
 }
 
 
-const std::string GNSSSensorSkeleton::DEFAULT_NS("");
+const std::string GNSSSensorSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

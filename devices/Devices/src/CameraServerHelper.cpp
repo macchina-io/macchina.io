@@ -28,7 +28,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<CameraServerHelper> shCameraServerHelper;
+	Poco::SingletonHolder<CameraServerHelper> shCameraServerHelper;
 }
 
 

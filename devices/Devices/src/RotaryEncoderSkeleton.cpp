@@ -883,7 +883,7 @@ RotaryEncoderSkeleton::~RotaryEncoderSkeleton()
 }
 
 
-const std::string RotaryEncoderSkeleton::DEFAULT_NS("");
+const std::string RotaryEncoderSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

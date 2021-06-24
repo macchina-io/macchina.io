@@ -877,7 +877,7 @@ CANEndpointSkeleton::~CANEndpointSkeleton()
 }
 
 
-const std::string CANEndpointSkeleton::DEFAULT_NS("");
+const std::string CANEndpointSkeleton::DEFAULT_NS;
 } // namespace CAN
 } // namespace IoT
 

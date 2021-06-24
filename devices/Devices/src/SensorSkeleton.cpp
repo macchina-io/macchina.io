@@ -1344,7 +1344,7 @@ SensorSkeleton::~SensorSkeleton()
 }
 
 
-const std::string SensorSkeleton::DEFAULT_NS("");
+const std::string SensorSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

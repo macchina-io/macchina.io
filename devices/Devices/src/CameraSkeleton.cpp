@@ -884,7 +884,7 @@ CameraSkeleton::~CameraSkeleton()
 }
 
 
-const std::string CameraSkeleton::DEFAULT_NS("");
+const std::string CameraSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

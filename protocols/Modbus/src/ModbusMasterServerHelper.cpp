@@ -28,7 +28,7 @@ namespace Modbus {
 
 namespace
 {
-	static Poco::SingletonHolder<ModbusMasterServerHelper> shModbusMasterServerHelper;
+	Poco::SingletonHolder<ModbusMasterServerHelper> shModbusMasterServerHelper;
 }
 
 

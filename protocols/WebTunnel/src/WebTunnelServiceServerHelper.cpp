@@ -28,7 +28,7 @@ namespace WebTunnel {
 
 namespace
 {
-	static Poco::SingletonHolder<WebTunnelServiceServerHelper> shWebTunnelServiceServerHelper;
+	Poco::SingletonHolder<WebTunnelServiceServerHelper> shWebTunnelServiceServerHelper;
 }
 
 

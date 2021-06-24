@@ -1299,7 +1299,7 @@ MobileConnectionServiceSkeleton::~MobileConnectionServiceSkeleton()
 }
 
 
-const std::string MobileConnectionServiceSkeleton::DEFAULT_NS("");
+const std::string MobileConnectionServiceSkeleton::DEFAULT_NS;
 } // namespace MobileConnection
 } // namespace IoT
 

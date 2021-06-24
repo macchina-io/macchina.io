@@ -28,7 +28,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<GNSSSensorServerHelper> shGNSSSensorServerHelper;
+	Poco::SingletonHolder<GNSSSensorServerHelper> shGNSSSensorServerHelper;
 }
 
 

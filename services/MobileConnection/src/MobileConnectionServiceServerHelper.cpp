@@ -28,7 +28,7 @@ namespace MobileConnection {
 
 namespace
 {
-	static Poco::SingletonHolder<MobileConnectionServiceServerHelper> shMobileConnectionServiceServerHelper;
+	Poco::SingletonHolder<MobileConnectionServiceServerHelper> shMobileConnectionServiceServerHelper;
 }
 
 

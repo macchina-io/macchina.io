@@ -441,7 +441,7 @@ XBeeNodeSkeleton::~XBeeNodeSkeleton()
 }
 
 
-const std::string XBeeNodeSkeleton::DEFAULT_NS("");
+const std::string XBeeNodeSkeleton::DEFAULT_NS;
 } // namespace XBee
 } // namespace IoT
 

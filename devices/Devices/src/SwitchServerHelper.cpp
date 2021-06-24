@@ -28,7 +28,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<SwitchServerHelper> shSwitchServerHelper;
+	Poco::SingletonHolder<SwitchServerHelper> shSwitchServerHelper;
 }
 
 

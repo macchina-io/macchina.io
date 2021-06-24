@@ -775,7 +775,7 @@ TriggerSkeleton::~TriggerSkeleton()
 }
 
 
-const std::string TriggerSkeleton::DEFAULT_NS("");
+const std::string TriggerSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 
