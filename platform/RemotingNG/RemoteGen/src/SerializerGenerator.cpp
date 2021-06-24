@@ -409,6 +409,8 @@ void SerializerGenerator::serializeAttributesCodeGenImpl(const Poco::CppParser::
 	// the first line contains a static string array containing names
 	if (!attrs.empty())
 	{
+		gen.writeMethodImplementation("using namespace std::string_literals;\n");
+
 		std::string staticVarNames(Poco::format("static const std::string REMOTING__NAMES%s[] = {", suffix));
 		int curNamesPos = 0;
 		OrderedVars::const_iterator itAttr = attrs.begin();
@@ -473,6 +475,7 @@ void SerializerGenerator::prepareSerializeAttributesCodeGenImpl(const Poco::CppP
 	// the first line contains a static string array containing names
 	if (!attrs.empty())
 	{
+		gen.writeMethodImplementation("using namespace std::string_literals;\n");
 		std::string staticVarNames(Poco::format("static const std::string REMOTING__NAMES%s[] = {", suffix));
 		// after the names will be all used namespaces
 		int firstNSPos = static_cast<int>(attrs.size());
