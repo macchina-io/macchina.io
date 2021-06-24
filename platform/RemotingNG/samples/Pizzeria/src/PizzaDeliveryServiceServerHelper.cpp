@@ -25,7 +25,7 @@ namespace Pizzeria {
 
 namespace
 {
-	static Poco::SingletonHolder<PizzaDeliveryServiceServerHelper> shPizzaDeliveryServiceServerHelper;
+	Poco::SingletonHolder<PizzaDeliveryServiceServerHelper> shPizzaDeliveryServiceServerHelper;
 }
 
 

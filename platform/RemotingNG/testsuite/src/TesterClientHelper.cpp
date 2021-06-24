@@ -16,7 +16,7 @@
 
 namespace
 {
-	static Poco::SingletonHolder<TesterClientHelper> shTesterClientHelper;
+	Poco::SingletonHolder<TesterClientHelper> shTesterClientHelper;
 }
 
 

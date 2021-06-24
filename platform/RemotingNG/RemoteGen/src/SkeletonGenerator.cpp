@@ -978,13 +978,18 @@ void SkeletonGenerator::staticMembersInitializer(const Poco::CppParser::Function
 {
 	std::string code("const std::string ");
 	code.append(pStruct->name());
-	code.append("::DEFAULT_NS(\"");
+	code.append("::DEFAULT_NS");
 	CodeGenerator::Properties structProps;
 	GeneratorEngine::parseProperties(pStruct, structProps);
 	std::string defNS;
 	GeneratorEngine::getStringProperty(structProps, Utility::NAMESPACE, defNS);
-	code.append(defNS);
-	code.append("\");");
+	if (!defNS.empty())
+	{
+		code.append("(\"");
+		code.append(defNS);
+		code.append("\")");
+	}
+	code.append(";");
 	gen.writeImplementation(code);
 }
 

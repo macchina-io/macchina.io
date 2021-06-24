@@ -41,8 +41,8 @@ public:
 		static const std::string REMOTING__NAMES[] = {"aDouble"s,"aString"s,"anEnum"s,"anEnum2"s,"anInt"s,""s};
 		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.aDouble, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.aString, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[2], value.anEnum, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[3], value.anEnum2, ser);
+		TypeSerializer<int >::serialize(REMOTING__NAMES[2], static_cast<int>(value.anEnum), ser);
+		TypeSerializer<int >::serialize(REMOTING__NAMES[3], static_cast<int>(value.anEnum2), ser);
 		TypeSerializer<int >::serialize(REMOTING__NAMES[4], value.anInt, ser);
 	}
 

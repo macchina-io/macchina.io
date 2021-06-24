@@ -159,7 +159,7 @@ void ClientHelperGenerator::singletonHolder(const Poco::CppParser::Function* pFu
 {
 	std::string code("namespace\n");
 	code.append("{\n");
-	code.append("\tstatic Poco::SingletonHolder<");
+	code.append("\tPoco::SingletonHolder<");
 	code.append(pStruct->name());
 	code.append("> sh");
 	code.append(pStruct->name());
