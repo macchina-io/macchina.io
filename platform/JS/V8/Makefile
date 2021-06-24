@@ -72,6 +72,8 @@ ifeq ($(findstring clang,$(CXX)),clang)
 GYPFLAGS += -Dclang=1
 endif
 
+GYPFLAGS += $(EXTRA_GYPFLAGS)
+
 ifeq ($(POCO_HOST_OSNAME),Linux)
 v8targetlibdir = lib.target/
 endif
