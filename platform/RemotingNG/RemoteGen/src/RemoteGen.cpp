@@ -261,7 +261,7 @@ protected:
 		);
 		helpFormatter.setFooter(
 			"For more information, please see the Remoting NG "
-			"documentation at <http://docs.appinf.com>."
+			"documentation at <https://www.appinf.com/docs>."
 		);
 		helpFormatter.setIndent(8);
 		helpFormatter.format(std::cout);
