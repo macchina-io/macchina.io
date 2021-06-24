@@ -40,6 +40,13 @@ VLIBEXT = .so.*
 LIBEXT = .so
 endif
 
+ifdef ASAN
+SANITIZEFLAGS  = -fsanitize=address
+EXTRA_GYPFLAGS = -Dasan=1
+export SANITIZEFLAGS
+export EXTRA_GYPFLAGS
+endif
+
 #
 # If POCO_CONFIG is not set, use the OS name as configuration name
 #
@@ -105,6 +112,7 @@ hosttools:
 	$(MAKE) -C platform/RemotingNG/RemoteGen
 	$(MAKE) -C platform/PageCompiler
 	$(MAKE) -C platform/PageCompiler/File2Page
+	$(MAKE) -C platform/ActiveRecord/Compiler
 
 install: $(INSTALL_TARGET)
 
