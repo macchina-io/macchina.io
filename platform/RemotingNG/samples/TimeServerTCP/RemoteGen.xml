@@ -4,6 +4,9 @@
 			<include>
 				../TimeServerTCP/include/TimeService.h
 			</include>
+			<include-paths>
+				${POCO_BASE}/Util/include
+			</include-paths>
 		</files>
 		<output>
 			<include>include</include>

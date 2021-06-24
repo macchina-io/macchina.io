@@ -153,6 +153,6 @@ TimeServiceSkeleton::~TimeServiceSkeleton()
 }
 
 
-const std::string TimeServiceSkeleton::DEFAULT_NS("");
+const std::string TimeServiceSkeleton::DEFAULT_NS;
 } // namespace Services
 

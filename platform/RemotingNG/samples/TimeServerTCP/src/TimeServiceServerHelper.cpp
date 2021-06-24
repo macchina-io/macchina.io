@@ -26,7 +26,7 @@ namespace Services {
 
 namespace
 {
-	static Poco::SingletonHolder<TimeServiceServerHelper> shTimeServiceServerHelper;
+	Poco::SingletonHolder<TimeServiceServerHelper> shTimeServiceServerHelper;
 }
 
 

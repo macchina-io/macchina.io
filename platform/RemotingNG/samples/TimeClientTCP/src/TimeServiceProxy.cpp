@@ -130,6 +130,6 @@ void TimeServiceProxy::wakeMeUp(const Poco::DateTime& time, const std::string& m
 }
 
 
-const std::string TimeServiceProxy::DEFAULT_NS("");
+const std::string TimeServiceProxy::DEFAULT_NS;
 } // namespace Services
 

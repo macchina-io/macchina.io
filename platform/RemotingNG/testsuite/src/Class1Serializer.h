@@ -40,7 +40,7 @@ public:
 		
 		static const std::string REMOTING__NAMES[] = {"aString"s,"anEnum"s,"anInt"s,""s};
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.getAString(), ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[1], value.getAnEnum(), ser);
+		TypeSerializer<int >::serialize(REMOTING__NAMES[1], static_cast<int>(value.getAnEnum()), ser);
 		TypeSerializer<int >::serialize(REMOTING__NAMES[2], value.getAnInt(), ser);
 	}
 
