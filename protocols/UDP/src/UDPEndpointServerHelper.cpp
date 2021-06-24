@@ -28,7 +28,7 @@ namespace UDP {
 
 namespace
 {
-	static Poco::SingletonHolder<UDPEndpointServerHelper> shUDPEndpointServerHelper;
+	Poco::SingletonHolder<UDPEndpointServerHelper> shUDPEndpointServerHelper;
 }
 
 

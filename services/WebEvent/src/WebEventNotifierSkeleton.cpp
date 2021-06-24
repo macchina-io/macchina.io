@@ -101,7 +101,7 @@ WebEventNotifierSkeleton::~WebEventNotifierSkeleton()
 }
 
 
-const std::string WebEventNotifierSkeleton::DEFAULT_NS("");
+const std::string WebEventNotifierSkeleton::DEFAULT_NS;
 } // namespace WebEvent
 } // namespace IoT
 

@@ -28,7 +28,7 @@ namespace DeviceStatus {
 
 namespace
 {
-	static Poco::SingletonHolder<DeviceStatusServiceServerHelper> shDeviceStatusServiceServerHelper;
+	Poco::SingletonHolder<DeviceStatusServiceServerHelper> shDeviceStatusServiceServerHelper;
 }
 
 

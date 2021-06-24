@@ -28,7 +28,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<GyroscopeServerHelper> shGyroscopeServerHelper;
+	Poco::SingletonHolder<GyroscopeServerHelper> shGyroscopeServerHelper;
 }
 
 

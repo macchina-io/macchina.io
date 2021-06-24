@@ -884,7 +884,7 @@ SwitchSkeleton::~SwitchSkeleton()
 }
 
 
-const std::string SwitchSkeleton::DEFAULT_NS("");
+const std::string SwitchSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

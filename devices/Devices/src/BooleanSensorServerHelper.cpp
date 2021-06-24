@@ -28,7 +28,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<BooleanSensorServerHelper> shBooleanSensorServerHelper;
+	Poco::SingletonHolder<BooleanSensorServerHelper> shBooleanSensorServerHelper;
 }
 
 

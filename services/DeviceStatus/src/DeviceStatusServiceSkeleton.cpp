@@ -660,7 +660,7 @@ DeviceStatusServiceSkeleton::~DeviceStatusServiceSkeleton()
 }
 
 
-const std::string DeviceStatusServiceSkeleton::DEFAULT_NS("");
+const std::string DeviceStatusServiceSkeleton::DEFAULT_NS;
 } // namespace DeviceStatus
 } // namespace IoT
 

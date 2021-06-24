@@ -47,7 +47,7 @@ public:
 		TypeSerializer<bool >::serialize(REMOTING__NAMES[0], value.acknowledgeable, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.messageClass, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.source, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[3], value.status, ser);
+		TypeSerializer<int >::serialize(REMOTING__NAMES[3], static_cast<int>(value.status), ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[4], value.text, ser);
 	}
 

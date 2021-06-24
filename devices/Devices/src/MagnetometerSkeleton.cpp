@@ -777,7 +777,7 @@ MagnetometerSkeleton::~MagnetometerSkeleton()
 }
 
 
-const std::string MagnetometerSkeleton::DEFAULT_NS("");
+const std::string MagnetometerSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

@@ -777,7 +777,7 @@ AccelerometerSkeleton::~AccelerometerSkeleton()
 }
 
 
-const std::string AccelerometerSkeleton::DEFAULT_NS("");
+const std::string AccelerometerSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

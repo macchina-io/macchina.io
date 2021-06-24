@@ -157,7 +157,7 @@ UDPEndpointSkeleton::~UDPEndpointSkeleton()
 }
 
 
-const std::string UDPEndpointSkeleton::DEFAULT_NS("");
+const std::string UDPEndpointSkeleton::DEFAULT_NS;
 } // namespace UDP
 } // namespace IoT
 

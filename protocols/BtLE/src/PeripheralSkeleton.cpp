@@ -1953,7 +1953,7 @@ PeripheralSkeleton::~PeripheralSkeleton()
 }
 
 
-const std::string PeripheralSkeleton::DEFAULT_NS("");
+const std::string PeripheralSkeleton::DEFAULT_NS;
 } // namespace BtLE
 } // namespace IoT
 

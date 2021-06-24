@@ -28,7 +28,7 @@ namespace NetworkEnvironment {
 
 namespace
 {
-	static Poco::SingletonHolder<NetworkEnvironmentServiceServerHelper> shNetworkEnvironmentServiceServerHelper;
+	Poco::SingletonHolder<NetworkEnvironmentServiceServerHelper> shNetworkEnvironmentServiceServerHelper;
 }
 
 

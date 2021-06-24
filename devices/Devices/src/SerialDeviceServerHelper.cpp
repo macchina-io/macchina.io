@@ -28,7 +28,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<SerialDeviceServerHelper> shSerialDeviceServerHelper;
+	Poco::SingletonHolder<SerialDeviceServerHelper> shSerialDeviceServerHelper;
 }
 
 

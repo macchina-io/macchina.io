@@ -62,7 +62,7 @@ public:
 		TypeSerializer<bool >::serialize(REMOTING__NAMES[13], value.supportsIPv4, ser);
 		TypeSerializer<bool >::serialize(REMOTING__NAMES[14], value.supportsIPv6, ser);
 		TypeSerializer<bool >::serialize(REMOTING__NAMES[15], value.supportsMulticast, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[16], value.type, ser);
+		TypeSerializer<int >::serialize(REMOTING__NAMES[16], static_cast<int>(value.type), ser);
 	}
 
 };

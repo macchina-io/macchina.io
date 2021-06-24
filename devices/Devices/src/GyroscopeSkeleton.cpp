@@ -777,7 +777,7 @@ GyroscopeSkeleton::~GyroscopeSkeleton()
 }
 
 
-const std::string GyroscopeSkeleton::DEFAULT_NS("");
+const std::string GyroscopeSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

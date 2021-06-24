@@ -160,7 +160,7 @@ NetworkEnvironmentServiceSkeleton::~NetworkEnvironmentServiceSkeleton()
 }
 
 
-const std::string NetworkEnvironmentServiceSkeleton::DEFAULT_NS("");
+const std::string NetworkEnvironmentServiceSkeleton::DEFAULT_NS;
 } // namespace NetworkEnvironment
 } // namespace IoT
 

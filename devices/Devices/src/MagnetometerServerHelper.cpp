@@ -28,7 +28,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<MagnetometerServerHelper> shMagnetometerServerHelper;
+	Poco::SingletonHolder<MagnetometerServerHelper> shMagnetometerServerHelper;
 }
 
 

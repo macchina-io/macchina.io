@@ -49,7 +49,7 @@ public:
 		TypeSerializer<Poco::Int64 >::serialize(REMOTING__NAMES[2], value.id, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[3], value.messageClass, ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[4], value.source, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[5], value.status, ser);
+		TypeSerializer<int >::serialize(REMOTING__NAMES[5], static_cast<int>(value.status), ser);
 		TypeSerializer<std::string >::serialize(REMOTING__NAMES[6], value.text, ser);
 		TypeSerializer<Poco::DateTime >::serialize(REMOTING__NAMES[7], value.timestamp, ser);
 	}

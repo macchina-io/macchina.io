@@ -1566,7 +1566,7 @@ ModbusMasterSkeleton::~ModbusMasterSkeleton()
 }
 
 
-const std::string ModbusMasterSkeleton::DEFAULT_NS("");
+const std::string ModbusMasterSkeleton::DEFAULT_NS;
 } // namespace Modbus
 } // namespace IoT
 

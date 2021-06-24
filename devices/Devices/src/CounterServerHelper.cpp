@@ -28,7 +28,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<CounterServerHelper> shCounterServerHelper;
+	Poco::SingletonHolder<CounterServerHelper> shCounterServerHelper;
 }
 
 

@@ -884,7 +884,7 @@ IOSkeleton::~IOSkeleton()
 }
 
 
-const std::string IOSkeleton::DEFAULT_NS("");
+const std::string IOSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

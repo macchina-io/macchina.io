@@ -394,7 +394,7 @@ UnitsOfMeasureServiceSkeleton::~UnitsOfMeasureServiceSkeleton()
 }
 
 
-const std::string UnitsOfMeasureServiceSkeleton::DEFAULT_NS("");
+const std::string UnitsOfMeasureServiceSkeleton::DEFAULT_NS;
 } // namespace UnitsOfMeasure
 } // namespace IoT
 

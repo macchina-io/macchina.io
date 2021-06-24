@@ -28,7 +28,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<AccelerometerServerHelper> shAccelerometerServerHelper;
+	Poco::SingletonHolder<AccelerometerServerHelper> shAccelerometerServerHelper;
 }
 
 

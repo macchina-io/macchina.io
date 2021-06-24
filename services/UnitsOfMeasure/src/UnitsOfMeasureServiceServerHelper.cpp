@@ -27,7 +27,7 @@ namespace UnitsOfMeasure {
 
 namespace
 {
-	static Poco::SingletonHolder<UnitsOfMeasureServiceServerHelper> shUnitsOfMeasureServiceServerHelper;
+	Poco::SingletonHolder<UnitsOfMeasureServiceServerHelper> shUnitsOfMeasureServiceServerHelper;
 }
 
 

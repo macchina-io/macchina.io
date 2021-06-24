@@ -27,7 +27,7 @@ namespace WebEvent {
 
 namespace
 {
-	static Poco::SingletonHolder<WebEventNotifierServerHelper> shWebEventNotifierServerHelper;
+	Poco::SingletonHolder<WebEventNotifierServerHelper> shWebEventNotifierServerHelper;
 }
 
 

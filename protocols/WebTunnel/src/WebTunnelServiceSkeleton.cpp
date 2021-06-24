@@ -155,7 +155,7 @@ WebTunnelServiceSkeleton::~WebTunnelServiceSkeleton()
 }
 
 
-const std::string WebTunnelServiceSkeleton::DEFAULT_NS("");
+const std::string WebTunnelServiceSkeleton::DEFAULT_NS;
 } // namespace WebTunnel
 } // namespace IoT
 

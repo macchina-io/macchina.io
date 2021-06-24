@@ -27,7 +27,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<LEDServerHelper> shLEDServerHelper;
+	Poco::SingletonHolder<LEDServerHelper> shLEDServerHelper;
 }
 
 

@@ -28,7 +28,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<RotaryEncoderServerHelper> shRotaryEncoderServerHelper;
+	Poco::SingletonHolder<RotaryEncoderServerHelper> shRotaryEncoderServerHelper;
 }
 
 

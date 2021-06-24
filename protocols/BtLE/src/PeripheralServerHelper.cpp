@@ -28,7 +28,7 @@ namespace BtLE {
 
 namespace
 {
-	static Poco::SingletonHolder<PeripheralServerHelper> shPeripheralServerHelper;
+	Poco::SingletonHolder<PeripheralServerHelper> shPeripheralServerHelper;
 }
 
 

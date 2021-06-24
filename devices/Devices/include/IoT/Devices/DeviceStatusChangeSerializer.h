@@ -44,8 +44,8 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"current"s,"previous"s,""s};
-		TypeSerializer<int >::serialize(REMOTING__NAMES[0], value.current, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[1], value.previous, ser);
+		TypeSerializer<int >::serialize(REMOTING__NAMES[0], static_cast<int>(value.current), ser);
+		TypeSerializer<int >::serialize(REMOTING__NAMES[1], static_cast<int>(value.previous), ser);
 	}
 
 };

@@ -27,7 +27,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<TriggerServerHelper> shTriggerServerHelper;
+	Poco::SingletonHolder<TriggerServerHelper> shTriggerServerHelper;
 }
 
 

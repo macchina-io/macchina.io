@@ -775,7 +775,7 @@ BooleanSensorSkeleton::~BooleanSensorSkeleton()
 }
 
 
-const std::string BooleanSensorSkeleton::DEFAULT_NS("");
+const std::string BooleanSensorSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 

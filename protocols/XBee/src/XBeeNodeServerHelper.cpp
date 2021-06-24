@@ -28,7 +28,7 @@ namespace XBee {
 
 namespace
 {
-	static Poco::SingletonHolder<XBeeNodeServerHelper> shXBeeNodeServerHelper;
+	Poco::SingletonHolder<XBeeNodeServerHelper> shXBeeNodeServerHelper;
 }
 
 

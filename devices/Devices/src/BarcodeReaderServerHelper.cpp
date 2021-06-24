@@ -28,7 +28,7 @@ namespace Devices {
 
 namespace
 {
-	static Poco::SingletonHolder<BarcodeReaderServerHelper> shBarcodeReaderServerHelper;
+	Poco::SingletonHolder<BarcodeReaderServerHelper> shBarcodeReaderServerHelper;
 }
 
 

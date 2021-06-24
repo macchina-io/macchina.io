@@ -28,7 +28,7 @@ namespace MQTT {
 
 namespace
 {
-	static Poco::SingletonHolder<MQTTClientServerHelper> shMQTTClientServerHelper;
+	Poco::SingletonHolder<MQTTClientServerHelper> shMQTTClientServerHelper;
 }
 
 

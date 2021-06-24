@@ -1275,7 +1275,7 @@ SerialDeviceSkeleton::~SerialDeviceSkeleton()
 }
 
 
-const std::string SerialDeviceSkeleton::DEFAULT_NS("");
+const std::string SerialDeviceSkeleton::DEFAULT_NS;
 } // namespace Devices
 } // namespace IoT
 
