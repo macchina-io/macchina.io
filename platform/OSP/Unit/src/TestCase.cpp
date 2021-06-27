@@ -5,12 +5,10 @@
 // Package: Unit
 // Module:  TestCase
 //
-// Copyright (c) 2011, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2011-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// This is unpublished proprietary source code of Applied Informatics.
-// The contents of this file may not be disclosed to third parties, 
-// copied or duplicated in any form, in whole or in part.
+// SPDX-License-Identifier: GPL-3.0-only
 //
 
 
@@ -31,12 +29,12 @@ namespace Unit {
 Poco::OSP::BundleContext::Ptr TestCase::_pContext;
 
 
-TestCase::TestCase(const std::string& name): 
+TestCase::TestCase(const std::string& name):
 	CppUnit::TestCase(name)
 {
 }
 
-	
+
 TestCase::~TestCase()
 {
 }
@@ -47,11 +45,11 @@ void TestCase::run(TestResult* result)
 	result->startTest(this);
 
 	setUp();
-	try 
+	try
 	{
 		runTest();
 	}
-	catch (CppUnitException& e) 
+	catch (CppUnitException& e)
 	{
 		CppUnitException* copy = new CppUnitException(e);
 		result->addFailure(this, copy);

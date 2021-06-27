@@ -10,6 +10,6 @@ objects = BundleCreator ManifestInfo
 
 target         = bundle
 target_version = 1
-target_libs    = PocoFoundation PocoJSON PocoXML PocoUtil PocoOSP PocoZip $(POCO_LICENSING)
+target_libs    = $(POCO_LICENSING) PocoOSP PocoZip PocoUtil PocoJSON PocoXML PocoFoundation
 
 include $(POCO_BASE)/build/rules/exec

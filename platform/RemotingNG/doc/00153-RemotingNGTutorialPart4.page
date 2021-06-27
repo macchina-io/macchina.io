@@ -187,8 +187,8 @@ but making the name field optional):
         User post(const User& user);
             /// Create a new user.
 
-        //@ $maxResults={in=query, mandatory=false}
-        //@ $start={in=query, mandatory=false}
+        //@ $maxResults={in=query, optional}
+        //@ $start={in=query, optional}
         std::vector<User> get(int maxResults = 0, int start = 0);
             /// Return a list of user objects, starting with
             /// the given start index, and return at most
@@ -239,8 +239,9 @@ For example, for the UserCollectionEndpoint::post() method, the parameter is aut
 serialized and deserialized to/from JSON, whereas for UserEndpoint::put(), the name of
 the user is extracted from the request path (note the placeholder {name} in the path
 annotation). Parameters passed in a query can also be handled, as seen in
-UserCollectionEndpoint::get(). Parameters can also be passed in HTTP request/response
-headers or in a form. Furthermore, HTTP authentication (basic, digest) is supported,
+UserCollectionEndpoint::get(). Query parameters can be made optional by specifying the
+`optional` attribute for the parameter. Parameters can also be passed in HTTP request/response
+headers or in a form. Furthermore, HTTP authentication (basic, digest, token/bearer) is supported,
 as well as HTTPS.
 
 

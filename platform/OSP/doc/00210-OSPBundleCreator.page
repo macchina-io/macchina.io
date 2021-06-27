@@ -29,7 +29,7 @@ Following is an example for a bundle specification file:
           <symbolicName>com.appinf.osp.samples.greeter</symbolicName>
           <version>1.0.0</version>
           <vendor>Applied Informatics</vendor>
-          <copyright>(c) 2007, Applied Informatics Software Engineering GmbH</copyright>
+          <copyright>(c) Applied Informatics Software Engineering GmbH</copyright>
           <activator>
               <class>GreeterBundleActivator</class>
               <library>Greeter</library>
@@ -184,6 +184,10 @@ the same bundle specification on different platforms.
 
 This element is optional.
 
+If the `--code` (or `/code`) option is specified on the command-line when
+invoking the Bundle Creator tool, the value specified on the command-line
+fully overrides this element.
+
 
 ! The files Element
 
@@ -199,8 +203,38 @@ This element is optional.
 The Bundle Creator Tool takes the file name of the Bundle Specification file
 as argument. Optionally, the <[/output]> (Windows) or <[--output]>/<[-o]> (Unix)
 option can be used to specify the directory where the bundle file should be
-created. For more information, invoke the <[bundle]> command with the
-<[/help]> or <[--help]> option.
+created. The following command-line options are supported:
+
+  - `-h`, `--help`, `/help`: Display help information on command line arguments.
+  - `-o <dir>`, `--output-dir <dir>`, `/output-dir=<dir>`:
+    Specify the directory where the bundle is saved.
+  - `-k`, `--keep-bundle-dir`, `/keep-bundle-dir`:
+    Keep intermediary bundle directory.
+  - `-d`, `--bundle-dir-only`, `--bundle-dir-only`:
+    Create bundle directory only, no bundle (.bndl) file
+    (implies `-d`).
+  - `-n <osname>`, `--osname <osname>`, `/osname=<osname>`:
+    Specify default target operating system name (e.g., "Linux").
+    This is mostly useful when cross-compiling.
+  - `-a <osarch>`, `--osarch <osarch>`, `/osarch=<osarch>`:
+    Specify default target operating system architecture
+    (e.g., "x86_64" or "armv7l").
+  - `-N [<extensions>]`, `--no-deflate [<extensions>]`, `/no-deflate[=<extensions>]`:
+    Do not compress (deflate) files in bundle file. If a comma-separated
+    list of extensions is specified, only files with these extensions are
+    stored uncompressed.
+  - `-v <version>`, `--version <version>`, `/version=<version>`:
+    Specify default bundle version, e.g. "1.0.0", to be used if the bundle
+    specification file does not have one.
+  - `-D <name>=<value>`, `--define <name>=<value>`, `/define=<name>=<value>`:
+    Define a configuration property. A configuration property defined with
+    this option can be referenced in the bundle specification file, using
+    the following syntax: `${<name>}`.
+  - `-c <glob>{;<glob>}`, `--code <glob>{;<glob>}`, `/code=<glob>{;<glob>}`:
+    Specify executable files to include in the bundle's bin directory. If
+    specified, overrides the <code> element in the bundle specification
+    file. Value is a comma- or semicolon-separated list of file names or
+    glob expressions. Can be specified multiple times.
 
 
 !! Invoking the Bundle Creator Tool from Visual Studio
@@ -223,20 +257,73 @@ can be done as a post-build step. A post-build step can be defined by assigning 
 the <[postbuild]> Make variable, as shown below.
 
 
-    BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(BINDIR)/bundle
-    
     include $(POCO_BASE)/build/rules/global
-    
+    include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
+
     objects = Greeter
-    
+
     target         = com.appinf.osp.samples.greeter
     target_version = 1
     target_libs    = PocoOSP PocoUtil PocoXML PocoFoundation
-    
+
     postbuild      = $(BUNDLE_TOOL) -o../bundles Greeter.bndlspec
-    
+
     include $(POCO_BASE)/build/rules/dylib
 ----
+
+
+!! Invoking the Bundle Creator Tool from CMake
+
+As part of the CMake build system support, a custom function `poco_osp_bundle`
+is provided, which takes care of invoking the Bundle Creator Tool appropriately.
+The function is defined in `PocoOSPHelpers.cmake`, which can be found in the
+top-level `cmake` directory. An example `CMakeLists.txt` for building a bundle
+is shown below:
+
+    set(TARGET "com.appinf.osp.samples.servicelistener")
+    set(BUNDLE_SPEC "${CMAKE_CURRENT_SOURCE_DIR}/ServiceListener.bndlspec")
+
+    set(TARGET_BINDIR ${CMAKE_CURRENT_BINARY_DIR}/bin/$<CONFIG>)
+    set(BUNDLE_DIR ${CMAKE_BINARY_DIR}/bundles)
+
+    # Sources
+    file(GLOB SRCS "src/*.cpp")
+
+    # Dynamic Library
+    add_library(${TARGET} MODULE ${SRCS})
+    set_target_properties(${TARGET}
+        PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY "${TARGET_BINDIR}"
+        PREFIX ""
+    )
+
+    # On macOS, use .dylib instead of .so
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+        set_target_properties(${TARGET} PROPERTIES SUFFIX ".dylib")
+    endif()
+
+    target_link_libraries(${TARGET} Poco::OSP Poco::Zip Poco::Util Poco::XML Poco::JSON Poco::Foundation)
+
+    # Build Bundle
+    add_dependencies(${TARGET} BundleCreator)
+    poco_osp_bundle(${TARGET}-bundle
+        DEPENDS ${LIBNAME} ${TARGET}
+        SPEC ${BUNDLE_SPEC}
+        CODE $<TARGET_FILE:${TARGET}>
+        DESTINATION ${BUNDLE_DIR}
+    )
+
+    install(
+        DIRECTORY ${BUNDLE_DIR}
+        DESTINATION lib${LIB_SUFFIX}/bundles
+    )
+----
+
+With CMake, it's recommended to specify the binaries that should go into the bundle
+on the command-line and not in the bundle specification file's `<code>` element,
+as shown in the above example. Note that the above `CMakeLists.txt` file is
+intended to be referenced by a higher-level `CMakeLists.txt`, which would also
+include the `PocoOSPHelpers.cmake` file containing the `poco_osp_bundle` function.
 
 
 !! Bundles and Cross-Compiling for Embedded Linux
@@ -268,16 +355,16 @@ the target system(s) can be kept in parallel. To support cross-compiling a bundl
 Makefile for building a bundle using the POCO build system must be modified as follows:
 
     BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/bin/$(POCO_HOST_OSNAME)/$(POCO_HOST_OSARCH)/bundle
-    
+
     include $(POCO_BASE)/build/rules/global
-    
+
     objects = Greeter
-    
+
     target         = com.appinf.osp.samples.greeter
     target_version = 1
     target_libs    = PocoOSP PocoUtil PocoXML PocoFoundation
-    
+
     postbuild      = $(BUNDLE_TOOL) -o../bundles Greeter.bndlspec -a$(OSARCH)
-    
+
     include $(POCO_BASE)/build/rules/dylib
 ----

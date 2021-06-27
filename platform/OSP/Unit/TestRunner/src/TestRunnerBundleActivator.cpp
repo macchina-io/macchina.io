@@ -1,12 +1,10 @@
 //
 // Extensible.cpp
 //
-// Copyright (c) 2011, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2011-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// This is unpublished proprietary source code of Applied Informatics.
-// The contents of this file may not be disclosed to third parties, 
-// copied or duplicated in any form, in whole or in part.
+// SPDX-License-Identifier: GPL-3.0-only
 //
 
 
@@ -45,7 +43,7 @@ public:
 		_pContext(pContext)
 	{
 	}
-	
+
 	void handleExtension(Bundle::ConstPtr pBundle, Poco::XML::Element* pExtensionElem)
 	{
 		std::string name = pBundle->name();
@@ -55,7 +53,7 @@ public:
 		_pContext->logger().information(std::string(msg.size(), '='));
 		_pContext->logger().information(msg);
 		_pContext->logger().information(std::string(msg.size(), '-'));
-		
+
 		BundleContext::Ptr pContext = _pContext->contextForBundle(pBundle);
 		TestCase::resetContext(pContext);
 
@@ -75,7 +73,7 @@ public:
 			nErrors += ltr.testErrors();
 			nFailures += ltr.testFailures();
 		}
-		
+
 		if (nErrors > 0)
 		{
 			if (nErrors == 1)
@@ -91,7 +89,7 @@ public:
 			else
 				_pContext->logger().error("There were %d failures in bundle \"%s\" (%s).", nFailures, name, symbolicName);
 		}
-		
+
 		if (nTests == 1)
 			msg = Poco::format("Ran 1 test in bundle \"%s\" (%s).", name, symbolicName);
 		else
@@ -116,11 +114,11 @@ public:
 	TestRunnerBundleActivator()
 	{
 	}
-	
+
 	~TestRunnerBundleActivator()
 	{
 	}
-	
+
 	void start(BundleContext::Ptr pContext)
 	{
 		// find ExtensionPointService using the Service Registry
@@ -129,10 +127,10 @@ public:
 		{
 			// ExtensionPointService is available
 			AutoPtr<ExtensionPointService> pXPS = pXPSRef->castedInstance<ExtensionPointService>();
-			
+
 			// Create an ExtensionPoint
 			ExtensionPoint::Ptr pXP = new TestExtensionPoint(pContext);
-			
+
 			// Register ExtensionPoint
 			pXPS->registerExtensionPoint(pContext->thisBundle(), "com.appinf.osp.unit.test", pXP);
 		}
@@ -142,7 +140,7 @@ public:
 			pContext->logger().error("The ExtensionPointService is not available.");
 		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		// Nothing to do here.
