@@ -1,12 +1,10 @@
 //
 // TestBundleSuite.cpp
 //
-// Copyright (c) 2011, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2011-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// This is unpublished proprietary source code of Applied Informatics.
-// The contents of this file may not be disclosed to third parties, 
-// copied or duplicated in any form, in whole or in part.
+// SPDX-License-Identifier: GPL-3.0-only
 //
 
 

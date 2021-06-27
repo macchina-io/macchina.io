@@ -575,7 +575,7 @@ Poco::JSON::Object::Ptr SwaggerGenerator::createOperation(const Poco::CppParser:
 	));
 
 	std::string returnType = GenUtility::getResolvedReturnParameterType(_pStructIn, pFunc);
-	int bodyResponseParamsCount = bodyResponseParams.size();
+	std::size_t bodyResponseParamsCount = bodyResponseParams.size();
 	if (returnType != Poco::CodeGeneration::Utility::TYPE_VOID)
 	{
 		bodyResponseParamsCount++;

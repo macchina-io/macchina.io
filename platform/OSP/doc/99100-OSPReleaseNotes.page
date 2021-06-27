@@ -1,6 +1,46 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2021.1
+
+!!Summary of Changes
+
+  - WebSessionManager: fixed a deadlock when cleaning a session.
+  - WebServerDispatcher: fixed HSTS max-age directive in HTTP response header.
+  - WebServerDispatcher: add support for X-Frame-Options HTTP response header.
+  - WebServerDispatcher: add support for full request and response logging.
+  - WebServerDispatcher: add `exactMatch` attribute to extension point.
+  - WebServerDispatcher: add support for sending error responses with a JSON response
+    body (compatible with RemotingNG REST transport). This can be enabled with the
+    `errorResponseFormat` attribute in the extension point.
+  - WebServerDispatcher: HTML error responses now contain a UUID with is also written
+    to the log file for correlation.
+  - WebServerDispatcher: Add a configuration option to globally enable or disable
+    CORS handling.
+  - Auth: added support for locking-out an account after too many failed authentication
+    attempts.
+  - Auth: LDAP attribute names can now be mapped to user attribute names.
+  - Auth: Add support for two-factor authentication (2FA) with time-based
+    one-time passwords (TOTPs). See Poco::OSP::Auth::TwoFactor::TwoFactorService.
+  - The Bundle Creator tool supports a new command-line option to specify the binaries
+    to include in the bundle. This overrides the `<code>` element in the bundle
+    specification file.
+  - CMake build support is now available in addition to Visual Studio project files
+    and GNU Makefiles.
+
+!!Known Issues
+
+  - The CMake build system places all generated bundle files in the same target
+    directory, regardless of the selected build configuration (e.g., Debug, Release).
+    Therefore, building different configurations in the same build directory is
+    not recommended. Furthermore, on Windows, bundles built with CMake do not contain
+    PDB files, unlike those built with the included Visual Studio project files.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2020.1
 
 !!Summary of Changes

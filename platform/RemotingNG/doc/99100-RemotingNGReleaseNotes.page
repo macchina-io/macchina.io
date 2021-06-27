@@ -1,6 +1,37 @@
 Remoting NG Release Notes
 Remoting NG
 
+!!!Release 2021.1
+
+!!Summary of Changes
+
+  - RemoteGen now supports the generation of an OpenAPI 3.0 (also known as Swagger)
+    document for REST APIs. This is enabled by adding an `openAPI` element to the
+    `RemoteGen/output` element in the RemoteGen configuration file.
+  - REST Transport: deserialization of Poco::Optional in query, header or path did not work.
+  - C++11 scoped and typed enums (`enum class`) can now be used in Remoting interfaces.
+  - RemoteGen now supports a "skeleton-only" generation mode, which can be used to separate
+    interfaces and server-side skeleton into separate libs.
+  - REST and JSONRPC Transports: the maximum depth of JSON documents is restricted to 50
+    to prevent certain kinds of attacks.
+  - XSDGen: Fixed an issue where code for handling arrays of nilable elements was not generated
+    correctly, resulting in e.g. a double SharedPtr like
+    Poco::SharedPtr<Poco::SharedPtr<std::vector<Type>>>.
+  - Fixed an issue introduced in 2020.1 where code generated for XML attribute
+    serialization/deserialization missed an `using namespace std::string_literals;`
+    declaration.
+  - CMake build support is now available in addition to Visual Studio project files
+    and GNU Makefiles.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2020.1
 
 !!Summary of Changes

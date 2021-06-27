@@ -63,8 +63,8 @@ const Poco::XML::XMLString XSDGenerator::HEADER("Header");
 const Poco::XML::XMLString XSDGenerator::ELEMENTFORMDEFAULT("elementFormDefault");
 
 
-XSDGenerator::XSDGenerator(Poco::CodeGeneration::CppGenerator& cppGen, const std::string& targetNamespace, Poco::XML::ContentHandler& xsdOut, bool documentStarted): 
-	AbstractGenerator(cppGen), 
+XSDGenerator::XSDGenerator(Poco::CodeGeneration::CppGenerator& cppGen, const std::string& targetNamespace, Poco::XML::ContentHandler& xsdOut, bool documentStarted):
+	AbstractGenerator(cppGen),
 	_ns(nameSpace()),
 	_xsdOut(xsdOut),
 	_targetNamespace(targetNamespace),
@@ -99,7 +99,7 @@ void XSDGenerator::structStart(const Poco::CppParser::Struct* pStruct, const Cod
 		_xsdOut.startPrefixMapping(WSDLGenerator::TYPE_PREFIX, _targetNamespace);
 	}
 	_xsdOut.startPrefixMapping(SCHEMA_PREFIX, SCHEMA_NS);
-	
+
 	AttributesImpl attr;
 	attr.addAttribute(EMPTYSTRING, TARGETNAMESPACE, TARGETNAMESPACE, EMPTYSTRING, _targetNamespace);
 	attr.addAttribute(EMPTYSTRING, ELEMENTFORMDEFAULT, ELEMENTFORMDEFAULT, EMPTYSTRING, "qualified");
@@ -149,7 +149,7 @@ void XSDGenerator::exportElements()
 			type = mapToSchemaType(type);
 			attr.addAttribute(EMPTYSTRING, TYPE, TYPE, EMPTYSTRING, XSDGenerator::SCHEMA_PREFIX+":"+ type);
 		}
-		else 
+		else
 		{
 			attr.addAttribute(EMPTYSTRING, TYPE, TYPE, EMPTYSTRING, WSDLGenerator::TYPE_PREFIX+":"+ itS->second);
 		}
@@ -164,7 +164,6 @@ void XSDGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, const 
 	if (!pFuncOld->isPublic() || (pFuncOld->flags() & Poco::CppParser::Function::FN_STATIC))
 		return;
 
-	
 	CodeGenerator::Properties funcProps(properties);
 	GeneratorEngine::parseProperties(pFuncOld, funcProps);
 	bool isRemote = false;
@@ -288,13 +287,13 @@ Poco::CppParser::Struct* XSDGenerator::convertToStruct(const Poco::CppParser::Fu
 		inputDataType = GenUtility::getReplyMethodName(pFunc);
 	else
 		inputDataType = GenUtility::getRequestMethodName(pFunc);
-	
+
 	std::string decl(Poco::CodeGeneration::Utility::CLASS);
 	decl.append(" ");
 	decl.append(inputDataType);
 
 	Poco::CppParser::Struct* pStruct = new Poco::CppParser::Struct(decl, true, &_ns);
-	
+
 	// now add for each param a set and get method,
 	// also add a variable for each param (set the docu!!!!)
 	// don't forget the return value!
@@ -368,7 +367,7 @@ Poco::CppParser::Struct* XSDGenerator::convertToStruct(const Poco::CppParser::Fu
 			GeneratorEngine::parseElementProperties(itProp->second, paramProps);
 			GeneratorEngine::getStringProperty(paramProps, Utility::DIRECTION, direction);
 		}
-		
+
 		//isOutParam excludes soapheader already, do the same for replies
 		bool inSoapHeader = GenUtility::getIsInHeader(pFunc, *it);
 		if ( (isResponse && isOutParameter(*it) && direction != "in") || (!isResponse && !inSoapHeader && direction != "out"))
@@ -455,13 +454,12 @@ void XSDGenerator::deepCopyMembers(const Poco::CppParser::Struct* pIn, Poco::Cpp
 					decl.append((*itF)->defaultValue());
 					decl.append(")");
 				}
-				
+
 				Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter(decl, pCpyFct);
-				
+
 				pCpyFct->addParameter(pParam);
 			}
 		}
-			
 	}
 }
 
@@ -492,7 +490,7 @@ void XSDGenerator::addVarDocu(Poco::CppParser::Variable* pVar, const Poco::CppPa
 Poco::CppParser::Parameter* XSDGenerator::createParameter(const Poco::CppParser::Parameter* pCopy, Poco::CppParser::Function* pConstructorFull)
 {
 	const std::string& declType = pCopy->declType();
-	
+
 	std::string decl(createParameterTypeDecl(declType));
 	decl.append("_" + pCopy->name());
 
@@ -613,7 +611,7 @@ std::string XSDGenerator::generateComplexTypeName(const Poco::CppParser::Struct*
 		else
 			pNS = 0;
 	}
-	
+
 	return newClassName;
 }
 
@@ -625,7 +623,7 @@ std::string XSDGenerator::generateComplexType(const Poco::CppParser::Struct* pTy
 	if (_handledTypes.find(fullName) != _handledTypes.end())
 		return complexName;
 	_handledTypes.insert(fullName);
-	
+
 	std::vector<const Poco::CppParser::Struct*> detectedTypes;
 
 	// types are always a sequence, a vector has always infinite as limit
@@ -666,7 +664,7 @@ std::string XSDGenerator::generateComplexType(const Poco::CppParser::Struct* pTy
 		}
 	}
 
-	// check for header attribute: 
+	// check for header attribute:
 	// remove the header stuff from the type
 	// continue writing the body type
 	std::vector<Poco::XML::AttributesImpl> soapHeaderElements;
@@ -716,7 +714,7 @@ std::string XSDGenerator::generateComplexType(const Poco::CppParser::Struct* pTy
 			elemAttrs.addAttribute(EMPTYSTRING, MAXOCCURS, MAXOCCURS, EMPTYSTRING, UNBOUNDED);
 		if (isNullable)
 			elemAttrs.addAttribute(EMPTYSTRING, NILLABLE, NILLABLE, EMPTYSTRING, "true");
-		
+
 		if (GenUtility::isVectorType(resolvedType))
 		{
 			// we have a matrix
@@ -740,7 +738,7 @@ std::string XSDGenerator::generateComplexType(const Poco::CppParser::Struct* pTy
 					if (enumBaseType.empty()) enumBaseType = "int";
 					const std::string& xsdType = mapToSchemaType(enumBaseType);
 					elemAttrs.addAttribute(EMPTYSTRING, TYPE, TYPE, EMPTYSTRING, SCHEMA_PREFIX+":"+xsdType);
-				}	
+				}
 				else
 					throw CodeGenerationException("Missing class", resolvedType);
 			}
@@ -808,8 +806,8 @@ std::string XSDGenerator::generateComplexType(const Poco::CppParser::Struct* pTy
 				// map to integer
 				const std::string& xsdType = mapToSchemaType("int");
 				attrAttrs.addAttribute(EMPTYSTRING, TYPE, TYPE, EMPTYSTRING, SCHEMA_PREFIX+":"+xsdType);
-			}	
-			else throw CodeGenerationException("An attribute can only have a simple content.");		
+			}
+			else throw CodeGenerationException("An attribute can only have a simple content.");
 		}
 		//<element name="whereExample" type="string" minOccurs="0" maxOccurs="unbounded"/>
 		_xsdOut.startElement(SCHEMA_NS, ATTRIBUTE, ATTRIBUTE, attrAttrs);
@@ -832,7 +830,7 @@ const std::string& XSDGenerator::mapToSchemaType(const std::string& type)
 {
 	static std::map<std::string, std::string> typeMap(initTypeMapping());
 	std::string aType = Poco::trim(type);
-	
+
 	if (aType.find("std::") == 0)
 		aType = aType.substr(5);
 
@@ -847,7 +845,7 @@ const std::string& XSDGenerator::mapToSchemaType(const std::string& type)
 void XSDGenerator::detectProperties(const Poco::CppParser::Variable* pVar, bool& isVector, bool& isMandatory, bool& isNullable, std::string& name, std::string& resolvedType)
 {
 	const std::string& varDecl = pVar->declType();
-	
+
 	std::string aType = varDecl;
 	std::string tmp;
 	poco_assert (!aType.empty());
@@ -892,7 +890,7 @@ void XSDGenerator::detectProperties(const Poco::CppParser::Variable* pVar, bool&
 	}
 	isMandatory = isMandatory || GenUtility::getIsMandatory(pVar);
 	name = GenUtility::getVariableName(pVar);
-	
+
 	do
 	{
 		tmp = resolveType(aType);

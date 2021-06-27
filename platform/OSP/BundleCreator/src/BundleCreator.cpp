@@ -174,14 +174,14 @@ protected:
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleBundleDir)));
 
 		options.addOption(
-			Option("osname", "n", "Specify default target operating system name (e.g., Linux).")
+			Option("osname", "n", "Specify default target operating system name (e.g., \"Linux\").")
 				.required(false)
 				.repeatable(false)
 				.argument("<osname>")
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleOSName)));
 
 		options.addOption(
-			Option("osarch", "a", "Specify default target operating system architecture (e.g., armv5tejl).")
+			Option("osarch", "a", "Specify default target operating system architecture (e.g., \"x86_64\" or \"armv7l\").")
 				.required(false)
 				.repeatable(false)
 				.argument("<osarch>")
@@ -207,11 +207,23 @@ protected:
 			Option("define", "D",
 				"Define a configuration property. A configuration property "
 				"defined with this option can be referenced in the bundle specification "
-				"file, using the following syntax: ${<name>}.")
+				"file, using the following syntax: ${<name>}. "
+				"Can be specified multiple times.")
 				.required(false)
 				.repeatable(true)
 				.argument("<name>=<value>")
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleDefine)));
+
+		options.addOption(
+			Option("code", "c",
+				"Specify executable files to include in the bundle's bin directory. "
+				"If specified, overrides the <code> element in the bundle specification file. "
+				"Value is a comma- or semicolon-separated list of file names or glob expressions. "
+				"Can be specified multiple times.")
+				.required(false)
+				.repeatable(true)
+				.argument("<glob>{;<glob>}")
+				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleCode)));
 	}
 
 	void handleHelp(const std::string& name, const std::string& value)
@@ -269,6 +281,19 @@ protected:
 	void handleDefine(const std::string& name, const std::string& value)
 	{
 		defineProperty(value);
+	}
+
+	void handleCode(const std::string& name, const std::string& value)
+	{
+		if (_code.empty())
+		{
+			_code = value;
+		}
+		else
+		{
+			_code += ';';
+			_code += value;
+		}
 	}
 
 	void defineProperty(const std::string& def)
@@ -364,7 +389,7 @@ private:
 		bndlDir.createDirectories();
 		try
 		{
-			handleBin(bndlPath, mi);
+			handleCode(bndlPath, mi);
 			handleMeta(bndlPath, mi);
 			handleOther(bndlPath, mi);
 			if (!_noFile)
@@ -592,61 +617,71 @@ private:
 		}
 	}
 
-	void handleBin(const Path& root, const ManifestInfo& mi)
+	void handleCode(const Path& root, const ManifestInfo& mi)
 	{
 		Path binDir(root, "bin");
 		binDir.makeDirectory();
-		File binFile(binDir);
 
-		// now check for the code entries
-		//<code [platform="Windows_NT/ia32"] globExpression />
-		Poco::UInt32 idx = 0;
-		std::string expr;
-		std::string versionRange;
-
-		std::string path("code[");
-		path.append(Poco::NumberFormatter::format(idx++));
-		path.append("]");
-		while (_ptrCfg->hasProperty(path))
+		if (!_code.empty())
 		{
-			expr = getString(path, "");
-			path.append("[@platform]");
-			std::string platform = getString(path, "");
-			if (platform.empty() || platform.find("/") == std::string::npos)
-			{
-				platform = _osName + "/" + _osArch;
-			}
+			std::string platform = _osName + "/" + _osArch;
 			Path platformDir(binDir, Path(platform, Path::PATH_UNIX));
-			File platformFile(platformDir);
-			platformFile.createDirectories();
-			// now copy files as indicated in the expr
-			std::set<std::string> files;
-			Poco::StringTokenizer incTokenizer(expr, ",;\n", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
-			std::vector<std::string> inc;
-			for (Poco::StringTokenizer::Iterator it = incTokenizer.begin(); it != incTokenizer.end(); ++it)
-			{
-				Poco::Glob::glob(*it, files, Poco::Glob::GLOB_DOT_SPECIAL);
-			}
+			copyCode(platformDir, _code, mi);
+		}
+		else
+		{
+			// now check for the code entries
+			// <code [platform="Windows_NT/ia32"]>globExpression</code>
+			Poco::UInt32 idx = 0;
+			std::string globs;
 
-			std::set<std::string>::const_iterator itF = files.begin();
-			std::set<std::string>::const_iterator itFEnd = files.end();
-
-			for (; itF != itFEnd; ++itF)
-			{
-				File aFile(*itF);
-				if (aFile.exists())
-				{
-					copyFile(aFile, platformDir.toString());
-				}
-			}
-			if (files.empty() && incTokenizer.count() > 0)
-			{
-				std::cerr << Poco::format("Warning: Non-empty <code> element, but no files found for expression '%s' while building bundle %s.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end()), mi.symbolicName()) << std::endl;
-			}
-
-			path = "code[";
+			std::string path("code[");
 			path.append(Poco::NumberFormatter::format(idx++));
 			path.append("]");
+			while (_ptrCfg->hasProperty(path))
+			{
+				globs = getString(path, "");
+				path.append("[@platform]");
+				std::string platform = getString(path, "");
+				if (platform.empty() || platform.find("/") == std::string::npos)
+				{
+					platform = _osName + "/" + _osArch;
+				}
+				Path platformDir(binDir, Path(platform, Path::PATH_UNIX));
+				copyCode(platformDir, globs, mi);
+
+				path = "code[";
+				path.append(Poco::NumberFormatter::format(idx++));
+				path.append("]");
+			}
+		}
+	}
+
+	void copyCode(const Poco::Path& platformDir, const std::string& globs, const ManifestInfo& mi)
+	{
+		std::set<std::string> files;
+		Poco::StringTokenizer incTokenizer(globs, ",;\n", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
+		std::vector<std::string> inc;
+		for (Poco::StringTokenizer::Iterator it = incTokenizer.begin(); it != incTokenizer.end(); ++it)
+		{
+			Poco::Glob::glob(*it, files, Poco::Glob::GLOB_DOT_SPECIAL);
+		}
+
+		std::set<std::string>::const_iterator itF = files.begin();
+		std::set<std::string>::const_iterator itFEnd = files.end();
+		for (; itF != itFEnd; ++itF)
+		{
+			File aFile(*itF);
+			if (aFile.exists())
+			{
+				File platformFile(platformDir);
+				platformFile.createDirectories();
+				copyFile(aFile, platformDir.toString());
+			}
+		}
+		if (files.empty() && incTokenizer.count() > 0)
+		{
+			std::cerr << Poco::format("Warning: Non-empty <code> element, but no files found for expression '%s' while building bundle %s.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end()), mi.symbolicName()) << std::endl;
 		}
 	}
 
@@ -718,6 +753,7 @@ private:
 
 	void copyFile(const File& file, const std::string& destPath) const
 	{
+		logger().debug("Coyping %s to %s", file.path(), destPath);
 		if (file.isHidden()) return;
 		Path src(file.path());
 		Path dest(destPath);
@@ -774,6 +810,7 @@ private:
 	Poco::AutoPtr<XMLConfiguration> _ptrCfg;
 	std::set<std::string> _storeExtensions;
 	std::string _defaultVersion;
+	std::string _code;
 };
 
 

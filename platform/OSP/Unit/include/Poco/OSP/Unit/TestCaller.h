@@ -7,12 +7,10 @@
 //
 // Definition of the TestCaller class.
 //
-// Copyright (c) 2011, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2011-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// This is unpublished proprietary source code of Applied Informatics.
-// The contents of this file may not be disclosed to third parties, 
-// copied or duplicated in any form, in whole or in part.
+// SPDX-License-Identifier: GPL-3.0-only
 //
 
 
@@ -32,15 +30,15 @@ namespace Unit {
 
 template <class Fixture>
 class TestCaller: public Poco::OSP::Unit::TestCase
-	/// TestCaller class. This is a replacement for the 
+	/// TestCaller class. This is a replacement for the
 	/// CppUnit::TestCaller that enforces calling of the
 	/// OSP Unit's TestCase class.
 {
 public:
 	typedef void (Fixture::*TestMethod)();
 
-	TestCaller(const std::string& name, TestMethod test): 
-		TestCase(name), 
+	TestCaller(const std::string& name, TestMethod test):
+		TestCase(name),
 		_test(test),
 		_fixture(new Fixture(name))
 	{
