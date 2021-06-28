@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>POCO ActiveRecord Library</name>
+    <symbolicName>poco.activerecord</symbolicName>
+    <version>1.11.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2020-2021, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>ActiveRecordBundleActivator</class>
+      <library>poco.activerecord</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>000</runLevel>
+    <dependency>
+      <symbolicName>poco.data</symbolicName>
+      <version>1.11.0</version>
+    </dependency>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../${bin}/PocoActiveRecord${64}.dll,
+    ../../${bin}/PocoActiveRecord${64}d.dll,
+    ../../${bin}/PocoActiveRecord${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoActiveRecord.so.*,
+    ../../lib/${osName}/${osArch}/libPocoActiveRecordd.so.*,
+    ../../lib/${osName}/${osArch}/libPocoActiveRecord.*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoActiveRecordd.*.dylib
+  </code>
+</bundlespec>
