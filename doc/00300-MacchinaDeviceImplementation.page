@@ -1,15 +1,15 @@
-macchina.io C++ Device Implementation Guide
+macchina.io EDGE C++ Device Implementation Guide
 AAAAMacchinaIO
 
 !!!Introduction
 
-Communicating with sensors and other devices is a core feature of macchina.io.
-macchina.io comes with a set of pre-defined service interfaces for various
+Communicating with sensors and other devices is a core feature of macchina.io EDGE.
+macchina.io EDGE comes with a set of pre-defined service interfaces for various
 sensor and device types. This means that sensors of a certain type, like
 temperature sensors or accelerometers, always have the same programming
 interface, no matter how they are actually implemented.
 
-The pre-defined sensor and device interfaces in macchina.io are:
+The pre-defined sensor and device interfaces in macchina.io EDGE are:
 
   - Accelerometer (IoT::Devices::Accelerometer)
   - BarcodeReader (IoT::Devices::BarcodeReader)
@@ -27,7 +27,7 @@ The pre-defined sensor and device interfaces in macchina.io are:
   - Switch (IoT::Devices::Switch)
   - Trigger (IoT::Devices::Trigger)
 
-Every sensor or device in macchina.io is an OSP service implementing
+Every sensor or device in macchina.io EDGE is an OSP service implementing
 one of these C++ interfaces.
 
 Simple sensors, like temperature or humidity sensors that only provide a single value,
@@ -37,12 +37,12 @@ for sensors like accelerometers, GPIOs or GPS/GNSS receivers.
 
 !!!Prerequisites
 
-This tutorial assumes the you've already obtained the macchina.io sources from
-its Git repository and built macchina.io for your host system, according to the
+This tutorial assumes the you've already obtained the macchina.io EDGE sources from
+its Git repository and built macchina.io EDGE for your host system, according to the
 instructions in the [[00150-MacchinaGettingStarted.html Getting Started]] document.
 You should also have worked through the
-[[00210-MacchinaCppProgramming.html macchina.io C++ Programming Guide]] and be
-familiar with the basics of C++ programming with the macchina.io framework.
+[[00210-MacchinaCppProgramming.html macchina.io EDGE C++ Programming Guide]] and be
+familiar with the basics of C++ programming with the macchina.io EDGE framework.
 You should also have a good understanding of OSP bundles and services.
 
 
@@ -61,7 +61,7 @@ by reading the file <*/sys/class/thermal/thermal_zone0/temp*>:
 The obtained value (42932) needs to be divided by 1000 to obtain the temperature in degrees
 Celsius (42.932 °C).
 
-To make this value available in macchina.io through a Sensor service, the following
+To make this value available in macchina.io EDGE through a Sensor service, the following
 steps must be taken:
 
   1. A new project for a sensor bundle must be set up.
@@ -164,7 +164,7 @@ So let's have a look at the <[LinuxThermalSensor]> class definition:
 ----
 
 Note: the [[https://github.com/macchina-io/macchina.io/tree/develop/samples/LinuxThermalSimple full source code]]
-can be found in the macchina.io <*samples*> folder.
+can be found in the macchina.io EDGE <*samples*> folder.
 
 First thing we notice is the mentioned CRTP idiom when using the IoT::Devices::DeviceImpl
 class template as base class for our <[LinuxThermalSensor]>. Therefore, the first
@@ -181,7 +181,7 @@ ready to report a value, or otherwise <[false]>.
 
 The IoT::Devices::Sensor interface also requires a few read-only properties providing
 meta-data about the sensor to be implemented, as well as the "displayValue" property
-which is used to display the sensor value in the macchina.io web user interface and
+which is used to display the sensor value in the macchina.io EDGE web user interface and
 other places.
 
 The following read-only properties (all of type <[std::string]>) must be implemented:

@@ -1,14 +1,14 @@
-macchina.io JavaScript Programming Guide
+macchina.io EDGE JavaScript Programming Guide
 AAAAMacchinaIO
 
 !!!Introduction
 
-The macchina.io JavaScript programming environment provides access to various
-global objects and functions, which give scripts access to the features of macchina.io.
+The macchina.io EDGE JavaScript programming environment provides access to various
+global objects and functions, which give scripts access to the features of macchina.io EDGE.
 
 These are described in the following, along with example code.
 
-Furthermore, macchina.io supports a simple module system for JavaScript that allows a
+Furthermore, macchina.io EDGE supports a simple module system for JavaScript that allows a
 script to import a "module", typically containing re-usable code. The module system is
 based on the modules specification from CommonJS.
 
@@ -17,15 +17,15 @@ This document assumes you are already familiar with JavaScript and its concepts.
 
 !!!JavaScript Bundles
 
-An important question is how to actually get JavaScript code into macchina.io.
-In general, all JavaScript code executed within macchina.io must be contained
+An important question is how to actually get JavaScript code into macchina.io EDGE.
+In general, all JavaScript code executed within macchina.io EDGE must be contained
 in bundles. There are different ways to create a bundle and deploy it into
-a macchina.io server. The easiest way is to use the <*Playground*> app in the web
+a macchina.io EDGE server. The easiest way is to use the <*Playground*> app in the web
 user interface. It provides a browser-based editor that allows you to create and
-edit JavaScript scripts, as well as to execute them in macchina.io. This is great
+edit JavaScript scripts, as well as to execute them in macchina.io EDGE. This is great
 for trying out things very quickly. The Playground can also be used to create
 and download a complete bundle containing the script. This bundle can then be deployed
-to a macchina.io based device, either by placing it on the filesystem (in one
+to a macchina.io EDGE based device, either by placing it on the filesystem (in one
 of the directories configured as bundle repositories), or by installing them using
 the web based <*Bundle*> utility.
 
@@ -33,10 +33,10 @@ To learn more about bundles, please refer to the Open Service Platform documenta
 specifically the [[00100-OSPOverview.html OSP Overview]] and
 [[00200-OSPBundles.html OSP Bundles]] documents.
 
-In macchina.io, there are two ways that JavaScript code can be executed.
+In macchina.io EDGE, there are two ways that JavaScript code can be executed.
 The first is by placing one or more scripts in a bundle, and by creating one or
 more JavaScript extensions in the bundle. The extension basically tells
-macchina.io which scripts to automatically run when the bundle is started.
+macchina.io EDGE which scripts to automatically run when the bundle is started.
 Every script referenced in a JavaScript extension runs in its own thread.
 Different scripts can also share code, by placing code in modules and importing
 them via the <[require()]> function.
@@ -49,7 +49,7 @@ JavaScript servlets, or server pages, and executed when requested by a client.
 
 !!The JavaScript Extension Point
 
-The JavaScript extension point in macchina.io tells the macchina.io server which
+The JavaScript extension point in macchina.io EDGE tells the macchina.io EDGE server which
 scripts (contained in the bundle) to automatically execute when the bundle starts.
 Each script is executed in its own thread. Optionally, the extension point can
 also specify a limit to the JavaScript heap, thus preventing the script from using
@@ -90,7 +90,7 @@ called a bundle file.
 !!Creating a JavaScript Bundle From Scratch
 
 Let's now create a bundle from scratch.
-Every bundle needs to contain some meta information that tells macchina.io (or more
+Every bundle needs to contain some meta information that tells macchina.io EDGE (or more
 specifically, the underlying Open Service Platform) something about the bundle (e.g.,
 its name, its creator, its dependencies, etc.). This information is contained
 in a text file named "manifest.mf", which must be located in a special directory
@@ -161,7 +161,7 @@ as in the following:
 
 !!Creating a JavaScript Bundle With The BundleCreator Tool
 
-For creating bundles, macchina.io provides the [[00210-OSPBundleCreator.html Bundle Creator]]
+For creating bundles, macchina.io EDGE provides the [[00210-OSPBundleCreator.html Bundle Creator]]
 (<*bundle*>) tool from the Open Service Platform. While creating bundles manually using
 <*zip*> is fine for simple bundles, using the <*bundle*> tool makes it easier to create
 more complex bundles that have dependencies on other bundles, and that need to collect
@@ -215,7 +215,7 @@ For a detailed description of the bundle specification file format, please see t
 
 !The Makefile
 
-The Makefile for the bundle makes use of macchina.io build system based on GNU Make.
+The Makefile for the bundle makes use of macchina.io EDGE build system based on GNU Make.
 It looks as follows:
 
     .PHONY: all
@@ -233,7 +233,7 @@ the bundle by running the Bundle Creator.
 
 Before invoking the Makefile via GNU Make, the environment variables <[POCO_BASE]>
 and <*PROJECT_BASE*> must be defined. <[POCO_BASE]> must contain the <*absolute*> path of the
-<*platform*> directory within the macchina.io source tree. <[PROJECT_BASE]> must
+<*platform*> directory within the macchina.io EDGE source tree. <[PROJECT_BASE]> must
 contain the <*absolute*> path to the parent directory of your project. If your
 <*MyFirstBundle*> directory is in <*/home/user/projects/MyFirstBundle*>, then
 <[PROJECT_BASE]> must be set to <*/home/user/projects*>.
@@ -254,7 +254,7 @@ will be created in the current directory.
 
 !!!JavaScript Servlets and Server Pages
 
-Scripts can also be executed in order to serve web requests. macchina.io uses the
+Scripts can also be executed in order to serve web requests. macchina.io EDGE uses the
 [[01000-OSPWeb.html Open Service Platform Web Server]], which gets all content it
 serves from bundles. To make the web server execute server-side JavaScript, that
 script must be in a file with extension ".jss" or ".jssp", and the file must be
@@ -389,7 +389,7 @@ the value of the <*Content-Type*> HTTP response header.
 
 !!!Modules
 
-macchina.io supports JavaScript modules. This allows a script to import another script,
+macchina.io EDGE supports JavaScript modules. This allows a script to import another script,
 with the imported script being encapsulated within a "module" and thus not polluting
 the global namespace.
 
@@ -520,7 +520,7 @@ The following properties are available:
 
 !name
 
-The name of the application. In macchina.io, this is "macchina".
+The name of the application. In macchina.io EDGE, this is "macchina".
 
 
 !startTime
@@ -549,7 +549,7 @@ Example:
 !logger
 
 The application's logger object. This can be used to write
-log messages. Note that in macchina.io, each bundle also has its own logger object,
+log messages. Note that in macchina.io EDGE, each bundle also has its own logger object,
 which should be preferred to the application's logger.
 
     application.logger.information('Hello, world!');
@@ -573,7 +573,7 @@ typically "Linux" or "Darwin" (macOS).
 
 !osDisplayName
 
-On platforms supported by macchina.io, this is the same as <*osName*>.
+On platforms supported by macchina.io EDGE, this is the same as <*osName*>.
 
 
 !osArchitecture
@@ -797,7 +797,7 @@ or an empty key is given.
 
 Logger objects are used to write diagnostic or log messages to a logger.
 A JavaScript Logger object is always connected to a Logger object from
-the POCO C++ Libraries. JavaScript scripts in macchina.io have access
+the POCO C++ Libraries. JavaScript scripts in macchina.io EDGE have access
 to two Logger objects. The global application logger, via the
 <[application.logger]> object, and a bundle-specific logger, via the
 <[logger]> object.
@@ -1055,7 +1055,7 @@ Examples:
 
 !!!Timeouts and Intervals
 
-macchina.io supports the <[setTimeout()]> and <[setInterval()]> functions known
+macchina.io EDGE supports the <[setTimeout()]> and <[setInterval()]> functions known
 from browser-based JavaScript, as well as <[setImmediate()]> known from node.js.
 
 !setTimeout(function, milliseconds [, arg]...)
@@ -1156,7 +1156,7 @@ Example:
 Note: Since JavaScript execution is single threaded per script, timer callback
 functions will only run when the script is idle and not currently executing any code.
 
-For compatibility with Browser-based JavaScript and node.js, macchina.io also
+For compatibility with Browser-based JavaScript and node.js, macchina.io EDGE also
 provides <[clearTimeout()]>, <[clearInterval()]> and <[clearImmediate()]>.
 
 !clearTimeout(timeout)
@@ -1376,7 +1376,7 @@ Returns a JavaScript Date object for the stored date/time.
 
 Buffer objects are used to work efficiently with binary data in JavaScript.
 Standard (browser-based) JavaScript has no efficient way for handling binary data.
-macchina.io provides Buffer objects to handle continuous blocks of memory containing
+macchina.io EDGE provides Buffer objects to handle continuous blocks of memory containing
 arbitrary (binary) data.
 
 A Buffer object contains a variable-size, continuous block of memory, located on the
@@ -1732,7 +1732,7 @@ use the HTTPRequest object.
 
 To send a HTTP request, create a new HTTPRequest object, using the <[HTTPRequest]>
 constructor function. The constructor takes three optional arguments,
-a request method (e.g., "GET"), a URI (e.g., "http://macchina.io") and the
+a request method (e.g., "GET"), a URI (e.g., "https://macchina.io") and the
 HTTP version string (e.g., "HTTP/1.1"). All these values can be set at a later
 time as well, via properties.
 
@@ -1744,7 +1744,7 @@ of the result via a callback function.
 Here is an example for a synchronous request:
 
     var net = require('net');
-    var request = new net.HTTPRequest('GET', 'http://macchina.io');
+    var request = new net.HTTPRequest('GET', 'https://macchina.io');
     var response = request.send();
     logger.information(response.status, " ", response.reason);
     logger.information(response.contentType);
@@ -1754,7 +1754,7 @@ Here is an example for a synchronous request:
 And here's the same example, with the request sent asynchronously:
 
     var net = require('net');
-    var request = new net.HTTPRequest('GET', 'http://macchina.io');
+    var request = new net.HTTPRequest('GET', 'https://macchina.io');
     var response = request.send(
         function (result) {
             if (result.error)
@@ -2030,7 +2030,7 @@ The global <[session]> object is available in servlets and server pages. It give
 access to the session object for the current request.
 
 Note: Currently there is no way to create a session object from JavaScript.
-In macchina.io, a session object is created when a user logs in to the web
+In macchina.io EDGE, a session object is created when a user logs in to the web
 interface.
 
 
@@ -2196,7 +2196,7 @@ See the Poco::OSP::LanguageTag class for more information.
 !!!The serviceRegistry Object
 
 The global <[serviceRegistry]> object gives access to the OSP Service Registry.
-In macchina.io, all sensors and devices are available as services through
+In macchina.io EDGE, all sensors and devices are available as services through
 the service registry.
 
 !!serviceRegistry Methods
@@ -2285,7 +2285,7 @@ and returns true if both refer to the same service, otherwise false.
 !!!Database Session and RecordSet Objects
 
 Database Session and RecordSet objects provide access to the SQLite database engine that comes with
-macchina.io.
+macchina.io EDGE.
 
 As of the 0.7.0 release, the Database Session and RecordSet objects have been moved into
 a separate <*data*> module which is available through the <*com.appinf.osp.js.data*> bundle.
@@ -2360,7 +2360,7 @@ data samples as a JSON document.
 !!Creating a Database Session
 
 A Database Session object is created by calling the constructor function with two
-arguments. The first argument is the connector name, which for macchina.io always
+arguments. The first argument is the connector name, which for macchina.io EDGE always
 is "SQLite". The second argument is the path to the SQLite database file.
 
 
@@ -2370,18 +2370,18 @@ Database Session objects have the following properties:
 
 !connector (ro)
 
-The name of the database connector. For macchina.io, only "SQLite" is supported.
+The name of the database connector. For macchina.io EDGE, only "SQLite" is supported.
 
 
 !connectionString (ro)
 
-The connection string. For macchina.io, this is always the path to the SQLite database
+The connection string. For macchina.io EDGE, this is always the path to the SQLite database
 file.
 
 
 !isConnected (ro)
 
-Returns true if the session is connected to the database. For macchina.io and SQLite,
+Returns true if the session is connected to the database. For macchina.io EDGE and SQLite,
 this returns true, unless the session has been closed by calling <[close()]>.
 
 
