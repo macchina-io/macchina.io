@@ -1,6 +1,6 @@
 ![macchina.io][logo]
 
-*macchina.io Edge Device SDK is a powerful application software platform for IoT devices.*
+*macchina.io EDGE is a powerful application software platform for IoT devices.*
 
 With macchina.io you can rapidly build and deploy device applications that communicate with devices, sensors, actuators, cloud services, and humans.
 
