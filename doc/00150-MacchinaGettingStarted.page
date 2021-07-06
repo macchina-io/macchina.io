@@ -1,31 +1,31 @@
-Getting Started with macchina.io
+Getting Started with macchina.io EDGE
 AAAAMacchinaIO
 
 !!!System Requirements
 
-macchina.io can be installed on Linux and macOS systems.
+macchina.io EDGE can be installed on Linux and macOS systems.
 On Linux, cross-compilation for embedded Linux targets is supported.
 
-For the first steps, it is recommended to build and install macchina.io
+For the first steps, it is recommended to build and install macchina.io EDGE
 on a desktop Linux or macOS system. This will get you up and running within
-a few minutes. You can also build macchina.io on systems like a Raspberry Pi
+a few minutes. You can also build macchina.io EDGE on systems like a Raspberry Pi
 or a BeagleBone Black, but this will take a couple of hours.
-Alternatively, you can cross-compile macchina.io for an embedded Linux target,
+Alternatively, you can cross-compile macchina.io EDGE for an embedded Linux target,
 however, this will require a couple of extra steps in order to get everything
 working.
 
-Instructions for cross-compiling macchina.io can be found in the
+Instructions for cross-compiling macchina.io EDGE can be found in the
 [[https://github.com/macchina-io/macchina.io/wiki Wiki]].
 
 
-!!!Getting macchina.io
+!!!Getting macchina.io EDGE
 
-macchina.io can be obtained from GitHub, by cloning the macchina.io repository.
+macchina.io EDGE can be obtained from GitHub, by cloning the macchina.io EDGE repository.
 Alternatively, you can also download a release archive in .zip or .tar.gz format
-from the macchina.io [[https://github.com/macchina-io/macchina.io/releases GitHub Releases]]
+from the macchina.io EDGE [[https://github.com/macchina-io/macchina.io/releases GitHub Releases]]
 page.
 
-To clone the [[https://github.com/macchina-io/macchina.io macchina.io GitHub]] repository:
+To clone the [[https://github.com/macchina-io/macchina.io macchina.io EDGE GitHub]] repository:
 
     $ git clone https://github.com/macchina-io/macchina.io.git
 ----
@@ -40,11 +40,11 @@ The default branch is the develop branch, which contains the latest and greatest
 features, but is not recommended for production use.
 
 
-!!!Building macchina.io
+!!!Building macchina.io EDGE
 
 !!Prerequisites
 
-macchina.io uses the build system from the POCO C++ Libraries, which is based on
+macchina.io EDGE uses the build system from the POCO C++ Libraries, which is based on
 GNU Make. You'll also need a recent version of the GNU C++ compiler (at least
 4.9) or Clang 3.4 (on macOS: Xcode Clang/Apple LLVM 8.0 command-line tools).
 Make sure you have the OpenSSL headers and libraries installed.
@@ -67,9 +67,9 @@ Install OpenSSL via [[http://brew.sh Homebrew]]:
 ----
 
 
-!!Compiling macchina.io
+!!Compiling macchina.io EDGE
 
-To build macchina.io, simply invoke GNU Make in the top-level macchina.io source
+To build macchina.io EDGE, simply invoke GNU Make in the top-level macchina.io EDGE source
 directory. On a multicore system with sufficient memory, you may want to run a
 parallel build, by specifying the <*-j*> option.
 
@@ -82,9 +82,9 @@ things up, you may want to build the release configuration only:
     $ make -s -j8 DEFAULT_TARGET=shared_release
 ----
 
-On a typical desktop or notebook machine, building macchina.io takes about 10 to 15 minutes.
+On a typical desktop or notebook machine, building macchina.io EDGE takes about 10 to 15 minutes.
 If you're building on a system like a Raspberry Pi or Tinkerforge RED Brick, building
-macchina.io will take a couple of hours. Don't attempt a parallel build (<*-j8*>) on these
+macchina.io EDGE will take a couple of hours. Don't attempt a parallel build (<*-j8*>) on these
 systems. Furthermore, you may run out of memory during the build, especially while
 building the V8 library. Try to restart the build and make sure as much memory as
 possible is available, by stopping all unnecessary processes.
@@ -92,12 +92,12 @@ It may be better to cross-compile on a desktop system and transfer the
 binaries to the target system.
 
 
-!!Cross Compiling macchina.io
+!!Cross Compiling macchina.io EDGE
 
-Note: if you want to run macchina.io on your desktop system only, you can safely
-skip this section and continue with [[#6 Running macchina.io]].
+Note: if you want to run macchina.io EDGE on your desktop system only, you can safely
+skip this section and continue with [[#6 Running macchina.io EDGE]].
 
-macchina.io can be cross-compiled for an embedded Linux target. To cross-compile for
+macchina.io EDGE can be cross-compiled for an embedded Linux target. To cross-compile for
 a target, a build configuration for the target must be created, or an existing build
 configuration selected. A couple of configurations
 for various Embedded Linux targets can be found in the <*platform/build/config*> directory.
@@ -119,8 +119,8 @@ with the following command:
    $ make -s -j8 hosttools
 ----
 
-Note: You should not build the entire macchina.io for both host and target in the same directory
-tree, except for the required host tools and libraries. After you've built macchina.io for the
+Note: You should not build the entire macchina.io EDGE for both host and target in the same directory
+tree, except for the required host tools and libraries. After you've built macchina.io EDGE for the
 target system, the bundle files will no longer be usable on the host as they contain the target
 binaries only.
 
@@ -140,8 +140,8 @@ After the build completes, you'll need to copy the following files to the target
     Foundation, XML, JSON, Util, Net, Zip, Crypto, NetSSL, Geo, WebTunnel, RemotingNG and OSP.
   - All bundle files (<**.bndl*>) from <*platform/OSP/bundles*>, <*devices/bundles*>,
     <*protocols/bundles*>, <*services/bundles*>, <*webui/bundles*>, <*samples/bundles*>.
-  - The macchina.io server executable: <*server/bin/Linux/<target_arch>/macchina*>.
-  - The macchina.io server configuration file: <*server/macchina.properties*>.
+  - The macchina.io EDGE server executable: <*server/bin/Linux/<target_arch>/macchina*>.
+  - The macchina.io EDGE server configuration file: <*server/macchina.properties*>.
 
 The bundles should all be copied into a separate directory on the target. A recommended
 filesystem layout on the target would be:
@@ -166,17 +166,17 @@ Then you can simply pack the directory into an archive (e.g., <*.tar.gz*>) file 
 transfer it to the target.
 
 
-!!!Running macchina.io
+!!!Running macchina.io EDGE
 
-After the macchina.io build completes, you can directly run macchina.io without an
-additional install step. To run the macchina.io server:
+After the macchina.io EDGE build completes, you can directly run macchina.io EDGE without an
+additional install step. To run the macchina.io EDGE server:
 
-  1. Set your system's shared library search path to include the macchina.io libraries
+  1. Set your system's shared library search path to include the macchina.io EDGE libraries
      and the <*codeCache*> directory (if necessary, see below). This can be done
-     by sourcing the `env.bash` script located in the macchina.io root directory.
-  2. Run the macchina.io server program.
+     by sourcing the `env.bash` script located in the macchina.io EDGE root directory.
+  2. Run the macchina.io EDGE server program.
 
-To run macchina.io on a Linux system:
+To run macchina.io EDGE on a Linux system:
 
     $ cd /path/to/macchina.io
     $ . env.bash
@@ -184,7 +184,7 @@ To run macchina.io on a Linux system:
     $ bin/Linux/x86_64/macchina
 ----
 
-To run macchina.io on an macOS system:
+To run macchina.io EDGE on an macOS system:
 
     $ cd /path/to/macchina.io
     $ . env.bash
@@ -192,7 +192,7 @@ To run macchina.io on an macOS system:
     $ bin/Darwin/x86_64/macchina
 ----
 
-Note: if you macchina.io configuration file <*macchina.properties*> is not
+Note: if you macchina.io EDGE configuration file <*macchina.properties*> is not
 located in the same directory as the server executable, or in a parent
 directory of it, you'll need to specify the path to the configuration file
 when starting the server:
@@ -217,14 +217,14 @@ If you run on an embedded device using the directory structure created with the
 ----
 
 
-After the macchina.io server has started, which may take a few seconds on slower systems,
+After the macchina.io EDGE server has started, which may take a few seconds on slower systems,
 direct your web browser of choice to http://localhost:22080 (or the IP address of your device).
-You'll see the macchina.io login screen. User username "admin" and password "admin" to log
+You'll see the macchina.io EDGE login screen. User username "admin" and password "admin" to log
 in. After successfully logging in you'll see the Launcher page of the web
 interface. Try out the different web apps to familiarize yourself with the
 web user interface.
 
-The default configuration of macchina.io enables simulation of various
+The default configuration of macchina.io EDGE enables simulation of various
 sensors, including a temperature and an ambient light sensor. You can
 use these simulated sensors in the same way as you'd use any real
 connected sensors in your code. The available sensors and their current
@@ -233,30 +233,30 @@ measurements can be seen on the "Sensors & Devices" app.
 There's also the "Sensor Log" app which displays current and time series
 sensor data from a configurable set of sensors.
 
-To get the most out of macchina.io, you may want to get some real sensors.
-In the developer preview release of macchina.io, only some Tinkerforge sensors
+To get the most out of macchina.io EDGE, you may want to get some real sensors.
+In the developer preview release of macchina.io EDGE, only some Tinkerforge sensors
 are supported. More sensors and devices will be supported in future releases.
 You can of course also implement you own sensor types, once you're
-familiar with the macchina.io Software Development Kit (SDK).
+familiar with the macchina.io EDGE Software Development Kit (SDK).
 
 
 !!!Writing Your First JavaScript Program
 
-In order to write your first JavaScript program that runs on macchina.io,
+In order to write your first JavaScript program that runs on macchina.io EDGE,
 open the "Playground" app. The Playground allows you to create and edit
 a JavaScript program directly in the browser, using a comfortable text
 editor.
 
-[[image:images/macchina_web_playground.png The macchina.io Playground, a JavaScript editor]]
+[[image:images/macchina_web_playground.png The macchina.io EDGE Playground, a JavaScript editor]]
 
 Note that when working with the Playground app, it's a good idea to have a nearby
-console window with macchina.io's log output open to see script output or error messages.
+console window with macchina.io EDGE's log output open to see script output or error messages.
 You can also open the "Console" app in a separate browser window.
 
 
 !!Getting Sensor Data
 
-The Playground comes pre-loaded with the macchina.io variant
+The Playground comes pre-loaded with the macchina.io EDGE variant
 of the "Hello, world!" program - a little program that finds a temperature
 sensor and obtains the current temperature from the sensor. The program
 is reproduced below for reference.
@@ -293,12 +293,12 @@ The program shows two things:
   1. How to obtain a sensor service object from the Service Registry.
   2. How to write logging output.
 
-To find available sensors in the system, you use the macchina.io Service Registry.
-All sensors and devices supported by macchina.io will always be available as
+To find available sensors in the system, you use the macchina.io EDGE Service Registry.
+All sensors and devices supported by macchina.io EDGE will always be available as
 service objects through that registry. In order to find a specific object, the
 service registry supports a simple query expression language that allows you
 to find services based on their properties.
-In the example above, we specifically look for a temperature sensor. In macchina.io,
+In the example above, we specifically look for a temperature sensor. In macchina.io EDGE,
 sensors always have a property named <*io.macchina.physicalQuantity*> that can be
 used to search for sensors that measure a specific physical quantity.
 The <*find*> method will return an array of service references. Service references
@@ -400,7 +400,7 @@ will be written to the log.
 
 Let's now extend the sample to send sensor data over the internet to a server,
 using the MQTT protocol. We're going to use the MQTT sandbox server provided by
-the Eclipse foundation, which is pre-configured in the macchina.io configuration
+the Eclipse foundation, which is pre-configured in the macchina.io EDGE configuration
 file. We'll return to the example using the timer and modify it to send the
 current temperature every 10 seconds.
 

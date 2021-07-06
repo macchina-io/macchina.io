@@ -28,7 +28,7 @@ fi
 
 mkdir -p $MACCHINA_CODECACHE
 
-echo "macchina.io build environment set."
+echo "macchina.io EDGE build environment set."
 echo ""
 echo "\$MACCHINA_BASE     = $MACCHINA_BASE"
 echo "\$PROJECT_BASE      = $PROJECT_BASE"

@@ -165,7 +165,7 @@ protected:
 				"    ooooooooo   oo   oo \n"
 				"      ooooooo   oo   oo \n"
 				"\n"
-				"    macchina.io IoT Edge Device SDK Server\n"
+				"    macchina.io EDGE Server\n"
 				"\n"
 				"    Copyright (c) 2015-2021 by Applied Informatics Software Engineering GmbH.\n"
 				"    All rights reserved.\n"
@@ -227,7 +227,7 @@ protected:
 		helpFormatter.setUsage("OPTIONS");
 		helpFormatter.setHeader(
 			"\n"
-			"The macchina.io IoT Edge Device SDK Server.\n"
+			"The macchina.io EDGE Server.\n"
 			"Copyright (c) 2015-2020 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"The following command line options are supported:"
