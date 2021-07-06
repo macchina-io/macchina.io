@@ -51,6 +51,7 @@
 		<compiler>
 			<exec>clang++</exec>
 			<options>
+				-I${MacchinaBase}/platform/CppUnit/include
 				-I${MacchinaBase}/platform/Foundation/include
 				-I${MacchinaBase}/platform/XML/include
 				-I${MacchinaBase}/platform/JSON/include
@@ -61,6 +62,7 @@
 				-I${MacchinaBase}/platform/Zip/include
 				-I${MacchinaBase}/platform/Data/include
 				-I${MacchinaBase}/platform/Data/SQLite/include
+				-I${MacchinaBase}/platform/ActiveRecord/include
 				-I${MacchinaBase}/platform/JS/Core/include
 				-I${MacchinaBase}/platform/JS/Data/include
 				-I${MacchinaBase}/platform/JS/Net/include
@@ -87,6 +89,7 @@
 				-I${MacchinaBase}/services/WebEvent/include
 				-I${MacchinaBase}/services/NetworkEnvironment/include
 				-I${MacchinaBase}/services/DeviceStatus/include
+				-I${MacchinaBase}/services/MobileConnection/include
 				-I${MacchinaBase}/protocols/BtLE/include
 				-I${MacchinaBase}/protocols/MQTT/include
 				-I${MacchinaBase}/protocols/Modbus/include
@@ -104,7 +107,7 @@
 		</compiler>
 		<language>EN</language>
 		<charset>utf-8</charset>
-		<software>macchina.io</software>
+		<software>macchina.io EDGE</software>
 		<company>Applied Informatics Software Engineering GmbH</company>
 		<companyURI>http://macchina.io</companyURI>
 		<licenseURI>http://creativecommons.org/licenses/by/3.0/</licenseURI>

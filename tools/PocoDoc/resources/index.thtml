@@ -18,14 +18,14 @@
 <iframe src="navigation.html" onload="iFrameResize(this);" scrolling="no"></iframe>
 </div>
 <div id="content">
-<h2>Welcome to macchina.io!</h2>
-<p><a href="http://macchina.io">macchina.io</a> macchina.io is a rich software framework for
+<h2>Welcome to macchina.io EDGE!</h2>
+<p><a href="http://macchina.io">macchina.io</a> macchina.io EDGE is a rich software framework for
 quickly building IoT device applications running on Linux-based devices.
-macchina.io implements a web-enabled, secure, modular and extensible JavaScript and C++
+macchina.io EDGE implements a web-enabled, secure, modular and extensible JavaScript and C++
 runtime environment and provides ready-to-use and industry proven software building blocks.
 These enable devices to talk to various sensors, other devices and cloud services, and
 to process, analyze and filter sensor data locally, at the edge device or within the
-local network ("fog").
+local network.
 </p>
 <p>If you're new to macchina.io, please start with the
 <a href="00100-MacchinaIntroduction.html">Introduction and Overview</a>
