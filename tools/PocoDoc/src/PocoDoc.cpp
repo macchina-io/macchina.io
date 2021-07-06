@@ -233,7 +233,7 @@ protected:
 			for (StringTokenizer::Iterator itg = excTokenizer.begin(); itg != excTokenizer.end(); ++itg)
 			{
 				Glob glob(*itg);
-				if (glob.match(p.getFileName()))
+				if (glob.match(p.getFileName()) || glob.match(p.toString()))
 					include = false;
 			}
 			if (include)
