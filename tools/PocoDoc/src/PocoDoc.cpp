@@ -76,12 +76,12 @@ public:
 		_file(file)
 	{
 	}
-	
+
 	std::istream& stream()
 	{
 		return *_pStream;
 	}
-	
+
 	~Preprocessor()
 	{
 		int c = _pStream->get();
@@ -100,7 +100,7 @@ public:
 			}
 		}
 	}
-	
+
 private:
 	ProcessHandle _proc;
 	std::istream* _pStream;
@@ -111,7 +111,7 @@ private:
 class PocoDocApp: public Application
 {
 public:
-	PocoDocApp(): 
+	PocoDocApp():
 		_helpRequested(false),
 		_writeEclipseTOC(false)
 	{
@@ -122,23 +122,23 @@ public:
 	{
 	}
 
-protected:	
+protected:
 	void initialize(Application& self)
 	{
 		loadConfiguration(); // load default configuration files, if present
 		Application::initialize(self);
 	}
-	
+
 	void uninitialize()
 	{
 		Application::uninitialize();
 	}
-	
+
 	void reinitialize(Application& self)
 	{
 		Application::reinitialize(self);
 	}
-	
+
 	void defineOptions(OptionSet& options)
 	{
 		Application::defineOptions(options);
@@ -169,14 +169,14 @@ protected:
 				.repeatable(false)
 				.callback(OptionCallback<PocoDocApp>(this, &PocoDocApp::handleEclipse)));
 	}
-	
+
 	void handleHelp(const std::string& name, const std::string& value)
 	{
 		_helpRequested = true;
 		displayHelp();
 		stopOptionsProcessing();
 	}
-	
+
 	void handleDefine(const std::string& name, const std::string& value)
 	{
 		defineProperty(value);
@@ -205,7 +205,7 @@ protected:
 	{
 		loadConfiguration(value, -200);
 	}
-	
+
 	void displayHelp()
 	{
 		HelpFormatter helpFormatter(options());
@@ -214,7 +214,7 @@ protected:
 		helpFormatter.setHeader("POCO C++ Libraries documentation builder.");
 		helpFormatter.format(std::cout);
 	}
-	
+
 	void buildFileList(std::set<std::string>& files)
 	{
 		std::set<std::string> temp;
@@ -240,7 +240,7 @@ protected:
 				files.insert(*it);
 		}
 	}
-	
+
 	Preprocessor* preprocess(const std::string& file)
 	{
 		Path pp(file);
@@ -269,7 +269,7 @@ protected:
 		StringTokenizer tokenizer(popts, ",\n", StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
 		std::vector<std::string> args(tokenizer.begin(), tokenizer.end());
 		args.push_back(file);
-		
+
 		if (!path.empty())
 		{
 			std::string newPath(Environment::get("PATH"));
@@ -277,21 +277,21 @@ protected:
 			newPath += path;
 			Environment::set("PATH", path);
 		}
-		
+
 		if (usePipe)
 		{
 			Poco::Pipe inPipe;
-			ProcessHandle proc = Process::launch(exec, args, 0, &inPipe, 0);		
+			ProcessHandle proc = Process::launch(exec, args, 0, &inPipe, 0);
 			return new Preprocessor(proc, new Poco::PipeInputStream(inPipe));
 		}
 		else
 		{
-			ProcessHandle proc = Process::launch(exec, args);	
+			ProcessHandle proc = Process::launch(exec, args);
 			proc.wait();
 			return new Preprocessor(proc, new std::ifstream(pp.getFileName().c_str()), pp.getFileName());
 		}
 	}
-	
+
 	void parse(const std::string& file)
 	{
 		logger().information("Preprocessing " + file);
@@ -304,7 +304,7 @@ protected:
 		}
 		else throw Poco::OpenFileException("cannot read from preprocessor");
 	}
-		
+
 	int parseAll()
 	{
 		int errors = 0;
@@ -324,7 +324,7 @@ protected:
 		}
 		return errors;
 	}
-	
+
 	void fixup()
 	{
 		logger().information("Fixing-up class hierarchies");
@@ -337,7 +337,7 @@ protected:
 			}
 		}
 	}
-	
+
 	void writeDoc()
 	{
 		logger().information("Generating documentation");
@@ -345,9 +345,9 @@ protected:
 		path.makeDirectory();
 		File file(path);
 		file.createDirectories();
-		
+
 		DocWriter writer(_gst, path.toString(), config().getBool("PocoDoc.prettifyCode", false), _writeEclipseTOC);
-		
+
 		if (config().hasProperty("PocoDoc.pages"))
 		{
 			std::string pages = config().getString("PocoDoc.pages");
@@ -363,13 +363,13 @@ protected:
 			}
 		}
 		writer.write();
-		
+
 		if (_writeEclipseTOC)
 		{
 			writer.writeEclipseTOC();
 		}
 	}
-	
+
 	void copyResources()
 	{
 		logger().information("Copying resources");
@@ -397,7 +397,7 @@ protected:
 			}
 		}
 	}
-	
+
 	void copyResource(const Path& source, const Path& dest)
 	{
 		logger().information(std::string("Copying resource ") + source.toString() + " to " + dest.toString());
@@ -407,7 +407,7 @@ protected:
 		else
 			copyFile(source, dest);
 	}
-	
+
 	void copyFile(const Path& source, const Path& dest)
 	{
 		Path dd(dest);
@@ -433,7 +433,7 @@ protected:
 			sf.copyTo(dd.toString());
 		}
 	}
-	
+
 	void copyDirectory(const Path& source, const Path& dest)
 	{
 		Path src(source);
@@ -457,6 +457,9 @@ protected:
 			config().setString("PocoDoc.date", Poco::DateTimeFormatter::format(now, "%Y-%m-%d"));
 			config().setString("PocoDoc.year", Poco::DateTimeFormatter::format(now, "%Y"));
 			config().setString("PocoDoc.googleAnalyticsCode", generateGoogleAnalyticsCode());
+			config().setString("PocoDoc.hubSpotCode", generateHubSpotCode());
+			if (!config().has("PocoDoc.customHeadHTML")) config().setString("PocoDoc.customHeadHTML", "");
+			if (!config().has("PocoDoc.customBodyHTML")) config().setString("PocoDoc.customBodyHTML", "");
 			Poco::Stopwatch sw;
 			int errors = 0;
 			try
@@ -477,28 +480,38 @@ protected:
 		}
 		return Application::EXIT_OK;
 	}
-	
+
 	std::string generateGoogleAnalyticsCode()
 	{
 		std::stringstream ostr;
 		std::string googleAnalyticsId(config().getString("PocoDoc.googleAnalyticsId", ""));
 		if (!googleAnalyticsId.empty())
 		{
-			ostr << "<!-- Begin Google Analytics -->\n";
-			ostr << "<script type=\"text/javascript\">\n";
-			ostr << "var gaJsHost = ((\"https:\" == document.location.protocol) ? \"https://ssl.\" : \"http://www.\");\n";
-			ostr << "document.write(unescape(\"%3Cscript src='\" + gaJsHost + \"google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E\"));\n";
+			ostr << "<script>\n";
+			ostr << "  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){\n";
+			ostr << "  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),\n";
+			ostr << "  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)\n";
+			ostr << "  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');\n";
+			ostr << "\n";
+			ostr << "  ga('create', '" << googleAnalyticsId << "', 'auto');\n";
+			ostr << "  ga('set', 'anonymizeIp', true);\n";
+			ostr << "  ga('send', 'pageview');\n";
 			ostr << "</script>\n";
-			ostr << "<script type=\"text/javascript\">\n";
-			ostr << "try {\n";
-			ostr << "var pageTracker = _gat._getTracker(\"" << googleAnalyticsId << "\");\n";
-			ostr << "pageTracker._trackPageview();\n";
-			ostr << "} catch(err) {}</script>\n";
-			ostr << "<!-- End Google Analytics -->\n";
 		}
 		return ostr.str();
 	}
-	
+
+	std::string generateHubSpotCode()
+	{
+		std::stringstream ostr;
+		std::string hubSpotId(config().getString("PocoDoc.hubSpotId", ""));
+		if (!hubSpotId.empty())
+		{
+			ostr << "<script type=\"text/javascript\" id=\"hs-script-loader\" async defer src=\"//js.hs-scripts.com/" << hubSpotId << ".js\"></script>\n";
+		}
+		return ostr.str();
+	}
+
 private:
 	bool _helpRequested;
 	bool _writeEclipseTOC;
