@@ -16,6 +16,7 @@
 #include "Poco/OSP/BundleContext.h"
 #include "Poco/OSP/BundleEvent.h"
 #include "Poco/OSP/JS/JSExecutor.h"
+#include "Poco/Util/Timer.h"
 #include "Poco/StringTokenizer.h"
 #include "Poco/DateTime.h"
 #include "Poco/Mutex.h"
@@ -39,13 +40,13 @@ class SchedulerExtensionPoint: public Poco::OSP::ExtensionPoint
 public:
 	SchedulerExtensionPoint(Poco::OSP::BundleContext::Ptr pContext);
 		/// Creates the JavaScript extension point.
-	
+
 	~SchedulerExtensionPoint();
 		/// Destroys the JavaScript extension point.
-	
+
 	void scheduleTasks();
 		/// Starts all tasks ready for execution.
-	
+
 	// Poco::OSP::ExtensionPoint
 	void handleExtension(Poco::OSP::Bundle::ConstPtr pBundle, Poco::XML::Element* pExtensionElem);
 
@@ -56,7 +57,7 @@ private:
 	struct Schedule
 	{
 		Schedule();
-		
+
 		std::string expression;
 		Poco::UInt64 minutesMask;     /// bitmask for minutes (bits 0 .. 59)
 		Poco::UInt32 hoursMask;       /// bitmask for hours (bits 0 .. 23)
@@ -66,7 +67,7 @@ private:
 		Poco::DateTime notBefore;     /// treated as local time
 		Poco::DateTime notAfter;      /// treated as local time
 	};
-	
+
 	struct Task
 	{
 		Task();
@@ -88,7 +89,7 @@ private:
 	static const std::string WEEKLY;
 	static const std::string DAILY;
 	static const std::string HOURLY;
-	
+
 	Poco::OSP::BundleContext::Ptr _pContext;
 	std::vector<Task> _tasks;
 	Poco::Util::Timer _schedulerTimer;
