@@ -160,6 +160,7 @@ protected:
 	static void setContent(v8::Local<v8::Name> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
 	static void getBuffer(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void setBuffer(v8::Local<v8::Name> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+	static void getHeaders(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void hasHeader(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getHeader(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void setHeader(const v8::FunctionCallbackInfo<v8::Value>& args);

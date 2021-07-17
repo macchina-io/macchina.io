@@ -70,6 +70,7 @@ v8::Handle<v8::ObjectTemplate> HTTPResponseWrapper::objectTemplate(v8::Isolate* 
 		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "contentType"s), getContentType, setContentType);
 		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "content"s), getContent, setContent);
 		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "buffer"s), getBuffer, setBuffer);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "headers"s), getHeaders);
 
 		objectTemplate->Set(toV8Internalized(pIsolate, "has"s), v8::FunctionTemplate::New(pIsolate, hasHeader));
 		objectTemplate->Set(toV8Internalized(pIsolate, "get"s), v8::FunctionTemplate::New(pIsolate, getHeader));
@@ -210,6 +211,26 @@ void HTTPResponseWrapper::setBuffer(v8::Local<v8::Name> name, v8::Local<v8::Valu
 		pResponseHolder->content().assign(pBuffer->begin(), pBuffer->size());
 	}
 	else returnException(info, Poco::InvalidArgumentException("argument must be a Buffer"));
+}
+
+
+void HTTPResponseWrapper::getHeaders(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	v8::Isolate* pIsolate(info.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
+
+	const Poco::Net::HTTPResponse& response = pResponseHolder->response();
+	v8::Local<v8::Object> result(v8::Object::New(pIsolate));
+	if (!result.IsEmpty())
+	{
+		for (auto it = response.begin(); it != response.end(); ++it)
+		{
+			(void) result->Set(context, toV8String(pIsolate, it->first), toV8String(pIsolate, it->second));
+		}
+	}
+	info.GetReturnValue().Set(result);
 }
 
 

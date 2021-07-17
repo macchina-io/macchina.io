@@ -44,6 +44,7 @@ public:
 protected:
 	static void hasField(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getField(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void getFields(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void getProperty(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 };
 
