@@ -903,42 +903,6 @@ private:
 
 
 //
-// StopScriptTask
-//
-
-
-class StopScriptTask: public Poco::Util::TimerTask
-{
-public:
-	using Ptr = Poco::AutoPtr<StopScriptTask>;
-
-	StopScriptTask(TimedJSExecutor* pExecutor):
-		_pExecutor(pExecutor, true)
-	{
-	}
-
-	void run()
-	{
-		_pExecutor->_timer.cancel(false);
-		_stopped.set();
-	}
-
-	void wait()
-	{
-		_pExecutor->terminate();
-		while (!_stopped.tryWait(200))
-		{
-			_pExecutor->terminate();
-		}
-	}
-
-private:
-	TimedJSExecutor::Ptr _pExecutor;
-	Poco::Event _stopped;
-};
-
-
-//
 // CallFunctionTask
 //
 
@@ -1081,10 +1045,7 @@ void TimedJSExecutor::stop()
 		_stopped = true;
 	}
 
-	StopScriptTask::Ptr pStopTask = new StopScriptTask(this);
-	_timer.schedule(pStopTask, Poco::Clock(0));
-	pStopTask->wait();
-	pStopTask = 0;
+	_timer.cancel(this);
 
 	for (auto pTask: _callFunctionTasks)
 	{

@@ -24,9 +24,8 @@
 #include "Poco/SharedPtr.h"
 #include "Poco/URI.h"
 #include "Poco/BasicEvent.h"
-#include "Poco/Event.h"
-#include "Poco/Util/Timer.h"
 #include "Poco/Util/TimerTask.h"
+#include "Poco/JS/Core/JSTimer.h"
 #include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/JS/Core/Wrapper.h"
 #include "Poco/JS/Core/ModuleRegistry.h"
@@ -312,7 +311,7 @@ class CallFunctionTask;
 
 
 class JSCore_API TimedJSExecutor: public JSExecutor
-	/// This class extends the basic JSExecutor class with a Poco::Util::Timer-based
+	/// This class extends the basic JSExecutor class with a JSTimer-based
 	/// event loop, allowing the definition of timers in JavaScript code.
 	///
 	/// Scripts can use the setTimeout() and setInterval() JavaScript functions to
@@ -342,7 +341,7 @@ public:
 		/// Stops the executor and cancels all timer events.
 
 protected:
-	Poco::Util::Timer& timer();
+	JSTimer& timer();
 		/// Returns the executor's timer.
 
 	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
@@ -352,7 +351,7 @@ protected:
 	static void cancelTimer(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 private:
-	Poco::Util::Timer _timer;
+	JSTimer _timer;
 	bool _stopped;
 	std::set<CallFunctionTask*> _callFunctionTasks;
 	Poco::FastMutex _mutex;
@@ -396,7 +395,7 @@ inline bool JSExecutor::isRunning() const
 }
 
 
-inline Poco::Util::Timer& TimedJSExecutor::timer()
+inline JSTimer& TimedJSExecutor::timer()
 {
 	return _timer;
 }
