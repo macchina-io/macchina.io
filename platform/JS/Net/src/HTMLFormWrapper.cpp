@@ -47,6 +47,7 @@ v8::Handle<v8::ObjectTemplate> HTMLFormWrapper::objectTemplate(v8::Isolate* pIso
 		objectTemplate->SetInternalFieldCount(1);
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, hasField));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "get"), v8::FunctionTemplate::New(pIsolate, getField));
+		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "fields"), getFields);
 
 		// deprecated - for backwards compatibility, will be removed eventually
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "hasField"), v8::FunctionTemplate::New(pIsolate, hasField));
@@ -79,6 +80,23 @@ void HTMLFormWrapper::getField(const v8::FunctionCallbackInfo<v8::Value>& args)
 	if (args.Length() > 1) deflt = toString(args[1]);
 	std::string value = pForm->get(name, deflt);
 	returnString(args, value);
+}
+
+
+void HTMLFormWrapper::getFields(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	v8::HandleScope handleScope(info.GetIsolate());
+	Poco::Net::HTMLForm* pForm = Wrapper::unwrapNative<Poco::Net::HTMLForm>(info);
+
+	v8::Local<v8::Object> result(v8::Object::New(info.GetIsolate()));
+	if (!result.IsEmpty())
+	{
+		for (auto it = pForm->begin(); it != pForm->end(); ++it)
+		{
+			result->Set(v8::String::NewFromUtf8(info.GetIsolate(), it->first.c_str()), v8::String::NewFromUtf8(info.GetIsolate(),it->second.c_str()));
+		}
+	}
+	info.GetReturnValue().Set(result);
 }
 
 

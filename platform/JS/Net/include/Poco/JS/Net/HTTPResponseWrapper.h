@@ -35,17 +35,17 @@ class JSNet_API ResponseHolder
 public:
 	ResponseHolder();
 		/// Creates the ResponseHolder.
-	
+
 	virtual ~ResponseHolder();
 		/// Destroys the ResponseHolder.
-		
+
 	virtual Poco::Net::HTTPResponse& response() = 0;
 
 	std::string& content()
 	{
 		return _content;
 	}
-	
+
 	const std::string& content() const
 	{
 		return _content;
@@ -62,22 +62,22 @@ public:
 	ResponseHolderImpl()
 	{
 	}
-	
+
 	ResponseHolderImpl(const Poco::Net::HTTPResponse& response):
 		_response(response.getVersion(), response.getStatus(), response.getReason())
 	{
 		static_cast<Poco::Net::MessageHeader>(_response) = response;
 	}
-	
+
 	~ResponseHolderImpl()
 	{
 	}
-	
+
 	Poco::Net::HTTPResponse& response()
 	{
 		return _response;
 	}
-	
+
 private:
 	Poco::Net::HTTPResponse _response;
 };
@@ -91,16 +91,16 @@ public:
 		_response(response)
 	{
 	}
-	
+
 	~ResponseRefHolderImpl()
 	{
 	}
-	
+
 	Poco::Net::HTTPResponse& response()
 	{
 		return _response;
 	}
-	
+
 private:
 	C& _response;
 };
@@ -114,16 +114,16 @@ public:
 		_pResponse(pResponse)
 	{
 	}
-	
+
 	~ResponsePtrHolderImpl()
 	{
 	}
-	
+
 	Poco::Net::HTTPResponse& response()
 	{
 		return *_pResponse;
 	}
-	
+
 private:
 	Poco::SharedPtr<C> _pResponse;
 };
@@ -135,7 +135,7 @@ class JSNet_API HTTPResponseWrapper: public JS::Core::Wrapper
 public:
 	HTTPResponseWrapper();
 		/// Creates the HTTPResponseWrapper for the root logger.
-	
+
 	~HTTPResponseWrapper();
 		/// Destroys the HTTPResponseWrapper.
 
@@ -144,7 +144,7 @@ public:
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-		
+
 protected:
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void destruct(const v8::WeakCallbackInfo<ResponseHolder>& data);
@@ -160,6 +160,7 @@ protected:
 	static void setContent(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
 	static void getBuffer(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void setBuffer(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+	static void getHeaders(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void hasHeader(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getHeader(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void setHeader(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -169,7 +170,7 @@ protected:
 	static void writeHTML(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void htmlize(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void send(const v8::FunctionCallbackInfo<v8::Value>& args);
-	
+
 	friend class HTTPRequestWrapper;
 };
 

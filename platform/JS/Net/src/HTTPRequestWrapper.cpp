@@ -85,6 +85,7 @@ v8::Handle<v8::ObjectTemplate> HTTPRequestWrapper::objectTemplate(v8::Isolate* p
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "buffer"), getBuffer, setBuffer);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "timeout"), getTimeout, setTimeout);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "cookies"), getCookies);
+		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "headers"), getHeaders);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "credentials"), getCredentials);
 
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, hasHeader));
@@ -254,7 +255,25 @@ void HTTPRequestWrapper::getCookies(v8::Local<v8::String> name, const v8::Proper
 	v8::Local<v8::Object> result(v8::Object::New(info.GetIsolate()));
 	if (!result.IsEmpty())
 	{
-		for (Poco::Net::NameValueCollection::ConstIterator it = cookies.begin(); it != cookies.end(); ++it)
+		for (auto it = cookies.begin(); it != cookies.end(); ++it)
+		{
+			result->Set(v8::String::NewFromUtf8(info.GetIsolate(), it->first.c_str()), v8::String::NewFromUtf8(info.GetIsolate(),it->second.c_str()));
+		}
+	}
+	info.GetReturnValue().Set(result);
+}
+
+
+void HTTPRequestWrapper::getHeaders(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	v8::HandleScope handleScope(info.GetIsolate());
+	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(info);
+
+	const Poco::Net::HTTPRequest& request = pRequestHolder->request();
+	v8::Local<v8::Object> result(v8::Object::New(info.GetIsolate()));
+	if (!result.IsEmpty())
+	{
+		for (auto it = request.begin(); it != request.end(); ++it)
 		{
 			result->Set(v8::String::NewFromUtf8(info.GetIsolate(), it->first.c_str()), v8::String::NewFromUtf8(info.GetIsolate(),it->second.c_str()));
 		}

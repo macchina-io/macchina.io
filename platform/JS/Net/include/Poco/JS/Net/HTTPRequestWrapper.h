@@ -36,27 +36,27 @@ class JSNet_API RequestHolder
 public:
 	RequestHolder();
 		/// Creates the RequestHolder.
-	
+
 	virtual ~RequestHolder();
 		/// Destroys the RequestHolder.
-		
+
 	virtual Poco::Net::HTTPRequest& request() = 0;
 
 	std::string& content()
 	{
 		return _content;
 	}
-	
+
 	const std::string& content() const
 	{
 		return _content;
 	}
-	
+
 	void setTimeout(const Poco::Timespan timeout)
 	{
 		_timeout = timeout;
 	}
-	
+
 	const Poco::Timespan& getTimeout() const
 	{
 		return _timeout;
@@ -74,22 +74,22 @@ public:
 	RequestHolderImpl()
 	{
 	}
-	
+
 	RequestHolderImpl(const Poco::Net::HTTPRequest& request):
 		_request(request.getMethod(), request.getURI(), request.getVersion())
 	{
 		static_cast<Poco::Net::MessageHeader>(_request) = request;
 	}
-	
+
 	~RequestHolderImpl()
 	{
 	}
-	
+
 	Poco::Net::HTTPRequest& request()
 	{
 		return _request;
 	}
-	
+
 private:
 	Poco::Net::HTTPRequest _request;
 };
@@ -103,16 +103,16 @@ public:
 		_request(request)
 	{
 	}
-	
+
 	~RequestRefHolderImpl()
 	{
 	}
-	
+
 	Poco::Net::HTTPRequest& request()
 	{
 		return _request;
 	}
-	
+
 private:
 	C& _request;
 };
@@ -126,16 +126,16 @@ public:
 		_pRequest(pRequest)
 	{
 	}
-	
+
 	~RequestPtrHolderImpl()
 	{
 	}
-	
+
 	Poco::Net::HTTPRequest& request()
 	{
 		return *_pRequest;
 	}
-	
+
 private:
 	Poco::SharedPtr<C> _pRequest;
 };
@@ -147,7 +147,7 @@ class JSNet_API HTTPRequestWrapper: public JS::Core::Wrapper
 public:
 	HTTPRequestWrapper();
 		/// Creates the HTTPRequestWrapper for the root logger.
-	
+
 	~HTTPRequestWrapper();
 		/// Destroys the HTTPRequestWrapper.
 
@@ -159,7 +159,7 @@ public:
 
 	// Wrapper
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
-		
+
 protected:
 	static void getMethod(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void setMethod(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
@@ -176,6 +176,7 @@ protected:
 	static void getTimeout(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void setTimeout(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
 	static void getCookies(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
+	static void getHeaders(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void getCredentials(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void hasHeader(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getHeader(const v8::FunctionCallbackInfo<v8::Value>& args);

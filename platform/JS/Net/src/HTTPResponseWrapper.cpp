@@ -25,26 +25,6 @@ namespace JS {
 namespace Net {
 
 
-std::string htmlize(const std::string& str)
-{
-	std::string::const_iterator it(str.begin());
-	std::string::const_iterator end(str.end());
-	std::string html;
-	for (; it != end; ++it)
-	{
-		switch (*it)
-		{
-		case '<': html += "&lt;"; break;
-		case '>': html += "&gt;"; break;
-		case '"': html += "&quot;"; break;
-		case '&': html += "&amp;"; break;
-		default:  html += *it; break;
-		}
-	}
-	return html;
-}
-
-
 ResponseHolder::ResponseHolder()
 {
 }
@@ -87,6 +67,7 @@ v8::Handle<v8::ObjectTemplate> HTTPResponseWrapper::objectTemplate(v8::Isolate* 
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "contentType"), getContentType, setContentType);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "content"), getContent, setContent);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "buffer"), getBuffer, setBuffer);
+		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "headers"), getHeaders);
 
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, hasHeader));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "get"), v8::FunctionTemplate::New(pIsolate, getHeader));
@@ -234,6 +215,24 @@ void HTTPResponseWrapper::setBuffer(v8::Local<v8::String> name, v8::Local<v8::Va
 }
 
 
+void HTTPResponseWrapper::getHeaders(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	v8::HandleScope handleScope(info.GetIsolate());
+	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
+
+	const Poco::Net::HTTPResponse& response = pResponseHolder->response();
+	v8::Local<v8::Object> result(v8::Object::New(info.GetIsolate()));
+	if (!result.IsEmpty())
+	{
+		for (auto it = response.begin(); it != response.end(); ++it)
+		{
+			result->Set(v8::String::NewFromUtf8(info.GetIsolate(), it->first.c_str()), v8::String::NewFromUtf8(info.GetIsolate(),it->second.c_str()));
+		}
+	}
+	info.GetReturnValue().Set(result);
+}
+
+
 void HTTPResponseWrapper::hasHeader(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
@@ -319,7 +318,7 @@ void HTTPResponseWrapper::writeHTML(const v8::FunctionCallbackInfo<v8::Value>& a
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(args);
 	for (int i = 0; i < args.Length(); i++)
 	{
-		pResponseHolder->content().append(Poco::JS::Net::htmlize(toString(args[i])));
+		pResponseHolder->content().append(Poco::Net::htmlize(toString(args[i])));
 	}
 }
 
@@ -341,7 +340,7 @@ void HTTPResponseWrapper::htmlize(const v8::FunctionCallbackInfo<v8::Value>& arg
 	std::string result;
 	for (int i = 0; i < args.Length(); i++)
 	{
-		result += Poco::JS::Net::htmlize(toString(args[i]));
+		result += Poco::Net::htmlize(toString(args[i]));
 	}
 	returnString(args, result);
 }
