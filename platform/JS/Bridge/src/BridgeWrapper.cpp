@@ -343,9 +343,8 @@ BridgeHolder::Ptr BridgeHolder::find(const std::string& subscriberURI)
 }
 
 
-void BridgeHolder::destruct(const v8::WeakCallbackInfo<BridgeHolder>& data)
+void BridgeHolder::destruct(const v8::WeakCallbackInfo<BridgeHolder>&)
 {
-	data.GetParameter()->clear();
 }
 
 
