@@ -6,6 +6,35 @@ if (!session || !session.authenticated)
 	return;
 }
 
+function versionString(version)
+{
+	switch (version)
+	{
+	case 0:
+		return '3.1/3.1.1';
+	case 3:
+		return '3.1';
+	case 4:
+		return '3.1.1';
+	case 5:
+		return '5';
+	default:
+		return 'unknown';
+	}
+}
+
+function clientVersion(client)
+{
+	if (client.connected())
+	{
+		return versionString(client.connectionInfo().mqttVersion);
+	}
+	else
+	{
+		return versionString(client.mqttVersion());
+	}
+}
+
 var clients = [];
 
 var clientRefs = serviceRegistry.find('io.macchina.mqtt.id != ""');
@@ -21,6 +50,7 @@ for (var i = 0; i < clientRefs.length; i++)
 			name: clientRef.name,
 			serverURI: client.serverURI(),
 			connected: client.connected(),
+			version: clientVersion(client),
 			subscribedTopics: client.subscribedTopics(),
 			statistics: client.statistics()
 		};

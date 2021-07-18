@@ -3,7 +3,7 @@
   <manifest>
     <name>macchina.io MQTT Web Interface</name>
     <symbolicName>io.macchina.webui.mqtt</symbolicName>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2015-2021, Applied Informatics Software Engineering GmbH</copyright>
     <lazyStart>false</lazyStart>
