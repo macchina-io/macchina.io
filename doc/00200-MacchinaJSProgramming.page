@@ -1850,6 +1850,14 @@ An object containing all cookies sent with the request, with cookie name
 as key and cookie value as string value.
 
 
+!headers (ro)
+
+An object containing all header fields as properties. Note that the returned object
+is not kept in sync with the request object. After making changes to the headers
+in the request object headers (by calling `set`), query this property again to
+receive an updated object.
+
+
 !credentials (ro)
 
 If the request has been sent with HTTP Basic Authentication information, returns
@@ -1944,6 +1952,14 @@ Note: setting the <[buffer]> property will also affect the <[content]> property
 (and vice-versa), since both use the same underlying data.
 
 
+!headers (ro)
+
+An object containing all header fields as properties. Note that the returned object
+is not kept in sync with the response object. After making changes to the headers
+in the response object headers (by calling `set`), query this property again to
+receive an updated object.
+
+
 !!HTTPResponse Methods
 
 
@@ -2011,6 +2027,7 @@ one can also write:
 	var value = form.field;
 ----
 
+!!form Methods
 
 !has(name)
 
@@ -2023,6 +2040,12 @@ Returns the value of the form field with the given name. If the field is not
 present, returns the default value. If no default value has been given, returns
 an empty string if the form field does not exist.
 
+!!form Properties
+
+!fields
+
+This read-only property returns an object containing all form fields and their values
+as properties.
 
 !!!The session Object
 
