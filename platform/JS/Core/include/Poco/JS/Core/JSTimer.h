@@ -23,6 +23,7 @@
 #include "Poco/TimedNotificationQueue.h"
 #include "Poco/Thread.h"
 #include "Poco/Runnable.h"
+#include <atomic>
 
 
 namespace Poco {
@@ -155,6 +156,7 @@ private:
 
 	Poco::TimedNotificationQueue _queue;
 	Poco::Thread _thread;
+	std::atomic<bool> _cancelled;
 };
 
 
