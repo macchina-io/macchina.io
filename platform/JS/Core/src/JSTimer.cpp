@@ -235,7 +235,8 @@ private:
 };
 
 
-JSTimer::JSTimer()
+JSTimer::JSTimer():
+	_cancelled(false)
 {
 	_thread.start(*this);
 }
@@ -257,14 +258,20 @@ JSTimer::~JSTimer()
 
 void JSTimer::cancel(TimedJSExecutor* pExecutor)
 {
-	Poco::AutoPtr<CancelNotification> pNf = new CancelNotification(_queue, pExecutor);
-	_queue.enqueueNotification(pNf, Poco::Clock(0));
-	pNf->wait();
+	if (!_cancelled.exchange(true))
+	{
+		Poco::AutoPtr<CancelNotification> pNf = new CancelNotification(_queue, pExecutor);
+		_queue.enqueueNotification(pNf, Poco::Clock(0));
+		pNf->wait();
+		_cancelled = false;
+	}
 }
 
 
 void JSTimer::schedule(Poco::Util::TimerTask::Ptr pTask, Poco::Timestamp time)
 {
+	if (_cancelled) return;
+
 	validateTask(pTask);
 	_queue.enqueueNotification(new TaskNotification(_queue, pTask), time);
 }
@@ -272,6 +279,8 @@ void JSTimer::schedule(Poco::Util::TimerTask::Ptr pTask, Poco::Timestamp time)
 
 void JSTimer::schedule(Poco::Util::TimerTask::Ptr pTask, Poco::Clock clock)
 {
+	if (_cancelled) return;
+
 	validateTask(pTask);
 	_queue.enqueueNotification(new TaskNotification(_queue, pTask), clock);
 }
@@ -279,6 +288,8 @@ void JSTimer::schedule(Poco::Util::TimerTask::Ptr pTask, Poco::Clock clock)
 
 void JSTimer::schedule(Poco::Util::TimerTask::Ptr pTask, long delay, long interval)
 {
+	if (_cancelled) return;
+
 	Poco::Clock clock;
 	clock += static_cast<Poco::Clock::ClockDiff>(delay)*1000;
 	schedule(pTask, clock, interval);
@@ -287,6 +298,8 @@ void JSTimer::schedule(Poco::Util::TimerTask::Ptr pTask, long delay, long interv
 
 void JSTimer::schedule(Poco::Util::TimerTask::Ptr pTask, Poco::Timestamp time, long interval)
 {
+	if (_cancelled) return;
+
 	validateTask(pTask);
 	_queue.enqueueNotification(new PeriodicTaskNotification(_queue, pTask, interval), time);
 }
@@ -294,6 +307,8 @@ void JSTimer::schedule(Poco::Util::TimerTask::Ptr pTask, Poco::Timestamp time, l
 
 void JSTimer::schedule(Poco::Util::TimerTask::Ptr pTask, Poco::Clock clock, long interval)
 {
+	if (_cancelled) return;
+
 	validateTask(pTask);
 	_queue.enqueueNotification(new PeriodicTaskNotification(_queue, pTask, interval), clock);
 }
@@ -301,6 +316,8 @@ void JSTimer::schedule(Poco::Util::TimerTask::Ptr pTask, Poco::Clock clock, long
 
 void JSTimer::scheduleAtFixedRate(Poco::Util::TimerTask::Ptr pTask, long delay, long interval)
 {
+	if (_cancelled) return;
+
 	Poco::Clock clock;
 	clock += static_cast<Poco::Clock::ClockDiff>(delay)*1000;
 	scheduleAtFixedRate(pTask, clock, interval);
@@ -309,6 +326,8 @@ void JSTimer::scheduleAtFixedRate(Poco::Util::TimerTask::Ptr pTask, long delay, 
 
 void JSTimer::scheduleAtFixedRate(Poco::Util::TimerTask::Ptr pTask, Poco::Timestamp time, long interval)
 {
+	if (_cancelled) return;
+
 	validateTask(pTask);
 	Poco::Timestamp tsNow;
 	Poco::Clock clock;
@@ -320,6 +339,8 @@ void JSTimer::scheduleAtFixedRate(Poco::Util::TimerTask::Ptr pTask, Poco::Timest
 
 void JSTimer::scheduleAtFixedRate(Poco::Util::TimerTask::Ptr pTask, Poco::Clock clock, long interval)
 {
+	if (_cancelled) return;
+
 	validateTask(pTask);
 	_queue.enqueueNotification(new FixedRateTaskNotification(_queue, pTask, interval, clock), clock);
 }

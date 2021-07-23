@@ -353,7 +353,6 @@ protected:
 private:
 	JSTimer _timer;
 	bool _stopped;
-	std::set<CallFunctionTask*> _callFunctionTasks;
 	Poco::FastMutex _mutex;
 
 	friend class RunScriptTask;
