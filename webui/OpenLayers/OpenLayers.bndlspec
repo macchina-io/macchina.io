@@ -3,7 +3,7 @@
   <manifest>
     <name>OpenLayers for macchina.io</name>
     <symbolicName>io.macchina.webui.openlayers</symbolicName>
-    <version>2.13.1</version>
+    <version>6.4.3</version>
     <vendor>Applied Informatics</vendor>
     <copyright>(c) 2015-2021, Applied Informatics Software Engineering GmbH</copyright>
     <lazyStart>false</lazyStart>
