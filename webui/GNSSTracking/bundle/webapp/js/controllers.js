@@ -8,7 +8,7 @@ trackingControllers.controller('TrackingCtrl', ['$scope', '$http', '$interval',
     	available: false,
     	valid: false
     };
-    
+
     $scope.map = null;
 
 	$scope.resizeMap = function() {
@@ -20,42 +20,65 @@ trackingControllers.controller('TrackingCtrl', ['$scope', '$http', '$interval',
         $scope.map.updateSize();
       }
 	}
-	
+
 	$scope.resizeMap();
 
-    $scope.map = new OpenLayers.Map('mapview');
-    $scope.baseLayer = new OpenLayers.Layer.OSM();
-    $scope.map.addLayer($scope.baseLayer);
-    $scope.markers = new OpenLayers.Layer.Markers("Markers");
-    $scope.map.addLayer($scope.markers);
-    $scope.marker = null;
-    var initialPosition = new OpenLayers.LonLat(0, 0);
-    $scope.map.setCenter(initialPosition, 1);
+	$scope.map = new ol.Map({
+      target: 'mapview',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([0.0, 0.0]),
+        zoom: 1
+      })
+    });
+
+    $scope.markers = null;
+
+    $scope.setPosition = function(position) {
+      var zoomIn = false;
+      if ($scope.markers)
+      {
+        $scope.map.removeLayer($scope.markers);
+        $scope.markers = null;
+      }
+      else
+      {
+        zoomIn = true;
+      }
+      const projPos = ol.proj.fromLonLat([position.longitude, position.latitude]);
+      $scope.markers = new ol.layer.Vector({
+        source: new ol.source.Vector({
+          features: [
+            new ol.Feature({
+              geometry: new ol.geom.Point(projPos)
+            })
+          ]
+        }),
+        style: new ol.style.Style({
+          image: new ol.style.Icon({
+            anchor: [0.5, 1],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'fraction',
+            src: '/openlayers/img/marker.png'
+          })
+        })
+      })
+      $scope.map.addLayer($scope.markers);
+      $scope.map.getView().setCenter(projPos);
+      if (zoomIn)
+      {
+		$scope.map.getView().setZoom(10);
+	  }
+    };
 
     $(window).resize(function() {
       $scope.resizeMap();
     });
 
-    $scope.setPosition = function(position) {
-        var olPosition = new OpenLayers.LonLat(position.longitude, position.latitude);
-        var wgs84Proj = new OpenLayers.Projection("EPSG:4326"); // WGS 1984
-        var mercatorProj = new OpenLayers.Projection("EPSG:900913"); // Spherical Mercator Projection
-        olPosition = olPosition.transform(wgs84Proj, mercatorProj);
-        var zoomIn = false;
-        if (!$scope.marker) zoomIn = true; // zoom in first time marker is set
-        if ($scope.marker)
-        {
-        	$scope.markers.removeMarker($scope.marker);
-        	$scope.marker = null;
-        }
-        if (zoomIn)
-			$scope.map.setCenter(olPosition, 10);
-		else
-			$scope.map.setCenter(olPosition);
-		$scope.marker = new OpenLayers.Marker(olPosition);
-		$scope.markers.addMarker($scope.marker);	
-    };
-    
     $http.get('/macchina/gnss/tracking.jss').success(function(data) {
       $scope.trackingData = data;
       if (data.valid)
