@@ -5,10 +5,17 @@ AAAAMacchinaIO
 
 !!Summary of Changes
 
+  - License change: changed license of open source version to GPLv3
   - upgraded POCO to release 1.11.0
-  - upgraded OSP and RemotingNG frameworks
-  - MQTT: support for MQTT version 5
-  - JavaScript: new UUID object  
+  - upgraded OSP and RemotingNG frameworks (see respective release notes)
+  - MQTT: support for MQTT version 5, upgrade bundled Paho library
+  - JavaScript: new UUID object
+  - JavaScript: fixed potential heap corruption with asynchronous HTTP requests
+  - JavaScript: fixed potential double free in BridgeWrapper
+  - JavaScript: HTTP request and response object have new headers property
+  - JavaScript: fix a race condition when stopping a script
+  - JavaScript: add toJSON() to Buffer, DateTime, LocalDateTime and UUID objects
+  - Upgrade OpenLayers to newer version to fix Safari display issues
 
 
 !!!Release 2020.1
