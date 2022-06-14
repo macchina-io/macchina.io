@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.services.devicestatus</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2016-2021, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2016-2022, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::DeviceStatus::BundleActivator</class>
 			<library>io.macchina.services.devicestatus</library>

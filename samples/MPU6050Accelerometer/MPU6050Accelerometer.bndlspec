@@ -1,22 +1,18 @@
 <bundlespec>
 	<manifest>
-    	<name>ROS Devices</name>
-		<symbolicName>io.macchina.ros.devices</symbolicName>
+    	<name>macchina.io MPU6050 Accelerometer</name>
+		<symbolicName>io.macchina.mpu6050-accelerometer</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
 		<copyright>(c) 2019-2022, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
-			<class>IoT::ROS::Devices::BundleActivator</class>
-			<library>io.macchina.ros.devices</library>
+			<class>IoT::MPU6050::BundleActivator</class>
+			<library>io.macchina.mpu6050-accelerometer</library>
 		</activator>
 		<lazyStart>false</lazyStart>
 		<runLevel>610</runLevel>
 		<dependency>
 			<symbolicName>io.macchina.devices</symbolicName>
-			<version>[1.0.0, 2.0.0)</version>
-		</dependency>
-		<dependency>
-			<symbolicName>io.macchina.ros.client</symbolicName>
 			<version>[1.0.0, 2.0.0)</version>
 		</dependency>
 	</manifest>
@@ -26,7 +22,4 @@
 		bin/${osName}/${osArch}/*.so,
 		bin/${osName}/${osArch}/*.dylib,
 	</code>
-	<files>
-		bundle/*
-	</files>
 </bundlespec>

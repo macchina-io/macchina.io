@@ -1,22 +1,18 @@
 <bundlespec>
 	<manifest>
-    	<name>ROS Devices</name>
-		<symbolicName>io.macchina.ros.devices</symbolicName>
+    	<name>macchina.io HC-SR04 Ultrasonic Distance Sensor</name>
+		<symbolicName>io.macchina.hcsr04</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
 		<copyright>(c) 2019-2022, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
-			<class>IoT::ROS::Devices::BundleActivator</class>
-			<library>io.macchina.ros.devices</library>
+			<class>IoT::HCSR04::BundleActivator</class>
+			<library>io.macchina.hcsr04</library>
 		</activator>
 		<lazyStart>false</lazyStart>
 		<runLevel>610</runLevel>
 		<dependency>
 			<symbolicName>io.macchina.devices</symbolicName>
-			<version>[1.0.0, 2.0.0)</version>
-		</dependency>
-		<dependency>
-			<symbolicName>io.macchina.ros.client</symbolicName>
 			<version>[1.0.0, 2.0.0)</version>
 		</dependency>
 	</manifest>

@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <bundlespec>
   <manifest>
-    <name>ChartJS for macchina.io</name>
-    <symbolicName>io.macchina.webui.chartjs</symbolicName>
-    <version>2.5.0</version>
+    <name>CanvasGauges for macchina.io</name>
+    <symbolicName>io.macchina.webui.canvas-gauges</symbolicName>
+    <version>2.1.5</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2017-2022, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2019-2022, Applied Informatics Software Engineering GmbH</copyright>
     <lazyStart>false</lazyStart>
     <runLevel>900</runLevel>
   </manifest>
