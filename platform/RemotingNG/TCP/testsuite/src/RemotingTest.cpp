@@ -1174,3 +1174,4 @@ CppUnit::Test* RemotingTestCompressed::suite()
 
 	return pSuite;
 }
+

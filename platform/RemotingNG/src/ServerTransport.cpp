@@ -41,4 +41,9 @@ bool ServerTransport::authenticate(const std::string& method)
 }
 
 
+void ServerTransport::reportException(const std::string& /* method */, const Poco::Exception& /* exc */)
+{
+}
+
+
 } } // namespace Poco::RemotingNG

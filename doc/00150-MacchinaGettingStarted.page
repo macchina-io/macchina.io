@@ -92,6 +92,21 @@ It may be better to cross-compile on a desktop system and transfer the
 binaries to the target system.
 
 
+!!Building macchina.io EDGE Without JavaScript Support
+
+It is possible to build macchina.io EDGE without JavaScript support. This is useful
+for devices where you don't need JavaScript programming capabilities. This also
+saves a lot of resources, since the V8 JavaScript engine has a significant
+footprint. To do so, pass `WITHOUT_JS=1` to `make`, as in:
+
+    $ make -s -j8 WITHOUT_JS=1 DEFAULT_TARGET=shared_release
+----
+
+Note that most apps of the macchina.io EDGE web user interface need JavaScript
+support, so the features of the web user interface will be limited if JavaScript
+has been disabled.
+
+
 !!Cross Compiling macchina.io EDGE
 
 Note: if you want to run macchina.io EDGE on your desktop system only, you can safely

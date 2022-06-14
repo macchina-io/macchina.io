@@ -19,6 +19,7 @@
 #include "Poco/CppParser/Variable.h"
 #include "Poco/CppParser/Struct.h"
 #include "Poco/CodeGeneration/GeneratorEngine.h"
+#include "Poco/CodeGeneration/CodeGenerator.h"
 #include "Poco/Exception.h"
 #include <vector>
 
@@ -33,6 +34,10 @@ class GenUtility
 public:
 	static const std::string ATTR_HEADER;
 	static const std::string ATTR_RETURN;
+
+	static bool isRemoteMethod(const Poco::CppParser::Function* pFunc, const Poco::CodeGeneration::CodeGenerator::Properties& properties);
+
+	static bool isRemoteEvent(const Poco::CppParser::Variable* pVar, const Poco::CodeGeneration::CodeGenerator::Properties& properties);
 
 	static std::string getMethodName(const Poco::CppParser::Function* pFunc);
 
@@ -74,6 +79,9 @@ public:
 		/// a vector type is everything that can be mapped directly to an XML schema collection type with maxOccurs=unbounded
 
 	static bool isVectorType(const std::string& resolvedType);
+
+	static bool isUniqueVectorType(const std::string& resolvedType);
+		/// returns true if type is std::set or std::unordered_set
 
 	static bool isArrayType(const Poco::CppParser::NameSpace* pNS, const Poco::CppParser::Parameter* pParam);
 		/// returns true if type is Poco::Array or std::array.
@@ -140,10 +148,12 @@ private:
 
 	enum
 	{
-		KEYS_SIZE = 8
+		KEYS_VECTOR_SIZE = 8,
+		KEYS_UNIQUE_VECTOR_SIZE = 4
 	};
 
-	static const std::string KEYS_VECTOR[KEYS_SIZE];
+	static const std::string KEYS_VECTOR[KEYS_VECTOR_SIZE];
+	static const std::string KEYS_UNIQUE_VECTOR[KEYS_UNIQUE_VECTOR_SIZE];
 };
 
 

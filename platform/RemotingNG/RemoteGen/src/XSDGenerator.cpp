@@ -161,15 +161,9 @@ void XSDGenerator::exportElements()
 
 void XSDGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, const CodeGenerator::Properties& properties)
 {
-	if (!pFuncOld->isPublic() || (pFuncOld->flags() & Poco::CppParser::Function::FN_STATIC))
-		return;
-
 	CodeGenerator::Properties funcProps(properties);
 	GeneratorEngine::parseProperties(pFuncOld, funcProps);
-	bool isRemote = false;
-	GeneratorEngine::getBoolProperty(funcProps, "remote", isRemote);
-	if (!isRemote)
-		return;
+	if (!GenUtility::isRemoteMethod(pFuncOld, funcProps)) return;
 
 	// get parameters of the function, analyze if one of the parameters has a complex type
 	std::vector<const Poco::CppParser::Struct*> detectedTypes;

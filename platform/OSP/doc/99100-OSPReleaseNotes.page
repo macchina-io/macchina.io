@@ -1,6 +1,27 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2022.1
+
+!!Summary of Changes
+
+  - Added project and solution files for Visual Studio 2022.
+  - AuthAdminService: Fixed an issue in checkDatabaseConnectivity() which would
+    fail with SQLite due to a commit without active transaction.
+
+!!Known Issues
+
+  - The CMake build system places all generated bundle files in the same target
+    directory, regardless of the selected build configuration (e.g., Debug, Release).
+    Therefore, building different configurations in the same build directory is
+    not recommended. Furthermore, on Windows, bundles built with CMake do not contain
+    PDB files, unlike those built with the included Visual Studio project files.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2021.1
 
 !!Summary of Changes

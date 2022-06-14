@@ -253,17 +253,10 @@ void WSDLGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, const
 	     <part element="ts:quoteFor" name="parameters"/>
 	</message>
 	*/
-	if (!pFuncOld->isMethod())
-		return;
-	if (!pFuncOld->isPublic() || (pFuncOld->flags() & Poco::CppParser::Function::FN_STATIC))
-		return;
 
-	Poco::CodeGeneration::CodeGenerator::Properties funcP(properties);
-	Poco::CodeGeneration::GeneratorEngine::parseProperties(pFuncOld, funcP);
-	bool isRemote = false;
-	Poco::CodeGeneration::GeneratorEngine::getBoolProperty(funcP, "remote", isRemote);
-	if (!isRemote)
-		return;
+	Poco::CodeGeneration::CodeGenerator::Properties funcProps(properties);
+	Poco::CodeGeneration::GeneratorEngine::parseProperties(pFuncOld, funcProps);
+	if (!GenUtility::isRemoteMethod(pFuncOld, funcProps)) return;
 
 	std::string methodName = GenUtility::getMethodName(pFuncOld);
 	if (_functions.find(methodName) != _functions.end())
@@ -308,9 +301,7 @@ void WSDLGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, const
 	}
 	
 	bool isOneWay = false;
-	Poco::CodeGeneration::CodeGenerator::Properties funcProp;
-	Poco::CodeGeneration::GeneratorEngine::parseProperties(pFuncOld, funcProp);
-	Poco::CodeGeneration::GeneratorEngine::getBoolProperty(funcProp, Poco::CodeGeneration::Utility::ONEWAY, isOneWay);
+	Poco::CodeGeneration::GeneratorEngine::getBoolProperty(funcProps, Poco::CodeGeneration::Utility::ONEWAY, isOneWay);
 	// now check for Reply
 	if (!isOneWay)
 	{

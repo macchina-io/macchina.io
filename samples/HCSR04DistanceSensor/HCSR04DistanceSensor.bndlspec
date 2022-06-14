@@ -1,0 +1,28 @@
+<bundlespec>
+	<manifest>
+    	<name>macchina.io HC-SR04 Ultrasonic Distance Sensor</name>
+		<symbolicName>io.macchina.hcsr04</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2019-2022, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>IoT::HCSR04::BundleActivator</class>
+			<library>io.macchina.hcsr04</library>
+		</activator>
+		<lazyStart>false</lazyStart>
+		<runLevel>610</runLevel>
+		<dependency>
+			<symbolicName>io.macchina.devices</symbolicName>
+			<version>[1.0.0, 2.0.0)</version>
+		</dependency>
+	</manifest>
+	<code>
+		bin/*.dll,
+		bin/*.pdb,
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+	</code>
+	<files>
+		bundle/*
+	</files>
+</bundlespec>

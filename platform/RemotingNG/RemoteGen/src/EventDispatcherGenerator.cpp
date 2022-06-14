@@ -119,7 +119,7 @@ void EventDispatcherGenerator::structStart(const Poco::CppParser::Struct* pStruc
 	pVar2->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
 
 	// checks if the class or any parent contains public BasicEvents
-	checkForEventMembers(pStruct);
+	checkForEventMembers(pStruct, properties);
 }
 
 
@@ -132,26 +132,6 @@ void EventDispatcherGenerator::methodStart(const Poco::CppParser::Function* pFun
 void EventDispatcherGenerator::methodStartImpl(Poco::CppParser::Function* pFunc, const CodeGenerator::Properties& methodProperties)
 {
 	includeTypeSerializers(pFunc, false, false);
-
-	CodeGenerator::Properties::const_iterator itProp = methodProperties.find(Utility::REMOTE);
-	if (itProp != methodProperties.end() && itProp->second == Utility::VAL_TRUE)
-	{
-		std::map<std::string, const Poco::CppParser::Parameter*> outParams;
-		detectOutParams(pFunc, outParams);
-		// if we find any method that has return/out parameters add a place where we can store these results
-		std::string retParamName = generateRetParamName(pFunc);
-		if (!retParamName.empty())
-		{
-			Poco::CppParser::Parameter p(pFunc->getReturnParameter() + " " + retParamName, 0);
-			std::string decl("mutable " + p.declType());
-			if (p.isPointer())
-				decl.append("*");
-			decl.append(" ");
-			decl.append(retParamName);
-			Poco::CppParser::Variable* pVarInt = new Poco::CppParser::Variable(decl, _pStruct);
-			pVarInt->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
-		}
-	}
 }
 
 
@@ -875,9 +855,9 @@ void EventDispatcherGenerator::doElemAttrSplit(const Poco::CppParser::Function* 
 }
 
 
-void EventDispatcherGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct)
+void EventDispatcherGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
 {
-	checkForEventMembersImpl(pStruct);
+	checkForEventMembersImpl(pStruct, properties);
 
 	Poco::CppParser::Struct::BaseIterator itB = pStruct->baseBegin();
 	Poco::CppParser::Struct::BaseIterator itBEnd = pStruct->baseEnd();
@@ -886,13 +866,15 @@ void EventDispatcherGenerator::checkForEventMembers(const Poco::CppParser::Struc
 		const Poco::CppParser::Struct* pParent = itB->pClass;
 		if (pParent && Utility::hasAnyRemoteProperty(pParent))
 		{
-			checkForEventMembers(pParent);
+			Poco::CodeGeneration::CodeGenerator::Properties parentProperties;
+			Poco::CodeGeneration::GeneratorEngine::parseProperties(pParent, parentProperties);
+			checkForEventMembers(pParent, parentProperties);
 		}
 	}
 }
 
 
-void EventDispatcherGenerator::checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct)
+void EventDispatcherGenerator::checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
 {
 	Poco::CppParser::NameSpace::SymbolTable tbl;
 	pStruct->variables(tbl);
@@ -901,97 +883,93 @@ void EventDispatcherGenerator::checkForEventMembersImpl(const Poco::CppParser::S
 	for (; it != itEnd; ++it)
 	{
 		Poco::CppParser::Variable* pVar = static_cast<Poco::CppParser::Variable*>(it->second);
-		const std::string& varType = pVar->declType();
-		if (pVar->getAccess() == Poco::CppParser::Variable::ACC_PUBLIC  && !(pVar->flags() & Poco::CppParser::Variable::VAR_STATIC))
+		Poco::CodeGeneration::CodeGenerator::Properties eventProperties(properties);
+		Poco::CodeGeneration::GeneratorEngine::parseProperties(pVar, eventProperties);
+		if (GenUtility::isRemoteEvent(pVar, eventProperties))
 		{
-			if (varType.find("Poco::BasicEvent") == 0 || varType.find("Poco::FIFOEvent") == 0)
+			_events.push_back(pVar->name());
+			_cppGen.addSrcIncludeFile("Poco/Delegate.h");
+			// generate a serializer method for that member too
+			// call methodStart(const Poco::CppParser::Function* pFuncOld, const CodeGenerator::Properties& methodProperties)
+			// convert the basicevent to a private function
+			std::string funcDecl("void ");
+			std::string fctName = generateEventFunctionName(pVar->name());
+			funcDecl.append(fctName);
+			std::vector<std::string> templTypes = GenUtility::getResolvedInnerTemplateTypes(pStruct, pVar->declType());
+			if (templTypes.size() != 1)
+				throw Poco::InvalidArgumentException("Illegal remote event param: " + pVar->fullName());
+			std::string paramDecl = templTypes[0];
+			if (paramDecl != "void")
 			{
-				_events.push_back(pVar->name());
-				_cppGen.addSrcIncludeFile("Poco/Delegate.h");
-				// generate a serializer method for that member too
-				// call methodStart(const Poco::CppParser::Function* pFuncOld, const CodeGenerator::Properties& methodProperties)
-				// convert the basicevent to a private function
-				std::string funcDecl("void ");
-				std::string fctName = generateEventFunctionName(pVar->name());
-				funcDecl.append(fctName);
-				std::vector<std::string> templTypes = GenUtility::getResolvedInnerTemplateTypes(pStruct, varType);
-				if (templTypes.size() != 1)
-					throw Poco::InvalidArgumentException("Illegal remote event param: " + pVar->fullName());
-				std::string paramDecl = templTypes[0];
+				paramDecl.append("& data");
+			}
+			{
+				Poco::CppParser::Function* pFunc = new Poco::CppParser::Function(funcDecl, _pStruct);
+
+				Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter("const void* pSender", 0);
+				pFunc->addParameter(pParam);
+
 				if (paramDecl != "void")
 				{
-					paramDecl.append("& data");
+					Poco::CppParser::Parameter* pParam2 = new Poco::CppParser::Parameter(paramDecl, 0);
+					pFunc->addParameter(pParam2);
 				}
+				_outerEventFunctions.push_back(fctName);
+
+				if (pVar->getAttributes().has("oneway"))
 				{
-					Poco::CppParser::Function* pFunc = new Poco::CppParser::Function(funcDecl, _pStruct);
-
-					Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter("const void* pSender", 0);
-					pFunc->addParameter(pParam);
-
-					if (paramDecl != "void")
-					{
-						Poco::CppParser::Parameter* pParam2 = new Poco::CppParser::Parameter(paramDecl, 0);
-						pFunc->addParameter(pParam2);
-					}
-					_outerEventFunctions.push_back(fctName);
-
-					if (pVar->getAttributes().has("oneway"))
-					{
-						Poco::CppParser::Attributes funcAttr = pFunc->getAttributes();
-						funcAttr.set("oneway", pVar->getAttributes().getString("oneway"));
-						pFunc->setAttributes(funcAttr);
-					}
-
-					if (pVar->getAttributes().has(Utility::FILTER))
-					{
-						Poco::CppParser::Attributes funcAttr = pFunc->getAttributes();
-						funcAttr.set(Utility::FILTER, pVar->getAttributes().getString(Utility::FILTER));
-						pFunc->setAttributes(funcAttr);
-					}
-				}
-				funcDecl.append("Impl");
-				{
-					Poco::CppParser::Function* pFunc = new Poco::CppParser::Function(funcDecl, _pStruct);
-					Poco::CppParser::Parameter* pParam0 = new Poco::CppParser::Parameter("const std::string& subscriberURI", 0);
-					pFunc->addParameter(pParam0);
-					if (templTypes[0] != "void")
-					{
-						Poco::CppParser::Parameter* pParam1 = new Poco::CppParser::Parameter(paramDecl, 0);
-						pFunc->addParameter(pParam1);
-					}
-					CodeGenerator::Properties methodProperties;
-					Poco::CppParser::Attributes funcAttr;
-					const Poco::CppParser::Attributes& varAttr = pVar->getAttributes();
-					// we have one single parameter, this one defines the name of the function!
-					funcAttr.set("inline", "true");
-					funcAttr.set("event", "true");
-					methodProperties.insert(std::make_pair("inline", "true"));
-					methodProperties.insert(std::make_pair("event", "true"));
-					if (varAttr.has("name"))
-					{
-						funcAttr.set("name", varAttr.getString("name"));
-						methodProperties.insert(std::make_pair("name", varAttr.getString("name")));
-					}
-					else
-					{
-						funcAttr.set("name", pVar->name());
-						methodProperties.insert(std::make_pair("name", pVar->name()));
-					}
-					if (varAttr.has("oneway"))
-					{
-						std::string oneVal = varAttr.getString("oneway");
-						funcAttr.set("oneway", oneVal);
-						methodProperties.insert(std::make_pair("oneway", oneVal));
-					}
+					Poco::CppParser::Attributes funcAttr = pFunc->getAttributes();
+					funcAttr.set("oneway", pVar->getAttributes().getString("oneway"));
 					pFunc->setAttributes(funcAttr);
-					pFunc->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
-					methodStartImpl(pFunc, methodProperties);
-					methodEnd(pFunc, methodProperties);
 				}
 
+				if (pVar->getAttributes().has(Utility::FILTER))
+				{
+					Poco::CppParser::Attributes funcAttr = pFunc->getAttributes();
+					funcAttr.set(Utility::FILTER, pVar->getAttributes().getString(Utility::FILTER));
+					pFunc->setAttributes(funcAttr);
+				}
+			}
+			funcDecl.append("Impl");
+			{
+				Poco::CppParser::Function* pFunc = new Poco::CppParser::Function(funcDecl, _pStruct);
+				Poco::CppParser::Parameter* pParam0 = new Poco::CppParser::Parameter("const std::string& subscriberURI", 0);
+				pFunc->addParameter(pParam0);
+				if (templTypes[0] != "void")
+				{
+					Poco::CppParser::Parameter* pParam1 = new Poco::CppParser::Parameter(paramDecl, 0);
+					pFunc->addParameter(pParam1);
+				}
+				CodeGenerator::Properties methodProperties;
+				Poco::CppParser::Attributes funcAttr;
+				const Poco::CppParser::Attributes& varAttr = pVar->getAttributes();
+				// we have one single parameter, this one defines the name of the function!
+				funcAttr.set("inline", "true");
+				funcAttr.set("event", "true");
+				methodProperties.insert(std::make_pair("inline", "true"));
+				methodProperties.insert(std::make_pair("event", "true"));
+				if (varAttr.has("name"))
+				{
+					funcAttr.set("name", varAttr.getString("name"));
+					methodProperties.insert(std::make_pair("name", varAttr.getString("name")));
+				}
+				else
+				{
+					funcAttr.set("name", pVar->name());
+					methodProperties.insert(std::make_pair("name", pVar->name()));
+				}
+				if (varAttr.has("oneway"))
+				{
+					std::string oneVal = varAttr.getString("oneway");
+					funcAttr.set("oneway", oneVal);
+					methodProperties.insert(std::make_pair("oneway", oneVal));
+				}
+				pFunc->setAttributes(funcAttr);
+				pFunc->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
+				methodStartImpl(pFunc, methodProperties);
+				methodEnd(pFunc, methodProperties);
 			}
 		}
-
 	}
 
 	if (!_events.empty())

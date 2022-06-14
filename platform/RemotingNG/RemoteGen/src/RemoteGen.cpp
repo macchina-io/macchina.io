@@ -1,7 +1,7 @@
 //
 // RemoteGen.cpp
 //
-// Copyright (c) 2006-2021, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2006-2022, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
 // SPDX-License-Identifier: GPL-3.0-only
@@ -252,7 +252,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics Remoting NG Code Generator.\n"
-			"Copyright (c) 2006-2021 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2006-2022 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program parses C++ header files annotated with "
 			"Remoting attributes and generates C++ code for "

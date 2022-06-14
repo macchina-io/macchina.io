@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.ros.devices</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2019-2021, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2019-2022, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::ROS::Devices::BundleActivator</class>
 			<library>io.macchina.ros.devices</library>

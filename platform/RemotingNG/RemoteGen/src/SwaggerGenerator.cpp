@@ -275,6 +275,10 @@ Poco::JSON::Object::Ptr SwaggerGenerator::createSchemaForType(const Poco::CppPar
 		Poco::JSON::Object::Ptr pArraySchema = new Poco::JSON::Object(Poco::JSON_PRESERVE_KEY_ORDER);
 		pArraySchema->set("type"s, "array"s);
 		pArraySchema->set("items"s, pSchema);
+		if (GenUtility::isUniqueVectorType(resolvedType))
+		{
+			pArraySchema->set("uniqueItems"s, true);
+		}
 		pSchema = pArraySchema;
 	}
 	return pSchema;
@@ -320,9 +324,20 @@ void SwaggerGenerator::createSchemaForObject(const Poco::CppParser::Struct* pStr
 	for (const auto& p: attrs) members.insert(p);
 	for (const auto& p: elems) members.insert(p);
 
-	Poco::JSON::Array::Ptr pRequired = new Poco::JSON::Array;
-	Poco::JSON::Object::Ptr pProperties = new Poco::JSON::Object(Poco::JSON_PRESERVE_KEY_ORDER);
 	pSchema->set("type"s, "object"s);
+
+	Poco::JSON::Array::Ptr pRequired;
+	if (pSchema->has("required"s))
+		pRequired = pSchema->getArray("required"s);
+	else
+		pRequired = new Poco::JSON::Array;
+
+	Poco::JSON::Object::Ptr pProperties;
+	if (pSchema->has("properties"s))
+		pProperties = pSchema->getObject("properties"s);
+	else
+		pProperties = new Poco::JSON::Object(Poco::JSON_PRESERVE_KEY_ORDER);
+
 	pSchema->set("required"s, pRequired);
 	pSchema->set("properties"s, pProperties);
 
@@ -356,6 +371,10 @@ void SwaggerGenerator::createSchemaForObject(const Poco::CppParser::Struct* pStr
 			Poco::JSON::Object::Ptr pArraySchema = new Poco::JSON::Object(Poco::JSON_PRESERVE_KEY_ORDER);
 			pArraySchema->set("type"s, "array"s);
 			pArraySchema->set("items"s, pPropSchema);
+			if (GenUtility::isUniqueVectorType(resolvedType))
+			{
+				pArraySchema->set("uniqueItems"s, true);
+			}
 			pPropSchema = pArraySchema;
 		}
 
@@ -369,6 +388,8 @@ void SwaggerGenerator::createSchemaForObject(const Poco::CppParser::Struct* pStr
 		{
 			pPropSchema->set("description"s, description);
 		}
+
+		fillTypeAttributes(pPropSchema, varProps, propertyName);
 
 		pProperties->set(propertyName, pPropSchema);
 	}
@@ -647,7 +668,9 @@ Poco::JSON::Object::Ptr SwaggerGenerator::createParameter(const Poco::CppParser:
 			resolvedType, in, pParam->name(), pFunc->name(), _pStructIn->fullName()));
 	}
 
-	pParamObject->set("schema"s, createSchemaForType(_pStructIn, nullptr, resolvedType));
+	Poco::JSON::Object::Ptr pSchema = createSchemaForType(_pStructIn, nullptr, resolvedType);
+	fillTypeAttributes(pSchema, properties, name);
+	pParamObject->set("schema"s, pSchema);
 
 	return pParamObject;
 }
@@ -843,6 +866,10 @@ Poco::JSON::Object::Ptr SwaggerGenerator::createResponseBodyContent(const std::s
 		Poco::JSON::Object::Ptr pArraySchema = new Poco::JSON::Object(Poco::JSON_PRESERVE_KEY_ORDER);
 		pArraySchema->set("type"s, "array"s);
 		pArraySchema->set("items"s, pSchema);
+		if (GenUtility::isUniqueVectorType(resolvedType))
+		{
+			pArraySchema->set("uniqueItems"s, true);
+		}
 		pSchema = pArraySchema;
 	}
 
@@ -1073,4 +1100,57 @@ void SwaggerGenerator::typeProperties(const std::string& decl, bool& isVector, b
 	while (tmp != resolvedType); // resolve recursive typedefs
 
 	poco_assert (!resolvedType.empty());
+}
+
+
+void SwaggerGenerator::fillTypeAttributes(Poco::JSON::Object::Ptr pSchema, const CodeGenerator::Properties& properties, const std::string& name)
+{
+	struct AttrInfo
+	{
+		std::string name;
+		char type;
+	};
+
+	static const std::map<std::string, AttrInfo> ATTRS = {
+		{"min"s, {"minimum"s, 'f'}},
+		{"max"s, {"maximum"s, 'f'}},
+		{"exclusiveMin"s, {"exclusiveMinimum"s, 'b'}},
+		{"exclusiveMax"s, {"exclusiveMaximum"s, 'b'}},
+		{"minLength"s, {"minLength"s, 'i'}},
+		{"maxLength"s, {"maxLength"s, 'i'}},
+		{"pattern"s, {"pattern"s, 's'}},
+		{"minItems"s, {"minItems"s, 'i'}},
+		{"maxItems"s, {"maxItems"s, 'i'}},
+		{"multipleOf"s, {"multipleOf"s, 'f'}}
+	};
+
+	for (const auto& attr: ATTRS)
+	{
+		const auto it = properties.find(attr.first);
+		if (it != properties.end())
+		{
+			try
+			{
+				switch (attr.second.type)
+				{
+				case 'i':
+					pSchema->set(attr.second.name, Poco::NumberParser::parse64(it->second));
+					break;
+				case 'f':
+					pSchema->set(attr.second.name, Poco::NumberParser::parseFloat(it->second));
+					break;
+				case 'b':
+					pSchema->set(attr.second.name, Poco::NumberParser::parseBool(it->second));
+					break;
+				case 's':
+					pSchema->set(attr.second.name, it->second);
+					break;
+				}
+			}
+			catch (Poco::Exception& exc)
+			{
+				throw Poco::InvalidArgumentException(Poco::format("Invalid value for attribute %s of %s: %s", it->first, name, exc.displayText()));
+			}
+		}
+	}
 }

@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.protocols.webtunnel</symbolicName>
 		<version>2.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2015-2021, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2015-2022, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::WebTunnel::BundleActivator</class>
 			<library>io.macchina.protocols.webtunnel</library>

@@ -55,7 +55,7 @@ public:
 	virtual void serializeMessageEnd(const std::string& name, SerializerBase::MessageType type) = 0;
 		/// End serialization of a message.
 
-	virtual void serializeFaultMessage(const std::string& name, Poco::Exception& exc) = 0;
+	virtual void serializeFaultMessage(const std::string& name, const Poco::Exception& exc) = 0;
 		/// Serialize an exception message.
 
 	virtual void serializeStructBegin(const std::string& name) = 0;

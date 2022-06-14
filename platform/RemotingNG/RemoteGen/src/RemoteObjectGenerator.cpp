@@ -106,7 +106,7 @@ void RemoteObjectGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 	}
 
 	handleParentFunctions(_pStructIn);
-	checkForEventMembers(pStruct);
+	checkForEventMembers(pStruct, properties);
 }
 
 
@@ -146,17 +146,21 @@ void RemoteObjectGenerator::methodStart(const Poco::CppParser::Function* pFuncOl
 {
 	if (_functions.find(pFuncOld->name()) != _functions.end())
 		return;
-	_functions.insert(pFuncOld->name());
-	Poco::CppParser::Function* pFunc = methodClone(pFuncOld, properties);
-	pFunc->makeInline(); // impl is just one single line
-	Poco::CodeGeneration::CodeGenerator::Properties::const_iterator itSync = properties.find(Poco::CodeGeneration::Utility::SYNCHRONIZED);
-	if (itSync != properties.end() && (itSync->second == Utility::VAL_TRUE || itSync->second.empty() || itSync->second == "all" || itSync->second == "remote"))
+
+	if (GenUtility::isRemoteMethod(pFuncOld, properties))
 	{
-		_codeInjectors.insert(std::make_pair(pFunc->name(), &RemoteObjectGenerator::syncFwdCodeGen));
-	}
-	else
-	{
-		_codeInjectors.insert(std::make_pair(pFunc->name(), &RemoteObjectGenerator::fwdCodeGen));
+		_functions.insert(pFuncOld->name());
+		Poco::CppParser::Function* pFunc = methodClone(pFuncOld, properties);
+		pFunc->makeInline(); // impl is just one single line
+		Poco::CodeGeneration::CodeGenerator::Properties::const_iterator itSync = properties.find(Poco::CodeGeneration::Utility::SYNCHRONIZED);
+		if (itSync != properties.end() && (itSync->second == Utility::VAL_TRUE || itSync->second.empty() || itSync->second == "all" || itSync->second == "remote"))
+		{
+			_codeInjectors.insert(std::make_pair(pFunc->name(), &RemoteObjectGenerator::syncFwdCodeGen));
+		}
+		else
+		{
+			_codeInjectors.insert(std::make_pair(pFunc->name(), &RemoteObjectGenerator::fwdCodeGen));
+		}
 	}
 }
 
@@ -206,9 +210,9 @@ void RemoteObjectGenerator::syncFwdCodeGen(const Poco::CppParser::Function* pFun
 }
 
 
-void RemoteObjectGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct)
+void RemoteObjectGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
 {
-	checkForEventMembersImpl(pStruct);
+	checkForEventMembersImpl(pStruct, properties);
 
 	Poco::CppParser::Struct::BaseIterator itB = pStruct->baseBegin();
 	Poco::CppParser::Struct::BaseIterator itBEnd = pStruct->baseEnd();
@@ -217,13 +221,15 @@ void RemoteObjectGenerator::checkForEventMembers(const Poco::CppParser::Struct* 
 		const Poco::CppParser::Struct* pParent = itB->pClass;
 		if (pParent && Utility::hasAnyRemoteProperty(pParent))
 		{
-			checkForEventMembers(pParent);
+			Poco::CodeGeneration::CodeGenerator::Properties parentProperties;
+			Poco::CodeGeneration::GeneratorEngine::parseProperties(pParent, parentProperties);
+			checkForEventMembers(pParent, parentProperties);
 		}
 	}
 }
 
 
-void RemoteObjectGenerator::checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct)
+void RemoteObjectGenerator::checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
 {
 	Poco::CppParser::NameSpace::SymbolTable tbl;
 	pStruct->variables(tbl);
@@ -232,36 +238,34 @@ void RemoteObjectGenerator::checkForEventMembersImpl(const Poco::CppParser::Stru
 	for (; it != itEnd; ++it)
 	{
 		Poco::CppParser::Variable* pVar = static_cast<Poco::CppParser::Variable*>(it->second);
-		const std::string& varType = pVar->declType();
-		if (pVar->getAccess() == Poco::CppParser::Variable::ACC_PUBLIC && !(pVar->flags() & Poco::CppParser::Variable::VAR_STATIC))
+		Poco::CodeGeneration::CodeGenerator::Properties eventProperties(properties);
+		Poco::CodeGeneration::GeneratorEngine::parseProperties(pVar, eventProperties);
+		if (GenUtility::isRemoteEvent(pVar, eventProperties))
 		{
-			if (varType.find("Poco::BasicEvent") == 0 || varType.find("Poco::FIFOEvent") == 0)
+			_hasEvents = true;
+			_events.push_back(pVar->name());
+			_cppGen.addSrcIncludeFile("Poco/RemotingNG/ORB.h");
+			_cppGen.addSrcIncludeFile("Poco/Delegate.h");
+			// generate a serializer method for that member too
+			// call methodStart(const Poco::CppParser::Function* pFuncOld, const CodeGenerator::Properties& methodProperties)
+			// convert the basicevent to a private function
+			std::string funcDecl("void ");
+			std::string fctName = generateEventFunctionName(pVar->name());
+			funcDecl.append(fctName);
+			std::vector<std::string> templTypes = GenUtility::getResolvedInnerTemplateTypes(pStruct, pVar->declType());
+			if (templTypes.size() != 1)
+				throw Poco::InvalidArgumentException("Illegal remote event param: " + pVar->fullName());
+			std::string paramDecl = templTypes[0];
+			if (paramDecl != "void")
 			{
-				_hasEvents = true;
-				_events.push_back(pVar->name());
-				_cppGen.addSrcIncludeFile("Poco/RemotingNG/ORB.h");
-				_cppGen.addSrcIncludeFile("Poco/Delegate.h");
-				// generate a serializer method for that member too
-				// call methodStart(const Poco::CppParser::Function* pFuncOld, const CodeGenerator::Properties& methodProperties)
-				// convert the basicevent to a private function
-				std::string funcDecl("void ");
-				std::string fctName = generateEventFunctionName(pVar->name());
-				funcDecl.append(fctName);
-				std::vector<std::string> templTypes = GenUtility::getResolvedInnerTemplateTypes(pStruct, varType);
-				if (templTypes.size() != 1)
-					throw Poco::InvalidArgumentException("Illegal remote event param: " + pVar->fullName());
-				std::string paramDecl = templTypes[0];
-				if (paramDecl != "void")
-				{
-					paramDecl.append("& data");
-				}
-				Poco::CppParser::Function* pFunc = new Poco::CppParser::Function(funcDecl, _pStruct);
-				pFunc->setAccess(Poco::CppParser::Symbol::ACC_PROTECTED);
-				if (paramDecl != "void")
-				{
-					Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter(paramDecl, 0);
-					pFunc->addParameter(pParam);
-				}
+				paramDecl.append("& data");
+			}
+			Poco::CppParser::Function* pFunc = new Poco::CppParser::Function(funcDecl, _pStruct);
+			pFunc->setAccess(Poco::CppParser::Symbol::ACC_PROTECTED);
+			if (paramDecl != "void")
+			{
+				Poco::CppParser::Parameter* pParam = new Poco::CppParser::Parameter(paramDecl, 0);
+				pFunc->addParameter(pParam);
 			}
 		}
 	}

@@ -167,7 +167,7 @@ protected:
 				"\n"
 				"    macchina.io EDGE Server\n"
 				"\n"
-				"    Copyright (c) 2015-2021 by Applied Informatics Software Engineering GmbH.\n"
+				"    Copyright (c) 2015-2022 by Applied Informatics Software Engineering GmbH.\n"
 				"    All rights reserved.\n"
 			);
 			logger().information("System information: %s (%s) on %s, %u CPU core(s).",

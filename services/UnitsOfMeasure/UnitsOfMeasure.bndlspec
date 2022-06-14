@@ -5,7 +5,7 @@
     <symbolicName>io.macchina.services.unitsofmeasure</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2018-2021, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2018-2022, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>IoT::UnitsOfMeasure::BundleActivator</class>
       <library>io.macchina.services.unitsofmeasure</library>

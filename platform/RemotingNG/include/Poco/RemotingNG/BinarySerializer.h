@@ -69,7 +69,7 @@ public:
 	// Serializer
 	void serializeMessageBegin(const std::string& name, SerializerBase::MessageType type);
 	void serializeMessageEnd(const std::string& name, SerializerBase::MessageType type);
-	void serializeFaultMessage(const std::string& name, Poco::Exception& exc);
+	void serializeFaultMessage(const std::string& name, const Poco::Exception& exc);
 	void serializeStructBegin(const std::string& name);
 	void serializeStructEnd(const std::string& name);
 	void serializeSequenceBegin(const std::string& name, Poco::UInt32 length);

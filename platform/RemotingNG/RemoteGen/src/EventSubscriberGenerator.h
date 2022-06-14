@@ -53,10 +53,10 @@ public:
 	std::vector<std::string> newBaseClasses(const Poco::CppParser::Struct* pStruct);
 
 private:
-	void checkForEventMembers(const Poco::CppParser::Struct* pStruct, std::vector<const Poco::CppParser::Function*>& eventFunctions);
+	void checkForEventMembers(const Poco::CppParser::Struct* pStruct, std::vector<const Poco::CppParser::Function*>& eventFunctions, const CodeGenerator::Properties& properties);
 		/// checks if the class or any parent contains public BasicEvents
 
-	void checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct, std::vector<const Poco::CppParser::Function*>& eventFunctions);
+	void checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct, std::vector<const Poco::CppParser::Function*>& eventFunctions, const CodeGenerator::Properties& properties);
 
 	void generateEventFunction(const Poco::CppParser::Function* pFunc, const CodeGenerator::Properties& properties);
 
