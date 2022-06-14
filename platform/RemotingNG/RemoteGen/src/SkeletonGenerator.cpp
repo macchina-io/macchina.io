@@ -105,7 +105,7 @@ void SkeletonGenerator::structStart(const Poco::CppParser::Struct* pStruct, cons
 		{
 			Poco::CodeGeneration::CodeGenerator::Properties methodProperties(classProperties);
 			Poco::CodeGeneration::GeneratorEngine::parseProperties(*it, methodProperties);
-			if (methodProperties.find(Poco::CodeGeneration::Utility::REMOTE) != methodProperties.end())
+			if (GenUtility::isRemoteMethod(*it, methodProperties))
 			{
 				GenUtility::checkFunctionParams(*it);
 				includeTypeSerializers(*it, false, false);
@@ -144,6 +144,7 @@ void SkeletonGenerator::structEnd()
 
 void SkeletonGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, const CodeGenerator::Properties& properties)
 {
+	if (!GenUtility::isRemoteMethod(pFuncOld, properties)) return;
 	if (GenUtility::isOverride(pFuncOld->name(), _pStructIn)) return;
 
 	_pCurrent = pFuncOld;
@@ -651,22 +652,24 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 		}
 
 		gen.writeMethodImplementation("}");
-		gen.writeMethodImplementation("catch (Poco::Exception& e)");
+		gen.writeMethodImplementation("catch (const Poco::Exception& e)");
 		gen.writeMethodImplementation("{");
 		// don't catch errors which happen during serializing data back to the caller
 		gen.writeMethodImplementation(indentation + "if (!remoting__requestSucceeded)");
 		gen.writeMethodImplementation(indentation + "{");
+		gen.writeMethodImplementation(indentation + "\tremoting__trans.reportException(\"" + pFunc->fullName() + "\"s, e);");
 		gen.writeMethodImplementation(indentation + "\tPoco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);");
 		gen.writeMethodImplementation(indentation + "\tremoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);");
 		gen.writeMethodImplementation(indentation + "}");
 		gen.writeMethodImplementation("}");
-		gen.writeMethodImplementation("catch (std::exception& e)");
+		gen.writeMethodImplementation("catch (const std::exception& e)");
 		gen.writeMethodImplementation("{");
 		// don't catch errors which happen during serializing data back to the caller
 		gen.writeMethodImplementation(indentation + "if (!remoting__requestSucceeded)");
 		gen.writeMethodImplementation(indentation + "{");
+		gen.writeMethodImplementation(indentation + "\tconst Poco::Exception exc(e.what());");
+		gen.writeMethodImplementation(indentation + "\tremoting__trans.reportException(\"" + pFunc->fullName() + "\"s, exc);");
 		gen.writeMethodImplementation(indentation + "\tPoco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);");
-		gen.writeMethodImplementation(indentation + "\tPoco::Exception exc(e.what());");
 		gen.writeMethodImplementation(indentation + "\tremoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);");
 		gen.writeMethodImplementation(indentation + "}");
 		gen.writeMethodImplementation("}");
@@ -675,8 +678,9 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 		// don't catch errors which happen during serializing data back to the caller
 		gen.writeMethodImplementation(indentation + "if (!remoting__requestSucceeded)");
 		gen.writeMethodImplementation(indentation + "{");
+		gen.writeMethodImplementation(indentation + "\tconst Poco::Exception exc(\"Unknown Exception\"s);");
+		gen.writeMethodImplementation(indentation + "\tremoting__trans.reportException(\"" + pFunc->fullName() + "\"s, exc);");
 		gen.writeMethodImplementation(indentation + "\tPoco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);");
-		gen.writeMethodImplementation(indentation + "\tPoco::Exception exc(\"Unknown Exception\");");
 		gen.writeMethodImplementation(indentation + "\tremoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);");
 		gen.writeMethodImplementation(indentation + "}");
 		gen.writeMethodImplementation("}");

@@ -76,7 +76,7 @@ void BinarySerializer::serializeMessageEnd(const std::string& /*name*/, Serializ
 }
 
 
-void BinarySerializer::serializeFaultMessage(const std::string& name, Poco::Exception& exc)
+void BinarySerializer::serializeFaultMessage(const std::string& name, const Poco::Exception& exc)
 {
 	serializeMessageBegin(name, SerializerBase::MESSAGE_FAULT);
 	*_pWriter << exc.name() << exc.message() << std::string(typeid(exc).name());

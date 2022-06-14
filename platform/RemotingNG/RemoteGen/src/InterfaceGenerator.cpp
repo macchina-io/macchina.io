@@ -107,7 +107,7 @@ void InterfaceGenerator::structStart(const Poco::CppParser::Struct* pStruct, con
 		pIsA->addDocumentation(" Returns true if the class is a subclass of the class given by otherType.");
 	}
 
-	bool ev = checkForEventMembers(pStruct);
+	bool ev = checkForEventMembers(pStruct, properties);
 	if (ev)
 	{
 		Poco::CppParser::Function* pEvents = new Poco::CppParser::Function("virtual std::string remoting__enableEvents", _pStruct);
@@ -132,6 +132,7 @@ void InterfaceGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, 
 {
 	poco_assert_dbg (_pStruct && _pStructIn);
 
+	if (!GenUtility::isRemoteMethod(pFuncOld, properties)) return;
 	if (GenUtility::isOverride(pFuncOld->name(), _pStructIn)) return;
 
 	// recreate a "rettype method signature" as "virtual retType method signature = 0"
@@ -308,7 +309,7 @@ std::vector<std::string> InterfaceGenerator::newBaseClasses(const Poco::CppParse
 }
 
 
-bool InterfaceGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct)
+bool InterfaceGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
 {
 	bool ev = false;
 	Poco::CppParser::NameSpace::SymbolTable tbl;
@@ -318,18 +319,15 @@ bool InterfaceGenerator::checkForEventMembers(const Poco::CppParser::Struct* pSt
 	for (; it != itEnd; ++it)
 	{
 		Poco::CppParser::Variable* pVar = static_cast<Poco::CppParser::Variable*>(it->second);
-		const std::string& varType = pVar->declType();
-		if (pVar->getAccess() == Poco::CppParser::Variable::ACC_PUBLIC && !(pVar->flags() & Poco::CppParser::Variable::VAR_STATIC))
+		Poco::CodeGeneration::CodeGenerator::Properties eventProperties(properties);
+		Poco::CodeGeneration::GeneratorEngine::parseProperties(pVar, eventProperties);
+		if (GenUtility::isRemoteEvent(pVar, eventProperties))
 		{
-			if (varType.find("Poco::BasicEvent") == 0 || varType.find("Poco::FIFOEvent") == 0)
-			{
-				// add a variable with the same name
-				Poco::CppParser::Variable* pVarNew = new Poco::CppParser::Variable(pVar->declaration(), _pStruct);
-				pVarNew->setAccess(Poco::CppParser::Symbol::ACC_PUBLIC);
-				ev = true;
-			}
+			// add a variable with the same name
+			Poco::CppParser::Variable* pVarNew = new Poco::CppParser::Variable(pVar->declaration(), _pStruct);
+			pVarNew->setAccess(Poco::CppParser::Symbol::ACC_PUBLIC);
+			ev = true;
 		}
-
 	}
 	return ev;
 }

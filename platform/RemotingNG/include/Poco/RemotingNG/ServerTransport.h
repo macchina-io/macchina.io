@@ -104,6 +104,14 @@ public:
 		/// Signals the ServerTransport that request processing is
 		/// finished for this request.
 		
+	virtual void reportException(const std::string& method, const Poco::Exception& exc);
+		/// Reports an exception thrown by the service method
+		/// invoked by the generated Skeleton and MethodHandler.
+		///
+		/// The default implementation does nothing.
+		/// Subclasses can override this method to log the
+		/// exception for diagnostic purposes.
+
 private:
 	ServerTransport(const ServerTransport&);
 	ServerTransport& operator = (const ServerTransport&);

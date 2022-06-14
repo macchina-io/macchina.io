@@ -121,8 +121,8 @@ private:
 
 	static void writeDeserializeReturnParam(const Poco::CppParser::Function* pFunc, CodeGenerator& gen);
 
-	void checkForEventMembers(const Poco::CppParser::Struct* pStruct);
-	void checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct);
+	void checkForEventMembers(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties);
+	void checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties);
 		/// checks if the class or any parent contains public BasicEvents
 
 	void methodStartImpl(Poco::CppParser::Function* pFunc, const CodeGenerator::Properties& methodProperties);

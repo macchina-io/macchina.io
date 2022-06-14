@@ -67,10 +67,10 @@ private:
 	static void destructorCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
 		/// Code generator for destructor
 
-	void checkForEventMembers(const Poco::CppParser::Struct* pStruct);
+	void checkForEventMembers(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties);
 		/// checks if the class contains public BasicEvents
 
-	void checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct);
+	void checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties);
 
 	std::map<std::string, Poco::CodeGeneration::GeneratorEngine::MethodGenerator> _codeInjectors;
 	std::set<std::string> _functions;

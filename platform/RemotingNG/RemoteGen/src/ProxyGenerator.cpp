@@ -158,12 +158,11 @@ void ProxyGenerator::structStart(const Poco::CppParser::Struct* pStruct, const C
 			Poco::CppParser::Function* pFunc = *it;
 			CodeGenerator::Properties methodProperties(properties);
 			Poco::CodeGeneration::GeneratorEngine::parseProperties(pFunc, methodProperties);
-			CodeGenerator::Properties::const_iterator itProp = methodProperties.find(Utility::REMOTE);
-			if (itProp != methodProperties.end() && itProp->second == Utility::VAL_TRUE)
+			if (GenUtility::isRemoteMethod(pFunc, methodProperties))
 			{
 				bool enableCachingForThisMethod = false;
 				CodeGenerator::Properties::const_iterator itPropCache = methodProperties.find(Utility::CACHING);
-				if (itPropCache != methodProperties.end() && itPropCache->second == Utility::VAL_TRUE)
+				if (itPropCache != methodProperties.end() && itPropCache->second != Utility::VAL_FALSE)
 					enableCachingForThisMethod = true;
 				_cacheVariableSet |= enableCachingForThisMethod;
 			}
@@ -184,10 +183,14 @@ void ProxyGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, cons
 {
 	if (_functions.find(pFuncOld->name()) != _functions.end())
 		return;
-	_functions.insert(pFuncOld->name());
 
-	Poco::CppParser::Function* pFunc = methodClone(pFuncOld, methodProperties);
-	methodStartImpl(pFunc, methodProperties);
+	if (GenUtility::isRemoteMethod(pFuncOld, methodProperties))
+	{
+		_functions.insert(pFuncOld->name());
+
+		Poco::CppParser::Function* pFunc = methodClone(pFuncOld, methodProperties);
+		methodStartImpl(pFunc, methodProperties);
+	}
 }
 
 
@@ -198,59 +201,55 @@ void ProxyGenerator::methodStartImpl(Poco::CppParser::Function* pFunc, const Cod
 
 	bool neverExpires = (it != methodProperties.end() && it->second == Utility::VAL_INFINITE);
 
-	CodeGenerator::Properties::const_iterator itProp = methodProperties.find(Utility::REMOTE);
-	if (itProp != methodProperties.end() && itProp->second == Utility::VAL_TRUE)
+	GenUtility::checkFunctionParams(pFunc);
+	bool enableCachingForThisMethod = false;
+	CodeGenerator::Properties::const_iterator itPropCache = methodProperties.find(Utility::CACHING);
+	if (itPropCache != methodProperties.end() && itPropCache->second != Utility::VAL_FALSE)
+		enableCachingForThisMethod = true;
+	std::map<std::string, const Poco::CppParser::Parameter*> outParams;
+	detectOutParams(pFunc, outParams);
+	//bool isOneWay = outParams.empty() && (pFunc->getReturnParameter().empty() || pFunc->getReturnParameter() == Poco::CodeGeneration::Utility::TYPE_VOID);
+	// if we find any method that has return/out parameters add a place where we can store these results
+	if (enableCachingForThisMethod)
 	{
-		GenUtility::checkFunctionParams(pFunc);
-		bool enableCachingForThisMethod = false;
-		CodeGenerator::Properties::const_iterator itPropCache = methodProperties.find(Utility::CACHING);
-		if (itPropCache != methodProperties.end() && itPropCache->second == Utility::VAL_TRUE)
-			enableCachingForThisMethod = true;
-		std::map<std::string, const Poco::CppParser::Parameter*> outParams;
-		detectOutParams(pFunc, outParams);
-		//bool isOneWay = outParams.empty() && (pFunc->getReturnParameter().empty() || pFunc->getReturnParameter() == Poco::CodeGeneration::Utility::TYPE_VOID);
-		// if we find any method that has return/out parameters add a place where we can store these results
-		if (enableCachingForThisMethod)
+		std::map<std::string, const Poco::CppParser::Parameter*>::const_iterator itO = outParams.begin();
+		std::map<std::string, const Poco::CppParser::Parameter*>::const_iterator itOEnd = outParams.end();
+		for (; itO != itOEnd; ++itO)
 		{
-			std::map<std::string, const Poco::CppParser::Parameter*>::const_iterator itO = outParams.begin();
-			std::map<std::string, const Poco::CppParser::Parameter*>::const_iterator itOEnd = outParams.end();
-			for (; itO != itOEnd; ++itO)
-			{
-				std::string oName = generateOutParamName(itO->second, pFunc->name());
-				std::string decl("mutable " + itO->second->declType());
-				if (itO->second->isPointer())
-					decl.append("*");
-				decl.append(" ");
-				decl.append(oName);
-				Poco::CppParser::Variable* pVarInt = new Poco::CppParser::Variable(decl, _pStruct);
-				pVarInt->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
-
-			}
-			if (neverExpires)
-			{
-				std::string boolName = generateFunctResultName(pFunc);
-				std::string decl("mutable bool " + boolName);
-				Poco::CppParser::Variable* pVarInt = new Poco::CppParser::Variable(decl, _pStruct);
-				pVarInt->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
-				_cppGen.registerConstructorHint(pVarInt, Utility::VAL_FALSE);
-
-			}
-		}
-
-		std::string retParamName = generateRetParamName(pFunc);
-		if (!retParamName.empty())
-		{
-			Poco::CppParser::Parameter p(pFunc->getReturnParameter() + " " + retParamName, 0);
-			std::string decl("mutable " + p.declType());
-			if (p.isPointer())
+			std::string oName = generateOutParamName(itO->second, pFunc->name());
+			std::string decl("mutable " + itO->second->declType());
+			if (itO->second->isPointer())
 				decl.append("*");
 			decl.append(" ");
-			decl.append(retParamName);
+			decl.append(oName);
 			Poco::CppParser::Variable* pVarInt = new Poco::CppParser::Variable(decl, _pStruct);
 			pVarInt->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
+
 		}
-		_cacheVariableSet |= enableCachingForThisMethod;
+		if (neverExpires)
+		{
+			std::string boolName = generateFunctResultName(pFunc);
+			std::string decl("mutable bool " + boolName);
+			Poco::CppParser::Variable* pVarInt = new Poco::CppParser::Variable(decl, _pStruct);
+			pVarInt->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
+			_cppGen.registerConstructorHint(pVarInt, Utility::VAL_FALSE);
+
+		}
 	}
+
+	std::string retParamName = generateRetParamName(pFunc);
+	if (!retParamName.empty())
+	{
+		Poco::CppParser::Parameter p(pFunc->getReturnParameter() + " " + retParamName, 0);
+		std::string decl("mutable " + p.declType());
+		if (p.isPointer())
+			decl.append("*");
+		decl.append(" ");
+		decl.append(retParamName);
+		Poco::CppParser::Variable* pVarInt = new Poco::CppParser::Variable(decl, _pStruct);
+		pVarInt->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
+	}
+	_cacheVariableSet |= enableCachingForThisMethod;
 }
 
 
@@ -315,7 +314,7 @@ void ProxyGenerator::serializeCodeGen(const Poco::CppParser::Function* pFunc, co
 
 	Poco::CodeGeneration::CodeGenerator::Properties::const_iterator itCache = methodProperties.find(Poco::CodeGeneration::Utility::CACHING);
 	// now check if we have sth cached and if the property is set
-	bool useCache = (itCache != methodProperties.end() && itCache->second == Utility::VAL_TRUE);
+	bool useCache = (itCache != methodProperties.end() && itCache->second != Utility::VAL_FALSE);
 	Poco::CodeGeneration::CodeGenerator::Properties::const_iterator itEvent = methodProperties.find("event");
 	bool isEvent = (itEvent != methodProperties.end());
 	Poco::CodeGeneration::CodeGenerator::Properties::const_iterator itExp = methodProperties.find(Utility::CACHEEXPIRETIME);

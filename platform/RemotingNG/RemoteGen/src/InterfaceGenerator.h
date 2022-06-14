@@ -56,7 +56,7 @@ private:
 
 	static void ifaceTypeCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
 
-	bool checkForEventMembers(const Poco::CppParser::Struct* pStruct);
+	bool checkForEventMembers(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties);
 
 	bool _enableOSP;
 };

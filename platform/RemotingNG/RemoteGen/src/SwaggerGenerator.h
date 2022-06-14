@@ -85,6 +85,7 @@ protected:
 	static CodeGenerator::Properties parseParameterProperties(const Poco::CppParser::Parameter* pParam, const CodeGenerator::Properties& funcProps);
 	void parameterProperties(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Parameter* pParam, bool& isVector, bool& isMandatory, bool& isNullable, std::string& name, std::string& resolvedType);
 	void typeProperties(const std::string& decl, bool& isVector, bool& isMandatory, bool& isNullable, std::string& resolvedType);
+	void fillTypeAttributes(Poco::JSON::Object::Ptr pSchema, const CodeGenerator::Properties& properties, const std::string& name);
 
 private:
 	Poco::JSON::Object::Ptr _pSwagger;

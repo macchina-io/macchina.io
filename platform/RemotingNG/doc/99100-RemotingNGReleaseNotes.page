@@ -1,6 +1,35 @@
 Remoting NG Release Notes
 Remoting NG
 
+!!!Release 2022.1
+
+!!Summary of Changes
+
+  - Fixed a long-standing bug with handling attributes, where an empty
+    attribute value would become "true". This was specifically an
+    issue with the `SOAPAction` attribute, if an empty `SOAPAction`
+    was specified with the action attribute.
+  - RemoteGen: ignore methods and event with `@remote` attribute explicitly
+    set to false.
+  - Do not attempt to include serializers/deserializers for parameters
+    of static member functions.
+  - REST: Add support for logging exceptions thrown in service methods.
+  - REST: Improve exception message for unexpected null values.
+  - REST: RemoteGen supports additional OpenAPI 3.0 attributes (`max`, `min`,
+    `maxItems`, `minItems`, `maxLength`, `minLength`, `pattern`, `multipleOf`).
+  - Added project and solution files for Visual Studio 2022.
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - The `Serializer::serializeFaultMessage()` method signature has been changed -
+    the exception parameter is now const. Custom Serializer implementations must
+    be updated accordingly.
+
+
 !!!Release 2021.1
 
 !!Summary of Changes

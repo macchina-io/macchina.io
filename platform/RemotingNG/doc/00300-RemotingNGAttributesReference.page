@@ -145,6 +145,22 @@ first passed to the server, which in this case is unnecessary, and then
 passed back to the client, containing the desired result.
 
 
+!!exclusiveMax
+If `exclusiveMax` is `true`, the parameter or variable value must be strictly less than the value,
+specified with `max`. Otherwise the value must be less than or equal to this value.
+The attribute will be reflected in a generated OpenAPI document as `exclusiveMaximum` validation keyword.
+  * level: parameter/variable
+  * type: boolean
+
+
+!!exclusiveMin
+If `exclusiveMin` is `true`, the parameter or variable value must be strictly greater than the value,
+specified with `min`. Otherwise the value must be greater than or equal to this value.
+The attribute will be reflected in a generated OpenAPI document as `exclusiveMinimum` validation keyword.
+  * level: parameter/variable
+  * type: boolean
+
+
 !!header
 Serialize a parameter in the SOAP header instead of the SOAP body.
 Only useful with the SOAP Transport. Can be set at method parameters only.
@@ -274,6 +290,81 @@ If not specified, the default value is true.
 See also <[optional]>. If both <[mandatory]> and <[optional]> are specified, <[mandatory]> takes precedence.
 
 
+!!max
+Specifies the maximum allowed value for a numeric parameter or variable.
+If `exclusiveMax` is `true`, the value must be strictly less than this value,
+otherwise the value must be less than or equal to this value.
+This attribute is only used for documentation purposes, no validation will
+be performed by the generated code. The attribute will be reflected in a generated
+OpenAPI document as `maximum` validation keyword.
+  * level: parameter/variable
+  * type: number
+
+Example:
+    //@ path="/api/1.0/orders/{orderNo}/items/{itemNo}"
+    //@ $orderNo={in=path, min=1}
+    //@ $itemNo={in=path, min=1, max=999}
+    Item get(int orderNo, int itemNo);
+----
+
+
+!!maxItems
+Specifies the maximum number of elements in a vector or set.
+This attribute is only used for documentation purposes, no validation will
+be performed by the generated code. The attribute will be reflected in a generated
+OpenAPI document as `maxItems` validation keyword.
+  * level: parameter/variable
+  * type: integer
+
+
+!!maxLength
+Specifies the maximum allowed length for a string variable or parameter.
+This attribute is only used for documentation purposes, no validation will
+be performed by the generated code. The attribute will be reflected in a generated
+OpenAPI document as `maxLength` validation keyword.
+  * level: parameter/variable
+  * type: integer
+
+
+!!min
+Specifies the minimum allowed value for a numeric parameter or variable.
+If `exclusiveMin` is `true`, the value must be strictly greater than this value,
+otherwise the value must be greater than or equal to this value.
+This attribute is only used for documentation purposes, no validation will
+be performed by the generated code. The attribute will be reflected in a generated
+OpenAPI document as `minimum` validation keyword.
+  * level: parameter/variable
+  * type: number
+
+
+!!minItems
+Specifies the minimum number of elements in a vector or set.
+This attribute is only used for documentation purposes, no validation will
+be performed by the generated code. The attribute will be reflected in a generated
+OpenAPI document as `minItems` validation keyword.
+  * level: parameter/variable
+  * type: integer
+
+
+!!minLength
+Specifies the minimum allowed length for a string variable or parameter.
+This attribute is only used for documentation purposes, no validation will
+be performed by the generated code. The attribute will be reflected in a generated
+OpenAPI document as `minLength` validation keyword.
+  * level: parameter/variable
+  * type: integer
+
+
+!!multipleOf
+If specified, the variable or parameter value must be a multiple of the
+specified value.
+This attribute is only used for documentation purposes, no validation will
+be performed by the generated code. The attribute will be reflected in a generated
+OpenAPI document as `multipleOf` validation keyword.
+  * level: parameter/variable
+  * type: number
+
+
 !!name
 Rename a method, event, variable or parameter name. Useful for XML based transports, if the used schema requires
 a name which would be invalid in C++, like a name containing a minus sign. If used on a method,
@@ -352,6 +443,15 @@ Example:
         ...
     };
 ----
+
+
+!!pattern
+Specifies a regular expression to validate a string parameter or variable.
+This attribute is only used for documentation purposes, no validation will
+be performed by the generated code. The attribute will be reflected in a generated
+OpenAPI document as `pattern` validation keyword.
+  * level: parameter/variable
+  * type: string (regular expression)
 
 
 !!permission

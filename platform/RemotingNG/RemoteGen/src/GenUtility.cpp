@@ -32,7 +32,34 @@ const std::string GenUtility::VAL_REQUEST("Request");
 const std::string GenUtility::VAL_REPLY("Reply");
 const std::string GenUtility::ATTR_RETURN("return");
 const std::string GenUtility::ATTR_HEADER("header");
-const std::string GenUtility::KEYS_VECTOR[KEYS_SIZE] = {"std::vector", "std::set", "std::multiset", "std::unordered_set", "std::unordered_multiset", "std::list", "std::array", "Poco::Array"};
+const std::string GenUtility::KEYS_VECTOR[KEYS_VECTOR_SIZE] = {"std::vector", "std::set", "std::multiset", "std::unordered_set", "std::unordered_multiset", "std::list", "std::array", "Poco::Array"};
+const std::string GenUtility::KEYS_UNIQUE_VECTOR[KEYS_UNIQUE_VECTOR_SIZE] = {"std::set", "std::unordered_set"};
+
+
+bool GenUtility::isRemoteMethod(const Poco::CppParser::Function* pFunc, const Poco::CodeGeneration::CodeGenerator::Properties& properties)
+{
+	if (!pFunc->isDefault() && !pFunc->isDeleted() && !pFunc->isStatic() && pFunc->isPublic())
+	{
+		bool remote = false;
+		return (Poco::CodeGeneration::GeneratorEngine::getBoolProperty(properties, Poco::CodeGeneration::Utility::REMOTE, remote) && remote);
+	}
+	else return false;
+}
+
+
+bool GenUtility::isRemoteEvent(const Poco::CppParser::Variable* pVar, const Poco::CodeGeneration::CodeGenerator::Properties& properties)
+{
+	if (pVar->isPublic() && !pVar->isStatic())
+	{
+		const std::string& varType = pVar->declType();
+		if (varType.find("Poco::BasicEvent") == 0 || varType.find("Poco::FIFOEvent") == 0)
+		{
+			bool remote = false;
+			return (Poco::CodeGeneration::GeneratorEngine::getBoolProperty(properties, Poco::CodeGeneration::Utility::REMOTE, remote) && remote);
+		}
+	}
+	return false;
+}
 
 
 std::string GenUtility::getMethodName(const Poco::CppParser::Function* pFunc)
@@ -276,9 +303,20 @@ bool GenUtility::isVectorType(const std::string& resolvedType)
 {
 	if (resolvedType == "std::vector < char >") return false;
 	bool found = false;
-	for (int i = 0; i < KEYS_SIZE && !found; ++i)
+	for (int i = 0; i < KEYS_VECTOR_SIZE && !found; ++i)
 	{
 		found = (resolvedType.find(KEYS_VECTOR[i]) == 0);
+	}
+	return found;
+}
+
+
+bool GenUtility::isUniqueVectorType(const std::string& resolvedType)
+{
+	bool found = false;
+	for (int i = 0; i < KEYS_UNIQUE_VECTOR_SIZE && !found; ++i)
+	{
+		found = (resolvedType.find(KEYS_UNIQUE_VECTOR[i]) == 0);
 	}
 	return found;
 }

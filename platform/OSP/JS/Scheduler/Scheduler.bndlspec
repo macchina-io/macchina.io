@@ -6,7 +6,7 @@
     <version>1.0.0</version>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2018-2021, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2018-2022, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>Poco::OSP::JS::Scheduler::BundleActivator</class>
       <library>com.appinf.osp.js.scheduler</library>
