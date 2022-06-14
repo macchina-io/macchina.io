@@ -61,7 +61,7 @@ void TaggedBinarySerializer::serializeMessageEnd(const std::string& name, Poco::
 }
 
 
-void TaggedBinarySerializer::serializeFaultMessage(const std::string& methodName, Poco::Exception& e)
+void TaggedBinarySerializer::serializeFaultMessage(const std::string& methodName, const Poco::Exception& e)
 {
 	_serializer.serializeFaultMessage(methodName, e);
 }

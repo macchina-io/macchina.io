@@ -49,7 +49,7 @@ void Serializer::serializeMessageEnd(const std::string& /*name*/, SerializerBase
 }
 
 
-void Serializer::serializeFaultMessage(const std::string& name, Poco::Exception& exc)
+void Serializer::serializeFaultMessage(const std::string& name, const Poco::Exception& exc)
 {
 	_pException = exc.clone();
 }
