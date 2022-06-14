@@ -12,6 +12,7 @@ INSTALLDIR ?= $(DESTDIR)
 
 ifndef WITHOUT_JS
 ENABLE_JS ?= 1
+export ENABLE_JS
 endif
 
 RUNTIME_LIBS = PocoFoundation PocoXML PocoJSON PocoUtil PocoZip PocoOSP PocoRemotingNG PocoGeo
