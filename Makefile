@@ -10,6 +10,10 @@ PRODUCT ?= sdk
 DESTDIR ?= /usr/local/macchina
 INSTALLDIR ?= $(DESTDIR)
 
+ifndef WITHOUT_JS
+ENABLE_JS ?= 1
+endif
+
 RUNTIME_LIBS = PocoFoundation PocoXML PocoJSON PocoUtil PocoZip PocoOSP PocoRemotingNG PocoGeo
 
 MACCHINA_BASE = $(shell pwd)
