@@ -15,7 +15,7 @@
 		</dependency>
 		<dependency>
 			<symbolicName>io.macchina.mqtt.client</symbolicName>
-			<version>[1.0.0, 2.0.0)</version>
+			<version>[1.0.0, 3.0.0)</version>
 		</dependency>
 	</manifest>
 	<files>
