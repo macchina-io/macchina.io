@@ -58,6 +58,12 @@ On macOS:
 
 Then direct your favorite web browser to <http://localhost:22080> and log in with username 'admin' and password 'admin'.
 
+To build macchina.io EDGE without JavaScript support, you can pass `WITHOUT_JS=1` to `make`:
+
+```
+    $ make -s -j8 WITHOUT_JS=1 DEFAULT_TARGET=shared_release
+```
+
 For more detailed instructions, including how to cross-compile for embedded Linux targets,
 as well as an introduction to writing JavaScript code for macchina.io, see
 the [documentation](http://macchina.io/docs/index.html), specifically
