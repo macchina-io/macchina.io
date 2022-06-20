@@ -19,14 +19,45 @@
 #include "Poco/BinaryWriter.h"
 #include "Poco/MemoryStream.h"
 #include "Poco/CountingStream.h"
+#include <cstring>
 
 
 namespace Poco {
 namespace WebTunnel {
 
 
-RemotePortForwarder::RemotePortForwarder(SocketDispatcher& dispatcher, Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket, const Poco::Net::IPAddress& host, const std::set<Poco::UInt16>& ports, Poco::Timespan remoteTimeout):
+//
+// SocketFactory
+//
+
+
+SocketFactory::SocketFactory()
+{
+}
+
+
+SocketFactory::~SocketFactory()
+{
+}
+
+
+Poco::Net::StreamSocket SocketFactory::createSocket(const Poco::Net::SocketAddress& addr, Poco::Timespan timeout)
+{
+	Poco::Net::StreamSocket streamSocket;
+	streamSocket.connect(addr, timeout);
+	streamSocket.setNoDelay(true);
+	return streamSocket;
+}
+
+
+//
+// RemotePortForwarder
+//
+
+
+RemotePortForwarder::RemotePortForwarder(SocketDispatcher& dispatcher, Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket, const Poco::Net::IPAddress& host, const std::set<Poco::UInt16>& ports, Poco::Timespan remoteTimeout, SocketFactory::Ptr pSocketFactory):
 	_dispatcher(dispatcher),
+	_pSocketFactory(pSocketFactory),
 	_pWebSocket(pWebSocket),
 	_host(host),
 	_ports(ports),
@@ -104,7 +135,7 @@ bool RemotePortForwarder::multiplex(SocketDispatcher& dispatcher, Poco::Net::Str
 		{
 			if (_logger.debug())
 			{
-				_logger.debug("Closing channel %hu", channel);
+				_logger.debug("Actively closing channel %hu", channel);
 			}
 			removeChannel(channel);
 			n = 0;
@@ -114,10 +145,18 @@ bool RemotePortForwarder::multiplex(SocketDispatcher& dispatcher, Poco::Net::Str
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error("Error reading from locally forwarded socket for channel %hu: %s", channel, exc.displayText());
 		removeChannel(channel);
 		n = 0;
-		hn = Protocol::writeHeader(buffer.begin(), buffer.size(), Protocol::WT_OP_ERROR, 0, channel, Protocol::WT_ERR_SOCKET);
+		// Workaround for some HTTPS servers that do not orderly close a TLS connection.
+		if (std::strcmp(exc.name(), "SSL connection unexpectedly closed") == 0)
+		{
+			hn = Protocol::writeHeader(buffer.begin(), buffer.size(), Protocol::WT_OP_CLOSE, 0, channel);
+		}
+		else
+		{
+			_logger.error("Error reading from locally forwarded socket for channel %hu: %s", channel, exc.displayText());
+			hn = Protocol::writeHeader(buffer.begin(), buffer.size(), Protocol::WT_OP_ERROR, 0, channel, Protocol::WT_ERR_SOCKET);
+		}
 		expectMore = false;
 	}
 	try
@@ -207,6 +246,10 @@ bool RemotePortForwarder::demultiplex(SocketDispatcher& dispatcher, Poco::Net::S
 			return openChannel(channel, portOrErrorCode);
 
 		case Protocol::WT_OP_CLOSE:
+			if (_logger.debug())
+			{
+				_logger.debug("Passively closing channel %hu", channel);
+			}
 			removeChannel(channel);
 			return false;
 
@@ -316,9 +359,7 @@ bool RemotePortForwarder::openChannel(Poco::UInt16 channel, Poco::UInt16 port)
 		try
 		{
 			Poco::Net::SocketAddress addr(_host, port);
-			Poco::Net::StreamSocket streamSocket;
-			streamSocket.connect(addr, _connectTimeout);
-			streamSocket.setNoDelay(true);
+			Poco::Net::StreamSocket streamSocket(_pSocketFactory->createSocket(addr, _connectTimeout));
 			_dispatcher.addSocket(streamSocket, new TunnelMultiplexer(*this, channel), _localTimeout);
 			_channelMap[channel] = streamSocket;
 		}
@@ -458,7 +499,7 @@ void RemotePortForwarder::updateProperties(const std::map<std::string, std::stri
 	writeProperties(bufferWriter, props);
 
 	Poco::FastMutex::ScopedLock lock(_webSocketMutex);
-	_pWebSocket->sendFrame(buffer.begin(), payloadSize + Protocol::WT_FRAME_HEADER_SIZE, Poco::Net::WebSocket::FRAME_BINARY);
+	_pWebSocket->sendFrame(buffer.begin(), static_cast<int>(payloadSize + Protocol::WT_FRAME_HEADER_SIZE), Poco::Net::WebSocket::FRAME_BINARY);
 }
 
 

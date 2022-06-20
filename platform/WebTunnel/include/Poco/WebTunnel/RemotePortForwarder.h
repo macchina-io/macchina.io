@@ -39,6 +39,28 @@ namespace Poco {
 namespace WebTunnel {
 
 
+class WebTunnel_API SocketFactory: public Poco::RefCountedObject
+	/// This class is used by RemotePortForwarder to create a StreamSocket
+	/// for connecting to the target endpoint.
+{
+public:
+	typedef Poco::AutoPtr<SocketFactory> Ptr;
+
+	SocketFactory();
+		/// Creates the SocketFactory.
+
+	virtual ~SocketFactory();
+		/// Destroys the SocketFactory.
+
+	virtual Poco::Net::StreamSocket createSocket(const Poco::Net::SocketAddress& addr, Poco::Timespan timeout);
+		/// Creates and connects a socket to the given address.
+		/// If the socket cannot be connected within the given timeout,
+		/// throws a Poco::TimeoutException.
+		///
+		/// The default implementation always creates a Poco::Net::StreamSocket.
+};
+
+
 class WebTunnel_API RemotePortForwarder
 	/// This class forwards one or more ports to a remote host,
 	/// using a shared web socket for tunneling the data.
@@ -59,7 +81,7 @@ public:
 		/// reason for the close. See the CloseReason
 		/// enum for values and their meanings.
 
-	RemotePortForwarder(SocketDispatcher& dispatcher, Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket, const Poco::Net::IPAddress& host, const std::set<Poco::UInt16>& ports, Poco::Timespan remoteTimeout = Poco::Timespan(300, 0));
+	RemotePortForwarder(SocketDispatcher& dispatcher, Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket, const Poco::Net::IPAddress& host, const std::set<Poco::UInt16>& ports, Poco::Timespan remoteTimeout = Poco::Timespan(300, 0), SocketFactory::Ptr pSocketFactory = new SocketFactory);
 		/// Creates the RemotePortForwarder, using the given socket dispatcher and web socket,
 		/// which is used for tunneling data. Only the port numbers given in ports will
 		/// be forwarded. The web socket must have already been connected to the
@@ -167,6 +189,7 @@ private:
 	typedef std::map<Poco::UInt16, Poco::Net::StreamSocket> ChannelMap;
 
 	SocketDispatcher& _dispatcher;
+	SocketFactory::Ptr _pSocketFactory;
 	Poco::SharedPtr<Poco::Net::WebSocket> _pWebSocket;
 	Poco::FastMutex _webSocketMutex;
 	Poco::Net::IPAddress _host;
