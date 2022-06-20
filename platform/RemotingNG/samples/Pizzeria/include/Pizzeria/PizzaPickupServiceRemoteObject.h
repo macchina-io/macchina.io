@@ -63,9 +63,6 @@ public:
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
-	void setWaitTime(const Poco::Timespan& span);
-		/// Sets the wait time. This method should not be accessible remote.
-
 private:
 	Poco::SharedPtr<Pizzeria::PizzaPickupService> _pServiceObject;
 };
@@ -124,12 +121,6 @@ inline Poco::DateTime PizzaPickupServiceRemoteObject::orderForSelfPickup(const P
 inline const Poco::RemotingNG::Identifiable::TypeId& PizzaPickupServiceRemoteObject::remoting__typeId() const
 {
 	return IPizzaPickupService::remoting__typeId();
-}
-
-
-inline void PizzaPickupServiceRemoteObject::setWaitTime(const Poco::Timespan& span)
-{
-	_pServiceObject->setWaitTime(span);
 }
 
 

@@ -63,9 +63,6 @@ public:
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
-	void setWaitTime(const Poco::Timespan& span);
-		/// Sets the wait time. This method should not be accessible remote.
-
 private:
 	static const std::string DEFAULT_NS;
 	mutable Poco::UniqueExpireCache<std::string, Poco::ExpirationDecorator<int> > _cache;
