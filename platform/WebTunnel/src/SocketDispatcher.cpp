@@ -474,9 +474,12 @@ void SocketDispatcher::readableImpl(Poco::Net::StreamSocket& socket, SocketDispa
 		bool expectMore = false;
 		do
 		{
-			expectMore = pInfo->pHandler->readable(*this, socket);
+			if (socket.impl()->initialized())
+			{
+				expectMore = pInfo->pHandler->readable(*this, socket);
+			}
 		}
-		while (socket.available() > 0 || (expectMore && reads++ < _maxReadsPerWorker && socket.poll(_timeout, Poco::Net::Socket::SELECT_READ)));
+		while (socket.impl()->initialized() && (socket.available() > 0 || (expectMore && reads++ < _maxReadsPerWorker && socket.poll(_timeout, Poco::Net::Socket::SELECT_READ))));
 	}
 	catch (Poco::Exception& exc)
 	{

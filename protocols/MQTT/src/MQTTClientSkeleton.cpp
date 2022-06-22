@@ -8,7 +8,7 @@
 // This file has been generated.
 // Warning: All changes to this will be lost when the file is re-generated.
 //
-// Copyright (c) 2015-2020, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2015-2022, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 // 
 // SPDX-License-Identifier: GPL-3.0-only
@@ -68,20 +68,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<IoT::MQTT::ConnectionInfo >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connect"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connect"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -89,8 +91,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connect"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -125,20 +128,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<IoT::MQTT::ConnectionInfo >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connect5"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connect5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -146,8 +151,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connect5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -177,20 +183,22 @@ public:
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connectAsync"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connectAsync"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -198,8 +206,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connectAsync"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -233,20 +242,22 @@ public:
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connectAsync5"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connectAsync5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -254,8 +265,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connectAsync5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -286,20 +298,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<bool >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connected"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connected"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -307,8 +321,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connected"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -339,20 +354,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<IoT::MQTT::ConnectionInfo >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connectionInfo"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connectionInfo"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -360,8 +377,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::connectionInfo"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -393,20 +411,22 @@ public:
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::disconnect"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::disconnect"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -414,8 +434,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::disconnect"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -453,20 +474,22 @@ public:
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::disconnect5"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::disconnect5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -474,8 +497,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::disconnect5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -506,20 +530,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<std::string >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::id"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::id"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -527,8 +553,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::id"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -559,20 +586,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<int >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::mqttVersion"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::mqttVersion"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -580,8 +609,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::mqttVersion"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -612,20 +642,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<std::vector < int > >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::pendingDeliveryTokens"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::pendingDeliveryTokens"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -633,8 +665,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::pendingDeliveryTokens"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -671,20 +704,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<int >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::publish"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::publish"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -692,8 +727,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::publish"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -734,20 +770,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<IoT::MQTT::PublishResult >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::publish5"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::publish5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -755,8 +793,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::publish5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -791,20 +830,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<int >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::publishMessage"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::publishMessage"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -812,8 +853,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::publishMessage"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -848,20 +890,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<IoT::MQTT::PublishResult >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::publishMessage5"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::publishMessage5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -869,8 +913,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::publishMessage5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -901,20 +946,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<std::string >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::serverURI"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::serverURI"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -922,8 +969,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::serverURI"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -954,20 +1002,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<IoT::MQTT::Statistics >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::statistics"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::statistics"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -975,8 +1025,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::statistics"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1010,20 +1061,22 @@ public:
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribe"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribe"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1031,8 +1084,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribe"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1071,20 +1125,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<IoT::MQTT::Response >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribe5"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribe5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1092,8 +1148,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribe5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1125,20 +1182,22 @@ public:
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribeMany"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribeMany"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1146,8 +1205,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribeMany"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1184,20 +1244,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<IoT::MQTT::Response >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribeMany5"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribeMany5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1205,8 +1267,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribeMany5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1237,20 +1300,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<std::vector < IoT::MQTT::TopicQoS > >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribedTopics"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribedTopics"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1258,8 +1323,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::subscribedTopics"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1291,20 +1357,22 @@ public:
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::unsubscribe"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::unsubscribe"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1312,8 +1380,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::unsubscribe"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1348,20 +1417,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<IoT::MQTT::Response >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::unsubscribe5"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::unsubscribe5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1369,8 +1440,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::unsubscribe5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1402,20 +1474,22 @@ public:
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::unsubscribeMany"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::unsubscribeMany"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1423,8 +1497,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::unsubscribeMany"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1459,20 +1534,22 @@ public:
 			Poco::RemotingNG::TypeSerializer<IoT::MQTT::Response >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::unsubscribeMany5"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::unsubscribeMany5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1480,8 +1557,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::unsubscribeMany5"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1515,20 +1593,22 @@ public:
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
-		catch (Poco::Exception& e)
+		catch (const Poco::Exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::waitForCompletion"s, e);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
 			}
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::waitForCompletion"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc(e.what());
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}
@@ -1536,8 +1616,9 @@ public:
 		{
 			if (!remoting__requestSucceeded)
 			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::MQTT::MQTTClient::waitForCompletion"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
-				Poco::Exception exc("Unknown Exception");
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
 		}

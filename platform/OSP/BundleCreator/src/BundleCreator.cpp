@@ -318,7 +318,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics OSP Bundle Creator Utility.\n"
-			"Copyright (c) 2007-2021 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2007-2022 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program builds bundle files for use with the "
 			"Open Service Platform. What goes into a bundle "

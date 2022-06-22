@@ -195,6 +195,16 @@ private:
 };
 
 
+struct UnknownStruct
+{
+};
+
+
+struct AnotherUnknownStruct
+{
+};
+
+
 //@ remote, namespace="http://www.appinf.com/services/tester", synchronized="false"
 class Tester
 {
@@ -330,6 +340,16 @@ public:
 	Poco::BasicEvent<Enum1> testEnumEvent;
 
 	Poco::BasicEvent<ScopedEnum> testScopedEnumEvent;
+
+	// Make sure RemoteGen ignores the following definitions.
+
+	//@ remote=false
+	void localFunction(const UnknownStruct& uks);
+
+	static void localStaticFunction(const AnotherUnknownStruct& uks);
+
+	//@ remote=false
+	Poco::BasicEvent<UnknownStruct> localEvent;
 
 private:
 	std::string _oneWayResult;

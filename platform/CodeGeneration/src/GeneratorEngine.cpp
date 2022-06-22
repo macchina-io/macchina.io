@@ -320,8 +320,6 @@ void GeneratorEngine::parseProperties(const Poco::CppParser::Symbol* pSym, CodeG
 				itP->second.append("}");
 			}
 		}
-		if (itP->second.empty() && itP->first != "name")
-			itP->second = Utility::VAL_TRUE;
 		std::pair<CodeGenerator::Properties::iterator, bool> ok = props.insert(std::make_pair(itP->first, itP->second));
 		if (!ok.second)
 		{
@@ -347,8 +345,6 @@ void GeneratorEngine::parseKeyValue(const std::string& keyValue, CodeGenerator::
 
 	Poco::trimInPlace(key);
 	Poco::trimInPlace(value);
-	if (key == "name" && Poco::toLower(value) == Utility::VAL_TRUE)
-		value.clear();
 
 	std::pair<CodeGenerator::Properties::iterator, bool> ok = props.insert(std::make_pair(key, value));
 	if (!ok.second)
@@ -394,7 +390,7 @@ bool GeneratorEngine::getStringProperty(const CodeGenerator::Properties& props, 
 bool GeneratorEngine::getBoolProperty(const CodeGenerator::Properties& props, const std::string& propName, bool& value)
 {
 	std::string val;
-	bool retVal = getStringProperty(props,propName, val);
+	bool retVal = getStringProperty(props, propName, val);
 	if (!retVal)
 		return retVal;
 	Poco::toLowerInPlace(val);
@@ -410,7 +406,7 @@ bool GeneratorEngine::getBoolProperty(const CodeGenerator::Properties& props, co
 bool GeneratorEngine::getUInt32Property(const CodeGenerator::Properties& props, const std::string& propName, Poco::UInt32& value)
 {
 	std::string val;
-	bool retVal = getStringProperty(props,propName, val);
+	bool retVal = getStringProperty(props, propName, val);
 	if (!retVal)
 		return retVal;
 	value = Poco::NumberParser::parseUnsigned(val);

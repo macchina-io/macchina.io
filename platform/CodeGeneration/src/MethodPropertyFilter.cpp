@@ -86,7 +86,7 @@ bool MethodPropertyFilter::matches(const CodeGenerator::Properties& properties) 
 	{
 		CodeGenerator::Properties::const_iterator itF = properties.find(it->first);
 
-		ok &= (itF != properties.end() && itF->second == it->second);
+		ok &= (itF != properties.end() && (itF->second == it->second || (it->second == Utility::VAL_TRUE && itF->second.empty())));
 	}
 	return ok;
 }
