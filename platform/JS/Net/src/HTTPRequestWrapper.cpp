@@ -493,7 +493,7 @@ public:
 		v8::Context::Scope contextScope(context);
 
 		ResponseHolder* pResponseHolder = new ResponsePtrHolderImpl<Poco::Net::HTTPResponse>(_pResponse);
-		std::swap(pResponseHolder->content(), _pAsyncRequest->body());
+		pResponseHolder->content() = std::move(_pAsyncRequest->body());
 		HTTPResponseWrapper wrapper;
 		v8::Persistent<v8::Object>& responseObject(wrapper.wrapNativePersistent(_pIsolate, pResponseHolder));
 
@@ -575,13 +575,13 @@ void AsyncRequest::run()
 		_pSession->sendRequest(*_pRequest).write(_body.data(), _body.size());
 		Poco::SharedPtr<Poco::Net::HTTPResponse> pResponse = new Poco::Net::HTTPResponse;
 		std::istream& istr = _pSession->receiveResponse(*pResponse);
-		std::string responseBody;
 		std::streamsize contentLength = pResponse->getContentLength();
+		_body.clear();
 		if (contentLength != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
 		{
-			responseBody.reserve(static_cast<std::size_t>(contentLength));
+			_body.reserve(static_cast<std::size_t>(contentLength));
 		}
-		Poco::StreamCopier::copyToString(istr, responseBody);
+		Poco::StreamCopier::copyToString(istr, _body);
 		_pExecutor->schedule(new AsyncRequestCompletionTask(_pIsolate, _pExecutor, pResponse, this));
 	}
 	catch (Poco::Exception& exc)
