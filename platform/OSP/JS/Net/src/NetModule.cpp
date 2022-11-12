@@ -37,7 +37,8 @@ public:
 			v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 			objectTemplate->SetInternalFieldCount(1);
 
-			objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "HTTPRequest"), v8::FunctionTemplate::New(pIsolate, Poco::JS::Net::HTTPRequestWrapper::construct));
+			Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
+			objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "HTTPRequest"), httpRequestWrapper.constructor(pIsolate));
 			objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "CookieJar"), v8::FunctionTemplate::New(pIsolate, Poco::JS::Net::CookieJarWrapper::construct));
 
 			pooledObjectTemplate.Reset(pIsolate, objectTemplate);
