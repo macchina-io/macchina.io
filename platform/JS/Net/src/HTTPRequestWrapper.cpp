@@ -64,7 +64,10 @@ HTTPRequestWrapper::~HTTPRequestWrapper()
 
 v8::Handle<v8::FunctionTemplate> HTTPRequestWrapper::constructor(v8::Isolate* pIsolate)
 {
-	return v8::FunctionTemplate::New(pIsolate, construct);
+	v8::EscapableHandleScope handleScope(pIsolate);
+	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isHTTPRequest"), v8::FunctionTemplate::New(pIsolate, isHTTPRequest));
+	return handleScope.Escape(funcTemplate);
 }
 
 
@@ -89,6 +92,7 @@ v8::Handle<v8::ObjectTemplate> HTTPRequestWrapper::objectTemplate(v8::Isolate* p
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "headers"), getHeaders);
 		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "credentials"), getCredentials);
 
+		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isHTTPRequest"), v8::FunctionTemplate::New(pIsolate, isHTTPRequest));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, hasHeader));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "get"), v8::FunctionTemplate::New(pIsolate, getHeader));
 		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "set"), v8::FunctionTemplate::New(pIsolate, setHeader));
@@ -132,6 +136,19 @@ void HTTPRequestWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& ar
 	{
 		delete pRequestHolder;
 		returnException(args, exc);
+	}
+}
+
+
+void HTTPRequestWrapper::isHTTPRequest(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() > 0)
+	{
+		args.GetReturnValue().Set(Wrapper::isWrapper<RequestHolder>(args.GetIsolate(), args[0]));
+	}
+	else
+	{
+		args.GetReturnValue().Set(false);
 	}
 }
 

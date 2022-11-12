@@ -47,7 +47,10 @@ HTTPResponseWrapper::~HTTPResponseWrapper()
 
 v8::Handle<v8::FunctionTemplate> HTTPResponseWrapper::constructor(v8::Isolate* pIsolate)
 {
-	return v8::FunctionTemplate::New(pIsolate, construct);
+	v8::EscapableHandleScope handleScope(pIsolate);
+	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
+	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isHTTPResponse"), v8::FunctionTemplate::New(pIsolate, isHTTPResponse));
+	return handleScope.Escape(funcTemplate);
 }
 
 
@@ -113,6 +116,19 @@ void HTTPResponseWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& a
 void HTTPResponseWrapper::destruct(const v8::WeakCallbackInfo<ResponseHolder>& data)
 {
 	delete data.GetParameter();
+}
+
+
+void HTTPResponseWrapper::isHTTPResponse(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() > 0)
+	{
+		args.GetReturnValue().Set(Wrapper::isWrapper<ResponseHolder>(args.GetIsolate(), args[0]));
+	}
+	else
+	{
+		args.GetReturnValue().Set(false);
+	}
 }
 
 

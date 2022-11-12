@@ -8,7 +8,7 @@ include $(POCO_BASE)/build/rules/global
 
 CXXFLAGS += -DV8_DEPRECATION_WARNINGS=1
 
-objects = HTTPRequestWrapper HTTPResponseWrapper HTMLFormWrapper
+objects = HTTPRequestWrapper HTTPResponseWrapper HTMLFormWrapper CookieJar CookieJarWrapper
 
 target         = PocoJSNet
 target_version = 1

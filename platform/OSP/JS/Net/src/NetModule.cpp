@@ -11,6 +11,7 @@
 #include "Poco/JS/Core/Module.h"
 #include "Poco/OSP/JS/ModuleFactory.h"
 #include "Poco/JS/Net/HTTPRequestWrapper.h"
+#include "Poco/JS/Net/CookieJarWrapper.h"
 #include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/ClassLibrary.h"
 #include "v8.h"
@@ -37,6 +38,7 @@ public:
 			objectTemplate->SetInternalFieldCount(1);
 
 			objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "HTTPRequest"), v8::FunctionTemplate::New(pIsolate, Poco::JS::Net::HTTPRequestWrapper::construct));
+			objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "CookieJar"), v8::FunctionTemplate::New(pIsolate, Poco::JS::Net::CookieJarWrapper::construct));
 
 			pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 		}
