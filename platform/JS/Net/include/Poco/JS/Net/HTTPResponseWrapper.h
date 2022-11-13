@@ -146,6 +146,7 @@ public:
 	v8::Handle<v8::ObjectTemplate> objectTemplate(v8::Isolate* pIsolate);
 
 protected:
+	static void isHTTPResponse(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void destruct(const v8::WeakCallbackInfo<ResponseHolder>& data);
 	static void getStatus(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info);
