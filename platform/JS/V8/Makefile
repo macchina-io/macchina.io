@@ -40,6 +40,9 @@ endif
 ifeq ($(OSARCH),aarch64)
 V8ARCH = arm64
 endif
+ifeq ($(OSARCH),arm64)
+V8ARCH = arm64
+endif
 ifeq ($(OSARCH),mipsel)
 V8ARCH = mipsel
 endif
@@ -60,6 +63,9 @@ ifeq ($(findstring arm,$(POCO_HOST_OSARCH)),arm)
 V8HOSTARCH = arm
 endif
 ifeq ($(POCO_HOST_OSARCH),aarch64)
+V8HOSTARCH = arm64
+endif
+ifeq ($(POCO_HOST_OSARCH),arm64)
 V8HOSTARCH = arm64
 endif
 
