@@ -31,11 +31,20 @@ Prerequisites
   - Linux: GNU C++ (g++) 5.0 or newer; alternatively Clang++ 3.4 or newer (C++14)
   - macOS: Clang++ (Apple LLVM) 10.0 or newer
   - OpenSSL headers and libraries (on macOS, via [Homebrew](http://brew.sh): `brew install openssl`)
-  - Python 3.x (for building V8)
+  - Python 3.9 for building V8 (on macOS, via [Homebrew](http://brew.sh): `brew install python@3.9`)
 
 
 Getting Started
 ---------------
+
+NOTE: On macOS, the `python` command must run Python 3.9 in order to build V8. 
+If installed via Homebrew, create a symbolic link:
+
+  * Intel: `ln -s ../Cellar/python@3.9/3.9.15/bin/python3.9 /usr/local/bin/python`
+  * Apple Silicon: `ln -s ../Cellar/python@3.9/3.9.15/bin/python3.9 /opt/homebrew/bin/python`
+  
+And make sure that your `$PATH` includes `/usr/local/bin/` on Intel or
+`/opt/homebrew/bin` on Apple Silicon.
 
 For the impatient, using a Linux or macOS machine:
 

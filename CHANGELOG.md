@@ -1,3 +1,25 @@
+# Release 2022.1 - 2022-06-22
+
+  * upgraded POCO to release 1.11.3
+  * upgraded OSP and RemotingNG frameworks (see respective release notes)
+  * add support for building without JavaScript engine
+
+
+# Release 2021.1 - 2021-08-11
+
+  * License change: changed license of open source version to GPLv3
+  * upgraded POCO to release 1.11.0
+  * upgraded OSP and RemotingNG frameworks (see respective release notes)
+  * MQTT: support for MQTT version 5, upgrade bundled Paho library
+  * JavaScript: new UUID object
+  * JavaScript: fixed potential heap corruption with asynchronous HTTP requests
+  * JavaScript: fixed potential double free in BridgeWrapper
+  * JavaScript: HTTP request and response object have new headers property
+  * JavaScript: fix a race condition when stopping a script
+  * JavaScript: add toJSON() to Buffer, DateTime, LocalDateTime and UUID objects
+  * Upgrade OpenLayers to newer version to fix Safari display issues
+
+
 # Release 2020.1 - 2020-02-29
 
   * upgraded POCO to release 1.10.1
