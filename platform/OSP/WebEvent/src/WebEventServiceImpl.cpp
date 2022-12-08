@@ -411,6 +411,15 @@ void WebEventServiceImpl::unsubscribe(Poco::SharedPtr<Poco::Net::WebSocket> pWS,
 }
 
 
+int WebEventServiceImpl::subscriberCount(const std::string& subject)
+{
+	int cnt = 0;
+	auto er = _subjectMap.equal_range(subject);
+	for (auto it = er.first; it != er.second; ++it) ++cnt;
+	return cnt;
+}
+
+
 void WebEventServiceImpl::send(Poco::SharedPtr<Poco::Net::WebSocket> pWS, const std::string& message)
 {
 	_workerQueue.enqueueNotification(new SendNotification(*this, pWS, message));
@@ -510,6 +519,7 @@ void WebEventServiceImpl::subscribeImpl(Poco::SharedPtr<Poco::Net::WebSocket> pW
 			{
 				it->second->subjectNames.insert(*itSub);
 				_subjectMap.insert(SubjectMap::value_type(*itSub, it->second));
+				subscriptionRequestReceived.notify(this, *itSub);
 			}
 		}
 	}
@@ -542,6 +552,7 @@ void WebEventServiceImpl::unsubscribeImpl(Poco::SharedPtr<Poco::Net::WebSocket> 
 					if (itSM->second == it->second)
 					{
 						_subjectMap.erase(itSM);
+						unsubscriptionRequestReceived.notify(this, *itSub);
 						break;
 					}
 					++itSM;
@@ -558,7 +569,7 @@ void WebEventServiceImpl::sendImpl(Poco::SharedPtr<Poco::Net::WebSocket> pWS, co
 	{
 		Poco::FastMutex::ScopedLock lock(_sendMutex);
 
-		pWS->sendFrame(message.data(), message.size());
+		pWS->sendFrame(message.data(), static_cast<int>(message.size()));
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -574,7 +585,7 @@ void WebEventServiceImpl::receiveImpl(Poco::SharedPtr<Poco::Net::WebSocket> pWS)
 	{
 		Poco::Buffer<char> buffer(4096);
 		int flags;
-		int n = pWS->receiveFrame(buffer.begin(), buffer.size(), flags);
+		int n = pWS->receiveFrame(buffer.begin(), static_cast<int>(buffer.size()), flags);
 		_pContext->logger().debug(Poco::format("Frame received (length=%d, flags=0x%x).", n, unsigned(flags)));
 
 		if (flags & Poco::Net::WebSocket::FRAME_OP_PONG)
@@ -678,7 +689,7 @@ void WebEventServiceImpl::shutdownImpl(Poco::SharedPtr<Poco::Net::WebSocket> pWS
 		{
 			Poco::Buffer<char> buffer(4096);
 			int flags;
-			pWS->receiveFrame(buffer.begin(), buffer.size(), flags);
+			pWS->receiveFrame(buffer.begin(), static_cast<int>(buffer.size()), flags);
 			if (flags & Poco::Net::WebSocket::FRAME_OP_CLOSE)
 			{
 				pWS->close();

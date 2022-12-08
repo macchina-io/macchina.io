@@ -51,6 +51,7 @@ public:
 	// WebEventService
 	Poco::BasicEvent<const NotificationEvent>& subjectNotified(const std::string& subject);
 	void notify(const std::string& subjectName, const std::string& data);
+	int subscriberCount(const std::string& subject);
 
 	// Service
 	const std::type_info& type() const;
