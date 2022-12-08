@@ -114,6 +114,18 @@ public:
 		/// to anything other than 200 (OK), the WebSocket connection will not
 		/// be established.
 
+	Poco::BasicEvent<const std::string> subscriptionRequestReceived;
+		/// Fired when a subscription request for a new subject arrives.
+		/// This event is fired once per subject subscription on a
+		/// socket. To find out the number of clients subscribed to a subject,
+		/// use the subscriberCount() call.
+
+	Poco::BasicEvent<const std::string> unsubscriptionRequestReceived;
+		/// Fired when an unsubscription request for a subject arrives.
+		/// This event is fired once per unsubscription on a socket.
+		/// To find out the number of clients subscribed to a subject,
+		/// use the subscriberCount() call.
+
 	Poco::BasicEvent<const NotificationEvent> notificationSent;
 		/// Fired when a notification has been sent, either by calling
 		/// notify(), or by a client sending a NOTIFY message to
@@ -136,6 +148,9 @@ public:
 		/// Sending the notification is done asynchronously. If a notification cannot be
 		/// delivered to a subscriber due to a network issue, the subscriber will be removed
 		/// and its WebSocket closed.
+
+	virtual int subscriberCount(const std::string& subject) = 0;
+		/// Returns the number of subscribers to the subject.
 
 	// Service
 	const std::type_info& type() const;

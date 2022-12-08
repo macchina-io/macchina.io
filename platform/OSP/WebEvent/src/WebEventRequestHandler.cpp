@@ -40,54 +40,76 @@ WebEventRequestHandler::~WebEventRequestHandler()
 	
 void WebEventRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
-	try
+	if (authenticate() && authorize())
 	{
-		_pWebEventServiceImpl->preflightRequest(request);
-		if (response.getStatus() == Poco::Net::HTTPResponse::HTTP_OK)
+		try
 		{
-			const Poco::Net::HTTPServerRequest* pRequest = &request;
-			_pWebEventServiceImpl->requestReceived(pRequest);
+			_pWebEventServiceImpl->preflightRequest(request);
 			if (response.getStatus() == Poco::Net::HTTPResponse::HTTP_OK)
 			{
-				Poco::SharedPtr<Poco::Net::WebSocket> pWS = new Poco::Net::WebSocket(request, response);
-				_pContext->logger().information(Poco::format("WebSocket connection established with %s.", request.clientAddress().toString()));
-				_pWebEventServiceImpl->addSubscriber(pWS);
+				const Poco::Net::HTTPServerRequest* pRequest = &request;
+				_pWebEventServiceImpl->requestReceived(pRequest);
+				if (response.getStatus() == Poco::Net::HTTPResponse::HTTP_OK)
+				{
+					Poco::SharedPtr<Poco::Net::WebSocket> pWS = new Poco::Net::WebSocket(request, response);
+					_pContext->logger().information(Poco::format("WebSocket connection established with %s.", request.clientAddress().toString()));
+					_pWebEventServiceImpl->addSubscriber(pWS);
+				}
+				else
+				{
+					_pContext->logger().notice(Poco::format("WebSocket connection from %s rejected by delegate (status=%d).",
+						request.clientAddress().toString(),
+						static_cast<int>(response.getStatus())));
+					response.setContentLength(0);
+					response.send();
+				}
 			}
 			else
 			{
-				_pContext->logger().notice(Poco::format("WebSocket connection from %s rejected by delegate (status=%d).", 
+				_pContext->logger().notice(Poco::format("WebSocket connection from %s rejected by preflight (status=%d).",
 					request.clientAddress().toString(),
 					static_cast<int>(response.getStatus())));
 				response.setContentLength(0);
 				response.send();
 			}
 		}
-		else
+		catch (Poco::Net::WebSocketException& exc)
 		{
-			_pContext->logger().notice(Poco::format("WebSocket connection from %s rejected by preflight (status=%d).", 
-				request.clientAddress().toString(),
-				static_cast<int>(response.getStatus())));
-			response.setContentLength(0);
-			response.send();
+			_pContext->logger().log(exc);
+			switch (exc.code())
+			{
+			case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_UNSUPPORTED_VERSION:
+				response.set("Sec-WebSocket-Version", Poco::Net::WebSocket::WEBSOCKET_VERSION);
+				// fallthrough
+			case Poco::Net::WebSocket::WS_ERR_NO_HANDSHAKE:
+			case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_NO_VERSION:
+			case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_NO_KEY:
+				response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
+				response.setContentLength(0);
+				response.send();
+				break;
+			}
 		}
 	}
-	catch (Poco::Net::WebSocketException& exc)
+	else
 	{
-		_pContext->logger().log(exc);
-		switch (exc.code())
-		{
-		case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_UNSUPPORTED_VERSION:
-			response.set("Sec-WebSocket-Version", Poco::Net::WebSocket::WEBSOCKET_VERSION);
-			// fallthrough
-		case Poco::Net::WebSocket::WS_ERR_NO_HANDSHAKE:
-		case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_NO_VERSION:
-		case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_NO_KEY:
-			response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
-			response.setContentLength(0);
-			response.send();
-			break;
-		}
+		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_UNAUTHORIZED);
+		response.setContentLength(0);
+		response.send();
 	}
+}
+
+bool WebEventRequestHandler::authenticate() const
+{
+	// TODO: actually authenticate
+	return true;
+}
+
+
+bool WebEventRequestHandler::authorize() const
+{
+	// TODO: actually authorize
+	return true;
 }
 
 
