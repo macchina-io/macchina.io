@@ -256,7 +256,7 @@ Poco::JSON::Object::Ptr SwaggerGenerator::createSchemaForType(const Poco::CppPar
 			pSchema = new Poco::JSON::Object;
 			pSchema->set("$ref"s, "#/components/schemas/"s + translateTypeName(pStruct->fullName()));
 		}
-		else if (pSymbol->kind() == Poco::CppParser::Symbol::SYM_ENUM)
+		else if (pSymbol && pSymbol->kind() == Poco::CppParser::Symbol::SYM_ENUM)
 		{
 			pSchema = createSchemaForBasicType("int"s);
 		}
