@@ -34,6 +34,7 @@ TCPPort::TCPPort(const Poco::Net::SocketAddress& serverAddress):
 	try
 	{
 		connect();
+		_socket.setNoDelay(true);
 	}
 	catch (...)
 	{

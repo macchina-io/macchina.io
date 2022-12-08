@@ -108,6 +108,9 @@ public:
 	void reset();
 		/// Resets the connection to the bus.
 
+	std::string address() const;
+		/// Returns the device name.
+
 protected:
 	Poco::UInt16 updateCRC16(Poco::UInt16 crc, Poco::UInt8 byte);
 	bool checkFrame(std::size_t size);
@@ -142,6 +145,12 @@ inline bool RTUPort::poll(const Poco::Timespan& timeout)
 inline int RTUPort::maxSimultaneousTransactions() const
 {
 	return 1;
+}
+
+
+inline std::string RTUPort::address() const
+{
+       return _pSerialPort->device();
 }
 
 

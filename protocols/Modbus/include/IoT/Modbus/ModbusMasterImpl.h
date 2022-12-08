@@ -53,6 +53,11 @@ public:
 	}
 
 	// ModbusMaster
+	std::string address() const
+	{
+		return _pPort->address();
+	}
+
 	Poco::UInt16 sendRequest(const GenericMessage& message)
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
@@ -372,7 +377,7 @@ public:
 		return 0;
 	}
 
-	void writeMultipleCoils(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector<bool> values)
+	void writeMultipleCoils(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, const std::vector<bool>& values)
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 
@@ -402,7 +407,7 @@ public:
 		else throw Poco::TimeoutException();
 	}
 
-	void writeMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, std::vector<Poco::UInt16> values)
+	void writeMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, const std::vector<Poco::UInt16>& values)
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 
@@ -463,7 +468,8 @@ public:
 		else throw Poco::TimeoutException();
 	}
 
-	std::vector<Poco::UInt16> readWriteMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 writeStartingAddress, std::vector<Poco::UInt16> writeValues, Poco::UInt16 readStartingAddress, Poco::UInt8 nOfReadRegisters)
+	std::vector<Poco::UInt16> readWriteMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 writeStartingAddress,
+		const std::vector<Poco::UInt16>& writeValues, Poco::UInt16 readStartingAddress, Poco::UInt8 nOfReadRegisters)
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 
@@ -540,9 +546,9 @@ protected:
 	template <typename M>
 	Poco::UInt16 sendFrame(const M& message)
 	{
-		if (_logger.debug())
+		if (_logger.trace())
 		{
-			_logger.debug("Sending frame: functionCode=%02x, slaveOrUnit=%02x", static_cast<unsigned>(message.functionCode), static_cast<unsigned>(message.slaveOrUnitAddress));
+			_logger.trace("Sending frame: functionCode=%02x, slaveOrUnit=%02x", static_cast<unsigned>(message.functionCode), static_cast<unsigned>(message.slaveOrUnitAddress));
 		}
 
 		int maxTrans = _pPort->maxSimultaneousTransactions();
@@ -624,9 +630,9 @@ protected:
 			return;
 		}
 
-		if (_logger.debug())
+		if (_logger.trace())
 		{
-			_logger.debug("Processing frame: %02x", static_cast<unsigned>(fc));
+			_logger.trace("Processing frame: %02x", static_cast<unsigned>(fc));
 		}
 
 		if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
@@ -660,7 +666,7 @@ protected:
 				ReadHoldingRegistersResponse response;
 				_pPort->decodeFrame(response);
 				removePending(response.transactionID);
-				_logger.debug("Firing readHoldingRegistersResponseReceived event...");
+				if (_logger.trace()) _logger.trace("Firing readHoldingRegistersResponseReceived event...");
 				this->readHoldingRegistersResponseReceived(this, response);
 			}
 			break;

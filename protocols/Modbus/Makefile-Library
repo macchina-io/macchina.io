@@ -13,6 +13,7 @@ objects = \
 	ModbusMasterRemoteObject \
 	ModbusMasterServerHelper \
 	ModbusMasterSkeleton \
+	ModbusMasterCreator \
 	ModbusException \
 	PDUWriter \
 	PDUReader

@@ -146,6 +146,9 @@ public:
 	void reset();
 		/// Closes and re-opens the connection.
 
+	std::string address() const;
+		/// Returns server address.
+
 private:
 	enum
 	{
@@ -196,6 +199,12 @@ inline bool TCPPort::poll(const Poco::Timespan& timeout)
 inline int TCPPort::maxSimultaneousTransactions() const
 {
 	return 16;
+}
+
+
+inline std::string TCPPort::address() const
+{
+	return _serverAddress.toString();
 }
 
 
