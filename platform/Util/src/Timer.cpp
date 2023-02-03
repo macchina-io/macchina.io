@@ -38,6 +38,7 @@ public:
 	}
 
 	virtual bool execute() = 0;
+	virtual void set() {}
 
 	Poco::TimedNotificationQueue& queue()
 	{
@@ -93,12 +94,21 @@ public:
 				_finished.set();
 				return false;
 			}
+			else if (pNf.cast<CancelNotification>())
+			{
+				pNf->set();
+			}
 			pNf = static_cast<TimerNotification*>(queue().dequeueNotification());
 		}
 
 		queue().clear();
 		_finished.set();
 		return true;
+	}
+
+	void set()
+	{
+		_finished.set();
 	}
 
 	void wait()
