@@ -53,27 +53,33 @@ class Foundation_API URI
 public:
 	using QueryParameters = std::vector<std::pair<std::string, std::string>>;
 
+    enum ParsingMode {
+        TolerantMode,
+        StrictMode,
+        DecodedMode
+    };
+
 	URI();
 		/// Creates an empty URI.
 
-	explicit URI(const std::string& uri);
+    explicit URI(const std::string& uri, ParsingMode mode = StrictMode);
 		/// Parses an URI from the given string. Throws a
 		/// SyntaxException if the uri is not valid.
 
-	explicit URI(const char* uri);
+    explicit URI(const char* uri, ParsingMode mode = StrictMode);
 		/// Parses an URI from the given string. Throws a
 		/// SyntaxException if the uri is not valid.
 
-	URI(const std::string& scheme, const std::string& pathEtc);
+    URI(const std::string& scheme, const std::string& pathEtc, ParsingMode mode = StrictMode);
 		/// Creates an URI from its parts.
 
-	URI(const std::string& scheme, const std::string& authority, const std::string& pathEtc);
+    URI(const std::string& scheme, const std::string& authority, const std::string& pathEtc, ParsingMode mode = StrictMode);
 		/// Creates an URI from its parts.
 
-	URI(const std::string& scheme, const std::string& authority, const std::string& path, const std::string& query);
+    URI(const std::string& scheme, const std::string& authority, const std::string& path, const std::string& query, ParsingMode mode = StrictMode);
 		/// Creates an URI from its parts.
 
-	URI(const std::string& scheme, const std::string& authority, const std::string& path, const std::string& query, const std::string& fragment);
+    URI(const std::string& scheme, const std::string& authority, const std::string& path, const std::string& query, const std::string& fragment, ParsingMode mode = StrictMode);
 		/// Creates an URI from its parts.
 
 	URI(const URI& uri);
@@ -115,7 +121,7 @@ public:
 	void clear();
 		/// Clears all parts of the URI.
 
-	std::string toString() const;
+    std::string toString(ParsingMode mode = StrictMode) const;
 		/// Returns a string representation of the URI.
 		///
 		/// Characters in the path, query and fragment parts will be
@@ -134,7 +140,7 @@ public:
 	const std::string& getUserInfo() const;
 		/// Returns the user-info part of the URI.
 
-	void setUserInfo(const std::string& userInfo);
+    void setUserInfo(const std::string& userInfo, ParsingMode mode = StrictMode);
 		/// Sets the user-info part of the URI.
 
 	const std::string& getHost() const;
@@ -168,17 +174,17 @@ public:
 		/// number for the given scheme (e.g., 80 for http), it
 		/// is not included in the authority.
 
-	void setAuthority(const std::string& authority);
+    void setAuthority(const std::string& authority, ParsingMode mode = StrictMode);
 		/// Parses the given authority part for the URI and sets
 		/// the user-info, host, port components accordingly.
 
 	const std::string& getPath() const;
 		/// Returns the decoded path part of the URI.
 
-	void setPath(const std::string& path);
+    void setPath(const std::string& path, ParsingMode mode = StrictMode);
 		/// Sets the path part of the URI.
 
-	std::string getQuery() const;
+    std::string getQuery(ParsingMode mode = StrictMode) const;
 		/// Returns the decoded query part of the URI.
 		///
 		/// Note that encoded ampersand characters ('&', "%26")
@@ -188,7 +194,7 @@ public:
 		/// In such a case it's better to use getRawQuery() or
 		/// getQueryParameters().
 
-	void setQuery(const std::string& query);
+    void setQuery(const std::string& query, ParsingMode mode = StrictMode);
 		/// Sets the query part of the URI.
 		///
 		/// The query string will be percent-encoded. If the query
@@ -204,7 +210,7 @@ public:
 		/// or setQueryParameters(), which take care of appropriate
 		/// percent encoding of parameter names and values.
 
-	void addQueryParameter(const std::string& param, const std::string& val = "");
+    void addQueryParameter(const std::string& param, const std::string& val = "", ParsingMode mode = StrictMode);
 		/// Adds "param=val" to the query; "param" may not be empty.
 		/// If val is empty, only '=' is appended to the parameter.
 		///
@@ -220,11 +226,11 @@ public:
 		///
 		/// The given query string must be properly percent-encoded.
 
-	QueryParameters getQueryParameters() const;
+    QueryParameters getQueryParameters(ParsingMode mode = StrictMode) const;
 		/// Returns the decoded query string parameters as a vector
 		/// of name-value pairs.
 
-	void setQueryParameters(const QueryParameters& params);
+    void setQueryParameters(const QueryParameters& params, ParsingMode mode = StrictMode);
 		/// Sets the query part of the URI from a vector
 		/// of query parameters.
 		///
@@ -233,16 +239,16 @@ public:
 	const std::string& getFragment() const;
 		/// Returns the fragment part of the URI.
 
-	void setFragment(const std::string& fragment);
+    void setFragment(const std::string& fragment, ParsingMode mode = StrictMode);
 		/// Sets the fragment part of the URI.
 
-	void setPathEtc(const std::string& pathEtc);
+    void setPathEtc(const std::string& pathEtc, ParsingMode mode = StrictMode);
 		/// Sets the path, query and fragment parts of the URI.
 
-	std::string getPathEtc() const;
+    std::string getPathEtc(ParsingMode mode = StrictMode) const;
 		/// Returns the encoded path, query and fragment parts of the URI.
 
-	std::string getPathAndQuery() const;
+    std::string getPathAndQuery(ParsingMode mode = StrictMode) const;
 		/// Returns the encoded path and query parts of the URI.
 
 	void resolve(const std::string& relativeURI);
@@ -291,11 +297,11 @@ public:
 		/// Places the single path segments (delimited by slashes) into the
 		/// given vector.
 
-	static void encode(const std::string& str, const std::string& reserved, std::string& encodedStr);
+    static void encode(const std::string& str, const std::string& reserved, std::string& encodedStr, ParsingMode mode = StrictMode);
 		/// URI-encodes the given string by escaping reserved and non-ASCII
 		/// characters. The encoded string is appended to encodedStr.
 
-	static void decode(const std::string& str, std::string& decodedStr, bool plusAsSpace = false);
+    static void decode(const std::string& str, std::string& decodedStr, bool plusAsSpace = false, ParsingMode mode = StrictMode);
 		/// URI-decodes the given string by replacing percent-encoded
 		/// characters with the actual character. The decoded string
 		/// is appended to decodedStr.
@@ -315,26 +321,26 @@ protected:
 		/// Returns the well-known port number for the URI's scheme,
 		/// or 0 if the port number is not known.
 
-	void parse(const std::string& uri);
+    void parse(const std::string& uri, ParsingMode mode = StrictMode);
 		/// Parses and assigns an URI from the given string. Throws a
 		/// SyntaxException if the uri is not valid.
 
-	void parseAuthority(std::string::const_iterator& it, const std::string::const_iterator& end);
+    void parseAuthority(std::string::const_iterator& it, const std::string::const_iterator& end, ParsingMode mode = StrictMode);
 		/// Parses and sets the user-info, host and port from the given data.
 
-	void parseHostAndPort(std::string::const_iterator& it, const std::string::const_iterator& end);
+    void parseHostAndPort(std::string::const_iterator& it, const std::string::const_iterator& end, ParsingMode mode = StrictMode);
 		/// Parses and sets the host and port from the given data.
 
-	void parsePath(std::string::const_iterator& it, const std::string::const_iterator& end);
+    void parsePath(std::string::const_iterator& it, const std::string::const_iterator& end, ParsingMode mode = StrictMode);
 		/// Parses and sets the path from the given data.
 
-	void parsePathEtc(std::string::const_iterator& it, const std::string::const_iterator& end);
+    void parsePathEtc(std::string::const_iterator& it, const std::string::const_iterator& end, ParsingMode mode = StrictMode);
 		/// Parses and sets the path, query and fragment from the given data.
 
-	void parseQuery(std::string::const_iterator& it, const std::string::const_iterator& end);
+    void parseQuery(std::string::const_iterator& it, const std::string::const_iterator& end, ParsingMode mode = StrictMode);
 		/// Parses and sets the query from the given data.
 
-	void parseFragment(std::string::const_iterator& it, const std::string::const_iterator& end);
+    void parseFragment(std::string::const_iterator& it, const std::string::const_iterator& end, ParsingMode mode = StrictMode);
 		/// Parses and sets the fragment from the given data.
 
 	void mergePath(const std::string& path);

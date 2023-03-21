@@ -27,7 +27,7 @@ const std::string URI::RESERVED_PATH        = "?#";
 const std::string URI::RESERVED_QUERY       = "?#/:;+@";
 const std::string URI::RESERVED_QUERY_PARAM = "?#/:;+@&=";
 const std::string URI::RESERVED_FRAGMENT    = "";
-const std::string URI::ILLEGAL              = "%<>{}|\\\"^`!*'()$,[]";
+const std::string URI::ILLEGAL              = "%<>{}|\\\"^`!*',[]"; // Allowed "()$"
 
 
 URI::URI():
@@ -36,32 +36,32 @@ URI::URI():
 }
 
 
-URI::URI(const std::string& uri):
+URI::URI(const std::string& uri, ParsingMode mode):
 	_port(0)
 {
-	parse(uri);
+    parse(uri, mode);
 }
 
 
-URI::URI(const char* uri):
+URI::URI(const char* uri, ParsingMode mode):
 	_port(0)
 {
-	parse(std::string(uri));
+    parse(std::string(uri), mode);
 }
 
 
-URI::URI(const std::string& scheme, const std::string& pathEtc):
+URI::URI(const std::string& scheme, const std::string& pathEtc, ParsingMode mode):
 	_scheme(scheme),
 	_port(0)
 {
 	toLowerInPlace(_scheme);
 	std::string::const_iterator beg = pathEtc.begin();
 	std::string::const_iterator end = pathEtc.end();
-	parsePathEtc(beg, end);
+    parsePathEtc(beg, end, mode);
 }
 
 
-URI::URI(const std::string& scheme, const std::string& authority, const std::string& pathEtc):
+URI::URI(const std::string& scheme, const std::string& authority, const std::string& pathEtc, ParsingMode mode):
 	_scheme(scheme)
 {
 	toLowerInPlace(_scheme);
@@ -70,11 +70,11 @@ URI::URI(const std::string& scheme, const std::string& authority, const std::str
 	parseAuthority(beg, end);
 	beg = pathEtc.begin();
 	end = pathEtc.end();
-	parsePathEtc(beg, end);
+    parsePathEtc(beg, end, mode);
 }
 
 
-URI::URI(const std::string& scheme, const std::string& authority, const std::string& path, const std::string& query):
+URI::URI(const std::string& scheme, const std::string& authority, const std::string& path, const std::string& query, ParsingMode mode):
 	_scheme(scheme),
 	_path(path),
 	_query(query)
@@ -82,11 +82,11 @@ URI::URI(const std::string& scheme, const std::string& authority, const std::str
 	toLowerInPlace(_scheme);
 	std::string::const_iterator beg = authority.begin();
 	std::string::const_iterator end = authority.end();
-	parseAuthority(beg, end);
+    parseAuthority(beg, end, mode);
 }
 
 
-URI::URI(const std::string& scheme, const std::string& authority, const std::string& path, const std::string& query, const std::string& fragment):
+URI::URI(const std::string& scheme, const std::string& authority, const std::string& path, const std::string& query, const std::string& fragment, ParsingMode mode):
 	_scheme(scheme),
 	_path(path),
 	_query(query),
@@ -95,7 +95,7 @@ URI::URI(const std::string& scheme, const std::string& authority, const std::str
 	toLowerInPlace(_scheme);
 	std::string::const_iterator beg = authority.begin();
 	std::string::const_iterator end = authority.end();
-	parseAuthority(beg, end);
+    parseAuthority(beg, end, mode);
 }
 
 
@@ -221,12 +221,23 @@ void URI::clear()
 }
 
 
-std::string URI::toString() const
+std::string URI::toString(ParsingMode mode) const
 {
+    std::string reservedPath;
+	std::string reservedFragment;
 	std::string uri;
 	if (isRelative())
 	{
-		encode(_path, RESERVED_PATH, uri);
+        if (mode == StrictMode)
+        {
+            reservedPath = RESERVED_PATH + "()$";
+        }
+        else
+        {
+            reservedPath = RESERVED_PATH;
+        }
+
+        encode(_path, reservedPath, uri, mode);
 	}
 	else
 	{
@@ -242,7 +253,17 @@ std::string URI::toString() const
 		{
 			if (!auth.empty() && _path[0] != '/')
 				uri += '/';
-			encode(_path, RESERVED_PATH, uri);
+
+            if (mode == StrictMode)
+            {
+                reservedPath = RESERVED_PATH + "()$";
+            }
+            else
+            {
+                reservedPath = RESERVED_PATH;
+            }
+
+            encode(_path, reservedPath, uri, mode);
 		}
 		else if (!_query.empty() || !_fragment.empty())
 		{
@@ -257,7 +278,17 @@ std::string URI::toString() const
 	if (!_fragment.empty())
 	{
 		uri += '#';
-		encode(_fragment, RESERVED_FRAGMENT, uri);
+
+        if (mode == StrictMode)
+        {
+            reservedFragment = RESERVED_FRAGMENT + "()$";
+        }
+        else
+        {
+            reservedFragment = RESERVED_FRAGMENT;
+        }
+
+        encode(_fragment, reservedFragment, uri, mode);
 	}
 	return uri;
 }
@@ -270,10 +301,10 @@ void URI::setScheme(const std::string& scheme)
 }
 
 
-void URI::setUserInfo(const std::string& userInfo)
+void URI::setUserInfo(const std::string& userInfo, ParsingMode mode)
 {
 	_userInfo.clear();
-	decode(userInfo, _userInfo);
+    decode(userInfo, _userInfo, false, mode);
 }
 
 
@@ -322,21 +353,21 @@ std::string URI::getAuthority() const
 }
 
 
-void URI::setAuthority(const std::string& authority)
+void URI::setAuthority(const std::string& authority, ParsingMode mode)
 {
 	_userInfo.clear();
 	_host.clear();
 	_port = 0;
 	std::string::const_iterator beg = authority.begin();
 	std::string::const_iterator end = authority.end();
-	parseAuthority(beg, end);
+    parseAuthority(beg, end, mode);
 }
 
 
-void URI::setPath(const std::string& path)
+void URI::setPath(const std::string& path, ParsingMode mode)
 {
 	_path.clear();
-	decode(path, _path);
+    decode(path, _path, false, mode);
 }
 
 
@@ -346,31 +377,55 @@ void URI::setRawQuery(const std::string& query)
 }
 
 
-void URI::setQuery(const std::string& query)
+void URI::setQuery(const std::string& query, ParsingMode mode)
 {
+    std::string reservedQuery;
+
 	_query.clear();
-	encode(query, RESERVED_QUERY, _query);
+
+    if (mode == StrictMode)
+    {
+        reservedQuery = RESERVED_QUERY + "()$";
+    }
+    else
+    {
+        reservedQuery = RESERVED_QUERY;
+    }
+
+    encode(query, reservedQuery, _query, mode);
 }
 
 
-void URI::addQueryParameter(const std::string& param, const std::string& val)
+void URI::addQueryParameter(const std::string& param, const std::string& val, ParsingMode mode)
 {
+    std::string reservedQueryParam;
+
 	if (!_query.empty()) _query += '&';
-	encode(param, RESERVED_QUERY_PARAM, _query);
+
+    if (mode == StrictMode)
+    {
+        reservedQueryParam = RESERVED_QUERY_PARAM + "()$";
+    }
+    else
+    {
+        reservedQueryParam = RESERVED_QUERY_PARAM;
+    }
+
+    encode(param, reservedQueryParam, _query, mode);
 	_query += '=';
-	encode(val, RESERVED_QUERY_PARAM, _query);
+    encode(val, reservedQueryParam, _query, mode);
 }
 
 
-std::string URI::getQuery() const
+std::string URI::getQuery(ParsingMode mode) const
 {
 	std::string query;
-	decode(_query, query);
+    decode(_query, query, false, mode);
 	return query;
 }
 
 
-URI::QueryParameters URI::getQueryParameters() const
+URI::QueryParameters URI::getQueryParameters(ParsingMode mode) const
 {
 	QueryParameters result;
 	std::string::const_iterator it(_query.begin());
@@ -401,8 +456,8 @@ URI::QueryParameters URI::getQueryParameters() const
 		}
 		std::string decodedName;
 		std::string decodedValue;
-		URI::decode(name, decodedName);
-		URI::decode(value, decodedValue);
+        URI::decode(name, decodedName, false, mode);
+        URI::decode(value, decodedValue, false, mode);
 		result.push_back(std::make_pair(decodedName, decodedValue));
 		if (it != end && *it == '&') ++it;
 	}
@@ -410,38 +465,51 @@ URI::QueryParameters URI::getQueryParameters() const
 }
 
 
-void URI::setQueryParameters(const QueryParameters& params)
+void URI::setQueryParameters(const QueryParameters& params, ParsingMode mode)
 {
 	_query.clear();
 	for (const auto& p: params)
 	{
-		addQueryParameter(p.first, p.second);
+        addQueryParameter(p.first, p.second, mode);
 	}
 }
 
 
-void URI::setFragment(const std::string& fragment)
+void URI::setFragment(const std::string& fragment, ParsingMode mode)
 {
 	_fragment.clear();
-	decode(fragment, _fragment);
+    decode(fragment, _fragment, false, mode);
 }
 
 
-void URI::setPathEtc(const std::string& pathEtc)
+void URI::setPathEtc(const std::string& pathEtc, ParsingMode mode)
 {
 	_path.clear();
 	_query.clear();
 	_fragment.clear();
 	std::string::const_iterator beg = pathEtc.begin();
 	std::string::const_iterator end = pathEtc.end();
-	parsePathEtc(beg, end);
+    parsePathEtc(beg, end, mode);
 }
 
 
-std::string URI::getPathEtc() const
+std::string URI::getPathEtc(ParsingMode mode) const
 {
+    std::string reservedPath;
+    std::string reservedFragment;
+
 	std::string pathEtc;
-	encode(_path, RESERVED_PATH, pathEtc);
+
+    if (mode == StrictMode)
+    {
+        reservedPath = RESERVED_PATH + "()$";
+    }
+    else
+    {
+        reservedPath = RESERVED_PATH;
+    }
+
+    encode(_path, reservedPath, pathEtc, mode);
 	if (!_query.empty())
 	{
 		pathEtc += '?';
@@ -450,16 +518,37 @@ std::string URI::getPathEtc() const
 	if (!_fragment.empty())
 	{
 		pathEtc += '#';
-		encode(_fragment, RESERVED_FRAGMENT, pathEtc);
+
+        if (mode == StrictMode)
+        {
+            reservedFragment = RESERVED_FRAGMENT + "()$";
+        }
+        else
+        {
+            reservedFragment = RESERVED_FRAGMENT;
+        }
+
+        encode(_fragment, reservedFragment, pathEtc, mode);
 	}
 	return pathEtc;
 }
 
 
-std::string URI::getPathAndQuery() const
+std::string URI::getPathAndQuery(ParsingMode mode) const
 {
+    std::string reservedPath;
 	std::string pathAndQuery;
-	encode(_path, RESERVED_PATH, pathAndQuery);
+
+    if (mode == StrictMode)
+    {
+        reservedPath = RESERVED_PATH + "()$";
+    }
+    else
+    {
+        reservedPath = RESERVED_PATH;
+    }
+
+    encode(_path, reservedPath, pathAndQuery, mode);
 	if (!_query.empty())
 	{
 		pathAndQuery += '?';
@@ -644,7 +733,7 @@ void URI::getPathSegments(const std::string& path, std::vector<std::string>& seg
 }
 
 
-void URI::encode(const std::string& str, const std::string& reserved, std::string& encodedStr)
+void URI::encode(const std::string& str, const std::string& reserved, std::string& encodedStr, ParsingMode mode)
 {
 	for (auto c: str)
 	{
@@ -666,17 +755,22 @@ void URI::encode(const std::string& str, const std::string& reserved, std::strin
 }
 
 
-void URI::decode(const std::string& str, std::string& decodedStr, bool plusAsSpace)
+void URI::decode(const std::string& str, std::string& decodedStr, bool plusAsSpace, ParsingMode mode)
 {
 	bool inQuery = false;
 	std::string::const_iterator it  = str.begin();
 	std::string::const_iterator end = str.end();
+
+    if (plusAsSpace == true)
+    {
+        mode = DecodedMode;
+    }
 	while (it != end)
 	{
 		char c = *it++;
 		if (c == '?') inQuery = true;
 		// spaces may be encoded as plus signs in the query
-		if (inQuery && plusAsSpace && c == '+') c = ' ';
+        if (inQuery && (mode == DecodedMode)  && c == '+') c = ' ';
 		else if (c == '%')
 		{
 			if (it == end) throw URISyntaxException("URI encoding: no hex digit following percent sign", str);
@@ -753,7 +847,7 @@ unsigned short URI::getWellKnownPort() const
 }
 
 
-void URI::parse(const std::string& uri)
+void URI::parse(const std::string& uri, ParsingMode mode)
 {
 	std::string::const_iterator it  = uri.begin();
 	std::string::const_iterator end = uri.end();
@@ -773,23 +867,23 @@ void URI::parse(const std::string& uri)
 				if (it != end && *it == '/')
 				{
 					++it;
-					parseAuthority(it, end);
+                    parseAuthority(it, end, mode);
 				}
 				else --it;
 			}
-			parsePathEtc(it, end);
+            parsePathEtc(it, end, mode);
 		}
 		else
 		{
 			it = uri.begin();
-			parsePathEtc(it, end);
+            parsePathEtc(it, end, mode);
 		}
 	}
-	else parsePathEtc(it, end);
+    else parsePathEtc(it, end, mode);
 }
 
 
-void URI::parseAuthority(std::string::const_iterator& it, const std::string::const_iterator& end)
+void URI::parseAuthority(std::string::const_iterator& it, const std::string::const_iterator& end, ParsingMode mode)
 {
 	std::string userInfo;
 	std::string part;
@@ -805,12 +899,12 @@ void URI::parseAuthority(std::string::const_iterator& it, const std::string::con
 	}
 	std::string::const_iterator pbeg = part.begin();
 	std::string::const_iterator pend = part.end();
-	parseHostAndPort(pbeg, pend);
+    parseHostAndPort(pbeg, pend, mode);
 	_userInfo = userInfo;
 }
 
 
-void URI::parseHostAndPort(std::string::const_iterator& it, const std::string::const_iterator& end)
+void URI::parseHostAndPort(std::string::const_iterator& it, const std::string::const_iterator& end, ParsingMode mode)
 {
 	if (it == end) return;
 	std::string host;
@@ -847,44 +941,44 @@ void URI::parseHostAndPort(std::string::const_iterator& it, const std::string::c
 }
 
 
-void URI::parsePath(std::string::const_iterator& it, const std::string::const_iterator& end)
+void URI::parsePath(std::string::const_iterator& it, const std::string::const_iterator& end, ParsingMode mode)
 {
 	std::string path;
 	while (it != end && *it != '?' && *it != '#') path += *it++;
-	decode(path, _path);
+    decode(path, _path, false, mode);
 }
 
 
-void URI::parsePathEtc(std::string::const_iterator& it, const std::string::const_iterator& end)
+void URI::parsePathEtc(std::string::const_iterator& it, const std::string::const_iterator& end, ParsingMode mode)
 {
 	if (it == end) return;
 	if (*it != '?' && *it != '#')
-		parsePath(it, end);
+        parsePath(it, end, mode);
 	if (it != end && *it == '?')
 	{
 		++it;
-		parseQuery(it, end);
+        parseQuery(it, end, mode);
 	}
 	if (it != end && *it == '#')
 	{
 		++it;
-		parseFragment(it, end);
+        parseFragment(it, end, mode);
 	}
 }
 
 
-void URI::parseQuery(std::string::const_iterator& it, const std::string::const_iterator& end)
+void URI::parseQuery(std::string::const_iterator& it, const std::string::const_iterator& end, ParsingMode mode)
 {
 	_query.clear();
 	while (it != end && *it != '#') _query += *it++;
 }
 
 
-void URI::parseFragment(std::string::const_iterator& it, const std::string::const_iterator& end)
+void URI::parseFragment(std::string::const_iterator& it, const std::string::const_iterator& end, ParsingMode mode)
 {
 	std::string fragment;
 	while (it != end) fragment += *it++;
-	decode(fragment, _fragment);
+    decode(fragment, _fragment, false, mode);
 }
 
 
