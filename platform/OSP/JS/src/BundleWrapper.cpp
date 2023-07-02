@@ -39,7 +39,7 @@ v8::Handle<v8::ObjectTemplate> BundleWrapper::objectTemplate(v8::Isolate* pIsola
 	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "name"), name);
 	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "symbolicName"), symbolicName);
 	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "version"), version);
-	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "path"), name);
+	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "path"), path);
 	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "state"), state);
 	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "active"), active);
 	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getResourceString"), v8::FunctionTemplate::New(pIsolate, getResourceString));
