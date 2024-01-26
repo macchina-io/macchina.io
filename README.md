@@ -98,13 +98,14 @@ To control which components are built, the [`components.make`](components.make)
 file can be edited. Comment or uncomment specific lines to control which
 components are built.
 
+
 ## Licensing
 
 macchina.io EDGE is dual-licensed under a commercial license and the GPLv3. 
 The commercial license gives you the full rights to create and distribute software and 
 devices on your own terms without any GPL obligations. With the commercial license you 
 also have access to professional support and maintenance, as well as additional features. 
-See this table for a comparison between GPLv3-licensed and commercial-licensed macchina.io EDGE features.
+See [this table](https://macchina.io/edge_licensing.html#table) for a comparison between GPLv3-licensed and commercial-licensed macchina.io EDGE features.
 
 
 [logo]: doc/images/macchina_logo_320.png "macchina.io Logo"
