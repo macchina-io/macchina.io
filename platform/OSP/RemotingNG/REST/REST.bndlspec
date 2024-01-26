@@ -1,0 +1,38 @@
+<bundlespec>
+	<manifest>
+    	<name>Remoting NG REST Transport</name>
+		<symbolicName>com.appinf.osp.remotingng.rest</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2017-2024, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>Poco::OSP::RemotingNG::REST::BundleActivator</class>
+			<library>com.appinf.osp.remotingng.rest</library>
+		</activator>
+		<lazyStart>false</lazyStart>
+		<runLevel>000</runLevel>
+		<dependency>
+			<symbolicName>poco.net</symbolicName>
+			<version>[1.0.0,2.0.0)</version>
+		</dependency>
+		<dependency>
+			<symbolicName>poco.net.ssl</symbolicName>
+			<version>[1.0.0,2.0.0)</version>
+		</dependency>
+	</manifest>
+	<code>
+		${bin}/*.dll,
+		${bin}/*.pdb,
+		../../../${bin}/PocoRemotingNGREST${64}.dll,
+		../../../${bin}/PocoRemotingNGREST${64}d.dll,
+		../../../${bin}/PocoRemotingNGREST${64}d.pdb,
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+		../../../lib/${osName}/${osArch}/libPocoRemotingNGREST.so.*,
+		../../../lib/${osName}/${osArch}/libPocoRemotingNGRESTd.so.*,
+		../../../lib/${osName}/${osArch}/libPocoRemotingNGREST.*.dylib,
+		../../../lib/${osName}/${osArch}/libPocoRemotingNGRESTd.*.dylib
+	</code>
+	<files>
+	</files>
+</bundlespec>

@@ -121,8 +121,8 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const DeviceStatusChange > statusChanged;
-	Poco::BasicEvent < const DeviceStatusChange > statusUpdated;
+	Poco::BasicEvent < const IoT::DeviceStatus::DeviceStatusChange > statusChanged;
+	Poco::BasicEvent < const IoT::DeviceStatus::DeviceStatusChange > statusUpdated;
 };
 
 

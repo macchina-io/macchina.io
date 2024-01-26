@@ -101,6 +101,10 @@ var CollapsibleLists =
         }
 
       };
+
+      this.expand = function(node){
+        expand(node);
+      };
       
       /* Expands a node.
        * 

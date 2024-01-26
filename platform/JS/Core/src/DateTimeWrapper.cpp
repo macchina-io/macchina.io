@@ -388,7 +388,6 @@ void DateTimeWrapper::local(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	v8::Isolate* pIsolate(args.GetIsolate());
 	v8::HandleScope scope(pIsolate);
-	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	Poco::DateTime* pDateTime = Wrapper::unwrapNative<Poco::DateTime>(args);
 	Poco::LocalDateTime* pLocalDateTime = 0;
 	try

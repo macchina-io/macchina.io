@@ -5,7 +5,7 @@
     <symbolicName>io.macchina.services.networkenvironment</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2013-2022, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2013-2024, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>IoT::NetworkEnvironment::BundleActivator</class>
       <library>io.macchina.services.networkenvironment</library>

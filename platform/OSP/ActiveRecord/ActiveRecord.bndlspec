@@ -3,9 +3,9 @@
   <manifest>
     <name>POCO ActiveRecord Library</name>
     <symbolicName>poco.activerecord</symbolicName>
-    <version>1.11.6</version>
+    <version>1.11.8</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2020-2022, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2020-2024, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>ActiveRecordBundleActivator</class>
       <library>poco.activerecord</library>
@@ -14,7 +14,7 @@
     <runLevel>000</runLevel>
     <dependency>
       <symbolicName>poco.data</symbolicName>
-      <version>1.11.6</version>
+      <version>1.11.8</version>
     </dependency>
   </manifest>
   <code>

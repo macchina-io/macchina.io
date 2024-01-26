@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>OSP JavaScript Crypto Module</name>
+    <symbolicName>com.appinf.osp.js.crypto</symbolicName>
+    <version>1.0.0</version>
+    <version>1.0.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2023-2024, Applied Informatics Software Engineering GmbH</copyright>
+    <lazyStart>false</lazyStart>
+    <runLevel>600</runLevel>
+    <dependency>
+      <symbolicName>com.appinf.osp.js</symbolicName>
+      <version>[1.0.0, 2.0.0)</version>
+    </dependency>
+    <dependency>
+      <symbolicName>poco.crypto</symbolicName>
+      <version>[1.0.0, 2.0.0)</version>
+    </dependency>
+  </manifest>
+  <files>
+  	bundle/*
+  </files>
+  <code>
+    ${bin}/*.dll
+    ${bin}/*.pdb
+    bin/${osName}/${osArch}/*.so
+    bin/${osName}/${osArch}/*.dylib
+    ../../../lib/${osName}/${osArch}/libPocoJSCrypto.so.*
+    ../../../lib/${osName}/${osArch}/libPocoJSCryptod.so.*
+    ../../../lib/${osName}/${osArch}/libPocoJSCrypto.*.dylib
+    ../../../lib/${osName}/${osArch}/libPocoJSCryptod.*.dylib
+  </code>
+</bundlespec>

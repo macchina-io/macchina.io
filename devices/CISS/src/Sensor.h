@@ -30,7 +30,7 @@ class Sensor: public IoT::Devices::DeviceImpl<IoT::Devices::Sensor, Sensor>
 public:
 	using Ptr = Poco::SharedPtr<Sensor>;
 
-	Sensor(Node& node, Poco::UInt8 id, Poco::UInt8 streamId, const std::string& physicalQuantity, const std::string& physicalUnit);
+	Sensor(Node& node, Poco::UInt8 id, Poco::UInt8 streamId, const std::string& physicalQuantity, const std::string& physicalUnit, const std::string& name);
 		/// Creates a Sensor.
 
 	~Sensor();
@@ -49,7 +49,6 @@ public:
 	double value() const;
 	bool ready() const;
 
-	static const std::string NAME;
 	static const std::string TYPE;
 	static const std::string SYMBOLIC_NAME;
 
@@ -79,6 +78,7 @@ protected:
 	double _valueChangedDelta;
 	int _samplingInterval;
 	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double>> _pEventPolicy;
+	Poco::Any _name;
 	Poco::Any _deviceIdentifier;
 	Poco::Any _physicalQuantity;
 	Poco::Any _physicalUnit;

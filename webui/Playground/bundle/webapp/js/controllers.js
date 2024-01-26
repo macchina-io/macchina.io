@@ -26,6 +26,17 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
 
     $scope.editor = ace.edit("editor");
     $scope.editor.setTheme("ace/theme/chrome");
+    $scope.editor.session.on('changeMode', function(e, session) {
+      if ("ace/mode/javascript" === session.getMode().$id) {
+        if (!!session.$worker) {
+          session.$worker.send("setOptions", [{
+            "esversion": 9,
+            "esnext": false,
+          }]);
+        }
+      }
+    });
+    
     $scope.editor.getSession().setMode("ace/mode/javascript");
     
     $(window).resize(function() {
@@ -117,7 +128,7 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
       );
     };
  
-     $scope.export = function() {
+    $scope.export = function() {
       $scope.clearError();
       $scope.hideExport();
       $scope.saveIfModified(
@@ -132,7 +143,7 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
         }
       );
     };
-   
+  
     $scope.showExport = function() {
       $('#modalBackground').css("display", "block");
       $('#exportPopup').css("display", "block");
@@ -156,7 +167,22 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
     	$('#exportPopup').css("display", "none");
     	$(document).unbind('keyup.exportPopup');
     };
-    
+
+    $scope.download = function() {
+      $scope.clearError();
+      $scope.saveIfModified(
+        function(state) {
+          $scope.state = state;
+          setTimeout(function() { 
+              location.href = "/macchina/playground/download"
+            }, 100);
+        },
+        function(error) {
+          $scope.error = error;
+        }
+      );
+    };
+
     SandboxService.info(
       function(state, bundleInfo) {
         $scope.state = state;
@@ -178,17 +204,27 @@ playgroundControllers.controller('PlaygroundCtrl', ['$scope', '$http', 'SandboxS
         $scope.error = error;
       }
     );
+
+    window.onbeforeunload = function (event) {        
+      if (!$scope.editor.getSession().getUndoManager().isClean())
+      {
+        event.preventDefault();
+        return "";
+      }
+    };
   }
 ]);
 
 playgroundControllers.controller('SessionCtrl', ['$scope', '$http',
   function($scope, $http) {
-    $http.get('/macchina/session.json').success(function(data) {
-      $scope.session = data;
-      if (!data.authenticated)
-      {
-        window.location = "/";
+    $http.get('/macchina/session.json').then(
+      function(response) {
+        $scope.session = response.data;
+        if (!response.data.authenticated)
+        {
+          window.location = "/";
+        }
       }
-    });
+    );
   }
 ]);

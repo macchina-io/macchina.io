@@ -4,6 +4,7 @@
 # Makefile for Extension
 #
 
+include $(POCO_BASE)/build/rules/global
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 objects = Extension

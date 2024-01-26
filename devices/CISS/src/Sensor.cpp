@@ -14,16 +14,18 @@
 #include "Poco/Exception.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace CISS {
 
 
-const std::string Sensor::NAME("CISS Sensor");
 const std::string Sensor::TYPE("io.macchina.sensor");
 const std::string Sensor::SYMBOLIC_NAME("io.macchina.ciss");
 
 
-Sensor::Sensor(Node& node, Poco::UInt8 id, Poco::UInt8 streamId, const std::string& physicalQuantity, const std::string& physicalUnit):
+Sensor::Sensor(Node& node, Poco::UInt8 id, Poco::UInt8 streamId, const std::string& physicalQuantity, const std::string& physicalUnit, const std::string& name):
 	_node(node),
 	_sensorId(id),
 	_streamId(streamId),
@@ -33,21 +35,22 @@ Sensor::Sensor(Node& node, Poco::UInt8 id, Poco::UInt8 streamId, const std::stri
 	_valueChangedDelta(0.0),
 	_samplingInterval(0),
 	_pEventPolicy(new IoT::Devices::NoModerationPolicy<double>(valueChanged)),
+	_name(name),
 	_deviceIdentifier(node.id()),
 	_physicalQuantity(physicalQuantity),
 	_physicalUnit(physicalUnit)
 {
-	addProperty("displayValue", &Sensor::getDisplayValue);
-	addProperty("enabled", &Sensor::getEnabled, &Sensor::setEnabled);
-	addProperty("valueChangedDelta", &Sensor::getValueChangedDelta, &Sensor::setValueChangedDelta);
-	addProperty("samplingInterval", &Sensor::getSamplingInterval, &Sensor::setSamplingInterval);
-	addProperty("connected", &Sensor::getConnected);
-	addProperty("deviceIdentifier", &Sensor::getDeviceIdentifier);
-	addProperty("symbolicName", &Sensor::getSymbolicName);
-	addProperty("name", &Sensor::getName);
-	addProperty("type", &Sensor::getType);
-	addProperty("physicalQuantity", &Sensor::getPhysicalQuantity);
-	addProperty("physicalUnit", &Sensor::getPhysicalUnit);
+	addProperty("displayValue"s, &Sensor::getDisplayValue);
+	addProperty("enabled"s, &Sensor::getEnabled, &Sensor::setEnabled);
+	addProperty("valueChangedDelta"s, &Sensor::getValueChangedDelta, &Sensor::setValueChangedDelta);
+	addProperty("samplingInterval"s, &Sensor::getSamplingInterval, &Sensor::setSamplingInterval);
+	addProperty("connected"s, &Sensor::getConnected);
+	addProperty("deviceIdentifier"s, &Sensor::getDeviceIdentifier);
+	addProperty("symbolicName"s, &Sensor::getSymbolicName);
+	addProperty("name"s, &Sensor::getName);
+	addProperty("type"s, &Sensor::getType);
+	addProperty("physicalQuantity"s, &Sensor::getPhysicalQuantity);
+	addProperty("physicalUnit"s, &Sensor::getPhysicalUnit);
 }
 
 
@@ -151,7 +154,7 @@ void Sensor::setSamplingInterval(const std::string&, const Poco::Any& value)
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	int interval = Poco::AnyCast<int>(value);
-	if (interval < 0 || interval > 65535) throw Poco::InvalidArgumentException("samplingInterval");
+	if (interval < 0 || interval > 65535) throw Poco::InvalidArgumentException("samplingInterval"s);
 
 	if (interval != _samplingInterval)
 	{
@@ -168,7 +171,7 @@ Poco::Any Sensor::getDisplayValue(const std::string&) const
 	if (_ready && _enabled)
 		return Poco::NumberFormatter::format(_value, 0, 1);
 	else
-		return std::string("n/a");
+		return "n/a"s;
 }
 
 
@@ -180,7 +183,7 @@ Poco::Any Sensor::getDeviceIdentifier(const std::string&) const
 
 Poco::Any Sensor::getName(const std::string&) const
 {
-	return NAME;
+	return _name;
 }
 
 

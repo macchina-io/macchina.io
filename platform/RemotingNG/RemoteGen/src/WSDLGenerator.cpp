@@ -68,8 +68,8 @@ const Poco::XML::XMLString WSDLGenerator::REMOTING_NS("http://www.appinf.com/rem
 const Poco::XML::XMLString WSDLGenerator::REMOTING_PREFIX("remoting");
 
 
-WSDLGenerator::WSDLGenerator(Poco::CodeGeneration::CppGenerator& cppGen, const std::string& targetNamespace, Poco::XML::ContentHandler& wsdlOut): 
-	AbstractGenerator(cppGen), 
+WSDLGenerator::WSDLGenerator(Poco::CodeGeneration::CppGenerator& cppGen, const std::string& targetNamespace, Poco::XML::ContentHandler& wsdlOut):
+	AbstractGenerator(cppGen),
 	_wsdlOut(wsdlOut),
 	_targetNamespace(targetNamespace)
 {
@@ -98,17 +98,17 @@ void WSDLGenerator::writeRemotingSchema()
 	AttributesImpl xsdAttr;
 	xsdAttr.addAttribute(XSDGenerator::EMPTYSTRING, XSDGenerator::TARGETNAMESPACE, XSDGenerator::TARGETNAMESPACE, XSDGenerator::EMPTYSTRING, REMOTING_NS);
 	_wsdlOut.startElement(XSDGenerator::SCHEMA_NS, XSDGenerator::SCHEMA, XSDGenerator::EMPTYSTRING, xsdAttr);
-	
+
 	AttributesImpl elemAttr;
 	elemAttr.addAttribute(XSDGenerator::EMPTYSTRING, XSDGenerator::NAME, XSDGenerator::NAME, XSDGenerator::EMPTYSTRING, "Exception");
 	elemAttr.addAttribute(XSDGenerator::EMPTYSTRING, XSDGenerator::TYPE, XSDGenerator::TYPE, XSDGenerator::EMPTYSTRING, "remoting:Exception");
 	_wsdlOut.startElement(XSDGenerator::SCHEMA_NS, XSDGenerator::ELEMENT, XSDGenerator::EMPTYSTRING, elemAttr);
 	_wsdlOut.endElement(XSDGenerator::SCHEMA_NS, XSDGenerator::ELEMENT, XSDGenerator::EMPTYSTRING);
-	
+
 	AttributesImpl complexTypeAttr;
 	complexTypeAttr.addAttribute(XSDGenerator::EMPTYSTRING, XSDGenerator::NAME, XSDGenerator::NAME, XSDGenerator::EMPTYSTRING, "Exception");
 	_wsdlOut.startElement(XSDGenerator::SCHEMA_NS, XSDGenerator::COMPLEXTYPE, XSDGenerator::EMPTYSTRING, complexTypeAttr);
-	
+
 	AttributesImpl emptyAttr;
 	_wsdlOut.startElement(XSDGenerator::SCHEMA_NS, XSDGenerator::SEQUENCE, XSDGenerator::EMPTYSTRING, emptyAttr);
 
@@ -131,7 +131,7 @@ void WSDLGenerator::writeRemotingSchema()
 	_wsdlOut.endElement(XSDGenerator::SCHEMA_NS, XSDGenerator::ELEMENT, XSDGenerator::EMPTYSTRING);
 
 	_wsdlOut.endElement(XSDGenerator::SCHEMA_NS, XSDGenerator::SEQUENCE, XSDGenerator::EMPTYSTRING);
-	_wsdlOut.endElement(XSDGenerator::SCHEMA_NS, XSDGenerator::COMPLEXTYPE, XSDGenerator::EMPTYSTRING);	
+	_wsdlOut.endElement(XSDGenerator::SCHEMA_NS, XSDGenerator::COMPLEXTYPE, XSDGenerator::EMPTYSTRING);
 	_wsdlOut.endElement(XSDGenerator::SCHEMA_NS, XSDGenerator::SCHEMA, XSDGenerator::EMPTYSTRING);
 }
 
@@ -141,13 +141,13 @@ void WSDLGenerator::writeExceptionMessage()
 	AttributesImpl messageAttr;
 	messageAttr.addAttribute(XSDGenerator::EMPTYSTRING, XSDGenerator::NAME, XSDGenerator::NAME, XSDGenerator::EMPTYSTRING, "ExceptionFaultMsg");
 	_wsdlOut.startElement(WSDL_NS, MESSAGE, XSDGenerator::EMPTYSTRING, messageAttr);
-	
+
 	AttributesImpl partAttr;
 	partAttr.addAttribute(XSDGenerator::EMPTYSTRING, XSDGenerator::NAME, XSDGenerator::NAME, XSDGenerator::EMPTYSTRING, "fault");
 	partAttr.addAttribute(XSDGenerator::EMPTYSTRING, XSDGenerator::ELEMENT, XSDGenerator::ELEMENT, XSDGenerator::EMPTYSTRING, "remoting:Exception");
 	_wsdlOut.startElement(WSDL_NS, PART, XSDGenerator::EMPTYSTRING, partAttr);
 	_wsdlOut.endElement(WSDL_NS, PART, XSDGenerator::EMPTYSTRING);
-	
+
 	_wsdlOut.endElement(WSDL_NS, MESSAGE, XSDGenerator::EMPTYSTRING);
 }
 
@@ -158,20 +158,20 @@ void WSDLGenerator::structStart(const Poco::CppParser::Struct* pStruct, const Co
 	_functions.clear();
 	_wsdlOut.startDocument();
 	/*
-	<definitions name="StockQuotes" 
-	             targetNamespace="http://www.appinf.com/ns/StockQuotes" 
-	             xmlns="http://schemas.xmlsoap.org/wsdl/" 
-	             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+	<definitions name="StockQuotes"
+	             targetNamespace="http://www.appinf.com/ns/StockQuotes"
+	             xmlns="http://schemas.xmlsoap.org/wsdl/"
+	             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
 	             xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	             xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
-	             xmlns:ts="http://www.appinf.com/ns/StockQuotes" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+	             xmlns:ts="http://www.appinf.com/ns/StockQuotes" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 	             xmlns:wts="http://www.appinf.com/ns/StockQuotes" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	*/
 	_wsdlOut.startPrefixMapping(XSDGenerator::SCHEMA_PREFIX, XSDGenerator::SCHEMA_NS);
-	_wsdlOut.startPrefixMapping(SOAP_PREFIX, SOAP_NS); 
+	_wsdlOut.startPrefixMapping(SOAP_PREFIX, SOAP_NS);
 	_wsdlOut.startPrefixMapping(SOAP12_PREFIX, SOAP12_NS);
 	_wsdlOut.startPrefixMapping(SOAPENC_PREFIX, SOAPENC_NS);
-	_wsdlOut.startPrefixMapping(WSDL_PREFIX, WSDL_NS); 
+	_wsdlOut.startPrefixMapping(WSDL_PREFIX, WSDL_NS);
 	_wsdlOut.startPrefixMapping(XSDGenerator::EMPTYSTRING, WSDL_NS);
 	_wsdlOut.startPrefixMapping(TYPE_PREFIX, _targetNamespace);
 	_wsdlOut.startPrefixMapping(WSDLTYPE_PREFIX, _targetNamespace);
@@ -270,7 +270,7 @@ void WSDLGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, const
 	std::multimap<Poco::UInt32, const Poco::CppParser::Parameter*> soapRespParams = getSoapHeader(pFuncOld, false);
 	std::multimap<Poco::UInt32, HeaderInfo> soapReqHeaders;
 	std::multimap<Poco::UInt32, HeaderInfo> soapRespHeaders;
-	
+
 	{
 		reqName = methodName;
 		reqName.append(XSDGenerator::REQUEST);
@@ -299,7 +299,7 @@ void WSDLGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, const
 		_wsdlOut.endElement(WSDL_NS, PART, PART);
 		_wsdlOut.endElement(WSDL_NS, MESSAGE, MESSAGE);
 	}
-	
+
 	bool isOneWay = false;
 	Poco::CodeGeneration::GeneratorEngine::getBoolProperty(funcProps, Poco::CodeGeneration::Utility::ONEWAY, isOneWay);
 	// now check for Reply
@@ -324,7 +324,7 @@ void WSDLGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, const
 			attrHeader.addAttribute(XSDGenerator::EMPTYSTRING, XSDGenerator::ELEMENT, XSDGenerator::ELEMENT, XSDGenerator::EMPTYSTRING, partElement);
 			_wsdlOut.startElement(WSDL_NS, PART, PART, attrHeader);
 			_wsdlOut.endElement(WSDL_NS, PART, PART);
-			
+
 			soapRespHeaders.insert(std::make_pair(it->first, HeaderInfo(WSDLTYPE_PREFIX+":"+repName+MSG, partName, "literal")));
 		}
 
@@ -423,7 +423,7 @@ void WSDLGenerator::writeBindingInfo(const std::string& ns, const BindingInfo& b
 
 		_wsdlOut.startElement(ns, BODY, BODY, attrBody);
 		_wsdlOut.endElement(ns, BODY, BODY);
-		
+
 		_wsdlOut.endElement(WSDL_NS, INPUT, INPUT);
 	}
 	if (!bi.operationInfo.output.empty())
@@ -491,7 +491,7 @@ void WSDLGenerator::writeServiceLocations(const std::string& ns, const std::stri
 	_wsdlOut.startElement(ns, ADDRESS, ADDRESS, addr);
 	_wsdlOut.endElement(ns, ADDRESS, ADDRESS);
 	_wsdlOut.endElement(WSDL_NS, PORT, PORT);
-	
+
 	_wsdlOut.endElement(WSDL_NS, SERVICE, SERVICE);
 }
 

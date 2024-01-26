@@ -2,7 +2,7 @@
 // Modbus.h
 //
 // Library: IoT/Modbus
-// Package: Modbus
+// Package: ModbusCore
 // Module:  Modbus
 //
 // Basic definitions for the IoT Modbus library.
@@ -46,7 +46,7 @@
 
 
 //
-// Automatically link IOZB library.
+// Automatically link IoTModbus library.
 //
 #if defined(_MSC_VER)
 	#if !defined(POCO_NO_AUTOMATIC_LIBS) && !defined(IoTModbus_EXPORTS)

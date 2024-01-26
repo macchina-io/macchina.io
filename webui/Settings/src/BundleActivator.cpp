@@ -22,6 +22,8 @@
 #include "Poco/ClassLibrary.h"
 #include "Poco/SharedPtr.h"
 #include "SettingsRequestHandler.h"
+#include "ExportRequestHandler.h"
+#include "ImportRequestHandler.h"
 
 
 namespace IoT {
@@ -55,6 +57,8 @@ public:
 
 POCO_BEGIN_NAMED_MANIFEST(WebServer, Poco::OSP::Web::WebRequestHandlerFactory)
 	POCO_EXPORT_CLASS(IoT::Web::Settings::SettingsRequestHandlerFactory)
+	POCO_EXPORT_CLASS(IoT::Web::Settings::ExportRequestHandlerFactory)
+	POCO_EXPORT_CLASS(IoT::Web::Settings::ImportRequestHandlerFactory)
 POCO_END_MANIFEST
 
 

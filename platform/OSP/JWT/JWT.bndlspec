@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>POCO JWT Library</name>
+    <symbolicName>poco.jwt</symbolicName>
+    <version>1.11.8</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2019-2024, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>Poco::OSP::JWT::BundleActivator</class>
+      <library>poco.jwt</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>000</runLevel>
+    <dependency>
+      <symbolicName>poco.crypto</symbolicName>
+      <version>1.11.8</version>
+    </dependency>
+    <dependency>
+      <symbolicName>osp.web</symbolicName>
+      <version>[1.7.0, 2.0.0)</version>
+    </dependency>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../${bin}/PocoJWT${64}.dll,
+    ../../${bin}/PocoJWT${64}d.dll,
+    ../../${bin}/PocoJWT${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoJWT.so.*,
+    ../../lib/${osName}/${osArch}/libPocoJWTd.so.*,
+    ../../lib/${osName}/${osArch}/libPocoJWT.*.dylib,
+    ../../lib/${osName}/${osArch}/libPocoJWTd.*.dylib
+  </code>
+</bundlespec>

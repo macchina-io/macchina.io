@@ -12,14 +12,17 @@
 #include "MasterConnectionImpl.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Tf {
 
 
 MotionDetector::MotionDetector(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.motiondetector", "Tinkerforge Motion Detector Bricklet", "io.macchina.trigger")
+	BrickletType("io.macchina.tf.motiondetector"s, "Tinkerforge Motion Detector Bricklet"s, "io.macchina.trigger"s)
 {
-	addProperty("displayState", &MotionDetector::getDisplayState);
+	addProperty("displayState"s, &MotionDetector::getDisplayState);
 
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	motion_detector_create(&_motionDetector, uid.c_str(), ipcon);
@@ -62,7 +65,7 @@ bool MotionDetector::state() const
 
 Poco::Any MotionDetector::getDisplayState(const std::string&) const
 {
-	return std::string(state() ? "triggered" : "not triggered");
+	return state() ? "triggered"s : "not triggered"s;
 }
 
 

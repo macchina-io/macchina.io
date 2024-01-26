@@ -48,6 +48,12 @@ public:
 	static Poco::AutoPtr<IoT::WebEvent::WebEventNotifierRemoteObject> createRemoteObject(Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid);
 		/// Creates and returns a RemoteObject wrapper for the given IoT::WebEvent::WebEventNotifier instance.
 
+	static void enableEvents(const std::string& uri, const std::string& protocol);
+		/// Enables remote events for the RemoteObject identified by the given URI.
+		///
+		/// Events will be delivered using the Transport for the given protocol.
+		/// Can be called multiple times for the same URI with different protocols.
+
 	static std::string registerObject(Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId);
 		/// Creates a RemoteObject wrapper for the given IoT::WebEvent::WebEventNotifier instance
 		/// and registers it with the ORB and the Listener instance
@@ -70,6 +76,8 @@ public:
 private:
 	static Poco::AutoPtr<IoT::WebEvent::WebEventNotifierRemoteObject> createRemoteObjectImpl(Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid);
 
+	void enableEventsImpl(const std::string& uri, const std::string& protocol);
+
 	static WebEventNotifierServerHelper& instance();
 		/// Returns a static instance of the helper class.
 
@@ -88,6 +96,12 @@ private:
 inline Poco::AutoPtr<IoT::WebEvent::WebEventNotifierRemoteObject> WebEventNotifierServerHelper::createRemoteObject(Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
 	return WebEventNotifierServerHelper::instance().createRemoteObjectImpl(pServiceObject, oid);
+}
+
+
+inline void WebEventNotifierServerHelper::enableEvents(const std::string& uri, const std::string& protocol)
+{
+	WebEventNotifierServerHelper::instance().enableEventsImpl(uri, protocol);
 }
 
 

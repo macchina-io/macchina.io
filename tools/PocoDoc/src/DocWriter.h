@@ -60,6 +60,8 @@ public:
 protected:
 	enum TextState
 	{
+		TEXT_HEADING,
+		TEXT_PARAGRAPH_PENDING,
 		TEXT_PARAGRAPH,
 		TEXT_LIST,
 		TEXT_OLIST,
@@ -123,10 +125,10 @@ protected:
 	static std::string headerFor(const Poco::CppParser::Symbol* pSymbol);
 	static std::string titleFor(const Poco::CppParser::Symbol* pSymbol);
 
-	void writeHeader(std::ostream& ostr, const std::string& title, const std::string& extraScript = "", int options = 0);
+	void beginPage(std::ostream& ostr, const std::string& title, const std::string& extraScript = "", int options = 0);
+	static void endPage(std::ostream& ostr, int options = 0);
 	void writeNavigationFrame(std::ostream& ostr, const std::string& group, const std::string& item);
-	static void writeFooter(std::ostream& ostr, int options = 0);
-	void writeCopyright(std::ostream& ostr);
+	void writeFooter(std::ostream& ostr);
 	static void writeTitle(std::ostream& ostr, const std::string& category, const std::string& title);
 	static void writeTitle(std::ostream& ostr, const Poco::CppParser::NameSpace* pNameSpace, const std::string& title);
 	static void writeSubTitle(std::ostream& ostr, const std::string& title);
@@ -134,15 +136,30 @@ protected:
 	static void endBody(std::ostream& ostr);
 	static void beginContent(std::ostream& ostr);
 	static void endContent(std::ostream& ostr);
+	static void beginSection(std::ostream& ostr, const std::string& id);
+	static void beginSection(std::ostream& ostr);
+	static void endSection(std::ostream& ostr);
+	static void beginHeader(std::ostream& ostr);
+	static void endHeader(std::ostream& ostr);
+	static void beginNav(std::ostream& ostr);
+	static void endNav(std::ostream& ostr);
+	static void beginMain(std::ostream& ostr);
+	static void endMain(std::ostream& ostr);
+	static void beginFooter(std::ostream& ostr);
+	static void endFooter(std::ostream& ostr);
+	static void writeTOCLink(std::ostream& ostr);
 	void writeDescription(std::ostream& ostr, const std::string& text);
 	void writeDescriptionLine(std::ostream& ostr, const std::string& text, TextState& state);
 	void writeSummary(std::ostream& ostr, const std::string& text, const std::string& uri);
 	static std::string htmlize(const std::string& str);
 	static std::string htmlize(char c);
+	static std::string makeID(const std::string& str);
 	static TextState analyzeLine(const std::string& line);
 	static std::string htmlizeName(const std::string& name);
+	static bool textIsEmpty(const std::string& text);
 	void writeText(std::ostream& ostr, const std::string& text);
 	void writeText(std::ostream& ostr, std::string::const_iterator begin, const std::string::const_iterator& end);
+	void writeHeading(std::ostream& ostr, const std::string& text);
 	void writeDecl(std::ostream& ostr, const std::string& decl);
 	void writeDecl(std::ostream& ostr, std::string::const_iterator begin, const std::string::const_iterator& end);
 	bool writeSymbol(std::ostream& ostr, std::string& token, std::string::const_iterator& begin, const std::string::const_iterator& end);
@@ -175,11 +192,12 @@ protected:
 	void writeFunction(std::ostream& ostr, const Poco::CppParser::Function* pFunc);
 	void writeVariables(std::ostream& ostr, const Poco::CppParser::NameSpace* pNameSpace);
 	void writeVariable(std::ostream& ostr, const Poco::CppParser::Variable* pVar);
-	static void writeNameListItem(std::ostream& ostr, const std::string& name, const Poco::CppParser::Symbol* pSymbol, const Poco::CppParser::NameSpace* pNameSpace, bool& first);
+	void writeNameListItem(std::ostream& ostr, const std::string& name, const Poco::CppParser::Symbol* pSymbol, const Poco::CppParser::NameSpace* pNameSpace, bool& first);
 	static void writeLink(std::ostream& ostr, const std::string& uri, const std::string& text);
-	static void writeLink(std::ostream& ostr, const Poco::CppParser::Symbol* pSymbol, const std::string& text);
+	void writeLink(std::ostream& ostr, const Poco::CppParser::Symbol* pSymbol, const std::string& text);
 	static void writeLink(std::ostream& ostr, const std::string& uri, const std::string& text, const std::string& linkClass);
 	void writeTargetLink(std::ostream& ostr, const std::string& uri, const std::string& text, const std::string& target);
+	static void writeAwesomeLink(std::ostream& ostr, const std::string& uri, const std::string& symbol);
 	static void writeImageLink(std::ostream& ostr, const std::string& uri, const std::string& image, const std::string& alt);
 	static void writeImage(std::ostream& ostr, const std::string& uri, const std::string& caption);
 	static void writeIcon(std::ostream& ostr, const std::string& icon);
@@ -187,6 +205,8 @@ protected:
 	static void writeDeprecated(std::ostream& ostr, const std::string& what);
 	void libraries(std::set<std::string>& libs);
 	void packages(const std::string& lib, std::set<std::string>& packages);
+	void suspendSymbolFormatting();
+	void resumeSymbolFormatting();
 
 	Poco::CppParser::NameSpace* rootNameSpace() const;
 
@@ -201,17 +221,20 @@ protected:
 	static const std::string GITHUB_POCO_URI;
 
 private:
-	bool _prettifyCode;
-	bool _noFrames;
-	bool _htmlMode;
-	bool _literalMode;
+	bool _prettifyCode = false;
+	bool _noFrames = false;
+	bool _htmlMode = false;
+	bool _literalMode = false;
+	bool _inEmph = false;
+	bool _inBold = false;
 	const Poco::CppParser::NameSpace::SymbolTable& _symbols;
 	std::string _path;
-	const Poco::CppParser::NameSpace* _pNameSpace;
+	const Poco::CppParser::NameSpace* _pNameSpace = nullptr;
 	PageMap _pages;
-	bool _pendingLine;
-	int  _indent;
-	int  _titleId;
+	bool _pendingLine = false;
+	int _indent = 0;
+	int _titleId = 0;
+	int _suspendSymbolFormatting = 0;
 
 	static std::string _language;
 	static StringMap   _strings;

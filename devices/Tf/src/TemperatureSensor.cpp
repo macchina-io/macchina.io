@@ -13,17 +13,20 @@
 #include "Poco/NumberFormatter.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Tf {
 
 
 TemperatureSensor::TemperatureSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.temperature", "Tinkerforge Temperature Bricklet", "io.macchina.sensor", "temperature", IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS),
+	BrickletType("io.macchina.tf.temperature"s, "Tinkerforge Temperature Bricklet"s, "io.macchina.sensor"s, "temperature"s, IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
-	addProperty("displayValue", &TemperatureSensor::getDisplayValue);
-	addProperty("valueChangedPeriod", &TemperatureSensor::getValueChangedPeriod, &TemperatureSensor::setValueChangedPeriod);
-	addProperty("valueChangedDelta", &TemperatureSensor::getValueChangedDelta, &TemperatureSensor::setValueChangedDelta);
+	addProperty("displayValue"s, &TemperatureSensor::getDisplayValue);
+	addProperty("valueChangedPeriod"s, &TemperatureSensor::getValueChangedPeriod, &TemperatureSensor::setValueChangedPeriod);
+	addProperty("valueChangedDelta"s, &TemperatureSensor::getValueChangedDelta, &TemperatureSensor::setValueChangedDelta);
 
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	temperature_create(&_temperature, uid.c_str(), ipcon);

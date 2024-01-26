@@ -12,7 +12,7 @@ automated way is far less error prone.
 
 !! The Bundle Specification File
 
-To know what to do, the Bundle Creator Tool needs a bundle specification file as
+To know what to do, the Bundle Creator tool needs a bundle specification file as
 input. A bundle specification file usually has the extension <[.bndlspec]>, although
 this is not mandatory.
 
@@ -200,7 +200,7 @@ This element is optional.
 
 !!! Invoking the Bundle Creator Tool
 
-The Bundle Creator Tool takes the file name of the Bundle Specification file
+The Bundle Creator tool takes the file name of the Bundle Specification file
 as argument. Optionally, the <[/output]> (Windows) or <[--output]>/<[-o]> (Unix)
 option can be used to specify the directory where the bundle file should be
 created. The following command-line options are supported:
@@ -239,9 +239,9 @@ created. The following command-line options are supported:
 
 !! Invoking the Bundle Creator Tool from Visual Studio
 
-It is convenient to invoke the Bundle Creator Tool directly from
+It is convenient to invoke the Bundle Creator tool directly from
 Visual Studio, as part of the bundle's build process.
-To do this, add a command that invokes the Bundle Creator Tool to
+To do this, add a command that invokes the Bundle Creator tool to
 the Post-Build Event of the project, as shown below.
 
 <%
@@ -275,7 +275,7 @@ the <[postbuild]> Make variable, as shown below.
 !! Invoking the Bundle Creator Tool from CMake
 
 As part of the CMake build system support, a custom function `poco_osp_bundle`
-is provided, which takes care of invoking the Bundle Creator Tool appropriately.
+is provided, which takes care of invoking the Bundle Creator tool appropriately.
 The function is defined in `PocoOSPHelpers.cmake`, which can be found in the
 top-level `cmake` directory. An example `CMakeLists.txt` for building a bundle
 is shown below:
@@ -368,3 +368,22 @@ Makefile for building a bundle using the POCO build system must be modified as f
 
     include $(POCO_BASE)/build/rules/dylib
 ----
+
+!! Stripping Shared Libraries and Executables
+
+Some build systems, e.g. Yocto, build all shared libraries and executables with debug
+symbols and only remove (strip) the debug symbols in a later install or packaging step.
+This is too late for use with the Bundle Creator tool, which means that bundles
+would contain shared libraries and executables with debug information. This is 
+undesirable, especially for use on embedded systems with limited resources.
+
+To solve this issue, the Bundle Creator tool can optionally strip debug symbols
+from all shared libraries and executables incorporated into a bundle (via the
+<[code]> element in the bundle specification file, or the respective command-line option). 
+This happens after the files have been copied into the temporary directory from which they 
+are copied into the bundle. Therefore the original files are not modified.
+
+To enable this feature, the <[--strip]> (or <[/strip]> on Windows) command-line option
+can be used. The name of the strip tool (usually <[strip]>, with the usual prefix for cross-compiling)
+must be specified. Alternatively, the environment variable <[BUNDLE_STRIP]> can be set
+to the name of the tool.

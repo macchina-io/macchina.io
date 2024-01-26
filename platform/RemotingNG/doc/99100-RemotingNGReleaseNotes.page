@@ -1,6 +1,26 @@
 Remoting NG Release Notes
 Remoting NG
 
+!!!Release 2023.1
+
+!!Summary of Changes
+
+  - RemoteGen now generates a correct `isA()` member function in the interface
+    class for OSP services.
+  - RemoteGen no longer crashes if it encounters a self-referencing type declaration.
+  - Added the MinimumIntervalAndDeltaFilter event filter.
+  - Improved handling of types defined in the service class.
+
+
+!!Known Issues
+
+  - None at this time.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2022.1
 
 !!Summary of Changes

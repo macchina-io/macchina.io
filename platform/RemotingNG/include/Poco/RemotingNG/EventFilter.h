@@ -305,6 +305,40 @@ private:
 
 
 template <typename T>
+class MinimumIntervalAndDeltaFilter: public EventFilter<T>
+	/// This filter enforces a minimum time interval (in microseconds)
+	/// and minimum delta between accepting values.
+{
+public:
+	MinimumIntervalAndDeltaFilter(Poco::Clock::ClockDiff interval, const T& delta):
+		_interval(interval),
+		_delta(delta),
+		_lastClock(0),
+		_lastValue((std::numeric_limits<T>::max)())
+	{
+	}
+	
+	// EventFilter
+	bool accept(const T& value)
+	{
+		if (_lastClock.isElapsed(_interval) && std::abs(value - _lastValue) >= _delta)
+		{
+			_lastClock.update();
+			_lastValue = value;
+			return true;
+		}
+		else return false;
+	}
+	
+private:
+	Poco::Clock::ClockDiff _interval;
+	T _delta;
+	Poco::Clock _lastClock;
+	T _lastValue;
+};
+
+
+template <typename T>
 class HysteresisFilter: public EventFilter<T>
 	/// This filter accepts the value if it falls below the lower threshold
 	/// or rises above the upper threshold. This can be used to implement

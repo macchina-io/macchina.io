@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="com.appinf.osp.js.module" module="crypto" class="Poco::OSP::JS::Crypto::CryptoModuleFactory" library="com.appinf.osp.js.crypto"/>
+</extensions>

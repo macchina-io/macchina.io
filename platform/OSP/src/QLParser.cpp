@@ -49,9 +49,13 @@ QLExpr::Ptr QLParser::parse()
 	QLExpr::Ptr pExpr;
 	const Token* pNext = parseExpr(_tokenizer.next(), pExpr);
 	if (pNext->is(Token::EOF_TOKEN))
-		return pExpr;
-	else
-		throw SyntaxException("Extra tokens after expression", pNext->asString());
+	{
+		if (pExpr)
+			return pExpr;
+		else
+			return new QLTrueExpr;
+	}
+	else throw SyntaxException("Extra tokens after expression", pNext->asString());
 }
 
 

@@ -11,6 +11,9 @@
 #include "Utility.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Web {
 namespace BundleAdmin {
@@ -18,7 +21,7 @@ namespace BundleAdmin {
 
 bool Utility::isAuthenticated(Poco::OSP::Web::WebSession::Ptr pSession, const Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
-	if (!pSession || !pSession->has("username") || request.get("X-XSRF-TOKEN", "") != pSession->csrfToken())
+	if (!pSession || !pSession->has("username") || (isMutating(request) && request.get("X-XSRF-TOKEN"s, ""s) != pSession->csrfToken()))
 	{
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_UNAUTHORIZED);
 		response.setContentLength(0);

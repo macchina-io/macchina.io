@@ -4,7 +4,7 @@
 // Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: Apache-2.0
 //
 
 
@@ -150,7 +150,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics OSP Code Cache Utility.\n"
-			"Copyright (c) 2017-2022 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2017-2024 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program populates a code cache directory with the "
 			"shared libraries contained in all bundles in the given "
@@ -159,7 +159,7 @@ protected:
 		);
 		helpFormatter.setFooter(
 			"For more information, please see the Open Service Platform "
-			"documentation at <http://docs.appinf.com>."
+			"documentation at <https://www.appinf.com/docs>."
 		);
 		helpFormatter.setIndent(8);
 		helpFormatter.format(std::cout);

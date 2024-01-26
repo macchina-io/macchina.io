@@ -104,6 +104,10 @@ void Serializer::serializeNullableEnd(const std::string& name)
 
 void Serializer::serializeOptionalBegin(const std::string& name, bool isSpecified)
 {
+	if (!isSpecified)
+	{
+		serializeValue(name, v8::Undefined(_pIsolate));
+	}
 }
 
 
@@ -221,14 +225,11 @@ void Serializer::serializeValue(const std::string& name, const v8::Local<v8::Val
 	v8::Local<v8::Object> object(v8::Local<v8::Object>::New(_pIsolate, _jsObjectStack.back()));
 	if (_jsIndexStack.back() == -1)
 	{
-		(void) object->Set(
-			context,
-			Core::Wrapper::toV8String(_pIsolate, name),
-			value);
+		V8_CHECK_SET_RESULT(object->Set(context, Core::Wrapper::toV8String(_pIsolate, name), value));
 	}
 	else
 	{
-		(void) object->Set(context, _jsIndexStack.back()++, value);
+		V8_CHECK_SET_RESULT(object->Set(context, _jsIndexStack.back()++, value));
 	}
 	if (_jsObjectStack.size() == 1) _totalSerialized++;
 }

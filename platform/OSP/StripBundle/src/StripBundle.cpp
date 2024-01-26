@@ -4,7 +4,7 @@
 // Copyright (c) 2018, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: Apache-2.0
 //
 
 
@@ -71,7 +71,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics OSP Strip Bundle Utility.\n"
-			"Copyright (c) 2018-2021 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2018-2024 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program removes all binaries (shared libraries) from a bundle. "
 			"A typical use case is systems using a read-only file system, where "
@@ -81,7 +81,7 @@ protected:
 		);
 		helpFormatter.setFooter(
 			"For more information, please see the Open Service Platform "
-			"documentation at <http://docs.appinf.com>."
+			"documentation at <https://www.appinf.com/docs>."
 		);
 		helpFormatter.setIndent(8);
 		helpFormatter.format(std::cout);

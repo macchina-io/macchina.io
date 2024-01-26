@@ -21,6 +21,9 @@
 #include "Poco/String.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Simulation {
 
@@ -91,18 +94,18 @@ public:
 	
 	void startElement(const std::string& uri, const std::string& localName, const std::string& qname, const Poco::XML::Attributes& attributes)
 	{
-		if (localName == "trkpt")
+		if (localName == "trkpt"s)
 		{
 			_state = GPX_STATE_TRKPT;
-			_lat = attributes.getValue("lat");
-			_lon = attributes.getValue("lon");	
+			_lat = attributes.getValue("lat"s);
+			_lon = attributes.getValue("lon"s);	
 		}
-		else if (localName == "ele")
+		else if (localName == "ele"s)
 		{
 			_state = GPX_STATE_ELE;
 			_ele.clear();
 		}
-		else if (localName == "time")
+		else if (localName == "time"s)
 		{
 			_state = GPX_STATE_TIME;
 			_time.clear();
@@ -138,12 +141,12 @@ public:
 
 			_state = GPX_STATE_IDLE;
 		}
-		else if (localName == "ele")
+		else if (localName == "ele"s)
 		{
 			Poco::trimInPlace(_ele);
 			_state = GPX_STATE_TRKPT;
 		}
-		else if (localName == "time")
+		else if (localName == "time"s)
 		{
 			Poco::trimInPlace(_time);
 			_state = GPX_STATE_TRKPT;
@@ -193,16 +196,16 @@ SimulatedGNSSSensor::SimulatedGNSSSensor(const Params& params):
 	_period(0),
 	_delta(0),
 	_timeout(30000),
-	_logger(Poco::Logger::get("IoT.Simulation.SimulatedGNSSSensor"))
+	_logger(Poco::Logger::get("IoT.Simulation.SimulatedGNSSSensor"s))
 {
-	addProperty("symbolicName", &SimulatedGNSSSensor::getSymbolicName);
-	addProperty("name", &SimulatedGNSSSensor::getName);
-	addProperty("type", &SimulatedGNSSSensor::getType);
-	addProperty("displayValue", &SimulatedGNSSSensor::getDisplayValue);
-	addProperty("positionChangedPeriod", &SimulatedGNSSSensor::getPositionChangedPeriod, &SimulatedGNSSSensor::setPositionChangedPeriod);
-	addProperty("positionChangedDelta", &SimulatedGNSSSensor::getPositionChangedDelta, &SimulatedGNSSSensor::setPositionChangedDelta);
-	addProperty("positionTimeout", &SimulatedGNSSSensor::getPositionTimeout, &SimulatedGNSSSensor::setPositionTimeout);
-	addProperty("gpxPath", &SimulatedGNSSSensor::getGPXPath);
+	addProperty("symbolicName"s, &SimulatedGNSSSensor::getSymbolicName);
+	addProperty("name"s, &SimulatedGNSSSensor::getName);
+	addProperty("type"s, &SimulatedGNSSSensor::getType);
+	addProperty("displayValue"s, &SimulatedGNSSSensor::getDisplayValue);
+	addProperty("positionChangedPeriod"s, &SimulatedGNSSSensor::getPositionChangedPeriod, &SimulatedGNSSSensor::setPositionChangedPeriod);
+	addProperty("positionChangedDelta"s, &SimulatedGNSSSensor::getPositionChangedDelta, &SimulatedGNSSSensor::setPositionChangedDelta);
+	addProperty("positionTimeout"s, &SimulatedGNSSSensor::getPositionTimeout, &SimulatedGNSSSensor::setPositionTimeout);
+	addProperty("gpxPath"s, &SimulatedGNSSSensor::getGPXPath);
 
 	loadGPX(_gpxPath);
 }
@@ -358,12 +361,12 @@ Poco::Any SimulatedGNSSSensor::getDisplayValue(const std::string&) const
 		IoT::Devices::LatLon latLon = position();
 		std::string value = Poco::format("%02.6f,%03.6f", latLon.latitude, latLon.longitude);
 		double knots = speed();
-		if (knots >= 0) Poco::format(value, " %.2f kn", knots);
+		if (knots >= 0) Poco::format(value, " %.2f kn"s, knots);
 		double degrees = course();
-		if (degrees >= 0) Poco::format(value, " %.1f°", degrees);
+		if (degrees >= 0) Poco::format(value, " %.1f°"s, degrees);
 		return value;
 	}
-	else return std::string("n/a");
+	else return "n/a"s;
 }
 
 
@@ -371,10 +374,10 @@ void SimulatedGNSSSensor::updatePosition(const Poco::Geo::LatLon& latLon, double
 {
 	if (_logger.debug())
 	{
-		_logger.debug(Poco::format("Updating position to lat=%f, lon=%f, alt=%f",
+		_logger.debug("Updating position to lat=%f, lon=%f, alt=%f"s,
 			latLon.latitude().degrees(), 
 			latLon.longitude().degrees(),
-			altitude));
+			altitude);
 	}
 	
 	IoT::Devices::PositionUpdate event;

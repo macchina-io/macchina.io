@@ -73,7 +73,7 @@ void CodeGenerator::writeIncludes()
 	itEnd = _srcIncludes.end();
 	for (; it != itEnd; ++it)
 		writeInclude(*it, false);
-	
+
 	writeFwdDecls(_fwdDecls);
 }
 

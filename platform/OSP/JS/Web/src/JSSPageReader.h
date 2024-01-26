@@ -60,6 +60,7 @@ protected:
 	static const std::string MARKUP_BEGIN;
 	static const std::string MARKUP_END;
 	static const std::string EXPR_BEGIN;
+	static const std::string EXPR_HTML_BEGIN;
 	static const std::string EXPR_END;
 
 	void include(const std::string& uri);

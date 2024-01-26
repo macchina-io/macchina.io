@@ -31,6 +31,7 @@ namespace OSP {
 
 const std::string ServiceRegistry::PROP_NAME("name");
 const std::string ServiceRegistry::PROP_TYPE("type");
+const std::string ServiceRegistry::PROP_DEMANGLED_TYPE("dtype");
 
 
 ServiceRegistry::ServiceRegistry():
@@ -51,9 +52,12 @@ ServiceRef::Ptr ServiceRegistry::registerService(const std::string& name, Servic
 	ServiceMap::iterator it = _services.find(name);
 	if (it == _services.end())
 	{
+		const char* type = pService->type().name();
+		const std::string dtype = ServiceRef::demangle(type);
 		ServiceRef::Ptr pServiceRef(new ServiceRef(name, props, pService));
 		pServiceRef->properties().set(PROP_NAME, name);
-		pServiceRef->properties().set(PROP_TYPE, std::string(pService->type().name()));
+		pServiceRef->properties().set(PROP_TYPE, std::string(type));
+		pServiceRef->properties().set(PROP_DEMANGLED_TYPE, dtype);
 		_services[name] = pServiceRef;
 
 		lock.unlock();
@@ -61,7 +65,7 @@ ServiceRef::Ptr ServiceRegistry::registerService(const std::string& name, Servic
 		ServiceEvent registeredEvent(pServiceRef, ServiceEvent::EV_SERVICE_REGISTERED);
 		serviceRegistered(this, registeredEvent);
 
-		_logger.information("Service registered: %s."s, name);
+		_logger.information("Service registered: %s [%s]."s, name, dtype);
 
 		return pServiceRef;
 	}

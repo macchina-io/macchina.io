@@ -447,30 +447,6 @@ bool GenUtility::mustBeSerializable(const std::string& name)
 }
 
 
-bool GenUtility::isAService(const Poco::CppParser::Struct* pStruct)
-{
-	if (!pStruct)
-		return false;
-	if (pStruct->fullName() == "Poco::OSP::Service")
-		return true;
-
-	Poco::CppParser::Struct::BaseIterator itB = pStruct->baseBegin();
-	Poco::CppParser::Struct::BaseIterator itBEnd = pStruct->baseEnd();
-
-	for (; itB != itBEnd; ++itB)
-	{
-		if (itB->pClass)
-		{
-			if (isAService(itB->pClass))
-				return true;
-		}
-		if (itB->name == "Service")
-			return true;
-	}
-	return false;
-}
-
-
 bool GenUtility::hasEvents(const Poco::CppParser::Struct* pStruct)
 {
 	if (!pStruct)

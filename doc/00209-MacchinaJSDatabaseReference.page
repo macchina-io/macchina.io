@@ -1,0 +1,288 @@
+JavaScript Database API Reference
+AAAAMacchinaIO
+
+!!!Database Session and RecordSet Objects
+
+Database Session and RecordSet objects provide access to the SQLite database engine that comes with
+macchina.io EDGE.
+
+As of the 0.7.0 release, the Database Session and RecordSet objects have been moved into
+a separate <*data*> module which is available through the <*com.appinf.osp.js.data*> bundle.
+
+You'll have to import the <*data*> module in your script before being able to
+use the Database Session and RecordSet objects.
+
+Here's a short example showing the Database Session and RecordSet objects being used
+to periodically log sensor data in a SQLite database.
+
+    var temperatureSensor;
+    var temperatureRefs = serviceRegistry.find('io.macchina.physicalQuantity == "temperature"');
+    if (temperatureRefs.length > 0)
+    {
+        temperatureSensor = temperatureRefs[0].instance();
+    }
+
+    var data = require('data');
+    var dbSession = new data.Session('SQLite', bundle.persistentDirectory + 'temperature.db');
+
+    dbSession.execute('CREATE TABLE IF NOT EXISTS temperature ( \
+        timestamp TIMESTAMP, \
+        temperature FLOAT \
+        )');
+
+    setInterval(
+        function() {
+            dbSession.execute(
+                'INSERT INTO temperature VALUES (?, ?)',
+                new Date(),
+                temperatureSensor.value()
+            );
+        },
+        60000);
+----
+
+This sample shows how to create a Database Session object connected to a SQLite database,
+create a table if it does not yet exist, and how to insert rows into the table.
+
+Note: there is a subtle, but important difference in JavaScript between:
+
+    var date = Date();
+----
+
+and:
+
+    var date = new Date();
+----
+
+The first expression will result in a string object ("Mon Mar 09 2015 21:30:50 GMT+0100 (CET)"),
+while the second expression will result in a Date object, as one would expect.
+When storing Date objects in an SQLite database make sure you're using a Date object
+and not a "stringified" date. Otherwise extracting dates from the database will
+produce wrong results, as the JavaScript-produced date string is not supported by
+SQLite, which internally uses ISO 8601.
+
+Once you have data in a database, you may also want to get it out again.
+Following sample shows the code for a servlet that returns the last 100
+data samples as a JSON document.
+
+    var data = require('data');
+    var dbSession = new data.Session('SQLite', bundle.persistentDirectory + 'temperature.db');
+    dbSession.pageSize = 100;
+
+    var recordSet = dbSession.execute('SELECT timestamp, temperature FROM temperature ORDER BY timestamp DESC');
+    response.contentType = 'application/json';
+    response.write(recordSet.toJSON());
+    response.send();
+----
+
+
+!!Creating a Database Session
+
+A Database Session object is created by calling the constructor function with two
+arguments. The first argument is the connector name, which for macchina.io EDGE always
+is "SQLite". The second argument is the path to the SQLite database file.
+
+
+!!Database Session Properties
+
+Database Session objects have the following properties:
+
+!connector (ro)
+
+The name of the database connector. For macchina.io EDGE, only "SQLite" is supported.
+
+
+!connectionString (ro)
+
+The connection string. For macchina.io EDGE, this is always the path to the SQLite database
+file.
+
+
+!isConnected (ro)
+
+Returns true if the session is connected to the database. For macchina.io EDGE and SQLite,
+this returns true, unless the session has been closed by calling <[close()]>.
+
+
+!isTransaction (ro)
+
+Returns true if a transaction is active, otherwise false.
+
+
+!pageSize (r/w)
+
+The result page size for queries.
+
+The page size specifies how many rows are transferred at a time when
+delivering a query result. The larger the page size, the more memory
+is required.
+
+Defaults to 256. Setting this to 0
+will result in an unlimited page size, which is not recommended.
+
+
+!!Database Session Methods
+
+The following methods are supported by Database Session objects:
+
+!begin()
+
+Starts a new transaction.
+
+
+!commit()
+
+Commits the current transaction.
+
+
+!rollback()
+
+Rolls back the current transaction.
+
+
+!close()
+
+Closes the session. After the session has been closed, it must no longer
+be used.
+
+
+!executeNonQuery(statement [, args]...)
+
+Execute a non-query SQL statement (e.g., INSERT or UPDATE).
+The statement can contain placeholders ('?'), which will
+be replaced by the given arguments using the underlying database's data binding mechanism.
+
+Returns the number of rows affected by the statement.
+
+
+!execute(statement [, args]...)
+
+Execute a SQL query statement. The statement can contain placeholders ('?'), which will
+be replaced by the given arguments using the underlying database's data binding mechanism.
+
+Returns a RecordSet object containing the query result.
+
+
+!!!RecordSet Objects
+
+RecordSet objects are returned by the <[execute()]> method of Database Session objects.
+A RecordSet contains the result of a SQL query. For non-query statements, the
+record set will be empty.
+
+
+!!RecordSet Properties
+
+RecordSet objects support the following properties:
+
+
+!columnCount (ro)
+
+Returns the number of columns in the query result.
+
+
+!rowCount (ro)
+
+Returns the number of rows in the record set. The number of rows
+in the record set is never larger than the page size configured in the session.
+
+
+!statement (ro)
+
+Returns the statement or query that produced this record set.
+
+
+!!RecordSet Methods
+
+RecordSet objects support the following methods:
+
+
+!getValue(column [, row])
+
+Returns the value stored in the given column, for the given row. If no row is given,
+the current row is used (see moveNext(), etc.).
+
+The column can be specified by name, or by numerical index.
+
+
+!getName(index)
+
+Returns the name of the column with the given column index.
+
+
+!getType(column)
+
+Returns the data type name of the column with the given column name or numerical index.
+
+The following type names can be reported:
+
+  - bool
+  - Int8
+  - Int16
+  - Int32
+  - Int64
+  - UInt8
+  - UInt16
+  - UInt32
+  - UInt64
+  - float
+  - double
+  - string
+  - wstring
+  - DateTime
+  - Date
+  - Time
+  - BLOB
+  - CLOB
+
+
+!getLength(column)
+
+Returns the length of the column with the given column name or index.
+
+
+!getPrecision(column)
+
+Return the precision of the column with the given column name or index.
+
+
+!moveFirst()
+
+Sets the current row to the first row in the record set.
+Returns true if the record set contains at least one row, false otherwise.
+
+
+!moveLast()
+
+Sets the current row to the last row in the record set.
+Returns true if the record set contains at least one row, false otherwise.
+
+
+!moveNext()
+
+Moves the current row to the next row in the record set.
+Returns true if successful, or false if no more rows are available.
+
+
+!movePrevious()
+
+Moves the current row to the previous row in the record set.
+Returns true if successful, or false if the current row already
+is the first row.
+
+
+!fetchNextPage()
+
+Fetches the next results page from the database.
+
+
+!close()
+
+Closes the record set. After being closed, the record set must not be used
+anymore.
+
+
+!toJSON()
+
+Converts the rows in the record set into a JSON document containing an array
+of objects, each one representing a row. Column names are used as property names
+in the objects.

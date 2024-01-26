@@ -4,6 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>macchina.io - Bundles</title>
+    <link rel="stylesheet" href="/css/fonts.css" type="text/css"/>
     <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
     <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
     <link rel="stylesheet" href="/macchina/bundles/css/styles.css" type="text/css"/>
@@ -11,8 +12,8 @@
     <script type="text/javascript" src="/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="/angular/angular.min.js"></script>
     <script type="text/javascript" src="/angular/angular-route.min.js"></script>
-    <script type="text/javascript" src="/angular-file-upload/angular-file-upload-shim.min.js"></script>
-    <script type="text/javascript" src="/angular-file-upload/angular-file-upload.min.js"></script>
+    <script type="text/javascript" src="/angular-file-upload/ng-file-upload-shim.min.js"></script>
+    <script type="text/javascript" src="/angular-file-upload/ng-file-upload.min.js"></script>
     <script type="text/javascript" src="/macchina/bundles/js/app.js"></script>
     <script type="text/javascript" src="/macchina/bundles/js/services.js"></script>
     <script type="text/javascript" src="/macchina/bundles/js/controllers.js"></script>
@@ -22,7 +23,7 @@
       <div class="headercontainer">
         <div class="header">
           <h1>
-          <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io"></a>Bundles
+            <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io EDGE">EDGE</a>&gt; Bundles
           </h1>
         </div>
       </div>
@@ -34,10 +35,13 @@
             <div class="navigation">
               <ul>
                 <li ng-show="isActive('/bundles')">
-                  <i class="fa fa-upload"></i></i> <a href="#/install">Install</a>
+                  <i class="fa fa-upload"></i> <a href="#!/install">Install</a>
+                </li>
+                <li ng-show="isActive('/bundles')">
+                  <i class="fa fa-search"></i> <form class="search"><input type="text" placeholder="Search" ng-model="search" size="30" maxLength="200" autofocus></form>
                 </li>
                 <li ng-show="!isActive('/bundles')" class="backlink">
-                  <i class="fa fa-chevron-circle-left"></i> <a href="#/bundles">Bundles</a>
+                  <i class="fa fa-chevron-circle-left"></i> <a href="#!/bundles">Bundles</a>
                 </li>
                 <li ng-show="!isActive('/bundles') && allowedBundleActions.start">
                   <i class="fa fa-play"></i> <a ng-click="startBundle()">Start</a>

@@ -1,0 +1,86 @@
+#
+# This is the Dockerfile for macchina.io EDGE
+#
+
+#
+# Stage 1: Build
+#
+FROM alpine:3.18 AS buildstage
+
+# Install required components for building
+RUN apk update \
+ && apk add \
+ 	git \
+    g++ \
+    linux-headers \
+    make \
+    openssl-dev \
+    libpq-dev \
+    python3
+
+# python must be python3
+RUN ln -sf python3 /usr/bin/python
+
+# Create user
+RUN addgroup -S build && adduser -S -G build build
+
+# Setup Directories
+RUN mkdir -p /home/build/source \
+	&& mkdir -p /home/build/install \
+	&& chown -R build:build /home/build
+
+# Fetch macchina.io EDGE Sources
+ADD . /home/build/source/macchina.io/
+RUN chown -R build:build /home/build
+
+USER build:build
+WORKDIR /home/build
+
+# Build macchina.io EDGE
+RUN cd /home/build/source/macchina.io \
+	&& make -s -j8 DEFAULT_TARGE=shared_release PRODUCT=sdk -j`nproc` MACCHINA_ENABLE_DATA_POSTGRESQL=1 \
+	&& make PRODUCT=sdk INSTALLDIR=/home/build/sdk install
+
+#
+# Stage 2: Install
+#
+FROM alpine:3.18 AS runstage
+
+RUN apk update \
+ && apk add \
+ 	libstdc++ \
+ 	git \
+    g++ \
+    linux-headers \
+    make \
+    openssl-dev \
+    libpq-dev \
+    ca-certificates
+
+# Copy macchina.io EDGE
+RUN mkdir -p /opt/macchina \
+ && mkdir -p /opt/macchina/var/lib \
+ && mkdir -p /opt/macchina/var/log \
+ && mkdir -p /opt/macchina/var/cache/bundles
+
+COPY --from=buildstage /home/build/sdk /opt/macchina
+
+# Create user
+RUN addgroup -S build && adduser -S -G build build
+
+RUN chown -R build:build /opt/macchina
+USER build
+
+ENV HTTP_PORT=22080
+ENV HTTPS_PORT=0
+ENV TLS_SERVER_CERT=/opt/macchina/etc/macchina.pem
+ENV TLS_SERVER_KEY=/opt/macchina/etc/macchina.pem
+ENV LOGPATH=/opt/macchina/var/log/macchina.log
+ENV LOGLEVEL=information
+ENV LOGCHANNEL=console
+ENV POCO_BASE=/opt/macchina
+ENV MACCHINA_BASE=/opt/macchina
+ENV PROJECT_BASE=/home/build
+
+ENV LD_LIBRARY_PATH=/opt/macchina/lib:/opt/macchina/var/cache/bundles
+ENV PATH=/opt/macchina/bin:${PATH}

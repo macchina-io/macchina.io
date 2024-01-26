@@ -228,15 +228,7 @@ def LoadOneBuildFile(build_file_path, data, aux_data, includes, is_target, check
         return data[build_file_path]
 
     if os.path.exists(build_file_path):
-        # Open the build file for read ('r') with universal-newlines mode ('U')
-        # to make sure platform specific newlines ('\r\n' or '\r') are converted to '\n'
-        # which otherwise will fail eval()
-        if sys.platform == "zos":
-            # On z/OS, universal-newlines mode treats the file as an ascii file.
-            # But since node-gyp produces ebcdic files, do not use that mode.
-            build_file_contents = open(build_file_path, "r").read()
-        else:
-            build_file_contents = open(build_file_path, "rU").read()
+        build_file_contents = open(build_file_path, "r").read()
     else:
         raise GypError("%s not found (cwd: %s)" % (build_file_path, os.getcwd()))
 

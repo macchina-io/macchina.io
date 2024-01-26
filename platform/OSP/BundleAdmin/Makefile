@@ -4,9 +4,8 @@
 # Makefile for BundleAdmin
 #
 
-BUNDLE_TOOL = $(POCO_BASE)/OSP/BundleCreator/$(POCO_HOST_BINDIR)/bundle
-
 include $(POCO_BASE)/build/rules/global
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 objects = BundleAdmin BundleInstallHandler BundleListHandler \
 	BundleInfoHandler RequestHandler

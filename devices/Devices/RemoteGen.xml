@@ -3,6 +3,8 @@
 		<files>
 			<include>
 				include/IoT/Devices/Device.h
+				include/IoT/Devices/DeviceTree.h
+				include/IoT/Devices/Composite.h
 				include/IoT/Devices/Sensor.h
 				include/IoT/Devices/BooleanSensor.h
 				include/IoT/Devices/Counter.h
@@ -18,6 +20,14 @@
 				include/IoT/Devices/BarcodeReader.h
 				include/IoT/Devices/Switch.h
 				include/IoT/Devices/Camera.h
+				include/IoT/Devices/Datapoint.h
+				include/IoT/Devices/ScalarDatapoint.h
+				include/IoT/Devices/VectorDatapoint.h
+				include/IoT/Devices/BooleanDatapoint.h
+				include/IoT/Devices/CounterDatapoint.h
+				include/IoT/Devices/StringDatapoint.h
+				include/IoT/Devices/EnumDatapoint.h
+				include/IoT/Devices/FlagsDatapoint.h
 			</include>
 			<include-paths>
 				include
@@ -25,18 +35,18 @@
 		</files>
 		<output>
 			<namespace>IoT::Devices</namespace>
-			<include>include/IoT/Devices</include>
-			<src>src</src>
+			<include>skel/include/IoT/Devices</include>
+			<src>skel/src</src>
 			<copyright>Copyright (c) 2014-2022, Applied Informatics Software Engineering GmbH.
 			           All rights reserved.
 
-			           SPDX-License-Identifier: GPL-3.0-only</copyright>
+			           License: Applied Informatics Software and Source Code License Agreement</copyright>
 			<mode>server</mode>
 			<osp>
 				<enable>true</enable>
 			</osp>
 			<timestamps>false</timestamps>
-			<includeRoot>include</includeRoot>
+			<includeRoot>skel/include</includeRoot>
 			<flatIncludes>false</flatIncludes>
 		</output>
 	</RemoteGen>

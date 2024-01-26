@@ -21,6 +21,7 @@
 #include "Poco/Net/HTTPServerResponse.h"
 #include "Poco/Net/HTMLForm.h"
 #include "Poco/SharedPtr.h"
+#include "Poco/TemporaryFile.h"
 
 
 namespace Poco {
@@ -36,12 +37,25 @@ class JSServletExecutor: public JSExecutor
 	///   - request (Poco::Net::HTTPServerRequest wrapper)
 	///   - response (Poco::Net::HTTPServerResponse wrapper)
 	///   - form (Poco::Net::HTMLForm wrapper)
+	///   - uploads (Array with uploads; files in temporary directory)
 	///   - session (Poco::OSP::Web::WebSession wrapper)
 {
 public:
 	using Ptr = Poco::AutoPtr<JSServletExecutor>;
 
-	JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit);
+	struct UploadInfo: public Poco::RefCountedObject
+	{
+		using Ptr = Poco::AutoPtr<UploadInfo>;
+
+		Poco::Net::MessageHeader header;
+		std::string name;
+		std::string filename;
+		std::string contentType;
+		Poco::TemporaryFile file;
+		std::streamsize size;
+	};
+
+	JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit, Poco::UInt64 maxUploadSize, unsigned maxUploadCount);
 		/// Creates the ServletExecutor.
 
 	void prepareRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
@@ -54,11 +68,14 @@ protected:
 	void handleError(const ErrorInfo& errorInfo);
 
 private:
+	Poco::UInt64 _maxUploadSize;
+	unsigned _maxUploadCount;
 	Poco::Net::HTTPServerResponse* _pResponse;
 	Poco::SharedPtr<Poco::JS::Net::RequestHolder> _pRequestHolder;
 	Poco::SharedPtr<Poco::JS::Net::ResponseHolder> _pResponseHolder;
 	Poco::SharedPtr<Poco::Net::HTMLForm> _pForm;
 	Poco::SharedPtr<SessionHolder> _pSessionHolder;
+	std::vector<JSServletExecutor::UploadInfo::Ptr> _uploads;
 };
 
 

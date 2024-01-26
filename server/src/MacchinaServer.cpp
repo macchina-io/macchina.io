@@ -3,7 +3,7 @@
 //
 // The bundle container application for macchina.io
 //
-// Copyright (c) 2014, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2014-2024, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
 // SPDX-License-Identifier: GPL-3.0-only
@@ -18,11 +18,14 @@
 #include "Poco/Util/PropertyFileConfiguration.h"
 #include "Poco/OSP/OSPSubsystem.h"
 #include "Poco/OSP/ServiceRegistry.h"
+#include "Poco/OSP/BundleFilter.h"
 #include "Poco/DataURIStreamFactory.h"
+#include "Poco/StringTokenizer.h"
 #include "Poco/ErrorHandler.h"
 #include "Poco/Environment.h"
 #include "Poco/Format.h"
 #include "Poco/File.h"
+#include <set>
 #include <cstring>
 #include <iostream>
 
@@ -35,6 +38,7 @@ using Poco::Util::AbstractConfiguration;
 using Poco::Util::OptionCallback;
 using Poco::OSP::OSPSubsystem;
 using Poco::OSP::ServiceRegistry;
+using namespace std::string_literals;
 
 
 class MacchinaServer: public ServerApplication
@@ -89,21 +93,39 @@ protected:
 
 		void exception()
 		{
-			log("unknown exception");
+			log("unknown exception"s);
 		}
 
 		void log(const std::string& message)
 		{
-			_app.logger().notice("A thread was terminated by an unhandled exception: " + message);
+			_app.logger().notice("A thread was terminated by an unhandled exception: "s + message);
 		}
 
 	private:
 		MacchinaServer& _app;
 	};
 
+	class SkipBundleFilter: public Poco::OSP::BundleFilter
+	{
+	public:
+		SkipBundleFilter(const std::set<std::string>& symbolicNames):
+			_symbolicNames(symbolicNames)
+		{
+		}
+ 
+		// BundleFilter
+		bool accept(Poco::OSP::Bundle::Ptr pBundle)
+		{
+			return _symbolicNames.count(pBundle->symbolicName()) == 0;
+		}
+
+	private:
+		const std::set<std::string>& _symbolicNames;
+	};
+
 	std::string loadSettings()
 	{
-		std::string settingsPath = config().getString("macchina.settings.path", "");
+		std::string settingsPath = config().getString("macchina.settings.path"s, ""s);
 		if (!settingsPath.empty())
 		{
 			Poco::AutoPtr<Poco::Util::PropertyFileConfiguration> pSettings;
@@ -116,7 +138,7 @@ protected:
 			{
 				pSettings = new Poco::Util::PropertyFileConfiguration;
 			}
-			config().add(pSettings, "macchina.settings", Poco::Util::Application::PRIO_DEFAULT, true);
+			config().add(pSettings, "macchina.settings"s, Poco::Util::Application::PRIO_DEFAULT, true);
 		}
 		return settingsPath;
 	}
@@ -141,11 +163,14 @@ protected:
 
 		std::string settingsPath = loadSettings();
 
+		skipBundles(config().getString("osp.skipBundles"s, ""s));
+		_pOSP->setBundleFilter(new SkipBundleFilter(_skippedBundles));
+
 		ServerApplication::initialize(self);
 
 		if (!settingsPath.empty() && !_showHelp)
 		{
-			logger().information("Settings loaded from \"%s\".", settingsPath);
+			logger().information("Settings loaded from \"%s\"."s, settingsPath);
 		}
 
 		if (!_showHelp)
@@ -167,10 +192,10 @@ protected:
 				"\n"
 				"    macchina.io EDGE Server\n"
 				"\n"
-				"    Copyright (c) 2015-2022 by Applied Informatics Software Engineering GmbH.\n"
-				"    All rights reserved.\n"
+				"    Copyright (c) 2015-2024 by Applied Informatics Software Engineering GmbH.\n"
+				"    All rights reserved.\n"s
 			);
-			logger().information("System information: %s (%s) on %s, %u CPU core(s).",
+			logger().information("System information: %s (%s) on %s, %u CPU core(s)."s,
 				Poco::Environment::osDisplayName(),
 				Poco::Environment::osVersion(),
 				Poco::Environment::osArchitecture(),
@@ -183,23 +208,30 @@ protected:
 		ServerApplication::defineOptions(options);
 
 		options.addOption(
-			Option("help", "h", "Display help information on command line arguments.")
+			Option("help"s, "h"s, "Display help information on command line arguments."s)
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<MacchinaServer>(this, &MacchinaServer::handleHelp)));
 
 		options.addOption(
-			Option("config-file", "c", "Load configuration data from a file.")
+			Option("config-file"s, "c"s, "Load configuration data from a file."s)
 				.required(false)
 				.repeatable(true)
-				.argument("file")
+				.argument("file"s)
 				.callback(OptionCallback<MacchinaServer>(this, &MacchinaServer::handleConfig)));
 
 		options.addOption(
-			Option("skip-default-config", "", "Don't load default configuration file.")
+			Option("skip-default-config"s, ""s, "Don't load default configuration file."s)
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<MacchinaServer>(this, &MacchinaServer::handleSkipDefaultConfig)));
+
+		options.addOption(
+			Option("skip-bundle"s, "s"s, "Skip (do not load) the bundle(s) with the given (comma-separated) symbolic name(s)."s)
+				.required(false)
+				.repeatable(true)
+				.argument("symbolicNames"s)
+				.callback(OptionCallback<MacchinaServer>(this, &MacchinaServer::handleSkipBundle)));
 	}
 
 	void handleHelp(const std::string& name, const std::string& value)
@@ -220,21 +252,32 @@ protected:
 		_skipDefaultConfig = true;
 	}
 
+	void handleSkipBundle(const std::string& name, const std::string& value)
+	{
+		skipBundles(value);
+	}
+
+	void skipBundles(const std::string& symbolicNames)
+	{
+		Poco::StringTokenizer tok(symbolicNames, ",;"s, Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
+		_skippedBundles.insert(tok.begin(), tok.end());
+	}
+
 	void displayHelp()
 	{
 		HelpFormatter helpFormatter(options());
 		helpFormatter.setCommand(commandName());
-		helpFormatter.setUsage("OPTIONS");
+		helpFormatter.setUsage("OPTIONS"s);
 		helpFormatter.setHeader(
 			"\n"
 			"The macchina.io EDGE Server.\n"
-			"Copyright (c) 2015-2020 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2015-2024 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
-			"The following command line options are supported:"
+			"The following command line options are supported:"s
 		);
 		helpFormatter.setFooter(
 			"For more information, please see the macchina.io "
-			"documentation at <https://macchina.io/docs>."
+			"documentation at <https://macchina.io/docs>."s
 		);
 		helpFormatter.setIndent(8);
 		helpFormatter.format(std::cout);
@@ -255,6 +298,7 @@ private:
 	bool _showHelp = false;
 	bool _skipDefaultConfig = false;
 	std::vector<std::string> _configs;
+	std::set<std::string> _skippedBundles;
 };
 
 

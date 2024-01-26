@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>POCO Data ODBC Connector</name>
+    <symbolicName>poco.data.odbc</symbolicName>
+    <version>1.11.8</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2007-2024, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>ODBCBundleActivator</class>
+      <library>poco.data.odbc</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>000</runLevel>
+    <dependency>
+      <symbolicName>poco.data</symbolicName>
+      <version>1.11.8</version>
+    </dependency>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../../${bin}/PocoDataODBC${64}.dll,
+    ../../../${bin}/PocoDataODBC${64}d.dll,
+    ../../../${bin}/PocoDataODBC${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../../lib/${osName}/${osArch}/libPocoDataODBC.so.*,
+    ../../../lib/${osName}/${osArch}/libPocoDataODBCd.so.*,
+    ../../../lib/${osName}/${osArch}/libPocoDataODBC.*.dylib,
+    ../../../lib/${osName}/${osArch}/libPocoDataODBCd.*.dylib
+  </code>
+</bundlespec>

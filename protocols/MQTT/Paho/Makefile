@@ -9,13 +9,13 @@ include $(POCO_BASE)/build/rules/global
 SYSLIBS += -lssl -lcrypto
 
 ifeq ($(OSNAME),Darwin)
-CFLAGS += -DOSX -Wno-deprecated-declarations
+EXTRA_CFLAGS += -DOSX -Wno-deprecated-declarations
 endif
 ifeq ($(OSNAME),Linux)
-CFLAGS += -D_DEFAULT_SOURCE
+EXTRA_CFLAGS += -D_DEFAULT_SOURCE
 endif
 
-CFLAGS += -DOPENSSL 
+EXTRA_CFLAGS += -DOPENSSL 
 
 objects = \
 	Base64 \
@@ -36,6 +36,7 @@ objects = \
 	MQTTTime \
 	MQTTVersion \
 	OsWrapper \
+	Proxy \
 	SHA1 \
 	Socket \
 	SocketBuffer \

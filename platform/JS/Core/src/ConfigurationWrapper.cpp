@@ -263,7 +263,7 @@ void ConfigurationWrapper::keys(const v8::FunctionCallbackInfo<v8::Value>& args)
 		{
 			for (unsigned i = 0; i < static_cast<unsigned>(keys.size()); i++)
 			{
-				(void) keysArray->Set(context, i, toV8String(pIsolate, keys[i]));
+				V8_CHECK_SET_RESULT(keysArray->Set(context, i, toV8String(pIsolate, keys[i])));
 			}
 		}
 		args.GetReturnValue().Set(keysArray);

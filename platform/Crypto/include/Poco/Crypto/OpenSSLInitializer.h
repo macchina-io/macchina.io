@@ -68,6 +68,9 @@ public:
 	static void enableFIPSMode(bool enabled);
 		/// Enable or disable FIPS mode. If FIPS is not available, this method doesn't do anything.
 
+	static bool haveLegacyProvider();
+		/// Returns true if the OpenSSL 3.x legacy provider is available, otherwise false.
+
 protected:
 	enum
 	{
@@ -109,6 +112,7 @@ inline bool OpenSSLInitializer::isFIPSEnabled()
 #endif
 }
 
+
 #ifdef OPENSSL_FIPS
 inline void OpenSSLInitializer::enableFIPSMode(bool enabled)
 {
@@ -119,6 +123,16 @@ inline void OpenSSLInitializer::enableFIPSMode(bool /*enabled*/)
 {
 }
 #endif
+
+
+inline bool OpenSSLInitializer::haveLegacyProvider()
+{
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+	return _legacyProvider != nullptr;
+#else
+	return false;
+#endif
+}
 
 
 } } // namespace Poco::Crypto

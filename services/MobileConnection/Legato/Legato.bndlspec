@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.services.mobileconnection.legato</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2017-2022, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2017-2024, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::MobileConnection::Legato::BundleActivator</class>
 			<library>io.macchina.services.mobileconnection.legato</library>
@@ -20,7 +20,4 @@
 		bin/${osName}/${osArch}/*.so,
 		bin/${osName}/${osArch}/*.dylib,
 	</code>
-	<files>
-		bundle/*
-	</files>
 </bundlespec>

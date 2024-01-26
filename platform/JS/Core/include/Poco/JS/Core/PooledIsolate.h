@@ -34,6 +34,11 @@ class JSCore_API PooledIsolate
 public:
 	using Pool = Poco::ObjectPool<PooledIsolate>;
 
+	enum
+	{
+		MINIMUM_MEMORY_LIMIT = 8*1024*1024
+	};
+
 	explicit PooledIsolate(Poco::UInt64 memoryLimit);
 		/// Creates the PooledIsolate with the given memoryLimit.
 

@@ -23,15 +23,17 @@ bundlesServices.service('BundleService', ['$http',
           symbolicName: symbolicName
         }
       })
-      .success(function(data) {
-        if (data.error == "")
-          onsuccess(data.bundleState);
-        else
-          onfailure(data.error);
-      })
-      .error(function() {
-        onfailure("Server request failed.");
-      });
+      .then(
+        function(response) {
+          if (response.data.error == "")
+            onsuccess(response.data.bundleState);
+          else
+            onfailure(responsedata.error);
+        },
+        function() {
+          onfailure("Server request failed.");
+        }
+      );
     };
 
     this.start = function(bundle, onsuccess, onfailure) {

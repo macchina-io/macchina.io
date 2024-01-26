@@ -111,6 +111,7 @@ void AbstractGenerator::structEnd()
 Poco::CppParser::Function* AbstractGenerator::methodClone(const Poco::CppParser::Function* pFuncOld, const CodeGenerator::Properties& properties)
 {
 	poco_assert_dbg (_pStruct && _pStructIn);
+
 	// simply copy the method signature, just update docu
 	// note that a decl contains only the string up to method, no params!
 	std::string decl;
@@ -421,18 +422,41 @@ void AbstractGenerator::handleIncludeTypeSerializers(const std::string& simpleTy
 			pSym = _pStructIn->lookup(resType);
 		if (cfg.hasProperty("RemoteGen.output.includeRoot"))
 		{
-			Poco::StringTokenizer tok(resType, "::", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
-			Poco::Path incDir(cfg.getString("RemoteGen.output.include"));
-			Poco::Path rootDir(cfg.getString("RemoteGen.output.includeRoot"));
-			incDir.makeDirectory();
-			rootDir.makeDirectory();
-			incDir.makeAbsolute();
-			rootDir.makeAbsolute();
-			std::string incl = incDir.toString(Poco::Path::PATH_UNIX);
-			std::string root = rootDir.toString(Poco::Path::PATH_UNIX);
-			if (root.size() > incl.size() || root.compare(0, root.size(), incl, 0, root.size()) != 0)
-				throw Poco::InvalidArgumentException("The path specified in <includeRoot> must be a parent of the one in <include>", root);
-			incl = incl.substr(root.size());
+			std::string nameSpace;
+			if (pSym) 
+			{
+				nameSpace = pSym->nameSpace()->fullName();
+			}
+			else
+			{
+				std::string::size_type pos = resType.rfind("::");
+				if (pos != std::string::npos)
+				{
+					nameSpace.assign(resType, 0, pos);
+				}
+			}
+			std::string includeBase = cfg.getString(Poco::format("RemoteGen.output.includePrefix[@namespace=%s]", nameSpace), "");
+			if (includeBase.empty())
+			{
+				Poco::Path incDir(cfg.getString("RemoteGen.output.include"));
+				Poco::Path rootDir(cfg.getString("RemoteGen.output.includeRoot"));
+				incDir.makeDirectory();
+				rootDir.makeDirectory();
+				incDir.makeAbsolute();
+				rootDir.makeAbsolute();
+				std::string incl = incDir.toString(Poco::Path::PATH_UNIX);
+				std::string root = rootDir.toString(Poco::Path::PATH_UNIX);
+				if (root.size() > incl.size() || root.compare(0, root.size(), incl, 0, root.size()) != 0)
+					throw Poco::InvalidArgumentException("The path specified in <includeRoot> must be a parent of the one in <include>", root);
+				includeBase = incl.substr(root.size());
+			}
+			else
+			{
+				if (includeBase.back() != '/')
+				{
+					includeBase += '/';
+				}
+			}
 			std::string serType;
 			std::string deserType;
 			Poco::CppParser::Struct* pStruct = dynamic_cast<Poco::CppParser::Struct*>(pSym);
@@ -464,9 +488,9 @@ void AbstractGenerator::handleIncludeTypeSerializers(const std::string& simpleTy
 				}
 			}
 			if (!serType.empty())
-				handleIncludeFile(incl+serType+Utility::HFILEEXTENSION, toHFile, writeDirectly);
+				handleIncludeFile(includeBase+serType+Utility::HFILEEXTENSION, toHFile, writeDirectly);
 			if (!deserType.empty())
-				handleIncludeFile(incl+deserType+Utility::HFILEEXTENSION, toHFile, writeDirectly);
+				handleIncludeFile(includeBase+deserType+Utility::HFILEEXTENSION, toHFile, writeDirectly);
 			return;
 		}
 		Poco::CppParser::Struct* pStruct = dynamic_cast<Poco::CppParser::Struct*>(pSym);
@@ -593,20 +617,12 @@ void AbstractGenerator::handleIncludeTypes(const Poco::CppParser::Parameter* pPa
 
 void AbstractGenerator::handleIncludeFile(const std::string& iFile, bool toHFile, bool writeDirectly)
 {
-	bool flat = false;
 	std::string incFile = iFile;
 	Poco::Util::LayeredConfiguration& cfg = Poco::Util::Application::instance().config();
-	if (cfg.hasProperty("RemoteGen.output.flatIncludes"))
+	bool flat = cfg.getBool("RemoteGen.output.flatIncludes", false);
+	if (flat)
 	{
-		flat = cfg.getBool("RemoteGen.output.flatIncludes");
-		if (flat)
-			incFile = Poco::CodeGeneration::Utility::createInclude(iFile, true);
-	}
-	else if (cfg.hasProperty("RemoteGen.output.flatincludes"))
-	{
-		flat = cfg.getBool("RemoteGen.output.flatincludes");
-		if (flat)
-			incFile = Poco::CodeGeneration::Utility::createInclude(iFile, true);
+		incFile = Poco::CodeGeneration::Utility::createInclude(iFile, true);
 	}
 	if (toHFile)
 	{
@@ -627,6 +643,9 @@ void AbstractGenerator::handleIncludeFile(const std::string& iFile, bool toHFile
 
 std::string AbstractGenerator::resolveType(const std::string& in)
 {
+	static int recursionCount = 0;
+	Poco::CodeGeneration::RecursionGuard recursionGuard(recursionCount, Poco::RuntimeException("Recursion limit reached resolving type", in));
+
 	std::string decl(in);
 	Poco::CppParser::Symbol* pSym = _pStructIn->lookup(in);
 	if (pSym)

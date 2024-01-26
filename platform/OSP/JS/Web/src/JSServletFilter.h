@@ -46,6 +46,10 @@ private:
 	std::vector<std::string> _moduleSearchPaths;
 	Poco::UInt64 _memoryLimit;
 	bool _hasFilterMemoryLimit;
+	Poco::UInt64 _maxUploadSize;
+	bool _hasMaxUploadSize;
+	unsigned _maxUploadCount;
+	bool _hasMaxUploadCount;
 };
 
 

@@ -37,7 +37,9 @@ public:
 	using Ptr = Poco::SharedPtr<UDPEndpointImpl>;
 
 	UDPEndpointImpl(const Poco::Net::SocketAddress& addr);
-		/// Creates the UDPEndpointImpl using the given socket address.
+		/// Creates the UDPEndpointImpl using the given local socket address.
+		///
+		/// The endpoint's socket is bound to the given address.
 
 	~UDPEndpointImpl();
 		/// Destroys the UDPEndpointImpl.
@@ -53,6 +55,7 @@ public:
 
 	// UDPEndpoint
 	EndpointAddress address() const;
+	Poco::Nullable<EndpointAddress> remoteAddress() const;
 	void sendPacket(const std::vector<char>& payload, const EndpointAddress& destination);
 
 protected:

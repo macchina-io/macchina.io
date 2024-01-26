@@ -14,17 +14,20 @@
 #include "Poco/NumberFormatter.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Tf {
 
 
 GNSSSensor::GNSSSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.gnss", "Tinkerforge GPS Bricklet", "io.macchina.gnss"),
+	BrickletType("io.macchina.tf.gnss"s, "Tinkerforge GPS Bricklet"s, "io.macchina.gnss"s),
 	_positionAvailable(false)
 {
-	addProperty("displayValue", &GNSSSensor::getDisplayValue);
-	addProperty("positionChangedPeriod", &GNSSSensor::getPositionChangedPeriod, &GNSSSensor::setPositionChangedPeriod);
-	addProperty("positionChangedDelta", &GNSSSensor::getPositionChangedDelta, &GNSSSensor::setPositionChangedDelta);
+	addProperty("displayValue"s, &GNSSSensor::getDisplayValue);
+	addProperty("positionChangedPeriod"s, &GNSSSensor::getPositionChangedPeriod, &GNSSSensor::setPositionChangedPeriod);
+	addProperty("positionChangedDelta"s, &GNSSSensor::getPositionChangedDelta, &GNSSSensor::setPositionChangedDelta);
 
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	gps_create(&_gps, uid.c_str(), ipcon);
@@ -213,11 +216,11 @@ Poco::Any GNSSSensor::getDisplayValue(const std::string&) const
 	if (positionAvailable())
 	{
 		IoT::Devices::LatLon latLon = position();
-		std::string value = Poco::format("%02.6f,%03.6f", latLon.latitude, latLon.longitude);
+		std::string value = Poco::format("%02.6f,%03.6f"s, latLon.latitude, latLon.longitude);
 		double knots = speed();
-		if (knots >= 0) Poco::format(value, " %.2f kn", knots);
+		if (knots >= 0) Poco::format(value, " %.2f kn"s, knots);
 		double degrees = course();
-		if (degrees >= 0) Poco::format(value, " %.1f°", degrees);
+		if (degrees >= 0) Poco::format(value, " %.1f°"s, degrees);
 		return value;
 	}
 	else return std::string("n/a");

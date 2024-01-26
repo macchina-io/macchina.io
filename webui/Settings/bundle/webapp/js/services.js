@@ -9,15 +9,17 @@ settingsServices.service('SettingsService', ['$http',
         method: "GET", 
         url: "/macchina/settings/properties.json"
       })
-      .success(function(data) {
-        if (typeof data == "object")
-          onsuccess(data);
-        else
-          onfailure(data.error);
-      })
-      .error(function() {
-        onfailure("Server request failed.");
-      });
+      .then(
+        function(response) {
+          if (typeof response.data == "object")
+            onsuccess(response.data);
+          else
+            onfailure(response.data.error);
+        },
+        function() {
+          onfailure("Server request failed.");
+        }
+      );
     };
     
     this.save = function(props, onsuccess, onfailure) {
@@ -29,15 +31,17 @@ settingsServices.service('SettingsService', ['$http',
         },
         data: props
       })
-      .success(function(data) {
-        if (!data.error)
-          onsuccess(data);
-        else
-          onfailure(data.error);
-      })
-      .error(function() {
-        onfailure("Server request failed.");
-      });
+      .then(
+        function(response) {
+          if (!response.data.error)
+            onsuccess(response.data);
+          else
+            onfailure(response.data.error);
+        },
+        function() {
+          onfailure("Server request failed.");
+        }
+      );
     };
   }
 ]);

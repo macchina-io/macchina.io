@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.gnss.nmea</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2015-2022, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2015-2024, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::GNSS::BundleActivator</class>
 			<library>io.macchina.gnss.nmea</library>
@@ -28,7 +28,4 @@
     	../../lib/${osName}/${osArch}/libIoTGNSSNMEA*.1.dylib,
     	../../lib/${osName}/${osArch}/libIoTGNSSNMEA*.so.1
 	</code>
-	<files>
-		bundle/*
-	</files>
 </bundlespec>

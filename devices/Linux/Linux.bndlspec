@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.linux</symbolicName>
 		<version>1.0.1</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2015-2022, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2015-2024, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::Linux::BundleActivator</class>
 			<library>io.macchina.linux</library>
@@ -22,7 +22,4 @@
 		bin/${osName}/${osArch}/*.so,
 		bin/${osName}/${osArch}/*.dylib,
 	</code>
-	<files>
-		bundle/*
-	</files>
 </bundlespec>

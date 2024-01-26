@@ -171,6 +171,8 @@ protected:
 	static void writeHTML(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void htmlize(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void send(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void sendFile(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void redirect(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 	friend class HTTPRequestWrapper;
 };

@@ -22,6 +22,7 @@
 #include "Poco/CppParser/Symbol.h"
 #include "Poco/CppParser/Struct.h"
 #include "Poco/CppParser/Parameter.h"
+#include "Poco/Exception.h"
 #include <vector>
 
 
@@ -86,6 +87,7 @@ public:
 	static const std::string CONTENT_TYPE;
 	static const std::string PERMISSION;
 	static const std::string AUTHENTICATED;
+	static const std::string LENGTH;
 
 	static const std::string VAL_TRUE;
 	static const std::string VAL_FALSE;
@@ -173,6 +175,25 @@ private:
 	~Utility();
 	Utility& operator = (const Utility&);
 	Utility(const Utility&);
+};
+
+
+class RecursionGuard
+{
+public:
+	RecursionGuard(int& counter, const Poco::Exception& exc = Poco::RuntimeException("Recursion limit reached"), int limit = 50):
+		_c(counter)
+	{
+		if (++_c >= limit) throw exc;
+	}
+
+	~RecursionGuard()
+	{
+		--_c;
+	}
+
+private:
+	int& _c;
 };
 
 

@@ -1,10 +1,12 @@
 //
 // BundleTest.cpp
 //
-// Copyright (c) 2011-2014, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2011, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: GPL-3.0-only
+// This is unpublished proprietary source code of Applied Informatics.
+// The contents of this file may not be disclosed to third parties, 
+// copied or duplicated in any form, in whole or in part.
 //
 
 
@@ -76,7 +78,7 @@ void BundleTest::tearDown()
 CppUnit::Test* BundleTest::suite()
 {
 	CppUnit::TestSuite* pSuite = new CppUnit::TestSuite("BundleTest");
-
+	
 	OSPUnit_addTest(pSuite, BundleTest, testSetUp);
 	OSPUnit_addTest(pSuite, BundleTest, testSuccess);
 	OSPUnit_addTest(pSuite, BundleTest, testError);

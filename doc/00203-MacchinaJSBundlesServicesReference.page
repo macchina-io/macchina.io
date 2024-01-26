@@ -1,0 +1,360 @@
+JavaScript Bundles and Services API Reference
+AAAAMacchinaIO
+
+!!!The bundleContext Object
+
+The global <[bundleContext]> object gives a script (including servlet or server page)
+access to its bundle environment.
+
+
+!!bundleContext Properties
+
+The <[bundleContext]> object has the following read-only properties:
+
+!thisBundle
+
+Returns the bundle object for the bundle containing the current script.
+
+
+!temporaryDirectory
+
+The path to the script bundle's directory for storing
+temporary data. This directory is cleared whenever the bundle stops.
+
+
+!persistentDirectory
+
+The path to the script bundle's directory for storing persistent data.
+
+
+!!bundleContext Methods
+
+The <[bundleContext]> object has the following methods:
+
+!findBundle(symbolicNameOrId)
+
+Returns the bundle object for the bundle with the given symbolic name or
+numeric ID, or null if no such bundle exists.
+
+
+!listBundles()
+
+Returns an array with bundle objects for all bundles known to the application.
+
+
+!!!The bundle Object
+
+The global <[bundle]> object gives a script (including servlet or server page)
+access to some properties of its bundle.
+
+
+!!bundle Properties
+
+The <[bundle]> object has the following read-only properties:
+
+!name
+
+The name of the bundle.
+
+
+!symbolicName
+
+The symbolic name of the bundle.
+
+
+!version
+
+The version of the bundle.
+
+
+!vendor
+
+The vendor of the bundle.
+
+
+!copyright
+
+The copyright notice of the bundle.
+
+
+!path
+
+The path of the bundle.
+
+
+!runLevel
+
+The run level of the bundle.
+
+
+!state
+
+The state of the bundle as string. Possible values are:
+
+  * installed
+  * uninstalled
+  * resolved
+  * starting
+  * active
+  * stopping
+
+
+!active
+
+Returns `true` if the bundle is active, otherwise `false`.
+
+
+!lazyStart
+
+The bundle's `lazyStart` flag (boolean).
+
+
+!sealed
+
+The bundle's `sealed` flag (boolean).
+
+
+!preventUninstall
+
+The bundle's `preventUninstall` flag (boolean).
+
+
+!requiredBundles
+
+An array containing the names and version ranges of all bundles required by
+this bundle. The returned array contains objects with the following properties:
+
+  * `symbolicName` - symbolic name of the required bundle
+  * `versions` - required version range
+
+
+!requiredModules
+
+An array containing the names and version ranges of all modules required by
+this bundle. The returned array contains objects with the following properties:
+
+  * `symbolicName` - symbolic name of the required module
+  * `versions` - required version range
+
+
+!providedModules
+
+An array containing the names and version numbers of all modules provided by
+this bundle. The returned array contains objects with the following properties:
+
+  * `symbolicName` - symbolic name of the provided module
+  * `version` - provided module version
+
+
+!temporaryDirectory (deprecated)
+
+The path to the bundle's directory for storing
+temporary data. This directory is cleared whenever the bundle stops.
+
+This property has been deprecated. Use `bundleContext.temporaryDirectory` instead.
+
+
+!persistentDirectory (deprecated)
+
+The path to the bundle's directory for storing persistent data.
+
+This property has been deprecated. Use `bundleContext.persistentDirectory` instead.
+
+
+!properties
+
+A Configuration object for accessing the bundle's properties defined in the
+bundles' "bundle.properties" file.
+This is only available in the global, own `bundle` object.
+
+
+!!bundle Methods
+
+The <[bundle]> object has the following methods:
+
+
+!getResourceString(path)
+
+Returns a string containing the contents of the file stored in the bundle with the
+given path. Will only work for files containing text, as the contents of the file
+are stored in a string.
+
+
+!getResourceBuffer(path)
+
+Returns a Buffer containing the contents of the file stored in the bundle with the
+given path.
+
+
+!getLocalizedResourceString(path [, language])
+
+Returns a string containing the contents of the localized file stored in the bundle with the
+given path. Will only work for files containing text, as the contents of the file
+are stored in a string. An optional RFC 1766 language tag string (e.g., "en-US") can be specified.
+See the Poco::OSP::LanguageTag class for more information.
+
+
+!getLocalizedResourceBuffer(path [, language])
+
+Returns a Buffer containing the contents of the localized file stored in the bundle with the
+given path. An optional RFC 1766 language tag string (e.g., "en-US") can be specified.
+See the Poco::OSP::LanguageTag class for more information.
+
+
+!equals(bundle)
+
+Returns true if this and the bundle object given in the argument refer to the same bundle,
+otherwise false.
+
+
+!!!The serviceRegistry Object
+
+The global <[serviceRegistry]> object gives access to the OSP Service Registry.
+In macchina.io EDGE, all sensors and devices are available as services through
+the service registry.
+
+!!serviceRegistry Methods
+
+The <[serviceRegistry]> object supports the following methods:
+
+
+!find(query)
+
+Looks up the service with the properties specified in the query.
+Returns an array of ServiceRef objects containing references to
+all services matching the query.
+
+To obtain the actual service object, the <[instance()]> method of
+the corresponding ServiceRef object must be called.
+
+The query language is similar to JavaScript or C++ expressions and supports comparison (==, !=,
+<, <=, >, >=), regular expression matching (=~) and logical and/or operations
+(&&, ||).
+Subexpressions can be grouped with parenthesis. The data types string, integer, float and boolean are
+supported. The simplified syntax for the query language is given in the following.
+
+  expr          ::= andExpr ["||" andExpr]
+  andExpr       ::= relExpr ["&&" relExpr]
+  relExpr       ::= ["!"] (id [relOp value | "=~" matchExpr]) | subExpr
+  subExpr       ::= "(" expr ")"
+  relOp         ::= "==" | "!=" | "<" | "<=" | ">" | ">="
+  value         ::= numLiteral | boolLiteral | stringLiteral
+  numLiteral    ::= [sign] digit*"."digit*["E"["+" | "-"]digit*]
+  boolLiteral   ::= "true" | "false"
+  stringLiteral ::= '"' char* '"'
+  matchExpr     ::= stringLiteral | regExpr
+  regExpr       ::= delim char+ delim /* valid Perl regular expression,
+                                         enclosed in delim */
+  delim         ::= "/" | "#"
+----
+
+Examples for valid queries are given in the following:
+  * <[name == "com.appinf.osp.sample.service"]> -- a simple string comparison for equality.
+  * <[majorVersion > 1 && minorVersion >= 5]> -- numeric comparisons and logical AND.
+  * <[name =~ "com.appinf.osp.*" && someProperty]> -- simple pattern matching and test for existence of <[someProperty]>.
+  * <[someProperty =~ /[0-9]+/]> -- regular expression matching.
+
+
+!findByName(name)
+
+Looks up the service with the given name. If found, returns a
+ServiceRef object for it, otherwise returns null.
+
+To obtain the actual service object, the <[instance()]> method of
+the corresponding ServiceRef object must be called.
+
+
+!createListener(query, registeredCallback, unregisteredCallback)
+
+Creates and returns a new ServiceListener object that listens for status changes
+of services matching the given query. The query language is the same as for
+<[find()]>. Two callback functions must be provided as arguments. The first one
+will be called when a new service matching the query is registered. It will also be
+called after calling <[createListener()]> for already registered services matching
+the query. The second callback function will be called when a service matching
+the query is unregistered. Both callback functions will receive a ServiceRef object
+representing the respective service as argument.
+
+
+!!!ServiceListener Objects
+
+ServiceListener objects only expose a single method, <[dispose()]>. It can be used
+to tell the ServiceListener that it's no longer needed and should stop listening
+for service status changes. After calling <[dispose()]>, the callback functions
+will no longer be called.
+
+
+!!!ServiceRef Objects
+
+ServiceRef objects have two methods. The first one, <[instance()]>, returns the
+underlying service object. Note that not all service objects are accessible
+from JavaScript. Only service objects implemented using the Remoting-based
+bridging mechanism are accessible from JavaScript. An attempt to call
+<[instance()]> for a service object not accessible from JavaScript will result
+in an exception.
+The second method is <[equals()]>, which takes nother ServiceRef object as argument
+and returns true if both refer to the same service, otherwise false.
+
+
+!!!Using Services
+
+After a service object has been obtained by calling the `instance()` method of
+its `ServiceRef` object, the methods of the service can be called, and any
+events the service provides can be subscribed to.
+
+!!Calling Service Methods
+
+Service methods can be called like any other method in JavaScript. 
+For a description of the methods provided by a service, please refer
+to the C++ reference documentation.
+
+Note: the method `on()` is reserved for subscribing to service events.
+If a service provides a regular method named `on()`, this service
+method can be called from JavaScript by using the method name
+`__on()` (two leading underscores).
+
+Example:
+
+    const ledRef = serviceRegistry.findByName('io.macchina.linux.led#status');
+    if (ledRef)
+    {
+        var led = ledRef.instance();
+        led.__on();
+    }
+----
+
+IoT::Devices::LED offers a method `on()` to turn on the LED. In order to call
+this method from JavaScript, `__on()` must be used, as `on()` is reserved for
+subscribing to events.
+
+!!Subscribing to Service Events
+
+Some services provide event notifications about changes to the state or other information.
+
+For example, the `Sensor` and `ScalarDatapoint` interfaces support the `valueChanged` event, which is triggered
+whenever the value changes.
+
+The following JavaScript example shows how to handle the `valueChanged` event.
+
+    const temperatureRefs = serviceRegistry.find('io.macchina.deviceType == "io.macchina.sensor" && io.macchina.physicalQuantity == "temperature"');
+    if (temperatureRefs.length > 0)
+    {
+        var temperature = temperatureRefs[0].instance();
+        temperature.on('valueChanged', ev => {
+          console.log('Temperatue changed: %f', ev.data.value);
+        });
+    }
+----
+
+The `on()` method of the service object is used to set an event handler for that specific event.
+The event handler function receives a single event parameter. The event parameter has a single
+property, `data`, which contains the actual event data (specific to the respective event).
+
+To remove an event handler, call `on()` with the second parameter set to `null`.
+
+<!Important!>: When subscribing to an event, make sure that the object that provides
+the event is protected from the JavaScript garbage collector. This is typically done by
+storing the object in a global variable. Subscribing to an event on an object
+stored in a local variable (in a function or block) declared with `let` or `const` will 
+typically work for some time, until the garbage collector decides to remove the object. 
+After this, no further events will be delivered.

@@ -279,6 +279,15 @@ Note that inlining cannot be combined with attributes, only with elements. Furth
 are permitted in the method signature if the <[inline]> attribute is specified.
 
 
+!!length
+The `length` property is used by some transports in the serialization of sequences 
+(vectors, arrays, lists, etc.). It can be set to specify a fixed length for a
+sequence which allows an optimized serialization of the sequence, leaving out
+the length indication at the beginning.
+  * level: parameter/variable
+  * type: integer or string (depending on transport)
+  
+
 !!mandatory
 Defines if a parameter or member variable is mandatory or optional. Valid on parameters and member variables.
 Only evaluated during deserialization.

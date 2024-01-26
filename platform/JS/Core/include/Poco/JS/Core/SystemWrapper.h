@@ -42,6 +42,7 @@ public:
 		
 protected:
 	static void exec(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void execAsync(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void sleep(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void get(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void has(const v8::FunctionCallbackInfo<v8::Value>& args);

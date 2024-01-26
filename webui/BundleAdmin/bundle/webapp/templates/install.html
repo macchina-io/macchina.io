@@ -1,11 +1,11 @@
 <div class="groupbox">
   <h1>Install Bundle</h1>
-    <div ng-file-drop ng-file-select ng-model="files" class="drop-box" 
-         drag-over-class="dragover" ng-multiple="false" allow-dir="false"
-         ng-accept="'.bndl'">
+    <div ngf-drop ngf-select ng-model="files" class="drop-box" 
+         drag-over-class="dragover" ngf-multiple="false" ngf-allow-dir="false"
+         ngf-accept="'.bndl'">
       Drop bundle (.bndl) file or click to upload and install.
     </div>
-    <div ng-no-file-drop>File drag/drop is not supported for this browser.</div>
+    <div ngf-no-file-drop>File drag/drop is not supported for this browser.</div>
     <div ng-if="status != ''">
       <img src="/macchina/bundles/images/loading.gif" style="vertical-align: middle" alt="">
       {{status}}

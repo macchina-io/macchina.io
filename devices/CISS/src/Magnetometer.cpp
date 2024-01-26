@@ -15,6 +15,9 @@
 #include "Poco/Format.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace CISS {
 
@@ -31,14 +34,14 @@ Magnetometer::Magnetometer(Node& node):
 	_ready(false),
 	_deviceIdentifier(node.id())
 {
-	addProperty("displayValue", &Magnetometer::getDisplayValue);
-	addProperty("enabled", &Magnetometer::getEnabled, &Magnetometer::setEnabled);
-	addProperty("samplingInterval", &Magnetometer::getSamplingInterval, &Magnetometer::setSamplingInterval);
-	addProperty("connected", &Magnetometer::getConnected);
-	addProperty("deviceIdentifier", &Magnetometer::getDeviceIdentifier);
-	addProperty("symbolicName", &Magnetometer::getSymbolicName);
-	addProperty("name", &Magnetometer::getName);
-	addProperty("type", &Magnetometer::getType);
+	addProperty("displayValue"s, &Magnetometer::getDisplayValue);
+	addProperty("enabled"s, &Magnetometer::getEnabled, &Magnetometer::setEnabled);
+	addProperty("samplingInterval"s, &Magnetometer::getSamplingInterval, &Magnetometer::setSamplingInterval);
+	addProperty("connected"s, &Magnetometer::getConnected);
+	addProperty("deviceIdentifier"s, &Magnetometer::getDeviceIdentifier);
+	addProperty("symbolicName"s, &Magnetometer::getSymbolicName);
+	addProperty("name"s, &Magnetometer::getName);
+	addProperty("type"s, &Magnetometer::getType);
 }
 
 
@@ -100,7 +103,7 @@ void Magnetometer::setSamplingInterval(const std::string&, const Poco::Any& valu
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	int interval = Poco::AnyCast<int>(value);
-	if (interval < 0) throw Poco::InvalidArgumentException("samplingInterval");
+	if (interval < 0) throw Poco::InvalidArgumentException("samplingInterval"s);
 
 	if (interval != _samplingInterval)
 	{
@@ -121,9 +124,9 @@ Poco::Any Magnetometer::getDisplayValue(const std::string&) const
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	if (_ready && _enabled)
-		return Poco::format("x=%.3f y=%.3f z=%.3f", _fieldStrength.x, _fieldStrength.y, _fieldStrength.z);
+		return Poco::format("x=%.3f y=%.3f z=%.3f"s, _fieldStrength.x, _fieldStrength.y, _fieldStrength.z);
 	else
-		return std::string("n/a");
+		return "n/a"s;
 }
 
 

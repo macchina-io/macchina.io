@@ -2,7 +2,7 @@
 // PDUWriter.h
 //
 // Library: IoT/Modbus
-// Package: ModbusMaster
+// Package: ModbusCore
 // Module:  PDUWriter
 //
 // Definition of the PDUWriter class.
@@ -51,6 +51,19 @@ public:
 	void write(const MaskWriteRegisterRequest& request);
 	void write(const ReadWriteMultipleRegistersRequest& request);
 	void write(const ReadFIFOQueueRequest& request);
+	void write(const ModbusExceptionMessage& message);
+	void write(const ReadCoilsResponse& response);
+	void write(const ReadDiscreteInputsResponse& response);
+	void write(const ReadHoldingRegistersResponse& response);
+	void write(const ReadInputRegistersResponse& response);
+	void write(const WriteSingleCoilResponse& response);
+	void write(const WriteSingleRegisterResponse& response);
+	void write(const ReadExceptionStatusResponse& response);
+	void write(const WriteMultipleCoilsResponse& response);
+	void write(const WriteMultipleRegistersResponse& response);
+	void write(const MaskWriteRegisterResponse& response);
+	void write(const ReadWriteMultipleRegistersResponse& response);
+	void write(const ReadFIFOQueueResponse& response);
 
 protected:
 	void writeCommon(const ModbusMessage& message);

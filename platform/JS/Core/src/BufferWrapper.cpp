@@ -17,6 +17,9 @@
 #include "Poco/Buffer.h"
 #include "Poco/Base64Encoder.h"
 #include "Poco/Base64Decoder.h"
+#include "Poco/ByteOrder.h"
+#include "Poco/HexBinaryEncoder.h"
+#include "Poco/HexBinaryDecoder.h"
 #include "Poco/MemoryStream.h"
 #include "Poco/StreamCopier.h"
 #include "Poco/TextEncoding.h"
@@ -25,6 +28,7 @@
 #include "Poco/UTF16Encoding.h"
 #include "Poco/BinaryReader.h"
 #include "Poco/BinaryWriter.h"
+#include "Poco/Optional.h"
 #include "Poco/Exception.h"
 #include "Poco/String.h"
 #include "Poco/Format.h"
@@ -44,6 +48,54 @@ const std::string BufferWrapper::ENCODING_UTF8("UTF-8");
 const std::string BufferWrapper::ENCODING_UTF16("UTF-16");
 const std::string BufferWrapper::ENCODING_ASCII("ASCII");
 const std::string BufferWrapper::ENCODING_BASE64("BASE64");
+const std::string BufferWrapper::ENCODING_BASE64URL("BASE64URL");
+const std::string BufferWrapper::ENCODING_HEXBIN("HEXBIN");
+
+
+template <typename T>
+void writeBuffer(const v8::FunctionCallbackInfo<v8::Value>& args, T value, Poco::BinaryWriter::StreamByteOrder byteOrder = Poco::BinaryWriter::NATIVE_BYTE_ORDER)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	BufferWrapper::Buffer* pBuffer = Wrapper::unwrapNative<BufferWrapper::Buffer>(args);
+	std::size_t offset = 0;
+	if (args.Length() > 1)
+	{
+		offset = args[1]->Int32Value(context).FromMaybe(0);
+	}
+	if (offset >= 0 && offset <= pBuffer->size() - sizeof(T))
+	{
+		Poco::MemoryOutputStream memoryOutputStream(pBuffer->begin() + offset, sizeof(T));
+		Poco::BinaryWriter binaryWriter(memoryOutputStream, byteOrder);
+		binaryWriter << value;
+		args.GetReturnValue().Set(static_cast<Poco::Int32>(offset + sizeof(T)));
+	}
+}
+
+
+template <typename T>
+Poco::Optional<T> readBuffer(const v8::FunctionCallbackInfo<v8::Value>& args, Poco::BinaryReader::StreamByteOrder byteOrder = Poco::BinaryReader::NATIVE_BYTE_ORDER)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	BufferWrapper::Buffer* pBuffer = Wrapper::unwrapNative<BufferWrapper::Buffer>(args);
+	std::size_t offset = 0;
+	if (args.Length() > 0)
+	{
+		offset = args[0]->Int32Value(context).FromMaybe(0);
+	}
+	if (offset >= 0 && offset <= pBuffer->size() - sizeof(T))
+	{
+		Poco::MemoryInputStream memoryInputStream(pBuffer->begin() + offset, sizeof(T));
+		Poco::BinaryReader binaryReader(memoryInputStream, byteOrder);
+		T value;
+		binaryReader >> value;
+		return value;
+	}
+	return {};
+}
 
 
 BufferWrapper::BufferWrapper()
@@ -65,6 +117,8 @@ v8::Handle<v8::FunctionTemplate> BufferWrapper::constructor(v8::Isolate* pIsolat
 	funcTemplate->Set(toV8String(pIsolate, "UTF16"s), toV8String(pIsolate, ENCODING_UTF16));
 	funcTemplate->Set(toV8String(pIsolate, "ASCII"s), toV8String(pIsolate, ENCODING_ASCII));
 	funcTemplate->Set(toV8String(pIsolate, "BASE64"s), toV8String(pIsolate, ENCODING_BASE64));
+	funcTemplate->Set(toV8String(pIsolate, "BASE64URL"s), toV8String(pIsolate, ENCODING_BASE64URL));
+	funcTemplate->Set(toV8String(pIsolate, "HEXBIN"s), toV8String(pIsolate, ENCODING_HEXBIN));
 	return handleScope.Escape(funcTemplate);
 }
 
@@ -85,6 +139,10 @@ v8::Handle<v8::ObjectTemplate> BufferWrapper::objectTemplate(v8::Isolate* pIsola
 
 		objectTemplate->Set(toV8Internalized(pIsolate, "toBase64"s), v8::FunctionTemplate::New(pIsolate, toBase64));
 		objectTemplate->Set(toV8Internalized(pIsolate, "fromBase64"s), v8::FunctionTemplate::New(pIsolate, fromBase64));
+		objectTemplate->Set(toV8Internalized(pIsolate, "toBase64URL"s), v8::FunctionTemplate::New(pIsolate, toBase64URL));
+		objectTemplate->Set(toV8Internalized(pIsolate, "fromBase64URL"s), v8::FunctionTemplate::New(pIsolate, fromBase64URL));
+		objectTemplate->Set(toV8Internalized(pIsolate, "toHexBinary"s), v8::FunctionTemplate::New(pIsolate, toHexBinary));
+		objectTemplate->Set(toV8Internalized(pIsolate, "fromHexBinary"s), v8::FunctionTemplate::New(pIsolate, fromHexBinary));
 		objectTemplate->Set(toV8Internalized(pIsolate, "toString"s), v8::FunctionTemplate::New(pIsolate, makeString));
 		objectTemplate->Set(toV8Internalized(pIsolate, "toJSON"s), v8::FunctionTemplate::New(pIsolate, toBase64));
 		objectTemplate->Set(toV8Internalized(pIsolate, "decodeString"s), v8::FunctionTemplate::New(pIsolate, decodeString));
@@ -95,6 +153,43 @@ v8::Handle<v8::ObjectTemplate> BufferWrapper::objectTemplate(v8::Isolate* pIsola
 		objectTemplate->Set(toV8Internalized(pIsolate, "slice"s), v8::FunctionTemplate::New(pIsolate, slice));
 		objectTemplate->Set(toV8Internalized(pIsolate, "push"s), v8::FunctionTemplate::New(pIsolate, push));
 		objectTemplate->Set(toV8Internalized(pIsolate, "pop"s), v8::FunctionTemplate::New(pIsolate, pop));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeUInt8"s), v8::FunctionTemplate::New(pIsolate, writeUInt8));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeInt8"s), v8::FunctionTemplate::New(pIsolate, writeInt8));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeUInt16LE"s), v8::FunctionTemplate::New(pIsolate, writeUInt16LE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeInt16LE"s), v8::FunctionTemplate::New(pIsolate, writeInt16LE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeUInt16BE"s), v8::FunctionTemplate::New(pIsolate, writeUInt16BE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeInt16BE"s), v8::FunctionTemplate::New(pIsolate, writeInt16BE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeUInt32LE"s), v8::FunctionTemplate::New(pIsolate, writeUInt32LE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeInt32LE"s), v8::FunctionTemplate::New(pIsolate, writeInt32LE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeUInt32BE"s), v8::FunctionTemplate::New(pIsolate, writeUInt32BE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeInt32BE"s), v8::FunctionTemplate::New(pIsolate, writeInt32BE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeUInt64LE"s), v8::FunctionTemplate::New(pIsolate, writeUInt64LE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeInt64LE"s), v8::FunctionTemplate::New(pIsolate, writeInt64LE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeUInt64BE"s), v8::FunctionTemplate::New(pIsolate, writeUInt64BE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeInt64BE"s), v8::FunctionTemplate::New(pIsolate, writeInt64BE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeFloatLE"s), v8::FunctionTemplate::New(pIsolate, writeFloatLE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeFloatBE"s), v8::FunctionTemplate::New(pIsolate, writeFloatBE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeDoubleLE"s), v8::FunctionTemplate::New(pIsolate, writeDoubleLE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeDoubleBE"s), v8::FunctionTemplate::New(pIsolate, writeDoubleBE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readUInt8"s), v8::FunctionTemplate::New(pIsolate, readUInt8));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readInt8"s), v8::FunctionTemplate::New(pIsolate, readInt8));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readUInt16LE"s), v8::FunctionTemplate::New(pIsolate, readUInt16LE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readInt16LE"s), v8::FunctionTemplate::New(pIsolate, readInt16LE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readUInt16BE"s), v8::FunctionTemplate::New(pIsolate, readUInt16BE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readInt16BE"s), v8::FunctionTemplate::New(pIsolate, readInt16BE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readUInt32LE"s), v8::FunctionTemplate::New(pIsolate, readUInt32LE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readInt32LE"s), v8::FunctionTemplate::New(pIsolate, readInt32LE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readUInt32BE"s), v8::FunctionTemplate::New(pIsolate, readUInt32BE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readInt32BE"s), v8::FunctionTemplate::New(pIsolate, readInt32BE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readUInt64LE"s), v8::FunctionTemplate::New(pIsolate, readUInt64LE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readInt64LE"s), v8::FunctionTemplate::New(pIsolate, readInt64LE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readUInt64BE"s), v8::FunctionTemplate::New(pIsolate, readUInt64BE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readInt64BE"s), v8::FunctionTemplate::New(pIsolate, readInt64BE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readFloatLE"s), v8::FunctionTemplate::New(pIsolate, readFloatLE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readFloatBE"s), v8::FunctionTemplate::New(pIsolate, readFloatBE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readDoubleLE"s), v8::FunctionTemplate::New(pIsolate, readDoubleLE));
+		objectTemplate->Set(toV8Internalized(pIsolate, "readDoubleBE"s), v8::FunctionTemplate::New(pIsolate, readDoubleBE));
+
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> bufferTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
@@ -193,6 +288,13 @@ void BufferWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 				pBuffer->resize(0);
 			}
 		}
+		
+		if (!pBuffer) 
+		{
+			// fallback in case of undefined values as arguments
+			pBuffer = new Buffer(0);
+		}
+
 		BufferWrapper wrapper;
 		v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(pIsolate, pBuffer));
 		args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, bufferObject));
@@ -338,6 +440,27 @@ void BufferWrapper::toBase64(const v8::FunctionCallbackInfo<v8::Value>& args)
 }
 
 
+void BufferWrapper::toBase64URL(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	Buffer* pBuffer = Wrapper::unwrapNative<Buffer>(args);
+	try
+	{
+		Poco::MemoryInputStream istr(pBuffer->begin(), pBuffer->size());
+		std::stringstream ostr;
+		Poco::Base64Encoder encoder(ostr, Poco::BASE64_URL_ENCODING | Poco::BASE64_NO_PADDING);
+		Poco::StreamCopier::copyStream(istr, encoder);
+		encoder.close();
+		returnString(args, ostr.str());
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
+}
+
+
 void BufferWrapper::fromBase64(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	v8::Isolate* pIsolate(args.GetIsolate());
@@ -356,6 +479,95 @@ void BufferWrapper::fromBase64(const v8::FunctionCallbackInfo<v8::Value>& args)
 			Poco::Base64Decoder decoder(istr);
 			Poco::StreamCopier::copyStream(decoder, ostr);
 			pBuffer->resize(static_cast<std::size_t>(ostr.charsWritten()));
+		}
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
+	catch (std::exception&)
+	{
+		returnException(args, "Out of memory"s);
+	}
+}
+
+
+void BufferWrapper::fromBase64URL(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	Buffer* pBuffer = Wrapper::unwrapNative<Buffer>(args);
+	try
+	{
+		if (args.Length() > 0)
+		{
+			std::string base64String = toString(pIsolate, args[0]);
+			int size = static_cast<int>(base64String.size());
+			int decodedSize = 3*size/4 + 16;
+			pBuffer->resize(decodedSize, false);
+			Poco::MemoryInputStream istr(base64String.data(), static_cast<std::streamsize>(size));
+			Poco::MemoryOutputStream ostr(pBuffer->begin(), pBuffer->size());
+			Poco::Base64Decoder decoder(istr, Poco::BASE64_URL_ENCODING | BASE64_NO_PADDING);
+			Poco::StreamCopier::copyStream(decoder, ostr);
+			pBuffer->resize(static_cast<std::size_t>(ostr.charsWritten()));
+		}
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
+	catch (std::exception&)
+	{
+		returnException(args, "Out of memory"s);
+	}
+}
+
+
+void BufferWrapper::toHexBinary(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	Buffer* pBuffer = Wrapper::unwrapNative<Buffer>(args);
+	try
+	{
+		int lineLength = 0;
+		if (args.Length() > 0)
+		{
+			lineLength = args[0]->Int32Value(context).FromMaybe(0);
+		}
+		Poco::MemoryInputStream istr(pBuffer->begin(), pBuffer->size());
+		std::stringstream ostr;
+		Poco::HexBinaryEncoder encoder(ostr);
+		encoder.rdbuf()->setLineLength(lineLength);
+		Poco::StreamCopier::copyStream(istr, encoder);
+		encoder.close();
+		returnString(args, ostr.str());
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
+}
+
+
+void BufferWrapper::fromHexBinary(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	Buffer* pBuffer = Wrapper::unwrapNative<Buffer>(args);
+	try
+	{
+		if (args.Length() > 0)
+		{
+			std::string hexBinString = toString(pIsolate, args[0]);
+			int size = static_cast<int>(hexBinString.size());
+			int decodedSize = size/2;
+			pBuffer->resize(decodedSize, false);
+			Poco::MemoryInputStream istr(hexBinString.data(), static_cast<std::streamsize>(size));
+			Poco::MemoryOutputStream ostr(pBuffer->begin(), pBuffer->size());
+			Poco::HexBinaryDecoder decoder(istr);
+			Poco::StreamCopier::copyStream(decoder, ostr);
 		}
 	}
 	catch (Poco::Exception& exc)
@@ -814,7 +1026,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 					std::string utf8;
 					std::size_t size = std::abs(repeat);
 					reader.readRaw(size, utf8);
-					(void) array->Set(context, index, toV8String(pIsolate, utf8));
+					V8_CHECK_SET_RESULT(array->Set(context, index, toV8String(pIsolate, utf8)));
 					index++;
 					repeat = -1;
 				}
@@ -824,7 +1036,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					Poco::Int8 v = 0;
 					reader >> v;
-					(void) array->Set(context, index, v8::Integer::New(pIsolate, static_cast<Poco::Int32>(v)));
+					V8_CHECK_SET_RESULT(array->Set(context, index, v8::Integer::New(pIsolate, static_cast<Poco::Int32>(v))));
 					index++;
 				}
 				repeat = -1;
@@ -834,7 +1046,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					Poco::UInt8 v = 0;
 					reader >> v;
-					(void) array->Set(context, index, v8::Integer::NewFromUnsigned(pIsolate, static_cast<Poco::UInt32>(v)));
+					V8_CHECK_SET_RESULT(array->Set(context, index, v8::Integer::NewFromUnsigned(pIsolate, static_cast<Poco::UInt32>(v))));
 					index++;
 				}
 				repeat = -1;
@@ -844,7 +1056,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					bool v = false;
 					reader >> v;
-					(void) array->Set(context, index, v8::Boolean::New(pIsolate, v));
+					V8_CHECK_SET_RESULT(array->Set(context, index, v8::Boolean::New(pIsolate, v)));
 					index++;
 				}
 				repeat = -1;
@@ -854,7 +1066,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					Poco::Int16 v = 0;
 					reader >> v;
-					(void) array->Set(context, index, v8::Integer::New(pIsolate, static_cast<Poco::Int32>(v)));
+					V8_CHECK_SET_RESULT(array->Set(context, index, v8::Integer::New(pIsolate, static_cast<Poco::Int32>(v))));
 					index++;
 				}
 				repeat = -1;
@@ -864,7 +1076,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					Poco::UInt16 v = 0;
 					reader >> v;
-					(void) array->Set(context, index, v8::Integer::NewFromUnsigned(pIsolate, static_cast<Poco::UInt32>(v)));
+					V8_CHECK_SET_RESULT(array->Set(context, index, v8::Integer::NewFromUnsigned(pIsolate, static_cast<Poco::UInt32>(v))));
 					index++;
 				}
 				repeat = -1;
@@ -875,7 +1087,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					Poco::Int32 v = 0;
 					reader >> v;
-					(void) array->Set(context, index, v8::Integer::New(pIsolate, v));
+					V8_CHECK_SET_RESULT(array->Set(context, index, v8::Integer::New(pIsolate, v)));
 					index++;
 				}
 				repeat = -1;
@@ -886,7 +1098,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					Poco::UInt32 v = 0;
 					reader >> v;
-					(void) array->Set(context, index, v8::Integer::NewFromUnsigned(pIsolate, v));
+					V8_CHECK_SET_RESULT(array->Set(context, index, v8::Integer::NewFromUnsigned(pIsolate, v)));
 					index++;
 				}
 				repeat = -1;
@@ -896,7 +1108,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					Poco::Int64 v = 0;
 					reader >> v;
-					(void) array->Set(context, index, v8::Number::New(pIsolate, static_cast<double>(v)));
+					V8_CHECK_SET_RESULT(array->Set(context, index, v8::Number::New(pIsolate, static_cast<double>(v))));
 					index++;
 				}
 				repeat = -1;
@@ -906,7 +1118,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					Poco::UInt64 v = 0;
 					reader >> v;
-					(void) array->Set(context, index, v8::Number::New(pIsolate, static_cast<double>(v)));
+					V8_CHECK_SET_RESULT(array->Set(context, index, v8::Number::New(pIsolate, static_cast<double>(v))));
 					index++;
 				}
 				repeat = -1;
@@ -916,7 +1128,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					float v = 0.0f;
 					reader >> v;
-					(void) array->Set(context, index, v8::Number::New(pIsolate, v));
+					V8_CHECK_SET_RESULT(array->Set(context, index, v8::Number::New(pIsolate, v)));
 					index++;
 				}
 				repeat = -1;
@@ -926,7 +1138,7 @@ void BufferWrapper::unpack(const v8::FunctionCallbackInfo<v8::Value>& args)
 				{
 					double v = 0.0;
 					reader >> v;
-					(void) array->Set(context, index, v8::Number::New(pIsolate, v));
+					V8_CHECK_SET_RESULT(array->Set(context, index, v8::Number::New(pIsolate, v)));
 					index++;
 				}
 				repeat = -1;
@@ -1135,17 +1347,30 @@ void BufferWrapper::encode(v8::Isolate* pIsolate, Buffer* pBuffer, const v8::Loc
 		else
 			pBuffer->resize(0);
 	}
-	else if (Poco::icompare(encoding, ENCODING_BASE64) == 0)
+	else if (Poco::icompare(encoding, ENCODING_BASE64) == 0 || Poco::icompare(encoding, ENCODING_BASE64URL) == 0)
 	{
+		int options = 0;
+		if (encoding.length() == ENCODING_BASE64URL.length()) options = Poco::BASE64_URL_ENCODING | Poco::BASE64_NO_PADDING;
 		std::string base64String = toString(pIsolate, str);
 		int size = static_cast<int>(base64String.size());
 		int decodedSize = 3*size/4 + 16;
 		pBuffer->resize(decodedSize, false);
 		Poco::MemoryInputStream istr(base64String.data(), static_cast<std::streamsize>(size));
 		Poco::MemoryOutputStream ostr(pBuffer->begin(), pBuffer->size());
-		Poco::Base64Decoder decoder(istr);
+		Poco::Base64Decoder decoder(istr, options);
 		Poco::StreamCopier::copyStream(decoder, ostr);
 		pBuffer->resize(static_cast<std::size_t>(ostr.charsWritten()));
+	}
+	else if (Poco::icompare(encoding, ENCODING_HEXBIN) == 0)
+	{
+		std::string hexBinString = toString(pIsolate, str);
+		int size = static_cast<int>(hexBinString.size());
+		int decodedSize = size/2;
+		pBuffer->resize(decodedSize, false);
+		Poco::MemoryInputStream istr(hexBinString.data(), static_cast<std::streamsize>(size));
+		Poco::MemoryOutputStream ostr(pBuffer->begin(), pBuffer->size());
+		Poco::HexBinaryDecoder decoder(istr);
+		Poco::StreamCopier::copyStream(decoder, ostr);
 	}
 	else
 	{
@@ -1169,15 +1394,21 @@ void BufferWrapper::encode(v8::Isolate* pIsolate, Buffer* pBuffer, const v8::Loc
 
 void BufferWrapper::decode(const v8::FunctionCallbackInfo<v8::Value>& args, const std::string& encoding)
 {
-	v8::Isolate* pIsolate(args.GetIsolate());
 	Buffer* pBuffer = Wrapper::unwrapNative<Buffer>(args);
+	decode(args, pBuffer->begin(), pBuffer->size(), encoding);
+}
+
+
+void BufferWrapper::decode(const v8::FunctionCallbackInfo<v8::Value>& args, const char* pBytes, std::size_t size, const std::string& encoding)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
 	if (Poco::icompare(encoding, ENCODING_UTF8) == 0)
 	{
 		v8::MaybeLocal<v8::String> maybeString = v8::String::NewFromUtf8(
 			pIsolate,
-			pBuffer->begin(),
+			pBytes,
 			v8::NewStringType::kNormal,
-			static_cast<int>(pBuffer->size()));
+			static_cast<int>(size));
 		v8::Local<v8::String> string;
 		if (maybeString.ToLocal(&string))
 		{
@@ -1188,20 +1419,32 @@ void BufferWrapper::decode(const v8::FunctionCallbackInfo<v8::Value>& args, cons
 	{
 		v8::MaybeLocal<v8::String> maybeString = v8::String::NewFromTwoByte(
 			pIsolate,
-			reinterpret_cast<Poco::UInt16*>(pBuffer->begin()),
+			reinterpret_cast<const Poco::UInt16*>(pBytes),
 			v8::NewStringType::kNormal,
-			static_cast<int>(pBuffer->size()/2));
+			static_cast<int>(size/2));
 		v8::Local<v8::String> string;
 		if (maybeString.ToLocal(&string))
 		{
 			args.GetReturnValue().Set(string);
 		}
 	}
-	else if (Poco::icompare(encoding, ENCODING_BASE64) == 0)
+	else if (Poco::icompare(encoding, ENCODING_BASE64) == 0 || Poco::icompare(encoding, ENCODING_BASE64URL) == 0)
 	{
-		Poco::MemoryInputStream istr(pBuffer->begin(), pBuffer->size());
+		int options = 0;
+		if (encoding.length() == ENCODING_BASE64URL.length()) options = Poco::BASE64_URL_ENCODING | Poco::BASE64_NO_PADDING;
+		Poco::MemoryInputStream istr(pBytes, size);
 		std::stringstream ostr;
-		Poco::Base64Encoder encoder(ostr);
+		Poco::Base64Encoder encoder(ostr, options);
+		encoder.rdbuf()->setLineLength(0);
+		Poco::StreamCopier::copyStream(istr, encoder);
+		encoder.close();
+		returnString(args, ostr.str());
+	}
+	else if (Poco::icompare(encoding, ENCODING_HEXBIN) == 0)
+	{
+		Poco::MemoryInputStream istr(pBytes, size);
+		std::stringstream ostr;
+		Poco::HexBinaryEncoder encoder(ostr);
 		encoder.rdbuf()->setLineLength(0);
 		Poco::StreamCopier::copyStream(istr, encoder);
 		encoder.close();
@@ -1213,8 +1456,471 @@ void BufferWrapper::decode(const v8::FunctionCallbackInfo<v8::Value>& args, cons
 		Poco::TextEncoding& sourceEncoding = Poco::TextEncoding::byName(encoding);
 		Poco::TextConverter converter(sourceEncoding, utf8Encoding);
 		std::string result;
-		converter.convert(pBuffer->begin(), pBuffer->size(), result);
+		converter.convert(pBytes, size, result);
 		returnString(args, result);
+	}
+}
+
+
+void BufferWrapper::writeUInt8(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::UInt8 value = static_cast<Poco::UInt8>(args[0]->Uint32Value(context).FromMaybe(0));
+		writeBuffer(args, value);
+	}
+}
+
+
+void BufferWrapper::writeInt8(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::Int8 value = static_cast<Poco::Int8>(args[0]->Int32Value(context).FromMaybe(0));
+		writeBuffer(args, value);
+	}
+}
+
+
+void BufferWrapper::writeUInt16LE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::UInt16 value = static_cast<Poco::UInt16>(args[0]->Uint32Value(context).FromMaybe(0));
+		writeBuffer(args, value, Poco::BinaryWriter::LITTLE_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeInt16LE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::Int16 value = static_cast<Poco::Int16>(args[0]->Int32Value(context).FromMaybe(0));
+		writeBuffer(args, value, Poco::BinaryWriter::LITTLE_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeUInt16BE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::UInt16 value = static_cast<Poco::UInt16>(args[0]->Uint32Value(context).FromMaybe(0));
+		writeBuffer(args, value, Poco::BinaryWriter::BIG_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeInt16BE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::Int16 value = static_cast<Poco::Int16>(args[0]->Int32Value(context).FromMaybe(0));
+		writeBuffer(args, value, Poco::BinaryWriter::BIG_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeUInt32LE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::UInt32 value = args[0]->Uint32Value(context).FromMaybe(0);
+		writeBuffer(args, value, Poco::BinaryWriter::LITTLE_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeInt32LE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::Int32 value = args[0]->Int32Value(context).FromMaybe(0);
+		writeBuffer(args, value, Poco::BinaryWriter::LITTLE_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeUInt32BE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::UInt32 value = args[0]->Uint32Value(context).FromMaybe(0);
+		writeBuffer(args, value, Poco::BinaryWriter::BIG_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeInt32BE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::Int32 value = args[0]->Int32Value(context).FromMaybe(0);
+		writeBuffer(args, value, Poco::BinaryWriter::BIG_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeUInt64LE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::UInt64 value = 0;
+		if (args[0]->IsBigInt())
+		{
+			v8::Local<v8::BigInt> bigInt = args[0].As<v8::BigInt>();
+			value = bigInt->Uint64Value();
+		}
+		else
+		{
+			value = static_cast<Poco::UInt64>(args[0]->NumberValue(context).FromMaybe(0));
+		}
+		writeBuffer(args, value, Poco::BinaryWriter::LITTLE_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeInt64LE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::Int64 value = 0;
+		if (args[0]->IsBigInt())
+		{
+			v8::Local<v8::BigInt> bigInt = args[0].As<v8::BigInt>();
+			value = bigInt->Int64Value();
+		}
+		else
+		{
+			value = static_cast<Poco::Int64>(args[0]->NumberValue(context).FromMaybe(0));
+		}
+		writeBuffer(args, value, Poco::BinaryWriter::LITTLE_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeUInt64BE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::UInt64 value = 0;
+		if (args[0]->IsBigInt())
+		{
+			v8::Local<v8::BigInt> bigInt = args[0].As<v8::BigInt>();
+			value = bigInt->Uint64Value();
+		}
+		else
+		{
+			value = static_cast<Poco::UInt64>(args[0]->NumberValue(context).FromMaybe(0));
+		}
+		writeBuffer(args, value, Poco::BinaryWriter::BIG_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeInt64BE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		Poco::Int64 value = 0;
+		if (args[0]->IsBigInt())
+		{
+			v8::Local<v8::BigInt> bigInt = args[0].As<v8::BigInt>();
+			value = bigInt->Int64Value();
+		}
+		else
+		{
+			value = static_cast<Poco::Int64>(args[0]->NumberValue(context).FromMaybe(0));
+		}
+		writeBuffer(args, value, Poco::BinaryWriter::BIG_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeFloatLE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		float value = static_cast<float>(args[0]->NumberValue(context).FromMaybe(0));
+		writeBuffer(args, value, Poco::BinaryWriter::LITTLE_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeDoubleLE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		double value = args[0]->NumberValue(context).FromMaybe(0);
+		writeBuffer(args, value, Poco::BinaryWriter::LITTLE_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeFloatBE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		float value = static_cast<float>(args[0]->NumberValue(context).FromMaybe(0));
+		writeBuffer(args, value, Poco::BinaryWriter::BIG_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::writeDoubleBE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	if (args.Length() > 0)
+	{
+		double value = args[0]->NumberValue(context).FromMaybe(0);
+		writeBuffer(args, value, Poco::BinaryWriter::BIG_ENDIAN_BYTE_ORDER);
+	}
+}
+
+
+void BufferWrapper::readUInt8(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<Poco::UInt8>(args);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(static_cast<Poco::UInt32>(value.value()));
+	}
+}
+
+
+void BufferWrapper::readInt8(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<Poco::Int8>(args);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(static_cast<Poco::Int32>(value.value()));
+	}
+}
+
+
+void BufferWrapper::readUInt16LE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<Poco::UInt16>(args, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(static_cast<Poco::UInt32>(value.value()));
+	}
+}
+
+
+void BufferWrapper::readInt16LE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<Poco::Int16>(args, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(static_cast<Poco::Int32>(value.value()));
+	}
+}
+
+
+void BufferWrapper::readUInt16BE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<Poco::UInt16>(args, Poco::BinaryReader::BIG_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(static_cast<Poco::UInt32>(value.value()));
+	}
+}
+
+
+void BufferWrapper::readInt16BE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<Poco::Int16>(args, Poco::BinaryReader::BIG_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(static_cast<Poco::Int32>(value.value()));
+	}
+
+}
+
+
+void BufferWrapper::readUInt32LE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<Poco::UInt32>(args, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(value.value());
+	}
+}
+
+
+void BufferWrapper::readInt32LE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<Poco::Int32>(args, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(value.value());
+	}
+}
+
+
+void BufferWrapper::readUInt32BE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<Poco::UInt32>(args, Poco::BinaryReader::BIG_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(value.value());
+	}
+}
+
+
+void BufferWrapper::readInt32BE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<Poco::Int32>(args, Poco::BinaryReader::BIG_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(value.value());
+	}
+}
+
+
+void BufferWrapper::readUInt64LE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	auto value = readBuffer<Poco::UInt64>(args, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		v8::Local<v8::BigInt> bigInt = v8::BigInt::New(pIsolate, value.value());
+		args.GetReturnValue().Set(bigInt);
+	}
+}
+
+
+void BufferWrapper::readInt64LE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	auto value = readBuffer<Poco::Int64>(args, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		v8::Local<v8::BigInt> bigInt = v8::BigInt::New(pIsolate, value.value());
+		args.GetReturnValue().Set(bigInt);
+	}
+}
+
+
+void BufferWrapper::readUInt64BE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	auto value = readBuffer<Poco::UInt64>(args, Poco::BinaryReader::BIG_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		v8::Local<v8::BigInt> bigInt = v8::BigInt::New(pIsolate, value.value());
+		args.GetReturnValue().Set(bigInt);
+	}
+}
+
+
+void BufferWrapper::readInt64BE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	auto value = readBuffer<Poco::Int64>(args, Poco::BinaryReader::BIG_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		v8::Local<v8::BigInt> bigInt = v8::BigInt::New(pIsolate, value.value());
+		args.GetReturnValue().Set(bigInt);
+	}
+}
+
+
+void BufferWrapper::readFloatLE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<float>(args, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(value.value());
+	}
+}
+
+
+void BufferWrapper::readDoubleLE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<double>(args, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(value.value());
+	}
+}
+
+
+void BufferWrapper::readFloatBE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<float>(args, Poco::BinaryReader::BIG_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(value.value());
+	}
+}
+
+
+void BufferWrapper::readDoubleBE(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	auto value = readBuffer<double>(args, Poco::BinaryReader::BIG_ENDIAN_BYTE_ORDER);
+	if (value.isSpecified())
+	{
+		args.GetReturnValue().Set(value.value());
 	}
 }
 

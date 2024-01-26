@@ -55,7 +55,8 @@ v8::Handle<v8::FunctionTemplate> LoggerWrapper::constructor(v8::Isolate* pIsolat
 	funcTemplate->Set(toV8Internalized(pIsolate, "CRITICAL"s), v8::Integer::New(pIsolate, 2));
 	funcTemplate->Set(toV8Internalized(pIsolate, "FATAL"s), v8::Integer::New(pIsolate, 1));
 	funcTemplate->Set(toV8Internalized(pIsolate, "isLogger"s), v8::FunctionTemplate::New(pIsolate, isLogger));
-	funcTemplate->Set(toV8Internalized(pIsolate, "close"s), v8::FunctionTemplate::New(pIsolate, close));
+	funcTemplate->Set(toV8Internalized(pIsolate, "setLevel"s), v8::FunctionTemplate::New(pIsolate, setLevel));
+	funcTemplate->Set(toV8Internalized(pIsolate, "names"s), v8::FunctionTemplate::New(pIsolate, names));
 
 	return handleScope.Escape(funcTemplate);
 }
@@ -82,6 +83,9 @@ v8::Handle<v8::ObjectTemplate> LoggerWrapper::objectTemplate(v8::Isolate* pIsola
 		loggerTemplate->Set(toV8Internalized(pIsolate, "log"s), v8::FunctionTemplate::New(pIsolate, log));
 		loggerTemplate->Set(toV8Internalized(pIsolate, "dump"s), v8::FunctionTemplate::New(pIsolate, dump));
 		loggerTemplate->Set(toV8Internalized(pIsolate, "close"s), v8::FunctionTemplate::New(pIsolate, close));
+		loggerTemplate->SetAccessor(toV8Internalized(pIsolate, "level"s), getLevel, setLevel);
+		loggerTemplate->SetAccessor(toV8Internalized(pIsolate, "name"s), getName);
+
 		pooledLoggerTemplate.Reset(pIsolate, loggerTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> localLoggerTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledLoggerTemplate);
@@ -154,8 +158,13 @@ void LoggerWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 								std::string prop = toString(pIsolate, channelProps->Get(context, i));
 								if (prop != "class")
 								{
-									std::string value = toString(pIsolate, channelConfig->Get(context, i));
-									pChannel->setProperty(prop, value);
+									v8::MaybeLocal<v8::Value> maybeProp = channelProps->Get(context, i);
+									v8::Local<v8::Value> jsProp;
+									if (maybeProp.ToLocal(&jsProp))
+									{
+										std::string value = toString(pIsolate, channelConfig->Get(context, jsProp));
+										pChannel->setProperty(prop, value);
+									}
 								}
 							}
 						}
@@ -206,12 +215,64 @@ void LoggerWrapper::isLogger(const v8::FunctionCallbackInfo<v8::Value>& args)
 }
 
 
+void LoggerWrapper::setLevel(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	if (args.Length() < 1) return;
+	v8::HandleScope scope(pIsolate);
+	std::string name;
+	std::string levelStr;
+	if (args.Length() > 1)
+	{
+		name = toString(pIsolate, args[0]);
+		levelStr = toString(pIsolate, args[1]);
+	}
+	else
+	{
+		levelStr = toString(pIsolate, args[0]);
+	}
+
+	int level = 0;
+	try
+	{
+		if (!Poco::NumberParser::tryParse(levelStr, level))
+		{
+			level = Poco::Logger::parseLevel(levelStr);
+		}
+		Poco::Logger::setLevel(name, level);
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
+}
+
+
+void LoggerWrapper::names(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	std::vector<std::string> loggerNames;
+	Poco::Logger::names(loggerNames);
+	v8::Local<v8::Array> namesArray = v8::Array::New(pIsolate, static_cast<int>(loggerNames.size()));
+	if (!namesArray.IsEmpty())
+	{
+		for (unsigned i = 0; i < static_cast<unsigned>(loggerNames.size()); i++)
+		{
+			V8_CHECK_SET_RESULT(namesArray->Set(context, i, toV8String(pIsolate, loggerNames[i])));
+		}
+	}
+	args.GetReturnValue().Set(namesArray);
+}
+
+
 void LoggerWrapper::log(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	v8::Isolate* pIsolate(args.GetIsolate());
 	if (args.Length() < 2) return;
 	v8::HandleScope scope(pIsolate);
-	std::string prioStr = toString(pIsolate, args[0]);
+	const std::string prioStr = toString(pIsolate, args[0]);
 	int prio = 0;
 	try
 	{
@@ -422,6 +483,46 @@ void LoggerWrapper::close(const v8::FunctionCallbackInfo<v8::Value>& args)
     v8::HandleScope scope(args.GetIsolate());
     Poco::Logger* pLogger = Wrapper::unwrapNative<Poco::Logger>(args);
     Poco::Logger::destroy(pLogger->name());
+}
+
+
+void LoggerWrapper::getLevel(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	v8::Isolate* pIsolate(info.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	Poco::Logger* pLogger = Wrapper::unwrapNative<Poco::Logger>(info);
+	info.GetReturnValue().Set(pLogger->getLevel());
+}
+
+
+void LoggerWrapper::setLevel(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	v8::Isolate* pIsolate(info.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	Poco::Logger* pLogger = Wrapper::unwrapNative<Poco::Logger>(info);
+	try	
+	{
+		const std::string levelStr = toString(pIsolate, value);
+		int level = 0;
+		if (!Poco::NumberParser::tryParse(levelStr, level))
+		{
+			level = Poco::Logger::parseLevel(levelStr);
+		}
+		pLogger->setLevel(level);
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(info, exc);
+	}
+}
+
+
+void LoggerWrapper::getName(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	v8::Isolate* pIsolate(info.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	Poco::Logger* pLogger = Wrapper::unwrapNative<Poco::Logger>(info);
+	returnString(info, pLogger->name());
 }
 
 

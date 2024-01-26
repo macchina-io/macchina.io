@@ -243,8 +243,8 @@
         'ldflags': [ '-pthread' ],
       }],
       [ 'OS in "linux freebsd openbsd solaris android aix"', {
-        'cflags': [ '-Wall', '-Wextra', '-Wno-unused-parameter', ],
-        'cflags_cc': [ '-fno-rtti', '-fno-exceptions', '-std=gnu++0x' ],
+        'cflags': [ '-Wall', '-Wextra', '-Wno-unused-parameter', '-Wno-maybe-uninitialized' ],
+        'cflags_cc': [ '-fno-rtti', '-fno-exceptions', '-std=gnu++14', '-Wno-class-memaccess' ],
         'ldflags': [ '-rdynamic' ],
         'target_conditions': [
           # The 1990s toolchain on SmartOS can't handle thin archives.
@@ -325,7 +325,7 @@
           'GCC_ENABLE_PASCAL_STRINGS': 'NO',        # No -mpascal-strings
           'GCC_THREADSAFE_STATICS': 'NO',           # -fno-threadsafe-statics
           'PREBINDING': 'NO',                       # No -Wl,-prebind
-          'MACOSX_DEPLOYMENT_TARGET': '10.9',       # -mmacosx-version-min=10.9
+          'MACOSX_DEPLOYMENT_TARGET': '10.15',       # -mmacosx-version-min=10.15
           'USE_HEADERMAP': 'NO',
           'OTHER_CFLAGS': [
             '-fno-strict-aliasing',
@@ -335,6 +335,8 @@
             '-Wendif-labels',
             '-W',
             '-Wno-unused-parameter',
+            '-Wno-deprecated-non-prototype',
+            '-Wno-enum-constexpr-conversion', 
           ],
         },
         'target_conditions': [
@@ -360,7 +362,7 @@
           ['clang==1', {
             'xcode_settings': {
               'GCC_VERSION': 'com.apple.compilers.llvm.clang.1_0',
-              'CLANG_CXX_LANGUAGE_STANDARD': 'gnu++0x',  # -std=gnu++0x
+              'CLANG_CXX_LANGUAGE_STANDARD': 'gnu++14',  # -std=gnu++14
               'CLANG_CXX_LIBRARY': 'libc++',
             },
           }],

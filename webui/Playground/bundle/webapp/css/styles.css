@@ -50,7 +50,7 @@ body
 .popupWindow h1
 {
 	color: #111; 
-	font-size: 20px; 
+	font-size: 22px; 
 	margin-top: 0px; 
 	margin-bottom: 16px;
 	line-height: 24px;
@@ -58,7 +58,7 @@ body
 
 form th
 {
-	font-size: 14px;
+	font-size: 15px;
 	font-weight: bold;
 	text-align: right;
 	padding: 4px;
@@ -66,7 +66,7 @@ form th
 
 form td
 {
-	font-size: 14px;
+	font-size: 15px;
 	text-align: left;
 	padding: 4px;
 }

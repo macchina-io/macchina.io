@@ -4,7 +4,9 @@
 # The global Makefile for macchina.io platform
 #
 
-sinclude config.make
+ifndef MACCHINA_HAVE_COMPONENTS
+sinclude ../components.make
+endif
 
 ifndef POCO_BASE
 $(warning WARNING: POCO_BASE is not defined. Assuming current directory.)
@@ -22,7 +24,7 @@ poco: libexecs $(if $(TESTS),tests) $(if $(SAMPLES),samples)
 all: libexecs tests samples
 
 INSTALLDIR = $(DESTDIR)$(POCO_PREFIX)
-COMPONENTS = Foundation XML JSON Util Net Data Data/SQLite Zip Crypto NetSSL_OpenSSL JWT CppParser CodeGeneration RemotingNG RemotingNG/RemoteGen RemotingNG/TCP OSP OSP/BundleCreator OSP/CodeCacheUtility OSP/StripBundle OSP/Web OSP/Core OSP/Crypto OSP/Data OSP/Data/SQLite OSP/Net OSP/NetSSL_OpenSSL OSP/SecureWebServer OSP/WebServer
+COMPONENTS = Foundation XML JSON Util Net Zip Crypto NetSSL_OpenSSL CppParser CodeGeneration RemotingNG RemotingNG/RemoteGen RemotingNG/TCP OSP OSP/BundleCreator OSP/CodeCacheUtility OSP/StripBundle OSP/Core OSP/Crypto OSP/Net OSP/NetSSL_OpenSSL
 
 cppunit:
 	$(MAKE) -C $(POCO_BASE)/CppUnit
@@ -31,89 +33,162 @@ CppUnit-clean:
 	$(MAKE) -C $(POCO_BASE)/CppUnit clean
 
 install: libexecs
-	mkdir -p $(INSTALLDIR)/include/Poco
-	mkdir -p $(INSTALLDIR)/lib
-	mkdir -p $(INSTALLDIR)/bin
+	install -d $(INSTALLDIR)/include/Poco
+	install -d $(INSTALLDIR)/lib
+	install -d $(INSTALLDIR)/bin
 	for comp in $(COMPONENTS) ; do \
 		if [ -d "$(POCO_BASE)/$$comp/include" ] ; then \
 			cp -Rf $(POCO_BASE)/$$comp/include/* $(INSTALLDIR)/include/ ; \
 		fi ; \
 		if [ -d "$(POCO_BUILD)/$$comp/bin" ] ; then \
-			find $(POCO_BUILD)/$$comp/bin -perm -700 -type f -exec cp -f {} $(INSTALLDIR)/bin \; ; \
+			find $(POCO_BUILD)/$$comp/bin -perm -700 -type f -exec install {} $(INSTALLDIR)/bin \; ; \
 		fi ; \
 	done
 	find $(POCO_BUILD)/lib -name "libPoco*" -type f -exec cp -f {} $(INSTALLDIR)/lib \;
 	find $(POCO_BUILD)/lib -name "libPoco*" -type l -exec cp -Rf {} $(INSTALLDIR)/lib \;
+ifdef MACCHINA_ENABLE_JS
+	find $(POCO_BUILD)/lib -name 'libv8.*' -type f -exec cp -f {} $(INSTALLDIR)/lib \;
+endif
+	mkdir -p $(INSTALLDIR)/build/config
+	mkdir -p $(INSTALLDIR)/build/rules
+	mkdir -p $(INSTALLDIR)/build/script
+	cp $(POCO_BASE)/build/config/* $(INSTALLDIR)/build/config
+	cp $(POCO_BASE)/build/rules/* $(INSTALLDIR)/build/rules
+	cp $(POCO_BASE)/build/script/* $(INSTALLDIR)/build/script
+	mv $(INSTALLDIR)/build/rules/global.sdk $(INSTALLDIR)/build/rules/global
+	cp $(POCO_BASE)/RemotingNG/RemoteGen/RemoteGenNG.xml.install $(INSTALLDIR)/bin/RemoteGenNG.xml
 
 # POCO C++ Libraries
-libexecs = Foundation-libexec XML-libexec JSON-libexec Util-libexec Net-libexec Crypto-libexec NetSSL_OpenSSL-libexec Data-libexec Data/SQLite-libexec Zip-libexec JWT-libexec PageCompiler-libexec PageCompiler/File2Page-libexec
-tests    = Foundation-tests XML-tests JSON-tests Util-tests Net-tests Crypto-tests NetSSL_OpenSSL-tests Data-tests Data/SQLite-tests Zip-tests JWT-tests CppParser-tests
-samples  = Foundation-samples XML-samples JSON-samples Util-samples Net-samples Crypto-samples NetSSL_OpenSSL-samples Data-samples Zip-samples PageCompiler-samples
-cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-clean NetSSL_OpenSSL-clean Data-clean Data/SQLite-clean Zip-clean JWT-clean PageCompiler-clean PageCompiler/File2Page-clean CppParser-clean
+libexecs = Foundation-libexec XML-libexec JSON-libexec Util-libexec Net-libexec Crypto-libexec NetSSL_OpenSSL-libexec Zip-libexec PageCompiler-libexec PageCompiler/File2Page-libexec
+tests    = Foundation-tests XML-tests JSON-tests Util-tests Net-tests Crypto-tests NetSSL_OpenSSL-tests Zip-tests CppParser-tests
+samples  = Foundation-samples XML-samples JSON-samples Util-samples Net-samples Crypto-samples NetSSL_OpenSSL-samples Zip-samples PageCompiler-samples
+cleans   = Foundation-clean XML-clean JSON-clean Util-clean Net-clean Crypto-clean NetSSL_OpenSSL-clean Zip-clean PageCompiler-clean PageCompiler/File2Page-clean CppParser-clean
 
 # WebTunnel, JS, Remoting and OSP
 libexecs += \
     WebTunnel-libexec \
-    CodeGeneration-libexec RemotingNG-libexec RemotingNG/RemoteGen-libexec RemotingNG/TCP-libexec \
+    CodeGeneration-libexec RemotingNG-libexec RemotingNG/RemoteGen-libexec \
     OSP-libexec OSP/BundleCreator-libexec \
     OSP/CodeCacheUtility-libexec OSP/StripBundle-libexec \
     OSP/Core-libexec OSP/Crypto-libexec OSP/Net-libexec OSP/NetSSL_OpenSSL-libexec \
-    OSP/Web-libexec OSP/WebServer-libexec OSP/SecureWebServer-libexec \
-    OSP/Data-libexec OSP/Data/SQLite-libexec \
-    OSP/WebEvent-libexec OSP/SimpleAuth-libexec \
-    OSP/RemotingNG/TCP-libexec \
+    OSP/SimpleAuth-libexec \
     Geo-libexec \
     Serial-libexec
 
 tests    += \
-	CodeGeneration-tests RemotingNG-tests RemotingNG/TCP-tests \
-	OSP-tests OSP/Web-tests OSP/Auth-tests OSP/Auth/Data-tests OSP/BundleSign-tests \
+	CodeGeneration-tests RemotingNG-tests \
+	OSP-tests \
 	Geo-tests
 
 samples  += WebTunnel-samples
 
 cleans   += \
     WebTunnel-clean \
-    CodeGeneration-clean RemotingNG-clean RemotingNG/RemoteGen-clean RemotingNG/TCP-clean \
+    CodeGeneration-clean RemotingNG-clean RemotingNG/RemoteGen-clean \
     OSP-clean OSP/BundleCreator-clean \
     OSP/CodeCacheUtility-clean OSP/StripBundle-clean \
     OSP/Core-clean OSP/Crypto-clean OSP/Net-clean OSP/NetSSL_OpenSSL-clean \
-    OSP/Web-clean OSP/WebServer-clean OSP/SecureWebServer-clean \
-    OSP/Data-clean OSP/Data/SQLite-clean \
-    OSP/WebEvent-clean OSP/SimpleAuth-clean \
-    OSP/RemotingNG/TCP-clean \
+    OSP/SimpleAuth-clean \
     Geo-clean \
     Serial-clean
 
 # Optional Components
-ifdef ENABLE_JS
-COMPONENTS += JS/V8 JS/Core JS/Data JS/Bridge JS/Net OSP/JS OSP/JS/Net OSP/JS/Data OSP/JS/Web OSP/JS/Scheduler
-libexecs += JS/V8-libexec JS/Core-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec \
-	OSP/JS-libexec OSP/JS/Net-libexec OSP/JS/Data-libexec OSP/JS/Web-libexec OSP/JS/Scheduler-libexec
-cleans += JS/V8-clean JS/Core-clean JS/Data-clean JS/Bridge-clean JS/Net-clean \
-	OSP/JS-clean OSP/JS/Net-clean OSP/JS/Data-clean OSP/JS/Web-clean OSP/JS/Scheduler-clean
+ifdef MACCHINA_ENABLE_JS
+COMPONENTS += JS/V8 JS/Core JS/File JS/Data JS/Bridge JS/Net JS/Crypto OSP/JS OSP/JS/File OSP/JS/Net OSP/JS/Data OSP/JS/Web OSP/JS/Crypto OSP/JS/Scheduler
+libexecs += JS/V8-libexec JS/Core-libexec JS/File-libexec JS/Data-libexec JS/Bridge-libexec JS/Net-libexec JS/Crypto-libexec \
+	OSP/JS-libexec OSP/JS/File-libexec OSP/JS/Net-libexec OSP/JS/Data-libexec OSP/JS/Web-libexec OSP/JS/Crypto-libexec OSP/JS/Scheduler-libexec
+cleans += JS/V8-clean JS/Core-clean JS/File-clean JS/Data-clean JS/Bridge-clean JS/Net-clean \
+	OSP/JS-clean OSP/JS/File-clean OSP/JS/Net-clean OSP/JS/Data-clean OSP/JS/Web-clean OSP/JS/Crypto-clean OSP/JS/Scheduler-clean
 endif
 
-ifdef ENABLE_ACTIVERECORD
+ifdef MACCHINA_ENABLE_DATA
+COMPONENTS += Data
+libexecs   += Data-libexec OSP/Data-libexec
+tests      += Data-tests
+cleans     += Data-clean OSP/Data-clean
+
+ifdef MACCHINA_ENABLE_DATA_SQLITE
+COMPONENTS += Data/SQLite
+libexecs   += Data/SQLite-libexec OSP/Data/SQLite-libexec
+tests      += Data/SQLite-tests
+cleans     += Data/SQLite-clean OSP/Data/SQLite-clean
+endif
+
+ifdef MACCHINA_ENABLE_DATA_MYSQL
+COMPONENTS += Data/MySQL
+libexecs   += Data/MySQL-libexec OSP/Data/MySQL-libexec
+tests      += Data/MySQL-tests
+cleans     += Data/MySQL-clean OSP/Data/MySQL-clean
+endif
+
+ifdef MACCHINA_ENABLE_DATA_ODBC
+COMPONENTS += Data/ODBC
+libexecs   += Data/ODBC-libexec OSP/Data/ODBC-libexec
+tests      += Data/ODBC-tests
+cleans     += Data/ODBC-clean OSP/Data/ODBC-clean
+endif
+
+ifdef MACCHINA_ENABLE_DATA_POSTGRESQL
+COMPONENTS += Data/PostgreSQL
+libexecs   += Data/PostgreSQL-libexec OSP/Data/PostgreSQL-libexec
+tests      += Data/PostgreSQL-tests
+cleans     += Data/PostgreSQL-clean OSP/Data/PostgreSQL-clean
+endif
+
+ifdef MACCHINA_ENABLE_ACTIVERECORD
 COMPONENTS += ActiveRecord ActiveRecord/Compiler OSP/ActiveRecord
 libexecs   += ActiveRecord-libexec ActiveRecord/Compiler-libexec OSP/ActiveRecord-libexec
 tests      += ActiveRecord-tests
 cleans     += ActiveRecord-clean ActiveRecord/Compiler-clean OSP/ActiveRecord-clean
 endif
-
-ifdef ENABLE_JWT
-COMPONENTS += JWT
-libexecs   += JWT-libexec
-tests      += JWT-tests
-cleans     += JWT-clean
 endif
 
-ifdef ENABLE_REDIS
+ifdef MACCHINA_ENABLE_REDIS
 COMPONENTS += Redis
 libexecs   += Redis-libexec
 tests      += Redis-tests
 cleans     += Redis-clean
 endif
+
+ifdef MACCHINA_ENABLE_MONGODB
+COMPONENTS += MongoDB
+libexecs   += MongoDB-libexec
+tests      += MongoDB-tests
+cleans     += MongoDB-clean
+endif
+
+ifdef MACCHINA_ENABLE_JWT
+COMPONENTS += JWT OSP/JWT
+libexecs   += JWT-libexec OSP/JWT-libexec
+tests      += JWT-tests
+cleans     += JWT-clean OSP/JWT-clean
+endif
+
+ifdef MACCHINA_ENABLE_OSP_WEB
+COMPONENTS += OSP/Web OSP/WebServer OSP/SecureWebServer
+libexecs   += OSP/Web-libexec OSP/WebServer-libexec OSP/SecureWebServer-libexec
+tests      += OSP/Web-tests
+cleans     += OSP/Web-clean OSP/WebServer-clean OSP/SecureWebServer-clean
+ifdef MACCHINA_ENABLE_WEBEVENT
+COMPONENTS += OSP/WebEvent
+libexecs   += OSP/WebEvent-libexec
+cleans     += OSP/WebEvent-clean
+endif
+endif
+
+ifdef MACCHINA_ENABLE_OSP_MAIL
+COMPONENTS += OSP/Mail OSP/SecureMail
+libexecs   += OSP/Mail-libexec OSP/SecureMail-libexec
+cleans     += OSP/Mail-clean OSP/SecureMail-clean
+endif
+
+ifdef MACCHINA_ENABLE_REMOTINGNG_TCP
+COMPONENTS += RemotingNG/TCP
+libexecs   += RemotingNG/TCP-libexec OSP/RemotingNG/TCP-libexec
+tests      += RemotingNG/TCP-tests
+cleans     += RemotingNG/TCP-clean OSP/RemotingNG/TCP-clean
+endif
+
 
 .PHONY: $(libexecs)
 .PHONY: $(tests)
@@ -247,6 +322,36 @@ Data/SQLite-clean:
 	$(MAKE) -C $(POCO_BASE)/Data/SQLite clean
 	$(MAKE) -C $(POCO_BASE)/Data/SQLite/testsuite clean
 
+Data/MySQL-libexec:  Foundation-libexec Data-libexec
+	$(MAKE) -C $(POCO_BASE)/Data/MySQL
+
+Data/MySQL-tests: Data/MySQL-libexec cppunit
+	$(MAKE) -C $(POCO_BASE)/Data/MySQL/testsuite
+
+Data/MySQL-clean:
+	$(MAKE) -C $(POCO_BASE)/Data/MySQL clean
+	$(MAKE) -C $(POCO_BASE)/Data/MySQL/testsuite clean
+
+Data/ODBC-libexec:  Foundation-libexec Data-libexec
+	$(MAKE) -C $(POCO_BASE)/Data/ODBC
+
+Data/ODBC-tests: Data/ODBC-libexec cppunit
+	$(MAKE) -C $(POCO_BASE)/Data/ODBC/testsuite
+
+Data/ODBC-clean:
+	$(MAKE) -C $(POCO_BASE)/Data/ODBC clean
+	$(MAKE) -C $(POCO_BASE)/Data/ODBC/testsuite clean
+
+Data/PostgreSQL-libexec:  Foundation-libexec Data-libexec
+	$(MAKE) -C $(POCO_BASE)/Data/PostgreSQL
+
+Data/PostgreSQL-tests: Data/PostgreSQL-libexec cppunit
+	$(MAKE) -C $(POCO_BASE)/Data/PostgreSQL/testsuite
+
+Data/PostgreSQL-clean:
+	$(MAKE) -C $(POCO_BASE)/Data/PostgreSQL clean
+	$(MAKE) -C $(POCO_BASE)/Data/PostgreSQL/testsuite clean
+
 ActiveRecord-libexec: Foundation-libexec Data-libexec
 	$(MAKE) -C $(POCO_BASE)/ActiveRecord
 
@@ -344,6 +449,12 @@ JS/Core-libexec:  Foundation-libexec XML-libexec Util-libexec JS/V8-libexec
 JS/Core-clean:
 	$(MAKE) -C $(POCO_BASE)/JS/Core clean
 
+JS/File-libexec:  Foundation-libexec JS/Core-libexec
+	$(MAKE) -C $(POCO_BASE)/JS/File
+
+JS/File-clean:
+	$(MAKE) -C $(POCO_BASE)/JS/File clean
+
 JS/Data-libexec:  Foundation-libexec Data-libexec JS/Core-libexec
 	$(MAKE) -C $(POCO_BASE)/JS/Data
 
@@ -361,6 +472,12 @@ JS/Net-libexec:  Foundation-libexec Net-libexec JS/Core-libexec
 
 JS/Net-clean:
 	$(MAKE) -C $(POCO_BASE)/JS/Net clean
+
+JS/Crypto-libexec:  Foundation-libexec Crypto-libexec JS/Core-libexec
+	$(MAKE) -C $(POCO_BASE)/JS/Crypto
+
+JS/Crypto-clean:
+	$(MAKE) -C $(POCO_BASE)/JS/Crypto clean
 
 RemotingNG-libexec:  Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/RemotingNG
@@ -450,6 +567,24 @@ OSP/Data/SQLite-libexec:  Data-libexec Data/SQLite-libexec OSP-libexec OSP/Bundl
 OSP/Data/SQLite-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/Data/SQLite clean
 
+OSP/Data/MySQL-libexec:  Data-libexec Data/MySQL-libexec OSP-libexec OSP/BundleCreator-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/Data/MySQL
+
+OSP/Data/MySQL-clean:
+	$(MAKE) -C $(POCO_BASE)/OSP/Data/MySQL clean
+
+OSP/Data/ODBC-libexec:  Data-libexec Data/ODBC-libexec OSP-libexec OSP/BundleCreator-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/Data/ODBC
+
+OSP/Data/ODBC-clean:
+	$(MAKE) -C $(POCO_BASE)/OSP/Data/ODBC clean
+
+OSP/Data/PostgreSQL-libexec:  Data-libexec Data/PostgreSQL-libexec OSP-libexec OSP/BundleCreator-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/Data/PostgreSQL
+
+OSP/Data/PostgreSQL-clean:
+	$(MAKE) -C $(POCO_BASE)/OSP/Data/PostgreSQL clean
+
 OSP/ActiveRecord-libexec:  ActiveRecord-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/ActiveRecord
 
@@ -480,19 +615,37 @@ OSP/WebServer-libexec:  OSP-libexec OSP/Web-libexec OSP/BundleCreator-libexec
 OSP/WebServer-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/WebServer clean
 
+OSP/Mail-libexec:  OSP-libexec Net-libexec OSP/BundleCreator-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/Mail
+
+OSP/Mail-clean:
+	$(MAKE) -C $(POCO_BASE)/OSP/Mail clean
+
+OSP/SecureMail-libexec:  OSP-libexec OSP/Mail-libexec NetSSL_OpenSSL-libexec OSP/BundleCreator-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/SecureMail
+
+OSP/SecureMail-clean:
+	$(MAKE) -C $(POCO_BASE)/OSP/SecureMail clean
+
 OSP/JS-libexec:  Foundation-libexec XML-libexec Util-libexec Net-libexec JS/Core-libexec JS/Bridge-libexec JS/Net-libexec JS/Data-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS
 
 OSP/JS-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/JS clean
 
-OSP/JS/Net-libexec:  OSP/JS-libexec Net-libexec OSP/BundleCreator-libexec
+OSP/JS/File-libexec:  JS/File-libexec OSP/JS-libexec OSP/BundleCreator-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/JS/File
+
+OSP/JS/File-clean:
+	$(MAKE) -C $(POCO_BASE)/OSP/JS/File clean
+
+OSP/JS/Net-libexec:  JS/Net-libexec OSP/JS-libexec Net-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Net
 
 OSP/JS/Net-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Net clean
 
-OSP/JS/Data-libexec:  OSP/JS-libexec Data-libexec OSP/BundleCreator-libexec
+OSP/JS/Data-libexec:  JS/Data-libexec OSP/JS-libexec Data-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Data
 
 OSP/JS/Data-clean:
@@ -503,6 +656,12 @@ OSP/JS/Web-libexec:  OSP/JS-libexec OSP/Web-libexec OSP/BundleCreator-libexec
 
 OSP/JS/Web-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Web clean
+
+OSP/JS/Crypto-libexec:  JS/Crypto-libexec OSP/JS-libexec OSP/BundleCreator-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/JS/Crypto
+
+OSP/JS/Crypto-clean:
+	$(MAKE) -C $(POCO_BASE)/OSP/JS/Crypto clean
 
 OSP/JS/Scheduler-libexec:  OSP/JS-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Scheduler
@@ -522,11 +681,23 @@ OSP/SimpleAuth-libexec:  OSP-libexec OSP/BundleCreator-libexec
 OSP/SimpleAuth-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/SimpleAuth clean
 
+OSP/JWT-libexec: OSP/Web-libexec OSP-libexec OSP/BundleCreator-libexec JWT-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/JWT
+
+OSP/JWT-clean:
+	$(MAKE) -C $(POCO_BASE)/OSP/JWT clean
+
 OSP/RemotingNG/TCP-libexec:  OSP-libexec OSP/BundleCreator-libexec RemotingNG/TCP-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/RemotingNG/TCP
 
 OSP/RemotingNG/TCP-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/RemotingNG/TCP clean
+
+OSP/RemotingNG/REST-libexec:  OSP-libexec OSP/BundleCreator-libexec RemotingNG/REST-libexec
+	$(MAKE) -C $(POCO_BASE)/OSP/RemotingNG/REST
+
+OSP/RemotingNG/REST-clean:
+	$(MAKE) -C $(POCO_BASE)/OSP/RemotingNG/REST clean
 
 Geo-libexec:  Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/Geo
@@ -553,6 +724,16 @@ Redis-tests: Redis-libexec cppunit
 Redis-clean:
 	$(MAKE) -C $(POCO_BASE)/Redis clean
 	$(MAKE) -C $(POCO_BASE)/Redis/testsuite clean
+
+MongoDB-libexec:  Foundation-libexec Net-libexec
+	$(MAKE) -C $(POCO_BASE)/MongoDB
+
+MongoDB-tests: MongoDB-libexec cppunit
+	$(MAKE) -C $(POCO_BASE)/MongoDB/testsuite
+
+MongoDB-clean:
+	$(MAKE) -C $(POCO_BASE)/MongoDB clean
+	$(MAKE) -C $(POCO_BASE)/MongoDB/testsuite clean
 
 clean: cleans CppUnit-clean
 

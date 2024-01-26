@@ -16,6 +16,7 @@
 
 
 #include "IoT/WebEvent/WebEventNotifierServerHelper.h"
+#include "IoT/WebEvent/WebEventNotifierEventDispatcher.h"
 #include "IoT/WebEvent/WebEventNotifierSkeleton.h"
 #include "Poco/RemotingNG/URIUtility.h"
 #include "Poco/SingletonHolder.h"
@@ -54,6 +55,18 @@ void WebEventNotifierServerHelper::shutdown()
 Poco::AutoPtr<IoT::WebEvent::WebEventNotifierRemoteObject> WebEventNotifierServerHelper::createRemoteObjectImpl(Poco::SharedPtr<IoT::WebEvent::WebEventNotifier> pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid)
 {
 	return new WebEventNotifierRemoteObject(oid, pServiceObject);
+}
+
+
+void WebEventNotifierServerHelper::enableEventsImpl(const std::string& uri, const std::string& protocol)
+{
+	Poco::RemotingNG::Identifiable::Ptr pIdentifiable = _pORB->findObject(uri);
+	Poco::AutoPtr<WebEventNotifierRemoteObject> pRemoteObject = pIdentifiable.cast<WebEventNotifierRemoteObject>();
+	if (pRemoteObject)
+	{
+		pRemoteObject->remoting__enableRemoteEvents(protocol);
+	}
+	else throw Poco::NotFoundException("remote object", uri);
 }
 
 

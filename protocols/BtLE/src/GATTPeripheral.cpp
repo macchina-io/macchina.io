@@ -29,7 +29,7 @@ namespace BtLE {
 
 
 GATTPeripheral::GATTPeripheral(const std::string& address, GATTClient::Ptr pGATTClient):
-	_address(address),
+	_address(Poco::toUpper(address)),
 	_pGATTClient(pGATTClient),
 	_logger(Poco::Logger::get("IoT.GATTPeripheral"))
 {

@@ -79,34 +79,36 @@ trackingControllers.controller('TrackingCtrl', ['$scope', '$http', '$interval',
       $scope.resizeMap();
     });
 
-    $http.get('/macchina/gnss/tracking.jss').success(function(data) {
-      $scope.trackingData = data;
-      if (data.valid)
+    $http.get('/macchina/gnss/tracking.jss').then(function(response) {
+      $scope.trackingData = response.data;
+      if (response.data.valid)
       {
-        $scope.setPosition(data.position);
+        $scope.setPosition(response.data.position);
       }
-      if (data.refresh)
+      if (response.data.refresh)
       {
         $interval(function() {
-          $http.get('/macchina/gnss/tracking.jss').success(function(data) {
-            $scope.trackingData = data;
-            if (data.valid)
+          $http.get('/macchina/gnss/tracking.jss').then(function(response) {
+            $scope.trackingData = response.data;
+            if (response.data.valid)
             {
-              $scope.setPosition(data.position);
+              $scope.setPosition(response.data.position);
             }
           })
-        }, data.refresh);
+        }, response.data.refresh);
       }
     });
   }]);
 
 trackingControllers.controller('SessionCtrl', ['$scope', '$http',
   function($scope, $http) {
-    $http.get('/macchina/session.json').success(function(data) {
-      $scope.session = data;
-      if (!data.authenticated)
-      {
-        window.location = "/";
+    $http.get('/macchina/session.json').then(
+      function(response) {
+        $scope.session = response.data;
+        if (!response.data.authenticated)
+        {
+          window.location = "/";
+        }
       }
-    });
+    );
   }]);

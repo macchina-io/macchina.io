@@ -27,6 +27,7 @@ namespace Web {
 const std::string JSSPageReader::MARKUP_BEGIN("response.write(\"");
 const std::string JSSPageReader::MARKUP_END("\");\n");
 const std::string JSSPageReader::EXPR_BEGIN("response.write(");
+const std::string JSSPageReader::EXPR_HTML_BEGIN("response.writeHTML(");
 const std::string JSSPageReader::EXPR_END(");\n");
 
 
@@ -96,6 +97,16 @@ void JSSPageReader::parse(std::istream& pageStream)
 			else _page.handler() << token;
 		}
 		else if (token == "<%=")
+		{
+			if (state == STATE_MARKUP)
+			{
+				_page.handler() << MARKUP_END;
+				_page.handler() << EXPR_HTML_BEGIN;
+				state = STATE_EXPR;
+			}
+			else _page.handler() << token;
+		}
+		else if (token == "<%-")
 		{
 			if (state == STATE_MARKUP)
 			{

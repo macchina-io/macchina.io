@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>OSP JavaScript File Module</name>
+    <symbolicName>com.appinf.osp.js.file</symbolicName>
+    <version>1.0.0</version>
+    <version>1.0.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2023-2024, Applied Informatics Software Engineering GmbH</copyright>
+    <lazyStart>false</lazyStart>
+    <runLevel>600</runLevel>
+    <dependency>
+      <symbolicName>com.appinf.osp.js</symbolicName>
+      <version>[1.0.0, 2.0.0)</version>
+    </dependency>
+  </manifest>
+  <files>
+  	bundle/*
+  </files>
+  <code>
+    ${bin}/*.dll
+    ${bin}/*.pdb
+    bin/${osName}/${osArch}/*.so
+    bin/${osName}/${osArch}/*.dylib
+    ../../../lib/${osName}/${osArch}/libPocoJSFile.so.*
+    ../../../lib/${osName}/${osArch}/libPocoJSFiled.so.*
+    ../../../lib/${osName}/${osArch}/libPocoJSFile.*.dylib
+    ../../../lib/${osName}/${osArch}/libPocoJSFiled.*.dylib
+  </code>
+</bundlespec>

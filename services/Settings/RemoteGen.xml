@@ -1,0 +1,28 @@
+<AppConfig>
+	<RemoteGen>
+		<files>
+			<include>
+				include/IoT/Settings/SettingsService.h
+			</include>
+			<include-paths>
+				include
+			</include-paths>
+		</files>
+		<output>
+			<namespace>IoT::Settings</namespace>
+			<include>include/IoT/Settings</include>
+			<src>src</src>
+			<copyright>Copyright (c) 2023, Applied Informatics Software Engineering GmbH.
+			           All rights reserved.
+
+			           License: Applied Informatics Software and Source Code License Agreement</copyright>
+			<osp>
+				<enable>true</enable>
+			</osp>
+			<mode>server</mode>
+			<timestamps>false</timestamps>
+			<includeRoot>include</includeRoot>
+			<flatIncludes>false</flatIncludes>
+		</output>
+	</RemoteGen>
+</AppConfig>

@@ -10,7 +10,7 @@ include $(POCO_BASE)/build/rules/global
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 ifeq ($(OSNAME),Linux)
-CXXFLAGS += -DMACCHINA_HAVE_SOCKETCAN
+EXTRA_CXXFLAGS += -DMACCHINA_HAVE_SOCKETCAN
 endif
 
 objects = CANSocket CANEndpointImpl BundleActivator

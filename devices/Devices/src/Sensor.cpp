@@ -18,6 +18,9 @@
 #include "Poco/RemotingNG/ORB.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Devices {
 
@@ -50,10 +53,10 @@ void Sensor::clearValueChangedFilter(const std::string& subscriberURI)
 {
 	Poco::RemotingNG::ORB& orb = Poco::RemotingNG::ORB::instance();
 	Poco::RemotingNG::Context::Ptr pContext = Poco::RemotingNG::Context::get();
-	std::string uri = pContext->getValue<std::string>("uri");
-	std::string proto = pContext->getValue<std::string>("transport");
+	std::string uri = pContext->getValue<std::string>("uri"s);
+	std::string proto = pContext->getValue<std::string>("transport"s);
 	Poco::RemotingNG::EventDispatcher::Ptr pED = orb.findEventDispatcher(uri, proto);
-	pED->removeEventFilter(subscriberURI, "valueChanged");
+	pED->removeEventFilter(subscriberURI, "valueChanged"s);
 }
 
 
@@ -69,7 +72,7 @@ void Sensor::setValueChangedIsGreaterThanOrEqualToFilter(const std::string& subs
 }
 
 
-void Sensor::setValueChangedIsLessThanThanFilter(const std::string& subscriberURI, double limit)
+void Sensor::setValueChangedIsLessThanFilter(const std::string& subscriberURI, double limit)
 {
 	setValueChangedFilter(subscriberURI, new Poco::RemotingNG::IsLessThanFilter<double>(limit));
 }
@@ -99,6 +102,12 @@ void Sensor::setValueChangedMinimumIntervalOrDeltaFilter(const std::string& subs
 }
 
 
+void Sensor::setValueChangedMinimumIntervalAndDeltaFilter(const std::string& subscriberURI, long milliseconds, double delta)
+{
+	setValueChangedFilter(subscriberURI, new Poco::RemotingNG::MinimumIntervalAndDeltaFilter<double>(static_cast<Poco::Clock::ClockDiff>(milliseconds)*1000, delta));
+}
+
+
 void Sensor::setValueChangedHysteresisFilter(const std::string& subscriberURI, double lowerThreshold, double upperThreshold)
 {
 	setValueChangedFilter(subscriberURI, new Poco::RemotingNG::HysteresisFilter<double>(lowerThreshold, upperThreshold));
@@ -109,10 +118,10 @@ void Sensor::setValueChangedFilter(const std::string& subscriberURI, Poco::Remot
 {
 	Poco::RemotingNG::ORB& orb = Poco::RemotingNG::ORB::instance();
 	Poco::RemotingNG::Context::Ptr pContext = Poco::RemotingNG::Context::get();
-	std::string uri = pContext->getValue<std::string>("uri");
-	std::string proto = pContext->getValue<std::string>("transport");
+	std::string uri = pContext->getValue<std::string>("uri"s);
+	std::string proto = pContext->getValue<std::string>("transport"s);
 	Poco::RemotingNG::EventDispatcher::Ptr pED = orb.findEventDispatcher(uri, proto);
-	pED->setEventFilter<double>(subscriberURI, "valueChanged", pFilter);
+	pED->setEventFilter<double>(subscriberURI, "valueChanged"s, pFilter);
 }
 
 

@@ -2,7 +2,7 @@
 // PDUReader.h
 //
 // Library: IoT/Modbus
-// Package: ModbusMaster
+// Package: ModbusCore
 // Module:  PDUReader
 //
 // Definition of the PDUReader class.
@@ -37,8 +37,20 @@ public:
 		
 	~PDUReader();
 		/// Destroys the PDUReader.
-	
+
 	void read(GenericMessage& message);
+	void read(ReadCoilsRequest& request);
+	void read(ReadDiscreteInputsRequest& request);
+	void read(ReadHoldingRegistersRequest& request);
+	void read(ReadInputRegistersRequest& request);
+	void read(WriteSingleCoilRequest& request);
+	void read(WriteSingleRegisterRequest& request);
+	void read(ReadExceptionStatusRequest& request);
+	void read(WriteMultipleCoilsRequest& request);
+	void read(WriteMultipleRegistersRequest& request);
+	void read(MaskWriteRegisterRequest& request);
+	void read(ReadWriteMultipleRegistersRequest& request);
+	void read(ReadFIFOQueueRequest& request);
 	void read(ModbusExceptionMessage& message);
 	void read(ReadCoilsResponse& response);
 	void read(ReadDiscreteInputsResponse& response);

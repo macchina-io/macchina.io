@@ -1,0 +1,346 @@
+JavaScript File API Reference
+AAAAMacchinaIO
+
+!!!File and FileStream Objects
+
+`File` objects enable access to the file system, including reading and writing files,
+listing directory contents, creating directories, as well as copying, moving and renaming files.
+
+In order to get access to `File` objects, the script must import the `file` module.
+The following example shows the basic usage. The script imports the `file` module,
+creates a `File` object for a file named "hello.txt", opens the file
+(creating it if it does not exist yet), which returns a `FileStream`,
+and writes a line of text to it.
+
+It's important to always call `close()` on the `FileStream` returned by `open()`
+when done with reading or writing, to avoid accumulating too many operating system file handles.
+
+    const File = require('file').File;
+
+    const helloFile = new File('hello.txt');
+    const helloStream = helloFile.open(File.OPEN_WRITE);
+    helloStream.writeln('Hello, world!');
+    helloStream.close();
+----
+
+
+!!!File Reference
+
+!!File Properties
+
+!exists (ro)
+
+Returns `true` if the file exists in the file system, otherwise `false`.
+
+!size (r/w)
+
+Returns the size of the file in bytes. Can also be used to change the
+size of the file, truncating or expanding it.
+
+!created (ro)
+
+Returns a `Date` with the date and time the file was created, if that information
+is available from the filesystem, or otherwise the time the file's status was last updated.
+Linux systems usually do not maintain a creation (birth) date and time.
+
+!lastModified (r/w)
+
+Returns a `Date` with the date and time of the last modification to the file.
+Can also be used the set the last modification date by assigning a `Date`,
+`DateTime` or `LocalDateTime` object.
+
+!path (ro)
+
+Returns the path of the file, exactly as specified when creating the `File` object.
+
+!name (ro)
+
+Returns the name of the file (without any parent directory components).
+
+!baseName (ro)
+
+Returns the base name of the file (without parent directory components or file suffix/extension).
+
+!extension (ro)
+
+Returns the extension (or suffix) of the file name.
+
+!absolutePath (ro)
+
+Returns the absolute path of the file.
+
+!parent (ro)
+
+Returns the path of the parent directory of the file.
+
+!File.PATH_SEPARATOR (ro)
+
+Returns the platform's path separator, which is a slash ('/') on Unix and a backslash ('\') on Windows.
+
+
+!!File Methods
+
+!isFile()
+
+Returns `true` if the file is a regular file, otherwise `false`.
+
+!isDirectory()
+
+Returns `true` if the file is a directory, otherwise `false`.
+
+!isDevice()
+
+Returns `true` if the file is a device file, otherwise `false`.
+
+!isLink()
+
+Returns `true` if the file is a symbolic or hard link, otherwise `false`.
+
+!isHidden()
+
+Returns `true` if the file is hidden, otherwise `false`.
+
+!canRead()
+
+Returns `true` if the file is readable by its permissions, otherwise `false`.
+
+!canWrite()
+
+Returns `true` if the file is writable by its permissions, otherwise `false`.
+
+!canExecute()
+
+Returns `true` if the file is executable by its permissions (or extension, on some platforms), otherwise `false`.
+
+!copyTo(target [, options])
+
+Copies the file to the given `target` path (which can be a directory).
+
+If the option `File.OPT_FAIL_ON_OVERWRITE` is given as second parameter,
+the copy operation will fail with an exception if a file already exists at
+the given `target` path.
+
+!moveTo(target [, options])
+
+Moves the file to the given `target` path (which can be a directory).
+
+If the option `File.OPT_FAIL_ON_OVERWRITE` is given as second parameter,
+the move operation will fail with an exception if a file already exists at
+the given `target` path.
+When moving a file, the target can be on a different file system or volume.
+
+!linkTo(target [, type])
+
+Creates a symbolic or hard link to the file at the given `target` path.
+
+The `type` of the link can be specified as `File.LINK_SYMBOLIC` (default)
+or `File.LINK_HARD`.
+
+!renameTo(path [, options])
+
+Renames the file to the given `path`.
+
+If the option `File.OPT_FAIL_ON_OVERWRITE` is given as second parameter,
+the rename operation will fail with an exception if a file already exists at
+the given `target` path.
+When renaming a file, the new path must be on the same file system or volume.
+
+See also `moveTo()`.
+
+!remove([recursive])
+
+Removes the file or directory.
+
+If `recursive` is `true` (defaults to `false`), directories are removed
+recursively (including its contents).
+
+!list([pattern [, ...]])
+
+Lists the contents of a directory and returns an array of `File` objects
+representing the directory contents.
+
+Can be called only if the file's path points to a directory.
+
+If one or more optional `pattern` strings are given (e.g. '*.dat'), only files matching that
+pattern (or at least one of these patterns) are returned.
+See Poco::Glob for the pattern format.
+
+Multiple patterns can also be passed as an array, using a spread argument:
+
+    const patterns = ['*.xml', '*.json'];
+    someDir.list(...patterns);
+----
+
+!freeSpace()
+
+Returns the free space in bytes on the file system the file's path points to.
+
+!usableSpace()
+
+Returns the usable space in bytes on the file system the file's path points to.
+
+!totalSpace
+
+Returns the total space in bytes on the file system the file's path points to.
+
+!open([mode])
+
+Opens the file and returns a `FileStream` object for reading and/or writing from/to the file.
+
+The following `mode` flags (combined with OR) can be specified:
+
+  - `File.OPEN_READ`: Open file for reading.
+  - `File.OPEN_WRITE`: Open file for writing.
+  - `File.OPEN_APPEND`: Open file for writing at the end. Before any write operation, a seek to the end of the file will be done.
+  - `File.OPEN_ATEND`: Open the file and seek to the end.
+  - `File.OPEN_EXISTING`: Only open an exising file. Fails with an exception if the file does not exist.
+  - `File.OPEN_NOREPLACE`: Create a new file in an atomic operation. Fails with an exception if the file already exists.
+  - `File.OPEN_TRUNCATE`: Truncate the file after opening.
+
+If no `mode` is specified, the default is `File.OPEN_READ | File.OPEN_EXISTING`.
+
+It's important to always call `close()` on the returned stream when done with reading or writing,
+to avoid accumulating too many open file handles.
+
+!createFile()
+
+Creates a file in an atomic operation.
+Returns `true` if the file was created, or `false` if the file already existed.
+
+!createDirectory()
+
+Creates a directory in an atomic operation.
+Returns `true` if the directory was created, or `false` if the directory already existed.
+
+!createDirectories()
+
+Creates a directory and all parent directories, if necessary.
+
+!File.roots()
+
+Returns an array with all file system roots. On a Unix system, this will
+return only one entry for the file system root (`["/"]`). On a Windows system, this will return
+the drive characters (e.g., `["C:", "D:"]`).
+
+!File.glob(pattern [, options])
+
+Returns an array of file names matching the given pattern.
+See Poco::Glob for the pattern format.
+
+The following options can be specified (combined with OR):
+
+  - `File.GLOB_DOT_SPECIAL`: '*' and '?' do not match '.' at beginning of subject.
+  - `File.GLOB_FOLLOW_SYMLINKS`: Follow symbolic links encounting during traversal.
+  - `File.GLOB_CASELESS`: Ignore case when comparing characters.
+
+!File.concatPaths(path [, path]...)
+
+Concatenates multiple paths or names, separated by the platform's path separator ('/' on Unix, '\' on Windows)
+and returns the result.
+
+!File.resolvePath(basePath [, pathToResolve])
+
+Resolves the given `pathToResolve` against the `basePath`. If `pathToResolve` is a relative path,
+it is appended to `basePath` and the result is returned. If `pathToResolve` is absolute, it is
+returned as is. If `pathToResolve` is not given, `basePath` is returned.
+
+!File.currentDirectory()
+
+Returns the current directory of the process running the script.
+
+
+!!!FileStream Reference
+
+!!FileStream Properties
+
+!readable (ro)
+
+Returns `true` if the stream is readable, otherwise `false`.
+
+!writable (ro)
+
+Returns `true` if the stream is writable, otherwise `false`.
+
+!good (ro)
+
+Returns `true` if the stream is is good state, otherwise `false`.
+
+!eof (ro)
+
+Returns `true` if the stream is in end-of-file state, otherwise `false`.
+
+!lineEnding (r/w)
+
+Returns the line ending characters used when reading or writing lines.
+Defaults to line feed (`File.NEWLINE_LF`).
+
+Can also be set. Valid values are:
+
+  - `File.NEWLINE_LF`: `"\n"` (Unix)
+  - `File.NEWLINE_CRLF`: `"\r\n"` (Windows)
+  - `File.NEWLINE_DEFAULT`: Default for the platform - `"\n"` on Unix, `"\r\n"` on Windows.
+
+!!FileStream Methods
+
+!tell()
+
+Returns the current position for reading and writing in the file.
+
+!seek(position [, direction])
+
+Seeks to the given position (offset according to the given `direction` in the file)
+to set the position for subsequent read or write operations.
+
+The `direction` parameter can be one of:
+
+  - `File.SEEK_BEG`: Offset from beginning of file (default).
+  - `File.SEEK_CUR`: Offset from current position (can be positive or negative to move forward or backwards).
+  - `File.SEEK_END`: Offset from end of file.
+
+!readln()
+
+Reads a line of UTF-8 encoded text from the file and returns a string. The line ending characters (`LF` or `CRLF`) are not
+included in the string.
+
+!writeln(string)
+
+Writes the given string, followed by the line ending character(s), to the file, using UTF-8 encoding.
+
+!read(length)
+
+Reads up to `length` bytes from the file and returns a `Buffer` object with the data.
+
+!write(bufferOrString)
+
+Writes the given data to the file.
+The argument can be a `Buffer` object (for writing binary data), or a string, which will be written UTF-8 encoded.
+
+!peekByte()
+
+Reads a single byte from the file and returns its numeric value.
+The position in the file is not advanced.
+Returns -1 (or `File.EOF`) if the end-of-file has been reached.
+
+!readByte()
+
+Reads a single byte from the file and returns its numeric value.
+Returns -1 (or `File.EOF`) if the end-of-file has been reached.
+
+!writeByte(byte)
+
+Writes a single byte (given as number) to the file.
+
+!reset()
+
+Seeks to the beginning of the file and resets the end-of-file state.
+
+!flush()
+
+Immediately flushes the contents of the internal file buffer to the file system.
+
+!close()
+
+Flushes the contents of the internal file buffer to the file system and closes the file.
+
+It's important to always call `close()` when done with a `FileStream` object
+to avoid accumulating too many operating system file handles.

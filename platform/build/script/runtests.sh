@@ -82,7 +82,7 @@ do
 				echo ""
 				echo ""
 				echo "****************************************"
-				echo "*** $OSNAME $OSARCH $comp"
+				echo "*** $comp"
 				echo "****************************************"
 				echo ""
 
@@ -100,7 +100,7 @@ done
 
 echo ""
 echo ""
-echo "$runs runs, $failures failed."
+echo "$runs suites, $failures failed."
 echo ""
 for test in $failedTests ;
 do

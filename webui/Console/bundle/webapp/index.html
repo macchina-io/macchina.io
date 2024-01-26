@@ -4,6 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>macchina.io - Console</title>
+    <link rel="stylesheet" href="/css/fonts.css" type="text/css"/>
     <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
     <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
     <link rel="stylesheet" href="css/console.css" type="text/css"/>
@@ -11,15 +12,16 @@
     <script type="text/javascript" src="/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="/angular/angular.js"></script>
     <script type="text/javascript" src="js/moment.min.js"></script>
-    <script type="text/javascript" src="js/app.js"></script>
+    <script type="text/javascript" src="js/services.js"></script>
     <script type="text/javascript" src="js/controllers.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
   </head>
   <body ng-controller="SessionCtrl">
     <header>
       <div class="headercontainer">
         <div class="header">
           <h1>
-          <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io"></a>Console
+            <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io EDGE">EDGE</a>&gt; Console
           </h1>
         </div>
       </div>
@@ -31,10 +33,22 @@
             <div class="navigation">
               <ul>
                 <li>
+                  <i class="fa fa-filter"></i>
+                  <select ng-model="priorityFilter" convert-to-number>
+                    <option ng-repeat="option in priorityFilterOptions" value="{{option.id}}">{{option.name}}</option>
+                  </select>
+                </li>
+                <li>
                   <i class="fa fa-square-o"></i> <a ng-click="clear()">Clear</a>
                 </li>
                 <li>
                   <i class="fa fa-arrow-down"></i> <a ng-click="follow()">Follow</a>
+                </li>
+                <li>
+                  <i class="fa fa-clipboard"></i> <a ng-click="copyToClipboard('messages')">Copy to Clipboard</a>
+                </li>
+                <li>
+                  <i class="fa fa-sliders"></i> <a ng-click="showLogLevelsPopup()">Log Levels</a>
                 </li>
               </ul>
             </div>
@@ -51,9 +65,44 @@
            <div style="clear: both;"></div>
          </div>
         </nav>
+
+        <div class="error" ng-if="error != ''">
+          {{error}}
+        </div>
+
         <div class="groupbox" id="messagesContainer">
           <pre id="messages"></pre>
         </div>
+
+        <div id="modalBackground" class="modalBackground"></div>
+        <div id="logLevelsPopup" class="popupWindow">
+          <h1>Log Levels</h1>
+          <form id="logLevelsForm" name="logLevelsForm" novalidate>
+            <div>
+              <i class="fa fa-search"></i> <input class="filterInput" name="filter" type="text" placeholder="Search" ng-model="search" size="30" maxLength="200" autofocus>
+            </div>
+            <div class="loggers">
+              <table class="list" style="width: 100%">
+                <tbody>
+                  <tr ng-repeat="logger in loggers | filter:search" ng-class-even="'even'" ng-class-odd="'odd'">
+                    <td>{{logger.name == "" ? "(all)" : logger.name}}</td>
+                    <td>
+                      <select ng-model="logger.level">
+                        <option ng-repeat="option in logLevelOptions" value="{{option.id}}">{{option.name}}</option>
+                      </select>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="text-align: right">
+              <a href="#" ng-click="hideLogLevelsPopup()">Cancel</a>
+              &nbsp;
+              <button type="button" ng-click="updateLogLevels()">Update</button>
+            </div>
+          </form>
+        </div>
+      
       </div>
     </div>
   </body>

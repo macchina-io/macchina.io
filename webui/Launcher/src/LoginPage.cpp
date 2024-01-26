@@ -1,7 +1,7 @@
 //
 // LoginPage.cpp
 //
-// This file has been generated from LoginPage.cpsp on 2020-02-14 12:01:52.
+// This file has been generated from LoginPage.cpsp on 2023-06-20 10:41:16.
 //
 
 
@@ -49,7 +49,7 @@ void LoginPage::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::
 		}
 	}
 	Poco::Net::HTMLForm form(request, request.stream());
-#line 9 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 9 "/Users/guenter/ws/git/appinf/macchina.io/webui/Launcher/src/LoginPage.cpsp"
 
 std::string message;
 if (session)
@@ -66,6 +66,7 @@ if (session)
 	responseStream << "    <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">\n";
 	responseStream << "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\">\n";
 	responseStream << "    <title>macchina.io</title>\n";
+	responseStream << "    <link rel=\"stylesheet\" href=\"/css/fonts.css\" type=\"text/css\"/>\n";
 	responseStream << "    <link rel=\"stylesheet\" href=\"/css/macchina.css\" type=\"text/css\"/>\n";
 	responseStream << "    <link rel=\"icon\" href=\"/images/favicon.ico\">\n";
 	responseStream << "    <script type=\"text/javascript\" src=\"/jquery/jquery.min.js\"></script>\n";
@@ -75,7 +76,7 @@ if (session)
 	responseStream << "      <div class=\"headercontainer\">\n";
 	responseStream << "        <div class=\"header\">\n";
 	responseStream << "          <h1>\n";
-	responseStream << "            <a href=\"/\"><img src=\"/images/headerlogo.png\" srcset=\"/images/headerlogo-x2.png 2x\" alt=\"macchina.io\"></a>\n";
+	responseStream << "            <a href=\"/\"><img src=\"/images/headerlogo.png\" srcset=\"/images/headerlogo-x2.png 2x\" alt=\"macchina.io EDGE\">EDGE</a>\n";
 	responseStream << "          </h1>\n";
 	responseStream << "        </div>\n";
 	responseStream << "      </div>\n";
@@ -83,16 +84,16 @@ if (session)
 	responseStream << "    <div class=\"contentcontainer\">\n";
 	responseStream << "      <div class=\"content\">\n";
 	responseStream << "        ";
-#line 38 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 39 "/Users/guenter/ws/git/appinf/macchina.io/webui/Launcher/src/LoginPage.cpsp"
  if (!message.empty()) { 	responseStream << "\n";
 	responseStream << "          <div class=\"error\">\n";
 	responseStream << "            ";
-#line 40 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 41 "/Users/guenter/ws/git/appinf/macchina.io/webui/Launcher/src/LoginPage.cpsp"
 	responseStream << ( U::htmlize(message) );
 	responseStream << "\n";
 	responseStream << "          </div>\n";
 	responseStream << "        ";
-#line 42 "/ws/git/macchina-io/macchina.io/webui/Launcher/src/LoginPage.cpsp"
+#line 43 "/Users/guenter/ws/git/appinf/macchina.io/webui/Launcher/src/LoginPage.cpsp"
  } 	responseStream << "\n";
 	responseStream << "        <div class=\"loginBox\">\n";
 	responseStream << "          <form method=\"post\" action=\"/\">\n";

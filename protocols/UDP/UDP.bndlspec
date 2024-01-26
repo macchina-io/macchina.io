@@ -5,7 +5,7 @@
     <symbolicName>io.macchina.protocols.udp</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2017-2022, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2017-2024, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>IoT::UDP::BundleActivator</class>
       <library>io.macchina.protocols.udp</library>

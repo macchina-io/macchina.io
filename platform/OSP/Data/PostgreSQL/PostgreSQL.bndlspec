@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>POCO Data PostgreSQL Connector</name>
+    <symbolicName>poco.data.postgresql</symbolicName>
+    <version>1.11.8</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2020-2024, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>PostgreSQLBundleActivator</class>
+      <library>poco.data.postgresql</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>000</runLevel>
+    <dependency>
+      <symbolicName>poco.data</symbolicName>
+      <version>1.11.8</version>
+    </dependency>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../../${bin}/PocoDataPostgreSQL${64}.dll,
+    ../../../${bin}/PocoDataPostgreSQL${64}d.dll,
+    ../../../${bin}/PocoDataPostgreSQL${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../../lib/${osName}/${osArch}/libPocoDataPostgreSQL.so.*,
+    ../../../lib/${osName}/${osArch}/libPocoDataPostgreSQLd.so.*,
+    ../../../lib/${osName}/${osArch}/libPocoDataPostgreSQL.*.dylib,
+    ../../../lib/${osName}/${osArch}/libPocoDataPostgreSQLd.*.dylib
+  </code>
+</bundlespec>

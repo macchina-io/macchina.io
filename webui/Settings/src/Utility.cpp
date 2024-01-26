@@ -11,14 +11,20 @@
 #include "Utility.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Web {
 namespace Settings {
 
 
+Poco::FastMutex Utility::mutex;
+
+
 bool Utility::isAuthenticated(Poco::OSP::Web::WebSession::Ptr pSession, const Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
-	if (!pSession || !pSession->has("username") || request.get("X-XSRF-TOKEN", "") != pSession->csrfToken())
+	if (!pSession || !pSession->has("username") || (isMutating(request) && request.get("X-XSRF-TOKEN"s, ""s) != pSession->csrfToken()))
 	{
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_UNAUTHORIZED);
 		response.setContentLength(0);
@@ -111,12 +117,15 @@ void Utility::copyDeltaProperties(const Poco::Util::AbstractConfiguration& ref, 
 	{
 		for (Poco::Util::AbstractConfiguration::Keys::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
-			std::string fullKey = root;
-			if (!fullKey.empty()) fullKey += '.';
-			fullKey.append(*it);
-			if (excludeSet.find(fullKey) == excludeSet.end())
+			if (!it->empty()) // Empty key may happen if file contains a like "settings." with a trailing dot. Continuing would lead to an endless recursion.
 			{
-				copyDeltaProperties(ref, source, target, excludeSet, fullKey);
+				std::string fullKey = root;
+				if (!fullKey.empty()) fullKey += '.';
+				fullKey.append(*it);
+				if (excludeSet.find(fullKey) == excludeSet.end())
+				{
+					copyDeltaProperties(ref, source, target, excludeSet, fullKey);
+				}
 			}
 		}
 	}

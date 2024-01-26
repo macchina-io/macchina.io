@@ -30,8 +30,8 @@ namespace BtLE {
 
 
 class IoTBtLE_API GATTPeripheral: public Peripheral
-	/// This class provides a high-level interface to a Bluetooth LE peripheral
-	/// device using the Bluetooth Generic Attribute Profile (GATT).
+	/// This class provides a high-level interface to a Bt LE peripheral
+	/// device using the Bt Generic Attribute Profile (GATT).
 {
 public:
 	GATTPeripheral(const std::string& address, GATTClient::Ptr pGATTClient);

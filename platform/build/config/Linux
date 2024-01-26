@@ -38,10 +38,10 @@ SHAREDLIBLINKEXT = .so
 #
 # Compiler and Linker Flags
 #
-CFLAGS          = $(SANITIZEFLAGS) -std=c11
+CFLAGS          = $(SANITIZEFLAGS) -std=c11 -fstack-protector-strong
 CFLAGS32        =
 CFLAGS64        =
-CXXFLAGS        = $(SANITIZEFLAGS) -std=gnu++14 -Wall -Wno-sign-compare -Wno-deprecated-copy
+CXXFLAGS        = $(SANITIZEFLAGS) -std=gnu++14 -Wall -Wno-sign-compare -fstack-protector-strong
 CXXFLAGS32      =
 CXXFLAGS64      =
 LINKFLAGS       = $(SANITIZEFLAGS)
@@ -63,7 +63,7 @@ RELEASEOPT_LINK = -O2
 #
 # System Specific Flags
 #
-SYSFLAGS = -D_XOPEN_SOURCE=600 -D_REENTRANT -D_THREAD_SAFE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -DPOCO_HAVE_FD_EPOLL
+SYSFLAGS = -DPOCO_HAVE_CXXABI_H -D_XOPEN_SOURCE=600 -D_REENTRANT -D_THREAD_SAFE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -DPOCO_HAVE_FD_EPOLL
 
 #
 # System Specific Libraries

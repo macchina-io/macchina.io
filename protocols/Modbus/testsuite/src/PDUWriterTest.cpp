@@ -181,7 +181,7 @@ void PDUWriterTest::testWriteSingleRegisterRequest()
 
 	WriteSingleRegisterRequest message;
 	message.slaveOrUnitAddress = 0x02;
-	message.outputAddress = 0x55FF;
+	message.registerAddress = 0x55FF;
 	message.value = 0xAA55;
 
 	PDUWriter pduWriter(binaryWriter);

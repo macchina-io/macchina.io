@@ -70,7 +70,7 @@ void SandboxRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request,
 	p.makeFile();
 	std::string action = p.getBaseName();
 
-	if (!(pAuthService->authorize(username, "bundleAdmin") && (action == "export" || request.get("X-XSRF-TOKEN", "") == pSession->csrfToken())))
+	if (!(pAuthService->authorize(username, "bundleAdmin") && (action == "export" || action == "download" || request.get("X-XSRF-TOKEN", "") == pSession->csrfToken())))
 	{
 		response.setContentLength(0);
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_FORBIDDEN);
@@ -105,24 +105,7 @@ void SandboxRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request,
 			}
 			else if (action == "load")
 			{
-				Poco::Path scriptPath(pBundle->path());
-				scriptPath.makeDirectory();
-				scriptPath.setFileName(SANDBOX_SCRIPT);
-				response.set("Cache-Control", "no-cache");
-				if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_GET)
-				{
-					response.sendFile(scriptPath.toString(), "text/plain");
-				}
-				else if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_HEAD)
-				{
-					Poco::File f(scriptPath.toString());
-					Poco::Timestamp dateTime = f.getLastModified();
-					Poco::File::FileSize length = f.getSize();
-					response.set("Last-Modified", Poco::DateTimeFormatter::format(dateTime, Poco::DateTimeFormat::HTTP_FORMAT));
-					response.setContentLength64(length);
-					response.setContentType("text/plain");
-					response.send();
-				}
+				handleLoad(pBundle, request, response);
 				return;
 			}
 			else if (action == "save")
@@ -141,6 +124,11 @@ void SandboxRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request,
 			else if (action == "export")
 			{
 				handleExport(pBundle, request, response);
+				return;
+			}
+			else if (action == "download")
+			{
+				handleDownload(pBundle, request, response);
 				return;
 			}
 			else if (action == "state")
@@ -310,6 +298,7 @@ void SandboxRequestHandler::handleExport(Poco::OSP::Bundle::Ptr pBundle, Poco::N
 	exportBndlStream.close();
 
 	response.set("Content-Disposition", Poco::format("attachment; filename=%s", bundleFileName));
+	response.set("Cache-Control", "no-cache, no-store");
 	response.sendFile(exportBndlPath.toString(), "application/octet-stream");
 
 	try
@@ -321,6 +310,40 @@ void SandboxRequestHandler::handleExport(Poco::OSP::Bundle::Ptr pBundle, Poco::N
 	catch (Poco::Exception& exc)
 	{
 		context()->logger().error(Poco::format("Error cleaning up after bundle export: %s", exc.displayText()));
+	}
+}
+
+
+void SandboxRequestHandler::handleLoad(Poco::OSP::Bundle::Ptr pBundle, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
+{
+	handleDownload(pBundle, request, response, false);
+}
+
+
+void SandboxRequestHandler::handleDownload(Poco::OSP::Bundle::Ptr pBundle, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, bool withContentDisposition)
+{
+	Poco::Path scriptPath(pBundle->path());
+	scriptPath.makeDirectory();
+	scriptPath.setFileName(SANDBOX_SCRIPT);
+
+	response.set("Cache-Control", "no-cache, no-store");
+	if (withContentDisposition)
+	{
+		response.set("Content-Disposition", "attachment; filename=sandbox.js");
+	}
+	if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_GET)
+	{
+		response.sendFile(scriptPath.toString(), "text/javascript");
+	}
+	else if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_HEAD)
+	{
+		Poco::File f(scriptPath.toString());
+		Poco::Timestamp dateTime = f.getLastModified();
+		Poco::File::FileSize length = f.getSize();
+		response.set("Last-Modified", Poco::DateTimeFormatter::format(dateTime, Poco::DateTimeFormat::HTTP_FORMAT));
+		response.setContentLength64(length);
+		response.setContentType("text/javascript");
+		response.send();
 	}
 }
 

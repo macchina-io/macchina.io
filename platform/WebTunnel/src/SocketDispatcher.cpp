@@ -19,6 +19,9 @@
 #include "Poco/Event.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace WebTunnel {
 
@@ -253,7 +256,7 @@ SocketDispatcher::SocketDispatcher(int threadCount, Poco::Timespan timeout, int 
 	_mainRunnable(*this, &SocketDispatcher::runMain),
 	_workerRunnable(*this, &SocketDispatcher::runWorker),
 	_stopped(false),
-	_logger(Poco::Logger::get("WebTunnel.SocketDispatcher"))
+	_logger(Poco::Logger::get("WebTunnel.SocketDispatcher"s))
 {
 	for (int i = 0; i < threadCount; i++)
 	{
@@ -409,16 +412,16 @@ void SocketDispatcher::runMain()
 		{
 			if (exc.code() == POCO_ENOTCONN)
 			{
-				_logger.debug("A socket is no longer connected.");
+				_logger.debug("A socket is no longer connected."s);
 			}
 			else
 			{
-				_logger.error("Network exception in socket dispatcher: " + exc.displayText());
+				_logger.error("Network exception in socket dispatcher: %s"s, exc.displayText());
 			}
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.error("Exception in socket dispatcher: " + exc.displayText());
+			_logger.error("Exception in socket dispatcher: %s"s, exc.displayText());
 		}
 	}
 }
@@ -442,7 +445,7 @@ void SocketDispatcher::runWorker()
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.error("Exception in worker thread: " + exc.displayText());
+			_logger.error("Exception in worker thread: %s"s, exc.displayText());
 		}
 	}
 }

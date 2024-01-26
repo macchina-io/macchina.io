@@ -1,7 +1,7 @@
 #
 # Makefile
 #
-# Makefile for macchina.io Bluetooth LE Library
+# Makefile for macchina.io Bt LE Library
 #
 
 include $(POCO_BASE)/build/rules/global
@@ -9,19 +9,10 @@ include $(POCO_BASE)/build/rules/global
 objects = \
 	GATTClient \
 	GATTPeripheral \
-	IPeripheral \
-	IPeripheralBrowser \
 	Peripheral \
 	PeripheralBrowser \
-	PeripheralBrowserEventDispatcher \
-	PeripheralBrowserRemoteObject \
-	PeripheralBrowserServerHelper \
-	PeripheralBrowserSkeleton \
-	PeripheralEventDispatcher \
-	PeripheralFactory \
-	PeripheralRemoteObject \
-	PeripheralServerHelper \
-	PeripheralSkeleton
+	PeripheralManager \
+	PeripheralFactory 
 
 target         = IoTBtLE
 target_version = 1

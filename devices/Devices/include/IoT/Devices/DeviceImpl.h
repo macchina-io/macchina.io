@@ -66,6 +66,26 @@ public:
 		return Poco::AnyCast<int>(getProperty(name));
 	}
 
+	void setPropertyInt16(const std::string& name, Poco::Int16 value)
+	{
+		setProperty(name, value);
+	}
+	
+	Poco::Int16 getPropertyInt16(const std::string& name) const
+	{
+		return Poco::AnyCast<Poco::Int16>(getProperty(name));
+	}
+
+	void setPropertyInt64(const std::string& name, Poco::Int64 value)
+	{
+		setProperty(name, value);
+	}
+	
+	Poco::Int64 getPropertyInt64(const std::string& name) const
+	{
+		return Poco::AnyCast<Poco::Int64>(getProperty(name));
+	}
+
 	void setPropertyDouble(const std::string& name, double value)
 	{
 		setProperty(name, value);
@@ -84,6 +104,16 @@ public:
 	bool getPropertyBool(const std::string& name) const
 	{
 		return Poco::AnyCast<bool>(getProperty(name));
+	}
+
+	void setPropertyTimestamp(const std::string& name, Poco::Timestamp value)
+	{
+		setProperty(name, value);
+	}
+	
+	Poco::Timestamp getPropertyTimestamp(const std::string& name) const
+	{
+		return Poco::AnyCast<Poco::Timestamp>(getProperty(name));
 	}
 
 	void setProperty(const std::string& name, const Poco::Any& value)

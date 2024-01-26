@@ -30,10 +30,10 @@ To clone the [[https://github.com/macchina-io/macchina.io macchina.io EDGE GitHu
     $ git clone https://github.com/macchina-io/macchina.io.git
 ----
 
-For the latest stable release, you may want to check out the master branch:
+For the latest stable release, you may want to check out the main branch:
 
     $ cd macchina.io
-    $ git checkout master
+    $ git checkout main
 ----
 
 The default branch is the develop branch, which contains the latest and greatest
@@ -46,25 +46,32 @@ features, but is not recommended for production use.
 
 macchina.io EDGE uses the build system from the POCO C++ Libraries, which is based on
 GNU Make. You'll also need a recent version of the GNU C++ compiler (at least
-4.9) or Clang 3.4 (on macOS: Xcode Clang/Apple LLVM 8.0 command-line tools).
+5.0) or Clang 3.4 (on macOS: Xcode Clang/Apple LLVM 8.0 command-line tools).
 Make sure you have the OpenSSL headers and libraries installed.
 
-Furthermore, Python 2.7 is required for building the V8 JavaScript engine.
+Furthermore, Python 3.9 or later is required for building the V8 JavaScript engine.
 
 
 !Ubuntu/Debian/Raspbian
 
 Install all required packages via:
 
-    $ sudo apt-get install g++ make libssl-dev python
+    $ sudo apt-get install g++ make libssl-dev python-is-python3
 ----
 
 !macOS
 
-Install OpenSSL via [[http://brew.sh Homebrew]]:
+Install OpenSSL (1.1.1 or 3.x) and Python 3.9 (or newer) via [[http://brew.sh Homebrew]]:
 
-    $ brew install openssl
+    $ brew install openssl python@3.9
 ----
+
+NOTE: On macOS, the `python` command must run Python 3.9 (or newer) in order to build V8.
+If installed via Homebrew, add the following directory to your `$PATH`:
+
+Intel: `/usr/local/opt/python@3.9/libexec/bin`
+
+Apple Silicon: `/opt/homebrew/opt/python@3.9/libexec/bin`
 
 
 !!Compiling macchina.io EDGE
@@ -92,21 +99,6 @@ It may be better to cross-compile on a desktop system and transfer the
 binaries to the target system.
 
 
-!!Building macchina.io EDGE Without JavaScript Support
-
-It is possible to build macchina.io EDGE without JavaScript support. This is useful
-for devices where you don't need JavaScript programming capabilities. This also
-saves a lot of resources, since the V8 JavaScript engine has a significant
-footprint. To do so, pass `WITHOUT_JS=1` to `make`, as in:
-
-    $ make -s -j8 WITHOUT_JS=1 DEFAULT_TARGET=shared_release
-----
-
-Note that most apps of the macchina.io EDGE web user interface need JavaScript
-support, so the features of the web user interface will be limited if JavaScript
-has been disabled.
-
-
 !!Cross Compiling macchina.io EDGE
 
 Note: if you want to run macchina.io EDGE on your desktop system only, you can safely
@@ -119,9 +111,16 @@ for various Embedded Linux targets can be found in the <*platform/build/config*>
 A build configuration specifies the toolchain/compiler to be used as well as any special compiler
 or linker arguments required for the target. It's best to create a new configuration
 by copying an existing one and copying it into the <*platform/build/config*> directory.
-Good starting points for ARM-based targets are <*DigiEL-A8*>, <*Angstrom*>, <*BeagleBoard*>,
-<*Yocto*> or <*ELDK*>. If you have a basic understanding of cross-compiling for
-embedded Linux systems, the build configuration files should be pretty self explaining.
+Good starting points for ARM-based targets are <*BeagleBoard*> or <*Yocto*>. 
+If you have a basic understanding of cross-compiling for embedded Linux systems, the build 
+configuration files should be pretty self explaining.
+
+NOTE: There is also a complete Yocto layer for macchina.io EDGE available from Applied Informatics.
+This may be the preferred way of building macchina.io EDGE for Yocto-based Linux platforms.
+Please contact support@appinf.com for details.
+
+There is also a <*Yocto*> build configuration available. This is intended to be used with 
+a standalone Yocto toolchain or SDK.
 
 You can find more information about build configurations and the build system in
 general in then [[99150-GMakeBuildNotes.html POCO C++ Libraries GNU Make Build System]]
@@ -174,11 +173,37 @@ All shared libraries should go into the <*lib*> directory, and all bundles go in
 You can use the <*install_runtime*> Makefile target to copy all these files into
 a directory hierarchy like above:
 
-    $ POCO_CONFIG=Yocto make -s install_runtime INSTALLDIR=/path/to/macchina-install-dir
+    $ POCO_CONFIG=Yocto make -s PRODUCT=runtime INSTALLDIR=/path/to/macchina-install-dir install
 ----
 
 Then you can simply pack the directory into an archive (e.g., <*.tar.gz*>) file and
 transfer it to the target.
+
+!Cross-Compiling from a 64-bit Host to a 32-bit target
+
+Cross-compiling the V8 JavaScript engine from a 64-bit build host (typically `x86_86`)
+to a 32-bit target like (`i386`, `i686` or `armv7l`) additionally (to the native toolchain) 
+requires a 32-bit toolchain on the host system, as well as the ability to run 32-bit executables 
+compiled with the host-based 32-bit toolchain on the host. 
+
+Basically the V8 build system will invoke the native compiler with the `-m32` option to build
+a 32-bit executable that sets up a JavaScript snapshot, and will then run the compiled 32-bit 
+executable on the host to generate that snapshot.
+
+On a Ubuntu or Debian host, the necessary features can be installed with the following
+commands (for Ubuntu 20.04):
+
+    $ sudo dpkg --add-architecture i386
+    $ sudo apt update
+    $ sudo apt install -y binutils-multiarch libc6-dev:i386 libstdc++-9-dev:i386 gcc-9-multilib g++-9-multilib
+----
+
+For Ubuntu 22.04, the third command changes slightly, to accommodate for the newer GCC version:
+
+    $ sudo dpkg --add-architecture i386
+    $ sudo apt update
+    $ sudo apt install -y binutils-multiarch libc6-dev:i386 libstdc++-11-dev:i386 gcc-11-multilib g++-11-multilib
+----
 
 
 !!!Running macchina.io EDGE
@@ -199,13 +224,15 @@ To run macchina.io EDGE on a Linux system:
     $ bin/Linux/x86_64/macchina
 ----
 
-To run macchina.io EDGE on an macOS system:
+To run macchina.io EDGE on an macOS (Intel) system:
 
     $ cd /path/to/macchina.io
     $ . env.bash
     $ cd server
     $ bin/Darwin/x86_64/macchina
 ----
+
+For an Apple Silicon (ARM) system, the path of the executable will be `bin/Darwin/arm64/macchina`.
 
 Note: if you macchina.io EDGE configuration file <*macchina.properties*> is not
 located in the same directory as the server executable, or in a parent
@@ -335,6 +362,11 @@ It should contain something like:
     2015-03-07 13:12:31.688 [Information] osp.bundle.io.macchina.webui.playground.sandbox<28>: Current temperature: 26.999999999999975
 ----
 
+You can also update the macchina.io EDGE web console from the launcher screen to see the output.
+
+[[image:images/macchina_web_console.png The macchina.io EDGE Web Console]]
+
+
 In addition to querying the service registry directly for a specific kind of sensor or,
 more generally, service, a program can also be notified if a service that matches a query
 is registered with the service registry. This is done using a ServiceListener, and it's
@@ -399,7 +431,7 @@ will be written to the log.
     {
         var temperatureSensor = temperatureRefs[0].instance();
         temperatureSensor.on('valueChanged',
-            (event) => {
+            event => {
                 logger.information('Temperature changed: ' + event.data);
             }
         );
@@ -410,6 +442,12 @@ will be written to the log.
     }
 ----
 
+<!Important!>: When subscribing to an event, make sure that the object that provides
+the event is protected from the JavaScript garbage collector. This is typically done by
+storing the object in a global variable. Subscribing to an event on an object
+stored in a local variable (in a function or block) declared with `let` or `const` will 
+typically work for some time, until the garbage collector decides to remove the object. 
+After this, no further events will be delivered.
 
 !!Sending Sensor Data Using MQTT
 

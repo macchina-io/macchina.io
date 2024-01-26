@@ -20,6 +20,7 @@
 #include "Poco/AutoPtr.h"
 #include "Poco/ClassLibrary.h"
 #include "ConsoleRequestHandler.h"
+#include "LogLevelRequestHandler.h"
 
 
 namespace IoT {
@@ -69,6 +70,16 @@ private:
 };
 
 
+class LogLevelRequestHandlerFactory: public Poco::OSP::Web::WebRequestHandlerFactory
+{
+public:
+	Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest& request)
+	{
+		return new LogLevelRequestHandler(context());
+	}
+};
+
+
 class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
@@ -93,4 +104,5 @@ POCO_END_MANIFEST
 
 POCO_BEGIN_NAMED_MANIFEST(WebServer, Poco::OSP::Web::WebRequestHandlerFactory)
 	POCO_EXPORT_CLASS(IoT::Web::Console::ConsoleRequestHandlerFactory)
+	POCO_EXPORT_CLASS(IoT::Web::Console::LogLevelRequestHandlerFactory)
 POCO_END_MANIFEST

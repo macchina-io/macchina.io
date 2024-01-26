@@ -28,6 +28,9 @@
 #include "v8.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 namespace JS {
@@ -54,10 +57,10 @@ public:
 		_pXPS = Poco::OSP::ServiceFinder::find<Poco::OSP::ExtensionPointService>(_pContext);
 
 		JSExtensionPoint::Ptr pScriptXP = new JSExtensionPoint(pContext);
-		_pXPS->registerExtensionPoint(pContext->thisBundle(), "com.appinf.osp.js", pScriptXP);
+		_pXPS->registerExtensionPoint(pContext->thisBundle(), "com.appinf.osp.js"s, pScriptXP);
 
 		ModuleExtensionPoint::Ptr pModuleXP = new ModuleExtensionPoint(pContext);
-		_pXPS->registerExtensionPoint(pContext->thisBundle(), "com.appinf.osp.js.module", pModuleXP);
+		_pXPS->registerExtensionPoint(pContext->thisBundle(), "com.appinf.osp.js.module"s, pModuleXP);
 
 		JSExecutor::setGlobalModuleRegistry(pModuleXP->moduleRegistry());
 
@@ -65,7 +68,7 @@ public:
 		_jsBridgeListenerId = Poco::RemotingNG::ORB::instance().registerListener(pListener);
 
 		std::vector<ServiceRef::Ptr> services;
-		pContext->registry().find("name", services);
+		pContext->registry().find("name"s, services);
 		for (std::vector<ServiceRef::Ptr>::iterator it = services.begin(); it != services.end(); ++it)
 		{
 			registerServiceWithORB(*it);
@@ -76,29 +79,29 @@ public:
 
 		Poco::JS::Bridge::BridgeWrapper::registerTransportFactory();
 
-		std::string paths = _pPrefs->configuration()->getString("osp.js.moduleSearchPaths", "");
+		std::string paths = _pPrefs->configuration()->getString("osp.js.moduleSearchPaths"s, ""s);
 		Poco::StringTokenizer pathsTok(paths, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 		JSExecutor::setGlobalModuleSearchPaths(std::vector<std::string>(pathsTok.begin(), pathsTok.end()));
 
-		std::string v8Options = _pPrefs->configuration()->getString("osp.js.v8.flags", "");
-		Poco::StringTokenizer v8OptionsTok(v8Options, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+		std::string v8Options = _pPrefs->configuration()->getString("osp.js.v8.flags"s, ""s);
+		Poco::StringTokenizer v8OptionsTok(v8Options, ",;"s, Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 		for (Poco::StringTokenizer::Iterator it = v8OptionsTok.begin(); it != v8OptionsTok.end(); ++it)
 		{
 			v8::V8::SetFlagsFromString(it->data(), it->size());
 		}
 
-		Poco::UInt64 memoryLimit = _pPrefs->configuration()->getUInt64("osp.js.memoryLimit", JSExecutor::getDefaultMemoryLimit());
+		Poco::UInt64 memoryLimit = _pPrefs->configuration()->getUInt64("osp.js.memoryLimit"s, JSExecutor::getDefaultMemoryLimit());
 		JSExecutor::setDefaultMemoryLimit(memoryLimit);
 
 		std::string v8Version =  v8::V8::GetVersion();
-		_pContext->logger().information("Using V8 version: %s", v8Version);
+		_pContext->logger().information("Using V8 version: %s"s, v8Version);
 	}
 
 	void stop(BundleContext::Ptr pContext)
 	{
-		_pXPS->unregisterExtensionPoint("com.appinf.osp.js");
-		_pXPS = 0;
-		_pPrefs = 0;
+		_pXPS->unregisterExtensionPoint("com.appinf.osp.js"s);
+		_pXPS.reset();
+		_pPrefs.reset();
 
 		Poco::RemotingNG::ORB::instance().unregisterListener(_jsBridgeListenerId, true);
 		Poco::JS::Bridge::BridgeWrapper::unregisterTransportFactory();
@@ -106,24 +109,24 @@ public:
 		pContext->registry().serviceRegistered   -= Poco::delegate(this, &JSBundleActivator::handleServiceRegistered);
 		pContext->registry().serviceUnregistered -= Poco::delegate(this, &JSBundleActivator::handleServiceUnregistered);
 
-		_pContext = 0;
+		_pContext.reset();
 
 		Poco::JS::Core::uninitialize();
 	}
 
 	void handleServiceRegistered(const void* sender, ServiceEvent& event)
 	{
-		_pContext->logger().information("Service registered: " + event.service()->name());
+		_pContext->logger().information("Service registered: "s + event.service()->name());
 		registerServiceWithORB(event.service());
 	}
 
 	void handleServiceUnregistered(const void* sender, ServiceEvent& event)
 	{
-		if (event.service()->properties().has("jsbridge"))
+		if (event.service()->properties().has("jsbridge"s))
 		{
-			_pContext->logger().information("Unregistering service with ORB: " + event.service()->name());
+			_pContext->logger().information("Unregistering service with ORB: "s + event.service()->name());
 
-			std::string uri = event.service()->properties().get("jsbridge");
+			std::string uri = event.service()->properties().get("jsbridge"s);
 			Poco::RemotingNG::ORB::instance().unregisterObject(uri);
 		}
 	}
@@ -133,11 +136,11 @@ public:
 		Poco::OSP::Service::Ptr pService = pServiceRef->instance();
 		if (dynamic_cast<Poco::RemotingNG::RemoteObject*>(pService.get()))
 		{
-			_pContext->logger().information("Registering service with ORB: " + pServiceRef->name());
+			_pContext->logger().information("Registering service with ORB: "s + pServiceRef->name());
 			Poco::RemotingNG::RemoteObject::Ptr pRemoteObject = pService.cast<Poco::RemotingNG::RemoteObject>();
 			std::string uri = Poco::RemotingNG::ORB::instance().registerObject(pRemoteObject, _jsBridgeListenerId);
-			pRemoteObject->remoting__enableRemoteEvents("jsbridge");
-			pServiceRef->properties().set("jsbridge", uri);
+			pRemoteObject->remoting__enableRemoteEvents("jsbridge"s);
+			pServiceRef->properties().set("jsbridge"s, uri);
 		}
 	}
 

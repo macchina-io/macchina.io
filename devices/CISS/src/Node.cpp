@@ -18,6 +18,9 @@
 #include "Poco/BinaryReader.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace CISS {
 
@@ -28,12 +31,12 @@ Node::Node(const std::string& id, Poco::SharedPtr<NPIPort> pPort):
 	_stopped(false),
 	_environmentalEnabled(0),
 	_lastCommandOK(false),
-	_logger(Poco::Logger::get("IoT.CISS.Node"))
+	_logger(Poco::Logger::get("IoT.CISS.Node"s))
 {
-	_pTemperature   = new Sensor(*this, CISS_SENSOR_ENVIRONMENTAL, CISS_STREAM_TEMPERATURE, "temperature", IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS);
-	_pHumidity      = new Sensor(*this, CISS_SENSOR_ENVIRONMENTAL, CISS_STREAM_HUMIDITY, "humidity", "%");
-	_pPressure      = new Sensor(*this, CISS_SENSOR_ENVIRONMENTAL, CISS_STREAM_PRESSURE, "airPressure", "hPa");
-	_pLight         = new Sensor(*this, CISS_SENSOR_LIGHT, CISS_STREAM_LIGHT, "illuminance", IoT::Devices::Sensor::PHYSICAL_UNIT_LUX);
+	_pTemperature   = new Sensor(*this, CISS_SENSOR_ENVIRONMENTAL, CISS_STREAM_TEMPERATURE, "temperature"s, IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS, "CISS Temperature Sensor"s);
+	_pHumidity      = new Sensor(*this, CISS_SENSOR_ENVIRONMENTAL, CISS_STREAM_HUMIDITY, "humidity"s, "%"s, "CISS Humidity Sensor"s);
+	_pPressure      = new Sensor(*this, CISS_SENSOR_ENVIRONMENTAL, CISS_STREAM_PRESSURE, "airPressure"s, "hPa"s, "CISS Air Pressure Sensor"s);
+	_pLight         = new Sensor(*this, CISS_SENSOR_LIGHT, CISS_STREAM_LIGHT, "illuminance"s, IoT::Devices::Sensor::PHYSICAL_UNIT_LUX, "CISS Light Sensor"s);
 	_pAccelerometer = new Accelerometer(*this);
 	_pMagnetometer  = new Magnetometer(*this);
 	_pGyroscope     = new Gyroscope(*this);
@@ -91,7 +94,7 @@ void Node::enableSensorImpl(Poco::UInt8 sensorId, bool enable)
 
 	_pPort->sendFrame(frame);
 	_responseReceived.wait(CISS_COMMAND_TIMEOUT);
-	if (!_lastCommandOK) throw Poco::IOException("Failed to enable sensor");
+	if (!_lastCommandOK) throw Poco::IOException("Failed to enable sensor"s);
 }
 
 
@@ -100,9 +103,9 @@ void Node::enableSensor(Poco::UInt8 sensorId, bool enable)
 	if (_logger.debug())
 	{
 		if (enable)
-			_logger.debug("Enabling sensor 0x%02x.", static_cast<unsigned>(sensorId));
+			_logger.debug("Enabling sensor 0x%02x."s, static_cast<unsigned>(sensorId));
 		else
-			_logger.debug("Disabling sensor 0x%02x.", static_cast<unsigned>(sensorId));
+			_logger.debug("Disabling sensor 0x%02x."s, static_cast<unsigned>(sensorId));
 	}
 
 	Poco::FastMutex::ScopedLock lock(_mutex);
@@ -115,9 +118,9 @@ void Node::enableEnvironmentalSensor(Poco::UInt8 sensorId, Poco::UInt8 streamId,
 	if (_logger.debug())
 	{
 		if (enable)
-			_logger.debug("Enabling environmental sensor 0x%02x/0x%02x.", static_cast<unsigned>(sensorId), static_cast<unsigned>(streamId));
+			_logger.debug("Enabling environmental sensor 0x%02x/0x%02x."s, static_cast<unsigned>(sensorId), static_cast<unsigned>(streamId));
 		else
-			_logger.debug("Disabling environmental sensor 0x%02x/0x%02x.", static_cast<unsigned>(sensorId), static_cast<unsigned>(streamId));
+			_logger.debug("Disabling environmental sensor 0x%02x/0x%02x."s, static_cast<unsigned>(sensorId), static_cast<unsigned>(streamId));
 	}
 
 	Poco::FastMutex::ScopedLock lock(_mutex);
@@ -148,7 +151,7 @@ void Node::setSamplingInterval(Poco::UInt8 sensorId, Poco::UInt32 interval)
 {
 	if (_logger.debug())
 	{
-		_logger.debug("Setting inertial sampling interval to %u ms.", interval);
+		_logger.debug("Setting inertial sampling interval to %u ms."s, interval);
 	}
 
 	char payload[6];
@@ -161,7 +164,7 @@ void Node::setSamplingInterval(Poco::UInt8 sensorId, Poco::UInt32 interval)
 	Poco::FastMutex::ScopedLock lock(_mutex);
 	_pPort->sendFrame(frame);
 	_responseReceived.wait(CISS_COMMAND_TIMEOUT);
-	if (!_lastCommandOK) throw Poco::IOException("Failed to set sampling interval");
+	if (!_lastCommandOK) throw Poco::IOException("Failed to set sampling interval"s);
 }
 
 
@@ -169,7 +172,7 @@ void Node::setEnvironmentalSamplingInterval(Poco::UInt8 sensorId, Poco::UInt16 i
 {
 	if (_logger.debug())
 	{
-		_logger.debug("Setting environmental sampling interval to %hu ms.", interval);
+		_logger.debug("Setting environmental sampling interval to %hu ms."s, interval);
 	}
 
 	char payload[4];
@@ -182,7 +185,7 @@ void Node::setEnvironmentalSamplingInterval(Poco::UInt8 sensorId, Poco::UInt16 i
 	Poco::FastMutex::ScopedLock lock(_mutex);
 	_pPort->sendFrame(frame);
 	_responseReceived.wait(CISS_COMMAND_TIMEOUT);
-	if (!_lastCommandOK) throw Poco::IOException("Failed to set sampling interval");
+	if (!_lastCommandOK) throw Poco::IOException("Failed to set sampling interval"s);
 }
 
 
@@ -190,11 +193,11 @@ void Node::setAccelerometerRange(Poco::UInt8 rangeInGs)
 {
 	if (_logger.debug())
 	{
-		_logger.debug("Setting accelerometer range to %u G.", static_cast<unsigned>(rangeInGs));
+		_logger.debug("Setting accelerometer range to %u G."s, static_cast<unsigned>(rangeInGs));
 	}
 
 	if (rangeInGs != 2 && rangeInGs != 4 && rangeInGs != 8 && rangeInGs != 16)
-		throw Poco::InvalidArgumentException("Accelerometer range must be 2,4,8 or 16");
+		throw Poco::InvalidArgumentException("Accelerometer range must be 2,4,8 or 16"s);
 
 	char payload[6];
 	Poco::MemoryOutputStream ostr(payload, sizeof(payload));
@@ -206,7 +209,7 @@ void Node::setAccelerometerRange(Poco::UInt8 rangeInGs)
 	Poco::FastMutex::ScopedLock lock(_mutex);
 	_pPort->sendFrame(frame);
 	_responseReceived.wait(CISS_COMMAND_TIMEOUT);
-	if (!_lastCommandOK) throw Poco::IOException("Failed to set accelerometer range");
+	if (!_lastCommandOK) throw Poco::IOException("Failed to set accelerometer range"s);
 }
 
 
@@ -222,14 +225,14 @@ void Node::handleFrame(const NPIFrame& frame)
 		switch (type)
 		{
 		case CISS_OK:
-			_logger.debug("Last command OK.");
+			_logger.debug("Last command OK."s);
 			_lastCommandOK = true;
 			_responseReceived.set();
 			done = true;
 			break;
 
 		case CISS_NOK:
-			_logger.error("Last command failed.");
+			_logger.error("Last command failed."s);
 			_lastCommandOK = false;
 			_responseReceived.set();
 			done = true;
@@ -327,7 +330,7 @@ void Node::run()
 				{
 					if (_logger.debug())
 					{
-						_logger.debug("NPI frame received (type=0x%x, length=%z)",
+						_logger.debug("NPI frame received (type=0x%x, length=%z)"s,
 							static_cast<unsigned>(frame.type()), frame.frameSize());
 					}
 					handleFrame(frame);

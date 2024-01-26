@@ -1,0 +1,575 @@
+Devices and Datapoints Programming Guide
+AAAAMacchinaIO
+
+!!!Introduction
+
+Communicating with sensors and other devices is a core feature of macchina.io EDGE.
+macchina.io EDGE comes with a set of pre-defined service interfaces for various
+sensor and device types. This means that sensors of a certain type, like
+temperature sensors or accelerometers, always have the same programming
+interface, no matter how they are actually implemented.
+
+In addition to the device-specific interfaces, macchina.io EDGE also provides
+generic Datapoint interfaces. These are similar to the device interfaces, but
+have a more general scope, including the possibility to both read and write
+a datapoint's value.
+
+Datapoints typically represent the result of sensor measurements, or data 
+obtained from monitoring processes.
+
+The main difference between a Datapoint and a Sensor is that a Sensor is typically an 
+interface to a specific device (i.e., a temperature sensor or a certain type), whereas a 
+Datapoint holds a value that has been acquired from another device (via a network or bus system),
+or computed from other data points. 
+
+Optionally, devices and datapoints can be organized hierarchically, in a 
+tree structure.
+
+The pre-defined sensor and device interfaces in macchina.io EDGE are:
+
+  - Device (IoT::Devices::Device, the common base interface)
+  - Accelerometer (IoT::Devices::Accelerometer)
+  - BarcodeReader (IoT::Devices::BarcodeReader)
+  - BooleanSensor (IoT::Devices::BooleanSensor)
+  - Camera (IoT::Devices::Camera)
+  - Composite (IoT::Devices::Composite)
+  - Counter (IoT::Devices::Counter)
+  - GNSSSensor (IoT::Devices::GNSSSensor)
+  - Gyroscope (IoT::Devices::Gyroscope)
+  - IO/GPIO (IoT::Devices::IO)
+  - LED (IoT::Devices::LED)
+  - Magnetometer (IoT::Devices::Magnetometer)
+  - RotaryEncoder (IoT::Devices::RotaryEncoder)
+  - Sensor (IoT::Devices::Sensor)
+  - SerialDevice (IoT::Devices::SerialDevice)
+  - Switch (IoT::Devices::Switch)
+  - Trigger (IoT::Devices::Trigger)
+
+The datapoint interfaces in macchina.io EDGE are:
+
+  - Datapoint (IoT::Devices::Datapoint, the common base interface)
+  - BooleanDatapoint (IoT::Devices::BooleanDatapoint)
+  - CounterDatapoint (IoT::Devices::CounterDatapoint)
+  - EnumDatapoint (IoT::Devices::EnumDatapoint)
+  - FlagsDatapoint (IoT::Devices::FlagsDatapoint)
+  - ScalarDatapoint (IoT::Devices::ScalarDatapoint)
+  - StringDatapoint (IoT::Devices::StringDatapoint)
+  - VectorDatapoint (IoT::Devices::VectorDatapoint)
+
+Every sensor, device or datapoint in macchina.io EDGE is an OSP service implementing
+one of these C++ interfaces.
+
+Simple sensors, like temperature or humidity sensors that only provide a single value,
+are based on the IoT::Devices::Sensor interface. There are also more specific interfaces
+for sensors like accelerometers, GPIOs or GPS/GNSS receivers.
+
+macchina.io EDGE comes with a number of device implementations (e.g., XBee Sensor, Bosch CISS, SensorTag, Simulation), 
+which mostly should be seen as example implementations to help you write your own
+implementation in C++. Please see the [[00320-MacchinaDeviceImplementation.html C++ Device Implementation Guide]]
+for how to do this.
+
+Similarly, you can also build your own datapoint implementations based on the existing interfaces.
+However, macchina.io EDGE also comes with default implementations for all datapoint interfaces, which
+are suitable for a wide range of scenarios.
+
+!!Datapoints vs. Devices and Sensors - When to Use Which
+
+Devices and Sensors are typically used to provide an API to a specific device, e.g. an accelerometer integrated 
+into the device (SBC, gateway, etc.) running macchina.io EDGE. There will be an implementation of the device
+interface that communicates with the actual hardware device via a communication interface like SPI, I2C or USB,
+using a device-specific communication protocol.
+
+Datapoints are typically used if multiple sensor devices are connected via some kind of bus system (e.g., Modbus or 
+CANopen), or for representing data that can not be directly attributed to a specific sensor device,
+e.g., process data received from a PLC. 
+There is typically a software module written in C++ or JavaScript that polls devices (or accepts notifications from
+the devices) for value changes, and then updates the respective data points with the received values.
+
+
+!!!Configuring Sensors and Devices
+
+The configuration of a sensor or device is specific to the respective device.
+Configuration settings for the device implementations that come with macchina.io EDGE are
+shown in the following.
+
+!!GNSS Sensor (NMEA)
+
+To configure a GNSS (GPS) device connected via a serial port using the NMEA protocol, the following
+settings in the macchina.io EDGE configuration can be provided:
+
+  - `gnss.nmea.device`: The path to the serial port device (or USB virtual serial port) the
+    GNSS receiver is connected to, e.g. `/dev/tty.nmea`. Must be specified in order to make
+    the device available.
+  - `gnss.nmea.params`: The serial port communication parameters, typically "8N1".
+    The parameters argument must be a three character string. The first character specifies the serial line
+    character width in bits (5, 6, 7 or 8). The second char specifies the parity (N for none, E for even, O for odd) 
+    and the third character specifies the number of stop bits (1 or 2). Example: "8N1" for 8 bit characters, no parity, 1 stop bit.
+  - `gnss.nmea.speed`: The speed of the serial port in bits per second, e.g., 4800.
+
+Example configuration:
+
+    gnss.nmea.device = /dev/tty.nmea
+    gnss.nmea.speed = 19200
+----
+
+!!GNSS Simulation (GPX File)
+
+To configure a simulated GNSS receiver, based on a series of positions provided through a GPX 
+([[https://en.wikipedia.org/wiki/GPS_Exchange_Format GPS Exchange Format]]) file, the following settings must be provided:
+
+  - `simulation.enable`: Set to `true` to enable simulated sensors, or to `false` to disable.
+  - `simulation.gnss.enable`: Set to `true` to enable the GNSS simulation device, or to `false` to disable. Note that
+    `simulation.enable` must also be set to `true` to enable the GNSS simulation device.
+  - `simulation.gnss.gpxPath`: The path to the GPX file containing the positions.
+  - `simulation.gnss.loopReplay`: Set to `true` (default) to loop through the positions in the GPX file, or to `false` to replay
+    the positions only once.
+  - `simulation.gnss.speedUp`: Provide a factor to speed-up playback of the positions in the GPX file. Defaults to 1.0.
+
+Example configuration:
+
+    simulation.enable = true
+    simulation.gnss.enable = true
+    simulation.gnss.gpxPath = /etc/gnss/positions.gpx
+    simulation.gnss.loopReplay = true
+    simulation.gnss.speedUp = 2
+----
+
+!!Simulated Sensor
+
+To configure a simualated generic sensor (e.g., a temperature sensor), the following settings can be provided:
+
+  - `simulation.enable`: Set to `true` to enable simulated sensors, or to `false` to disable.
+  - `simulation.sensors.<id>.enable`: Set to `true` (default) to enable the specific simulated sensor, or to `false` to disable.
+  - `simulation.sensors.<id>.physicalQuantity`: Specify the physical quantity measured by the sensor, e.g. "temperature".
+    Defaults to none.
+  - `simulation.sensors.<id>.physicalUnit`: Specify the physical unit the sensor data is reported in.
+    This should use the "c/s" symbols from the [[https://unitsofmeasure.org/ucum.html Unified Code for Units of Measure]],
+    e.g. `Cel` for Degrees Celsius.
+  - `simulation.sensors.<id>.initialValue`: Specify the initial value for the sensor. Defaults to 0.0.
+  - `simulation.sensors.<id>.mode`: Specify the way the value is updated. `linear` means that a fixed value is added
+    to the value every cycle. `random` means that a random value in a given range of positive and negative numbers
+    is added to the value every cycle.
+  - `simulation.sensors.<id>.delta`: For mode `linear`, this is the value that is added to the current value every cycle.
+    For `random`, this is the range (+/-) of a random value added to the current value every cycle.
+  - `simulation.sensors.<id>.cycles`: The number of simulation cycles after which the value will be reset to the
+    initial value.
+  - `simulation.sensors.<id>.updateRate`: The rate of updating the sensor's value, in updates per second. Can be set to
+    0 to disable updates (the value will be fixed to the initial value).
+
+The `<id>` that is part of the configuration setting name becomes part of the service name and can be used to find
+the simulated sensor.
+
+Example configuration for a simulated temperature sensor:
+
+    simulation.sensors.temperature.physicalQuantity = temperature
+    simulation.sensors.temperature.physicalUnit = Cel
+    simulation.sensors.temperature.initialValue = 22
+    simulation.sensors.temperature.delta = 0.2
+    simulation.sensors.temperature.cycles = 100
+    simulation.sensors.temperature.updateRate = 0.1
+    simulation.sensors.temperature.mode = random
+----
+
+The simulated sensor configured with the settings above will start with an initial value of
+22 degrees Celsius, and will update every 10 seconds (update rate 0.1) by adding a random 
+value in the interval (-0.2; +0.2).
+
+
+!!!Configuring Datapoints
+
+Datapoints have to be created and configured programmatically, either from JavaScript
+or C++. The IoT::Datapoints::DatapointFactory service is used to create datapoints.
+The `DatapointFactory` interface offers methods for creating instances of the
+different datapoint classes, as well as IoT::Devices::Composite instances. 
+The factory can be obtained via the service registry.
+It is registered under the fixed name `io.macchina.datapoint-factory`.
+
+!!Creating Datapoints in C++
+
+Here is a C++ code example for creating an IoT::Devices::ScalarDatapoint instance
+(implemented by IoT::Datapoints::ScalarDatapointImpl).
+
+    auto pFactoryRef = pBundleContext->registry().findByName("io.macchina.datapoint-factory"s);
+    if (!pFactoryRef) throw Poco::NotFoundException("DatapointFactory");
+    
+    auto pFactory = pFactoryRef->castedInstance<IoT::Datapoints::DatapointFactory>();
+    IoT::Datapoints::ScalarDatapointParams params;
+    params.name = "Temperature 1";
+    params.physicalQuantity = "temperature";
+    params.physicalUnit = "Cel";
+    const auto datapointId = pFactory->createScalar(params);
+----
+
+The created datapoint instance can then be obtained from the service registry,
+via the returned `datapointId`.
+
+    auto pDatapointRef = pBundleContext->registry().findByName(datapointId);
+    auto pDatapoint = pDatapointRef->instance();
+----
+
+!!Creating Datapoints in JavaScript
+
+For JavaScript, a simplified API is available the makes creating datapoints a bit more convenient.
+The JavaScript code corresponding to the above C++ code would be:
+
+    const datapoints = require('bndl://io.macchina.datapoints/datapoints.js');
+    
+    const datapointRef = datapoints.createScalar({
+        name: 'Temperature 1',
+        physicalQuantity: 'temperature',
+        physicalUnit: datapoints.physicalUnits.DEGREES_CELSIUS
+    });
+----
+
+!Creating a Single Datapoint
+
+There are `create*()` methods for all defined datapoint classes.
+
+  - `createBoolean(params)` creates a IoT::Datapoints::BooleanDatapointImpl; params is a IoT::Datapoints::BooleanDatapointParams object.
+  - `createCounter(params)` creates a IoT::Datapoints::CounterDatapointImpl; params is a IoT::Datapoints::CounterDatapointParams object.
+  - `createEnum(params)` creates a IoT::Datapoints::EnumDatapointImpl; params is a IoT::Datapoints::EnumDatapointParams object.
+  - `createFlags(params)` creates a IoT::Datapoints::FlagsDatapointImpl; params is a IoT::Datapoints::FlagsDatapointParams object.
+  - `createMovingAverage(params)` creates a IoT::Datapoints::MovingAverageDatapointImpl; params is a IoT::Datapoints::MovingAverageDatapointParams object.
+  - `createScalar(params)` creates a IoT::Datapoints::ScalarDatapointImpl; params is a IoT::Datapoints::ScalarDatapointParams object.
+  - `createString(params)` creates a IoT::Datapoints::StringDatapointImpl; params is a IoT::Datapoints::StringDatapointParams object.
+  - `createVector(params)` creates a IoT::Datapoints::VectorDatapointImpl; params is a IoT::Datapoints::VectorDatapointParams object.
+  - `createComposite(params)` creates a IoT::Devices::CompositeImpl; params is a IoT::Datapoints::BasicDatapointParams object.
+
+Furthermore, there is a generic `createDatapoint()` method, taking a datapoint definition object containing
+`type`, `params` and optional `tags` properties.
+
+The `type` property specifies the datapoint class:
+
+  - `bool`
+  - `counter`
+  - `enum`
+  - `flags`
+  - `movingAverage`
+  - `scalar`
+  - `string`
+  - `vector`
+  - `composite`
+
+The `params` property contains the parameters object for the specific datapoint class.
+
+Common parameters that can be specified for any datapoint are defined in IoT::Datapoints::BasicDatapointParams.
+The specific parameters for the different datapoint classes are defined in their own structures:
+
+  - IoT::Datapoints::BooleanDatapointParams
+  - IoT::Datapoints::CounterDatapointParams
+  - IoT::Datapoints::EnumDatapointParams
+  - IoT::Datapoints::FlagsDatapointParams
+  - IoT::Datapoints::ScalarDatapointParams
+  - IoT::Datapoints::MovingAverageDatapointParams
+  - IoT::Datapoints::StringDatapointParams
+  - IoT::Datapoints::VectorDatapointParams
+
+Finally, `tags` can be used to define additional service properties attached to the datapoint.
+
+    const datapoints = require('bndl://io.macchina.datapoints/datapoints.js');
+    
+    const datapointRef = datapoints.createDatapoint({
+        type: 'scalar',
+        params: {
+            name: 'Temperature 1',
+            physicalQuantity: 'temperature',
+            physicalUnit: 'Cel'
+        },
+        tags: {
+          'io.macchina.modbus.mapping': 'address=1000,type=int16,scale=10,offset=0,access=ro'
+        }
+    });
+----
+
+!Creating Multiple Datapoints
+
+The `createDatapoints()` method creates multiple datapoints, including an entire tree hierarchy
+containing `Composite` objects.
+
+    const datapoints = require('bndl://io.macchina.datapoints/datapoints.js');
+    
+    datapoints.createDatapoints([{
+        type: 'composite',
+        params: {
+            name: 'Temperatures',
+            composite: 'io.macchina.composite.root'
+        },
+        fragments: [
+            {
+                type: 'scalar',
+                params: {
+                    name: 'Temperature 1',
+                    physicalQuantity: 'temperature',
+                    physicalUnit: 'Cel'
+                }
+            },
+            {
+                type: 'scalar',
+                params: {
+                    name: 'Temperature 2',
+                    physicalQuantity: 'temperature',
+                    physicalUnit: 'Cel'
+                }
+            }
+        ]
+    }]);
+----
+
+The above code will create a IoT::Devices::Composite object named "Temperatures" containing
+two IoT::Devices::ScalarDatapoint objects named "Temperature 1" and "Temperature 2".
+
+!!Considerations When Creating Datapoints
+
+When creating datapoints in a script, care must be taken that:
+
+  1. The datapoints are only created once.
+  2. The datapoints are ready before other scripts use them.
+
+A good approach to creating datapoint that satisfies both conditions is to 
+create them in a script run through the [[00240-MacchinaScriptScheduler.html script scheduler]],
+using the `@start` schedule.
+
+A bundle containing the script to create the datapoints would therefore contain two files:
+
+  - `extensions.xml` - defining the extension point to run the script
+  - `datapoints.js` - the actual script to build the datapoints
+
+The `extensions.xml` would make use of the `com.appinf.osp.js.schedule` extension point to 
+run the script synchronously when the bundle is started.
+
+    <extensions>
+      <extension point="com.appinf.osp.js.schedule" script="datapoints.js" schedule="@start"/>
+    </extensions>
+----
+
+Any other bundle requiring the datapoints can the declare a dependency on the bundle defining
+the datapoints. The dependency can be declared directly, on the bundle name, or indirectly,
+via a module.
+
+!!Removing Datapoints
+
+It's possible to remove datapoints. This can be done by using the `remove()` method of
+IoT::Datapoints::DatapointFactory. In JavaScript, the `datapoints.js` module also
+provides `remove()` method, which takes either the service reference (`ServiceRef`)
+of a datapoint, or the datapoint's ID.
+
+
+!!!Finding Devices and Datapoints
+
+Devices and Datapoints, like any other services in macchina.io EDGE, can be found via the
+service registry, by their ID or properties. In addition, devices and services that
+are part of a hierarchy (and that are direct and indirect fragments of the root `Composite`
+instance) can be found via the IoT::Devices::DeviceTree service.
+
+!!Service Properties
+
+Devices have a number of standard service properties that can be used to query the 
+service registry.
+
+!Generic Properties
+
+The following service properties are exposed by all devices.
+
+  - `io.macchina.device`: This property contains the symbolic name of the implementation of the specific device.
+  - `io.macchina.deviceType`: This property contains teh symbolic name of the device type or class. 
+    This can be used to determine the specific interface the device exposes.
+  - `io.macchina.composite`: The ID of the IoT::Devices::Composite device containing this device. Only available if the
+    device is a fragment of a composite device.
+  - `io.macchina.nodeName`: The node name of the device within the device hierarchy. For a datapoint, this is the `name` 
+    specified in the parameters when creating the datapoint.
+
+!Datapoint Properties
+
+Datapoints expose the `io.macchina.datapoint` service property, which by convention is set to the same value as `io.macchina.device`,
+but can be used to locate datapoints in the service registry.
+
+!Sensor and ScalarDatapoint Properties
+
+Devices implementing the IoT::Devices::Sensor or IoT::Devices::ScalarDatapoint interface should also expose the `io.macchina.physicalQuantity`
+service property, giving the physical quantity measured by the sensor.
+
+!!ServiceRegistry Queries for Devices and Datapoints
+
+If the name or ID of a specific device or datapoint is known, the service instance can be found by it.
+
+    const sensorRef = serviceRegistry.findByName('io.macchina.simulation.sensor#0');
+    if (sensorRef)
+    {
+        const sensor = sensorRef.instance();
+        const value = sensor.value();
+    }
+----
+
+Sensors and scalar datapoints can also be found via their physical quantity:
+
+    const temperatureRefs = serviceRegistry.find('io.macchina.physicalQuantity == "temperature"');
+    if (temperatureRefs.length > 0)
+    {
+        const temperatureSensor = temperatureRefs[0].instance();
+        const temperature = temperatureSensor.value();
+    }
+----
+
+In C++, a distinction has to be made between a Sensor and a ScalarDatapoint, as both define
+the `io.macchina.datapoint` property.
+
+    auto sensorRefs = pContext->registry().find("io.macchina.physicalQuantity == \"temperature\"");
+    if (sensorRefs.size() > 0)
+    {
+        if (sensorRefs[0].properties().has("io.macchina.datapoint"s))
+        {
+            IoT::Devices::IScalarDatapoint::Ptr pScalar = pSensorRef->castedInstance<IoT::Devices::IScalarDatapoint>();
+            double value = pScalar->value();
+        }
+        else
+        {
+            IoT::Devices::ISensor::Ptr pSensor = pSensorRef->castedInstance<IoT::Devices::ISensor>();
+            double value = pSensor->value();
+        }
+    }
+----
+
+Alternatively, it's possible to extend the query for a specific type.
+
+To get datapoints only:
+
+    auto datapointRefs = pContext->registry().find("io.macchina.datapoint && io.macchina.physicalQuantity == \"temperature\"");
+----
+
+Or, alternatively:
+
+    auto datapointRefs = pContext->registry().find("io.macchina.deviceType == \"io.macchina.datapoint.scalar\" && io.macchina.physicalQuantity == \"temperature\"");
+----
+
+
+To get sensors only:
+
+    auto sensorRefs = pContext->registry().find("io.macchina.deviceType == \"io.macchina.sensor\" && io.macchina.physicalQuantity == \"temperature\"");
+----
+
+The same queries can of course be made from JavaScript as well:
+
+    const temperatureRefs = serviceRegistry.find('io.macchina.deviceType == "io.macchina.sensor" && io.macchina.physicalQuantity == "temperature"');
+----
+
+!!The DeviceTree Service
+
+The IoT::Devices::DeviceTree service can be used to navigate a device hierarchy built with IoT::Devices::Composite devices.
+The service is always registered under the fixed ID `io.macchina.deviceTree`.
+The device hierarchy always starts with the root node. The root node has the fixed service ID `io.macchina.composite.root`.
+
+Note that it is possible to create devices and datapoints outside of the hierarchy. These devices will not be addressable via
+the `DeviceTree` service.
+
+To locate a specific device or datapoint in the device tree, its path is used. The path is a concatenation of node names, separated
+by slashes (`/`). This is very similar to how paths in the filesystem work. Given the device hierarchy built with the
+JavaScript sample code earlier in this document, the device tree looks like this:
+
+    / (root)
+      |
+      + Temperatures
+        |
+        + Temperature 1
+        |
+        + Temperature 2
+----
+
+To address `Temperature 2`, the path would be `/Temperatures/Temperature 2`.
+
+The JavaScript code for looking up a device by its path looks like:
+
+    const deviceTree = serviceRegistry.findByName('io.macchina.deviceTree').instance();
+    const node = deviceTree.deviceByPath('/Temperatures/Temperature 2');
+----
+
+The `deviceByPath()` method returns an IoT::Devices::DeviceNode structure.
+If no device with the given path exists, a Poco::NotFoundException will be thrown.
+
+Alternatively, there is also the `findDeviceByPath()` method, which will return
+`undefined` if the path is not found.
+
+The `id` member of `DeviceNode` can be used to obtain the respective device service object
+from the service registry.
+
+The `parent` member contains the ID of the parent device object, which is always a 
+IoT::Devices::Composite object.
+
+The `name` member contains the local name of the device (e.g., `Temperature 2`) and the
+`type` member contains the device type (like the `io.macchina.deviceType` service property).
+
+If the device type is `io.macchina.composite`, there's also a `fragments` member, which 
+provides the IDs of all fragment devices.
+
+Following is a complete sample for looking up a sensor by its path.
+
+    const deviceTree = serviceRegistry.findByName('io.macchina.deviceTree').instance();
+    const node = deviceTree.deviceByPath('/Temperatures/Temperature 2');
+    const sensor = serviceRegistry.findByName(node.id).instance();
+    const value = sensor.value();
+----
+
+The datapoints helper module also contains a `byPath()` method, which, instead of the
+device node information, directly returns a service reference for the node.
+
+    const datapoints = require('bndl://io.macchina.datapoints/datapoints.js');
+    
+    const sensor = datapoints.byPath(/Temperatures/Temperature 2').instance();
+    const value = sensor.value();
+----
+
+The `byPath()` method will throw an exception if the device does not exist.
+There is also the `findByPath()` method, which will return `undefined` instead
+of throwing an exception if the device with the given path cannot be found.
+
+
+!!!Device Events
+
+Most device and datapoint interfaces provide event notifications about changes to the value, and other state changes.
+Whether a specific implementation supports these events as well is up to the implementation.
+Please refer to the device and datapoint interfaces for supported events, and check with the implementations
+for what is actually supported.
+
+For example, the `Sensor` and `ScalarDatapoint` interfaces support the `valueChanged` event, which is triggered
+whenever the value changes.
+
+The following JavaScript example shows how to handle the `valueChanged` event.
+
+    const temperatureRefs = serviceRegistry.find('io.macchina.deviceType == "io.macchina.sensor" && io.macchina.physicalQuantity == "temperature"');
+    if (temperatureRefs.length > 0)
+    {
+        var temperature = temperatureRefs[0].instance();
+        temperature.on('valueChanged', ev => {
+          console.log('Temperatue changed: %f', ev.data.value);
+        });
+    }
+----
+
+<!Important!>: When subscribing to an event, make sure that the object that provides
+the event is protected from the JavaScript garbage collector. This is typically done by
+storing the object in a global variable. Subscribing to an event on an object
+stored in a local variable (in a function or block) declared with `let` or `const` will 
+typically work for some time, until the garbage collector decides to remove the object. 
+After this, no further events will be delivered.
+
+In C++, the code looks as follows:
+
+    auto sensorRefs = pContext->registry().find("io.macchina.deviceType == \"io.macchina.sensor\" && io.macchina.physicalQuantity == \"temperature\"");
+    if (sensorRefs.size() > 0)
+    {
+        IoT::Devices::ISensor::Ptr pSensor = pSensorRef->castedInstance<IoT::Devices::ISensor>();
+        pSensor->valueChanged += Poco::delegate(onValueChanged);
+        // ...
+    }
+----
+
+`onValueChanged` has to be a function with the following signature:
+
+    void onValueChanged(const double& value)
+    {
+        std::cout << "valueChanged: " << value << std::endl;
+    }
+----
+
+Note that there are different variants of the `Poco::delegate()` function that also allow to pass A
+pointer to a member function to handle the event. Please see the `HelloSensor3` sample 
+and the [[00300-MacchinaCppProgramming.html C++ Programming Guide]] for more information.

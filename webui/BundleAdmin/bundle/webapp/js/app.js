@@ -2,7 +2,7 @@
 
 var bundlesApp = angular.module('bundlesApp', [
   'ngRoute',
-  'angularFileUpload',
+  'ngFileUpload',
   'bundlesControllers',
   'bundlesServices'
 ]);

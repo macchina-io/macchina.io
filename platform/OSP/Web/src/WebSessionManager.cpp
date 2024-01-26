@@ -220,25 +220,32 @@ void WebSessionManager::removeForUser(const std::string& username)
 
 	std::vector<std::string> sessionsToRemove;
 
-	_cache.forEach(
-		[&sessionsToRemove, &username](const std::string& id, const WebSession& session)
-		{
-			auto it = session.find("username"s);
-			if (it != session.end())
+	if (_pStore)
+	{
+		sessionsToRemove = _pStore->sessionsByValue("username"s, username);
+	}
+	else
+	{
+		_cache.forEach(
+			[&sessionsToRemove, &username](const std::string& id, const WebSession& session)
 			{
-				try
+				auto it = session.find("username"s);
+				if (it != session.end())
 				{
-					if (Poco::AnyCast<std::string>(it->second) == username)
+					try
 					{
-						sessionsToRemove.push_back(id);
+						if (Poco::AnyCast<std::string>(it->second) == username)
+						{
+							sessionsToRemove.push_back(id);
+						}
+					}
+					catch (...)
+					{
 					}
 				}
-				catch (...)
-				{
-				}
 			}
-		}
-	);
+		);
+	}
 
 	for (const auto& id: sessionsToRemove)
 	{

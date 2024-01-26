@@ -1,0 +1,58 @@
+//
+// ModbusRTU.h
+//
+// Library: IoT/Modbus/RTU
+// Package: RTU
+// Module:  ModbusRTU
+//
+// Basic definitions for the IoT Modbus TCP library.
+// This file must be the first file included by every other Modbus
+// TCP header file.
+//
+// Copyright (c) 2023, Applied Informatics Software Engineering GmbH.
+// All rights reserved.
+//
+// SPDX-License-Identifier: GPL-3.0-only
+//
+
+
+#ifndef IoT_Modbus_RTU_ModbusRTU_INCLUDED
+#define IoT_Modbus_RTU_ModbusRTU_INCLUDED
+
+
+#include "Poco/Poco.h"
+
+
+//
+// The following block is the standard way of creating macros which make exporting
+// from a DLL simpler. All files within this DLL are compiled with the IoTModbusRTU_EXPORTS
+// symbol defined on the command line. this symbol should not be defined on any project
+// that uses this DLL. This way any other project whose source files include this file see
+// IoTModbusRTU_API functions as being imported from a DLL, wheras this DLL sees symbols
+// defined with this macro as being exported.
+//
+#if defined(_WIN32) && defined(POCO_DLL)
+	#if defined(IoTModbusRTU_EXPORTS)
+		#define IoTModbusRTU_API __declspec(dllexport)
+	#else
+		#define IoTModbusRTU_API __declspec(dllimport)
+	#endif
+#endif
+
+
+#if !defined(IoTModbusRTU_API)
+	#define IoTModbusRTU_API
+#endif
+
+
+//
+// Automatically link IoTModbusRTU library.
+//
+#if defined(_MSC_VER)
+	#if !defined(POCO_NO_AUTOMATIC_LIBS) && !defined(IoTModbusRTU_EXPORTS)
+		#pragma comment(lib, "IoTModbusRTU" POCO_LIB_SUFFIX)
+	#endif
+#endif
+
+
+#endif // IoT_Modbus_RTU_ModbusRTU_INCLUDED

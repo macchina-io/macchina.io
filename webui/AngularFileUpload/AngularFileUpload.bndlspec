@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <bundlespec>
   <manifest>
-    <name>Angular File Upload for macchina.io</name>
+    <name>ng-file-upload for macchina.io</name>
     <symbolicName>io.macchina.webui.angular-file-upload</symbolicName>
-    <version>3.0.7</version>
+    <version>12.2.13</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2015-2022, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2015-2024, Applied Informatics Software Engineering GmbH</copyright>
     <lazyStart>false</lazyStart>
     <runLevel>900</runLevel>
   </manifest>

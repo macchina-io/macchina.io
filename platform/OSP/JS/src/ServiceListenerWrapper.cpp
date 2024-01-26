@@ -35,20 +35,23 @@ public:
 	typedef Poco::AutoPtr<NotifyCallbackTask> Ptr;
 
 	NotifyCallbackTask(
+		ServiceListenerHolder* pHolder,
 		v8::Isolate* pIsolate,
 		Poco::JS::Core::JSExecutor::Ptr pExecutor,
 		v8::Persistent<v8::Function>& callback,
 		Poco::OSP::ServiceRef::Ptr pServiceRef):
+		_pHolder(pHolder),
 		_pIsolate(pIsolate),
 		_pExecutor(pExecutor),
-		_function(pIsolate, callback),
+		_function(callback),
 		_pServiceRef(pServiceRef)
 	{
+		_pHolder->duplicate();
 	}
 
 	~NotifyCallbackTask()
 	{
-		_function.Reset();
+		_pHolder->release();
 	}
 
 	void run()
@@ -62,22 +65,26 @@ public:
 		v8::Local<v8::Context> context(v8::Local<v8::Context>::New(_pIsolate, _pExecutor->scriptContext()));
 		v8::Context::Scope contextScope(context);
 
-		ServiceRefWrapper wrapper;
-		v8::Persistent<v8::Object>& serviceRefWrapper(wrapper.wrapNativePersistent(_pIsolate, _pServiceRef));
-
-		v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(_pIsolate, _function));
-		v8::Local<v8::Value> receiver(v8::Null(_pIsolate));
-		v8::Local<v8::Value> args[] =
+		if (!_function.IsEmpty())
 		{
-			v8::Local<v8::Object>::New(_pIsolate, serviceRefWrapper)
-		};
-		_pExecutor->callInContext(_pIsolate, context, localFunction, receiver, 1, args);
+			ServiceRefWrapper wrapper;
+			v8::Persistent<v8::Object>& serviceRefObject(wrapper.wrapNativePersistent(_pIsolate, _pServiceRef));
+
+			v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(_pIsolate, _function));
+			v8::Local<v8::Value> receiver(v8::Null(_pIsolate));
+			v8::Local<v8::Value> args[] =
+			{
+				v8::Local<v8::Object>::New(_pIsolate, serviceRefObject)
+			};
+			_pExecutor->callInContext(_pIsolate, context, localFunction, receiver, 1, args);
+		}
 	}
 
 private:
+	ServiceListenerHolder* _pHolder;
 	v8::Isolate* _pIsolate;
 	Poco::JS::Core::JSExecutor::Ptr _pExecutor;
-	v8::Persistent<v8::Function> _function;
+	v8::Persistent<v8::Function>& _function;
 	Poco::OSP::ServiceRef::Ptr _pServiceRef;
 };
 
@@ -112,7 +119,7 @@ ServiceListenerHolder::~ServiceListenerHolder()
 
 void ServiceListenerHolder::dispose()
 {
-	_pListener = 0;
+	_pListener.reset();
 }
 
 
@@ -121,7 +128,7 @@ void ServiceListenerHolder::onServiceRegistered(const Poco::OSP::ServiceRef::Ptr
 	Poco::JS::Core::TimedJSExecutor::Ptr pTimedJSExecutor = _pExecutor.cast<Poco::JS::Core::TimedJSExecutor>();
 	if (pTimedJSExecutor)
 	{
-		NotifyCallbackTask::Ptr pTask = new NotifyCallbackTask(_pIsolate, _pExecutor, _registeredCallback, pServiceRef);
+		NotifyCallbackTask::Ptr pTask = new NotifyCallbackTask(this, _pIsolate, _pExecutor, _registeredCallback, pServiceRef);
 		pTimedJSExecutor->schedule(pTask);
 	}
 }
@@ -132,7 +139,7 @@ void ServiceListenerHolder::onServiceUnregistered(const Poco::OSP::ServiceRef::P
 	Poco::JS::Core::TimedJSExecutor::Ptr pTimedJSExecutor = _pExecutor.cast<Poco::JS::Core::TimedJSExecutor>();
 	if (pTimedJSExecutor)
 	{
-		NotifyCallbackTask::Ptr pTask = new NotifyCallbackTask(_pIsolate, _pExecutor, _unregisteredCallback, pServiceRef);
+		NotifyCallbackTask::Ptr pTask = new NotifyCallbackTask(this, _pIsolate, _pExecutor, _unregisteredCallback, pServiceRef);
 		pTimedJSExecutor->schedule(pTask);
 	}
 }
@@ -158,7 +165,7 @@ v8::Handle<v8::ObjectTemplate> ServiceListenerWrapper::objectTemplate(v8::Isolat
 	v8::EscapableHandleScope handleScope(pIsolate);
 	Poco::JS::Core::PooledIsolate* pPooledIso = Poco::JS::Core::PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("OSP.ServiceListener"));
+	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("OSP.ServiceListener"s));
 	if (pooledObjectTemplate.IsEmpty())
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);

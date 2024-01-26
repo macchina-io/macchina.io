@@ -10,8 +10,8 @@ include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 objects = MQTTClientImpl BundleActivator
 
 target          = io.macchina.mqtt.client
-target_includes = $(PROJECT_BASE)/protocols/MQTT/Paho/include
-target_libs     = IoTMQTT PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation PahoMQTT
+target_includes = $(PROJECT_BASE)/protocols/MQTT/skel/include $(PROJECT_BASE)/protocols/MQTT/Paho/include
+target_libs     = IoTMQTT IoTMQTTSkel PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation PahoMQTT
 
 postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles MQTT.bndlspec
 

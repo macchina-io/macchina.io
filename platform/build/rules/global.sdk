@@ -1,0 +1,165 @@
+#
+# sample
+#
+# Global build configuration for samples
+#
+# Environment variables:
+# POCO_BASE:   Path to POCO source tree.
+# POCO_CONFIG: Build configuration to use.
+#              Defaults to `uname`.
+#
+
+#
+# Check for POCO_BASE
+#
+ifndef POCO_BASE
+$(error POCO_BASE is not defined.)
+endif
+
+#
+# Check for PROJECT_BASE
+#
+ifndef PROJECT_BASE
+PROJECT_BASE = $(POCO_BASE)
+endif
+export PROJECT_BASE
+
+#
+# Check for POCO_BUILD
+#
+ifndef POCO_BUILD
+POCO_BUILD = $(PROJECT_BASE)
+endif
+export POCO_BUILD
+
+#
+# POCO_BASE/POCO_BUILD/cwd sanity checks
+#
+# Ensure that the current working directory is either
+# under $POCO_BASE or under $PROJECT_BASE
+# Also, if we're building under $POCO_BASE, disarm
+# $PROJECT_BASE
+#
+cwd = $(shell pwd)
+inpoco = $(shell echo | awk '{print index("$(cwd)","$(POCO_BASE)")}')
+inproj = $(shell echo | awk '{print index("$(cwd)","$(PROJECT_BASE)")}')
+ifneq ($(inpoco),0)
+PROJECT_BASE = $(POCO_BASE)
+else
+ifneq ($(inproj),0)
+else
+$(error Current working directory not under $$PROJECT_BASE)
+endif
+endif
+
+#
+# Determine OS
+#
+POCO_HOST_OSNAME = $(shell uname)
+ifeq ($(findstring CYGWIN,$(POCO_HOST_OSNAME)),CYGWIN)
+POCO_HOST_OSNAME = CYGWIN
+endif
+
+ifeq ($(findstring MINGW,$(POCO_HOST_OSNAME)),MINGW)
+POCO_HOST_OSNAME = MinGW
+endif
+
+POCO_HOST_OSARCH ?= $(subst /,-,$(shell uname -m | tr ' ' _))
+
+ifndef POCO_TARGET_OSNAME
+OSNAME := $(POCO_HOST_OSNAME)
+else
+OSNAME := $(POCO_TARGET_OSNAME)
+endif
+
+ifndef POCO_TARGET_OSARCH
+OSARCH := $(subst /,-,$(shell uname -m | tr ' ' _))
+else
+OSARCH := $(POCO_TARGET_OSARCH)
+endif
+
+#
+# If POCO_CONFIG is not set, use the OS name as configuration name
+#
+ifndef POCO_CONFIG
+POCO_CONFIG = $(POCO_HOST_OSNAME)
+endif
+
+#
+# Include System Specific Settings
+#
+include $(POCO_BASE)/build/config/$(POCO_CONFIG)
+
+#
+# Define standard directories
+#
+SRCDIR   = src
+INCDIR   = include
+LIBDIR   = lib
+BINDIR   = bin
+OBJDIR   = obj
+DEPDIR   = .dep
+INCPATH  = $(POCO_BASE)/$(INCDIR)
+LIBPATH  = $(POCO_BUILD)/$(LIBDIR)
+BINPATH  = $(BINDIR)
+OBJPATH  = $(OBJDIR)
+DEPPATH  = $(DEPDIR)
+
+ifeq ($(POCO_BASE),$(PROJECT_BASE))
+POCO_LIBRARY =
+else
+POCO_LIBRARY = -L$(POCO_BASE)/$(LIBDIR)
+endif
+
+ifndef LIBPREFIX
+LIBPREFIX = lib
+endif
+
+#
+# Determine link mode
+#
+ifndef LINKMODE
+LINKMODE = BOTH
+endif
+
+ifeq ($(LINKMODE),SHARED)
+DEFAULT_TARGET = all_shared
+endif
+ifeq ($(LINKMODE),STATIC)
+DEFAULT_TARGET = all_static
+endif
+ifeq ($(LINKMODE),BOTH)
+DEFAULT_TARGET = all_static all_shared
+endif
+
+#
+# Compose compiler flags
+#
+COMMONFLAGS = $(POCO_FLAGS)
+CFLAGS     += $(COMMONFLAGS) $(SYSFLAGS)
+CXXFLAGS   += $(COMMONFLAGS) $(SYSFLAGS)
+LINKFLAGS  += $(COMMONFLAGS) $(SYSFLAGS)
+
+#
+# Compose object file path
+#
+OBJPATH_RELEASE_STATIC = $(OBJPATH)/release_static$(OSARCH_POSTFIX)
+OBJPATH_DEBUG_STATIC   = $(OBJPATH)/debug_static$(OSARCH_POSTFIX)
+OBJPATH_RELEASE_SHARED = $(OBJPATH)/release_shared$(OSARCH_POSTFIX)
+OBJPATH_DEBUG_SHARED   = $(OBJPATH)/debug_shared$(OSARCH_POSTFIX)
+
+#
+# Build Include directory List
+#
+INCLUDE = -Iinclude -I$(INCPATH)
+
+#
+# Build Library Directory List
+#
+LIBRARY = -L$(LIBPATH) $(POCO_LIBRARY)
+
+#
+# Make CC and CXX environment vars
+#
+export CC
+export CXX

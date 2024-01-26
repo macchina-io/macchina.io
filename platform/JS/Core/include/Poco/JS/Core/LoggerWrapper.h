@@ -47,6 +47,8 @@ public:
 protected:
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void isLogger(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void setLevel(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void names(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void close(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void log(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void format(int prio, const v8::FunctionCallbackInfo<v8::Value>& args, int firstArgIndex = 0, const std::string& prefix = "");
@@ -59,6 +61,9 @@ protected:
 	static void critical(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void fatal(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void dump(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void getLevel(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
+	static void setLevel(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+	static void getName(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 
 	friend class ConsoleWrapper;
 };

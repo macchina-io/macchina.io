@@ -32,6 +32,7 @@
 #include "Poco/FileStream.h"
 #include "Poco/Thread.h"
 #include "Poco/Random.h"
+#include "Poco/Process.h"
 #include "ManifestInfo.h"
 #include <iostream>
 #include <cctype>
@@ -56,6 +57,7 @@ using Poco::Path;
 using Poco::DirectoryIterator;
 using Poco::FileOutputStream;
 using Poco::FileInputStream;
+using namespace std::string_literals;
 
 
 class FileLock
@@ -87,7 +89,7 @@ protected:
 		bool haveLock = createFile();
 		while (!haveLock)
 		{
-			if (++attempts > 100) throw Poco::FileException("Cannot acquire lock for bundle directory", _file.path());
+			if (++attempts > 100) throw Poco::FileException("Cannot acquire lock for bundle directory"s, _file.path());
 
 			Poco::Thread::sleep(500 + rnd.next(2000));
 			haveLock = createFile();
@@ -131,7 +133,8 @@ public:
 		_keep(false),
 		_noDeflate(false),
 		_noFile(false),
-		_defaultVersion("1.0.0")
+		_defaultVersion("1.0.0"s),
+		_strip(Poco::Environment::get("BUNDLE_STRIP"s, ""s))
 	{
 		makeValidFileName(_osName);
 		makeValidFileName(_osArch);
@@ -149,81 +152,92 @@ protected:
 		Application::defineOptions(options);
 
 		options.addOption(
-			Option("help", "h", "Display help information on command line arguments.")
+			Option("help"s, "h"s, "Display help information on command line arguments."s)
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleHelp)));
 
 		options.addOption(
-			Option("output-dir", "o", "Specify the directory where the bundle is saved.")
+			Option("output-dir"s, "o"s, "Specify the directory where the bundle is saved."s)
 				.required(false)
 				.repeatable(false)
-				.argument("<file>")
+				.argument("<file>"s)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleOutput)));
 
 		options.addOption(
-			Option("keep-bundle-dir", "k", "Keep intermediary bundle directory.")
+			Option("keep-bundle-dir"s, "k"s, "Keep intermediary bundle directory."s)
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleKeep)));
 
 		options.addOption(
-			Option("bundle-dir-only", "d", "Create bundle directory only, no bundle (.bndl) file (implies --keep-bundle-dir).")
+			Option("bundle-dir-only"s, "d"s, "Create bundle directory only, no bundle (.bndl) file (implies --keep-bundle-dir)."s)
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleBundleDir)));
 
 		options.addOption(
-			Option("osname", "n", "Specify default target operating system name (e.g., \"Linux\").")
+			Option("osname"s, "n"s, "Specify default target operating system name (e.g., \"Linux\")."s)
 				.required(false)
 				.repeatable(false)
-				.argument("<osname>")
+				.argument("<osname>"s)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleOSName)));
 
 		options.addOption(
-			Option("osarch", "a", "Specify default target operating system architecture (e.g., \"x86_64\" or \"armv7l\").")
+			Option("osarch"s, "a"s, "Specify default target operating system architecture (e.g., \"x86_64\" or \"armv7l\")."s)
 				.required(false)
 				.repeatable(false)
-				.argument("<osarch>")
+				.argument("<osarch>"s)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleOSArch)));
 
 		options.addOption(
-			Option("no-deflate", "N", "Do not compress (deflate) files in bundle file. If a comma-separated list of extensions "
-				"is specified, only files with these extensions are stored uncompressed.")
+			Option("no-deflate"s, "N"s, "Do not compress (deflate) files in bundle file. If a comma-separated list of extensions "
+				"is specified, only files with these extensions are stored uncompressed."s)
 				.required(false)
 				.repeatable(false)
-				.argument("<extensions>", false)
+				.argument("<extensions>"s, false)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleNoDeflate)));
 
 		options.addOption(
-			Option("version", "v", "Specify default bundle version, e.g. \"1.0.0\", to be used "
-				"if the bundle specification file does not have one.")
+			Option("version"s, "v"s, "Specify default bundle version, e.g. \"1.0.0\", to be used "
+				"if the bundle specification file does not have one."s)
 				.required(false)
 				.repeatable(false)
-				.argument("<version>")
+				.argument("<version>"s)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleVersion)));
 
 		options.addOption(
-			Option("define", "D",
+			Option("define"s, "D"s,
 				"Define a configuration property. A configuration property "
 				"defined with this option can be referenced in the bundle specification "
 				"file, using the following syntax: ${<name>}. "
-				"Can be specified multiple times.")
+				"Can be specified multiple times."s)
 				.required(false)
 				.repeatable(true)
-				.argument("<name>=<value>")
+				.argument("<name>=<value>"s)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleDefine)));
 
 		options.addOption(
-			Option("code", "c",
+			Option("code"s, "c"s,
 				"Specify executable files to include in the bundle's bin directory. "
 				"If specified, overrides the <code> element in the bundle specification file. "
 				"Value is a comma- or semicolon-separated list of file names or glob expressions. "
-				"Can be specified multiple times.")
+				"Can be specified multiple times."s)
 				.required(false)
 				.repeatable(true)
-				.argument("<glob>{;<glob>}")
+				.argument("<glob>{;<glob>}"s)
 				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleCode)));
+
+		options.addOption(
+			Option("strip"s, "S"s,
+				"Specify the command that is used to strip debugging symbols from shared libraries "
+				"and executables included in the bundle's bin directory. "
+				"If specified, the specified strip command will be invoked for each file included "
+				"in the bundle's bin directory."s)
+				.required(false)
+				.repeatable(false)
+				.argument("<command>"s)
+				.callback(OptionCallback<BundleCreatorApplication>(this, &BundleCreatorApplication::handleStrip)));
 	}
 
 	void handleHelp(const std::string& name, const std::string& value)
@@ -268,7 +282,7 @@ protected:
 		}
 		else
 		{
-			Poco::StringTokenizer tok(value, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+			Poco::StringTokenizer tok(value, ",;"s, Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 			_storeExtensions.insert(tok.begin(), tok.end());
 		}
 	}
@@ -296,6 +310,11 @@ protected:
 		}
 	}
 
+	void handleStrip(const std::string& name, const std::string& value)
+	{
+		_strip = value;
+	}
+
 	void defineProperty(const std::string& def)
 	{
 		std::string name;
@@ -314,21 +333,21 @@ protected:
 	{
 		HelpFormatter helpFormatter(options());
 		helpFormatter.setCommand(commandName());
-		helpFormatter.setUsage("[<option> ...] <file> ...");
+		helpFormatter.setUsage("[<option> ...] <file> ..."s);
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics OSP Bundle Creator Utility.\n"
-			"Copyright (c) 2007-2022 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2007-2024 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program builds bundle files for use with the "
 			"Open Service Platform. What goes into a bundle "
 			"is specified in a bundle specification file, passed "
 			"as command line argument.\n\n"
-			"The following command line options are supported:"
+			"The following command line options are supported:"s
 		);
 		helpFormatter.setFooter(
 			"For more information, please see the Open Service Platform "
-			"documentation at <https://www.appinf.com/docs>."
+			"documentation at <https://www.appinf.com/docs>."s
 		);
 		helpFormatter.setIndent(8);
 		helpFormatter.format(std::cout);
@@ -342,19 +361,19 @@ protected:
 		}
 		else
 		{
-			config().setString("osName", _osName);
-			config().setString("osArch", _osArch);
-			if (!config().hasProperty("bin"))
+			config().setString("osName"s, _osName);
+			config().setString("osArch"s, _osArch);
+			if (!config().hasProperty("bin"s))
 			{
 				if (_osArch == "AMD64")
 				{
-					config().setString("bin", "bin64");
-					config().setString("64", "64");
+					config().setString("bin"s, "bin64"s);
+					config().setString("64"s, "64"s);
 				}
 				else
 				{
-					config().setString("bin", "bin");
-					config().setString("64", "");
+					config().setString("bin"s, "bin"s);
+					config().setString("64"s, ""s);
 				}
 			}
 
@@ -429,15 +448,15 @@ private:
 		std::string name = getString(PREFIX + "name");
 		std::string symbolicName = getString(PREFIX + "symbolicName");
 		std::string vendor = getString(PREFIX + "vendor");
-		std::string copyright = getString(PREFIX + "copyright", "");
-		std::string activatorClass = getString(PREFIX + "activator.class", "");
-		std::string activatorLibrary = getString(PREFIX + "activator.library", "");
+		std::string copyright = getString(PREFIX + "copyright", ""s);
+		std::string activatorClass = getString(PREFIX + "activator.class", ""s);
+		std::string activatorLibrary = getString(PREFIX + "activator.library", ""s);
 		bool lazyStart = getBool(PREFIX + "lazyStart", false);
 		bool sealed = getBool(PREFIX + "sealed", false);
 		bool preventUninstall = getBool(PREFIX + "preventUninstall", false);
 		std::string runLevel = getString(PREFIX + "runLevel", BundleManifest::DEFAULT_RUNLEVEL);
-		std::string extendsBundle = getString(PREFIX + "extends", "");
-		std::string versionStr(getString(PREFIX + "version", ""));
+		std::string extendsBundle = getString(PREFIX + "extends", ""s);
+		std::string versionStr(getString(PREFIX + "version", ""s));
 		if (versionStr.empty() || versionStr == "default" || versionStr == "auto")
 		{
 			versionStr = _defaultVersion;
@@ -454,8 +473,8 @@ private:
 			path.append("].");
 			symName = path + "symbolicName";
 			versionRange = path + "version";
-			symName = getString(symName, "");
-			versionRange = getString(versionRange, "");
+			symName = getString(symName, ""s);
+			versionRange = getString(versionRange, ""s);
 			Poco::trimInPlace(symName);
 			Poco::trimInPlace(versionRange);
 			if (!symName.empty())
@@ -480,8 +499,8 @@ private:
 			path.append("].");
 			symName = path + "symbolicName";
 			versionRange = path + "version";
-			symName = getString(symName, "");
-			versionRange = getString(versionRange, "");
+			symName = getString(symName, ""s);
+			versionRange = getString(versionRange, ""s);
 			Poco::trimInPlace(symName);
 			Poco::trimInPlace(versionRange);
 			if (!symName.empty())
@@ -506,8 +525,8 @@ private:
 			path.append("].");
 			symName = path + "symbolicName";
 			versionRange = path + "version";
-			symName = getString(symName, "");
-			versionRange = getString(versionRange, "");
+			symName = getString(symName, ""s);
+			versionRange = getString(versionRange, ""s);
 			Poco::trimInPlace(symName);
 			Poco::trimInPlace(versionRange);
 			if (!symName.empty())
@@ -619,7 +638,7 @@ private:
 
 	void handleCode(const Path& root, const ManifestInfo& mi)
 	{
-		Path binDir(root, "bin");
+		Path binDir(root, "bin"s);
 		binDir.makeDirectory();
 
 		if (!_code.empty())
@@ -640,9 +659,9 @@ private:
 			path.append("]");
 			while (_ptrCfg->hasProperty(path))
 			{
-				globs = getString(path, "");
-				path.append("[@platform]");
-				std::string platform = getString(path, "");
+				globs = getString(path, ""s);
+				path.append("[@platform]"s);
+				std::string platform = getString(path, ""s);
 				if (platform.empty() || platform.find("/") == std::string::npos)
 				{
 					platform = _osName + "/" + _osArch;
@@ -660,7 +679,7 @@ private:
 	void copyCode(const Poco::Path& platformDir, const std::string& globs, const ManifestInfo& mi)
 	{
 		std::set<std::string> files;
-		Poco::StringTokenizer incTokenizer(globs, ",;\n", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
+		Poco::StringTokenizer incTokenizer(globs, ",;\n"s, Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
 		std::vector<std::string> inc;
 		for (Poco::StringTokenizer::Iterator it = incTokenizer.begin(); it != incTokenizer.end(); ++it)
 		{
@@ -679,9 +698,35 @@ private:
 				copyFile(aFile, platformDir.toString());
 			}
 		}
+		if (!files.empty() && !_strip.empty())
+		{
+			stripCode(platformDir);
+		}
 		if (files.empty() && incTokenizer.count() > 0)
 		{
-			std::cerr << Poco::format("Warning: Non-empty <code> element, but no files found for expression '%s' while building bundle %s.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end()), mi.symbolicName()) << std::endl;
+			std::cerr << Poco::format("Warning: Non-empty <code> element, but no files found for expression '%s' while building bundle %s."s, Poco::cat("; "s, incTokenizer.begin(), incTokenizer.end()), mi.symbolicName()) << std::endl;
+		}
+	}
+
+	void stripCode(const Poco::Path& platformDir)
+	{
+		File platformFile(platformDir.toString());
+		std::vector<Poco::File> files;
+		platformFile.list(files);
+		for (const auto& file: files)
+		{
+			if (file.isFile())
+			{
+				logger().debug("Stripping file: %s"s, file.path());
+				Poco::Process::Args args;
+				args.push_back(file.path());
+				Poco::ProcessHandle ph = Poco::Process::launch(_strip, args);
+				int rc = ph.wait();
+				if (rc != 0)
+				{
+					std::cerr << "Warning: strip command for " << file.path() << " failed with exit code " << rc << std::endl;
+				}
+			}
 		}
 	}
 
@@ -691,7 +736,7 @@ private:
 		metaDir.makeDirectory();
 		File metaFile(metaDir);
 		metaFile.createDirectories();
-		Path manifest(metaDir, "manifest.mf");
+		Path manifest(metaDir, "manifest.mf"s);
 		FileOutputStream out(manifest.toString());
 		saveManifest(mi, out);
 		out.close();
@@ -702,11 +747,11 @@ private:
 
 	void handleOther(const Path& root, const ManifestInfo& mi)
 	{
-		if (_ptrCfg->hasProperty("files"))
+		if (_ptrCfg->hasProperty("files"s))
 		{
-			std::string globs = getString("files");
+			std::string globs = getString("files"s);
 			std::set<std::string> files;
-			Poco::StringTokenizer incTokenizer(globs, ",;\r", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
+			Poco::StringTokenizer incTokenizer(globs, ",;\r"s, Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
 			std::vector<std::string> inc;
 			for (Poco::StringTokenizer::Iterator it = incTokenizer.begin(); it != incTokenizer.end(); ++it)
 			{
@@ -721,7 +766,7 @@ private:
 
 			if (files.empty() && incTokenizer.count() > 0)
 			{
-				std::cerr << Poco::format("Warning: Non-empty <files> element, but no files found for expression '%s' while building bundle %s.", Poco::cat(std::string("; "), incTokenizer.begin(), incTokenizer.end()), mi.symbolicName()) << std::endl;
+				std::cerr << Poco::format("Warning: Non-empty <files> element, but no files found for expression '%s' while building bundle %s."s, Poco::cat("; "s, incTokenizer.begin(), incTokenizer.end()), mi.symbolicName()) << std::endl;
 			}
 		}
 	}
@@ -753,7 +798,7 @@ private:
 
 	void copyFile(const File& file, const std::string& destPath) const
 	{
-		logger().debug("Coyping %s to %s", file.path(), destPath);
+		logger().debug("Coyping %s to %s"s, file.path(), destPath);
 		if (file.isHidden()) return;
 		Path src(file.path());
 		Path dest(destPath);
@@ -811,6 +856,7 @@ private:
 	std::set<std::string> _storeExtensions;
 	std::string _defaultVersion;
 	std::string _code;
+	std::string _strip;
 };
 
 

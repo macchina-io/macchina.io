@@ -1,0 +1,3 @@
+<extensions>
+  <extension point="com.appinf.osp.js.module" module="file" class="Poco::OSP::JS::File::FileModuleFactory" library="com.appinf.osp.js.file"/>
+</extensions>

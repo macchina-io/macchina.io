@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2020 IBM Corp.
+ * Copyright (c) 2009, 2022 IBM Corp. and Ian Craggs
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -55,9 +55,8 @@
  * Start a new thread
  * @param fn the function to run, must be of the correct signature
  * @param parameter pointer to the function parameter, can be NULL
- * @return the new thread
  */
-thread_type Thread_start(thread_fn fn, void* parameter)
+void Thread_start(thread_fn fn, void* parameter)
 {
 #if defined(_WIN32) || defined(_WIN64)
 	thread_type thread = NULL;
@@ -69,6 +68,7 @@ thread_type Thread_start(thread_fn fn, void* parameter)
 	FUNC_ENTRY;
 #if defined(_WIN32) || defined(_WIN64)
 	thread = CreateThread(NULL, 0, fn, parameter, 0, NULL);
+    CloseHandle(thread);
 #else
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
@@ -77,12 +77,45 @@ thread_type Thread_start(thread_fn fn, void* parameter)
 	pthread_attr_destroy(&attr);
 #endif
 	FUNC_EXIT;
-	return thread;
+}
+
+
+int Thread_set_name(const char* thread_name)
+{
+	int rc = 0;
+#if defined(_WIN32) || defined(_WIN64)
+#define MAX_THREAD_NAME_LENGTH 30
+	wchar_t wchars[MAX_THREAD_NAME_LENGTH];
+#endif
+	FUNC_ENTRY;
+
+#if defined(_WIN32) || defined(_WIN64)
+/* Using NTDDI_VERSION rather than WINVER for more detailed version targeting */
+/* Can't get this conditional compilation to work so remove it for now */
+/*#if NTDDI_VERSION >= NTDDI_WIN10_RS1
+	mbstowcs(wchars, thread_name, MAX_THREAD_NAME_LENGTH);
+	rc = (int)SetThreadDescription(GetCurrentThread(), wchars);
+#endif*/
+#elif defined(OSX)
+	/* pthread_setname_np __API_AVAILABLE(macos(10.6), ios(3.2)) */
+#if defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+	rc = pthread_setname_np(thread_name);
+#endif
+#else
+#if defined(__GNUC__) && defined(__linux__)
+#if __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 12
+	rc = pthread_setname_np(Thread_getid(), thread_name);
+#endif
+#endif
+#endif
+	FUNC_EXIT_RC(rc);
+	return rc;
 }
 
 
 /**
  * Create a new mutex
+ * @param rc return code: 0 for success, negative otherwise
  * @return the new mutex
  */
 mutex_type Thread_create_mutex(int* rc)
@@ -93,8 +126,7 @@ mutex_type Thread_create_mutex(int* rc)
 	*rc = -1;
 	#if defined(_WIN32) || defined(_WIN64)
 		mutex = CreateMutex(NULL, 0, NULL);
-		if (mutex == NULL)
-			*rc = GetLastError();
+		*rc = (mutex == NULL) ? GetLastError() : 0;
 	#else
 		mutex = malloc(sizeof(pthread_mutex_t));
 		if (mutex)
@@ -185,6 +217,7 @@ thread_id_type Thread_getid(void)
 
 /**
  * Create a new semaphore
+ * @param rc return code: 0 for success, negative otherwise
  * @return the new condition variable
  */
 sem_type Thread_create_sem(int *rc)
@@ -200,14 +233,7 @@ sem_type Thread_create_sem(int *rc)
 		        FALSE,              /* initial state is nonsignaled */
 		        NULL                /* object name */
 		        );
-#if 0
-		sem = CreateSemaphore(
-				NULL,				/* default security attributes */
-				0,       	        /* initial count - non signaled */
-				1, 					/* maximum count */
-				NULL 				/* unnamed semaphore */
-		);
-#endif
+		*rc = (sem == NULL) ? GetLastError() : 0;
 	#elif defined(OSX)
 		sem = dispatch_semaphore_create(0L);
 		*rc = (sem == NULL) ? -1 : 0;
@@ -410,25 +436,37 @@ int Thread_signal_cond(cond_type condvar)
 }
 
 /**
- * Wait with a timeout (seconds) for condition variable
+ * Wait with a timeout (ms) for condition variable
  * @return 0 for success, ETIMEDOUT otherwise
  */
-int Thread_wait_cond(cond_type condvar, int timeout)
+int Thread_wait_cond(cond_type condvar, int timeout_ms)
 {
 	int rc = 0;
 	struct timespec cond_timeout;
+	struct timespec interval;
 
 	FUNC_ENTRY;
+	interval.tv_sec = timeout_ms / 1000;
+	interval.tv_nsec = (timeout_ms % 1000) * 1000000L;
+
 #if defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200 /* for older versions of MacOS */
 	struct timeval cur_time;
     gettimeofday(&cur_time, NULL);
-    cond_timeout.tv_sec = cur_time.tv_sec + timeout;
+    cond_timeout.tv_sec = cur_time.tv_sec;
     cond_timeout.tv_nsec = cur_time.tv_usec * 1000;
 #else
 	clock_gettime(CLOCK_REALTIME, &cond_timeout);
-
-	cond_timeout.tv_sec += timeout;
 #endif
+
+	cond_timeout.tv_sec += interval.tv_sec;
+	cond_timeout.tv_nsec += (timeout_ms % 1000) * 1000000L;
+
+	if (cond_timeout.tv_nsec >= 1000000000L)
+	{
+		cond_timeout.tv_sec++;
+		cond_timeout.tv_nsec += (cond_timeout.tv_nsec - 1000000000L);
+	}
+
 	pthread_mutex_lock(&condvar->mutex);
 	rc = pthread_cond_timedwait(&condvar->cond, &condvar->mutex, &cond_timeout);
 	pthread_mutex_unlock(&condvar->mutex);
@@ -563,14 +601,13 @@ int cond_test()
 {
 	int rc = 0;
 	cond_type cond = Thread_create_cond();
-	thread_type thread;
 
 	printf("Post secondary so it should return immediately\n");
 	rc = Thread_signal_cond(cond);
 	assert("rc 0 from signal cond", rc == 0, "rc was %d", rc);
 
 	printf("Starting secondary thread\n");
-	thread = Thread_start(cond_secondary, (void*)cond);
+	Thread_start(cond_secondary, (void*)cond);
 
 	sleep(3);
 
@@ -614,7 +651,6 @@ int sem_test()
 {
 	int rc = 0;
 	sem_type sem = Thread_create_sem();
-	thread_type thread;
 
 	printf("Primary semaphore pointer %p\n", sem);
 
@@ -629,7 +665,7 @@ int sem_test()
 	assert("rc 1 from check_sem", rc == 1, "rc was %d", rc);
 
 	printf("Starting secondary thread\n");
-	thread = Thread_start(sem_secondary, (void*)sem);
+	Thread_start(sem_secondary, (void*)sem);
 
 	sleep(3);
 	rc = Thread_check_sem(sem);

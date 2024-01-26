@@ -50,7 +50,14 @@ public:
 
 	enum
 	{
-		DEFAULT_MEMORY_LIMIT = 1024*1024
+		DEFAULT_MEMORY_LIMIT = 64*1024*1024
+	};
+
+	struct StackFrame
+	{
+		std::string functionName;
+		std::string scriptName;
+		int lineNo;
 	};
 
 	struct ErrorInfo
@@ -58,6 +65,7 @@ public:
 		std::string uri;
 		std::string message;
 		int lineNo;
+		std::vector<StackFrame> stackTrace;
 	};
 
 	struct MemoryWarning
@@ -253,6 +261,7 @@ protected:
 	void compile(v8::Local<v8::Context>& context);
 	void reportError(v8::Isolate* pIsolate, v8::TryCatch& tryCatch);
 	void reportError(v8::Isolate* pIsolate, const ErrorInfo& errorInfo);
+	std::vector<StackFrame> buildStackTrace(v8::Isolate* pIsolate, v8::Local<v8::StackTrace>& stackTrace);
 
 	template <typename W>
 	static void setWrapperProperty(v8::Local<v8::Object>& object, v8::Isolate* pIsolate, const std::string& name)
@@ -262,7 +271,7 @@ protected:
 		v8::Local<v8::Object> wrapperObject;
 		if (maybeWrapperObject.ToLocal(&wrapperObject))
 		{
-			(void) object->Set(pIsolate->GetCurrentContext(), Wrapper::toV8Internalized(pIsolate, name), wrapperObject);
+			V8_CHECK_SET_RESULT(object->Set(pIsolate->GetCurrentContext(), Wrapper::toV8Internalized(pIsolate, name), wrapperObject));
 		}
 	}
 
@@ -274,7 +283,7 @@ protected:
 		v8::Local<v8::Object> wrapperObject;
 		if (maybeWrapperObject.ToLocal(&wrapperObject))
 		{
-			(void) object->Set(pIsolate->GetCurrentContext(), Wrapper::toV8Internalized(pIsolate, name), wrapperObject);
+			V8_CHECK_SET_RESULT(object->Set(pIsolate->GetCurrentContext(), Wrapper::toV8Internalized(pIsolate, name), wrapperObject));
 		}
 	}
 
@@ -345,6 +354,7 @@ protected:
 		/// Returns the executor's timer.
 
 	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
+	void handleOutOfMemory(std::size_t currentHeapLimit, std::size_t initialHeapLimit);
 	static void setImmediate(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void setTimeout(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void setInterval(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -352,8 +362,7 @@ protected:
 
 private:
 	JSTimer _timer;
-	bool _stopped;
-	Poco::FastMutex _mutex;
+	std::atomic<bool> _stopped;
 
 	friend class RunScriptTask;
 	friend class StopScriptTask;

@@ -30,8 +30,8 @@ namespace BtLE {
 
 
 class IoTBtLE_API GATTClient
-	/// This class provides a low-level interface to a Bluetooth LE peripheral
-	/// device using the Bluetooth Generic Attribute Profile (GATT).
+	/// This class provides a low-level interface to a Bt LE peripheral
+	/// device using the Bt Generic Attribute Profile (GATT).
 {
 public:
 	using Ptr = Poco::SharedPtr<GATTClient>;
@@ -154,7 +154,7 @@ public:
 		/// Fired when a Notification has been received from the peripheral.
 
 	virtual void connect(const std::string& address, ConnectMode mode = GATT_CONNECT_WAIT) = 0;
-		/// Connects the GATTClient to the Bluetooth LE peripheral with the
+		/// Connects the GATTClient to the Bt LE peripheral with the
 		/// given address. The address consists of six hexadecimal byte values,
 		/// separated by a colon, e.g.: "68:C9:0B:06:23:09".
 		///

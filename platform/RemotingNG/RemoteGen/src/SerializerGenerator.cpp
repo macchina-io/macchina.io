@@ -340,7 +340,17 @@ void SerializerGenerator::serializeImplCodeGenImpl(const Poco::CppParser::Struct
 				}
 				lastPushedNS = ns;
 			}
+			std::string length;
+			bool haveLength = GeneratorEngine::getStringProperty(attrProps, Utility::LENGTH, length);
+			if (haveLength)
+			{
+				elemCodeLines.push_back("ser.pushProperty(SerializerBase::PROP_LENGTH, \"" + length + "\"s);");
+			}
 			elemCodeLines.push_back(generateTypeSerializerLine(pDataType, it, curNamesPos, suffix));
+			if (haveLength)
+			{
+				elemCodeLines.push_back("ser.popProperty(SerializerBase::PROP_LENGTH);");
+			}
 		}
 		if (lastPushedNS != defaultNS)
 			elemCodeLines.push_back("ser.popProperty(SerializerBase::PROP_NAMESPACE);");

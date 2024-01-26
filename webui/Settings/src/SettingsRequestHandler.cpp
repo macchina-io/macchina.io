@@ -27,12 +27,12 @@
 #include <sstream>
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Web {
 namespace Settings {
-
-
-Poco::FastMutex SettingsRequestHandler::_mutex;
 
 
 SettingsRequestHandler::SettingsRequestHandler(Poco::OSP::BundleContext::Ptr pContext):
@@ -43,7 +43,7 @@ SettingsRequestHandler::SettingsRequestHandler(Poco::OSP::BundleContext::Ptr pCo
 
 void SettingsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
+	Poco::FastMutex::ScopedLock lock(Utility::mutex);
 
 	Poco::OSP::Web::WebSession::Ptr pSession;
 	{
@@ -51,15 +51,15 @@ void SettingsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 		if (pWebSessionManagerRef)
 		{
 			Poco::OSP::Web::WebSessionManager::Ptr pWebSessionManager = pWebSessionManagerRef->castedInstance<Poco::OSP::Web::WebSessionManager>();
-			pSession = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"), request);
+			pSession = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"s), request);
 		}
 	}
 	if (!Utility::isAuthenticated(pSession, request, response)) return;
 
-	std::string username = pSession->getValue<std::string>("username");
-	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth");
+	std::string username = pSession->getValue<std::string>("username"s);
+	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth"s);
 
-	if (!pAuthService->authorize(username, "settingsAdmin"))
+	if (!pAuthService->authorize(username, "settingsAdmin"s))
 	{
 		response.setContentLength(0);
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_FORBIDDEN);
@@ -73,7 +73,7 @@ void SettingsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 
 	if (request.getMethod() == "HEAD")
 	{
-		response.setContentType("application/json");
+		response.setContentType("application/json"s);
 		response.send();
 	}
 	else if (request.getMethod() == "GET")
@@ -86,12 +86,12 @@ void SettingsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request
 	}
 	else
 	{
-		response.setContentType("application/json");
+		response.setContentType("application/json"s);
 		response.setChunkedTransferEncoding(true);
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
 		response.send()
 			<< "{"
-			<<   "\"error\":" << Utility::jsonize("Bad request")
+			<<   "\"error\":" << Utility::jsonize("Bad request"s)
 			<< "}";
 	}
 }
@@ -103,11 +103,11 @@ void SettingsRequestHandler::handleLoad(Poco::Net::HTTPServerRequest& request, P
 
 	Poco::Util::JSONConfiguration json;
 	std::set<std::string> excludeSet;
-	excludeSet.insert("application");
-	excludeSet.insert("system");
+	excludeSet.insert("application"s);
+	excludeSet.insert("system"s);
 	Utility::copyProperties(app.config(), json, excludeSet);
 
-	response.setContentType("application/json");
+	response.setContentType("application/json"s);
 	response.setChunkedTransferEncoding(true);
 	std::ostream& ostr = response.send();
 	json.save(ostr);
@@ -123,12 +123,12 @@ void SettingsRequestHandler::handleSave(Poco::Net::HTTPServerRequest& request, P
 		Poco::AutoPtr<Poco::Util::JSONConfiguration> pJSON = new Poco::Util::JSONConfiguration;
 		pJSON->load(request.stream());
 
-		std::string settingsPath = app.config().getString("macchina.settings.path", "");
+		std::string settingsPath = app.config().getString("macchina.settings.path"s, ""s);
 		Poco::AutoPtr<Poco::Util::PropertyFileConfiguration> pSettings;
 
 		if (!settingsPath.empty())
 		{
-			Poco::AutoPtr<Poco::Util::AbstractConfiguration> pConf = app.config().find("macchina.settings");
+			Poco::AutoPtr<Poco::Util::AbstractConfiguration> pConf = app.config().find("macchina.settings"s);
 			if (pConf)
 			{
 				pSettings = pConf.cast<Poco::Util::PropertyFileConfiguration>();
@@ -136,7 +136,7 @@ void SettingsRequestHandler::handleSave(Poco::Net::HTTPServerRequest& request, P
 
 			if (!pSettings)
 			{
-				_pContext->logger().warning("No 'macchina.settings' in application configuration.");
+				_pContext->logger().warning("No 'macchina.settings' in application configuration."s);
 				pSettings = new Poco::Util::PropertyFileConfiguration;
 			}
 			else
@@ -145,24 +145,24 @@ void SettingsRequestHandler::handleSave(Poco::Net::HTTPServerRequest& request, P
 			}
 
 			std::set<std::string> excludeSet;
-			excludeSet.insert("application");
-			excludeSet.insert("system");
+			excludeSet.insert("application"s);
+			excludeSet.insert("system"s);
 			Utility::copyDeltaProperties(app.config(), *pJSON, *pSettings, excludeSet);
 
 			pSettings->save(settingsPath);
 
-			_pContext->logger().information("Settings saved to \"%s\".", settingsPath);
+			_pContext->logger().information("Settings saved to \"%s\"."s, settingsPath);
 		}
 		else
 		{
-			throw Poco::ApplicationException("No \"macchina.settings.path\" property defined. Cannot save settings.");
+			throw Poco::ApplicationException("No \"macchina.settings.path\" property defined. Cannot save settings."s);
 		}
 	}
 	catch (Poco::Exception& exc)
 	{
 		_pContext->logger().log(exc);
 
-		response.setContentType("application/json");
+		response.setContentType("application/json"s);
 		response.setChunkedTransferEncoding(true);
 		response.send()
 			<< "{"
@@ -171,7 +171,7 @@ void SettingsRequestHandler::handleSave(Poco::Net::HTTPServerRequest& request, P
 		return;
 	}
 
-	response.setContentType("application/json");
+	response.setContentType("application/json"s);
 	response.setChunkedTransferEncoding(true);
 	response.send()
 		<< "{"

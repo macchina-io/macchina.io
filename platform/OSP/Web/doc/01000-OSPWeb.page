@@ -63,7 +63,13 @@ The following attributes are supported for static resources:
     If permission is a single asterisk ("*"), no specific permission is required, but
     credentials must be present and valid. If permission is two asterisks ("**"), credentials
     are optional, but if present, must be valid.
+  - <[authMethods]>: Specify the enabled authentication methods. A comma-separated list
+    of method names (<[basic]>, <[session]>, <[bearer]>). If not specified the globally
+    enabled authentication methods are used.
   - <[session]>: Specify the name of the application for session-based authentication.
+  - <[redirectOn401]>: Specify a location the client is redirected to in case of an
+    authentication failure (401 status). This only applies to <[GET]> requests and can
+    be used to redirect to a login page rather than showing a generic 401 error.
   - <[hidden]>: If <[true]>, path is not included by WebServerDispatcher::listVirtualPaths().
   - <[resource]>:  Specify a directory within the bundle where the HTML, image and other files are located.
   - <[index]>: Specify the name of the default document (defaults to "index.html").
@@ -134,6 +140,9 @@ The following attributes are supported for request handlers:
     of method names (<[basic]>, <[session]>, <[bearer]>). If not specified the globally
     enabled authentication methods are used.
   - <[session]>: Specify the name of the application for session-based authentication.
+  - <[redirectOn401]>: Specify a location the client is redirected to in case of an
+    authentication failure (401 status). This only applies to <[GET]> requests and can
+    be used to redirect to a login page rather than showing a generic 401 error.
   - <[hidden]>: If <[true]>, path is not included by WebServerDispatcher::listVirtualPaths().
   - <[methods]>: Only allow specific HTTP request methods.
   - <[class]>: The class name of the request handler factory.
@@ -280,7 +289,8 @@ The web server supports protection agains CSRF or XSRF (Cross-Site Request Forge
 To enable CSRF protection, the <[csrfProtection]> attribute must be set to <[true]>
 in the <[osp.web.server.requesthandler]> extension point.
 If enabled, the web server will check whether the request contains a CSRF token header
-(default header name is "X-XSRF-TOKEN") with a valid CSRF token. The token will be
+(default header name is "X-XSRF-TOKEN") with a valid CSRF token, if it is a mutating
+request (any request method other than `GET` or `HEAD`). The token will be
 checked using the Poco::OSP::Web::WebSessionManager service. Requests will be rejected
 if they do not contain a valid token.
 The name of the header containing the token can be set with the <[csrfTokenHeader]> attribute.

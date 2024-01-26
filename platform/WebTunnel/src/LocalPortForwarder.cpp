@@ -28,6 +28,9 @@
 #include "Poco/Buffer.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace WebTunnel {
 
@@ -164,7 +167,7 @@ public:
 		}
 		catch (Poco::Exception& exc)
 		{
-			logger.warning("Error shutting down WebSocket: %s", exc.displayText());
+			logger.warning("Error shutting down WebSocket: %s"s, exc.displayText());
 		}
 	}
 
@@ -186,7 +189,7 @@ public:
 	StreamSocketToWebSocketForwarder(Poco::SharedPtr<SocketDispatcher> pDispatcher, Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket):
 		BasicSocketForwarder(pDispatcher),
 		_pWebSocket(pWebSocket),
-		_logger(Poco::Logger::get("WebTunnel.StreamSocketToWebSocketForwarder"))
+		_logger(Poco::Logger::get("WebTunnel.StreamSocketToWebSocketForwarder"s))
 	{
 	}
 
@@ -199,14 +202,14 @@ public:
 		}
 		catch (Poco::Net::ConnectionResetException& exc)
 		{
-			_logger.debug("Exception while receiving data from local socket: " + exc.displayText());
+			_logger.debug("Exception while receiving data from local socket: %s"s, exc.displayText());
 			shutdown(*_pWebSocket, Poco::Net::WebSocket::WS_UNEXPECTED_CONDITION, _logger);
 			cleanupDispatcher(socket, *_pWebSocket);
 			return false;
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.error("Exception while receiving data from local socket: " + exc.displayText());
+			_logger.error("Exception while receiving data from local socket: %s"s, exc.displayText());
 			shutdown(*_pWebSocket, Poco::Net::WebSocket::WS_UNEXPECTED_CONDITION, _logger);
 			cleanupDispatcher(socket, *_pWebSocket);
 			return false;
@@ -220,13 +223,13 @@ public:
 			}
 			catch (Poco::Exception& exc)
 			{
-				_logger.error("Exception while sending data: " + exc.displayText());
+				_logger.error("Exception while sending data: %s"s, exc.displayText());
 				cleanupDispatcher(socket, *_pWebSocket);
 			}
 		}
 		else
 		{
-			_logger.debug("Closing connection");
+			_logger.debug("Closing connection"s);
 			shutdown(*_pWebSocket, Poco::Net::WebSocket::WS_NORMAL_CLOSE, _logger);
 			cleanupDispatcher(socket, *_pWebSocket);
 		}
@@ -263,7 +266,7 @@ public:
 		BasicSocketForwarder(pDispatcher),
 		_streamSocket(streamSocket),
 		_timeoutCount(0),
-		_logger(Poco::Logger::get("WebTunnel.WebSocketToStreamSocketForwarder"))
+		_logger(Poco::Logger::get("WebTunnel.WebSocketToStreamSocketForwarder"s))
 	{
 	}
 
@@ -278,19 +281,19 @@ public:
 		}
 		catch (Poco::Net::ConnectionResetException& exc)
 		{
-			_logger.debug("Exception while receiving data from remote socket: " + exc.displayText());
+			_logger.debug("Exception while receiving data from remote socket: %s"s, exc.displayText());
 			cleanupDispatcher(socket, _streamSocket);
 			return false;
 		}
 		catch (Poco::Exception& exc)
 		{
-			_logger.error("Exception while receiving data from remote socket: " + exc.displayText());
+			_logger.error("Exception while receiving data from remote socket: %s"s, exc.displayText());
 			cleanupDispatcher(socket, _streamSocket);
 			return false;
 		}
 		if ((flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_PONG)
 		{
-			_logger.debug("PONG received");
+			_logger.debug("PONG received"s);
 			_timeoutCount = 0;
 			return false;
 		}
@@ -303,7 +306,7 @@ public:
 			}
 			catch (Poco::Exception& exc)
 			{
-				_logger.error("Exception while sending data: " + exc.displayText());
+				_logger.error("Exception while sending data: %s"s, exc.displayText());
 				cleanupDispatcher(socket, _streamSocket);
 				shutdown(webSocket, Poco::Net::WebSocket::WS_UNEXPECTED_CONDITION, _logger);
 				return false;
@@ -311,13 +314,13 @@ public:
 		}
 		else if (n <= 0 || (flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) == Poco::Net::WebSocket::FRAME_OP_CLOSE)
 		{
-			_logger.debug("Shutting down WebSocket");
+			_logger.debug("Shutting down WebSocket"s);
 			cleanupDispatcher(socket, _streamSocket);
 			_streamSocket.shutdown();
 		}
 		else
 		{
-			_logger.debug("Ignoring unsupported frame type");
+			_logger.debug("Ignoring unsupported frame type"s);
 		}
 		return false;
 	}
@@ -329,13 +332,13 @@ public:
 
 	void timeout(SocketDispatcher& dispatcher, Poco::Net::StreamSocket& socket)
 	{
-		_logger.debug("Timeout reading from WebSocket");
+		_logger.debug("Timeout reading from WebSocket"s);
 		if (_timeoutCount == 0)
 		{
 			_timeoutCount = 1;
 			try
 			{
-				_logger.debug("Sending PING");
+				_logger.debug("Sending PING"s);
 				Poco::Net::WebSocket webSocket(socket);
 				webSocket.sendFrame(0, 0, Poco::Net::WebSocket::FRAME_FLAG_FIN | Poco::Net::WebSocket::FRAME_OP_PING);
 			}
@@ -368,7 +371,7 @@ const std::string LocalPortForwarder::WEBTUNNEL_PROTOCOL("com.appinf.webtunnel.c
 
 
 LocalPortForwarder::LocalPortForwarder(Poco::UInt16 localPort, Poco::UInt16 remotePort, const Poco::URI& remoteURI, WebSocketFactory::Ptr pWebSocketFactory):
-	_localAddr("localhost", localPort),
+	_localAddr("localhost"s, localPort),
 	_remotePort(remotePort),
 	_remoteURI(remoteURI),
 	_localTimeout(0),
@@ -376,7 +379,7 @@ LocalPortForwarder::LocalPortForwarder(Poco::UInt16 localPort, Poco::UInt16 remo
 	_pWebSocketFactory(pWebSocketFactory),
 	_serverSocket(_localAddr),
 	_tcpServer(new LocalPortForwarderConnectionFactory(*this), _serverSocket),
-	_logger(Poco::Logger::get("WebTunnel.LocalPortForwarder"))
+	_logger(Poco::Logger::get("WebTunnel.LocalPortForwarder"s))
 {
 	_localAddr = _serverSocket.address();
 	_tcpServer.start();
@@ -394,7 +397,7 @@ LocalPortForwarder::LocalPortForwarder(const Poco::Net::SocketAddress& localAddr
 	_serverSocket(_localAddr),
 	_tcpServer(new LocalPortForwarderConnectionFactory(*this), _serverSocket, pServerParams),
 	_pDispatcher(new SocketDispatcher(16)),
-	_logger(Poco::Logger::get("WebTunnel.LocalPortForwarder"))
+	_logger(Poco::Logger::get("WebTunnel.LocalPortForwarder"s))
 {
 	_localAddr = _serverSocket.address();
 	_tcpServer.start();
@@ -432,7 +435,7 @@ void LocalPortForwarder::forward(Poco::Net::StreamSocket& socket)
 {
 	if (_logger.debug())
 	{
-		_logger.debug("Local connection accepted, creating forwarding connection to %s, remote port %hu", _remoteURI.toString(), _remotePort);
+		_logger.debug("Local connection accepted, creating forwarding connection to %s, remote port %hu."s, _remoteURI.toString(), _remotePort);
 	}
 	try
 	{
@@ -443,9 +446,9 @@ void LocalPortForwarder::forward(Poco::Net::StreamSocket& socket)
 		request.set(X_WEBTUNNEL_REMOTEPORT, Poco::NumberFormatter::format(_remotePort));
 		Poco::Net::HTTPResponse response;
 		Poco::SharedPtr<Poco::Net::WebSocket> pWebSocket = _pWebSocketFactory->createWebSocket(_remoteURI, request, response);
-		if (response.get(SEC_WEBSOCKET_PROTOCOL, "") != WEBTUNNEL_PROTOCOL)
+		if (response.get(SEC_WEBSOCKET_PROTOCOL, ""s) != WEBTUNNEL_PROTOCOL)
 		{
-			_logger.error("The remote host does not support the WebTunnel protocol.");
+			_logger.error("The remote host does not support the WebTunnel protocol."s);
 			pWebSocket->shutdown(Poco::Net::WebSocket::WS_PROTOCOL_ERROR);
 			pWebSocket->close();
 			socket.close();
@@ -460,7 +463,7 @@ void LocalPortForwarder::forward(Poco::Net::StreamSocket& socket)
 	}
 	catch (Poco::Exception& exc)
 	{
-		_logger.error("Failed to open forwarding connection: %s", exc.displayText());
+		_logger.error("Failed to open forwarding connection: %s"s, exc.displayText());
 		socket.close();
 	}
 }

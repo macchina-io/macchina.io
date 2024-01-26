@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html lang="en" ng-app="servicesApp">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>macchina.io - Services</title>
+    <link rel="stylesheet" href="/css/fonts.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/macchina/services/css/styles.css" type="text/css"/>
+    <link rel="icon" href="/images/favicon.ico">
+    <script type="text/javascript" src="/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/angular/angular.min.js"></script>
+    <script type="text/javascript" src="/macchina/services/js/app.js"></script>
+    <script type="text/javascript" src="/macchina/services/js/controllers.js"></script>
+  </head>
+  <body ng-controller="SessionCtrl">
+    <header>
+      <div class="headercontainer">
+        <div class="header">
+          <h1>
+            <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io">EDGE</a>&gt; Services
+          </h1>
+        </div>
+      </div>
+    </header>
+    <div class="contentcontainer" ng-controller="ServicesCtrl">
+      <div class="content">
+        <nav>
+          <div class="usernav">
+            <div class="navigation">
+              <ul>
+                <li>
+                  <i class="fa fa-search"></i> <form class="search"><input type="text" placeholder="Search" ng-model="search" size="30" maxLength="200" autofocus></form>
+                </li>
+              </ul>
+            </div>
+            <div class="username">
+              <i class="fa fa-user"></i>
+              &nbsp;
+              {{session.username}}
+              &nbsp;
+              <a id="logoutLink" href="#" onclick="document.logout.submit()">Sign out</a>
+           </div>
+           <form method="post" name="logout" action="/">
+             <input type="hidden" name="action" value="logout">
+           </form>
+           <div style="clear: both;"></div>
+         </div>
+        </nav>
+        <div class="groupbox" style="overflow-x: auto">
+          <div ng-if="services.length == 0">No services found.</div>
+          <table id="servicesTable" class="list" style="width: 100%" ng-if="services.length > 0">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th colspan="2">Implementation Class/Properties</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat-start="service in services | filter:search track by $index">
+                <td style="vertical-align: top" rowspan="{{countProperties(service)}}">
+                  <b>{{service.name}}</b>
+                  <img src="/macchina/services/images/cpp.svg" style="width: 1em; height: 1em;" alt="C++" title="Available in C++">
+                  <span ng-if="service.jsbridge">
+                    <img src="/macchina/services/images/js.svg" style="width: 1em; height: 1em;" alt="JS" title="Available in JavaScript">
+                  </span>
+                </td>
+                <td colspan="2">{{service.dtype}}</td>
+              </tr>
+              <tr ng-repeat-end ng-repeat="p in service.properties">
+                <td><i>{{p.name}}</i></td>
+                <td>{{p.value}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

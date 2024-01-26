@@ -21,6 +21,8 @@
 #include "Poco/JS/Net/Net.h"
 #include "Poco/JS/Core/Wrapper.h"
 #include "Poco/Net/HTTPServerRequest.h"
+#include "Poco/RefCountedObject.h"
+#include "Poco/AutoPtr.h"
 #include "Poco/Timespan.h"
 #include "Poco/SharedPtr.h"
 
@@ -28,6 +30,16 @@
 namespace Poco {
 namespace JS {
 namespace Net {
+
+
+class JSNet_API CancelHandler: public Poco::RefCountedObject
+{
+public:
+	using Ptr = Poco::AutoPtr<CancelHandler>;
+
+	virtual void cancelRequest() = 0;
+	virtual ~CancelHandler() = default;
+};
 
 
 class JSNet_API RequestHolder
@@ -62,9 +74,29 @@ public:
 		return _timeout;
 	}
 
+	void setCancelHandler(CancelHandler::Ptr pCancelHandler)
+	{
+		_pCancelHandler = pCancelHandler;
+	}
+
+	CancelHandler::Ptr getCancelHandler() const
+	{
+		return _pCancelHandler;
+	}
+
+	void cancelRequest()
+	{
+		if (_pCancelHandler)
+		{
+			_pCancelHandler->cancelRequest();
+			_pCancelHandler.reset();
+		}
+	}
+
 private:
 	std::string _content;
 	Poco::Timespan _timeout;
+	CancelHandler::Ptr _pCancelHandler;
 };
 
 
@@ -198,6 +230,7 @@ protected:
 	static void send(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void sendBlocking(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void sendAsync(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void cancel(const v8::FunctionCallbackInfo<v8::Value>& args);	
 };
 
 

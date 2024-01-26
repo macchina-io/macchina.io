@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.xdk</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2017-2022, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2017-2024, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::XDK::BundleActivator</class>
 			<library>io.macchina.xdk</library>
@@ -26,7 +26,4 @@
 		bin/${osName}/${osArch}/*.so,
 		bin/${osName}/${osArch}/*.dylib,
 	</code>
-	<files>
-		bundle/*
-	</files>
 </bundlespec>

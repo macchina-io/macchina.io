@@ -11,8 +11,9 @@ objects = SensorTag SensorTagAccelerometer BundleActivator
 
 target          = io.macchina.sensortag
 target_includes = $(PROJECT_BASE)/devices/Devices/include \
+                  $(PROJECT_BASE)/devices/Devices/skel/include \
                   $(PROJECT_BASE)/protocols/BtLE/include
-target_libs     = IoTBtLE IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoFoundation
+target_libs     = IoTBtLE IoTDevicesSkel IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoFoundation
 
 postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles SensorTag.bndlspec
 

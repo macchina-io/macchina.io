@@ -272,6 +272,7 @@ the event's argument type. The following predefined filter classes are available
   * Poco::RemotingNG::MinimumDeltaFilter
   * Poco::RemotingNG::MinimumIntervalFilter
   * Poco::RemotingNG::MinimumIntervalOrDeltaFilter
+  * Poco::RemotingNG::MinimumIntervalAndDeltaFilter
   * Poco::RemotingNG::HysteresisFilter
 
 Custom filter classes can be defined by subclassing the Poco::RemotingNG::EventFilter

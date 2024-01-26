@@ -37,8 +37,8 @@ IWebTunnelService::~IWebTunnelService()
 
 bool IWebTunnelService::isA(const std::type_info& otherType) const
 {
-	std::string name(type().name());
-	return name == otherType.name();
+	static const std::string name(typeid(IoT::WebTunnel::IWebTunnelService).name());
+	return name == otherType.name() || Poco::OSP::Service::isA(otherType);
 }
 
 

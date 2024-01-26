@@ -1,0 +1,59 @@
+//
+// ITrigger.cpp
+//
+// Library: IoT/Devices
+// Package: Generated
+// Module:  ITrigger
+//
+// This file has been generated.
+// Warning: All changes to this will be lost when the file is re-generated.
+//
+// Copyright (c) 2014-2022, Applied Informatics Software Engineering GmbH.
+// All rights reserved.
+// 
+// SPDX-License-Identifier: GPL-3.0-only
+//
+
+
+#include "IoT/Devices/ITrigger.h"
+
+
+namespace IoT {
+namespace Devices {
+
+
+ITrigger::ITrigger():
+	IoT::Devices::IBooleanSensor()
+
+{
+}
+
+
+ITrigger::~ITrigger()
+{
+}
+
+
+bool ITrigger::isA(const std::type_info& otherType) const
+{
+	static const std::string name(typeid(IoT::Devices::ITrigger).name());
+	return name == otherType.name() || IoT::Devices::IBooleanSensor::isA(otherType);
+}
+
+
+const Poco::RemotingNG::Identifiable::TypeId& ITrigger::remoting__typeId()
+{
+	static const std::string REMOTING__TYPE_ID("IoT.Devices.Trigger");
+	return REMOTING__TYPE_ID;
+}
+
+
+const std::type_info& ITrigger::type() const
+{
+	return typeid(ITrigger);
+}
+
+
+} // namespace Devices
+} // namespace IoT
+

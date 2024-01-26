@@ -7,7 +7,7 @@
 include $(POCO_BASE)/build/rules/global
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
-CXXFLAGS += -DV8_DEPRECATION_WARNINGS=1
+EXTRA_CXXFLAGS += -DV8_DEPRECATION_WARNINGS=1
 
 objects = SchedulerExtensionPoint BundleActivator
 

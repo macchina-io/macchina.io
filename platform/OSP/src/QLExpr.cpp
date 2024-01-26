@@ -479,4 +479,20 @@ bool QLMatchRegExpr::evaluate(const Properties& props) const
 }
 
 
+//
+// QLTrueExpr
+//
+
+
+QLTrueExpr::QLTrueExpr()
+{
+}
+
+
+bool QLTrueExpr::evaluate(const Properties& props) const
+{
+	return true;
+}
+
+
 } } // namespace Poco::OSP

@@ -75,6 +75,11 @@ public:
 	virtual Poco::Int64 clearValues(const std::string& sessionId) = 0;
 		/// Removes all values from the session.
 
+	virtual std::vector<std::string> sessionsByValue(const std::string& key, const Poco::Any& value) = 0;
+		/// Returns a vector containing the session IDs of all sessions
+		/// having a value with the given key and value. Typically, this
+		/// is used to obtain all sessions for a given username.
+
 	// Service
 	const std::type_info& type() const;
 	bool isA(const std::type_info& otherType) const;

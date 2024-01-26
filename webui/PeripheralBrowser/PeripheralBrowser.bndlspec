@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>macchina.io Peripheral Browser</name>
+    <symbolicName>io.macchina.webui.peripheralbrowser</symbolicName>
+    <version>1.0.0</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2023-2024, Applied Informatics Software Engineering GmbH</copyright>
+    <lazyStart>false</lazyStart>
+    <runLevel>900</runLevel>
+  </manifest>
+  <code>
+  </code>
+  <files>
+    bundle/*
+  </files>
+</bundlespec>

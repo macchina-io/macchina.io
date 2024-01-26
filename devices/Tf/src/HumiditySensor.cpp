@@ -13,17 +13,20 @@
 #include "Poco/NumberFormatter.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Tf {
 
 
 HumiditySensor::HumiditySensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.humidity", "Tinkerforge Humidity Bricklet", "io.macchina.sensor", "humidity", "%"),
+	BrickletType("io.macchina.tf.humidity"s, "Tinkerforge Humidity Bricklet"s, "io.macchina.sensor"s, "humidity"s, "%"s),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
-	addProperty("displayValue", &HumiditySensor::getDisplayValue);
-	addProperty("valueChangedPeriod", &HumiditySensor::getValueChangedPeriod, &HumiditySensor::setValueChangedPeriod);
-	addProperty("valueChangedDelta", &HumiditySensor::getValueChangedDelta, &HumiditySensor::setValueChangedDelta);
+	addProperty("displayValue"s, &HumiditySensor::getDisplayValue);
+	addProperty("valueChangedPeriod"s, &HumiditySensor::getValueChangedPeriod, &HumiditySensor::setValueChangedPeriod);
+	addProperty("valueChangedDelta"s, &HumiditySensor::getValueChangedDelta, &HumiditySensor::setValueChangedDelta);
 
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	humidity_create(&_humidity, uid.c_str(), ipcon);

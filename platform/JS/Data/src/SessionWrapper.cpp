@@ -59,7 +59,10 @@ SessionWrapper::~SessionWrapper()
 
 v8::Handle<v8::FunctionTemplate> SessionWrapper::constructor(v8::Isolate* pIsolate)
 {
-	return v8::FunctionTemplate::New(pIsolate, construct);
+	v8::EscapableHandleScope handleScope(pIsolate);
+	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
+	funcTemplate->Set(toV8String(pIsolate, "isSession"s), v8::FunctionTemplate::New(pIsolate, isSession));
+	return handleScope.Escape(funcTemplate);
 }
 
 
@@ -122,6 +125,19 @@ void SessionWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		delete pSessionHolder;
 		returnException(args, exc);
+	}
+}
+
+
+void SessionWrapper::isSession(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() > 0)
+	{
+		args.GetReturnValue().Set(Wrapper::isWrapper<SessionHolder>(args.GetIsolate(), args[0]));
+	}
+	else
+	{
+		args.GetReturnValue().Set(false);
 	}
 }
 
@@ -243,7 +259,11 @@ static void bindStatementArgs(Poco::Data::Statement& statement, const v8::Functi
 	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	for (int i = 1; i < args.Length(); i++)
 	{
-		if (args[i]->IsString())
+		if (args[i]->IsNullOrUndefined())
+		{
+			statement.bind(Poco::Data::NullData());
+		}
+		else if (args[i]->IsString())
 		{
 			statement.bind(Core::Wrapper::toString(pIsolate, args[i]));
 		}

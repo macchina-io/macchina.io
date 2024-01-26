@@ -1,6 +1,32 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2023.1
+
+!!Summary of Changes
+
+  - Improved authentication service with more secure password hashing
+    (supporting PBKDF2 with HMAC-SHA256).
+    Furthermore, it's possible to configure a session timeout, which is
+    useful for MySQL servers that close the connection after a time of
+    inactivity. 
+  - The username and password for the OSP Shell Client can now also be given
+    in environment variables `OSPSH_USERNAME` and `OSPSH_PASSWORD`.
+  - Various minor internal improvements.
+
+!!Known Issues
+
+  - The CMake build system places all generated bundle files in the same target
+    directory, regardless of the selected build configuration (e.g., Debug, Release).
+    Therefore, building different configurations in the same build directory is
+    not recommended. Furthermore, on Windows, bundles built with CMake do not contain
+    PDB files, unlike those built with the included Visual Studio project files.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2022.1
 
 !!Summary of Changes

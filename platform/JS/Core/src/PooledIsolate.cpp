@@ -15,6 +15,7 @@
 #include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/JS/Core/JSExecutor.h"
 #include "Poco/JS/Core/JSException.h"
+#include <algorithm>
 #include <cstdlib>
 
 
@@ -26,16 +27,17 @@ namespace Core {
 PooledIsolate::PooledIsolate(Poco::UInt64 memoryLimit):
 	_pIsolate(0),
 	_pArrayBufferAllocator(v8::ArrayBuffer::Allocator::NewDefaultAllocator()),
-	_memoryLimit(memoryLimit)
+	_memoryLimit(std::max(memoryLimit, Poco::UInt64(MINIMUM_MEMORY_LIMIT)))
 {
 	v8::Isolate::CreateParams params;
-	params.constraints.ConfigureDefaultsFromHeapSize(0, memoryLimit);
+	params.constraints.ConfigureDefaultsFromHeapSize(0, _memoryLimit);
 	params.array_buffer_allocator = _pArrayBufferAllocator;
 	_pIsolate = v8::Isolate::New(params);
 	if (!_pIsolate) throw JSException("Cannot create isolate");
 	_pIsolate->SetData(0, this);
 	_pIsolate->AddNearHeapLimitCallback(onNearHeapLimit, _pIsolate);
 	_pIsolate->AutomaticallyRestoreInitialHeapLimit(0.5);
+	_pIsolate->SetCaptureStackTraceForUncaughtExceptions(true, 16, v8::StackTrace::kDetailed);
 }
 
 

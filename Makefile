@@ -4,18 +4,22 @@
 # Global Makefile for macchina.io
 #
 
-.PHONY: clean all clean_bundles install_sdk install_runtime install docs
+.PHONY: build clean all clean_bundles install_sdk install_runtime install docs 
 
 PRODUCT ?= sdk
 DESTDIR ?= /usr/local/macchina
 INSTALLDIR ?= $(DESTDIR)
 
-ifndef WITHOUT_JS
-ENABLE_JS ?= 1
-export ENABLE_JS
-endif
+sinclude components.make
 
 RUNTIME_LIBS = PocoFoundation PocoXML PocoJSON PocoUtil PocoZip PocoOSP PocoRemotingNG PocoGeo
+
+HOST_LIBS = PocoFoundation PocoXML PocoJSON PocoUtil PocoNet PocoZip PocoOSP PocoRemotingNG PocoCppParser PocoCodeGeneration 
+HOST_TOOLS = OSP/BundleCreator OSP/CodeCacheUtility OSP/StripBundle RemotingNG/RemoteGen PageCompiler PageCompiler/File2Page 
+
+ifdef MACCHINA_ENABLE_ACTIVERECORD
+HOST_TOOLS += ActiveRecord/Compiler
+endif
 
 MACCHINA_BASE = $(shell pwd)
 POCO_BASE = $(MACCHINA_BASE)/platform
@@ -25,11 +29,19 @@ export MACCHINA_BASE
 export POCO_BASE
 export PROJECT_BASE
 
+# Get SDK_DIRS from SDK.make
+include SDK.make
+
 ifeq ($(PRODUCT),sdk)
+BUILD_TARGET = all
 INSTALL_TARGET = install_sdk
 else ifeq ($(PRODUCT),runtime)
+BUILD_TARGET = all
 INSTALL_TARGET = install_runtime
 MAKEARGS = DEFAULT_TARGET=shared_release
+else ifeq ($(PRODUCT),hosttools)
+BUILD_TARGET = hosttools
+INSTALL_TARGET = install_hosttools
 else
 $(error Invalid PRODUCT specified: $(PRODUCT))
 endif
@@ -83,12 +95,12 @@ endif
 # Make Targets
 #
 
+build: $(BUILD_TARGET)
+
 # All macchina.io
 clean all:
 	$(MAKE) -C platform $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C server $(MAKECMDGOALS) $(MAKEARGS)
-	$(MAKE) -C devices/Devices $(MAKECMDGOALS) $(MAKEARGS)
-	$(MAKE) -C devices/Serial $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C protocols $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C devices $(MAKECMDGOALS) $(MAKEARGS)
 	$(MAKE) -C services $(MAKECMDGOALS) $(MAKEARGS)
@@ -107,6 +119,9 @@ hosttools:
 	$(MAKE) -C platform/Util
 	$(MAKE) -C platform/Net
 	$(MAKE) -C platform/Zip
+ifdef MACCHINA_ENABLE_ACTIVERECORD
+	$(MAKE) -C platform/ActiveRecord/Compiler
+endif
 	$(MAKE) -C platform/OSP
 	$(MAKE) -C platform/OSP/BundleCreator
 	$(MAKE) -C platform/OSP/CodeCacheUtility
@@ -117,24 +132,34 @@ hosttools:
 	$(MAKE) -C platform/RemotingNG/RemoteGen
 	$(MAKE) -C platform/PageCompiler
 	$(MAKE) -C platform/PageCompiler/File2Page
-	$(MAKE) -C platform/ActiveRecord/Compiler
 
 install: $(INSTALL_TARGET)
 
+install_hosttools:
+	install -d $(INSTALLDIR)/lib
+	install -d $(INSTALLDIR)/bin
+	for comp in $(HOST_TOOLS) ; do \
+		if [ -d "platform/$$comp/bin/$(POCO_HOST_OSNAME)/$(POCO_HOST_OSARCH)" ] ; then \
+			find platform/$$comp/bin/$(POCO_HOST_OSNAME)/$(POCO_HOST_OSARCH) -perm -700 -type f -exec install {} $(INSTALLDIR)/bin \; ; \
+		fi ; \
+	done
+	for comp in $(HOST_LIBS) ; do \
+		find platform/lib/$(POCO_HOST_OSNAME)/$(POCO_HOST_OSARCH) -name "lib$$comp*" -type f -exec cp -f {} $(INSTALLDIR)/lib \; ; \
+	done
+
 install_sdk:
-	mkdir -p $(INSTALLDIR)
-	mkdir -p $(INSTALLDIR)/include
-	mkdir -p $(INSTALLDIR)/lib
-	mkdir -p $(INSTALLDIR)/lib/bundles
-	mkdir -p $(INSTALLDIR)/bin
-	mkdir -p $(INSTALLDIR)/etc
-	$(MAKE) -C platform install INSTALLDIR=$(INSTALLDIR)
-	cp -Rf devices/*/include/* $(INSTALLDIR)/include
-	cp -Rf protocols/*/include/* $(INSTALLDIR)/include
-	cp -Rf services/*/include/* $(INSTALLDIR)/include
+	install -d $(INSTALLDIR)/include
+	install -d $(INSTALLDIR)/lib
+	install -d $(INSTALLDIR)/lib/bundles
+	install -d $(INSTALLDIR)/bin
+	install -d $(INSTALLDIR)/etc
+	$(MAKE) -C platform install INSTALLDIR=$(abspath $(INSTALLDIR))
+	for sdk in $(SDK_DIRS) ; do \
+		cp -Rf $$sdk/include/* $(INSTALLDIR)/include ;\
+	done
 	find $(MACCHINA_BASE)/lib/$(OSNAME)/$(OSARCH) -name "libIoT*" -type f -exec cp -f {} $(INSTALLDIR)/lib \;
 	find $(MACCHINA_BASE)/lib/$(OSNAME)/$(OSARCH) -name "libIoT*" -type l -exec cp -Rf {} $(INSTALLDIR)/lib \;
-	find $(MACCHINA_BASE)/server/bin/$(OSNAME)/$(OSARCH) -perm -700 -type f -name 'macchina*' -exec cp -f {} $(INSTALLDIR)/bin \;
+	find $(MACCHINA_BASE)/server/bin/$(OSNAME)/$(OSARCH) -perm -700 -type f -name 'macchina*' -exec install {} $(INSTALLDIR)/bin \;
 	cp -f $(POCO_BASE)/OSP/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	cp -f $(MACCHINA_BASE)/*/bundles/*.bndl $(INSTALLDIR)/lib/bundles
 	rm -f $(INSTALLDIR)/bin/*$(LIBEXT)
@@ -143,12 +168,11 @@ install_sdk:
 	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc
 
 install_runtime:
-	mkdir -p $(INSTALLDIR)
-	mkdir -p $(INSTALLDIR)/lib
-	mkdir -p $(INSTALLDIR)/lib/bundles
-	mkdir -p $(INSTALLDIR)/bin
-	mkdir -p $(INSTALLDIR)/etc
-	find $(MACCHINA_BASE)/server/bin/$(OSNAME)/$(OSARCH) -perm -700 -type f -name macchina -exec cp -f {} $(INSTALLDIR)/bin \;
+	install -d $(INSTALLDIR)/lib
+	install -d $(INSTALLDIR)/lib/bundles
+	install -d $(INSTALLDIR)/bin
+	install -d $(INSTALLDIR)/etc
+	find $(MACCHINA_BASE)/server/bin/$(OSNAME)/$(OSARCH) -perm -700 -type f -name macchina -exec install {} $(INSTALLDIR)/bin \;
 	for lib in $(RUNTIME_LIBS) ; do \
 		find $(POCO_BASE)/lib/$(OSNAME)/$(OSARCH) -name "lib$$lib$(VLIBEXT)" -type f -exec cp -f {} $(INSTALLDIR)/lib \; ; \
 	done
@@ -157,7 +181,18 @@ install_runtime:
 	cp $(MACCHINA_BASE)/server/macchina.properties.install $(INSTALLDIR)/etc/macchina.properties
 	cp $(MACCHINA_BASE)/server/rootcert.pem $(INSTALLDIR)/etc
 	cp $(MACCHINA_BASE)/server/macchina.pem $(INSTALLDIR)/etc
+	if [ -d $(POCO_BASE)/OSP/Shell/Client/bin/$(OSNAME)/$(OSARCH) ] ; then \
+		find $(POCO_BASE)/OSP/Shell/Client/bin/$(OSNAME)/$(OSARCH) -perm -700 -type f -name ospsh -exec install {} $(INSTALLDIR)/bin \; ; \
+	fi
 
 docs: hosttools
 	$(MAKE) -C tools/PocoDoc
 	tools/PocoDoc/bin/$(POCO_HOST_OSNAME)/$(POCO_HOST_OSARCH)/PocoDoc --config=tools/PocoDoc/cfg/macchina.xml
+
+docker-image:
+	docker pull alpine:3.18
+	docker build -t macchina/edge .
+
+docker-sdk-image:
+	docker pull alpine:3.18
+	docker build -f Dockerfile-SDK -t macchina/edge-sdk .

@@ -13,17 +13,20 @@
 #include "Poco/NumberFormatter.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Tf {
 
 
 AirPressureSensor::AirPressureSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.barometer", "Tinkerforge Barometer Bricklet", "io.macchina.sensor", "AirPressure", IoT::Devices::Sensor::PHYSICAL_UNIT_MBAR),
+	BrickletType("io.macchina.tf.barometer"s, "Tinkerforge Barometer Bricklet"s, "io.macchina.sensor"s, "AirPressure"s, IoT::Devices::Sensor::PHYSICAL_UNIT_MBAR),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
-	addProperty("displayValue", &AirPressureSensor::getDisplayValue);
-	addProperty("valueChangedPeriod", &AirPressureSensor::getValueChangedPeriod, &AirPressureSensor::setValueChangedPeriod);
-	addProperty("valueChangedDelta", &AirPressureSensor::getValueChangedDelta, &AirPressureSensor::setValueChangedDelta);
+	addProperty("displayValue"s, &AirPressureSensor::getDisplayValue);
+	addProperty("valueChangedPeriod"s, &AirPressureSensor::getValueChangedPeriod, &AirPressureSensor::setValueChangedPeriod);
+	addProperty("valueChangedDelta"s, &AirPressureSensor::getValueChangedDelta, &AirPressureSensor::setValueChangedDelta);
 
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	barometer_create(&_barometer, uid.c_str(), ipcon);

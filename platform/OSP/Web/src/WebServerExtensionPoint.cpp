@@ -58,6 +58,7 @@ const std::string WebServerExtensionPoint::ATTR_ALLOWMETHODS("allowMethods");
 const std::string WebServerExtensionPoint::ATTR_ALLOWHEADERS("allowHeaders");
 const std::string WebServerExtensionPoint::ATTR_ALLOWCREDENTIALS("allowCredentials");
 const std::string WebServerExtensionPoint::ATTR_RESPONSEFORMAT("responseFormat");
+const std::string WebServerExtensionPoint::ATTR_REDIRECTON401("redirectOn401");
 const std::string WebServerExtensionPoint::MANIFEST_NAME("WebServer");
 
 
@@ -172,6 +173,7 @@ void WebServerExtensionPoint::handleCommon(Bundle::ConstPtr pBundle, Poco::XML::
 	vPath.hidden                   = pExtensionElem->getAttribute(ATTR_HIDDEN) == "true";
 	vPath.cache                    = pExtensionElem->getAttribute(ATTR_CACHE) != "false";
 	vPath.exactMatch               = pExtensionElem->getAttribute(ATTR_EXACTMATCH) == "true";
+	vPath.redirectOn401            = pBundle->properties().expand(pExtensionElem->getAttribute(ATTR_REDIRECTON401));
 
 	if (vPath.security.csrfProtection && vPath.security.csrfTokenHeader.empty())
 	{

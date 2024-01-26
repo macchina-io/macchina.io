@@ -4,7 +4,7 @@
 		<symbolicName>io.macchina.protocols.webtunnel</symbolicName>
 		<version>2.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2015-2022, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2015-2024, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::WebTunnel::BundleActivator</class>
 			<library>io.macchina.protocols.webtunnel</library>
@@ -20,7 +20,4 @@
     	../../platform/lib/${osName}/${osArch}/libPocoWebTunnel*.1.dylib,
     	../../platform/lib/${osName}/${osArch}/libPocoWebTunnel*.so.1
 	</code>
-	<files>
-		bundle/*
-	</files>
 </bundlespec>

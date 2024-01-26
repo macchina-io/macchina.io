@@ -2,8 +2,8 @@
 
 var settingsControllers = angular.module('settingsControllers', []);
 
-settingsControllers.controller('SettingsCtrl', ['$scope', 'SettingsService',
-  function($scope, SettingsService) {
+settingsControllers.controller('SettingsCtrl', ['$scope', 'Upload', '$window', 'SettingsService',
+  function($scope, Upload, $window, SettingsService) {
     $scope.data = [];
     $scope.error = "";
     $scope.selectedNodeName = "";
@@ -12,6 +12,8 @@ settingsControllers.controller('SettingsCtrl', ['$scope', 'SettingsService',
     $scope.newNodeName = "";
     $scope.newNodeValue = null;
     $scope.nextId = 0;
+    $scope.status = "";
+    $scope.unsaved = false;
 
     $scope.clearError = function() {
       $scope.error = "";
@@ -22,25 +24,49 @@ settingsControllers.controller('SettingsCtrl', ['$scope', 'SettingsService',
     	if (item && item.$modelValue)
     	{
     		result = item.$modelValue.title;
-			while (item.$parentNodeScope && item.$parentNodeScope.$modelValue)
-			{
-				result = item.$parentNodeScope.$modelValue.title + "." + result;
-				item = item.$parentNodeScope;
-			}
-		}
+		  	while (item.$parentNodeScope && item.$parentNodeScope.$modelValue)
+			  {
+			  	result = item.$parentNodeScope.$modelValue.title + "." + result;
+				  item = item.$parentNodeScope;
+			  }
+		  }
     	return result;
-    }
+    };
 
-    $scope.save = function() {
+    $scope.markUnsaved = function() {
+      $scope.unsaved = true;
+    };
+
+    $scope.markSaved = function() {
+      $scope.unsaved = false;
+    };
+
+    $scope.save = function(fn) {
       $scope.clearError();
       var props = $scope.createJSONObject($scope.data);
       SettingsService.save(props,
         function(data) {
+          $scope.markSaved();
+          if (fn && typeof fn === 'function')
+          {
+            fn();
+          }
         },
         function(error) {
           $scope.error = error;
         }
       );
+    };
+
+    $scope.saveIfUnsavedAndThen = function(fn) {
+      if ($scope.unsaved)
+      {
+        $scope.save(fn);
+      }
+      else if (fn && typeof fn === 'function')
+      {
+        fn();
+      }
     };
   
     $scope.onNodeValueFocus = function(item) {
@@ -98,6 +124,7 @@ settingsControllers.controller('SettingsCtrl', ['$scope', 'SettingsService',
       $scope.selectedNodeName = $scope.newNodeName;
       $scope.updateNodeName();
       $scope.hideRenameNodePopup();
+      $scope.markUnsaved();
     }
   
     $scope.renameNode = function(scope) {
@@ -149,6 +176,7 @@ settingsControllers.controller('SettingsCtrl', ['$scope', 'SettingsService',
 
       $scope.clearSelection();
       $scope.hideDuplicateNodePopup();
+      $scope.markUnsaved();
     }
   
     $scope.duplicateNode = function(scope) {
@@ -219,6 +247,7 @@ settingsControllers.controller('SettingsCtrl', ['$scope', 'SettingsService',
 
       $scope.clearSelection();
       $scope.hideAddNodePopup();
+      $scope.markUnsaved();
     };
    
     $scope.addNode = function(item) {
@@ -242,6 +271,7 @@ settingsControllers.controller('SettingsCtrl', ['$scope', 'SettingsService',
         { 
           item.remove();
           $scope.clearSelection();
+          $scope.markUnsaved();
         }
       }
     };
@@ -329,7 +359,38 @@ settingsControllers.controller('SettingsCtrl', ['$scope', 'SettingsService',
     $scope.expandAll = function() {
       $scope.$broadcast('angular-ui-tree:expand-all');
     };
-  
+
+    $scope.importSettings = function() {
+      $scope.saveIfUnsavedAndThen(function() {
+        $scope.showImportSettingsPopup();
+      });
+    };
+
+    $scope.exportSettings = function() {
+      $scope.saveIfUnsavedAndThen(function() {
+        setTimeout(function() { $window.location.href = '/macchina/settings/export'; }, 10);
+      });
+    };
+
+    $scope.showImportSettingsPopup = function() {
+      $('#modalBackground').css("display", "block");
+      $('#importSettingsPopup').css("display", "block");
+      $(document).on('keyup.importSettingsPopup',
+        function(e) {
+          if (e.keyCode == 27) 
+          {
+            $scope.hideImportSettingsPopup(); 
+          }
+        }
+      );   
+    };
+
+    $scope.hideImportSettingsPopup = function() {
+      $('#modalBackground').css("display", "none");
+      $('#importSettingsPopup').css("display", "none");
+      $(document).unbind('keyup.importSettingsPopup');
+    };
+
     $scope.createJSONObject = function(obj)
     {
       if (null == obj) return null;
@@ -400,7 +461,52 @@ settingsControllers.controller('SettingsCtrl', ['$scope', 'SettingsService',
 
       return arr;
     };
-    
+
+    $scope.$watch('files', function() {
+      $scope.upload($scope.files);
+    });
+
+    $scope.upload = function(file) {
+      if (file && file.size) {
+        $scope.clearError();
+        Upload.upload({
+          url: '/macchina/settings/import',
+          data: {
+            file: file
+          }
+        }).then(
+          function success(resp)
+          {
+            $scope.status = "";
+            $scope.hideImportSettingsPopup();
+            SettingsService.load(
+              function(props) {
+                $scope.data = $scope.createDataArray(props);
+                $scope.collapseAll();
+                $scope.markSaved();
+              },
+              function(error) {
+                $scope.error = resp.error;
+              }
+            );
+          },
+          function error(resp)
+          {
+            $scope.status = "";
+            $scope.error = "Failed to upload settings file.";  
+          },
+          function progress(evt)
+          {
+            var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+            if (progressPercentage < 100)
+              $scope.status = "Uploading... (" + progressPercentage + "% )";
+            else
+              $scope.status = "Applying...";
+            }
+        );
+      }
+    }
+
     SettingsService.load(
       function(props) {
         $scope.data = $scope.createDataArray(props);
@@ -411,17 +517,26 @@ settingsControllers.controller('SettingsCtrl', ['$scope', 'SettingsService',
       }
     );
 
+    window.onbeforeunload = function (event) {        
+      if ($scope.unsaved)
+      {
+        event.preventDefault();
+        return "";
+      }
+    };
   }
 ]);
 
 settingsControllers.controller('SessionCtrl', ['$scope', '$http',
   function($scope, $http) {
-    $http.get('/macchina/session.json').success(function(data) {
-      $scope.session = data;
-      if (!data.authenticated)
-      {
-        window.location = "/";
+    $http.get('/macchina/session.json').then(
+      function(response) {
+        $scope.session = response.data;
+        if (!response.data.authenticated)
+        {
+          window.location = "/";
+        }
       }
-    });
+    );
   }
 ]);

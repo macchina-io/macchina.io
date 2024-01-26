@@ -268,6 +268,16 @@ void JSTimer::cancel(TimedJSExecutor* pExecutor)
 }
 
 
+void JSTimer::cancelAsync(TimedJSExecutor* pExecutor)
+{
+	if (!_cancelled.exchange(true))
+	{
+		Poco::AutoPtr<CancelNotification> pNf = new CancelNotification(_queue, pExecutor);
+		_queue.enqueueNotification(pNf, Poco::Clock(0));
+	}
+}
+
+
 void JSTimer::schedule(Poco::Util::TimerTask::Ptr pTask, Poco::Timestamp time)
 {
 	if (_cancelled) return;

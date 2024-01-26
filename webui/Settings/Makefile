@@ -9,6 +9,8 @@ include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 objects =  \
 	SettingsRequestHandler \
+	ExportRequestHandler \
+	ImportRequestHandler \
 	Utility \
 	BundleActivator
 

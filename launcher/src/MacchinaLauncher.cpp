@@ -3,10 +3,10 @@
 //
 // The launcher/watchdog for macchina.io server
 //
-// Copyright (c) 2017, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2017-2023, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: Apache-2.0
 //
 
 
@@ -136,7 +136,7 @@ protected:
 		helpFormatter.setHeader(
 			"\n"
 			"Applied Informatics Launcher for server applications.\n"
-			"Copyright (c) 2011-2017 by Applied Informatics Software Engineering GmbH.\n"
+			"Copyright (c) 2011-2023 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"This program is used to launch server applications and "
 			"to automatically relaunch them in case they terminate unexpectedly.\n\n"

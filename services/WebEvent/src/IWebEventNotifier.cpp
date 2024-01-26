@@ -23,8 +23,8 @@ namespace WebEvent {
 
 
 IWebEventNotifier::IWebEventNotifier():
-	Poco::OSP::Service()
-
+	Poco::OSP::Service(),
+	event()
 {
 }
 
@@ -36,8 +36,8 @@ IWebEventNotifier::~IWebEventNotifier()
 
 bool IWebEventNotifier::isA(const std::type_info& otherType) const
 {
-	std::string name(type().name());
-	return name == otherType.name();
+	static const std::string name(typeid(IoT::WebEvent::IWebEventNotifier).name());
+	return name == otherType.name() || Poco::OSP::Service::isA(otherType);
 }
 
 

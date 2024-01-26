@@ -173,6 +173,7 @@ public:
 		bool                     cache;               /// resource can be cached
 		bool                     exactMatch;          /// request path must match exactly
 		ResponseFormat           responseFormat;      /// error response format (HTML or JSON)
+		std::string              redirectOn401;       /// redirect (302) on a 401 error if request is a GET
 		Bundle::Ptr              pOwnerBundle;        /// bundle owning path
 	};
 

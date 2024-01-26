@@ -66,6 +66,7 @@ class IoTDevices_API Device
 	///   - status (int): Current device status (DeviceStatus); optional.
 	///
 	/// The following generic device types are currently defined:
+	///   - io.macchina.composite (Composite)
 	///   - io.macchina.accelerometer (Accelerometer)
 	///   - io.macchina.barcode (BarcodeReader)
 	///   - io.macchina.gnss (GNSSSensor)
@@ -80,6 +81,14 @@ class IoTDevices_API Device
 	///   - io.macchina.serial (SerialDevice)
 	///   - io.macchina.switch (Switch)
 	///   - io.macchina.trigger (Trigger)
+	///   - io.macchina.datapoint (Datapoint)
+	///   - io.macchina.datapoint.scalar (ScalarDatapoint)
+	///   - io.macchina.datapoint.vector (VectorDatapoint)
+	///   - io.macchina.datapoint.counter (CounterDatapoint)
+	///   - io.macchina.datapoint.boolean (BooleanDatapoint)
+	///   - io.macchina.datapoint.string (StringDatapoint)
+	///   - io.macchina.datapoint.enum (EnumDatapoint)
+	///   - io.macchina.datapoint.flags (FlagsDatapoint)
 {
 public:
 	Poco::BasicEvent<const DeviceStatusChange> statusChanged;
@@ -121,6 +130,32 @@ public:
 		/// Throws a Poco::NotFoundException if the property
 		/// with the given name is unknown.
 
+	virtual void setPropertyInt16(const std::string& name, Poco::Int16 value) = 0;
+		/// Sets a device property.
+		///
+		/// Which properties are supported is defined by the
+		/// actual device implementation.
+
+	virtual Poco::Int16 getPropertyInt16(const std::string& name) const = 0;
+		/// Returns the value of the device property with
+		/// the given name.
+		///
+		/// Throws a Poco::NotFoundException if the property
+		/// with the given name is unknown.
+
+	virtual void setPropertyInt64(const std::string& name, Poco::Int64 value) = 0;
+		/// Sets a device property.
+		///
+		/// Which properties are supported is defined by the
+		/// actual device implementation.
+
+	virtual Poco::Int64 getPropertyInt64(const std::string& name) const = 0;
+		/// Returns the value of the device property with
+		/// the given name.
+		///
+		/// Throws a Poco::NotFoundException if the property
+		/// with the given name is unknown.
+
 	virtual void setPropertyDouble(const std::string& name, double value) = 0;
 		/// Sets a device property.
 		///
@@ -141,6 +176,19 @@ public:
 		/// actual device implementation.
 
 	virtual bool getPropertyBool(const std::string& name) const = 0;
+		/// Returns the value of the device property with
+		/// the given name.
+		///
+		/// Throws a Poco::NotFoundException if the property
+		/// with the given name is unknown.
+
+	virtual void setPropertyTimestamp(const std::string& name, Poco::Timestamp value) = 0;
+		/// Sets a device property.
+		///
+		/// Which properties are supported is defined by the
+		/// actual device implementation.
+
+	virtual Poco::Timestamp getPropertyTimestamp(const std::string& name) const = 0;
 		/// Returns the value of the device property with
 		/// the given name.
 		///

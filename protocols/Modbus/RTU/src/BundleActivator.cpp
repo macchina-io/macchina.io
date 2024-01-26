@@ -16,7 +16,7 @@
 #include "Poco/OSP/ServiceFinder.h"
 #include "Poco/OSP/PreferencesService.h"
 #include "Poco/RemotingNG/ORB.h"
-#include "RTUPort.h"
+#include "IoT/Modbus/RTU/RTUMasterPort.h"
 #include "IoT/Modbus/ModbusMasterImpl.h"
 #include "IoT/Modbus/ModbusMasterServerHelper.h"
 #include "Poco/Serial/SerialPort.h"
@@ -32,6 +32,7 @@ using Poco::OSP::ServiceRef;
 using Poco::OSP::ServiceFinder;
 using Poco::OSP::Properties;
 using Poco::OSP::PreferencesService;
+using namespace std::string_literals;
 
 
 namespace IoT {
@@ -54,16 +55,16 @@ public:
 
 	void createModbusRTUMaster(const std::string& uid, Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan timeout, Poco::Timespan frameTimeout)
 	{
-		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<RTUPort>(new RTUPort(pSerialPort, frameTimeout), timeout);
-		std::string symbolicName = "io.macchina.modbus.rtu";
+		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<RTUMasterPort>(new RTUMasterPort(pSerialPort, frameTimeout), timeout);
+		std::string symbolicName = "io.macchina.modbus.rtu"s;
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
 		oid += uid;
 		ServerHelper::RemoteObjectPtr pModbusMasterRemoteObject = ServerHelper::createRemoteObject(pModbusMaster, oid);
 
 		Properties props;
-		props.set("io.macchina.protocol", symbolicName);
-		props.set("io.macchina.modbus.rtu.device", pSerialPort->device());
+		props.set("io.macchina.protocol"s, symbolicName);
+		props.set("io.macchina.modbus.rtu.device"s, pSerialPort->device());
 
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pModbusMasterRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
@@ -75,38 +76,38 @@ public:
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
 
 		Poco::Util::AbstractConfiguration::Keys keys;
-		_pPrefs->configuration()->keys("modbus.rtu.ports", keys);
+		_pPrefs->configuration()->keys("modbus.rtu.ports"s, keys);
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
-			std::string baseKey = "modbus.rtu.ports.";
+			std::string baseKey = "modbus.rtu.ports."s;
 			baseKey += *it;
 
-			std::string device = _pPrefs->configuration()->getString(baseKey + ".device", "");
-			std::string params = _pPrefs->configuration()->getString(baseKey + ".params", "8N1");
+			std::string device = _pPrefs->configuration()->getString(baseKey + ".device"s, ""s);
+			std::string params = _pPrefs->configuration()->getString(baseKey + ".params"s, "8N1"s);
 			int speed = _pPrefs->configuration()->getInt(baseKey + ".speed", 9600);
-			Poco::Timespan timeout = 1000*_pPrefs->configuration()->getInt(baseKey + ".timeout", 2000);
-			Poco::Timespan frameTimeout = _pPrefs->configuration()->getInt(baseKey + ".frameTimeout", 10000);
+			Poco::Timespan timeout = 1000*_pPrefs->configuration()->getInt(baseKey + ".timeout"s, 2000);
+			Poco::Timespan frameTimeout = _pPrefs->configuration()->getInt(baseKey + ".frameTimeout"s, 10000);
 
 			try
 			{
-				pContext->logger().information(Poco::format("Creating serial port for Modbus RTU device '%s'.", device));
+				pContext->logger().information("Creating serial port for Modbus RTU master '%s'."s, device);
 
 				Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort = new Poco::Serial::SerialPort(device, speed, params);
 
-				if (_pPrefs->configuration()->getBool(baseKey + ".rs485.enable", false))
+				if (_pPrefs->configuration()->getBool(baseKey + ".rs485.enable"s, false))
 				{
 					Poco::Serial::SerialPort::RS485Params rs485Params;
 					rs485Params.flags = Poco::Serial::SerialPort::RS485Params::RS485_ENABLED;
-					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.rtsOnSend", false))
+					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.rtsOnSend"s, false))
 						rs485Params.flags |= Poco::Serial::SerialPort::RS485Params::RS485_RTS_ON_SEND;
-					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.rtsAfterSend", false))
+					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.rtsAfterSend"s, false))
 						rs485Params.flags |= Poco::Serial::SerialPort::RS485Params::RS485_RTS_AFTER_SEND;
-					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.useGPIO", false))
+					if (_pPrefs->configuration()->getBool(baseKey + ".rs485.useGPIO"s, false))
 						rs485Params.flags |= Poco::Serial::SerialPort::RS485Params::RS485_USE_GPIO;
 
-					rs485Params.delayRTSBeforeSend = _pPrefs->configuration()->getInt(baseKey + ".rs485.delayRTSBeforeSend", 0);
-					rs485Params.delayRTSAfterSend  = _pPrefs->configuration()->getInt(baseKey + ".rs485.delayRTSAfterSend", 0);
-					rs485Params.gpioPin            = _pPrefs->configuration()->getInt(baseKey + ".rs485.gpioPin", 0);
+					rs485Params.delayRTSBeforeSend = _pPrefs->configuration()->getInt(baseKey + ".rs485.delayRTSBeforeSend"s, 0);
+					rs485Params.delayRTSAfterSend  = _pPrefs->configuration()->getInt(baseKey + ".rs485.delayRTSAfterSend"s, 0);
+					rs485Params.gpioPin            = _pPrefs->configuration()->getInt(baseKey + ".rs485.gpioPin"s, 0);
 
 					pSerialPort->configureRS485(rs485Params);
 				}
@@ -115,7 +116,7 @@ public:
 			}
 			catch (Poco::Exception& exc)
 			{
-				pContext->logger().error(Poco::format("Cannot create serial port for Modbus RTU device '%s': %s", device, exc.displayText()));
+				pContext->logger().error("Cannot create serial port for Modbus RTU master '%s': %s"s, device, exc.displayText());
 			}
 		}
 	}

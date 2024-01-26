@@ -1,8 +1,6 @@
 //
 // BundleActivator.cpp
 //
-// $Id$
-//
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
@@ -18,7 +16,7 @@
 #include "Poco/OSP/ServiceFinder.h"
 #include "Poco/OSP/PreferencesService.h"
 #include "Poco/RemotingNG/ORB.h"
-#include "TCPPort.h"
+#include "IoT/Modbus/TCP/TCPMasterPort.h"
 #include "IoT/Modbus/ModbusMasterImpl.h"
 #include "IoT/Modbus/ModbusMasterServerHelper.h"
 #include "Poco/Net/SocketAddress.h"
@@ -34,6 +32,7 @@ using Poco::OSP::ServiceRef;
 using Poco::OSP::ServiceFinder;
 using Poco::OSP::Properties;
 using Poco::OSP::PreferencesService;
+using namespace std::string_literals;
 
 
 namespace IoT {
@@ -54,18 +53,18 @@ public:
 	{
 	}
 
-	void createModbusTCPMaster(const std::string& uid, Poco::Net::SocketAddress& serverAddress, Poco::Timespan timeout)
+	void createModbusTCPMaster(const std::string& uid, const Poco::Net::SocketAddress& serverAddress, Poco::Timespan timeout, Poco::Timespan connectTimeout, bool connectImmediately)
 	{
-		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<TCPPort>(new TCPPort(serverAddress), timeout);
-		std::string symbolicName = "io.macchina.modbus.tcp";
+		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<TCPMasterPort>(new TCPMasterPort(serverAddress, connectTimeout, connectImmediately), timeout);
+		std::string symbolicName = "io.macchina.modbus.tcp"s;
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
 		oid += uid;
 		ServerHelper::RemoteObjectPtr pModbusMasterRemoteObject = ServerHelper::createRemoteObject(pModbusMaster, oid);
 
 		Properties props;
-		props.set("io.macchina.protocol", symbolicName);
-		props.set("io.macchina.modbus.tcp.device", serverAddress.toString());
+		props.set("io.macchina.protocol"s, symbolicName);
+		props.set("io.macchina.modbus.tcp.device"s, serverAddress.toString());
 
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pModbusMasterRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
@@ -77,25 +76,29 @@ public:
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
 
 		Poco::Util::AbstractConfiguration::Keys keys;
-		_pPrefs->configuration()->keys("modbus.tcp.ports", keys);
+		_pPrefs->configuration()->keys("modbus.tcp.ports"s, keys);
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
-			std::string baseKey = "modbus.tcp.ports.";
+			std::string baseKey = "modbus.tcp.ports."s;
 			baseKey += *it;
 
-			const std::string hostAddress = _pPrefs->configuration()->getString(baseKey + ".hostAddress", "");
-			const Poco::UInt16 portNumber = _pPrefs->configuration()->getInt(baseKey + ".portNumber", 502);
-			Poco::Net::SocketAddress serverAddress(hostAddress, portNumber);
-			Poco::Timespan timeout = 1000*_pPrefs->configuration()->getInt(baseKey + ".timeout", 2000);
+			const std::string hostAddress = _pPrefs->configuration()->getString(baseKey + ".hostAddress"s, ""s);
+			const Poco::UInt16 portNumber = _pPrefs->configuration()->getInt(baseKey + ".portNumber"s, 502);
+			const Poco::Net::SocketAddress serverAddress(hostAddress, portNumber);
+			const int timeoutMS = _pPrefs->configuration()->getInt(baseKey + ".timeout"s, 2000);
+			const Poco::Timespan timeout = Poco::Timespan::MILLISECONDS*timeoutMS;
+			const int connectTimeoutMS = _pPrefs->configuration()->getInt(baseKey + ".connectTimeout"s, timeoutMS);
+			const Poco::Timespan connectTimeout = Poco::Timespan::MILLISECONDS*connectTimeoutMS;
+			const bool connectImmediately = !_pPrefs->configuration()->getBool(baseKey + ".lazyConnect"s, false);
 
 			try
 			{
-				pContext->logger().information(Poco::format("Use TCP port '%hu' on host '%s' for Modbus TCP device.", portNumber, hostAddress));
-				createModbusTCPMaster(*it, serverAddress, timeout);
+				pContext->logger().information(Poco::format("Use TCP port '%hu' on host '%s' for Modbus TCP device."s, portNumber, hostAddress));
+				createModbusTCPMaster(*it, serverAddress, timeout, connectTimeout, connectImmediately);
 			}
 			catch (Poco::Exception& exc)
 			{
-				pContext->logger().error(Poco::format("Cannot create TCP port for Modbus TCP device '%s': %s", serverAddress.toString(), exc.displayText()));
+				pContext->logger().error(Poco::format("Cannot create TCP port for Modbus TCP device '%s': %s"s, serverAddress.toString(), exc.displayText()));
 			}
 		}
 	}

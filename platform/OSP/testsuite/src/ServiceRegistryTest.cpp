@@ -114,6 +114,8 @@ void ServiceRegistryTest::testRegistry()
 	assert (svcs.size() == 1);
 	assert (svcs[0]->instance() == pService1);
 
+	assert (!reg.find("").empty());
+
 	Service::Ptr pService2 = new TestServiceFactory;
 
 	Properties props;

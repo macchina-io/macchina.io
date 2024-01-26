@@ -265,8 +265,8 @@ void InterfaceGenerator::ifaceIsACodeGen(const Poco::CppParser::Function* pFunc,
 
 	const Poco::CppParser::Struct* pDataType = pIG->_pStructIn; // returns the data type for which pStruct was generated
 	poco_assert(pDataType);
-	//std::string name(type().name());
-	/// return name == otherType.name() || MyBaseClass::isA(otherType);
+	// static const std::string name(typeid(MyClass).name());
+	// return name == otherType.name() || MyBaseClass::isA(otherType);
 
 	std::string nameCheck("return name == otherType.name()");
 
@@ -275,15 +275,11 @@ void InterfaceGenerator::ifaceIsACodeGen(const Poco::CppParser::Function* pFunc,
 
 	for (; itB != itBEnd; ++itB)
 	{
-		const Poco::CppParser::Struct* pParent = itB->pClass;
-		if (GenUtility::isAService(pParent))
-		{
-			nameCheck.append(" || ");
-			nameCheck.append(pParent->fullName() + "::isA(otherType)");
-		}
+		nameCheck.append(" || ");
+		nameCheck.append(itB->name + "::isA(otherType)");
 	}
 	nameCheck.append(";");
-	gen.writeMethodImplementation("std::string name(type().name());");
+	gen.writeMethodImplementation("static const std::string name(typeid(" + pStruct->fullName() + ").name());");
 	gen.writeMethodImplementation(nameCheck);
 }
 
@@ -324,10 +320,18 @@ bool InterfaceGenerator::checkForEventMembers(const Poco::CppParser::Struct* pSt
 		if (GenUtility::isRemoteEvent(pVar, eventProperties))
 		{
 			// add a variable with the same name
-			Poco::CppParser::Variable* pVarNew = new Poco::CppParser::Variable(pVar->declaration(), _pStruct);
+			Poco::CppParser::Variable* pVarNew = new Poco::CppParser::Variable(resolveEventType(pStruct, pVar->declaration()), _pStruct);
 			pVarNew->setAccess(Poco::CppParser::Symbol::ACC_PUBLIC);
 			ev = true;
 		}
 	}
 	return ev;
+}
+
+
+std::string InterfaceGenerator::resolveEventType(const Poco::CppParser::Struct* pStruct, const std::string& decl)
+{
+	std::string::size_type pos = decl.find_last_of(' ');
+	std::string typeDecl(decl, 0, pos);
+	return Utility::resolveType(pStruct, typeDecl) + decl.substr(pos);
 }

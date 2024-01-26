@@ -7,10 +7,12 @@
 //
 // Definition of the LogTestResult class.
 //
-// Copyright (c) 2011-2014, Applied Informatics Software Engineering GmbH.
+// Copyright (c) 2011, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: GPL-3.0-only
+// This is unpublished proprietary source code of Applied Informatics.
+// The contents of this file may not be disclosed to third parties, 
+// copied or duplicated in any form, in whole or in part.
 //
 
 
@@ -39,17 +41,17 @@ class OSPUnit_API LogTestResult: public CppUnit::TextTestResult
 	/// The LogTestResult class. The purpose of this class is to extend the
 	/// CppUnit TextTestResult and bypass default output to std::cout.
 {
-public:
+public:	
 	LogTestResult(std::ostream& ostr);
 		/// Creates a LogTestResult with supplied ostream as destination.
 		/// Typically, ostr will be a Poco::LogStream.
 
 	~LogTestResult();
 		/// Destroys the LogTestResult.
-
+	
 	virtual void startTest(CppUnit::Test* test);
 		/// Calls TextTestResult::startTest() and appends std::endl to the stream.
-
+	
 	virtual void print(std::ostream& stream);
 		/// Calls TextTestResult::print() and appends std::endl to the stream.
 

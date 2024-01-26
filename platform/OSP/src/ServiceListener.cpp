@@ -95,5 +95,4 @@ void ServiceListener::onServiceRefUnregistered(const ServiceRef::Ptr& pServiceRe
 }
 
 
-
 } } // namespace Poco::OSP

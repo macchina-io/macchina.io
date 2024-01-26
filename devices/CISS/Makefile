@@ -12,8 +12,8 @@ objects = Sensor Accelerometer Gyroscope Magnetometer \
 	BundleActivator
 
 target          = io.macchina.ciss
-target_includes = $(PROJECT_BASE)/devices/Devices/include
-target_libs     = IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoSerial PocoFoundation
+target_includes = $(PROJECT_BASE)/devices/Devices/include $(PROJECT_BASE)/devices/Devices/skel/include
+target_libs     = IoTDevicesSkel IoTDevices PocoRemotingNG PocoOSP PocoUtil PocoXML PocoSerial PocoFoundation
 
 postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles CISS.bndlspec
 

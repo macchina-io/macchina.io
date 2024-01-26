@@ -1,0 +1,1557 @@
+JavaScript Core API Reference
+AAAAMacchinaIO
+
+!!!The application Object
+
+The global <[application]> object contains read-only properties that allow a script
+to obtain information about the application it's executing in.
+
+The following properties are available:
+
+
+!name
+
+The name of the application. In macchina.io EDGE, this is "macchina".
+
+
+!startTime
+
+The date and time the application was started, as a DateTime object.
+
+
+!uptime
+
+The time in seconds the application has been running, with millisecond accuracy.
+Therefore a floating-point number.
+
+
+!config
+
+The application's configuration, as a Configuration object.
+
+See the description of Configuration objects for more information.
+
+Example:
+
+    var osName = application.config.getString('system.osName');
+----
+
+
+!logger
+
+The application's logger object. This can be used to write
+log messages. Note that in macchina.io EDGE, each bundle also has its own logger object,
+which should be preferred to the application's logger.
+
+    application.logger.information('Hello, world!');
+----
+
+See the description of Logger objects for more information.
+
+
+!!!The system Object
+
+The global <[system]> object contains read-only properties that allow a script
+to obtain information about the environment it's executing in.
+
+The following read-only properties and methods are available:
+
+!osName
+
+This property contains the name of the operating system,
+typically "Linux" or "Darwin" (macOS).
+
+
+!osDisplayName
+
+On platforms supported by macchina.io EDGE, this is the same as <*osName*>.
+
+
+!osArchitecture
+
+The CPU architecture, e.g. "x86_64" or "armv7l".
+
+
+!osVersion
+
+The operating system version, e.g. "3.18.7+".
+
+
+!nodeName
+
+The computer's configured host name.
+
+
+!nodeId
+
+The Ethernet address of the first Ethernet adapter in the system, e.g. "3c:07:54:0d:6e:ef".
+Note that for systems with multiple adapters, the order of the adapters may not be
+fixed and thus the node ID may change after a reboot.
+
+
+!processorCount
+
+The number of CPU cores available on the system.
+
+
+!clock
+
+Returns the number of seconds (including fractional seconds) elapsed since system startup.
+
+
+!has(name)
+
+This function returns true if an environment variable with the given name exists.
+
+
+!get(name [, default])
+
+Returns the value of the environment variable with the given name.
+If the environment variable does not exist and a default value is given,
+the default value is returned. Otherwise, an exception is thrown.
+
+Example:
+
+    var username = system.get('LOGNAME');
+----
+
+
+!set(name, value)
+
+Sets the environment variable with the given name to the given value.
+
+
+!exec(command)
+
+Executes the given shell command using the system's default shell.
+Returns the output of the command as a String object. The exit
+status of the command is available via the returned object's
+<[exitStatus]> property.
+
+Example:
+
+    var files = system.exec('ls');
+----
+
+Note: be careful when passing strings obtained from HTML forms or other external inputs
+to <[system.exec()]> as command arguments. Always check such strings
+for validity before using their values to avoid potential command injection attacks.
+
+
+!execAsync(command)
+
+Executes the given shell command using the system's default shell 
+asynchronously, in a separate thread.
+Returns a Promise which resolves to the output of the command as a 
+String object. The exit status of the command is available via the 
+returned String object's <[exitStatus]> property.
+
+Example:
+
+    system.execAsync('ls').then(result => console.log(result));
+----
+
+Note: be careful when passing strings obtained from HTML forms or other external inputs
+to <[system.execAsync()]> as command arguments. Always check such strings
+for validity before using their values to avoid potential command injection attacks.
+
+
+!sleep(milliseconds)
+
+Sleeps the current thread for the given period, in milliseconds.
+
+
+!!!The uri Object
+
+The global <[uri]> object allows a script to load a string or Buffer from a URI.
+The URI can refer to a local file ("file://"), a bundle resource ("bndl://"),
+a HTTP(S) or FTP server, or data (e.g., "data:;base64,SGVsbG8sIFdvcmxkIQ%3D%3D").
+It provides two methods, <[loadString()]> and <[loadBuffer()]>.
+
+
+!loadString(uri)
+
+Loads a string from the given URI.
+The retrieved content must be UTF-8 encoded text, otherwise the results of converting
+the content to a string may be undefined.
+
+Example:
+
+    var page = uri.loadString('http://macchina.io);
+----
+
+
+!loadBuffer(uri)
+
+Loads a Buffer from the given URI. This can be used to retrieve binary data or
+non-UTF8 text from a resource.
+
+Example:
+
+    var page = uri.loadBuffer('http://macchina.io');
+----
+
+
+!loadStringAsync(uri)
+
+Loads a string from the given URI asynchronously, in a separate thread.
+The retrieved content must be UTF-8 encoded text, otherwise the results of converting
+the content to a string may be undefined.
+Returns a Promise which will resolve to the returned string.
+
+
+!loadBufferAsync(uri)
+
+Loads a Buffer from the given URI asynchronously, in a separate thread. 
+This can be used to retrieve binary data or non-UTF8 text from a resource.
+Returns a Promise which will resolve to the returned Buffer.
+
+
+!!!The console Object
+
+The global <[console]> object allows a script to write diagnostic output
+using the application's logging infrastructure. It provides similar methods
+to the <[console]> object available in most web browsers.
+A script's <[console]> object is always connected to its bundle's logger.
+The following methods are supported:
+
+!trace()
+
+Outputs a stack trace to the bundle's logger using debug log level.
+
+!assert(condition, message [, arg]...)
+
+Writes an error-level log message, as well as a debug-level stack trace to the
+bundle's logger if the given condition evaluates to <[false]>.
+The message can contain formatting specifiers. See the Logger object for more information.
+
+!debug(message [, arg]...)
+
+Writes a debug-level log message to the bundle's logger.
+The message can contain formatting specifiers. See the Logger object for more information.
+
+!log(message [, arg]...)
+
+Writes an information-level log message to the bundle's logger.
+The message can contain formatting specifiers. See the Logger object for more information.
+
+!info(message [, arg]...)
+
+Writes an information-level log message to the bundle's logger.
+The message can contain formatting specifiers. See the Logger object for more information.
+
+!warn(message [, arg]...)
+
+Writes an warning-level log message to the bundle's logger.
+The message can contain formatting specifiers. See the Logger object for more information.
+
+!error(message [, arg]...)
+
+Writes an error-level log message to the bundle's logger.
+The message can contain formatting specifiers. See the Logger object for more information.
+
+!dump(message, object [, level])
+
+Dumps an object (or Buffer) to the bundle's logger.
+If the given object is a Buffer, a hex dump of its contents will be written.
+Otherwise, a pretty-printed JSON representation (JSON.stringify()) of the object will be written.
+If no log level is specified, debug log level will be used.
+
+
+!!!Configuration Objects
+
+Configuration objects provide access to the configuration mechanism provided by the
+POCO Util library and are used for application configuration, bundle properties, etc.
+The following methods are supported:
+
+!getInt(key [, default])
+
+Returns the configuration value for the given key as integer. If a default value is
+specified, the default value is returned if the configuration key has not
+been found. An exception is thrown if the key cannot be found and no default
+value is given, or if the configuration value is not a valid integer.
+
+!getDouble(key [, default])
+
+Returns the configuration value for the given key as floating-point number. If a default value is
+specified, the default value is returned if the configuration key has not
+been found. An exception is thrown if the key cannot be found and no default
+value is given, or if the configuration value is not a valid floating-point number.
+
+!getBool(key [, default])
+
+Returns the configuration value for the given key as boolean. If a default value is
+specified, the default value is returned if the configuration key has not
+been found. An exception is thrown if the key cannot be found and no default
+value is given, or if the configuration value is not a boolean (true/false).
+
+!getString(key [, default])
+
+Returns the configuration value for the given key as string. If a default value is
+specified, the default value is returned if the configuration key has not
+been found. An exception is thrown if the key cannot be found and no default
+value is given.
+
+!getObject(key [, default])
+
+Returns the configuration value for the given key as object. If a default value is
+specified, the default value is returned if the configuration key has not
+been found. The configuration value must be valid JSON.
+An exception is thrown if the key cannot be found and no default
+value is given, or if the configuration value is not valid JSON.
+
+!has(key)
+
+Returns <*true*> if the given configuration key exists, otherwise <*false*>.
+
+!set(key, value)
+
+Sets the configuration value for the given key. Value can be a string, integer,
+floating-point number, boolean or any object that can be JSON-formatted with JSON.stringify().
+An exception is thrown if setting the value for the given key fails
+(e.g., because the configuration is read-only).
+
+!keys([key])
+
+Returns an array containing all subkeys of the given key, or root-level keys if no
+or an empty key is given.
+
+
+!!!Logger Objects
+
+Logger objects are used to write diagnostic or log messages to a logger.
+A JavaScript Logger object is always connected to a Logger object from
+the POCO C++ Libraries. JavaScript scripts in macchina.io EDGE have access
+to two Logger objects. The global application logger, via the
+<[application.logger]> object, and a bundle-specific logger, via the
+<[logger]> object.
+
+Example:
+
+    var i = 42;
+    logger.information('The answer to live, the universe and everything: ', i);
+----
+
+!!Creating Logger Objects
+
+In addition to the bundle-specific and application-global logger objects
+available through the <[logger]> and <[application.logger]> variables,
+a script can use the <[Logger]> constructor to use other logger instances.
+
+
+!Logger(name [, configuration [, reconfigure]])
+
+Creates a new Logger object, using a logger with the given name obtained from the
+POCO C++ Libraries logging framework. If a logger with the given name does not exist,
+a new logger instance is created. Note that the underlying logger instances are
+shared application-wide.
+
+If a new logger instance is created, the given <[configuration]> object is used to
+configure the logger. If <[reconfigure]> is true (default is false), the configuration
+is also applied to an already existing logger. Otherwise, the configuration is ignored
+and the configuration of an already existing logger is not changed. The <[reconfigure]>
+option should be used judiciously, as reconfiguring an existing logger instance used by
+other parts of the application may interfere with the workings of the application.
+
+The <[configuration]> object can have the following properties:
+
+  * level: specifies the log level; see Log Levels below.
+  * pattern: format pattern; if specified, a FormattingChannel with a PatternFormatter
+    is created for the logger. See Format Pattern below for the format of the pattern.
+  * channel: either a string containing the name of a globally configured logging
+    channel (through the application's configuration files), or an object containing
+    properties for creating and configuring a new channel. See Channel Configuration
+    below.
+
+
+!Log Levels
+
+The level can either be an integer from 1 to 8, where
+1 corresponds to fatal error message and 8 corresponds to a trace message,
+or it can be one of the following strings, representing a priority:
+
+  * fatal (1)
+  * critical (2)
+  * error (3)
+  * warning (4)
+  * notice (5)
+  * information (6)
+  * debug (7)
+  * trace (8)
+
+Numerical log levels are also available as properties of the <[Logger]> constructor,
+named <[FATAL]>, <[CRITICAL]>, <[ERROR]>, <[WARNING]>, <[NOTICE]>, <[INFORMATION]>,
+<[DEBUG]> and <[TRACE]>.
+
+The log level for an entire hierarchy of loggers can be changed with:
+
+   Logger.setLevel([logger, ]level);
+----
+
+where <[logger]> is the name of the logger and level is either a string representing a log level or
+a numeric log level (1 - 8).
+
+It's also possible to specify only the level as a single argument. In this case, the log level for all
+loggers is changed.
+
+!Format Pattern
+
+The format pattern is used as a template to format the message and
+is copied character by character except for the following special characters,
+which are replaced by the corresponding value.
+
+  * %s - message source
+  * %t - message text
+  * %l - message priority level (1 .. 7)
+  * %p - message priority (Fatal, Critical, Error, Warning, Notice, Information, Debug, Trace)
+  * %q - abbreviated message priority (F, C, E, W, N, I, D, T)
+  * %P - message process identifier
+  * %T - message thread name
+  * %I - message thread identifier (numeric)
+  * %N - node or host name
+  * %U - message source file path (empty string if not set)
+  * %u - message source line number (0 if not set)
+  * %w - message date/time abbreviated weekday (Mon, Tue, ...)
+  * %W - message date/time full weekday (Monday, Tuesday, ...)
+  * %b - message date/time abbreviated month (Jan, Feb, ...)
+  * %B - message date/time full month (January, February, ...)
+  * %d - message date/time zero-padded day of month (01 .. 31)
+  * %e - message date/time day of month (1 .. 31)
+  * %f - message date/time space-padded day of month ( 1 .. 31)
+  * %m - message date/time zero-padded month (01 .. 12)
+  * %n - message date/time month (1 .. 12)
+  * %o - message date/time space-padded month ( 1 .. 12)
+  * %y - message date/time year without century (70)
+  * %Y - message date/time year with century (1970)
+  * %H - message date/time hour (00 .. 23)
+  * %h - message date/time hour (00 .. 12)
+  * %a - message date/time am/pm
+  * %A - message date/time AM/PM
+  * %M - message date/time minute (00 .. 59)
+  * %S - message date/time second (00 .. 59)
+  * %i - message date/time millisecond (000 .. 999)
+  * %c - message date/time centisecond (0 .. 9)
+  * %F - message date/time fractional seconds/microseconds (000000 - 999999)
+  * %z - time zone differential in ISO 8601 format (Z or +NN.NN)
+  * %Z - time zone differential in RFC format (GMT or +NNNN)
+  * %L - convert time to local time (must be specified before any date/time specifier; does not itself output anything)
+  * %E - epoch time (UTC, seconds since midnight, January 1, 1970)
+  * %v[width] - the message source (%s) but text length is padded/cropped to 'width'
+  * %[name] - the value of the message parameter with the given name
+  * %% - percent sign
+
+
+!Channel Configuration
+
+Logging channels can be configured using a configuration object containing channel-specific
+properties. The <[class]> property specifies the class name of the channel, and can
+be one of the standard channel classes supported by the POCO C++ Libraries, as well as
+the name of any custom channel registered with the logging framework. The supported channel
+class names are:
+
+  * ConsoleChannel (see Poco::ConsoleChannel)
+  * ColorConsoleChannel (see Poco::ColorConsoleChannel)
+  * FileChannel (see Poco::FileChannel)
+  * SyslogChannel (see Poco::SyslogChannel)
+  * NullChannel (see Poco::NullChannel)
+
+Any other properties of the configuration object are passed directly to the newly
+created channel, and are specific to the respective channel. See the documentation of
+the respective logging channel (Poco::Channel) subclass for supported configuration
+properties.
+
+Example:
+
+    var testLogger = new Logger('TestLogger', {
+        level: 'debug',
+        pattern: '%Y-%m-%d %H:%M:%S.%i [%p] %s<%I>: %t',
+        channel: {
+            class: 'FileChannel',
+            path: 'test.log'
+        }
+    });
+----
+
+!!Checking for Logger Objects
+
+The <[Logger.isLogger()]> function can be used to check whether a given object
+is a Logger object.
+
+!Logger.isLogger(object)
+
+Returns true if the given object is a Logger object, otherwise false.
+
+!!Getting the Names of All Defined Loggers
+
+The names of all defined loggers cat be obtained as an Array by calling
+<[Logger.names()]>.
+
+!Logger.names()
+
+Returns an array containing the names of all defined loggers.
+
+!!Logger Properties
+
+The following properties are available:
+
+!level
+
+The <[level]> property can be used to query or change the log level of a Logger.
+The current log level is returned as integer value. 
+To change the level, the property can be set to an integer value (1 - 8) or
+a string value representing a log level. See Log Levels above for valid values.
+
+!name
+
+The read-only <[name]> property gives the name of the logger instance as a string.
+
+!!Logger Methods
+
+The following methods are available:
+
+!trace(message [, arg]...)
+
+Writes a trace log message. Trace log messages have the lowest priority.
+The message can contain formatting specifiers.
+
+!debug(message [, arg]...)
+
+Writes a debug log message.
+The message can contain formatting specifiers.
+
+!information(message [, arg]...)
+
+Writes an informational log message.
+The message can contain formatting specifiers.
+
+!notice(message [, arg]...)
+
+Writes a notice log message.
+The message can contain formatting specifiers.
+
+!warning(message [, arg]...)
+
+Writes a warning log message.
+The message can contain formatting specifiers.
+
+!error(message [, arg]...)
+
+Writes an error log message.
+The message can contain formatting specifiers.
+
+!critical(message [, arg]...)
+
+Writes a critical error log message.
+The message can contain formatting specifiers.
+
+!fatal(message [, arg]...)
+
+Writes a fatal error log message. Fatal log messages have the highest priority.
+The message can contain formatting specifiers.
+
+!log(priority, message [, arg]...)
+
+Writes a log message with the specified priority or log level.
+The log level can either be an integer from 1 to 8, where
+1 corresponds to fatal error message and 8 corresponds to a trace message,
+or it can be one of the following strings, representing a priority:
+
+  * fatal (1)
+  * critical (2)
+  * error (3)
+  * warning (4)
+  * notice (5)
+  * information (6)
+  * debug (7)
+  * trace (8)
+
+Numerical log levels are also available as properties of the <[Logger]> constructor,
+named <[FATAL]>, <[CRITICAL]>, <[ERROR]>, <[WARNING]>, <[NOTICE]>, <[INFORMATION]>,
+<[DEBUG]> and <[TRACE]>.
+
+The message can contain formatting specifiers.
+
+Example:
+
+    logger.log(7, "A debug message");
+    logger.log('error', 'An error message');
+    logger.log(Logger.WARNING, 'A warning message');
+----
+
+!dump(message, object [, level])
+
+Dumps an object (or Buffer) to the bundle's logger.
+If the given object is a Buffer, a hex dump of its contents will be written.
+Otherwise, a pretty-printed JSON representation (JSON.stringify()) of the object will be written.
+If no log level is specified, debug log level will be used.
+
+!!Message Formatting
+
+The first message argument in a logging method can contain formatting specifiers.
+Additional arguments are formatted according to these specifiers. If more arguments
+than formatting specifiers are present, the remaining arguments are simply appended
+to the log message.
+
+The following formatting specifiers are supported:
+
+  * %d, %i: The argument is formatted as an integer.
+  * %f: The argument is formatted as a floating-point number.
+  * %s: The argument is formatted as a string.
+  * %o: The argument is formatted with JSON.stringify().
+  * %O: The argument is formatted with JSON.stringify(), using indentation.
+
+If the type of the argument does not match the formatting specifier, a simple string
+representation of the object is output instead.
+
+Examples:
+
+    logger.information('The answer to %s, the %s and everything: %d', 'live', 'universe', 42);
+----
+
+
+!!!Timeouts and Intervals
+
+macchina.io EDGE supports the <[setTimeout()]> and <[setInterval()]> functions known
+from browser-based JavaScript, as well as <[setImmediate()]> known from node.js.
+
+!setTimeout(function [, milliseconds [, arg]...])
+
+To execute a function after a given time period, use the <[setTimeout()]> function.
+
+Example:
+
+    setTimeout(
+        function() {
+            logger.information('Timeout!');
+        },
+        2000);
+----
+
+Any additional arguments passed after the milliseconds will be passed to the callback
+function. If no milliseconds argument is given, the default is 0, which is equivalent
+to calling `setImmediate()`.
+
+!setInterval(function [, milliseconds [, arg]...])
+
+To execute a function periodically in a specific interval (given in milliseconds),
+use the <[setInterval()]> function.
+If no milliseconds parameter is given, the default is 4 milliseconds.
+
+Example:
+
+    setInterval(
+        function() {
+            logger.information('Timeout!');
+        },
+        2000);
+----
+
+Example (with argument to callback):
+
+    setInterval(
+        function(arg) {
+            logger.information('Timeout! ' + arg);
+        },
+        2000,
+        42);
+----
+
+!setImmediate(function [, arg]...)
+
+To schedule a function for execution as soon as the current script or callback function
+finishes, use the <[setImmediate()]> function.
+
+Example:
+
+    setImmediate(
+        function() {
+            logger.information('Callback!');
+        });
+----
+
+Any additional arguments passed after the function will be passed to the callback
+function. <[setImmediate()]> is equivalent to calling <[setTimeout()]> with 0 milliseconds.
+
+
+<[setTimeout()]>, <[setInterval()]> and <[setImmediate()]> return a timer object which exposes
+a boolean property named <[cancelled]>, as well as a <[cancel()]> method to cancel
+an active timer.
+
+Example:
+
+    var count = 0;
+    var timer = setInterval(
+        function() {
+            count++;
+            logger.information('Timeout ', count);
+            if (count == 3)
+            {
+                timer.cancel();
+                logger.information('Done');
+            }
+        },
+        2000);
+----
+
+Note: Since JavaScript execution is single threaded per script, timer callback
+functions will only run when the script is idle and not currently executing any code.
+
+For compatibility with Browser-based JavaScript and node.js, macchina.io EDGE also
+provides <[clearTimeout()]>, <[clearInterval()]> and <[clearImmediate()]>.
+
+!clearTimeout(timeout)
+
+Cancels the given timeout, which must be an object returned from <[setTimeout()]>.
+
+!clearInterval(interval)
+
+Cancels the given interval, which must be an object returned from <[setInterval()]>.
+
+!clearImmediate(immediate)
+
+Cancels the given immediate, which must be an object returned from <[setImmediate()]>.
+
+
+!!!DateTime and LocalDateTime Objects
+
+DateTime and LocalDateTime objects are similar to JavaScript Date objects,
+however they provide a few more capabilities, including better
+support for formatting.
+
+DateTime is UTC-based, while LocalDateTime is based on the system's local time zone.
+
+
+!!Creating DateTime and LocalDateTime Objects
+
+DateTime and LocalDateTime objects can be created by using their respective
+constructor functions, passing a variable number of arguments:
+
+  - No arguments: a DateTime/LocalDateTime object for the current system time
+    is created.
+  - A single string argument: the date and time is parsed from the given
+    string, which must contain a date and time in one of the standard
+    representations: asctime, HTTP, ISO 8601, various RFC formats or
+    sortable format (YYYY-MM-DD HH:MM:SS).
+  - Two string arguments: the date and time is parsed from the first string,
+    using the format given in the second string. See the
+    [[Poco.DateTimeFormatter.html#13611 Poco::DateTimeFormatter]] class for
+    a description of the format string.
+  - A JavaScript Date object: date and time are taken from that object.
+  - A number representing Julian date.
+  - Three to six numbers: year, month, day, and optional hour, minute, second.
+    Second may contain fractional seconds.
+
+Examples:
+
+	var dt1 = new DateTime('2015-03-09 11:55:33');
+	var dt2 = new DateTime(2015, 3, 9, 11, 55, 33);
+----
+
+
+!!Checking for DateTime and LocalDateTime Objects
+
+The <[DateTime.isDateTime()]> and <[LocalDateTime.isLocalDateTime()]> functions can be used to check whether a given object
+is a DateTime, or LocalDateTime, respectively, object.
+
+!DateTime.isDateTime(object)
+
+Returns true if the given object is a DateTime object, otherwise false.
+
+
+!LocalDateTime.isLocalDateTime(object)
+
+Returns true if the given object is a LocalDateTime object, otherwise false.
+
+
+!!DateTime and LocalDateTime Properties
+
+The following properties are supported by DateTime and LocalDateTime.
+
+
+!year
+
+Returns the year, e.g. 2015.
+
+
+!month
+
+Returns the month, range 1 to 12.
+
+
+!day
+
+Returns the day, range 1 to 31.
+
+
+!hour
+
+Returns the hour, range 0 to 23.
+
+
+!hour12
+
+Returns the hour, range 0 to 12
+
+
+!am and pm
+
+Returns true or false, indicating whether the hour reported by <[hour12]> is AM or PM.
+
+
+!minute
+
+Returns the minute, range 0 to 59.
+
+
+!second
+
+Returns the second, range 0 to 59.
+
+
+!dayOfWeek
+
+Returns the weekday (0 to 6, where 0 = Sunday, 1 = Monday, ..., 6 = Saturday).
+
+
+!dayOfYear
+
+Returns the number of the day in the year. January 1 is 1, February 1 is 32, etc.
+
+
+!julian
+
+Returns the julian day as a number. The fractional part represents the time.
+
+
+!timestamp
+
+Returns the number of microseconds between January 1, 1970 and the date/time
+in the DateTime/LocalDateTime object.
+
+
+!epoch
+
+Returns the number of seconds between January 1, 1970 and the date/time
+in the DateTime/LocalDateTime object.
+
+
+!tzd
+
+Supported by LocalDateTime only. Returns the time zone differential, which is
+the number of seconds between UTC and the system's local time.
+
+
+!!DateTime and LocalDateTime Methods
+
+The following methods are supported by DateTime and LocalDateTime.
+
+
+!daysOfMonth([year [, month]])
+
+Returns the number of days in the specified month (1 to 12). If no date or year
+is given, the year and date from the DateTime/LocalDateTime object are used.
+
+
+!isLeapYear([year])
+
+Returns true if the given year (or the year in the DateTime/LocalDateTime object)
+is a leap year, otherwise false.
+
+
+!addSeconds(seconds)
+
+Adds the given number of seconds to the DateTime/LocalDateTime.
+
+
+!addHours(hours)
+
+Adds the given number of hours to the DateTime/LocalDateTime.
+
+
+!addDays(days)
+
+Adds the given number of days to the DateTime/LocalDateTime.
+
+
+!utc()
+
+Supported by LocalDateTime only. Returns a DateTime object corresponding to the
+date/time in UTC.
+
+
+!local()
+
+Supported by DateTime only. Returns a LocalDateTime object corresponding to the
+date/time in the system's timezone.
+
+
+!format([format]) and toString([format])
+
+Convert the DateTime/LocalDateTime to a string, using a format string.
+If no format string is given, uses ISO 8601 format.
+
+See the [[Poco.DateTimeFormatter.html#13611 Poco::DateTimeFormatter]] class for
+a description of the format string.
+
+Instead of format placeholders, the format string can also be one of the following
+fixed strings for standard formats:
+
+  - "sortable": 2015-01-03 12:00:00
+  - "iso8601frac": 2015-01-03T12:00:00.000000+01:00
+  - "iso8601": 2015-01-03T12:00:00+01:00
+  - "asctime": Sat Jan  3 12:00:00 2015
+  - "http": Sat, 03 Jan 2015 12:00:00 +0100
+  - "rfc1036": Saturday, 3 Jan 15 12:00:00 +0100
+  - "rfc1123": Sat, 3 Jan 2015 12:00:00 +0100
+  - "rfc850": Saturday, 3-Jan-15 12:00:00 +0100
+  - "rfc822": Sat, 3 Jan 15 12:00:00 +0100
+
+
+!toDate()
+
+Returns a JavaScript Date object for the stored date/time.
+
+
+!!!Buffer Objects
+
+Buffer objects are used to work efficiently with binary data in JavaScript.
+Standard (browser-based) JavaScript has no efficient way for handling binary data.
+macchina.io EDGE provides Buffer objects to handle continuous blocks of memory containing
+arbitrary (binary) data.
+
+A Buffer object contains a variable-size, continuous block of memory, located on the
+(C++) heap. The size of the block can change during the lifetime of a Buffer object.
+In order to avoid frequent resizing and re-allocation of the memory block, the Buffer
+object differentiates between the physical and logical size of the block.
+The physical size, or capacity, of the block is the number of bytes actually allocated on the heap.
+The logical size, or length, is the number of bytes in use. The length is therefore always
+smaller than or equal to the capacity. The capacity of a Buffer can be 0 -- in this case
+no heap memory will be allocated (and consequently, the Buffer cannot contain any data).
+Both capacity and length of a Buffer can change during the lifetime of a Buffer object.
+
+The contents of a Buffer can be accessed via indexed properties. In this regard, a Buffer
+provides an interface very similar to a JavaScript array. Each byte in the buffer can
+be addressed by its offset from the beginning of the Buffer's memory block. Buffer objects
+also support the methods <[concat()]>, <[slice()]>, <[push()]> and <[pop()]> known from
+JavaScript Array.
+
+For debugging purposes, the contents of a Buffer can be written to the application log
+as a hex dump, using <[logger.dump()]> or <[console.dump()]>.
+
+
+!!Creating Buffer Objects
+
+A Buffer object can be created empty, from a JavaScript Array (containing byte values),
+from a JavaScript String, or from (a part of) another Buffer. The <[Buffer()]> constructor
+can be used to create a Buffer object.
+
+
+!Buffer()
+
+Creates an empty, zero-capacity (and zero-size) Buffer.
+No memory for the buffer's content will be allocated.
+
+
+!Buffer(capacity)
+
+Creates an empty (zero-size) Buffer with the given capacity in bytes.
+A block of memory with size given in capacity will be allocated.
+
+
+!Buffer(string [, encoding])
+
+Creates a Buffer from the given string. The (optional) encoding parameter specifies
+how the contents of the string will be store in the buffer:
+
+  - `Buffer.BASE64`: The string contains binary data encoded using Base64 encoding. The Base64
+    data will be decoded and the raw binary data will be stored in the Buffer. This is
+    the default if no encoding is given.
+  - `Buffer.BASE64URL`: Same as `Buffer.BASE64`, but Base64URL encoding will be used.
+  - `Buffer.HEXBIN`: The string contains binary data encoded as a sequence of hexadecimal byte values.
+  - `Buffer.UTF8`: The string will be stored in the Buffer using UTF-8 encoding.
+  - `Buffer.UTF16`: The string will be stored in the Buffer using UTF-16 encoding (in the
+    hosts native byte order).
+  - `Buffer.ASCII`: The string will be stored in the Buffer using ASCII encoding.
+
+In addition to the above values, encoding can also be a string containing the name of one
+of the text encodings supported by the POCO C++ Libraries:
+
+  - "UTF-8", "UTF8"
+  - "UTF-16", "UTF16"
+  - "UTF-32", "UTF32"
+  - "ISO-8859-1", "Latin-1", "Latin1"
+  - "ISO-8859-2", "Latin-2", "Latin2"
+  - "ISO-8859-15", "Latin-9", "Latin9"
+  - "Windows-1250", "windows-1250", "cp1250", "CP1250"
+  - "Windows-1251", "windows-1251", "cp1251", "CP1251"
+  - "Windows-1252", "windows-1252", "cp1252", "CP1252"
+
+If any additional text encodings have been registered using Poco::TextEncoding::add(),
+these can be used as well.
+
+
+!Buffer(array)
+
+Creates a buffer from a JavaScript Array containing byte values.
+
+
+!Buffer(buffer [, begin [, end]])
+
+Creates a buffer by copying the contents of another buffer.
+An optional range can be given, with <[begin]> specifying the offset
+of the first byte to copy and <[end]> specifying the offset of the
+byte following the last byte to copy.
+
+Example:
+
+    var newBuffer = new Buffer(buffer, 0, buffer.length);
+----
+
+will copy the entire buffer, while
+
+    var newBuffer = new Buffer(buffer, 2, 4);
+----
+
+will copy two bytes, starting at offset 2.
+
+The given offsets can also be negative, meaning relative to the length of the Buffer.
+
+Example:
+
+    var newBuffer = new Buffer(buffer, -2, buffer.length);
+----
+
+will copy the last two bytes of the Buffer.
+
+
+!!Checking for Buffer Objects
+
+The <[Buffer.isBuffer()]> function can be used to check whether a given object
+is a Buffer object.
+
+!Buffer.isBuffer(object)
+
+Returns true if the given object is a Buffer object, otherwise false.
+
+
+!!Packing and Unpacking Structured Data
+
+Buffer objects support packing and unpacking of structured data via the
+<[pack()]> and <[unpack()]> methods. The interface of these objects, specifically
+the format string, follows the <[struct.pack()]> and <[struct.unpack()]> functions
+known from the Python programming language. However, one important difference is
+that Buffer's <[pack()]> and <[unpack()]> do not support automatic alignment of values.
+
+<[pack()]> and <[unpack()]> are controlled via a format string.
+
+!Format String
+
+A format string begins with an optional byte order specifier. The following
+specifiers are supported:
+
+  - "=" - host's native byte order (default)
+  - "<" - little endian byte order
+  - ">" - big endian byte order
+  - "!" - network byte order (big endian)
+
+The byte order specifier is followed by one or more type specifiers. A type specifier
+can be preceded by an optional repeat count. For atomic types, the repeat count
+specifies the number of values that will be packed according to the following type
+specifier. For strings ("c" and "s"), the repeat count specifies the number of bytes
+reserved for the packed string. If a string exceeds the given length, it will be truncated.
+Unused bytes will be zero-filled.
+
+Whitespace characters (Space, TAB, CR, LF) in the format string are ignored. However, there
+must not be a whitespace character between length and type specifier.
+
+The following type specifiers are supported:
+
+    Specifier    Native C/C++ Type              Size    Notes
+    -------------------------------------------------------------------------------------
+    x            -                              1       Padding Byte (set to 0 in pack())
+    c, s         char[repeat]                   repeat  UTF-8 encoded
+    b            int8_t (signed char)           1
+    B            uint8_t (unsigned char)        1
+    ?            bool                           1       0 = false, 1 = true
+    h            int16_t (short)                2
+    H            uint16_t (unsigned short)      2
+    i, l         int32_t (int)                  4
+    I, L         uint32_t (unsigned)            4
+    q            int64_t (long long)            8
+    Q            uint64_t (unsigned long long)  8
+    f            float                          4
+    d            double                         8
+----
+
+
+!!Buffer Properties
+
+Buffer objects support the following properties:
+
+!length (r/w)
+
+The length of the buffer, in terms of actually used bytes (as opposed to the capacity).
+Can be changed dynamically; existing contents will be preserved, but may be truncated.
+
+!capacity (r/w)
+
+The capacity of the buffer in bytes, or how much memory is allocated.
+Can be changed dynamically; existing contents will be preserved, but may be truncated.
+
+
+!!Buffer Methods
+
+Buffer objects support the following methods:
+
+!concat(buffer)
+
+Appends the contents of the given Buffer to this Buffer.
+Capacity and length of the Buffer will be adjusted as necessary.
+
+!slice([begin [, end]])
+
+Creates a new Buffer by copying the contents of an existing Buffer.
+An optional range can be given, with <[begin]> specifying the offset
+of the first byte to copy and <[end]> specifying the offset of the
+byte following the last byte to copy.
+
+!push(byte)
+
+Appends a single byte to the Buffer. The given byte value must be an integer
+in range 0 - 255. Length will be incremented. Capacity will be adjusted if necessary
+(implying a re-allocation of the buffer).
+
+!pop()
+
+Returns and removes the last byte in the buffer. The length of the buffer will
+be decremented by one.
+
+!toBase64([lineLength])
+
+Returns a String containing the Base64-encoded content of the Buffer. An optional
+line length for the Base64 data can be given. If no line length, or a zero line length
+is given, there will be no line breaks in the Base64 data. For best interoperability,
+a line length of 72 should be used if Base64 data is to be sent over a network or
+otherwise exchanged with other parties.
+
+!fromBase64(string)
+
+Decodes the given Base64-encoded string and stores the resulting data in the buffer.
+
+!toBase64URL()
+
+Returns a String containing the Base64URL-encoded and unpadded content of the Buffer.
+
+!fromBase64URL(string)
+
+Decodes the given Base64URL-encoded string and stores the resulting data in the buffer.
+
+!toHexBinary([lineLength])
+
+Returns a String containing the data encoded as a sequence of 2-digit hexadecimal
+byte values. An optional line length can be specified, which causes a newline 
+character to be inserted after the specified number.
+
+!fromHexBinary(string)
+
+Decodes the given HexBinary-encoded string and stores the resulting data in the buffer.
+
+!decodeString([encoding])
+
+Returns a JavaScript String from the contents of the buffer, assuming the given encoding, or
+UTF-8 if no encoding is given. See the Buffer constructor documentation for a list
+of supported encodings.
+
+!encodeString(string [, encoding])
+
+Encodes the given JavaScript string and stores the result in the Buffer, using the given
+encoding, or UTF-8 if no encoding is given. See the Buffer constructor documentation for a list
+of supported encodings. Note that the default encoding (UTF-8) is different from the
+Buffer constructor (Base64).
+
+!pack(format, array)
+
+Packs the values in the given array into the buffer, using the byte order and types
+found in the format string.
+
+Example:
+    buffer.pack('!4BH', {192, 168, 1, 2, 8080});
+----
+
+This will fill the buffer with the following content:
+
+    Offset   Byte
+    -------------
+    0        192
+    1        168
+    2        1
+    3        2
+    4        31
+    5        144
+----
+
+
+!unpack(format)
+
+Unpacks values from the buffer according to the byte order and types found in the format
+string. Returns an Array containing the unpacked values.
+
+Example:
+    var buffer = new Buffer({192, 168, 1, 2, 31, 44});
+    var values = buffer.unpack('!4BH'); // {192, 168, 1, 2, 8080}
+----
+
+
+!writeUInt8(value [, offset])
+
+Writes an 8-bit unsigned integer to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 1.
+
+
+!writeInt8(value [, offset])
+
+Writes an 8-bit signed integer to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 1.
+
+
+!writeUInt16LE(value [, offset])
+
+Writes an 16-bit unsigned integer in little-endian byte order to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 2.
+
+
+!writeInt16LE(value [, offset])
+
+Writes an 16-bit signed integer in little-endian byte order to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 2.
+
+
+!writeUInt16BE(value [, offset])
+
+Writes an 16-bit unsigned integer in big-endian byte order to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 2.
+
+
+!writeInt16BE(value [, offset])
+
+Writes an 16-bit signed integer in big-endian byte order to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 2.
+
+
+!writeUInt32LE(value [, offset])
+
+Writes an 32-bit unsigned integer in little-endian byte order to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 4.
+
+
+!writeInt32LE(value [, offset])
+
+Writes an 32-bit signed integer in little-endian byte order to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 4.
+
+
+!writeUInt32BE(value [, offset])
+
+Writes an 32-bit unsigned integer in big-endian byte order to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 4.
+
+
+!writeInt32BE(value [, offset])
+
+Writes an 32-bit signed integer in big-endian byte order to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 4.
+
+
+!writeUInt64LE(value [, offset])
+
+Writes an 64-bit unsigned integer in little-endian byte order to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Note that not all 64-bit integers can be represented by the JavaScript Number type.
+BigInt values can be used instead.
+Returns offset + 8.
+
+
+!writeInt64E(value [, offset])
+
+Writes an 64-bit signed integer in little-endian byte order to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Note that not all 64-bit integers can be represented by the JavaScript Number type.
+BigInt values can be used instead.
+Returns offset + 8.
+
+
+!writeUInt64BE(value [, offset])
+
+Writes an 64-bit unsigned integer in big-endian byte order to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Note that not all 64-bit integers can be represented by the JavaScript Number type.
+BigInt values can be used instead.
+Returns offset + 8.
+
+
+!writeInt64BE(value [, offset])
+
+Writes an 64-bit signed integer in big-endian byte order to the given offset in the buffer. 
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Note that not all 64-bit integers can be represented by the JavaScript Number type.
+BigInt values can be used instead.
+Returns offset + 8.
+
+
+!writeFloatLE(value [, offset])
+
+Writes a 32-bit floating-point number in little-endian byte order to the given offset in the buffer.
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 4.
+
+
+!writeFloatBE(value [, offset])
+
+Writes a 32-bit floating-point number in big-endian byte order to the given offset in the buffer.
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 4.
+
+
+!writeDoubleLE(value [, offset])
+
+Writes a 64-bit floating-point number in little-endian byte order to the given offset in the buffer.
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 4.
+
+
+!writeDoubleBE(value [, offset])
+
+Writes a 64-bit floating-point number in big-endian byte order to the given offset in the buffer.
+The buffer must have sufficient size. If offset is not given, it defaults to 0.
+If the given value cannot be represented in the target type, the results are undefined.
+Returns offset + 4.
+
+
+!readUInt8([offset])
+
+Reads an 8-bit unsigned integer from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readInt8([offset])
+
+Reads an 8-bit signed integer from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readUInt16LE([offset])
+
+Reads an 16-bit unsigned integer in little-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readInt16LE([offset])
+
+Reads an 16-bit signed integer in little-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readUInt16BE([offset])
+
+Reads an 16-bit unsigned integer in big-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readInt16BE([offset])
+
+Reads an 16-bit signed integer in big-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readUInt32LE([offset])
+
+Reads an 32-bit unsigned integer in little-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readInt32LE([offset])
+
+Reads an 32-bit signed integer in little-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readUInt32BE([offset])
+
+Reads an 32-bit unsigned integer in big-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readInt32BE([offset])
+
+Reads an 32-bit signed integer in big-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readUInt64LE([offset])
+
+Reads an 64-bit unsigned integer in little-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number as a BigInt, or undefined if offset is out of bounds.
+
+
+!readInt64LE([offset])
+
+Reads an 64-bit signed integer in little-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number as a BigInt, or undefined if offset is out of bounds.
+
+
+!readUInt64BE([offset])
+
+Reads an 64-bit unsigned integer in big-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number as a BigInt, or undefined if offset is out of bounds.
+
+
+!readInt64BE([offset])
+
+Reads an 64-bit signed integer in big-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number as a BigInt, or undefined if offset is out of bounds.
+
+
+!readFloatLE([offset])
+
+Reads a 32-bit floating point number in little-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readFloatBE([offset])
+
+Reads a 32-bit floating point number in big-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readDoubleLE([offset])
+
+Reads a 64-bit floating point number in little-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!readDoubleBE([offset])
+
+Reads a 64-bit floating point number in big-endian byte order from the buffer at the given offset.
+If offset is not given, it defaults to 0.
+Returns the read number, or undefined if offset is out of bounds.
+
+
+!!!UUID Objects
+
+A universally unique identifier (UUID) is a 128-bit number used to identify information.
+A UUID can be used for multiple purposes, from tagging objects with an extremely short
+lifetime, to reliably identifying very persistent objects across a network.
+
+!!Creating UUIDs
+
+UUID objects can be created by calling the UUID constructor function.
+The function takes an optional argument, which is an UUID in string representation.
+If no argument is given, a null UUID ("00000000-0000-0000-0000-000000000000") is
+created. If a stringified UUID is given as argument, the stringified UUID is parsed.
+
+New UUID values can be created with the following functions:
+
+!UUID.create()
+
+Creates and returns either a time-based UUID (if the system has a MAC address), or
+a random UUID otherwise.
+
+!UUID.createRandom()
+
+Creates and returns a random UUID.
+
+!UUID.createTimeBased()
+
+Creates and returns a time-based UUID.
+
+
+!!Checking for UUID Objects
+
+The <[UUID.isUUID()]> method can be used to check whether a given object is a UUID.
+
+!DateTime.IsUUID(object)
+
+Returns true if the given object is a UUID object, otherwise false.
+
+
+!!UUID Properties
+
+!version
+
+Returns the UUID version as a number. The following values can be returned:
+
+  - 1: identifies a time-based UUID
+  - 2: identifies a DCE UUID
+  - 3: identifies a name-based UUID (MD5)
+  - 4: identifies a random UUID
+  - 5: identifies a name-based UUID (SHA1)
+
+!variant
+
+Returns the UUID variant number. The following values can be returned:
+
+  - 0: reserved for NCS backward compatibility
+  - 2: the Leach-Salz variant (used by this implementation)
+  - 6: reserved, Microsoft Corporation backward compatibility
+  - 7: reserved for future definition
+
+
+!!UUID Methods
+
+!toString
+
+Returns a string representation of the UUID in the form "2d4c2edb-aa55-4a5f-9112-51ecc594082f",
+i.e. using lowercase characters.
+
+!equals
+
+Compares the UUID with another one given as argument. Returns true if both UUIDs
+are equal, false if they differ and undefined if the argument is no valid UUID object.
+
+!isNull
+
+Returns true if the UUID is a null UUID ("00000000-0000-0000-0000-000000000000").

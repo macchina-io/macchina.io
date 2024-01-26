@@ -1,0 +1,21 @@
+#
+# Makefile
+#
+# Makefile for macchina.io Settings Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = \
+	SettingsService \
+	SettingsServiceImpl \
+	ISettingsService \
+	SettingsServiceRemoteObject \
+	SettingsServiceSkeleton \
+	SettingsServiceServerHelper
+	
+target         = IoTSettings
+target_version = 1
+target_libs    = PocoRemotingNG PocoOSP PocoUtil PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

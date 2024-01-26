@@ -84,6 +84,8 @@ v8::Handle<v8::ObjectTemplate> HTTPResponseWrapper::objectTemplate(v8::Isolate* 
 		objectTemplate->Set(toV8Internalized(pIsolate, "writeHTML"s), v8::FunctionTemplate::New(pIsolate, writeHTML));
 		objectTemplate->Set(toV8Internalized(pIsolate, "htmlize"s), v8::FunctionTemplate::New(pIsolate, writeHTML));
 		objectTemplate->Set(toV8Internalized(pIsolate, "send"s), v8::FunctionTemplate::New(pIsolate, send));
+		objectTemplate->Set(toV8Internalized(pIsolate, "sendFile"s), v8::FunctionTemplate::New(pIsolate, sendFile));
+		objectTemplate->Set(toV8Internalized(pIsolate, "redirect"s), v8::FunctionTemplate::New(pIsolate, redirect));
 
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
@@ -243,7 +245,7 @@ void HTTPResponseWrapper::getHeaders(v8::Local<v8::String> name, const v8::Prope
 	{
 		for (auto it = response.begin(); it != response.end(); ++it)
 		{
-			(void) result->Set(context, toV8String(pIsolate, it->first), toV8String(pIsolate, it->second));
+			V8_CHECK_SET_RESULT(result->Set(context, toV8String(pIsolate, it->first), toV8String(pIsolate, it->second)));
 		}
 	}
 	info.GetReturnValue().Set(result);
@@ -350,7 +352,96 @@ void HTTPResponseWrapper::send(const v8::FunctionCallbackInfo<v8::Value>& args)
 	Poco::Net::HTTPServerResponse* pServerResponse = dynamic_cast<Poco::Net::HTTPServerResponse*>(pResponse);
 	if (pServerResponse)
 	{
-		pServerResponse->sendBuffer(pResponseHolder->content().data(), pResponseHolder->content().size());
+		try
+		{
+			pServerResponse->sendBuffer(pResponseHolder->content().data(), pResponseHolder->content().size());
+		}
+		catch (Poco::Exception& exc)
+		{
+			returnException(args, exc);
+		}
+	}
+}
+
+
+void HTTPResponseWrapper::sendFile(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(args);
+	Poco::Net::HTTPResponse* pResponse = &pResponseHolder->response();
+	Poco::Net::HTTPServerResponse* pServerResponse = dynamic_cast<Poco::Net::HTTPServerResponse*>(pResponse);
+	if (pServerResponse)
+	{
+		std::string contentType;
+		if (args.Length() > 1)
+		{
+			contentType = toString(args.GetIsolate(), args[1]);
+		}
+		else
+		{
+			contentType = pServerResponse->getContentType();
+		}
+		if (args.Length() > 0)
+		{
+			const std::string path = toString(args.GetIsolate(), args[0]);
+			try
+			{
+				pServerResponse->sendFile(path, contentType);
+			}
+			catch (Poco::Exception& exc)
+			{
+				returnException(args, exc);
+			}
+		}
+		else
+		{
+			returnException(args, "No path specified"s);
+		}
+	}
+}
+
+
+void HTTPResponseWrapper::redirect(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(args);
+	Poco::Net::HTTPResponse* pResponse = &pResponseHolder->response();
+	Poco::Net::HTTPServerResponse* pServerResponse = dynamic_cast<Poco::Net::HTTPServerResponse*>(pResponse);
+	if (pServerResponse)
+	{
+		if (args.Length() > 0)
+		{
+			int status = Poco::Net::HTTPResponse::HTTP_FOUND;
+			std::string location = toString(args.GetIsolate(), args[0]);
+			if (args.Length() > 1)
+			{
+				status = args[1]->Int32Value(context).FromMaybe(status);
+				switch (status)
+				{
+				case 301:
+				case 302:
+				case 303:
+				case 307:
+				case 308:
+					break;
+				default:
+					returnException(args, "Invalid status code for redirect"s);
+					return;
+				}
+			}
+			try
+			{			
+				pServerResponse->redirect(location, static_cast<Poco::Net::HTTPResponse::HTTPStatus>(status));
+			}
+			catch (Poco::Exception& exc)
+			{
+				returnException(args, exc);
+			}
+		}
+		else
+		{
+			returnException(args, "No location specified"s);
+		}
 	}
 }
 

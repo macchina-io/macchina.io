@@ -21,6 +21,9 @@
 #include "Utility.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Web {
 namespace BundleAdmin {
@@ -40,15 +43,15 @@ void BundleRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, 
 		if (pWebSessionManagerRef)
 		{
 			Poco::OSP::Web::WebSessionManager::Ptr pWebSessionManager = pWebSessionManagerRef->castedInstance<Poco::OSP::Web::WebSessionManager>();
-			pSession = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"), request);
+			pSession = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"s), request);
 		}
 	}
 	if (!Utility::isAuthenticated(pSession, request, response)) return;
 
-	std::string username = pSession->getValue<std::string>("username");
-	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth");
+	std::string username = pSession->getValue<std::string>("username"s);
+	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth"s);
 
-	if (!pAuthService->authorize(username, "bundleAdmin"))
+	if (!pAuthService->authorize(username, "bundleAdmin"s))
 	{
 		response.setContentLength(0);
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_FORBIDDEN);
@@ -61,7 +64,7 @@ void BundleRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, 
 	if (form.has("id"))
 	{
 		int id;
-		if (Poco::NumberParser::tryParse(form.get("id", ""), id))
+		if (Poco::NumberParser::tryParse(form.get("id"s, ""s), id))
 		{
 			pBundle = context()->findBundle(id);
 		}
@@ -75,7 +78,7 @@ void BundleRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, 
 	}
 	else if (form.has("symbolicName"))
 	{
-		pBundle = context()->findBundle(form.get("symbolicName"));
+		pBundle = context()->findBundle(form.get("symbolicName"s));
 	}
 
 	if (!pBundle)
@@ -87,7 +90,7 @@ void BundleRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, 
 	}
 
 	response.setChunkedTransferEncoding(true);
-	response.setContentType("application/json");
+	response.setContentType("application/json"s);
 	std::ostream& ostr = response.send();
 
 	ostr

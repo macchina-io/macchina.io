@@ -14,6 +14,9 @@
 #include "Poco/Random.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Simulation {
 
@@ -106,15 +109,15 @@ SimulatedSensor::SimulatedSensor(const Params& params, Poco::Util::Timer& timer)
 	_physicalUnit(params.physicalUnit),
 	_timer(timer)
 {
-	addProperty("displayValue", &SimulatedSensor::getDisplayValue);
-	addProperty("valueChangedPeriod", &SimulatedSensor::getValueChangedPeriod, &SimulatedSensor::setValueChangedPeriod);
-	addProperty("valueChangedDelta", &SimulatedSensor::getValueChangedDelta, &SimulatedSensor::setValueChangedDelta);
-	addProperty("deviceIdentifier", &SimulatedSensor::getDeviceIdentifier);
-	addProperty("symbolicName", &SimulatedSensor::getSymbolicName);
-	addProperty("name", &SimulatedSensor::getName);
-	addProperty("type", &SimulatedSensor::getType);
-	addProperty("physicalQuantity", &SimulatedSensor::getPhysicalQuantity);
-	addProperty("physicalUnit", &SimulatedSensor::getPhysicalUnit);
+	addProperty("displayValue"s, &SimulatedSensor::getDisplayValue);
+	addProperty("valueChangedPeriod"s, &SimulatedSensor::getValueChangedPeriod, &SimulatedSensor::setValueChangedPeriod);
+	addProperty("valueChangedDelta"s, &SimulatedSensor::getValueChangedDelta, &SimulatedSensor::setValueChangedDelta);
+	addProperty("deviceIdentifier"s, &SimulatedSensor::getDeviceIdentifier);
+	addProperty("symbolicName"s, &SimulatedSensor::getSymbolicName);
+	addProperty("name"s, &SimulatedSensor::getName);
+	addProperty("type"s, &SimulatedSensor::getType);
+	addProperty("physicalQuantity"s, &SimulatedSensor::getPhysicalQuantity);
+	addProperty("physicalUnit"s, &SimulatedSensor::getPhysicalUnit);
 	
 	if (params.updateRate > 0)
 	{

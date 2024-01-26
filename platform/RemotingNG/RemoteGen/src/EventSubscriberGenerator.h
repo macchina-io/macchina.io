@@ -21,7 +21,7 @@
 
 
 class EventSubscriberGenerator: public AbstractGenerator
-	/// EventSubscriberGenerator generates a proxy for a given class definition. C++ specific. 
+	/// EventSubscriberGenerator generates a proxy for a given class definition. C++ specific.
 {
 public:
 
@@ -69,23 +69,23 @@ private:
 
 	static void staticMembersInitializer(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
 	static void writePrepareAttribute(EventSubscriberGenerator* pGen, const ProxyGenerator::OrderedParameters& attrs, const std::string& indentation, CodeGenerator& gen);
-	static void writeTypeSerializer(const Poco::CppParser::Function* pFunc, 
-		const ProxyGenerator::OrderedParameters& params, 
-		const std::map<std::string, const Poco::CppParser::Parameter*>& outParams, 
-		const std::string& indentation, 
-		bool isAttr, 
-		int funcNsIdx, 
+	static void writeTypeSerializer(const Poco::CppParser::Function* pFunc,
+		const ProxyGenerator::OrderedParameters& params,
+		const std::map<std::string, const Poco::CppParser::Parameter*>& outParams,
+		const std::string& indentation,
+		bool isAttr,
+		int funcNsIdx,
 		CodeGenerator& gen);
 
 	static void writePushAttributes(EventSubscriberGenerator* pGen,
-		const Poco::CppParser::Function* pFunc, 
-		const ProxyGenerator::OrderedParameters& attrs, 
-		const std::map<std::string, const Poco::CppParser::Parameter*>& outParams, 
+		const Poco::CppParser::Function* pFunc,
+		const ProxyGenerator::OrderedParameters& attrs,
+		const std::map<std::string, const Poco::CppParser::Parameter*>& outParams,
 		const std::string& indentation,
 		CodeGenerator& gen);
 
-	static void writeTypeDeserializers(const Poco::CppParser::Function* pFunc, 
-		const ProxyGenerator::OrderedParameters& params, 
+	static void writeTypeDeserializers(const Poco::CppParser::Function* pFunc,
+		const ProxyGenerator::OrderedParameters& params,
 		const std::string& indentation,
 		CodeGenerator& gen);
 

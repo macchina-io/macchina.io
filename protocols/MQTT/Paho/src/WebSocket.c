@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2020 Wind River Systems, Inc. and others. All Rights Reserved.
+ * Copyright (c) 2018, 2022 Wind River Systems, Inc., Ian Craggs and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -14,18 +14,12 @@
  *    Keith Holman - initial implementation and documentation
  *    Ian Craggs - use memory tracking
  *    Ian Craggs - fix for one MQTT packet spread over >1 ws frame
+ *    Sven Gambel - move WebSocket proxy support to generic proxy support
  *******************************************************************************/
 
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-// for timeout process in WebSocket_proxy_connect()
-#include <time.h>
-#if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 
 #include "WebSocket.h"
 
@@ -36,11 +30,6 @@
 #include "MQTTProtocolOut.h"
 #include "SocketBuffer.h"
 #include "StackTrace.h"
-
-#if defined(__MINGW32__)
-#define htonll __builtin_bswap64
-#define ntohll __builtin_bswap64
-#endif
 
 #if defined(__linux__)
 #  include <endian.h>
@@ -57,9 +46,16 @@
 #elif defined(_WIN32) || defined(_WIN64)
 #  pragma comment(lib, "rpcrt4.lib")
 #  include <rpc.h>
-#  define strncasecmp(s1,s2,c) _strnicmp(s1,s2,c)
-#  define htonll(x) _byteswap_uint64(x)
-#  define ntohll(x) _byteswap_uint64(x)
+#  if !(defined(__MINGW32__))
+#    define strncasecmp(s1,s2,c) _strnicmp(s1,s2,c)
+#  endif
+#  if defined(__MINGW32__)
+#    define htonll __builtin_bswap64
+#    define ntohll __builtin_bswap64
+#  else
+#    define htonll(x) _byteswap_uint64(x)
+#    define ntohll(x) _byteswap_uint64(x)
+#  endif
 
 #  if BYTE_ORDER == LITTLE_ENDIAN
 #    define htobe16(x)   htons(x)
@@ -373,6 +369,7 @@ static void WebSocket_unmaskData(size_t idx, PacketBuffers* bufs)
  * sends out a websocket request on the given uri
  *
  * @param[in]      net                 network connection
+ * @param[in]      ssl                 ssl flag
  * @param[in]      uri                 uri to connect to
  *
  * @retval SOCKET_ERROR                on failure
@@ -380,7 +377,7 @@ static void WebSocket_unmaskData(size_t idx, PacketBuffers* bufs)
  *
  * @see WebSocket_upgrade
  */
-int WebSocket_connect( networkHandles *net, const char *uri)
+int WebSocket_connect( networkHandles *net, int ssl, const char *uri)
 {
 	int rc;
 	char *buf = NULL;
@@ -417,7 +414,7 @@ int WebSocket_connect( networkHandles *net, const char *uri)
 	Base64_encode( net->websocket_key, 25u, uuid, sizeof(uuid_t) );
 #endif /* else if defined(_WIN32) || defined(_WIN64) */
 
-	hostname_len = MQTTProtocol_addressPort(uri, &port, &topic, WS_DEFAULT_PORT);
+	hostname_len = MQTTProtocol_addressPort(uri, &port, &topic, ssl ? WSS_DEFAULT_PORT : WS_DEFAULT_PORT);
 
 	/* if no topic, use default */
 	if ( !topic )
@@ -783,7 +780,7 @@ char *WebSocket_getRawSocketData(networkHandles *net, size_t bytes, size_t* actu
 			*actual_len = bytes;
 			rv = frame_buffer + frame_buffer_index;
 			frame_buffer_index += bytes;
-
+			*rc = (int)bytes;
 			goto exit;
 		}
 		else
@@ -815,8 +812,11 @@ char *WebSocket_getRawSocketData(networkHandles *net, size_t bytes, size_t* actu
 		frame_buffer_data_len = 0;
 		frame_buffer_len = 0;
 		
-		free (frame_buffer);
-		frame_buffer = NULL;
+		if (frame_buffer)
+		{
+			free (frame_buffer);
+			frame_buffer = NULL;
+		}
 	}
 	// append data to the buffer
 	else if (rv != NULL && *actual_len != 0U)
@@ -1326,13 +1326,13 @@ int WebSocket_upgrade( networkHandles *net )
 		SHA1_Final( sha_hash, &ctx );
 		Base64_encode( ws_key, sizeof(ws_key), sha_hash, SHA1_DIGEST_LENGTH );
 
-		rc = TCPSOCKET_INTERRUPTED;
 		read_buf = WebSocket_getRawSocketData( net, 12u, &rcv, &rc);
 		if (rc == SOCKET_ERROR)
 			goto exit;
 
 		if ((read_buf == NULL) || rcv < 12u) {
 			Log(TRACE_PROTOCOL, 1, "WebSocket upgrade read not complete %lu", rcv );
+			rc = TCPSOCKET_INTERRUPTED;
 			goto exit;
 		}
 
@@ -1425,120 +1425,6 @@ int WebSocket_upgrade( networkHandles *net )
 			/* indicate that we done with the packet */
 			WebSocket_getRawSocketData( net, 0u, &rcv, &rc);
 		}
-	}
-
-exit:
-	FUNC_EXIT_RC(rc);
-	return rc;
-}
-
-/**
- * Notify the IP address and port of the endpoint to proxy, and wait connection to endpoint.
- *
- * @param[in]  net               network connection to proxy.
- * @param[in]  ssl               enable ssl.
- * @param[in]  hostname          hostname of endpoint.
- *
- * @retval SOCKET_ERROR          failed to network connection
- * @retval 0                     connection to endpoint
- * 
- */
-int WebSocket_proxy_connect( networkHandles *net, int ssl, const char *hostname)
-{
-	int port, i, rc = 0, buf_len=0;
-	char *buf = NULL;
-	size_t hostname_len, actual_len = 0; 
-	time_t current, timeout;
-	PacketBuffers nulbufs = {0, NULL, NULL, NULL, {0, 0, 0, 0}};
-
-	FUNC_ENTRY;
-	hostname_len = MQTTProtocol_addressPort(hostname, &port, NULL, WS_DEFAULT_PORT);
-	for ( i = 0; i < 2; ++i ) {
-#if defined(OPENSSL)
-		if(ssl) {
-			if (net->https_proxy_auth) {
-				buf_len = snprintf( buf, (size_t)buf_len, "CONNECT %.*s:%d HTTP/1.1\r\n"
-					"Host: %.*s\r\n"
-					"Proxy-authorization: Basic %s\r\n"
-					"\r\n",
-					(int)hostname_len, hostname, port,
-					(int)hostname_len, hostname, net->https_proxy_auth);
-			}
-			else {
-				buf_len = snprintf( buf, (size_t)buf_len, "CONNECT %.*s:%d HTTP/1.1\r\n"
-					"Host: %.*s\r\n"
-					"\r\n",
-					(int)hostname_len, hostname, port,
-					(int)hostname_len, hostname);
-			}
-		}
-		else {
-#endif
-			if (net->http_proxy_auth) {
-				buf_len = snprintf( buf, (size_t)buf_len, "CONNECT %.*s:%d HTTP/1.1\r\n"
-					"Host: %.*s\r\n"
-					"Proxy-authorization: Basic %s\r\n"
-					"\r\n",
-					(int)hostname_len, hostname, port,
-					(int)hostname_len, hostname, net->http_proxy_auth);
-			}
-			else {
-				buf_len = snprintf( buf, (size_t)buf_len, "CONNECT %.*s:%d HTTP/1.1\r\n"
-					"Host: %.*s\r\n"
-					"\r\n",
-					(int)hostname_len, hostname, port,
-					(int)hostname_len, hostname);
-			}
-#if defined(OPENSSL)
-		}
-#endif
-		if ( i==0 && buf_len > 0 ) {
-			++buf_len;
-			if ((buf = malloc( buf_len )) == NULL)
-			{
-				rc = PAHO_MEMORY_ERROR;
-				goto exit;
-			}
-
-		}  
-	}
-	Log(TRACE_PROTOCOL, -1, "WebSocket_proxy_connect: \"%s\"", buf);
-
-	Socket_putdatas(net->socket, buf, buf_len, nulbufs);
-	free(buf);
-	buf = NULL;
-
-	time(&timeout);
-	timeout += (time_t)10;
-
-	while(1) {
-		buf = Socket_getdata(net->socket, (size_t)12, &actual_len, &rc);
-		if(actual_len) {
-			if ( (strncmp( buf, "HTTP/1.0 200", 12 ) != 0) &&  (strncmp( buf, "HTTP/1.1 200", 12 ) != 0) )
-				rc = SOCKET_ERROR;
-			break;
-		}
-		else {
-			time(&current);
-			if(current > timeout) {
-				rc = SOCKET_ERROR;
-				break;
-			}
-#if defined(_WIN32) || defined(_WIN64)
-			Sleep(250);
-#else
-			usleep(250000);
-#endif
-		}
-	}
-
-	/* flush the SocketBuffer */
-	actual_len = 1;
-	while (actual_len)
-	{
-		int rc1;
-
-		buf = Socket_getdata(net->socket, (size_t)1, &actual_len, &rc1);
 	}
 
 exit:

@@ -92,8 +92,6 @@ protected:
 	void unregisterHolder();
 	void disableEvents();
 
-	static void destruct(const v8::WeakCallbackInfo<BridgeHolder>& data);
-
 private:
 	using HolderMap = std::map<std::string, BridgeHolder*>;
 
@@ -138,6 +136,8 @@ protected:
 	static void bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void on(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void toJSON(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void getURI(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
+	static void getSub(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 };
 
 

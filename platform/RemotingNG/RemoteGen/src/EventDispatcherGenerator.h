@@ -20,7 +20,7 @@
 
 
 class EventDispatcherGenerator: public AbstractGenerator
-	/// EventDispatcherGenerator generates a proxy for a given class definition. C++ specific. 
+	/// EventDispatcherGenerator generates a proxy for a given class definition. C++ specific.
 {
 public:
 	struct ExtParam
@@ -86,9 +86,9 @@ public:
 
 	static void detectOutParams(const Poco::CppParser::Function* pFunc, std::map<std::string, const Poco::CppParser::Parameter*>& outParams);
 
-	static void writeTypeDeserializers(const Poco::CppParser::Function* pFunc, 
-		const OrderedParameters& params, 
-		const std::map<std::string, const Poco::CppParser::Parameter*>& outParams, 
+	static void writeTypeDeserializers(const Poco::CppParser::Function* pFunc,
+		const OrderedParameters& params,
+		const std::map<std::string, const Poco::CppParser::Parameter*>& outParams,
 		const std::string& indentation,
 		CodeGenerator& gen);
 
@@ -126,7 +126,7 @@ private:
 		/// checks if the class or any parent contains public BasicEvents
 
 	void methodStartImpl(Poco::CppParser::Function* pFunc, const CodeGenerator::Properties& methodProperties);
-	
+
 
 private:
 	std::vector<std::string> _boolsToInit;

@@ -28,13 +28,29 @@ JSServletFilter::JSServletFilter(Poco::OSP::BundleContext::Ptr pContext, const P
 	_pContext(pContext),
 	_cache(cache),
 	_memoryLimit(JSExecutor::getDefaultMemoryLimit()),
-	_hasFilterMemoryLimit(false)
+	_hasFilterMemoryLimit(false),
+	_maxUploadSize(2*1024*1024),
+	_hasMaxUploadSize(false),
+	_maxUploadCount(4),
+	_hasMaxUploadCount(false)
 {
 	Poco::OSP::Web::WebFilter::Args::const_iterator it = args.find("memoryLimit"s);
 	if (it != args.end())
 	{
 		_memoryLimit = Poco::NumberParser::parseUnsigned64(it->second);
 		_hasFilterMemoryLimit = true;
+	}
+	it = args.find("maxUploadSize"s);
+	if (it != args.end())
+	{
+		_maxUploadSize = Poco::NumberParser::parseUnsigned64(it->second);
+		_hasMaxUploadSize = true;
+	}
+	it = args.find("maxUploadCount"s);
+	if (it != args.end())
+	{
+		_maxUploadCount = Poco::NumberParser::parseUnsigned64(it->second);
+		_hasMaxUploadCount = true;
 	}
 	it = args.find("searchPaths"s);
 	if (it != args.end())
@@ -79,11 +95,23 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 					memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit"s, _memoryLimit);
 				}
 
+				Poco::UInt64 maxUploadSize = _maxUploadSize;
+				if (!_hasMaxUploadSize)
+				{
+					maxUploadSize = pBundle->properties().getUInt64("osp.js.maxUploadSize"s, _maxUploadSize);
+				}
+
+				unsigned maxUploadCount = _maxUploadCount;
+				if (!_hasMaxUploadCount)
+				{
+					maxUploadCount = pBundle->properties().getUInt("osp.js.maxUploadCount"s, _maxUploadCount);
+				}
+
 				std::string moduleSearchPaths = pBundle->properties().getString("osp.js.moduleSearchPaths"s, ""s);
-				Poco::StringTokenizer tok(moduleSearchPaths, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+				Poco::StringTokenizer tok(moduleSearchPaths, ",;"s, Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 				_moduleSearchPaths.insert(_moduleSearchPaths.begin(), tok.begin(), tok.end());
 
-				JSServletExecutor::Ptr pExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _moduleSearchPaths, memoryLimit);
+				JSServletExecutor::Ptr pExecutor = new JSServletExecutor(_pContext->contextForBundle(pBundle), pBundle, servlet, Poco::URI(scriptURI), _moduleSearchPaths, memoryLimit, maxUploadSize, maxUploadCount);
 				pExecutor->prepareRequest(request, response);
 				pExecutor->run();
 				pExecutorHolder = new JSServletExecutorHolder(pExecutor);
@@ -96,7 +124,7 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 
 		if (!response.sent())
 		{
-			sendErrorResponse(response, "Script execution failed. See server log for details.");
+			sendErrorResponse(response, "Script execution failed. See the server log for details."s);
 		}
 	}
 	catch (Poco::Exception& exc)
@@ -104,7 +132,7 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 		_pContext->logger().log(exc);
 		if (!response.sent())
 		{
-			sendErrorResponse(response, exc.displayText());
+			sendErrorResponse(response, "The request could not be processed. See the server log for details."s);
 		}
 	}
 }
@@ -115,7 +143,7 @@ void JSServletFilter::preprocess(Poco::Net::HTTPServerRequest& request, Poco::Ne
 	// The $servlet function is created to prevent the script from
 	// creating global variables. V8 does not seem to garbage collect
 	// global variables, resulting in memory leaks.
-	servlet += "function $servlet(request, response, form, session) { ";
+	servlet += "function $servlet(request, response, form, uploads, session) { ";
 	Poco::StreamCopier::copyToString(resourceStream, servlet);
 	servlet += " }\n";
 }

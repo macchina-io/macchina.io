@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2020 IBM Corp.
+ * Copyright (c) 2009, 2022 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -50,9 +50,9 @@
 /** Stem of the key for an MQTT V5 incoming message queue */
 #define PERSISTENCE_V5_QUEUE_KEY "q5-"
 /** Maximum length of a stem for a persistence key */
-#define PERSISTENCE_MAX_STEM_LENGTH 3
+#define PERSISTENCE_MAX_STEM_LENGTH 4
 /** Maximum allowed length of a persistence key */
-#define PERSISTENCE_MAX_KEY_LENGTH 9
+#define PERSISTENCE_MAX_KEY_LENGTH 10
 /** Maximum size of an integer sequence number appended to a persistence key */
 #define PERSISTENCE_SEQNO_LIMIT 1000000 /*10^(PERSISTENCE_MAX_KEY_LENGTH - PERSISTENCE_MAX_STEM_LENGTH)*/
 
@@ -63,7 +63,7 @@ int MQTTPersistence_clear(Clients* c);
 int MQTTPersistence_restorePackets(Clients* c);
 void* MQTTPersistence_restorePacket(int MQTTVersion, char* buffer, size_t buflen);
 void MQTTPersistence_insertInOrder(List* list, void* content, size_t size);
-int MQTTPersistence_putPacket(int socket, char* buf0, size_t buf0len, int count,
+int MQTTPersistence_putPacket(SOCKET socket, char* buf0, size_t buf0len, int count,
 						char** buffers, size_t* buflens, int htype, int msgId, int scr, int MQTTVersion);
 int MQTTPersistence_remove(Clients* c, char* type, int qos, int msgId);
 void MQTTPersistence_wrapMsgID(Clients *c);

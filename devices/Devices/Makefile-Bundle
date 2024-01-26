@@ -7,10 +7,13 @@
 include $(POCO_BASE)/build/rules/global
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
-objects = BundleActivator
+objects = \
+	DeviceTreeImpl \
+	BundleActivator
 
-target      = io.macchina.devices
-target_libs = IoTDevices PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
+target          = io.macchina.devices
+target_includes = skel/include
+target_libs     = IoTDevicesSkel IoTDevices PocoOSP PocoRemotingNG PocoUtil PocoXML PocoFoundation
 
 postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles Devices.bndlspec
 

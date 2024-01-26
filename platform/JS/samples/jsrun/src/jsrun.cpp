@@ -79,9 +79,9 @@ protected:
 		v8::Local<v8::Array> args = v8::Array::New(pIsolate, static_cast<int>(_args.size()));
 		for (unsigned i = 0; i < _args.size(); i++)
 		{
-			(void) args->Set(pIsolate->GetCurrentContext(), i, Wrapper::toV8String(pIsolate, _args[i]));
+			V8_CHECK_SET_RESULT(args->Set(pIsolate->GetCurrentContext(), i, Wrapper::toV8String(pIsolate, _args[i])));
 		}
-		(void) global->Set(pIsolate->GetCurrentContext(), Wrapper::toV8String(pIsolate, "$args"s), args);
+		V8_CHECK_SET_RESULT(global->Set(pIsolate->GetCurrentContext(), Wrapper::toV8String(pIsolate, "$args"s), args));
 	}
 
 private:
@@ -244,7 +244,7 @@ protected:
 				v8::V8::SetFlagsFromString(it->data(), it->size());
 			}
 
-			Poco::UInt64 memoryLimit = static_cast<Poco::UInt64>(1024)*config().getInt("js.memoryLimit", 64*1024);
+			Poco::UInt64 memoryLimit = static_cast<Poco::UInt64>(1024)*config().getInt("js.memoryLimit", Poco::JS::Core::JSExecutor::DEFAULT_MEMORY_LIMIT);
 
 			try
 			{

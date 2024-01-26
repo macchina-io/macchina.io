@@ -1,0 +1,19 @@
+#
+# Makefile
+#
+# Makefile for macchina.io Modbus RTU Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = \
+	RTUMasterPort \
+	RTUDevicePort \
+	CRC16
+
+target         = IoTModbusRTU
+target_includes = ../include
+target_version = 1
+target_libs    = IoTModbus PocoOSP PocoSerial PocoNet PocoUtil PocoXML PocoJSON PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

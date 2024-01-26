@@ -12,19 +12,21 @@ launcherControllers.controller('AppGridCtrl', ['$scope', '$http',
     $scope.appsAvailable = function() {
       return $scope.apps.length > 0;
     };
-    $http.get('/macchina/launcher/apps.json').success(function(data) {
-      $scope.apps = data;
+    $http.get('/macchina/launcher/apps.json').then(function(response) {
+      $scope.apps = response.data;
       $scope.loading = false;
     });
   }]);
 
 launcherControllers.controller('SessionCtrl', ['$scope', '$http',
   function($scope, $http) {
-    $http.get('/macchina/session.json').success(function(data) {
-      $scope.session = data;
-      if (!data.authenticated)
-      {
-        window.location = "/";
+    $http.get('/macchina/session.json').then(
+      function(response) {
+        $scope.session = response.data;
+        if (!response.data.authenticated)
+        {
+          window.location = "/";
+        }
       }
-    });
+    );
   }]);

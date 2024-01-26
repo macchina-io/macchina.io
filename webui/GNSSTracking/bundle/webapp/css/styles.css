@@ -3,8 +3,8 @@
  */
 div.olControlAttribution, div.olControlScaleLine 
 {
-	font-family: Helvetica, Arial, SunSans-Regular, sans-serif;
-	font-size: 12px;
+	font-family: 'Source Sans Pro', sans-serif;
+	font-size: 13px;
 	bottom: 4px;
 	right: 4px;
 }

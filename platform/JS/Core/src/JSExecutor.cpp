@@ -259,13 +259,13 @@ void JSExecutor::runImpl()
 		v8::Local<v8::Object> global = scriptContext->Global();
 
 		v8::Local<v8::Object> moduleObject = v8::Object::New(pIsolate);
-		(void) moduleObject->Set(scriptContext, Wrapper::toV8String(pIsolate, "id"s), Wrapper::toV8String(pIsolate, _sourceURI.toString()));
+		V8_CHECK_SET_RESULT(moduleObject->Set(scriptContext, Wrapper::toV8String(pIsolate, "id"s), Wrapper::toV8String(pIsolate, _sourceURI.toString())));
 		v8::Local<v8::Object> importsObject = v8::Object::New(pIsolate);
-		(void) moduleObject->Set(scriptContext, Wrapper::toV8String(pIsolate, "imports"s), importsObject);
+		V8_CHECK_SET_RESULT(moduleObject->Set(scriptContext, Wrapper::toV8String(pIsolate, "imports"s), importsObject));
 		v8::Local<v8::Object> exportsObject = v8::Object::New(pIsolate);
-		(void) moduleObject->Set(scriptContext, Wrapper::toV8String(pIsolate, "exports"s), exportsObject);
+		V8_CHECK_SET_RESULT(moduleObject->Set(scriptContext, Wrapper::toV8String(pIsolate, "exports"s), exportsObject));
 
-		(void) global->Set(scriptContext, Wrapper::toV8String(pIsolate, "module"s), moduleObject);
+		V8_CHECK_SET_RESULT(global->Set(scriptContext, Wrapper::toV8String(pIsolate, "module"s), moduleObject));
 
 		setupGlobalObject(global, pIsolate);
 
@@ -332,23 +332,24 @@ void JSExecutor::callInContext(v8::Isolate* pIsolate, v8::Local<v8::Context>& co
 
 	v8::HandleScope handleScope(pIsolate);
 
-	v8::Local<v8::String> jsMethod = Wrapper::toV8String(pIsolate, method);
-	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(pIsolate, jsObject));
-
-	v8::Maybe<bool> hasMethod = localObject->Has(pIsolate->GetCurrentContext(), jsMethod);
-	if (hasMethod.IsJust() && hasMethod.FromJust())
+	if (!jsObject.IsEmpty())
 	{
-		v8::MaybeLocal<v8::Value> maybeJSValue = localObject->Get(context, jsMethod);
-		v8::Local<v8::Value> jsValue;
-		if (maybeJSValue.ToLocal(&jsValue) && jsValue->IsFunction())
+		v8::Local<v8::String> jsMethod = Wrapper::toV8String(pIsolate, method);
+		v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(pIsolate, jsObject));
+		v8::Maybe<bool> hasMethod = localObject->Has(pIsolate->GetCurrentContext(), jsMethod);
+		if (hasMethod.IsJust() && hasMethod.FromJust())
 		{
-			v8::Local<v8::Function> jsFunction = v8::Local<v8::Function>::Cast(jsValue);
-
-			v8::TryCatch tryCatch(pIsolate);
-			v8::MaybeLocal<v8::Value> maybeResult = jsFunction->Call(context, localObject, argc, argv);
-			if (maybeResult.IsEmpty() || tryCatch.HasCaught())
+			v8::MaybeLocal<v8::Value> maybeJSValue = localObject->Get(context, jsMethod);
+			v8::Local<v8::Value> jsValue;
+			if (maybeJSValue.ToLocal(&jsValue) && jsValue->IsFunction())
 			{
-				reportError(pIsolate, tryCatch);
+				v8::Local<v8::Function> jsFunction = v8::Local<v8::Function>::Cast(jsValue);
+				v8::TryCatch tryCatch(pIsolate);
+				v8::MaybeLocal<v8::Value> maybeResult = jsFunction->Call(context, localObject, argc, argv);
+				if (maybeResult.IsEmpty() || tryCatch.HasCaught())
+				{
+					reportError(pIsolate, tryCatch);
+				}
 			}
 		}
 	}
@@ -369,37 +370,40 @@ void JSExecutor::call(v8::Persistent<v8::Object>& jsObject, const std::string& m
 	v8::Local<v8::Context> context(v8::Local<v8::Context>::New(pIsolate, _scriptContext));
 	v8::Context::Scope contextScope(context);
 
-	v8::Local<v8::String> jsMethod = Wrapper::toV8String(pIsolate, method);
-	v8::Local<v8::String> jsArgs = Wrapper::toV8String(pIsolate, args);
-	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(pIsolate, jsObject));
-
-	if (localObject->Has(context, jsMethod).FromMaybe(false))
+	if (!jsObject.IsEmpty())
 	{
-		v8::MaybeLocal<v8::Value> maybeJSValue = localObject->Get(context, jsMethod);
-		v8::Local<v8::Value> jsValue;
-		if (maybeJSValue.ToLocal(&jsValue) && jsValue->IsFunction())
-		{
-			v8::Local<v8::Function> jsFunction = v8::Local<v8::Function>::Cast(jsValue);
+		v8::Local<v8::String> jsMethod = Wrapper::toV8String(pIsolate, method);
+		v8::Local<v8::String> jsArgs = Wrapper::toV8String(pIsolate, args);
+		v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(pIsolate, jsObject));
 
-			v8::TryCatch tryCatch(pIsolate);
-			v8::MaybeLocal<v8::Value> maybeJSArgs = v8::JSON::Parse(context, jsArgs);
-			v8::Local<v8::Value> jsArgs;
-			if (maybeJSArgs.ToLocal(&jsArgs))
+		if (localObject->Has(context, jsMethod).FromMaybe(false))
+		{
+			v8::MaybeLocal<v8::Value> maybeJSValue = localObject->Get(context, jsMethod);
+			v8::Local<v8::Value> jsValue;
+			if (maybeJSValue.ToLocal(&jsValue) && jsValue->IsFunction())
 			{
-				v8::Local<v8::Value> argv[1] = { jsArgs };
-				v8::MaybeLocal<v8::Value> maybeResult = jsFunction->Call(context, localObject, 1, argv);
-				if (maybeResult.IsEmpty() || tryCatch.HasCaught())
+				v8::Local<v8::Function> jsFunction = v8::Local<v8::Function>::Cast(jsValue);
+
+				v8::TryCatch tryCatch(pIsolate);
+				v8::MaybeLocal<v8::Value> maybeJSArgs = v8::JSON::Parse(context, jsArgs);
+				v8::Local<v8::Value> jsArgs;
+				if (maybeJSArgs.ToLocal(&jsArgs))
 				{
-					reportError(pIsolate, tryCatch);
+					v8::Local<v8::Value> argv[1] = { jsArgs };
+					v8::MaybeLocal<v8::Value> maybeResult = jsFunction->Call(context, localObject, 1, argv);
+					if (maybeResult.IsEmpty() || tryCatch.HasCaught())
+					{
+						reportError(pIsolate, tryCatch);
+					}
 				}
-			}
-			else
-			{
-				ErrorInfo errorInfo;
-				errorInfo.uri = _sourceURI.toString();
-				errorInfo.lineNo = 0;
-				errorInfo.message = "JSExecutor::call(): failed to parse JSON arguments: " + args;
-				reportError(pIsolate, errorInfo);
+				else
+				{
+					ErrorInfo errorInfo;
+					errorInfo.uri = _sourceURI.toString();
+					errorInfo.lineNo = 0;
+					errorInfo.message = "JSExecutor::call(): failed to parse JSON arguments: " + args;
+					reportError(pIsolate, errorInfo);
+				}
 			}
 		}
 	}
@@ -577,6 +581,8 @@ void JSExecutor::handleMemoryWarning(std::size_t currentHeapLimit, std::size_t i
 
 void JSExecutor::reportError(v8::Isolate* pIsolate, v8::TryCatch& tryCatch)
 {
+	v8::HandleScope handleScope(pIsolate);
+
 	ErrorInfo errorInfo;
 	errorInfo.uri = _sourceURI.toString();
 	errorInfo.lineNo = 0;
@@ -589,13 +595,27 @@ void JSExecutor::reportError(v8::Isolate* pIsolate, v8::TryCatch& tryCatch)
 	{
 		v8::String::Utf8Value str(pIsolate, exception);
 		errorInfo.message = *str;
+		v8::Local<v8::StackTrace> stackTrace = v8::Exception::GetStackTrace(exception);
+		errorInfo.stackTrace = buildStackTrace(pIsolate, stackTrace);
 	}
 	v8::Local<v8::Message> message = tryCatch.Message();
 	if (!message.IsEmpty())
 	{
 		v8::String::Utf8Value str(pIsolate, message->GetScriptResourceName());
-		errorInfo.uri = *str;
+		if (*str && "undefined"s != *str && errorInfo.uri != *str)
+		{
+			std::string uri = *str;
+			uri += " (";
+			uri += errorInfo.uri;
+			uri += " )";
+			errorInfo.uri = uri;
+		}
 		errorInfo.lineNo = message->GetLineNumber(pIsolate->GetCurrentContext()).FromMaybe(0);
+		if (errorInfo.stackTrace.empty())
+		{
+			v8::Local<v8::StackTrace> stackTrace = message->GetStackTrace();
+			errorInfo.stackTrace = buildStackTrace(pIsolate, stackTrace);
+		}
 	}
 	reportError(pIsolate, errorInfo);
 }
@@ -611,6 +631,26 @@ void JSExecutor::reportError(v8::Isolate* pIsolate, const ErrorInfo& errorInfo)
 	{
 	}
 	handleError(errorInfo);
+}
+
+
+std::vector<JSExecutor::StackFrame> JSExecutor::buildStackTrace(v8::Isolate* pIsolate, v8::Local<v8::StackTrace>& stackTrace)
+{
+	std::vector<StackFrame> result;
+	if (!stackTrace.IsEmpty())
+	{
+		int frameCount = stackTrace->GetFrameCount();
+		for (int i = 0; i < frameCount; i++)
+		{
+			v8::Local<v8::StackFrame> v8Frame = stackTrace->GetFrame(pIsolate, i);
+			StackFrame frame;
+			frame.lineNo = v8Frame->GetLineNumber();
+			frame.functionName = Wrapper::toString(pIsolate, v8Frame->GetFunctionName());
+			frame.scriptName = Wrapper::toString(pIsolate, v8Frame->GetScriptName());
+			result.push_back(frame);
+		}
+	}
+	return result;
 }
 
 
@@ -744,15 +784,15 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 		v8::Local<v8::Object> moduleGlobal = moduleContext->Global();
 
 		v8::Local<v8::Object> moduleObject = v8::Object::New(pIsolate);
-		(void) moduleObject->Set(moduleContext, Wrapper::toV8String(pIsolate, "id"s), jsModuleURI);
+		V8_CHECK_SET_RESULT(moduleObject->Set(moduleContext, Wrapper::toV8String(pIsolate, "id"s), jsModuleURI));
 		v8::Local<v8::Object> exportsObject = v8::Object::New(pIsolate);
-		(void) moduleObject->Set(moduleContext, Wrapper::toV8String(pIsolate, "exports"s), exportsObject);
-		(void) moduleGlobal->Set(moduleContext, Wrapper::toV8String(pIsolate, "module"s), moduleObject);
-		(void) moduleGlobal->Set(moduleContext, Wrapper::toV8String(pIsolate, "exports"s), exportsObject);
+		V8_CHECK_SET_RESULT(moduleObject->Set(moduleContext, Wrapper::toV8String(pIsolate, "exports"s), exportsObject));
+		V8_CHECK_SET_RESULT(moduleGlobal->Set(moduleContext, Wrapper::toV8String(pIsolate, "module"s), moduleObject));
+		V8_CHECK_SET_RESULT(moduleGlobal->Set(moduleContext, Wrapper::toV8String(pIsolate, "exports"s), exportsObject));
 
 		setupGlobalObject(moduleGlobal, pIsolate);
 
-		(void) globalImports->Set(moduleContext, jsModuleURI, exportsObject);
+		V8_CHECK_SET_RESULT(globalImports->Set(moduleContext, jsModuleURI, exportsObject));
 
 		std::string source;
 		Poco::StreamCopier::copyToString(*pStream, source);
@@ -773,7 +813,7 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 				v8::Local<v8::Value> newExportsObject;
 				if (maybeNewExportsObject.ToLocal(&newExportsObject))
 				{
-					(void) globalImports->Set(moduleContext, jsModuleURI, newExportsObject);
+					V8_CHECK_SET_RESULT(globalImports->Set(moduleContext, jsModuleURI, newExportsObject));
 					args.GetReturnValue().Set(newExportsObject);
 				}
 			}
@@ -820,7 +860,7 @@ void JSExecutor::importModule(const v8::FunctionCallbackInfo<v8::Value>& args, c
 	else
 	{
 		v8::Local<v8::Object> exportsObject = pModule->exportIt(pIsolate);
-		(void) globalImports->Set(scriptContext, jsModuleURI, exportsObject);
+		V8_CHECK_SET_RESULT(globalImports->Set(scriptContext, jsModuleURI, exportsObject));
 		args.GetReturnValue().Set(exportsObject);
 	}
 }
@@ -1002,8 +1042,6 @@ void TimedJSExecutor::setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& g
 
 void TimedJSExecutor::schedule(Poco::Util::TimerTask::Ptr pTask)
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
-
 	if (!_stopped)
 	{
 		_timer.schedule(pTask, Poco::Clock());
@@ -1013,8 +1051,6 @@ void TimedJSExecutor::schedule(Poco::Util::TimerTask::Ptr pTask)
 
 void TimedJSExecutor::schedule(Poco::Util::TimerTask::Ptr pTask, const Poco::Clock& clock)
 {
-	Poco::FastMutex::ScopedLock lock(_mutex);
-
 	if (!_stopped)
 	{
 		_timer.schedule(pTask, clock);
@@ -1024,19 +1060,28 @@ void TimedJSExecutor::schedule(Poco::Util::TimerTask::Ptr pTask, const Poco::Clo
 
 void TimedJSExecutor::stop()
 {
+	if (!_stopped.exchange(true))
 	{
-		Poco::FastMutex::ScopedLock lock(_mutex);
+		_timer.cancel(this);
 
-		if (_stopped) return;
+		stopped(this);
 
-		_stopped = true;
+		cleanup();
 	}
+}
 
-	_timer.cancel(this);
 
-	stopped(this);
-
-	cleanup();
+void TimedJSExecutor::handleOutOfMemory(std::size_t currentHeapLimit, std::size_t initialHeapLimit)
+{
+	try
+	{
+		outOfMemory();
+	}
+	catch (...)
+	{
+	}
+	terminate();
+	_timer.cancelAsync(this);
 }
 
 
@@ -1056,7 +1101,7 @@ void TimedJSExecutor::setImmediate(const v8::FunctionCallbackInfo<v8::Value>& ar
 	{
 		for (Poco::UInt32 i = 0; i < argsLength; i++)
 		{
-			(void) argsArray->Set(context, i, args[i + 1]);
+			V8_CHECK_SET_RESULT(argsArray->Set(context, i, args[i + 1]));
 		}
 	}
 
@@ -1080,11 +1125,16 @@ void TimedJSExecutor::setTimeout(const v8::FunctionCallbackInfo<v8::Value>& args
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 
-	if (args.Length() < 2) return;
+	if (args.Length() < 1) return;
 	if (!args[0]->IsFunction()) return;
 	v8::Local<v8::Function> function = args[0].As<v8::Function>();
-	if (!args[1]->IsNumber()) return;
-	double millisecs = args[1]->NumberValue(context).FromMaybe(0.0);
+
+	double millisecs = 0.0;
+	if (args.Length() > 1)
+	{
+		if (!args[1]->IsNumber()) return;
+		millisecs = args[1]->NumberValue(context).FromMaybe(0.0);
+	}
 
 	Poco::UInt32 argsLength = args.Length() > 2 ? args.Length() - 2 : 0;
 	v8::Local<v8::Array> argsArray = v8::Array::New(pIsolate, argsLength);
@@ -1092,7 +1142,7 @@ void TimedJSExecutor::setTimeout(const v8::FunctionCallbackInfo<v8::Value>& args
 	{
 		for (Poco::UInt32 i = 0; i < argsLength; i++)
 		{
-			(void) argsArray->Set(context, i, args[i + 2]);
+			V8_CHECK_SET_RESULT(argsArray->Set(context, i, args[i + 2]));
 		}
 	}
 
@@ -1117,11 +1167,16 @@ void TimedJSExecutor::setInterval(const v8::FunctionCallbackInfo<v8::Value>& arg
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 
-	if (args.Length() < 2) return;
+	if (args.Length() < 1) return;
 	if (!args[0]->IsFunction()) return;
 	v8::Local<v8::Function> function = args[0].As<v8::Function>();
-	if (!args[1]->IsNumber()) return;
-	double millisecs = args[1]->NumberValue(context).FromMaybe(0.0);
+
+	double millisecs = 4.0;
+	if (args.Length() > 1)
+	{
+		if (!args[1]->IsNumber()) return;
+		millisecs = args[1]->NumberValue(context).FromMaybe(millisecs);
+	}
 
 	Poco::UInt32 argsLength = args.Length() > 2 ? args.Length() - 2 : 0;
 	v8::Local<v8::Array> argsArray = v8::Array::New(pIsolate, argsLength);
@@ -1129,7 +1184,7 @@ void TimedJSExecutor::setInterval(const v8::FunctionCallbackInfo<v8::Value>& arg
 	{
 		for (Poco::UInt32 i = 0; i < argsLength; i++)
 		{
-			(void) argsArray->Set(context, i, args[i + 2]);
+			V8_CHECK_SET_RESULT(argsArray->Set(context, i, args[i + 2]));
 		}
 	}
 

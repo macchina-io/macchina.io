@@ -51,7 +51,7 @@ v8::Handle<v8::ObjectTemplate> CookieJarWrapper::objectTemplate(v8::Isolate* pIs
 	v8::EscapableHandleScope handleScope(pIsolate);
 	Core::PooledIsolate* pPooledIso = Core::PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Core.UUID"s));
+	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Net.CookieJar"s));
 	if (pooledObjectTemplate.IsEmpty())
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);

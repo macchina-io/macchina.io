@@ -89,6 +89,9 @@ public:
 	v8::Handle<v8::FunctionTemplate> constructor(v8::Isolate* pIsolate);
 		/// Creates and returns a V8 FunctionTemplate for the constructor function.
 
+	static void isSession(const v8::FunctionCallbackInfo<v8::Value>& args);
+		/// Checks whether the given argument is a SessionWrapper.
+
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
 		/// Creates a JavaScript Session object.
 

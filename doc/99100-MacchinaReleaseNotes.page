@@ -1,6 +1,50 @@
 Release Notes
 AAAAMacchinaIO
 
+!!!Release 2023.1
+
+!!Summary of Changes
+
+  - Upgraded JavaScript engine to a newer V8 version (v8.7)
+  - Various improvements to the JavaScript engine, including new File and Crypto APIs
+  - Improvements to JavaScript Server Page and Servlet system, including support
+    for file uploads.
+  - Added support for organizing devices and datapoints in a tree hierarchy
+  - Added Datapoints library
+  - BtLE/BlueZ now implements an improved PeripheralBrowser service.
+  - BtLE now has a new PeripheralManager service for dynamically creating
+    and managing generic GATTPeripheral services for specific peripheral devices.
+  - Added support for implementing Modbus devices
+  - Added Modbus DatapointsServer
+  - Added REST APIs for user and permissions management, as well as
+    bundle and systems management
+  - New services: Mailer, SMS and Settings.
+  - Support for enabling/disabling components when building.
+  - Upgraded POCO to release 1.11.8
+  - Upgraded Remoting and OSP frameworks
+  - Upgraded Paho to 1.3.12
+  - Countless minor improvements.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - Cross-compiling requirements have changed, due to the updated V8
+    engine. Specifically, cross-compiling from a 64-bit host to a
+    32-bit target requires a 32-bit toolchain on the host, and the
+    capability to run 32-bit executables created by that toolchain
+    on the 64-bit host.
+  - The BtLE PeripheralBrowser interface has changed. However, since this
+    interface was not implemented before, this should not be an issue.
+    
+
+!!!Release 2022.1
+
+!! Summary of Changes
+
+  - Upgraded POCO to release 1.11.3
+  - Upgraded OSP and RemotingNG frameworks (see respective release notes)
+  - Add support for building without JavaScript engine
+
+
 !!!Release 2021.1
 
 !!Summary of Changes
@@ -30,7 +74,7 @@ AAAAMacchinaIO
     some places
   - JavaScript: optimized handling of timer callbacks to avoid excessive delays when
   - stopping a script with 10000s of timers
-  - Bluetooth support (BtLE) has been upgraded to work with current versions of bluepy-helper
+  - BtLE has been upgraded to work with current versions of bluepy-helper
   - BtLE: it's now possible create basic Peripheral devices and use them from JavaScript
   - Modbus: added ModbusMaster::reset() method
   - added device interface for cameras
@@ -69,7 +113,7 @@ AAAAMacchinaIO
   - MQTT/Paho: fix socket leak if connect fails
   - added UDP/6LoWPAN support
   - improved Modbus support
-  - improved Bluetooth LE support
+  - improved BtLE support
   - added support for Bosch XDK device
 
 
@@ -141,7 +185,7 @@ AAAAMacchinaIO
   - fixed a potential crash when converting a std::string to JavaScript string
     and the string contains invalid UTF-8.
   - added support for Modbus protocol
-  - added support for Bluetooth LE devices
+  - added support for BtLE devices
   - added DeviceStatus service
   - added JavaScript task scheduler
   - performance improvements

@@ -38,8 +38,8 @@ class RemotingNG_API ServerTransport: public AttributedObject
 	///
 	/// The ServerTransport allows the Skeleton to deserialize the
 	/// request message in order to determine the method name,
-	/// select an appropriate MethodHandler, based on the method 
-	/// name and pass control to the MethodHandler. The 
+	/// select an appropriate MethodHandler, based on the method
+	/// name and pass control to the MethodHandler. The
 	/// MethodHandler then uses the ServerTransport to send
 	/// back a response message.
 {
@@ -49,7 +49,7 @@ public:
 
 	virtual ~ServerTransport();
 		/// Destroys the ServerTransport.
-		
+
 	virtual bool authenticate(const std::string& method);
 		/// Verify that the request is properly authenticated.
 		///
@@ -58,21 +58,21 @@ public:
 		/// has a @permission attribute set to a non-empty permission.
 		///
 		/// An implementation should check whether the current request
-		/// contains valid authentication information. 
+		/// contains valid authentication information.
 		/// Typically, an implementation will obtain the Credentials object
-		/// for the request, obtain the Authenticator from the Listener, 
+		/// for the request, obtain the Authenticator from the Listener,
 		/// and call its authenticate() method to check the credentials.
 		///
 		/// Returns true if the request is properly authenticated, otherwise
 		/// false.
 		///
 		/// The default implementation simply returns true.
-	
+
 	virtual bool authorize(const std::string& method, const std::string& permission);
 		/// Verify that an authenticated user has the given permission, which is required
-		/// to invoke the given method. 
+		/// to invoke the given method.
 		///
-		/// The given permission will be the the one specified with the @permission 
+		/// The given permission will be the the one specified with the @permission
 		/// attribute for the respective remote method. If no @permission attribute
 		/// has been specified for a remote method, or the permission is an empty
 		/// string, this method will not be called.
@@ -90,7 +90,7 @@ public:
 		///
 		/// Returns a Deserializer that can be used to read the
 		/// request message.
-		
+
 	virtual Serializer& sendReply(SerializerBase::MessageType messageType) = 0;
 		/// Prepares the ServerTransport to send a response message back to
 		/// the caller.
@@ -99,11 +99,11 @@ public:
 		/// or MESSAGE_FAULT.
 		///
 		/// Returns a Serializer for writing the reply (or fault reply) message.
-	
+
 	virtual void endRequest() = 0;
 		/// Signals the ServerTransport that request processing is
 		/// finished for this request.
-		
+
 	virtual void reportException(const std::string& method, const Poco::Exception& exc);
 		/// Reports an exception thrown by the service method
 		/// invoked by the generated Skeleton and MethodHandler.

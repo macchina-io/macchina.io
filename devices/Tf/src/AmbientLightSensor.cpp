@@ -13,17 +13,20 @@
 #include "Poco/NumberFormatter.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Tf {
 
 
 AmbientLightSensor::AmbientLightSensor(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.ambientlight", "Tinkerforge Ambient Light Bricklet", "io.macchina.sensor", "illuminance", IoT::Devices::Sensor::PHYSICAL_UNIT_LUX),
+	BrickletType("io.macchina.tf.ambientlight"s, "Tinkerforge Ambient Light Bricklet"s, "io.macchina.sensor"s, "illuminance"s, IoT::Devices::Sensor::PHYSICAL_UNIT_LUX),
 	_eventPolicy(this->valueChanged, 0.0, 0.0)
 {
-	addProperty("displayValue", &AmbientLightSensor::getDisplayValue);
-	addProperty("valueChangedPeriod", &AmbientLightSensor::getValueChangedPeriod, &AmbientLightSensor::setValueChangedPeriod);
-	addProperty("valueChangedDelta", &AmbientLightSensor::getValueChangedDelta, &AmbientLightSensor::setValueChangedDelta);
+	addProperty("displayValue"s, &AmbientLightSensor::getDisplayValue);
+	addProperty("valueChangedPeriod"s, &AmbientLightSensor::getValueChangedPeriod, &AmbientLightSensor::setValueChangedPeriod);
+	addProperty("valueChangedDelta"s, &AmbientLightSensor::getValueChangedDelta, &AmbientLightSensor::setValueChangedDelta);
 
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	ambient_light_create(&_ambientLight, uid.c_str(), ipcon);

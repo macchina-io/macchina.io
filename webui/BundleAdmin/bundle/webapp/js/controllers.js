@@ -6,6 +6,7 @@ bundleControllers.controller('PageCtrl', ['$scope', '$rootScope', '$location', '
   function ($scope, $rootScope, $location, BundleService) {
     $scope.information = "";
     $scope.error = "";
+    $scope.search = "";
 
     $scope.bundle = null;
     $scope.enableBundleUpgrade = false;
@@ -253,8 +254,8 @@ bundleControllers.controller('BundleListCtrl', ['$scope', '$http',
     $scope.setOrderBy = function(col) {
       $scope.orderBy = col;
     }
-    $http.get('/macchina/bundles/list.json').success(function(data) {
-      $scope.bundles = data;
+    $http.get('/macchina/bundles/list.json').then(function(response) {
+      $scope.bundles = response.data;
     });
   }
 ]);
@@ -264,9 +265,9 @@ bundleControllers.controller('BundleDetailCtrl', ['$scope', '$http', '$routePara
     $scope.bundles = [];
 
     $scope.loadBundle = function() {
-      $http.get('/macchina/bundles/bundle.json?symbolicName=' + $routeParams.symbolicName).success(
-        function(data) {
-          $scope.bundle = data;
+      $http.get('/macchina/bundles/bundle.json?symbolicName=' + $routeParams.symbolicName).then(
+        function(response) {
+          $scope.bundle = response.data;
           $scope.setBundle($scope.bundle);
         }
       );
@@ -281,8 +282,8 @@ bundleControllers.controller('BundleDetailCtrl', ['$scope', '$http', '$routePara
   }
 ]);
 
-bundleControllers.controller('InstallCtrl', ['$scope', '$upload',
-  function($scope, $upload) {
+bundleControllers.controller('InstallCtrl', ['$scope', 'Upload',
+  function($scope, Upload) {
     $scope.setBundle(null);
 
     $scope.status = "";
@@ -291,98 +292,111 @@ bundleControllers.controller('InstallCtrl', ['$scope', '$upload',
       $scope.upload($scope.files);
     });
 
-    $scope.upload = function(files) {
-      if (files && files.length) {
+    $scope.upload = function(file) {
+      if (file && file.size) {
         $scope.clearError();
-        var file = files[0];
-        $upload.upload({
+        Upload.upload({
           url: '/macchina/bundles/actions.json',
-          fields: {
-            action: 'install'
+          data: {
+            action: 'install',
+            file: file
+          }
+        }).then(
+          function success(resp)
+          {
+            console.log(resp);
+            $scope.status = "";
+            if (resp.data.error == "")
+            {
+              window.location = "/macchina/bundles/#!/bundles/" + resp.data.symbolicName;
+            }
+            else
+            {
+              $scope.setError("Failed to install bundle: " + resp.data.error);
+              $scope.reloadBundle();
+            }
           },
-          file: file
-        }).progress(function(evt) {
-          var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-          if (progressPercentage < 100)
-            $scope.status = "Uploading... (" + progressPercentage + "% )";
-          else
-            $scope.status = "Installing...";
-        }).success(function(data, status, headers, config) {
-          $scope.status = "";
-          if (data.error == "")
+          function error(resp) {
+            $scope.status = "";
+            $scope.setError("Failed to upload bundle file.");
+            $scope.reloadBundle();  
+          },
+          function progress(evt)
           {
-            window.location = "/macchina/bundles/#/bundles/" + data.symbolicName;
+            var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+            if (progressPercentage < 100)
+              $scope.status = "Uploading... (" + progressPercentage + "% )";
+            else
+              $scope.status = "Installing...";
           }
-          else
-          {
-            $scope.setError("Failed to install bundle: " + data.error);
-            $scope.reloadBundle();
-          }
-        }).error(function() {
-          $scope.status = "";
-          $scope.setError("Failed to upload bundle file.");
-          $scope.reloadBundle();
-        });
+        );
       }
     };
   }
 ]);
 
-bundleControllers.controller('UpgradeCtrl', ['$scope', '$upload',
-  function($scope, $upload) {
+bundleControllers.controller('UpgradeCtrl', ['$scope', 'Upload',
+  function($scope, Upload) {
     $scope.status = "";
 
     $scope.$watch('files', function() {
       $scope.upload($scope.files);
     });
 
-    $scope.upload = function(files) {
-      if (files && files.length) {
+    $scope.upload = function(file) {
+      if (file && file.size) {
         $scope.clearError();
-        var file = files[0];
-        $upload.upload({
+        Upload.upload({
           url: '/macchina/bundles/actions.json',
-          fields: {
+          data: {
             action: 'upgrade',
             symbolicName: $scope.bundle.symbolicName,
+            file: file
           },
-          file: file
-        }).progress(function(evt) {
-          var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-          if (progressPercentage < 100)
-            $scope.status = "Uploading... (" + progressPercentage + "% )";
-          else
-            $scope.status = "Upgrading...";
-        }).success(function(data, status, headers, config) {
-          $scope.status = "";
-          $scope.reloadBundle();
-          if (data.error == "")
+        }).then(
+          function success(resp)
           {
-            $scope.upgradeBundleDone();
-          }
-          else
+            $scope.status = "";
+            $scope.reloadBundle();
+            if (resp.data.error == "")
+            {
+              $scope.upgradeBundleDone();
+            }
+            else
+            {
+              $scope.setError("Failed to upgrade bundle: " + resp.data.error);
+            }
+          },
+          function error(resp)
           {
-            $scope.setError("Failed to upgrade bundle: " + data.error);
-          }
-        }).error(function() {
-          $scope.status = "";
-          $scope.setError("Failed to upload bundle file.");
-          $scope.reloadBundle();
-        });
+            $scope.status = "";
+            $scope.setError("Failed to upload bundle file.");
+            $scope.reloadBundle();  
+          },
+          function progress(evt)
+          {
+            var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+            if (progressPercentage < 100)
+              $scope.status = "Uploading... (" + progressPercentage + "% )";
+            else
+              $scope.status = "Upgrading...";
+            }
+        );
       }
-    };
+    }
   }
 ]);
 
 bundleControllers.controller('SessionCtrl', ['$scope', '$http',
   function($scope, $http) {
-    $http.get('/macchina/session.json').success(function(data) {
-      $scope.session = data;
-      if (!data.authenticated)
-      {
-        window.location = "/";
+    $http.get('/macchina/session.json').then(
+      function(response) {
+        $scope.session = response.data;
+        if (!response.data.authenticated)
+        {
+          window.location = "/";
+        }
       }
-    }
-  );
+    );
   }
 ]);

@@ -1,0 +1,18 @@
+#
+# Makefile
+#
+# Makefile for macchina.io Modbus TCP Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = \
+	TCPMasterPort \
+	TCPDevicePort
+
+target         = IoTModbusTCP
+target_includes = ../include
+target_version = 1
+target_libs    = IoTModbus PocoOSP PocoNet PocoUtil PocoXML PocoJSON PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

@@ -5,7 +5,7 @@
 // Package: BtLE
 // Module:  BlueZGATTClient
 //
-// Definition of the GATTClient class.
+// Definition of the BlueZGATTClient class.
 //
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -18,16 +18,11 @@
 #define IoT_BtLE_BlueZGATTClient_INCLUDED
 
 
+#include "HelperClient.h"
 #include "IoT/BtLE/GATTClient.h"
 #include "Poco/RefCountedObject.h"
 #include "Poco/AutoPtr.h"
-#include "Poco/Runnable.h"
-#include "Poco/Thread.h"
 #include "Poco/Mutex.h"
-#include "Poco/Process.h"
-#include "Poco/PipeStream.h"
-#include "Poco/Notification.h"
-#include "Poco/NotificationQueue.h"
 #include "Poco/Logger.h"
 #include <map>
 
@@ -37,23 +32,16 @@ namespace BtLE {
 namespace BlueZ {
 
 
-class IoTBtLE_API BlueZGATTClient: public GATTClient, public Poco::Runnable
+class BlueZGATTClient: public GATTClient, protected HelperClient
 	/// An implementation of the GATTClient interface using the BlueZ Linux
-	/// Bluetooth stack via an external helper executable.
-	///
-	/// Using an external helper executable is necessary due to GPL licensing
-	/// of relevant parts of the BlueZ library used in the client part.
-	/// A future implementation of this class may use the D-Bus API of BlueZ.
+	/// Bt stack via an external helper executable.
 {
 public:
-	BlueZGATTClient(const std::string helperPath);
+	explicit BlueZGATTClient(const std::string helperPath);
 		/// Creates the BlueZGATTClient using the given helper path.
 
 	~BlueZGATTClient();
 		/// Destroys the BlueZGATTClient.
-
-	static std::string decodeValue(const std::string& value);
-	static Poco::UInt16 decodeWord(const std::string& value);
 
 	// GATTClient
 	void connect(const std::string& address, ConnectMode mode);
@@ -74,77 +62,8 @@ public:
 	long getTimeout() const;
 
 protected:
-	using KeyValuePair = std::pair<std::string, std::string>;
-
-	class ParsedResponse: public Poco::Notification
-	{
-	public:
-		using Ptr = Poco::AutoPtr<ParsedResponse>;
-		using KeyValueVec = std::vector<KeyValuePair>;
-		using const_iterator = KeyValueVec::const_iterator;
-
-		std::string type() const
-		{
-			return decodeValue(get("rsp"));
-		}
-
-		const std::string& get(const std::string& key) const
-		{
-			const_iterator it = find(key);
-			if (it != end())
-				return it->second;
-			else
-				throw Poco::NotFoundException(key);
-		}
-
-		const std::string& get(const std::string& key, const std::string& deflt) const
-		{
-			const_iterator it = find(key);
-			if (it != end())
-				return it->second;
-			else
-				return deflt;
-		}
-
-		void add(const KeyValuePair& param)
-		{
-			_params.push_back(param);
-		}
-
-		const_iterator begin() const
-		{
-			return _params.begin();
-		}
-
-		const_iterator end() const
-		{
-			return _params.end();
-		}
-
-		const_iterator find(const std::string& key) const
-		{
-			for (std::vector<KeyValuePair>::const_iterator it = _params.begin(); it != _params.end(); ++it)
-			{
-				if (it->first == key)
-					return it;
-			}
-			return _params.end();
-		}
-
-	private:
-		std::vector<KeyValuePair> _params;
-	};
-
 	void changeState(State newState);
-	void startHelper();
-	void stopHelper();
-	bool helperRunning();
-	void run();
-	void sendCommand(const std::string& command);
 	void processResponse(const std::string& response);
-	void parseResponse(const std::string& response, ParsedResponse& parsedResponse);
-	ParsedResponse::Ptr waitResponse(long timeout);
-	ParsedResponse::Ptr expectResponse(const std::string& type, long timeout);
 
 	struct ServiceDesc: public Poco::RefCountedObject
 	{
@@ -156,30 +75,7 @@ protected:
 	};
 	using ServiceMap = std::map<std::string, ServiceDesc::Ptr>;
 
-	struct HelperInfo: public Poco::RefCountedObject
-	{
-		using Ptr = Poco::AutoPtr<HelperInfo>;
-
-		HelperInfo(const Poco::ProcessHandle& ph, const Poco::Pipe& inputPipe, const Poco::Pipe& outputPipe):
-			processHandle(ph),
-			inputStream(outputPipe),
-			outputStream(inputPipe)
-		{
-		}
-
-		Poco::ProcessHandle    processHandle;
-		Poco::PipeInputStream  inputStream;
-		Poco::PipeOutputStream outputStream;
-	};
-
-	enum
-	{
-		DEFAULT_TIMEOUT = 30000,
-		DISCONNECT_TIMEOUT = 2000
-	};
-
 private:
-	std::string _helperPath;
 	std::string _address;
 	State _state;
 	ConnectMode _connectMode;
@@ -187,13 +83,9 @@ private:
 	Poco::UInt8 _mtu;
 	long _timeout;
 	ServiceMap _services;
-	Poco::Thread _helperThread;
-	HelperInfo::Ptr _pHelperInfo;
-	Poco::NotificationQueue _responseQueue;
-	Poco::Logger& _logger;
 	mutable Poco::FastMutex _mutex;
-	mutable Poco::FastMutex _responseMutex;
 	mutable Poco::FastMutex _stateMutex;
+	Poco::Logger& _logger;
 };
 
 

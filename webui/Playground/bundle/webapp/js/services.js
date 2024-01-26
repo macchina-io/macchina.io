@@ -9,15 +9,17 @@ playgroundServices.service('SandboxService', ['$http',
         method: "POST", 
         url: "/macchina/playground/" + action + ".json"
       })
-      .success(function(data) {
-        if (data.error == "")
-          onsuccess(data.bundleState);
-        else
-          onfailure(data.error);
-      })
-      .error(function() {
-        onfailure("Server request failed.");
-      });
+      .then(
+        function(response) {
+          if (response.data.error == "")
+            onsuccess(response.data.bundleState);
+          else
+            onfailure(response.data.error);
+        },
+        function() {
+          onfailure("Server request failed.");
+        }
+      );
     };
 
     this.load = function(onsuccess, onfailure) {
@@ -25,15 +27,17 @@ playgroundServices.service('SandboxService', ['$http',
         method: "GET", 
         url: "/macchina/playground/load"
       })
-      .success(function(data) {
-        if (typeof data == "string")
-          onsuccess(data);
-        else
-          onfailure(data.error);
-      })
-      .error(function() {
-        onfailure("Server request failed.");
-      });
+      .then(
+        function(response) {
+          if (typeof response.data == "string")
+            onsuccess(response.data);
+          else
+            onfailure(response.data.error);
+        },
+        function() {
+          onfailure("Server request failed.");
+        }
+      );
     };
     
     this.save = function(script, onsuccess, onfailure) {
@@ -45,15 +49,17 @@ playgroundServices.service('SandboxService', ['$http',
         },
         data: script
       })
-      .success(function(data) {
-        if (data.error == "")
-          onsuccess(data.bundleState);
-        else
-          onfailure(data.error);
-      })
-      .error(function() {
-        onfailure("Server request failed.");
-      });
+      .then(
+        function(response) {
+          if (response.data.error == "")
+            onsuccess(response.data.bundleState);
+          else
+            onfailure(response.data.error);
+        },
+        function() {
+          onfailure("Server request failed.");
+        }
+      );
     };
     
     this.run = function(onsuccess, onfailure) {
@@ -77,15 +83,17 @@ playgroundServices.service('SandboxService', ['$http',
         method: "GET", 
         url: "/macchina/playground/info.json"
       })
-      .success(function(data) {
-        if (data.error == "")
-          onsuccess(data.bundleState, data.bundleInfo);
-        else
-          onfailure(data.error);
-      })
-      .error(function() {
-        onfailure("Server request failed.");
-      });
+      .then(
+        function(response) {
+          if (response.data.error == "")
+            onsuccess(response.data.bundleState, response.data.bundleInfo);
+          else
+            onfailure(response.data.error);
+        },
+        function() {
+          onfailure("Server request failed.");
+        }
+      );
     };
   }
 ]);

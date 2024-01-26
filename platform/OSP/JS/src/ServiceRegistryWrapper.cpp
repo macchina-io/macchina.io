@@ -67,7 +67,7 @@ void ServiceRegistryWrapper::findByName(const v8::FunctionCallbackInfo<v8::Value
 		}
 		else
 		{
-			returnException(args, std::string("bad arguments - service name required"));
+			returnException(args, "bad arguments - service name required"s);
 		}
 	}
 	catch (Poco::Exception& exc)
@@ -101,7 +101,7 @@ void ServiceRegistryWrapper::find(const v8::FunctionCallbackInfo<v8::Value>& arg
 					{
 						v8::Persistent<v8::Object>& serviceRefObject(wrapper.wrapNativePersistent(pIsolate, *it));
 						v8::Local<v8::Object> localServiceRefObject = v8::Local<v8::Object>::New(pIsolate, serviceRefObject);
-						(void) result->Set(context, i++, localServiceRefObject);
+						V8_CHECK_SET_RESULT(result->Set(context, i++, localServiceRefObject));
 					}
 				}
 			}
@@ -109,7 +109,7 @@ void ServiceRegistryWrapper::find(const v8::FunctionCallbackInfo<v8::Value>& arg
 		}
 		else
 		{
-			returnException(args, std::string("bad arguments - service query required"));
+			returnException(args, "bad arguments - service query required"s);
 		}
 	}
 	catch (Poco::Exception& exc)
@@ -123,7 +123,6 @@ void ServiceRegistryWrapper::createListener(const v8::FunctionCallbackInfo<v8::V
 {
 	v8::Isolate* pIsolate(args.GetIsolate());
 	v8::HandleScope handleScope(pIsolate);
-	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 
 	Poco::OSP::ServiceRegistry* pServiceRegistry = Poco::JS::Core::Wrapper::unwrapNative<Poco::OSP::ServiceRegistry>(args);
 	try
@@ -146,7 +145,7 @@ void ServiceRegistryWrapper::createListener(const v8::FunctionCallbackInfo<v8::V
 		}
 		else
 		{
-			returnException(args, std::string("bad arguments - service query, registered callback and unregistered callback required"));
+			returnException(args, "bad arguments - service query, registered callback and unregistered callback required"s);
 		}
 	}
 	catch (Poco::Exception& exc)

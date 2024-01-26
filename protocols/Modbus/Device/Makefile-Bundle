@@ -1,0 +1,15 @@
+#
+# Makefile
+#
+# Makefile for macchina.io Modbus Device bundle
+#
+
+.PHONY: clean all
+
+include $(POCO_BASE)/build/rules/global
+include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
+
+all:
+	$(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../../bundles ModbusDevice.bndlspec
+
+clean:

@@ -20,6 +20,8 @@
 #include "IoT/Devices/AccelerometerServerHelper.h"
 #include "IoT/Devices/GyroscopeServerHelper.h"
 #include "IoT/Devices/MagnetometerServerHelper.h"
+#include "IoT/Devices/CompositeImpl.h"
+#include "IoT/Devices/CompositeServerHelper.h"
 #include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
@@ -27,6 +29,7 @@
 #include "Poco/SharedPtr.h"
 #include "Poco/String.h"
 #include "Poco/StringTokenizer.h"
+#include "Poco/Ascii.h"
 #include "Sensor.h"
 #include "Accelerometer.h"
 #include "Gyroscope.h"
@@ -42,6 +45,7 @@ using Poco::OSP::ServiceRef;
 using Poco::OSP::ServiceFinder;
 using Poco::OSP::Properties;
 using Poco::OSP::PreferencesService;
+using namespace std::string_literals;
 
 
 namespace IoT {
@@ -59,13 +63,13 @@ public:
 	{
 	}
 
-	void registerSensor(Poco::SharedPtr<Node> pNode, Poco::SharedPtr<Sensor> pSensor)
+	void registerSensor(Poco::SharedPtr<Node> pNode, Poco::SharedPtr<Sensor> pSensor, const std::string& compositeId)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Sensor> ServerHelper;
 
-		std::string symbolicName = pSensor->getPropertyString("symbolicName");
+		std::string symbolicName = pSensor->getPropertyString("symbolicName"s);
 		std::string type = pSensor->getPropertyString("type");
-		std::string physicalQuantity = pSensor->getPropertyString("physicalQuantity");
+		std::string physicalQuantity = pSensor->getPropertyString("physicalQuantity"s);
 
 		std::string oid(Sensor::SYMBOLIC_NAME);
 		oid += ".";
@@ -76,15 +80,17 @@ public:
 		ServerHelper::RemoteObjectPtr pSensorRemoteObject = ServerHelper::createRemoteObject(pSensor, oid);
 
 		Properties props;
-		props.set("io.macchina.device", symbolicName);
-		props.set("io.macchina.deviceType", type);
-		props.set("io.macchina.physicalQuantity", physicalQuantity);
+		props.set("io.macchina.device"s, symbolicName);
+		props.set("io.macchina.deviceType"s, type);
+		props.set("io.macchina.physicalQuantity"s, physicalQuantity);
+		props.set("io.macchina.composite"s, compositeId);
+		props.set("io.macchina.nodeName"s, capitalize(physicalQuantity));
 
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pSensorRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
 
-	void registerAccelerometer(Poco::SharedPtr<Node> pNode)
+	void registerAccelerometer(Poco::SharedPtr<Node> pNode, const std::string& compositeId)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Accelerometer> ServerHelper;
 
@@ -97,14 +103,16 @@ public:
 		ServerHelper::RemoteObjectPtr pAccelerometerRemoteObject = ServerHelper::createRemoteObject(pAccelerometer, oid);
 
 		Properties props;
-		props.set("io.macchina.device", Accelerometer::SYMBOLIC_NAME);
-		props.set("io.macchina.deviceType", Accelerometer::TYPE);
+		props.set("io.macchina.device"s, Accelerometer::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType"s, Accelerometer::TYPE);
+		props.set("io.macchina.composite"s, compositeId);
+		props.set("io.macchina.nodeName"s, "Accelerometer"s);
 
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pAccelerometerRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
 
-	void registerMagnetometer(Poco::SharedPtr<Node> pNode)
+	void registerMagnetometer(Poco::SharedPtr<Node> pNode, const std::string& compositeId)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Magnetometer> ServerHelper;
 
@@ -117,14 +125,16 @@ public:
 		ServerHelper::RemoteObjectPtr pMagnetometerRemoteObject = ServerHelper::createRemoteObject(pMagnetometer, oid);
 
 		Properties props;
-		props.set("io.macchina.device", Magnetometer::SYMBOLIC_NAME);
-		props.set("io.macchina.deviceType", Magnetometer::TYPE);
+		props.set("io.macchina.device"s, Magnetometer::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType"s, Magnetometer::TYPE);
+		props.set("io.macchina.composite"s, compositeId);
+		props.set("io.macchina.nodeName"s, "Magnetometer"s);
 
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pMagnetometerRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
 
-	void registerGyroscope(Poco::SharedPtr<Node> pNode)
+	void registerGyroscope(Poco::SharedPtr<Node> pNode, const std::string& compositeId)
 	{
 		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Gyroscope> ServerHelper;
 
@@ -137,11 +147,46 @@ public:
 		ServerHelper::RemoteObjectPtr pGyroscopeRemoteObject = ServerHelper::createRemoteObject(pGyroscope, oid);
 
 		Properties props;
-		props.set("io.macchina.device", Gyroscope::SYMBOLIC_NAME);
-		props.set("io.macchina.deviceType", Gyroscope::TYPE);
+		props.set("io.macchina.device"s, Gyroscope::SYMBOLIC_NAME);
+		props.set("io.macchina.deviceType"s, Gyroscope::TYPE);
+		props.set("io.macchina.composite"s, compositeId);
+		props.set("io.macchina.nodeName"s, "Gyroscope"s);
 
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pGyroscopeRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
+	}
+
+	std::string registerComposite(Poco::SharedPtr<Node> pNode)
+	{
+		typedef Poco::RemotingNG::ServerHelper<IoT::Devices::Composite> ServerHelper;
+
+		std::string oid("io.macchina.ciss");
+		oid += '#';
+		oid += pNode->id();
+
+		Poco::SharedPtr<IoT::Devices::CompositeImpl> pComposite = new IoT::Devices::CompositeImpl(oid, "CISS Multi-Sensor"s, _pContext->registry());
+
+		ServerHelper::RemoteObjectPtr pCompositeRemoteObject = ServerHelper::createRemoteObject(pComposite, oid);
+
+		Properties props;
+		props.set("io.macchina.nodeName"s, Poco::format("CISS Multi-Sensor %s"s, pNode->id()));
+		props.set("io.macchina.device"s, IoT::Devices::CompositeImpl::TYPE);
+		props.set("io.macchina.deviceType"s, "io.macchina.composite"s);
+		props.set("io.macchina.composite"s, "io.macchina.composite.root"s);
+
+		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pCompositeRemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
+		return oid;
+	}
+
+	static std::string capitalize(const std::string& name)
+	{
+		std::string cap = name;
+		if (cap.size() > 0)
+		{
+			cap[0] = Poco::Ascii::toUpper(cap[0]);
+		}
+		return cap;
 	}
 
 	void start(BundleContext::Ptr pContext)
@@ -150,32 +195,33 @@ public:
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
 
 		Poco::Util::AbstractConfiguration::Keys keys;
-		_pPrefs->configuration()->keys("ciss.ports", keys);
+		_pPrefs->configuration()->keys("ciss.ports"s, keys);
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "ciss.ports.";
 			baseKey += *it;
 
 			std::string id = _pPrefs->configuration()->getString(baseKey + ".id", *it);
-			std::string device = _pPrefs->configuration()->getString(baseKey + ".device", "");
-			std::string params = _pPrefs->configuration()->getString(baseKey + ".params", "8N1");
+			std::string device = _pPrefs->configuration()->getString(baseKey + ".device", ""s);
+			std::string params = _pPrefs->configuration()->getString(baseKey + ".params", "8N1"s);
 			int speed = _pPrefs->configuration()->getInt(baseKey + ".speed", 115200);
 
 			try
 			{
-				pContext->logger().information(Poco::format("Creating serial port for CISS node '%s'.", device));
+				pContext->logger().information("Creating serial port for CISS node '%s'."s, device);
 
 				Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort = new Poco::Serial::SerialPort(device, speed, params);
 				Poco::SharedPtr<NPIPort> pNPIPort = new NPIPort(pSerialPort);
 				_pNode = new Node(id, pNPIPort);
 
-				registerAccelerometer(_pNode);
-				registerMagnetometer(_pNode);
-				registerGyroscope(_pNode);
-				registerSensor(_pNode, _pNode->temperature());
-				registerSensor(_pNode, _pNode->humidity());
-				registerSensor(_pNode, _pNode->pressure());
-				registerSensor(_pNode, _pNode->light());
+				std::string compositeId = registerComposite(_pNode);
+				registerAccelerometer(_pNode, compositeId);
+				registerMagnetometer(_pNode, compositeId);
+				registerGyroscope(_pNode, compositeId);
+				registerSensor(_pNode, _pNode->temperature(), compositeId);
+				registerSensor(_pNode, _pNode->humidity(), compositeId);
+				registerSensor(_pNode, _pNode->pressure(), compositeId);
+				registerSensor(_pNode, _pNode->light(), compositeId);
 
 				_pNode->setSamplingInterval(Node::CISS_SENSOR_ACCELEROMETER,
 					_pPrefs->configuration()->getInt(baseKey + ".inertial.samplingInterval.usec",
@@ -196,7 +242,7 @@ public:
 			}
 			catch (Poco::Exception& exc)
 			{
-				pContext->logger().error(Poco::format("Cannot create serial port for CISS device '%s': %s", device, exc.displayText()));
+				pContext->logger().error("Cannot create serial port for CISS device '%s': %s"s, device, exc.displayText());
 			}
 		}
 	}

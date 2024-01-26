@@ -120,8 +120,6 @@ public:
 		///Parses an expire time str. Is an integer value followed by a unit (e.g.:12ms, 3 min)
 		///Returns a microseconds value
 
-	static bool isAService(const Poco::CppParser::Struct* pService);
-
 	static bool hasEvents(const Poco::CppParser::Struct* pService);
 		/// Check if the Struct or any of its parent classes have events
 

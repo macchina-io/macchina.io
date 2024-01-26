@@ -1,0 +1,18 @@
+#
+# Makefile
+#
+# Makefile for macchina.io Modbus Device Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = \
+	ModbusDeviceHandler \
+	AbstractModbusDeviceHandler
+
+target         = IoTModbusDevice
+target_includes = ../include
+target_version = 1
+target_libs    = IoTModbus PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

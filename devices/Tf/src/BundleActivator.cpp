@@ -24,7 +24,6 @@
 #include "IoT/Devices/SwitchServerHelper.h"
 #include "Poco/Delegate.h"
 #include "Poco/ClassLibrary.h"
-#include "Poco/Format.h"
 #include "AmbientLightSensor.h"
 #include "AirPressureSensor.h"
 #include "MotionDetector.h"
@@ -42,6 +41,7 @@ using Poco::OSP::ServiceRef;
 using Poco::OSP::ServiceFinder;
 using Poco::OSP::Properties;
 using Poco::OSP::PreferencesService;
+using namespace std::string_literals;
 
 
 namespace IoT {
@@ -54,14 +54,14 @@ public:
 	BundleActivator()
 	{
 	}
-	
+
 	~BundleActivator()
 	{
 	}
-	
+
 	void onDeviceStateChanged(const MasterConnection::DeviceEvent& ev)
 	{
-		_pContext->logger().information("Device State Changed: " + ev.uid);
+		_pContext->logger().information("Device State Changed: "s + ev.uid);
 
 		switch (ev.state)
 		{
@@ -96,7 +96,7 @@ public:
 					createDevice<DCMotor>(ev.uid);
 					break;
 				default:
-					_pContext->logger().information(Poco::format("Detected unsupported Tinkerforge device: %hu", ev.type));
+					_pContext->logger().information("Detected unsupported Tinkerforge device: %hu"s, ev.type);
 					break;
 				}
 			}
@@ -107,34 +107,34 @@ public:
 			break;
 		}
 	}
-	
+
 	template <class D>
 	void createDevice(const std::string& uid)
 	{
 		typedef Poco::RemotingNG::ServerHelper<typename D::SuperType> ServerHelper;
-		
+
 		Poco::SharedPtr<D> pDevice = new D(_pMasterConnection, uid);
-		std::string symbolicName = pDevice->getPropertyString("symbolicName");
+		std::string symbolicName = pDevice->getPropertyString("symbolicName"s);
 		std::string type = pDevice->getPropertyString("type");
-		std::string physicalQuantity = pDevice->getPropertyString("physicalQuantity");
+		std::string physicalQuantity = pDevice->getPropertyString("physicalQuantity"s);
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
 		oid += uid;
 		typename ServerHelper::RemoteObjectPtr pDeviceRemoteObject = ServerHelper::createRemoteObject(pDevice, oid);
-		
+
 		Properties props;
-		props.set("io.macchina.device", symbolicName);
-		props.set("io.macchina.deviceType", type);
-		props.set("io.macchina.tf.uid", uid);
+		props.set("io.macchina.device"s, symbolicName);
+		props.set("io.macchina.deviceType"s, type);
+		props.set("io.macchina.tf.uid"s, uid);
 		if (!physicalQuantity.empty())
 		{
-			props.set("io.macchina.physicalQuantity", physicalQuantity);
+			props.set("io.macchina.physicalQuantity"s, physicalQuantity);
 		}
-		
+
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pDeviceRemoteObject, props);
 		_devices[uid] = pServiceRef;
 	}
-	
+
 	void removeDevice(const std::string& uid)
 	{
 		DeviceMap::iterator it = _devices.find(uid);
@@ -144,7 +144,7 @@ public:
 			_devices.erase(it);
 		}
 	}
-	
+
 	void removeDevices()
 	{
 		for (DeviceMap::iterator it = _devices.begin(); it != _devices.end(); ++it)
@@ -153,31 +153,37 @@ public:
 		}
 		_devices.clear();
 	}
-	
+
 	void start(BundleContext::Ptr pContext)
 	{
 		_pContext = pContext;
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
-		_pMasterConnection = MasterConnection::create();
-		
-		std::string tfMasterHost = getStringConfig("tf.master.host", "localhost");
-		Poco::UInt16 tfMasterPort = static_cast<Poco::UInt16>(getIntConfig("tf.master.port", 4223));
-		
-		pContext->logger().information(Poco::format("Connecting to Tinkerforge Master at %s:%hu...", tfMasterHost, tfMasterPort));
-		
-		_pMasterConnection->deviceStateChanged += Poco::delegate(this, &BundleActivator::onDeviceStateChanged);
-		_pMasterConnection->connect(tfMasterHost, tfMasterPort);
+		if (getBoolConfig("tf.enable"s, false))
+		{
+			_pMasterConnection = MasterConnection::create();
 
-		pContext->logger().information("Connected to Tinkerforge Master");
+			std::string tfMasterHost = getStringConfig("tf.master.host"s, "localhost"s);
+			Poco::UInt16 tfMasterPort = static_cast<Poco::UInt16>(getIntConfig("tf.master.port"s, 4223));
+
+			pContext->logger().information("Connecting to Tinkerforge Master at %s:%hu..."s, tfMasterHost, tfMasterPort);
+
+			_pMasterConnection->deviceStateChanged += Poco::delegate(this, &BundleActivator::onDeviceStateChanged);
+			_pMasterConnection->connect(tfMasterHost, tfMasterPort);
+
+			pContext->logger().information("Connected to Tinkerforge Master"s);
+		}
 	}
-		
+
 	void stop(BundleContext::Ptr pContext)
 	{
 		removeDevices();
-		_pMasterConnection->disconnect();
-		_pMasterConnection = 0;
-		_pPrefs = 0;
-		_pContext = 0;
+		if (_pMasterConnection)
+		{
+			_pMasterConnection->disconnect();
+			_pMasterConnection.reset();
+		}
+		_pPrefs.reset();
+		_pContext.reset();
 	}
 
 protected:
@@ -200,17 +206,17 @@ protected:
 	{
 		return _pPrefs->configuration()->getInt(key, _pContext->thisBundle()->properties().getInt(key, deflt));
 	}
-	
+
 	std::string getStringConfig(const std::string& key)
 	{
 		return _pPrefs->configuration()->getString(key, _pContext->thisBundle()->properties().getString(key));
 	}
-	
+
 	std::string getStringConfig(const std::string& key, const std::string& deflt)
 	{
 		return _pPrefs->configuration()->getString(key, _pContext->thisBundle()->properties().getString(key, deflt));
 	}
-	
+
 private:
 	typedef std::map<std::string, ServiceRef::Ptr> DeviceMap;
 

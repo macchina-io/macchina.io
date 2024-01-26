@@ -9,10 +9,11 @@ include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
 objects =  \
 	ConsoleRequestHandler \
+	LogLevelRequestHandler \
 	BundleActivator
 
 target      = io.macchina.webui.console
-target_libs = PocoOSPWeb PocoOSP PocoNet PocoUtil PocoXML PocoFoundation
+target_libs = PocoOSPWeb PocoOSP PocoNet PocoUtil PocoJSON PocoXML PocoFoundation
 
 postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -Npng,gif,jpg -o../bundles Console.bndlspec
 

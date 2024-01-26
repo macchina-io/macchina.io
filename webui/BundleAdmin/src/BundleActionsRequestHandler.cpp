@@ -23,6 +23,9 @@
 #include "Utility.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Web {
 namespace BundleAdmin {
@@ -40,12 +43,12 @@ public:
 	void handlePart(const Poco::Net::MessageHeader& header, std::istream& stream)
 	{
 		std::string symbolicName;
-		if (_form.has("symbolicName"))
+		if (_form.has("symbolicName"s))
 		{
-			symbolicName = _form.get("symbolicName");
+			symbolicName = _form.get("symbolicName"s);
 		}
 
-		if (header.has("Content-Disposition"))
+		if (header.has("Content-Disposition"s))
 		{
 			if (symbolicName.empty())
 			{
@@ -84,15 +87,15 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 		if (pWebSessionManagerRef)
 		{
 			Poco::OSP::Web::WebSessionManager::Ptr pWebSessionManager = pWebSessionManagerRef->castedInstance<Poco::OSP::Web::WebSessionManager>();
-			pSession = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"), request);
+			pSession = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"s), request);
 		}
 	}
 	if (!Utility::isAuthenticated(pSession, request, response)) return;
 
-	std::string username = pSession->getValue<std::string>("username");
-	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth");
+	std::string username = pSession->getValue<std::string>("username"s);
+	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth"s);
 
-	if (!pAuthService->authorize(username, "bundleAdmin"))
+	if (!pAuthService->authorize(username, "bundleAdmin"s))
 	{
 		response.setContentLength(0);
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_FORBIDDEN);
@@ -113,7 +116,7 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 	catch (Poco::Exception& exc)
 	{
 		error = exc.displayText();
-		context()->logger().error(Poco::format("Installing or upgrading bundle failed: %s", error));
+		context()->logger().error("Installing or upgrading bundle failed: %s"s, error);
 	}
 	Poco::OSP::Bundle::Ptr pBundle = installHandler.bundle();
 	if (pBundle)
@@ -127,7 +130,7 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 		catch (Poco::Exception& exc)
 		{
 			error = exc.displayText();
-			context()->logger().error(Poco::format("Failed to resolve bundle %s: %s", symbolicName, error));
+			context()->logger().error("Failed to resolve bundle %s: %s"s, symbolicName, error);
 		}
 		bundleState = pBundle->stateString();
 	}
@@ -136,7 +139,7 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 		if (form.has("id"))
 		{
 			int id;
-			if (Poco::NumberParser::tryParse(form.get("id", ""), id))
+			if (Poco::NumberParser::tryParse(form.get("id"s, ""s), id))
 			{
 				pBundle = context()->findBundle(id);
 			}
@@ -148,15 +151,15 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 				return;
 			}
 		}
-		else if (form.has("symbolicName"))
+		else if (form.has("symbolicName"s))
 		{
-			pBundle = context()->findBundle(form.get("symbolicName"));
+			pBundle = context()->findBundle(form.get("symbolicName"s));
 		}
 
 		std::string action = form.get("action", "");
 		if (pBundle)
 		{
-			context()->logger().debug(Poco::format("Performing action %s on bundle %s.", action, pBundle->symbolicName()));
+			context()->logger().debug("Performing action %s on bundle %s."s, action, pBundle->symbolicName());
 			try
 			{
 				if (action == "start")
@@ -183,7 +186,7 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 			catch (Poco::Exception& exc)
 			{
 				error = exc.displayText();
-				context()->logger().error(Poco::format("Action %s on bundle %s failed: %s", action, pBundle->symbolicName(), error));
+				context()->logger().error("Action %s on bundle %s failed: %s"s, action, pBundle->symbolicName(), error);
 			}
 			symbolicName = pBundle->symbolicName();
 			bundleState = pBundle->stateString();
@@ -194,7 +197,7 @@ void BundleActionsRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
 		}
 	}
 
-	response.setContentType("application/json");
+	response.setContentType("application/json"s);
 	response.setChunkedTransferEncoding(true);
 	response.send()
 		<< "{"

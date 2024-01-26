@@ -5,7 +5,7 @@
     <symbolicName>com.appinf.osp.sample</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2007-2022, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2007-2024, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>MyBundleActivator</class>
       <library>TestBundle</library>

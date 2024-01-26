@@ -20,12 +20,15 @@
 
 #include "IoT/Modbus/ModbusMaster.h"
 #include "IoT/Modbus/ModbusException.h"
-#include "Poco/Runnable.h"
 #include "Poco/Thread.h"
+#include "Poco/NotificationQueue.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/Timestamp.h"
 #include "Poco/Timespan.h"
+#include "Poco/Delegate.h"
 #include "Poco/Logger.h"
+#include <atomic>
+#include <memory>
 #include <map>
 
 
@@ -39,23 +42,34 @@ class IoTModbus_API ModbusMasterImpl: public ModbusMaster, public Poco::Runnable
 	/// protocol over a serial line.
 {
 public:
-	ModbusMasterImpl(Poco::SharedPtr<Port> pPort, Poco::Timespan timeout = Poco::Timespan(2, 0)):
+	ModbusMasterImpl(Poco::SharedPtr<Port> pPort, Poco::Timespan responseTimeout = Poco::Timespan(2, 0)):
 		_pPort(pPort),
-		_timeout(timeout),
-		_stop(false),
+		_timeout(responseTimeout),
 		_nextTransactionID(0),
 		_logger(Poco::Logger::get("IoT.ModbusMaster"))
 	{
+		_pPort->connectionStateChanged += Poco::delegate(this, &ModbusMasterImpl::onConnectionStateChanged);
 	}
 
 	~ModbusMasterImpl()
 	{
+		_pPort->connectionStateChanged -= Poco::delegate(this, &ModbusMasterImpl::onConnectionStateChanged);
 	}
 
 	// ModbusMaster
 	std::string address() const
 	{
 		return _pPort->address();
+	}
+
+	std::size_t maxSimultaneousTransactions() const
+	{
+		return _pPort->maxSimultaneousTransactions();
+	}
+
+	std::size_t pendingTransactions() const
+	{
+		return countPending();
 	}
 
 	Poco::UInt16 sendRequest(const GenericMessage& message)
@@ -175,7 +189,7 @@ public:
 		Poco::UInt16 transactionID = sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			Poco::UInt8 fc = _pPort->receiveFrame();
 			if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -206,7 +220,7 @@ public:
 		Poco::UInt16 transactionID = sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			Poco::UInt8 fc = _pPort->receiveFrame();
 			if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -237,7 +251,7 @@ public:
 		Poco::UInt16 transactionID = sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			Poco::UInt8 fc = _pPort->receiveFrame();
 			if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -268,7 +282,7 @@ public:
 		Poco::UInt16 transactionID = sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			Poco::UInt8 fc = _pPort->receiveFrame();
 			if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -299,7 +313,7 @@ public:
 		Poco::UInt16 transactionID = sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			Poco::UInt8 fc = _pPort->receiveFrame();
 			if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -316,20 +330,20 @@ public:
 		else throw Poco::TimeoutException();
 	}
 
-	void writeSingleRegister(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, Poco::UInt16 value)
+	void writeSingleRegister(Poco::UInt8 slaveAddress, Poco::UInt16 registerAddress, Poco::UInt16 value)
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 
 		disableEvents();
 		WriteSingleRegisterRequest request;
 		request.slaveOrUnitAddress = slaveAddress;
-		request.outputAddress = outputAddress;
+		request.registerAddress = registerAddress;
 		request.value = value;
 
 		Poco::UInt16 transactionID = sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			Poco::UInt8 fc = _pPort->receiveFrame();
 			if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -357,7 +371,7 @@ public:
 		Poco::UInt16 transactionID = sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			Poco::UInt8 fc = _pPort->receiveFrame();
 			if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -390,7 +404,7 @@ public:
 		Poco::UInt16 transactionID = sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			Poco::UInt8 fc = _pPort->receiveFrame();
 			if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -407,20 +421,20 @@ public:
 		else throw Poco::TimeoutException();
 	}
 
-	void writeMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, const std::vector<Poco::UInt16>& values)
+	void writeMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 startingAddress, const std::vector<Poco::UInt16>& values)
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 
 		disableEvents();
 		WriteMultipleRegistersRequest request;
 		request.slaveOrUnitAddress = slaveAddress;
-		request.startingAddress = outputAddress;
+		request.startingAddress = startingAddress;
 		request.values = values;
 
 		Poco::UInt16 transactionID = sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			Poco::UInt8 fc = _pPort->receiveFrame();
 			if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -437,21 +451,21 @@ public:
 		else throw Poco::TimeoutException();
 	}
 
-	void maskWriteRegister(Poco::UInt8 slaveAddress, Poco::UInt16 outputAddress, Poco::UInt16 andMask, Poco::UInt16 orMask)
+	void maskWriteRegister(Poco::UInt8 slaveAddress, Poco::UInt16 referenceAddress, Poco::UInt16 andMask, Poco::UInt16 orMask)
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 
 		disableEvents();
 		MaskWriteRegisterRequest request;
 		request.slaveOrUnitAddress = slaveAddress;
-		request.referenceAddress = outputAddress;
+		request.referenceAddress = referenceAddress;
 		request.andMask = andMask;
 		request.orMask = orMask;
 
 		Poco::UInt16 transactionID = sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			Poco::UInt8 fc = _pPort->receiveFrame();
 			if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -468,8 +482,12 @@ public:
 		else throw Poco::TimeoutException();
 	}
 
-	std::vector<Poco::UInt16> readWriteMultipleRegisters(Poco::UInt8 slaveAddress, Poco::UInt16 writeStartingAddress,
-		const std::vector<Poco::UInt16>& writeValues, Poco::UInt16 readStartingAddress, Poco::UInt8 nOfReadRegisters)
+	std::vector<Poco::UInt16> readWriteMultipleRegisters(
+			Poco::UInt8 slaveAddress, 
+			Poco::UInt16 writeStartingAddress,
+			const std::vector<Poco::UInt16>& writeValues, 
+			Poco::UInt16 readStartingAddress, 
+			Poco::UInt8 nOfReadRegisters)
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 
@@ -484,7 +502,7 @@ public:
 		Poco::UInt16 transactionID = sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			Poco::UInt8 fc = _pPort->receiveFrame();
 			if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -514,7 +532,7 @@ public:
 		Poco::UInt16 transactionID = sendFrame(request);
 		if (_pPort->poll(_timeout))
 		{
-			Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+			Poco::UInt8 fc = _pPort->receiveFrame();
 			if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 			{
 				ModbusExceptionMessage message;
@@ -536,23 +554,70 @@ public:
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 
+		abortPending(FAILURE_RESET);
 		disableEvents();
 		_pPort->reset();
 	}
 
 protected:
-	typedef std::map<Poco::UInt16, Poco::Timestamp> PendingMap;
+	struct PendingInfo
+	{
+		Poco::UInt8 functionCode = 0;
+		Poco::UInt8 slaveOrUnitAddress = 0;
+		Poco::Timestamp timeSent;
+	};
+	using PendingMap = std::map<Poco::UInt16, PendingInfo>;
+
+	class SendNotification: public Poco::Notification
+	{
+	public:
+		virtual void run() = 0;
+		virtual const ModbusMessage& message() const = 0;
+	};
+
+	template <typename M, typename P>
+	class SendNotificationImpl: public SendNotification
+	{
+	public:
+		SendNotificationImpl(const M& message, Poco::SharedPtr<P> pPort):
+			_message(message),
+			_pPort(pPort)
+		{
+		}
+
+		void run()
+		{
+			_pPort->sendFrame(_message);
+		}
+
+		const ModbusMessage& message() const 
+		{
+			return _message;
+		}
+
+	private:
+		const M _message;
+		Poco::SharedPtr<P> _pPort;
+	};
+
+	class StopNotification: public Poco::Notification
+	{
+	};
 
 	template <typename M>
 	Poco::UInt16 sendFrame(const M& message)
 	{
+		// NOTE: Mutex must be locked by caller
+	
+		using namespace std::string_literals;
+
 		if (_logger.trace())
 		{
-			_logger.trace("Sending frame: functionCode=%02x, slaveOrUnit=%02x", static_cast<unsigned>(message.functionCode), static_cast<unsigned>(message.slaveOrUnitAddress));
+			_logger.trace("Sending frame: functionCode=%02x, slaveOrUnit=%02x"s, static_cast<unsigned>(message.functionCode), static_cast<unsigned>(message.slaveOrUnitAddress));
 		}
 
 		int maxTrans = _pPort->maxSimultaneousTransactions();
-		if (_pThread && _pendingMap.size() >= maxTrans)
+		if (_pAsyncThread && countPending() >= maxTrans)
 		{
 			throw Poco::ProtocolException("Maximum number of pending requests exceeded");
 		}
@@ -563,11 +628,14 @@ protected:
 			++_nextTransactionID;
 		}
 
-		_pPort->sendFrame(message);
-
-		if (_pThread)
+		if (_pAsyncThread)
 		{
-			_pendingMap[message.transactionID] = Poco::Timestamp();
+			addPending(message);
+			_asyncQueue.enqueueNotification(new SendNotificationImpl<M, Port>(message, _pPort));
+		}
+		else
+		{
+			_pPort->sendFrame(message);
 		}
 
 		return message.transactionID;
@@ -582,39 +650,90 @@ protected:
 
 	void enableEvents()
 	{
-		if (!_pThread)
+		using namespace std::string_literals;
+
+		if (!_pAsyncThread)
 		{
-			_logger.debug("Enabling events");
-			_stop = false;
-			_pendingMap.clear();
-			_pThread = new Poco::Thread;
-			_pThread->start(*this);
+			_logger.debug("Enabling events"s);
+			clearPending();
+			_pAsyncThread.reset(new Poco::Thread);
+			_pAsyncThread->start(*this);
 		}
 	}
 
 	void disableEvents()
 	{
-		if (_pThread)
+		using namespace std::string_literals;
+
+		if (_pAsyncThread)
 		{
-			_logger.debug("Disabling events");
-			_stop = true;
-			_pThread->join();
-			_pThread = 0;
+			_logger.debug("Disabling events"s);
+			_asyncQueue.enqueueNotification(new StopNotification);
+			_pAsyncThread->join();
+			_pAsyncThread.reset();
+			clearPending();
 		}
 	}
 
-	// Runnable
 	void run()
 	{
-		while (!stopped())
+		bool stopped = false;
+		while (!stopped)
 		{
-			Poco::Timespan timeout(0, 250);
-			if (_pPort->poll(timeout))
+			long dequeueTimeout = countPending() == 0 ? 100 : 0;
+			Poco::Notification::Ptr pNf = _asyncQueue.waitDequeueNotification(dequeueTimeout);
+			if (pNf)
 			{
-				processFrame();
+				if (pNf.cast<StopNotification>())
+				{
+					stopped = true;
+				}
+				else
+				{
+					Poco::AutoPtr<SendNotification> pSendNf = pNf.cast<SendNotification>();
+					if (pSendNf)
+					{
+						try
+						{
+							pSendNf->run();
+						}
+						catch (Poco::Exception& exc)
+						{
+							removePending(pSendNf->message().transactionID);
+							RequestFailure requestFailure;
+							requestFailure.slaveOrUnitAddress = pSendNf->message().slaveOrUnitAddress;
+							requestFailure.functionCode = pSendNf->message().functionCode;
+							requestFailure.transactionID = pSendNf->message().transactionID;
+							requestFailure.reason = FAILURE_ERROR;
+							requestFailure.message = exc.displayText();
+							this->requestFailed(this, requestFailure);
+						}
+					}
+				}
 			}
-			else
+			
+			if (!stopped && countPending() > 0)
 			{
+				try
+				{
+					Poco::Timespan timeout(0, _asyncQueue.empty() ? 250 : 0);
+					if (_pPort->poll(timeout))
+					{
+						try
+						{
+							processFrame();
+						}
+						catch (Poco::Exception& exc)
+						{
+							this->error(this, exc.displayText());
+						}
+					}
+				}
+				catch (Poco::Exception& exc)
+				{
+					// Note: this can only happen if poll() fails for some reason.
+					this->error(this, exc.displayText());
+				}
 				processPendingTimeouts();
 			}
 		}
@@ -622,24 +741,29 @@ protected:
 
 	void processFrame()
 	{
-		Poco::UInt8 fc = _pPort->receiveFrame(_timeout);
+		using namespace std::string_literals;
+
+		Poco::UInt8 fc = _pPort->receiveFrame();
 		if (fc == 0)
 		{
-			_logger.notice("Invalid or imcomplete frame received.");
+			_logger.notice("Invalid or incomplete frame received."s);
 			this->badFrameReceived(this);
 			return;
 		}
 
 		if (_logger.trace())
 		{
-			_logger.trace("Processing frame: %02x", static_cast<unsigned>(fc));
+			_logger.trace("Processing frame: %02x"s, static_cast<unsigned>(fc));
 		}
 
 		if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 		{
 			ModbusExceptionMessage message;
 			_pPort->decodeFrame(message);
-			this->exceptionReceived(this, message);
+			if (removePending(message.transactionID))
+			{
+				this->exceptionReceived(this, message);
+			}
 		}
 		else switch (fc & MODBUS_FUNCTION_CODE_MASK)
 		{
@@ -647,8 +771,10 @@ protected:
 			{
 				ReadCoilsResponse response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				this->readCoilsResponseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->readCoilsResponseReceived(this, response);
+				}
 			}
 			break;
 
@@ -656,8 +782,10 @@ protected:
 			{
 				ReadDiscreteInputsResponse response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				this->readDiscreteInputsResponseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->readDiscreteInputsResponseReceived(this, response);
+				}
 			}
 			break;
 
@@ -665,9 +793,10 @@ protected:
 			{
 				ReadHoldingRegistersResponse response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				if (_logger.trace()) _logger.trace("Firing readHoldingRegistersResponseReceived event...");
-				this->readHoldingRegistersResponseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->readHoldingRegistersResponseReceived(this, response);
+				}
 			}
 			break;
 
@@ -675,8 +804,10 @@ protected:
 			{
 				ReadInputRegistersResponse response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				this->readInputRegistersResponseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->readInputRegistersResponseReceived(this, response);
+				}
 			}
 			break;
 
@@ -684,8 +815,10 @@ protected:
 			{
 				WriteSingleCoilResponse	response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				this->writeSingleCoilResponseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->writeSingleCoilResponseReceived(this, response);
+				}
 			}
 			break;
 
@@ -693,8 +826,10 @@ protected:
 			{
 				WriteSingleRegisterResponse	response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				this->writeSingleRegisterResponseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->writeSingleRegisterResponseReceived(this, response);
+				}
 			}
 			break;
 
@@ -702,8 +837,10 @@ protected:
 			{
 				ReadExceptionStatusResponse	response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				this->readExceptionStatusResponseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->readExceptionStatusResponseReceived(this, response);
+				}
 			}
 			break;
 
@@ -711,8 +848,10 @@ protected:
 			{
 				WriteMultipleCoilsResponse response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				this->writeMultipleCoilsResponseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->writeMultipleCoilsResponseReceived(this, response);
+				}
 			}
 			break;
 
@@ -720,8 +859,10 @@ protected:
 			{
 				WriteMultipleRegistersResponse response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				this->writeMultipleRegistersResponseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->writeMultipleRegistersResponseReceived(this, response);
+				}
 			}
 			break;
 
@@ -729,8 +870,10 @@ protected:
 			{
 				MaskWriteRegisterResponse response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				this->maskWriteRegisterResponseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->maskWriteRegisterResponseReceived(this, response);
+				}
 			}
 			break;
 
@@ -738,8 +881,10 @@ protected:
 			{
 				ReadWriteMultipleRegistersResponse response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				this->readWriteMultipleRegistersResponseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->readWriteMultipleRegistersResponseReceived(this, response);
+				}
 			}
 			break;
 
@@ -747,8 +892,10 @@ protected:
 		    {
 				ReadFIFOQueueResponse response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				this->readFIFOQueueResponseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->readFIFOQueueResponseReceived(this, response);
+				}
 			}
 			break;
 
@@ -756,31 +903,26 @@ protected:
 			{
 				GenericMessage response;
 				_pPort->decodeFrame(response);
-				removePending(response.transactionID);
-				this->responseReceived(this, response);
+				if (removePending(response.transactionID))
+				{
+					this->responseReceived(this, response);
+				}
 			}
 			break;
 		}
 	}
 
-	void removePending(Poco::UInt16 transactionID)
-	{
-		Poco::FastMutex::ScopedLock lock(_mutex);
-
-		_pendingMap.erase(transactionID);
-	}
-
 	void processPendingTimeouts()
 	{
-		std::vector<Poco::UInt16> timeoutIDs;
+		PendingMap timeouts;
 		{
-			Poco::FastMutex::ScopedLock lock(_mutex);
-			for (PendingMap::iterator it = _pendingMap.begin(); it != _pendingMap.end();)
+			Poco::FastMutex::ScopedLock lock(_pendingMutex);
+			for (typename PendingMap::iterator it = _pendingMap.begin(); it != _pendingMap.end();)
 			{
-				if (it->second.isElapsed(_timeout.totalMicroseconds()))
+				if (it->second.timeSent.isElapsed(_timeout.totalMicroseconds()))
 				{
-					timeoutIDs.push_back(it->first);
-					PendingMap::iterator itDel = it;
+					timeouts[it->first] = it->second;
+					typename PendingMap::iterator itDel = it;
 					++it;
 					_pendingMap.erase(itDel);
 				}
@@ -791,24 +933,82 @@ protected:
 			}
 		}
 
-		for (std::vector<Poco::UInt16>::const_iterator it = timeoutIDs.begin(); it != timeoutIDs.end(); ++it)
+		for (const auto& p: timeouts)
 		{
-			this->timeout(this, *it);
+			this->timeout(this, p.first);
+
+			RequestFailure failure;
+			failure.transactionID = p.first;
+			failure.functionCode = p.second.functionCode;
+			failure.slaveOrUnitAddress = p.second.slaveOrUnitAddress;
+			failure.reason = FAILURE_TIMEOUT;
+			this->requestFailed(this, failure);
 		}
 	}
 
-	bool stopped()
+	void abortPending(RequestFailureReason reason, const std::string& message = std::string())
 	{
-		Poco::FastMutex::ScopedLock lock(_mutex);
-		return _stop;
+		PendingMap pendingMap;
+		{
+			Poco::FastMutex::ScopedLock lock(_pendingMutex);
+			std::swap(pendingMap, _pendingMap);
+		}
+		for (const auto& p: pendingMap)
+		{
+			RequestFailure failure;
+			failure.transactionID = p.first;
+			failure.functionCode = p.second.functionCode;
+			failure.slaveOrUnitAddress = p.second.slaveOrUnitAddress;
+			failure.reason = reason;
+			failure.message = message;
+			this->requestFailed(this, failure);
+		}
+	}
+
+	void addPending(const ModbusMessage& message)
+	{
+		Poco::FastMutex::ScopedLock lock(_pendingMutex);
+		auto& info = _pendingMap[message.transactionID];
+		info.functionCode = message.functionCode;
+		info.slaveOrUnitAddress = message.slaveOrUnitAddress;
+	}
+
+	bool removePending(Poco::UInt16 transactionID)
+	{
+		Poco::FastMutex::ScopedLock lock(_pendingMutex);
+		return _pendingMap.erase(transactionID) != 0;
+	}
+
+	std::size_t countPending() const
+	{
+		Poco::FastMutex::ScopedLock lock(_pendingMutex);
+		return _pendingMap.size();
+	}
+
+	void clearPending()
+	{
+		Poco::FastMutex::ScopedLock lock(_pendingMutex);
+		_pendingMap.clear();
+	}
+
+	void onConnectionStateChanged(const ConnectionState& state)
+	{
+		using namespace std::string_literals;
+
+		if (state == CONNECTION_CLOSING || state == CONNECTION_CLOSED)
+		{
+			abortPending(FAILURE_CLOSED);
+		}
+		this->connectionStateChanged(this, state);
 	}
 
 private:
-	Poco::FastMutex _mutex;
+	mutable Poco::FastMutex _mutex;
+	mutable Poco::FastMutex _pendingMutex;
 	Poco::SharedPtr<Port> _pPort;
 	Poco::Timespan _timeout;
-	Poco::SharedPtr<Poco::Thread> _pThread;
-	bool _stop;
+	std::unique_ptr<Poco::Thread> _pAsyncThread;
+	Poco::NotificationQueue _asyncQueue;
 	Poco::UInt16 _nextTransactionID;
 	PendingMap _pendingMap;
 	Poco::Logger& _logger;

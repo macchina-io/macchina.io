@@ -1,5 +1,5 @@
 'use strict';
 
-var devicesApp = angular.module('trackingApp', [
+var trackingApp = angular.module('trackingApp', [
   'trackingControllers'
 ]);

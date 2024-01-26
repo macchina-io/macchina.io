@@ -1,0 +1,60 @@
+JavaScript Crypto API Reference
+AAAAMacchinaIO
+
+!!!DigestEngine Objects
+
+`DigestEngine` objects are used to compute hash values for a given input based
+on different cryptographic hashing algorithms such as `SHA-256`.
+
+To use `DigestEngine` objects, the `crypto` module must be imported.
+
+Basic usage:
+
+    const crypto = require('crypto');
+
+    const sha256 = new crypto.DigestEngine('SHA256');
+    sha256.update('abc');
+    const hash = sha256.digest('hex');
+----
+
+!!Creating DigestEngine Objects
+
+Use the `DigestEngine` constructor function to create a new `DigestEngine` object,
+passing as parameter the name of the hash algorithm to use.
+Most hash algorithms supported by the underlying OpenSSL implementation are supported.
+Algorithms that may need extra parameters are not supported.
+Examples are:
+
+  - `MD5`
+  - `SHA1`
+  - `SHA256` or `SHA2-256`
+  - `SHA384` or `SHA2-384`
+  - `SHA512` or `SHA2-512`
+
+!!DigestEngine Methods
+
+!update(data)
+
+Updates the digest with the given data. The data may be given as a `Buffer` object or a string.
+Strings are encoded to UTF-8 before being passed to the hash function.
+
+!digest([encoding])
+
+Finalizes computing the hash and returns the computed hash value.
+If no encoding is specified, the binary hash value is returned in a `Buffer` object.
+If an encoding is specified, the has value is returned as a string.
+
+The following `encoding` values are supported:
+
+  - `hex`: The returned string contains the hash value in hexadecimal.
+  - `base64`: The returned string contains the hash value encoded using Base64 encoding.
+  - `base64url`: The returned string contains the has value encoding using Base64URL encoding.
+
+Note that `digest()` must only be called once. Further calls will return invalid values.
+Furthermore, `update()` must not be called after `digest()`.
+The exception is that after calling `reset()`, the `DigestEngine` object can be
+used for a new digest computation.
+
+!reset()
+
+Resets the digest object so that it can be used again to compute a new hash value.

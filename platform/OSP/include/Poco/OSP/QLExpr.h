@@ -238,6 +238,15 @@ private:
 };
 
 
+class OSP_API QLTrueExpr: public QLExpr
+{
+public:
+	QLTrueExpr();
+
+	bool evaluate(const Properties& props) const;
+};
+
+
 } } // namespace Poco::OSP
 
 

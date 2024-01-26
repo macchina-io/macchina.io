@@ -40,7 +40,8 @@ public:
 			v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 			objectTemplate->SetInternalFieldCount(1);
 
-			objectTemplate->Set(Wrapper::toV8Internalized(pIsolate, "Session"s), v8::FunctionTemplate::New(pIsolate, Poco::JS::Data::SessionWrapper::construct));
+			Poco::JS::Data::SessionWrapper sessionWrapper;
+			objectTemplate->Set(Wrapper::toV8Internalized(pIsolate, "Session"s), sessionWrapper.constructor(pIsolate));
 
 			pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 		}

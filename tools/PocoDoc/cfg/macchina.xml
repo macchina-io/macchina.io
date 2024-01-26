@@ -10,19 +10,34 @@
 				${MacchinaBase}/platform/*/*/include/Poco/*/*/*.h
 				${MacchinaBase}/platform/*/*/*/include/Poco/*/*/*/*.h
 				${MacchinaBase}/devices/Devices/include/*/*/*.h
+				${MacchinaBase}/devices/Devices/skel/include/*/*/*.h
+				${MacchinaBase}/devices/Datapoints/include/*/*/*.h
+				${MacchinaBase}/devices/Datapoints/skel/include/*/*/*.h
 				${MacchinaBase}/devices/Serial/include/*/*/*.h
 				${MacchinaBase}/devices/GNSS/include/*/*/*.h
 				${MacchinaBase}/devices/GNSS/NMEA/include/*/*/*/*.h
+				${MacchinaBase}/services/Settings/include/*/*/*.h
 				${MacchinaBase}/services/WebEvent/include/*/*/*.h
 				${MacchinaBase}/services/NetworkEnvironment/include/*/*/*.h
 				${MacchinaBase}/services/DeviceStatus/include/*/*/*.h
 				${MacchinaBase}/services/MobileConnection/include/*/*/*.h
+				${MacchinaBase}/services/Mailer/include/*/*/*.h
+				${MacchinaBase}/services/SMS/include/*/*/*.h
 				${MacchinaBase}/protocols/BtLE/include/*/*/*.h
+				${MacchinaBase}/protocols/BtLE/skel/include/*/*/*.h
 				${MacchinaBase}/protocols/MQTT/include/*/*/*.h
+				${MacchinaBase}/protocols/MQTT/skel/include/*/*/*.h
 				${MacchinaBase}/protocols/Modbus/include/*/*/*.h
+				${MacchinaBase}/protocols/Modbus/skel/include/*/*/*.h
+				${MacchinaBase}/protocols/Modbus/Device/include/*/*/*/*.h
+				${MacchinaBase}/protocols/Modbus/RTU/include/*/*/*/*.h
+				${MacchinaBase}/protocols/Modbus/TCP/include/*/*/*/*.h
 				${MacchinaBase}/protocols/CAN/include/*/*/*.h
+				${MacchinaBase}/protocols/CANopen/include/*/*/*.h
 				${MacchinaBase}/protocols/UDP/include/*/*/*.h
 				${MacchinaBase}/protocols/XBee/include/*/*/*.h
+				${MacchinaBase}/protocols/OPC/include/*/*/*.h
+				${MacchinaBase}/protocols/S7PLC/include/*/*/*.h
 			</include>
 			<exclude>
 				*_*.h
@@ -41,6 +56,7 @@
 		</pages>
 		<resources>
 			${MacchinaBase}/tools/PocoDoc/resources/css
+			${MacchinaBase}/tools/PocoDoc/resources/fonts
 			${MacchinaBase}/tools/PocoDoc/resources/js
 			${MacchinaBase}/tools/PocoDoc/resources/images
 			${MacchinaBase}/tools/PocoDoc/resources/index.thtml
@@ -51,7 +67,6 @@
 		<compiler>
 			<exec>clang++</exec>
 			<options>
-				-I${MacchinaBase}/platform/CppUnit/include
 				-I${MacchinaBase}/platform/Foundation/include
 				-I${MacchinaBase}/platform/XML/include
 				-I${MacchinaBase}/platform/JSON/include
@@ -62,40 +77,83 @@
 				-I${MacchinaBase}/platform/Zip/include
 				-I${MacchinaBase}/platform/Data/include
 				-I${MacchinaBase}/platform/Data/SQLite/include
+				-I${MacchinaBase}/platform/Data/MySQL/include
+				-I${MacchinaBase}/platform/Data/ODBC/include
+				-I${MacchinaBase}/platform/Data/PostgreSQL/include
 				-I${MacchinaBase}/platform/ActiveRecord/include
+				-I${MacchinaBase}/platform/JWT/include
+				-I${MacchinaBase}/platform/Redis/include
+				-I${MacchinaBase}/platform/MongoDB/include
 				-I${MacchinaBase}/platform/JS/Core/include
+				-I${MacchinaBase}/platform/JS/File/include
 				-I${MacchinaBase}/platform/JS/Data/include
 				-I${MacchinaBase}/platform/JS/Net/include
+				-I${MacchinaBase}/platform/JS/Crypto/include
 				-I${MacchinaBase}/platform/JS/Bridge/include
 				-I${MacchinaBase}/platform/JS/V8/include
 				-I${MacchinaBase}/platform/OSP/include
 				-I${MacchinaBase}/platform/OSP/Auth/include
+				-I${MacchinaBase}/platform/OSP/Auth/Data/include
+				-I${MacchinaBase}/platform/OSP/Auth/TwoFactor/include
 				-I${MacchinaBase}/platform/OSP/Web/include
 				-I${MacchinaBase}/platform/OSP/WebEvent/include
 				-I${MacchinaBase}/platform/OSP/JS/include
+				-I${MacchinaBase}/platform/OSP/Shell/include
+				-I${MacchinaBase}/platform/OSP/BundleSign/include
+				-I${MacchinaBase}/platform/OSP/Mail/include
 				-I${MacchinaBase}/platform/CppParser/include
 				-I${MacchinaBase}/platform/CodeGeneration/include
 				-I${MacchinaBase}/platform/RemotingNG/include
 				-I${MacchinaBase}/platform/RemotingNG/TCP/include
+				-I${MacchinaBase}/platform/RemotingNG/HTTP/include
+				-I${MacchinaBase}/platform/RemotingNG/JSONRPC/include
+				-I${MacchinaBase}/platform/RemotingNG/REST/include
+				-I${MacchinaBase}/platform/RemotingNG/SOAP/include
+				-I${MacchinaBase}/platform/XSD/Types/include
+				-I${MacchinaBase}/platform/XSD/Parser/include
+				-I${MacchinaBase}/platform/UPnP/include
+				-I${MacchinaBase}/platform/UPnP/ServiceDesc/include
+				-I${MacchinaBase}/platform/UPnP/SSDP/include
+				-I${MacchinaBase}/platform/UPnP/SOAP/include
+				-I${MacchinaBase}/platform/UPnP/GENA/include
+				-I${MacchinaBase}/platform/DNSSD/include
+				-I${MacchinaBase}/platform/DNSSD/Bonjour/include
+				-I${MacchinaBase}/platform/DNSSD/Avahi/include
+				-I${MacchinaBase}/platform/FastInfoset/include
 				-I${MacchinaBase}/platform/WebTunnel/include
 				-I${MacchinaBase}/platform/Geo/include
 				-I${MacchinaBase}/platform/Serial/include
-				-I${MacchinaBase}/platform/Redis/include
 				-I${MacchinaBase}/devices/Devices/include
+				-I${MacchinaBase}/devices/Devices/skel/include
+				-I${MacchinaBase}/devices/Datapoints/include
+				-I${MacchinaBase}/devices/Datapoints/skel/include
 				-I${MacchinaBase}/devices/Serial/include
 				-I${MacchinaBase}/devices/GNSS/include
 				-I${MacchinaBase}/devices/GNSS/NMEA/include
 				-I${MacchinaBase}/devices/Simulation/include
+				-I${MacchinaBase}/services/Settings/include
 				-I${MacchinaBase}/services/WebEvent/include
 				-I${MacchinaBase}/services/NetworkEnvironment/include
 				-I${MacchinaBase}/services/DeviceStatus/include
 				-I${MacchinaBase}/services/MobileConnection/include
+				-I${MacchinaBase}/services/Mailer/include
+				-I${MacchinaBase}/services/SMS/include
 				-I${MacchinaBase}/protocols/BtLE/include
+				-I${MacchinaBase}/protocols/BtLE/skel/include
 				-I${MacchinaBase}/protocols/MQTT/include
+				-I${MacchinaBase}/protocols/MQTT/skel/include
 				-I${MacchinaBase}/protocols/Modbus/include
+				-I${MacchinaBase}/protocols/Modbus/skel/include
+				-I${MacchinaBase}/protocols/Modbus/Device/include
+				-I${MacchinaBase}/protocols/Modbus/RTU/include
+				-I${MacchinaBase}/protocols/Modbus/TCP/include
 				-I${MacchinaBase}/protocols/CAN/include
+				-I${MacchinaBase}/protocols/CANopen/include
 				-I${MacchinaBase}/protocols/UDP/include
 				-I${MacchinaBase}/protocols/XBee/include
+				-I${MacchinaBase}/protocols/CANopen/include
+				-I${MacchinaBase}/protocols/OPC/include
+				-I${MacchinaBase}/protocols/S7PLC/include
 				-D_DEBUG
 				-E
 				-C
@@ -109,8 +167,44 @@
 		<charset>utf-8</charset>
 		<software>macchina.io EDGE</software>
 		<company>Applied Informatics Software Engineering GmbH</company>
-		<companyURI>http://macchina.io</companyURI>
-		<licenseURI>http://creativecommons.org/licenses/by/3.0/</licenseURI>
+		<companyURI>https://macchina.io</companyURI>
+		<licenseURI>https://creativecommons.org/licenses/by/3.0/</licenseURI>
+		<customHeadHTML><![CDATA[
+		<style>
+		  div.cta {
+			position: absolute;
+			right: 20px;
+			top: 24px;
+			color: #eee;
+			font-size: 1.05em;
+			white-space: nowrap;
+		  }
+		  div.cta a {
+			color: #fff;
+			text-transform: uppercase;
+			background-color:  #f6921e;
+			padding: 8px;
+			border: 1px solid #fff;
+			font-size: 0.8em;
+			text-decoration: none;
+		  }
+		  div.cta a:hover {
+			background-color: #e6820e !important;
+		  }
+		  @media only screen and (max-width: 1200px) {
+			div.cta {
+			  visibility: hidden;
+			}
+		  }
+		</style>
+		]]></customHeadHTML>
+		<customBodyHTML><![CDATA[
+		<div class="cta">
+		  Securely control IoT edge devices from anywhere
+		  &nbsp;
+		  <a href="https://macchina.io/remote_signup.html" target="_blank" onclick="ga('send', 'event', 'cta', 'click', 'docs', 0, {NonInteraction: 1})">Connect a Device</a>
+		</div>
+		]]></customBodyHTML>
 	</PocoDoc>
 	<Translations>
 		<EN>
@@ -147,10 +241,10 @@
 			<This>This</This>
 			<Types>Types</Types>
 			<Variables>Variables</Variables>
-			<TOC>Table Of Contents</TOC>
+			<TOC>Table of Contents</TOC>
 			<Guides>User Guides and Tutorials</Guides>
 			<AAAIntroduction>POCO C++ Libraries</AAAIntroduction>
-			<AAAAMacchinaIO>macchina.io</AAAAMacchinaIO>
+			<AAAAMacchinaIO>macchina.io EDGE</AAAAMacchinaIO>
 			<License>CC BY 3.0</License>
 		</EN>
 	</Translations>

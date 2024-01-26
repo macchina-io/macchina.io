@@ -69,6 +69,8 @@ protected:
 	static void clientAddress(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void setInt(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getInt(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void setBool(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void getBool(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void setString(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getString(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void erase(const v8::FunctionCallbackInfo<v8::Value>& args);

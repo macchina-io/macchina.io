@@ -1,0 +1,23 @@
+<bundlespec>
+	<manifest>
+    	<name>macchina.io Settings Service</name>
+		<symbolicName>io.macchina.services.settings</symbolicName>
+		<version>1.0.0</version>
+		<vendor>Applied Informatics</vendor>
+		<copyright>(c) 2023-2024, Applied Informatics Software Engineering GmbH</copyright>
+		<activator>
+			<class>IoT::Settings::BundleActivator</class>
+			<library>io.macchina.services.settings</library>
+		</activator>
+		<lazyStart>false</lazyStart>
+		<runLevel>610</runLevel>
+	</manifest>
+	<code>
+		bin/*.dll,
+		bin/*.pdb,
+		bin/${osName}/${osArch}/*.so,
+		bin/${osName}/${osArch}/*.dylib,
+    	../../lib/${osName}/${osArch}/libIoTSettings*.1.dylib,
+    	../../lib/${osName}/${osArch}/libIoTSettings*.so.1
+	</code>
+</bundlespec>

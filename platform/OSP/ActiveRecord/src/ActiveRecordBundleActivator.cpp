@@ -4,7 +4,7 @@
 // Copyright (c) 2020-2021, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// License: Applied Informatics Software and Source Code License Agreement
+// SPDX-License-Identifier: GPL-3.0-only
 //
 
 

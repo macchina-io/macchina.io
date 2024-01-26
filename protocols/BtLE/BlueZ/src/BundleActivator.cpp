@@ -21,7 +21,9 @@
 #include "IoT/BtLE/PeripheralFactory.h"
 #include "IoT/BtLE/GATTPeripheral.h"
 #include "IoT/BtLE/PeripheralServerHelper.h"
+#include "IoT/BtLE/PeripheralBrowserServerHelper.h"
 #include "BlueZGATTClient.h"
+#include "BlueZPeripheralBrowser.h"
 #include <vector>
 
 
@@ -70,7 +72,7 @@ public:
 
 	void createPeripheral(const std::string& name, IoT::BtLE::Peripheral::Ptr pPeripheral)
 	{
-		typedef Poco::RemotingNG::ServerHelper<IoT::BtLE::Peripheral> ServerHelper;
+		using ServerHelper = Poco::RemotingNG::ServerHelper<IoT::BtLE::Peripheral>;
 
 		std::string oid("io.macchina.btle.peripheral.");
 		oid += pPeripheral->address();
@@ -81,6 +83,18 @@ public:
 		props.set("io.macchina.btle.address", pPeripheral->address());
 		props.set("io.macchina.btle.name", name);
 
+		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pRemoteObject, props);
+		_serviceRefs.push_back(pServiceRef);
+	}
+
+	void createPeripheralBrowser(IoT::BtLE::PeripheralBrowser::Ptr pPeripheralBrowser)
+	{
+		using ServerHelper = Poco::RemotingNG::ServerHelper<IoT::BtLE::PeripheralBrowser>;
+
+		std::string oid("io.macchina.btle.peripheralbrowser");
+		ServerHelper::RemoteObjectPtr pRemoteObject = ServerHelper::createRemoteObject(pPeripheralBrowser, oid);
+
+		Properties props;
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
 	}
@@ -119,6 +133,9 @@ public:
 		std::string helperPath = _pPrefs->configuration()->getString("btle.bluez.helper", "");
 		if (!helperPath.empty())
 		{
+			BlueZPeripheralBrowser::Ptr pPeripheralBrowser = new BlueZPeripheralBrowser(helperPath);
+			createPeripheralBrowser(pPeripheralBrowser);
+
 			IoT::BtLE::PeripheralFactory::Ptr pFactory = new PeripheralFactoryImpl(helperPath);
 			ServiceRef::Ptr pFactoryRef = _pContext->registry().registerService(IoT::BtLE::PeripheralFactory::SERVICE_NAME, pFactory, Properties());
 			_serviceRefs.push_back(pFactoryRef);
@@ -138,8 +155,8 @@ public:
 			_pContext->registry().unregisterService(*it);
 		}
 		_serviceRefs.clear();
-		_pPrefs = 0;
-		_pContext = 0;
+		_pPrefs.reset();
+		_pContext.reset();
 	}
 
 private:

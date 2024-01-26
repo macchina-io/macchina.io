@@ -30,6 +30,7 @@ using Poco::OSP::ServiceRef;
 using Poco::OSP::ServiceFinder;
 using Poco::OSP::Properties;
 using Poco::OSP::PreferencesService;
+using namespace std::string_literals;
 
 
 namespace IoT {
@@ -49,9 +50,15 @@ public:
 	{
 	}
 
-	void createUDPEndpoint(const std::string& uid, const std::string& host, Poco::UInt16 port)
+	void createUDPEndpoint(const std::string& uid, const std::string& host, Poco::UInt16 port, const std::string& remoteHost, Poco::UInt16 remotePort)
 	{
 		UDPEndpointImpl::Ptr pUDPEndpointImpl = new UDPEndpointImpl(Poco::Net::SocketAddress(host, port));
+
+		if (!remoteHost.empty())
+		{
+			pUDPEndpointImpl->connect(Poco::Net::SocketAddress(remoteHost, remotePort));
+		}
+
 		std::string symbolicName = "io.macchina.udp";
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
@@ -59,9 +66,9 @@ public:
 		ServerHelper::RemoteObjectPtr pUDPEndpointRemoteObject = ServerHelper::createRemoteObject(pUDPEndpointImpl, oid);
 
 		Properties props;
-		props.set("io.macchina.protocol", symbolicName);
-		props.set("io.macchina.udp.host", host);
-		props.set("io.macchina.udp.port", Poco::NumberFormatter::format(port));
+		props.set("io.macchina.protocol"s, symbolicName);
+		props.set("io.macchina.udp.host"s, host);
+		props.set("io.macchina.udp.port"s, Poco::NumberFormatter::format(port));
 
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pUDPEndpointRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
@@ -73,24 +80,27 @@ public:
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
 
 		Poco::Util::AbstractConfiguration::Keys keys;
-		_pPrefs->configuration()->keys("udp.endpoints", keys);
+		_pPrefs->configuration()->keys("udp.endpoints"s, keys);
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
 			std::string baseKey = "udp.endpoints.";
 			baseKey += *it;
 
-			std::string host = _pPrefs->configuration()->getString(baseKey + ".host", "");
-			Poco::UInt16 port = static_cast<Poco::UInt16>(_pPrefs->configuration()->getInt(baseKey + ".port", 0));
+			const std::string host = _pPrefs->configuration()->getString(baseKey + ".host"s, ""s);
+			const Poco::UInt16 port = static_cast<Poco::UInt16>(_pPrefs->configuration()->getInt(baseKey + ".port"s, 0));
+
+			const std::string remoteHost = _pPrefs->configuration()->getString(baseKey + ".remote.host"s, ""s);
+			const Poco::UInt16 remotePort = static_cast<Poco::UInt16>(_pPrefs->configuration()->getInt(baseKey + ".remote.port"s, 0));
 
 			try
 			{
-				pContext->logger().information("Creating UDP Endpoint %s for IP address '%s', port %hu.", *it, host, port);
+				pContext->logger().information("Creating UDP Endpoint %s on IP address '%s', port %hu."s, *it, host, port);
 
-				createUDPEndpoint(*it, host, port);
+				createUDPEndpoint(*it, host, port, remoteHost, remotePort);
 			}
 			catch (Poco::Exception& exc)
 			{
-				pContext->logger().error("Cannot create UDP Endpoint %s on IP address '%s', port %hu: %s", *it, host, port, exc.displayText());
+				pContext->logger().error("Cannot create UDP Endpoint %s on IP address '%s', port %hu: %s"s, *it, host, port, exc.displayText());
 			}
 		}
 	}
@@ -102,8 +112,8 @@ public:
 			_pContext->registry().unregisterService(*it);
 		}
 		_serviceRefs.clear();
-		_pPrefs = 0;
-		_pContext = 0;
+		_pPrefs.reset();
+		_pContext.reset();
 
 		ServerHelper::shutdown();
 	}

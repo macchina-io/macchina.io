@@ -80,12 +80,20 @@ public:
 		else
 		{
 			std::string msg("Cannot cast from ");
-			msg += pService->type().name();
+			msg += demangle(pService->type().name());
 			msg += " to ";
-			msg += typeid(Svc).name();
+			msg += demangle(typeid(Svc).name());
 			throw Poco::BadCastException(msg);
 		}
 	}
+
+	static std::string demangle(const char* typeName);
+		/// Demangles the given mangled type name, if
+		/// demangling support is available in the compiler.
+		///
+		/// Note: On Windows/MSVC, the result of typeid().name
+		/// already is a demangled type name so this method
+		/// does nothing.
 
 protected:
 	~ServiceRef();

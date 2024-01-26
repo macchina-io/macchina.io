@@ -1,10 +1,10 @@
 <bundlespec>
 	<manifest>
-    	<name>macchina.io Bluetooth LE BlueZ Implementation</name>
+    	<name>macchina.io Bt LE BlueZ Implementation</name>
 		<symbolicName>io.macchina.btle.bluez</symbolicName>
 		<version>1.0.0</version>
 		<vendor>Applied Informatics</vendor>
-		<copyright>(c) 2015-2022, Applied Informatics Software Engineering GmbH</copyright>
+		<copyright>(c) 2015-2024, Applied Informatics Software Engineering GmbH</copyright>
 		<activator>
 			<class>IoT::BtLE::BlueZ::BundleActivator</class>
 			<library>io.macchina.btle.bluez</library>
@@ -16,7 +16,4 @@
 		bin/${osName}/${osArch}/*.so,
 		bin/${osName}/${osArch}/*.dylib,
 	</code>
-	<files>
-		bundle/*
-	</files>
 </bundlespec>

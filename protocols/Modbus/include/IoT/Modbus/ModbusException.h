@@ -2,7 +2,7 @@
 // ModbusException.h
 //
 // Library: IoT/Modbus
-// Package: ModbusMaster
+// Package: ModbusCore
 // Module:  ModbusException
 //
 // Definition of the ModbusException class.

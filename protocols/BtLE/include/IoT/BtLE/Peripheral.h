@@ -65,8 +65,8 @@ struct Notification
 
 //@ remote
 class IoTBtLE_API Peripheral
-	/// This class provides a high-level interface to a Bluetooth LE peripheral
-	/// device using the Bluetooth Generic Attribute Profile (GATT).
+	/// This class provides a high-level interface to a Bt LE peripheral
+	/// device using the Bt Generic Attribute Profile (GATT).
 {
 public:
 	using Ptr = Poco::SharedPtr<Peripheral>;
@@ -88,18 +88,18 @@ public:
 		/// Fired when a Notification has been received from the peripheral.
 
 	virtual void connect() = 0;
-		/// Connects to the Bluetooth LE peripheral.
+		/// Connects to the Bt LE peripheral.
 		///
 		/// Waits for successful connection or error.
 
 	virtual void connectAsync() = 0;
-		/// Connects to the Bluetooth LE peripheral.
+		/// Connects to the Bt LE peripheral.
 		///
 		/// Successful connection or error will be reported through connected
 		/// and error events.
 
 	virtual void disconnect() = 0;
-		/// Disconnects from the Bluetooth LE peripheral.
+		/// Disconnects from the Bt LE peripheral.
 
 	virtual bool isConnected() const = 0;
 		/// Returns true if the device is connected.

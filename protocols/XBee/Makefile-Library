@@ -18,8 +18,7 @@ objects = \
 
 target          = IoTXBee
 target_version  = 1
-target_includes = $(PROJECT_BASE)/devices/Devices/include \
-                  $(PROJECT_BASE)/devices/Serial/include
-target_libs     = IoTDevices PocoSerial PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
+target_includes = 
+target_libs     = PocoSerial PocoRemotingNG PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
 
 include $(POCO_BASE)/build/rules/lib

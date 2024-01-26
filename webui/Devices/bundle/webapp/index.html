@@ -4,8 +4,10 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>macchina.io - Sensors &amp; Devices</title>
+    <link rel="stylesheet" href="/css/fonts.css" type="text/css"/>
     <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
     <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/macchina/devices/css/styles.css" type="text/css"/>
     <link rel="icon" href="/images/favicon.ico">
     <script type="text/javascript" src="/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="/angular/angular.min.js"></script>
@@ -17,16 +19,21 @@
       <div class="headercontainer">
         <div class="header">
           <h1>
-          <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io"></a>Sensors &amp; Devices
+            <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io">EDGE</a>&gt; Sensors &amp; Devices
           </h1>
         </div>
       </div>
     </header>
-    <div class="contentcontainer">
+    <div class="contentcontainer" ng-controller="DevicesCtrl">
       <div class="content">
         <nav>
           <div class="usernav">
             <div class="navigation">
+              <ul>
+                <li>
+                  <i class="fa fa-search"></i> <form class="search"><input type="text" placeholder="Search" ng-model="search" size="30" maxLength="200" autofocus></form>
+                </li>
+              </ul>
             </div>
             <div class="username">
               <i class="fa fa-user"></i>
@@ -41,11 +48,12 @@
            <div style="clear: both;"></div>
          </div>
         </nav>
-        <div ng-controller="DevicesCtrl" class="groupbox">
+        <div class="groupbox">
           <div ng-if="devices.length == 0">No sensors or devices found.</div>
           <table class="list" style="width: 100%" ng-if="devices.length > 0">
             <thead>
               <tr>
+                <th></th>
                 <th ng-click="setOrderBy('name')" class="list-sortable">Name</th>
                 <th ng-click="setOrderBy('type')" class="list-sortable">Type</th>
                 <th ng-click="setOrderBy('id')" class="list-sortable">ID</th>
@@ -54,8 +62,13 @@
               </tr>
             </thead>
             <tbody>
-              <tr ng-repeat="device in devices | orderBy:orderBy track by $index" ng-class-even="'even'" ng-class-odd="'odd'">
-                <td><span ng-attr-title="{{device.symbolicName}}">{{device.name}}</span></td>
+              <tr ng-repeat="device in devices | filter:search | orderBy:orderBy track by $index" ng-class-even="'even'" ng-class-odd="'odd'">
+                <td>
+                  <i ng-class="iconClass(device)"></i>
+                </td>
+                <td>
+                  <span class="deviceName" ng-attr-title="{{device.symbolicName}}">{{device.name}}</span>
+                </td>
                 <td>{{device.type}}</td>
                 <td>{{device.id}}</td>
                 <td>{{device.physicalQuantity}}</td>

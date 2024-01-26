@@ -5,7 +5,7 @@
     <symbolicName>com.appinf.osp.simple-auth</symbolicName>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2007-2022, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2007-2024, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>SimpleAuthBundleActivator</class>
       <library>com.appinf.osp.simple-auth</library>
@@ -19,7 +19,4 @@
     bin/${osName}/${osArch}/*.so,
     bin/${osName}/${osArch}/*.dylib
   </code>
-  <files>
-    bundle/*
-  </files>
 </bundlespec>

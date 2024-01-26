@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<bundlespec>
+  <manifest>
+    <name>POCO Data MySQL Connector</name>
+    <symbolicName>poco.data.mysql</symbolicName>
+    <version>1.11.8</version>
+    <vendor>Applied Informatics</vendor>
+    <copyright>(c) 2008-2024, Applied Informatics Software Engineering GmbH</copyright>
+    <activator>
+      <class>MySQLBundleActivator</class>
+      <library>poco.data.mysql</library>
+    </activator>
+    <lazyStart>false</lazyStart>
+    <runLevel>000</runLevel>
+    <dependency>
+      <symbolicName>poco.data</symbolicName>
+      <version>1.11.8</version>
+    </dependency>
+  </manifest>
+  <code>
+    ${bin}/*.dll,
+    ${bin}/*.pdb,
+    ../../../${bin}/PocoDataMySQL${64}.dll,
+    ../../../${bin}/PocoDataMySQL${64}d.dll,
+    ../../../${bin}/PocoDataMySQL${64}d.pdb,
+    bin/${osName}/${osArch}/*.so,
+    bin/${osName}/${osArch}/*.dylib,
+    ../../../lib/${osName}/${osArch}/libPocoDataMySQL.so.*,
+    ../../../lib/${osName}/${osArch}/libPocoDataMySQLd.so.*,
+    ../../../lib/${osName}/${osArch}/libPocoDataMySQL.*.dylib,
+    ../../../lib/${osName}/${osArch}/libPocoDataMySQLd.*.dylib
+  </code>
+</bundlespec>

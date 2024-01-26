@@ -1,0 +1,10 @@
+form.search
+{
+	display: inline;
+}
+
+#servicesTable tr
+{
+	background-color: #fefefe;
+	border-bottom: 1px solid #d7d8d9;
+}

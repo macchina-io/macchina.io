@@ -36,8 +36,8 @@ INetworkEnvironmentService::~INetworkEnvironmentService()
 
 bool INetworkEnvironmentService::isA(const std::type_info& otherType) const
 {
-	std::string name(type().name());
-	return name == otherType.name();
+	static const std::string name(typeid(IoT::NetworkEnvironment::INetworkEnvironmentService).name());
+	return name == otherType.name() || Poco::OSP::Service::isA(otherType);
 }
 
 

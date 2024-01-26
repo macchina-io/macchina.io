@@ -34,9 +34,24 @@ public:
 		/// Returns true if the session is valid.
 		/// Returns false and sends the HTTP response with a 401 status if not.
 
+	static bool isMutating(const Poco::Net::HTTPServerRequest& request);
+		/// Returns true if the request is a mutating request.
+		///
+		/// Any request other than GET and HEAD is considered a mutating request.
+
 	static std::string jsonize(const std::string& str);
 		/// Creates a copy of str properly quoted and escaped for use in JSON.
 };
+
+
+//
+// inlines
+//
+inline bool Utility::isMutating(const Poco::Net::HTTPServerRequest& request)
+{
+	const std::string& method = request.getMethod();
+	return method != Poco::Net::HTTPRequest::HTTP_GET && method != Poco::Net::HTTPRequest::HTTP_HEAD;
+}
 
 
 } } } // namespace IoT::Web::BundleAdmin

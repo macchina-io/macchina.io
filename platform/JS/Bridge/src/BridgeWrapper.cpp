@@ -296,7 +296,7 @@ void BridgeHolder::setPersistent(const v8::Persistent<v8::Object>& jsObject)
 	_persistent.Reset(_pExecutor->isolate(), jsObject);
 	if (!_persistent.IsEmpty())
 	{
-		_persistent.SetWeak(this, BridgeHolder::destruct, v8::WeakCallbackType::kParameter);
+		_persistent.SetWeak();
 	}
 }
 
@@ -304,6 +304,7 @@ void BridgeHolder::setPersistent(const v8::Persistent<v8::Object>& jsObject)
 void BridgeHolder::clear()
 {
 	_persistent.Reset();
+
 	try
 	{
 		disableEvents();
@@ -341,11 +342,6 @@ BridgeHolder::Ptr BridgeHolder::find(const std::string& subscriberURI)
 }
 
 
-void BridgeHolder::destruct(const v8::WeakCallbackInfo<BridgeHolder>&)
-{
-}
-
-
 void BridgeHolder::enableEvents()
 {
 	if (!_pEventDispatcher)
@@ -369,7 +365,7 @@ void BridgeHolder::disableEvents()
 	if (_pEventDispatcher)
 	{
 		_pEventDispatcher->unsubscribe(_subscriberURI);
-		_pEventDispatcher = 0;
+		_pEventDispatcher.reset();
 	}
 }
 
@@ -458,6 +454,9 @@ v8::Handle<v8::ObjectTemplate> BridgeWrapper::objectTemplate(v8::Isolate* pIsola
 		objectTemplate->Set(toV8Internalized(pIsolate, "on"s), v8::FunctionTemplate::New(pIsolate, on));
 		objectTemplate->Set(toV8Internalized(pIsolate, "toJSON"s), v8::FunctionTemplate::New(pIsolate, toJSON));
 
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "$uri"s), getURI);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "$sub"s), getSub);
+
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> bridgeWrapperTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
@@ -469,7 +468,6 @@ void BridgeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	v8::Isolate* pIsolate(args.GetIsolate());
 	v8::HandleScope handleScope(pIsolate);
-	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	BridgeHolder::Ptr pHolder;
 	try
 	{
@@ -490,8 +488,6 @@ void BridgeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 			pHolder->setPersistent(bridgeObject);
 		}
 		v8::Local<v8::Object> localBridgeObject = v8::Local<v8::Object>::New(pIsolate, bridgeObject);
-		(void) localBridgeObject->Set(context, toV8String(pIsolate, "$sub"s), toV8String(pIsolate, pHolder->subscriberURI()));
-		(void) localBridgeObject->Set(context, toV8String(pIsolate, "$uri"s), toV8String(pIsolate, pHolder->uri()));
 		args.GetReturnValue().Set(localBridgeObject);
 	}
 	catch (Poco::Exception& exc)
@@ -547,10 +543,14 @@ void BridgeWrapper::bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& ar
 		{
 			v8::Local<v8::String> name = v8::Local<v8::String>::Cast(args.Data());
 			std::string method(toString(pIsolate, name));
+			if (method.compare(0, 2, "__"s) == 0)
+			{
+				method.erase(0, 2);
+			}
 			v8::Local<v8::Object> argsArray = v8::Array::New(pIsolate, args.Length());
 			for (int i = 0; i < args.Length(); i++)
 			{
-				(void) argsArray->Set(context, i, args[i]);
+				V8_CHECK_SET_RESULT(argsArray->Set(context, i, args[i]));
 			}
 
 			Poco::RemotingNG::ScopedContext scopedContext;
@@ -611,7 +611,7 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 			v8::Local<v8::String> name = v8::Local<v8::String>::Cast(args[0]);
 			if (args.Length() >= 2 && args[1]->IsFunction())
 			{
-				(void) object->Set(context, name, args[1]);
+				V8_CHECK_SET_RESULT(object->Set(context, name, args[1]));
 				BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(args);
 				try
 				{
@@ -626,7 +626,7 @@ void BridgeWrapper::on(const v8::FunctionCallbackInfo<v8::Value>& args)
 			}
 			else if (args.Length() >= 2 && args[1]->IsNull())
 			{
-				(void) object->Set(context, name, args[1]);
+				V8_CHECK_SET_RESULT(object->Set(context, name, args[1]));
 				BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(args);
 				try
 				{
@@ -668,11 +668,27 @@ void BridgeWrapper::toJSON(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 	BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(args);
 	const std::string& uri = pHolder->uri();
+	const std::string& sub = pHolder->subscriberURI();
 
 	v8::Local<v8::Object> object = v8::Object::New(pIsolate);
-	(void) object->Set(context, Core::Wrapper::toV8String(pIsolate, "$uri"s), Core::Wrapper::toV8String(pIsolate, uri));
+	V8_CHECK_SET_RESULT(object->Set(context, Core::Wrapper::toV8String(pIsolate, "$uri"s), Core::Wrapper::toV8String(pIsolate, uri)));
+	V8_CHECK_SET_RESULT(object->Set(context, Core::Wrapper::toV8String(pIsolate, "$sub"s), Core::Wrapper::toV8String(pIsolate, sub)));
 
 	args.GetReturnValue().Set(object);
+}
+
+
+void BridgeWrapper::getURI(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(info);
+	returnString(info, pHolder->uri());
+}
+
+
+void BridgeWrapper::getSub(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	BridgeHolder* pHolder = Wrapper::unwrapNative<BridgeHolder>(info);
+	returnString(info, pHolder->subscriberURI());
 }
 
 

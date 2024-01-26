@@ -62,6 +62,14 @@ public:
 		/// If a task is currently running, it is allowed to finish,
 		/// however, any JavaScript executing is interrupted.
 
+	void cancelAsync(TimedJSExecutor* pExecutor);
+		/// Cancels all pending tasks.
+		///
+		/// If a task is currently running, it is allowed to finish,
+		/// however, any JavaScript executing is interrupted.
+		///
+		/// Unlike cancel(), does not wait for the current task to finish.
+
 	void schedule(Poco::Util::TimerTask::Ptr pTask, Poco::Timestamp time);
 		/// Schedules a task for execution at the specified time.
 		///

@@ -79,7 +79,7 @@ public:
 	void setValueChangedIsGreaterThanOrEqualToFilter(const std::string& subscriberURI, double limit);
 		/// Sets a Poco::RemotingNG::GreaterThanFilter for the valueChanged event.
 
-	void setValueChangedIsLessThanThanFilter(const std::string& subscriberURI, double limit);
+	void setValueChangedIsLessThanFilter(const std::string& subscriberURI, double limit);
 		/// Sets a Poco::RemotingNG::LessThanFilter for the valueChanged event.
 
 	void setValueChangedIsLessThanOrEqualToFilter(const std::string& subscriberURI, double limit);
@@ -93,6 +93,9 @@ public:
 
 	void setValueChangedMinimumIntervalOrDeltaFilter(const std::string& subscriberURI, long milliseconds, double delta);
 		/// Sets a Poco::RemotingNG::MinimumIntervalOrDeltaFilter for the valueChanged event.
+
+	void setValueChangedMinimumIntervalAndDeltaFilter(const std::string& subscriberURI, long milliseconds, double delta);
+		/// Sets a Poco::RemotingNG::MinimumIntervalAndDeltaFilter for the valueChanged event.
 
 	void setValueChangedHysteresisFilter(const std::string& subscriberURI, double lowerThreshold, double upperThreshold);
 		/// Sets a Poco::RemotingNG::HysteresisFilter for the valueChanged event.

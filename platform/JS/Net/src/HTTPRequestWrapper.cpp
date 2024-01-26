@@ -32,6 +32,7 @@
 #include "Poco/Exception.h"
 #include "Poco/String.h"
 #include <sstream>
+#include <atomic>
 
 
 using namespace std::string_literals;
@@ -40,9 +41,6 @@ using namespace std::string_literals;
 namespace Poco {
 namespace JS {
 namespace Net {
-
-
-static Poco::AtomicCounter _cnt;
 
 
 RequestHolder::RequestHolder():
@@ -108,6 +106,7 @@ v8::Handle<v8::ObjectTemplate> HTTPRequestWrapper::objectTemplate(v8::Isolate* p
 		objectTemplate->Set(toV8Internalized(pIsolate, "add"s), v8::FunctionTemplate::New(pIsolate, addHeader));
 		objectTemplate->Set(toV8Internalized(pIsolate, "authenticate"s), v8::FunctionTemplate::New(pIsolate, authenticate));
 		objectTemplate->Set(toV8Internalized(pIsolate, "send"s), v8::FunctionTemplate::New(pIsolate, send));
+		objectTemplate->Set(toV8Internalized(pIsolate, "cancel"s), v8::FunctionTemplate::New(pIsolate, cancel));
 
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
@@ -146,21 +145,22 @@ void HTTPRequestWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& ar
 
 void HTTPRequestWrapper::construct(const std::string& method, const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
 	RequestHolder* pRequestHolder = new RequestHolderImpl;
 
 	try
 	{
 		pRequestHolder->request().setMethod(method);
 		if (args.Length() > 0)
-			pRequestHolder->request().setURI(toString(args[0]));
+			pRequestHolder->request().setURI(toString(pIsolate, args[0]));
 		if (args.Length() > 1)
-			pRequestHolder->request().setVersion(toString(args[1]));
+			pRequestHolder->request().setVersion(toString(pIsolate, args[1]));
 		else
 			pRequestHolder->request().setVersion(Poco::Net::HTTPMessage::HTTP_1_1);
 
 		HTTPRequestWrapper wrapper;
-		v8::Persistent<v8::Object>& requestObject(wrapper.wrapNativePersistent(args.GetIsolate(), pRequestHolder));
-		args.GetReturnValue().Set(requestObject);
+		v8::Persistent<v8::Object>& requestObject(wrapper.wrapNativePersistent(pIsolate, pRequestHolder));
+		args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, requestObject));
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -340,7 +340,7 @@ void HTTPRequestWrapper::getCookies(v8::Local<v8::String> name, const v8::Proper
 	{
 		for (auto it = cookies.begin(); it != cookies.end(); ++it)
 		{
-			(void) result->Set(context, toV8String(pIsolate, it->first), toV8String(pIsolate, it->second));
+			V8_CHECK_SET_RESULT(result->Set(context, toV8String(pIsolate, it->first), toV8String(pIsolate, it->second)));
 		}
 	}
 	info.GetReturnValue().Set(result);
@@ -360,7 +360,7 @@ void HTTPRequestWrapper::getHeaders(v8::Local<v8::String> name, const v8::Proper
 	{
 		for (auto it = request.begin(); it != request.end(); ++it)
 		{
-			(void) result->Set(context, toV8String(pIsolate, it->first), toV8String(pIsolate, it->second));
+			V8_CHECK_SET_RESULT(result->Set(context, toV8String(pIsolate, it->first), toV8String(pIsolate, it->second)));
 		}
 	}
 	info.GetReturnValue().Set(result);
@@ -385,8 +385,8 @@ void HTTPRequestWrapper::getCredentials(v8::Local<v8::String> name, const v8::Pr
 			v8::Local<v8::Object> result(v8::Object::New(pIsolate));
 			if (!result.IsEmpty())
 			{
-				(void) result->Set(context, toV8String(pIsolate, "username"s), toV8String(pIsolate, creds.getUsername()));
-				(void) result->Set(context, toV8String(pIsolate, "password"), toV8String(pIsolate, creds.getPassword()));
+				V8_CHECK_SET_RESULT(result->Set(context, toV8String(pIsolate, "username"s), toV8String(pIsolate, creds.getUsername())));
+				V8_CHECK_SET_RESULT(result->Set(context, toV8String(pIsolate, "password"), toV8String(pIsolate, creds.getPassword())));
 			}
 			info.GetReturnValue().Set(result);
 			return;
@@ -396,7 +396,7 @@ void HTTPRequestWrapper::getCredentials(v8::Local<v8::String> name, const v8::Pr
 			v8::Local<v8::Object> result(v8::Object::New(pIsolate));
 			if (!result.IsEmpty())
 			{
-				(void) result->Set(context, toV8String(pIsolate, "bearer"s), toV8String(pIsolate, authInfo));
+				V8_CHECK_SET_RESULT(result->Set(context, toV8String(pIsolate, "bearer"s), toV8String(pIsolate, authInfo)));
 			}
 			info.GetReturnValue().Set(result);
 			return;
@@ -455,7 +455,7 @@ void HTTPRequestWrapper::getParameters(v8::Local<v8::String> name, const v8::Pro
 	{
 		v8::Local<v8::String> name = toV8String(pIsolate, p.first.c_str());
 		v8::Local<v8::String> value = toV8String(pIsolate, p.second.c_str());
-		(void) result->Set(context, name, value);
+		V8_CHECK_SET_RESULT(result->Set(context, name, value));
 	}
 	info.GetReturnValue().Set(result);
 }
@@ -502,95 +502,6 @@ void HTTPRequestWrapper::setParameters(v8::Local<v8::String> name, v8::Local<v8:
 }
 
 
-void HTTPRequestWrapper::setCredentials(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	v8::HandleScope handleScope(info.GetIsolate());
-	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(info);
-
-	if (value->IsObject())
-	{
-		v8::Local<v8::Object> credentials = value.As<v8::Object>();
-		v8::Local<v8::String> usernameProp = v8::String::NewFromUtf8(info.GetIsolate(), "username");
-		v8::Local<v8::String> passwordProp = v8::String::NewFromUtf8(info.GetIsolate(), "password");
-		v8::Local<v8::String> bearerProp = v8::String::NewFromUtf8(info.GetIsolate(), "bearer");
-
-		if (credentials->Has(usernameProp) && credentials->Has(passwordProp))
-		{
-			const std::string username = toString(credentials->Get(usernameProp));
-			const std::string password = toString(credentials->Get(passwordProp));
-			Poco::Net::HTTPBasicCredentials basicCredentials(username, password);
-			basicCredentials.authenticate(pRequestHolder->request());
-		}
-		else if (credentials->Has(bearerProp))
-		{
-			const std::string bearer = toString(credentials->Get(bearerProp));
-			Poco::Net::OAuth20Credentials oauthCreds(bearer);
-			oauthCreds.authenticate(pRequestHolder->request());
-		}
-		else
-		{
-			returnException(info, "Invalid credentials object"s);
-		}
-	}
-}
-
-
-void HTTPRequestWrapper::getParameters(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
-{
-	v8::HandleScope handleScope(info.GetIsolate());
-	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(info);
-
-	Poco::MemoryInputStream bodyStream(pRequestHolder->content().data(), pRequestHolder->content().size());
-	Poco::Net::HTMLForm form(pRequestHolder->request(), bodyStream);
-	v8::Local<v8::Object> result(v8::Object::New(info.GetIsolate()));
-	for (const auto& p: form)
-	{
-		v8::Local<v8::String> name = v8::String::NewFromUtf8(info.GetIsolate(), p.first.c_str());
-		v8::Local<v8::String> value = v8::String::NewFromUtf8(info.GetIsolate(), p.second.c_str());
-		result->Set(name, value);
-	}
-	info.GetReturnValue().Set(result);
-}
-
-
-void HTTPRequestWrapper::setParameters(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
-{
-	v8::HandleScope handleScope(info.GetIsolate());
-	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(info);
-
-	if (value->IsObject())
-	{
-		if (pRequestHolder->request().getMethod() == Poco::Net::HTTPRequest::HTTP_GET)
-		{
-			Poco::URI uri(pRequestHolder->request().getURI());
-			uri.setRawQuery(""s);
-			pRequestHolder->request().setURI(uri.toString());
-		}
-		Poco::Net::HTMLForm form;
-		v8::Local<v8::Object> params = value.As<v8::Object>();
-		v8::MaybeLocal<v8::Array> maybeNames = params->GetOwnPropertyNames(info.GetIsolate()->GetCurrentContext());
-		if (!maybeNames.IsEmpty())
-		{
-			v8::Local<v8::Array> names = maybeNames.ToLocalChecked();
-			std::size_t length = names->Length();
-			for (std::size_t i = 0; i < length; i++)
-			{
-				const std::string name = toString(names->Get(i));
-				const std::string value = toString(params->Get(names->Get(i)));
-				form.set(name, value);
-			}
-			form.prepareSubmit(pRequestHolder->request());
-			if (pRequestHolder->request().getMethod() != Poco::Net::HTTPRequest::HTTP_GET)
-			{
-				std::ostringstream contentStream;
-				form.write(contentStream);
-				pRequestHolder->content() = contentStream.str();
-			}
-		}
-	}
-}
-
-
 void HTTPRequestWrapper::hasHeader(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
@@ -621,7 +532,14 @@ void HTTPRequestWrapper::setHeader(const v8::FunctionCallbackInfo<v8::Value>& ar
 	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(args);
 	std::string name = toString(pIsolate, args[0]);
 	std::string value = toString(pIsolate, args[1]);
-	pRequestHolder->request().set(name, value);
+	try
+	{
+		pRequestHolder->request().set(name, value);
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
 }
 
 
@@ -632,7 +550,14 @@ void HTTPRequestWrapper::addHeader(const v8::FunctionCallbackInfo<v8::Value>& ar
 	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(args);
 	std::string name = toString(pIsolate, args[0]);
 	std::string value = toString(pIsolate, args[1]);
-	pRequestHolder->request().add(name, value);
+	try
+	{
+		pRequestHolder->request().add(name, value);
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
 }
 
 
@@ -643,8 +568,15 @@ void HTTPRequestWrapper::authenticate(const v8::FunctionCallbackInfo<v8::Value>&
 	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(args);
 	std::string username = toString(pIsolate, args[0]);
 	std::string password = toString(pIsolate, args[1]);
-	Poco::Net::HTTPBasicCredentials creds(username, password);
-	creds.authenticate(pRequestHolder->request());
+	try
+	{
+		Poco::Net::HTTPBasicCredentials creds(username, password);
+		creds.authenticate(pRequestHolder->request());
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
 }
 
 
@@ -661,6 +593,20 @@ void HTTPRequestWrapper::send(const v8::FunctionCallbackInfo<v8::Value>& args)
 }
 
 
+void HTTPRequestWrapper::cancel(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	RequestHolder* pRequestHolder = Wrapper::unwrapNative<RequestHolder>(args);
+	try
+	{
+		pRequestHolder->cancelRequest();
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
+}
+
+
 void HTTPRequestWrapper::sendBlocking(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	v8::Isolate* pIsolate(args.GetIsolate());
@@ -672,14 +618,15 @@ void HTTPRequestWrapper::sendBlocking(const v8::FunctionCallbackInfo<v8::Value>&
 		Poco::URI uri(uriString);
 		std::string uriPath = uri.getPathEtc();
 		if (uriPath.empty()) uriPath = "/";
-		pRequestHolder->request().setURI(uriPath);
+		Poco::Net::HTTPRequest request(pRequestHolder->request());
+		request.setURI(uriPath);
 		Poco::SharedPtr<Poco::Net::HTTPClientSession> pCS = Poco::Net::HTTPSessionFactory::defaultFactory().createClientSession(uri);
-		if (pRequestHolder->request().getMethod() == Poco::Net::HTTPRequest::HTTP_PUT || pRequestHolder->request().getMethod() == Poco::Net::HTTPRequest::HTTP_POST || pRequestHolder->request().getMethod() == Poco::Net::HTTPRequest::HTTP_PATCH)
+		if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_PUT || request.getMethod() == Poco::Net::HTTPRequest::HTTP_POST || request.getMethod() == Poco::Net::HTTPRequest::HTTP_PATCH)
 		{
-			pRequestHolder->request().setContentLength(pRequestHolder->content().length());
+			request.setContentLength(pRequestHolder->content().length());
 		}
 		pCS->setTimeout(pRequestHolder->getTimeout());
-		pCS->sendRequest(pRequestHolder->request()).write(pRequestHolder->content().data(), pRequestHolder->content().size());
+		pCS->sendRequest(request).write(pRequestHolder->content().data(), pRequestHolder->content().size());
 		std::istream& istr = pCS->receiveResponse(pResponseHolder->response());
 		std::streamsize contentLength = pResponseHolder->response().getContentLength();
 		if (contentLength != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
@@ -690,25 +637,71 @@ void HTTPRequestWrapper::sendBlocking(const v8::FunctionCallbackInfo<v8::Value>&
 		HTTPResponseWrapper wrapper;
 		v8::Persistent<v8::Object>& responseObject(wrapper.wrapNativePersistent(pIsolate, pResponseHolder));
 		args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, responseObject));
-		pRequestHolder->request().setURI(uriString);
 	}
 	catch (Poco::Exception& exc)
 	{
 		delete pResponseHolder;
-		pRequestHolder->request().setURI(uriString);
 		returnException(args, exc);
 	}
 }
 
 
+class AsyncCancelHandler: public CancelHandler
+{
+public:
+	using Ptr = Poco::AutoPtr<AsyncCancelHandler>;
+
+	AsyncCancelHandler(Poco::SharedPtr<Poco::Net::HTTPClientSession> pSession):
+		_pSession(pSession)
+	{
+	}
+
+	bool cancelled() const
+	{
+		return _cancelled;
+	}
+
+	void disarm()
+	{
+		Poco::FastMutex::ScopedLock lock(_mutex);
+		_pSession.reset();
+	}
+
+	// CancelHandler
+	void cancelRequest()
+	{
+		_cancelled = true;
+		try
+		{
+			Poco::FastMutex::ScopedLock lock(_mutex);
+		
+			if (_pSession)
+			{
+				_pSession->abort();
+				_pSession.reset();
+			}
+		}
+		catch (...)
+		{
+		}
+	}
+
+private:
+	Poco::SharedPtr<Poco::Net::HTTPClientSession> _pSession;
+	Poco::FastMutex _mutex;
+	std::atomic<bool> _cancelled{false};
+};
+
+
 class AsyncRequest: public Poco::Runnable
 {
 public:
-	AsyncRequest(v8::Isolate* pIsolate, Poco::JS::Core::TimedJSExecutor::Ptr pExecutor, Poco::SharedPtr<Poco::Net::HTTPClientSession> pSession, Poco::SharedPtr<Poco::Net::HTTPRequest> pRequest, const std::string& body, v8::Handle<v8::Function> function):
+	AsyncRequest(v8::Isolate* pIsolate, Poco::JS::Core::TimedJSExecutor::Ptr pExecutor, Poco::SharedPtr<Poco::Net::HTTPClientSession> pSession, Poco::SharedPtr<Poco::Net::HTTPRequest> pRequest, AsyncCancelHandler::Ptr pCancelHandler, const std::string& body, v8::Handle<v8::Function> function):
 		_pIsolate(pIsolate),
 		_pExecutor(pExecutor),
 		_pSession(pSession),
 		_pRequest(pRequest),
+		_pCancelHandler(pCancelHandler),
 		_body(body),
 		_function(pIsolate, function)
 	{
@@ -728,6 +721,11 @@ public:
 		return _body;
 	}
 
+	AsyncCancelHandler::Ptr cancelHandler() const
+	{
+		return _pCancelHandler;
+	}
+
 	void run();
 
 private:
@@ -735,10 +733,10 @@ private:
 	Poco::JS::Core::TimedJSExecutor::Ptr _pExecutor;
 	Poco::SharedPtr<Poco::Net::HTTPClientSession> _pSession;
 	Poco::SharedPtr<Poco::Net::HTTPRequest> _pRequest;
+	AsyncCancelHandler::Ptr _pCancelHandler;
 	std::string _body;
 	v8::Persistent<v8::Function> _function;
 };
-
 
 
 class AsyncRequestCompletionTask: public Poco::Util::TimerTask
@@ -746,7 +744,7 @@ class AsyncRequestCompletionTask: public Poco::Util::TimerTask
 public:
 	AsyncRequestCompletionTask(v8::Isolate* pIsolate, Poco::JS::Core::JSExecutor::Ptr pExecutor, Poco::SharedPtr<Poco::Net::HTTPResponse> pResponse, AsyncRequest* pAsyncRequest):
 		_pIsolate(pIsolate),
-		_pExecutor(pExecutor, true),
+		_pExecutor(pExecutor),
 		_pResponse(pResponse),
 		_pAsyncRequest(pAsyncRequest)
 	{
@@ -769,22 +767,25 @@ public:
 		v8::Context::Scope contextScope(context);
 
 		ResponseHolder* pResponseHolder = new ResponsePtrHolderImpl<Poco::Net::HTTPResponse>(_pResponse);
-		pResponseHolder->content() = std::move(_pAsyncRequest->body());
+		std::swap(pResponseHolder->content(), _pAsyncRequest->body());
 		HTTPResponseWrapper wrapper;
 		v8::Persistent<v8::Object>& responseObject(wrapper.wrapNativePersistent(_pIsolate, pResponseHolder));
 
 		v8::Local<v8::Object> statusObject = v8::Object::New(_pIsolate);
-		(void) statusObject->Set(context, Core::Wrapper::toV8String(_pIsolate, "response"s), v8::Local<v8::Object>::New(_pIsolate, responseObject));
-		(void) statusObject->Set(context, Core::Wrapper::toV8String(_pIsolate, "error"s), v8::Null(_pIsolate));
+		V8_CHECK_SET_RESULT(statusObject->Set(context, Core::Wrapper::toV8String(_pIsolate, "response"s), v8::Local<v8::Object>::New(_pIsolate, responseObject)));
+		V8_CHECK_SET_RESULT(statusObject->Set(context, Core::Wrapper::toV8String(_pIsolate, "error"s), v8::Null(_pIsolate)));
 
 		v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(_pIsolate, _pAsyncRequest->function()));
 		v8::Local<v8::Value> receiver(v8::Null(_pIsolate));
 		_pAsyncRequest->function().Reset();
 
-		v8::Handle<v8::Value> args[1];
-		args[0] = v8::Local<v8::Object>::New(_pIsolate, statusObject);
+		if (!_pAsyncRequest->cancelHandler()->cancelled())
+		{
+			v8::Handle<v8::Value> args[1];
+			args[0] = v8::Local<v8::Object>::New(_pIsolate, statusObject);
 
-		_pExecutor->callInContext(_pIsolate, context, localFunction, receiver, 1, args);
+			_pExecutor->callInContext(_pIsolate, context, localFunction, receiver, 1, args);
+		}
 	}
 
 private:
@@ -823,17 +824,20 @@ public:
 		v8::Context::Scope contextScope(context);
 
 		v8::Local<v8::Object> statusObject = v8::Object::New(_pIsolate);
-		(void) statusObject->Set(context, Core::Wrapper::toV8String(_pIsolate, "response"s), v8::Null(_pIsolate));
-		(void) statusObject->Set(context, Core::Wrapper::toV8String(_pIsolate, "error"s), Core::Wrapper::toV8String(_pIsolate, _pException->displayText()));
+		V8_CHECK_SET_RESULT(statusObject->Set(context, Core::Wrapper::toV8String(_pIsolate, "response"s), v8::Null(_pIsolate)));
+		V8_CHECK_SET_RESULT(statusObject->Set(context, Core::Wrapper::toV8String(_pIsolate, "error"s), Core::Wrapper::toV8String(_pIsolate, _pException->displayText())));
 
 		v8::Local<v8::Function> localFunction(v8::Local<v8::Function>::New(_pIsolate, _pAsyncRequest->function()));
 		v8::Local<v8::Value> receiver(v8::Null(_pIsolate));
 		_pAsyncRequest->function().Reset();
 
-		v8::Handle<v8::Value> args[1];
-		args[0] = v8::Local<v8::Object>::New(_pIsolate, statusObject);
+		if (!_pAsyncRequest->cancelHandler()->cancelled())
+		{
+			v8::Handle<v8::Value> args[1];
+			args[0] = v8::Local<v8::Object>::New(_pIsolate, statusObject);
 
-		_pExecutor->callInContext(_pIsolate, context, localFunction, receiver, 1, args);
+			_pExecutor->callInContext(_pIsolate, context, localFunction, receiver, 1, args);
+		}
 	}
 
 private:
@@ -848,26 +852,43 @@ void AsyncRequest::run()
 {
 	try
 	{
-		_pSession->sendRequest(*_pRequest).write(_body.data(), _body.size());
-		Poco::SharedPtr<Poco::Net::HTTPResponse> pResponse = new Poco::Net::HTTPResponse;
-		std::istream& istr = _pSession->receiveResponse(*pResponse);
-		std::streamsize contentLength = pResponse->getContentLength();
-		_body.clear();
-		if (contentLength != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
+		if (!_pCancelHandler->cancelled())
 		{
-			_body.reserve(static_cast<std::size_t>(contentLength));
+			_pSession->sendRequest(*_pRequest).write(_body.data(), _body.size());
 		}
-		Poco::StreamCopier::copyToString(istr, _body);
-		_pExecutor->schedule(new AsyncRequestCompletionTask(_pIsolate, _pExecutor, pResponse, this));
+
+		Poco::SharedPtr<Poco::Net::HTTPResponse> pResponse = new Poco::Net::HTTPResponse;
+		if (!_pCancelHandler->cancelled())
+		{
+			std::istream& istr = _pSession->receiveResponse(*pResponse);
+			std::streamsize contentLength = pResponse->getContentLength();
+			_body.clear();
+			if (contentLength != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
+			{
+				_body.reserve(static_cast<std::size_t>(contentLength));
+			}
+			if (!_pCancelHandler->cancelled())
+			{
+				Poco::StreamCopier::copyToString(istr, _body);
+			}
+		}
+		if (!_pCancelHandler->cancelled())
+		{
+			_pExecutor->schedule(new AsyncRequestCompletionTask(_pIsolate, _pExecutor, pResponse, this));
+		}
 	}
 	catch (Poco::Exception& exc)
 	{
-		_pExecutor->schedule(new AsyncRequestFailedTask(_pIsolate, _pExecutor, exc.clone(), this));
+		if (!_pCancelHandler->cancelled())
+		{
+			_pExecutor->schedule(new AsyncRequestFailedTask(_pIsolate, _pExecutor, exc.clone(), this));
+		}
 	}
 	catch (...)
 	{
 		poco_bugcheck();
 	}
+	_pCancelHandler->disarm();
 }
 
 
@@ -887,9 +908,8 @@ void HTTPRequestWrapper::sendAsync(const v8::FunctionCallbackInfo<v8::Value>& ar
 			Poco::URI uri(uriString);
 			std::string uriPath = uri.getPathEtc();
 			if (uriPath.empty()) uriPath = "/";
-			pRequestHolder->request().setURI(uriPath);
-			Poco::SharedPtr<Poco::Net::HTTPRequest> pRequest = new Poco::Net::HTTPRequest(pRequestHolder->request().getMethod(), uriPath, pRequestHolder->request().getVersion());
-			static_cast<Poco::Net::MessageHeader&>(*pRequest) = pRequestHolder->request();
+			Poco::SharedPtr<Poco::Net::HTTPRequest> pRequest = new Poco::Net::HTTPRequest(pRequestHolder->request());
+			pRequest->setURI(uriPath);
 			Poco::SharedPtr<Poco::Net::HTTPClientSession> pCS = Poco::Net::HTTPSessionFactory::defaultFactory().createClientSession(uri);
 			if (pRequest->getMethod() == Poco::Net::HTTPRequest::HTTP_PUT || pRequest->getMethod() == Poco::Net::HTTPRequest::HTTP_POST)
 			{
@@ -897,7 +917,9 @@ void HTTPRequestWrapper::sendAsync(const v8::FunctionCallbackInfo<v8::Value>& ar
 			}
 			pCS->setTimeout(pRequestHolder->getTimeout());
 
-			AsyncRequest* pAsyncRequest = new AsyncRequest(pIsolate, pTimedJSExecutor, pCS, pRequest, pRequestHolder->content(), function);
+			AsyncCancelHandler::Ptr pCancelHandler = new AsyncCancelHandler(pCS);
+			pRequestHolder->setCancelHandler(pCancelHandler);
+			AsyncRequest* pAsyncRequest = new AsyncRequest(pIsolate, pTimedJSExecutor, pCS, pRequest, pCancelHandler, pRequestHolder->content(), function);
 			try
 			{
 				Poco::ThreadPool::defaultPool().start(*pAsyncRequest);

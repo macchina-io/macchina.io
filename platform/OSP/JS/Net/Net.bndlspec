@@ -6,7 +6,7 @@
     <version>1.0.0</version>
     <version>1.0.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2017-2022, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2017-2024, Applied Informatics Software Engineering GmbH</copyright>
     <lazyStart>false</lazyStart>
     <runLevel>600</runLevel>
     <dependency>

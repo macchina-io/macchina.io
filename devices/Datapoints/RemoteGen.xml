@@ -1,0 +1,31 @@
+<AppConfig>
+	<RemoteGen>
+		<files>
+			<include>
+				include/IoT/Datapoints/Types.h
+				include/IoT/Datapoints/DatapointFactory.h
+			</include>
+			<include-paths>
+				include
+				../Devices/include
+			</include-paths>
+		</files>
+		<output>
+			<namespace>IoT::Datapoints</namespace>
+			<include>skel/include/IoT/Datapoints</include>
+			<src>skel/src</src>
+			<copyright>Copyright (c) 2022, Applied Informatics Software Engineering GmbH.
+			           All rights reserved.
+
+			           License: Applied Informatics Software and Source Code License Agreement</copyright>
+			<mode>server</mode>
+			<osp>
+				<enable>true</enable>
+			</osp>
+			<timestamps>false</timestamps>
+			<includeRoot>skel/include</includeRoot>
+			<flatIncludes>false</flatIncludes>
+			<includePrefix namespace="IoT::Devices">IoT/Devices</includePrefix>
+		</output>
+	</RemoteGen>
+</AppConfig>

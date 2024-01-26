@@ -20,19 +20,22 @@
 #include "Poco/Format.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace BtLE {
 namespace BlueZ {
 
 
 BlueZGATTClient::BlueZGATTClient(const std::string helperPath):
-	_helperPath(helperPath),
+	HelperClient(helperPath),
 	_state(GATT_STATE_DISCONNECTED),
 	_connectMode(GATT_CONNECT_WAIT),
 	_securityLevel(GATT_SECURITY_LOW),
 	_mtu(0),
 	_timeout(DEFAULT_TIMEOUT),
-	_logger(Poco::Logger::get("IoT.BlueZGATTClient"))
+	_logger(Poco::Logger::get("IoT.BtLT.BlueZGATTClient"s))
 {
 }
 
@@ -56,7 +59,7 @@ void BlueZGATTClient::connect(const std::string& address, ConnectMode mode)
 	if (state() != GATT_STATE_DISCONNECTED)
 		throw Poco::IllegalStateException("can only connect if current state is disconnected");
 
-	_logger.debug("Connecting to peripheral " + address + "...");
+	_logger.debug("Connecting to peripheral %s..."s, address);
 
 	changeState(GATT_STATE_CONNECTING);
 	_connectMode = mode;
@@ -78,7 +81,7 @@ void BlueZGATTClient::connect(const std::string& address, ConnectMode mode)
 			}
 			else if (state != "conn")
 			{
-				_logger.warning("Invalid state after connect: " + state);
+				_logger.warning("Invalid state after connect: %s"s, state);
 			}
 		}
 	}
@@ -97,7 +100,7 @@ void BlueZGATTClient::disconnect()
 
 	if (state() == GATT_STATE_CONNECTED)
 	{
-		_logger.debug("Disconnecting from peripheral " + _address + "...");
+		_logger.debug("Disconnecting from peripheral %s..."s, _address);
 
 		changeState(GATT_STATE_DISCONNECTING);
 		if (helperRunning())
@@ -109,7 +112,7 @@ void BlueZGATTClient::disconnect()
 				std::string state = decodeValue(pResponse->get("state"));
 				if (state != "disc")
 				{
-					_logger.warning("invalid state after disconnect: " + state);
+					_logger.warning("invalid state after disconnect: %s"s, state);
 				}
 			}
 			catch (Poco::Exception& exc)
@@ -120,7 +123,7 @@ void BlueZGATTClient::disconnect()
 		changeState(GATT_STATE_DISCONNECTED);
 		_address.clear();
 
-		_logger.debug("Disconnected.");
+		_logger.debug("Disconnected."s);
 	}
 	stopHelper();
 }
@@ -389,125 +392,6 @@ void BlueZGATTClient::changeState(State state)
 }
 
 
-void BlueZGATTClient::startHelper()
-{
-	if (!_pHelperInfo)
-	{
-		_logger.debug(Poco::format("Starting helper: %s...", _helperPath));
-		Poco::File helperExec(_helperPath);
-		if (!helperExec.exists())
-			throw Poco::FileNotFoundException("helper executable not found", _helperPath);
-		if (!helperExec.canExecute())
-			throw Poco::FileException("helper executable does not have execute permission", _helperPath);
-
-		Poco::Pipe inputPipe;
-		Poco::Pipe outputPipe;
-		Poco::Process::Args args;
-		Poco::ProcessHandle ph = Poco::Process::launch(_helperPath, args, &inputPipe, &outputPipe, 0);
-		_pHelperInfo = new HelperInfo(ph, inputPipe, outputPipe);
-		_helperThread.start(*this);
-		_logger.debug("Helper started.");
-	}
-}
-
-
-void BlueZGATTClient::stopHelper()
-{
-	if (_pHelperInfo)
-	{
-		_logger.debug("Stopping helper...");
-		if (helperRunning())
-		{
-			try
-			{
-				sendCommand("quit");
-			}
-			catch (Poco::Exception&)
-			{
-			}
-		}
-		try
-		{
-			_helperThread.join(10000);
-		}
-		catch (Poco::TimeoutException&)
-		{
-			_logger.debug("Helper failed to quit in time, killing...");
-			Poco::Process::kill(_pHelperInfo->processHandle);
-			try
-			{
-				_helperThread.join();
-			}
-			catch (Poco::Exception& exc)
-			{
-				_logger.debug("Failed to join helper thread: %s", exc.displayText());
-			}
-		}
-		_pHelperInfo = 0;
-		_logger.debug("Helper stopped.");
-	}
-}
-
-
-bool BlueZGATTClient::helperRunning()
-{
-	return _pHelperInfo && _pHelperInfo->outputStream.good();
-}
-
-
-void BlueZGATTClient::run()
-{
-	std::string response;
-	while (_pHelperInfo->inputStream.good())
-	{
-		std::getline(_pHelperInfo->inputStream, response);
-		if (!response.empty())
-		{
-			try
-			{
-				processResponse(response);
-			}
-			catch (Poco::Exception& exc)
-			{
-				_logger.log(exc);
-			}
-		}
-	}
-	_logger.debug("Helper process terminated");
-	try
-	{
-		 _pHelperInfo->processHandle.wait();
-	}
-	catch (Poco::Exception& exc)
-	{
-		_logger.debug("Failed to wait for helper process: %s", exc.displayText());
-	}
-}
-
-
-void BlueZGATTClient::sendCommand(const std::string& command)
-{
-	if (helperRunning())
-	{
-		_logger.debug(Poco::format("[%s] Sending command: %s", _address, command));
-
-		if (!_responseQueue.empty())
-		{
-			_logger.debug("Response queue not empty");
-			_responseQueue.clear();
-		}
-
-		_pHelperInfo->outputStream << command << std::endl;
-		if (!_pHelperInfo->outputStream.good())
-		{
-			_pHelperInfo = 0;
-			throw Poco::IOException("helper process no longer running");
-		}
-	}
-	else throw Poco::IllegalStateException("helper process not running");
-}
-
-
 void BlueZGATTClient::processResponse(const std::string& response)
 {
 	if (!response.empty() && response[0] == '#') return;
@@ -518,9 +402,9 @@ void BlueZGATTClient::processResponse(const std::string& response)
 	bool queueResponse = false;
 	if (pResponse->type() == "ind")
 	{
-		std::string data = decodeValue(pResponse->get("d"));
+		std::string data = decodeValue(pResponse->get("d"s));
 		Indication ind;
-		ind.handle = decodeWord(pResponse->get("hnd"));
+		ind.handle = decodeWord(pResponse->get("hnd"s));
 		ind.data.assign(data.begin(), data.end());
 		try
 		{
@@ -532,9 +416,9 @@ void BlueZGATTClient::processResponse(const std::string& response)
 	}
 	else if (pResponse->type() == "ntfy")
 	{
-		std::string data = decodeValue(pResponse->get("d"));
+		std::string data = decodeValue(pResponse->get("d"s));
 		Notification nf;
-		nf.handle = decodeWord(pResponse->get("hnd"));
+		nf.handle = decodeWord(pResponse->get("hnd"s));
 		nf.data.assign(data.begin(), data.end());
 		try
 		{
@@ -547,15 +431,15 @@ void BlueZGATTClient::processResponse(const std::string& response)
 	else if (pResponse->type() == "stat")
 	{
 		queueResponse = (_connectMode == GATT_CONNECT_WAIT || state() != GATT_STATE_CONNECTING);
-		std::string state = decodeValue(pResponse->get("state"));
+		std::string state = decodeValue(pResponse->get("state"s));
 		if (state == "tryconn")
 		{
 			changeState(GATT_STATE_CONNECTING);
 		}
 		else if (state == "conn")
 		{
-			_mtu = decodeWord(pResponse->get("mtu"));
-			std::string sec = decodeValue(pResponse->get("sec"));
+			_mtu = decodeWord(pResponse->get("mtu"s));
+			std::string sec = decodeValue(pResponse->get("sec"s));
 			if (sec == "low")
 				_securityLevel = GATT_SECURITY_LOW;
 			else if (sec == "medium")
@@ -563,10 +447,10 @@ void BlueZGATTClient::processResponse(const std::string& response)
 			else if (sec == "high")
 				_securityLevel = GATT_SECURITY_HIGH;
 			else
-				_logger.warning("received invalid security level: " + sec);
-			_address = decodeValue(pResponse->get("dst"));
+				_logger.warning("received invalid security level: %s"s, sec);
+			_address = decodeValue(pResponse->get("dst"s));
 			changeState(GATT_STATE_CONNECTED);
-			_logger.information("Connected to " + _address);
+			_logger.information("Connected to %s"s, _address);
 		}
 		else if (state == "disc")
 		{
@@ -575,8 +459,8 @@ void BlueZGATTClient::processResponse(const std::string& response)
 	}
 	else if (pResponse->type() == "err")
 	{
-		std::string code = decodeValue(pResponse->get("code"));
-		std::string msg = decodeValue(pResponse->get("emsg", std::string()));
+		std::string code = decodeValue(pResponse->get("code"s));
+		std::string msg = decodeValue(pResponse->get("emsg"s, std::string()));
 		if (!msg.empty())
 		{
 			code += ": ";
@@ -585,140 +469,18 @@ void BlueZGATTClient::processResponse(const std::string& response)
 		error(code);
 		queueResponse = _state != GATT_STATE_DISCONNECTED;
 	}
+	else if (pResponse->type() == "scan")
+	{
+		// ignore
+	}
 	else
 	{
 		queueResponse = true;
 	}
 	if (queueResponse)
 	{
-		_responseQueue.enqueueNotification(pResponse);
+		enqueueResponse(pResponse);
 	}
-}
-
-
-BlueZGATTClient::ParsedResponse::Ptr BlueZGATTClient::expectResponse(const std::string& type, long timeout)
-{
-	ParsedResponse::Ptr pResponse = waitResponse(timeout);
-	if (pResponse->type() == type)
-	{
-		return pResponse;
-	}
-	else if (pResponse->type() == "err")
-	{
-		std::string code = decodeValue(pResponse->get("code"));
-		std::string msg = decodeValue(pResponse->get("emsg", std::string()));
-		if (code == "connfail")
-			throw Poco::IOException("cannot connect to peripheral", msg);
-		else if (code == "comerr")
-			throw Poco::IOException("peripheral device error", msg);
-		else if (code == "protoerr")
-			throw Poco::IOException("protocol error", msg);
-		else if (code == "notfound")
-			throw Poco::IOException("not found", msg);
-		else if (code == "badcmd")
-			throw Poco::IOException("bad command", msg);
-		else if (code == "badparam")
-			throw Poco::IOException("bad parameter", msg);
-		else if (code == "badstate")
-			throw Poco::IOException("bad state", msg);
-		else
-			throw Poco::IOException(code, msg);
-	}
-	else throw Poco::ProtocolException("unexpected type", pResponse->type());
-}
-
-
-BlueZGATTClient::ParsedResponse::Ptr BlueZGATTClient::waitResponse(long timeout)
-{
-	Poco::Notification* pNf = _responseQueue.waitDequeueNotification(timeout);
-	if (pNf)
-		return static_cast<ParsedResponse*>(pNf);
-	else
-		throw Poco::TimeoutException("timeout waiting for helper response");
-}
-
-
-void BlueZGATTClient::parseResponse(const std::string& response, ParsedResponse& parsedResponse)
-{
-	_logger.debug(Poco::format("[%s] Parsing response: %s", _address, response));
-
-	std::string delim;
-	if (response.find('\036') != std::string::npos)
-		delim = "\036";
-	else
-		delim = " ";
-	Poco::StringTokenizer tok(response, delim, Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
-	if (tok.count() > 0)
-	{
-		for (Poco::StringTokenizer::Iterator it = tok.begin(); it != tok.end(); ++it)
-		{
-			const std::string& param = *it;
-			std::string::size_type pos = param.find('=');
-			if (pos != std::string::npos)
-			{
-				std::string key(param, 0, pos);
-				std::string val(param, pos + 1);
-				parsedResponse.add(KeyValuePair(key, val));
-			}
-			else throw Poco::SyntaxException("bad response parameter", param);
-		}
-	}
-	else throw Poco::SyntaxException("bad response", response);
-}
-
-
-namespace
-{
-	Poco::UInt8 nibble(char hex)
-	{
-		if (hex >= 'a' && hex <= 'f')
-			return hex - 'a' + 10;
-		else if (hex >= 'A' && hex <= 'F')
-			return hex - 'A' + 10;
-		else if (hex >= '0' && hex <= '9')
-			return hex - '0';
-		else
-			throw Poco::SyntaxException("invalid hex character");
-	}
-}
-
-
-std::string BlueZGATTClient::decodeValue(const std::string& value)
-{
-	std::string decodedValue;
-	if (!value.empty())
-	{
-		if (value[0] == '$' || value[0] == '\'')
-		{
-			decodedValue.assign(value, 1, std::string::npos);
-		}
-		else if (value[0] == 'h')
-		{
-			decodedValue.assign(value, 1, std::string::npos);
-		}
-		else if (value[0] == 'b')
-		{
-			std::string::size_type i = 1;
-			while (i < value.size() - 1)
-			{
-				Poco::UInt8 byte = nibble(value[i++]) << 4;
-				byte |= nibble(value[i++]);
-				decodedValue += static_cast<char>(byte);
-			}
-		}
-	}
-	return decodedValue;
-}
-
-
-Poco::UInt16 BlueZGATTClient::decodeWord(const std::string& value)
-{
-	if (!value.empty() && value[0] == 'h')
-	{
-		std::string handle(value, 1, std::string::npos);
-		return static_cast<Poco::UInt16>(Poco::NumberParser::parseHex(handle));
-	}
-	throw Poco::SyntaxException("expected handle value, got", value);
 }
 
 

@@ -65,18 +65,15 @@ table
 
 body 
 {
-	background-color: #cccccc;
-	min-width: 996px;
+	background-color: #f3f3f4;
+	min-width: 1200px;
 	width: 100%;
 	color: #111;
-	background-image: url(../images/gradient.png);
-	background-repeat: repeat-x;
-	background-attachment: fixed;
 }
 
 p, h1, h2, h3, h4, h5, h6, ul, ol, li, td, th, form, address, blockquote, strong, b, div, emph, i
 {
-	font-family: Helvetica, Arial, SunSans-Regular, sans-serif; 
+	font-family: 'Source Sans Pro', sans-serif;
 }
 
 div, p, ul, ol, li, address, blockquote, h6, form, td
@@ -110,6 +107,20 @@ div.header
 	color: white;
 }
 
+div.header a
+{
+	color: white;
+	font-weight: bold;
+	font-size: 20px;
+	margin-right: 6px;
+}
+
+div.header a:link, div.header a:visited, a:active, a:hover
+{
+	color: white;
+	text-decoration: none; 	
+}
+
 div.header h1
 {
 	font-size: 20px;
@@ -121,7 +132,7 @@ div.header h1
 
 div.header h1 img
 {
-	margin-right: 24px;
+	margin-right: 12px;
 }
 
 div.footercontainer
@@ -147,7 +158,7 @@ div.footer
 	margin-bottom: 8px;
 	margin-left: 12px;
 	margin-right: 120px;
-	font-size: 12px;
+	font-size: 13px;
 	line-height: 24px;
 	z-index: 100;
 }
@@ -214,7 +225,7 @@ pre
 h1
 {
 	color: #111; 
-	font-size: 24px; 
+	font-size: 26px; 
 	font-weight: normal; 
 	line-height: 32px; 
 	margin-top: 12px;
@@ -224,7 +235,7 @@ h1
 h2 
 {
 	color: #111; 
-	font-size: 20px; 
+	font-size: 22px; 
 	margin-top: 8px; 
 	margin-bottom: 8px;
 	line-height: 24px;
@@ -233,7 +244,7 @@ h2
 div.groupbox h2 
 {
 	color: #111; 
-	font-size: 18px; 
+	font-size: 20px; 
 	margin-top: 2px; 
 	margin-bottom: 8px;
 	line-height: 24px;
@@ -242,7 +253,7 @@ div.groupbox h2
 h3
 {
 	color: #111;
-	font-size: 18px; 
+	font-size: 20px; 
 	margin-top: 10px;
 	margin-right: 0;
 	margin-bottom: 0px;
@@ -259,7 +270,7 @@ h3
 h4
 {
 	color: #111; 
-	font-size: 16px; 
+	font-size: 17px; 
 	margin-top: 10px; 
 	margin-bottom: 0; 
 }
@@ -321,6 +332,19 @@ div.navigation ul li
 	margin-left: 8px;
 }
 
+div.navigation ul li a
+{
+	margin-left: 4px;
+}
+
+div.navigation ul li input
+{
+	margin-left: 4px;
+	border: 0px;
+	background-color: white;
+	font-size: 12px;
+}
+
 div.navigation ul li.backlink
 {
 	display: inline;
@@ -352,7 +376,7 @@ a.navigation-active:link, a.navigation-active:visited, a.navigation-active:activ
 
 div.username
 {
-	font-size: 12px; 
+	font-size: 13px; 
 	text-align: right; 
 	margin: 0;
 	float: right;
@@ -395,13 +419,7 @@ div.listheader
 	padding-bottom: 4px;
 	border: 0;
 	width: auto;
-	font-size: 13px; 
-	line-height: 20px;
-}
-
-div.listheader 
-{
-	font-size: 14px; 
+	font-size: 15px; 
 	line-height: 20px;
 }
 
@@ -417,7 +435,7 @@ div.listfooter
 	padding-bottom: 4px;
 	border: 0;
 	width: auto;
-	font-size: 13px; 
+	font-size: 14px; 
 	line-height: 20px;
 }
 
@@ -433,7 +451,7 @@ table.list
 	background-color: #d8d8d8;
 	border-style: none;
 	padding: 0px;
-	font-size: 14px;
+	font-size: 16px;
 	margin-top: 0;
 	margin-bottom: 0;
 	border: 0;
@@ -488,7 +506,8 @@ table.list td
 
 table.list tr.even
 {
-	background-color: #d0d0d0;
+	background-color: #e7e8e9;
+	border-bottom: 1px solid #d7d8d9;
 }
 
 table.list tr.even:hover, table.list tr.odd:hover
@@ -498,18 +517,21 @@ table.list tr.even:hover, table.list tr.odd:hover
 
 table.list tr.odd
 {
-	background-color: #e0e0e0;
+	background-color: #f0f1f2;
+	border-bottom: 1px solid #d7d8d9;
 }
 
 table.list tr.intermediateHeader
 {
-	background-color: #c0c0c0;
+	background-color: #d0d1d2;
 }
 
 table.list tr.intermediateHeader th
 {
-	background-color: #c0c0c0;
-	color: #0076B8;
+	background-color: #d0d1d2;
+	color: #0e75b7;
+	font-size: 15px;
+	line-height: 15px;
 }
 
 strong, b
@@ -530,7 +552,7 @@ emph, i
 
 .small
 {
-	font-size: 12px; 
+	font-size: 13px; 
 	text-align: left; 
 	line-height: 16px; 
 	margin-top: 8px;
@@ -541,8 +563,8 @@ emph, i
 
 .footer 
 {
-	font-size: 12px; 
-	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	font-size: 13px; 
+	font-family: 'Source Sans Pro', sans-serif;
 	text-align: left; 
 	line-height: 9pt; 
 	color: #444;
@@ -583,7 +605,7 @@ div.loginBox
 {
 	margin-top: 140px;
 	text-align: center;
-	font-size: 16px;
+	font-size: 18px;
 	margin-left: auto;
 	margin-right: auto;
 	padding: 20px;
@@ -597,14 +619,14 @@ div.loginBox td, div.loginBox th
 
 div.loginBox #notice
 {
-	font-size: 20px;
+	font-size: 22px;
 	text-align: center;
 	padding-bottom: 40px;
 }
 
 div.loginBox #subnotice
 {
-	font-size: 18px;
+	font-size: 20px;
 	text-align: center;
 	margin-top: 20px;
 	color: #606060;
@@ -612,7 +634,7 @@ div.loginBox #subnotice
 
 div.loginBox #fullNameLabelCell, div.loginBox #usernameLabelCell, div.loginBox #oldPasswordLabelCell, div.loginBox #passwordLabelCell, div.loginBox #verifyLabelCell
 {	
-	font-size: 16px;
+	font-size: 18px;
 	text-align: right;
 	color: #0076B8;
 }
@@ -624,7 +646,7 @@ div.loginBox #fullNameInputCell, div.loginBox #usernameInputCell, div.loginBox #
 
 div.loginBox #fullNameInput, div.loginBox #usernameInput, div.loginBox #oldPasswordInput, div.loginBox #passwordInput, div.loginBox #verifyInput
 {
-	font-size: 18px;
+	font-size: 20px;
 	width: 240px;
 	height: 28px;
 	background-color: white;
@@ -643,7 +665,7 @@ div.loginBox #loginButton, div.loginBox #resetPasswordButton
 {
 	height: 28px;
 	text-align: center;
-	font-size: 16px;
+	font-size: 18px;
 	background-color: #0076B8;
 	border: 1px solid #012F50;
 	color: white;
@@ -664,7 +686,7 @@ div.loginBox #loginButton:active, div.loginBox #resetPasswordButton:active
 
 div.loginBox #resetPassword, div.loginBox #loginLink
 {
-	font-size: 14px;
+	font-size: 15px;
 }
 
 img.button

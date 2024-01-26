@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2020 IBM Corp.
+ * Copyright (c) 2009, 2022 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -66,7 +66,11 @@
 
 trace_settings_type trace_settings =
 {
+#if defined(HIGH_PERFORMANCE)
+	LOG_ERROR,
+#else
 	TRACE_MINIMUM,
+#endif
 	400,
 	INVALID_LEVEL
 };
@@ -82,7 +86,7 @@ typedef struct
 #endif
 	int sametime_count;
 	int number;
-	int thread_id;
+	thread_id_type thread_id;
 	int depth;
 	char name[MAX_FUNCTION_NAME_LENGTH + 1];
 	int line;
@@ -227,7 +231,7 @@ void Log_setTraceCallback(Log_traceCallback* callback)
 
 void Log_setTraceLevel(enum LOG_LEVELS level)
 {
-	if (level < LOG_ERROR) /* the lowest we can go is LOG_ERROR */
+	if (level <= LOG_ERROR) /* the lowest we can go is LOG_ERROR */
 		trace_settings.trace_level = level;
 	trace_output_level = level;
 }
@@ -449,7 +453,7 @@ void Log(enum LOG_LEVELS log_level, int msgno, const char *format, ...)
  * @param aFormat the printf format string to be used if the message id does not exist
  * @param ... the printf inserts
  */
-void Log_stackTrace(enum LOG_LEVELS log_level, int msgno, int thread_id, int current_depth, const char* name, int line, int* rc)
+void Log_stackTrace(enum LOG_LEVELS log_level, int msgno, thread_id_type thread_id, int current_depth, const char* name, int line, int* rc)
 {
 	traceEntry *cur_entry = NULL;
 

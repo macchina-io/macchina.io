@@ -5,23 +5,25 @@ var mqttControllers = angular.module('mqttControllers', []);
 mqttControllers.controller('ClientsCtrl', ['$scope', '$http', '$interval',
   function ($scope, $http, $interval) {
     $scope.clients = [];
-    $http.get('/macchina/mqtt/clients.jss').success(function(data) {
-      $scope.clients = data;
+    $http.get('/macchina/mqtt/clients.jss').then(function(response) {
+      $scope.clients = response.data;
     });
     $interval(function() {
-      $http.get('/macchina/mqtt/clients.jss').success(function(data) {
-        $scope.clients = data;
+      $http.get('/macchina/mqtt/clients.jss').then(function(response) {
+        $scope.clients = response.data;
       })
     }, 10000);
   }]);
 
 mqttControllers.controller('SessionCtrl', ['$scope', '$http',
   function($scope, $http) {
-    $http.get('/macchina/session.json').success(function(data) {
-      $scope.session = data;
-      if (!data.authenticated)
-      {
-        window.location = "/";
+    $http.get('/macchina/session.json').then(
+      function(response) {
+        $scope.session = response.data;
+        if (!response.data.authenticated)
+        {
+          window.location = "/";
+        }
       }
-    });
+    );
   }]);

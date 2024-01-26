@@ -729,6 +729,13 @@ void DeserializerGenerator::generateTypeDeserializerLines(const Poco::CppParser:
 	GeneratorEngine::parseProperties(pVar, varProps);
 	bool mandatory = GenUtility::getIsMandatory(varProps);
 
+	std::string length;
+	bool haveLength = GeneratorEngine::getStringProperty(varProps, Utility::LENGTH, length);
+	if (haveLength)
+	{
+		lines.push_back("deser.pushProperty(SerializerBase::PROP_LENGTH, \"" + length + "\"s);");
+	}
+
 	std::string declType (Poco::CodeGeneration::Utility::resolveType(pDataType, pVar->declType()));
 	const std::string& origVarName = it->second.first->name();
 	std::string varName("gen" + origVarName);
@@ -816,5 +823,10 @@ void DeserializerGenerator::generateTypeDeserializerLines(const Poco::CppParser:
 			lines.push_back(code);
 			lines.push_back("if (ret) value." + it->second.second->name() + "(" + varName + ");");
 		}
+	}
+
+	if (haveLength)
+	{
+		lines.push_back("deser.pop(SerializerBase::PROP_LENGTH);");
 	}
 }

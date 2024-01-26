@@ -100,7 +100,7 @@ void HTMLFormWrapper::getFields(v8::Local<v8::Name> property, const v8::Property
 	{
 		for (auto it = pForm->begin(); it != pForm->end(); ++it)
 		{
-			(void) result->Set(context, toV8String(pIsolate, it->first), toV8String(pIsolate, it->second));
+			V8_CHECK_SET_RESULT(result->Set(context, toV8String(pIsolate, it->first), toV8String(pIsolate, it->second)));
 		}
 	}
 	info.GetReturnValue().Set(result);

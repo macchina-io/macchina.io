@@ -2,7 +2,7 @@
 // ModbusException.cpp
 //
 // Library: IoT/Modbus
-// Package: ModbusMaster
+// Package: ModbusCore
 // Module:  ModbusException
 //
 // Copyright (c) 2015, Applied Informatics Software Engineering GmbH.

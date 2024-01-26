@@ -11,9 +11,10 @@ objects = GNSSSensorImpl BundleActivator
 
 target          = io.macchina.gnss.nmea
 target_includes = $(PROJECT_BASE)/devices/Devices/include \
+target_includes = $(PROJECT_BASE)/devices/Devices/skel/include \
                   $(PROJECT_BASE)/devices/GNSS/NMEA/include \
                   $(PROJECT_BASE)/devices/Serial/include
-target_libs     = IoTGNSSNMEA IoTDevices PocoSerial PocoGeo PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
+target_libs     = IoTGNSSNMEA IoTDevicesSkel IoTDevices PocoSerial PocoGeo PocoOSP PocoUtil PocoXML PocoJSON PocoFoundation
 
 postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../bundles GNSS.bndlspec
 

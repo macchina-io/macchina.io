@@ -347,18 +347,27 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 						}
 					}
 				}
-				else // !authorize
+				else // !authorize()
 				{
-					if (vPath.security.session.empty())
+					if (!vPath.redirectOn401.empty() && request.getMethod() == Poco::Net::HTTPRequest::HTTP_GET)
 					{
-						if (vPath.security.realm.empty())
-							response.requireAuthentication(vPath.path);
-						else
-							response.requireAuthentication(vPath.security.realm);
+						std::string location = vPath.redirectOn401;
+						lock.unlock();
+						response.redirect(location);
 					}
-					std::string vpath(vPath.path);
-					lock.unlock();
-					sendNotAuthorized(request, vpath, vPath.responseFormat);
+					else
+					{
+						if (vPath.security.session.empty())
+						{
+							if (vPath.security.realm.empty())
+								response.requireAuthentication(vPath.path);
+							else
+								response.requireAuthentication(vPath.security.realm);
+						}
+						std::string vpath(vPath.path);
+						lock.unlock();
+						sendNotAuthorized(request, vpath, vPath.responseFormat);
+					}
 				}
 			}
 		}
@@ -927,7 +936,22 @@ bool WebServerDispatcher::authorizeSession(Poco::Net::HTTPServerRequest& request
 					{
 						if (vPath.security.csrfProtection && !vPath.security.csrfTokenHeader.empty())
 						{
-							return request.get(vPath.security.csrfTokenHeader, ""s) == pSession->csrfToken();
+							if (request.getMethod() != Poco::Net::HTTPRequest::HTTP_GET && request.getMethod() != Poco::Net::HTTPRequest::HTTP_HEAD)
+							{
+								if (request.get(vPath.security.csrfTokenHeader, ""s) == pSession->csrfToken())
+								{
+									return true;
+								}
+								else
+								{
+									_pContext->logger().warning("User %s failed CSRF check with %s request to %s."s, username, request.getMethod(), request.getURI());
+									return false;
+								}
+							}
+							else
+							{
+								return true;
+							}
 						}
 						else
 						{

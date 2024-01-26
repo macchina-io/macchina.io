@@ -10,9 +10,9 @@
 	  </tr>
 	</thead>
 	<tbody>
-	  <tr ng-repeat="bundle in bundles | orderBy:orderBy track by $index" ng-class-even="'even'" ng-class-odd="'odd'">
+	  <tr ng-repeat="bundle in bundles | filter:search | orderBy:orderBy track by $index" ng-class-even="'even'" ng-class-odd="'odd'">
 		<td>{{bundle.id}}</td>
-		<td><a href="#/bundles/{{bundle.symbolicName}}">{{bundle.name}}</a></td>
+		<td><a href="#!/bundles/{{bundle.symbolicName}}">{{bundle.name}}</a></td>
 		<td>{{bundle.version}}</td>
 		<td>{{bundle.symbolicName}}</td>
 		<td>{{bundle.state}}</td>

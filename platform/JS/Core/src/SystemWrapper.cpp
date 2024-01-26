@@ -14,6 +14,7 @@
 
 #include "Poco/JS/Core/SystemWrapper.h"
 #include "Poco/JS/Core/JSExecutor.h"
+#include "Poco/JS/Core/AsyncFunction.h"
 #include "Poco/Environment.h"
 #include "Poco/Thread.h"
 #include "Poco/Process.h"
@@ -59,7 +60,30 @@ v8::Handle<v8::ObjectTemplate> SystemWrapper::objectTemplate(v8::Isolate* pIsola
 	systemTemplate->Set(toV8Internalized(pIsolate, "set"s), v8::FunctionTemplate::New(pIsolate, set));
 	systemTemplate->Set(toV8Internalized(pIsolate, "sleep"s), v8::FunctionTemplate::New(pIsolate, sleep));
 	systemTemplate->Set(toV8Internalized(pIsolate, "exec"s), v8::FunctionTemplate::New(pIsolate, exec));
+	systemTemplate->Set(toV8Internalized(pIsolate, "execAsync"s), v8::FunctionTemplate::New(pIsolate, execAsync));
 	return handleScope.Escape(systemTemplate);
+}
+
+
+std::pair<std::string, int> execInShell(const std::string& command)
+{
+	std::pair<std::string, int> result;
+#ifdef _WIN32
+	std::string shell("cmd.exe");
+	std::string shellArg("/C");
+#else
+	std::string shell("/bin/sh");
+	std::string shellArg("-c");
+#endif
+	Poco::Pipe outPipe;
+	Poco::Process::Args shellArgs;
+	shellArgs.push_back(shellArg);
+	shellArgs.push_back(command);
+	Poco::ProcessHandle ph(Poco::Process::launch(shell, shellArgs, 0, &outPipe, &outPipe));
+	Poco::PipeInputStream istr(outPipe);
+	Poco::StreamCopier::copyToString(istr, result.first);
+	result.second = ph.wait();
+	return result;
 }
 
 
@@ -70,27 +94,11 @@ void SystemWrapper::exec(const v8::FunctionCallbackInfo<v8::Value>& args)
 	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 
 	if (args.Length() < 1) return;
-	std::string command = toString(pIsolate, args[0]);
-	std::string output;
+	const std::string command = toString(pIsolate, args[0]);
 	try
 	{
-#ifdef _WIN32
-		std::string shell("cmd.exe");
-		std::string shellArg("/C");
-#else
-		std::string shell("/bin/sh");
-		std::string shellArg("-c");
-#endif
-		Poco::Pipe outPipe;
-		Poco::Process::Args shellArgs;
-		shellArgs.push_back(shellArg);
-		shellArgs.push_back(command);
-		Poco::ProcessHandle ph(Poco::Process::launch(shell, shellArgs, 0, &outPipe, &outPipe));
-		Poco::PipeInputStream istr(outPipe);
-		Poco::StreamCopier::copyToString(istr, output);
-		int rc = ph.wait();
-
-		v8::Local<v8::String> outputString(toV8String(pIsolate, output));
+		const auto result = execInShell(command);
+		v8::Local<v8::String> outputString(toV8String(pIsolate, result.first));
 		v8::Local<v8::Value> outputStringObject = v8::StringObject::New(pIsolate, outputString);
 		if (!outputStringObject.IsEmpty())
 		{
@@ -98,7 +106,7 @@ void SystemWrapper::exec(const v8::FunctionCallbackInfo<v8::Value>& args)
 			v8::Local<v8::Object> outputObject;
 			if (maybeOutputObject.ToLocal(&outputObject))
 			{
-				(void) outputObject->Set(context, toV8String(pIsolate, "exitStatus"s), v8::Integer::New(pIsolate, rc));
+				V8_CHECK_SET_RESULT(outputObject->Set(context, toV8String(pIsolate, "exitStatus"s), v8::Integer::New(pIsolate, result.second)));
 			}
 		}
 		args.GetReturnValue().Set(outputStringObject);
@@ -107,6 +115,44 @@ void SystemWrapper::exec(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		returnException(args, exc);
 	}
+}
+
+
+void SystemWrapper::execAsync(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::EscapableHandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+
+	if (args.Length() < 1) return;
+	const std::string command = toString(pIsolate, args[0]);
+
+	using ResultType = std::pair<std::string, int>;
+	AsyncFunctionRunner<std::string, ResultType>::start(
+		args, 
+		context,
+		[](const std::string& command) -> ResultType 
+		{
+			return execInShell(command);
+		},
+		[](v8::Local<v8::Context>& context, const ResultType& result) -> v8::Local<v8::Value> 
+		{
+			v8::Isolate* pIsolate = context->GetIsolate();
+			v8::Local<v8::Object> resultObject;
+			v8::Local<v8::String> outputString(Wrapper::toV8String(pIsolate, result.first));
+			v8::Local<v8::Value> outputStringObject = v8::StringObject::New(pIsolate, outputString);
+			if (!outputStringObject.IsEmpty())
+			{
+				v8::MaybeLocal<v8::Object> maybeOutputObject = outputStringObject->ToObject(context);
+				if (maybeOutputObject.ToLocal(&resultObject))
+				{
+					V8_CHECK_SET_RESULT(resultObject->Set(context, Wrapper::toV8String(pIsolate, "exitStatus"s), v8::Integer::New(pIsolate, result.second)));
+				}
+			}
+			return resultObject;
+		},
+		command
+	);
 }
 
 

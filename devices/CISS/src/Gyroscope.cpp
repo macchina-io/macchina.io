@@ -15,6 +15,9 @@
 #include "Poco/Format.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace CISS {
 
@@ -31,14 +34,14 @@ Gyroscope::Gyroscope(Node& node):
 	_ready(false),
 	_deviceIdentifier(node.id())
 {
-	addProperty("displayValue", &Gyroscope::getDisplayValue);
-	addProperty("enabled", &Gyroscope::getEnabled, &Gyroscope::setEnabled);
-	addProperty("samplingInterval", &Gyroscope::getSamplingInterval, &Gyroscope::setSamplingInterval);
-	addProperty("connected", &Gyroscope::getConnected);
-	addProperty("deviceIdentifier", &Gyroscope::getDeviceIdentifier);
-	addProperty("symbolicName", &Gyroscope::getSymbolicName);
-	addProperty("name", &Gyroscope::getName);
-	addProperty("type", &Gyroscope::getType);
+	addProperty("displayValue"s, &Gyroscope::getDisplayValue);
+	addProperty("enabled"s, &Gyroscope::getEnabled, &Gyroscope::setEnabled);
+	addProperty("samplingInterval"s, &Gyroscope::getSamplingInterval, &Gyroscope::setSamplingInterval);
+	addProperty("connected"s, &Gyroscope::getConnected);
+	addProperty("deviceIdentifier"s, &Gyroscope::getDeviceIdentifier);
+	addProperty("symbolicName"s, &Gyroscope::getSymbolicName);
+	addProperty("name"s, &Gyroscope::getName);
+	addProperty("type"s, &Gyroscope::getType);
 }
 
 
@@ -100,7 +103,7 @@ void Gyroscope::setSamplingInterval(const std::string&, const Poco::Any& value)
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	int interval = Poco::AnyCast<int>(value);
-	if (interval < 0) throw Poco::InvalidArgumentException("samplingInterval");
+	if (interval < 0) throw Poco::InvalidArgumentException("samplingInterval"s);
 
 	if (interval != _samplingInterval)
 	{
@@ -121,9 +124,9 @@ Poco::Any Gyroscope::getDisplayValue(const std::string&) const
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	if (_ready && _enabled)
-		return Poco::format("x=%.2f y=%.2f z=%.2f", _rotation.x, _rotation.y, _rotation.z);
+		return Poco::format("x=%.2f y=%.2f z=%.2f"s, _rotation.x, _rotation.y, _rotation.z);
 	else
-		return std::string("n/a");
+		return "n/a"s;
 }
 
 

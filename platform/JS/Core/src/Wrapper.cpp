@@ -13,6 +13,7 @@
 
 
 #include "Poco/JS/Core/Wrapper.h"
+#include <iostream>
 
 
 namespace Poco {
@@ -229,6 +230,12 @@ v8::Local<v8::String> Wrapper::toV8String(v8::Isolate* pIsolate, const char* val
 	{
 		return v8::String::Empty(pIsolate);
 	}
+}
+
+
+void Wrapper::reportEmptySetResult(const char* file, int line)
+{
+	std::cerr << "!!!\n!!! WARNING: Object/Array->Set() returned empty result in file '" << file << "', line " << line << ".\n!!!" << std::endl;
 }
 
 

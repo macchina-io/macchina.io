@@ -32,6 +32,7 @@ const std::string SerializerBase::PROP_PATH("path");
 const std::string SerializerBase::PROP_PRODUCES("produces");
 const std::string SerializerBase::PROP_CONSUMES("consumes");
 const std::string SerializerBase::PROP_CONTENT_TYPE("contentType");
+const std::string SerializerBase::PROP_LENGTH("length");
 const std::string SerializerBase::RETURN_PARAM("return");
 
 

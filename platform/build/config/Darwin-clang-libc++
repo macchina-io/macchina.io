@@ -48,8 +48,8 @@ SHAREDLIBLINKEXT = .dylib
 #
 # Compiler and Linker Flags
 #
-CFLAGS          = $(ARCHFLAGS) $(OSFLAGS) $(SANITIZEFLAGS) -std=c11
-CXXFLAGS        = $(ARCHFLAGS) $(OSFLAGS) $(SANITIZEFLAGS) -std=c++14 -stdlib=libc++ -Wall -Wno-sign-compare -Wno-unused-variable -Wno-unused-function -Wno-unneeded-internal-declaration -Wno-deprecated-copy -Wno-null-pointer-arithmetic
+CFLAGS          = $(ARCHFLAGS) $(OSFLAGS) $(SANITIZEFLAGS) -std=c11 -fstack-protector-strong
+CXXFLAGS        = $(ARCHFLAGS) $(OSFLAGS) $(SANITIZEFLAGS) -std=c++14 -stdlib=libc++ -Wall -Wno-deprecated-copy -fstack-protector-strong
 LINKFLAGS       = $(ARCHFLAGS) $(OSFLAGS) $(SANITIZEFLAGS) -stdlib=libc++
 SHLIBFLAGS      = $(ARCHFLAGS) $(OSFLAGS) $(SANITIZEFLAGS) -stdlib=libc++
 DYLIBFLAGS      = $(ARCHFLAGS) $(OSFLAGS) $(SANITIZEFLAGS) -stdlib=libc++
@@ -69,7 +69,7 @@ RELEASEOPT_LINK =
 #
 # System Specific Flags
 #
-SYSFLAGS = -DPOCO_HAVE_IPv6 -DPOCO_NO_STAT64 -I$(OPENSSL_DIR)/include
+SYSFLAGS = -DPOCO_HAVE_CXXABI_H -DPOCO_HAVE_IPv6 -DPOCO_NO_STAT64 -I$(OPENSSL_DIR)/include
 
 #
 # System Specific Libraries

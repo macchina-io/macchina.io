@@ -364,6 +364,15 @@ A bundle in <*resolved*> or <*installed*> state can be uninstalled, which means 
 <img src="images/OSPLifecycle.png" width="300" height="253" alt="OSP Bundle Lifecycle" border="0">
 %>
 
+! A Note Regarding Uninstalling of Bundles Containing Shared Libraries
+
+Note that properly uninstalling a bundle containing native code (in shared libraries) requires functioning support for  
+unloading shared libraries by the operating system. 
+Some Linux distributions use C libraries (like *musl libc*) that do not properly implement `dlclose()`. In such a 
+case, uninstalling a bundle, and later installing a newer version of the bundle (with updated shared libraries)
+without restarting the application in between will lead to unexpected results, as the previous version of the 
+shared library will still be in memory and used, instead of the newly installed one.
+
 
 !! The Code Cache
 

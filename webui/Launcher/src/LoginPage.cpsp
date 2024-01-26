@@ -19,6 +19,7 @@ if (session)
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>macchina.io</title>
+    <link rel="stylesheet" href="/css/fonts.css" type="text/css"/>
     <link rel="stylesheet" href="/css/macchina.css" type="text/css"/>
     <link rel="icon" href="/images/favicon.ico">
     <script type="text/javascript" src="/jquery/jquery.min.js"></script>
@@ -28,7 +29,7 @@ if (session)
       <div class="headercontainer">
         <div class="header">
           <h1>
-            <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io"></a>
+            <a href="/"><img src="/images/headerlogo.png" srcset="/images/headerlogo-x2.png 2x" alt="macchina.io EDGE">EDGE</a>
           </h1>
         </div>
       </div>

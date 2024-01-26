@@ -21,8 +21,8 @@ namespace Poco {
 namespace CodeGeneration {
 
 
-MethodPropertyFilter::MethodPropertyFilter(CodeGenerator* pGen, const CodeGenerator::Properties& properties): 
-	CodeGenerator("","", true, ""), 
+MethodPropertyFilter::MethodPropertyFilter(CodeGenerator* pGen, const CodeGenerator::Properties& properties):
+	CodeGenerator("","", true, ""),
 	_pGen(pGen),
 	_properties(properties),
 	_forwardMethod(false),
@@ -32,8 +32,8 @@ MethodPropertyFilter::MethodPropertyFilter(CodeGenerator* pGen, const CodeGenera
 }
 
 
-MethodPropertyFilter::MethodPropertyFilter(CodeGenerator* pGen, const std::string& prop): 
-	CodeGenerator("","", true, ""), 
+MethodPropertyFilter::MethodPropertyFilter(CodeGenerator* pGen, const std::string& prop):
+	CodeGenerator("","", true, ""),
 	_pGen(pGen),
 	_properties(),
 	_forwardMethod(false),
@@ -54,7 +54,7 @@ void MethodPropertyFilter::methodStart(const Poco::CppParser::Function* pFunc, c
 {
 	_inMethod = true;
 	_forwardMethod = matches(properties) && !(pFunc->isConstructor() || pFunc->isDestructor() || pFunc->isDeleted()) && pFunc->getAccess() == Poco::CppParser::Symbol::ACC_PUBLIC;
-	
+
 	if (_forwardMethod)
 		_pGen->methodStart(pFunc, properties);
 }

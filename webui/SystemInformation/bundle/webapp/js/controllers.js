@@ -16,34 +16,42 @@ sysinfoControllers.controller('TabCtrl', ['$scope', '$http',
 sysinfoControllers.controller('SysInfoCtrl', ['$scope', '$http',
   function ($scope, $http) {
     $scope.sysinfo = {};
-    $http.get('/macchina/sysinfo/sysinfo.jss').success(function(data) {
-      $scope.sysinfo = data;
-    });
+    $http.get('/macchina/sysinfo/sysinfo.jss').then(
+      function(response) {
+        $scope.sysinfo = response.data;
+      }
+    );
   }]);
 
 sysinfoControllers.controller('ProcessesCtrl', ['$scope', '$http',
   function ($scope, $http) {
     $scope.processes = {};
-    $http.get('/macchina/sysinfo/processes.jss').success(function(data) {
-      $scope.processes = data;
-    });
+    $http.get('/macchina/sysinfo/processes.jss').then(
+      function(response) {
+        $scope.processes = response.data;
+      }
+    );
   }]);
 
 sysinfoControllers.controller('MemoryCtrl', ['$scope', '$http',
   function ($scope, $http) {
     $scope.processes = {};
-    $http.get('/macchina/sysinfo/memory.jss').success(function(data) {
-      $scope.memory = data;
-    });
+    $http.get('/macchina/sysinfo/memory.jss').then(
+      function(response) {
+        $scope.memory = response.data;
+      }
+    );
   }]);
 
 sysinfoControllers.controller('SessionCtrl', ['$scope', '$http',
   function($scope, $http) {
-    $http.get('/macchina/session.json').success(function(data) {
-      $scope.session = data;
-      if (!data.authenticated)
-      {
-        window.location = "/";
+    $http.get('/macchina/session.json').then(
+      function(response) {
+        $scope.session = response.data;
+        if (!response.data.authenticated)
+        {
+          window.location = "/";
+        }
       }
-    });
+    );
   }]);

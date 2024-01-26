@@ -84,71 +84,76 @@ sensorLogControllers.controller('sensorLogCtrl', ['$scope', '$http', '$interval'
 
     Chart.defaults.global.legend.display = false;
 
-    $http.get('/sensorlog/meta.jss').success(function(data) {
-      $scope.sensors = data;
-      for (var id in $scope.sensors)
-      {
-        $scope.haveSensors = true;
-      }
-
-      $http.get('/sensorlog/current.jss').success(function(data) {
-        for (var id in data)
+    $http.get('/sensorlog/meta.jss').then(
+      function(response) {
+        $scope.sensors = response.data;
+        for (var id in $scope.sensors)
         {
-	      $scope.sensors[id].value = data[id];
-	    }
-	  });
+          $scope.haveSensors = true;
+        }
 
-      $http.get('/sensorlog/params.jss').success(function(data) {
-        params = data;
+        $http.get('/sensorlog/current.jss').then(
+          function(response) {
+            for (var id in response.data)
+            {
+	            $scope.sensors[id].value = response.data[id];
+	          }
+	        }
+        );
 
-        $timeout(function() {
-          for (var id in $scope.sensors)
-          {
-            charts[id] = $scope.createSensorChart($scope.sensors[id].index, id, $scope.sensors[id].displayUnit, $scope.sensors[id].color);
-          }
-        }, 200);
-
-        $interval(function() {
-          function updateChartData(url, chart)
-          {
-            var jsonData = $.ajax({
-              url: url,
-              dataType: 'json',
-            }).done(function (results) {
-              for (var i = 0; i < results.length; i++)
+        $http.get('/sensorlog/params.jss').then(
+          function(response) {
+            params = response.data;
+            $timeout(function() {
+              for (var id in $scope.sensors)
               {
-                var timestamp = results[i]['timestamp'];
-                var value = results[i]['value'];
-                var labels = chart.data.labels;
-                if (labels.length >= params.points) labels.shift();
-                labels.push(moment(timestamp).format('HH:mm:ss'));
-                var data = chart.data.datasets[0].data;
-                if (data.length >= params.points) data.shift();
-                data.push(value);
-                chart.update();
-                since = timestamp;
+                charts[id] = $scope.createSensorChart($scope.sensors[id].index, id, $scope.sensors[id].displayUnit, $scope.sensors[id].color);
               }
-            });
-          };
-
-          for (var id in $scope.sensors)
-          {
-            updateChartData('/sensorlog/history.jss?sensor=' + encodeURIComponent(id) + '&since=' + since, charts[id]);
-          }
-        }, params.refresh);
-
-      });
-    });
-
+            }, 200);
+            $interval(function() {
+              function updateChartData(url, chart)
+              {
+                var jsonData = $.ajax({
+                  url: url,
+                  dataType: 'json',
+                })
+                .done(
+                  function (results) {
+                    for (var i = 0; i < results.length; i++)
+                    {
+                      var timestamp = results[i]['timestamp'];
+                      var value = results[i]['value'];
+                      var labels = chart.data.labels;
+                      if (labels.length >= params.points) labels.shift();
+                      labels.push(moment(timestamp).format('HH:mm:ss'));
+                      var data = chart.data.datasets[0].data;
+                      if (data.length >= params.points) data.shift();
+                      data.push(value);
+                      chart.update();
+                      since = timestamp;
+                    }
+                 }
+                );
+              };
+              for (var id in $scope.sensors)
+              {
+                updateChartData('/sensorlog/history.jss?sensor=' + encodeURIComponent(id) + '&since=' + since, charts[id]);
+              }
+           }, params.refresh);
+          });
+      }
+    );
   }]);
 
 sensorLogControllers.controller('SessionCtrl', ['$scope', '$http',
   function($scope, $http) {
-    $http.get('/macchina/session.json').success(function(data) {
-      $scope.session = data;
-      if (!data.authenticated)
-      {
-        window.location = '/';
+    $http.get('/macchina/session.json').then(
+      function(response) {
+        $scope.session = response.data;
+        if (!response.data.authenticated)
+        {
+          window.location = '/';
+        }
       }
-    });
+    );
   }]);

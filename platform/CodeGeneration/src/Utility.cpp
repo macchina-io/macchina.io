@@ -75,6 +75,7 @@ const std::string Utility::CONSUMES("consumes");
 const std::string Utility::CONTENT_TYPE("contentType");
 const std::string Utility::PERMISSION("permission");
 const std::string Utility::AUTHENTICATED("authenticated");
+const std::string Utility::LENGTH("length");
 const std::string Utility::VAL_TRUE("true");
 const std::string Utility::VAL_FALSE("false");
 const std::string Utility::VAL_ASSIGNMENT("=");
@@ -437,6 +438,9 @@ std::string Utility::resolveTypeImpl(const Poco::CppParser::NameSpace* pParent, 
 {
 	if (!pParent) return name;
 
+	static int recursionCount = 0;
+	RecursionGuard recursionGuard(recursionCount, Poco::RuntimeException("Recursion limit reached resolving type", name));
+
 	// template support
 	std::size_t pos = name.find("<");
 	std::size_t posEnd = name.rfind(">");
@@ -509,12 +513,18 @@ std::string Utility::resolveTypeImpl(const Poco::CppParser::NameSpace* pParent, 
 	if (pSym->kind() == Poco::CppParser::Symbol::SYM_TYPEDEF)
 	{
 		std::string base = static_cast<Poco::CppParser::TypeDef*>(pSym)->baseType();
-		return result + resolveTypeImpl(pSym->nameSpace(), base) + post;
+		if (base != name) 
+			return result + resolveTypeImpl(pSym->nameSpace(), base) + post;
+		else
+			return result + base + post;
 	}
 	else if (pSym->kind() == Poco::CppParser::Symbol::SYM_TYPEALIAS)
 	{
 		std::string base = static_cast<Poco::CppParser::TypeAlias*>(pSym)->baseType();
-		return result + resolveTypeImpl(pSym->nameSpace(), base) + post;
+		if (base != name)
+			return result + resolveTypeImpl(pSym->nameSpace(), base) + post;
+		else
+			return result + base + post;
 	}
 	else return result + fN + post;
 }

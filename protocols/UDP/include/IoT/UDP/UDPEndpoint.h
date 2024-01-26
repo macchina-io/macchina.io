@@ -21,6 +21,7 @@
 #include "IoT/UDP/UDP.h"
 #include "Poco/BasicEvent.h"
 #include "Poco/SharedPtr.h"
+#include "Poco/Nullable.h"
 #include <vector>
 
 
@@ -77,14 +78,28 @@ public:
 		/// Destroys the UDPEndpoint.
 
 	virtual EndpointAddress address() const = 0;
-		/// Returns the socket address of this endpoint.
+		/// Returns the local address the socket of the endpoint has
+		/// been bound to.
+
+	virtual Poco::Nullable<EndpointAddress> remoteAddress() const = 0;
+		/// Returns the remote address the socket of the endpoint
+		/// is "connected" to, or null if the socket is not connected.
+		///
+		/// If a remote address has been specified in the configuration,
+		/// packets can only be sent to that address and furthermore, 
+		/// only packets sent from the remote address are accepted.
+		///
+		/// Note that UDP sockets are not actually connected, the
+		/// remote address merely acts as the default destination
+		/// address for sendPacket().
 
 	//@ $destination = {optional}
 	virtual void sendPacket(const std::vector<char>& payload, const EndpointAddress& destination = EndpointAddress()) = 0;
-		/// Sends the given payload to the given destination address.
+		/// Sends the given payload to the given destination address,
+		/// or to the remote address, if one has been configured.
 		///
-		/// If the endpoint is connected to a default destination address,
-		/// the destination address can be omitted.
+		/// If the endpoint has been connected to a remote address,
+		/// the destination address must be omitted.
 };
 
 

@@ -15,6 +15,9 @@
 #include "Poco/Format.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace CISS {
 
@@ -32,15 +35,15 @@ Accelerometer::Accelerometer(Node& node):
 	_ready(false),
 	_deviceIdentifier(node.id())
 {
-	addProperty("displayValue", &Accelerometer::getDisplayValue);
-	addProperty("enabled", &Accelerometer::getEnabled, &Accelerometer::setEnabled);
-	addProperty("range", &Accelerometer::getRange, &Accelerometer::setRange);
-	addProperty("samplingInterval", &Accelerometer::getSamplingInterval, &Accelerometer::setSamplingInterval);
-	addProperty("connected", &Accelerometer::getConnected);
-	addProperty("deviceIdentifier", &Accelerometer::getDeviceIdentifier);
-	addProperty("symbolicName", &Accelerometer::getSymbolicName);
-	addProperty("name", &Accelerometer::getName);
-	addProperty("type", &Accelerometer::getType);
+	addProperty("displayValue"s, &Accelerometer::getDisplayValue);
+	addProperty("enabled"s, &Accelerometer::getEnabled, &Accelerometer::setEnabled);
+	addProperty("range"s, &Accelerometer::getRange, &Accelerometer::setRange);
+	addProperty("samplingInterval"s, &Accelerometer::getSamplingInterval, &Accelerometer::setSamplingInterval);
+	addProperty("connected"s, &Accelerometer::getConnected);
+	addProperty("deviceIdentifier"s, &Accelerometer::getDeviceIdentifier);
+	addProperty("symbolicName"s, &Accelerometer::getSymbolicName);
+	addProperty("name"s, &Accelerometer::getName);
+	addProperty("type"s, &Accelerometer::getType);
 }
 
 
@@ -125,7 +128,7 @@ void Accelerometer::setSamplingInterval(const std::string&, const Poco::Any& val
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	int interval = Poco::AnyCast<int>(value);
-	if (interval < 0) throw Poco::InvalidArgumentException("samplingInterval");
+	if (interval < 0) throw Poco::InvalidArgumentException("samplingInterval"s);
 
 	if (interval != _samplingInterval)
 	{
@@ -146,9 +149,9 @@ Poco::Any Accelerometer::getDisplayValue(const std::string&) const
 	Poco::Mutex::ScopedLock lock(_mutex);
 
 	if (_ready && _enabled)
-		return Poco::format("x=%.2f y=%.2f z=%.2f", _acceleration.x, _acceleration.y, _acceleration.z);
+		return Poco::format("x=%.2f y=%.2f z=%.2f"s, _acceleration.x, _acceleration.y, _acceleration.z);
 	else
-		return std::string("n/a");
+		return "n/a"s;
 }
 
 

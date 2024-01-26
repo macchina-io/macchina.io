@@ -13,7 +13,11 @@
 
 
 #include "IoT/UDP/UDPEndpointImpl.h"
+#include "Poco/Net/NetException.h"
 #include "Poco/Buffer.h"
+
+
+using namespace std::string_literals;
 
 
 namespace IoT {
@@ -23,7 +27,7 @@ namespace UDP {
 UDPEndpointImpl::UDPEndpointImpl(const Poco::Net::SocketAddress& addr):
 	_socket(addr, true),
 	_handlePackets(this, &UDPEndpointImpl::handlePackets),
-	_logger(Poco::Logger::get("UDPEndpointImpl"))
+	_logger(Poco::Logger::get("UDPEndpointImpl"s))
 {
 	_handlePackets.start();
 }
@@ -49,6 +53,24 @@ EndpointAddress UDPEndpointImpl::address() const
 	result.ipAddress = addr.host().toString();
 	result.port = addr.port();
 	return result;
+}
+
+
+Poco::Nullable<EndpointAddress> UDPEndpointImpl::remoteAddress() const
+{
+	try
+	{
+		Poco::Net::SocketAddress addr = _socket.peerAddress();
+		EndpointAddress result;
+		result.ipAddress = addr.host().toString();
+		result.port = addr.port();
+		return result;
+	}
+	catch (Poco::Net::NetException& exc)
+	{
+		if (exc.code() != POCO_ENOTCONN) throw;
+	}
+	return {};
 }
 
 

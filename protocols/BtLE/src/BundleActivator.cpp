@@ -13,8 +13,8 @@
 #include "Poco/OSP/Bundle.h"
 #include "Poco/OSP/ServiceRegistry.h"
 #include "Poco/OSP/ServiceRef.h"
-#include "Poco/OSP/ServiceFinder.h"
-#include "Poco/OSP/PreferencesService.h"
+#include "IoT/BtLE/PeripheralManagerImpl.h"
+#include "IoT/BtLE/PeripheralManagerServerHelper.h"
 #include "Poco/RemotingNG/ORB.h"
 #include "Poco/ClassLibrary.h"
 #include "Poco/Format.h"
@@ -25,9 +25,7 @@
 using Poco::OSP::BundleContext;
 using Poco::OSP::ServiceRegistry;
 using Poco::OSP::ServiceRef;
-using Poco::OSP::ServiceFinder;
 using Poco::OSP::Properties;
-using Poco::OSP::PreferencesService;
 
 
 namespace IoT {
@@ -37,36 +35,25 @@ namespace BtLE {
 class BundleActivator: public Poco::OSP::BundleActivator
 {
 public:
-	BundleActivator()
-	{
-	}
-	
-	~BundleActivator()
-	{
-	}
-	
+	using ServerHelper = Poco::RemotingNG::ServerHelper<PeripheralManager>;
+
 	void start(BundleContext::Ptr pContext)
 	{
-		_pContext = pContext;
-		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
-		
+		PeripheralManagerImpl::Ptr pPeripheralManager = new PeripheralManagerImpl(pContext->registry());
+		std::string oid("io.macchina.btle.peripheralmanager");
+		ServerHelper::RemoteObjectPtr pMailerServiceRemoteObject = ServerHelper::createRemoteObject(pPeripheralManager, oid);		
+		_pServiceRef = pContext->registry().registerService(oid, pMailerServiceRemoteObject, Properties());
 	}
 		
 	void stop(BundleContext::Ptr pContext)
 	{
-		for (std::vector<ServiceRef::Ptr>::iterator it = _serviceRefs.begin(); it != _serviceRefs.end(); ++it)
-		{
-			_pContext->registry().unregisterService(*it);
-		}
-		_serviceRefs.clear();
-		_pPrefs = 0;
-		_pContext = 0;
+		pContext->registry().unregisterService(_pServiceRef);
+		_pServiceRef.reset();
+		ServerHelper::shutdown();
 	}
 
 private:
-	BundleContext::Ptr _pContext;
-	PreferencesService::Ptr _pPrefs;
-	std::vector<ServiceRef::Ptr> _serviceRefs;
+	Poco::OSP::ServiceRef::Ptr _pServiceRef;
 };
 
 

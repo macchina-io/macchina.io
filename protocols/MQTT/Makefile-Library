@@ -6,13 +6,7 @@
 
 include $(POCO_BASE)/build/rules/global
 
-objects = \
-	MQTTClient \
-	IMQTTClient \
-	MQTTClientEventDispatcher \
-	MQTTClientRemoteObject \
-	MQTTClientServerHelper \
-	MQTTClientSkeleton
+objects = MQTTClient
 
 target          = IoTMQTT
 target_version  = 1

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2020 IBM Corp.
+ * Copyright (c) 2009, 2022 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -267,7 +267,7 @@ int MQTTPersistence_restorePackets(Clients *c)
 					{
 						Publish* publish = (Publish*)pack;
 						Messages* msg = NULL;
-						const size_t keysize = MESSAGE_FILENAME_LENGTH + 1;
+						const size_t keysize = PERSISTENCE_MAX_KEY_LENGTH + 1;
 						char *key = malloc(keysize);
 						int chars = 0;
 
@@ -306,7 +306,7 @@ int MQTTPersistence_restorePackets(Clients *c)
 					{
 						/* orphaned PUBRELs ? */
 						Pubrel* pubrel = (Pubrel*)pack;
-						const size_t keysize = MESSAGE_FILENAME_LENGTH + 1;
+						const size_t keysize = PERSISTENCE_MAX_KEY_LENGTH + 1;
 						char *key = malloc(keysize);
 						int chars = 0;
 
@@ -431,7 +431,7 @@ void MQTTPersistence_insertInOrder(List* list, void* content, size_t size)
  * @param the MQTT version being used (>= MQTTVERSION_5 means properties included)
  * @return 0 if success, #MQTTCLIENT_PERSISTENCE_ERROR otherwise.
  */
-int MQTTPersistence_putPacket(int socket, char* buf0, size_t buf0len, int count,
+int MQTTPersistence_putPacket(SOCKET socket, char* buf0, size_t buf0len, int count,
 						char** buffers, size_t* buflens, int htype, int msgId, int scr, int MQTTVersion)
 {
 	int rc = 0;
@@ -446,7 +446,7 @@ int MQTTPersistence_putPacket(int socket, char* buf0, size_t buf0len, int count,
 	client = (Clients*)(ListFindItem(bstate->clients, &socket, clientSocketCompare)->content);
 	if (client->persistence != NULL)
 	{
-		const size_t keysize = MESSAGE_FILENAME_LENGTH + 1;
+		const size_t keysize = PERSISTENCE_MAX_KEY_LENGTH + 1;
 		if ((key = malloc(keysize)) == NULL)
 		{
 			rc = PAHO_MEMORY_ERROR;
@@ -537,7 +537,7 @@ int MQTTPersistence_remove(Clients* c, char *type, int qos, int msgId)
 	FUNC_ENTRY;
 	if (c->persistence != NULL)
 	{
-		const size_t keysize = MESSAGE_FILENAME_LENGTH + 1;
+		const size_t keysize = PERSISTENCE_MAX_KEY_LENGTH + 1;
 		char *key = malloc(keysize);
 		int chars = 0;
 
@@ -886,10 +886,11 @@ int MQTTPersistence_restoreMessageQueue(Clients* c)
 				{	
 					qe->seqno = atoi(strchr(msgkeys[i], '-')+1); /* key format is tag'-'seqno */
 					MQTTPersistence_insertInSeqOrder(c->messageQueue, qe, sizeof(MQTTPersistence_qEntry));
-					free(buffer);
 					c->qentry_seqno = max(c->qentry_seqno, qe->seqno);
 					entries_restored++;
 				}
+				if (buffer)
+					free(buffer);
 			}
 			if (msgkeys[i])
 			{

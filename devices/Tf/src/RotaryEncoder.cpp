@@ -13,15 +13,18 @@
 #include "Poco/NumberFormatter.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Tf {
 
 
 RotaryEncoder::RotaryEncoder(MasterConnection::Ptr pMasterConn, const std::string& uid):
-	BrickletType("io.macchina.tf.rotaryencoder", "Tinkerforge Rotary Encoder Bricklet", "io.macchina.rotary")
+	BrickletType("io.macchina.tf.rotaryencoder"s, "Tinkerforge Rotary Encoder Bricklet"s, "io.macchina.rotary"s)
 {
-	addProperty("displayValue", &RotaryEncoder::getDisplayValue);
-	addProperty("countChangedPeriod", &RotaryEncoder::getCountChangedPeriod, &RotaryEncoder::setCountChangedPeriod);
+	addProperty("displayValue"s, &RotaryEncoder::getDisplayValue);
+	addProperty("countChangedPeriod"s, &RotaryEncoder::getCountChangedPeriod, &RotaryEncoder::setCountChangedPeriod);
 	
 	IPConnection *ipcon = pMasterConn.cast<MasterConnectionImpl>()->ipcon();
 	rotary_encoder_create(&_rotaryEncoder, uid.c_str(), ipcon);

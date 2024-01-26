@@ -19,6 +19,9 @@
 #include "Utility.h"
 
 
+using namespace std::string_literals;
+
+
 namespace IoT {
 namespace Web {
 namespace BundleAdmin {
@@ -38,15 +41,15 @@ void BundleListRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reque
 		if (pWebSessionManagerRef)
 		{
 			Poco::OSP::Web::WebSessionManager::Ptr pWebSessionManager = pWebSessionManagerRef->castedInstance<Poco::OSP::Web::WebSessionManager>();
-			pSession = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"), request);
+			pSession = pWebSessionManager->find(context()->thisBundle()->properties().getString("websession.id"s), request);
 		}
 	}
 	if (!Utility::isAuthenticated(pSession, request, response)) return;
 
-	std::string username = pSession->getValue<std::string>("username");
-	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth");
+	std::string username = pSession->getValue<std::string>("username"s);
+	Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(context(), "osp.auth"s);
 
-	if (!pAuthService->authorize(username, "bundleAdmin"))
+	if (!pAuthService->authorize(username, "bundleAdmin"s))
 	{
 		response.setContentLength(0);
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_FORBIDDEN);
@@ -55,7 +58,7 @@ void BundleListRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reque
 	}
 
 	response.setChunkedTransferEncoding(true);
-	response.setContentType("application/json");
+	response.setContentType("application/json"s);
 	std::ostream& ostr = response.send();
 
 	ostr << "[";

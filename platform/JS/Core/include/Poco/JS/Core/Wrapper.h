@@ -29,6 +29,12 @@
 #include "v8.h"
 
 
+// Helper macro to check the result of Object/Array->Set(), which must not be ignored,
+// but apparently no (except maybe the V8 devs) knows what to do with either. 
+// So we just write a message to cerr and be done with it.
+#define V8_CHECK_SET_RESULT(expr) Poco::JS::Core::Wrapper::checkSetResult(expr, __FILE__, __LINE__)
+
+
 namespace Poco {
 namespace JS {
 namespace Core {
@@ -160,11 +166,7 @@ public:
 	{
 		WeakPersistentWrapperRegistry::forIsolate(_pIsolate).unregisterWrapper(this);
 
-		if (!_persistent.IsEmpty())
-		{
-			_persistent.ClearWeak();
-			_persistent.Reset();
-		}
+		_persistent.Reset();
 		RP::release(_pNative);
 	}
 
@@ -398,10 +400,29 @@ public:
 		);
 	}
 
+	static void checkSetResult(const v8::Maybe<bool>& result, const char* file, int line);
+
+protected:
+	static void reportEmptySetResult(const char* file, int line);
+
 private:
 	Wrapper(const Wrapper&);
 	Wrapper& operator = (const Wrapper&);
 };
+
+
+//
+// inlines
+//
+
+
+inline void Wrapper::checkSetResult(const v8::Maybe<bool>& result, const char* file, int line)
+{
+	if (result.IsNothing())
+	{
+		reportEmptySetResult(file, line);
+	}
+}
 
 
 } } } // namespace Poco::JS::Core

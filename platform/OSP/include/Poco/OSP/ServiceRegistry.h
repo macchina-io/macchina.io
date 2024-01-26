@@ -163,6 +163,7 @@ public:
 
 	static const std::string PROP_NAME;
 	static const std::string PROP_TYPE;
+	static const std::string PROP_DEMANGLED_TYPE;
 
 private:
 	ServiceRegistry(const ServiceRegistry&);

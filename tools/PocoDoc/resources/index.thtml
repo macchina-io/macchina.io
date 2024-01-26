@@ -1,25 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <title>${PocoDoc.software} - Reference Library</title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-<meta name="author" content="${PocoDoc.company}"/>
-<meta name="generator" content="PocoDoc"/>
-<link rel="stylesheet" href="css/styles.css" type="text/css"/>
-<script type="text/javascript" src="js/iframeResizer.min.js"></script>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="author" content="${PocoDoc.company}">
+<meta name="generator" content="PocoDoc">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/styles.css">
+<script src="js/iframeResizer.min.js"></script>
+${PocoDoc.customHeadHTML}
 </head>
 <body>
+<header>
 <div class="header">
 <h1 class="category">${PocoDoc.software}</h1>
 <h1 class="title">Reference Library</h1>
 </div>
+</header>
 <div class="body">
+<nav>
 <div id="navigation">
-<iframe src="navigation.html" onload="iFrameResize(this);" scrolling="no"></iframe>
+<iframe sandbox="allow-scripts allow-top-navigation-by-user-activation allow-same-origin" src="navigation.html" onload="iFrameResize(this);"></iframe>
 </div>
+</nav>
 <div id="content">
+<main>
+<p><img src="images/macchina.png" alt="macchina.io Logo" style="width: 50%; height: 50%"></p>
 <h2>Welcome to macchina.io EDGE!</h2>
-<p><a href="http://macchina.io">macchina.io</a> macchina.io EDGE is a rich software framework for
+<p><a href="https://macchina.io">macchina.io</a> EDGE is a rich software framework for
 quickly building IoT device applications running on Linux-based devices.
 macchina.io EDGE implements a web-enabled, secure, modular and extensible JavaScript and C++
 runtime environment and provides ready-to-use and industry proven software building blocks.
@@ -38,11 +46,16 @@ ${PocoDoc.pageIndex}
 
 <h2>API Reference by Namespace</h2>
 ${PocoDoc.nameSpaceIndex}
-
-<p class="footer">${PocoDoc.software} ${PocoDoc.version}<br />
+</main>
+<footer>
+<p class="footer">${PocoDoc.software} ${PocoDoc.version}<br>
 Copyright &copy; ${PocoDoc.year}, <a href="${PocoDoc.companyURI}" target="_top">${PocoDoc.company}</a>
 (<a href="${PocoDoc.licenseURI}">CC BY 3.0</a>)</p>
+</footer>
 </div>
 </div>
+${PocoDoc.googleAnalyticsCode}
+${PocoDoc.hubSpotCode}
+${PocoDoc.customBodyHTML}
 </body>
 </html>

@@ -255,7 +255,7 @@ void PDUReaderTest::testWriteSingleRegisterResponse()
 
 	assert (message.slaveOrUnitAddress == 0x01);
 	assert (message.functionCode == MODBUS_WRITE_SINGLE_REGISTER);
-	assert (message.outputAddress == 0xAA55);
+	assert (message.registerAddress == 0xAA55);
 	assert (message.value == 0xBB66);
 }
 

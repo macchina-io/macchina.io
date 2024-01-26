@@ -18,7 +18,7 @@
 
 
 class InterfaceGenerator: public AbstractGenerator
-	/// InterfaceGenerator generates a remote interface for a given class definition. C++ specific. 
+	/// InterfaceGenerator generates a remote interface for a given class definition. C++ specific.
 	/// Has no members, a default constructor/destructor and only virtual = 0; methods
 {
 public:
@@ -57,6 +57,8 @@ private:
 	static void ifaceTypeCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam);
 
 	bool checkForEventMembers(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties);
+
+	std::string resolveEventType(const Poco::CppParser::Struct* pStruct, const std::string& decl);
 
 	bool _enableOSP;
 };

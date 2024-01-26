@@ -1,18 +1,13 @@
 #
 # Makefile
 #
-# Makefile for macchina.io Modbus Library
+# Makefile for macchina.io Modbus Core Library
 #
 
 include $(POCO_BASE)/build/rules/global
 
 objects = \
 	ModbusMaster \
-	IModbusMaster \
-	ModbusMasterEventDispatcher \
-	ModbusMasterRemoteObject \
-	ModbusMasterServerHelper \
-	ModbusMasterSkeleton \
 	ModbusException \
 	PDUWriter \
 	PDUReader

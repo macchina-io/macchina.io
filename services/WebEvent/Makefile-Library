@@ -12,7 +12,8 @@ objects = \
 	IWebEventNotifier \
 	WebEventNotifierRemoteObject \
 	WebEventNotifierSkeleton \
-	WebEventNotifierServerHelper 
+	WebEventNotifierServerHelper \
+	WebEventNotifierEventDispatcher
 	
 target         = IoTWebEvent
 target_version = 1

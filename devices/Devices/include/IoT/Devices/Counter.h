@@ -20,6 +20,7 @@
 
 #include "IoT/Devices/Device.h"
 #include "Poco/BasicEvent.h"
+#include "Poco/Optional.h"
 
 
 namespace IoT {
@@ -31,7 +32,9 @@ class IoTDevices_API Counter: public Device
 	/// A counter counts events.
 {
 public:
-	Poco::BasicEvent<const Poco::Int32> countChanged;
+	using CounterType = Poco::Int32;
+
+	Poco::BasicEvent<const CounterType> countChanged;
 		/// Fired when the counter has changed.
 
 	Counter();
@@ -40,10 +43,10 @@ public:
 	~Counter();
 		/// Destroys the Counter.
 
-	virtual Poco::Int32 count() const = 0;
+	virtual CounterType count() const = 0;
 		/// Returns the current value of the counter.
 
-	virtual Poco::Int32 reset() = 0;
+	virtual CounterType reset() = 0;
 		/// Returns the current value of the counter and
 		/// sets the counter to 0.
 };

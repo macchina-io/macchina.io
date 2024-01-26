@@ -42,7 +42,9 @@ public:
 		
 protected:
 	static void loadString(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void loadStringAsync(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void loadBuffer(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void loadBufferAsync(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 

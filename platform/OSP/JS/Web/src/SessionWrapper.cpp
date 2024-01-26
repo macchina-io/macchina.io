@@ -52,6 +52,8 @@ v8::Handle<v8::ObjectTemplate> SessionWrapper::objectTemplate(v8::Isolate* pIsol
 		sessionTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "clientAddress"s), clientAddress);
 		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "setInt"s), v8::FunctionTemplate::New(pIsolate, setInt));
 		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getInt"s), v8::FunctionTemplate::New(pIsolate, getInt));
+		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "setBool"s), v8::FunctionTemplate::New(pIsolate, setBool));
+		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getBool"s), v8::FunctionTemplate::New(pIsolate, getBool));
 		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "setString"s), v8::FunctionTemplate::New(pIsolate, setString));
 		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getString"s), v8::FunctionTemplate::New(pIsolate, getString));
 		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "erase"s), v8::FunctionTemplate::New(pIsolate, erase));
@@ -167,6 +169,59 @@ void SessionWrapper::setInt(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 	std::string name = toString(pIsolate, args[0]);
 	int value = args[1]->Int32Value(context).FromMaybe(0);
+
+	SessionHolder* pHolder = Poco::JS::Core::Wrapper::unwrapNative<SessionHolder>(args);
+	Poco::OSP::Web::WebSession::Ptr pSession = pHolder->session();
+
+	try
+	{
+		pSession->setValue(name, value);
+	}
+	catch (Poco::Exception& exc)
+	{
+		returnException(args, exc);
+	}
+}
+
+
+void SessionWrapper::getBool(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() < 1) return;
+
+	std::string name = toString(args.GetIsolate(), args[0]);
+	SessionHolder* pHolder = Poco::JS::Core::Wrapper::unwrapNative<SessionHolder>(args);
+	Poco::OSP::Web::WebSession::Ptr pSession = pHolder->session();
+	if (pSession->has(name))
+	{
+		try
+		{
+			bool value = pSession->getValue<bool>(name);
+			args.GetReturnValue().Set(value);
+		}
+		catch (Poco::Exception& exc)
+		{
+			returnException(args, exc);
+		}
+	}
+	else
+	{
+		if (args.Length() > 1)
+		{
+			args.GetReturnValue().Set(args[1]);
+		}
+	}
+}
+
+
+void SessionWrapper::setBool(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if (args.Length() < 2) return;
+
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+
+	std::string name = toString(pIsolate, args[0]);
+	bool value = args[1]->BooleanValue(pIsolate);
 
 	SessionHolder* pHolder = Poco::JS::Core::Wrapper::unwrapNative<SessionHolder>(args);
 	Poco::OSP::Web::WebSession::Ptr pSession = pHolder->session();

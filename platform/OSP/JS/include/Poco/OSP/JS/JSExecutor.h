@@ -70,6 +70,9 @@ public:
 	static Poco::UInt64 getDefaultMemoryLimit();
 		/// Returns the global default memory limit for scripts.
 
+	static std::string formatErrorInfo(const ErrorInfo& errorInfo);
+		/// Formats the given error information to a string suitable for logging.
+
 protected:
 	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
 	void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate);
@@ -121,6 +124,8 @@ protected:
 	void setupGlobalObjectTemplate(v8::Local<v8::ObjectTemplate>& global, v8::Isolate* pIsolate);
 	void setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* pIsolate);
 	void handleError(const ErrorInfo& errorInfo);
+	void handleOutOfMemory(std::size_t currentHeapLimit, std::size_t initialHeapLimit);
+	void handleMemoryWarning(std::size_t currentHeapLimit, std::size_t initialHeapLimit);
 	void onBundleStopped(const void* pSender, Poco::OSP::BundleEvent& ev);
 
 private:

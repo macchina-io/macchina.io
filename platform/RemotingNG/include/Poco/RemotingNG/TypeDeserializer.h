@@ -79,7 +79,7 @@ class TypeDeserializer<std::vector<T>>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::vector<T>& value)
 	{
-		Poco::UInt32 sizeHint;
+		Poco::UInt32 sizeHint = 0;
 		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
 		{
 			if (sizeHint > 0) value.reserve(sizeHint);
@@ -114,7 +114,7 @@ class TypeDeserializer<Poco::Array<T, N>>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::Array<T, N>& value)
 	{
-		Poco::UInt32 sizeHint;
+		Poco::UInt32 sizeHint = value.size();
 		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
 		{
 			deserializeImpl(name, false, deser, value);
@@ -148,7 +148,7 @@ class TypeDeserializer<std::array<T, N>>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::array<T, N>& value)
 	{
-		Poco::UInt32 sizeHint;
+		Poco::UInt32 sizeHint = value.size();
 		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
 		{
 			deserializeImpl(name, false, deser, value);
@@ -182,7 +182,7 @@ class TypeDeserializer<std::list<T>>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::list<T>& value)
 	{
-		Poco::UInt32 sizeHint;
+		Poco::UInt32 sizeHint = 0;
 		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
 		{
 			deserializeImpl(name, false, deser, value);
@@ -216,7 +216,7 @@ class TypeDeserializer<std::set<T>>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::set<T>& value)
 	{
-		Poco::UInt32 sizeHint;
+		Poco::UInt32 sizeHint = 0;
 		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
 		{
 			deserializeImpl(name, false, deser, value);
@@ -250,7 +250,7 @@ class TypeDeserializer<std::multiset<T>>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::multiset<T>& value)
 	{
-		Poco::UInt32 sizeHint;
+		Poco::UInt32 sizeHint = 0;
 		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
 		{
 			deserializeImpl(name, false, deser, value);
@@ -284,7 +284,7 @@ class TypeDeserializer<std::unordered_set<T>>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::unordered_set<T>& value)
 	{
-		Poco::UInt32 sizeHint;
+		Poco::UInt32 sizeHint = 0;
 		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
 		{
 			deserializeImpl(name, false, deser, value);
@@ -318,7 +318,7 @@ class TypeDeserializer<std::unordered_multiset<T>>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::unordered_multiset<T>& value)
 	{
-		Poco::UInt32 sizeHint;
+		Poco::UInt32 sizeHint = 0;
 		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
 		{
 			deserializeImpl(name, false, deser, value);

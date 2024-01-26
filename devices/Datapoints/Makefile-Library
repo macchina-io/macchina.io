@@ -1,0 +1,26 @@
+#
+# Makefile
+#
+# Makefile for macchina.io Datapoints Library
+#
+
+include $(POCO_BASE)/build/rules/global
+
+objects = \
+	DatapointFactory \
+	BooleanDatapointImpl \
+	CounterDatapointImpl \
+	MovingAverageDatapointImpl \
+	ScalarDatapointImpl \
+	StringDatapointImpl \
+	VectorDatapointImpl \
+	EnumDatapointImpl \
+	FlagsDatapointImpl \
+	Utility
+
+target          = IoTDatapoints
+target_version  = 1
+target_includes = $(PROJECT_BASE)/devices/Devices/include
+target_libs     = IoTDevices PocoRemotingNG PocoOSP PocoGeo PocoUtil PocoXML PocoFoundation
+
+include $(POCO_BASE)/build/rules/lib

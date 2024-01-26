@@ -83,6 +83,11 @@ class OSPWeb_API WebServerExtensionPoint: public ExtensionPoint
 	///                   For CSRF/XSRF protection, specify the name of the header
 	///                   containing the CSRF/XSRF token. Defaults to "X-XSRF-TOKEN".
 	///    * hidden:      If "true", path is not included by WebServerDispatcher::listVirtualPaths().
+	///    * redirectOn401:
+	///                   If the request would result in a 401 (Unauthorized) response due to missing
+	///                   authentication (see authMethods, permission and session attributes), send
+	///                   a redirect (302) response instead to the specified location, but only if the 
+	///                   request is a GET request. This can be used to redirect to the login page. 
 	///
 	/// The following attributes can be specified for "osp.web.server.directory":
 	///    * resource:    Specify a directory within the bundle where the HTML, image
@@ -176,6 +181,7 @@ protected:
 	static const std::string ATTR_ALLOWHEADERS;
 	static const std::string ATTR_ALLOWCREDENTIALS;
 	static const std::string ATTR_RESPONSEFORMAT;
+	static const std::string ATTR_REDIRECTON401;
 	static const std::string MANIFEST_NAME;
 
 private:

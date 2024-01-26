@@ -86,7 +86,7 @@ std::string jsonize(const std::string& str)
 			result += "\\t";
 			break;
 		default:
-			result += *it;
+			result += (*it >= ' ') ? *it : ' ';
 			break;
 		}
 	}
