@@ -5,7 +5,15 @@
 *macchina.io EDGE is a powerful application software platform for IoT devices.*
 
 This is the GPL-licensed version of macchina.io EDGE.
-A commercially-licensed version with an extended feature set is available.
+
+A [commercially-licensed version](https://macchina.io/edge.html) with an extended feature 
+set and professional support is available.
+
+Note that this GPL-licensed version:
+
+  1. is only occasionally updated,
+  2. does not contain all features from the commercial version,
+  3. is provided as-is, without any support or warranty of any kind.
 
 With macchina.io EDGE you can rapidly build and deploy device applications that communicate with devices, sensors, actuators, cloud services, and humans.
 
