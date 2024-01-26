@@ -16,6 +16,9 @@
 #include "Poco/Delegate.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 namespace JS {
@@ -68,7 +71,7 @@ public:
 		{
 			v8::Local<v8::Object>::New(_pIsolate, serviceRefWrapper)
 		};
-		_pExecutor->callInContext(localFunction, receiver, 1, args);
+		_pExecutor->callInContext(_pIsolate, context, localFunction, receiver, 1, args);
 	}
 
 private:
@@ -160,7 +163,7 @@ v8::Handle<v8::ObjectTemplate> ServiceListenerWrapper::objectTemplate(v8::Isolat
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "dispose"), v8::FunctionTemplate::New(pIsolate, dispose));
+		objectTemplate->Set(Poco::JS::Core::Wrapper::toV8Internalized(pIsolate, "dispose"s), v8::FunctionTemplate::New(pIsolate, dispose));
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> serviceListenerTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);

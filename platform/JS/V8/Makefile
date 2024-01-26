@@ -40,6 +40,9 @@ endif
 ifeq ($(OSARCH),aarch64)
 V8ARCH = arm64
 endif
+ifeq ($(OSARCH),arm64)
+V8ARCH = arm64
+endif
 ifeq ($(OSARCH),mipsel)
 V8ARCH = mipsel
 endif
@@ -62,6 +65,9 @@ endif
 ifeq ($(POCO_HOST_OSARCH),aarch64)
 V8HOSTARCH = arm64
 endif
+ifeq ($(POCO_HOST_OSARCH),arm64)
+V8HOSTARCH = arm64
+endif
 
 GYPFLAGS += -Dv8_target_arch=$(V8ARCH) -Dtarget_arch=$(V8ARCH) -Dhost_arch=$(V8HOSTARCH)
 
@@ -75,7 +81,7 @@ endif
 GYPFLAGS += $(EXTRA_GYPFLAGS)
 
 ifeq ($(POCO_HOST_OSNAME),Linux)
-v8targetlibdir = lib.target/
+#v8targetlibdir = lib.target/
 endif
 
 # Reduce linker memory usage on ARM systems
@@ -95,30 +101,26 @@ default: shared_release
 v8deps: out/Makefile include/v8.h
 
 out/Makefile:
-	 tools/gyp/gyp $(GYPFLAGS) --generator-output=$(POCO_BASE)/JS/V8/out -Goutput_dir=$(POCO_BASE)/JS/V8/out -f make -Icommon.gypi --depth=. v8/src/v8.gyp
+	 tools/gyp/gyp $(GYPFLAGS) --generator-output=$(abspath out) -Goutput_dir=$(abspath out) -f make -Icommon.gypi --depth=. gypfiles/v8.gyp
 
 shared_debug: v8deps
 	$(MAKE) -C out BUILDTYPE=Debug CFLAGS="$(CFLAGS) $(SHAREDOPT_CC)" CXXFLAGS="$(CXXFLAGS) $(SHAREDOPT_CXX)" v8 v8_libplatform
 	cp out/Debug/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
-	cp out/Debug/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)
-	cp out/Debug/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)
 
 shared_release: v8deps
 	$(MAKE) -C out BUILDTYPE=Release CFLAGS="$(CFLAGS) $(SHAREDOPT_CC)" CXXFLAGS="$(CXXFLAGS) $(SHAREDOPT_CXX)" v8 v8_libplatform
 	cp out/Release/$(v8targetlibdir)libv8$(SHAREDLIBLINKEXT) $(LIBPATH)
-	cp out/Release/$(v8targetlibdir)libv8_libbase$(SHAREDLIBLINKEXT) $(LIBPATH)
-	cp out/Release/$(v8targetlibdir)libv8_libplatform$(SHAREDLIBLINKEXT) $(LIBPATH)
 	$(V8STRIPCMD) $(LIBPATH)/libv8$(SHAREDLIBLINKEXT)
-	$(V8STRIPCMD) $(LIBPATH)/libv8_libbase$(SHAREDLIBLINKEXT)
-	$(V8STRIPCMD) $(LIBPATH)/libv8_libplatform$(SHAREDLIBLINKEXT)
 
 all_shared: shared_debug shared_release
 
 include/v8.h: v8/include/v8.h
 	mkdir -p include
 	mkdir -p include/libplatform
+	mkdir -p include/cppgc
 	cp v8/include/*.h include
 	cp v8/include/libplatform/*.h include/libplatform
+	cp -r v8/include/cppgc/* include/cppgc
 
 clean:
 	$(RM) out

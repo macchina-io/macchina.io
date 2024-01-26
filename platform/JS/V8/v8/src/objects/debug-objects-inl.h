@@ -7,7 +7,10 @@
 
 #include "src/objects/debug-objects.h"
 
-#include "src/heap/heap-inl.h"
+#include "src/heap/heap-write-barrier-inl.h"
+#include "src/objects/code-inl.h"
+#include "src/objects/objects-inl.h"
+#include "src/objects/shared-function-info.h"
 
 // Has to be the last include (doesn't have include guards):
 #include "src/objects/object-macros.h"
@@ -15,37 +18,41 @@
 namespace v8 {
 namespace internal {
 
-CAST_ACCESSOR(BreakPointInfo)
-CAST_ACCESSOR(DebugInfo)
-CAST_ACCESSOR(CoverageInfo)
-CAST_ACCESSOR(BreakPoint)
+TQ_OBJECT_CONSTRUCTORS_IMPL(BreakPoint)
+TQ_OBJECT_CONSTRUCTORS_IMPL(BreakPointInfo)
+TQ_OBJECT_CONSTRUCTORS_IMPL(CoverageInfo)
+TQ_OBJECT_CONSTRUCTORS_IMPL(DebugInfo)
 
-SMI_ACCESSORS(DebugInfo, flags, kFlagsOffset)
-ACCESSORS(DebugInfo, shared, SharedFunctionInfo, kSharedFunctionInfoOffset)
-SMI_ACCESSORS(DebugInfo, debugger_hints, kDebuggerHintsOffset)
-ACCESSORS(DebugInfo, debug_bytecode_array, Object, kDebugBytecodeArrayOffset)
-ACCESSORS(DebugInfo, break_points, FixedArray, kBreakPointsStateOffset)
-ACCESSORS(DebugInfo, coverage_info, Object, kCoverageInfoOffset)
+NEVER_READ_ONLY_SPACE_IMPL(DebugInfo)
 
-SMI_ACCESSORS(BreakPointInfo, source_position, kSourcePositionOffset)
-ACCESSORS(BreakPointInfo, break_point_objects, Object, kBreakPointObjectsOffset)
+BIT_FIELD_ACCESSORS(DebugInfo, debugger_hints, side_effect_state,
+                    DebugInfo::SideEffectStateBits)
+BIT_FIELD_ACCESSORS(DebugInfo, debugger_hints, debug_is_blackboxed,
+                    DebugInfo::DebugIsBlackboxedBit)
+BIT_FIELD_ACCESSORS(DebugInfo, debugger_hints, computed_debug_is_blackboxed,
+                    DebugInfo::ComputedDebugIsBlackboxedBit)
+BIT_FIELD_ACCESSORS(DebugInfo, debugger_hints, debugging_id,
+                    DebugInfo::DebuggingIdBits)
 
-SMI_ACCESSORS(BreakPoint, id, kIdOffset)
-ACCESSORS(BreakPoint, condition, String, kConditionOffset)
-
-bool DebugInfo::HasDebugBytecodeArray() {
-  return debug_bytecode_array()->IsBytecodeArray();
+bool DebugInfo::HasInstrumentedBytecodeArray() {
+  DCHECK_EQ(debug_bytecode_array().IsBytecodeArray(),
+            original_bytecode_array().IsBytecodeArray());
+  return debug_bytecode_array().IsBytecodeArray();
 }
 
-BytecodeArray* DebugInfo::OriginalBytecodeArray() {
-  DCHECK(HasDebugBytecodeArray());
-  return shared()->bytecode_array();
+BytecodeArray DebugInfo::OriginalBytecodeArray() {
+  DCHECK(HasInstrumentedBytecodeArray());
+  return BytecodeArray::cast(original_bytecode_array());
 }
 
-BytecodeArray* DebugInfo::DebugBytecodeArray() {
-  DCHECK(HasDebugBytecodeArray());
+BytecodeArray DebugInfo::DebugBytecodeArray() {
+  DCHECK(HasInstrumentedBytecodeArray());
+  DCHECK_EQ(shared().GetDebugBytecodeArray(), debug_bytecode_array());
   return BytecodeArray::cast(debug_bytecode_array());
 }
+
+TQ_OBJECT_CONSTRUCTORS_IMPL(WasmValue)
+NEVER_READ_ONLY_SPACE_IMPL(WasmValue)
 
 }  // namespace internal
 }  // namespace v8

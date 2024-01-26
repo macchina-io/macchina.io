@@ -14,9 +14,11 @@
 
 #include "Poco/JS/Data/RecordSetWrapper.h"
 #include "Poco/JS/Core/PooledIsolate.h"
+#include "Poco/JS/Core/BufferWrapper.h"
 #include "Poco/JS/Core/UUIDWrapper.h"
 #include "Poco/Data/MetaColumn.h"
 #include "Poco/Data/RowFormatter.h"
+#include "Poco/Data/LOB.h"
 #include "Poco/Version.h"
 #include "Poco/Data/Date.h"
 #include "Poco/Data/Time.h"
@@ -156,34 +158,34 @@ RecordSetWrapper::~RecordSetWrapper()
 v8::Handle<v8::ObjectTemplate> RecordSetWrapper::objectTemplate(v8::Isolate* pIsolate)
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
-	Poco::JS::Core::PooledIsolate* pPooledIso = Poco::JS::Core::PooledIsolate::fromIsolate(pIsolate);
+	Core::PooledIsolate* pPooledIso = Core::PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
 	v8::Persistent<v8::ObjectTemplate>& pooledObjectTemplate(pPooledIso->objectTemplate("Data.RecordSet"s));
 	if (pooledObjectTemplate.IsEmpty())
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "columnCount"), getColumnCount);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "rowCount"), getRowCount);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "statement"), getStatement);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "columnCount"s), getColumnCount);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "rowCount"s), getRowCount);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "statement"s), getStatement);
 
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getValue"), v8::FunctionTemplate::New(pIsolate, getValue));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getName"), v8::FunctionTemplate::New(pIsolate, getName));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getType"), v8::FunctionTemplate::New(pIsolate, getType));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getLength"), v8::FunctionTemplate::New(pIsolate, getLength));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getPrecision"), v8::FunctionTemplate::New(pIsolate, getPrecision));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "moveFirst"), v8::FunctionTemplate::New(pIsolate, moveFirst));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "moveLast"), v8::FunctionTemplate::New(pIsolate, moveLast));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "moveNext"), v8::FunctionTemplate::New(pIsolate, moveNext));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "movePrevious"), v8::FunctionTemplate::New(pIsolate, movePrevious));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "fetchNextPage"), v8::FunctionTemplate::New(pIsolate, fetchNextPage));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "close"), v8::FunctionTemplate::New(pIsolate, close));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toJSON"), v8::FunctionTemplate::New(pIsolate, toJSON));
+		objectTemplate->Set(toV8Internalized(pIsolate, "getValue"s), v8::FunctionTemplate::New(pIsolate, getValue));
+		objectTemplate->Set(toV8Internalized(pIsolate, "getName"s), v8::FunctionTemplate::New(pIsolate, getName));
+		objectTemplate->Set(toV8Internalized(pIsolate, "getType"s), v8::FunctionTemplate::New(pIsolate, getType));
+		objectTemplate->Set(toV8Internalized(pIsolate, "getLength"s), v8::FunctionTemplate::New(pIsolate, getLength));
+		objectTemplate->Set(toV8Internalized(pIsolate, "getPrecision"s), v8::FunctionTemplate::New(pIsolate, getPrecision));
+		objectTemplate->Set(toV8Internalized(pIsolate, "moveFirst"s), v8::FunctionTemplate::New(pIsolate, moveFirst));
+		objectTemplate->Set(toV8Internalized(pIsolate, "moveLast"s), v8::FunctionTemplate::New(pIsolate, moveLast));
+		objectTemplate->Set(toV8Internalized(pIsolate, "moveNext"s), v8::FunctionTemplate::New(pIsolate, moveNext));
+		objectTemplate->Set(toV8Internalized(pIsolate, "movePrevious"s), v8::FunctionTemplate::New(pIsolate, movePrevious));
+		objectTemplate->Set(toV8Internalized(pIsolate, "fetchNextPage"s), v8::FunctionTemplate::New(pIsolate, fetchNextPage));
+		objectTemplate->Set(toV8Internalized(pIsolate, "close"s), v8::FunctionTemplate::New(pIsolate, close));
+		objectTemplate->Set(toV8Internalized(pIsolate, "toJSON"s), v8::FunctionTemplate::New(pIsolate, toJSON));
 
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
-	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
-	return handleScope.Escape(dateTimeTemplate);
+	v8::Local<v8::ObjectTemplate> recordSetTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
+	return handleScope.Escape(recordSetTemplate);
 }
 
 
@@ -219,6 +221,9 @@ void RecordSetWrapper::getStatement(v8::Local<v8::String> name, const v8::Proper
 
 void RecordSetWrapper::getValue(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	RecordSetHolder* pRecordSetHolder = Wrapper::unwrapNative<RecordSetHolder>(args);
 	if (!pRecordSetHolder->isOpen()) return;
 	try
@@ -229,13 +234,13 @@ void RecordSetWrapper::getValue(const v8::FunctionCallbackInfo<v8::Value>& args)
 		{
 			if (args[0]->IsNumber())
 			{
-				std::size_t col = args[0]->Uint32Value();
+				std::size_t col = args[0]->Uint32Value(context).FromMaybe(0);
 				value = pRecordSetHolder->recordSet().value(col);
 				type  = pRecordSetHolder->recordSet().columnType(col);
 			}
 			else
 			{
-				std::string name = toString(args[0]);
+				std::string name = toString(pIsolate, args[0]);
 				value = pRecordSetHolder->recordSet().value(name);
 				type  = pRecordSetHolder->recordSet().columnType(name);
 			}
@@ -248,15 +253,15 @@ void RecordSetWrapper::getValue(const v8::FunctionCallbackInfo<v8::Value>& args)
 			{
 				if (args[0]->IsNumber())
 				{
-					std::size_t col = args[0]->Uint32Value();
-					std::size_t row = args[1]->Uint32Value();
+					std::size_t col = args[0]->Uint32Value(context).FromMaybe(0);
+					std::size_t row = args[1]->Uint32Value(context).FromMaybe(0);
 					value = pRecordSetHolder->recordSet().value(col, row);
 					type  = pRecordSetHolder->recordSet().columnType(col);
 				}
 				else
 				{
-					std::string name = toString(args[0]);
-					value = pRecordSetHolder->recordSet().value(name, args[1]->Uint32Value());
+					std::string name = toString(pIsolate, args[0]);
+					value = pRecordSetHolder->recordSet().value(name, args[1]->Uint32Value(context).FromMaybe(0));
 					type  = pRecordSetHolder->recordSet().columnType(name);
 				}
 				returnDynamicAny(args, value, type);
@@ -274,6 +279,9 @@ void RecordSetWrapper::getValue(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void RecordSetWrapper::getName(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	RecordSetHolder* pRecordSetHolder = Wrapper::unwrapNative<RecordSetHolder>(args);
 	if (!pRecordSetHolder->isOpen()) return;
 	try
@@ -282,7 +290,7 @@ void RecordSetWrapper::getName(const v8::FunctionCallbackInfo<v8::Value>& args)
 		{
 			if (args[0]->IsNumber())
 			{
-				std::size_t col = args[0]->Uint32Value();
+				std::size_t col = args[0]->Uint32Value(context).FromMaybe(0);
 				returnString(args, pRecordSetHolder->recordSet().columnName(col));
 				return;
 			}
@@ -298,6 +306,9 @@ void RecordSetWrapper::getName(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	RecordSetHolder* pRecordSetHolder = Wrapper::unwrapNative<RecordSetHolder>(args);
 	if (!pRecordSetHolder->isOpen()) return;
 	try
@@ -307,78 +318,15 @@ void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 			Poco::Data::MetaColumn::ColumnDataType type;
 			if (args[0]->IsNumber())
 			{
-				std::size_t col = args[0]->Uint32Value();
+				std::size_t col = args[0]->Uint32Value(context).FromMaybe(0);
 				type = pRecordSetHolder->recordSet().columnType(col);
 			}
 			else
 			{
-				std::string name = toString(args[0]);
+				std::string name = toString(pIsolate, args[0]);
 				type = pRecordSetHolder->recordSet().columnType(name);
 			}
-			std::string typeString;
-			switch (type)
-			{
-			case Poco::Data::MetaColumn::FDT_BOOL:
-				typeString = "bool";
-				break;
-			case Poco::Data::MetaColumn::FDT_INT8:
-				typeString = "Int8";
-				break;
-			case Poco::Data::MetaColumn::FDT_INT16:
-				typeString = "Int16";
-				break;
-			case Poco::Data::MetaColumn::FDT_INT32:
-				typeString = "Int32";
-				break;
-			case Poco::Data::MetaColumn::FDT_INT64:
-				typeString = "Int64";
-				break;
-			case Poco::Data::MetaColumn::FDT_UINT8:
-				typeString = "UInt8";
-				break;
-			case Poco::Data::MetaColumn::FDT_UINT16:
-				typeString = "UInt16";
-				break;
-			case Poco::Data::MetaColumn::FDT_UINT32:
-				typeString = "UInt32";
-				break;
-			case Poco::Data::MetaColumn::FDT_UINT64:
-				typeString = "UInt64";
-				break;
-			case Poco::Data::MetaColumn::FDT_FLOAT:
-				typeString = "float";
-				break;
-			case Poco::Data::MetaColumn::FDT_DOUBLE:
-				typeString = "double";
-				break;
-			case Poco::Data::MetaColumn::FDT_STRING:
-				typeString = "string";
-				break;
-			case Poco::Data::MetaColumn::FDT_BLOB:
-				typeString = "BLOB";
-				break;
-			case Poco::Data::MetaColumn::FDT_UNKNOWN:
-				typeString = "unknown";
-				break;
-			case Poco::Data::MetaColumn::FDT_TIMESTAMP:
-				typeString = "DateTime";
-				break;
-			case Poco::Data::MetaColumn::FDT_CLOB:
-				typeString = "CLOB";
-				break;
-			case Poco::Data::MetaColumn::FDT_WSTRING:
-				typeString = "wstring";
-				break;
-			case Poco::Data::MetaColumn::FDT_DATE:
-				typeString = "Date";
-				break;
-			case Poco::Data::MetaColumn::FDT_TIME:
-				typeString = "Time";
-				break;
-			case Poco::Data::MetaColumn::FDT_UUID:
-				typeString = "UUID";
-				break;
-			}
+			std::string typeString = typeToString(type);
 			returnString(args, typeString);
 			return;
 		}
@@ -393,6 +341,9 @@ void RecordSetWrapper::getType(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void RecordSetWrapper::getLength(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	RecordSetHolder* pRecordSetHolder = Wrapper::unwrapNative<RecordSetHolder>(args);
 	if (!pRecordSetHolder->isOpen()) return;
 	try
@@ -401,12 +352,12 @@ void RecordSetWrapper::getLength(const v8::FunctionCallbackInfo<v8::Value>& args
 		{
 			if (args[0]->IsNumber())
 			{
-				std::size_t col = args[0]->Uint32Value();
+				std::size_t col = args[0]->Uint32Value(context).FromMaybe(0);
 				args.GetReturnValue().Set(static_cast<Poco::UInt32>(pRecordSetHolder->recordSet().columnLength(col)));
 			}
 			else
 			{
-				std::string name = toString(args[0]);
+				std::string name = toString(pIsolate, args[0]);
 				args.GetReturnValue().Set(static_cast<Poco::UInt32>(pRecordSetHolder->recordSet().columnLength(name)));
 			}
 			return;
@@ -422,6 +373,9 @@ void RecordSetWrapper::getLength(const v8::FunctionCallbackInfo<v8::Value>& args
 
 void RecordSetWrapper::getPrecision(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	RecordSetHolder* pRecordSetHolder = Wrapper::unwrapNative<RecordSetHolder>(args);
 	if (!pRecordSetHolder->isOpen()) return;
 	try
@@ -430,12 +384,12 @@ void RecordSetWrapper::getPrecision(const v8::FunctionCallbackInfo<v8::Value>& a
 		{
 			if (args[0]->IsNumber())
 			{
-				std::size_t col = args[0]->Uint32Value();
+				std::size_t col = args[0]->Uint32Value(context).FromMaybe(0);
 				args.GetReturnValue().Set(static_cast<Poco::UInt32>(pRecordSetHolder->recordSet().columnPrecision(col)));
 			}
 			else
 			{
-				std::string name = toString(args[0]);
+				std::string name = toString(pIsolate, args[0]);
 				args.GetReturnValue().Set(static_cast<Poco::UInt32>(pRecordSetHolder->recordSet().columnPrecision(name)));
 			}
 			return;
@@ -571,7 +525,9 @@ void RecordSetWrapper::toJSON(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value>& args, const Poco::DynamicAny& value, Poco::Data::MetaColumn::ColumnDataType typeHint)
 {
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 
 	switch (typeHint)
 	{
@@ -601,8 +557,12 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 		{
 			Poco::DateTime dt = value.extract<Poco::DateTime>();
 			double millis = dt.timestamp().epochMicroseconds()/1000.0;
-			v8::Local<v8::Value> jsDate(v8::Date::New(args.GetIsolate(), millis));
-			args.GetReturnValue().Set(jsDate);
+			v8::MaybeLocal<v8::Value> maybeJSDate(v8::Date::New(context, millis));
+			v8::Local<v8::Value> jsDate;
+			if (maybeJSDate.ToLocal(&jsDate))
+			{
+				args.GetReturnValue().Set(jsDate);
+			}
 		}
 		break;
 	case Poco::Data::MetaColumn::FDT_DATE:
@@ -610,8 +570,12 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 			Poco::Data::Date date = value.extract<Poco::Data::Date>();
 			Poco::DateTime dt(date.year(), date.month(), date.day());
 			double millis = dt.timestamp().epochMicroseconds()/1000.0;
-			v8::Local<v8::Value> jsDate(v8::Date::New(args.GetIsolate(), millis));
-			args.GetReturnValue().Set(jsDate);
+			v8::MaybeLocal<v8::Value> maybeJSDate(v8::Date::New(context, millis));
+			v8::Local<v8::Value> jsDate;
+			if (maybeJSDate.ToLocal(&jsDate))
+			{
+				args.GetReturnValue().Set(jsDate);
+			}
 		}
 		break;
 	case Poco::Data::MetaColumn::FDT_TIME:
@@ -620,8 +584,12 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 			Poco::Data::Time time = value.extract<Poco::Data::Time>();
 			Poco::DateTime dt(now.year(), now.month(), now.day(), time.hour(), time.minute(), time.second());
 			double millis = dt.timestamp().epochMicroseconds()/1000.0;
-			v8::Local<v8::Value> jsDate(v8::Date::New(args.GetIsolate(), millis));
-			args.GetReturnValue().Set(jsDate);
+			v8::MaybeLocal<v8::Value> maybeJSDate(v8::Date::New(context, millis));
+			v8::Local<v8::Value> jsDate;
+			if (maybeJSDate.ToLocal(&jsDate))
+			{
+				args.GetReturnValue().Set(jsDate);
+			}
 		}
 		break;
 	case Poco::Data::MetaColumn::FDT_UUID:
@@ -633,7 +601,7 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 				pUUID = new Poco::UUID(uuid);
 				Poco::JS::Core::UUIDWrapper wrapper;
 				v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(args.GetIsolate(), pUUID));
-				args.GetReturnValue().Set(uuidObject);
+				args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, uuidObject));
 			}
 			catch (...)
 			{
@@ -643,12 +611,96 @@ void RecordSetWrapper::returnDynamicAny(const v8::FunctionCallbackInfo<v8::Value
 		}
 		break;
 	case Poco::Data::MetaColumn::FDT_BLOB:
+		{
+			Poco::Data::BLOB blob = value.extract<Poco::Data::BLOB>();
+			Poco::JS::Core::BufferWrapper::Buffer* pBuffer = nullptr;
+			try
+			{
+				pBuffer = new Poco::JS::Core::BufferWrapper::Buffer(reinterpret_cast<const char*>(blob.rawContent()), blob.size());
+				Poco::JS::Core::BufferWrapper wrapper;
+				v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(pIsolate, pBuffer));
+				args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, bufferObject));
+			}
+			catch (...)
+			{
+				delete pBuffer;
+				throw;
+			}
+		}
+		break;
 	case Poco::Data::MetaColumn::FDT_CLOB:
+		{
+			Poco::Data::CLOB clob = value.extract<Poco::Data::CLOB>();
+			Poco::JS::Core::BufferWrapper::Buffer* pBuffer = nullptr;
+			try
+			{
+				pBuffer = new Poco::JS::Core::BufferWrapper::Buffer(clob.rawContent(), clob.size());
+				Poco::JS::Core::BufferWrapper wrapper;
+				v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(pIsolate, pBuffer));
+				args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, bufferObject));
+			}
+			catch (...)
+			{
+				delete pBuffer;
+				throw;
+			}
+		}
+		break;
 	case Poco::Data::MetaColumn::FDT_WSTRING:
 	case Poco::Data::MetaColumn::FDT_UNKNOWN:
 	default:
-		returnException(args, "cannot convert value"s);
+		returnException(args, "cannot convert value of type "s + typeToString(typeHint));
 		break;
+	}
+}
+
+
+std::string RecordSetWrapper::typeToString(Poco::Data::MetaColumn::ColumnDataType type)
+{
+	switch (type)
+	{
+	case Poco::Data::MetaColumn::FDT_BOOL:
+		return "bool"s;
+	case Poco::Data::MetaColumn::FDT_INT8:
+		return "Int8"s;
+	case Poco::Data::MetaColumn::FDT_INT16:
+		return "Int16"s;
+	case Poco::Data::MetaColumn::FDT_INT32:
+		return "Int32"s;
+	case Poco::Data::MetaColumn::FDT_INT64:
+		return "Int64"s;
+	case Poco::Data::MetaColumn::FDT_UINT8:
+		return "UInt8"s;
+	case Poco::Data::MetaColumn::FDT_UINT16:
+		return "UInt16"s;
+	case Poco::Data::MetaColumn::FDT_UINT32:
+		return "UInt32"s;
+	case Poco::Data::MetaColumn::FDT_UINT64:
+		return "UInt64"s;
+	case Poco::Data::MetaColumn::FDT_FLOAT:
+		return "float"s;
+	case Poco::Data::MetaColumn::FDT_DOUBLE:
+		return "double"s;
+	case Poco::Data::MetaColumn::FDT_STRING:
+		return "string"s;
+	case Poco::Data::MetaColumn::FDT_BLOB:
+		return "BLOB"s;
+	case Poco::Data::MetaColumn::FDT_CLOB:
+		return "CLOB"s;
+	case Poco::Data::MetaColumn::FDT_TIMESTAMP:
+		return "DateTime"s;
+	case Poco::Data::MetaColumn::FDT_WSTRING:
+		return "wstring"s;
+	case Poco::Data::MetaColumn::FDT_DATE:
+		return "Date"s;
+	case Poco::Data::MetaColumn::FDT_TIME:
+		return "Time"s;
+	case Poco::Data::MetaColumn::FDT_UUID:
+		return "UUID"s;
+	case Poco::Data::MetaColumn::FDT_UNKNOWN:
+		return "unknown"s;
+	default:
+		return "unknown"s;
 	}
 }
 

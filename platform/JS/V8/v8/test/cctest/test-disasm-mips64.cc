@@ -28,16 +28,17 @@
 
 #include <stdlib.h>
 
-#include "src/v8.h"
+#include "src/init/v8.h"
 
+#include "src/codegen/macro-assembler.h"
 #include "src/debug/debug.h"
-#include "src/disasm.h"
-#include "src/disassembler.h"
-#include "src/frames-inl.h"
-#include "src/macro-assembler.h"
+#include "src/diagnostics/disasm.h"
+#include "src/diagnostics/disassembler.h"
+#include "src/execution/frames-inl.h"
 #include "test/cctest/cctest.h"
 
-using namespace v8::internal;
+namespace v8 {
+namespace internal {
 
 bool prev_instr_compact_branch = false;
 
@@ -53,13 +54,13 @@ bool DisassembleAndCompare(byte* pc, const char* compare_string) {
 
   disasm.InstructionDecode(disasm_buffer, pc);
 
-  if (strcmp(compare_string, disasm_buffer.start()) != 0) {
+  if (strcmp(compare_string, disasm_buffer.begin()) != 0) {
     fprintf(stderr,
             "expected: \n"
             "%s\n"
             "disassembled: \n"
             "%s\n\n",
-            compare_string, disasm_buffer.start());
+            compare_string, disasm_buffer.begin());
     return false;
   }
   return true;
@@ -69,14 +70,14 @@ bool DisassembleAndCompare(byte* pc, const char* compare_string) {
 // Set up V8 to a state where we can at least run the assembler and
 // disassembler. Declare the variables and allocate the data structures used
 // in the rest of the macros.
-#define SET_UP()                                          \
-  CcTest::InitializeVM();                                 \
-  Isolate* isolate = CcTest::i_isolate();                  \
-  HandleScope scope(isolate);                             \
-  byte *buffer = reinterpret_cast<byte*>(malloc(4*1024)); \
-  Assembler assm(isolate, buffer, 4*1024);                \
+#define SET_UP()                                             \
+  CcTest::InitializeVM();                                    \
+  Isolate* isolate = CcTest::i_isolate();                    \
+  HandleScope scope(isolate);                                \
+  byte* buffer = reinterpret_cast<byte*>(malloc(4 * 1024));  \
+  Assembler assm(AssemblerOptions{},                         \
+                 ExternalAssemblerBuffer(buffer, 4 * 1024)); \
   bool failure = false;
-
 
 // This macro assembles one instruction using the preallocated assembler and
 // disassembles the generated instruction, comparing the output to the expected
@@ -93,9 +94,9 @@ bool DisassembleAndCompare(byte* pc, const char* compare_string) {
 
 // Verify that all invocations of the COMPARE macro passed successfully.
 // Exit with a failure if at least one of the tests failed.
-#define VERIFY_RUN() \
-if (failure) { \
-    V8_Fatal(__FILE__, __LINE__, "MIPS Disassembler tests failed.\n"); \
+#define VERIFY_RUN()                            \
+  if (failure) {                                \
+    FATAL("MIPS Disassembler tests failed.\n"); \
   }
 
 #define COMPARE_PC_REL_COMPACT(asm_, compare_string, offset)                   \
@@ -143,14 +144,14 @@ if (failure) { \
 #define COMPARE_PC_JUMP(asm_, compare_string, target)                          \
   {                                                                            \
     int pc_offset = assm.pc_offset();                                          \
-    byte *progcounter = &buffer[pc_offset];                                    \
+    byte* progcounter = &buffer[pc_offset];                                    \
     char str_with_address[100];                                                \
     int instr_index = (target >> 2) & kImm26Mask;                              \
     snprintf(                                                                  \
         str_with_address, sizeof(str_with_address), "%s %p -> %p",             \
-        compare_string, reinterpret_cast<void *>(target),                      \
-        reinterpret_cast<void *>(((uint64_t)(progcounter + 1) & ~0xfffffff) |  \
-                                 (instr_index << 2)));                         \
+        compare_string, reinterpret_cast<void*>(target),                       \
+        reinterpret_cast<void*>(((uint64_t)(progcounter + 1) & ~0xFFFFFFF) |   \
+                                (instr_index << 2)));                          \
     assm.asm_;                                                                 \
     if (!DisassembleAndCompare(progcounter, str_with_address)) failure = true; \
   }
@@ -158,10 +159,9 @@ if (failure) { \
 #define GET_PC_REGION(pc_region)                                         \
   {                                                                      \
     int pc_offset = assm.pc_offset();                                    \
-    byte *progcounter = &buffer[pc_offset];                              \
-    pc_region = reinterpret_cast<int64_t>(progcounter + 4) & ~0xfffffff; \
+    byte* progcounter = &buffer[pc_offset];                              \
+    pc_region = reinterpret_cast<int64_t>(progcounter + 4) & ~0xFFFFFFF; \
   }
-
 
 TEST(Type0) {
   SET_UP();
@@ -971,7 +971,7 @@ TEST(Type3) {
                            "60a48000       bnvc  a1, a0, -32768", -32768);
 
     COMPARE_PC_REL_COMPACT(beqzc(a0, 0), "d8800000       beqzc   a0, 0", 0);
-    COMPARE_PC_REL_COMPACT(beqzc(a0, 1048575),  // 0x0fffff ==  1048575.
+    COMPARE_PC_REL_COMPACT(beqzc(a0, 1048575),  // 0x0FFFFF ==  1048575.
                            "d88fffff       beqzc   a0, 1048575", 1048575);
     COMPARE_PC_REL_COMPACT(beqzc(a0, -1048576),  // 0x100000 == -1048576.
                            "d8900000       beqzc   a0, -1048576", -1048576);
@@ -1177,19 +1177,6 @@ TEST(Type3) {
   COMPARE_PC_REL_COMPACT(bgtz(a0, 1), "1c800001       bgtz    a0, 1", 1);
   COMPARE_PC_REL_COMPACT(bgtz(a0, 32767), "1c807fff       bgtz    a0, 32767",
                          32767);
-
-  int64_t pc_region;
-  GET_PC_REGION(pc_region);
-
-  int64_t target = pc_region | 0x4;
-  COMPARE_PC_JUMP(j(target), "08000001       j      ", target);
-  target = pc_region | 0xffffffc;
-  COMPARE_PC_JUMP(j(target), "0bffffff       j      ", target);
-
-  target = pc_region | 0x4;
-  COMPARE_PC_JUMP(jal(target), "0c000001       jal    ", target);
-  target = pc_region | 0xffffffc;
-  COMPARE_PC_JUMP(jal(target), "0fffffff       jal    ", target);
 
   VERIFY_RUN();
 }
@@ -2017,3 +2004,6 @@ TEST(MSA_BIT) {
   }
   VERIFY_RUN();
 }
+
+}  // namespace internal
+}  // namespace v8

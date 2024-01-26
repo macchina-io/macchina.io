@@ -15,6 +15,10 @@
 #include "Poco/JS/Core/PooledIsolate.h"
 
 
+using Poco::JS::Core::Wrapper;
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 namespace JS {
@@ -36,22 +40,22 @@ v8::Handle<v8::ObjectTemplate> SessionWrapper::objectTemplate(v8::Isolate* pIsol
 	v8::EscapableHandleScope handleScope(pIsolate);
 	Poco::JS::Core::PooledIsolate* pPooledIso = Poco::JS::Core::PooledIsolate::fromIsolate(pIsolate);
 	poco_check_ptr (pPooledIso);
-	v8::Persistent<v8::ObjectTemplate>& pooledSessionTemplate(pPooledIso->objectTemplate("Web.Session"));
+	v8::Persistent<v8::ObjectTemplate>& pooledSessionTemplate(pPooledIso->objectTemplate("Web.Session"s));
 	if (pooledSessionTemplate.IsEmpty())
 	{
 		v8::Local<v8::ObjectTemplate> sessionTemplate = v8::ObjectTemplate::New(pIsolate);
 		sessionTemplate->SetInternalFieldCount(1);
-		sessionTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "id"), id);
-		sessionTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "username"), username);
-		sessionTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "authenticated"), authenticated);
-		sessionTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "csrfToken"), csrfToken);
-		sessionTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "clientAddress"), clientAddress);
-		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "setInt"), v8::FunctionTemplate::New(pIsolate, setInt));
-		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getInt"), v8::FunctionTemplate::New(pIsolate, getInt));
-		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "setString"), v8::FunctionTemplate::New(pIsolate, setString));
-		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getString"), v8::FunctionTemplate::New(pIsolate, getString));
-		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "erase"), v8::FunctionTemplate::New(pIsolate, erase));
-		sessionTemplate->Set(v8::String::NewFromUtf8(pIsolate, "authorize"), v8::FunctionTemplate::New(pIsolate, authorize));
+		sessionTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "id"s), id);
+		sessionTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "username"s), username);
+		sessionTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "authenticated"s), authenticated);
+		sessionTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "csrfToken"s), csrfToken);
+		sessionTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "clientAddress"s), clientAddress);
+		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "setInt"s), v8::FunctionTemplate::New(pIsolate, setInt));
+		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getInt"s), v8::FunctionTemplate::New(pIsolate, getInt));
+		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "setString"s), v8::FunctionTemplate::New(pIsolate, setString));
+		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getString"s), v8::FunctionTemplate::New(pIsolate, getString));
+		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "erase"s), v8::FunctionTemplate::New(pIsolate, erase));
+		sessionTemplate->Set(Wrapper::toV8Internalized(pIsolate, "authorize"s), v8::FunctionTemplate::New(pIsolate, authorize));
 		pooledSessionTemplate.Reset(pIsolate, sessionTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> localSessionTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledSessionTemplate);
@@ -72,11 +76,11 @@ void SessionWrapper::username(v8::Local<v8::String> name, const v8::PropertyCall
 	SessionHolder* pHolder = Poco::JS::Core::Wrapper::unwrapNative<SessionHolder>(info);
 	Poco::OSP::Web::WebSession::Ptr pSession = pHolder->session();
 	std::string username;
-	if (pSession->has("username"))
+	if (pSession->has("username"s))
 	{
 		try
 		{
-			username = pSession->getValue<std::string>("username");
+			username = pSession->getValue<std::string>("username"s);
 		}
 		catch (Poco::Exception&)
 		{
@@ -94,11 +98,11 @@ void SessionWrapper::authenticated(v8::Local<v8::String> name, const v8::Propert
 	SessionHolder* pHolder = Poco::JS::Core::Wrapper::unwrapNative<SessionHolder>(info);
 	Poco::OSP::Web::WebSession::Ptr pSession = pHolder->session();
 	std::string username;
-	if (pSession->has("username"))
+	if (pSession->has("username"s))
 	{
 		try
 		{
-			username = pSession->getValue<std::string>("username");
+			username = pSession->getValue<std::string>("username"s);
 		}
 		catch (Poco::Exception&)
 		{
@@ -128,7 +132,7 @@ void SessionWrapper::getInt(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
 
-	std::string name = toString(args[0]);
+	std::string name = toString(args.GetIsolate(), args[0]);
 	SessionHolder* pHolder = Poco::JS::Core::Wrapper::unwrapNative<SessionHolder>(args);
 	Poco::OSP::Web::WebSession::Ptr pSession = pHolder->session();
 	if (pSession->has(name))
@@ -157,8 +161,12 @@ void SessionWrapper::setInt(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 2) return;
 
-	std::string name = toString(args[0]);
-	int value = args[1]->Int32Value();
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
+
+	std::string name = toString(pIsolate, args[0]);
+	int value = args[1]->Int32Value(context).FromMaybe(0);
 
 	SessionHolder* pHolder = Poco::JS::Core::Wrapper::unwrapNative<SessionHolder>(args);
 	Poco::OSP::Web::WebSession::Ptr pSession = pHolder->session();
@@ -178,7 +186,9 @@ void SessionWrapper::getString(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
 
-	std::string name = toString(args[0]);
+	v8::Isolate* pIsolate(args.GetIsolate());
+
+	std::string name = toString(pIsolate, args[0]);
 	SessionHolder* pHolder = Poco::JS::Core::Wrapper::unwrapNative<SessionHolder>(args);
 	Poco::OSP::Web::WebSession::Ptr pSession = pHolder->session();
 	if (pSession->has(name))
@@ -207,8 +217,10 @@ void SessionWrapper::setString(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 2) return;
 
-	std::string name = toString(args[0]);
-	std::string value = toString(args[1]);
+	v8::Isolate* pIsolate(args.GetIsolate());
+
+	std::string name = toString(pIsolate, args[0]);
+	std::string value = toString(pIsolate, args[1]);
 
 	SessionHolder* pHolder = Poco::JS::Core::Wrapper::unwrapNative<SessionHolder>(args);
 	Poco::OSP::Web::WebSession::Ptr pSession = pHolder->session();
@@ -228,7 +240,9 @@ void SessionWrapper::erase(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
 
-	std::string name = toString(args[0]);
+	v8::Isolate* pIsolate(args.GetIsolate());
+
+	std::string name = toString(pIsolate, args[0]);
 
 	SessionHolder* pHolder = Poco::JS::Core::Wrapper::unwrapNative<SessionHolder>(args);
 	Poco::OSP::Web::WebSession::Ptr pSession = pHolder->session();
@@ -248,14 +262,16 @@ void SessionWrapper::authorize(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
 
-	std::string permission = toString(args[0]);
+	v8::Isolate* pIsolate(args.GetIsolate());
+
+	std::string permission = toString(pIsolate, args[0]);
 	SessionHolder* pHolder = Poco::JS::Core::Wrapper::unwrapNative<SessionHolder>(args);
 	Poco::OSP::Web::WebSession::Ptr pSession = pHolder->session();
 
 	bool authorized = false;
 	try
 	{
-		std::string username = pSession->getValue<std::string>("username", "");
+		std::string username = pSession->getValue<std::string>("username"s, ""s);
 		if (!username.empty())
 		{
 			Poco::OSP::Auth::AuthService::Ptr pAuthService = Poco::OSP::ServiceFinder::findByName<Poco::OSP::Auth::AuthService>(pHolder->context(), "osp.auth");

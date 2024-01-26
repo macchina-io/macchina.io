@@ -14,49 +14,32 @@
 #include "Poco/StringTokenizer.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 namespace JS {
 namespace Web {
 
 
-namespace
-{
-	std::string htmlize(const std::string& str)
-	{
-		std::string::const_iterator it(str.begin());
-		std::string::const_iterator end(str.end());
-		std::string html;
-		for (; it != end; ++it)
-		{
-			switch (*it)
-			{
-			case '<': html += "&lt;"; break;
-			case '>': html += "&gt;"; break;
-			case '"': html += "&quot;"; break;
-			case '&': html += "&amp;"; break;
-			default:  html += *it; break;
-			}
-		}
-		return html;
-	}
-}
-
 
 JSServletFilter::JSServletFilter(Poco::OSP::BundleContext::Ptr pContext, const Poco::OSP::Web::WebFilter::Args& args, JSServletExecutorCache& cache):
 	_pContext(pContext),
 	_cache(cache),
-	_memoryLimit(JSExecutor::getDefaultMemoryLimit())
+	_memoryLimit(JSExecutor::getDefaultMemoryLimit()),
+	_hasFilterMemoryLimit(false)
 {
-	Poco::OSP::Web::WebFilter::Args::const_iterator it = args.find("memoryLimit");
+	Poco::OSP::Web::WebFilter::Args::const_iterator it = args.find("memoryLimit"s);
 	if (it != args.end())
 	{
 		_memoryLimit = Poco::NumberParser::parseUnsigned64(it->second);
+		_hasFilterMemoryLimit = true;
 	}
-	it = args.find("searchPaths");
+	it = args.find("searchPaths"s);
 	if (it != args.end())
 	{
-		Poco::StringTokenizer tok(it->second, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+		Poco::StringTokenizer tok(it->second, ",;"s, Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 		_moduleSearchPaths.assign(tok.begin(), tok.end());
 	}
 }
@@ -66,7 +49,7 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 {
 	try
 	{
-		response.setContentType("text/html");
+		response.setContentType("text/html"s);
 
 		std::string scriptURI("bndl://");
 		scriptURI += pBundle->symbolicName();
@@ -89,10 +72,14 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 			{
 				std::string servlet;
 				preprocess(request, response, scriptURI, resourceStream, servlet);
-				
-				Poco::UInt64 memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit", _memoryLimit);
-				
-				std::string moduleSearchPaths = pBundle->properties().getString("osp.js.moduleSearchPaths", "");
+
+				Poco::UInt64 memoryLimit = _memoryLimit;
+				if (!_hasFilterMemoryLimit)
+				{
+					memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit"s, _memoryLimit);
+				}
+
+				std::string moduleSearchPaths = pBundle->properties().getString("osp.js.moduleSearchPaths"s, ""s);
 				Poco::StringTokenizer tok(moduleSearchPaths, ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 				_moduleSearchPaths.insert(_moduleSearchPaths.begin(), tok.begin(), tok.end());
 
@@ -106,7 +93,7 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 				pExecutorHolder->executor()->handleRequest(request, response);
 			}
 		}
-	
+
 		if (!response.sent())
 		{
 			sendErrorResponse(response, "Script execution failed. See server log for details.");
@@ -140,13 +127,13 @@ void JSServletFilter::sendErrorResponse(Poco::Net::HTTPServerResponse& response,
 	{
 		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
 		response.setChunkedTransferEncoding(true);
-		response.setContentType("text/html");
+		response.setContentType("text/html"s);
 		response.send()
 			<< "<html>"
 			<< "<head><title>" << response.getStatus() << ": " << response.getReason() << "</title></head>"
 			<< "<body>"
 			<< "<h1>" << response.getStatus() << ": " << response.getReason() << "</h1>"
-			<< "<p>" << htmlize(message) << "</p>"
+			<< "<p>" << Poco::Net::htmlize(message) << "</p>"
 			<< "</body>"
 			<< "</html>";
 	}

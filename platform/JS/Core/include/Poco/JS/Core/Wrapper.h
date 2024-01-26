@@ -143,6 +143,19 @@ public:
 		WeakPersistentWrapperRegistry::forIsolate(_pIsolate).registerWrapper(this);
 	}
 
+	WeakPersistentWrapper(v8::Isolate* pIsolate, const v8::MaybeLocal<v8::Object>& maybeJSObject, T pNative):
+		_pIsolate(pIsolate),
+		_pNative(pNative)
+	{
+		v8::Local<v8::Object> jsObject;
+		if (maybeJSObject.ToLocal(&jsObject))
+		{
+			_persistent.Reset(pIsolate, jsObject);
+		}
+
+		WeakPersistentWrapperRegistry::forIsolate(_pIsolate).registerWrapper(this);
+	}
+
 	~WeakPersistentWrapper()
 	{
 		WeakPersistentWrapperRegistry::forIsolate(_pIsolate).unregisterWrapper(this);
@@ -190,32 +203,41 @@ public:
 		/// Creates and returns a V8 ObjectTemplate.
 
 	template <typename T>
-	v8::Local<v8::Object> wrapNative(v8::Isolate* pIsolate, T* pNative)
+	v8::MaybeLocal<v8::Object> wrapNative(v8::Isolate* pIsolate, T* pNative)
 	{
+		using namespace std::string_literals;
+
 	 	v8::EscapableHandleScope handleScope(pIsolate);
 		v8::Local<v8::ObjectTemplate> wrapperTempl = objectTemplate(pIsolate);
 		poco_assert (!wrapperTempl.IsEmpty());
-		v8::Local<v8::Object> wrapper = wrapperTempl->NewInstance();
-		if (!wrapper.IsEmpty())
+		v8::MaybeLocal<v8::Object> maybeWrapper = wrapperTempl->NewInstance(pIsolate->GetCurrentContext());
+		v8::Local<v8::Object> wrapper;
+		if (maybeWrapper.ToLocal(&wrapper))
 		{
 			v8::Local<v8::External> ext = v8::External::New(pIsolate, pNative);
 			poco_assert (wrapper->InternalFieldCount() > 0);
 			wrapper->SetInternalField(0, ext);
 			wrapper->SetPrivate(
 				pIsolate->GetCurrentContext(),
-				v8::Private::ForApi(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")),
-				v8::String::NewFromUtf8(pIsolate, typeid(T).name()));
+				v8::Private::ForApi(pIsolate, toV8Internalized(pIsolate, "Poco::nativeType"s)),
+				toV8String(pIsolate, typeid(T).name()));
+			return handleScope.Escape(wrapper);
 		}
-		return handleScope.Escape(wrapper);
+		else return maybeWrapper;
 	}
 
-	v8::Handle<v8::Object> wrapNative(v8::Isolate* pIsolate)
+	v8::MaybeLocal<v8::Object> wrapNative(v8::Isolate* pIsolate)
 	{
 	 	v8::EscapableHandleScope handleScope(pIsolate);
 		v8::Local<v8::ObjectTemplate> wrapperTempl = objectTemplate(pIsolate);
 		poco_assert (!wrapperTempl.IsEmpty());
-		v8::Local<v8::Object> wrapper = wrapperTempl->NewInstance();
-		return handleScope.Escape(wrapper);
+		v8::MaybeLocal<v8::Object> maybeWrapper = wrapperTempl->NewInstance(pIsolate->GetCurrentContext());
+		v8::Local<v8::Object> wrapper;
+		if (maybeWrapper.ToLocal(&wrapper))
+		{
+			return handleScope.Escape(wrapper);
+		}
+		else return maybeWrapper;
 	}
 
 	template <typename T>
@@ -227,7 +249,6 @@ public:
 		if (!pWPW->persistent().IsEmpty())
 		{
 			pWPW->persistent().SetWeak(pWPW, WPW::destruct, v8::WeakCallbackType::kParameter);
-			pWPW->persistent().MarkIndependent();
 		}
 		return pWPW->persistent();
 	}
@@ -241,7 +262,6 @@ public:
 		if (!pWPW->persistent().IsEmpty())
 		{
 			pWPW->persistent().SetWeak(pWPW, WPW::destruct, v8::WeakCallbackType::kParameter);
-			pWPW->persistent().MarkIndependent();
 		}
 		return pWPW->persistent();
 	}
@@ -255,7 +275,6 @@ public:
 		if (!pWPW->persistent().IsEmpty())
 		{
 			pWPW->persistent().SetWeak(pWPW, WPW::destruct, v8::WeakCallbackType::kParameter);
-			pWPW->persistent().MarkIndependent();
 		}
 		return pWPW->persistent();
 	}
@@ -292,6 +311,8 @@ public:
 	template <typename T>
 	static T* safeUnwrapNative(v8::Isolate* pIsolate, v8::Local<v8::Value>& value)
 	{
+		using namespace std::string_literals;
+
 		if (!value.IsEmpty() && value->IsObject())
 		{
 			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
@@ -299,11 +320,11 @@ public:
 			{
 				v8::MaybeLocal<v8::Value> maybeNativeType = object->GetPrivate(
 					pIsolate->GetCurrentContext(),
-					v8::Private::ForApi(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")));
-				if (!maybeNativeType.IsEmpty())
+					v8::Private::ForApi(pIsolate, toV8Internalized(pIsolate, "Poco::nativeType"s)));
+				v8::Local<v8::Value> nativeType;
+				if (maybeNativeType.ToLocal(&nativeType))
 				{
-					v8::Local<v8::Value> nativeType = maybeNativeType.ToLocalChecked();
-					if (nativeType->IsString() && toString(nativeType) == typeid(T).name())
+					if (nativeType->IsString() && toString(pIsolate, nativeType) == typeid(T).name())
 					{
 						v8::Local<v8::External> wrap = v8::Local<v8::External>::Cast(object->GetInternalField(0));
 						void* pRaw = wrap->Value();
@@ -318,6 +339,8 @@ public:
 	template <typename T>
 	static bool isWrapper(v8::Isolate* pIsolate, const v8::Local<v8::Value>& value)
 	{
+		using namespace std::string_literals;
+
 		if (!value.IsEmpty() && value->IsObject())
 		{
 			v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(value);
@@ -325,13 +348,13 @@ public:
 			{
 				v8::MaybeLocal<v8::Value> maybeNativeType = object->GetPrivate(
 					pIsolate->GetCurrentContext(),
-					v8::Private::ForApi(pIsolate, v8::String::NewFromUtf8(pIsolate, "Poco::nativeType")));
-				if (!maybeNativeType.IsEmpty())
+					v8::Private::ForApi(pIsolate, toV8Internalized(pIsolate, "Poco::nativeType"s)));
+				v8::Local<v8::Value> nativeType;
+				if (maybeNativeType.ToLocal(&nativeType))
 				{
-					v8::Local<v8::Value> nativeType = maybeNativeType.ToLocalChecked();
 					if (nativeType->IsString())
 					{
-						return toString(nativeType) == typeid(T).name();
+						return toString(pIsolate, nativeType) == typeid(T).name();
 					}
 				}
 			}
@@ -339,16 +362,19 @@ public:
 		return false;
 	}
 
-	static std::string toString(v8::Local<v8::Value> value);
+	static std::string toString(v8::Isolate* pIsolate, v8::Local<v8::Value> value);
+	static std::string toString(v8::Isolate* pIsolate, v8::Local<v8::String> value);
+	static std::string toString(v8::Isolate* pIsolate, v8::Local<v8::Name> value);
+	static std::string toString(v8::Isolate* pIsolate, v8::MaybeLocal<v8::Value> maybeValue);
+	static std::string toString(v8::Isolate* pIsolate, v8::MaybeLocal<v8::String> maybeValue);
+	static v8::Local<v8::String> toV8String(v8::Isolate* pIsolate, const std::string& value, v8::NewStringType type = v8::NewStringType::kNormal);
+	static v8::Local<v8::String> toV8Internalized(v8::Isolate* pIsolate, const std::string& value);
+	static v8::Local<v8::String> toV8String(v8::Isolate* pIsolate, const char* value);
 
 	template <typename T>
 	static void returnString(const T& info, const std::string& value)
 	{
-		info.GetReturnValue().Set(v8::String::NewFromUtf8(
-			info.GetIsolate(),
-			value.c_str(),
-			v8::String::kNormalString,
-			static_cast<int>(value.length())));
+		info.GetReturnValue().Set(toV8String(info.GetIsolate(), value));
 	}
 
 	template <typename T>
@@ -357,14 +383,7 @@ public:
 		std::string displayText = exc.displayText();
 		info.GetReturnValue().Set(
 			info.GetIsolate()->ThrowException(
-				v8::Exception::Error(
-					v8::String::NewFromUtf8(
-						info.GetIsolate(),
-						displayText.c_str(),
-						v8::String::kNormalString,
-						static_cast<int>(displayText.length())
-					)
-				)
+				v8::Exception::Error(toV8String(info.GetIsolate(), displayText))
 			)
 		);
 	}
@@ -374,14 +393,7 @@ public:
 	{
 		info.GetReturnValue().Set(
 			info.GetIsolate()->ThrowException(
-				v8::Exception::Error(
-					v8::String::NewFromUtf8(
-						info.GetIsolate(),
-						displayText.c_str(),
-						v8::String::kNormalString,
-						static_cast<int>(displayText.length())
-					)
-				)
+				v8::Exception::Error(toV8String(info.GetIsolate(), displayText))
 			)
 		);
 	}

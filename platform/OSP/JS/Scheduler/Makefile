@@ -13,7 +13,7 @@ objects = SchedulerExtensionPoint BundleActivator
 
 target         = com.appinf.osp.js.scheduler
 target_libs    = PocoJSNet PocoJSData PocoJSBridge PocoJSCore PocoOSPJS PocoOSP PocoRemotingNG PocoNet PocoUtil PocoXML PocoData PocoFoundation
-target_extlibs = v8 v8_libplatform v8_libbase
+target_extlibs = v8
 
 postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../../bundles Scheduler.bndlspec
 

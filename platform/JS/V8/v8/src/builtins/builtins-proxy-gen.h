@@ -5,7 +5,8 @@
 #ifndef V8_BUILTINS_BUILTINS_PROXY_GEN_H_
 #define V8_BUILTINS_BUILTINS_PROXY_GEN_H_
 
-#include "src/code-stub-assembler.h"
+#include "src/codegen/code-stub-assembler.h"
+#include "src/objects/js-proxy.h"
 
 namespace v8 {
 namespace internal {
@@ -16,14 +17,30 @@ class ProxiesCodeStubAssembler : public CodeStubAssembler {
   explicit ProxiesCodeStubAssembler(compiler::CodeAssemblerState* state)
       : CodeStubAssembler(state) {}
 
- protected:
-  void GotoIfRevokedProxy(Node* object, Label* if_proxy_revoked);
-  Node* AllocateProxy(Node* target, Node* handler, Node* context);
-  Node* AllocateJSArrayForCodeStubArguments(Node* context,
-                                            CodeStubArguments& args, Node* argc,
-                                            ParameterMode mode);
-  void CheckHasTrapResult(Node* context, Node* target, Node* proxy, Node* name,
-                          Label* check_passed, Label* if_bailout);
+  TNode<JSProxy> AllocateProxy(TNode<Context> context, TNode<JSReceiver> target,
+                               TNode<JSReceiver> handler);
+  TNode<JSFunction> AllocateProxyRevokeFunction(TNode<Context> context,
+                                                TNode<JSProxy> proxy);
+
+  void CheckGetSetTrapResult(TNode<Context> context, TNode<JSReceiver> target,
+                             TNode<JSProxy> proxy, TNode<Name> name,
+                             TNode<Object> trap_result,
+                             JSProxy::AccessKind access_kind);
+
+  void CheckHasTrapResult(TNode<Context> context, TNode<JSReceiver> target,
+                          TNode<JSProxy> proxy, TNode<Name> name);
+
+  void CheckDeleteTrapResult(TNode<Context> context, TNode<JSReceiver> target,
+                             TNode<JSProxy> proxy, TNode<Name> name);
+
+  enum ProxyRevokeFunctionContextSlot {
+    kProxySlot = Context::MIN_CONTEXT_SLOTS,
+    kProxyContextLength,
+  };
+
+ private:
+  TNode<Context> CreateProxyRevokeFunctionContext(
+      TNode<JSProxy> proxy, TNode<NativeContext> native_context);
 };
 
 }  // namespace internal

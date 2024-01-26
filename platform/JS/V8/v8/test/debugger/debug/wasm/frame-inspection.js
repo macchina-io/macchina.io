@@ -4,7 +4,6 @@
 
 // Flags: --expose-wasm
 
-load("test/mjsunit/wasm/wasm-constants.js");
 load("test/mjsunit/wasm/wasm-module-builder.js");
 
 Debug = debug.Debug
@@ -15,8 +14,8 @@ var break_count = 0;
 const expected_frames = [
   // func-name; wasm?; pos; line; col
   ['call_debugger', false],        // --
-  ['wasm_2', true, 56, 2, 2],      // --
-  ['wasm_1', true, 52, 3, 2],      // --
+  ['wasm_2', true, 56, 1, 60],     // --
+  ['wasm_1', true, 52, 1, 55],     // --
   ['testFrameInspection', false],  // --
   ['', false]
 ];
@@ -25,7 +24,6 @@ function listener(event, exec_state, event_data, data) {
   if (event != Debug.DebugEvent.Break) return;
   ++break_count;
   try {
-    var break_id = exec_state.break_id;
     var frame_count = exec_state.frameCount();
     assertEquals(expected_frames.length, frame_count, 'frame count');
 

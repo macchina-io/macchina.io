@@ -13,6 +13,7 @@ function foo() {
 
 let g1 = foo();
 let g2 = foo();
+%PrepareFunctionForOptimization(g1);
 
 g1({ f : 1});
 g1({ f : 2});
@@ -20,11 +21,16 @@ g2({ f : 2});
 g2({ f : 2});
 
 %OptimizeFunctionOnNextCall(g1);
-%OptimizeFunctionOnNextCall(g2);
-
 g1({ f : 1});
+
+%PrepareFunctionForOptimization(g2);
+%OptimizeFunctionOnNextCall(g2);
 g2({ f : 2});
 g1({});
+if (%DynamicMapChecksEnabled()) {
+  // One more call to ensure a deopt even if dynamic map checks is enabled.
+  g1({});
+}
 
 assertUnoptimized(g1);
 

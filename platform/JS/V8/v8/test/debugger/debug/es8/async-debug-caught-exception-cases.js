@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// Flags: --ignore-unhandled-promises
+
 Debug = debug.Debug
 
 let events = 0;
@@ -197,7 +199,7 @@ function runPart(n) {
 
     events = 0;
     consumer(producer);
-    %RunMicrotasks();
+    %PerformMicrotaskCheckpoint();
 
     Debug.setListener(null);
     if (caught) {

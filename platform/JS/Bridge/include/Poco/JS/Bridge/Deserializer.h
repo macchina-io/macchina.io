@@ -68,8 +68,8 @@ public:
 	bool deserialize(const std::string& name, bool isMandatory, char& value);
 	bool deserialize(const std::string& name, bool isMandatory, std::string& value);
 	bool deserialize(const std::string& name, bool isMandatory, std::vector<char>& value);
-	v8::Local<v8::Value> deserializeValue(const std::string& name);
-	v8::Local<v8::Value> peekValue(const std::string& name);
+	v8::MaybeLocal<v8::Value> deserializeValue(const std::string& name);
+	v8::MaybeLocal<v8::Value> peekValue(const std::string& name);
 
 protected:
 	void resetImpl();

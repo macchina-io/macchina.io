@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef V8_PROFILER_TRACING_CPU_PROFILER_H
-#define V8_PROFILER_TRACING_CPU_PROFILER_H
+#ifndef V8_PROFILER_TRACING_CPU_PROFILER_H_
+#define V8_PROFILER_TRACING_CPU_PROFILER_H_
+
+#include <memory>
 
 #include "include/v8-platform.h"
-#include "include/v8-profiler.h"
 #include "src/base/atomic-utils.h"
 #include "src/base/macros.h"
 #include "src/base/platform/mutex.h"
@@ -18,11 +19,10 @@ class CpuProfiler;
 class Isolate;
 
 class TracingCpuProfilerImpl final
-    : public TracingCpuProfiler,
-      private v8::TracingController::TraceStateObserver {
+    : private v8::TracingController::TraceStateObserver {
  public:
   explicit TracingCpuProfilerImpl(Isolate*);
-  ~TracingCpuProfilerImpl();
+  ~TracingCpuProfilerImpl() override;
 
   // v8::TracingController::TraceStateObserver
   void OnTraceEnabled() final;
@@ -43,4 +43,4 @@ class TracingCpuProfilerImpl final
 }  // namespace internal
 }  // namespace v8
 
-#endif  // V8_PROFILER_TRACING_CPU_PROFILER_H
+#endif  // V8_PROFILER_TRACING_CPU_PROFILER_H_

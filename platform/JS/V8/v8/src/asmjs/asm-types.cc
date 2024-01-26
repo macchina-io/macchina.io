@@ -6,8 +6,8 @@
 
 #include <cinttypes>
 
-#include "src/utils.h"
-#include "src/v8.h"
+#include "src/init/v8.h"
+#include "src/utils/utils.h"
 
 namespace v8 {
 namespace internal {
@@ -38,11 +38,12 @@ std::string AsmType::Name() {
   return this->AsCallableType()->Name();
 }
 
-bool AsmType::IsExactly(AsmType* that) {
-  // TODO(jpp): maybe this can become this == that.
-  AsmValueType* avt = this->AsValueType();
+bool AsmType::IsExactly(AsmType* x, AsmType* y) {
+  // TODO(jpp): maybe this can become x == y.
+  if (x == nullptr) return y == nullptr;
+  AsmValueType* avt = x->AsValueType();
   if (avt != nullptr) {
-    AsmValueType* tavt = that->AsValueType();
+    AsmValueType* tavt = y->AsValueType();
     if (tavt == nullptr) {
       return false;
     }
@@ -51,7 +52,7 @@ bool AsmType::IsExactly(AsmType* that) {
 
   // TODO(jpp): is it useful to allow non-value types to be tested with
   // IsExactly?
-  return that == this;
+  return x == y;
 }
 
 bool AsmType::IsA(AsmType* that) {
@@ -171,7 +172,7 @@ class AsmFroundType final : public AsmCallableType {
 }  // namespace
 
 AsmType* AsmType::FroundType(Zone* zone) {
-  auto* Fround = new (zone) AsmFroundType();
+  auto* Fround = zone->New<AsmFroundType>();
   return reinterpret_cast<AsmType*>(Fround);
 }
 
@@ -194,13 +195,14 @@ namespace {
 class AsmMinMaxType final : public AsmCallableType {
  private:
   friend AsmType;
+  friend Zone;
 
   AsmMinMaxType(AsmType* dest, AsmType* src)
       : AsmCallableType(), return_type_(dest), arg_(src) {}
 
   bool CanBeInvokedWith(AsmType* return_type,
                         const ZoneVector<AsmType*>& args) override {
-    if (!return_type_->IsExactly(return_type)) {
+    if (!AsmType::IsExactly(return_type_, return_type)) {
       return false;
     }
 
@@ -228,9 +230,9 @@ class AsmMinMaxType final : public AsmCallableType {
 }  // namespace
 
 AsmType* AsmType::MinMaxType(Zone* zone, AsmType* dest, AsmType* src) {
-  DCHECK(dest->AsValueType() != nullptr);
-  DCHECK(src->AsValueType() != nullptr);
-  auto* MinMax = new (zone) AsmMinMaxType(dest, src);
+  DCHECK_NOT_NULL(dest->AsValueType());
+  DCHECK_NOT_NULL(src->AsValueType());
+  auto* MinMax = zone->New<AsmMinMaxType>(dest, src);
   return reinterpret_cast<AsmType*>(MinMax);
 }
 
@@ -239,7 +241,7 @@ bool AsmFunctionType::IsA(AsmType* other) {
   if (that == nullptr) {
     return false;
   }
-  if (!return_type_->IsExactly(that->return_type_)) {
+  if (!AsmType::IsExactly(return_type_, that->return_type_)) {
     return false;
   }
 
@@ -248,7 +250,7 @@ bool AsmFunctionType::IsA(AsmType* other) {
   }
 
   for (size_t ii = 0; ii < args_.size(); ++ii) {
-    if (!args_[ii]->IsExactly(that->args_[ii])) {
+    if (!AsmType::IsExactly(args_[ii], that->args_[ii])) {
       return false;
     }
   }
@@ -258,7 +260,7 @@ bool AsmFunctionType::IsA(AsmType* other) {
 
 bool AsmFunctionType::CanBeInvokedWith(AsmType* return_type,
                                        const ZoneVector<AsmType*>& args) {
-  if (!return_type_->IsExactly(return_type)) {
+  if (!AsmType::IsExactly(return_type_, return_type)) {
     return false;
   }
 
@@ -300,7 +302,7 @@ bool AsmOverloadedFunctionType::CanBeInvokedWith(
 }
 
 void AsmOverloadedFunctionType::AddOverload(AsmType* overload) {
-  DCHECK(overload->AsCallableType() != nullptr);
+  DCHECK_NOT_NULL(overload->AsCallableType());
   overloads_.push_back(overload);
 }
 

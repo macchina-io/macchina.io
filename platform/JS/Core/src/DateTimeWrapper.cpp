@@ -46,7 +46,7 @@ v8::Handle<v8::FunctionTemplate> DateTimeWrapper::constructor(v8::Isolate* pIsol
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isDateTime"), v8::FunctionTemplate::New(pIsolate, isDateTime));
+	funcTemplate->Set(toV8String(pIsolate, "isDateTime"s), v8::FunctionTemplate::New(pIsolate, isDateTime));
 	return handleScope.Escape(funcTemplate);
 }
 
@@ -61,31 +61,31 @@ v8::Handle<v8::ObjectTemplate> DateTimeWrapper::objectTemplate(v8::Isolate* pIso
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "year"), year);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "month"), month);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "day"), day);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "hour"), hour);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "hour12"), hourAMPM);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "am"), isAM);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "pm"), isPM);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "minute"), minute);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "second"), second);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "dayOfWeek"), dayOfWeek);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "dayOfYear"), dayOfYear);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "julian"), julian);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "timestamp"), timestamp);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "epoch"), epoch);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "year"s), year);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "month"s), month);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "day"s), day);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "hour"s), hour);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "hour12"s), hourAMPM);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "am"s), isAM);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "pm"s), isPM);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "minute"s), minute);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "second"s), second);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "dayOfWeek"s), dayOfWeek);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "dayOfYear"s), dayOfYear);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "julian"s), julian);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "timestamp"s), timestamp);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "epoch"s), epoch);
 
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "daysOfMonth"), v8::FunctionTemplate::New(pIsolate, daysOfMonth));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isLeapYear"), v8::FunctionTemplate::New(pIsolate, isLeapYear));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "addSeconds"), v8::FunctionTemplate::New(pIsolate, addSeconds));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "addHours"), v8::FunctionTemplate::New(pIsolate, addHours));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "addDays"), v8::FunctionTemplate::New(pIsolate, addDays));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "local"), v8::FunctionTemplate::New(pIsolate, local));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "format"), v8::FunctionTemplate::New(pIsolate, format));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toString"), v8::FunctionTemplate::New(pIsolate, format));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toDate"), v8::FunctionTemplate::New(pIsolate, toDate));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "toJSON"), v8::FunctionTemplate::New(pIsolate, toJSON));
+		objectTemplate->Set(toV8Internalized(pIsolate, "daysOfMonth"s), v8::FunctionTemplate::New(pIsolate, daysOfMonth));
+		objectTemplate->Set(toV8Internalized(pIsolate, "isLeapYear"s), v8::FunctionTemplate::New(pIsolate, isLeapYear));
+		objectTemplate->Set(toV8Internalized(pIsolate, "addSeconds"s), v8::FunctionTemplate::New(pIsolate, addSeconds));
+		objectTemplate->Set(toV8Internalized(pIsolate, "addHours"s), v8::FunctionTemplate::New(pIsolate, addHours));
+		objectTemplate->Set(toV8Internalized(pIsolate, "addDays"s), v8::FunctionTemplate::New(pIsolate, addDays));
+		objectTemplate->Set(toV8Internalized(pIsolate, "local"s), v8::FunctionTemplate::New(pIsolate, local));
+		objectTemplate->Set(toV8Internalized(pIsolate, "format"s), v8::FunctionTemplate::New(pIsolate, format));
+		objectTemplate->Set(toV8Internalized(pIsolate, "toString"s), v8::FunctionTemplate::New(pIsolate, format));
+		objectTemplate->Set(toV8Internalized(pIsolate, "toDate"s), v8::FunctionTemplate::New(pIsolate, toDate));
+		objectTemplate->Set(toV8Internalized(pIsolate, "toJSON"s), v8::FunctionTemplate::New(pIsolate, toJSON));
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> dateTimeTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
@@ -95,6 +95,8 @@ v8::Handle<v8::ObjectTemplate> DateTimeWrapper::objectTemplate(v8::Isolate* pIso
 
 void DateTimeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	Poco::DateTime* pDateTime = 0;
 	try
 	{
@@ -108,8 +110,8 @@ void DateTimeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 			{
 				if (args.Length() > 1 && args[1]->IsString())
 				{
-					std::string dateTimeString = toString(args[0]);
-					std::string formatString   = mapFormat(toString(args[1]));
+					std::string dateTimeString = toString(pIsolate, args[0]);
+					std::string formatString   = mapFormat(toString(pIsolate, args[1]));
 					Poco::DateTime dt;
 					int tzd;
 					Poco::DateTimeParser::parse(formatString, dateTimeString, dt, tzd);
@@ -118,7 +120,7 @@ void DateTimeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 				}
 				else
 				{
-					std::string dateTimeString = toString(args[0]);
+					std::string dateTimeString = toString(pIsolate, args[0]);
 					Poco::DateTime dt;
 					int tzd;
 					Poco::DateTimeParser::parse(dateTimeString, dt, tzd);
@@ -135,27 +137,27 @@ void DateTimeWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 			}
 			else if (args.Length() >= 3 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber())
 			{
-				int year   = args[0]->Int32Value();
-				int month  = args[1]->Int32Value();
-				int day    = args[2]->Int32Value();
+				int year   = args[0]->Int32Value(context).FromMaybe(0);
+				int month  = args[1]->Int32Value(context).FromMaybe(0);
+				int day    = args[2]->Int32Value(context).FromMaybe(0);
 				int hour   = 0;
 				int minute = 0;
 				double second = 0;
-				if (args.Length() >= 4 && args[3]->IsNumber()) hour = args[3]->Int32Value();
-				if (args.Length() >= 5 && args[4]->IsNumber()) minute = args[4]->Int32Value();
-				if (args.Length() >= 6 && args[5]->IsNumber()) second = args[5]->NumberValue();
+				if (args.Length() >= 4 && args[3]->IsNumber()) hour = args[3]->Int32Value(context).FromMaybe(0);
+				if (args.Length() >= 5 && args[4]->IsNumber()) minute = args[4]->Int32Value(context).FromMaybe(0);
+				if (args.Length() >= 6 && args[5]->IsNumber()) second = args[5]->NumberValue(context).FromMaybe(0);
 				double fracSecond = second - std::floor(second);
 				pDateTime = new Poco::DateTime(year, month, day, hour, minute, static_cast<int>(second), static_cast<int>(1000*fracSecond));
 			}
 			else if (args.Length() >= 1 && args[0]->IsNumber())
 			{
-				pDateTime = new Poco::DateTime(args[0]->NumberValue()); // Julian
+				pDateTime = new Poco::DateTime(args[0]->NumberValue(context).FromMaybe(0.0)); // Julian
 			}
 			else throw Poco::InvalidArgumentException("Invalid arguments to construct DateTime");
 		}
 		DateTimeWrapper wrapper;
 		v8::Persistent<v8::Object>& dateTimeObject(wrapper.wrapNativePersistent(args.GetIsolate(), pDateTime));
-		args.GetReturnValue().Set(dateTimeObject);
+		args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, dateTimeObject));
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -278,18 +280,20 @@ void DateTimeWrapper::epoch(v8::Local<v8::String> name, const v8::PropertyCallba
 
 void DateTimeWrapper::daysOfMonth(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	Poco::DateTime* pDateTime = Wrapper::unwrapNative<Poco::DateTime>(args);
 	int year = pDateTime->year();
 	int month = pDateTime->month();
 	if (args.Length() > 1 && args[0]->IsNumber() && args[1]->IsNumber())
 	{
-		year  = args[0]->Int32Value();
-		month = args[1]->Int32Value();
+		year  = args[0]->Int32Value(context).FromMaybe(0);
+		month = args[1]->Int32Value(context).FromMaybe(0);
 	}
 	else if (args.Length() > 0 && args[0]->IsNumber())
 	{
-		month = args[0]->Int32Value();
+		month = args[0]->Int32Value(context).FromMaybe(0);
 	}
 	int dom = 0;
 	if (month >= 1 && month <= 12) dom = Poco::DateTime::daysOfMonth(year, month);
@@ -299,12 +303,14 @@ void DateTimeWrapper::daysOfMonth(const v8::FunctionCallbackInfo<v8::Value>& arg
 
 void DateTimeWrapper::isLeapYear(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	Poco::DateTime* pDateTime = Wrapper::unwrapNative<Poco::DateTime>(args);
 	int year = pDateTime->year();
 	if (args.Length() > 0 && args[0]->IsNumber())
 	{
-		year = args[0]->Int32Value();
+		year = args[0]->Int32Value(context).FromMaybe(0);
 	}
 	args.GetReturnValue().Set(Poco::DateTime::isLeapYear(year));
 }
@@ -312,11 +318,13 @@ void DateTimeWrapper::isLeapYear(const v8::FunctionCallbackInfo<v8::Value>& args
 
 void DateTimeWrapper::addSeconds(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	if (args.Length() > 0 && args[0]->IsNumber())
 	{
 		Poco::DateTime* pDateTime = Wrapper::unwrapNative<Poco::DateTime>(args);
-		double second = args[0]->NumberValue();
+		double second = args[0]->NumberValue(context).FromMaybe(0.0);
 		double fracSecond = second - std::floor(second);
 		Poco::Timespan ts(static_cast<long>(second), static_cast<long>(1000000*fracSecond));
 		*pDateTime += ts;
@@ -327,11 +335,13 @@ void DateTimeWrapper::addSeconds(const v8::FunctionCallbackInfo<v8::Value>& args
 
 void DateTimeWrapper::addHours(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	if (args.Length() > 0 && args[0]->IsNumber())
 	{
 		Poco::DateTime* pDateTime = Wrapper::unwrapNative<Poco::DateTime>(args);
-		Poco::Timespan ts(0, args[0]->Int32Value(), 0, 0, 0);
+		Poco::Timespan ts(0, args[0]->Int32Value(context).FromMaybe(0), 0, 0, 0);
 		*pDateTime += ts;
 	}
 	args.GetReturnValue().Set(args.Holder());
@@ -340,11 +350,13 @@ void DateTimeWrapper::addHours(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void DateTimeWrapper::addDays(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	if (args.Length() > 0 && args[0]->IsNumber())
 	{
 		Poco::DateTime* pDateTime = Wrapper::unwrapNative<Poco::DateTime>(args);
-		Poco::Timespan ts(args[0]->Int32Value(), 0, 0, 0, 0);
+		Poco::Timespan ts(args[0]->Int32Value(context).FromMaybe(0), 0, 0, 0, 0);
 		*pDateTime += ts;
 	}
 	args.GetReturnValue().Set(args.Holder());
@@ -353,11 +365,12 @@ void DateTimeWrapper::addDays(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void DateTimeWrapper::format(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
 	Poco::DateTime* pDateTime = Wrapper::unwrapNative<Poco::DateTime>(args);
 	std::string format;
 	if (args.Length() > 0)
-		format = mapFormat(toString(args[0]));
+		format = mapFormat(toString(pIsolate, args[0]));
 	else
 		format = Poco::DateTimeFormat::ISO8601_FORMAT;
 	try
@@ -373,15 +386,17 @@ void DateTimeWrapper::format(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void DateTimeWrapper::local(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	Poco::DateTime* pDateTime = Wrapper::unwrapNative<Poco::DateTime>(args);
 	Poco::LocalDateTime* pLocalDateTime = 0;
 	try
 	{
 		pLocalDateTime = new Poco::LocalDateTime(*pDateTime);
 		LocalDateTimeWrapper wrapper;
-		v8::Persistent<v8::Object>& localDateTimeObject(wrapper.wrapNativePersistent(args.GetIsolate(), pLocalDateTime));
-		args.GetReturnValue().Set(localDateTimeObject);
+		v8::Persistent<v8::Object>& localDateTimeObject(wrapper.wrapNativePersistent(pIsolate, pLocalDateTime));
+		args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, localDateTimeObject));
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -393,13 +408,19 @@ void DateTimeWrapper::local(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 void DateTimeWrapper::toDate(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	Poco::DateTime* pDateTime = Wrapper::unwrapNative<Poco::DateTime>(args);
 	try
 	{
 		double millis = pDateTime->timestamp().epochMicroseconds()/1000.0;
-		v8::Local<v8::Value> jsDate(v8::Date::New(args.GetIsolate(), millis));
-		args.GetReturnValue().Set(jsDate);
+		v8::MaybeLocal<v8::Value> maybeJSDate(v8::Date::New(context, millis));
+		v8::Local<v8::Value> jsDate;
+		if (maybeJSDate.ToLocal(&jsDate))
+		{
+			args.GetReturnValue().Set(jsDate);
+		}
 	}
 	catch (Poco::Exception& exc)
 	{

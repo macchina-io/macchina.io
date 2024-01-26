@@ -5,17 +5,24 @@
 #ifndef V8_COMPILER_COMMON_OPERATOR_H_
 #define V8_COMPILER_COMMON_OPERATOR_H_
 
-#include "src/assembler.h"
 #include "src/base/compiler-specific.h"
+#include "src/codegen/machine-type.h"
+#include "src/codegen/reloc-info.h"
+#include "src/codegen/string-constants.h"
+#include "src/common/globals.h"
+#include "src/compiler/feedback-source.h"
 #include "src/compiler/frame-states.h"
-#include "src/deoptimize-reason.h"
-#include "src/globals.h"
-#include "src/machine-type.h"
+#include "src/compiler/linkage.h"
+#include "src/compiler/node-properties.h"
+#include "src/deoptimizer/deoptimize-reason.h"
 #include "src/zone/zone-containers.h"
 #include "src/zone/zone-handle-set.h"
 
 namespace v8 {
 namespace internal {
+
+class StringConstantBase;
+
 namespace compiler {
 
 // Forward declarations.
@@ -44,7 +51,53 @@ inline size_t hash_value(BranchHint hint) { return static_cast<size_t>(hint); }
 
 V8_EXPORT_PRIVATE std::ostream& operator<<(std::ostream&, BranchHint);
 
-V8_EXPORT_PRIVATE BranchHint BranchHintOf(const Operator* const);
+enum class IsSafetyCheck : uint8_t {
+  kCriticalSafetyCheck,
+  kSafetyCheck,
+  kNoSafetyCheck
+};
+
+// Get the more critical safety check of the two arguments.
+IsSafetyCheck CombineSafetyChecks(IsSafetyCheck, IsSafetyCheck);
+
+V8_EXPORT_PRIVATE std::ostream& operator<<(std::ostream&, IsSafetyCheck);
+inline size_t hash_value(IsSafetyCheck is_safety_check) {
+  return static_cast<size_t>(is_safety_check);
+}
+
+enum class TrapId : uint32_t {
+#define DEF_ENUM(Name, ...) k##Name,
+  FOREACH_WASM_TRAPREASON(DEF_ENUM)
+#undef DEF_ENUM
+      kInvalid
+};
+
+inline size_t hash_value(TrapId id) { return static_cast<uint32_t>(id); }
+
+std::ostream& operator<<(std::ostream&, TrapId trap_id);
+
+TrapId TrapIdOf(const Operator* const op);
+
+struct BranchOperatorInfo {
+  BranchHint hint;
+  IsSafetyCheck is_safety_check;
+};
+
+inline size_t hash_value(const BranchOperatorInfo& info) {
+  return base::hash_combine(info.hint, info.is_safety_check);
+}
+
+V8_EXPORT_PRIVATE std::ostream& operator<<(std::ostream&, BranchOperatorInfo);
+
+inline bool operator==(const BranchOperatorInfo& a,
+                       const BranchOperatorInfo& b) {
+  return a.hint == b.hint && a.is_safety_check == b.is_safety_check;
+}
+
+V8_EXPORT_PRIVATE const BranchOperatorInfo& BranchOperatorInfoOf(
+    const Operator* const) V8_WARN_UNUSED_RESULT;
+V8_EXPORT_PRIVATE BranchHint BranchHintOf(const Operator* const)
+    V8_WARN_UNUSED_RESULT;
 
 // Helper function for return nodes, because returns have a hidden value input.
 int ValueInputCountOfReturn(Operator const* const op);
@@ -52,15 +105,24 @@ int ValueInputCountOfReturn(Operator const* const op);
 // Parameters for the {Deoptimize} operator.
 class DeoptimizeParameters final {
  public:
-  DeoptimizeParameters(DeoptimizeKind kind, DeoptimizeReason reason)
-      : kind_(kind), reason_(reason) {}
+  DeoptimizeParameters(DeoptimizeKind kind, DeoptimizeReason reason,
+                       FeedbackSource const& feedback,
+                       IsSafetyCheck is_safety_check)
+      : kind_(kind),
+        reason_(reason),
+        feedback_(feedback),
+        is_safety_check_(is_safety_check) {}
 
   DeoptimizeKind kind() const { return kind_; }
   DeoptimizeReason reason() const { return reason_; }
+  const FeedbackSource& feedback() const { return feedback_; }
+  IsSafetyCheck is_safety_check() const { return is_safety_check_; }
 
  private:
   DeoptimizeKind const kind_;
   DeoptimizeReason const reason_;
+  FeedbackSource const feedback_;
+  IsSafetyCheck is_safety_check_;
 };
 
 bool operator==(DeoptimizeParameters, DeoptimizeParameters);
@@ -70,8 +132,10 @@ size_t hast_value(DeoptimizeParameters p);
 
 std::ostream& operator<<(std::ostream&, DeoptimizeParameters p);
 
-DeoptimizeParameters const& DeoptimizeParametersOf(Operator const* const);
+DeoptimizeParameters const& DeoptimizeParametersOf(Operator const* const)
+    V8_WARN_UNUSED_RESULT;
 
+IsSafetyCheck IsSafetyCheckOf(const Operator* op) V8_WARN_UNUSED_RESULT;
 
 class SelectParameters final {
  public:
@@ -95,14 +159,16 @@ size_t hash_value(SelectParameters const& p);
 std::ostream& operator<<(std::ostream&, SelectParameters const& p);
 
 V8_EXPORT_PRIVATE SelectParameters const& SelectParametersOf(
-    const Operator* const);
+    const Operator* const) V8_WARN_UNUSED_RESULT;
 
-V8_EXPORT_PRIVATE CallDescriptor const* CallDescriptorOf(const Operator* const);
+V8_EXPORT_PRIVATE CallDescriptor const* CallDescriptorOf(const Operator* const)
+    V8_WARN_UNUSED_RESULT;
 
-V8_EXPORT_PRIVATE size_t ProjectionIndexOf(const Operator* const);
+V8_EXPORT_PRIVATE size_t ProjectionIndexOf(const Operator* const)
+    V8_WARN_UNUSED_RESULT;
 
 V8_EXPORT_PRIVATE MachineRepresentation
-PhiRepresentationOf(const Operator* const);
+PhiRepresentationOf(const Operator* const) V8_WARN_UNUSED_RESULT;
 
 // The {IrOpcode::kParameter} opcode represents an incoming parameter to the
 // function. This class bundles the index and a debug name for such operators.
@@ -121,8 +187,10 @@ class ParameterInfo final {
 
 std::ostream& operator<<(std::ostream&, ParameterInfo const&);
 
-V8_EXPORT_PRIVATE int ParameterIndexOf(const Operator* const);
-const ParameterInfo& ParameterInfoOf(const Operator* const);
+V8_EXPORT_PRIVATE int ParameterIndexOf(const Operator* const)
+    V8_WARN_UNUSED_RESULT;
+const ParameterInfo& ParameterInfoOf(const Operator* const)
+    V8_WARN_UNUSED_RESULT;
 
 struct ObjectStateInfo final : std::pair<uint32_t, int> {
   ObjectStateInfo(uint32_t object_id, int size)
@@ -178,7 +246,7 @@ size_t hash_value(RelocatablePtrConstantInfo const& p);
 // value.
 class SparseInputMask final {
  public:
-  typedef uint32_t BitMaskType;
+  using BitMaskType = uint32_t;
 
   // The mask representing a dense input set.
   static const BitMaskType kDenseBitMask = 0x0;
@@ -193,7 +261,7 @@ class SparseInputMask final {
   // An iterator over a node's sparse inputs.
   class InputIterator final {
    public:
-    InputIterator() {}
+    InputIterator() = default;
     InputIterator(BitMaskType bit_mask, Node* parent);
 
     Node* parent() const { return parent_; }
@@ -206,6 +274,11 @@ class SparseInputMask final {
     // Get the current sparse input's real node value. Only valid if the
     // current sparse input is real.
     Node* GetReal() const;
+
+    // Advance to the next real value or the end. Only valid if the iterator is
+    // not dense. Returns the number of empty values that were skipped. This can
+    // return 0 and in that case, it does not advance.
+    size_t AdvanceToNextRealOrEnd();
 
     // Get the current sparse input, returning either a real input node if
     // the current sparse input is real, or the given {empty_value} if the
@@ -299,28 +372,86 @@ size_t hash_value(RegionObservability);
 
 std::ostream& operator<<(std::ostream&, RegionObservability);
 
-RegionObservability RegionObservabilityOf(Operator const*) WARN_UNUSED_RESULT;
+RegionObservability RegionObservabilityOf(Operator const*)
+    V8_WARN_UNUSED_RESULT;
 
 std::ostream& operator<<(std::ostream& os,
                          const ZoneVector<MachineType>* types);
 
-ZoneHandleSet<Map> MapGuardMapsOf(Operator const*) WARN_UNUSED_RESULT;
+Type TypeGuardTypeOf(Operator const*) V8_WARN_UNUSED_RESULT;
 
-Type* TypeGuardTypeOf(Operator const*) WARN_UNUSED_RESULT;
+int OsrValueIndexOf(Operator const*) V8_WARN_UNUSED_RESULT;
 
-int OsrValueIndexOf(Operator const*);
-
-SparseInputMask SparseInputMaskOf(Operator const*);
+SparseInputMask SparseInputMaskOf(Operator const*) V8_WARN_UNUSED_RESULT;
 
 ZoneVector<MachineType> const* MachineTypesOf(Operator const*)
-    WARN_UNUSED_RESULT;
+    V8_WARN_UNUSED_RESULT;
 
-// The ArgumentsElementsState and ArgumentsLengthState can either describe an
-// unmapped arguments backing store or the backing store of the rest parameters.
-// IsRestOf(op) is true in the second case.
-bool IsRestOf(Operator const*);
+// The ArgumentsElementsState and ArgumentsLengthState can describe the layout
+// for backing stores of arguments objects of various types:
+//
+//                        +------------------------------------+
+//  - kUnmappedArguments: | arg0, ... argK-1, argK, ... argN-1 |  {length:N}
+//                        +------------------------------------+
+//                        +------------------------------------+
+//  - kMappedArguments:   | hole, ...   hole, argK, ... argN-1 |  {length:N}
+//                        +------------------------------------+
+//                                          +------------------+
+//  - kRestParameter:                       | argK, ... argN-1 |  {length:N-K}
+//                                          +------------------+
+//
+// Here {K} represents the number for formal parameters of the active function,
+// whereas {N} represents the actual number of arguments passed at runtime.
+// Note that {N < K} can happen and causes {K} to be capped accordingly.
+//
+// Also note that it is possible for an arguments object of {kMappedArguments}
+// type to carry a backing store of {kUnappedArguments} type when {K == 0}.
+using ArgumentsStateType = CreateArgumentsType;
+
+ArgumentsStateType ArgumentsStateTypeOf(Operator const*) V8_WARN_UNUSED_RESULT;
 
 uint32_t ObjectIdOf(Operator const*);
+
+MachineRepresentation DeadValueRepresentationOf(Operator const*)
+    V8_WARN_UNUSED_RESULT;
+
+class IfValueParameters final {
+ public:
+  IfValueParameters(int32_t value, int32_t comparison_order,
+                    BranchHint hint = BranchHint::kNone)
+      : value_(value), comparison_order_(comparison_order), hint_(hint) {}
+
+  int32_t value() const { return value_; }
+  int32_t comparison_order() const { return comparison_order_; }
+  BranchHint hint() const { return hint_; }
+
+ private:
+  int32_t value_;
+  int32_t comparison_order_;
+  BranchHint hint_;
+};
+
+V8_EXPORT_PRIVATE bool operator==(IfValueParameters const&,
+                                  IfValueParameters const&);
+
+size_t hash_value(IfValueParameters const&);
+
+V8_EXPORT_PRIVATE std::ostream& operator<<(std::ostream&,
+                                           IfValueParameters const&);
+
+V8_EXPORT_PRIVATE IfValueParameters const& IfValueParametersOf(
+    const Operator* op) V8_WARN_UNUSED_RESULT;
+
+const FrameStateInfo& FrameStateInfoOf(const Operator* op)
+    V8_WARN_UNUSED_RESULT;
+
+V8_EXPORT_PRIVATE Handle<HeapObject> HeapConstantOf(const Operator* op)
+    V8_WARN_UNUSED_RESULT;
+
+const StringConstantBase* StringConstantBaseOf(const Operator* op)
+    V8_WARN_UNUSED_RESULT;
+
+const char* StaticAssertSourceOf(const Operator* op);
 
 // Interface for building common operators that can be used at any level of IR,
 // including JavaScript, mid-level, and low-level.
@@ -330,22 +461,33 @@ class V8_EXPORT_PRIVATE CommonOperatorBuilder final
   explicit CommonOperatorBuilder(Zone* zone);
 
   const Operator* Dead();
+  const Operator* DeadValue(MachineRepresentation rep);
+  const Operator* Unreachable();
+  const Operator* StaticAssert(const char* source);
   const Operator* End(size_t control_input_count);
-  const Operator* Branch(BranchHint = BranchHint::kNone);
+  const Operator* Branch(BranchHint = BranchHint::kNone,
+                         IsSafetyCheck = IsSafetyCheck::kSafetyCheck);
   const Operator* IfTrue();
   const Operator* IfFalse();
   const Operator* IfSuccess();
   const Operator* IfException();
   const Operator* Switch(size_t control_output_count);
-  const Operator* IfValue(int32_t value);
-  const Operator* IfDefault();
+  const Operator* IfValue(int32_t value, int32_t order = 0,
+                          BranchHint hint = BranchHint::kNone);
+  const Operator* IfDefault(BranchHint hint = BranchHint::kNone);
   const Operator* Throw();
-  const Operator* Deoptimize(DeoptimizeKind kind, DeoptimizeReason reason);
-  const Operator* DeoptimizeIf(DeoptimizeKind kind, DeoptimizeReason reason);
-  const Operator* DeoptimizeUnless(DeoptimizeKind kind,
-                                   DeoptimizeReason reason);
-  const Operator* TrapIf(int32_t trap_id);
-  const Operator* TrapUnless(int32_t trap_id);
+  const Operator* Deoptimize(DeoptimizeKind kind, DeoptimizeReason reason,
+                             FeedbackSource const& feedback);
+  const Operator* DeoptimizeIf(
+      DeoptimizeKind kind, DeoptimizeReason reason,
+      FeedbackSource const& feedback,
+      IsSafetyCheck is_safety_check = IsSafetyCheck::kSafetyCheck);
+  const Operator* DeoptimizeUnless(
+      DeoptimizeKind kind, DeoptimizeReason reason,
+      FeedbackSource const& feedback,
+      IsSafetyCheck is_safety_check = IsSafetyCheck::kSafetyCheck);
+  const Operator* TrapIf(TrapId trap_id);
+  const Operator* TrapUnless(TrapId trap_id);
   const Operator* Return(int value_input_count = 1);
   const Operator* Terminate();
 
@@ -354,18 +496,18 @@ class V8_EXPORT_PRIVATE CommonOperatorBuilder final
   const Operator* Merge(int control_input_count);
   const Operator* Parameter(int index, const char* debug_name = nullptr);
 
-  const Operator* OsrNormalEntry();
-  const Operator* OsrLoopEntry();
   const Operator* OsrValue(int index);
 
   const Operator* Int32Constant(int32_t);
   const Operator* Int64Constant(int64_t);
+  const Operator* TaggedIndexConstant(int32_t value);
   const Operator* Float32Constant(volatile float);
   const Operator* Float64Constant(volatile double);
   const Operator* ExternalConstant(const ExternalReference&);
   const Operator* NumberConstant(volatile double);
   const Operator* PointerConstant(intptr_t);
   const Operator* HeapConstant(const Handle<HeapObject>&);
+  const Operator* CompressedHeapConstant(const Handle<HeapObject>&);
   const Operator* ObjectId(uint32_t);
 
   const Operator* RelocatableInt32Constant(int32_t value,
@@ -387,22 +529,20 @@ class V8_EXPORT_PRIVATE CommonOperatorBuilder final
   const Operator* StateValues(int arguments, SparseInputMask bitmask);
   const Operator* TypedStateValues(const ZoneVector<MachineType>* types,
                                    SparseInputMask bitmask);
-  const Operator* ArgumentsElementsState(bool is_rest);
-  const Operator* ArgumentsLengthState(bool is_rest);
+  const Operator* ArgumentsElementsState(ArgumentsStateType type);
+  const Operator* ArgumentsLengthState();
   const Operator* ObjectState(uint32_t object_id, int pointer_slots);
   const Operator* TypedObjectState(uint32_t object_id,
                                    const ZoneVector<MachineType>* types);
   const Operator* FrameState(BailoutId bailout_id,
                              OutputFrameStateCombine state_combine,
                              const FrameStateFunctionInfo* function_info);
-  const Operator* Call(const CallDescriptor* descriptor);
-  const Operator* CallWithCallerSavedRegisters(
-      const CallDescriptor* descriptor);
-  const Operator* TailCall(const CallDescriptor* descriptor);
+  const Operator* Call(const CallDescriptor* call_descriptor);
+  const Operator* TailCall(const CallDescriptor* call_descriptor);
   const Operator* Projection(size_t index);
   const Operator* Retain();
-  const Operator* MapGuard(ZoneHandleSet<Map> maps);
-  const Operator* TypeGuard(Type* type);
+  const Operator* TypeGuard(Type type);
+  const Operator* FoldConstant();
 
   // Constructs a new merge or phi operator with the same opcode as {op}, but
   // with {size} inputs.
@@ -413,6 +553,11 @@ class V8_EXPORT_PRIVATE CommonOperatorBuilder final
       FrameStateType type, int parameter_count, int local_count,
       Handle<SharedFunctionInfo> shared_info);
 
+  const Operator* MarkAsSafetyCheck(const Operator* op,
+                                    IsSafetyCheck safety_check);
+
+  const Operator* DelayedStringConstant(const StringConstantBase* str);
+
  private:
   Zone* zone() const { return zone_; }
 
@@ -421,6 +566,77 @@ class V8_EXPORT_PRIVATE CommonOperatorBuilder final
 
   DISALLOW_COPY_AND_ASSIGN(CommonOperatorBuilder);
 };
+
+// Node wrappers.
+
+class CommonNodeWrapperBase : public NodeWrapper {
+ public:
+  explicit constexpr CommonNodeWrapperBase(Node* node) : NodeWrapper(node) {}
+
+  // Valid iff this node has exactly one effect input.
+  Effect effect() const {
+    DCHECK_EQ(node()->op()->EffectInputCount(), 1);
+    return Effect{NodeProperties::GetEffectInput(node())};
+  }
+
+  // Valid iff this node has exactly one control input.
+  Control control() const {
+    DCHECK_EQ(node()->op()->ControlInputCount(), 1);
+    return Control{NodeProperties::GetControlInput(node())};
+  }
+};
+
+#define DEFINE_INPUT_ACCESSORS(Name, name, TheIndex, Type) \
+  static constexpr int Name##Index() { return TheIndex; }  \
+  TNode<Type> name() const {                               \
+    return TNode<Type>::UncheckedCast(                     \
+        NodeProperties::GetValueInput(node(), TheIndex));  \
+  }
+
+class StartNode final : public CommonNodeWrapperBase {
+ public:
+  explicit constexpr StartNode(Node* node) : CommonNodeWrapperBase(node) {
+    CONSTEXPR_DCHECK(node->opcode() == IrOpcode::kStart);
+  }
+
+  // The receiver is counted as part of formal parameters.
+  static constexpr int kReceiverOutputCount = 1;
+  // These outputs are in addition to formal parameters.
+  static constexpr int kExtraOutputCount = 4;
+
+  // Takes the formal parameter count of the current function (including
+  // receiver) and returns the number of value outputs of the start node.
+  static constexpr int OutputArityForFormalParameterCount(int argc) {
+    constexpr int kClosure = 1;
+    constexpr int kNewTarget = 1;
+    constexpr int kArgCount = 1;
+    constexpr int kContext = 1;
+    STATIC_ASSERT(kClosure + kNewTarget + kArgCount + kContext ==
+                  kExtraOutputCount);
+    // Checking related linkage methods here since they rely on Start node
+    // layout.
+    CONSTEXPR_DCHECK(Linkage::kJSCallClosureParamIndex == -1);
+    CONSTEXPR_DCHECK(Linkage::GetJSCallNewTargetParamIndex(argc) == argc + 0);
+    CONSTEXPR_DCHECK(Linkage::GetJSCallArgCountParamIndex(argc) == argc + 1);
+    CONSTEXPR_DCHECK(Linkage::GetJSCallContextParamIndex(argc) == argc + 2);
+    return argc + kClosure + kNewTarget + kArgCount + kContext;
+  }
+
+  int FormalParameterCount() const {
+    DCHECK_GE(node()->op()->ValueOutputCount(),
+              kExtraOutputCount + kReceiverOutputCount);
+    return node()->op()->ValueOutputCount() - kExtraOutputCount;
+  }
+
+  int FormalParameterCountWithoutReceiver() const {
+    DCHECK_GE(node()->op()->ValueOutputCount(),
+              kExtraOutputCount + kReceiverOutputCount);
+    return node()->op()->ValueOutputCount() - kExtraOutputCount -
+           kReceiverOutputCount;
+  }
+};
+
+#undef DEFINE_INPUT_ACCESSORS
 
 }  // namespace compiler
 }  // namespace internal

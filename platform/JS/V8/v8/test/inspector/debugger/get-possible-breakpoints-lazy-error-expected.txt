@@ -1,16 +1,17 @@
 getPossibleBreakpoints should not crash during lazy compilation (crbug.com/715334)
 {
-    method : Debugger.scriptParsed
+    method : Debugger.scriptFailedToParse
     params : {
-        endColumn : 21
+        embedderName : 
+        endColumn : 23
         endLine : 2
         executionContextId : <executionContextId>
         hasSourceURL : true
-        hash : FA2A959297747012766FE9C5006E7F522D88FA72
-        isLiveEdit : false
+        hash : 1bce5d0c4da4d13a3ea6e6f35ea0f34705c26ba4
         isModule : false
-        length : 52
+        length : 56
         scriptId : <scriptId>
+        scriptLanguage : JavaScript
         sourceMapURL : 
         startColumn : 0
         startLine : 0

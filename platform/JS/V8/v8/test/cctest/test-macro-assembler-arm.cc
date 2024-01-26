@@ -27,127 +27,38 @@
 
 #include <stdlib.h>
 
-#include "src/arm/simulator-arm.h"
-#include "src/assembler-inl.h"
-#include "src/macro-assembler.h"
-#include "src/objects-inl.h"
-#include "src/v8.h"
+#include "src/codegen/assembler-inl.h"
+#include "src/codegen/macro-assembler.h"
+#include "src/execution/simulator.h"
+#include "src/init/v8.h"
+#include "src/objects/objects-inl.h"
+#include "src/utils/ostreams.h"
 #include "test/cctest/cctest.h"
+#include "test/common/assembler-tester.h"
 
-using namespace v8::internal;
+namespace v8 {
+namespace internal {
+namespace test_macro_assembler_arm {
 
-typedef void* (*F)(int x, int y, int p2, int p3, int p4);
+using F = void*(int x, int y, int p2, int p3, int p4);
 
 #define __ masm->
 
-typedef Object* (*F3)(void* p0, int p1, int p2, int p3, int p4);
-typedef int (*F5)(void*, void*, void*, void*, void*);
-
-
-TEST(LoadAndStoreWithRepresentation) {
-  // Allocate an executable page of memory.
-  size_t actual_size;
-  byte* buffer = static_cast<byte*>(v8::base::OS::Allocate(
-      Assembler::kMinimalBufferSize, &actual_size, true));
-  CHECK(buffer);
-  Isolate* isolate = CcTest::i_isolate();
-  HandleScope handles(isolate);
-  MacroAssembler assembler(isolate, buffer, static_cast<int>(actual_size),
-                           v8::internal::CodeObjectRequired::kYes);
-  MacroAssembler* masm = &assembler;  // Create a pointer for the __ macro.
-  __ sub(sp, sp, Operand(1 * kPointerSize));
-  Label exit;
-
-  // Test 1.
-  __ mov(r0, Operand(1));  // Test number.
-  __ mov(r1, Operand(0));
-  __ str(r1, MemOperand(sp, 0 * kPointerSize));
-  __ mov(r2, Operand(-1));
-  __ Store(r2, MemOperand(sp, 0 * kPointerSize), Representation::UInteger8());
-  __ ldr(r3, MemOperand(sp, 0 * kPointerSize));
-  __ mov(r2, Operand(255));
-  __ cmp(r3, r2);
-  __ b(ne, &exit);
-  __ mov(r2, Operand(255));
-  __ Load(r3, MemOperand(sp, 0 * kPointerSize), Representation::UInteger8());
-  __ cmp(r3, r2);
-  __ b(ne, &exit);
-
-  // Test 2.
-  __ mov(r0, Operand(2));  // Test number.
-  __ mov(r1, Operand(0));
-  __ str(r1, MemOperand(sp, 0 * kPointerSize));
-  __ mov(r2, Operand(-1));
-  __ Store(r2, MemOperand(sp, 0 * kPointerSize), Representation::Integer8());
-  __ ldr(r3, MemOperand(sp, 0 * kPointerSize));
-  __ mov(r2, Operand(255));
-  __ cmp(r3, r2);
-  __ b(ne, &exit);
-  __ mov(r2, Operand(-1));
-  __ Load(r3, MemOperand(sp, 0 * kPointerSize), Representation::Integer8());
-  __ cmp(r3, r2);
-  __ b(ne, &exit);
-
-  // Test 3.
-  __ mov(r0, Operand(3));  // Test number.
-  __ mov(r1, Operand(0));
-  __ str(r1, MemOperand(sp, 0 * kPointerSize));
-  __ mov(r2, Operand(-1));
-  __ Store(r2, MemOperand(sp, 0 * kPointerSize), Representation::UInteger16());
-  __ ldr(r3, MemOperand(sp, 0 * kPointerSize));
-  __ mov(r2, Operand(65535));
-  __ cmp(r3, r2);
-  __ b(ne, &exit);
-  __ mov(r2, Operand(65535));
-  __ Load(r3, MemOperand(sp, 0 * kPointerSize), Representation::UInteger16());
-  __ cmp(r3, r2);
-  __ b(ne, &exit);
-
-  // Test 4.
-  __ mov(r0, Operand(4));  // Test number.
-  __ mov(r1, Operand(0));
-  __ str(r1, MemOperand(sp, 0 * kPointerSize));
-  __ mov(r2, Operand(-1));
-  __ Store(r2, MemOperand(sp, 0 * kPointerSize), Representation::Integer16());
-  __ ldr(r3, MemOperand(sp, 0 * kPointerSize));
-  __ mov(r2, Operand(65535));
-  __ cmp(r3, r2);
-  __ b(ne, &exit);
-  __ mov(r2, Operand(-1));
-  __ Load(r3, MemOperand(sp, 0 * kPointerSize), Representation::Integer16());
-  __ cmp(r3, r2);
-  __ b(ne, &exit);
-
-  __ mov(r0, Operand(0));  // Success.
-  __ bind(&exit);
-  __ add(sp, sp, Operand(1 * kPointerSize));
-  __ bx(lr);
-
-  CodeDesc desc;
-  masm->GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
-
-  // Call the function from C++.
-  F5 f = FUNCTION_CAST<F5>(code->entry());
-  CHECK(!CALL_GENERATED_CODE(isolate, f, 0, 0, 0, 0, 0));
-}
+using F3 = void*(void* p0, int p1, int p2, int p3, int p4);
+using F5 = int(void*, void*, void*, void*, void*);
 
 TEST(ExtractLane) {
   if (!CpuFeatures::IsSupported(NEON)) return;
 
-  // Allocate an executable page of memory.
-  size_t actual_size;
-  byte* buffer = static_cast<byte*>(v8::base::OS::Allocate(
-      Assembler::kMinimalBufferSize, &actual_size, true));
-  CHECK(buffer);
   Isolate* isolate = CcTest::i_isolate();
   HandleScope handles(isolate);
-  MacroAssembler assembler(isolate, buffer, static_cast<int>(actual_size),
-                           v8::internal::CodeObjectRequired::kYes);
+
+  auto buffer = AllocateAssemblerBuffer();
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes,
+                           buffer->CreateView());
   MacroAssembler* masm = &assembler;  // Create a pointer for the __ macro.
 
-  typedef struct {
+  struct T {
     int32_t i32x4_low[4];
     int32_t i32x4_high[4];
     int32_t i16x8_low[8];
@@ -158,7 +69,7 @@ TEST(ExtractLane) {
     int32_t f32x4_high[4];
     int32_t i8x16_low_d[16];
     int32_t i8x16_high_d[16];
-  } T;
+  };
   T t;
 
   __ stm(db_w, sp, r4.bit() | r5.bit() | lr.bit());
@@ -235,15 +146,14 @@ TEST(ExtractLane) {
 
   CodeDesc desc;
   masm->GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
 #ifdef DEBUG
-  OFStream os(stdout);
+  StdoutStream os;
   code->Print(os);
 #endif
-  F3 f = FUNCTION_CAST<F3>(code->entry());
-  Object* dummy = CALL_GENERATED_CODE(isolate, f, &t, 0, 0, 0, 0);
-  USE(dummy);
+  auto f = GeneratedCode<F3>::FromCode(*code);
+  f.Call(&t, 0, 0, 0, 0);
   for (int i = 0; i < 4; i++) {
     CHECK_EQ(i, t.i32x4_low[i]);
     CHECK_EQ(i, t.f32x4_low[i]);
@@ -279,18 +189,15 @@ TEST(ExtractLane) {
 TEST(ReplaceLane) {
   if (!CpuFeatures::IsSupported(NEON)) return;
 
-  // Allocate an executable page of memory.
-  size_t actual_size;
-  byte* buffer = static_cast<byte*>(v8::base::OS::Allocate(
-      Assembler::kMinimalBufferSize, &actual_size, true));
-  CHECK(buffer);
   Isolate* isolate = CcTest::i_isolate();
   HandleScope handles(isolate);
-  MacroAssembler assembler(isolate, buffer, static_cast<int>(actual_size),
-                           v8::internal::CodeObjectRequired::kYes);
+
+  auto buffer = AllocateAssemblerBuffer();
+  MacroAssembler assembler(isolate, v8::internal::CodeObjectRequired::kYes,
+                           buffer->CreateView());
   MacroAssembler* masm = &assembler;  // Create a pointer for the __ macro.
 
-  typedef struct {
+  struct T {
     int32_t i32x4_low[4];
     int32_t i32x4_high[4];
     int16_t i16x8_low[8];
@@ -299,7 +206,7 @@ TEST(ReplaceLane) {
     int8_t i8x16_high[16];
     int32_t f32x4_low[4];
     int32_t f32x4_high[4];
-  } T;
+  };
   T t;
 
   __ stm(db_w, sp, r4.bit() | r5.bit() | r6.bit() | r7.bit() | lr.bit());
@@ -370,15 +277,14 @@ TEST(ReplaceLane) {
 
   CodeDesc desc;
   masm->GetCode(isolate, &desc);
-  Handle<Code> code = isolate->factory()->NewCode(
-      desc, Code::ComputeFlags(Code::STUB), Handle<Code>());
+  Handle<Code> code =
+      Factory::CodeBuilder(isolate, desc, CodeKind::STUB).Build();
 #ifdef DEBUG
-  OFStream os(stdout);
+  StdoutStream os;
   code->Print(os);
 #endif
-  F3 f = FUNCTION_CAST<F3>(code->entry());
-  Object* dummy = CALL_GENERATED_CODE(isolate, f, &t, 0, 0, 0, 0);
-  USE(dummy);
+  auto f = GeneratedCode<F3>::FromCode(*code);
+  f.Call(&t, 0, 0, 0, 0);
   for (int i = 0; i < 4; i++) {
     CHECK_EQ(i, t.i32x4_low[i]);
     CHECK_EQ(i, t.f32x4_low[i]);
@@ -404,3 +310,7 @@ TEST(ReplaceLane) {
 }
 
 #undef __
+
+}  // namespace test_macro_assembler_arm
+}  // namespace internal
+}  // namespace v8

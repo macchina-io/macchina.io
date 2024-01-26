@@ -41,7 +41,7 @@ v8::Handle<v8::FunctionTemplate> CookieJarWrapper::constructor(v8::Isolate* pIso
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isCookieJar"), v8::FunctionTemplate::New(pIsolate, isCookieJar));
+	funcTemplate->Set(toV8Internalized(pIsolate, "isCookieJar"), v8::FunctionTemplate::New(pIsolate, isCookieJar));
 	return handleScope.Escape(funcTemplate);
 }
 
@@ -56,8 +56,8 @@ v8::Handle<v8::ObjectTemplate> CookieJarWrapper::objectTemplate(v8::Isolate* pIs
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "addCookies"), v8::FunctionTemplate::New(pIsolate, addCookies));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "updateCookies"), v8::FunctionTemplate::New(pIsolate, updateCookies));
+		objectTemplate->Set(toV8Internalized(pIsolate, "addCookies"), v8::FunctionTemplate::New(pIsolate, addCookies));
+		objectTemplate->Set(toV8Internalized(pIsolate, "updateCookies"), v8::FunctionTemplate::New(pIsolate, updateCookies));
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
 	v8::Local<v8::ObjectTemplate> uuidTemplate = v8::Local<v8::ObjectTemplate>::New(pIsolate, pooledObjectTemplate);
@@ -67,14 +67,15 @@ v8::Handle<v8::ObjectTemplate> CookieJarWrapper::objectTemplate(v8::Isolate* pIs
 
 void CookieJarWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	v8::EscapableHandleScope handleScope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::EscapableHandleScope handleScope(pIsolate);
 
 	CookieJar* pCookieJar = new CookieJar;
 	try
 	{
 		CookieJarWrapper wrapper;
-		v8::Persistent<v8::Object>& cookieJarObject(wrapper.wrapNativePersistent(args.GetIsolate(), pCookieJar));
-		args.GetReturnValue().Set(cookieJarObject);
+		v8::Persistent<v8::Object>& cookieJarObject(wrapper.wrapNativePersistent(pIsolate, pCookieJar));
+		args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, cookieJarObject));
 	}
 	catch (Poco::Exception& exc)
 	{

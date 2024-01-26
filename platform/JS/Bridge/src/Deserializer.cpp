@@ -57,15 +57,19 @@ void Deserializer::deserializeMessageEnd(const std::string& /*name*/, Serializer
 
 bool Deserializer::deserializeStructBegin(const std::string& name, bool /*isMandatory*/)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsObject())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		_jsObjectStack.push_back(jsValue->ToObject());
-		_jsIndexStack.push_back(-1);
-		return true;
+		if (jsValue->IsObject())
+		{
+			_jsObjectStack.push_back(jsValue->ToObject(_pIsolate->GetCurrentContext()).ToLocalChecked());
+			_jsIndexStack.push_back(-1);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not an object");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not an object");
+	else return false;
 }
 
 
@@ -79,15 +83,19 @@ void Deserializer::deserializeStructEnd(const std::string& /*name*/)
 bool Deserializer::deserializeSequenceBegin(const std::string& name, bool /*isMandatory*/, Poco::UInt32& lengthHint)
 {
 	lengthHint = 0;
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsObject())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		_jsObjectStack.push_back(jsValue->ToObject());
-		_jsIndexStack.push_back(0);
-		return true;
+		if (jsValue->IsObject())
+		{
+			_jsObjectStack.push_back(jsValue->ToObject(_pIsolate->GetCurrentContext()).ToLocalChecked());
+			_jsIndexStack.push_back(0);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not an object");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not an object");
+	else return false;
 }
 
 
@@ -100,10 +108,14 @@ void Deserializer::deserializeSequenceEnd(const std::string& /*name*/)
 
 bool Deserializer::deserializeNullableBegin(const std::string& name, bool /*isMandatory*/, bool& isNull)
 {
-	v8::Local<v8::Value> jsValue = peekValue(name);
-	if (jsValue.IsEmpty()) return false;
-	isNull = jsValue->IsNull() || jsValue->IsUndefined();
-	return true;
+	v8::MaybeLocal<v8::Value> maybeValue = peekValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue))
+	{
+		isNull = jsValue->IsNull() || jsValue->IsUndefined();
+		return true;
+	}
+	else return false;
 }
 
 
@@ -114,10 +126,14 @@ void Deserializer::deserializeNullableEnd(const std::string& /*name*/)
 
 bool Deserializer::deserializeOptionalBegin(const std::string& name, bool /*isMandatory*/, bool& isSpecified)
 {
-	v8::Local<v8::Value> jsValue = peekValue(name);
-	if (jsValue.IsEmpty()) return false;
-	isSpecified = !jsValue->IsNull() && !jsValue->IsUndefined();
-	return true;
+	v8::MaybeLocal<v8::Value> maybeValue = peekValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue))
+	{
+		isSpecified = !jsValue->IsNull() && !jsValue->IsUndefined();
+		return true;
+	}
+	else return false;
 }
 
 
@@ -128,277 +144,351 @@ void Deserializer::deserializeOptionalEnd(const std::string& name)
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, Poco::Int8& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = static_cast<Poco::Int8>(jsValue->Int32Value());
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = static_cast<Poco::Int8>(jsValue->Int32Value(_pIsolate->GetCurrentContext()).FromMaybe(0));
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, Poco::UInt8& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = static_cast<Poco::UInt8>(jsValue->Uint32Value());
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = static_cast<Poco::UInt8>(jsValue->Uint32Value(_pIsolate->GetCurrentContext()).FromMaybe(0));
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, Poco::Int16& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = static_cast<Poco::Int16>(jsValue->Int32Value());
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = static_cast<Poco::Int16>(jsValue->Int32Value(_pIsolate->GetCurrentContext()).FromMaybe(0));
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, Poco::UInt16& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = static_cast<Poco::Int16>(jsValue->Uint32Value());
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = static_cast<Poco::Int16>(jsValue->Uint32Value(_pIsolate->GetCurrentContext()).FromMaybe(0));
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, Poco::Int32& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = jsValue->Int32Value();
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = jsValue->Int32Value(_pIsolate->GetCurrentContext()).FromMaybe(0);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, Poco::UInt32& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = jsValue->Uint32Value();
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = jsValue->Uint32Value(_pIsolate->GetCurrentContext()).FromMaybe(0);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 
 
 #ifdef POCO_INT64_IS_LONG
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, long& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = jsValue->IntegerValue();
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = jsValue->IntegerValue(_pIsolate->GetCurrentContext()).FromMaybe(0);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, unsigned long& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = static_cast<Poco::UInt64>(jsValue->IntegerValue());
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = static_cast<Poco::UInt64>(jsValue->IntegerValue(_pIsolate->GetCurrentContext()).FromMaybe(0));
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
+
+
 #else
+
+
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, long& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = jsValue->Int32Value();
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = jsValue->Int32Value(_pIsolate->GetCurrentContext()).FromMaybe(0);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, unsigned long& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = jsValue->Uint32Value();
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = jsValue->Uint32Value(_pIsolate->GetCurrentContext()).FromMaybe(0);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, Poco::Int64& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = jsValue->IntegerValue();
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = jsValue->IntegerValue(_pIsolate->GetCurrentContext()).FromMaybe(0);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, Poco::UInt64& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = static_cast<Poco::UInt64>(jsValue->IntegerValue());
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = static_cast<Poco::UInt64>(jsValue->IntegerValue(_pIsolate->GetCurrentContext()).FromMaybe(0));
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 #endif
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, float& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = static_cast<float>(jsValue->NumberValue());
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = static_cast<float>(jsValue->NumberValue(_pIsolate->GetCurrentContext()).FromMaybe(0));
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, double& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsNumber())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = jsValue->NumberValue();
-		return true;
+		if (jsValue->IsNumber())
+		{
+			value = jsValue->NumberValue(_pIsolate->GetCurrentContext()).FromMaybe(0);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a number");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a number");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, bool& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsBoolean())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		value = jsValue->BooleanValue();
-		return true;
+		if (jsValue->IsBoolean())
+		{
+			value = jsValue->BooleanValue(_pIsolate);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a boolean");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a boolean");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, char& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsString())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		v8::String::Utf8Value utf8(jsValue);
-		std::string s(*utf8);
-		if (s.size() == 1)
+		if (jsValue->IsString())
 		{
-			value = s[0];
-			return true;
+			std::string s = Core::Wrapper::toString(_pIsolate, jsValue);
+			if (s.size() == 1)
+			{
+				value = s[0];
+				return true;
+			}
 		}
-	}
-	else if (jsValue->IsNumber())
-	{
-		Poco::Int32 i = jsValue->Int32Value();
-		if (i >= 0 && i <= 255)
+		else if (jsValue->IsNumber())
 		{
-			value = static_cast<char>(i);
-			return true;
+			Poco::Int32 i = jsValue->Int32Value(_pIsolate->GetCurrentContext()).FromMaybe(0);
+			if (i >= 0 && i <= 255)
+			{
+				value = static_cast<char>(i);
+				return true;
+			}
 		}
+		throw Poco::RemotingNG::DeserializerException("value is not a one-character string or a byte value");
 	}
-	throw Poco::RemotingNG::DeserializerException("value is not a one-character string or a byte value");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, std::string& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsString())
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		v8::String::Utf8Value utf8(jsValue);
-		value.assign(*utf8);
-		return true;
+		if (jsValue->IsString())
+		{
+			value = Core::Wrapper::toString(_pIsolate, jsValue);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a string");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a string");
+	else return false;
 }
 
 
 bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, std::vector<char>& value)
 {
-	v8::Local<v8::Value> jsValue = deserializeValue(name);
-	if (jsValue.IsEmpty() || jsValue->IsUndefined()) return false;
-	if (jsValue->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::JS::Core::BufferWrapper::Buffer>(_pIsolate, jsValue))
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
 	{
-		Poco::JS::Core::BufferWrapper::Buffer* pArgBuffer = Poco::JS::Core::Wrapper::unwrapNativeObject<Poco::JS::Core::BufferWrapper::Buffer>(jsValue);
-		value.assign(pArgBuffer->begin(), pArgBuffer->end());
-		return true;
+		if (jsValue->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::JS::Core::BufferWrapper::Buffer>(_pIsolate, jsValue))
+		{
+			Poco::JS::Core::BufferWrapper::Buffer* pArgBuffer = Poco::JS::Core::Wrapper::unwrapNativeObject<Poco::JS::Core::BufferWrapper::Buffer>(jsValue);
+			value.assign(pArgBuffer->begin(), pArgBuffer->end());
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a buffer");
 	}
-	else throw Poco::RemotingNG::DeserializerException("value is not a buffer");
+	else return false;
 }
 
 
-v8::Local<v8::Value> Deserializer::deserializeValue(const std::string& name)
+v8::MaybeLocal<v8::Value> Deserializer::deserializeValue(const std::string& name)
 {
 	if (_jsIndexStack.back() == -1)
 	{
-		return _jsObjectStack.back()->Get(v8::String::NewFromUtf8(_pIsolate, name.c_str(), v8::String::kNormalString, static_cast<int>(name.size())));
+		return _jsObjectStack.back()->Get(_pIsolate->GetCurrentContext(), Core::Wrapper::toV8String(_pIsolate, name));
 	}
 	else
 	{
-		return _jsObjectStack.back()->Get(_jsIndexStack.back()++);
+		return _jsObjectStack.back()->Get(_pIsolate->GetCurrentContext(), _jsIndexStack.back()++);
 	}
 }
 
 
-v8::Local<v8::Value> Deserializer::peekValue(const std::string& name)
+v8::MaybeLocal<v8::Value> Deserializer::peekValue(const std::string& name)
 {
 	if (_jsIndexStack.back() == -1)
 	{
-		return _jsObjectStack.back()->Get(v8::String::NewFromUtf8(_pIsolate, name.c_str(), v8::String::kNormalString, static_cast<int>(name.size())));
+		return _jsObjectStack.back()->Get(_pIsolate->GetCurrentContext(), Core::Wrapper::toV8String(_pIsolate, name));
 	}
 	else
 	{
-		return _jsObjectStack.back()->Get(_jsIndexStack.back());
+		return _jsObjectStack.back()->Get(_pIsolate->GetCurrentContext(), _jsIndexStack.back());
 	}
 }
 

@@ -32,7 +32,7 @@ SourcePositionTable::SourcePositionTable(Graph* graph)
 
 void SourcePositionTable::AddDecorator() {
   DCHECK_NULL(decorator_);
-  decorator_ = new (graph_->zone()) Decorator(this);
+  decorator_ = graph_->zone()->New<Decorator>(this);
   graph_->AddDecorator(decorator_);
 }
 
@@ -51,7 +51,7 @@ void SourcePositionTable::SetSourcePosition(Node* node,
   table_.Set(node, position);
 }
 
-void SourcePositionTable::Print(std::ostream& os) const {
+void SourcePositionTable::PrintJson(std::ostream& os) const {
   os << "{";
   bool needs_comma = false;
   for (auto i : table_) {
@@ -60,8 +60,8 @@ void SourcePositionTable::Print(std::ostream& os) const {
       if (needs_comma) {
         os << ",";
       }
-      os << "\"" << i.first << "\""
-         << ":" << pos.ScriptOffset();
+      os << "\"" << i.first << "\" : ";
+      pos.PrintJson(os);
       needs_comma = true;
     }
   }

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-load("test/mjsunit/wasm/wasm-constants.js");
 load("test/mjsunit/wasm/wasm-module-builder.js");
 
 function checkImport(
@@ -10,7 +9,7 @@ function checkImport(
   var builder = new WasmModuleBuilder();
   builder.addImport(imported_module_name, imported_function_name, kSig_i_i);
   builder.addFunction('call_imp', kSig_i_i)
-      .addBody([kExprGetLocal, 0, kExprCallFunction, 0])
+      .addBody([kExprLocalGet, 0, kExprCallFunction, 0])
       .exportFunc();
 
   let imp = i => i + 3;
@@ -20,7 +19,7 @@ function checkImport(
   assertEquals(imp(4), instance.exports.call_imp(4));
 }
 
-checkImport('mod', 'foo');  // sanity check
+checkImport('mod', 'foo');  // Base check.
 checkImport('mod', '☺☺happy☺☺');
 checkImport('☺☺happy☺☺', 'foo');
 checkImport('☺☺happy☺☺', '☼+☃=☹');
@@ -30,10 +29,10 @@ function checkExports(
     exported_name_add) {
   var builder = new WasmModuleBuilder();
   builder.addFunction(internal_name_mul, kSig_i_ii)
-      .addBody([kExprGetLocal, 0, kExprGetLocal, 1, kExprI32Mul])
+      .addBody([kExprLocalGet, 0, kExprLocalGet, 1, kExprI32Mul])
       .exportAs(exported_name_mul);
   builder.addFunction(internal_name_add, kSig_i_ii)
-      .addBody([kExprGetLocal, 0, kExprGetLocal, 1, kExprI32Add])
+      .addBody([kExprLocalGet, 0, kExprLocalGet, 1, kExprI32Add])
       .exportAs(exported_name_add);
 
   let instance = builder.instantiate();
@@ -43,7 +42,7 @@ function checkExports(
   assertEquals(-6, instance.exports[exported_name_mul](-3, 2));
 }
 
-checkExports('mul', 'mul', 'add', 'add');  // sanity check
+checkExports('mul', 'mul', 'add', 'add');  // Base check.
 checkExports('☺☺mul☺☺', 'mul', '☺☺add☺☺', 'add');
 checkExports('☺☺mul☺☺', '☺☺mul☺☺', '☺☺add☺☺', '☺☺add☺☺');
 
@@ -52,7 +51,7 @@ checkExports('☺☺mul☺☺', '☺☺mul☺☺', '☺☺add☺☺', '☺☺add
   builder.addFunction('three snowmen: ☃☃☃', kSig_i_v).addBody([]).exportFunc();
   assertThrows(
       () => builder.instantiate(), WebAssembly.CompileError,
-      /Compiling wasm function #0:three snowmen: ☃☃☃ failed: /);
+      /Compiling function #0:"three snowmen: ☃☃☃" failed: /);
 })();
 
 (function errorMessageUnicodeInImportModuleName() {
@@ -60,7 +59,7 @@ checkExports('☺☺mul☺☺', '☺☺mul☺☺', '☺☺add☺☺', '☺☺add
   builder.addImport('three snowmen: ☃☃☃', 'foo', kSig_i_v);
   assertThrows(
       () => builder.instantiate({}), TypeError,
-      /WebAssembly Instantiation: Import #0 module="three snowmen: ☃☃☃" error: /);
+      /WebAssembly.Instance\(\): Import #0 module="three snowmen: ☃☃☃" error: /);
 })();
 
 (function errorMessageUnicodeInImportElemName() {
@@ -68,7 +67,7 @@ checkExports('☺☺mul☺☺', '☺☺mul☺☺', '☺☺add☺☺', '☺☺add
   builder.addImport('mod', 'three snowmen: ☃☃☃', kSig_i_v);
   assertThrows(
       () => builder.instantiate({mod: {}}), WebAssembly.LinkError,
-      'WebAssembly Instantiation: Import #0 module="mod" function="three ' +
+      'WebAssembly.Instance\(\): Import #0 module="mod" function="three ' +
           'snowmen: ☃☃☃" error: function import requires a callable');
 })();
 
@@ -79,7 +78,7 @@ checkExports('☺☺mul☺☺', '☺☺mul☺☺', '☺☺add☺☺', '☺☺add
   builder.addImport(mod_name, func_name, kSig_i_v);
   assertThrows(
       () => builder.instantiate({[mod_name]: {}}), WebAssembly.LinkError,
-      'WebAssembly Instantiation: Import #0 module="' + mod_name +
+      'WebAssembly.Instance(): Import #0 module="' + mod_name +
           '" function="' + func_name +
           '" error: function import requires a callable');
 })();

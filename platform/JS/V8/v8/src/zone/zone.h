@@ -7,17 +7,16 @@
 
 #include <limits>
 
-#include "src/base/hashmap.h"
 #include "src/base/logging.h"
-#include "src/globals.h"
-#include "src/list.h"
-#include "src/splay-tree.h"
+#include "src/common/globals.h"
+#include "src/utils/utils.h"
 #include "src/zone/accounting-allocator.h"
+#include "src/zone/type-stats.h"
+#include "src/zone/zone-segment.h"
+#include "src/zone/zone-type-traits.h"
 
 #ifndef ZONE_NAME
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-#define ZONE_NAME __FILE__ ":" TOSTRING(__LINE__)
+#define ZONE_NAME __func__
 #endif
 
 namespace v8 {
@@ -35,23 +34,109 @@ namespace internal {
 //
 // Note: The implementation is inherently not thread safe. Do not use
 // from multi-threaded code.
+
 class V8_EXPORT_PRIVATE Zone final {
  public:
-  Zone(AccountingAllocator* allocator, const char* name);
+  Zone(AccountingAllocator* allocator, const char* name,
+       bool support_compression = false);
   ~Zone();
 
-  // Allocate 'size' bytes of memory in the Zone; expands the Zone by
-  // allocating new segments of memory on demand using malloc().
-  void* New(size_t size);
+  // Returns true if the zone supports zone pointer compression.
+  bool supports_compression() const {
+    return COMPRESS_ZONES_BOOL && supports_compression_;
+  }
 
-  template <typename T>
+  // Allocate 'size' bytes of uninitialized memory in the Zone; expands the Zone
+  // by allocating new segments of memory on demand using AccountingAllocator
+  // (see AccountingAllocator::AllocateSegment()).
+  //
+  // When V8_ENABLE_PRECISE_ZONE_STATS is defined, the allocated bytes are
+  // associated with the provided TypeTag type.
+  template <typename TypeTag>
+  void* Allocate(size_t size) {
+#ifdef V8_USE_ADDRESS_SANITIZER
+    return AsanNew(size);
+#else
+    size = RoundUp(size, kAlignmentInBytes);
+#ifdef V8_ENABLE_PRECISE_ZONE_STATS
+    if (V8_UNLIKELY(TracingFlags::is_zone_stats_enabled())) {
+      type_stats_.AddAllocated<TypeTag>(size);
+    }
+    allocation_size_for_tracing_ += size;
+#endif
+    Address result = position_;
+    if (V8_UNLIKELY(size > limit_ - position_)) {
+      result = NewExpand(size);
+    } else {
+      position_ += size;
+    }
+    return reinterpret_cast<void*>(result);
+#endif  // V8_USE_ADDRESS_SANITIZER
+  }
+
+  // Return 'size' bytes of memory back to Zone. These bytes can be reused
+  // for following allocations.
+  //
+  // When V8_ENABLE_PRECISE_ZONE_STATS is defined, the deallocated bytes are
+  // associated with the provided TypeTag type.
+  template <typename TypeTag = void>
+  void Delete(void* pointer, size_t size) {
+    DCHECK_NOT_NULL(pointer);
+    DCHECK_NE(size, 0);
+    size = RoundUp(size, kAlignmentInBytes);
+#ifdef V8_ENABLE_PRECISE_ZONE_STATS
+    if (V8_UNLIKELY(TracingFlags::is_zone_stats_enabled())) {
+      type_stats_.AddDeallocated<TypeTag>(size);
+    }
+    freed_size_for_tracing_ += size;
+#endif
+
+#ifdef DEBUG
+    static const unsigned char kZapDeadByte = 0xcd;
+    memset(pointer, kZapDeadByte, size);
+#endif
+  }
+
+  // Allocates memory for T instance and constructs object by calling respective
+  // Args... constructor.
+  //
+  // When V8_ENABLE_PRECISE_ZONE_STATS is defined, the allocated bytes are
+  // associated with the T type.
+  template <typename T, typename... Args>
+  T* New(Args&&... args) {
+    void* memory = Allocate<T>(sizeof(T));
+    return new (memory) T(std::forward<Args>(args)...);
+  }
+
+  // Allocates uninitialized memory for 'length' number of T instances.
+  //
+  // When V8_ENABLE_PRECISE_ZONE_STATS is defined, the allocated bytes are
+  // associated with the provided TypeTag type. It might be useful to tag
+  // buffer allocations with meaningful names to make buffer allocation sites
+  // distinguishable between each other.
+  template <typename T, typename TypeTag = T[]>
   T* NewArray(size_t length) {
+    DCHECK_IMPLIES(is_compressed_pointer<T>::value, supports_compression());
     DCHECK_LT(length, std::numeric_limits<size_t>::max() / sizeof(T));
-    return static_cast<T*>(New(length * sizeof(T)));
+    return static_cast<T*>(Allocate<TypeTag>(length * sizeof(T)));
+  }
+
+  // Return array of 'length' elements back to Zone. These bytes can be reused
+  // for following allocations.
+  //
+  // When V8_ENABLE_PRECISE_ZONE_STATS is defined, the deallocated bytes are
+  // associated with the provided TypeTag type.
+  template <typename T, typename TypeTag = T[]>
+  void DeleteArray(T* pointer, size_t length) {
+    Delete<TypeTag>(pointer, length * sizeof(T));
   }
 
   // Seals the zone to prevent any further allocation.
   void Seal() { sealed_ = true; }
+
+  // Allows the zone to be safely reused. Releases the memory and fires zone
+  // destruction and creation events for the accounting allocator.
+  void ReleaseMemory();
 
   // Returns true if more memory has been allocated in zones than
   // the limit allows.
@@ -59,13 +144,51 @@ class V8_EXPORT_PRIVATE Zone final {
     return segment_bytes_allocated_ > kExcessLimit;
   }
 
+  size_t segment_bytes_allocated() const { return segment_bytes_allocated_; }
+
   const char* name() const { return name_; }
 
-  size_t allocation_size() const { return allocation_size_; }
+  // Returns precise value of used zone memory, allowed to be called only
+  // from thread owning the zone.
+  size_t allocation_size() const {
+    size_t extra = segment_head_ ? position_ - segment_head_->start() : 0;
+    return allocation_size_ + extra;
+  }
+
+  // When V8_ENABLE_PRECISE_ZONE_STATS is not defined, returns used zone memory
+  // not including the head segment.
+  // Can be called from threads not owning the zone.
+  size_t allocation_size_for_tracing() const {
+#ifdef V8_ENABLE_PRECISE_ZONE_STATS
+    return allocation_size_for_tracing_;
+#else
+    return allocation_size_;
+#endif
+  }
+
+  // Returns number of bytes freed in this zone via Delete<T>()/DeleteArray<T>()
+  // calls. Returns non-zero values only when V8_ENABLE_PRECISE_ZONE_STATS is
+  // defined.
+  size_t freed_size_for_tracing() const {
+#ifdef V8_ENABLE_PRECISE_ZONE_STATS
+    return freed_size_for_tracing_;
+#else
+    return 0;
+#endif
+  }
 
   AccountingAllocator* allocator() const { return allocator_; }
 
+#ifdef V8_ENABLE_PRECISE_ZONE_STATS
+  const TypeStats& type_stats() const { return type_stats_; }
+#endif
+
  private:
+  void* AsanNew(size_t size);
+
+  // Deletes all objects and free all memory allocated in the Zone.
+  void DeleteAll();
+
   // All pointers returned from New() are 8-byte aligned.
   static const size_t kAlignmentInBytes = 8;
 
@@ -73,21 +196,18 @@ class V8_EXPORT_PRIVATE Zone final {
   static const size_t kMinimumSegmentSize = 8 * KB;
 
   // Never allocate segments larger than this size in bytes.
-  static const size_t kMaximumSegmentSize = 1 * MB;
+  static const size_t kMaximumSegmentSize = 32 * KB;
 
   // Report zone excess when allocation exceeds this limit.
   static const size_t kExcessLimit = 256 * MB;
 
-  // Deletes all objects and free all memory allocated in the Zone.
-  void DeleteAll();
-
   // The number of bytes allocated in this zone so far.
-  size_t allocation_size_;
+  size_t allocation_size_ = 0;
 
   // The number of bytes allocated in segments.  Note that this number
   // includes memory allocated from the OS but not yet allocated from
   // the zone.
-  size_t segment_bytes_allocated_;
+  size_t segment_bytes_allocated_ = 0;
 
   // Expand the Zone to hold at least 'size' more bytes and allocate
   // the bytes. Returns the address of the newly allocated chunk of
@@ -95,29 +215,42 @@ class V8_EXPORT_PRIVATE Zone final {
   // room in the Zone already.
   Address NewExpand(size_t size);
 
-  // Creates a new segment, sets it size, and pushes it to the front
-  // of the segment chain. Returns the new segment.
-  inline Segment* NewSegment(size_t requested_size);
-
   // The free region in the current (front) segment is represented as
   // the half-open interval [position, limit). The 'position' variable
   // is guaranteed to be aligned as dictated by kAlignment.
-  Address position_;
-  Address limit_;
+  Address position_ = 0;
+  Address limit_ = 0;
 
   AccountingAllocator* allocator_;
 
-  Segment* segment_head_;
+  Segment* segment_head_ = nullptr;
   const char* name_;
-  bool sealed_;
+  const bool supports_compression_;
+  bool sealed_ = false;
+
+#ifdef V8_ENABLE_PRECISE_ZONE_STATS
+  TypeStats type_stats_;
+  size_t allocation_size_for_tracing_ = 0;
+
+  // The number of bytes freed in this zone so far.
+  size_t freed_size_for_tracing_ = 0;
+#endif
 };
 
 // ZoneObject is an abstraction that helps define classes of objects
 // allocated in the Zone. Use it as a base class; see ast.h.
 class ZoneObject {
  public:
-  // Allocate a new ZoneObject of 'size' bytes in the Zone.
-  void* operator new(size_t size, Zone* zone) { return zone->New(size); }
+  // The accidential old-style pattern
+  //    new (zone) SomeObject(...)
+  // now produces compilation error. The proper way of allocating objects in
+  // Zones looks like this:
+  //    zone->New<SomeObject>(...)
+  void* operator new(size_t, Zone*) = delete;  // See explanation above.
+  // Allow non-allocating placement new.
+  void* operator new(size_t size, void* ptr) {  // See explanation above.
+    return ptr;
+  }
 
   // Ideally, the delete operator should be private instead of
   // public, but unfortunately the compiler sometimes synthesizes
@@ -127,109 +260,43 @@ class ZoneObject {
 
   // ZoneObjects should never be deleted individually; use
   // Zone::DeleteAll() to delete all zone objects in one go.
+  // Note, that descructors will not be called.
   void operator delete(void*, size_t) { UNREACHABLE(); }
-  void operator delete(void* pointer, Zone* zone) { UNREACHABLE(); }
+  void operator delete(void* pointer, Zone* zone) = delete;
 };
 
 // The ZoneAllocationPolicy is used to specialize generic data
 // structures to allocate themselves and their elements in the Zone.
-class ZoneAllocationPolicy final {
+class ZoneAllocationPolicy {
  public:
+  // Creates unusable allocation policy.
+  ZoneAllocationPolicy() : zone_(nullptr) {}
   explicit ZoneAllocationPolicy(Zone* zone) : zone_(zone) {}
-  void* New(size_t size) { return zone()->New(size); }
-  static void Delete(void* pointer) {}
+
+  template <typename T, typename TypeTag = T[]>
+  V8_INLINE T* NewArray(size_t length) {
+    return zone()->NewArray<T, TypeTag>(length);
+  }
+  template <typename T, typename TypeTag = T[]>
+  V8_INLINE void DeleteArray(T* p, size_t length) {
+    zone()->DeleteArray<T, TypeTag>(p, length);
+  }
+
   Zone* zone() const { return zone_; }
 
  private:
   Zone* zone_;
 };
 
-// ZoneLists are growable lists with constant-time access to the
-// elements. The list itself and all its elements are allocated in the
-// Zone. ZoneLists cannot be deleted individually; you can delete all
-// objects in the Zone by calling Zone::DeleteAll().
-template <typename T>
-class ZoneList final : public List<T, ZoneAllocationPolicy> {
- public:
-  // Construct a new ZoneList with the given capacity; the length is
-  // always zero. The capacity must be non-negative.
-  ZoneList(int capacity, Zone* zone)
-      : List<T, ZoneAllocationPolicy>(capacity, ZoneAllocationPolicy(zone)) {}
-
-  // Construct a new ZoneList from a std::initializer_list
-  ZoneList(std::initializer_list<T> list, Zone* zone)
-      : List<T, ZoneAllocationPolicy>(static_cast<int>(list.size()),
-                                      ZoneAllocationPolicy(zone)) {
-    for (auto& i : list) Add(i, zone);
-  }
-
-  void* operator new(size_t size, Zone* zone) { return zone->New(size); }
-
-  // Construct a new ZoneList by copying the elements of the given ZoneList.
-  ZoneList(const ZoneList<T>& other, Zone* zone)
-      : List<T, ZoneAllocationPolicy>(other.length(),
-                                      ZoneAllocationPolicy(zone)) {
-    AddAll(other, zone);
-  }
-
-  // We add some convenience wrappers so that we can pass in a Zone
-  // instead of a (less convenient) ZoneAllocationPolicy.
-  void Add(const T& element, Zone* zone) {
-    List<T, ZoneAllocationPolicy>::Add(element, ZoneAllocationPolicy(zone));
-  }
-  void AddAll(const List<T, ZoneAllocationPolicy>& other, Zone* zone) {
-    List<T, ZoneAllocationPolicy>::AddAll(other, ZoneAllocationPolicy(zone));
-  }
-  void AddAll(const Vector<T>& other, Zone* zone) {
-    List<T, ZoneAllocationPolicy>::AddAll(other, ZoneAllocationPolicy(zone));
-  }
-  void InsertAt(int index, const T& element, Zone* zone) {
-    List<T, ZoneAllocationPolicy>::InsertAt(index, element,
-                                            ZoneAllocationPolicy(zone));
-  }
-  Vector<T> AddBlock(T value, int count, Zone* zone) {
-    return List<T, ZoneAllocationPolicy>::AddBlock(value, count,
-                                                   ZoneAllocationPolicy(zone));
-  }
-  void Allocate(int length, Zone* zone) {
-    List<T, ZoneAllocationPolicy>::Allocate(length, ZoneAllocationPolicy(zone));
-  }
-  void Initialize(int capacity, Zone* zone) {
-    List<T, ZoneAllocationPolicy>::Initialize(capacity,
-                                              ZoneAllocationPolicy(zone));
-  }
-
-  void operator delete(void* pointer) { UNREACHABLE(); }
-  void operator delete(void* pointer, Zone* zone) { UNREACHABLE(); }
-};
-
-// A zone splay tree.  The config type parameter encapsulates the
-// different configurations of a concrete splay tree (see splay-tree.h).
-// The tree itself and all its elements are allocated in the Zone.
-template <typename Config>
-class ZoneSplayTree final : public SplayTree<Config, ZoneAllocationPolicy> {
- public:
-  explicit ZoneSplayTree(Zone* zone)
-      : SplayTree<Config, ZoneAllocationPolicy>(ZoneAllocationPolicy(zone)) {}
-  ~ZoneSplayTree() {
-    // Reset the root to avoid unneeded iteration over all tree nodes
-    // in the destructor.  For a zone-allocated tree, nodes will be
-    // freed by the Zone.
-    SplayTree<Config, ZoneAllocationPolicy>::ResetRoot();
-  }
-
-  void* operator new(size_t size, Zone* zone) { return zone->New(size); }
-
-  void operator delete(void* pointer) { UNREACHABLE(); }
-  void operator delete(void* pointer, Zone* zone) { UNREACHABLE(); }
-};
-
-typedef base::PointerTemplateHashMapImpl<ZoneAllocationPolicy> ZoneHashMap;
-
-typedef base::CustomMatcherTemplateHashMapImpl<ZoneAllocationPolicy>
-    CustomMatcherZoneHashMap;
-
 }  // namespace internal
 }  // namespace v8
+
+// The accidential old-style pattern
+//    new (zone) SomeObject(...)
+// now produces compilation error. The proper way of allocating objects in
+// Zones looks like this:
+//    zone->New<SomeObject>(...)
+void* operator new(size_t, v8::internal::Zone*) = delete;   // See explanation.
+void operator delete(void*, v8::internal::Zone*) = delete;  // See explanation.
 
 #endif  // V8_ZONE_ZONE_H_

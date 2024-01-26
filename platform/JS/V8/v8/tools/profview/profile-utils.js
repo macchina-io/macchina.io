@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-"use strict"
+"use strict";
 
 let codeKinds = [
     "UNKNOWN",
@@ -80,22 +80,23 @@ function resolveCodeKindAndVmState(code, vmState) {
 
 function codeEquals(code1, code2, allowDifferentKinds = false) {
   if (!code1 || !code2) return false;
-  if (code1.name != code2.name || code1.type != code2.type) return false;
+  if (code1.name !== code2.name || code1.type !== code2.type) return false;
 
-  if (code1.type == 'CODE') {
-    if (!allowDifferentKinds && code1.kind != code2.kind) return false;
-  } else if (code1.type == 'JS') {
-    if (!allowDifferentKinds && code1.kind != code2.kind) return false;
-    if (code1.func != code2.func) return false;
+  if (code1.type === 'CODE') {
+    if (!allowDifferentKinds && code1.kind !== code2.kind) return false;
+  } else if (code1.type === 'JS') {
+    if (!allowDifferentKinds && code1.kind !== code2.kind) return false;
+    if (code1.func !== code2.func) return false;
   }
   return true;
 }
 
 function createNodeFromStackEntry(code, codeId, vmState) {
   let name = code ? code.name : "UNKNOWN";
-
-  return { name, codeId, type : resolveCodeKindAndVmState(code, vmState),
-           children : [], ownTicks : 0, ticks : 0 };
+  let node = createEmptyNode(name);
+  node.codeId = codeId;
+  node.type = resolveCodeKindAndVmState(code, vmState);
+  return node;
 }
 
 function childIdFromCode(codeId, code) {
@@ -148,29 +149,30 @@ function findNextFrame(file, stack, stackPos, step, filter) {
 }
 
 function addOrUpdateChildNode(parent, file, stackIndex, stackPos, ascending) {
-  let stack = file.ticks[stackIndex].s;
-  let vmState = file.ticks[stackIndex].vm;
-  let codeId = stack[stackPos];
-  let code = codeId >= 0 ? file.code[codeId] : undefined;
   if (stackPos === -1) {
     // We reached the end without finding the next step.
     // If we are doing top-down call tree, update own ticks.
     if (!ascending) {
       parent.ownTicks++;
     }
-  } else {
-    console.assert(stackPos >= 0 && stackPos < stack.length);
-    // We found a child node.
-    let childId = childIdFromCode(codeId, code);
-    let child = parent.children[childId];
-    if (!child) {
-      child = createNodeFromStackEntry(code, codeId, vmState);
-      child.delayedExpansion = { frameList : [], ascending };
-      parent.children[childId] = child;
-    }
-    child.ticks++;
-    addFrameToFrameList(child.delayedExpansion.frameList, stackIndex, stackPos);
+    return;
   }
+
+  let stack = file.ticks[stackIndex].s;
+  console.assert(stackPos >= 0 && stackPos < stack.length);
+  let codeId = stack[stackPos];
+  let code = codeId >= 0 ? file.code[codeId] : undefined;
+  // We found a child node.
+  let childId = childIdFromCode(codeId, code);
+  let child = parent.children[childId];
+  if (!child) {
+    let vmState = file.ticks[stackIndex].vm;
+    child = createNodeFromStackEntry(code, codeId, vmState);
+    child.delayedExpansion = { frameList : [], ascending };
+    parent.children[childId] = child;
+  }
+  child.ticks++;
+  addFrameToFrameList(child.delayedExpansion.frameList, stackIndex, stackPos);
 }
 
 // This expands a tree node (direct children only).
@@ -314,13 +316,7 @@ class FunctionListTree {
       this.tree = root;
       this.categories = categories;
     } else {
-      this.tree = {
-        name : "root",
-        codeId: -1,
-        children : [],
-        ownTicks : 0,
-        ticks : 0
-      };
+      this.tree = createEmptyNode("root");
       this.categories = null;
     }
 
@@ -339,7 +335,7 @@ class FunctionListTree {
       let codeId = stack[i];
       if (codeId < 0 || this.codeVisited[codeId]) continue;
 
-      let code = codeId >= 0 ? file.code[codeId] : undefined;
+      let code = file.code[codeId];
       if (this.filter) {
         let type = code ? code.type : undefined;
         let kind = code ? code.kind : undefined;
@@ -409,7 +405,7 @@ class CategorySampler {
     let { tm : timestamp, vm : vmState, s : stack } = file.ticks[tickIndex];
 
     let i = Math.floor((timestamp - this.firstTime) / this.step);
-    if (i == this.buckets.length) i--;
+    if (i === this.buckets.length) i--;
     console.assert(i >= 0 && i < this.buckets.length);
 
     let bucket = this.buckets[i];
@@ -440,7 +436,7 @@ class FunctionTimelineProcessor {
     // ignoring any filtered entries.
     let stackCode = undefined;
     let functionPosInStack = -1;
-    let filteredI = 0
+    let filteredI = 0;
     for (let i = 0; i < stack.length - 1; i += 2) {
       let codeId = stack[i];
       let code = codeId >= 0 ? file.code[codeId] : undefined;
@@ -461,7 +457,7 @@ class FunctionTimelineProcessor {
     if (functionPosInStack >= 0) {
       let stackKind = resolveCodeKindAndVmState(stackCode, vmState);
 
-      let codeIsTopOfStack = (functionPosInStack == 0);
+      let codeIsTopOfStack = (functionPosInStack === 0);
 
       if (this.currentBlock !== null) {
         this.currentBlock.end = timestamp;
@@ -600,4 +596,16 @@ function computeOptimizationStats(file,
     lazyDeoptimizations,
     softDeoptimizations,
   };
+}
+
+function normalizeLeadingWhitespace(lines) {
+  let regex = /^\s*/;
+  let minimumLeadingWhitespaceChars = Infinity;
+  for (let line of lines) {
+    minimumLeadingWhitespaceChars =
+        Math.min(minimumLeadingWhitespaceChars, regex.exec(line)[0].length);
+  }
+  for (let i = 0; i < lines.length; i++) {
+    lines[i] = lines[i].substring(minimumLeadingWhitespaceChars);
+  }
 }

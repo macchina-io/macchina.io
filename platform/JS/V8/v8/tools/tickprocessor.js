@@ -102,42 +102,43 @@ function TickProcessor(
     preprocessJson) {
   this.preprocessJson = preprocessJson;
   LogReader.call(this, {
-      'shared-library': { parsers: [null, parseInt, parseInt, parseInt],
+      'shared-library': { parsers: [parseString, parseInt, parseInt, parseInt],
           processor: this.processSharedLibrary },
       'code-creation': {
-          parsers: [null, parseInt, parseInt, parseInt, parseInt,
-                    null, 'var-args'],
+          parsers: [parseString, parseInt, parseInt, parseInt, parseInt,
+                    parseString, parseVarArgs],
           processor: this.processCodeCreation },
       'code-deopt': {
           parsers: [parseInt, parseInt, parseInt, parseInt, parseInt,
-                    null, null, null],
+                    parseString, parseString, parseString],
           processor: this.processCodeDeopt },
       'code-move': { parsers: [parseInt, parseInt, ],
           processor: this.processCodeMove },
       'code-delete': { parsers: [parseInt],
           processor: this.processCodeDelete },
       'code-source-info': {
-          parsers: [parseInt, parseInt, parseInt, parseInt, null, null, null],
+          parsers: [parseInt, parseInt, parseInt, parseInt, parseString,
+                    parseString, parseString],
           processor: this.processCodeSourceInfo },
-      'script': {
-          parsers: [parseInt, null, null],
-          processor: this.processCodeScript },
+      'script-source': {
+          parsers: [parseInt, parseString, parseString],
+          processor: this.processScriptSource },
       'sfi-move': { parsers: [parseInt, parseInt],
           processor: this.processFunctionMove },
       'active-runtime-timer': {
-        parsers: [null],
+        parsers: [parseString],
         processor: this.processRuntimeTimerEvent },
       'tick': {
           parsers: [parseInt, parseInt, parseInt,
-                    parseInt, parseInt, 'var-args'],
+                    parseInt, parseInt, parseVarArgs],
           processor: this.processTick },
-      'heap-sample-begin': { parsers: [null, null, parseInt],
+      'heap-sample-begin': { parsers: [parseString, parseString, parseInt],
           processor: this.processHeapSampleBegin },
-      'heap-sample-end': { parsers: [null, null],
+      'heap-sample-end': { parsers: [parseString, parseString],
           processor: this.processHeapSampleEnd },
-      'timer-event-start' : { parsers: [null, null, null],
+      'timer-event-start' : { parsers: [parseString, parseString, parseString],
                               processor: this.advanceDistortion },
-      'timer-event-end' : { parsers: [null, null, null],
+      'timer-event-end' : { parsers: [parseString, parseString, parseString],
                             processor: this.advanceDistortion },
       // Ignored events.
       'profiler': null,
@@ -159,7 +160,6 @@ function TickProcessor(
   this.stateFilter_ = stateFilter;
   this.runtimeTimerFilter_ = runtimeTimerFilter;
   this.sourceMap = sourceMap;
-  this.deserializedEntriesNames_ = [];
   var ticks = this.ticks_ =
     { total: 0, unaccounted: 0, excluded: 0, gc: 0 };
 
@@ -298,7 +298,6 @@ TickProcessor.prototype.processSharedLibrary = function(
 
 TickProcessor.prototype.processCodeCreation = function(
     type, kind, timestamp, start, size, name, maybe_func) {
-  name = this.deserializedEntriesNames_[start] || name;
   if (maybe_func.length) {
     var funcAddr = parseInt(maybe_func[0]);
     var state = parseState(maybe_func[1]);
@@ -332,7 +331,7 @@ TickProcessor.prototype.processCodeSourceInfo = function(
     endPos, sourcePositions, inliningPositions, inlinedFunctions);
 };
 
-TickProcessor.prototype.processCodeScript = function(script, url, source) {
+TickProcessor.prototype.processScriptSource = function(script, url, source) {
   this.profile_.addScriptSource(script, url, source);
 };
 
@@ -636,23 +635,44 @@ CppEntriesProvider.prototype.parseVmSymbols = function(
     libName, libStart, libEnd, libASLRSlide, processorFunc) {
   this.loadSymbols(libName);
 
-  var prevEntry;
+  var lastUnknownSize;
+  var lastAdded;
+
+  function inRange(funcInfo, start, end) {
+    return funcInfo.start >= start && funcInfo.end <= end;
+  }
 
   function addEntry(funcInfo) {
     // Several functions can be mapped onto the same address. To avoid
     // creating zero-sized entries, skip such duplicates.
     // Also double-check that function belongs to the library address space.
-    if (prevEntry && !prevEntry.end &&
-        prevEntry.start < funcInfo.start &&
-        prevEntry.start >= libStart && funcInfo.start <= libEnd) {
-      processorFunc(prevEntry.name, prevEntry.start, funcInfo.start);
+
+    if (lastUnknownSize &&
+        lastUnknownSize.start < funcInfo.start) {
+      // Try to update lastUnknownSize based on new entries start position.
+      lastUnknownSize.end = funcInfo.start;
+      if ((!lastAdded || !inRange(lastUnknownSize, lastAdded.start,
+                                  lastAdded.end)) &&
+          inRange(lastUnknownSize, libStart, libEnd)) {
+        processorFunc(lastUnknownSize.name, lastUnknownSize.start,
+                      lastUnknownSize.end);
+        lastAdded = lastUnknownSize;
+      }
     }
-    if (funcInfo.end &&
-        (!prevEntry || prevEntry.start != funcInfo.start) &&
-        funcInfo.start >= libStart && funcInfo.end <= libEnd) {
-      processorFunc(funcInfo.name, funcInfo.start, funcInfo.end);
+    lastUnknownSize = undefined;
+
+    if (funcInfo.end) {
+      // Skip duplicates that have the same start address as the last added.
+      if ((!lastAdded || lastAdded.start != funcInfo.start) &&
+          inRange(funcInfo, libStart, libEnd)) {
+        processorFunc(funcInfo.name, funcInfo.start, funcInfo.end);
+        lastAdded = funcInfo;
+      }
+    } else {
+      // If a funcInfo doesn't have an end, try to match it up with then next
+      // entry.
+      lastUnknownSize = funcInfo;
     }
-    prevEntry = funcInfo;
   }
 
   while (true) {
@@ -686,11 +706,16 @@ CppEntriesProvider.prototype.parseNextLine = function() {
 };
 
 
-function UnixCppEntriesProvider(nmExec, targetRootFS) {
+function UnixCppEntriesProvider(nmExec, objdumpExec, targetRootFS, apkEmbeddedLibrary) {
   this.symbols = [];
+  // File offset of a symbol minus the virtual address of a symbol found in
+  // the symbol table.
+  this.fileOffsetMinusVma = 0;
   this.parsePos = 0;
   this.nmExec = nmExec;
+  this.objdumpExec = objdumpExec;
   this.targetRootFS = targetRootFS;
+  this.apkEmbeddedLibrary = apkEmbeddedLibrary;
   this.FUNC_RE = /^([0-9a-fA-F]{8,16}) ([0-9a-fA-F]{8,16} )?[tTwW] (.*)$/;
 };
 inherits(UnixCppEntriesProvider, CppEntriesProvider);
@@ -698,12 +723,26 @@ inherits(UnixCppEntriesProvider, CppEntriesProvider);
 
 UnixCppEntriesProvider.prototype.loadSymbols = function(libName) {
   this.parsePos = 0;
-  libName = this.targetRootFS + libName;
+  if (this.apkEmbeddedLibrary && libName.endsWith('.apk')) {
+    libName = this.apkEmbeddedLibrary;
+  }
+  if (this.targetRootFS) {
+    libName = libName.substring(libName.lastIndexOf('/') + 1);
+    libName = this.targetRootFS + libName;
+  }
   try {
     this.symbols = [
       os.system(this.nmExec, ['-C', '-n', '-S', libName], -1, -1),
       os.system(this.nmExec, ['-C', '-n', '-S', '-D', libName], -1, -1)
     ];
+
+    const objdumpOutput = os.system(this.objdumpExec, ['-h', libName], -1, -1);
+    for (const line of objdumpOutput.split('\n')) {
+      const [,sectionName,,vma,,fileOffset] = line.trim().split(/\s+/);
+      if (sectionName === ".text") {
+        this.fileOffsetMinusVma = parseInt(fileOffset, 16) - parseInt(vma, 16);
+      }
+    }
   } catch (e) {
     // If the library cannot be found on this system let's not panic.
     this.symbols = ['', ''];
@@ -727,7 +766,7 @@ UnixCppEntriesProvider.prototype.parseNextLine = function() {
   var fields = line.match(this.FUNC_RE);
   var funcInfo = null;
   if (fields) {
-    funcInfo = { name: fields[3], start: parseInt(fields[1], 16) };
+    funcInfo = { name: fields[3], start: parseInt(fields[1], 16) + this.fileOffsetMinusVma };
     if (fields[2]) {
       funcInfo.size = parseInt(fields[2], 16);
     }
@@ -736,8 +775,8 @@ UnixCppEntriesProvider.prototype.parseNextLine = function() {
 };
 
 
-function MacCppEntriesProvider(nmExec, targetRootFS) {
-  UnixCppEntriesProvider.call(this, nmExec, targetRootFS);
+function MacCppEntriesProvider(nmExec, objdumpExec, targetRootFS, apkEmbeddedLibrary) {
+  UnixCppEntriesProvider.call(this, nmExec, objdumpExec, targetRootFS, apkEmbeddedLibrary);
   // Note an empty group. It is required, as UnixCppEntriesProvider expects 3 groups.
   this.FUNC_RE = /^([0-9a-fA-F]{8,16})() (.*)$/;
 };
@@ -759,7 +798,8 @@ MacCppEntriesProvider.prototype.loadSymbols = function(libName) {
 };
 
 
-function WindowsCppEntriesProvider(_ignored_nmExec, targetRootFS) {
+function WindowsCppEntriesProvider(_ignored_nmExec, _ignored_objdumpExec, targetRootFS,
+                                   _ignored_apkEmbeddedLibrary) {
   this.targetRootFS = targetRootFS;
   this.symbols = '';
   this.parsePos = 0;
@@ -842,159 +882,96 @@ WindowsCppEntriesProvider.prototype.unmangleName = function(name) {
 };
 
 
-function ArgumentsProcessor(args) {
-  this.args_ = args;
-  this.result_ = ArgumentsProcessor.DEFAULTS;
-  function parseBool(str) {
-    if (str == "true" || str == "1") return true;
-    return false;
+class ArgumentsProcessor extends BaseArgumentsProcessor {
+  getArgsDispatch() {
+    let dispatch = {
+      '-j': ['stateFilter', TickProcessor.VmStates.JS,
+          'Show only ticks from JS VM state'],
+      '-g': ['stateFilter', TickProcessor.VmStates.GC,
+          'Show only ticks from GC VM state'],
+      '-p': ['stateFilter', TickProcessor.VmStates.PARSER,
+          'Show only ticks from PARSER VM state'],
+      '-b': ['stateFilter', TickProcessor.VmStates.BYTECODE_COMPILER,
+          'Show only ticks from BYTECODE_COMPILER VM state'],
+      '-c': ['stateFilter', TickProcessor.VmStates.COMPILER,
+          'Show only ticks from COMPILER VM state'],
+      '-o': ['stateFilter', TickProcessor.VmStates.OTHER,
+          'Show only ticks from OTHER VM state'],
+      '-e': ['stateFilter', TickProcessor.VmStates.EXTERNAL,
+          'Show only ticks from EXTERNAL VM state'],
+      '--filter-runtime-timer': ['runtimeTimerFilter', null,
+              'Show only ticks matching the given runtime timer scope'],
+      '--call-graph-size': ['callGraphSize', TickProcessor.CALL_GRAPH_SIZE,
+          'Set the call graph size'],
+      '--ignore-unknown': ['ignoreUnknown', true,
+          'Exclude ticks of unknown code entries from processing'],
+      '--separate-ic': ['separateIc', parseBool,
+          'Separate IC entries'],
+      '--separate-bytecodes': ['separateBytecodes', parseBool,
+          'Separate Bytecode entries'],
+      '--separate-builtins': ['separateBuiltins', parseBool,
+          'Separate Builtin entries'],
+      '--separate-stubs': ['separateStubs', parseBool,
+          'Separate Stub entries'],
+      '--unix': ['platform', 'unix',
+          'Specify that we are running on *nix platform'],
+      '--windows': ['platform', 'windows',
+          'Specify that we are running on Windows platform'],
+      '--mac': ['platform', 'mac',
+          'Specify that we are running on Mac OS X platform'],
+      '--nm': ['nm', 'nm',
+          'Specify the \'nm\' executable to use (e.g. --nm=/my_dir/nm)'],
+      '--objdump': ['objdump', 'objdump',
+          'Specify the \'objdump\' executable to use (e.g. --objdump=/my_dir/objdump)'],
+      '--target': ['targetRootFS', '',
+          'Specify the target root directory for cross environment'],
+      '--apk-embedded-library': ['apkEmbeddedLibrary', '',
+          'Specify the path of the embedded library for Android traces'],
+      '--range': ['range', 'auto,auto',
+          'Specify the range limit as [start],[end]'],
+      '--distortion': ['distortion', 0,
+          'Specify the logging overhead in picoseconds'],
+      '--source-map': ['sourceMap', null,
+          'Specify the source map that should be used for output'],
+      '--timed-range': ['timedRange', true,
+          'Ignore ticks before first and after last Date.now() call'],
+      '--pairwise-timed-range': ['pairwiseTimedRange', true,
+          'Ignore ticks outside pairs of Date.now() calls'],
+      '--only-summary': ['onlySummary', true,
+          'Print only tick summary, exclude other information'],
+      '--preprocess': ['preprocessJson', true,
+          'Preprocess for consumption with web interface']
+    };
+    dispatch['--js'] = dispatch['-j'];
+    dispatch['--gc'] = dispatch['-g'];
+    dispatch['--compiler'] = dispatch['-c'];
+    dispatch['--other'] = dispatch['-o'];
+    dispatch['--external'] = dispatch['-e'];
+    dispatch['--ptr'] = dispatch['--pairwise-timed-range'];
+    return dispatch;
   }
 
-  this.argsDispatch_ = {
-    '-j': ['stateFilter', TickProcessor.VmStates.JS,
-        'Show only ticks from JS VM state'],
-    '-g': ['stateFilter', TickProcessor.VmStates.GC,
-        'Show only ticks from GC VM state'],
-    '-p': ['stateFilter', TickProcessor.VmStates.PARSER,
-        'Show only ticks from PARSER VM state'],
-    '-b': ['stateFilter', TickProcessor.VmStates.BYTECODE_COMPILER,
-        'Show only ticks from BYTECODE_COMPILER VM state'],
-    '-c': ['stateFilter', TickProcessor.VmStates.COMPILER,
-        'Show only ticks from COMPILER VM state'],
-    '-o': ['stateFilter', TickProcessor.VmStates.OTHER,
-        'Show only ticks from OTHER VM state'],
-    '-e': ['stateFilter', TickProcessor.VmStates.EXTERNAL,
-        'Show only ticks from EXTERNAL VM state'],
-    '--filter-runtime-timer': ['runtimeTimerFilter', null,
-            'Show only ticks matching the given runtime timer scope'],
-    '--call-graph-size': ['callGraphSize', TickProcessor.CALL_GRAPH_SIZE,
-        'Set the call graph size'],
-    '--ignore-unknown': ['ignoreUnknown', true,
-        'Exclude ticks of unknown code entries from processing'],
-    '--separate-ic': ['separateIc', parseBool,
-        'Separate IC entries'],
-    '--separate-bytecodes': ['separateBytecodes', parseBool,
-        'Separate Bytecode entries'],
-    '--separate-builtins': ['separateBuiltins', parseBool,
-        'Separate Builtin entries'],
-    '--separate-stubs': ['separateStubs', parseBool,
-        'Separate Stub entries'],
-    '--unix': ['platform', 'unix',
-        'Specify that we are running on *nix platform'],
-    '--windows': ['platform', 'windows',
-        'Specify that we are running on Windows platform'],
-    '--mac': ['platform', 'mac',
-        'Specify that we are running on Mac OS X platform'],
-    '--nm': ['nm', 'nm',
-        'Specify the \'nm\' executable to use (e.g. --nm=/my_dir/nm)'],
-    '--target': ['targetRootFS', '',
-        'Specify the target root directory for cross environment'],
-    '--range': ['range', 'auto,auto',
-        'Specify the range limit as [start],[end]'],
-    '--distortion': ['distortion', 0,
-        'Specify the logging overhead in picoseconds'],
-    '--source-map': ['sourceMap', null,
-        'Specify the source map that should be used for output'],
-    '--timed-range': ['timedRange', true,
-        'Ignore ticks before first and after last Date.now() call'],
-    '--pairwise-timed-range': ['pairwiseTimedRange', true,
-        'Ignore ticks outside pairs of Date.now() calls'],
-    '--only-summary': ['onlySummary', true,
-        'Print only tick summary, exclude other information'],
-    '--preprocess': ['preprocessJson', true,
-        'Preprocess for consumption with web interface']
-  };
-  this.argsDispatch_['--js'] = this.argsDispatch_['-j'];
-  this.argsDispatch_['--gc'] = this.argsDispatch_['-g'];
-  this.argsDispatch_['--compiler'] = this.argsDispatch_['-c'];
-  this.argsDispatch_['--other'] = this.argsDispatch_['-o'];
-  this.argsDispatch_['--external'] = this.argsDispatch_['-e'];
-  this.argsDispatch_['--ptr'] = this.argsDispatch_['--pairwise-timed-range'];
-};
-
-
-ArgumentsProcessor.DEFAULTS = {
-  logFileName: 'v8.log',
-  platform: 'unix',
-  stateFilter: null,
-  callGraphSize: 5,
-  ignoreUnknown: false,
-  separateIc: true,
-  separateBytecodes: false,
-  separateBuiltins: true,
-  separateStubs: true,
-  preprocessJson: null,
-  targetRootFS: '',
-  nm: 'nm',
-  range: 'auto,auto',
-  distortion: 0,
-  timedRange: false,
-  pairwiseTimedRange: false,
-  onlySummary: false,
-  runtimeTimerFilter: null,
-};
-
-
-ArgumentsProcessor.prototype.parse = function() {
-  while (this.args_.length) {
-    var arg = this.args_.shift();
-    if (arg.charAt(0) != '-') {
-      this.result_.logFileName = arg;
-      continue;
-    }
-    var userValue = null;
-    var eqPos = arg.indexOf('=');
-    if (eqPos != -1) {
-      userValue = arg.substr(eqPos + 1);
-      arg = arg.substr(0, eqPos);
-    }
-    if (arg in this.argsDispatch_) {
-      var dispatch = this.argsDispatch_[arg];
-      var property = dispatch[0];
-      var defaultValue = dispatch[1];
-      if (typeof defaultValue == "function") {
-        userValue = defaultValue(userValue);
-      } else if (userValue == null) {
-        userValue = defaultValue;
-      }
-      this.result_[property] = userValue;
-    } else {
-      return false;
-    }
+  getDefaultResults() {
+    return {
+      logFileName: 'v8.log',
+      platform: 'unix',
+      stateFilter: null,
+      callGraphSize: 5,
+      ignoreUnknown: false,
+      separateIc: true,
+      separateBytecodes: false,
+      separateBuiltins: true,
+      separateStubs: true,
+      preprocessJson: null,
+      targetRootFS: '',
+      nm: 'nm',
+      objdump: 'objdump',
+      range: 'auto,auto',
+      distortion: 0,
+      timedRange: false,
+      pairwiseTimedRange: false,
+      onlySummary: false,
+      runtimeTimerFilter: null,
+    };
   }
-  return true;
-};
-
-
-ArgumentsProcessor.prototype.result = function() {
-  return this.result_;
-};
-
-
-ArgumentsProcessor.prototype.printUsageAndExit = function() {
-
-  function padRight(s, len) {
-    s = s.toString();
-    if (s.length < len) {
-      s = s + (new Array(len - s.length + 1).join(' '));
-    }
-    return s;
-  }
-
-  print('Cmdline args: [options] [log-file-name]\n' +
-        'Default log file name is "' +
-        ArgumentsProcessor.DEFAULTS.logFileName + '".\n');
-  print('Options:');
-  for (var arg in this.argsDispatch_) {
-    var synonyms = [arg];
-    var dispatch = this.argsDispatch_[arg];
-    for (var synArg in this.argsDispatch_) {
-      if (arg !== synArg && dispatch === this.argsDispatch_[synArg]) {
-        synonyms.push(synArg);
-        delete this.argsDispatch_[synArg];
-      }
-    }
-    print('  ' + padRight(synonyms.join(', '), 20) + " " + dispatch[2]);
-  }
-  quit(2);
-};
+}

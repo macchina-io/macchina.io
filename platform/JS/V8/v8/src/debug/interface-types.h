@@ -10,13 +10,13 @@
 #include <vector>
 
 #include "include/v8.h"
-#include "src/globals.h"
+#include "src/common/globals.h"
 
 namespace v8 {
 
 namespace internal {
 class BuiltinArguments;
-}  // internal
+}  // namespace internal
 
 namespace debug {
 
@@ -42,40 +42,14 @@ class V8_EXPORT_PRIVATE Location {
   bool is_empty_;
 };
 
-/**
- * The result of disassembling a wasm function.
- * Consists of the disassembly string and an offset table mapping wasm byte
- * offsets to line and column in the disassembly.
- * The offset table entries are ordered by the byte_offset.
- * All numbers are 0-based.
- */
-struct WasmDisassemblyOffsetTableEntry {
-  WasmDisassemblyOffsetTableEntry(uint32_t byte_offset, int line, int column)
-      : byte_offset(byte_offset), line(line), column(column) {}
-
-  uint32_t byte_offset;
-  int line;
-  int column;
-};
-
-struct WasmDisassembly {
-  using OffsetTable = std::vector<WasmDisassemblyOffsetTableEntry>;
-  WasmDisassembly() {}
-  WasmDisassembly(std::string disassembly, OffsetTable offset_table)
-      : disassembly(std::move(disassembly)),
-        offset_table(std::move(offset_table)) {}
-
-  std::string disassembly;
-  OffsetTable offset_table;
-};
-
-enum PromiseDebugActionType {
-  kDebugPromiseCreated,
-  kDebugEnqueueAsyncFunction,
-  kDebugEnqueuePromiseResolve,
-  kDebugEnqueuePromiseReject,
+enum DebugAsyncActionType {
+  kDebugPromiseThen,
+  kDebugPromiseCatch,
+  kDebugPromiseFinally,
   kDebugWillHandle,
   kDebugDidHandle,
+  kAsyncFunctionSuspended,
+  kAsyncFunctionFinished
 };
 
 enum BreakLocationType {
@@ -83,6 +57,30 @@ enum BreakLocationType {
   kReturnBreakLocation,
   kDebuggerStatementBreakLocation,
   kCommonBreakLocation
+};
+
+enum class CoverageMode {
+  // Make use of existing information in feedback vectors on the heap.
+  // Only return a yes/no result. Optimization and GC are not affected.
+  // Collecting best effort coverage does not reset counters.
+  kBestEffort,
+  // Disable optimization and prevent feedback vectors from being garbage
+  // collected in order to preserve precise invocation counts. Collecting
+  // precise count coverage resets counters to get incremental updates.
+  kPreciseCount,
+  // We are only interested in a yes/no result for the function. Optimization
+  // and GC can be allowed once a function has been invoked. Collecting
+  // precise binary coverage resets counters for incremental updates.
+  kPreciseBinary,
+  // Similar to the precise coverage modes but provides coverage at a
+  // lower granularity. Design doc: goo.gl/lA2swZ.
+  kBlockCount,
+  kBlockBinary,
+};
+
+enum class TypeProfileMode {
+  kNone,
+  kCollect,
 };
 
 class V8_EXPORT_PRIVATE BreakLocation : public Location {
@@ -104,7 +102,7 @@ class ConsoleCallArguments : private v8::FunctionCallbackInfo<v8::Value> {
   }
 
   explicit ConsoleCallArguments(const v8::FunctionCallbackInfo<v8::Value>&);
-  explicit ConsoleCallArguments(internal::BuiltinArguments&);
+  explicit ConsoleCallArguments(const internal::BuiltinArguments&);
 };
 
 class ConsoleContext {
@@ -150,20 +148,18 @@ class ConsoleDelegate {
                      const ConsoleContext& context) {}
   virtual void Count(const ConsoleCallArguments& args,
                      const ConsoleContext& context) {}
+  virtual void CountReset(const ConsoleCallArguments& args,
+                          const ConsoleContext& context) {}
   virtual void Assert(const ConsoleCallArguments& args,
                       const ConsoleContext& context) {}
-  virtual void MarkTimeline(const ConsoleCallArguments& args,
-                            const ConsoleContext& context) {}
   virtual void Profile(const ConsoleCallArguments& args,
                        const ConsoleContext& context) {}
   virtual void ProfileEnd(const ConsoleCallArguments& args,
                           const ConsoleContext& context) {}
-  virtual void Timeline(const ConsoleCallArguments& args,
-                        const ConsoleContext& context) {}
-  virtual void TimelineEnd(const ConsoleCallArguments& args,
-                           const ConsoleContext& context) {}
   virtual void Time(const ConsoleCallArguments& args,
                     const ConsoleContext& context) {}
+  virtual void TimeLog(const ConsoleCallArguments& args,
+                       const ConsoleContext& context) {}
   virtual void TimeEnd(const ConsoleCallArguments& args,
                        const ConsoleContext& context) {}
   virtual void TimeStamp(const ConsoleCallArguments& args,
@@ -171,7 +167,7 @@ class ConsoleDelegate {
   virtual ~ConsoleDelegate() = default;
 };
 
-typedef int BreakpointId;
+using BreakpointId = int;
 
 }  // namespace debug
 }  // namespace v8

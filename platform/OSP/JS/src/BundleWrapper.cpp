@@ -16,6 +16,10 @@
 #include <memory>
 
 
+using Poco::JS::Core::Wrapper;
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 namespace JS {
@@ -36,20 +40,20 @@ v8::Handle<v8::ObjectTemplate> BundleWrapper::objectTemplate(v8::Isolate* pIsola
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::ObjectTemplate> bundleTemplate = v8::ObjectTemplate::New(pIsolate);
 	bundleTemplate->SetInternalFieldCount(1);
-	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "name"), name);
-	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "symbolicName"), symbolicName);
-	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "version"), version);
-	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "path"), name);
-	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "state"), state);
-	bundleTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "active"), active);
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getResourceString"), v8::FunctionTemplate::New(pIsolate, getResourceString));
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getResourceBuffer"), v8::FunctionTemplate::New(pIsolate, getResourceBuffer));
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getLocalizedResourceString"), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceString));
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getLocalizedResourceBuffer"), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceBuffer));
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getResource"), v8::FunctionTemplate::New(pIsolate, getResourceString)); // deprecated
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getLocalizedResource"), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceString)); // deprecated
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getBinaryResource"), v8::FunctionTemplate::New(pIsolate, getResourceBuffer)); // deprecated
-	bundleTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getLocalizedBinaryResource"), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceBuffer)); // deprecated
+	bundleTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "name"s), name);
+	bundleTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "symbolicName"s), symbolicName);
+	bundleTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "version"s), version);
+	bundleTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "path"s), name);
+	bundleTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "state"s), state);
+	bundleTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "active"s), active);
+	bundleTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getResourceString"s), v8::FunctionTemplate::New(pIsolate, getResourceString));
+	bundleTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getResourceBuffer"s), v8::FunctionTemplate::New(pIsolate, getResourceBuffer));
+	bundleTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getLocalizedResourceString"s), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceString));
+	bundleTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getLocalizedResourceBuffer"s), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceBuffer));
+	bundleTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getResource"s), v8::FunctionTemplate::New(pIsolate, getResourceString)); // deprecated
+	bundleTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getLocalizedResource"s), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceString)); // deprecated
+	bundleTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getBinaryResource"s), v8::FunctionTemplate::New(pIsolate, getResourceBuffer)); // deprecated
+	bundleTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getLocalizedBinaryResource"s), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceBuffer)); // deprecated
 	return handleScope.Escape(bundleTemplate);
 }
 
@@ -99,9 +103,10 @@ void BundleWrapper::active(v8::Local<v8::String> name, const v8::PropertyCallbac
 void BundleWrapper::getResourceString(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
 	Poco::OSP::Bundle* pBundle = Poco::JS::Core::Wrapper::unwrapNative<Poco::OSP::Bundle>(args);
-	std::string name = toString(args[0]);
+	std::string name = toString(pIsolate, args[0]);
 	std::string data;
 	try
 	{
@@ -122,9 +127,10 @@ void BundleWrapper::getResourceString(const v8::FunctionCallbackInfo<v8::Value>&
 void BundleWrapper::getResourceBuffer(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
 	Poco::OSP::Bundle* pBundle = Poco::JS::Core::Wrapper::unwrapNative<Poco::OSP::Bundle>(args);
-	std::string name = toString(args[0]);
+	std::string name = toString(pIsolate, args[0]);
 	std::string data;
 	try
 	{
@@ -148,16 +154,17 @@ void BundleWrapper::getResourceBuffer(const v8::FunctionCallbackInfo<v8::Value>&
 void BundleWrapper::getLocalizedResourceString(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
 	Poco::OSP::Bundle* pBundle = Poco::JS::Core::Wrapper::unwrapNative<Poco::OSP::Bundle>(args);
-	std::string name = toString(args[0]);
+	std::string name = toString(pIsolate, args[0]);
 	std::string data;
 	try
 	{
 		Poco::SharedPtr<std::istream> pStream;
 		if (args.Length() > 1)
 		{
-			std::string language = toString(args[1]);
+			std::string language = toString(pIsolate, args[1]);
 			Poco::OSP::LanguageTag languageTag(language);
 			pStream = pBundle->getLocalizedResource(name, languageTag);
 		}
@@ -182,16 +189,17 @@ void BundleWrapper::getLocalizedResourceString(const v8::FunctionCallbackInfo<v8
 void BundleWrapper::getLocalizedResourceBuffer(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
-	v8::HandleScope scope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::HandleScope scope(pIsolate);
 	Poco::OSP::Bundle* pBundle = Poco::JS::Core::Wrapper::unwrapNative<Poco::OSP::Bundle>(args);
-	std::string name = toString(args[0]);
+	std::string name = toString(pIsolate, args[0]);
 	std::string data;
 	try
 	{
 		Poco::SharedPtr<std::istream> pStream;
 		if (args.Length() > 1)
 		{
-			std::string language = toString(args[1]);
+			std::string language = toString(pIsolate, args[1]);
 			Poco::OSP::LanguageTag languageTag(language);
 			pStream = pBundle->getLocalizedResource(name, languageTag);
 		}
@@ -206,7 +214,7 @@ void BundleWrapper::getLocalizedResourceBuffer(const v8::FunctionCallbackInfo<v8
 			Poco::JS::Core::BufferWrapper::Buffer* pBuffer = new Poco::JS::Core::BufferWrapper::Buffer(data.data(), data.size());
 			Poco::JS::Core::BufferWrapper wrapper;
 			v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(args.GetIsolate(), pBuffer));
-			args.GetReturnValue().Set(v8::Local<v8::Object>::New(args.GetIsolate(), bufferObject));
+			args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, bufferObject));
 		}
 	}
 	catch (Poco::Exception& exc)

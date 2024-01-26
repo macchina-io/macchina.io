@@ -11,8 +11,10 @@ Examples:
   %prog -t "x64 results" ../result.json master.json -o results.html
 '''
 
+# for py2/py3 compatibility
+from __future__ import print_function
+
 from collections import OrderedDict
-import commands
 import json
 import math
 from argparse import ArgumentParser
@@ -419,7 +421,7 @@ def Render(args):
       run_names[run_name] = 0
 
       for error in data["errors"]:
-        print "Error:", error
+        print("Error:", error)
 
       for trace in data["traces"]:
         suite_name = trace["graphs"][0]

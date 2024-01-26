@@ -16,6 +16,6 @@ objects = Wrapper PooledIsolate \
 target         = PocoJSCore
 target_version = 1
 target_libs    = PocoUtil PocoJSON PocoXML PocoFoundation
-target_extlibs = v8 v8_libplatform v8_libbase
+target_extlibs = v8
 
 include $(POCO_BASE)/build/rules/lib

@@ -13,6 +13,9 @@
 #include "Poco/NumberParser.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 namespace JS {
@@ -34,9 +37,9 @@ bool JSSPage::getBool(const std::string& property, bool deflt) const
 	if (has(property))
 	{
 		const std::string& value = get(property);
-		return Poco::icompare(value, "true") == 0
-		    || Poco::icompare(value, "yes") == 0 
-		    || Poco::icompare(value, "on") == 0;
+		return Poco::icompare(value, "true"s) == 0
+		    || Poco::icompare(value, "yes"s) == 0
+		    || Poco::icompare(value, "on"s) == 0;
 	}
 	else return deflt;
 }

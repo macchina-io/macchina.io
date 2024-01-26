@@ -14,11 +14,14 @@ export function foo1() {
   let g1 = 2;
   debugger;
   return a1 + b1 + c1 + g1;
-}`;
+};
+export default 42;
+`;
 
 var module2 = `
 import { foo1 } from 'module1';
 let a2 = 20;
+export * as mod1 from 'module1';
 export let b2 = 21;
 export function foo2() {
   let c2 = 22;
@@ -49,6 +52,16 @@ export var c = 0;
 debugger;
 `;
 
+var module6 = `
+let x = 5;
+(function() { let y = x; debugger; })()
+`;
+
+var module7 = `
+let x = 5;
+debugger;
+`;
+
 InspectorTest.runAsyncTestSuite([
   async function testTotal() {
     session.setupScriptMap();
@@ -76,6 +89,26 @@ InspectorTest.runAsyncTestSuite([
 
   async function testDifferentModuleVariables() {
     contextGroup.addModule(module5, 'module5');
+    let {params:{callFrames}} = (await Protocol.Debugger.oncePaused());
+    session.logCallFrames(callFrames);
+    for (let i = 0; i < callFrames.length; ++i) {
+      await checkFrame(callFrames[i], i);
+    }
+    await Protocol.Debugger.resume();
+  },
+
+  async function testCapturedLocalVariable() {
+    contextGroup.addModule(module6, 'module6');
+    let {params:{callFrames}} = (await Protocol.Debugger.oncePaused());
+    session.logCallFrames(callFrames);
+    for (let i = 0; i < callFrames.length; ++i) {
+      await checkFrame(callFrames[i], i);
+    }
+    await Protocol.Debugger.resume();
+  },
+
+  async function testLocalVariableToplevel() {
+    contextGroup.addModule(module7, 'module7');
     let {params:{callFrames}} = (await Protocol.Debugger.oncePaused());
     session.logCallFrames(callFrames);
     for (let i = 0; i < callFrames.length; ++i) {

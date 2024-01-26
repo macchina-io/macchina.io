@@ -32,7 +32,7 @@ namespace Core {
 class JSCore_API PooledIsolate
 {
 public:
-	typedef Poco::ObjectPool<PooledIsolate> Pool;
+	using Pool = Poco::ObjectPool<PooledIsolate>;
 
 	explicit PooledIsolate(Poco::UInt64 memoryLimit);
 		/// Creates the PooledIsolate with the given memoryLimit.
@@ -48,6 +48,9 @@ public:
 
 	v8::Persistent<v8::ObjectTemplate>& objectTemplate(const std::string& name);
 		/// Returns the persistent handle for the object template with the given name.
+
+protected:
+	static std::size_t onNearHeapLimit(void* data, std::size_t currentHeapLimit, std::size_t initialHeapLimit);
 
 private:
 	PooledIsolate();
@@ -89,10 +92,11 @@ private:
 		v8::Persistent<v8::ObjectTemplate> _ot;
 	};
 
-	typedef std::map<std::string, OTHolder> OTMap;
+	using OTMap = std::map<std::string, OTHolder>;
 
 	v8::Isolate* _pIsolate;
 	v8::ArrayBuffer::Allocator* _pArrayBufferAllocator;
+	Poco::UInt64 _memoryLimit;
 	OTMap _objectTemplates;
 };
 

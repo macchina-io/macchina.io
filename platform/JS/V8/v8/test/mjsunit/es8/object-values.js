@@ -121,20 +121,7 @@ function TestOrderWithDuplicates() {
     }
   });
 
-  assertEquals([1, 1, 123, 123], Object.values(P));
-  assertEquals([
-    "[[OwnPropertyKeys]]",
-    "[[GetOwnProperty]](\"a\")",
-    "[[Get]](\"a\")",
-    "[[GetOwnProperty]](\"a\")",
-    "[[Get]](\"a\")",
-    "[[GetOwnProperty]](\"456\")",
-    "[[Get]](\"456\")",
-    "[[GetOwnProperty]](\"HIDDEN\")",
-    "[[GetOwnProperty]](\"HIDDEN\")",
-    "[[GetOwnProperty]](\"456\")",
-    "[[Get]](\"456\")",
-  ], log);
+  assertThrows(() => Object.values(P), TypeError);
 }
 TestOrderWithDuplicates();
 
@@ -288,4 +275,10 @@ TestMutateDuringEnumeration();
     let result2 = Object.values(proxy);
     assertEquals(result1, result2, `slow Object.values() with ${kind}`);
   }
+})();
+
+
+(function TestGlobalObject() {
+  let values = Object.values(globalThis);
+  assertTrue(values.length > 0);
 })();

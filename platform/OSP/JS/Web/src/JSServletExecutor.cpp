@@ -17,33 +17,14 @@
 #include "v8.h"
 
 
+using Poco::JS::Core::Wrapper;
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 namespace JS {
 namespace Web {
-
-
-namespace
-{
-	std::string htmlize(const std::string& str)
-	{
-		std::string::const_iterator it(str.begin());
-		std::string::const_iterator end(str.end());
-		std::string html;
-		for (; it != end; ++it)
-		{
-			switch (*it)
-			{
-			case '<': html += "&lt;"; break;
-			case '>': html += "&gt;"; break;
-			case '"': html += "&quot;"; break;
-			case '&': html += "&amp;"; break;
-			default:  html += *it; break;
-			}
-		}
-		return html;
-	}
-}
 
 
 JSServletExecutor::JSServletExecutor(Poco::OSP::BundleContext::Ptr pContext, Poco::OSP::Bundle::Ptr pBundle, const std::string& script, const Poco::URI& scriptURI, const std::vector<std::string>& moduleSearchPaths, Poco::UInt64 memoryLimit):
@@ -62,7 +43,7 @@ void JSServletExecutor::prepareRequest(Poco::Net::HTTPServerRequest& request, Po
 	_pSessionHolder = 0;
 
 	Poco::OSP::Web::WebSession::Ptr pSession;
-	std::string sessionId = context()->thisBundle()->properties().getString("websession.id", "");
+	std::string sessionId = context()->thisBundle()->properties().getString("websession.id"s, ""s);
 	if (!sessionId.empty())
 	{
 		Poco::OSP::ServiceRef::Ptr pWebSessionManagerRef = context()->registry().findByName(Poco::OSP::Web::WebSessionManager::SERVICE_NAME);
@@ -93,29 +74,34 @@ void JSServletExecutor::handleRequest(Poco::Net::HTTPServerRequest& request, Poc
 
 	v8::Local<v8::Object> global = context->Global();
 
-	v8::Local<v8::Function> servletFunction = v8::Local<v8::Function>::Cast(global->Get(v8::String::NewFromUtf8(pIsolate, "$servlet")));
-
-	Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
-	Poco::JS::Net::HTTPResponseWrapper httpResponseWrapper;
-	Poco::JS::Net::HTMLFormWrapper formWrapper;
-	SessionWrapper sessionWrapper;
-
-	v8::Handle<v8::Value> argv[4];
-	argv[0] = httpRequestWrapper.wrapNative(pIsolate, &*_pRequestHolder);
-	argv[1] = httpResponseWrapper.wrapNative(pIsolate, &*_pResponseHolder);
-	argv[2] = formWrapper.wrapNative(pIsolate, &*_pForm);
-
-	if (_pSessionHolder)
+	v8::MaybeLocal<v8::Value> maybeServletValue = global->Get(context, Wrapper::toV8Internalized(pIsolate, "$servlet"s));
+	v8::Local<v8::Value> servletValue;
+	if (maybeServletValue.ToLocal(&servletValue) && servletValue->IsFunction())
 	{
-		argv[3] = sessionWrapper.wrapNative(pIsolate, &*_pSessionHolder);
-	}
-	else
-	{
-		argv[3] = v8::Null(pIsolate);
-	}
+		v8::Local<v8::Function> servletFunction = v8::Local<v8::Function>::Cast(servletValue);
 
-	v8::Local<v8::Value> receiver = global;
-	callInContext(servletFunction, receiver, 4, argv);
+		Poco::JS::Net::HTTPRequestWrapper httpRequestWrapper;
+		Poco::JS::Net::HTTPResponseWrapper httpResponseWrapper;
+		Poco::JS::Net::HTMLFormWrapper formWrapper;
+		SessionWrapper sessionWrapper;
+
+		v8::Handle<v8::Value> argv[4];
+		(void) httpRequestWrapper.wrapNative(pIsolate, &*_pRequestHolder).ToLocal(&argv[0]);
+		(void) httpResponseWrapper.wrapNative(pIsolate, &*_pResponseHolder).ToLocal(&argv[1]);
+		(void) formWrapper.wrapNative(pIsolate, &*_pForm).ToLocal(&argv[2]);
+
+		if (_pSessionHolder)
+		{
+			(void) sessionWrapper.wrapNative(pIsolate, &*_pSessionHolder).ToLocal(&argv[3]);
+		}
+		else
+		{
+			argv[3] = v8::Null(pIsolate);
+		}
+
+		v8::Local<v8::Value> receiver = global;
+		callInContext(pIsolate, context, servletFunction, receiver, 4, argv);
+	}
 }
 
 
@@ -132,7 +118,7 @@ void JSServletExecutor::handleError(const ErrorInfo& errorInfo)
 			<< "<head><title>" << _pResponse->getStatus() << ": " << _pResponse->getReason() << "</title></head>"
 			<< "<body>"
 			<< "<h1>" << _pResponse->getStatus() << ": " << _pResponse->getReason() << "</h1>"
-			<< "<p>" << htmlize(errorInfo.message) << "</p>"
+			<< "<p>" << Poco::Net::htmlize(errorInfo.message) << "</p>"
 			<< "</body>"
 			<< "</html>";
 	}

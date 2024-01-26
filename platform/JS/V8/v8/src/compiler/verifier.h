@@ -6,7 +6,7 @@
 #define V8_COMPILER_VERIFIER_H_
 
 #include "src/base/macros.h"
-#include "src/globals.h"
+#include "src/common/globals.h"
 
 namespace v8 {
 namespace internal {
@@ -23,9 +23,11 @@ class Verifier {
  public:
   enum Typing { TYPED, UNTYPED };
   enum CheckInputs { kValuesOnly, kAll };
+  enum CodeType { kDefault, kWasm };
 
   static void Run(Graph* graph, Typing typing = TYPED,
-                  CheckInputs check_inputs = kAll);
+                  CheckInputs check_inputs = kAll,
+                  CodeType code_type = kDefault);
 
 #ifdef DEBUG
   // Verifies consistency of node inputs and uses:

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 new BenchmarkSuite('BaselineNaivePromises', [1000], [
   new Benchmark('Basic', false, false, 0, Basic, Setup),
 ]);
@@ -34,7 +33,7 @@ function Setup() {
   b = function b(p) { return p; };
   a = function a(p) { return p; };
 
-  %RunMicrotasks();
+  %PerformMicrotaskCheckpoint();
 }
 
 function Basic() {
@@ -48,5 +47,5 @@ function Basic() {
    .then(c)
    .then(b)
    .then(a);
-  %RunMicrotasks();
+  %PerformMicrotaskCheckpoint();
 }

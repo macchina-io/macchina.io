@@ -401,13 +401,13 @@ function get_new_target() { return new.target; }
 
 
 (function TestEarlyErrors() {
-  assertThrows(function() { Function("new.target = 42"); }, ReferenceError);
-  assertThrows(function() { Function("var foo = 1; new.target = foo = 42"); }, ReferenceError);
-  assertThrows(function() { Function("var foo = 1; foo = new.target = 42"); }, ReferenceError);
-  assertThrows(function() { Function("new.target--"); }, ReferenceError);
-  assertThrows(function() { Function("--new.target"); }, ReferenceError);
-  assertThrows(function() { Function("(new.target)++"); }, ReferenceError);
-  assertThrows(function() { Function("++(new.target)"); }, ReferenceError);
+  assertThrows(function() { Function("new.target = 42"); }, SyntaxError);
+  assertThrows(function() { Function("var foo = 1; new.target = foo = 42"); }, SyntaxError);
+  assertThrows(function() { Function("var foo = 1; foo = new.target = 42"); }, SyntaxError);
+  assertThrows(function() { Function("new.target--"); }, SyntaxError);
+  assertThrows(function() { Function("--new.target"); }, SyntaxError);
+  assertThrows(function() { Function("(new.target)++"); }, SyntaxError);
+  assertThrows(function() { Function("++(new.target)"); }, SyntaxError);
   assertThrows(function() { Function("for (new.target of {});"); }, SyntaxError);
 })();
 
@@ -471,4 +471,13 @@ function get_new_target() { return new.target; }
   function tagNewTargetProp() { return new.target.Prop`${new.target.name}`; }
   tagNewTargetProp.Prop = C;
   assertEquals(new tagNewTargetProp, ["tagNewTargetProp"]);
+})();
+
+(function testDeleteSloppy() {
+  assertTrue(delete new.target);
+})();
+
+(function testDeleteStrict() {
+  "use strict";
+  assertTrue(delete new.target);
 })();

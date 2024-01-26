@@ -19,7 +19,7 @@ class BytecodeRegisterAllocator final {
   // Enables observation of register allocation and free events.
   class Observer {
    public:
-    virtual ~Observer() {}
+    virtual ~Observer() = default;
     virtual void RegisterAllocateEvent(Register reg) = 0;
     virtual void RegisterListAllocateEvent(RegisterList reg_list) = 0;
     virtual void RegisterListFreeEvent(RegisterList reg_list) = 0;
@@ -29,7 +29,7 @@ class BytecodeRegisterAllocator final {
       : next_register_index_(start_index),
         max_register_count_(start_index),
         observer_(nullptr) {}
-  ~BytecodeRegisterAllocator() {}
+  ~BytecodeRegisterAllocator() = default;
 
   // Returns a new register.
   Register NewRegister() {
@@ -85,6 +85,11 @@ class BytecodeRegisterAllocator final {
   // Returns true if the register |reg| is a live register.
   bool RegisterIsLive(Register reg) const {
     return reg.index() < next_register_index_;
+  }
+
+  // Returns a register list for all currently live registers.
+  RegisterList AllLiveRegisters() const {
+    return RegisterList(0, next_register_index());
   }
 
   void set_observer(Observer* observer) { observer_ = observer; }

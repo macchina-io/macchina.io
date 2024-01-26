@@ -13,7 +13,7 @@ objects = NetModule
 
 target         = com.appinf.osp.js.net
 target_libs    = PocoJSNet PocoJSCore PocoOSPJS PocoOSP PocoNet PocoUtil PocoXML PocoFoundation
-target_extlibs = v8 v8_libplatform v8_libbase
+target_extlibs = v8
 
 postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../../bundles Net.bndlspec
 

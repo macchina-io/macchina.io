@@ -28,13 +28,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef V8_INSPECTOR_V8INSPECTORIMPL_H_
-#define V8_INSPECTOR_V8INSPECTORIMPL_H_
+#ifndef V8_INSPECTOR_V8_INSPECTOR_IMPL_H_
+#define V8_INSPECTOR_V8_INSPECTOR_IMPL_H_
 
 #include <functional>
 #include <map>
+#include <memory>
+#include <unordered_map>
 
 #include "src/base/macros.h"
+#include "src/base/platform/mutex.h"
+#include "src/inspector/injected-script.h"
 #include "src/inspector/protocol/Protocol.h"
 
 #include "include/v8-inspector.h"
@@ -61,6 +65,7 @@ class V8InspectorImpl : public V8Inspector {
   V8Debugger* debugger() { return m_debugger.get(); }
   int contextGroupId(v8::Local<v8::Context>) const;
   int contextGroupId(int contextId) const;
+  uint64_t isolateId() const { return m_isolateId; }
 
   v8::MaybeLocal<v8::Value> compileAndRunInternalScript(v8::Local<v8::Context>,
                                                         v8::Local<v8::String>);
@@ -72,30 +77,37 @@ class V8InspectorImpl : public V8Inspector {
   // V8Inspector implementation.
   std::unique_ptr<V8InspectorSession> connect(int contextGroupId,
                                               V8Inspector::Channel*,
-                                              const StringView& state) override;
+                                              StringView state) override;
   void contextCreated(const V8ContextInfo&) override;
   void contextDestroyed(v8::Local<v8::Context>) override;
+  v8::MaybeLocal<v8::Context> contextById(int contextId) override;
   void contextCollected(int contextGroupId, int contextId);
   void resetContextGroup(int contextGroupId) override;
   void idleStarted() override;
   void idleFinished() override;
-  unsigned exceptionThrown(v8::Local<v8::Context>, const StringView& message,
+  unsigned exceptionThrown(v8::Local<v8::Context>, StringView message,
                            v8::Local<v8::Value> exception,
-                           const StringView& detailedMessage,
-                           const StringView& url, unsigned lineNumber,
-                           unsigned columnNumber, std::unique_ptr<V8StackTrace>,
+                           StringView detailedMessage, StringView url,
+                           unsigned lineNumber, unsigned columnNumber,
+                           std::unique_ptr<V8StackTrace>,
                            int scriptId) override;
   void exceptionRevoked(v8::Local<v8::Context>, unsigned exceptionId,
-                        const StringView& message) override;
+                        StringView message) override;
   std::unique_ptr<V8StackTrace> createStackTrace(
       v8::Local<v8::StackTrace>) override;
   std::unique_ptr<V8StackTrace> captureStackTrace(bool fullStack) override;
-  void asyncTaskScheduled(const StringView& taskName, void* task,
+  void asyncTaskScheduled(StringView taskName, void* task,
                           bool recurring) override;
   void asyncTaskCanceled(void* task) override;
   void asyncTaskStarted(void* task) override;
   void asyncTaskFinished(void* task) override;
   void allAsyncTasksCanceled() override;
+
+  V8StackTraceId storeCurrentStackTrace(StringView description) override;
+  void externalAsyncTaskStarted(const V8StackTraceId& parent) override;
+  void externalAsyncTaskFinished(const V8StackTraceId& parent) override;
+
+  std::shared_ptr<Counters> enableCounters() override;
 
   unsigned nextExceptionId() { return ++m_lastExceptionId; }
   void enableStackCapturingIfNeeded();
@@ -111,11 +123,31 @@ class V8InspectorImpl : public V8Inspector {
   InspectedContext* getContext(int contextId) const;
   V8Console* console();
   void forEachContext(int contextGroupId,
-                      std::function<void(InspectedContext*)> callback);
-  void forEachSession(int contextGroupId,
-                      std::function<void(V8InspectorSessionImpl*)> callback);
+                      const std::function<void(InspectedContext*)>& callback);
+  void forEachSession(
+      int contextGroupId,
+      const std::function<void(V8InspectorSessionImpl*)>& callback);
+
+  class EvaluateScope {
+   public:
+    explicit EvaluateScope(const InjectedScript::Scope& scope);
+    ~EvaluateScope();
+
+    protocol::Response setTimeout(double timeout);
+
+   private:
+    class TerminateTask;
+    struct CancelToken;
+
+    const InjectedScript::Scope& m_scope;
+    v8::Isolate* m_isolate;
+    std::shared_ptr<CancelToken> m_cancelToken;
+    v8::Isolate::SafeForTerminationScope m_safeForTerminationScope;
+  };
 
  private:
+  friend class Counters;
+
   v8::Isolate* m_isolate;
   V8InspectorClient* m_client;
   std::unique_ptr<V8Debugger> m_debugger;
@@ -124,30 +156,33 @@ class V8InspectorImpl : public V8Inspector {
   unsigned m_lastExceptionId;
   int m_lastContextId;
   int m_lastSessionId = 0;
+  uint64_t m_isolateId;
 
-  using MuteExceptionsMap = protocol::HashMap<int, int>;
+  using MuteExceptionsMap = std::unordered_map<int, int>;
   MuteExceptionsMap m_muteExceptionsMap;
 
   using ContextByIdMap =
-      protocol::HashMap<int, std::unique_ptr<InspectedContext>>;
+      std::unordered_map<int, std::unique_ptr<InspectedContext>>;
   using ContextsByGroupMap =
-      protocol::HashMap<int, std::unique_ptr<ContextByIdMap>>;
+      std::unordered_map<int, std::unique_ptr<ContextByIdMap>>;
   ContextsByGroupMap m_contexts;
 
   // contextGroupId -> sessionId -> session
-  protocol::HashMap<int, std::map<int, V8InspectorSessionImpl*>> m_sessions;
+  std::unordered_map<int, std::map<int, V8InspectorSessionImpl*>> m_sessions;
 
   using ConsoleStorageMap =
-      protocol::HashMap<int, std::unique_ptr<V8ConsoleMessageStorage>>;
+      std::unordered_map<int, std::unique_ptr<V8ConsoleMessageStorage>>;
   ConsoleStorageMap m_consoleStorageMap;
 
-  protocol::HashMap<int, int> m_contextIdToGroupIdMap;
+  std::unordered_map<int, int> m_contextIdToGroupIdMap;
 
   std::unique_ptr<V8Console> m_console;
+
+  Counters* m_counters = nullptr;
 
   DISALLOW_COPY_AND_ASSIGN(V8InspectorImpl);
 };
 
 }  // namespace v8_inspector
 
-#endif  // V8_INSPECTOR_V8INSPECTORIMPL_H_
+#endif  // V8_INSPECTOR_V8_INSPECTOR_IMPL_H_

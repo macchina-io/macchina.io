@@ -5,6 +5,8 @@
 #ifndef V8_BASE_FILE_UTILS_H_
 #define V8_BASE_FILE_UTILS_H_
 
+#include <memory>
+
 #include "src/base/base-export.h"
 
 namespace v8 {
@@ -12,10 +14,10 @@ namespace base {
 
 // Helper functions to manipulate file paths.
 
-V8_BASE_EXPORT char* RelativePath(char** buffer, const char* exec_path,
-                                  const char* name);
+V8_BASE_EXPORT
+std::unique_ptr<char[]> RelativePath(const char* exec_path, const char* name);
 
 }  // namespace base
 }  // namespace v8
 
-#endif  // V8_FILE_UTILS_H_
+#endif  // V8_BASE_FILE_UTILS_H_

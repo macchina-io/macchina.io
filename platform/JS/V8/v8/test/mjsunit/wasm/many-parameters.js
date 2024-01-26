@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-load('test/mjsunit/wasm/wasm-constants.js');
 load('test/mjsunit/wasm/wasm-module-builder.js');
 
 let types = [kWasmI32, kWasmF32, kWasmF64];
@@ -12,10 +11,13 @@ let type_const = [wasmI32Const, wasmF32Const, wasmF64Const];
 function f(values, shift, num_const_params, ...args) {
   assertEquals(
       values.length + num_const_params, args.length, 'number of arguments');
+  const expected = idx =>
+      idx < values.length ? values[(idx + shift) % values.length] : idx;
+  const msg = 'shifted by ' + shift + ': ' +
+      'expected [' + args.map((_, i) => expected(i)).join(', ') + '], got [' +
+      args.join(', ') + ']';
   args.forEach((arg_val, idx) => {
-    const expected =
-        idx < values.length ? values[(idx + shift) % values.length] : idx;
-    assertEquals(expected, arg_val, 'arg #' + idx + ', shifted by ' + shift);
+    assertEquals(expected(idx), arg_val, 'arg #' + idx + ', ' + msg);
   });
 }
 
@@ -35,7 +37,7 @@ types.forEach((type, type_idx) => {
 
         let body = [];
         for (let i = 0; i < num_params; ++i)
-          body.push(kExprGetLocal, (i + shift) % num_params);
+          body.push(kExprLocalGet, (i + shift) % num_params);
         for (let i = 0; i < num_const_params; ++i)
           body.push(...type_const[type_idx](num_params + i));
         body.push(kExprCallFunction, 0);

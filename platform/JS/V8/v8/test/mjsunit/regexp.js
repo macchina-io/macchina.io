@@ -25,6 +25,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// Flags: --allow-natives-syntax
+
 function testEscape(str, regex) {
   assertEquals("foo:bar:baz", str.split(regex).join(":"));
 }
@@ -808,3 +810,40 @@ assertFalse(/^[\d-X-Z]*$/.test("234-XYZ-432"));
 
 assertFalse(/\uDB88|\uDBEC|aa/.test(""));
 assertFalse(/\uDB88|\uDBEC|aa/u.test(""));
+
+// EscapeRegExpPattern
+assertEquals("\\n", /\n/.source);
+assertEquals("\\n", new RegExp("\n").source);
+assertEquals("\\n", new RegExp("\\n").source);
+assertEquals("\\\\n", /\\n/.source);
+assertEquals("\\r", /\r/.source);
+assertEquals("\\r", new RegExp("\r").source);
+assertEquals("\\r", new RegExp("\\r").source);
+assertEquals("\\\\r", /\\r/.source);
+assertEquals("\\u2028", /\u2028/.source);
+assertEquals("\\u2028", new RegExp("\u2028").source);
+assertEquals("\\u2028", new RegExp("\\u2028").source);
+assertEquals("\\u2029", /\u2029/.source);
+assertEquals("\\u2029", new RegExp("\u2029").source);
+assertEquals("\\u2029", new RegExp("\\u2029").source);
+assertEquals("[/]", /[/]/.source);
+assertEquals("[\\/]", /[\/]/.source);
+assertEquals("[\\\\/]", /[\\/]/.source);
+assertEquals("[/]", new RegExp("[/]").source);
+assertEquals("[/]", new RegExp("[\/]").source);
+assertEquals("[\\/]", new RegExp("[\\/]").source);
+assertEquals("[[/]", /[[/]/.source);
+assertEquals("[/]]", /[/]]/.source);
+assertEquals("[[/]]", /[[/]]/.source);
+assertEquals("[[\\/]", /[[\/]/.source);
+assertEquals("[[\\/]]", /[[\/]]/.source);
+assertEquals("\\n", new RegExp("\\\n").source);
+assertEquals("\\r", new RegExp("\\\r").source);
+assertEquals("\\u2028", new RegExp("\\\u2028").source);
+assertEquals("\\u2029", new RegExp("\\\u2029").source);
+
+{
+  // No escapes needed, the original string should be reused as `.source`.
+  const pattern = "\\n";
+  assertTrue(%ReferenceEqual(pattern, new RegExp(pattern).source));
+}

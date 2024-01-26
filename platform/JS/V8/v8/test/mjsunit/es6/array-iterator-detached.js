@@ -11,7 +11,7 @@ function Baseline() {
   assertEquals(0, it.next().value);
   assertEquals(1, it.next().value);
   assertEquals(2, it.next().value);
-  %ArrayBufferNeuter(array.buffer);
+  %ArrayBufferDetach(array.buffer);
   it.next();
 };
 %NeverOptimizeFunction(Baseline);
@@ -32,13 +32,14 @@ function Turbo(count = 10000) {
   for (let i = 0; i < count; ++i) {
     let result = it.next();
     if (result.value === 255) {
-      %ArrayBufferNeuter(array.buffer);
+      %ArrayBufferDetach(array.buffer);
     }
     sum += result.value;
   }
   return sum;
 }
 
+%PrepareFunctionForOptimization(Turbo);
 Turbo(10);
 Turbo(10);
 %OptimizeFunctionOnNextCall(Turbo);

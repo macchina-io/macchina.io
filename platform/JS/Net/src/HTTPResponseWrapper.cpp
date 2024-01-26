@@ -20,6 +20,9 @@
 #include "Poco/NumberParser.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace JS {
 namespace Net {
@@ -49,7 +52,7 @@ v8::Handle<v8::FunctionTemplate> HTTPResponseWrapper::constructor(v8::Isolate* p
 {
 	v8::EscapableHandleScope handleScope(pIsolate);
 	v8::Local<v8::FunctionTemplate> funcTemplate = v8::FunctionTemplate::New(pIsolate, construct);
-	funcTemplate->Set(v8::String::NewFromUtf8(pIsolate, "isHTTPResponse"), v8::FunctionTemplate::New(pIsolate, isHTTPResponse));
+	funcTemplate->Set(toV8Internalized(pIsolate, "isHTTPResponse"s), v8::FunctionTemplate::New(pIsolate, isHTTPResponse));
 	return handleScope.Escape(funcTemplate);
 }
 
@@ -64,28 +67,23 @@ v8::Handle<v8::ObjectTemplate> HTTPResponseWrapper::objectTemplate(v8::Isolate* 
 	{
 		v8::Handle<v8::ObjectTemplate> objectTemplate = v8::ObjectTemplate::New(pIsolate);
 		objectTemplate->SetInternalFieldCount(1);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "status"), getStatus, setStatus);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "reason"), getReason, setReason);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "version"), getVersion, setVersion);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "contentType"), getContentType, setContentType);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "content"), getContent, setContent);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "buffer"), getBuffer, setBuffer);
-		objectTemplate->SetAccessor(v8::String::NewFromUtf8(pIsolate, "headers"), getHeaders);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "status"s), getStatus, setStatus);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "reason"s), getReason, setReason);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "version"s), getVersion, setVersion);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "contentType"s), getContentType, setContentType);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "content"s), getContent, setContent);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "buffer"s), getBuffer, setBuffer);
+		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "headers"s), getHeaders);
 
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "has"), v8::FunctionTemplate::New(pIsolate, hasHeader));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "get"), v8::FunctionTemplate::New(pIsolate, getHeader));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "set"), v8::FunctionTemplate::New(pIsolate, setHeader));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "setStatus"), v8::FunctionTemplate::New(pIsolate, setStatus));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "write"), v8::FunctionTemplate::New(pIsolate, write));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "writeln"), v8::FunctionTemplate::New(pIsolate, writeln));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "writeHTML"), v8::FunctionTemplate::New(pIsolate, writeHTML));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "htmlize"), v8::FunctionTemplate::New(pIsolate, writeHTML));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "send"), v8::FunctionTemplate::New(pIsolate, send));
-
-		// deprecated - for backwards compatibility only, will be removed in future version
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "hasHeader"), v8::FunctionTemplate::New(pIsolate, hasHeader));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "getHeader"), v8::FunctionTemplate::New(pIsolate, getHeader));
-		objectTemplate->Set(v8::String::NewFromUtf8(pIsolate, "setHeader"), v8::FunctionTemplate::New(pIsolate, setHeader));
+		objectTemplate->Set(toV8Internalized(pIsolate, "has"s), v8::FunctionTemplate::New(pIsolate, hasHeader));
+		objectTemplate->Set(toV8Internalized(pIsolate, "get"s), v8::FunctionTemplate::New(pIsolate, getHeader));
+		objectTemplate->Set(toV8Internalized(pIsolate, "set"s), v8::FunctionTemplate::New(pIsolate, setHeader));
+		objectTemplate->Set(toV8Internalized(pIsolate, "setStatus"s), v8::FunctionTemplate::New(pIsolate, setStatus));
+		objectTemplate->Set(toV8Internalized(pIsolate, "write"s), v8::FunctionTemplate::New(pIsolate, write));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeln"s), v8::FunctionTemplate::New(pIsolate, writeln));
+		objectTemplate->Set(toV8Internalized(pIsolate, "writeHTML"s), v8::FunctionTemplate::New(pIsolate, writeHTML));
+		objectTemplate->Set(toV8Internalized(pIsolate, "htmlize"s), v8::FunctionTemplate::New(pIsolate, writeHTML));
+		objectTemplate->Set(toV8Internalized(pIsolate, "send"s), v8::FunctionTemplate::New(pIsolate, send));
 
 		pooledObjectTemplate.Reset(pIsolate, objectTemplate);
 	}
@@ -96,14 +94,15 @@ v8::Handle<v8::ObjectTemplate> HTTPResponseWrapper::objectTemplate(v8::Isolate* 
 
 void HTTPResponseWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	v8::EscapableHandleScope handleScope(args.GetIsolate());
+	v8::Isolate* pIsolate(args.GetIsolate());
+	v8::EscapableHandleScope handleScope(pIsolate);
 
 	ResponseHolder* pResponseHolder = new ResponseHolderImpl();
 	try
 	{
 		HTTPResponseWrapper wrapper;
-		v8::Persistent<v8::Object>& responseObject(wrapper.wrapNativePersistent(args.GetIsolate(), pResponseHolder));
-		args.GetReturnValue().Set(responseObject);
+		v8::Persistent<v8::Object>& responseObject(wrapper.wrapNativePersistent(pIsolate, pResponseHolder));
+		args.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, responseObject));
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -132,19 +131,19 @@ void HTTPResponseWrapper::isHTTPResponse(const v8::FunctionCallbackInfo<v8::Valu
 }
 
 
-void HTTPResponseWrapper::getStatus(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+void HTTPResponseWrapper::getStatus(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
 	info.GetReturnValue().Set(static_cast<int>(pResponseHolder->response().getStatus()));
 }
 
 
-void HTTPResponseWrapper::setStatus(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+void HTTPResponseWrapper::setStatus(v8::Local<v8::Name> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
 	try
 	{
-		pResponseHolder->response().setStatus(toString(value));
+		pResponseHolder->response().setStatus(toString(info.GetIsolate(), value));
 	}
 	catch (Poco::Exception& exc)
 	{
@@ -153,63 +152,63 @@ void HTTPResponseWrapper::setStatus(v8::Local<v8::String> name, v8::Local<v8::Va
 }
 
 
-void HTTPResponseWrapper::getReason(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+void HTTPResponseWrapper::getReason(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
 	returnString(info, pResponseHolder->response().getReason());
 }
 
 
-void HTTPResponseWrapper::setReason(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+void HTTPResponseWrapper::setReason(v8::Local<v8::Name> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
-	pResponseHolder->response().setReason(toString(value));
+	pResponseHolder->response().setReason(toString(info.GetIsolate(), value));
 }
 
 
-void HTTPResponseWrapper::getVersion(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+void HTTPResponseWrapper::getVersion(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
 	returnString(info, pResponseHolder->response().getVersion());
 }
 
 
-void HTTPResponseWrapper::setVersion(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+void HTTPResponseWrapper::setVersion(v8::Local<v8::Name> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
-	pResponseHolder->response().setVersion(toString(value));
+	pResponseHolder->response().setVersion(toString(info.GetIsolate(), value));
 }
 
 
-void HTTPResponseWrapper::getContentType(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+void HTTPResponseWrapper::getContentType(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
 	returnString(info, pResponseHolder->response().getContentType());
 }
 
 
-void HTTPResponseWrapper::setContentType(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+void HTTPResponseWrapper::setContentType(v8::Local<v8::Name> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
-	pResponseHolder->response().setContentType(toString(value));
+	pResponseHolder->response().setContentType(toString(info.GetIsolate(), value));
 }
 
 
-void HTTPResponseWrapper::getContent(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+void HTTPResponseWrapper::getContent(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
 	returnString(info, pResponseHolder->content());
 }
 
 
-void HTTPResponseWrapper::setContent(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+void HTTPResponseWrapper::setContent(v8::Local<v8::Name> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
-	pResponseHolder->content() = toString(value);
+	pResponseHolder->content() = toString(info.GetIsolate(), value);
 }
 
 
-void HTTPResponseWrapper::getBuffer(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+void HTTPResponseWrapper::getBuffer(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
 	Poco::JS::Core::BufferWrapper::Buffer* pBuffer = new Poco::JS::Core::BufferWrapper::Buffer(pResponseHolder->content().data(), pResponseHolder->content().size());
@@ -219,7 +218,7 @@ void HTTPResponseWrapper::getBuffer(v8::Local<v8::String> name, const v8::Proper
 }
 
 
-void HTTPResponseWrapper::setBuffer(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+void HTTPResponseWrapper::setBuffer(v8::Local<v8::Name> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
 	if (Poco::JS::Core::Wrapper::isWrapper<Poco::JS::Core::BufferWrapper::Buffer>(info.GetIsolate(), value))
@@ -233,16 +232,18 @@ void HTTPResponseWrapper::setBuffer(v8::Local<v8::String> name, v8::Local<v8::Va
 
 void HTTPResponseWrapper::getHeaders(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
-	v8::HandleScope handleScope(info.GetIsolate());
+	v8::Isolate* pIsolate(info.GetIsolate());
+	v8::HandleScope handleScope(pIsolate);
+	v8::Local<v8::Context> context(pIsolate->GetCurrentContext());
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(info);
 
 	const Poco::Net::HTTPResponse& response = pResponseHolder->response();
-	v8::Local<v8::Object> result(v8::Object::New(info.GetIsolate()));
+	v8::Local<v8::Object> result(v8::Object::New(pIsolate));
 	if (!result.IsEmpty())
 	{
 		for (auto it = response.begin(); it != response.end(); ++it)
 		{
-			result->Set(v8::String::NewFromUtf8(info.GetIsolate(), it->first.c_str()), v8::String::NewFromUtf8(info.GetIsolate(),it->second.c_str()));
+			(void) result->Set(context, toV8String(pIsolate, it->first), toV8String(pIsolate, it->second));
 		}
 	}
 	info.GetReturnValue().Set(result);
@@ -253,7 +254,7 @@ void HTTPResponseWrapper::hasHeader(const v8::FunctionCallbackInfo<v8::Value>& a
 {
 	if (args.Length() < 1) return;
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(args);
-	std::string name = toString(args[0]);
+	std::string name = toString(args.GetIsolate(), args[0]);
 	bool result = pResponseHolder->response().has(name);
 	args.GetReturnValue().Set(result);
 }
@@ -262,10 +263,11 @@ void HTTPResponseWrapper::hasHeader(const v8::FunctionCallbackInfo<v8::Value>& a
 void HTTPResponseWrapper::getHeader(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
+	v8::Isolate* pIsolate(args.GetIsolate());
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(args);
-	std::string name = toString(args[0]);
+	std::string name = toString(pIsolate, args[0]);
 	std::string deflt;
-	if (args.Length() > 1) deflt = toString(args[1]);
+	if (args.Length() > 1) deflt = toString(pIsolate, args[1]);
 	std::string value = pResponseHolder->response().get(name, deflt);
 	returnString(args, value);
 }
@@ -274,9 +276,10 @@ void HTTPResponseWrapper::getHeader(const v8::FunctionCallbackInfo<v8::Value>& a
 void HTTPResponseWrapper::setHeader(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 2) return;
+	v8::Isolate* pIsolate(args.GetIsolate());
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(args);
-	std::string name = toString(args[0]);
-	std::string value = toString(args[1]);
+	std::string name = toString(pIsolate, args[0]);
+	std::string value = toString(pIsolate, args[1]);
 	pResponseHolder->response().set(name, value);
 }
 
@@ -284,13 +287,14 @@ void HTTPResponseWrapper::setHeader(const v8::FunctionCallbackInfo<v8::Value>& a
 void HTTPResponseWrapper::setStatus(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	if (args.Length() < 1) return;
+	v8::Isolate* pIsolate(args.GetIsolate());
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(args);
-	std::string status = toString(args[0]);
+	std::string status = toString(pIsolate, args[0]);
 	try
 	{
 		if (args.Length() > 1)
 		{
-			std::string reason = toString(args[1]);
+			std::string reason = toString(pIsolate, args[1]);
 			pResponseHolder->response().setStatusAndReason(static_cast<Poco::Net::HTTPResponse::HTTPStatus>(Poco::NumberParser::parse(status)), reason);
 		}
 		else
@@ -311,7 +315,7 @@ void HTTPResponseWrapper::write(const v8::FunctionCallbackInfo<v8::Value>& args)
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(args);
 	for (int i = 0; i < args.Length(); i++)
 	{
-		pResponseHolder->content().append(toString(args[i]));
+		pResponseHolder->content().append(toString(args.GetIsolate(), args[i]));
 	}
 }
 
@@ -322,7 +326,7 @@ void HTTPResponseWrapper::writeln(const v8::FunctionCallbackInfo<v8::Value>& arg
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(args);
 	for (int i = 0; i < args.Length(); i++)
 	{
-		pResponseHolder->content().append(toString(args[i]));
+		pResponseHolder->content().append(toString(args.GetIsolate(), args[i]));
 	}
 	pResponseHolder->content().append("\n");
 }
@@ -334,7 +338,7 @@ void HTTPResponseWrapper::writeHTML(const v8::FunctionCallbackInfo<v8::Value>& a
 	ResponseHolder* pResponseHolder = Wrapper::unwrapNative<ResponseHolder>(args);
 	for (int i = 0; i < args.Length(); i++)
 	{
-		pResponseHolder->content().append(Poco::Net::htmlize(toString(args[i])));
+		pResponseHolder->content().append(Poco::Net::htmlize(toString(args.GetIsolate(), args[i])));
 	}
 }
 
@@ -356,7 +360,7 @@ void HTTPResponseWrapper::htmlize(const v8::FunctionCallbackInfo<v8::Value>& arg
 	std::string result;
 	for (int i = 0; i < args.Length(); i++)
 	{
-		result += Poco::Net::htmlize(toString(args[i]));
+		result += Poco::Net::htmlize(toString(args.GetIsolate(), args[i]));
 	}
 	returnString(args, result);
 }

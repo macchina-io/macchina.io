@@ -5,9 +5,11 @@
 #ifndef V8_COMPILER_NODE_PROPERTIES_H_
 #define V8_COMPILER_NODE_PROPERTIES_H_
 
+#include "src/common/globals.h"
 #include "src/compiler/node.h"
+#include "src/compiler/operator-properties.h"
 #include "src/compiler/types.h"
-#include "src/globals.h"
+#include "src/objects/map.h"
 #include "src/zone/zone-handle-set.h"
 
 namespace v8 {
@@ -31,22 +33,59 @@ class V8_EXPORT_PRIVATE NodeProperties final {
   static int FirstFrameStateIndex(Node* node) { return PastContextIndex(node); }
   static int FirstEffectIndex(Node* node) { return PastFrameStateIndex(node); }
   static int FirstControlIndex(Node* node) { return PastEffectIndex(node); }
-  static int PastValueIndex(Node* node);
-  static int PastContextIndex(Node* node);
-  static int PastFrameStateIndex(Node* node);
-  static int PastEffectIndex(Node* node);
-  static int PastControlIndex(Node* node);
 
+  static int PastValueIndex(Node* node) {
+    return FirstValueIndex(node) + node->op()->ValueInputCount();
+  }
+
+  static int PastContextIndex(Node* node) {
+    return FirstContextIndex(node) +
+           OperatorProperties::GetContextInputCount(node->op());
+  }
+
+  static int PastFrameStateIndex(Node* node) {
+    return FirstFrameStateIndex(node) +
+           OperatorProperties::GetFrameStateInputCount(node->op());
+  }
+
+  static int PastEffectIndex(Node* node) {
+    return FirstEffectIndex(node) + node->op()->EffectInputCount();
+  }
+
+  static int PastControlIndex(Node* node) {
+    return FirstControlIndex(node) + node->op()->ControlInputCount();
+  }
 
   // ---------------------------------------------------------------------------
   // Input accessors.
 
-  static Node* GetValueInput(Node* node, int index);
-  static Node* GetContextInput(Node* node);
-  static Node* GetFrameStateInput(Node* node);
-  static Node* GetEffectInput(Node* node, int index = 0);
-  static Node* GetControlInput(Node* node, int index = 0);
+  static Node* GetValueInput(Node* node, int index) {
+    CHECK_LE(0, index);
+    CHECK_LT(index, node->op()->ValueInputCount());
+    return node->InputAt(FirstValueIndex(node) + index);
+  }
 
+  static Node* GetContextInput(Node* node) {
+    CHECK(OperatorProperties::HasContextInput(node->op()));
+    return node->InputAt(FirstContextIndex(node));
+  }
+
+  static Node* GetFrameStateInput(Node* node) {
+    CHECK(OperatorProperties::HasFrameStateInput(node->op()));
+    return node->InputAt(FirstFrameStateIndex(node));
+  }
+
+  static Node* GetEffectInput(Node* node, int index = 0) {
+    CHECK_LE(0, index);
+    CHECK_LT(index, node->op()->EffectInputCount());
+    return node->InputAt(FirstEffectIndex(node) + index);
+  }
+
+  static Node* GetControlInput(Node* node, int index = 0) {
+    CHECK_LE(0, index);
+    CHECK_LT(index, node->op()->ControlInputCount());
+    return node->InputAt(FirstControlIndex(node) + index);
+  }
 
   // ---------------------------------------------------------------------------
   // Edge kinds.
@@ -56,7 +95,6 @@ class V8_EXPORT_PRIVATE NodeProperties final {
   static bool IsFrameStateEdge(Edge edge);
   static bool IsEffectEdge(Edge edge);
   static bool IsControlEdge(Edge edge);
-
 
   // ---------------------------------------------------------------------------
   // Miscellaneous predicates.
@@ -102,6 +140,11 @@ class V8_EXPORT_PRIVATE NodeProperties final {
   static void MergeControlToEnd(Graph* graph, CommonOperatorBuilder* common,
                                 Node* node);
 
+  // Removes the control node {node} from the end of the graph, reducing the
+  // existing merge node's input count.
+  static void RemoveControlFromEnd(Graph* graph, CommonOperatorBuilder* common,
+                                   Node* node);
+
   // Replace all uses of {node} with the given replacement nodes. All occurring
   // use kinds need to be replaced, {nullptr} is only valid if a use kind is
   // guaranteed not to exist.
@@ -117,10 +160,14 @@ class V8_EXPORT_PRIVATE NodeProperties final {
 
   // Find the last frame state that is effect-wise before the given node. This
   // assumes a linear effect-chain up to a {CheckPoint} node in the graph.
-  static Node* FindFrameStateBefore(Node* node);
+  // Returns {unreachable_sentinel} if {node} is determined to be unreachable.
+  static Node* FindFrameStateBefore(Node* node, Node* unreachable_sentinel);
 
   // Collect the output-value projection for the given output index.
   static Node* FindProjection(Node* node, size_t projection_index);
+
+  // Collect the value projections from a node.
+  static void CollectValueProjections(Node* node, Node** proj, size_t count);
 
   // Collect the branch-related projections from a node, such as IfTrue,
   // IfFalse, IfSuccess, IfException, IfValue and IfDefault.
@@ -144,11 +191,32 @@ class V8_EXPORT_PRIVATE NodeProperties final {
   enum InferReceiverMapsResult {
     kNoReceiverMaps,         // No receiver maps inferred.
     kReliableReceiverMaps,   // Receiver maps can be trusted.
-    kUnreliableReceiverMaps  // Receiver maps might have changed (side-effect),
-                             // but instance type is reliable.
+    kUnreliableReceiverMaps  // Receiver maps might have changed (side-effect).
   };
-  static InferReceiverMapsResult InferReceiverMaps(
-      Node* receiver, Node* effect, ZoneHandleSet<Map>* maps_return);
+  // DO NOT USE InferReceiverMapsUnsafe IN NEW CODE. Use MapInference instead.
+  static InferReceiverMapsResult InferReceiverMapsUnsafe(
+      JSHeapBroker* broker, Node* receiver, Node* effect,
+      ZoneHandleSet<Map>* maps_return);
+
+  // Return the initial map of the new-target if the allocation can be inlined.
+  static base::Optional<MapRef> GetJSCreateMap(JSHeapBroker* broker,
+                                               Node* receiver);
+
+  // Walks up the {effect} chain to check that there's no observable side-effect
+  // between the {effect} and it's {dominator}. Aborts the walk if there's join
+  // in the effect chain.
+  static bool NoObservableSideEffectBetween(Node* effect, Node* dominator);
+
+  // Returns true if the {receiver} can be a primitive value (i.e. is not
+  // definitely a JavaScript object); might walk up the {effect} chain to
+  // find map checks on {receiver}.
+  static bool CanBePrimitive(JSHeapBroker* broker, Node* receiver,
+                             Node* effect);
+
+  // Returns true if the {receiver} can be null or undefined. Might walk
+  // up the {effect} chain to find map checks for {receiver}.
+  static bool CanBeNullOrUndefined(JSHeapBroker* broker, Node* receiver,
+                                   Node* effect);
 
   // ---------------------------------------------------------------------------
   // Context.
@@ -161,17 +229,17 @@ class V8_EXPORT_PRIVATE NodeProperties final {
   // ---------------------------------------------------------------------------
   // Type.
 
-  static bool IsTyped(Node* node) { return node->type() != nullptr; }
-  static Type* GetType(Node* node) {
+  static bool IsTyped(Node* node) { return !node->type().IsInvalid(); }
+  static Type GetType(Node* node) {
     DCHECK(IsTyped(node));
     return node->type();
   }
-  static Type* GetTypeOrAny(Node* node);
-  static void SetType(Node* node, Type* type) {
-    DCHECK_NOT_NULL(type);
+  static Type GetTypeOrAny(Node* node);
+  static void SetType(Node* node, Type type) {
+    DCHECK(!type.IsInvalid());
     node->set_type(type);
   }
-  static void RemoveType(Node* node) { node->set_type(nullptr); }
+  static void RemoveType(Node* node) { node->set_type(Type::Invalid()); }
   static bool AllValueInputsAreTyped(Node* node);
 
  private:

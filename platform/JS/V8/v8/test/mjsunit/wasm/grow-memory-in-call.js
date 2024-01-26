@@ -4,7 +4,6 @@
 
 // Flags: --expose-wasm --stress-compaction
 
-load('test/mjsunit/wasm/wasm-constants.js');
 load('test/mjsunit/wasm/wasm-module-builder.js');
 
 var initialMemoryPages = 1;
@@ -15,18 +14,18 @@ print('=== grow_memory in direct calls ===');
 
 // This test verifies that the current_memory instruction returns the correct
 // value after returning from a function (direct call) that grew memory.
-(function TestGrowMemoryInFunction() {
-  print('TestGrowMemoryInFunction ...');
+(function TestMemoryGrowInFunction() {
+  print('TestMemoryGrowInFunction ...');
   let builder = new WasmModuleBuilder();
   builder.addMemory(initialMemoryPages, maximumMemoryPages, true);
   let kGrowFunction =
       builder.addFunction('grow', kSig_i_i)
-          .addBody([kExprGetLocal, 0, kExprGrowMemory, kMemoryZero])
+          .addBody([kExprLocalGet, 0, kExprMemoryGrow, kMemoryZero])
           .exportFunc()
           .index;
   builder.addFunction('main', kSig_i_i)
       .addBody([
-        kExprGetLocal, 0,                  // get number of new pages
+        kExprLocalGet, 0,                  // get number of new pages
         kExprCallFunction, kGrowFunction,  // call the grow function
         kExprDrop,                         // drop the result of grow
         kExprMemorySize, kMemoryZero       // get the memory size
@@ -41,26 +40,26 @@ print('=== grow_memory in direct calls ===');
 
 // This test verifies that accessing a memory page that has been created inside
 // a function (direct call) does not trap in the caller.
-(function TestGrowMemoryAndAccessInFunction() {
-  print('TestGrowMemoryAndAccessInFunction ...');
+(function TestMemoryGrowAndAccessInFunction() {
+  print('TestMemoryGrowAndAccessInFunction ...');
   let index = 2 * kPageSize - 4;
   let builder = new WasmModuleBuilder();
   builder.addMemory(initialMemoryPages, maximumMemoryPages, true);
   let kGrowFunction =
       builder.addFunction('grow', kSig_i_i)
-          .addBody([kExprGetLocal, 0, kExprGrowMemory, kMemoryZero])
+          .addBody([kExprLocalGet, 0, kExprMemoryGrow, kMemoryZero])
           .exportFunc()
           .index;
   builder.addFunction('load', kSig_i_i)
-      .addBody([kExprGetLocal, 0, kExprI32LoadMem, 0, 0])
+      .addBody([kExprLocalGet, 0, kExprI32LoadMem, 0, 0])
       .exportFunc();
   builder.addFunction('main', kSig_v_iii)
       .addBody([
-        kExprGetLocal, 0,                  // get number of new pages
+        kExprLocalGet, 0,                  // get number of new pages
         kExprCallFunction, kGrowFunction,  // call the grow function
         kExprDrop,                         // drop the result of grow
-        kExprGetLocal, 1,                  // get index
-        kExprGetLocal, 2,                  // get value
+        kExprLocalGet, 1,                  // get index
+        kExprLocalGet, 2,                  // get value
         kExprI32StoreMem, 0, 0             // store
       ])
       .exportFunc();
@@ -75,8 +74,8 @@ print('=== grow_memory in direct calls ===');
 // This test verifies that when a function (direct call) grows and store
 // something in the grown memory, the caller always reads from the grown
 // memory. This checks that the memory start address gets updated in the caller.
-(function TestGrowMemoryAndStoreInFunction() {
-  print('TestGrowMemoryAndStoreInFunction ...');
+(function TestMemoryGrowAndStoreInFunction() {
+  print('TestMemoryGrowAndStoreInFunction ...');
   let index = 0;
   let oldValue = 21;
   let newValue = 42;
@@ -87,7 +86,7 @@ print('=== grow_memory in direct calls ===');
       builder.addFunction('grow', kSig_v_v)
           .addBody([
             kExprI32Const, deltaPages,     // always grow memory by deltaPages
-            kExprGrowMemory, kMemoryZero,  // grow memory
+            kExprMemoryGrow, kMemoryZero,  // grow memory
             kExprDrop,                     // drop the result of grow
             kExprI32Const, index,          // put index on stack
             kExprI32Const, newValue,       // put new value on stack
@@ -113,30 +112,30 @@ print('=== grow_memory in direct calls ===');
 // This test verifies that the effects of growing memory in an directly
 // called function inside a loop affect the result of current_memory when
 // the loop is over.
-(function TestGrowMemoryInFunctionInsideLoop() {
-  print('TestGrowMemoryInFunctionInsideLoop ...');
+(function TestMemoryGrowInFunctionInsideLoop() {
+  print('TestMemoryGrowInFunctionInsideLoop ...');
   let builder = new WasmModuleBuilder();
   builder.addMemory(initialMemoryPages, maximumMemoryPages, true);
   let kGrowFunction =
       builder.addFunction('grow', kSig_i_i)
-          .addBody([kExprGetLocal, 0, kExprGrowMemory, kMemoryZero])
+          .addBody([kExprLocalGet, 0, kExprMemoryGrow, kMemoryZero])
           .exportFunc()
           .index;
   builder.addFunction('main', kSig_i_ii)
       .addBody([
         // clang-format off
         kExprLoop, kWasmStmt,                   // while
-          kExprGetLocal, 0,                     // -
+          kExprLocalGet, 0,                     // -
           kExprIf, kWasmStmt,                   // if <param0> != 0
             // Grow memory.
-            kExprGetLocal, 1,                   // get number of new pages
+            kExprLocalGet, 1,                   // get number of new pages
             kExprCallFunction, kGrowFunction,   // call the grow function
             kExprDrop,                          // drop the result of grow
             // Decrease loop variable.
-            kExprGetLocal, 0,                   // -
+            kExprLocalGet, 0,                   // -
             kExprI32Const, 1,                   // -
             kExprI32Sub,                        // -
-            kExprSetLocal, 0,                   // decrease <param0>
+            kExprLocalSet, 0,                   // decrease <param0>
             kExprBr, 1,                         // continue
           kExprEnd,                             // end if
         kExprEnd,                               // end loop
@@ -156,19 +155,19 @@ print('=== grow_memory in direct calls ===');
 
 // This test verifies that the effects of writing to memory grown in an
 // directly called function inside a loop are retained when the loop is over.
-(function TestGrowMemoryAndStoreInFunctionInsideLoop() {
-  print('TestGrowMemoryAndStoreInFunctionInsideLoop ...');
+(function TestMemoryGrowAndStoreInFunctionInsideLoop() {
+  print('TestMemoryGrowAndStoreInFunctionInsideLoop ...');
   let builder = new WasmModuleBuilder();
   builder.addMemory(initialMemoryPages, maximumMemoryPages, true);
   builder.addFunction('store', kSig_i_ii)
       .addBody([
-        kExprGetLocal, 0, kExprGetLocal, 1, kExprI32StoreMem, 0, 0,
-        kExprGetLocal, 1
+        kExprLocalGet, 0, kExprLocalGet, 1, kExprI32StoreMem, 0, 0,
+        kExprLocalGet, 1
       ])
       .exportFunc();
   let kGrowFunction =
       builder.addFunction('grow', kSig_i_i)
-          .addBody([kExprGetLocal, 0, kExprGrowMemory, kMemoryZero])
+          .addBody([kExprLocalGet, 0, kExprMemoryGrow, kMemoryZero])
           .exportFunc()
           .index;
   // parameters:  iterations, deltaPages, index
@@ -176,29 +175,29 @@ print('=== grow_memory in direct calls ===');
       .addBody([
         // clang-format off
         kExprLoop, kWasmStmt,                   // while
-          kExprGetLocal, 0,                     // -
+          kExprLocalGet, 0,                     // -
           kExprIf, kWasmStmt,                   // if <param0> != 0
             // Grow memory.
-            kExprGetLocal, 1,                   // get number of new pages
+            kExprLocalGet, 1,                   // get number of new pages
             kExprCallFunction, kGrowFunction,   // call the grow function
             kExprDrop,                          // drop the result of grow
             // Increase counter in memory.
-            kExprGetLocal, 2,                   // put index (for store)
-                kExprGetLocal, 2,               // put index (for load)
+            kExprLocalGet, 2,                   // put index (for store)
+                kExprLocalGet, 2,               // put index (for load)
                 kExprI32LoadMem, 0, 0,          // load from grown memory
               kExprI32Const, 1,                 // -
               kExprI32Add,                      // increase counter
             kExprI32StoreMem, 0, 0,             // store counter in memory
             // Decrease loop variable.
-            kExprGetLocal, 0,                   // -
+            kExprLocalGet, 0,                   // -
             kExprI32Const, 1,                   // -
             kExprI32Sub,                        // -
-            kExprSetLocal, 0,                   // decrease <param0>
+            kExprLocalSet, 0,                   // decrease <param0>
             kExprBr, 1,                         // continue
           kExprEnd,                             // end if
         kExprEnd,                               // end loop
         // Return the value
-        kExprGetLocal, 2,                       // -
+        kExprLocalGet, 2,                       // -
         kExprI32LoadMem, 0, 0                   // load from grown memory
         // clang-format on
       ])
@@ -220,19 +219,19 @@ print('\n=== grow_memory in indirect calls ===');
 
 // This test verifies that the current_memory instruction returns the correct
 // value after returning from a function (indirect call) that grew memory.
-(function TestGrowMemoryInIndirectCall() {
-  print('TestGrowMemoryInIndirectCall ...');
+(function TestMemoryGrowInIndirectCall() {
+  print('TestMemoryGrowInIndirectCall ...');
   let builder = new WasmModuleBuilder();
   builder.addMemory(initialMemoryPages, maximumMemoryPages, true);
   let kGrowFunction =
       builder.addFunction('grow', kSig_i_i)
-          .addBody([kExprGetLocal, 0, kExprGrowMemory, kMemoryZero])
+          .addBody([kExprLocalGet, 0, kExprMemoryGrow, kMemoryZero])
           .exportFunc()
           .index;
   builder.addFunction('main', kSig_i_ii)
       .addBody([
-        kExprGetLocal, 1,                  // get number of new pages
-        kExprGetLocal, 0,                  // get index of the function
+        kExprLocalGet, 1,                  // get number of new pages
+        kExprLocalGet, 0,                  // get index of the function
         kExprCallIndirect, 0, kTableZero,  // call the function
         kExprDrop,                         // drop the result of grow
         kExprMemorySize, kMemoryZero       // get the memory size
@@ -249,28 +248,28 @@ print('\n=== grow_memory in indirect calls ===');
 
 // This test verifies that accessing a memory page that has been created inside
 // a function (indirect call) does not trap in the caller.
-(function TestGrowMemoryAndAccessInIndirectCall() {
-  print('TestGrowMemoryAndAccessInIndirectCall ...');
+(function TestMemoryGrowAndAccessInIndirectCall() {
+  print('TestMemoryGrowAndAccessInIndirectCall ...');
   let index = 2 * kPageSize - 4;
   let builder = new WasmModuleBuilder();
   builder.addMemory(initialMemoryPages, maximumMemoryPages, true);
   let kGrowFunction =
       builder.addFunction('grow', kSig_i_i)
-          .addBody([kExprGetLocal, 0, kExprGrowMemory, kMemoryZero])
+          .addBody([kExprLocalGet, 0, kExprMemoryGrow, kMemoryZero])
           .exportFunc()
           .index;
   builder.addFunction('load', kSig_i_i)
-      .addBody([kExprGetLocal, 0, kExprI32LoadMem, 0, 0])
+      .addBody([kExprLocalGet, 0, kExprI32LoadMem, 0, 0])
       .exportFunc();
   let sig = makeSig([kWasmI32, kWasmI32, kWasmI32, kWasmI32], []);
   builder.addFunction('main', sig)
       .addBody([
-        kExprGetLocal, 1,                  // get number of new pages
-        kExprGetLocal, 0,                  // get index of the function
+        kExprLocalGet, 1,                  // get number of new pages
+        kExprLocalGet, 0,                  // get index of the function
         kExprCallIndirect, 0, kTableZero,  // call the function
         kExprDrop,                         // drop the result of grow
-        kExprGetLocal, 2,                  // get index
-        kExprGetLocal, 3,                  // get value
+        kExprLocalGet, 2,                  // get index
+        kExprLocalGet, 3,                  // get value
         kExprI32StoreMem, 0, 0             // store
       ])
       .exportFunc();
@@ -287,8 +286,8 @@ print('\n=== grow_memory in indirect calls ===');
 // This test verifies that when a function (indirect call) grows and store
 // something in the grown memory, the caller always reads from the grown
 // memory. This checks that the memory start address gets updated in the caller.
-(function TestGrowMemoryAndStoreInIndirectCall() {
-  print('TestGrowMemoryAndStoreInIndirectCall ...');
+(function TestMemoryGrowAndStoreInIndirectCall() {
+  print('TestMemoryGrowAndStoreInIndirectCall ...');
   let index = 0;
   let oldValue = 21;
   let newValue = 42;
@@ -299,7 +298,7 @@ print('\n=== grow_memory in indirect calls ===');
       builder.addFunction('grow', kSig_v_v)
           .addBody([
             kExprI32Const, deltaPages,     // always grow memory by deltaPages
-            kExprGrowMemory, kMemoryZero,  // grow memory
+            kExprMemoryGrow, kMemoryZero,  // grow memory
             kExprDrop,                     // drop the result of grow
             kExprI32Const, index,          // put index on stack
             kExprI32Const, newValue,       // put new value on stack
@@ -312,7 +311,7 @@ print('\n=== grow_memory in indirect calls ===');
         kExprI32Const, index,              // put index on stack
         kExprI32Const, oldValue,           // put old value on stack
         kExprI32StoreMem, 0, 0,            // store
-        kExprGetLocal, 0,                  // get index of the function
+        kExprLocalGet, 0,                  // get index of the function
         kExprCallIndirect, 0, kTableZero,  // call the function
         kExprI32Const, index,              // put index on stack
         kExprI32LoadMem, 0, 0              // load from grown memory
@@ -327,31 +326,31 @@ print('\n=== grow_memory in indirect calls ===');
 // This test verifies that the effects of growing memory in an indirectly
 // called function inside a loop affect the result of current_memory when
 // the loop is over.
-(function TestGrowMemoryInIndirectCallInsideLoop() {
-  print('TestGrowMemoryInIndirectCallInsideLoop ...');
+(function TestMemoryGrowInIndirectCallInsideLoop() {
+  print('TestMemoryGrowInIndirectCallInsideLoop ...');
   let builder = new WasmModuleBuilder();
   builder.addMemory(initialMemoryPages, maximumMemoryPages, true);
   let kGrowFunction =
       builder.addFunction('grow', kSig_i_i)
-          .addBody([kExprGetLocal, 0, kExprGrowMemory, kMemoryZero])
+          .addBody([kExprLocalGet, 0, kExprMemoryGrow, kMemoryZero])
           .exportFunc()
           .index;
   builder.addFunction('main', kSig_i_iii)
       .addBody([
         // clang-format off
         kExprLoop, kWasmStmt,                   // while
-          kExprGetLocal, 1,                     // -
+          kExprLocalGet, 1,                     // -
           kExprIf, kWasmStmt,                   // if <param1> != 0
             // Grow memory.
-            kExprGetLocal, 2,                   // get number of new pages
-            kExprGetLocal, 0,                   // get index of the function
+            kExprLocalGet, 2,                   // get number of new pages
+            kExprLocalGet, 0,                   // get index of the function
             kExprCallIndirect, 0, kTableZero,   // call the function
             kExprDrop,                          // drop the result of grow
             // Decrease loop variable.
-            kExprGetLocal, 1,                   // -
+            kExprLocalGet, 1,                   // -
             kExprI32Const, 1,                   // -
             kExprI32Sub,                        // -
-            kExprSetLocal, 1,                   // decrease <param1>
+            kExprLocalSet, 1,                   // decrease <param1>
             kExprBr, 1,                         // continue
           kExprEnd,                             // end if
         kExprEnd,                               // end loop
@@ -372,20 +371,20 @@ print('\n=== grow_memory in indirect calls ===');
 
 // This test verifies that the effects of writing to memory grown in an
 // indirectly called function inside a loop are retained when the loop is over.
-(function TestGrowMemoryAndStoreInIndirectCallInsideLoop() {
-  print('TestGrowMemoryAndStoreInIndirectCallInsideLoop ...');
+(function TestMemoryGrowAndStoreInIndirectCallInsideLoop() {
+  print('TestMemoryGrowAndStoreInIndirectCallInsideLoop ...');
   let builder = new WasmModuleBuilder();
   let deltaPages = 1;
   builder.addMemory(initialMemoryPages, maximumMemoryPages, true);
   let kGrowFunction =
       builder.addFunction('grow', kSig_i_i)
-          .addBody([kExprGetLocal, 0, kExprGrowMemory, kMemoryZero])
+          .addBody([kExprLocalGet, 0, kExprMemoryGrow, kMemoryZero])
           .exportFunc()
           .index;
   builder.addFunction('store', kSig_i_ii)
       .addBody([
-        kExprGetLocal, 0, kExprGetLocal, 1, kExprI32StoreMem, 0, 0,
-        kExprGetLocal, 1
+        kExprLocalGet, 0, kExprLocalGet, 1, kExprI32StoreMem, 0, 0,
+        kExprLocalGet, 1
       ])
       .exportFunc();
   builder
@@ -395,30 +394,30 @@ print('\n=== grow_memory in indirect calls ===');
       .addBody([
         // clang-format off
         kExprLoop, kWasmStmt,                   // while
-          kExprGetLocal, 1,                     // -
+          kExprLocalGet, 1,                     // -
           kExprIf, kWasmStmt,                   // if <param1> != 0
             // Grow memory.
-            kExprGetLocal, 2,                   // get number of new pages
-            kExprGetLocal, 0,                   // get index of the function
+            kExprLocalGet, 2,                   // get number of new pages
+            kExprLocalGet, 0,                   // get index of the function
             kExprCallIndirect, 0, kTableZero,   // call the function
             kExprDrop,                          // drop the result of grow
             // Increase counter in memory.
-            kExprGetLocal, 3,                   // put index (for store)
-                kExprGetLocal, 3,               // put index (for load)
+            kExprLocalGet, 3,                   // put index (for store)
+                kExprLocalGet, 3,               // put index (for load)
                 kExprI32LoadMem, 0, 0,          // load from grown memory
               kExprI32Const, 1,                 // -
               kExprI32Add,                      // increase counter
             kExprI32StoreMem, 0, 0,             // store counter in memory
             // Decrease loop variable.
-            kExprGetLocal, 1,                   // -
+            kExprLocalGet, 1,                   // -
             kExprI32Const, 1,                   // -
             kExprI32Sub,                        // -
-            kExprSetLocal, 1,                   // decrease <param1>
+            kExprLocalSet, 1,                   // decrease <param1>
             kExprBr, 1,                         // continue
           kExprEnd,                             // end if
         kExprEnd,                               // end loop
         // Return the value
-        kExprGetLocal, 3,                       // -
+        kExprLocalGet, 3,                       // -
         kExprI32LoadMem, 0, 0                   // load from grown memory
         // clang-format on
       ])

@@ -9,10 +9,10 @@ function testFunction() {
   var arr = |_|[1];
   var all = |_|[];
   for (var |_|k in |_|arr) { all.|C|push(k); }
-  for (var |_|k of |_|arr) { all.|C|push(k); }
+  for (var |C|k of |_|arr) { all.|C|push(k); }
   for (var |_|k in |_|obj) { all.|C|push(k); }
   for (let |_|k in |_|arr) { all.|C|push(k); }
-  for (let |_|k of |_|arr) { all.|C|push(k); }
+  for (let |C|k of |_|arr) { all.|C|push(k); }
   for (let |_|k in |_|obj) { all.|C|push(k); }
 
   var iterable = |_|{
@@ -28,9 +28,9 @@ function testFunction() {
       };|R|
     }
   };
-  for (var |_|k of |_|iterable) { all.|C|push(k); }
+  for (var |C|k of |_|iterable) { all.|C|push(k); }
   |_|iterable.i = 0;
-  for (let |_|k of |_|iterable) { all.|C|push(k); }
+  for (let |C|k of |_|iterable) { all.|C|push(k); }
 |R|}
 
 (anonymous) (expr.js:0:0)
@@ -251,6 +251,12 @@ testFunction (test.js:25:11)
             return { value: this.i++, done: false };#
           }
 
+testFunction (test.js:25:11)
+(anonymous) (expr.js:0:0)
+  };
+  for (var #k of iterable) { all.push(k); }
+  iterable.i = 0;
+
 testFunction (test.js:25:32)
 (anonymous) (expr.js:0:0)
   };
@@ -337,6 +343,12 @@ testFunction (test.js:27:11)
             return { value: this.i++, done: false };#
           }
 
+testFunction (test.js:27:11)
+(anonymous) (expr.js:0:0)
+  iterable.i = 0;
+  for (let #k of iterable) { all.push(k); }
+}
+
 testFunction (test.js:27:32)
 (anonymous) (expr.js:0:0)
   iterable.i = 0;
@@ -375,7 +387,7 @@ testFunction (test.js:28:0)
   for (let k of iterable) { all.push(k); }
 #}
 
-(anonymous) (expr.js:0:34)
+(anonymous) (expr.js:0:35)
 
 
 

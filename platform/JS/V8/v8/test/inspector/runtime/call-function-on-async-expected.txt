@@ -13,6 +13,17 @@ Running test: testArguments
     }
 }
 
+Running test: testUnserializableArguments
+{
+    id : <messageId>
+    result : {
+        result : {
+            type : string
+            value : true|true|true|true|bigint
+        }
+    }
+}
+
 Running test: testComplexArguments
 {
     id : <messageId>
@@ -32,7 +43,7 @@ Running test: testSyntaxErrorInFunction
             columnNumber : 2
             exception : {
                 className : SyntaxError
-                description : SyntaxError: Unexpected token }
+                description : SyntaxError: Unexpected token '}'
                 objectId : <objectId>
                 subtype : error
                 type : object
@@ -44,7 +55,7 @@ Running test: testSyntaxErrorInFunction
         }
         result : {
             className : SyntaxError
-            description : SyntaxError: Unexpected token }
+            description : SyntaxError: Unexpected token '}'
             objectId : <objectId>
             subtype : error
             type : object
@@ -68,6 +79,24 @@ Running test: testExceptionInFunctionExpression
             exceptionId : <exceptionId>
             lineNumber : 0
             scriptId : <scriptId>
+            stackTrace : {
+                callFrames : [
+                    [0] : {
+                        columnNumber : 21
+                        functionName : 
+                        lineNumber : 0
+                        scriptId : <scriptId>
+                        url : 
+                    }
+                    [1] : {
+                        columnNumber : 35
+                        functionName : 
+                        lineNumber : 0
+                        scriptId : <scriptId>
+                        url : 
+                    }
+                ]
+            }
             text : Uncaught
         }
         result : {
@@ -137,10 +166,22 @@ Running test: testFunctionReturnRejectedPromise
         exceptionDetails : {
             columnNumber : 0
             exception : {
-                type : object
-                value : {
-                    a : 3
+                className : Object
+                description : Object
+                objectId : <objectId>
+                preview : {
+                    description : Object
+                    overflow : false
+                    properties : [
+                        [0] : {
+                            name : a
+                            type : number
+                            value : 3
+                        }
+                    ]
+                    type : object
                 }
+                type : object
             }
             exceptionId : <exceptionId>
             lineNumber : 0
@@ -150,6 +191,99 @@ Running test: testFunctionReturnRejectedPromise
             type : object
             value : {
                 a : 3
+            }
+        }
+    }
+}
+
+Running test: testEvaluateOnExecutionContext
+{
+    id : <messageId>
+    result : {
+        result : {
+            description : 70
+            type : number
+            value : 70
+        }
+    }
+}
+
+Running test: testPassingBothObjectIdAndExecutionContextId
+{
+    error : {
+        code : -32000
+        message : ObjectId must not be specified together with executionContextId
+    }
+    id : <messageId>
+}
+
+Running test: testThrowNumber
+{
+    id : <messageId>
+    result : {
+        exceptionDetails : {
+            columnNumber : 10
+            exception : {
+                description : 100500
+                type : number
+                value : 100500
+            }
+            exceptionId : <exceptionId>
+            lineNumber : 0
+            scriptId : <scriptId>
+            stackTrace : {
+                callFrames : [
+                    [0] : {
+                        columnNumber : 10
+                        functionName : 
+                        lineNumber : 0
+                        scriptId : <scriptId>
+                        url : 
+                    }
+                ]
+            }
+            text : Uncaught
+        }
+        result : {
+            description : 100500
+            type : number
+            value : 100500
+        }
+    }
+}
+
+Running test: testAsyncFunctionWithUnknownReferenceReturnByValue
+{
+    id : <messageId>
+    result : {
+        exceptionDetails : {
+            columnNumber : 30
+            exception : {
+                className : ReferenceError
+                description : ReferenceError: does_not_exist is not defined     at <anonymous>:1:30
+                objectId : <objectId>
+                subtype : error
+                type : object
+            }
+            exceptionId : <exceptionId>
+            lineNumber : 1
+            scriptId : <scriptId>
+            stackTrace : {
+                callFrames : [
+                    [0] : {
+                        columnNumber : 29
+                        functionName : 
+                        lineNumber : 0
+                        scriptId : <scriptId>
+                        url : 
+                    }
+                ]
+            }
+            text : Uncaught (in promise) ReferenceError: does_not_exist is not defined
+        }
+        result : {
+            type : object
+            value : {
             }
         }
     }

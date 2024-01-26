@@ -79,7 +79,7 @@ void ModuleExtensionPoint::handleModule(Bundle::ConstPtr pBundle, Poco::XML::Ele
 	const std::string& module    = pExtensionElem->getAttribute(ATTR_MODULE);
 	const std::string& className = pExtensionElem->getAttribute(ATTR_CLASS);
 	std::string library = pExtensionElem->getAttribute(ATTR_LIBRARY);
-	
+
 	if (library.empty())
 		library = pBundle->symbolicName();
 
@@ -89,13 +89,13 @@ void ModuleExtensionPoint::handleModule(Bundle::ConstPtr pBundle, Poco::XML::Ele
 		_loader.loadLibrary(libraryPath, MANIFEST_NAME);
 		_libBundleMap[libraryPath] = pBundle;
 	}
-	
+
 	FactoryPtr pFactory = _loader.create(className);
 	Poco::OSP::BundleContext::Ptr pContext = _pContext->contextForBundle(pBundle);
 	pFactory->init(pContext);
-	
+
 	_pModuleRegistry->registerModule(module, pFactory->createModule());
-	
+
 	_modBundleMap[module] = pBundle;
 }
 
@@ -103,9 +103,9 @@ void ModuleExtensionPoint::handleModule(Bundle::ConstPtr pBundle, Poco::XML::Ele
 void ModuleExtensionPoint::onBundleStopped(const void* pSender, Poco::OSP::BundleEvent& ev)
 {
 	Poco::FastMutex::ScopedLock lock(_mutex);
-	
+
 	Bundle::ConstPtr pBundle = ev.bundle();
-	
+
 	ModBundleMap::iterator itMod = _modBundleMap.begin();
 	while (itMod != _modBundleMap.end())
 	{
@@ -118,7 +118,7 @@ void ModuleExtensionPoint::onBundleStopped(const void* pSender, Poco::OSP::Bundl
 		}
 		else ++itMod;
 	}
-	
+
 	// Note: since the module provided by the bundle may still be in use
 	// by some scripts we don't know about, we do not unload the library here
 	// to avoid a crash.

@@ -2,11 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef V8_AST_AST_FUNCTION_LITERAL_ID_REINDEXER
-#define V8_AST_AST_FUNCTION_LITERAL_ID_REINDEXER
+#ifndef V8_AST_AST_FUNCTION_LITERAL_ID_REINDEXER_H_
+#define V8_AST_AST_FUNCTION_LITERAL_ID_REINDEXER_H_
 
 #include "src/ast/ast-traversal-visitor.h"
 #include "src/base/macros.h"
+
+#ifdef DEBUG
+#include <set>
+#endif
 
 namespace v8 {
 namespace internal {
@@ -23,9 +27,21 @@ class AstFunctionLiteralIdReindexer final
 
   // AstTraversalVisitor implementation.
   void VisitFunctionLiteral(FunctionLiteral* lit);
+  void VisitClassLiteral(ClassLiteral* lit);
 
  private:
   int delta_;
+
+#ifdef DEBUG
+  // Visited set, only used in DCHECKs for verification.
+  std::set<FunctionLiteral*> visited_;
+
+  // Visit all function literals, checking if they have already been visited
+  // (are in the visited set).
+  void CheckVisited(Expression* expr);
+#else
+  void CheckVisited(Expression* expr) {}
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(AstFunctionLiteralIdReindexer);
 };
@@ -33,4 +49,4 @@ class AstFunctionLiteralIdReindexer final
 }  // namespace internal
 }  // namespace v8
 
-#endif  // V8_AST_AST_FUNCTION_LITERAL_ID_REINDEXER
+#endif  // V8_AST_AST_FUNCTION_LITERAL_ID_REINDEXER_H_

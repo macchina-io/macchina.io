@@ -232,16 +232,21 @@ BytecodeRegisterOptimizer::BytecodeRegisterOptimizer(
   // Calculate offset so register index values can be mapped into
   // a vector of register metadata.
   // There is at least one parameter, which is the JS receiver.
-  DCHECK(parameter_count != 0);
+  DCHECK_NE(parameter_count, 0);
+#ifdef V8_REVERSE_JSARGS
+  int first_slot_index = parameter_count - 1;
+#else
+  int first_slot_index = 0;
+#endif
   register_info_table_offset_ =
-      -Register::FromParameterIndex(0, parameter_count).index();
+      -Register::FromParameterIndex(first_slot_index, parameter_count).index();
 
   // Initialize register map for parameters, locals, and the
   // accumulator.
   register_info_table_.resize(register_info_table_offset_ +
                               static_cast<size_t>(temporary_base_.index()));
   for (size_t i = 0; i < register_info_table_.size(); ++i) {
-    register_info_table_[i] = new (zone) RegisterInfo(
+    register_info_table_[i] = zone->New<RegisterInfo>(
         RegisterFromRegisterInfoTableIndex(i), NextEquivalenceId(), true, true);
     DCHECK_EQ(register_info_table_[i]->register_value().index(),
               RegisterFromRegisterInfoTableIndex(i).index());
@@ -298,7 +303,7 @@ void BytecodeRegisterOptimizer::Flush() {
       }
     } else {
       // Equivalernce class containing only unallocated registers.
-      DCHECK(reg_info->GetAllocatedEquivalent() == nullptr);
+      DCHECK_NULL(reg_info->GetAllocatedEquivalent());
       reg_info->MoveToNewEquivalenceSet(NextEquivalenceId(), false);
     }
   }
@@ -448,7 +453,7 @@ RegisterList BytecodeRegisterOptimizer::GetInputRegisterList(
   if (reg_list.register_count() == 1) {
     // If there is only a single register, treat it as a normal input register.
     Register reg(GetInputRegister(reg_list.first_register()));
-    return RegisterList(reg.index(), 1);
+    return RegisterList(reg);
   } else {
     int start_index = reg_list.first_register().index();
     for (int i = 0; i < reg_list.register_count(); ++i) {
@@ -469,7 +474,7 @@ void BytecodeRegisterOptimizer::GrowRegisterMap(Register reg) {
     register_info_table_.resize(new_size);
     for (size_t i = old_size; i < new_size; ++i) {
       register_info_table_[i] =
-          new (zone()) RegisterInfo(RegisterFromRegisterInfoTableIndex(i),
+          zone()->New<RegisterInfo>(RegisterFromRegisterInfoTableIndex(i),
                                     NextEquivalenceId(), true, false);
     }
   }

@@ -18,7 +18,6 @@
 #define JS_Core_JSExecutor_INCLUDED
 
 
-#include "Poco/Poco.h"
 #include "Poco/Thread.h"
 #include "Poco/ThreadLocal.h"
 #include "Poco/AutoPtr.h"
@@ -28,6 +27,7 @@
 #include "Poco/Util/TimerTask.h"
 #include "Poco/JS/Core/JSTimer.h"
 #include "Poco/JS/Core/PooledIsolate.h"
+#include "Poco/JS/Core/Wrapper.h"
 #include "Poco/JS/Core/ModuleRegistry.h"
 #include "Poco/JS/Core/Module.h"
 #include "v8.h"
@@ -60,12 +60,27 @@ public:
 		int lineNo;
 	};
 
+	struct MemoryWarning
+	{
+		std::size_t initialHeapLimit = 0;
+		std::size_t currentHeapLimit = 0;
+	};
+
 	Poco::BasicEvent<void> stopped;
 		/// Fired when the executor has been stopped.
 
 	Poco::BasicEvent<const ErrorInfo> scriptError;
 		/// Fired when the script terminates with an error.
 		/// Reports the error message as argument.
+
+	Poco::BasicEvent<const MemoryWarning> memoryWarning;
+		/// Fired when the script is using too much
+		/// memory, exceeding the set heap limit.
+
+	Poco::BasicEvent<void> outOfMemory;
+		/// Fired when the script has run out of memory
+		/// because the heap limit has been exceeded,
+		/// and has therefore been terminated.
 
 	JSExecutor(const std::string& source, const Poco::URI& sourceURI, Poco::UInt64 memoryLimit = DEFAULT_MEMORY_LIMIT);
 		/// Creates the JSExecutor with the given JavaScript source, sourceURI and memoryLimit.
@@ -84,12 +99,12 @@ public:
 		///
 		/// Sets up a script context scope for the call.
 
-	void callInContext(v8::Handle<v8::Function>& function, v8::Handle<v8::Value>& receiver, int argc, v8::Handle<v8::Value> argv[]);
+	void callInContext(v8::Isolate* pIsolate, v8::Local<v8::Context>& context, v8::Handle<v8::Function>& function, v8::Handle<v8::Value>& receiver, int argc, v8::Handle<v8::Value> argv[]);
 		/// Calls a specific function defined in the script, using the given arguments.
 		///
 		/// A script context scope for the call must have been set up by the caller.
 
-	void callInContext(v8::Persistent<v8::Object>& jsObject, const std::string& method, int argc, v8::Handle<v8::Value> argv[]);
+	void callInContext(v8::Isolate* pIsolate, v8::Local<v8::Context>& context, v8::Persistent<v8::Object>& jsObject, const std::string& method, int argc, v8::Handle<v8::Value> argv[]);
 		/// Calls a specific method defined in the given object with the given arguments.
 		///
 		/// A script context scope for the call must have been set up by the caller.
@@ -151,6 +166,13 @@ public:
 		/// Returns true if the script is currently terminating due
 		/// to a call to terminate().
 
+	bool sleep(long milliseconds);
+		/// Sleeps execution for the given number of milliseconds.
+		///
+		/// Sleep can be interrupted by calling terminate().
+		///
+		/// Returns true if sleep() was interrupted, otherwise false.
+
 	void addModuleSearchPath(const std::string& path);
 		/// Adds a search path to the internal list of search paths.
 		///
@@ -188,6 +210,12 @@ protected:
 	virtual void handleError(const ErrorInfo& errorInfo);
 		/// Called when the JavaScript terminates with an error.
 
+	virtual void handleOutOfMemory(std::size_t currentHeapLimit, std::size_t initialHeapLimit);
+		/// Called when the script has exhausted its memory limit and is terminated.
+
+	virtual void handleMemoryWarning(std::size_t currentHeapLimit, std::size_t initialHeapLimit);
+		/// Called when the script is near its set memory limit.
+
 	virtual void scriptCompleted();
 		/// Called after the script has completed, while still within the scope.
 
@@ -197,7 +225,7 @@ protected:
 	static void require(const v8::FunctionCallbackInfo<v8::Value>& args);
 		/// Implements the JavaScript require function to import a module.
 
-	void includeScript(const std::string& uri);
+	void includeScript(v8::Isolate* pIsolate, const std::string& uri);
 		/// Includes another script.
 
 	void importModule(const v8::FunctionCallbackInfo<v8::Value>& args, const std::string& uri);
@@ -222,9 +250,33 @@ protected:
 	void runImpl();
 	void setup();
 	void cleanup();
-	void compile();
-	void reportError(v8::TryCatch& tryCatch);
-	void reportError(const ErrorInfo& errorInfo);
+	void compile(v8::Local<v8::Context>& context);
+	void reportError(v8::Isolate* pIsolate, v8::TryCatch& tryCatch);
+	void reportError(v8::Isolate* pIsolate, const ErrorInfo& errorInfo);
+
+	template <typename W>
+	static void setWrapperProperty(v8::Local<v8::Object>& object, v8::Isolate* pIsolate, const std::string& name)
+	{
+		W wrapper;
+		v8::MaybeLocal<v8::Object> maybeWrapperObject = wrapper.wrapNative(pIsolate);
+		v8::Local<v8::Object> wrapperObject;
+		if (maybeWrapperObject.ToLocal(&wrapperObject))
+		{
+			(void) object->Set(pIsolate->GetCurrentContext(), Wrapper::toV8Internalized(pIsolate, name), wrapperObject);
+		}
+	}
+
+	template <typename W, typename N>
+	static void setWrapperProperty(v8::Local<v8::Object>& object, v8::Isolate* pIsolate, const std::string& name, N* pNative)
+	{
+		W wrapper;
+		v8::MaybeLocal<v8::Object> maybeWrapperObject = wrapper.wrapNative(pIsolate, pNative);
+		v8::Local<v8::Object> wrapperObject;
+		if (maybeWrapperObject.ToLocal(&wrapperObject))
+		{
+			(void) object->Set(pIsolate->GetCurrentContext(), Wrapper::toV8Internalized(pIsolate, name), wrapperObject);
+		}
+	}
 
 private:
 	void init();
@@ -246,10 +298,12 @@ protected:
 	std::vector<Poco::URI> _importStack;
 	std::set<std::string> _imports;
 	Poco::AtomicCounter _running;
+	Poco::Event _terminated;
 	static Poco::ThreadLocal<JSExecutor*> _pCurrentExecutor;
 
 	friend class RunScriptTask;
 	friend class CallFunctionTask;
+	friend class PooledIsolate;
 };
 
 

@@ -13,7 +13,7 @@ objects = DataModule
 
 target         = com.appinf.osp.js.data
 target_libs    = PocoJSData PocoJSCore PocoOSPJS PocoOSP PocoUtil PocoXML PocoData PocoFoundation
-target_extlibs = v8 v8_libplatform v8_libbase
+target_extlibs = v8
 
 postbuild = $(SET_LD_LIBRARY_PATH) $(BUNDLE_TOOL) -n$(OSNAME) -a$(OSARCH) -o../../bundles Data.bndlspec
 

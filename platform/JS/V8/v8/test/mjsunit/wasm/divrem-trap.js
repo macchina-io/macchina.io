@@ -4,7 +4,6 @@
 
 // Flags: --expose-wasm --expose-gc --allow-natives-syntax
 
-load("test/mjsunit/wasm/wasm-constants.js");
 load("test/mjsunit/wasm/wasm-module-builder.js");
 
 var assertTraps = function(messageId, code) {
@@ -17,8 +16,8 @@ function makeBinop(opcode) {
 
   builder.addFunction("main", kSig_i_ii)
     .addBody([
-      kExprGetLocal, 0,           // --
-      kExprGetLocal, 1,           // --
+      kExprLocalGet, 0,           // --
+      kExprLocalGet, 1,           // --
       opcode,                     // --
     ])
     .exportFunc();

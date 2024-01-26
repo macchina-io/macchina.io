@@ -35,8 +35,30 @@
 #include <map>
 #include <string>
 
-using namespace std;
-using namespace v8;
+using std::map;
+using std::pair;
+using std::string;
+
+using v8::Context;
+using v8::EscapableHandleScope;
+using v8::External;
+using v8::Function;
+using v8::FunctionTemplate;
+using v8::Global;
+using v8::HandleScope;
+using v8::Isolate;
+using v8::Local;
+using v8::MaybeLocal;
+using v8::Name;
+using v8::NamedPropertyHandlerConfiguration;
+using v8::NewStringType;
+using v8::Object;
+using v8::ObjectTemplate;
+using v8::PropertyCallbackInfo;
+using v8::Script;
+using v8::String;
+using v8::TryCatch;
+using v8::Value;
 
 // These interfaces represent an existing request processing interface.
 // The idea is to imagine a real application that uses these interfaces
@@ -161,8 +183,7 @@ bool JsHttpRequestProcessor::Initialize(map<string, string>* opts,
   // Create a template for the global object where we set the
   // built-in global functions.
   Local<ObjectTemplate> global = ObjectTemplate::New(GetIsolate());
-  global->Set(String::NewFromUtf8(GetIsolate(), "log", NewStringType::kNormal)
-                  .ToLocalChecked(),
+  global->Set(GetIsolate(), "log",
               FunctionTemplate::New(GetIsolate(), LogCallback));
 
   // Each processor gets its own context so different processors don't
@@ -188,8 +209,7 @@ bool JsHttpRequestProcessor::Initialize(map<string, string>* opts,
   // The script compiled and ran correctly.  Now we fetch out the
   // Process function from the global object.
   Local<String> process_name =
-      String::NewFromUtf8(GetIsolate(), "Process", NewStringType::kNormal)
-          .ToLocalChecked();
+      String::NewFromUtf8Literal(GetIsolate(), "Process");
   Local<Value> process_val;
   // If there is no Process function, or if it is not a function,
   // bail out
@@ -254,17 +274,13 @@ bool JsHttpRequestProcessor::InstallMaps(map<string, string>* opts,
 
   // Set the options object as a property on the global object.
   context->Global()
-      ->Set(context,
-            String::NewFromUtf8(GetIsolate(), "options", NewStringType::kNormal)
-                .ToLocalChecked(),
+      ->Set(context, String::NewFromUtf8Literal(GetIsolate(), "options"),
             opts_obj)
       .FromJust();
 
   Local<Object> output_obj = WrapMap(output);
   context->Global()
-      ->Set(context,
-            String::NewFromUtf8(GetIsolate(), "output", NewStringType::kNormal)
-                .ToLocalChecked(),
+      ->Set(context, String::NewFromUtf8Literal(GetIsolate(), "output"),
             output_obj)
       .FromJust();
 
@@ -541,21 +557,17 @@ Local<ObjectTemplate> JsHttpRequestProcessor::MakeRequestTemplate(
 
   // Add accessors for each of the fields of the request.
   result->SetAccessor(
-      String::NewFromUtf8(isolate, "path", NewStringType::kInternalized)
-          .ToLocalChecked(),
+      String::NewFromUtf8Literal(isolate, "path", NewStringType::kInternalized),
       GetPath);
+  result->SetAccessor(String::NewFromUtf8Literal(isolate, "referrer",
+                                                 NewStringType::kInternalized),
+                      GetReferrer);
   result->SetAccessor(
-      String::NewFromUtf8(isolate, "referrer", NewStringType::kInternalized)
-          .ToLocalChecked(),
-      GetReferrer);
-  result->SetAccessor(
-      String::NewFromUtf8(isolate, "host", NewStringType::kInternalized)
-          .ToLocalChecked(),
+      String::NewFromUtf8Literal(isolate, "host", NewStringType::kInternalized),
       GetHost);
-  result->SetAccessor(
-      String::NewFromUtf8(isolate, "userAgent", NewStringType::kInternalized)
-          .ToLocalChecked(),
-      GetUserAgent);
+  result->SetAccessor(String::NewFromUtf8Literal(isolate, "userAgent",
+                                                 NewStringType::kInternalized),
+                      GetUserAgent);
 
   // Again, return the result through the current handle scope.
   return handle_scope.Escape(result);
@@ -628,10 +640,10 @@ MaybeLocal<String> ReadFile(Isolate* isolate, const string& name) {
   size_t size = ftell(file);
   rewind(file);
 
-  char* chars = new char[size + 1];
-  chars[size] = '\0';
+  std::unique_ptr<char> chars(new char[size + 1]);
+  chars.get()[size] = '\0';
   for (size_t i = 0; i < size;) {
-    i += fread(&chars[i], 1, size - i, file);
+    i += fread(&chars.get()[i], 1, size - i, file);
     if (ferror(file)) {
       fclose(file);
       return MaybeLocal<String>();
@@ -639,8 +651,7 @@ MaybeLocal<String> ReadFile(Isolate* isolate, const string& name) {
   }
   fclose(file);
   MaybeLocal<String> result = String::NewFromUtf8(
-      isolate, chars, NewStringType::kNormal, static_cast<int>(size));
-  delete[] chars;
+      isolate, chars.get(), NewStringType::kNormal, static_cast<int>(size));
   return result;
 }
 
@@ -655,18 +666,16 @@ StringHttpRequest kSampleRequests[kSampleSize] = {
   StringHttpRequest("/", "localhost", "yahoo.com", "firefox")
 };
 
-
-bool ProcessEntries(v8::Platform* platform, HttpRequestProcessor* processor,
-                    int count, StringHttpRequest* reqs) {
+bool ProcessEntries(v8::Isolate* isolate, v8::Platform* platform,
+                    HttpRequestProcessor* processor, int count,
+                    StringHttpRequest* reqs) {
   for (int i = 0; i < count; i++) {
     bool result = processor->Process(&reqs[i]);
-    while (v8::platform::PumpMessageLoop(platform, Isolate::GetCurrent()))
-      continue;
+    while (v8::platform::PumpMessageLoop(platform, isolate)) continue;
     if (!result) return false;
   }
   return true;
 }
-
 
 void PrintMap(map<string, string>* m) {
   for (map<string, string>::iterator i = m->begin(); i != m->end(); i++) {
@@ -679,8 +688,8 @@ void PrintMap(map<string, string>* m) {
 int main(int argc, char* argv[]) {
   v8::V8::InitializeICUDefaultLocation(argv[0]);
   v8::V8::InitializeExternalStartupData(argv[0]);
-  v8::Platform* platform = v8::platform::CreateDefaultPlatform();
-  v8::V8::InitializePlatform(platform);
+  std::unique_ptr<v8::Platform> platform = v8::platform::NewDefaultPlatform();
+  v8::V8::InitializePlatform(platform.get());
   v8::V8::Initialize();
   map<string, string> options;
   string file;
@@ -706,7 +715,9 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "Error initializing processor.\n");
     return 1;
   }
-  if (!ProcessEntries(platform, &processor, kSampleSize, kSampleRequests))
+  if (!ProcessEntries(isolate, platform.get(), &processor, kSampleSize,
+                      kSampleRequests)) {
     return 1;
+  }
   PrintMap(&output);
 }

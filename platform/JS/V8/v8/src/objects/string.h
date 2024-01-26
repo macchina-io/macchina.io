@@ -5,14 +5,22 @@
 #ifndef V8_OBJECTS_STRING_H_
 #define V8_OBJECTS_STRING_H_
 
+#include <memory>
+
 #include "src/base/bits.h"
+#include "src/base/export-template.h"
+#include "src/objects/instance-type.h"
 #include "src/objects/name.h"
+#include "src/objects/smi.h"
+#include "src/strings/unicode-decoder.h"
 
 // Has to be the last include (doesn't have include guards):
 #include "src/objects/object-macros.h"
 
 namespace v8 {
 namespace internal {
+
+enum InstanceType : uint16_t;
 
 enum AllowNullsFlag { ALLOW_NULLS, DISALLOW_NULLS };
 enum RobustnessFlag { ROBUST_STRING_TRAVERSAL, FAST_STRING_TRAVERSAL };
@@ -28,10 +36,10 @@ enum RobustnessFlag { ROBUST_STRING_TRAVERSAL, FAST_STRING_TRAVERSAL };
 // shortcutting.  Keeping these restrictions in mind has proven to be error-
 // prone and so we no longer put StringShapes in variables unless there is a
 // concrete performance benefit at that particular point in the code.
-class StringShape BASE_EMBEDDED {
+class StringShape {
  public:
-  inline explicit StringShape(const String* s);
-  inline explicit StringShape(Map* s);
+  inline explicit StringShape(const String s);
+  inline explicit StringShape(Map s);
   inline explicit StringShape(InstanceType t);
   inline bool IsSequential();
   inline bool IsExternal();
@@ -47,7 +55,6 @@ class StringShape BASE_EMBEDDED {
   inline StringRepresentationTag representation_tag();
   inline uint32_t encoding_tag();
   inline uint32_t full_representation_tag();
-  inline bool HasOnlyOneByteChars();
 #ifdef DEBUG
   inline uint32_t type() { return type_; }
   inline void invalidate() { valid_ = false; }
@@ -55,6 +62,13 @@ class StringShape BASE_EMBEDDED {
 #else
   inline void invalidate() {}
 #endif
+
+  // Run different behavior for each concrete string class type, as defined by
+  // the dispatcher.
+  template <typename TDispatcher, typename TResult, typename... TArgs>
+  inline TResult DispatchToSpecificTypeWithoutCast(TArgs&&... args);
+  template <typename TDispatcher, typename TResult, typename... TArgs>
+  inline TResult DispatchToSpecificType(String str, TArgs&&... args);
 
  private:
   uint32_t type_;
@@ -74,23 +88,9 @@ class StringShape BASE_EMBEDDED {
 //    ordered sequence of zero or more 16-bit unsigned integer values.
 //
 // All string values have a length field.
-class String : public Name {
+class String : public TorqueGeneratedString<String, Name> {
  public:
   enum Encoding { ONE_BYTE_ENCODING, TWO_BYTE_ENCODING };
-
-  class SubStringRange {
-   public:
-    explicit inline SubStringRange(String* string, int first = 0,
-                                   int length = -1);
-    class iterator;
-    inline iterator begin();
-    inline iterator end();
-
-   private:
-    String* string_;
-    int first_;
-    int length_;
-  };
 
   // Representation of the flat content of a String.
   // A non-flat string doesn't have flat content.
@@ -138,7 +138,7 @@ class String : public Name {
         : onebyte_start(start), length_(length), state_(ONE_BYTE) {}
     explicit FlatContent(const uc16* start, int length)
         : twobyte_start(start), length_(length), state_(TWO_BYTE) {}
-    FlatContent() : onebyte_start(NULL), length_(0), state_(NON_FLAT) {}
+    FlatContent() : onebyte_start(nullptr), length_(0), state_(NON_FLAT) {}
 
     union {
       const uint8_t* onebyte_start;
@@ -151,43 +151,46 @@ class String : public Name {
     friend class IterableSubString;
   };
 
-  template <typename Char>
-  INLINE(Vector<const Char> GetCharVector());
+  void MakeThin(Isolate* isolate, String canonical);
 
-  // Get and set the length of the string.
-  inline int length() const;
-  inline void set_length(int value);
+  template <typename Char>
+  V8_INLINE Vector<const Char> GetCharVector(
+      const DisallowHeapAllocation& no_gc);
+
+  // Get chars from sequential or external strings.
+  template <typename Char>
+  inline const Char* GetChars(const DisallowHeapAllocation& no_gc);
+
+  // Returns the address of the character at an offset into this string.
+  // Requires: this->IsFlat()
+  const byte* AddressOfCharacterAt(int start_index,
+                                   const DisallowHeapAllocation& no_gc);
 
   // Get and set the length of the string using acquire loads and release
   // stores.
-  inline int synchronized_length() const;
-  inline void synchronized_set_length(int value);
+  DECL_SYNCHRONIZED_INT_ACCESSORS(length)
 
   // Returns whether this string has only one-byte chars, i.e. all of them can
   // be one-byte encoded.  This might be the case even if the string is
   // two-byte.  Such strings may appear when the embedder prefers
   // two-byte external representations even for one-byte data.
-  inline bool IsOneByteRepresentation() const;
-  inline bool IsTwoByteRepresentation() const;
+  DECL_GETTER(IsOneByteRepresentation, bool)
+  DECL_GETTER(IsTwoByteRepresentation, bool)
 
   // Cons and slices have an encoding flag that may not represent the actual
   // encoding of the underlying string.  This is taken into account here.
-  // Requires: this->IsFlat()
-  inline bool IsOneByteRepresentationUnderneath();
-  inline bool IsTwoByteRepresentationUnderneath();
-
-  // NOTE: this should be considered only a hint.  False negatives are
-  // possible.
-  inline bool HasOnlyOneByteChars();
+  // This function is static because that helps it get inlined.
+  // Requires: string.IsFlat()
+  static inline bool IsOneByteRepresentationUnderneath(String string);
 
   // Get and set individual two byte chars in the string.
   inline void Set(int index, uint16_t value);
   // Get individual two byte char in the string.  Repeated calls
   // to this method are not efficient unless the string is flat.
-  INLINE(uint16_t Get(int index));
+  V8_INLINE uint16_t Get(int index);
 
   // ES6 section 7.1.3.1 ToNumber Applied to the String Type
-  static Handle<Object> ToNumber(Handle<String> subject);
+  static Handle<Object> ToNumber(Isolate* isolate, Handle<String> subject);
 
   // Flattens the string.  Checks first inline to see if it is
   // necessary.  Does nothing if the string is not a cons string.
@@ -202,19 +205,24 @@ class String : public Name {
   // Degenerate cons strings are handled specially by the garbage
   // collector (see IsShortcutCandidate).
 
-  static inline Handle<String> Flatten(Handle<String> string,
-                                       PretenureFlag pretenure = NOT_TENURED);
+  static inline Handle<String> Flatten(
+      Isolate* isolate, Handle<String> string,
+      AllocationType allocation = AllocationType::kYoung);
+  static inline Handle<String> Flatten(
+      LocalIsolate* isolate, Handle<String> string,
+      AllocationType allocation = AllocationType::kYoung);
 
   // Tries to return the content of a flat string as a structure holding either
   // a flat vector of char or of uc16.
   // If the string isn't flat, and therefore doesn't have flat content, the
   // returned structure will report so, and can't provide a vector of either
   // kind.
-  FlatContent GetFlatContent();
+  V8_EXPORT_PRIVATE FlatContent
+  GetFlatContent(const DisallowHeapAllocation& no_gc);
 
   // Returns the parent of a sliced string or first part of a flat cons string.
   // Requires: StringShape(this).IsIndirect() && this->IsFlat()
-  inline String* GetUnderlying();
+  inline String GetUnderlying();
 
   // String relational comparison, implemented according to ES6 section 7.2.11
   // Abstract Relational Comparison (step 5): The comparison of Strings uses a
@@ -227,20 +235,21 @@ class String : public Name {
   // for strings containing supplementary characters, lexicographic ordering on
   // sequences of UTF-16 code unit values differs from that on sequences of code
   // point values.
-  MUST_USE_RESULT static ComparisonResult Compare(Handle<String> x,
-                                                  Handle<String> y);
+  V8_WARN_UNUSED_RESULT static ComparisonResult Compare(Isolate* isolate,
+                                                        Handle<String> x,
+                                                        Handle<String> y);
 
   // Perform ES6 21.1.3.8, including checking arguments.
-  static Object* IndexOf(Isolate* isolate, Handle<Object> receiver,
-                         Handle<Object> search, Handle<Object> position);
+  static Object IndexOf(Isolate* isolate, Handle<Object> receiver,
+                        Handle<Object> search, Handle<Object> position);
   // Perform string match of pattern on subject, starting at start index.
   // Caller must ensure that 0 <= start_index <= sub->length(), as this does not
   // check any arguments.
   static int IndexOf(Isolate* isolate, Handle<String> receiver,
                      Handle<String> search, int start_index);
 
-  static Object* LastIndexOf(Isolate* isolate, Handle<Object> receiver,
-                             Handle<Object> search, Handle<Object> position);
+  static Object LastIndexOf(Isolate* isolate, Handle<Object> receiver,
+                            Handle<Object> search, Handle<Object> position);
 
   // Encapsulates logic related to a match and its capture groups as required
   // by GetSubstitution.
@@ -250,9 +259,9 @@ class String : public Name {
     virtual Handle<String> GetPrefix() = 0;
     virtual Handle<String> GetSuffix() = 0;
 
-    // A named capture can be invalid (if it is not specified in the pattern),
-    // unmatched (specified but not matched in the current string), and matched.
-    enum CaptureState { INVALID, UNMATCHED, MATCHED };
+    // A named capture can be unmatched (either not specified in the pattern,
+    // or specified but unmatched in the current string), or matched.
+    enum CaptureState { UNMATCHED, MATCHED };
 
     virtual int CaptureCount() = 0;
     virtual bool HasNamedCaptures() = 0;
@@ -260,7 +269,7 @@ class String : public Name {
     virtual MaybeHandle<String> GetNamedCapture(Handle<String> name,
                                                 CaptureState* state) = 0;
 
-    virtual ~Match() {}
+    virtual ~Match() = default;
   };
 
   // ES#sec-getsubstitution
@@ -269,20 +278,24 @@ class String : public Name {
   // the result.
   // A {start_index} can be passed to specify where to start scanning the
   // replacement string.
-  MUST_USE_RESULT static MaybeHandle<String> GetSubstitution(
+  V8_WARN_UNUSED_RESULT static MaybeHandle<String> GetSubstitution(
       Isolate* isolate, Match* match, Handle<String> replacement,
       int start_index = 0);
 
   // String equality operations.
-  inline bool Equals(String* other);
-  inline static bool Equals(Handle<String> one, Handle<String> two);
-  bool IsUtf8EqualTo(Vector<const char> str, bool allow_prefix_match = false);
+  inline bool Equals(String other);
+  inline static bool Equals(Isolate* isolate, Handle<String> one,
+                            Handle<String> two);
 
   // Dispatches to Is{One,Two}ByteEqualTo.
   template <typename Char>
   bool IsEqualTo(Vector<const Char> str);
 
-  bool IsOneByteEqualTo(Vector<const uint8_t> str);
+  V8_EXPORT_PRIVATE bool HasOneBytePrefix(Vector<const char> str);
+  V8_EXPORT_PRIVATE bool IsOneByteEqualTo(Vector<const uint8_t> str);
+  V8_EXPORT_PRIVATE bool IsOneByteEqualTo(Vector<const char> str) {
+    return IsOneByteEqualTo(Vector<const uint8_t>::cast(str));
+  }
   bool IsTwoByteEqualTo(Vector<const uc16> str);
 
   // Return a UTF8 representation of the string.  The string is null
@@ -295,36 +308,64 @@ class String : public Name {
   // do any heap allocations.  This is useful when printing stack traces.
   std::unique_ptr<char[]> ToCString(AllowNullsFlag allow_nulls,
                                     RobustnessFlag robustness_flag, int offset,
-                                    int length, int* length_output = 0);
-  std::unique_ptr<char[]> ToCString(
+                                    int length, int* length_output = nullptr);
+  V8_EXPORT_PRIVATE std::unique_ptr<char[]> ToCString(
       AllowNullsFlag allow_nulls = DISALLOW_NULLS,
       RobustnessFlag robustness_flag = FAST_STRING_TRAVERSAL,
-      int* length_output = 0);
-
-  bool ComputeArrayIndex(uint32_t* index);
+      int* length_output = nullptr);
 
   // Externalization.
-  bool MakeExternal(v8::String::ExternalStringResource* resource);
-  bool MakeExternal(v8::String::ExternalOneByteStringResource* resource);
+  V8_EXPORT_PRIVATE bool MakeExternal(
+      v8::String::ExternalStringResource* resource);
+  V8_EXPORT_PRIVATE bool MakeExternal(
+      v8::String::ExternalOneByteStringResource* resource);
+  bool SupportsExternalization();
 
   // Conversion.
+  // "array index": an index allowed by the ES spec for JSArrays.
   inline bool AsArrayIndex(uint32_t* index);
-  uint32_t inline ToValidIndex(Object* number);
+
+  // This is used for calculating array indices but differs from an
+  // Array Index in the regard that this does not support the full
+  // array index range. This only supports positive numbers less than
+  // or equal to INT_MAX.
+  //
+  // String::AsArrayIndex might be a better fit if you're looking to
+  // calculate the array index.
+  //
+  // if val < 0 or val > INT_MAX, returns -1
+  // if 0 <= val <= INT_MAX, returns val
+  static int32_t ToArrayIndex(Address addr);
+
+  uint32_t inline ToValidIndex(Object number);
+  // "integer index": the string is the decimal representation of an
+  // integer in the range of a size_t. Useful for TypedArray accesses.
+  inline bool AsIntegerIndex(size_t* index);
 
   // Trimming.
-  enum TrimMode { kTrim, kTrimLeft, kTrimRight };
-  static Handle<String> Trim(Handle<String> string, TrimMode mode);
+  enum TrimMode { kTrim, kTrimStart, kTrimEnd };
+  static Handle<String> Trim(Isolate* isolate, Handle<String> string,
+                             TrimMode mode);
 
-  DECL_CAST(String)
-
-  void PrintOn(FILE* out);
+  V8_EXPORT_PRIVATE void PrintOn(FILE* out);
 
   // For use during stack traces.  Performs rudimentary sanity check.
   bool LooksValid();
 
-  // Dispatched behavior.
-  void StringShortPrint(StringStream* accumulator, bool show_details = true);
+  // Printing utility functions.
+  // - PrintUC16 prints the raw string contents to the given stream.
+  //   Non-printable characters are formatted as hex, but otherwise the string
+  //   is printed as-is.
+  // - StringShortPrint and StringPrint have extra formatting: they add a
+  //   prefix and suffix depending on the string kind, may add other information
+  //   such as the string heap object address, may truncate long strings, etc.
+  const char* PrefixForDebugPrint() const;
+  const char* SuffixForDebugPrint() const;
+  void StringShortPrint(StringStream* accumulator);
   void PrintUC16(std::ostream& os, int start = 0, int end = -1);  // NOLINT
+  void PrintUC16(StringStream* accumulator, int start, int end);
+
+  // Dispatched behavior.
 #if defined(DEBUG) || defined(OBJECT_PRINT)
   char* ToAsciiArray();
 #endif
@@ -332,10 +373,6 @@ class String : public Name {
   DECL_VERIFIER(String)
 
   inline bool IsFlat();
-
-  // Layout description.
-  static const int kLengthOffset = Name::kSize;
-  static const int kSize = kLengthOffset + kPointerSize;
 
   // Max char codes.
   static const int32_t kMaxOneByteCharCode = unibrow::Latin1::kMaxChar;
@@ -345,14 +382,28 @@ class String : public Name {
   static const uc32 kMaxCodePoint = 0x10ffff;
 
   // Maximal string length.
-  // The max length is different on 32 and 64 bit platforms. Max length for a
-  // 32-bit platform is ~268.4M chars. On 64-bit platforms, max length is
-  // ~1.073B chars. The limit on 64-bit is so that SeqTwoByteString::kMaxSize
-  // can fit in a 32bit int: 2^31 - 1 is the max positive int, minus one bit as
-  // each char needs two bytes, subtract 24 bytes for the string header size.
-
+  // The max length is different on 32 and 64 bit platforms. Max length for
+  // 32-bit platforms is ~268.4M chars. On 64-bit platforms, max length is
+  // ~536.8M chars.
   // See include/v8.h for the definition.
   static const int kMaxLength = v8::String::kMaxLength;
+  // There are several defining limits imposed by our current implementation:
+  // - any string's length must fit into a Smi.
+  static_assert(kMaxLength <= kSmiMaxValue,
+                "String length must fit into a Smi");
+  // - adding two string lengths must still fit into a 32-bit int without
+  //   overflow
+  static_assert(kMaxLength * 2 <= kMaxInt,
+                "String::kMaxLength * 2 must fit into an int32");
+  // - any heap object's size in bytes must be able to fit into a Smi, because
+  //   its space on the heap might be filled with a Filler; for strings this
+  //   means SeqTwoByteString::kMaxSize must be able to fit into a Smi.
+  static_assert(kMaxLength * 2 + kHeaderSize <= kSmiMaxValue,
+                "String object size in bytes must fit into a Smi");
+  // - any heap object's size in bytes must be able to fit into an int, because
+  //   that's what our object handling code uses almost everywhere.
+  static_assert(kMaxLength * 2 + kHeaderSize <= kMaxInt,
+                "String object size in bytes must fit into an int");
 
   // Max length for computing hash. For strings longer than this limit the
   // string length is used as the hash value.
@@ -361,42 +412,51 @@ class String : public Name {
   // Limit for truncation in short printing.
   static const int kMaxShortPrintLength = 1024;
 
-  // Support for regular expressions.
-  const uc16* GetTwoByteData(unsigned start);
-
   // Helper function for flattening strings.
   template <typename sinkchar>
-  static void WriteToFlat(String* source, sinkchar* sink, int from, int to);
+  EXPORT_TEMPLATE_DECLARE(V8_EXPORT_PRIVATE)
+  static void WriteToFlat(String source, sinkchar* sink, int from, int to);
 
-  // The return value may point to the first aligned word containing the first
-  // non-one-byte character, rather than directly to the non-one-byte character.
-  // If the return value is >= the passed length, the entire string was
-  // one-byte.
-  static inline int NonAsciiStart(const char* chars, int length) {
-    const char* start = chars;
-    const char* limit = chars + length;
+  static inline bool IsAscii(const char* chars, int length) {
+    return IsAscii(reinterpret_cast<const uint8_t*>(chars), length);
+  }
 
-    if (length >= kIntptrSize) {
-      // Check unaligned bytes.
-      while (!IsAligned(reinterpret_cast<intptr_t>(chars), sizeof(uintptr_t))) {
-        if (static_cast<uint8_t>(*chars) > unibrow::Utf8::kMaxOneByteChar) {
+  static inline bool IsAscii(const uint8_t* chars, int length) {
+    return NonAsciiStart(chars, length) >= length;
+  }
+
+  static inline int NonOneByteStart(const uc16* chars, int length) {
+    DCHECK(IsAligned(reinterpret_cast<Address>(chars), sizeof(uc16)));
+    const uint16_t* start = chars;
+    const uint16_t* limit = chars + length;
+
+    if (static_cast<size_t>(length) >= kUIntptrSize) {
+      // Check unaligned chars.
+      while (!IsAligned(reinterpret_cast<Address>(chars), kUIntptrSize)) {
+        if (*chars > unibrow::Latin1::kMaxChar) {
           return static_cast<int>(chars - start);
         }
         ++chars;
       }
+
       // Check aligned words.
-      DCHECK(unibrow::Utf8::kMaxOneByteChar == 0x7F);
-      const uintptr_t non_one_byte_mask = kUintptrAllBitsSet / 0xFF * 0x80;
+      STATIC_ASSERT(unibrow::Latin1::kMaxChar == 0xFF);
+#ifdef V8_TARGET_LITTLE_ENDIAN
+      const uintptr_t non_one_byte_mask = kUintptrAllBitsSet / 0xFFFF * 0xFF00;
+#else
+      const uintptr_t non_one_byte_mask = kUintptrAllBitsSet / 0xFFFF * 0x00FF;
+#endif
       while (chars + sizeof(uintptr_t) <= limit) {
         if (*reinterpret_cast<const uintptr_t*>(chars) & non_one_byte_mask) {
-          return static_cast<int>(chars - start);
+          break;
         }
-        chars += sizeof(uintptr_t);
+        chars += (sizeof(uintptr_t) / sizeof(uc16));
       }
     }
-    // Check remaining unaligned bytes.
+
+    // Check remaining unaligned chars, or find non-one-byte char in word.
     while (chars < limit) {
-      if (static_cast<uint8_t>(*chars) > unibrow::Utf8::kMaxOneByteChar) {
+      if (*chars > unibrow::Latin1::kMaxChar) {
         return static_cast<int>(chars - start);
       }
       ++chars;
@@ -405,171 +465,159 @@ class String : public Name {
     return static_cast<int>(chars - start);
   }
 
-  static inline bool IsAscii(const char* chars, int length) {
-    return NonAsciiStart(chars, length) >= length;
-  }
-
-  static inline bool IsAscii(const uint8_t* chars, int length) {
-    return NonAsciiStart(reinterpret_cast<const char*>(chars), length) >=
-           length;
-  }
-
-  static inline int NonOneByteStart(const uc16* chars, int length) {
-    const uc16* limit = chars + length;
-    const uc16* start = chars;
-    while (chars < limit) {
-      if (*chars > kMaxOneByteCharCodeU) return static_cast<int>(chars - start);
-      ++chars;
-    }
-    return static_cast<int>(chars - start);
-  }
-
   static inline bool IsOneByte(const uc16* chars, int length) {
     return NonOneByteStart(chars, length) >= length;
   }
 
   template <class Visitor>
-  static inline ConsString* VisitFlat(Visitor* visitor, String* string,
-                                      int offset = 0);
+  static inline ConsString VisitFlat(Visitor* visitor, String string,
+                                     int offset = 0);
 
-  static Handle<FixedArray> CalculateLineEnds(Handle<String> string,
+  template <typename LocalIsolate>
+  static Handle<FixedArray> CalculateLineEnds(LocalIsolate* isolate,
+                                              Handle<String> string,
                                               bool include_ending_line);
-
-  // Use the hash field to forward to the canonical internalized string
-  // when deserializing an internalized string.
-  inline void SetForwardedInternalizedString(String* string);
-  inline String* GetForwardedInternalizedString();
 
  private:
   friend class Name;
   friend class StringTableInsertionKey;
   friend class InternalizedStringKey;
 
-  static Handle<String> SlowFlatten(Handle<ConsString> cons,
-                                    PretenureFlag tenure);
+  V8_EXPORT_PRIVATE static Handle<String> SlowFlatten(
+      Isolate* isolate, Handle<ConsString> cons, AllocationType allocation);
 
   // Slow case of String::Equals.  This implementation works on any strings
   // but it is most efficient on strings that are almost flat.
-  bool SlowEquals(String* other);
+  V8_EXPORT_PRIVATE bool SlowEquals(String other);
 
-  static bool SlowEquals(Handle<String> one, Handle<String> two);
+  V8_EXPORT_PRIVATE static bool SlowEquals(Isolate* isolate, Handle<String> one,
+                                           Handle<String> two);
 
   // Slow case of AsArrayIndex.
   V8_EXPORT_PRIVATE bool SlowAsArrayIndex(uint32_t* index);
+  V8_EXPORT_PRIVATE bool SlowAsIntegerIndex(size_t* index);
 
   // Compute and set the hash code.
-  uint32_t ComputeAndSetHash();
+  V8_EXPORT_PRIVATE uint32_t ComputeAndSetHash();
 
-  DISALLOW_IMPLICIT_CONSTRUCTORS(String);
+  TQ_OBJECT_CONSTRUCTORS(String)
+};
+
+// clang-format off
+extern template EXPORT_TEMPLATE_DECLARE(V8_EXPORT_PRIVATE)
+void String::WriteToFlat(String source, uint16_t* sink, int from, int to);
+// clang-format on
+
+class SubStringRange {
+ public:
+  inline SubStringRange(String string, const DisallowHeapAllocation& no_gc,
+                        int first = 0, int length = -1);
+  class iterator;
+  inline iterator begin();
+  inline iterator end();
+
+ private:
+  String string_;
+  int first_;
+  int length_;
+  const DisallowHeapAllocation& no_gc_;
 };
 
 // The SeqString abstract class captures sequential string values.
-class SeqString : public String {
+class SeqString : public TorqueGeneratedSeqString<SeqString, String> {
  public:
-  DECL_CAST(SeqString)
-
-  // Layout description.
-  static const int kHeaderSize = String::kSize;
-
   // Truncate the string in-place if possible and return the result.
   // In case of new_length == 0, the empty string is returned without
   // truncating the original string.
-  MUST_USE_RESULT static Handle<String> Truncate(Handle<SeqString> string,
-                                                 int new_length);
+  V8_WARN_UNUSED_RESULT static Handle<String> Truncate(Handle<SeqString> string,
+                                                       int new_length);
 
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(SeqString);
+  TQ_OBJECT_CONSTRUCTORS(SeqString)
+};
+
+class InternalizedString
+    : public TorqueGeneratedInternalizedString<InternalizedString, String> {
+ public:
+  // TODO(neis): Possibly move some stuff from String here.
+
+  TQ_OBJECT_CONSTRUCTORS(InternalizedString)
 };
 
 // The OneByteString class captures sequential one-byte string objects.
 // Each character in the OneByteString is an one-byte character.
-class SeqOneByteString : public SeqString {
+class SeqOneByteString
+    : public TorqueGeneratedSeqOneByteString<SeqOneByteString, SeqString> {
  public:
   static const bool kHasOneByteEncoding = true;
+  using Char = uint8_t;
 
   // Dispatched behavior.
-  inline uint16_t SeqOneByteStringGet(int index);
+  inline uint8_t Get(int index);
   inline void SeqOneByteStringSet(int index, uint16_t value);
 
   // Get the address of the characters in this string.
   inline Address GetCharsAddress();
 
-  inline uint8_t* GetChars();
+  inline uint8_t* GetChars(const DisallowHeapAllocation& no_gc);
 
   // Clear uninitialized padding space. This ensures that the snapshot content
   // is deterministic.
   void clear_padding();
-
-  DECL_CAST(SeqOneByteString)
 
   // Garbage collection support.  This method is called by the
   // garbage collector to compute the actual size of an OneByteString
   // instance.
   inline int SeqOneByteStringSize(InstanceType instance_type);
 
-  // Computes the size for an OneByteString instance of a given length.
-  static int SizeFor(int length) {
-    return OBJECT_POINTER_ALIGN(kHeaderSize + length * kCharSize);
-  }
-
   // Maximal memory usage for a single sequential one-byte string.
-  static const int kMaxSize = OBJECT_POINTER_ALIGN(kMaxLength + kHeaderSize);
+  static const int kMaxCharsSize = kMaxLength;
+  static const int kMaxSize = OBJECT_POINTER_ALIGN(kMaxCharsSize + kHeaderSize);
   STATIC_ASSERT((kMaxSize - kHeaderSize) >= String::kMaxLength);
 
-  class BodyDescriptor;
-  // No weak fields.
-  typedef BodyDescriptor BodyDescriptorWeak;
+  int AllocatedSize();
 
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(SeqOneByteString);
+  class BodyDescriptor;
+
+  TQ_OBJECT_CONSTRUCTORS(SeqOneByteString)
 };
 
 // The TwoByteString class captures sequential unicode string objects.
 // Each character in the TwoByteString is a two-byte uint16_t.
-class SeqTwoByteString : public SeqString {
+class SeqTwoByteString
+    : public TorqueGeneratedSeqTwoByteString<SeqTwoByteString, SeqString> {
  public:
   static const bool kHasOneByteEncoding = false;
+  using Char = uint16_t;
 
   // Dispatched behavior.
-  inline uint16_t SeqTwoByteStringGet(int index);
+  inline uint16_t Get(int index);
   inline void SeqTwoByteStringSet(int index, uint16_t value);
 
   // Get the address of the characters in this string.
   inline Address GetCharsAddress();
 
-  inline uc16* GetChars();
+  inline uc16* GetChars(const DisallowHeapAllocation& no_gc);
 
   // Clear uninitialized padding space. This ensures that the snapshot content
   // is deterministic.
   void clear_padding();
-
-  // For regexp code.
-  const uint16_t* SeqTwoByteStringGetData(unsigned start);
-
-  DECL_CAST(SeqTwoByteString)
 
   // Garbage collection support.  This method is called by the
   // garbage collector to compute the actual size of a TwoByteString
   // instance.
   inline int SeqTwoByteStringSize(InstanceType instance_type);
 
-  // Computes the size for a TwoByteString instance of a given length.
-  static int SizeFor(int length) {
-    return OBJECT_POINTER_ALIGN(kHeaderSize + length * kShortSize);
-  }
-
   // Maximal memory usage for a single sequential two-byte string.
-  static const int kMaxSize =
-      OBJECT_POINTER_ALIGN(kMaxLength * 2 + kHeaderSize);
+  static const int kMaxCharsSize = kMaxLength * 2;
+  static const int kMaxSize = OBJECT_POINTER_ALIGN(kMaxCharsSize + kHeaderSize);
   STATIC_ASSERT(static_cast<int>((kMaxSize - kHeaderSize) / sizeof(uint16_t)) >=
                 String::kMaxLength);
 
-  class BodyDescriptor;
-  // No weak fields.
-  typedef BodyDescriptor BodyDescriptorWeak;
+  int AllocatedSize();
 
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(SeqTwoByteString);
+  class BodyDescriptor;
+
+  TQ_OBJECT_CONSTRUCTORS(SeqTwoByteString)
 };
 
 // The ConsString class describes string values built by using the
@@ -580,46 +628,27 @@ class SeqTwoByteString : public SeqString {
 // are non-ConsString string values.  The string value represented by
 // a ConsString can be obtained by concatenating the leaf string
 // values in a left-to-right depth-first traversal of the tree.
-class ConsString : public String {
+class ConsString : public TorqueGeneratedConsString<ConsString, String> {
  public:
-  // First string of the cons cell.
-  inline String* first();
   // Doesn't check that the result is a string, even in debug mode.  This is
   // useful during GC where the mark bits confuse the checks.
-  inline Object* unchecked_first();
-  inline void set_first(String* first,
-                        WriteBarrierMode mode = UPDATE_WRITE_BARRIER);
+  inline Object unchecked_first();
 
-  // Second string of the cons cell.
-  inline String* second();
   // Doesn't check that the result is a string, even in debug mode.  This is
   // useful during GC where the mark bits confuse the checks.
-  inline Object* unchecked_second();
-  inline void set_second(String* second,
-                         WriteBarrierMode mode = UPDATE_WRITE_BARRIER);
+  inline Object unchecked_second();
 
   // Dispatched behavior.
-  V8_EXPORT_PRIVATE uint16_t ConsStringGet(int index);
-
-  DECL_CAST(ConsString)
-
-  // Layout description.
-  static const int kFirstOffset = POINTER_SIZE_ALIGN(String::kSize);
-  static const int kSecondOffset = kFirstOffset + kPointerSize;
-  static const int kSize = kSecondOffset + kPointerSize;
+  V8_EXPORT_PRIVATE uint16_t Get(int index);
 
   // Minimum length for a cons string.
   static const int kMinLength = 13;
 
-  typedef FixedBodyDescriptor<kFirstOffset, kSecondOffset + kPointerSize, kSize>
-      BodyDescriptor;
-  // No weak fields.
-  typedef BodyDescriptor BodyDescriptorWeak;
+  class BodyDescriptor;
 
   DECL_VERIFIER(ConsString)
 
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(ConsString);
+  TQ_OBJECT_CONSTRUCTORS(ConsString)
 };
 
 // The ThinString class describes string objects that are just references
@@ -629,28 +658,17 @@ class ConsString : public String {
 // internalized version (which is allocated as a new object).
 // In terms of memory layout and most algorithms operating on strings,
 // ThinStrings can be thought of as "one-part cons strings".
-class ThinString : public String {
+class ThinString : public TorqueGeneratedThinString<ThinString, String> {
  public:
-  // Actual string that this ThinString refers to.
-  inline String* actual() const;
-  inline void set_actual(String* s,
-                         WriteBarrierMode mode = UPDATE_WRITE_BARRIER);
+  DECL_GETTER(unchecked_actual, HeapObject)
 
-  V8_EXPORT_PRIVATE uint16_t ThinStringGet(int index);
+  V8_EXPORT_PRIVATE uint16_t Get(int index);
 
-  DECL_CAST(ThinString)
   DECL_VERIFIER(ThinString)
 
-  // Layout description.
-  static const int kActualOffset = String::kSize;
-  static const int kSize = kActualOffset + kPointerSize;
+  class BodyDescriptor;
 
-  typedef FixedBodyDescriptor<kActualOffset, kSize, kSize> BodyDescriptor;
-  // No weak fields.
-  typedef BodyDescriptor BodyDescriptorWeak;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(ThinString);
+  TQ_OBJECT_CONSTRUCTORS(ThinString)
 };
 
 // The Sliced String class describes strings that are substrings of another
@@ -665,37 +683,21 @@ class ThinString : public String {
 //  - handling externalized parent strings
 //  - external strings as parent
 //  - truncating sliced string to enable otherwise unneeded parent to be GC'ed.
-class SlicedString : public String {
+class SlicedString : public TorqueGeneratedSlicedString<SlicedString, String> {
  public:
-  inline String* parent();
-  inline void set_parent(String* parent,
+  inline void set_parent(String parent,
                          WriteBarrierMode mode = UPDATE_WRITE_BARRIER);
-  inline int offset() const;
-  inline void set_offset(int offset);
-
   // Dispatched behavior.
-  V8_EXPORT_PRIVATE uint16_t SlicedStringGet(int index);
-
-  DECL_CAST(SlicedString)
-
-  // Layout description.
-  static const int kParentOffset = POINTER_SIZE_ALIGN(String::kSize);
-  static const int kOffsetOffset = kParentOffset + kPointerSize;
-  static const int kSize = kOffsetOffset + kPointerSize;
+  V8_EXPORT_PRIVATE uint16_t Get(int index);
 
   // Minimum length for a sliced string.
   static const int kMinLength = 13;
 
-  typedef FixedBodyDescriptor<kParentOffset, kOffsetOffset + kPointerSize,
-                              kSize>
-      BodyDescriptor;
-  // No weak fields.
-  typedef BodyDescriptor BodyDescriptorWeak;
+  class BodyDescriptor;
 
   DECL_VERIFIER(SlicedString)
 
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(SlicedString);
+  TQ_OBJECT_CONSTRUCTORS(SlicedString)
 };
 
 // The ExternalString class describes string values that are backed by
@@ -710,20 +712,33 @@ class SlicedString : public String {
 class ExternalString : public String {
  public:
   DECL_CAST(ExternalString)
+  DECL_VERIFIER(ExternalString)
 
-  // Layout description.
-  static const int kResourceOffset = POINTER_SIZE_ALIGN(String::kSize);
-  static const int kShortSize = kResourceOffset + kPointerSize;
-  static const int kResourceDataOffset = kResourceOffset + kPointerSize;
-  static const int kSize = kResourceDataOffset + kPointerSize;
+  DEFINE_FIELD_OFFSET_CONSTANTS(String::kHeaderSize,
+                                TORQUE_GENERATED_EXTERNAL_STRING_FIELDS)
 
-  // Return whether external string is short (data pointer is not cached).
-  inline bool is_short();
+  // Size of uncached external strings.
+  static const int kUncachedSize =
+      kResourceOffset + FIELD_SIZE(kResourceOffset);
+
+  // Return whether the external string data pointer is not cached.
+  inline bool is_uncached() const;
+  // Size in bytes of the external payload.
+  int ExternalPayloadSize() const;
+
+  // Used in the serializer/deserializer.
+  DECL_GETTER(resource_as_address, Address)
+  inline void set_address_as_resource(Isolate* isolate, Address address);
+  inline uint32_t resource_as_uint32();
+  inline void set_uint32_as_resource(Isolate* isolate, uint32_t value);
+
+  // Disposes string's resource object if it has not already been disposed.
+  inline void DisposeResource(Isolate* isolate);
 
   STATIC_ASSERT(kResourceOffset == Internals::kStringResourceOffset);
+  static const int kSizeOfAllExternalStrings = kHeaderSize;
 
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(ExternalString);
+  OBJECT_CONSTRUCTORS(ExternalString, String);
 };
 
 // The ExternalOneByteString class is an external string backed by an
@@ -732,31 +747,39 @@ class ExternalOneByteString : public ExternalString {
  public:
   static const bool kHasOneByteEncoding = true;
 
-  typedef v8::String::ExternalOneByteStringResource Resource;
+  using Resource = v8::String::ExternalOneByteStringResource;
 
   // The underlying resource.
-  inline const Resource* resource();
-  inline void set_resource(const Resource* buffer);
+  DECL_GETTER(resource, const Resource*)
+
+  // It is assumed that the previous resource is null. If it is not null, then
+  // it is the responsability of the caller the handle the previous resource.
+  inline void SetResource(Isolate* isolate, const Resource* buffer);
+  // Used only during serialization.
+  inline void set_resource(Isolate* isolate, const Resource* buffer);
 
   // Update the pointer cache to the external character array.
   // The cached pointer is always valid, as the external character array does =
   // not move during lifetime.  Deserialization is the only exception, after
   // which the pointer cache has to be refreshed.
-  inline void update_data_cache();
+  inline void update_data_cache(Isolate* isolate);
 
   inline const uint8_t* GetChars();
 
   // Dispatched behavior.
-  inline uint16_t ExternalOneByteStringGet(int index);
+  inline uint8_t Get(int index);
 
   DECL_CAST(ExternalOneByteString)
 
   class BodyDescriptor;
-  // No weak fields.
-  typedef BodyDescriptor BodyDescriptorWeak;
 
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(ExternalOneByteString);
+  DEFINE_FIELD_OFFSET_CONSTANTS(
+      ExternalString::kHeaderSize,
+      TORQUE_GENERATED_EXTERNAL_ONE_BYTE_STRING_FIELDS)
+
+  STATIC_ASSERT(kSize == kSizeOfAllExternalStrings);
+
+  OBJECT_CONSTRUCTORS(ExternalOneByteString, ExternalString);
 };
 
 // The ExternalTwoByteString class is an external string backed by a UTF-16
@@ -765,22 +788,27 @@ class ExternalTwoByteString : public ExternalString {
  public:
   static const bool kHasOneByteEncoding = false;
 
-  typedef v8::String::ExternalStringResource Resource;
+  using Resource = v8::String::ExternalStringResource;
 
   // The underlying string resource.
-  inline const Resource* resource();
-  inline void set_resource(const Resource* buffer);
+  DECL_GETTER(resource, const Resource*)
+
+  // It is assumed that the previous resource is null. If it is not null, then
+  // it is the responsability of the caller the handle the previous resource.
+  inline void SetResource(Isolate* isolate, const Resource* buffer);
+  // Used only during serialization.
+  inline void set_resource(Isolate* isolate, const Resource* buffer);
 
   // Update the pointer cache to the external character array.
   // The cached pointer is always valid, as the external character array does =
   // not move during lifetime.  Deserialization is the only exception, after
   // which the pointer cache has to be refreshed.
-  inline void update_data_cache();
+  inline void update_data_cache(Isolate* isolate);
 
   inline const uint16_t* GetChars();
 
   // Dispatched behavior.
-  inline uint16_t ExternalTwoByteStringGet(int index);
+  inline uint16_t Get(int index);
 
   // For regexp code.
   inline const uint16_t* ExternalTwoByteStringGetData(unsigned start);
@@ -788,28 +816,31 @@ class ExternalTwoByteString : public ExternalString {
   DECL_CAST(ExternalTwoByteString)
 
   class BodyDescriptor;
-  // No weak fields.
-  typedef BodyDescriptor BodyDescriptorWeak;
 
- private:
-  DISALLOW_IMPLICIT_CONSTRUCTORS(ExternalTwoByteString);
+  DEFINE_FIELD_OFFSET_CONSTANTS(
+      ExternalString::kHeaderSize,
+      TORQUE_GENERATED_EXTERNAL_TWO_BYTE_STRING_FIELDS)
+
+  STATIC_ASSERT(kSize == kSizeOfAllExternalStrings);
+
+  OBJECT_CONSTRUCTORS(ExternalTwoByteString, ExternalString);
 };
 
 // A flat string reader provides random access to the contents of a
 // string independent of the character width of the string.  The handle
 // must be valid as long as the reader is being used.
-class FlatStringReader : public Relocatable {
+class V8_EXPORT_PRIVATE FlatStringReader : public Relocatable {
  public:
   FlatStringReader(Isolate* isolate, Handle<String> str);
   FlatStringReader(Isolate* isolate, Vector<const char> input);
-  void PostGarbageCollection();
+  void PostGarbageCollection() override;
   inline uc32 Get(int index);
   template <typename Char>
   inline Char Get(int index);
   int length() { return length_; }
 
  private:
-  String** str_;
+  Address* str_;
   bool is_one_byte_;
   int length_;
   const void* start_;
@@ -820,20 +851,20 @@ class FlatStringReader : public Relocatable {
 // traversal of the entire string
 class ConsStringIterator {
  public:
-  inline ConsStringIterator() {}
-  inline explicit ConsStringIterator(ConsString* cons_string, int offset = 0) {
+  inline ConsStringIterator() = default;
+  inline explicit ConsStringIterator(ConsString cons_string, int offset = 0) {
     Reset(cons_string, offset);
   }
-  inline void Reset(ConsString* cons_string, int offset = 0) {
+  inline void Reset(ConsString cons_string, int offset = 0) {
     depth_ = 0;
-    // Next will always return NULL.
-    if (cons_string == NULL) return;
+    // Next will always return nullptr.
+    if (cons_string.is_null()) return;
     Initialize(cons_string, offset);
   }
-  // Returns NULL when complete.
-  inline String* Next(int* offset_out) {
+  // Returns nullptr when complete.
+  inline String Next(int* offset_out) {
     *offset_out = 0;
-    if (depth_ == 0) return NULL;
+    if (depth_ == 0) return String();
     return Continue(offset_out);
   }
 
@@ -845,20 +876,20 @@ class ConsStringIterator {
                 "kStackSize must be power of two");
   static inline int OffsetForDepth(int depth);
 
-  inline void PushLeft(ConsString* string);
-  inline void PushRight(ConsString* string);
+  inline void PushLeft(ConsString string);
+  inline void PushRight(ConsString string);
   inline void AdjustMaximumDepth();
   inline void Pop();
   inline bool StackBlown() { return maximum_depth_ - depth_ == kStackSize; }
-  void Initialize(ConsString* cons_string, int offset);
-  String* Continue(int* offset_out);
-  String* NextLeaf(bool* blew_stack);
-  String* Search(int* offset_out);
+  V8_EXPORT_PRIVATE void Initialize(ConsString cons_string, int offset);
+  V8_EXPORT_PRIVATE String Continue(int* offset_out);
+  String NextLeaf(bool* blew_stack);
+  String Search(int* offset_out);
 
   // Stack must always contain only frames for which right traversal
   // has not yet been performed.
-  ConsString* frames_[kStackSize];
-  ConsString* root_;
+  ConsString frames_[kStackSize];
+  ConsString root_;
   int depth_;
   int maximum_depth_;
   int consumed_;
@@ -867,10 +898,10 @@ class ConsStringIterator {
 
 class StringCharacterStream {
  public:
-  inline explicit StringCharacterStream(String* string, int offset = 0);
+  inline explicit StringCharacterStream(String string, int offset = 0);
   inline uint16_t GetNext();
   inline bool HasMore();
-  inline void Reset(String* string, int offset = 0);
+  inline void Reset(String string, int offset = 0);
   inline void VisitOneByteString(const uint8_t* chars, int length);
   inline void VisitTwoByteString(const uint16_t* chars, int length);
 
@@ -883,6 +914,21 @@ class StringCharacterStream {
   };
   const uint8_t* end_;
   DISALLOW_COPY_AND_ASSIGN(StringCharacterStream);
+};
+
+template <typename Char>
+struct CharTraits;
+
+template <>
+struct CharTraits<uint8_t> {
+  using String = SeqOneByteString;
+  using ExternalString = ExternalOneByteString;
+};
+
+template <>
+struct CharTraits<uint16_t> {
+  using String = SeqTwoByteString;
+  using ExternalString = ExternalTwoByteString;
 };
 
 }  // namespace internal

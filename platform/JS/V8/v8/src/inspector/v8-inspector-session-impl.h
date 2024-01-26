@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef V8_INSPECTOR_V8INSPECTORSESSIONIMPL_H_
-#define V8_INSPECTOR_V8INSPECTORSESSIONIMPL_H_
+#ifndef V8_INSPECTOR_V8_INSPECTOR_SESSION_IMPL_H_
+#define V8_INSPECTOR_V8_INSPECTOR_SESSION_IMPL_H_
 
+#include <memory>
 #include <vector>
 
 #include "src/base/macros.h"
@@ -31,10 +32,12 @@ using protocol::Response;
 class V8InspectorSessionImpl : public V8InspectorSession,
                                public protocol::FrontendChannel {
  public:
-  static std::unique_ptr<V8InspectorSessionImpl> create(
-      V8InspectorImpl*, int contextGroupId, int sessionId,
-      V8Inspector::Channel*, const StringView& state);
-  ~V8InspectorSessionImpl();
+  static std::unique_ptr<V8InspectorSessionImpl> create(V8InspectorImpl*,
+                                                        int contextGroupId,
+                                                        int sessionId,
+                                                        V8Inspector::Channel*,
+                                                        StringView state);
+  ~V8InspectorSessionImpl() override;
 
   V8InspectorImpl* inspector() const { return m_inspector; }
   V8ConsoleAgentImpl* consoleAgent() { return m_consoleAgent.get(); }
@@ -55,54 +58,59 @@ class V8InspectorSessionImpl : public V8InspectorSession,
       v8::Local<v8::Context>, v8::Local<v8::Value>, const String16& groupName,
       bool generatePreview);
   std::unique_ptr<protocol::Runtime::RemoteObject> wrapTable(
-      v8::Local<v8::Context>, v8::Local<v8::Value> table,
-      v8::Local<v8::Value> columns);
+      v8::Local<v8::Context>, v8::Local<v8::Object> table,
+      v8::MaybeLocal<v8::Array> columns);
   std::vector<std::unique_ptr<protocol::Schema::Domain>> supportedDomainsImpl();
   Response unwrapObject(const String16& objectId, v8::Local<v8::Value>*,
                         v8::Local<v8::Context>*, String16* objectGroup);
   void releaseObjectGroup(const String16& objectGroup);
 
   // V8InspectorSession implementation.
-  void dispatchProtocolMessage(const StringView& message) override;
-  std::unique_ptr<StringBuffer> stateJSON() override;
+  void dispatchProtocolMessage(StringView message) override;
+  std::vector<uint8_t> state() override;
   std::vector<std::unique_ptr<protocol::Schema::API::Domain>> supportedDomains()
       override;
   void addInspectedObject(
       std::unique_ptr<V8InspectorSession::Inspectable>) override;
-  void schedulePauseOnNextStatement(const StringView& breakReason,
-                                    const StringView& breakDetails) override;
+  void schedulePauseOnNextStatement(StringView breakReason,
+                                    StringView breakDetails) override;
   void cancelPauseOnNextStatement() override;
-  void breakProgram(const StringView& breakReason,
-                    const StringView& breakDetails) override;
+  void breakProgram(StringView breakReason, StringView breakDetails) override;
   void setSkipAllPauses(bool) override;
-  void resume() override;
+  void resume(bool terminateOnResume = false) override;
   void stepOver() override;
   std::vector<std::unique_ptr<protocol::Debugger::API::SearchMatch>>
-  searchInTextByLines(const StringView& text, const StringView& query,
-                      bool caseSensitive, bool isRegex) override;
-  void releaseObjectGroup(const StringView& objectGroup) override;
-  bool unwrapObject(std::unique_ptr<StringBuffer>*, const StringView& objectId,
+  searchInTextByLines(StringView text, StringView query, bool caseSensitive,
+                      bool isRegex) override;
+  void releaseObjectGroup(StringView objectGroup) override;
+  bool unwrapObject(std::unique_ptr<StringBuffer>*, StringView objectId,
                     v8::Local<v8::Value>*, v8::Local<v8::Context>*,
                     std::unique_ptr<StringBuffer>* objectGroup) override;
   std::unique_ptr<protocol::Runtime::API::RemoteObject> wrapObject(
-      v8::Local<v8::Context>, v8::Local<v8::Value>,
-      const StringView& groupName) override;
+      v8::Local<v8::Context>, v8::Local<v8::Value>, StringView groupName,
+      bool generatePreview) override;
 
   V8InspectorSession::Inspectable* inspectedObject(unsigned num);
   static const unsigned kInspectedObjectBufferSize = 5;
 
+  void triggerPreciseCoverageDeltaUpdate(StringView occassion) override;
+
  private:
   V8InspectorSessionImpl(V8InspectorImpl*, int contextGroupId, int sessionId,
-                         V8Inspector::Channel*, const StringView& state);
+                         V8Inspector::Channel*, StringView state);
   protocol::DictionaryValue* agentState(const String16& name);
 
   // protocol::FrontendChannel implementation.
-  void sendProtocolResponse(
+  void SendProtocolResponse(
       int callId, std::unique_ptr<protocol::Serializable> message) override;
-  void sendProtocolNotification(
+  void SendProtocolNotification(
       std::unique_ptr<protocol::Serializable> message) override;
-  void flushProtocolNotifications() override;
+  void FallThrough(int callId, v8_crdtp::span<uint8_t> method,
+                   v8_crdtp::span<uint8_t> message) override;
+  void FlushProtocolNotifications() override;
 
+  std::unique_ptr<StringBuffer> serializeForFrontend(
+      std::unique_ptr<protocol::Serializable> message);
   int m_contextGroupId;
   int m_sessionId;
   V8InspectorImpl* m_inspector;
@@ -120,10 +128,11 @@ class V8InspectorSessionImpl : public V8InspectorSession,
   std::unique_ptr<V8SchemaAgentImpl> m_schemaAgent;
   std::vector<std::unique_ptr<V8InspectorSession::Inspectable>>
       m_inspectedObjects;
+  bool use_binary_protocol_ = false;
 
   DISALLOW_COPY_AND_ASSIGN(V8InspectorSessionImpl);
 };
 
 }  // namespace v8_inspector
 
-#endif  // V8_INSPECTOR_V8INSPECTORSESSIONIMPL_H_
+#endif  // V8_INSPECTOR_V8_INSPECTOR_SESSION_IMPL_H_

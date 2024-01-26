@@ -5,11 +5,11 @@
 // Tests v8::internal::Scanner. Note that presently most unit tests for the
 // Scanner are in cctest/test-parsing.cc, rather than here.
 
-#include "src/handles-inl.h"
-#include "src/objects-inl.h"
+#include "src/handles/handles-inl.h"
+#include "src/objects/objects-inl.h"
+#include "src/parsing/parse-info.h"
 #include "src/parsing/scanner-character-streams.h"
 #include "src/parsing/scanner.h"
-#include "src/unicode-cache.h"
 #include "test/cctest/cctest.h"
 
 namespace v8 {
@@ -21,12 +21,10 @@ const char src_simple[] = "function foo() { var x = 2 * a() + b; }";
 
 struct ScannerTestHelper {
   ScannerTestHelper() = default;
-  ScannerTestHelper(ScannerTestHelper&& other)
-      : unicode_cache(std::move(other.unicode_cache)),
-        stream(std::move(other.stream)),
+  ScannerTestHelper(ScannerTestHelper&& other) V8_NOEXCEPT
+      : stream(std::move(other.stream)),
         scanner(std::move(other.scanner)) {}
 
-  std::unique_ptr<UnicodeCache> unicode_cache;
   std::unique_ptr<Utf16CharacterStream> stream;
   std::unique_ptr<Scanner> scanner;
 
@@ -36,11 +34,11 @@ struct ScannerTestHelper {
 
 ScannerTestHelper make_scanner(const char* src) {
   ScannerTestHelper helper;
-  helper.unicode_cache = std::unique_ptr<UnicodeCache>(new UnicodeCache);
   helper.stream = ScannerStream::ForTesting(src);
-  helper.scanner =
-      std::unique_ptr<Scanner>(new Scanner(helper.unicode_cache.get()));
-  helper.scanner->Initialize(helper.stream.get(), false);
+  helper.scanner = std::unique_ptr<Scanner>(
+      new Scanner(helper.stream.get(),
+                  UnoptimizedCompileFlags::ForTest(CcTest::i_isolate())));
+  helper.scanner->Initialize();
   return helper;
 }
 
@@ -74,7 +72,7 @@ TEST(Bookmarks) {
 
     for (size_t i = 0; i < std::min(bookmark_pos + 10, tokens.size()); i++) {
       if (i == bookmark_pos) {
-        bookmark.Set();
+        bookmark.Set(scanner->peek_location().beg_pos);
       }
       CHECK_TOK(tokens[i], scanner->Next());
     }
@@ -105,30 +103,6 @@ TEST(AllThePushbacks) {
     }
     CHECK_TOK(Token::EOS, scanner->Next());
   }
-}
-
-TEST(ContextualKeywordTokens) {
-  auto scanner = make_scanner("function of get bla");
-
-  // function (regular keyword)
-  scanner->Next();
-  CHECK_TOK(Token::FUNCTION, scanner->current_token());
-  CHECK_TOK(Token::UNINITIALIZED, scanner->current_contextual_token());
-
-  // of (contextual keyword)
-  scanner->Next();
-  CHECK_TOK(Token::IDENTIFIER, scanner->current_token());
-  CHECK_TOK(Token::OF, scanner->current_contextual_token());
-
-  // get (contextual keyword)
-  scanner->Next();
-  CHECK_TOK(Token::IDENTIFIER, scanner->current_token());
-  CHECK_TOK(Token::GET, scanner->current_contextual_token());
-
-  // bla (identfier, not any sort of keyword)
-  scanner->Next();
-  CHECK_TOK(Token::IDENTIFIER, scanner->current_token());
-  CHECK_TOK(Token::UNINITIALIZED, scanner->current_contextual_token());
 }
 
 }  // namespace internal

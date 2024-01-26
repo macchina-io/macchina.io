@@ -35,7 +35,12 @@
 #include "src/base/qnx-math.h"
 #endif
 
+#ifdef V8_USE_ADDRESS_SANITIZER
+#include <sanitizer/asan_interface.h>
+#endif  // V8_USE_ADDRESS_SANITIZER
+
 namespace v8 {
+
 namespace base {
 
 // ----------------------------------------------------------------------------
@@ -47,33 +52,36 @@ namespace base {
 
 #define V8_FAST_TLS_SUPPORTED 1
 
-INLINE(intptr_t InternalGetExistingThreadLocal(intptr_t index));
+V8_INLINE intptr_t InternalGetExistingThreadLocal(intptr_t index);
 
 inline intptr_t InternalGetExistingThreadLocal(intptr_t index) {
   const intptr_t kTibInlineTlsOffset = 0xE10;
   const intptr_t kTibExtraTlsOffset = 0xF94;
   const intptr_t kMaxInlineSlots = 64;
   const intptr_t kMaxSlots = kMaxInlineSlots + 1024;
-  const intptr_t kPointerSize = sizeof(void*);
+  const intptr_t kSystemPointerSize = sizeof(void*);
   DCHECK(0 <= index && index < kMaxSlots);
   USE(kMaxSlots);
   if (index < kMaxInlineSlots) {
-    return static_cast<intptr_t>(__readfsdword(kTibInlineTlsOffset +
-                                               kPointerSize * index));
+    return static_cast<intptr_t>(
+        __readfsdword(kTibInlineTlsOffset + kSystemPointerSize * index));
   }
   intptr_t extra = static_cast<intptr_t>(__readfsdword(kTibExtraTlsOffset));
-  DCHECK(extra != 0);
-  return *reinterpret_cast<intptr_t*>(extra +
-                                      kPointerSize * (index - kMaxInlineSlots));
+  DCHECK_NE(extra, 0);
+  return *reinterpret_cast<intptr_t*>(extra + kSystemPointerSize *
+                                                  (index - kMaxInlineSlots));
 }
 
 #elif defined(__APPLE__) && (V8_HOST_ARCH_IA32 || V8_HOST_ARCH_X64)
+
+// tvOS simulator does not use intptr_t as TLS key.
+#if !defined(V8_OS_STARBOARD) || !defined(TARGET_OS_SIMULATOR)
 
 #define V8_FAST_TLS_SUPPORTED 1
 
 extern V8_BASE_EXPORT intptr_t kMacTlsBaseOffset;
 
-INLINE(intptr_t InternalGetExistingThreadLocal(intptr_t index));
+V8_INLINE intptr_t InternalGetExistingThreadLocal(intptr_t index);
 
 inline intptr_t InternalGetExistingThreadLocal(intptr_t index) {
   intptr_t result;
@@ -89,13 +97,14 @@ inline intptr_t InternalGetExistingThreadLocal(intptr_t index) {
   return result;
 }
 
+#endif  // !defined(V8_OS_STARBOARD) || !defined(TARGET_OS_SIMULATOR)
+
 #endif
 
 #endif  // V8_NO_FAST_TLS
 
-
+class PageAllocator;
 class TimezoneCache;
-
 
 // ----------------------------------------------------------------------------
 // OS
@@ -107,12 +116,9 @@ class TimezoneCache;
 class V8_BASE_EXPORT OS {
  public:
   // Initialize the OS class.
-  // - random_seed: Used for the GetRandomMmapAddress() if non-zero.
   // - hard_abort: If true, OS::Abort() will crash instead of aborting.
   // - gc_fake_mmap: Name of the file for fake gc mmap used in ll_prof.
-  static void Initialize(int64_t random_seed,
-                         bool hard_abort,
-                         const char* const gc_fake_mmap);
+  static void Initialize(bool hard_abort, const char* const gc_fake_mmap);
 
   // Returns the accumulated user time for thread. This routine
   // can be used for profiling. The implementation should
@@ -158,44 +164,21 @@ class V8_BASE_EXPORT OS {
   static PRINTF_FORMAT(1, 2) void PrintError(const char* format, ...);
   static PRINTF_FORMAT(1, 0) void VPrintError(const char* format, va_list args);
 
-  // Memory access permissions. Only the modes currently used by V8 are listed
-  // here even though most systems support additional modes.
-  enum class MemoryPermission { kNoAccess, kReadWrite, kReadWriteExecute };
+  // Memory permissions. These should be kept in sync with the ones in
+  // v8::PageAllocator.
+  enum class MemoryPermission {
+    kNoAccess,
+    kRead,
+    kReadWrite,
+    // TODO(hpayer): Remove this flag. Memory should never be rwx.
+    kReadWriteExecute,
+    kReadExecute,
+    // TODO(jkummerow): Remove this when Wasm has a platform-independent
+    // w^x implementation.
+    kNoAccessWillJitLater
+  };
 
-  // Allocate/Free memory used by JS heap. Permissions are set according to the
-  // is_* flags. Returns the address of allocated memory, or NULL if failed.
-  static void* Allocate(const size_t requested, size_t* allocated,
-                        MemoryPermission access, void* hint = nullptr);
-  // Allocate/Free memory used by JS heap. Pages are readable/writable, but
-  // they are not guaranteed to be executable unless 'executable' is true.
-  // Returns the address of allocated memory, or NULL if failed.
-  static void* Allocate(const size_t requested, size_t* allocated,
-                        bool is_executable, void* hint = nullptr);
-  static void Free(void* address, const size_t size);
-
-  // Allocates a region of memory that is inaccessible. On Windows this reserves
-  // but does not commit the memory. On POSIX systems it allocates memory as
-  // PROT_NONE, which also prevents it from being committed.
-  static void* AllocateGuarded(const size_t requested);
-
-  // This is the granularity at which the ProtectCode(...) call can set page
-  // permissions.
-  static intptr_t CommitPageSize();
-
-  // Mark code segments non-writable.
-  static void ProtectCode(void* address, const size_t size);
-
-  // Assign memory as a guard page so that access will cause an exception.
-  static void Guard(void* address, const size_t size);
-
-  // Make a region of memory readable and writable.
-  static void Unprotect(void* address, const size_t size);
-
-  // Generate a random address to be used for hinting mmap().
-  static void* GetRandomMmapAddr();
-
-  // Get the Alignment guaranteed by Allocate().
-  static size_t AllocateAlignment();
+  static bool HasLazyCommits();
 
   // Sleep for a specified time interval.
   static void Sleep(TimeDelta interval);
@@ -217,11 +200,14 @@ class V8_BASE_EXPORT OS {
 
   class V8_BASE_EXPORT MemoryMappedFile {
    public:
-    virtual ~MemoryMappedFile() {}
+    enum class FileMode { kReadOnly, kReadWrite };
+
+    virtual ~MemoryMappedFile() = default;
     virtual void* memory() const = 0;
     virtual size_t size() const = 0;
 
-    static MemoryMappedFile* open(const char* name);
+    static MemoryMappedFile* open(const char* name,
+                                  FileMode mode = FileMode::kReadWrite);
     static MemoryMappedFile* create(const char* name, size_t size,
                                     void* initial);
   };
@@ -233,7 +219,6 @@ class V8_BASE_EXPORT OS {
   static PRINTF_FORMAT(3, 0) int VSNPrintF(char* str, int length,
                                            const char* format, va_list args);
 
-  static char* StrChr(char* str, int c);
   static void StrNCpy(char* dest, int length, const char* src, size_t n);
 
   // Support for the profiler.  Can do nothing, in which case ticks
@@ -275,7 +260,45 @@ class V8_BASE_EXPORT OS {
 
   static int GetCurrentThreadId();
 
+  static void AdjustSchedulingParams();
+
+  static void ExitProcess(int exit_code);
+
  private:
+  // These classes use the private memory management API below.
+  friend class MemoryMappedFile;
+  friend class PosixMemoryMappedFile;
+  friend class v8::base::PageAllocator;
+
+  static size_t AllocatePageSize();
+
+  static size_t CommitPageSize();
+
+  static void SetRandomMmapSeed(int64_t seed);
+
+  static void* GetRandomMmapAddr();
+
+  V8_WARN_UNUSED_RESULT static void* Allocate(void* address, size_t size,
+                                              size_t alignment,
+                                              MemoryPermission access);
+
+  V8_WARN_UNUSED_RESULT static void* AllocateShared(size_t size,
+                                                    MemoryPermission access);
+
+  V8_WARN_UNUSED_RESULT static void* RemapShared(void* old_address,
+                                                 void* new_address,
+                                                 size_t size);
+
+  V8_WARN_UNUSED_RESULT static bool Free(void* address, const size_t size);
+
+  V8_WARN_UNUSED_RESULT static bool Release(void* address, size_t size);
+
+  V8_WARN_UNUSED_RESULT static bool SetPermissions(void* address, size_t size,
+                                                   MemoryPermission access);
+
+  V8_WARN_UNUSED_RESULT static bool DiscardSystemPages(void* address,
+                                                       size_t size);
+
   static const int msPerSecond = 1000;
 
 #if V8_OS_POSIX
@@ -285,140 +308,17 @@ class V8_BASE_EXPORT OS {
   DISALLOW_IMPLICIT_CONSTRUCTORS(OS);
 };
 
-// Represents and controls an area of reserved memory.
-// Control of the reserved memory can be assigned to another VirtualMemory
-// object by calling TakeControl. This removes the reserved memory from the
-// 'from' instance.
-class V8_BASE_EXPORT VirtualMemory {
- public:
-  // Empty VirtualMemory object, controlling no reserved memory.
-  VirtualMemory();
+#if (defined(_WIN32) || defined(_WIN64))
+V8_BASE_EXPORT void EnsureConsoleOutputWin32();
+#endif  // (defined(_WIN32) || defined(_WIN64))
 
-  // Reserves virtual memory with size.
-  explicit VirtualMemory(size_t size, void* hint);
-
-  // Reserves virtual memory containing an area of the given size that
-  // is aligned per alignment. This may not be at the position returned
-  // by address().
-  VirtualMemory(size_t size, size_t alignment, void* hint);
-
-  // Construct a virtual memory by assigning it some already mapped address
-  // and size.
-  VirtualMemory(void* address, size_t size) : address_(address), size_(size) {}
-
-  // Releases the reserved memory, if any, controlled by this VirtualMemory
-  // object.
-  ~VirtualMemory();
-
-  // Returns whether the memory has been reserved.
-  bool IsReserved() const { return address_ != nullptr; }
-
-  // Initialize or resets an embedded VirtualMemory object.
-  void Reset();
-
-  // Returns the start address of the reserved memory.
-  // If the memory was reserved with an alignment, this address is not
-  // necessarily aligned. The user might need to round it up to a multiple of
-  // the alignment to get the start of the aligned block.
-  void* address() const {
-    DCHECK(IsReserved());
-    return address_;
-  }
-
-  void* end() const {
-    DCHECK(IsReserved());
-    return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(address_) +
-                                   size_);
-  }
-
-  // Returns the size of the reserved memory. The returned value is only
-  // meaningful when IsReserved() returns true.
-  // If the memory was reserved with an alignment, this size may be larger
-  // than the requested size.
-  size_t size() const { return size_; }
-
-  // Commits real memory. Returns whether the operation succeeded.
-  bool Commit(void* address, size_t size, bool is_executable);
-
-  // Uncommit real memory.  Returns whether the operation succeeded.
-  bool Uncommit(void* address, size_t size);
-
-  // Creates a single guard page at the given address.
-  bool Guard(void* address);
-
-  // Releases the memory after |free_start|. Returns the bytes released.
-  size_t ReleasePartial(void* free_start) {
-    DCHECK(IsReserved());
-    // Notice: Order is important here. The VirtualMemory object might live
-    // inside the allocated region.
-    const size_t size = size_ - (reinterpret_cast<size_t>(free_start) -
-                                 reinterpret_cast<size_t>(address_));
-    CHECK(InVM(free_start, size));
-    DCHECK_LT(address_, free_start);
-    DCHECK_LT(free_start, reinterpret_cast<void*>(
-                              reinterpret_cast<size_t>(address_) + size_));
-    const bool result = ReleasePartialRegion(address_, size_, free_start, size);
-    USE(result);
-    DCHECK(result);
-    size_ -= size;
-    return size;
-  }
-
-  void Release() {
-    DCHECK(IsReserved());
-    // Notice: Order is important here. The VirtualMemory object might live
-    // inside the allocated region.
-    void* address = address_;
-    size_t size = size_;
-    CHECK(InVM(address, size));
-    Reset();
-    bool result = ReleaseRegion(address, size);
-    USE(result);
-    DCHECK(result);
-  }
-
-  // Assign control of the reserved region to a different VirtualMemory object.
-  // The old object is no longer functional (IsReserved() returns false).
-  void TakeControl(VirtualMemory* from) {
-    DCHECK(!IsReserved());
-    address_ = from->address_;
-    size_ = from->size_;
-    from->Reset();
-  }
-
-  static void* ReserveRegion(size_t size, void* hint);
-
-  static bool CommitRegion(void* base, size_t size, bool is_executable);
-
-  static bool UncommitRegion(void* base, size_t size);
-
-  // Must be called with a base pointer that has been returned by ReserveRegion
-  // and the same size it was reserved with.
-  static bool ReleaseRegion(void* base, size_t size);
-
-  // Must be called with a base pointer that has been returned by ReserveRegion
-  // and the same size it was reserved with.
-  // [free_start, free_start + free_size] is the memory that will be released.
-  static bool ReleasePartialRegion(void* base, size_t size, void* free_start,
-                                   size_t free_size);
-
-  // Returns true if OS performs lazy commits, i.e. the memory allocation call
-  // defers actual physical memory allocation till the first memory access.
-  // Otherwise returns false.
-  static bool HasLazyCommits();
-
- private:
-  bool InVM(void* address, size_t size) {
-    return (reinterpret_cast<uintptr_t>(address_) <=
-            reinterpret_cast<uintptr_t>(address)) &&
-           ((reinterpret_cast<uintptr_t>(address_) + size_) >=
-            (reinterpret_cast<uintptr_t>(address) + size));
-  }
-
-  void* address_;  // Start address of the virtual memory.
-  size_t size_;  // Size of the virtual memory.
-};
-
+inline void EnsureConsoleOutput() {
+#if (defined(_WIN32) || defined(_WIN64))
+  // Windows requires extra calls to send assert output to the console
+  // rather than a dialog box.
+  EnsureConsoleOutputWin32();
+#endif  // (defined(_WIN32) || defined(_WIN64))
+}
 
 // ----------------------------------------------------------------------------
 // Thread
@@ -431,7 +331,11 @@ class V8_BASE_EXPORT VirtualMemory {
 class V8_BASE_EXPORT Thread {
  public:
   // Opaque data type for thread-local storage keys.
-  typedef int32_t LocalStorageKey;
+#if V8_OS_STARBOARD
+  using LocalStorageKey = SbThreadLocalKey;
+#else
+  using LocalStorageKey = int32_t;
+#endif
 
   class Options {
    public:
@@ -452,15 +356,16 @@ class V8_BASE_EXPORT Thread {
   virtual ~Thread();
 
   // Start new thread by calling the Run() method on the new thread.
-  void Start();
+  V8_WARN_UNUSED_RESULT bool Start();
 
   // Start new thread and wait until Run() method is called on the new thread.
-  void StartSynchronously() {
+  bool StartSynchronously() {
     start_semaphore_ = new Semaphore(0);
-    Start();
+    if (!Start()) return false;
     start_semaphore_->Wait();
     delete start_semaphore_;
-    start_semaphore_ = NULL;
+    start_semaphore_ = nullptr;
+    return true;
   }
 
   // Wait until thread terminates.
@@ -485,7 +390,7 @@ class V8_BASE_EXPORT Thread {
     SetThreadLocal(key, reinterpret_cast<void*>(static_cast<intptr_t>(value)));
   }
   static bool HasThreadLocal(LocalStorageKey key) {
-    return GetThreadLocal(key) != NULL;
+    return GetThreadLocal(key) != nullptr;
   }
 
 #ifdef V8_FAST_TLS_SUPPORTED
@@ -523,6 +428,38 @@ class V8_BASE_EXPORT Thread {
   Semaphore* start_semaphore_;
 
   DISALLOW_COPY_AND_ASSIGN(Thread);
+};
+
+// TODO(v8:10354): Make use of the stack utilities here in V8.
+class V8_BASE_EXPORT Stack {
+ public:
+  // Gets the start of the stack of the current thread.
+  static void* GetStackStart();
+
+  // Returns the current stack top. Works correctly with ASAN and SafeStack.
+  // GetCurrentStackPosition() should not be inlined, because it works on stack
+  // frames if it were inlined into a function with a huge stack frame it would
+  // return an address significantly above the actual current stack position.
+  static V8_NOINLINE void* GetCurrentStackPosition();
+
+  // Translates an ASAN-based slot to a real stack slot if necessary.
+  static void* GetStackSlot(void* slot) {
+#ifdef V8_USE_ADDRESS_SANITIZER
+    void* fake_stack = __asan_get_current_fake_stack();
+    if (fake_stack) {
+      void* fake_frame_start;
+      void* real_frame = __asan_addr_is_in_fake_stack(
+          fake_stack, slot, &fake_frame_start, nullptr);
+      if (real_frame) {
+        return reinterpret_cast<void*>(
+            reinterpret_cast<uintptr_t>(real_frame) +
+            (reinterpret_cast<uintptr_t>(slot) -
+             reinterpret_cast<uintptr_t>(fake_frame_start)));
+      }
+    }
+#endif  // V8_USE_ADDRESS_SANITIZER
+    return slot;
+  }
 };
 
 }  // namespace base

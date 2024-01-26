@@ -13,11 +13,11 @@ namespace base {
 template <class Category, class Type, class Diff = std::ptrdiff_t,
           class Pointer = Type*, class Reference = Type&>
 struct iterator {
-  typedef Category iterator_category;
-  typedef Type value_type;
-  typedef Diff difference_type;
-  typedef Pointer pointer;
-  typedef Reference reference;
+  using iterator_category = Category;
+  using value_type = Type;
+  using difference_type = Diff;
+  using pointer = Pointer;
+  using reference = Reference;
 };
 
 // The intention of the base::iterator_range class is to encapsulate two
@@ -27,19 +27,17 @@ struct iterator {
 template <typename ForwardIterator>
 class iterator_range {
  public:
-  typedef ForwardIterator iterator;
-  typedef ForwardIterator const_iterator;
-  typedef typename std::iterator_traits<iterator>::pointer pointer;
-  typedef typename std::iterator_traits<iterator>::reference reference;
-  typedef typename std::iterator_traits<iterator>::value_type value_type;
-  typedef
-      typename std::iterator_traits<iterator>::difference_type difference_type;
+  using iterator = ForwardIterator;
+  using const_iterator = ForwardIterator;
+  using pointer = typename std::iterator_traits<iterator>::pointer;
+  using reference = typename std::iterator_traits<iterator>::reference;
+  using value_type = typename std::iterator_traits<iterator>::value_type;
+  using difference_type =
+      typename std::iterator_traits<iterator>::difference_type;
 
   iterator_range() : begin_(), end_() {}
-  template <typename ForwardIterator1, typename ForwardIterator2>
-  iterator_range(ForwardIterator1&& begin, ForwardIterator2&& end)
-      : begin_(std::forward<ForwardIterator1>(begin)),
-        end_(std::forward<ForwardIterator2>(end)) {}
+  iterator_range(ForwardIterator begin, ForwardIterator end)
+      : begin_(begin), end_(end) {}
 
   iterator begin() { return begin_; }
   iterator end() { return end_; }
@@ -58,6 +56,25 @@ class iterator_range {
   const_iterator const begin_;
   const_iterator const end_;
 };
+
+template <typename ForwardIterator>
+auto make_iterator_range(ForwardIterator begin, ForwardIterator end) {
+  return iterator_range<ForwardIterator>{begin, end};
+}
+
+// {Reversed} returns a container adapter usable in a range-based "for"
+// statement for iterating a reversible container in reverse order.
+//
+// Example:
+//
+//   std::vector<int> v = ...;
+//   for (int i : base::Reversed(v)) {
+//     // iterates through v from back to front
+//   }
+template <typename T>
+auto Reversed(T& t) {  // NOLINT(runtime/references): match {rbegin} and {rend}
+  return make_iterator_range(std::rbegin(t), std::rend(t));
+}
 
 }  // namespace base
 }  // namespace v8

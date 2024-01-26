@@ -25,9 +25,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "src/flags.h"
-#include "src/isolate.h"
-#include "src/v8.h"
+#include "src/execution/isolate.h"
+#include "src/flags/flags.h"
+#include "src/init/v8.h"
 #include "test/cctest/cctest.h"
 
 #include "src/base/utils/random-number-generator.h"
@@ -126,7 +126,7 @@ void RandomBitCorrelation(int random_bit) {
 
       // For 1 degree of freedom this corresponds to 1 in a million.  We are
       // running ~8000 tests, so that would be surprising.
-      CHECK(chi_squared <= 24);
+      CHECK_LE(chi_squared, 24);
 
       // If the predictor bit is a fixed 0 or 1 then it makes no sense to
       // repeat the test with a different age.

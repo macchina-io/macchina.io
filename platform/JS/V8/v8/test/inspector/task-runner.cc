@@ -4,6 +4,9 @@
 
 #include "test/inspector/task-runner.h"
 
+#include "include/libplatform/libplatform.h"
+#include "src/flags/flags.h"
+
 #if !defined(_WIN32) && !defined(_WIN64)
 #include <unistd.h>  // NOLINT
 #endif               // !defined(_WIN32) && !defined(_WIN64)
@@ -41,8 +44,9 @@ TaskRunner::TaskRunner(IsolateData::SetupGlobalTasks setup_global_tasks,
       ready_semaphore_(ready_semaphore),
       data_(nullptr),
       process_queue_semaphore_(0),
-      nested_loop_count_(0) {
-  Start();
+      nested_loop_count_(0),
+      is_terminated_(0) {
+  CHECK(Start());
 }
 
 TaskRunner::~TaskRunner() { Join(); }
@@ -56,7 +60,7 @@ void TaskRunner::Run() {
 
 void TaskRunner::RunMessageLoop(bool only_protocol) {
   int loop_number = ++nested_loop_count_;
-  while (nested_loop_count_ == loop_number && !is_terminated_.Value()) {
+  while (nested_loop_count_ == loop_number && !is_terminated_) {
     TaskRunner::Task* task = GetNext(only_protocol);
     if (!task) return;
     v8::Isolate::Scope isolate_scope(isolate());
@@ -74,11 +78,20 @@ void TaskRunner::RunMessageLoop(bool only_protocol) {
       task->Run(data_.get());
       delete task;
     }
+    // Also pump isolate's foreground task queue to ensure progress.
+    // This can be removed once https://crbug.com/v8/10747 is fixed.
+    // TODO(10748): Enable --stress-incremental-marking after the existing
+    // tests are fixed.
+    if (!i::FLAG_stress_incremental_marking) {
+      while (v8::platform::PumpMessageLoop(
+          v8::internal::V8::GetCurrentPlatform(), isolate())) {
+      }
+    }
   }
 }
 
 void TaskRunner::QuitMessageLoop() {
-  DCHECK(nested_loop_count_ > 0);
+  DCHECK_LT(0, nested_loop_count_);
   --nested_loop_count_;
 }
 
@@ -88,13 +101,13 @@ void TaskRunner::Append(Task* task) {
 }
 
 void TaskRunner::Terminate() {
-  is_terminated_.Increment(1);
+  is_terminated_++;
   process_queue_semaphore_.Signal();
 }
 
 TaskRunner::Task* TaskRunner::GetNext(bool only_protocol) {
   for (;;) {
-    if (is_terminated_.Value()) return nullptr;
+    if (is_terminated_) return nullptr;
     if (only_protocol) {
       Task* task = nullptr;
       if (queue_.Dequeue(&task)) {

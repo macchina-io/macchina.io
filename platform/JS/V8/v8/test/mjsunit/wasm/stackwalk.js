@@ -4,7 +4,6 @@
 
 // Flags: --expose-wasm --expose-gc --allow-natives-syntax
 
-load("test/mjsunit/wasm/wasm-constants.js");
 load("test/mjsunit/wasm/wasm-module-builder.js");
 
 function makeFFI(func) {
@@ -14,8 +13,8 @@ function makeFFI(func) {
   builder.addImport("mom", "func", sig_index);
   builder.addFunction("main", sig_index)
     .addBody([
-      kExprGetLocal, 0,            // --
-      kExprGetLocal, 1,            // --
+      kExprLocalGet, 0,            // --
+      kExprLocalGet, 1,            // --
       kExprCallFunction, 0,        // --
     ])
     .exportFunc()

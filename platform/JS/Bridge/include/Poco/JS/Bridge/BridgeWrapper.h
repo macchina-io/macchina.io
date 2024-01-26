@@ -134,8 +134,7 @@ public:
 protected:
 	static void construct(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-	static void getProperty(v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info);
-	static void setProperty(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Value>& info);
+	static void getProperty(v8::Local<v8::Name> property, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void bridgeFunction(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void on(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void toJSON(const v8::FunctionCallbackInfo<v8::Value>& args);

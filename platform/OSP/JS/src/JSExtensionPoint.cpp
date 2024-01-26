@@ -18,6 +18,9 @@
 #include <memory>
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 namespace JS {
@@ -38,21 +41,21 @@ JSExtensionPoint::~JSExtensionPoint()
 
 void JSExtensionPoint::handleExtension(Bundle::ConstPtr pBundle, Poco::XML::Element* pExtensionElem)
 {
-	std::string scriptPath = pExtensionElem->getAttribute("script");
-	Poco::UInt64 memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit", JSExecutor::getDefaultMemoryLimit());
-	std::string strMemoryLimit = pExtensionElem->getAttribute("memoryLimit");
+	std::string scriptPath = pExtensionElem->getAttribute("script"s);
+	Poco::UInt64 memoryLimit = pBundle->properties().getUInt64("osp.js.memoryLimit"s, JSExecutor::getDefaultMemoryLimit());
+	std::string strMemoryLimit = pExtensionElem->getAttribute("memoryLimit"s);
 	if (!strMemoryLimit.empty())
 	{
 		memoryLimit = Poco::NumberParser::parseUnsigned64(strMemoryLimit);
 	}
 
-	Poco::StringTokenizer tok(pExtensionElem->getAttribute("searchPaths"), ",;", Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
+	Poco::StringTokenizer tok(pExtensionElem->getAttribute("searchPaths"s), ",;"s, Poco::StringTokenizer::TOK_TRIM | Poco::StringTokenizer::TOK_IGNORE_EMPTY);
 	std::vector<std::string> moduleSearchPaths(tok.begin(), tok.end());
 
 	std::string script;
 	std::unique_ptr<std::istream> pStream(pBundle->getResource(scriptPath));
 	Poco::StreamCopier::copyToString(*pStream, script);
-	_pContext->logger().information(Poco::format("Starting script %s from bundle %s.", scriptPath, pBundle->symbolicName()));
+	_pContext->logger().information(Poco::format("Starting script %s from bundle %s."s, scriptPath, pBundle->symbolicName()));
 	std::string scriptURI("bndl://");
 	scriptURI += pBundle->symbolicName();
 	if (scriptPath.empty() || scriptPath[0] != '/') scriptURI += "/";
@@ -75,7 +78,7 @@ void JSExtensionPoint::onBundleStopped(const void* pSender, Poco::OSP::BundleEve
 	{
 		if ((*it)->bundle() == pBundle)
 		{
-			_pContext->logger().information(Poco::format("Stopping script %s.", (*it)->uri().toString()));
+			_pContext->logger().information(Poco::format("Stopping script %s."s, (*it)->uri().toString()));
 			(*it)->stop();
 			it = _executors.erase(it);
 		}

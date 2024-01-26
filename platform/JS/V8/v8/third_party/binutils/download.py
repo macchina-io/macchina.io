@@ -9,12 +9,15 @@
 TODO(mithro): Replace with generic download_and_extract tool.
 """
 
+
+from __future__ import print_function
 import os
 import platform
 import re
 import shutil
 import subprocess
 import sys
+from detect_v8_host_arch import DetectHostArch
 
 
 BINUTILS_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -22,33 +25,17 @@ BINUTILS_FILE = 'binutils.tar.bz2'
 BINUTILS_TOOLS = ['bin/ld.gold', 'bin/objcopy', 'bin/objdump']
 BINUTILS_OUT = 'Release'
 
-DETECT_HOST_ARCH = os.path.abspath(os.path.join(
-    BINUTILS_DIR, '../../gypfiles/detect_v8_host_arch.py'))
-
 
 def ReadFile(filename):
-  with file(filename, 'r') as f:
+  with open(filename, 'r') as f:
     return f.read().strip()
 
 
 def WriteFile(filename, content):
   assert not os.path.exists(filename)
-  with file(filename, 'w') as f:
+  with open(filename, 'w') as f:
     f.write(content)
     f.write('\n')
-
-
-def GetArch():
-  gyp_host_arch = re.search(
-      'host_arch=(\S*)', os.environ.get('GYP_DEFINES', ''))
-  if gyp_host_arch:
-    arch = gyp_host_arch.group(1)
-    # This matches detect_host_arch.py.
-    if arch == 'x86_64':
-      return 'x64'
-    return arch
-
-  return subprocess.check_output(['python', DETECT_HOST_ARCH]).strip()
 
 
 def FetchAndExtract(arch):
@@ -58,7 +45,7 @@ def FetchAndExtract(arch):
 
   sha1file = tarball + '.sha1'
   if not os.path.exists(sha1file):
-    print "WARNING: No binutils found for your architecture (%s)!" % arch
+    print("WARNING: No binutils found for your architecture (%s)!" % arch)
     return 0
 
   checksum = ReadFile(sha1file)
@@ -72,7 +59,7 @@ def FetchAndExtract(arch):
     else:
       os.unlink(stampfile)
 
-  print "Downloading", tarball
+  print("Downloading", tarball)
   subprocess.check_call([
       'download_from_google_storage',
       '--no_resume',
@@ -87,7 +74,7 @@ def FetchAndExtract(arch):
   os.makedirs(outdir)
   assert os.path.exists(outdir)
 
-  print "Extracting", tarball
+  print("Extracting", tarball)
   subprocess.check_call(['tar', 'axf', tarball], cwd=outdir)
 
   for tool in BINUTILS_TOOLS:
@@ -101,7 +88,7 @@ def main(args):
   if not sys.platform.startswith('linux'):
     return 0
 
-  arch = GetArch()
+  arch = DetectHostArch()
   if arch == 'x64':
     return FetchAndExtract(arch)
   if arch == 'ia32':

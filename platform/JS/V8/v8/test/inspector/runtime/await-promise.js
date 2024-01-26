@@ -1,7 +1,8 @@
 // Copyright 2016 the V8 project authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-// Flags: --expose_gc
+
+// Flags: --expose-gc
 
 let {session, contextGroup, Protocol} = InspectorTest.start("Tests that Runtime.awaitPromise works.");
 
@@ -116,28 +117,6 @@ function testSuite()
         .then(result => Protocol.Runtime.awaitPromise({ promiseObjectId: result.result.result.objectId, returnByValue: true, generatePreview: false }))
         .then(result => InspectorTest.logMessage(result))
         .then(() => next());
-    },
-
-    function testGarbageCollectedPromise(next)
-    {
-      Protocol.Runtime.evaluate({ expression: "new Promise(() => undefined)" })
-        .then(result => scheduleGCAndawaitPromise(result))
-        .then(result => InspectorTest.logMessage(result))
-        .then(() => next());
-
-      function scheduleGCAndawaitPromise(result)
-      {
-        var objectId = result.result.result.objectId;
-        var promise = Protocol.Runtime.awaitPromise({ promiseObjectId: objectId });
-        gcPromise(objectId);
-        return promise;
-      }
-
-      function gcPromise(objectId)
-      {
-        Protocol.Runtime.releaseObject({ objectId: objectId})
-          .then(() => Protocol.Runtime.evaluate({ expression: "gc()" }));
-      }
     }
   ]);
 }

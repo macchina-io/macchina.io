@@ -4,34 +4,24 @@
 
 #include <stdlib.h>
 
-#include "src/v8.h"
-
-#include "src/factory.h"
-// FIXME(mstarzinger, marja): This is weird, but required because of the missing
-// (disallowed) include: src/factory.h -> src/objects-inl.h
-#include "src/objects-inl.h"
-// FIXME(mstarzinger, marja): This is weird, but required because of the missing
-// (disallowed) include: src/feedback-vector.h ->
-// src/feedback-vector-inl.h
-#include "src/feedback-vector-inl.h"
+#include "src/heap/factory.h"
+#include "src/objects/objects-inl.h"
 #include "test/cctest/cctest.h"
 
-namespace {
-
-using namespace v8::internal;
-
+namespace v8 {
+namespace internal {
 
 TEST(ArrayList) {
   LocalContext context;
   Isolate* isolate = CcTest::i_isolate();
   HandleScope scope(isolate);
   Handle<ArrayList> array(
-      ArrayList::cast(isolate->heap()->empty_fixed_array()));
+      ArrayList::cast(ReadOnlyRoots(isolate).empty_fixed_array()), isolate);
   CHECK_EQ(0, array->Length());
-  array = ArrayList::Add(array, handle(Smi::FromInt(100), isolate));
+  array = ArrayList::Add(isolate, array, handle(Smi::FromInt(100), isolate));
   CHECK_EQ(1, array->Length());
   CHECK_EQ(100, Smi::ToInt(array->Get(0)));
-  array = ArrayList::Add(array, handle(Smi::FromInt(200), isolate),
+  array = ArrayList::Add(isolate, array, handle(Smi::FromInt(200), isolate),
                          handle(Smi::FromInt(300), isolate));
   CHECK_EQ(3, array->Length());
   CHECK_EQ(100, Smi::ToInt(array->Get(0)));
@@ -39,11 +29,12 @@ TEST(ArrayList) {
   CHECK_EQ(300, Smi::ToInt(array->Get(2)));
   array->Set(2, Smi::FromInt(400));
   CHECK_EQ(400, Smi::ToInt(array->Get(2)));
-  array->Clear(2, isolate->heap()->undefined_value());
+  array->Clear(2, ReadOnlyRoots(isolate).undefined_value());
   array->SetLength(2);
   CHECK_EQ(2, array->Length());
   CHECK_EQ(100, Smi::ToInt(array->Get(0)));
   CHECK_EQ(200, Smi::ToInt(array->Get(1)));
 }
 
-}  // namespace
+}  // namespace internal
+}  // namespace v8

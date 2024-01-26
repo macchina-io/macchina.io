@@ -39,6 +39,10 @@ directory. It's not checked out by default and must be added as a custom deps:
     'https://chromium.googlesource.com/external/llvm.org/compiler-rt.git'
 """
 
+# for py2/py3 compatibility
+from __future__ import print_function
+from functools import reduce
+
 import argparse
 import json
 import logging
@@ -65,7 +69,7 @@ EXCLUSIONS = [
 
 # Executables found in the build output for which no coverage is generated.
 # Exclude them from the coverage data file.
-EXE_BLACKLIST = [
+EXE_EXCLUSIONS = [
   'generate-bytecode-expectations',
   'hello-world',
   'mksnapshot',
@@ -105,7 +109,7 @@ def executables(build_dir):
     file_path = os.path.join(build_dir, f)
     if (os.path.isfile(file_path) and
         os.access(file_path, os.X_OK) and
-        f not in EXE_BLACKLIST):
+        f not in EXE_EXCLUSIONS):
       yield file_path
 
 
@@ -426,26 +430,26 @@ def main(args=None):
   options.build_dir = os.path.abspath(options.build_dir)
   if options.action.lower() == 'all':
     if not options.json_output:
-      print '--json-output is required'
+      print('--json-output is required')
       return 1
     write_instrumented(options)
   elif options.action.lower() == 'merge':
     if not options.coverage_dir:
-      print '--coverage-dir is required'
+      print('--coverage-dir is required')
       return 1
     if not options.json_input:
-      print '--json-input is required'
+      print('--json-input is required')
       return 1
     if not options.json_output:
-      print '--json-output is required'
+      print('--json-output is required')
       return 1
     merge(options)
   elif options.action.lower() == 'split':
     if not options.json_input:
-      print '--json-input is required'
+      print('--json-input is required')
       return 1
     if not options.output_dir:
-      print '--output-dir is required'
+      print('--output-dir is required')
       return 1
     split(options)
   return 0

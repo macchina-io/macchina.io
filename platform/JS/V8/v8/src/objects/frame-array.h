@@ -5,7 +5,7 @@
 #ifndef V8_OBJECTS_FRAME_ARRAY_H_
 #define V8_OBJECTS_FRAME_ARRAY_H_
 
-#include "src/objects.h"
+#include "src/objects/objects.h"
 #include "src/wasm/wasm-objects.h"
 
 // Has to be the last include (doesn't have include guards):
@@ -20,47 +20,51 @@ class Handle;
 #define FRAME_ARRAY_FIELD_LIST(V)     \
   V(WasmInstance, WasmInstanceObject) \
   V(WasmFunctionIndex, Smi)           \
+  V(WasmCodeObject, Object)           \
   V(Receiver, Object)                 \
   V(Function, JSFunction)             \
   V(Code, AbstractCode)               \
   V(Offset, Smi)                      \
-  V(Flags, Smi)
+  V(Flags, Smi)                       \
+  V(Parameters, FixedArray)
 
 // Container object for data collected during simple stack trace captures.
 class FrameArray : public FixedArray {
  public:
 #define DECL_FRAME_ARRAY_ACCESSORS(name, type) \
-  inline type* name(int frame_ix) const;       \
-  inline void Set##name(int frame_ix, type* value);
+  inline type name(int frame_ix) const;        \
+  inline void Set##name(int frame_ix, type value);
   FRAME_ARRAY_FIELD_LIST(DECL_FRAME_ARRAY_ACCESSORS)
 #undef DECL_FRAME_ARRAY_ACCESSORS
 
   inline bool IsWasmFrame(int frame_ix) const;
-  inline bool IsWasmInterpretedFrame(int frame_ix) const;
   inline bool IsAsmJsWasmFrame(int frame_ix) const;
+  inline bool IsAnyWasmFrame(int frame_ix) const;
   inline int FrameCount() const;
 
-  void ShrinkToFit();
+  void ShrinkToFit(Isolate* isolate);
 
   // Flags.
   enum Flag {
     kIsWasmFrame = 1 << 0,
-    kIsWasmInterpretedFrame = 1 << 1,
-    kIsAsmJsWasmFrame = 1 << 2,
-    kIsStrict = 1 << 3,
-    kIsConstructor = 1 << 4,
-    kAsmJsAtNumberConversion = 1 << 5
+    kIsAsmJsWasmFrame = 1 << 1,
+    kIsStrict = 1 << 2,
+    kIsConstructor = 1 << 3,
+    kAsmJsAtNumberConversion = 1 << 4,
+    kIsAsync = 1 << 5,
+    kIsPromiseAll = 1 << 6,
+    kIsPromiseAny = 1 << 7
   };
 
   static Handle<FrameArray> AppendJSFrame(Handle<FrameArray> in,
                                           Handle<Object> receiver,
                                           Handle<JSFunction> function,
                                           Handle<AbstractCode> code, int offset,
-                                          int flags);
+                                          int flags,
+                                          Handle<FixedArray> parameters);
   static Handle<FrameArray> AppendWasmFrame(
       Handle<FrameArray> in, Handle<WasmInstanceObject> wasm_instance,
-      int wasm_function_index, Handle<AbstractCode> code, int offset,
-      int flags);
+      int wasm_function_index, wasm::WasmCode* code, int offset, int flags);
 
   DECL_CAST(FrameArray)
 
@@ -74,6 +78,7 @@ class FrameArray : public FixedArray {
 
   static const int kWasmInstanceOffset = 0;
   static const int kWasmFunctionIndexOffset = 1;
+  static const int kWasmCodeObjectOffset = 2;
 
   static const int kReceiverOffset = 0;
   static const int kFunctionOffset = 1;
@@ -83,7 +88,9 @@ class FrameArray : public FixedArray {
 
   static const int kFlagsOffset = 4;
 
-  static const int kElementsPerFrame = 5;
+  static const int kParametersOffset = 5;
+
+  static const int kElementsPerFrame = 6;
 
   // Array layout indices.
 
@@ -94,10 +101,11 @@ class FrameArray : public FixedArray {
     return kFirstIndex + frame_count * kElementsPerFrame;
   }
 
-  static Handle<FrameArray> EnsureSpace(Handle<FrameArray> array, int length);
+  static Handle<FrameArray> EnsureSpace(Isolate* isolate,
+                                        Handle<FrameArray> array, int length);
 
   friend class Factory;
-  DISALLOW_IMPLICIT_CONSTRUCTORS(FrameArray);
+  OBJECT_CONSTRUCTORS(FrameArray, FixedArray);
 };
 
 }  // namespace internal

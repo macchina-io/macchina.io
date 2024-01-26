@@ -45,12 +45,12 @@ a single object with the following fields:
     reflect the stuff we might want to build *in addition to* the list
     passed in `test_targets`. Targets in this list will be treated 
     specially, in the following way: if a given target is a "meta"
-    (GN: group, GYP: none) target like 'blink_tests' or
-    'chromium_builder_tests', or even the ninja-specific 'all' target, 
-    then only the *dependencies* of the target that are affected by
-    the modified files will be rebuilt (not the target itself, which
-    might also cause unaffected dependencies to be rebuilt). An empty
-    list will be treated as if there are no additional targets to build.
+    (GN: group, GYP: none) target like 'blink_tests' or or even the
+    ninja-specific 'all' target, then only the *dependencies* of the
+    target that are affected by the modified files will be rebuilt
+    (not the target itself, which might also cause unaffected dependencies
+    to be rebuilt). An empty list will be treated as if there are no additional
+    targets to build.
     Empty lists for both `test_targets` and `additional_compile_targets`
     would cause no work to be done, so will result in an error.
   * `targets`: a legacy field that resembled a union of `compile_targets`
@@ -167,6 +167,21 @@ The `-f/--config-file` and `-q/--quiet` flags work as documented for
 This is mostly useful as a presubmit check and for verifying changes to
 the config file.
 
+### `mb gerrit-buildbucket-config`
+
+Generates a gerrit buildbucket configuration file and prints it to
+stdout. This file contains the list of trybots shown in gerrit's UI.
+
+The master copy of the buildbucket.config file lives
+in a separate branch of the chromium repository. Run `mb
+gerrit-buildbucket-config > buildbucket.config.new && git fetch origin
+refs/meta/config:refs/remotes/origin/meta/config && git checkout
+-t -b meta_config origin/meta/config && mv buildbucket.config.new
+buildbucket.config` to update the file.
+
+Note that after committing, `git cl upload` will not work. Instead, use `git
+push origin HEAD:refs/for/refs/meta/config` to upload the CL for review.
+
 ## Isolates and Swarming
 
 `mb gen` is also responsible for generating the `.isolate` and
@@ -214,7 +229,7 @@ The `configs` key points to a dictionary of named build configurations.
 
 There should be an key in this dict for every supported configuration
 of Chromium, meaning every configuration we have a bot for, and every
-configuration commonly used by develpers but that we may not have a bot
+configuration commonly used by developers but that we may not have a bot
 for.
 
 The value of each key is a list of "mixins" that will define what that

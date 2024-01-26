@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "src/v8.h"
+#include "src/init/v8.h"
 
 #include "src/interpreter/bytecode-label.h"
 #include "src/interpreter/bytecode-register-optimizer.h"
+#include "test/unittests/interpreter/bytecode-utils.h"
 #include "test/unittests/test-utils.h"
 
 namespace v8 {
@@ -22,14 +23,14 @@ class BytecodeRegisterOptimizerTest
     Register output;
   };
 
-  BytecodeRegisterOptimizerTest() {}
+  BytecodeRegisterOptimizerTest() = default;
   ~BytecodeRegisterOptimizerTest() override { delete register_allocator_; }
 
   void Initialize(int number_of_parameters, int number_of_locals) {
     register_allocator_ = new BytecodeRegisterAllocator(number_of_locals);
-    register_optimizer_ = new (zone())
-        BytecodeRegisterOptimizer(zone(), register_allocator_, number_of_locals,
-                                  number_of_parameters, this);
+    register_optimizer_ = zone()->New<BytecodeRegisterOptimizer>(
+        zone(), register_allocator_, number_of_locals, number_of_parameters,
+        this);
   }
 
   void EmitLdar(Register input) override {
@@ -169,8 +170,8 @@ TEST_F(BytecodeRegisterOptimizerTest, SingleTemporaryNotMaterializedForInput) {
   CHECK_EQ(write_count(), 0u);
 
   Register reg = optimizer()->GetInputRegister(temp0);
-  RegisterList reg_list =
-      optimizer()->GetInputRegisterList(RegisterList(temp0.index(), 1));
+  RegisterList reg_list = optimizer()->GetInputRegisterList(
+      BytecodeUtils::NewRegisterList(temp0.index(), 1));
   CHECK_EQ(write_count(), 0u);
   CHECK_EQ(parameter.index(), reg.index());
   CHECK_EQ(parameter.index(), reg_list.first_register().index());
@@ -189,8 +190,8 @@ TEST_F(BytecodeRegisterOptimizerTest, RangeOfTemporariesMaterializedForInput) {
 
   optimizer()
       ->PrepareForBytecode<Bytecode::kCallJSRuntime, AccumulatorUse::kWrite>();
-  RegisterList reg_list =
-      optimizer()->GetInputRegisterList(RegisterList(temp0.index(), 2));
+  RegisterList reg_list = optimizer()->GetInputRegisterList(
+      BytecodeUtils::NewRegisterList(temp0.index(), 2));
   CHECK_EQ(temp0.index(), reg_list.first_register().index());
   CHECK_EQ(2, reg_list.register_count());
   CHECK_EQ(write_count(), 2u);
