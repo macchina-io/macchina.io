@@ -13,4 +13,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: brew install openssl@3 python@3.9
-      - run: PATH=$PATH:/usr/local/opt/python@3.9/libexec/bin make -s -j`nproc` DEFAULT_TARGET=shared_release
+      - run: PATH=/usr/local/opt/python@3.9/libexec/bin:$PATH make -s -j`sysctl -n hw.ncpu` DEFAULT_TARGET=shared_release
