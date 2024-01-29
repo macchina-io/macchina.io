@@ -259,8 +259,13 @@ void SchedulerExtensionPoint::handleExtension(Poco::OSP::Bundle::ConstPtr pBundl
 
 	std::string script;
 	std::unique_ptr<std::istream> pStream(pBundle->getResource(scriptPath));
+	if (!pStream)
+	{
+		_pContext->logger().error("Script not found: %s"s, scriptPath);
+		return;
+	}
 	Poco::StreamCopier::copyToString(*pStream, script);
-	_pContext->logger().information(Poco::format("Starting script %s from bundle %s."s, scriptPath, pBundle->symbolicName()));
+	_pContext->logger().information("Starting script %s from bundle %s."s, scriptPath, pBundle->symbolicName());
 	std::string scriptURI("bndl://");
 	scriptURI += pBundle->symbolicName();
 	if (scriptPath.empty() || scriptPath[0] != '/') scriptURI += "/";
@@ -347,7 +352,7 @@ void SchedulerExtensionPoint::onBundleStopped(const void* pSender, Poco::OSP::Bu
 	{
 		if (it->pExecutor->bundle() == pBundle)
 		{
-			_pContext->logger().information(Poco::format("Stopping script %s.", it->pExecutor->uri().toString()));
+			_pContext->logger().information("Stopping script %s."s, it->pExecutor->uri().toString());
 			it->pExecutor->terminate();
 			CallExportedFunctionTask::Ptr pStopTask = new CallExportedFunctionTask(it->pExecutor, "stop"s);
 			it->pExecutor->schedule(pStopTask);
