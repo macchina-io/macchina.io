@@ -118,7 +118,7 @@ public:
 
 	void setProperty(const std::string& name, const Poco::Any& value)
 	{
-		Poco::Mutex::ScopedLock lock(_mutex);
+		ScopedLock lock(*this);
 
 		typename PropertyMap::const_iterator it = _properties.find(name);
 		if (it != _properties.end())
@@ -133,7 +133,7 @@ public:
 		
 	Poco::Any getProperty(const std::string& name) const
 	{
-		Poco::Mutex::ScopedLock lock(_mutex);
+		ScopedLock lock(*this);
 
 		typename PropertyMap::const_iterator it = _properties.find(name);
 		if (it != _properties.end())
@@ -148,7 +148,7 @@ public:
 		
 	bool hasProperty(const std::string& name) const
 	{
-		Poco::Mutex::ScopedLock lock(_mutex);
+		ScopedLock lock(*this);
 
 		typename PropertyMap::const_iterator it = _properties.find(name);
 		return it != _properties.end();
@@ -156,7 +156,7 @@ public:
 			
 	void setFeature(const std::string& name, bool enable)
 	{
-		Poco::Mutex::ScopedLock lock(_mutex);
+		ScopedLock lock(*this);
 
 		typename FeatureMap::const_iterator it = _features.find(name);
 		if (it != _features.end())
@@ -171,7 +171,7 @@ public:
 	
 	bool getFeature(const std::string& name) const
 	{
-		Poco::Mutex::ScopedLock lock(_mutex);
+		ScopedLock lock(*this);
 
 		typename FeatureMap::const_iterator it = _features.find(name);
 		if (it != _features.end())
@@ -186,13 +186,50 @@ public:
 	
 	bool hasFeature(const std::string& name) const
 	{
-		Poco::Mutex::ScopedLock lock(_mutex);
+		ScopedLock lock(*this);
 
 		typename FeatureMap::const_iterator it = _features.find(name);
 		return it != _features.end();
 	}
 	
 protected:
+	class ScopedLock
+	{
+	public:
+		explicit ScopedLock(const DeviceImpl& device): _device(device)
+		{
+			_device.lock();
+		}
+		
+		~ScopedLock()
+		{
+			_device.unlock();
+		}
+
+	private:
+		const DeviceImpl& _device;
+
+		ScopedLock();
+		ScopedLock(const ScopedLock&);
+		ScopedLock& operator = (const ScopedLock&);
+	};
+
+	void lock() const
+		/// Locks the internal Mutex.
+		///
+		/// Should not be called directly, only via ScopedLock.
+	{
+		_mutex.lock();
+	}
+
+	void unlock() const
+		/// Unlocks the internal Mutex.
+		//
+		/// Should not be called directly, only via ScopedLock.
+	{
+		_mutex.unlock();
+	}
+
 	void addFeature(const std::string& name, FeatureGetter getter, FeatureSetter setter = 0)
 		/// Adds a feature to the map of supported features.
 		///
@@ -229,12 +266,14 @@ protected:
 		PropertyGetter getter;
 	};
 	
-	typedef std::map<std::string, Feature>  FeatureMap;
-	typedef std::map<std::string, Property> PropertyMap;
+	using FeatureMap = std::map<std::string, Feature>;
+	using PropertyMap = std::map<std::string, Property>;
 	
 	FeatureMap  _features;
 	PropertyMap _properties;
 	mutable Poco::Mutex _mutex;
+
+	friend class ScopedLock;
 };
 
 
