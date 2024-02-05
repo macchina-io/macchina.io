@@ -87,7 +87,6 @@ private:
 	Poco::Timestamp _updated;
 	int _value;
 	bool _valid;
-	mutable Poco::Mutex _mutex;
 };
 
 

@@ -98,7 +98,6 @@ private:
 	Poco::Timestamp _updated;
 	FlagsType _value;
 	bool _valid;
-	mutable Poco::Mutex _mutex;
 };
 
 

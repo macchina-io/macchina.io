@@ -55,7 +55,7 @@ EnumDatapointImpl::~EnumDatapointImpl()
 
 int EnumDatapointImpl::value() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -67,7 +67,7 @@ int EnumDatapointImpl::value() const
 
 Poco::Optional<int> EnumDatapointImpl::validValue() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -88,7 +88,7 @@ std::string EnumDatapointImpl::stringValue() const
 
 Poco::Optional<std::string> EnumDatapointImpl::validStringValue() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -103,7 +103,7 @@ Poco::Optional<std::string> EnumDatapointImpl::validStringValue() const
 
 void EnumDatapointImpl::update(int value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -115,7 +115,7 @@ void EnumDatapointImpl::update(int value)
 
 void EnumDatapointImpl::updateString(const std::string& symbolicName)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -133,7 +133,7 @@ std::vector<IoT::Devices::EnumValue> EnumDatapointImpl::definedValues() const
 
 void EnumDatapointImpl::forceUpdate(int value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	checkedUpdate(value);
 }
@@ -145,7 +145,7 @@ void EnumDatapointImpl::checkedUpdate(int value)
 	{
 		if (v.value == value)
 		{
-			Poco::Mutex::ScopedLock lock(_mutex);
+			ScopedLock lock(*this);
 			unsafeUpdate(value);
 			return;
 		}
@@ -157,14 +157,14 @@ void EnumDatapointImpl::checkedUpdate(int value)
 void EnumDatapointImpl::forceUpdateString(const std::string& symbolicName)
 {
 	int value = mapSymbolicName(symbolicName);
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 	unsafeUpdate(value);
 }
 
 
 void EnumDatapointImpl::invalidate()
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	makeInvalid(_valid);
 }
@@ -172,7 +172,7 @@ void EnumDatapointImpl::invalidate()
 
 bool EnumDatapointImpl::valid() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	return _valid;
 }
@@ -210,8 +210,6 @@ Poco::Any EnumDatapointImpl::getSymbolicName(const std::string&) const
 
 Poco::Any EnumDatapointImpl::getUpdated(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	return _updated;
 }
 

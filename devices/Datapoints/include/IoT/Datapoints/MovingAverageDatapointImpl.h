@@ -90,7 +90,6 @@ private:
 	double _valueChangedDelta = 0.0;
 	Poco::SharedPtr<IoT::Devices::EventModerationPolicy<double>> _pEventPolicy;
 	Poco::Util::Timer& _timer;
-	mutable Poco::Mutex _mutex;
 };
 
 

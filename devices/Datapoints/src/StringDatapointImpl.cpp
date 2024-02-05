@@ -52,7 +52,7 @@ StringDatapointImpl::~StringDatapointImpl()
 
 std::string StringDatapointImpl::value() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -64,7 +64,7 @@ std::string StringDatapointImpl::value() const
 
 Poco::Optional<std::string> StringDatapointImpl::validValue() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -79,7 +79,7 @@ Poco::Optional<std::string> StringDatapointImpl::validValue() const
 
 void StringDatapointImpl::update(const std::string& value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -91,7 +91,7 @@ void StringDatapointImpl::update(const std::string& value)
 
 void StringDatapointImpl::forceUpdate(const std::string& value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	unsafeUpdate(value);
 }
@@ -99,7 +99,7 @@ void StringDatapointImpl::forceUpdate(const std::string& value)
 
 void StringDatapointImpl::invalidate()
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	makeInvalid(_valid);
 }
@@ -107,7 +107,7 @@ void StringDatapointImpl::invalidate()
 
 bool StringDatapointImpl::valid() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	return _valid;
 }
@@ -115,8 +115,6 @@ bool StringDatapointImpl::valid() const
 
 Poco::Any StringDatapointImpl::getDisplayValue(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	if (_access & ACCESS_READ)
 	{
 		if (_valid)
@@ -154,8 +152,6 @@ Poco::Any StringDatapointImpl::getSymbolicName(const std::string&) const
 
 Poco::Any StringDatapointImpl::getUpdated(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	return _updated;
 }
 

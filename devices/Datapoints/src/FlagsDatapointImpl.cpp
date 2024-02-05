@@ -72,7 +72,7 @@ FlagsDatapointImpl::~FlagsDatapointImpl()
 
 FlagsDatapointImpl::FlagsType FlagsDatapointImpl::value() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -84,7 +84,7 @@ FlagsDatapointImpl::FlagsType FlagsDatapointImpl::value() const
 
 Poco::Optional<FlagsDatapointImpl::FlagsType> FlagsDatapointImpl::validValue() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -101,7 +101,7 @@ std::vector<std::string> FlagsDatapointImpl::flags() const
 {
 	std::vector<std::string> result;
 
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -117,7 +117,7 @@ Poco::Optional<std::vector<std::string>> FlagsDatapointImpl::validFlags() const
 {
 	std::vector<std::string> result;
 
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -134,7 +134,7 @@ Poco::Optional<std::vector<std::string>> FlagsDatapointImpl::validFlags() const
 
 FlagsDatapointImpl::FlagsType FlagsDatapointImpl::reset(FlagsType value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -149,7 +149,7 @@ FlagsDatapointImpl::FlagsType FlagsDatapointImpl::reset(FlagsType value)
 
 void FlagsDatapointImpl::resetFlags(const std::vector<std::string>& flags)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -161,7 +161,7 @@ void FlagsDatapointImpl::resetFlags(const std::vector<std::string>& flags)
 
 FlagsDatapointImpl::FlagsType FlagsDatapointImpl::set(FlagsType flags)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -176,7 +176,7 @@ FlagsDatapointImpl::FlagsType FlagsDatapointImpl::set(FlagsType flags)
 
 void FlagsDatapointImpl::setFlags(const std::vector<std::string>& flags)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -189,7 +189,7 @@ void FlagsDatapointImpl::setFlags(const std::vector<std::string>& flags)
 
 FlagsDatapointImpl::FlagsType FlagsDatapointImpl::unset(FlagsType flags)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -204,7 +204,7 @@ FlagsDatapointImpl::FlagsType FlagsDatapointImpl::unset(FlagsType flags)
 
 void FlagsDatapointImpl::unsetFlags(const std::vector<std::string>& flags)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -217,7 +217,7 @@ void FlagsDatapointImpl::unsetFlags(const std::vector<std::string>& flags)
 
 FlagsDatapointImpl::FlagsType FlagsDatapointImpl::toggle(FlagsType flags)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -232,7 +232,7 @@ FlagsDatapointImpl::FlagsType FlagsDatapointImpl::toggle(FlagsType flags)
 
 void FlagsDatapointImpl::toggleFlags(const std::vector<std::string>& flags)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -251,7 +251,7 @@ std::vector<IoT::Devices::FlagValue> FlagsDatapointImpl::definedFlags() const
 
 void FlagsDatapointImpl::invalidate()
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	makeInvalid(_valid);
 }
@@ -259,7 +259,7 @@ void FlagsDatapointImpl::invalidate()
 
 bool FlagsDatapointImpl::valid() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	return _valid;
 }
@@ -267,8 +267,6 @@ bool FlagsDatapointImpl::valid() const
 
 Poco::Any FlagsDatapointImpl::getDisplayValue(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	if (_access & ACCESS_READ)
 	{
 		if (_valid)
@@ -308,8 +306,6 @@ Poco::Any FlagsDatapointImpl::getSymbolicName(const std::string&) const
 
 Poco::Any FlagsDatapointImpl::getUpdated(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	return _updated;
 }
 

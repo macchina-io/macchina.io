@@ -75,7 +75,6 @@ private:
 	Poco::Timestamp _updated;
 	std::string _value;
 	bool _valid;
-	mutable Poco::Mutex _mutex;
 };
 
 

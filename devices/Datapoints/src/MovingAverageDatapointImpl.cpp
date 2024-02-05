@@ -63,7 +63,7 @@ MovingAverageDatapointImpl::~MovingAverageDatapointImpl()
 
 double MovingAverageDatapointImpl::value() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -75,7 +75,7 @@ double MovingAverageDatapointImpl::value() const
 
 Poco::Optional<double> MovingAverageDatapointImpl::validValue() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -90,7 +90,7 @@ Poco::Optional<double> MovingAverageDatapointImpl::validValue() const
 
 void MovingAverageDatapointImpl::update(double value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -102,7 +102,7 @@ void MovingAverageDatapointImpl::update(double value)
 
 void MovingAverageDatapointImpl::forceUpdate(double value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	unsafeUpdate(value);
 }
@@ -110,7 +110,7 @@ void MovingAverageDatapointImpl::forceUpdate(double value)
 
 void MovingAverageDatapointImpl::invalidate()
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_sampleCount != 0)
 	{
@@ -122,7 +122,7 @@ void MovingAverageDatapointImpl::invalidate()
 
 bool MovingAverageDatapointImpl::valid() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	return _sampleCount > 0;
 }
@@ -130,16 +130,12 @@ bool MovingAverageDatapointImpl::valid() const
 
 Poco::Any MovingAverageDatapointImpl::getValueChangedPeriod(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	return _valueChangedPeriod;
 }
 
 
 void MovingAverageDatapointImpl::setValueChangedPeriod(const std::string&, const Poco::Any& value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	int period = Poco::AnyCast<int>(value);
 	if (period != _valueChangedPeriod)
 	{
@@ -158,16 +154,12 @@ void MovingAverageDatapointImpl::setValueChangedPeriod(const std::string&, const
 
 Poco::Any MovingAverageDatapointImpl::getValueChangedDelta(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	return _valueChangedDelta;
 }
 
 
 void MovingAverageDatapointImpl::setValueChangedDelta(const std::string&, const Poco::Any& value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	double delta = Poco::AnyCast<double>(value);
 	if (delta != _valueChangedDelta)
 	{
@@ -186,8 +178,6 @@ void MovingAverageDatapointImpl::setValueChangedDelta(const std::string&, const 
 
 Poco::Any MovingAverageDatapointImpl::getDisplayValue(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	if (_access & ACCESS_READ)
 	{
 		if (_sampleCount > 0)
@@ -241,8 +231,6 @@ Poco::Any MovingAverageDatapointImpl::getPhysicalUnit(const std::string&) const
 
 Poco::Any MovingAverageDatapointImpl::getUpdated(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	return _updated;
 }
 

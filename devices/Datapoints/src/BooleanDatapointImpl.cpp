@@ -52,7 +52,7 @@ BooleanDatapointImpl::~BooleanDatapointImpl()
 
 bool BooleanDatapointImpl::value() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -64,7 +64,7 @@ bool BooleanDatapointImpl::value() const
 
 Poco::Optional<bool> BooleanDatapointImpl::validValue() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -79,7 +79,7 @@ Poco::Optional<bool> BooleanDatapointImpl::validValue() const
 
 bool BooleanDatapointImpl::update(bool value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -91,7 +91,7 @@ bool BooleanDatapointImpl::update(bool value)
 
 bool BooleanDatapointImpl::invert()
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -103,7 +103,7 @@ bool BooleanDatapointImpl::invert()
 
 bool BooleanDatapointImpl::forceUpdate(bool value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	return unsafeUpdate(value);
 }
@@ -111,7 +111,7 @@ bool BooleanDatapointImpl::forceUpdate(bool value)
 
 void BooleanDatapointImpl::invalidate()
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	makeInvalid(_valid);
 }
@@ -119,7 +119,7 @@ void BooleanDatapointImpl::invalidate()
 
 bool BooleanDatapointImpl::valid() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	return _valid;
 }
@@ -127,8 +127,6 @@ bool BooleanDatapointImpl::valid() const
 
 Poco::Any BooleanDatapointImpl::getDisplayValue(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	if (_access & ACCESS_READ)
 	{
 		if (_valid)
@@ -166,8 +164,6 @@ Poco::Any BooleanDatapointImpl::getSymbolicName(const std::string&) const
 
 Poco::Any BooleanDatapointImpl::getUpdated(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	return _updated;
 }
 

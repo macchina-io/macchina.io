@@ -53,7 +53,7 @@ VectorDatapointImpl::~VectorDatapointImpl()
 
 VectorDatapointImpl::Vector VectorDatapointImpl::value() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -66,7 +66,7 @@ VectorDatapointImpl::Vector VectorDatapointImpl::value() const
 
 Poco::Optional<VectorDatapointImpl::Vector> VectorDatapointImpl::validValue() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -81,7 +81,7 @@ Poco::Optional<VectorDatapointImpl::Vector> VectorDatapointImpl::validValue() co
 
 void VectorDatapointImpl::update(const VectorDatapointImpl::Vector& value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -93,7 +93,7 @@ void VectorDatapointImpl::update(const VectorDatapointImpl::Vector& value)
 
 void VectorDatapointImpl::forceUpdate(const VectorDatapointImpl::Vector& value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	unsafeUpdate(value);
 }
@@ -101,7 +101,7 @@ void VectorDatapointImpl::forceUpdate(const VectorDatapointImpl::Vector& value)
 
 void VectorDatapointImpl::invalidate()
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	makeInvalid(_valid);
 }
@@ -109,7 +109,7 @@ void VectorDatapointImpl::invalidate()
 
 bool VectorDatapointImpl::valid() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	return _valid;
 }
@@ -117,8 +117,6 @@ bool VectorDatapointImpl::valid() const
 
 Poco::Any VectorDatapointImpl::getDisplayValue(const std::string&) const
 {	
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	if (_access & ACCESS_READ)
 	{
 		if (_valid)
@@ -163,8 +161,6 @@ Poco::Any VectorDatapointImpl::getSymbolicName(const std::string&) const
 
 Poco::Any VectorDatapointImpl::getUpdated(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	return _updated;
 }
 

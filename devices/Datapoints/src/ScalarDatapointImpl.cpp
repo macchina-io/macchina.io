@@ -62,7 +62,7 @@ ScalarDatapointImpl::~ScalarDatapointImpl()
 
 double ScalarDatapointImpl::value() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -74,7 +74,7 @@ double ScalarDatapointImpl::value() const
 
 Poco::Optional<double> ScalarDatapointImpl::validValue() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -89,7 +89,7 @@ Poco::Optional<double> ScalarDatapointImpl::validValue() const
 
 void ScalarDatapointImpl::update(double value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -101,7 +101,7 @@ void ScalarDatapointImpl::update(double value)
 
 void ScalarDatapointImpl::forceUpdate(double value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	unsafeUpdate(value);
 }
@@ -109,7 +109,7 @@ void ScalarDatapointImpl::forceUpdate(double value)
 
 void ScalarDatapointImpl::invalidate()
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	makeInvalid(_valid);
 }
@@ -117,7 +117,7 @@ void ScalarDatapointImpl::invalidate()
 
 bool ScalarDatapointImpl::valid() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	return _valid;
 }
@@ -125,16 +125,12 @@ bool ScalarDatapointImpl::valid() const
 
 Poco::Any ScalarDatapointImpl::getValueChangedPeriod(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	return _valueChangedPeriod;
 }
 
 
 void ScalarDatapointImpl::setValueChangedPeriod(const std::string&, const Poco::Any& value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	int period = Poco::AnyCast<int>(value);
 	if (period != _valueChangedPeriod)
 	{
@@ -153,16 +149,12 @@ void ScalarDatapointImpl::setValueChangedPeriod(const std::string&, const Poco::
 
 Poco::Any ScalarDatapointImpl::getValueChangedDelta(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	return _valueChangedDelta;
 }
 
 
 void ScalarDatapointImpl::setValueChangedDelta(const std::string&, const Poco::Any& value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	double delta = Poco::AnyCast<double>(value);
 	if (delta != _valueChangedDelta)
 	{
@@ -181,8 +173,6 @@ void ScalarDatapointImpl::setValueChangedDelta(const std::string&, const Poco::A
 
 Poco::Any ScalarDatapointImpl::getDisplayValue(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	if (_access & ACCESS_READ)
 	{
 		if (_valid)
@@ -233,8 +223,6 @@ Poco::Any ScalarDatapointImpl::getPhysicalUnit(const std::string&) const
 
 Poco::Any ScalarDatapointImpl::getUpdated(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	return _updated;
 }
 

@@ -53,7 +53,7 @@ CounterDatapointImpl::~CounterDatapointImpl()
 
 CounterDatapointImpl::CounterType CounterDatapointImpl::value() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -65,7 +65,7 @@ CounterDatapointImpl::CounterType CounterDatapointImpl::value() const
 
 Poco::Optional<CounterDatapointImpl::CounterType> CounterDatapointImpl::validValue() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_READ)
 	{
@@ -80,7 +80,7 @@ Poco::Optional<CounterDatapointImpl::CounterType> CounterDatapointImpl::validVal
 
 CounterDatapointImpl::CounterType CounterDatapointImpl::increment(CounterType delta)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -92,7 +92,7 @@ CounterDatapointImpl::CounterType CounterDatapointImpl::increment(CounterType de
 
 CounterDatapointImpl::CounterType CounterDatapointImpl::forceIncrement(CounterType delta)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	return unsafeIncrement(delta);
 }
@@ -100,7 +100,7 @@ CounterDatapointImpl::CounterType CounterDatapointImpl::forceIncrement(CounterTy
 
 CounterDatapointImpl::CounterType CounterDatapointImpl::reset(CounterType value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	if (_access & ACCESS_WRITE)
 	{
@@ -112,7 +112,7 @@ CounterDatapointImpl::CounterType CounterDatapointImpl::reset(CounterType value)
 
 CounterDatapointImpl::CounterType CounterDatapointImpl::forceReset(CounterType value)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	return unsafeReset(value);
 }
@@ -120,7 +120,7 @@ CounterDatapointImpl::CounterType CounterDatapointImpl::forceReset(CounterType v
 
 void CounterDatapointImpl::invalidate()
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	makeInvalid(_valid);
 }
@@ -128,7 +128,7 @@ void CounterDatapointImpl::invalidate()
 
 bool CounterDatapointImpl::valid() const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
+	ScopedLock lock(*this);
 
 	return _valid;
 }
@@ -136,8 +136,6 @@ bool CounterDatapointImpl::valid() const
 
 Poco::Any CounterDatapointImpl::getDisplayValue(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	if (_access & ACCESS_READ)
 	{
 		if (_valid)
@@ -175,8 +173,6 @@ Poco::Any CounterDatapointImpl::getSymbolicName(const std::string&) const
 
 Poco::Any CounterDatapointImpl::getUpdated(const std::string&) const
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
 	return _updated;
 }
 
