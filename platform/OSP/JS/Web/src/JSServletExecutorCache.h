@@ -45,6 +45,11 @@ public:
 		_mutex.lock();
 	}
 
+	void lock(long timeout)
+	{
+		_mutex.lock(timeout);
+	}
+
 	void unlock()
 		/// Unlocks access to the instance.
 	{

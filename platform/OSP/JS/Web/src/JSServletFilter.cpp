@@ -80,7 +80,8 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 			if (pExecutorHolder)
 			{
 				cacheLock.unlock();
-				Poco::ScopedLock<JSServletExecutorHolder> lock(*pExecutorHolder);
+				long timeout = pBundle->properties().getUInt32("osp.js.jssTimeout"s, 30000);
+				Poco::ScopedLock<JSServletExecutorHolder> lock(*pExecutorHolder, timeout);
 				pExecutorHolder->executor()->prepareRequest(request, response);
 				pExecutorHolder->executor()->handleRequest(request, response);
 			}
@@ -125,6 +126,14 @@ void JSServletFilter::process(Poco::Net::HTTPServerRequest& request, Poco::Net::
 		if (!response.sent())
 		{
 			sendErrorResponse(response, "Script execution failed. See the server log for details."s);
+		}
+	}
+	catch (Poco::TimeoutException& exc)
+	{
+		_pContext->logger().error("Request timed out waiting for servlet script %s to become available."s, request.getURI());
+		if (!response.sent())
+		{
+			sendErrorResponse(response, "The request timed out waiting for the script to become available. See the server log for details."s);
 		}
 	}
 	catch (Poco::Exception& exc)
