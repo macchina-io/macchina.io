@@ -283,6 +283,17 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 	std::string username;
 	try
 	{
+		if (_logFullRequest && _pContext->logger().information())
+		{
+			std::ostringstream ostr;
+			ostr << "Request from " << request.clientAddress().toString() << ":\n\t";
+			request.write(ostr);
+			std::string message(ostr.str());
+			Poco::trimRightInPlace(message);
+			Poco::replaceInPlace(message, "\r\n"s, "\n\t"s);
+			_pContext->logger().information(message);
+		}
+
 		addCustomResponseHeaders(response);
 
 		URI uri(request.getURI());
@@ -427,6 +438,19 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 		}
 	}
 
+	if (_logFullRequest && _pContext->logger().information())
+	{
+		std::ostringstream ostr;
+		ostr << "Response to " << request.clientAddress().toString();
+		if (!username.empty()) ostr << " [user: " << username << "]";
+		ostr << ":\n\t";
+		response.write(ostr);
+		std::string message = ostr.str();
+		Poco::trimRightInPlace(message);
+		Poco::replaceInPlace(message, "\r\n"s, "\n\t"s);
+		_pContext->logger().information(message);
+	}
+
 	if (_accessLogger.information())
 	{
 		logRequest(request, response, username);
@@ -437,22 +461,11 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 void WebServerDispatcher::logRequest(const Poco::Net::HTTPServerRequest& request, const Poco::Net::HTTPServerResponse& response, const std::string& username)
 {
 	std::string reqText;
-	if (_logFullRequest)
-	{
-		std::ostringstream ostr;
-		ostr << request.clientAddress().host().toString() << " [" << username << "]\n";
-		request.write(ostr);
-		response.write(ostr);
-		reqText = ostr.str();
-	}
-	else
-	{
-		reqText += request.getMethod();
-		reqText += ' ';
-		reqText += request.getURI();
-		reqText += ' ';
-		reqText += request.getVersion();
-	}
+	reqText += request.getMethod();
+	reqText += ' ';
+	reqText += request.getURI();
+	reqText += ' ';
+	reqText += request.getVersion();
 
 	Poco::Message message(_accessLogger.name(), reqText, Poco::Message::PRIO_INFORMATION);
 
