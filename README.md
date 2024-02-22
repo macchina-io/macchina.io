@@ -43,8 +43,18 @@ For more information, including [documentation](https://docs.macchina.io/), plea
 ### Ubuntu
 
 ```
-$ sudo apt-get install make g++ libssl-dev python-is-python3
+$ sudo apt-get install -y make g++ libssl-dev python-is-python3
 ```
+
+### Raspberry Pi (64-bit)
+
+```
+$ sudo apt-get install -y git make g++ libssl-dev 
+```
+
+Note: We recommend using a 64-bit version of Raspberry Pi OS.
+The combination of a 64-bit kernel (default for recent Raspberry Pi OS versions)
+with a 32-bit userland causes the build to fail.
 
 ### macOS (with Homebrew)
 
@@ -55,9 +65,9 @@ $ brew install openssl python@3.9
 NOTE: On macOS, the python command must run Python 3.9 or newer in order to build V8.
 If installed via Homebrew, add the following directory to your `$PATH`:
 
-Intel: `/usr/local/opt/python@3.9/libexec/bin`
-
 Apple Silicon: `/opt/homebrew/opt/python@3.9/libexec/bin`
+
+Intel: `/usr/local/opt/python@3.9/libexec/bin`
 
 ## Getting Started
 
@@ -69,20 +79,28 @@ $ cd macchina.io
 $ make -s -j8 DEFAULT_TARGET=shared_release
 ```
 
-Then, on Linux:
+Then, on Linux (x86_64):
 
 ```
-$ export LD_LIBRARY_PATH=`pwd`/platform/lib/Linux/x86_64:`pwd`/server/bin/Linux/x86_64/codeCache
+$ . env.bash
 $ cd server
 $ bin/Linux/x86_64/macchina
 ```
 
-On macOS:
+On Raspberry Pi (aarch64)
 
 ```
-$ export DYLD_LIBRARY_PATH=`pwd`/platform/lib/Darwin/x86_64
+$ . env.basah
 $ cd server
-$ bin/Darwin/x86_64/macchina
+$ bin/Linux/aarch64/macchina
+```
+
+On macOS (Apple Silicon):
+
+```
+$ . env.zsh
+$ cd server
+$ bin/Darwin/arm64/macchina
 ```
 
 Then direct your favorite web browser to <http://localhost:22080> and log in with username `admin` and password `admin`.
