@@ -35,6 +35,8 @@
 #include "Poco/Logger.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/ThreadPool.h"
+#include "Poco/Clock.h"
+#include "Poco/BasicEvent.h"
 #include "Poco/Mutex.h"
 #include <vector>
 #include <map>
@@ -52,6 +54,8 @@ class OSPWeb_API WebServerDispatcher: public Service
 	/// request handler extension points (see the WebServerExtensionPoint class).
 {
 public:
+	using Ptr = Poco::AutoPtr<WebServerDispatcher>;
+
 	enum SpecializationMode
 		/// A bundle that registers a resource mapping or request handler for a certain
 		/// path can specify whether other bundles can register subdirectories of this directory.
@@ -228,6 +232,26 @@ public:
 	using WebFilterPtr = Poco::SharedPtr<WebFilter>;
 	using WebFilterFactoryPtr = Poco::SharedPtr<WebFilterFactory>;
 
+	struct RequestHandledEvent
+	{
+		RequestHandledEvent(const Poco::Net::HTTPServerRequest& req, const Poco::Net::HTTPServerResponse& res, Poco::Clock::ClockDiff dur):
+			request(req),
+			response(res),
+			duration(dur)
+		{
+		}
+	
+		const Poco::Net::HTTPServerRequest& request;
+		const Poco::Net::HTTPServerResponse& response;
+		const Poco::Clock::ClockDiff duration;
+	};
+
+	Poco::BasicEvent<const RequestHandledEvent> requestHandled;
+		/// Fired after a request has been handled
+		/// and the response has been sent.
+		///
+		/// Can be used for computing metrics.
+
 	explicit WebServerDispatcher(const Config& config);
 		/// Creates the WebServerDispatcher.
 
@@ -330,7 +354,7 @@ protected:
 	bool authorizeBasic(Poco::Net::HTTPServerRequest& request, const std::string& creds, const VirtualPath& vPath, std::string& username) const;
 		/// Authorizes the request using a HTTP Basic Authentication.
 
-	bool authorizeBearer(Poco::Net::HTTPServerRequest& request, const std::string& token, const VirtualPath& vPath, std::string& username) const;
+	bool authorizeBearer(Poco::Net::HTTPServerRequest& request, const std::string& token, const VirtualPath& vPath, std::string& username, std::string& scope) const;
 		/// Authorizes the request using bearer token-based authentication.
 
 	void sendFound(Poco::Net::HTTPServerRequest& request, const std::string& path, ResponseFormat format = RESPONSE_FORMAT_HTML);
@@ -400,6 +424,7 @@ protected:
 
 	static const std::string BEARER;
 	static const std::string X_OSP_AUTHORIZED_USER;
+	static const std::string X_OSP_AUTHORIZED_SCOPE;
 
 private:
 	struct WebFilterFactoryInfo

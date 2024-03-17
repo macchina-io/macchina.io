@@ -151,6 +151,11 @@ public:
 	virtual std::size_t maxSimultaneousTransactions() const = 0;
 		/// Returns the maximum allowed number of in-flight requests.
 
+	virtual bool hasTransactionIDs() const = 0;
+		/// Returns true if the port supports transaction IDs,
+		/// otherwise false. Currently, only Modbus/TCP supports
+		/// transaction IDs.
+
 	virtual std::size_t pendingTransactions() const = 0;
 		/// Returns the current number of in-flight requests.
 

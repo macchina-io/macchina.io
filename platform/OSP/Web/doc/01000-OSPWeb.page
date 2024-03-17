@@ -372,6 +372,8 @@ The web server can be configured by setting the following properties in the glob
   - <[osp.web.sessionManager.cookiePersistence]>: Specifies whether session cookies used by the WebSessionManager are persistent
     (survive closing the browser) or transient (are removed when the browser is closed). Valid values are "persistent" (default)
     and "transient".
+  - <[osp.web.sessionManager.cookieSecure]>: Controls the <*Secure*> attribute for session cookies. If set to <[true]>, session
+    cookies will have the <[Secure]> attribute set, which means that the browser will only send the cookie over a secure (HTTPS) connection.
   - <[osp.web.sessionManager.cookieSameSite]>: Specifies the <*SameSite*> attribute for the session cookie.
     Valid values are "" (empty string - no SameSite attribute; default), "none", "lax" and "strict".
   - <[osp.web.csrfProtectionEnabled]>: Enable or disable Cross-Site Request Forgery protection. If enabled, the

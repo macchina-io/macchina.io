@@ -159,6 +159,9 @@ public:
 		/// If task execution takes longer than the given interval,
 		/// further executions are delayed.
 
+	bool idle() const;
+		/// Returns true if the task queue is empty, otherwise false.
+
 	template <typename Fn>
 	static TimerTask::Ptr func(const Fn& fn)
 		/// Helper function template to use a functor or lambda

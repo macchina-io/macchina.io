@@ -36,11 +36,11 @@ class OSPWeb_API TokenValidator: public Poco::OSP::Service
 public:
 	using Ptr = Poco::AutoPtr<TokenValidator>;
 
-	virtual bool validateToken(const std::string& token, std::string& username) = 0;
+	virtual bool validateToken(const std::string& token, std::string& username, std::string& scope) = 0;
 		/// Validates the given bearer token.
 		///
-		/// If valid, returns true and the associated username.
-		/// If invalid, returns false, leaving the username unchanged.
+		/// If valid, returns true and the associated username and scope.
+		/// If invalid, returns false, leaving the username and scope unchanged.
 		///
 		/// The format of the token (e.g., JWT) and method of validation
 		/// is left to the implementation.

@@ -45,7 +45,7 @@ public:
 		/// Destroys the JWTValidator.
 
 	// TokenValidator
-	bool validateToken(const std::string& token, std::string& username);
+	bool validateToken(const std::string& token, std::string& username, std::string& scope);
 
 	static const std::string SERVICE_NAME;
 

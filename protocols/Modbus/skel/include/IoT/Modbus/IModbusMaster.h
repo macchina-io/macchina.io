@@ -73,6 +73,11 @@ public:
 	virtual std::string address() const = 0;
 		/// Returns the Modbus master address as a string.
 
+	virtual bool hasTransactionIDs() const = 0;
+		/// Returns true if the port supports transaction IDs,
+		/// otherwise false. Currently, only Modbus/TCP supports
+		/// transaction IDs.
+
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
 

@@ -176,6 +176,21 @@ WebSession::Ptr WebSessionManager::findById(const std::string& sessionId)
 }
 
 
+std::size_t WebSessionManager::countSessions()
+{
+	FastMutex::ScopedLock lock(_mutex);
+
+	if (_pStore)
+	{
+		return _pStore->countSessions();
+	}
+	else
+	{
+		return _cache.size();
+	}
+}
+
+
 WebSession::Ptr WebSessionManager::find(const std::string& appName, const Poco::Net::HTTPServerRequest& request)
 {
 	FastMutex::ScopedLock lock(_mutex);

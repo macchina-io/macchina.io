@@ -827,6 +827,6 @@ void DeserializerGenerator::generateTypeDeserializerLines(const Poco::CppParser:
 
 	if (haveLength)
 	{
-		lines.push_back("deser.pop(SerializerBase::PROP_LENGTH);");
+		lines.push_back("deser.popProperty(SerializerBase::PROP_LENGTH);");
 	}
 }

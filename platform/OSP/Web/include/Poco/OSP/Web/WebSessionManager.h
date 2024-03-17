@@ -134,6 +134,9 @@ public:
 	WebSession::Ptr findById(const std::string& sessionId);
 		/// Returns the session with the given ID, or null if it does not exist.
 
+	std::size_t countSessions();
+		/// Returns the number of active sessions.
+
 	// WebSessionService
 	WebSession::Ptr find(const std::string& appName, const Poco::Net::HTTPServerRequest& request);
 	WebSession::Ptr get(const std::string& appName, const Poco::Net::HTTPServerRequest& request, int expireSeconds, BundleContext::Ptr pContext);

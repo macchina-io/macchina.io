@@ -13,6 +13,9 @@
 #include <sstream>
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 namespace OSP {
 namespace JWT {
@@ -24,7 +27,7 @@ const std::string JWTValidator::SERVICE_NAME("osp.jwt.validator");
 JWTValidator::JWTValidator(const Config& config):
 	_leeway(config.leeway),
 	_issuer(config.issuer),
-	_logger(Poco::Logger::get("JWTValidator"))
+	_logger(Poco::Logger::get("JWTValidator"s))
 {
 	configureSigner(config);
 }
@@ -35,7 +38,7 @@ JWTValidator::~JWTValidator()
 }
 
 
-bool JWTValidator::validateToken(const std::string& jwt, std::string& username)
+bool JWTValidator::validateToken(const std::string& jwt, std::string& username, std::string& scope)
 {
 	try
 	{
@@ -53,6 +56,7 @@ bool JWTValidator::validateToken(const std::string& jwt, std::string& username)
 					if (token.getNotBefore() <= bitLater)
 					{
 						username = token.getSubject();
+						scope = token.payload().optValue("scope"s, ""s);
 						return true;
 					}
 				}

@@ -69,6 +69,7 @@ namespace Web {
 const std::string WebServerDispatcher::SERVICE_NAME("osp.web.dispatcher");
 const std::string WebServerDispatcher::BEARER("Bearer");
 const std::string WebServerDispatcher::X_OSP_AUTHORIZED_USER("X-OSP-Authorized-User");
+const std::string WebServerDispatcher::X_OSP_AUTHORIZED_SCOPE("X-OSP-Authorized-Scope");
 
 
 WebServerDispatcher::WebServerDispatcher(const Config& config):
@@ -280,6 +281,7 @@ void WebServerDispatcher::removeFilter(const std::string& mediaType)
 
 void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response, bool secure)
 {
+	Poco::Clock startTime;
 	std::string username;
 	try
 	{
@@ -395,7 +397,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().log(exc);
+			_pContext->logger().error("Exception while sending Not Found response: %s"s, exc.displayText());
 		}
 	}
 	catch (Poco::Exception& exc)
@@ -425,7 +427,7 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 		}
 		catch (Poco::Exception& exc)
 		{
-			_pContext->logger().log(exc);
+			_pContext->logger().error("Exception while sending error response: %s"s, exc.displayText());
 		}
 	}
 
@@ -900,6 +902,7 @@ bool WebServerDispatcher::authorize(Poco::Net::HTTPServerRequest& request, const
 	}
 	else
 	{
+		std::string scope;
 		if (request.hasCredentials())
 		{
 			std::string scheme;
@@ -908,7 +911,7 @@ bool WebServerDispatcher::authorize(Poco::Net::HTTPServerRequest& request, const
 			if (scheme == Poco::Net::HTTPBasicCredentials::SCHEME && (authMethods & AUTH_BASIC) != 0)
 				authorized = authorizeBasic(request, authInfo, vPath, username);
 			else if (scheme == BEARER && (authMethods & AUTH_BEARER) != 0)
-				authorized = authorizeBearer(request, authInfo, vPath, username);
+				authorized = authorizeBearer(request, authInfo, vPath, username, scope);
 		}
 		else if (!vPath.security.session.empty() && (authMethods & AUTH_SESSION) != 0)
 		{
@@ -921,10 +924,15 @@ bool WebServerDispatcher::authorize(Poco::Net::HTTPServerRequest& request, const
 		if (authorized && _addAuthHeader && !username.empty())
 		{
 			request.set(X_OSP_AUTHORIZED_USER, username);
+			if (!scope.empty())
+			{
+				request.set(X_OSP_AUTHORIZED_SCOPE, scope);
+			}
 		}
 		else
 		{
 			request.erase(X_OSP_AUTHORIZED_USER);
+			request.erase(X_OSP_AUTHORIZED_SCOPE);
 		}
 	}
 	return authorized;
@@ -1038,17 +1046,17 @@ bool WebServerDispatcher::authorizeBasic(Poco::Net::HTTPServerRequest& request, 
 }
 
 
-bool WebServerDispatcher::authorizeBearer(Poco::Net::HTTPServerRequest& request, const std::string& token, const VirtualPath& vPath, std::string& username) const
+bool WebServerDispatcher::authorizeBearer(Poco::Net::HTTPServerRequest& request, const std::string& token, const VirtualPath& vPath, std::string& username, std::string& scope) const
 {
 	AuthService::Ptr pAuthService = authService();
 	TokenValidator::Ptr pTokenValidator = tokenValidator();
 	if (pAuthService && pTokenValidator)
 	{
-		if (pTokenValidator->validateToken(token, username))
+		if (pTokenValidator->validateToken(token, username, scope))
 		{
 			if (pAuthService->userExists(username))
 			{
-				if (vPath.security.permission == "*" || vPath.security.permission == "**" || pAuthService->authorize(username, vPath.security.permission))
+				if (vPath.security.permission == "*" || vPath.security.permission == "**" || pAuthService->authorize(username, scope, vPath.security.permission))
 				{
 					return true;
 				}

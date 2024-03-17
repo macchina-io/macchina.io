@@ -67,15 +67,26 @@ void ConnectionManager::setHandshakeTimeout(Poco::Timespan timeout)
 
 void ConnectionManager::registerConnection(Connection::Ptr pConnection)
 {
+	Poco::Net::SocketAddress addr = pConnection->remoteAddress();
+
+	// For a UNIX domain socket, pConnection->remoteAddress() will return 
+	// the same "empty" address for every connection. Therefore, we do not
+	// add these connections to the _connections map.
+
+#if defined(POCO_OS_FAMILY_UNIX)
+	if (addr.family() != Poco::Net::AddressFamily::UNIX_LOCAL)
+#endif
+	{
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
-	Poco::Net::SocketAddress addr = pConnection->remoteAddress();
 	ConnectionMap::iterator it = _connections.find(addr);
 	if (it != _connections.end())
 	{
 		it->second->abort();
 	}
 	_connections[addr] = pConnection;
+	}
+
 	pConnection->setIdleTimeout(_idleTimeout);
 }
 

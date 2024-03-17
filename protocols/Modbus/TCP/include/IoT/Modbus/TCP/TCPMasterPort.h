@@ -44,7 +44,7 @@ class IoTModbusTCP_API TCPMasterPort
 public:
 	Poco::BasicEvent<const ConnectionState> connectionStateChanged;
 
-	TCPMasterPort(const Poco::Net::SocketAddress& serverAddress, Poco::Timespan connectTimeout, bool connectImmediately = true);
+	TCPMasterPort(const Poco::Net::SocketAddress& serverAddress, Poco::Timespan connectTimeout, bool connectImmediately = true, std::size_t maxSimultaneousTransactions = 16);
 		/// Creates a TCPMasterPort using the given server address.
 		///
 		/// Try connect to underlying socket in constructor.
@@ -131,9 +131,14 @@ public:
 		/// the internal buffer, or if data arrives during the
 		/// specified timeout interval, otherwise false.
 
-	int maxSimultaneousTransactions() const;
+	std::size_t maxSimultaneousTransactions() const;
 		/// Returns the maximum number of simultaneous transactions allowed by
 		/// the port.
+
+	bool hasTransactionIDs() const;
+		/// Returns true if the port supports transaction IDs,
+		/// otherwise false. Currently, only Modbus/TCP supports
+		/// transaction IDs.
 
 	void reset();
 		/// Closes and re-opens the connection.
@@ -156,8 +161,7 @@ private:
 	{
 		MBAP_HEADER_SIZE = 6,
 		PROTOCOL_ID = 0,
-		MAX_PDU_SIZE = 256,
-		MAX_SIMULTANEOUS_TRANSACTIONS = 16
+		MAX_PDU_SIZE = 256
 	};
 
 	TCPMasterPort();
@@ -171,6 +175,7 @@ private:
 
 	Poco::Net::SocketAddress _serverAddress;
 	Poco::Timespan _connectTimeout;
+	std::size_t _maxSimultaneousTransactions;
 	Poco::Net::StreamSocket _socket;
 	Poco::Buffer<char> _sendBuffer;
 	Poco::Buffer<char> _receiveBuffer;
@@ -192,9 +197,15 @@ inline bool TCPMasterPort::poll(const Poco::Timespan& timeout)
 }
 
 
-inline int TCPMasterPort::maxSimultaneousTransactions() const
+inline std::size_t TCPMasterPort::maxSimultaneousTransactions() const
 {
-	return MAX_SIMULTANEOUS_TRANSACTIONS;
+	return _maxSimultaneousTransactions;
+}
+
+
+inline bool TCPMasterPort::hasTransactionIDs() const
+{
+	return true;
 }
 
 

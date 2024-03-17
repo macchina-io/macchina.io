@@ -564,6 +564,7 @@ text/x-setext			etx
 text/xml
 text/xml-external-parsed-entity
 text/x-server-parsed-html	shtml
+text/markdown md
 video/bmpeg
 video/bt656
 video/celb

@@ -36,6 +36,7 @@ public:
 	void testCancelAllStop();
 	void testCancelAllWaitStop();
 	void testFunc();
+	void testIdle();
 
 	void setUp();
 	void tearDown();

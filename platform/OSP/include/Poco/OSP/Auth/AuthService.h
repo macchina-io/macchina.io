@@ -58,6 +58,17 @@ public:
 		///
 		/// Returns true if the user specified by userName has the specified permission.
 
+	virtual bool authorize(const std::string& userName, const std::string& roleOrScope, const std::string& permission) const = 0;
+		/// Checks if a user has a specific permission within the given role or scope.
+		///
+		/// If roleOrScope is empty, the result is the same as the two-argument version.
+		/// If a non-empty roleOrScope is given, the method checks whether the user
+		/// has the given permission within that given role or scope.
+		///
+		/// Role or scope is defined by the specific implementation. 
+		///
+		/// Returns true if the user specified by userName has the specified permission.
+
 	virtual bool userExists(const std::string& userName) const = 0;
 		/// Checks if a user has exists.
 		///

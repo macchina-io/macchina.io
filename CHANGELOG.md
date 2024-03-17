@@ -1,4 +1,4 @@
-# Release 2024.1 - 2024-02-XX
+# Release 2024.1 - 2024-03-XX
 
   - Upgraded JavaScript engine to a newer V8 version (v8.7)
   - Various improvements to the JavaScript engine, including new File and Crypto APIs

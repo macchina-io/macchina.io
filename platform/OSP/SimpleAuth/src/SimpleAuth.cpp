@@ -4,7 +4,7 @@
 // Copyright (c) 2007-2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: GPL-3.0-only
 //
 
 
@@ -77,6 +77,11 @@ public:
 	bool authorize(const std::string& userName, const std::string& permission) const
 	{
 		return userName == _adminName || (userName == _userName && _userPermissions.find(permission) != _userPermissions.end());
+	}
+
+	bool authorize(const std::string& userName, const std::string& roleOrScope, const std::string& permission) const
+	{
+		return authorize(userName, permission);
 	}
 
 	bool userExists(const std::string& userName) const

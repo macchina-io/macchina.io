@@ -42,10 +42,10 @@ class IoTModbus_API ModbusMasterImpl: public ModbusMaster, public Poco::Runnable
 	/// protocol over a serial line.
 {
 public:
-	ModbusMasterImpl(Poco::SharedPtr<Port> pPort, Poco::Timespan responseTimeout = Poco::Timespan(2, 0)):
+	ModbusMasterImpl(Poco::SharedPtr<Port> pPort, Poco::Timespan responseTimeout = Poco::Timespan(2, 0), std::size_t maxAsyncQueueSize = 256):
 		_pPort(pPort),
 		_timeout(responseTimeout),
-		_nextTransactionID(0),
+		_maxAsyncQueueSize(maxAsyncQueueSize),
 		_logger(Poco::Logger::get("IoT.ModbusMaster"))
 	{
 		_pPort->connectionStateChanged += Poco::delegate(this, &ModbusMasterImpl::onConnectionStateChanged);
@@ -54,6 +54,13 @@ public:
 	~ModbusMasterImpl()
 	{
 		_pPort->connectionStateChanged -= Poco::delegate(this, &ModbusMasterImpl::onConnectionStateChanged);
+		try
+		{
+			disableEvents();
+		}
+		catch (...)
+		{
+		}
 	}
 
 	// ModbusMaster
@@ -65,6 +72,11 @@ public:
 	std::size_t maxSimultaneousTransactions() const
 	{
 		return _pPort->maxSimultaneousTransactions();
+	}
+
+	bool hasTransactionIDs() const
+	{
+		return _pPort->hasTransactionIDs();
 	}
 
 	std::size_t pendingTransactions() const
@@ -554,9 +566,18 @@ public:
 	{
 		Poco::FastMutex::ScopedLock lock(_mutex);
 
+		if (_pAsyncThread)
+		{
 		abortPending(FAILURE_RESET);
-		disableEvents();
-		_pPort->reset();
+			_asyncQueue.clear();
+			_asyncQueue.enqueueNotification(new ResetNotification);
+		}
+		else
+		{
+			resetImpl();
+		}
+
+		_nextTransactionID = 0;
 	}
 
 protected:
@@ -604,6 +625,10 @@ protected:
 	{
 	};
 
+	class ResetNotification: public Poco::Notification
+	{
+	};
+
 	template <typename M>
 	Poco::UInt16 sendFrame(const M& message)
 	{
@@ -616,14 +641,13 @@ protected:
 			_logger.trace("Sending frame: functionCode=%02x, slaveOrUnit=%02x"s, static_cast<unsigned>(message.functionCode), static_cast<unsigned>(message.slaveOrUnitAddress));
 		}
 
-		int maxTrans = _pPort->maxSimultaneousTransactions();
-		if (_pAsyncThread && countPending() >= maxTrans)
+		if (_pAsyncThread && _asyncQueue.size() > _maxAsyncQueueSize)
 		{
-			throw Poco::ProtocolException("Maximum number of pending requests exceeded");
+			throw Poco::ProtocolException("Maximum number of queued requests exceeded");
 		}
 
 		message.transactionID = _nextTransactionID;
-		if (maxTrans > 1)
+		if (_pPort->hasTransactionIDs())
 		{
 			++_nextTransactionID;
 		}
@@ -668,9 +692,10 @@ protected:
 		if (_pAsyncThread)
 		{
 			_logger.debug("Disabling events"s);
-			_asyncQueue.enqueueNotification(new StopNotification);
+			_asyncQueue.enqueueUrgentNotification(new StopNotification);
 			_pAsyncThread->join();
 			_pAsyncThread.reset();
+			_asyncQueue.clear();
 			clearPending();
 		}
 	}
@@ -678,9 +703,11 @@ protected:
 	void run()
 	{
 		bool stopped = false;
+		const std::size_t maxPending = _pPort->maxSimultaneousTransactions();
 		while (!stopped)
 		{
-			long dequeueTimeout = countPending() == 0 ? 100 : 0;
+			const std::size_t pending = countPending();
+			const long dequeueTimeout = pending == 0 ? 100 : 0;
 			Poco::Notification::Ptr pNf = _asyncQueue.waitDequeueNotification(dequeueTimeout);
 			if (pNf)
 			{
@@ -688,11 +715,17 @@ protected:
 				{
 					stopped = true;
 				}
+				else if (pNf.cast<ResetNotification>())
+				{
+					resetImpl();
+				}
 				else
 				{
 					Poco::AutoPtr<SendNotification> pSendNf = pNf.cast<SendNotification>();
 					if (pSendNf)
 					{
+						if (pending <= maxPending)
+						{
 						try
 						{
 							pSendNf->run();
@@ -709,14 +742,20 @@ protected:
 							this->requestFailed(this, requestFailure);
 						}
 					}
+						else
+						{
+							// Put back send notification and try again later
+							_asyncQueue.enqueueUrgentNotification(pNf);
+						}
+					}
 				}
 			}
 			
-			if (!stopped && countPending() > 0)
+			if (!stopped && pending> 0)
 			{
 				try
 				{
-					Poco::Timespan timeout(0, _asyncQueue.empty() ? 250 : 0);
+					Poco::Timespan timeout(0, _asyncQueue.empty() || pending > maxPending ? 250 : 0);
 					if (_pPort->poll(timeout))
 					{
 						try
@@ -991,6 +1030,11 @@ protected:
 		_pendingMap.clear();
 	}
 
+	void resetImpl()
+	{
+		_pPort->reset();
+	}
+
 	void onConnectionStateChanged(const ConnectionState& state)
 	{
 		using namespace std::string_literals;
@@ -1007,9 +1051,10 @@ private:
 	mutable Poco::FastMutex _pendingMutex;
 	Poco::SharedPtr<Port> _pPort;
 	Poco::Timespan _timeout;
+	std::size_t _maxAsyncQueueSize;
 	std::unique_ptr<Poco::Thread> _pAsyncThread;
 	Poco::NotificationQueue _asyncQueue;
-	Poco::UInt16 _nextTransactionID;
+	Poco::UInt16 _nextTransactionID = 0;
 	PendingMap _pendingMap;
 	Poco::Logger& _logger;
 };

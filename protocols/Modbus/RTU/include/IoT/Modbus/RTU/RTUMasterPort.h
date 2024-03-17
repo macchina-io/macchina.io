@@ -106,9 +106,14 @@ public:
 		/// the internal buffer, or if data arrives during the
 		/// specified time interval, otherwise false.
 
-	int maxSimultaneousTransactions() const;
+	std::size_t maxSimultaneousTransactions() const;
 		/// Returns the maximum number of simultaneous transactions allowed by
 		/// the port.
+
+	bool hasTransactionIDs() const;
+		/// Returns true if the port supports transaction IDs,
+		/// otherwise false. Currently, only Modbus/TCP supports
+		/// transaction IDs.
 
 	void reset();
 		/// Resets the connection to the bus.
@@ -146,9 +151,15 @@ inline bool RTUMasterPort::poll(const Poco::Timespan& timeout)
 }
 
 
-inline int RTUMasterPort::maxSimultaneousTransactions() const
+inline std::size_t RTUMasterPort::maxSimultaneousTransactions() const
 {
 	return 1;
+}
+
+
+inline bool RTUMasterPort::hasTransactionIDs() const
+{
+	return false;
 }
 
 

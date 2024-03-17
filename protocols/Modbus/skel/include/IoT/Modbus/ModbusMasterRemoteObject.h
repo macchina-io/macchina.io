@@ -72,6 +72,11 @@ public:
 	virtual std::string address() const;
 		/// Returns the Modbus master address as a string.
 
+	virtual bool hasTransactionIDs() const;
+		/// Returns true if the port supports transaction IDs,
+		/// otherwise false. Currently, only Modbus/TCP supports
+		/// transaction IDs.
+
 	virtual void maskWriteRegister(Poco::UInt8 slaveAddress, Poco::UInt16 referenceAddress, Poco::UInt16 andMask, Poco::UInt16 orMask);
 		/// Sends a Mask Write register request to the device and waits for the response.
 		///
@@ -324,6 +329,12 @@ private:
 inline std::string ModbusMasterRemoteObject::address() const
 {
 	return _pServiceObject->address();
+}
+
+
+inline bool ModbusMasterRemoteObject::hasTransactionIDs() const
+{
+	return _pServiceObject->hasTransactionIDs();
 }
 
 

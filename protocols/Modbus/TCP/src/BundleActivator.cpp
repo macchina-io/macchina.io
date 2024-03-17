@@ -53,9 +53,9 @@ public:
 	{
 	}
 
-	void createModbusTCPMaster(const std::string& uid, const Poco::Net::SocketAddress& serverAddress, Poco::Timespan timeout, Poco::Timespan connectTimeout, bool connectImmediately)
+	void createModbusTCPMaster(const std::string& uid, const Poco::Net::SocketAddress& serverAddress, Poco::Timespan timeout, Poco::Timespan connectTimeout, bool connectImmediately, std::size_t maxSimultaneousTransactions, std::size_t maxAsyncQueueSize)
 	{
-		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<TCPMasterPort>(new TCPMasterPort(serverAddress, connectTimeout, connectImmediately), timeout);
+		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<TCPMasterPort>(new TCPMasterPort(serverAddress, connectTimeout, connectImmediately, maxSimultaneousTransactions), timeout, maxAsyncQueueSize);
 		std::string symbolicName = "io.macchina.modbus.tcp"s;
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
@@ -81,24 +81,28 @@ public:
 		{
 			std::string baseKey = "modbus.tcp.ports."s;
 			baseKey += *it;
+			if (_pPrefs->configuration()->getBool(baseKey + ".enable", true))
+            {
+				const std::string hostAddress = _pPrefs->configuration()->getString(baseKey + ".hostAddress"s, ""s);
+				const Poco::UInt16 portNumber = _pPrefs->configuration()->getInt(baseKey + ".portNumber"s, 502);
+				const Poco::Net::SocketAddress serverAddress(hostAddress, portNumber);
+				const int timeoutMS = _pPrefs->configuration()->getInt(baseKey + ".timeout"s, 2000);
+				const Poco::Timespan timeout = Poco::Timespan::MILLISECONDS*timeoutMS;
+				const int connectTimeoutMS = _pPrefs->configuration()->getInt(baseKey + ".connectTimeout"s, timeoutMS);
+				const Poco::Timespan connectTimeout = Poco::Timespan::MILLISECONDS*connectTimeoutMS;
+				const bool connectImmediately = !_pPrefs->configuration()->getBool(baseKey + ".lazyConnect"s, false);
+				const std::size_t maxSimultaneousTransactions = _pPrefs->configuration()->getUInt16(baseKey + ".maxSimultaneousTransactions"s, 16);
+				const std::size_t maxAsyncQueueSize = _pPrefs->configuration()->getUInt32(baseKey + "maxAsyncQueueSize"s, 256);
 
-			const std::string hostAddress = _pPrefs->configuration()->getString(baseKey + ".hostAddress"s, ""s);
-			const Poco::UInt16 portNumber = _pPrefs->configuration()->getInt(baseKey + ".portNumber"s, 502);
-			const Poco::Net::SocketAddress serverAddress(hostAddress, portNumber);
-			const int timeoutMS = _pPrefs->configuration()->getInt(baseKey + ".timeout"s, 2000);
-			const Poco::Timespan timeout = Poco::Timespan::MILLISECONDS*timeoutMS;
-			const int connectTimeoutMS = _pPrefs->configuration()->getInt(baseKey + ".connectTimeout"s, timeoutMS);
-			const Poco::Timespan connectTimeout = Poco::Timespan::MILLISECONDS*connectTimeoutMS;
-			const bool connectImmediately = !_pPrefs->configuration()->getBool(baseKey + ".lazyConnect"s, false);
-
-			try
-			{
-				pContext->logger().information(Poco::format("Use TCP port '%hu' on host '%s' for Modbus TCP device."s, portNumber, hostAddress));
-				createModbusTCPMaster(*it, serverAddress, timeout, connectTimeout, connectImmediately);
-			}
-			catch (Poco::Exception& exc)
-			{
-				pContext->logger().error(Poco::format("Cannot create TCP port for Modbus TCP device '%s': %s"s, serverAddress.toString(), exc.displayText()));
+				try
+				{
+					pContext->logger().information(Poco::format("Use TCP port '%hu' on host '%s' for Modbus TCP device."s, portNumber, hostAddress));
+					createModbusTCPMaster(*it, serverAddress, timeout, connectTimeout, connectImmediately, maxSimultaneousTransactions, maxAsyncQueueSize);
+				}
+				catch (Poco::Exception& exc)
+				{
+					pContext->logger().error(Poco::format("Cannot create TCP port for Modbus TCP device '%s': %s"s, serverAddress.toString(), exc.displayText()));
+				}
 			}
 		}
 	}

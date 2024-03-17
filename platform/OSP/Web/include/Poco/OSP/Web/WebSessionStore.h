@@ -80,6 +80,9 @@ public:
 		/// having a value with the given key and value. Typically, this
 		/// is used to obtain all sessions for a given username.
 
+	virtual std::size_t countSessions() = 0;
+		/// Returns the total number of sessions in the store.
+
 	// Service
 	const std::type_info& type() const;
 	bool isA(const std::type_info& otherType) const;

@@ -73,8 +73,8 @@ TesterProxy::~TesterProxy()
 		catch (...)
 		{
 		}
-		_pEventSubscriber = 0;
-		_pEventListener = 0;
+		_pEventSubscriber.reset();
+		_pEventListener.reset();
 	}
 }
 
@@ -185,12 +185,12 @@ std::string TesterProxy::remoting__enableEvents(Poco::RemotingNG::Listener::Ptr 
 				}
 				catch (...)
 				{
-					_pEventSubscriber = 0;
-					_pEventListener = 0;
+					_pEventSubscriber.reset();
+					_pEventListener.reset();
 					throw;
 				}
-				_pEventSubscriber = 0;
-				_pEventListener = 0;
+				_pEventSubscriber.reset();
+				_pEventListener.reset();
 			}
 			else throw Poco::RemotingNG::RemotingException("EventListener mismatch");
 		}

@@ -139,7 +139,10 @@ public:
 		{
 			std::string baseKey = "mqtt.clients.";
 			baseKey += k;
-			createClient(baseKey, k);
+			if (_pPrefs->configuration()->getBool(baseKey + ".enable", true))
+			{
+				createClient(baseKey, k);
+			}
 		}
 	}
 

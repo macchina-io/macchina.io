@@ -843,7 +843,11 @@ void URI::parseHostAndPort(std::string::const_iterator& it, const std::string::c
 	}
 	else _port = 0;
 	_host = host;
-	toLowerInPlace(_host);
+	if (!_host.empty() && _host[0] != '%') 
+	{
+		// Special case: http+unix://%2Ftmp%2Fsocket/... - don't change host in this case
+		toLowerInPlace(_host);
+	}
 }
 
 

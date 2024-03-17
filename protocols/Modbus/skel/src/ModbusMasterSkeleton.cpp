@@ -112,6 +112,62 @@ public:
 };
 
 
+class ModbusMasterHasTransactionIDsMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"hasTransactionIDs"s};
+		bool remoting__requestSucceeded = false;
+		try
+		{
+			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			IoT::Modbus::ModbusMasterRemoteObject* remoting__pCastedRO = static_cast<IoT::Modbus::ModbusMasterRemoteObject*>(remoting__pRemoteObject.get());
+			bool remoting__return = remoting__pCastedRO->hasTransactionIDs();
+			remoting__requestSucceeded = true;
+			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			static const std::string REMOTING__REPLY_NAME("hasTransactionIDsReply");
+			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<bool >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+		}
+		catch (const Poco::Exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				remoting__trans.reportException("IoT::Modbus::ModbusMaster::hasTransactionIDs"s, e);
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
+			}
+		}
+		catch (const std::exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("IoT::Modbus::ModbusMaster::hasTransactionIDs"s, exc);
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+		catch (...)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("IoT::Modbus::ModbusMaster::hasTransactionIDs"s, exc);
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+	}
+
+};
+
+
 class ModbusMasterMaskWriteRegisterMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
@@ -1779,6 +1835,7 @@ ModbusMasterSkeleton::ModbusMasterSkeleton():
 	using namespace std::string_literals;
 	
 	addMethodHandler("address"s, new IoT::Modbus::ModbusMasterAddressMethodHandler);
+	addMethodHandler("hasTransactionIDs"s, new IoT::Modbus::ModbusMasterHasTransactionIDsMethodHandler);
 	addMethodHandler("maskWriteRegister"s, new IoT::Modbus::ModbusMasterMaskWriteRegisterMethodHandler);
 	addMethodHandler("maxSimultaneousTransactions"s, new IoT::Modbus::ModbusMasterMaxSimultaneousTransactionsMethodHandler);
 	addMethodHandler("pendingTransactions"s, new IoT::Modbus::ModbusMasterPendingTransactionsMethodHandler);

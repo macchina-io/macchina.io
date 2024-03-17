@@ -236,7 +236,10 @@ public:
 			TaggedBinaryReader reader(pIsolate);
 			Poco::MemoryInputStream istr(_args.data(), _args.size());
 			v8::Handle<v8::Value> args[1];
-			args[0] = v8::Local<v8::Object>::New(pIsolate, reader.read(istr));
+			v8::Local<v8::Object> eventArg = v8::Local<v8::Object>::New(pIsolate, reader.read(istr));
+			v8::Local<v8::Object> sourceArg(v8::Local<v8::Object>::New(pIsolate, _jsObject));
+			V8_CHECK_SET_RESULT(eventArg->Set(context, Core::Wrapper::toV8String(pIsolate, "source"s), sourceArg));
+			args[0] = eventArg;
 			_pExecutor->callInContext(pIsolate, context, _jsObject, _event, 1, args);
 		}
 	}

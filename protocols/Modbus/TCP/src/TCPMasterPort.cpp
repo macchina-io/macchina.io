@@ -24,9 +24,10 @@ namespace Modbus {
 namespace TCP {
 
 
-TCPMasterPort::TCPMasterPort(const Poco::Net::SocketAddress& serverAddress, Poco::Timespan connectTimeout, bool connectImmediately):
+TCPMasterPort::TCPMasterPort(const Poco::Net::SocketAddress& serverAddress, Poco::Timespan connectTimeout, bool connectImmediately, std::size_t maxSimultaneousTransactions):
 	_serverAddress(serverAddress),
 	_connectTimeout(connectTimeout),
+	_maxSimultaneousTransactions(maxSimultaneousTransactions),
 	_socket(),
 	_sendBuffer(MBAP_HEADER_SIZE + MAX_PDU_SIZE),
 	_receiveBuffer(MBAP_HEADER_SIZE + MAX_PDU_SIZE),
