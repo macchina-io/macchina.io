@@ -6,7 +6,7 @@
 
 This is the GPL-licensed version of macchina.io EDGE.
 
-A [commercially-licensed version](https://macchina.io/edge.html) with an extended feature 
+A [commercially-licensed version](https://macchina.io/edge) with an extended feature
 set and professional support is available.
 
 Note that this GPL-licensed version:
@@ -26,7 +26,7 @@ macchina.io EDGE runs on Linux-based devices, including IoT gateways, industrial
 macchina.io EDGE is based on the [POCO C++ Libraries](https://pocoproject.org) and
 uses the [V8 JavaScript engine](https://v8.dev).
 
-For more information, including [documentation](https://docs.macchina.io/), please see the
+For more information, including [documentation](https://docs.macchina.io/edge/), please see the
 [macchina.io website](https://macchina.io). There are also a couple of useful articles and How-To's in the
 [project wiki](https://github.com/macchina-io/macchina.io/wiki).
 
@@ -49,7 +49,7 @@ $ sudo apt-get install -y make g++ libssl-dev python-is-python3
 ### Raspberry Pi (64-bit)
 
 ```
-$ sudo apt-get install -y git make g++ libssl-dev 
+$ sudo apt-get install -y git make g++ libssl-dev
 ```
 
 Note: We recommend using a 64-bit version of Raspberry Pi OS.
@@ -127,10 +127,10 @@ components are built.
 
 ## Licensing
 
-macchina.io EDGE is dual-licensed under a commercial license and the GPLv3. 
-The commercial license gives you the full rights to create and distribute software and 
-devices on your own terms without any GPL obligations. With the commercial license you 
-also have access to professional support and maintenance, as well as additional features. 
+macchina.io EDGE is dual-licensed under a commercial license and the GPLv3.
+The commercial license gives you the full rights to create and distribute software and
+devices on your own terms without any GPL obligations. With the commercial license you
+also have access to professional support and maintenance, as well as additional features.
 See [this table](https://macchina.io/edge_licensing.html#table) for a comparison between GPLv3-licensed and commercial-licensed macchina.io EDGE features.
 
 
