@@ -112,7 +112,7 @@ protected:
 			_symbolicNames(symbolicNames)
 		{
 		}
- 
+
 		// BundleFilter
 		bool accept(Poco::OSP::Bundle::Ptr pBundle)
 		{
@@ -190,7 +190,7 @@ protected:
 				"    ooooooooo   oo   oo \n"
 				"      ooooooo   oo   oo \n"
 				"\n"
-				"    macchina.io EDGE Server\n"
+				"    macchina.io EDGE Server [GPL]\n"
 				"\n"
 				"    Copyright (c) 2015-2024 by Applied Informatics Software Engineering GmbH.\n"
 				"    All rights reserved.\n"s
@@ -270,7 +270,7 @@ protected:
 		helpFormatter.setUsage("OPTIONS"s);
 		helpFormatter.setHeader(
 			"\n"
-			"The macchina.io EDGE Server.\n"
+			"The macchina.io EDGE Server [GPL].\n"
 			"Copyright (c) 2015-2024 by Applied Informatics Software Engineering GmbH.\n"
 			"All rights reserved.\n\n"
 			"The following command line options are supported:"s
