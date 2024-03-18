@@ -71,12 +71,18 @@ public:
 		/// Fired when no response has been received within the
 		/// specified timeout for the transaction with the given
 		/// transaction ID.
+		///
+		/// Note that in case of a timeout, also the requestFailed
+		/// event is triggered, which provides more details about
+		/// the message.
 
 	Poco::BasicEvent<const std::string> error;
 		/// Fired when an exception has been thrown while reading a message.
 
 	Poco::BasicEvent<const RequestFailure> requestFailed;
-		/// Fired when an asynchronous request message could not be sent.
+		/// Fired when an asynchronous request message could not be sent,
+		/// a timeout waiting for the response occured or the request
+		/// was canceled.
 
 	Poco::BasicEvent<const GenericMessage> responseReceived;
 		/// Fired when a valid, but unsupported Modbus response message has been received.

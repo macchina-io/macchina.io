@@ -92,7 +92,7 @@ public:
 				const Poco::Timespan connectTimeout = Poco::Timespan::MILLISECONDS*connectTimeoutMS;
 				const bool connectImmediately = !_pPrefs->configuration()->getBool(baseKey + ".lazyConnect"s, false);
 				const std::size_t maxSimultaneousTransactions = _pPrefs->configuration()->getUInt16(baseKey + ".maxSimultaneousTransactions"s, 16);
-				const std::size_t maxAsyncQueueSize = _pPrefs->configuration()->getUInt32(baseKey + "maxAsyncQueueSize"s, 256);
+				const std::size_t maxAsyncQueueSize = _pPrefs->configuration()->getUInt32(baseKey + ".maxAsyncQueueSize"s, 256);
 
 				try
 				{

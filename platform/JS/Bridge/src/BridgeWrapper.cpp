@@ -238,7 +238,7 @@ public:
 			v8::Handle<v8::Value> args[1];
 			v8::Local<v8::Object> eventArg = v8::Local<v8::Object>::New(pIsolate, reader.read(istr));
 			v8::Local<v8::Object> sourceArg(v8::Local<v8::Object>::New(pIsolate, _jsObject));
-			V8_CHECK_SET_RESULT(eventArg->Set(context, Core::Wrapper::toV8String(pIsolate, "source"s), sourceArg));
+			V8_CHECK_SET_RESULT(eventArg->Set(context, Core::Wrapper::toV8Internalized(pIsolate, "source"s), sourceArg));
 			args[0] = eventArg;
 			_pExecutor->callInContext(pIsolate, context, _jsObject, _event, 1, args);
 		}
@@ -674,8 +674,8 @@ void BridgeWrapper::toJSON(const v8::FunctionCallbackInfo<v8::Value>& args)
 	const std::string& sub = pHolder->subscriberURI();
 
 	v8::Local<v8::Object> object = v8::Object::New(pIsolate);
-	V8_CHECK_SET_RESULT(object->Set(context, Core::Wrapper::toV8String(pIsolate, "$uri"s), Core::Wrapper::toV8String(pIsolate, uri)));
-	V8_CHECK_SET_RESULT(object->Set(context, Core::Wrapper::toV8String(pIsolate, "$sub"s), Core::Wrapper::toV8String(pIsolate, sub)));
+	V8_CHECK_SET_RESULT(object->Set(context, Core::Wrapper::toV8Internalized(pIsolate, "$uri"s), Core::Wrapper::toV8String(pIsolate, uri)));
+	V8_CHECK_SET_RESULT(object->Set(context, Core::Wrapper::toV8Internalized(pIsolate, "$sub"s), Core::Wrapper::toV8String(pIsolate, sub)));
 
 	args.GetReturnValue().Set(object);
 }

@@ -88,7 +88,7 @@ public:
 				const int speed = _pPrefs->configuration()->getInt(baseKey + ".speed", 9600);
 				const Poco::Timespan timeout = 1000*_pPrefs->configuration()->getInt(baseKey + ".timeout"s, 2000);
 				const Poco::Timespan frameTimeout = _pPrefs->configuration()->getInt(baseKey + ".frameTimeout"s, 10000);
-				const std::size_t maxAsyncQueueSize = _pPrefs->configuration()->getUInt32(baseKey + "maxAsyncQueueSize"s, 32);
+				const std::size_t maxAsyncQueueSize = _pPrefs->configuration()->getUInt32(baseKey + ".maxAsyncQueueSize"s, 32);
 
 				try
 				{

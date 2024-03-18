@@ -564,11 +564,13 @@ public:
 
 	void reset()
 	{
+		using namespace std::string_literals;
+	
 		Poco::FastMutex::ScopedLock lock(_mutex);
 
 		if (_pAsyncThread)
 		{
-		abortPending(FAILURE_RESET);
+			abortPending(FAILURE_RESET, "Reset"s);
 			_asyncQueue.clear();
 			_asyncQueue.enqueueNotification(new ResetNotification);
 		}
@@ -586,6 +588,7 @@ protected:
 		Poco::UInt8 functionCode = 0;
 		Poco::UInt8 slaveOrUnitAddress = 0;
 		Poco::Timestamp timeSent;
+		bool sent = false;
 	};
 	using PendingMap = std::map<Poco::UInt16, PendingInfo>;
 
@@ -641,7 +644,7 @@ protected:
 			_logger.trace("Sending frame: functionCode=%02x, slaveOrUnit=%02x"s, static_cast<unsigned>(message.functionCode), static_cast<unsigned>(message.slaveOrUnitAddress));
 		}
 
-		if (_pAsyncThread && _asyncQueue.size() > _maxAsyncQueueSize)
+		if (_pAsyncThread && _asyncQueue.size() >= _maxAsyncQueueSize)
 		{
 			throw Poco::ProtocolException("Maximum number of queued requests exceeded");
 		}
@@ -702,11 +705,19 @@ protected:
 
 	void run()
 	{
+		using namespace std::string_literals;
+	
 		bool stopped = false;
 		const std::size_t maxPending = _pPort->maxSimultaneousTransactions();
 		while (!stopped)
 		{
-			const std::size_t pending = countPending();
+			const auto p = countPendingSent();
+			std::size_t pendingSent = p.first;
+			const std::size_t pending = p.second;
+			if (_logger.debug())
+			{
+				_logger.debug("Currently pending requests: %z, sent: %z."s, pending, pendingSent);
+			}
 			const long dequeueTimeout = pending == 0 ? 100 : 0;
 			Poco::Notification::Ptr pNf = _asyncQueue.waitDequeueNotification(dequeueTimeout);
 			if (pNf)
@@ -724,24 +735,26 @@ protected:
 					Poco::AutoPtr<SendNotification> pSendNf = pNf.cast<SendNotification>();
 					if (pSendNf)
 					{
-						if (pending <= maxPending)
+						if (pendingSent < maxPending)
 						{
-						try
-						{
-							pSendNf->run();
+							try
+							{
+								markPendingSent(pSendNf->message().transactionID);
+								pendingSent++;
+								pSendNf->run();
+							}
+							catch (Poco::Exception& exc)
+							{
+								removePending(pSendNf->message().transactionID);
+								RequestFailure requestFailure;
+								requestFailure.slaveOrUnitAddress = pSendNf->message().slaveOrUnitAddress;
+								requestFailure.functionCode = pSendNf->message().functionCode;
+								requestFailure.transactionID = pSendNf->message().transactionID;
+								requestFailure.reason = FAILURE_ERROR;
+								requestFailure.message = exc.displayText();
+								this->requestFailed(this, requestFailure);
+							}
 						}
-						catch (Poco::Exception& exc)
-						{
-							removePending(pSendNf->message().transactionID);
-							RequestFailure requestFailure;
-							requestFailure.slaveOrUnitAddress = pSendNf->message().slaveOrUnitAddress;
-							requestFailure.functionCode = pSendNf->message().functionCode;
-							requestFailure.transactionID = pSendNf->message().transactionID;
-							requestFailure.reason = FAILURE_ERROR;
-							requestFailure.message = exc.displayText();
-							this->requestFailed(this, requestFailure);
-						}
-					}
 						else
 						{
 							// Put back send notification and try again later
@@ -751,11 +764,11 @@ protected:
 				}
 			}
 			
-			if (!stopped && pending> 0)
+			if (!stopped && pendingSent > 0)
 			{
 				try
 				{
-					Poco::Timespan timeout(0, _asyncQueue.empty() || pending > maxPending ? 250 : 0);
+					Poco::Timespan timeout(0, _asyncQueue.empty() || pendingSent >= maxPending ? 1000 : 0);
 					if (_pPort->poll(timeout))
 					{
 						try
@@ -953,6 +966,8 @@ protected:
 
 	void processPendingTimeouts()
 	{
+		using namespace std::string_literals;
+
 		PendingMap timeouts;
 		{
 			Poco::FastMutex::ScopedLock lock(_pendingMutex);
@@ -981,11 +996,12 @@ protected:
 			failure.functionCode = p.second.functionCode;
 			failure.slaveOrUnitAddress = p.second.slaveOrUnitAddress;
 			failure.reason = FAILURE_TIMEOUT;
+			failure.message = "Timeout"s;
 			this->requestFailed(this, failure);
 		}
 	}
 
-	void abortPending(RequestFailureReason reason, const std::string& message = std::string())
+	void abortPending(RequestFailureReason reason, const std::string& message)
 	{
 		PendingMap pendingMap;
 		{
@@ -1024,6 +1040,29 @@ protected:
 		return _pendingMap.size();
 	}
 
+	std::pair<std::size_t, std::size_t> countPendingSent() const
+	{
+		std::size_t sent = 0;
+		std::size_t total = 0;
+		Poco::FastMutex::ScopedLock lock(_pendingMutex);
+		for (const auto& p: _pendingMap)
+		{
+			if (p.second.sent) sent++;
+			total++;
+		}
+		return std::make_pair(sent, total);
+	}
+
+	void markPendingSent(Poco::UInt16 transactionID)
+	{
+		Poco::FastMutex::ScopedLock lock(_pendingMutex);
+		auto it = _pendingMap.find(transactionID);
+		if (it != _pendingMap.end())
+		{
+			it->second.sent = true;
+		}
+	}
+
 	void clearPending()
 	{
 		Poco::FastMutex::ScopedLock lock(_pendingMutex);
@@ -1041,7 +1080,7 @@ protected:
 
 		if (state == CONNECTION_CLOSING || state == CONNECTION_CLOSED)
 		{
-			abortPending(FAILURE_CLOSED);
+			abortPending(FAILURE_CLOSED, "Connection closed"s);
 		}
 		this->connectionStateChanged(this, state);
 	}
