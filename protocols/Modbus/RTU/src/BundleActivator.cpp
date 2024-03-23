@@ -53,9 +53,9 @@ public:
 	{
 	}
 
-	void createModbusRTUMaster(const std::string& uid, Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan timeout, Poco::Timespan frameTimeout, std::size_t maxAsyncQueueSize)
+	void createModbusRTUMaster(const std::string& uid, Poco::SharedPtr<Poco::Serial::SerialPort> pSerialPort, Poco::Timespan timeout, Poco::Timespan frameTimeout, std::size_t maxAsyncQueueSize, Poco::Timespan frameSpacing)
 	{
-		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<RTUMasterPort>(new RTUMasterPort(pSerialPort, frameTimeout), timeout, maxAsyncQueueSize);
+		Poco::SharedPtr<ModbusMaster> pModbusMaster = new ModbusMasterImpl<RTUMasterPort>(new RTUMasterPort(pSerialPort, frameTimeout), timeout, maxAsyncQueueSize, frameSpacing);
 		std::string symbolicName = "io.macchina.modbus.rtu"s;
 		Poco::RemotingNG::Identifiable::ObjectId oid = symbolicName;
 		oid += '#';
@@ -88,6 +88,7 @@ public:
 				const int speed = _pPrefs->configuration()->getInt(baseKey + ".speed", 9600);
 				const Poco::Timespan timeout = 1000*_pPrefs->configuration()->getInt(baseKey + ".timeout"s, 2000);
 				const Poco::Timespan frameTimeout = _pPrefs->configuration()->getInt(baseKey + ".frameTimeout"s, 10000);
+				const Poco::Timespan frameSpacing = _pPrefs->configuration()->getInt(baseKey + ".frameSpacing"s, 3000);
 				const std::size_t maxAsyncQueueSize = _pPrefs->configuration()->getUInt32(baseKey + ".maxAsyncQueueSize"s, 32);
 
 				try
@@ -113,7 +114,7 @@ public:
 						pSerialPort->configureRS485(rs485Params);
 					}
 
-					createModbusRTUMaster(*it, pSerialPort, timeout, frameTimeout, maxAsyncQueueSize);
+					createModbusRTUMaster(*it, pSerialPort, timeout, frameTimeout, maxAsyncQueueSize, frameSpacing);
 				}
 				catch (Poco::Exception& exc)
 				{

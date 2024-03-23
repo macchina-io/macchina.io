@@ -42,10 +42,11 @@ class IoTModbus_API ModbusMasterImpl: public ModbusMaster, public Poco::Runnable
 	/// protocol over a serial line.
 {
 public:
-	ModbusMasterImpl(Poco::SharedPtr<Port> pPort, Poco::Timespan responseTimeout = Poco::Timespan(2, 0), std::size_t maxAsyncQueueSize = 256):
+	ModbusMasterImpl(Poco::SharedPtr<Port> pPort, Poco::Timespan responseTimeout = Poco::Timespan(2, 0), std::size_t maxAsyncQueueSize = 256, Poco::Timespan frameSpacing = Poco::Timespan(0, 0)):
 		_pPort(pPort),
 		_timeout(responseTimeout),
 		_maxAsyncQueueSize(maxAsyncQueueSize),
+		_frameSpacing(frameSpacing),
 		_logger(Poco::Logger::get("IoT.ModbusMaster"))
 	{
 		_pPort->connectionStateChanged += Poco::delegate(this, &ModbusMasterImpl::onConnectionStateChanged);
@@ -211,7 +212,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				ReadCoilsResponse response;
-				decodeFrame(response, transactionID);
+				decodeFrameAndCheckTransactionID(response, transactionID);
 				return response.coilStatus;
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
@@ -242,7 +243,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				ReadDiscreteInputsResponse response;
-				decodeFrame(response, transactionID);
+				decodeFrameAndCheckTransactionID(response, transactionID);
 				return response.inputStatus;
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
@@ -273,7 +274,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				ReadHoldingRegistersResponse response;
-				decodeFrame(response, transactionID);
+				decodeFrameAndCheckTransactionID(response, transactionID);
 				return response.registerValues;
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
@@ -304,7 +305,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				ReadInputRegistersResponse response;
-				decodeFrame(response, transactionID);
+				decodeFrameAndCheckTransactionID(response, transactionID);
 				return response.registerValues;
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
@@ -335,7 +336,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				WriteSingleCoilResponse response;
-				decodeFrame(response, transactionID);
+				decodeFrameAndCheckTransactionID(response, transactionID);
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
 		}
@@ -365,7 +366,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				WriteSingleRegisterResponse response;
-				decodeFrame(response, transactionID);
+				decodeFrameAndCheckTransactionID(response, transactionID);
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
 		}
@@ -393,7 +394,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				ReadExceptionStatusResponse response;
-				decodeFrame(response, transactionID);
+				decodeFrameAndCheckTransactionID(response, transactionID);
 				return response.data;
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
@@ -426,7 +427,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				WriteMultipleCoilsResponse response;
-				decodeFrame(response, transactionID);
+				decodeFrameAndCheckTransactionID(response, transactionID);
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
 		}
@@ -456,7 +457,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				WriteMultipleRegistersResponse response;
-				decodeFrame(response, transactionID);
+				decodeFrameAndCheckTransactionID(response, transactionID);
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
 		}
@@ -487,7 +488,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				MaskWriteRegisterResponse response;
-				decodeFrame(response, transactionID);
+				decodeFrameAndCheckTransactionID(response, transactionID);
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
 		}
@@ -524,7 +525,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				ReadWriteMultipleRegistersResponse response;
-				decodeFrame(response, transactionID);
+				decodeFrameAndCheckTransactionID(response, transactionID);
 				return response.values;
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
@@ -554,7 +555,7 @@ public:
 			else if ((fc & MODBUS_FUNCTION_CODE_MASK) == request.functionCode)
 			{
 				ReadFIFOQueueResponse response;
-				decodeFrame(response, transactionID);
+				decodeFrameAndCheckTransactionID(response, transactionID);
 				return response.values;
 			}
 			else throw Poco::ProtocolException("incomplete or invalid frame received");
@@ -649,12 +650,7 @@ protected:
 			throw Poco::ProtocolException("Maximum number of queued requests exceeded");
 		}
 
-		message.transactionID = _nextTransactionID;
-		if (_pPort->hasTransactionIDs())
-		{
-			++_nextTransactionID;
-		}
-
+		message.transactionID = _nextTransactionID++;
 		if (_pAsyncThread)
 		{
 			addPending(message);
@@ -666,13 +662,6 @@ protected:
 		}
 
 		return message.transactionID;
-	}
-
-	template <typename M>
-	void decodeFrame(M& message, Poco::UInt16 transactionID)
-	{
-		_pPort->decodeFrame(message);
-		if (message.transactionID != transactionID) throw Poco::ProtocolException("transaction ID mismatch");
 	}
 
 	void enableEvents()
@@ -708,9 +697,12 @@ protected:
 		using namespace std::string_literals;
 	
 		bool stopped = false;
+		Poco::Clock nextSendTime;
+		Poco::Clock currentTime;
 		const std::size_t maxPending = _pPort->maxSimultaneousTransactions();
 		while (!stopped)
 		{
+			currentTime.update();
 			const auto p = countPendingSent();
 			std::size_t pendingSent = p.first;
 			const std::size_t pending = p.second;
@@ -719,7 +711,11 @@ protected:
 				_logger.debug("Currently pending requests: %z, sent: %z."s, pending, pendingSent);
 			}
 			const long dequeueTimeout = pending == 0 ? 100 : 0;
-			Poco::Notification::Ptr pNf = _asyncQueue.waitDequeueNotification(dequeueTimeout);
+			Poco::Notification::Ptr pNf;
+			if (currentTime >= nextSendTime) 
+			{
+				pNf = _asyncQueue.waitDequeueNotification(dequeueTimeout);
+			}
 			if (pNf)
 			{
 				if (pNf.cast<StopNotification>())
@@ -742,6 +738,8 @@ protected:
 								markPendingSent(pSendNf->message().transactionID);
 								pendingSent++;
 								pSendNf->run();
+								nextSendTime.update();
+								nextSendTime += _frameSpacing.totalMicroseconds();
 							}
 							catch (Poco::Exception& exc)
 							{
@@ -779,6 +777,8 @@ protected:
 						{
 							this->error(this, exc.displayText());
 						}
+						nextSendTime.update();
+						nextSendTime += _frameSpacing.totalMicroseconds();
 					}
 				}
 				catch (Poco::Exception& exc)
@@ -789,6 +789,24 @@ protected:
 				processPendingTimeouts();
 			}
 		}
+	}
+
+	template <typename M>
+	void decodeFrameAndFixTransactionID(M& message)
+	{
+		_pPort->decodeFrame(message);
+		if (!_pPort->hasTransactionIDs())
+		{
+			auto it = _pendingMap.begin();
+			if (it != _pendingMap.end()) message.transactionID = it->first;
+		}
+	}
+
+	template <typename M>
+	void decodeFrameAndCheckTransactionID(M& message, Poco::UInt16 transactionID)
+	{
+		_pPort->decodeFrame(message);
+		if (message.transactionID != transactionID) throw Poco::ProtocolException("transaction ID mismatch");
 	}
 
 	void processFrame()
@@ -811,7 +829,7 @@ protected:
 		if ((fc & MODBUS_EXCEPTION_MASK) == MODBUS_EXCEPTION_MASK)
 		{
 			ModbusExceptionMessage message;
-			_pPort->decodeFrame(message);
+			decodeFrameAndFixTransactionID(message);
 			if (removePending(message.transactionID))
 			{
 				this->exceptionReceived(this, message);
@@ -822,7 +840,7 @@ protected:
 		case MODBUS_READ_COILS:
 			{
 				ReadCoilsResponse response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->readCoilsResponseReceived(this, response);
@@ -833,7 +851,7 @@ protected:
 		case MODBUS_READ_DISCRETE_INPUTS:
 			{
 				ReadDiscreteInputsResponse response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->readDiscreteInputsResponseReceived(this, response);
@@ -844,7 +862,7 @@ protected:
 		case MODBUS_READ_HOLDING_REGISTERS:
 			{
 				ReadHoldingRegistersResponse response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->readHoldingRegistersResponseReceived(this, response);
@@ -855,7 +873,7 @@ protected:
 		case MODBUS_READ_INPUT_REGISTERS:
 			{
 				ReadInputRegistersResponse response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->readInputRegistersResponseReceived(this, response);
@@ -866,7 +884,7 @@ protected:
 		case MODBUS_WRITE_SINGLE_COIL:
 			{
 				WriteSingleCoilResponse	response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->writeSingleCoilResponseReceived(this, response);
@@ -877,7 +895,7 @@ protected:
 		case MODBUS_WRITE_SINGLE_REGISTER:
 			{
 				WriteSingleRegisterResponse	response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->writeSingleRegisterResponseReceived(this, response);
@@ -888,7 +906,7 @@ protected:
 		case MODBUS_READ_EXCEPTION_STATUS:
 			{
 				ReadExceptionStatusResponse	response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->readExceptionStatusResponseReceived(this, response);
@@ -899,7 +917,7 @@ protected:
 		case MODBUS_WRITE_MULTIPLE_COILS:
 			{
 				WriteMultipleCoilsResponse response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->writeMultipleCoilsResponseReceived(this, response);
@@ -910,7 +928,7 @@ protected:
 		case MODBUS_WRITE_MULTIPLE_REGISTERS:
 			{
 				WriteMultipleRegistersResponse response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->writeMultipleRegistersResponseReceived(this, response);
@@ -921,7 +939,7 @@ protected:
 		case MODBUS_MASK_WRITE_REGISTER:
 			{
 				MaskWriteRegisterResponse response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->maskWriteRegisterResponseReceived(this, response);
@@ -932,7 +950,7 @@ protected:
 		case MODBUS_READ_WRITE_MULTIPLE_REGISTERS:
 			{
 				ReadWriteMultipleRegistersResponse response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->readWriteMultipleRegistersResponseReceived(this, response);
@@ -943,7 +961,7 @@ protected:
 		case MODBUS_READ_FIFO_QUEUE:
 		    {
 				ReadFIFOQueueResponse response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->readFIFOQueueResponseReceived(this, response);
@@ -954,7 +972,7 @@ protected:
 		default:
 			{
 				GenericMessage response;
-				_pPort->decodeFrame(response);
+				decodeFrameAndFixTransactionID(response);
 				if (removePending(response.transactionID))
 				{
 					this->responseReceived(this, response);
@@ -1091,6 +1109,7 @@ private:
 	Poco::SharedPtr<Port> _pPort;
 	Poco::Timespan _timeout;
 	std::size_t _maxAsyncQueueSize;
+	Poco::Timespan _frameSpacing;
 	std::unique_ptr<Poco::Thread> _pAsyncThread;
 	Poco::NotificationQueue _asyncQueue;
 	Poco::UInt16 _nextTransactionID = 0;

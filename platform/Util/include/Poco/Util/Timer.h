@@ -191,6 +191,15 @@ private:
 };
 
 
+//
+// inlines
+//
+inline bool Timer::idle() const
+{
+	return _queue.empty();
+}
+
+
 } } // namespace Poco::Util
 
 
