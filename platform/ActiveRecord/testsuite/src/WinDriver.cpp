@@ -6,7 +6,7 @@
 // Copyright (c) 2020, Applied Informatics Software Engineering GmbH.
 // and Contributors.
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: BSL-1.0
 //
 
 

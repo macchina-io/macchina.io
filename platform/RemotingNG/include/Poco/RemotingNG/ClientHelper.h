@@ -10,7 +10,7 @@
 // Copyright (c) 2006-2015, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
 //
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: GPL-3.0-only
 //
 
 
@@ -45,7 +45,7 @@ class ClientHelper
 	///         typedef Poco::AutoPtr<ISomeService> InterfacePtr;
 	///         typedef SomeServiceRemoteObject RemoteObject;
 	///         typedef Poco::AutoPtr<RemoteObject> RemoteObjectPtr;
-	///         
+	///
 	///         static std::string registerObject(ServicePtr pServiceObject, const Poco::RemotingNG::Identifiable::ObjectId& oid, const std::string& listenerId);
 	///         static std::string registerObject(RemoteObjectPtr pRemoteObject, const std::string listenerId);
 	///         static void unregisterObject(const std::string& uri);
