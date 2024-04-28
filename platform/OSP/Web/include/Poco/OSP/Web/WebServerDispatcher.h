@@ -419,7 +419,7 @@ protected:
 	void addCustomResponseHeaders(Poco::Net::HTTPServerResponse& response);
 		/// Adds any configured custom response headers.
 
-	void logRequest(const Poco::Net::HTTPServerRequest& request, const Poco::Net::HTTPServerResponse& response, const std::string& username);
+	void logRequest(const Poco::Net::HTTPServerRequest& request, const Poco::Net::HTTPServerResponse& response, const std::string& username, Poco::Clock::ClockDiff duration);
 		/// Logs the HTTP request.
 
 	static const std::string BEARER;

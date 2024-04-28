@@ -1,6 +1,36 @@
 OSP Release Notes
 Open Service Platform
 
+!!!Release 2024.1
+
+!!Summary of Changes
+
+  - The authentication framework includes a new Poco::OSP::Auth::PooledAuthAdminService
+    class that supports database connection pooling for high-load servers.
+  - The OSP web server supports a new `redirectOn401` attribute that will redirect
+    to the specified location instead of sending a `401` response due to an
+    authentication failure.
+  - Log messages for full request logging have been improved by indenting the 
+    HTTP request and response details. Also, the request details are logged as soon as
+    the request has been received.
+  - The Bundle Creator tool (`bundle`) supports a new `strip` option, allowing
+    it to strip debug information from shared libraries before copying them
+    into the bundle.
+  - Various minor fixes and improvements.
+
+!!Known Issues
+
+  - The CMake build system places all generated bundle files in the same target
+    directory, regardless of the selected build configuration (e.g., Debug, Release).
+    Therefore, building different configurations in the same build directory is
+    not recommended. Furthermore, on Windows, bundles built with CMake do not contain
+    PDB files, unlike those built with the included Visual Studio project files.
+
+!!Incompatible Changes and Possible Transition Issues
+
+  - None at this time.
+
+
 !!!Release 2023.1
 
 !!Summary of Changes

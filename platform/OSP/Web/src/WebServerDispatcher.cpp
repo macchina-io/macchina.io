@@ -453,14 +453,33 @@ void WebServerDispatcher::handleRequest(Poco::Net::HTTPServerRequest& request, P
 		_pContext->logger().information(message);
 	}
 
+	Poco::Clock::ClockDiff duration = startTime.elapsed();
 	if (_accessLogger.information())
 	{
-		logRequest(request, response, username);
+		logRequest(request, response, username, duration);
+	}
+
+	try
+	{
+		RequestHandledEvent ev(request, response, duration);
+		requestHandled(ev);
+	}
+	catch (Poco::Exception& exc)
+	{
+		_pContext->logger().error("Delegate for requestHandled event leaked exception: %s"s, exc.displayText());
+	}
+	catch (std::exception& exc)
+	{
+		_pContext->logger().error("Delegate for requestHandled event leaked exception: %s"s, std::string(exc.what()));
+	}
+	catch (...)
+	{
+		_pContext->logger().error("Delegate for requestHandled event leaked unknown exception."s);
 	}
 }
 
 
-void WebServerDispatcher::logRequest(const Poco::Net::HTTPServerRequest& request, const Poco::Net::HTTPServerResponse& response, const std::string& username)
+void WebServerDispatcher::logRequest(const Poco::Net::HTTPServerRequest& request, const Poco::Net::HTTPServerResponse& response, const std::string& username, Poco::Clock::ClockDiff duration)
 {
 	std::string reqText;
 	reqText += request.getMethod();
@@ -484,8 +503,10 @@ void WebServerDispatcher::logRequest(const Poco::Net::HTTPServerRequest& request
 	else
 		message["size"s] = "-";
 
+	message["host"s] = request.get("Host"s, ""s);
 	message["referer"s] = request.get("Referer"s, ""s);
 	message["useragent"s] = request.get("User-Agent"s, ""s);
+	message["duration"s] = Poco::NumberFormatter::format(static_cast<double>(duration)/Poco::Clock::resolution(), 6);
 
 	_accessLogger.log(message);
 }

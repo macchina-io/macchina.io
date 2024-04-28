@@ -122,6 +122,7 @@ void Preferences::removeRaw(const std::string& key)
 	Poco::FastMutex::ScopedLock lock(_mutex);
 
 	_pConfig->remove(key);
+	_dirty = true;
 }
 
 
