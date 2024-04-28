@@ -214,7 +214,7 @@ Foundation-clean:
 	$(MAKE) -C $(POCO_BASE)/Foundation/testsuite clean
 	$(MAKE) -C $(POCO_BASE)/Foundation/samples clean
 
-XML-libexec:  Foundation-libexec
+XML-libexec: Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/XML
 
 XML-tests: XML-libexec cppunit
@@ -228,7 +228,7 @@ XML-clean:
 	$(MAKE) -C $(POCO_BASE)/XML/testsuite clean
 	$(MAKE) -C $(POCO_BASE)/XML/samples clean
 
-JSON-libexec:  Foundation-libexec
+JSON-libexec: Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/JSON
 
 JSON-tests: JSON-libexec cppunit
@@ -242,7 +242,7 @@ JSON-clean:
 	$(MAKE) -C $(POCO_BASE)/JSON/testsuite clean
 	$(MAKE) -C $(POCO_BASE)/JSON/samples clean
 
-Util-libexec:  Foundation-libexec XML-libexec JSON-libexec
+Util-libexec: Foundation-libexec XML-libexec JSON-libexec
 	$(MAKE) -C $(POCO_BASE)/Util
 
 Util-tests: Util-libexec cppunit
@@ -256,13 +256,13 @@ Util-clean:
 	$(MAKE) -C $(POCO_BASE)/Util/testsuite clean
 	$(MAKE) -C $(POCO_BASE)/Util/samples clean
 
-Net-libexec:  Foundation-libexec
+Net-libexec: Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/Net
 
 Net-tests: Net-libexec cppunit
 	$(MAKE) -C $(POCO_BASE)/Net/testsuite
 
-Net-samples: Net-libexec  Foundation-libexec XML-libexec Util-libexec
+Net-samples: Net-libexec Foundation-libexec XML-libexec Util-libexec
 	$(MAKE) -C $(POCO_BASE)/Net/samples
 
 Net-clean:
@@ -270,13 +270,13 @@ Net-clean:
 	$(MAKE) -C $(POCO_BASE)/Net/testsuite clean
 	$(MAKE) -C $(POCO_BASE)/Net/samples clean
 
-Crypto-libexec:  Foundation-libexec
+Crypto-libexec: Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/Crypto
 
 Crypto-tests: Crypto-libexec cppunit
 	$(MAKE) -C $(POCO_BASE)/Crypto/testsuite
 
-Crypto-samples: Crypto-libexec  Foundation-libexec Util-libexec
+Crypto-samples: Crypto-libexec Foundation-libexec Util-libexec
 	$(MAKE) -C $(POCO_BASE)/Crypto/samples
 
 Crypto-clean:
@@ -284,7 +284,7 @@ Crypto-clean:
 	$(MAKE) -C $(POCO_BASE)/Crypto/testsuite clean
 	$(MAKE) -C $(POCO_BASE)/Crypto/samples clean
 
-NetSSL_OpenSSL-libexec:  Foundation-libexec Net-libexec Util-libexec Crypto-libexec
+NetSSL_OpenSSL-libexec: Foundation-libexec Net-libexec Util-libexec Crypto-libexec
 	$(MAKE) -C $(POCO_BASE)/NetSSL_OpenSSL
 
 NetSSL_OpenSSL-tests: NetSSL_OpenSSL-libexec cppunit
@@ -298,13 +298,13 @@ NetSSL_OpenSSL-clean:
 	$(MAKE) -C $(POCO_BASE)/NetSSL_OpenSSL/testsuite clean
 	$(MAKE) -C $(POCO_BASE)/NetSSL_OpenSSL/samples clean
 
-Data-libexec:  Foundation-libexec
+Data-libexec: Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/Data
 
 Data-tests: Data-libexec cppunit
 	$(MAKE) -C $(POCO_BASE)/Data/testsuite
 
-Data-samples: Data-libexec  Data-libexec Data/SQLite-libexec
+Data-samples: Data-libexec Data-libexec Data/SQLite-libexec
 	$(MAKE) -C $(POCO_BASE)/Data/samples
 
 Data-clean:
@@ -312,7 +312,7 @@ Data-clean:
 	$(MAKE) -C $(POCO_BASE)/Data/testsuite clean
 	$(MAKE) -C $(POCO_BASE)/Data/samples clean
 
-Data/SQLite-libexec:  Foundation-libexec Data-libexec
+Data/SQLite-libexec: Foundation-libexec Data-libexec
 	$(MAKE) -C $(POCO_BASE)/Data/SQLite
 
 Data/SQLite-tests: Data/SQLite-libexec cppunit
@@ -322,7 +322,7 @@ Data/SQLite-clean:
 	$(MAKE) -C $(POCO_BASE)/Data/SQLite clean
 	$(MAKE) -C $(POCO_BASE)/Data/SQLite/testsuite clean
 
-Data/MySQL-libexec:  Foundation-libexec Data-libexec
+Data/MySQL-libexec: Foundation-libexec Data-libexec
 	$(MAKE) -C $(POCO_BASE)/Data/MySQL
 
 Data/MySQL-tests: Data/MySQL-libexec cppunit
@@ -332,7 +332,7 @@ Data/MySQL-clean:
 	$(MAKE) -C $(POCO_BASE)/Data/MySQL clean
 	$(MAKE) -C $(POCO_BASE)/Data/MySQL/testsuite clean
 
-Data/ODBC-libexec:  Foundation-libexec Data-libexec
+Data/ODBC-libexec: Foundation-libexec Data-libexec
 	$(MAKE) -C $(POCO_BASE)/Data/ODBC
 
 Data/ODBC-tests: Data/ODBC-libexec cppunit
@@ -342,7 +342,7 @@ Data/ODBC-clean:
 	$(MAKE) -C $(POCO_BASE)/Data/ODBC clean
 	$(MAKE) -C $(POCO_BASE)/Data/ODBC/testsuite clean
 
-Data/PostgreSQL-libexec:  Foundation-libexec Data-libexec
+Data/PostgreSQL-libexec: Foundation-libexec Data-libexec
 	$(MAKE) -C $(POCO_BASE)/Data/PostgreSQL
 
 Data/PostgreSQL-tests: Data/PostgreSQL-libexec cppunit
@@ -368,7 +368,7 @@ ActiveRecord/Compiler-libexec: Foundation-libexec Util-libexec
 ActiveRecord/Compiler-clean:
 	$(MAKE) -C $(POCO_BASE)/ActiveRecord/Compiler clean
 
-Zip-libexec:  Foundation-libexec Net-libexec Util-libexec XML-libexec
+Zip-libexec: Foundation-libexec Net-libexec Util-libexec XML-libexec
 	$(MAKE) -C $(POCO_BASE)/Zip
 
 Zip-tests: Zip-libexec cppunit
@@ -382,7 +382,7 @@ Zip-clean:
 	$(MAKE) -C $(POCO_BASE)/Zip/testsuite clean
 	$(MAKE) -C $(POCO_BASE)/Zip/samples clean
 
-JWT-libexec:  Foundation-libexec JSON-libexec Crypto-libexec
+JWT-libexec: Foundation-libexec JSON-libexec Crypto-libexec
 	$(MAKE) -C $(POCO_BASE)/JWT
 
 JWT-tests: JWT-libexec cppunit
@@ -392,7 +392,7 @@ JWT-clean:
 	$(MAKE) -C $(POCO_BASE)/JWT clean
 	$(MAKE) -C $(POCO_BASE)/JWT/testsuite clean
 
-WebTunnel-libexec:  Foundation-libexec Net-libexec Util-libexec XML-libexec
+WebTunnel-libexec: Foundation-libexec Net-libexec Util-libexec XML-libexec
 	$(MAKE) -C $(POCO_BASE)/WebTunnel
 
 WebTunnel-samples: WebTunnel-libexec
@@ -401,7 +401,7 @@ WebTunnel-samples: WebTunnel-libexec
 WebTunnel-clean:
 	$(MAKE) -C $(POCO_BASE)/WebTunnel clean
 
-PageCompiler-libexec:  Net-libexec Util-libexec XML-libexec Foundation-libexec
+PageCompiler-libexec: Net-libexec Util-libexec XML-libexec Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/PageCompiler
 
 PageCompiler-samples: PageCompiler-libexec
@@ -411,13 +411,13 @@ PageCompiler-clean:
 	$(MAKE) -C $(POCO_BASE)/PageCompiler clean
 	$(MAKE) -C $(POCO_BASE)/PageCompiler/samples clean
 
-PageCompiler/File2Page-libexec:  Net-libexec Util-libexec XML-libexec Foundation-libexec
+PageCompiler/File2Page-libexec: Net-libexec Util-libexec XML-libexec Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/PageCompiler/File2Page
 
 PageCompiler/File2Page-clean:
 	$(MAKE) -C $(POCO_BASE)/PageCompiler/File2Page clean
 
-CppParser-libexec:  Foundation-libexec
+CppParser-libexec: Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/CppParser
 
 CppParser-tests: CppParser-libexec cppunit
@@ -427,7 +427,7 @@ CppParser-clean:
 	$(MAKE) -C $(POCO_BASE)/CppParser clean
 	$(MAKE) -C $(POCO_BASE)/CppParser/testsuite clean
 
-CodeGeneration-libexec:  Foundation-libexec CppParser-libexec
+CodeGeneration-libexec: Foundation-libexec CppParser-libexec
 	$(MAKE) -C $(POCO_BASE)/CodeGeneration
 
 CodeGeneration-tests: CodeGeneration-libexec cppunit
@@ -443,43 +443,43 @@ JS/V8-libexec:
 JS/V8-clean:
 	$(MAKE) -C $(POCO_BASE)/JS/V8 clean
 
-JS/Core-libexec:  Foundation-libexec XML-libexec Util-libexec JS/V8-libexec
+JS/Core-libexec: Foundation-libexec XML-libexec Util-libexec JS/V8-libexec
 	$(MAKE) -C $(POCO_BASE)/JS/Core
 
 JS/Core-clean:
 	$(MAKE) -C $(POCO_BASE)/JS/Core clean
 
-JS/File-libexec:  Foundation-libexec JS/Core-libexec
+JS/File-libexec: Foundation-libexec JS/Core-libexec
 	$(MAKE) -C $(POCO_BASE)/JS/File
 
 JS/File-clean:
 	$(MAKE) -C $(POCO_BASE)/JS/File clean
 
-JS/Data-libexec:  Foundation-libexec Data-libexec JS/Core-libexec
+JS/Data-libexec: Foundation-libexec Data-libexec JS/Core-libexec
 	$(MAKE) -C $(POCO_BASE)/JS/Data
 
 JS/Data-clean:
 	$(MAKE) -C $(POCO_BASE)/JS/Data clean
 
-JS/Bridge-libexec:  Foundation-libexec RemotingNG-libexec JS/Core-libexec
+JS/Bridge-libexec: Foundation-libexec RemotingNG-libexec JS/Core-libexec
 	$(MAKE) -C $(POCO_BASE)/JS/Bridge
 
 JS/Bridge-clean:
 	$(MAKE) -C $(POCO_BASE)/JS/Bridge clean
 
-JS/Net-libexec:  Foundation-libexec Net-libexec JS/Core-libexec
+JS/Net-libexec: Foundation-libexec Net-libexec JS/Core-libexec
 	$(MAKE) -C $(POCO_BASE)/JS/Net
 
 JS/Net-clean:
 	$(MAKE) -C $(POCO_BASE)/JS/Net clean
 
-JS/Crypto-libexec:  Foundation-libexec Crypto-libexec JS/Core-libexec
+JS/Crypto-libexec: Foundation-libexec Crypto-libexec JS/Core-libexec
 	$(MAKE) -C $(POCO_BASE)/JS/Crypto
 
 JS/Crypto-clean:
 	$(MAKE) -C $(POCO_BASE)/JS/Crypto clean
 
-RemotingNG-libexec:  Foundation-libexec
+RemotingNG-libexec: Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/RemotingNG
 
 RemotingNG-tests: RemotingNG-libexec cppunit
@@ -489,13 +489,13 @@ RemotingNG-clean:
 	$(MAKE) -C $(POCO_BASE)/RemotingNG clean
 	$(MAKE) -C $(POCO_BASE)/RemotingNG/testsuite clean
 
-RemotingNG/RemoteGen-libexec:  RemotingNG-libexec CodeGeneration-libexec Net-libexec Util-libexec CppParser-libexec XML-libexec Foundation-libexec
+RemotingNG/RemoteGen-libexec: RemotingNG-libexec CodeGeneration-libexec Net-libexec Util-libexec CppParser-libexec XML-libexec Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/RemotingNG/RemoteGen
 
 RemotingNG/RemoteGen-clean:
 	$(MAKE) -C $(POCO_BASE)/RemotingNG/RemoteGen clean
 
-RemotingNG/TCP-libexec:  RemotingNG-libexec Net-libexec Foundation-libexec
+RemotingNG/TCP-libexec: RemotingNG-libexec Net-libexec Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/RemotingNG/TCP
 
 RemotingNG/TCP-tests: RemotingNG/TCP-libexec cppunit
@@ -505,7 +505,7 @@ RemotingNG/TCP-clean:
 	$(MAKE) -C $(POCO_BASE)/RemotingNG/TCP clean
 	$(MAKE) -C $(POCO_BASE)/RemotingNG/TCP/testsuite clean
 
-OSP-libexec:  Foundation-libexec XML-libexec Util-libexec Zip-libexec
+OSP-libexec: Foundation-libexec XML-libexec Util-libexec Zip-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP
 
 OSP-tests: OSP-libexec cppunit
@@ -515,25 +515,25 @@ OSP-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP clean
 	$(MAKE) -C $(POCO_BASE)/OSP/testsuite clean
 
-OSP/BundleCreator-libexec:  Foundation-libexec XML-libexec Util-libexec Zip-libexec OSP-libexec
+OSP/BundleCreator-libexec: Foundation-libexec XML-libexec Util-libexec Zip-libexec OSP-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/BundleCreator
 
 OSP/BundleCreator-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/BundleCreator clean
 
-OSP/CodeCacheUtility-libexec:  Foundation-libexec XML-libexec Util-libexec Zip-libexec OSP-libexec
+OSP/CodeCacheUtility-libexec: Foundation-libexec XML-libexec Util-libexec Zip-libexec OSP-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/CodeCacheUtility
 
 OSP/CodeCacheUtility-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/CodeCacheUtility clean
 
-OSP/StripBundle-libexec:  Foundation-libexec XML-libexec Util-libexec Zip-libexec
+OSP/StripBundle-libexec: Foundation-libexec XML-libexec Util-libexec Zip-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/StripBundle
 
 OSP/StripBundle-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/StripBundle clean
 
-OSP/Web-libexec:  Net-libexec OSP-libexec OSP/BundleCreator-libexec
+OSP/Web-libexec: Net-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/Web
 
 OSP/Web-tests: OSP/Web-libexec cppunit
@@ -543,139 +543,139 @@ OSP/Web-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/Web clean
 	$(MAKE) -C $(POCO_BASE)/OSP/Web/testsuite clean
 
-OSP/Core-libexec:  OSP-libexec OSP/BundleCreator-libexec
+OSP/Core-libexec: OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/Core
 
 OSP/Core-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/Core clean
 
-OSP/Crypto-libexec:  Crypto-libexec OSP-libexec OSP/BundleCreator-libexec
+OSP/Crypto-libexec: Crypto-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/Crypto
 
 OSP/Crypto-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/Crypto clean
 
-OSP/Data-libexec:  Data-libexec OSP-libexec OSP/BundleCreator-libexec
+OSP/Data-libexec: Data-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/Data
 
 OSP/Data-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/Data clean
 
-OSP/Data/SQLite-libexec:  Data-libexec Data/SQLite-libexec OSP-libexec OSP/BundleCreator-libexec
+OSP/Data/SQLite-libexec: Data-libexec Data/SQLite-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/Data/SQLite
 
 OSP/Data/SQLite-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/Data/SQLite clean
 
-OSP/Data/MySQL-libexec:  Data-libexec Data/MySQL-libexec OSP-libexec OSP/BundleCreator-libexec
+OSP/Data/MySQL-libexec: Data-libexec Data/MySQL-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/Data/MySQL
 
 OSP/Data/MySQL-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/Data/MySQL clean
 
-OSP/Data/ODBC-libexec:  Data-libexec Data/ODBC-libexec OSP-libexec OSP/BundleCreator-libexec
+OSP/Data/ODBC-libexec: Data-libexec Data/ODBC-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/Data/ODBC
 
 OSP/Data/ODBC-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/Data/ODBC clean
 
-OSP/Data/PostgreSQL-libexec:  Data-libexec Data/PostgreSQL-libexec OSP-libexec OSP/BundleCreator-libexec
+OSP/Data/PostgreSQL-libexec: Data-libexec Data/PostgreSQL-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/Data/PostgreSQL
 
 OSP/Data/PostgreSQL-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/Data/PostgreSQL clean
 
-OSP/ActiveRecord-libexec:  ActiveRecord-libexec OSP-libexec OSP/BundleCreator-libexec
+OSP/ActiveRecord-libexec: ActiveRecord-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/ActiveRecord
 
 OSP/ActiveRecord-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/ActiveRecord clean
 
-OSP/Net-libexec:  Net-libexec OSP-libexec OSP/BundleCreator-libexec
+OSP/Net-libexec: Net-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/Net
 
 OSP/Net-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/Net clean
 
-OSP/NetSSL_OpenSSL-libexec:  Net-libexec NetSSL_OpenSSL-libexec OSP-libexec OSP/BundleCreator-libexec
+OSP/NetSSL_OpenSSL-libexec: Net-libexec NetSSL_OpenSSL-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/NetSSL_OpenSSL
 
 OSP/NetSSL_OpenSSL-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/NetSSL_OpenSSL clean
 
-OSP/SecureWebServer-libexec:  NetSSL_OpenSSL-libexec OSP-libexec OSP/Web-libexec OSP/BundleCreator-libexec
+OSP/SecureWebServer-libexec: NetSSL_OpenSSL-libexec OSP-libexec OSP/Web-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/SecureWebServer
 
 OSP/SecureWebServer-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/SecureWebServer clean
 
-OSP/WebServer-libexec:  OSP-libexec OSP/Web-libexec OSP/BundleCreator-libexec
+OSP/WebServer-libexec: OSP-libexec OSP/Web-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/WebServer
 
 OSP/WebServer-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/WebServer clean
 
-OSP/Mail-libexec:  OSP-libexec Net-libexec OSP/BundleCreator-libexec
+OSP/Mail-libexec: OSP-libexec Net-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/Mail
 
 OSP/Mail-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/Mail clean
 
-OSP/SecureMail-libexec:  OSP-libexec OSP/Mail-libexec NetSSL_OpenSSL-libexec OSP/BundleCreator-libexec
+OSP/SecureMail-libexec: OSP-libexec OSP/Mail-libexec NetSSL_OpenSSL-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/SecureMail
 
 OSP/SecureMail-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/SecureMail clean
 
-OSP/JS-libexec:  Foundation-libexec XML-libexec Util-libexec Net-libexec JS/Core-libexec JS/Bridge-libexec JS/Net-libexec JS/Data-libexec OSP-libexec OSP/BundleCreator-libexec
+OSP/JS-libexec: Foundation-libexec XML-libexec Util-libexec Net-libexec JS/Core-libexec JS/Bridge-libexec JS/Net-libexec JS/Data-libexec OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS
 
 OSP/JS-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/JS clean
 
-OSP/JS/File-libexec:  JS/File-libexec OSP/JS-libexec OSP/BundleCreator-libexec
+OSP/JS/File-libexec: JS/File-libexec OSP/JS-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/File
 
 OSP/JS/File-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/File clean
 
-OSP/JS/Net-libexec:  JS/Net-libexec OSP/JS-libexec Net-libexec OSP/BundleCreator-libexec
+OSP/JS/Net-libexec: JS/Net-libexec OSP/JS-libexec Net-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Net
 
 OSP/JS/Net-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Net clean
 
-OSP/JS/Data-libexec:  JS/Data-libexec OSP/JS-libexec Data-libexec OSP/BundleCreator-libexec
+OSP/JS/Data-libexec: JS/Data-libexec OSP/JS-libexec Data-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Data
 
 OSP/JS/Data-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Data clean
 
-OSP/JS/Web-libexec:  OSP/JS-libexec OSP/Web-libexec OSP/BundleCreator-libexec
+OSP/JS/Web-libexec: OSP/JS-libexec OSP/Web-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Web
 
 OSP/JS/Web-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Web clean
 
-OSP/JS/Crypto-libexec:  JS/Crypto-libexec OSP/JS-libexec OSP/BundleCreator-libexec
+OSP/JS/Crypto-libexec: JS/Crypto-libexec OSP/JS-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Crypto
 
 OSP/JS/Crypto-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Crypto clean
 
-OSP/JS/Scheduler-libexec:  OSP/JS-libexec OSP/BundleCreator-libexec
+OSP/JS/Scheduler-libexec: OSP/JS-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Scheduler
 
 OSP/JS/Scheduler-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/JS/Scheduler clean
 
-OSP/WebEvent-libexec:  Net-libexec OSP-libexec OSP/BundleCreator-libexec OSP/Web-libexec
+OSP/WebEvent-libexec: Net-libexec OSP-libexec OSP/BundleCreator-libexec OSP/Web-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/WebEvent
 
 OSP/WebEvent-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/WebEvent clean
 
-OSP/SimpleAuth-libexec:  OSP-libexec OSP/BundleCreator-libexec
+OSP/SimpleAuth-libexec: OSP-libexec OSP/BundleCreator-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/SimpleAuth
 
 OSP/SimpleAuth-clean:
@@ -687,19 +687,19 @@ OSP/JWT-libexec: OSP/Web-libexec OSP-libexec OSP/BundleCreator-libexec JWT-libex
 OSP/JWT-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/JWT clean
 
-OSP/RemotingNG/TCP-libexec:  OSP-libexec OSP/BundleCreator-libexec RemotingNG/TCP-libexec
+OSP/RemotingNG/TCP-libexec: OSP-libexec OSP/BundleCreator-libexec RemotingNG/TCP-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/RemotingNG/TCP
 
 OSP/RemotingNG/TCP-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/RemotingNG/TCP clean
 
-OSP/RemotingNG/REST-libexec:  OSP-libexec OSP/BundleCreator-libexec RemotingNG/REST-libexec
+OSP/RemotingNG/REST-libexec: OSP-libexec OSP/BundleCreator-libexec RemotingNG/REST-libexec
 	$(MAKE) -C $(POCO_BASE)/OSP/RemotingNG/REST
 
 OSP/RemotingNG/REST-clean:
 	$(MAKE) -C $(POCO_BASE)/OSP/RemotingNG/REST clean
 
-Geo-libexec:  Foundation-libexec
+Geo-libexec: Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/Geo
 
 Geo-tests: Geo-libexec cppunit
@@ -709,13 +709,13 @@ Geo-clean:
 	$(MAKE) -C $(POCO_BASE)/Geo clean
 	$(MAKE) -C $(POCO_BASE)/Geo/testsuite clean
 
-Serial-libexec:  Foundation-libexec
+Serial-libexec: Foundation-libexec
 	$(MAKE) -C $(POCO_BASE)/Serial
 
 Serial-clean:
 	$(MAKE) -C $(POCO_BASE)/Serial clean
 
-Redis-libexec:  Foundation-libexec Net-libexec
+Redis-libexec: Foundation-libexec Net-libexec
 	$(MAKE) -C $(POCO_BASE)/Redis
 
 Redis-tests: Redis-libexec cppunit
@@ -725,7 +725,7 @@ Redis-clean:
 	$(MAKE) -C $(POCO_BASE)/Redis clean
 	$(MAKE) -C $(POCO_BASE)/Redis/testsuite clean
 
-MongoDB-libexec:  Foundation-libexec Net-libexec
+MongoDB-libexec: Foundation-libexec Net-libexec
 	$(MAKE) -C $(POCO_BASE)/MongoDB
 
 MongoDB-tests: MongoDB-libexec cppunit
