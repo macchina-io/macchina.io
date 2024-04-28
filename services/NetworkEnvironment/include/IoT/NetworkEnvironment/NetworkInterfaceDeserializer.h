@@ -49,27 +49,27 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"adapterName"s,"addresses"s,"displayName"s,"index"s,"isLoopback"s,"isPointToPoint"s,"isRunning"s,"isUp"s,"macAddress"s,"mtu"s,"name"s,"supportsBroadcast"s,"supportsIP"s,"supportsIPv4"s,"supportsIPv6"s,"supportsMulticast"s,"type"s};
+		static const std::string REMOTING__NAMES[] = {"index"s,"name"s,"displayName"s,"adapterName"s,"macAddress"s,"addresses"s,"mtu"s,"type"s,"supportsIP"s,"supportsIPv4"s,"supportsIPv6"s,"supportsBroadcast"s,"supportsMulticast"s,"isLoopback"s,"isPointToPoint"s,"isRunning"s,"isUp"s};
 		bool ret = false;
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.adapterName);
-		TypeDeserializer<std::vector < IoT::NetworkEnvironment::AddressTuple > >::deserialize(REMOTING__NAMES[1], true, deser, value.addresses);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.displayName);
-		TypeDeserializer<unsigned >::deserialize(REMOTING__NAMES[3], true, deser, value.index);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[4], true, deser, value.isLoopback);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[5], true, deser, value.isPointToPoint);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[6], true, deser, value.isRunning);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[7], true, deser, value.isUp);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[8], true, deser, value.macAddress);
-		TypeDeserializer<unsigned >::deserialize(REMOTING__NAMES[9], true, deser, value.mtu);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[10], true, deser, value.name);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[11], true, deser, value.supportsBroadcast);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[12], true, deser, value.supportsIP);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[13], true, deser, value.supportsIPv4);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[14], true, deser, value.supportsIPv6);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[15], true, deser, value.supportsMulticast);
+		TypeDeserializer<unsigned>::deserialize(REMOTING__NAMES[0], true, deser, value.index);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, deser, value.name);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[2], true, deser, value.displayName);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[3], true, deser, value.adapterName);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[4], true, deser, value.macAddress);
+		TypeDeserializer<std::vector<IoT::NetworkEnvironment::AddressTuple>>::deserialize(REMOTING__NAMES[5], true, deser, value.addresses);
+		TypeDeserializer<unsigned>::deserialize(REMOTING__NAMES[6], true, deser, value.mtu);
 		int gentype;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[16], true, deser, gentype);
+		ret = TypeDeserializer<int>::deserialize(REMOTING__NAMES[7], true, deser, gentype);
 		if (ret) value.type = static_cast<IoT::NetworkEnvironment::MIBInterfaceType>(gentype);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[8], true, deser, value.supportsIP);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[9], true, deser, value.supportsIPv4);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[10], true, deser, value.supportsIPv6);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[11], true, deser, value.supportsBroadcast);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[12], true, deser, value.supportsMulticast);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[13], true, deser, value.isLoopback);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[14], true, deser, value.isPointToPoint);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[15], true, deser, value.isRunning);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[16], true, deser, value.isUp);
 	}
 
 };

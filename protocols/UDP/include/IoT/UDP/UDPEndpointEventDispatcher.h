@@ -19,7 +19,7 @@
 #define IoT_UDP_UDPEndpointEventDispatcher_INCLUDED
 
 
-#include "IoT/UDP/UDPEndpointRemoteObject.h"
+#include "IoT/UDP/IUDPEndpoint.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -31,7 +31,7 @@ class UDPEndpointEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// The UDPEndpoint is used to receive and send UDP packets.
 {
 public:
-	UDPEndpointEventDispatcher(UDPEndpointRemoteObject* pRemoteObject, const std::string& protocol);
+	UDPEndpointEventDispatcher(IUDPEndpoint* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a UDPEndpointEventDispatcher.
 
 	virtual ~UDPEndpointEventDispatcher();
@@ -45,7 +45,8 @@ private:
 	void event__packetReceivedImpl(const std::string& subscriberURI, const IoT::UDP::Packet& data);
 
 	static const std::string DEFAULT_NS;
-	UDPEndpointRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IUDPEndpoint* _pInterface;
 };
 
 

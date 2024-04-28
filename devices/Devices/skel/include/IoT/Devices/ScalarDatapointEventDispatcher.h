@@ -19,7 +19,7 @@
 #define IoT_Devices_ScalarDatapointEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/ScalarDatapointRemoteObject.h"
+#include "IoT/Devices/IScalarDatapoint.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -44,7 +44,7 @@ class ScalarDatapointEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	///     formatted as string for display purposes.
 {
 public:
-	ScalarDatapointEventDispatcher(ScalarDatapointRemoteObject* pRemoteObject, const std::string& protocol);
+	ScalarDatapointEventDispatcher(IScalarDatapoint* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a ScalarDatapointEventDispatcher.
 
 	virtual ~ScalarDatapointEventDispatcher();
@@ -74,7 +74,8 @@ private:
 	void event__valueUpdatedImpl(const std::string& subscriberURI, const double& data);
 
 	static const std::string DEFAULT_NS;
-	ScalarDatapointRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IScalarDatapoint* _pInterface;
 };
 
 

@@ -50,7 +50,7 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"connectionInfo"s};
-		TypeDeserializer<IoT::MQTT::ConnectionInfo >::deserialize(REMOTING__NAMES[0], true, deser, value.connectionInfo);
+		TypeDeserializer<IoT::MQTT::ConnectionInfo>::deserialize(REMOTING__NAMES[0], true, deser, value.connectionInfo);
 	}
 
 };

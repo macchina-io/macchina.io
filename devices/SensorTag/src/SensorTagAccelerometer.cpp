@@ -33,7 +33,6 @@ SensorTagAccelerometer::SensorTagAccelerometer(BtLE::Peripheral::Ptr pPeripheral
 	_params(params),
 	_pPeripheral(pPeripheral),
 	_ready(false),
-	_enabled(false),
 	_deviceIdentifier(pPeripheral->address()),
 	_logger(Poco::Logger::get("IoT.SensorTagAccelerometer"))
 {
@@ -48,11 +47,10 @@ SensorTagAccelerometer::SensorTagAccelerometer(BtLE::Peripheral::Ptr pPeripheral
 	addProperty("valueChangedPeriod", &SensorTagAccelerometer::getValueChangedPeriod, &SensorTagAccelerometer::setValueChangedPeriod);
 	addProperty("range", &SensorTagAccelerometer::getRange, &SensorTagAccelerometer::setRange);
 
-	_pPeripheral->services();
 	_controlChar = _pPeripheral->characteristic(_params.serviceUUID, _params.controlUUID);
 	_dataChar = _pPeripheral->characteristic(_params.serviceUUID, _params.dataUUID);
 	_periodChar = _pPeripheral->characteristic(_params.serviceUUID, _params.periodUUID);
-	_notifHandle = _pPeripheral->handleForDescriptor(_params.serviceUUID, _params.notifUUID);
+	_notifHandle = _pPeripheral->handleForDescriptor(_params.serviceUUID, _params.dataUUID, _params.notifUUID);
 
 	_pPeripheral->connected += Poco::delegate(this, &SensorTagAccelerometer::onConnected);
 	_pPeripheral->disconnected += Poco::delegate(this, &SensorTagAccelerometer::onDisconnected);
@@ -65,7 +63,7 @@ SensorTagAccelerometer::~SensorTagAccelerometer()
 	_pPeripheral->connected -= Poco::delegate(this, &SensorTagAccelerometer::onConnected);
 	_pPeripheral->disconnected -= Poco::delegate(this, &SensorTagAccelerometer::onDisconnected);
 	_pPeripheral->notificationReceived -= Poco::delegate(this, &SensorTagAccelerometer::onNotificationReceived);
-	_pPeripheral = 0;
+	_pPeripheral.reset();
 }
 
 
@@ -126,10 +124,7 @@ Poco::Any SensorTagAccelerometer::getSymbolicName(const std::string&) const
 
 void SensorTagAccelerometer::onConnected()
 {
-	if (_enabled)
-	{
-		enable(true);
-	}
+	enable(true);
 }
 
 
@@ -148,23 +143,23 @@ void SensorTagAccelerometer::onNotificationReceived(const BtLE::Notification& nf
 
 
 //
-// SensorTag1Accelerometer
+// SensorTagCC2541Accelerometer
 //
 
 
-SensorTag1Accelerometer::SensorTag1Accelerometer(BtLE::Peripheral::Ptr pPeripheral, const Params& params):
+SensorTagCC2541Accelerometer::SensorTagCC2541Accelerometer(BtLE::Peripheral::Ptr pPeripheral, const Params& params):
 	SensorTagAccelerometer(pPeripheral, params)
 {
 	enable(true);
 }
 
 
-SensorTag1Accelerometer::~SensorTag1Accelerometer()
+SensorTagCC2541Accelerometer::~SensorTagCC2541Accelerometer()
 {
 }
 
 
-void SensorTag1Accelerometer::enable(bool enabled)
+void SensorTagCC2541Accelerometer::enable(bool enabled)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -173,7 +168,7 @@ void SensorTag1Accelerometer::enable(bool enabled)
 }
 
 
-Poco::Any SensorTag1Accelerometer::getEnabled(const std::string&) const
+Poco::Any SensorTagCC2541Accelerometer::getEnabled(const std::string&) const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -181,7 +176,7 @@ Poco::Any SensorTag1Accelerometer::getEnabled(const std::string&) const
 }
 
 
-void SensorTag1Accelerometer::setEnabled(const std::string&, const Poco::Any& value)
+void SensorTagCC2541Accelerometer::setEnabled(const std::string&, const Poco::Any& value)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -189,7 +184,7 @@ void SensorTag1Accelerometer::setEnabled(const std::string&, const Poco::Any& va
 }
 
 
-Poco::Any SensorTag1Accelerometer::getWakeOnMotion(const std::string&) const
+Poco::Any SensorTagCC2541Accelerometer::getWakeOnMotion(const std::string&) const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -197,13 +192,13 @@ Poco::Any SensorTag1Accelerometer::getWakeOnMotion(const std::string&) const
 }
 
 
-void SensorTag1Accelerometer::setWakeOnMotion(const std::string& name, const Poco::Any&)
+void SensorTagCC2541Accelerometer::setWakeOnMotion(const std::string& name, const Poco::Any&)
 {
 	throw IoT::Devices::NotWritableException(name);
 }
 
 
-Poco::Any SensorTag1Accelerometer::getValueChangedPeriod(const std::string&) const
+Poco::Any SensorTagCC2541Accelerometer::getValueChangedPeriod(const std::string&) const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -212,7 +207,7 @@ Poco::Any SensorTag1Accelerometer::getValueChangedPeriod(const std::string&) con
 }
 
 
-void SensorTag1Accelerometer::setValueChangedPeriod(const std::string&, const Poco::Any& value)
+void SensorTagCC2541Accelerometer::setValueChangedPeriod(const std::string&, const Poco::Any& value)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -226,19 +221,19 @@ void SensorTag1Accelerometer::setValueChangedPeriod(const std::string&, const Po
 }
 
 
-Poco::Any SensorTag1Accelerometer::getRange(const std::string&) const
+Poco::Any SensorTagCC2541Accelerometer::getRange(const std::string&) const
 {
 	return 2;
 }
 
 
-void SensorTag1Accelerometer::setRange(const std::string& name, const Poco::Any&)
+void SensorTagCC2541Accelerometer::setRange(const std::string& name, const Poco::Any&)
 {
 	throw IoT::Devices::NotWritableException(name);
 }
 
 
-void SensorTag1Accelerometer::update(const std::vector<char>& data)
+void SensorTagCC2541Accelerometer::update(const std::vector<char>& data)
 {
 	if (data.size() == 3)
 	{
@@ -263,11 +258,11 @@ void SensorTag1Accelerometer::update(const std::vector<char>& data)
 
 
 //
-// SensorTag2Accelerometer
+// SensorTagCC2650Accelerometer
 //
 
 
-SensorTag2Accelerometer::SensorTag2Accelerometer(BtLE::Peripheral::Ptr pPeripheral, const Params& params):
+SensorTagCC2650Accelerometer::SensorTagCC2650Accelerometer(BtLE::Peripheral::Ptr pPeripheral, const Params& params):
 	SensorTagAccelerometer(pPeripheral, params),
 	_range(8)
 {
@@ -275,12 +270,12 @@ SensorTag2Accelerometer::SensorTag2Accelerometer(BtLE::Peripheral::Ptr pPeripher
 }
 
 
-SensorTag2Accelerometer::~SensorTag2Accelerometer()
+SensorTagCC2650Accelerometer::~SensorTagCC2650Accelerometer()
 {
 }
 
 
-void SensorTag2Accelerometer::configure(Poco::UInt16 bits, Poco::UInt16 mask)
+void SensorTagCC2650Accelerometer::configure(Poco::UInt16 bits, Poco::UInt16 mask)
 {
 	Poco::UInt16 config = _pPeripheral->readUInt16(_controlChar.valueHandle);
 	config &= ~mask;
@@ -308,7 +303,7 @@ void SensorTag2Accelerometer::configure(Poco::UInt16 bits, Poco::UInt16 mask)
 }
 
 
-void SensorTag2Accelerometer::enable(bool enabled)
+void SensorTagCC2650Accelerometer::enable(bool enabled)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -317,7 +312,7 @@ void SensorTag2Accelerometer::enable(bool enabled)
 }
 
 
-Poco::Any SensorTag2Accelerometer::getEnabled(const std::string&) const
+Poco::Any SensorTagCC2650Accelerometer::getEnabled(const std::string&) const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -325,7 +320,7 @@ Poco::Any SensorTag2Accelerometer::getEnabled(const std::string&) const
 }
 
 
-void SensorTag2Accelerometer::setEnabled(const std::string&, const Poco::Any& value)
+void SensorTagCC2650Accelerometer::setEnabled(const std::string&, const Poco::Any& value)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -333,7 +328,7 @@ void SensorTag2Accelerometer::setEnabled(const std::string&, const Poco::Any& va
 }
 
 
-Poco::Any SensorTag2Accelerometer::getWakeOnMotion(const std::string&) const
+Poco::Any SensorTagCC2650Accelerometer::getWakeOnMotion(const std::string&) const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -341,7 +336,7 @@ Poco::Any SensorTag2Accelerometer::getWakeOnMotion(const std::string&) const
 }
 
 
-void SensorTag2Accelerometer::setWakeOnMotion(const std::string&, const Poco::Any& value)
+void SensorTagCC2650Accelerometer::setWakeOnMotion(const std::string&, const Poco::Any& value)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -350,7 +345,7 @@ void SensorTag2Accelerometer::setWakeOnMotion(const std::string&, const Poco::An
 }
 
 
-Poco::Any SensorTag2Accelerometer::getValueChangedPeriod(const std::string&) const
+Poco::Any SensorTagCC2650Accelerometer::getValueChangedPeriod(const std::string&) const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -359,7 +354,7 @@ Poco::Any SensorTag2Accelerometer::getValueChangedPeriod(const std::string&) con
 }
 
 
-void SensorTag2Accelerometer::setValueChangedPeriod(const std::string&, const Poco::Any& value)
+void SensorTagCC2650Accelerometer::setValueChangedPeriod(const std::string&, const Poco::Any& value)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -373,7 +368,7 @@ void SensorTag2Accelerometer::setValueChangedPeriod(const std::string&, const Po
 }
 
 
-Poco::Any SensorTag2Accelerometer::getRange(const std::string&) const
+Poco::Any SensorTagCC2650Accelerometer::getRange(const std::string&) const
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -381,7 +376,7 @@ Poco::Any SensorTag2Accelerometer::getRange(const std::string&) const
 }
 
 
-void SensorTag2Accelerometer::setRange(const std::string&, const Poco::Any& value)
+void SensorTagCC2650Accelerometer::setRange(const std::string&, const Poco::Any& value)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
@@ -409,7 +404,7 @@ void SensorTag2Accelerometer::setRange(const std::string&, const Poco::Any& valu
 }
 
 
-void SensorTag2Accelerometer::update(const std::vector<char>& data)
+void SensorTagCC2650Accelerometer::update(const std::vector<char>& data)
 {
 	if (data.size() == 18)
 	{

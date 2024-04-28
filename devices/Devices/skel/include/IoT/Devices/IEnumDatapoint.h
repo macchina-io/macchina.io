@@ -50,7 +50,7 @@ public:
 	virtual ~IEnumDatapoint();
 		/// Destroys the IEnumDatapoint.
 
-	virtual std::vector < IoT::Devices::EnumValue > definedValues() const = 0;
+	virtual std::vector<IoT::Devices::EnumValue> definedValues() const = 0;
 		/// Returns a vector containing the possible values
 		/// and mappings to symbolic names.
 
@@ -91,11 +91,11 @@ public:
 		/// Throws a Poco::InvalidArgumentException if the given symbolicName
 		/// is not in the range of defined values and their symbolic names.
 
-	virtual Poco::Optional < std::string > validStringValue() const = 0;
+	virtual Poco::Optional<std::string> validStringValue() const = 0;
 		/// Returns the symbolic name corresponding to the datapoint's current value
 		/// if the datapoint is valid, otherwise an empty value.
 
-	virtual Poco::Optional < int > validValue() const = 0;
+	virtual Poco::Optional<int> validValue() const = 0;
 		/// Returns the current integer value of the datapoint
 		/// if it is valid, otherwise an empty value.
 
@@ -105,9 +105,9 @@ public:
 		///
 		/// Use validValue() to get a valid value only.
 
-	Poco::BasicEvent < const int > validated;
-	Poco::BasicEvent < const int > valueChanged;
-	Poco::BasicEvent < const int > valueUpdated;
+	Poco::BasicEvent<const int> validated;
+	Poco::BasicEvent<const int> valueChanged;
+	Poco::BasicEvent<const int> valueUpdated;
 };
 
 

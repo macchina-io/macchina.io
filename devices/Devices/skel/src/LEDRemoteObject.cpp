@@ -55,7 +55,7 @@ std::string LEDRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listener::
 
 void LEDRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new LEDEventDispatcher(this, protocol);
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new LEDEventDispatcher(this, remoting__objectId(), protocol);
 	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 

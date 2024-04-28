@@ -33,12 +33,13 @@ namespace IoT {
 namespace Devices {
 
 
-GyroscopeEventDispatcher::GyroscopeEventDispatcher(GyroscopeRemoteObject* pRemoteObject, const std::string& protocol):
+GyroscopeEventDispatcher::GyroscopeEventDispatcher(IGyroscope* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol):
 	Poco::RemotingNG::EventDispatcher(protocol),
-	_pRemoteObject(pRemoteObject)
+	_objectId(objectId),
+	_pInterface(pInterface)
 {
-	_pRemoteObject->rotationChanged += Poco::delegate(this, &GyroscopeEventDispatcher::event__rotationChanged);
-	_pRemoteObject->statusChanged += Poco::delegate(this, &GyroscopeEventDispatcher::event__statusChanged);
+	_pInterface->rotationChanged += Poco::delegate(this, &GyroscopeEventDispatcher::event__rotationChanged);
+	_pInterface->statusChanged += Poco::delegate(this, &GyroscopeEventDispatcher::event__statusChanged);
 }
 
 
@@ -46,8 +47,8 @@ GyroscopeEventDispatcher::~GyroscopeEventDispatcher()
 {
 	try
 	{
-		_pRemoteObject->rotationChanged -= Poco::delegate(this, &GyroscopeEventDispatcher::event__rotationChanged);
-		_pRemoteObject->statusChanged -= Poco::delegate(this, &GyroscopeEventDispatcher::event__statusChanged);
+		_pInterface->rotationChanged -= Poco::delegate(this, &GyroscopeEventDispatcher::event__rotationChanged);
+		_pInterface->statusChanged -= Poco::delegate(this, &GyroscopeEventDispatcher::event__statusChanged);
 	}
 	catch (...)
 	{
@@ -131,11 +132,11 @@ void GyroscopeEventDispatcher::event__rotationChangedImpl(const std::string& sub
 	static const std::string REMOTING__NAMES[] = {"rotationChanged"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Devices::Rotation >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Devices::Rotation>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -146,11 +147,11 @@ void GyroscopeEventDispatcher::event__statusChangedImpl(const std::string& subsc
 	static const std::string REMOTING__NAMES[] = {"statusChanged"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Devices::DeviceStatusChange >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Devices::DeviceStatusChange>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 

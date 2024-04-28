@@ -45,13 +45,13 @@ public:
 	virtual std::string address() const;
 		/// Returns the address of the device.
 
-	IoT::BtLE::Characteristic characteristic(const std::string& serviceUUID, const std::string& characteristicUUID);
+	IoT::BtLE::Characteristic characteristic(const Poco::UUID& serviceUUID, const Poco::UUID& characteristicUUID);
 		/// Returns the properties and handle for accessing the value of the given characteristic.
 
-	IoT::BtLE::Characteristic characteristicForAssignedNumber(const std::string& serviceUUID, Poco::UInt32 assignedNumber);
+	IoT::BtLE::Characteristic characteristicForAssignedNumber(const Poco::UUID& serviceUUID, Poco::UInt32 assignedNumber);
 		/// Returns the properties and handle for accessing the value of the given characteristic.
 
-	virtual std::vector < std::string > characteristics(const std::string& serviceUUID);
+	std::vector<Poco::UUID> characteristics(const Poco::UUID& serviceUUID);
 		/// Returns a vector containing the UUIDs of all available characteristics
 		/// of the service identified by the given serviceUUID.
 
@@ -66,14 +66,20 @@ public:
 		/// Successful connection or error will be reported through connected
 		/// and error events.
 
+	virtual std::string deviceName();
+		/// Returns the peripheral's device name obtained from the Generic Access Profile.
+
 	virtual void disconnect();
 		/// Disconnects from the Bt LE peripheral.
+
+	virtual Poco::UUID expandUUID(Poco::UInt32 uuid);
+		/// Expands the given 16-bit or 32-bit UUID to a full UUID.
 
 	virtual std::string firmwareRevision();
 		/// Returns the peripheral's firmware revision string obtained from the Device Information service.
 
-	virtual Poco::UInt16 handleForDescriptor(const std::string& serviceUUID, const std::string& descriptorUUID);
-		/// Returns the handle with the given descriptor UUID for the service with the given serviceUUID.
+	Poco::UInt16 handleForDescriptor(const Poco::UUID& serviceUUID, const Poco::UUID& characteristicUUID, const Poco::UUID& descriptorUUID);
+		/// Returns the handle with the given descriptor UUID for given characteristic and service.
 
 	virtual std::string hardwareRevision();
 		/// Returns the peripheral's hardware revision string obtained from the Device Information service.
@@ -87,14 +93,23 @@ public:
 	virtual std::string modelNumber();
 		/// Returns the peripheral's model number string obtained from the Device Information service.
 
-	virtual std::vector < char > readBytes(Poco::UInt16 valueHandle);
+	std::vector<char> readBytes(Poco::UInt16 valueHandle);
 		/// Reads a raw byte string from the given value handle.
 
+	virtual double readDouble(Poco::UInt16 valueHandle);
+		/// Reads a 64-bit double value (little endian) from the given value handle.
+
+	virtual float readFloat(Poco::UInt16 valueHandle);
+		/// Reads a 32-bit float value (little endian) from the given value handle.
+
 	virtual Poco::Int16 readInt16(Poco::UInt16 valueHandle);
-		/// Reads a signed 16-bit integer value from the given value handle.
+		/// Reads a signed 16-bit integer value (little endian) from the given value handle.
 
 	virtual Poco::Int32 readInt32(Poco::UInt16 valueHandle);
-		/// Reads a signed 32-bit integer value from the given value handle.
+		/// Reads a signed 32-bit integer value (little endian) from the given value handle.
+
+	virtual Poco::Int64 readInt64(Poco::UInt16 valueHandle);
+		/// Reads a signed 64-bit integer value (little endian) from the given value handle.
 
 	virtual Poco::Int8 readInt8(Poco::UInt16 valueHandle);
 		/// Reads a signed byte value from the given value handle.
@@ -106,10 +121,13 @@ public:
 		/// Reads a 0-terminated character string from the given value handle.
 
 	virtual Poco::UInt16 readUInt16(Poco::UInt16 valueHandle);
-		/// Reads an unsigned 16-bit integer value from the given value handle.
+		/// Reads an unsigned 16-bit integer value (little endian) from the given value handle.
 
 	virtual Poco::UInt32 readUInt32(Poco::UInt16 valueHandle);
-		/// Reads an unsigned 32-bit integer value from the given value handle.
+		/// Reads an unsigned 32-bit integer value (little endian) from the given value handle.
+
+	virtual Poco::UInt64 readUInt64(Poco::UInt16 valueHandle);
+		/// Reads an unsigned 64-bit integer value (little endian) from the given value handle.
 
 	virtual Poco::UInt8 readUInt8(Poco::UInt16 valueHandle);
 		/// Reads an unsigned byte value from the given value handle.
@@ -125,30 +143,48 @@ public:
 	virtual std::string serialNumber();
 		/// Returns the peripheral's serial number string obtained from the Device Information service.
 
-	virtual std::string serviceUUIDForAssignedNumber(Poco::UInt32 assignedNumber);
+	virtual Poco::UUID serviceUUIDForAssignedNumber(Poco::UInt32 assignedNumber);
 		/// Returns the UUID of the service with the given 32-bit assigned number,
-		/// or an empty string if no such service is available.
+		/// or null UUID if no such service is available.
 
-	virtual std::vector < std::string > services();
+	std::vector<Poco::UUID> services();
 		/// Returns a vector containing the UUIDs of all available services.
 
 	virtual std::string softwareRevision();
 		/// Returns the peripheral's software revision string obtained from the Device Information service.
 
-	virtual void writeBytes(Poco::UInt16 valueHandle, const std::vector < char >& value, bool withResponse);
+	virtual void writeBytes(Poco::UInt16 valueHandle, const std::vector<char>& value, bool withResponse);
 		/// Writes a raw byte string to the given value handle.
 		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
 
-	virtual void writeInt16(Poco::UInt16 valueHandle, Poco::Int16 value, bool withResponse);
-		/// Writes a signed 16-bit integer value to the given value handle.
+	virtual void writeDouble(Poco::UInt16 valueHandle, double value, bool withResponse);
+		/// Writes a signed 64-bit double value (little endian) to the given value handle.
 		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
 
-	virtual void writeInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse);
-		/// Writes a signed 32-bit integer value to the given value handle.
+	virtual void writeFloat(Poco::UInt16 valueHandle, float value, bool withResponse);
+		/// Writes a signed 32-bit float value (little endian) to the given value handle.
+		///
+		/// If withResponse is false, uses a WriteWithoutResponse operation,
+		/// otherwise a Write operation.
+
+	virtual void writeInt16(Poco::UInt16 valueHandle, Poco::Int16 value, bool withResponse);
+		/// Writes a signed 16-bit integer value (little endian) to the given value handle.
+		///
+		/// If withResponse is false, uses a WriteWithoutResponse operation,
+		/// otherwise a Write operation.
+
+	virtual void writeInt32(Poco::UInt16 valueHandle, Poco::Int32 value, bool withResponse);
+		/// Writes a signed 32-bit integer value (little endian) to the given value handle.
+		///
+		/// If withResponse is false, uses a WriteWithoutResponse operation,
+		/// otherwise a Write operation.
+
+	virtual void writeInt64(Poco::UInt16 valueHandle, Poco::Int64 value, bool withResponse);
+		/// Writes a signed 32-bit integer value (little endian) to the given value handle.
 		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
@@ -166,13 +202,19 @@ public:
 		/// otherwise a Write operation.
 
 	virtual void writeUInt16(Poco::UInt16 valueHandle, Poco::UInt16 value, bool withResponse);
-		/// Writes an unsigned 16-bit integer value to the given value handle.
+		/// Writes an unsigned 16-bit integer value (little endian) to the given value handle.
 		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
 
 	virtual void writeUInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse);
-		/// Writes an unsigned 32-bit integer value to the given value handle.
+		/// Writes an unsigned 32-bit integer value (little endian) to the given value handle.
+		///
+		/// If withResponse is false, uses a WriteWithoutResponse operation,
+		/// otherwise a Write operation.
+
+	virtual void writeUInt64(Poco::UInt16 valueHandle, Poco::UInt64 value, bool withResponse);
+		/// Writes an unsigned 32-bit integer value (little endian) to the given value handle.
 		///
 		/// If withResponse is false, uses a WriteWithoutResponse operation,
 		/// otherwise a Write operation.
@@ -205,19 +247,19 @@ inline std::string PeripheralRemoteObject::address() const
 }
 
 
-inline IoT::BtLE::Characteristic PeripheralRemoteObject::characteristic(const std::string& serviceUUID, const std::string& characteristicUUID)
+inline IoT::BtLE::Characteristic PeripheralRemoteObject::characteristic(const Poco::UUID& serviceUUID, const Poco::UUID& characteristicUUID)
 {
 	return _pServiceObject->characteristic(serviceUUID, characteristicUUID);
 }
 
 
-inline IoT::BtLE::Characteristic PeripheralRemoteObject::characteristicForAssignedNumber(const std::string& serviceUUID, Poco::UInt32 assignedNumber)
+inline IoT::BtLE::Characteristic PeripheralRemoteObject::characteristicForAssignedNumber(const Poco::UUID& serviceUUID, Poco::UInt32 assignedNumber)
 {
 	return _pServiceObject->characteristicForAssignedNumber(serviceUUID, assignedNumber);
 }
 
 
-inline std::vector < std::string > PeripheralRemoteObject::characteristics(const std::string& serviceUUID)
+inline std::vector<Poco::UUID> PeripheralRemoteObject::characteristics(const Poco::UUID& serviceUUID)
 {
 	return _pServiceObject->characteristics(serviceUUID);
 }
@@ -235,9 +277,21 @@ inline void PeripheralRemoteObject::connectAsync()
 }
 
 
+inline std::string PeripheralRemoteObject::deviceName()
+{
+	return _pServiceObject->deviceName();
+}
+
+
 inline void PeripheralRemoteObject::disconnect()
 {
 	_pServiceObject->disconnect();
+}
+
+
+inline Poco::UUID PeripheralRemoteObject::expandUUID(Poco::UInt32 uuid)
+{
+	return _pServiceObject->expandUUID(uuid);
 }
 
 
@@ -247,9 +301,9 @@ inline std::string PeripheralRemoteObject::firmwareRevision()
 }
 
 
-inline Poco::UInt16 PeripheralRemoteObject::handleForDescriptor(const std::string& serviceUUID, const std::string& descriptorUUID)
+inline Poco::UInt16 PeripheralRemoteObject::handleForDescriptor(const Poco::UUID& serviceUUID, const Poco::UUID& characteristicUUID, const Poco::UUID& descriptorUUID)
 {
-	return _pServiceObject->handleForDescriptor(serviceUUID, descriptorUUID);
+	return _pServiceObject->handleForDescriptor(serviceUUID, characteristicUUID, descriptorUUID);
 }
 
 
@@ -277,9 +331,21 @@ inline std::string PeripheralRemoteObject::modelNumber()
 }
 
 
-inline std::vector < char > PeripheralRemoteObject::readBytes(Poco::UInt16 valueHandle)
+inline std::vector<char> PeripheralRemoteObject::readBytes(Poco::UInt16 valueHandle)
 {
 	return _pServiceObject->readBytes(valueHandle);
+}
+
+
+inline double PeripheralRemoteObject::readDouble(Poco::UInt16 valueHandle)
+{
+	return _pServiceObject->readDouble(valueHandle);
+}
+
+
+inline float PeripheralRemoteObject::readFloat(Poco::UInt16 valueHandle)
+{
+	return _pServiceObject->readFloat(valueHandle);
 }
 
 
@@ -292,6 +358,12 @@ inline Poco::Int16 PeripheralRemoteObject::readInt16(Poco::UInt16 valueHandle)
 inline Poco::Int32 PeripheralRemoteObject::readInt32(Poco::UInt16 valueHandle)
 {
 	return _pServiceObject->readInt32(valueHandle);
+}
+
+
+inline Poco::Int64 PeripheralRemoteObject::readInt64(Poco::UInt16 valueHandle)
+{
+	return _pServiceObject->readInt64(valueHandle);
 }
 
 
@@ -325,6 +397,12 @@ inline Poco::UInt32 PeripheralRemoteObject::readUInt32(Poco::UInt16 valueHandle)
 }
 
 
+inline Poco::UInt64 PeripheralRemoteObject::readUInt64(Poco::UInt16 valueHandle)
+{
+	return _pServiceObject->readUInt64(valueHandle);
+}
+
+
 inline Poco::UInt8 PeripheralRemoteObject::readUInt8(Poco::UInt16 valueHandle)
 {
 	return _pServiceObject->readUInt8(valueHandle);
@@ -343,13 +421,13 @@ inline std::string PeripheralRemoteObject::serialNumber()
 }
 
 
-inline std::string PeripheralRemoteObject::serviceUUIDForAssignedNumber(Poco::UInt32 assignedNumber)
+inline Poco::UUID PeripheralRemoteObject::serviceUUIDForAssignedNumber(Poco::UInt32 assignedNumber)
 {
 	return _pServiceObject->serviceUUIDForAssignedNumber(assignedNumber);
 }
 
 
-inline std::vector < std::string > PeripheralRemoteObject::services()
+inline std::vector<Poco::UUID> PeripheralRemoteObject::services()
 {
 	return _pServiceObject->services();
 }
@@ -361,9 +439,21 @@ inline std::string PeripheralRemoteObject::softwareRevision()
 }
 
 
-inline void PeripheralRemoteObject::writeBytes(Poco::UInt16 valueHandle, const std::vector < char >& value, bool withResponse)
+inline void PeripheralRemoteObject::writeBytes(Poco::UInt16 valueHandle, const std::vector<char>& value, bool withResponse)
 {
 	_pServiceObject->writeBytes(valueHandle, value, withResponse);
+}
+
+
+inline void PeripheralRemoteObject::writeDouble(Poco::UInt16 valueHandle, double value, bool withResponse)
+{
+	_pServiceObject->writeDouble(valueHandle, value, withResponse);
+}
+
+
+inline void PeripheralRemoteObject::writeFloat(Poco::UInt16 valueHandle, float value, bool withResponse)
+{
+	_pServiceObject->writeFloat(valueHandle, value, withResponse);
 }
 
 
@@ -373,9 +463,15 @@ inline void PeripheralRemoteObject::writeInt16(Poco::UInt16 valueHandle, Poco::I
 }
 
 
-inline void PeripheralRemoteObject::writeInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse)
+inline void PeripheralRemoteObject::writeInt32(Poco::UInt16 valueHandle, Poco::Int32 value, bool withResponse)
 {
 	_pServiceObject->writeInt32(valueHandle, value, withResponse);
+}
+
+
+inline void PeripheralRemoteObject::writeInt64(Poco::UInt16 valueHandle, Poco::Int64 value, bool withResponse)
+{
+	_pServiceObject->writeInt64(valueHandle, value, withResponse);
 }
 
 
@@ -400,6 +496,12 @@ inline void PeripheralRemoteObject::writeUInt16(Poco::UInt16 valueHandle, Poco::
 inline void PeripheralRemoteObject::writeUInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse)
 {
 	_pServiceObject->writeUInt32(valueHandle, value, withResponse);
+}
+
+
+inline void PeripheralRemoteObject::writeUInt64(Poco::UInt16 valueHandle, Poco::UInt64 value, bool withResponse)
+{
+	_pServiceObject->writeUInt64(valueHandle, value, withResponse);
 }
 
 

@@ -49,7 +49,7 @@ public:
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
 
-	virtual Poco::Nullable < IoT::UDP::EndpointAddress > remoteAddress() const = 0;
+	virtual Poco::Nullable<IoT::UDP::EndpointAddress> remoteAddress() const = 0;
 		/// Returns the remote address the socket of the endpoint
 		/// is "connected" to, or null if the socket is not connected.
 		///
@@ -73,7 +73,7 @@ public:
 	static const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId();
 		/// Returns the TypeId of the class.
 
-	virtual void sendPacket(const std::vector < char >& payload, const IoT::UDP::EndpointAddress& destination = IoT::UDP::EndpointAddress()) = 0;
+	virtual void sendPacket(const std::vector<char>& payload, const IoT::UDP::EndpointAddress& destination = IoT::UDP::EndpointAddress()) = 0;
 		/// Sends the given payload to the given destination address,
 		/// or to the remote address, if one has been configured.
 		///
@@ -83,7 +83,7 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const IoT::UDP::Packet > packetReceived;
+	Poco::BasicEvent<const IoT::UDP::Packet> packetReceived;
 };
 
 

@@ -45,15 +45,15 @@ public:
 		{
 			int options(0);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], false, remoting__deser, options);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], false, remoting__deser, options);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject* remoting__pCastedRO = static_cast<IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject*>(remoting__pRemoteObject.get());
-			std::vector < IoT::NetworkEnvironment::NetworkInterface > remoting__return = remoting__pCastedRO->enumerateInterfaces(options);
+			std::vector<IoT::NetworkEnvironment::NetworkInterface> remoting__return = remoting__pCastedRO->enumerateInterfaces(options);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			static const std::string REMOTING__REPLY_NAME("enumerateInterfacesReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<std::vector < IoT::NetworkEnvironment::NetworkInterface > >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<std::vector<IoT::NetworkEnvironment::NetworkInterface>>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (const Poco::Exception& e)
@@ -104,7 +104,7 @@ public:
 			IoT::NetworkEnvironment::IPVersion ipVersion;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			int remoting__ipVersionTmp;
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__ipVersionTmp);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__ipVersionTmp);
 			ipVersion = static_cast<IoT::NetworkEnvironment::IPVersion>(remoting__ipVersionTmp);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject* remoting__pCastedRO = static_cast<IoT::NetworkEnvironment::NetworkEnvironmentServiceRemoteObject*>(remoting__pRemoteObject.get());
@@ -113,7 +113,7 @@ public:
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			static const std::string REMOTING__REPLY_NAME("findActiveNetworkInterfaceReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<std::string >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<std::string>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (const Poco::Exception& e)

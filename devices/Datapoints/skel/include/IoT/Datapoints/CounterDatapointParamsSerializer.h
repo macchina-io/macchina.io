@@ -47,16 +47,16 @@ public:
 		
 		// IoT::Datapoints::BasicDatapointParams
 		{
-		static const std::string REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[] = {"access"s,"composite"s,"customData"s,"name"s,"tags"s,""s};
-		TypeSerializer<int >::serialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[0], value.access, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[1], value.composite, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[2], value.customData, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[3], value.name, ser);
-		TypeSerializer<std::vector < IoT::Datapoints::Tag > >::serialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[4], value.tags, ser);
+		static const std::string REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[] = {"name"s,"composite"s,"access"s,"tags"s,"customData"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[0], value.name, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[1], value.composite, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[2], value.access, ser);
+		TypeSerializer<std::vector<IoT::Datapoints::Tag>>::serialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[3], value.tags, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[4], value.customData, ser);
 		}
 		
 		static const std::string REMOTING__NAMES[] = {"initialValue"s,""s};
-		TypeSerializer<Poco::Optional < Poco::UInt64 > >::serialize(REMOTING__NAMES[0], value.initialValue, ser);
+		TypeSerializer<Poco::Optional<Poco::UInt64>>::serialize(REMOTING__NAMES[0], value.initialValue, ser);
 	}
 
 };

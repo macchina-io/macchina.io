@@ -45,10 +45,10 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"currentStatus"s,"message"s,"previousStatus"s,""s};
-		TypeSerializer<int >::serialize(REMOTING__NAMES[0], static_cast<int>(value.currentStatus), ser);
-		TypeSerializer<Poco::Optional < IoT::DeviceStatus::StatusMessage > >::serialize(REMOTING__NAMES[1], value.message, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[2], static_cast<int>(value.previousStatus), ser);
+		static const std::string REMOTING__NAMES[] = {"message"s,"currentStatus"s,"previousStatus"s,""s};
+		TypeSerializer<Poco::Optional<IoT::DeviceStatus::StatusMessage>>::serialize(REMOTING__NAMES[0], value.message, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[1], static_cast<int>(value.currentStatus), ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[2], static_cast<int>(value.previousStatus), ser);
 	}
 
 };

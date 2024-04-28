@@ -67,7 +67,7 @@ std::string MQTTClientRemoteObject::remoting__enableEvents(Poco::RemotingNG::Lis
 
 void MQTTClientRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new MQTTClientEventDispatcher(this, protocol);
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new MQTTClientEventDispatcher(this, remoting__objectId(), protocol);
 	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 

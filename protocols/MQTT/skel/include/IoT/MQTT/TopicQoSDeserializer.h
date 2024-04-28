@@ -47,9 +47,9 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"qos"s,"topic"s};
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[0], true, deser, value.qos);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.topic);
+		static const std::string REMOTING__NAMES[] = {"topic"s,"qos"s};
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], true, deser, value.topic);
+		TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, deser, value.qos);
 	}
 
 };

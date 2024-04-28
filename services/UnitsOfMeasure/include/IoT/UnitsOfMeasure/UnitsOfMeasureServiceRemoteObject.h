@@ -60,12 +60,12 @@ public:
 		///
 		/// Throws a Poco::InvalidArgumentException if the conversion cannot be performed.
 
-	Poco::SharedPtr < IoT::UnitsOfMeasure::Prefix > findPrefix(const std::string& code) const;
+	Poco::SharedPtr<IoT::UnitsOfMeasure::Prefix> findPrefix(const std::string& code) const;
 		/// Looks up the prefix with the given code.
 		///
 		/// Returns the Prefix, or a null pointer if not found.
 
-	Poco::SharedPtr < IoT::UnitsOfMeasure::Unit > findUnit(const std::string& code) const;
+	Poco::SharedPtr<IoT::UnitsOfMeasure::Unit> findUnit(const std::string& code) const;
 		/// Looks up the unit with the given (non-prefixed) code.
 		///
 		/// Returns the Unit, or a null pointer if not found.
@@ -102,13 +102,13 @@ inline double UnitsOfMeasureServiceRemoteObject::convert(double value, const std
 }
 
 
-inline Poco::SharedPtr < IoT::UnitsOfMeasure::Prefix > UnitsOfMeasureServiceRemoteObject::findPrefix(const std::string& code) const
+inline Poco::SharedPtr<IoT::UnitsOfMeasure::Prefix> UnitsOfMeasureServiceRemoteObject::findPrefix(const std::string& code) const
 {
 	return _pServiceObject->findPrefix(code);
 }
 
 
-inline Poco::SharedPtr < IoT::UnitsOfMeasure::Unit > UnitsOfMeasureServiceRemoteObject::findUnit(const std::string& code) const
+inline Poco::SharedPtr<IoT::UnitsOfMeasure::Unit> UnitsOfMeasureServiceRemoteObject::findUnit(const std::string& code) const
 {
 	return _pServiceObject->findUnit(code);
 }

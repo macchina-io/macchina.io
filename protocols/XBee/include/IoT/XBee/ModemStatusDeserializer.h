@@ -48,7 +48,7 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"status"s};
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[0], true, deser, value.status);
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES[0], true, deser, value.status);
 	}
 
 };

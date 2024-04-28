@@ -43,15 +43,15 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"analogChannelMask"s,"analogSamples"s,"deviceAddress"s,"digitalChannelMask"s,"digitalSamples"s,"nSampleSets"s,"networkAddress"s,"options"s,""s};
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[0], value.analogChannelMask, ser);
-		TypeSerializer<std::vector < Poco::Int16 > >::serialize(REMOTING__NAMES[1], value.analogSamples, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.deviceAddress, ser);
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[3], value.digitalChannelMask, ser);
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[4], value.digitalSamples, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[5], value.nSampleSets, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[6], value.networkAddress, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[7], value.options, ser);
+		static const std::string REMOTING__NAMES[] = {"deviceAddress"s,"networkAddress"s,"options"s,"nSampleSets"s,"digitalChannelMask"s,"analogChannelMask"s,"digitalSamples"s,"analogSamples"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.deviceAddress, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.networkAddress, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[2], value.options, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[3], value.nSampleSets, ser);
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[4], value.digitalChannelMask, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[5], value.analogChannelMask, ser);
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[6], value.digitalSamples, ser);
+		TypeSerializer<std::vector<Poco::Int16>>::serialize(REMOTING__NAMES[7], value.analogSamples, ser);
 	}
 
 };

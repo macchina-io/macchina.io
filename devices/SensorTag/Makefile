@@ -7,7 +7,7 @@
 include $(POCO_BASE)/build/rules/global
 include $(POCO_BASE)/OSP/BundleCreator/BundleCreator.make
 
-objects = SensorTag SensorTagAccelerometer BundleActivator
+objects = SensorTag SensorTagAccelerometer SensorTagCC1352Accelerometer BundleActivator
 
 target          = io.macchina.sensortag
 target_includes = $(PROJECT_BASE)/devices/Devices/include \

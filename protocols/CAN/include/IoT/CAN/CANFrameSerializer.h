@@ -44,10 +44,10 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"id"s,"flags"s,"dlc"s,"payload"s,""s};
-		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES[0], value.id(), ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[1], value.flags(), ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[2], value.dlc(), ser);
-		TypeSerializer<Poco::Array < char, 8 > >::serialize(REMOTING__NAMES[3], value.payload(), ser);
+		TypeSerializer<Poco::UInt32>::serialize(REMOTING__NAMES[0], value.id(), ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[1], value.flags(), ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[2], value.dlc(), ser);
+		TypeSerializer<Poco::Array<char, 8>>::serialize(REMOTING__NAMES[3], value.payload(), ser);
 	}
 
 };

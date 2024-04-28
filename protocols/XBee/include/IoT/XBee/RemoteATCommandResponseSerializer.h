@@ -43,13 +43,13 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"command"s,"data"s,"deviceAddress"s,"frameID"s,"networkAddress"s,"status"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.command, ser);
-		TypeSerializer<std::vector < Poco::UInt8 > >::serialize(REMOTING__NAMES[1], value.data, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.deviceAddress, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[3], value.frameID, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[4], value.networkAddress, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[5], value.status, ser);
+		static const std::string REMOTING__NAMES[] = {"frameID"s,"deviceAddress"s,"networkAddress"s,"command"s,"status"s,"data"s,""s};
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[0], value.frameID, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.deviceAddress, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], value.networkAddress, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[3], value.command, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[4], value.status, ser);
+		TypeSerializer<std::vector<Poco::UInt8>>::serialize(REMOTING__NAMES[5], value.data, ser);
 	}
 
 };

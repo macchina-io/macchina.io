@@ -57,7 +57,7 @@ std::string BarcodeReaderRemoteObject::remoting__enableEvents(Poco::RemotingNG::
 
 void BarcodeReaderRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new BarcodeReaderEventDispatcher(this, protocol);
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new BarcodeReaderEventDispatcher(this, remoting__objectId(), protocol);
 	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 

@@ -66,7 +66,7 @@ public:
 		///
 		/// Returns the new device status.
 
-	std::vector < IoT::DeviceStatus::StatusMessage > messages(int maxMessages = int(0)) const;
+	std::vector<IoT::DeviceStatus::StatusMessage> messages(int maxMessages = int(0)) const;
 		/// Retrieves stored status messages. If maxMessages is > 0, will at most
 		/// return maxMessages messages.
 
@@ -144,7 +144,7 @@ inline IoT::DeviceStatus::DeviceStatus DeviceStatusServiceRemoteObject::clearSta
 }
 
 
-inline std::vector < IoT::DeviceStatus::StatusMessage > DeviceStatusServiceRemoteObject::messages(int maxMessages) const
+inline std::vector<IoT::DeviceStatus::StatusMessage> DeviceStatusServiceRemoteObject::messages(int maxMessages) const
 {
 	return _pServiceObject->messages(maxMessages);
 }

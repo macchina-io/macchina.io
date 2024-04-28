@@ -19,7 +19,7 @@
 #define IoT_Devices_GyroscopeEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/GyroscopeRemoteObject.h"
+#include "IoT/Devices/IGyroscope.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -31,7 +31,7 @@ class GyroscopeEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// The interface for three-axis Gyroscopes.
 {
 public:
-	GyroscopeEventDispatcher(GyroscopeRemoteObject* pRemoteObject, const std::string& protocol);
+	GyroscopeEventDispatcher(IGyroscope* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a GyroscopeEventDispatcher.
 
 	virtual ~GyroscopeEventDispatcher();
@@ -49,7 +49,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	GyroscopeRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IGyroscope* _pInterface;
 };
 
 

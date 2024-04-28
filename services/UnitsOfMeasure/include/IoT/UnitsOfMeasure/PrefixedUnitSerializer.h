@@ -48,8 +48,8 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"prefix"s,"unit"s,""s};
-		TypeSerializer<Poco::SharedPtr < IoT::UnitsOfMeasure::Prefix > >::serialize(REMOTING__NAMES[0], value.prefix, ser);
-		TypeSerializer<Poco::SharedPtr < IoT::UnitsOfMeasure::Unit > >::serialize(REMOTING__NAMES[1], value.unit, ser);
+		TypeSerializer<Poco::SharedPtr<IoT::UnitsOfMeasure::Prefix>>::serialize(REMOTING__NAMES[0], value.prefix, ser);
+		TypeSerializer<Poco::SharedPtr<IoT::UnitsOfMeasure::Unit>>::serialize(REMOTING__NAMES[1], value.unit, ser);
 	}
 
 };

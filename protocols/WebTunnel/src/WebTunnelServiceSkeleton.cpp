@@ -51,7 +51,7 @@ public:
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			static const std::string REMOTING__REPLY_NAME("isConnectedReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<bool >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<bool>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (const Poco::Exception& e)
@@ -99,9 +99,9 @@ public:
 		bool remoting__requestSucceeded = false;
 		try
 		{
-			std::vector < IoT::WebTunnel::Property > properties;
+			std::vector<IoT::WebTunnel::Property> properties;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<std::vector < IoT::WebTunnel::Property > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, properties);
+			Poco::RemotingNG::TypeDeserializer<std::vector<IoT::WebTunnel::Property>>::deserialize(REMOTING__NAMES[1], true, remoting__deser, properties);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::WebTunnel::WebTunnelServiceRemoteObject* remoting__pCastedRO = static_cast<IoT::WebTunnel::WebTunnelServiceRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->updateProperties(properties);

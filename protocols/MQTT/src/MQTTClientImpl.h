@@ -284,8 +284,8 @@ private:
 	MQTTPropertiesHolder _willProperties;
 	long _reconnectDelay;
 	std::map<std::string, Subscription> _subscribedTopics;
-	std::map<std::string, int> _receivedMessages;
-	std::map<std::string, int> _publishedMessages;
+	std::map<std::string, std::pair<Poco::Timestamp, int>> _receivedMessages;
+	std::map<std::string, std::pair<Poco::Timestamp, int>> _publishedMessages;
 	::MQTTClient _mqttClient;
 	Poco::Util::Timer _timer;
 	ConnectionInfo _connectionInfo;

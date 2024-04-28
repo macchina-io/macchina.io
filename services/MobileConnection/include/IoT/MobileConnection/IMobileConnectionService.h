@@ -142,8 +142,8 @@ public:
 	virtual void unlockSIM(const std::string& pin) = 0;
 		/// Unlocks the SIM, using the given PIN.
 
-	Poco::BasicEvent < void > dataConnected;
-	Poco::BasicEvent < void > dataDisconnected;
+	Poco::BasicEvent<void> dataConnected;
+	Poco::BasicEvent<void> dataDisconnected;
 };
 
 

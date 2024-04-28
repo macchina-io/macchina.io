@@ -33,6 +33,7 @@ using Poco::OSP::ServiceRef;
 using Poco::OSP::ServiceFinder;
 using Poco::OSP::Properties;
 using Poco::OSP::PreferencesService;
+using namespace std::string_literals;
 
 
 namespace IoT {
@@ -80,8 +81,8 @@ public:
 		ServerHelper::RemoteObjectPtr pRemoteObject = ServerHelper::createRemoteObject(pPeripheral, oid);
 
 		Properties props;
-		props.set("io.macchina.btle.address", pPeripheral->address());
-		props.set("io.macchina.btle.name", name);
+		props.set("io.macchina.btle.address"s, pPeripheral->address());
+		props.set("io.macchina.btle.name"s, name);
 
 		ServiceRef::Ptr pServiceRef = _pContext->registry().registerService(oid, pRemoteObject, props);
 		_serviceRefs.push_back(pServiceRef);
@@ -104,7 +105,7 @@ public:
 		IoT::BtLE::PeripheralFactory::Ptr pPeripheralFactory = ServiceFinder::find<IoT::BtLE::PeripheralFactory>(_pContext);
 
 		Poco::Util::AbstractConfiguration::Keys keys;
-		_pPrefs->configuration()->keys("btle.bluez.peripherals", keys);
+		_pPrefs->configuration()->keys("btle.bluez.peripherals"s, keys);
 
 		for (std::vector<std::string>::const_iterator it = keys.begin(); it != keys.end(); ++it)
 		{
@@ -120,7 +121,7 @@ public:
 			}
 			catch (Poco::Exception& exc)
 			{
-				_pContext->logger().error(Poco::format("Cannot create peripheral object for device %s: %s", address, exc.displayText()));
+				_pContext->logger().error("Cannot create peripheral object for device %s: %s"s, address, exc.displayText());
 			}
 		}
 	}
@@ -130,7 +131,7 @@ public:
 		_pContext = pContext;
 		_pPrefs = ServiceFinder::find<PreferencesService>(pContext);
 
-		std::string helperPath = _pPrefs->configuration()->getString("btle.bluez.helper", "");
+		std::string helperPath = _pPrefs->configuration()->getString("btle.bluez.helper"s, ""s);
 		if (!helperPath.empty())
 		{
 			BlueZPeripheralBrowser::Ptr pPeripheralBrowser = new BlueZPeripheralBrowser(helperPath);

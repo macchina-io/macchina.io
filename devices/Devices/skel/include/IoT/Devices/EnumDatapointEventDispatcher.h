@@ -19,7 +19,7 @@
 #define IoT_Devices_EnumDatapointEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/EnumDatapointRemoteObject.h"
+#include "IoT/Devices/IEnumDatapoint.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -41,7 +41,7 @@ class EnumDatapointEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	///     formatted as string for display purposes.
 {
 public:
-	EnumDatapointEventDispatcher(EnumDatapointRemoteObject* pRemoteObject, const std::string& protocol);
+	EnumDatapointEventDispatcher(IEnumDatapoint* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a EnumDatapointEventDispatcher.
 
 	virtual ~EnumDatapointEventDispatcher();
@@ -71,7 +71,8 @@ private:
 	void event__valueUpdatedImpl(const std::string& subscriberURI, const int& data);
 
 	static const std::string DEFAULT_NS;
-	EnumDatapointRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IEnumDatapoint* _pInterface;
 };
 
 

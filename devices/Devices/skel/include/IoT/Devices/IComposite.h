@@ -64,7 +64,7 @@ public:
 	virtual ~IComposite();
 		/// Destroys the IComposite.
 
-	virtual Poco::Optional < std::string > fragmentByName(const std::string& nodeName) const = 0;
+	virtual Poco::Optional<std::string> fragmentByName(const std::string& nodeName) const = 0;
 		/// Returns the device identifier of the direct sub device 
 		/// with the given node name (property "io.macchina.nodeName"), 
 		/// or an empty optional if no such device node exists.
@@ -72,7 +72,7 @@ public:
 		/// Note: if multiple child nodes with the same node name exist,
 		/// which of these nodes is returned is undefined.
 
-	virtual std::vector < std::string > fragments() const = 0;
+	virtual std::vector<std::string> fragments() const = 0;
 		/// Returns a vector containing the device identifiers
 		/// of all direct sub devices owned by this device.
 

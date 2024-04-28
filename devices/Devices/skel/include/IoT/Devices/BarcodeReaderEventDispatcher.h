@@ -19,7 +19,7 @@
 #define IoT_Devices_BarcodeReaderEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/BarcodeReaderRemoteObject.h"
+#include "IoT/Devices/IBarcodeReader.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -35,7 +35,7 @@ class BarcodeReaderEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// done via device features and properties.
 {
 public:
-	BarcodeReaderEventDispatcher(BarcodeReaderRemoteObject* pRemoteObject, const std::string& protocol);
+	BarcodeReaderEventDispatcher(IBarcodeReader* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a BarcodeReaderEventDispatcher.
 
 	virtual ~BarcodeReaderEventDispatcher();
@@ -53,7 +53,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	BarcodeReaderRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IBarcodeReader* _pInterface;
 };
 
 

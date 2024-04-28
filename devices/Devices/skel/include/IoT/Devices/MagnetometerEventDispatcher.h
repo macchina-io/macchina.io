@@ -19,7 +19,7 @@
 #define IoT_Devices_MagnetometerEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/MagnetometerRemoteObject.h"
+#include "IoT/Devices/IMagnetometer.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -31,7 +31,7 @@ class MagnetometerEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// The interface for three-axis Magnetometers.
 {
 public:
-	MagnetometerEventDispatcher(MagnetometerRemoteObject* pRemoteObject, const std::string& protocol);
+	MagnetometerEventDispatcher(IMagnetometer* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a MagnetometerEventDispatcher.
 
 	virtual ~MagnetometerEventDispatcher();
@@ -49,7 +49,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	MagnetometerRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IMagnetometer* _pInterface;
 };
 
 

@@ -44,11 +44,11 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"code"s,"icode"s,"name"s,"print"s,"value"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.code, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.icode, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.name, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[3], value.print, ser);
-		TypeSerializer<double >::serialize(REMOTING__NAMES[4], value.value, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.code, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.icode, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], value.name, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[3], value.print, ser);
+		TypeSerializer<double>::serialize(REMOTING__NAMES[4], value.value, ser);
 	}
 
 };

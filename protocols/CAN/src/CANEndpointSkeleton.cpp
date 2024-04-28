@@ -49,7 +49,7 @@ public:
 		{
 			IoT::CAN::Filter filter;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<IoT::CAN::Filter >::deserialize(REMOTING__NAMES[1], true, remoting__deser, filter);
+			Poco::RemotingNG::TypeDeserializer<IoT::CAN::Filter>::deserialize(REMOTING__NAMES[1], true, remoting__deser, filter);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->addFilter(filter);
@@ -57,7 +57,7 @@ public:
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			static const std::string REMOTING__REPLY_NAME("addFilterReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<bool >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<bool>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (const Poco::Exception& e)
@@ -113,7 +113,7 @@ public:
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			static const std::string REMOTING__REPLY_NAME("deviceReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<std::string >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<std::string>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (const Poco::Exception& e)
@@ -163,7 +163,7 @@ public:
 		{
 			bool enable(true);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[1], false, remoting__deser, enable);
+			Poco::RemotingNG::TypeDeserializer<bool>::deserialize(REMOTING__NAMES[1], false, remoting__deser, enable);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->enableEvents(enable);
@@ -220,7 +220,7 @@ public:
 		{
 			bool enable(true);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[1], false, remoting__deser, enable);
+			Poco::RemotingNG::TypeDeserializer<bool>::deserialize(REMOTING__NAMES[1], false, remoting__deser, enable);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->enableFD(enable);
@@ -283,7 +283,7 @@ public:
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			static const std::string REMOTING__REPLY_NAME("eventsEnabledReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<bool >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<bool>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (const Poco::Exception& e)
@@ -339,7 +339,7 @@ public:
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			static const std::string REMOTING__REPLY_NAME("fdEnabledReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<bool >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<bool>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (const Poco::Exception& e)
@@ -395,7 +395,7 @@ public:
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			static const std::string REMOTING__REPLY_NAME("fdSupportedReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<bool >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<bool>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (const Poco::Exception& e)
@@ -446,12 +446,12 @@ public:
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
-			std::vector < IoT::CAN::Filter > remoting__return = remoting__pCastedRO->getFilter();
+			std::vector<IoT::CAN::Filter> remoting__return = remoting__pCastedRO->getFilter();
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			static const std::string REMOTING__REPLY_NAME("getFilterReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<std::vector < IoT::CAN::Filter > >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<std::vector<IoT::CAN::Filter>>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (const Poco::Exception& e)
@@ -507,7 +507,7 @@ public:
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			static const std::string REMOTING__REPLY_NAME("getFilterModeReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<int >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<int>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (const Poco::Exception& e)
@@ -557,7 +557,7 @@ public:
 		{
 			IoT::CAN::Filter filter;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<IoT::CAN::Filter >::deserialize(REMOTING__NAMES[1], true, remoting__deser, filter);
+			Poco::RemotingNG::TypeDeserializer<IoT::CAN::Filter>::deserialize(REMOTING__NAMES[1], true, remoting__deser, filter);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
 			bool remoting__return = remoting__pCastedRO->removeFilter(filter);
@@ -565,7 +565,7 @@ public:
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			static const std::string REMOTING__REPLY_NAME("removeFilterReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<bool >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<bool>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (const Poco::Exception& e)
@@ -615,7 +615,7 @@ public:
 		{
 			IoT::CAN::CANFDFrame frame;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<IoT::CAN::CANFDFrame >::deserialize(REMOTING__NAMES[1], true, remoting__deser, frame);
+			Poco::RemotingNG::TypeDeserializer<IoT::CAN::CANFDFrame>::deserialize(REMOTING__NAMES[1], true, remoting__deser, frame);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->sendCANFDFrame(frame);
@@ -672,7 +672,7 @@ public:
 		{
 			IoT::CAN::CANFrame frame;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<IoT::CAN::CANFrame >::deserialize(REMOTING__NAMES[1], true, remoting__deser, frame);
+			Poco::RemotingNG::TypeDeserializer<IoT::CAN::CANFrame>::deserialize(REMOTING__NAMES[1], true, remoting__deser, frame);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->sendCANFrame(frame);
@@ -730,9 +730,9 @@ public:
 			IoT::CAN::CANFDFrame frame;
 			IoT::CAN::FrameType type(CAN_FRAME_AUTO);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<IoT::CAN::CANFDFrame >::deserialize(REMOTING__NAMES[1], true, remoting__deser, frame);
+			Poco::RemotingNG::TypeDeserializer<IoT::CAN::CANFDFrame>::deserialize(REMOTING__NAMES[1], true, remoting__deser, frame);
 			int remoting__typeTmp;
-			if (Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], false, remoting__deser, remoting__typeTmp))
+			if (Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[2], false, remoting__deser, remoting__typeTmp))
 				type = static_cast<IoT::CAN::FrameType>(remoting__typeTmp);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
@@ -788,9 +788,9 @@ public:
 		bool remoting__requestSucceeded = false;
 		try
 		{
-			std::vector < IoT::CAN::Filter > filter;
+			std::vector<IoT::CAN::Filter> filter;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<std::vector < IoT::CAN::Filter > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, filter);
+			Poco::RemotingNG::TypeDeserializer<std::vector<IoT::CAN::Filter>>::deserialize(REMOTING__NAMES[1], true, remoting__deser, filter);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setFilter(filter);
@@ -848,7 +848,7 @@ public:
 			IoT::CAN::FilterMode mode;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			int remoting__modeTmp;
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__modeTmp);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__modeTmp);
 			mode = static_cast<IoT::CAN::FilterMode>(remoting__modeTmp);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::CAN::CANEndpointRemoteObject* remoting__pCastedRO = static_cast<IoT::CAN::CANEndpointRemoteObject*>(remoting__pRemoteObject.get());

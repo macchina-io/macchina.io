@@ -94,7 +94,7 @@ public:
 		/// validity may change. Use validValue() or similar methods
 		/// of subclasses to atomically get validity and value.
 
-	Poco::BasicEvent < void > invalidated;
+	Poco::BasicEvent<void> invalidated;
 };
 
 

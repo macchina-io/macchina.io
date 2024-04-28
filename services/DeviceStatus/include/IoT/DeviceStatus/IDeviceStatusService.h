@@ -70,7 +70,7 @@ public:
 	bool isA(const std::type_info& otherType) const;
 		/// Returns true if the class is a subclass of the class given by otherType.
 
-	virtual std::vector < IoT::DeviceStatus::StatusMessage > messages(int maxMessages = int(0)) const = 0;
+	virtual std::vector<IoT::DeviceStatus::StatusMessage> messages(int maxMessages = int(0)) const = 0;
 		/// Retrieves stored status messages. If maxMessages is > 0, will at most
 		/// return maxMessages messages.
 
@@ -121,8 +121,8 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const IoT::DeviceStatus::DeviceStatusChange > statusChanged;
-	Poco::BasicEvent < const IoT::DeviceStatus::DeviceStatusChange > statusUpdated;
+	Poco::BasicEvent<const IoT::DeviceStatus::DeviceStatusChange> statusChanged;
+	Poco::BasicEvent<const IoT::DeviceStatus::DeviceStatusChange> statusUpdated;
 };
 
 

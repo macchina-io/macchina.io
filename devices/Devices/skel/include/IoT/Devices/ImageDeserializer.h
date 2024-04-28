@@ -47,12 +47,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"encoding"s,"height"s,"image"s,"step"s,"width"s};
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.encoding);
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, deser, value.height);
-		TypeDeserializer<Poco::SharedPtr < std::vector < char > > >::deserialize(REMOTING__NAMES[2], true, deser, value.image);
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[3], true, deser, value.step);
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[4], true, deser, value.width);
+		static const std::string REMOTING__NAMES[] = {"width"s,"height"s,"encoding"s,"image"s,"step"s};
+		TypeDeserializer<int>::deserialize(REMOTING__NAMES[0], true, deser, value.width);
+		TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, deser, value.height);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[2], true, deser, value.encoding);
+		TypeDeserializer<Poco::SharedPtr<std::vector<char>>>::deserialize(REMOTING__NAMES[3], true, deser, value.image);
+		TypeDeserializer<int>::deserialize(REMOTING__NAMES[4], true, deser, value.step);
 	}
 
 };

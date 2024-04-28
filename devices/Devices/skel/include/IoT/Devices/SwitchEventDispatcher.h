@@ -19,7 +19,7 @@
 #define IoT_Devices_SwitchEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/SwitchRemoteObject.h"
+#include "IoT/Devices/ISwitch.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -43,7 +43,7 @@ class SwitchEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	///     formatted as string for display purposes.
 {
 public:
-	SwitchEventDispatcher(SwitchRemoteObject* pRemoteObject, const std::string& protocol);
+	SwitchEventDispatcher(ISwitch* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a SwitchEventDispatcher.
 
 	virtual ~SwitchEventDispatcher();
@@ -61,7 +61,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	SwitchRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	ISwitch* _pInterface;
 };
 
 

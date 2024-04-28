@@ -43,10 +43,10 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"id"s,"invert"s,"mask"s,""s};
-		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES[0], value.id, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[1], value.invert, ser);
-		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES[2], value.mask, ser);
+		static const std::string REMOTING__NAMES[] = {"id"s,"mask"s,"invert"s,""s};
+		TypeSerializer<Poco::UInt32>::serialize(REMOTING__NAMES[0], value.id, ser);
+		TypeSerializer<Poco::UInt32>::serialize(REMOTING__NAMES[1], value.mask, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[2], value.invert, ser);
 	}
 
 };

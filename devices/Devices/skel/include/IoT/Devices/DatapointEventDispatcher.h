@@ -19,7 +19,7 @@
 #define IoT_Devices_DatapointEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/DatapointRemoteObject.h"
+#include "IoT/Devices/IDatapoint.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -53,7 +53,7 @@ class DatapointEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// Subclasses of Datapoint implement specific value types.
 {
 public:
-	DatapointEventDispatcher(DatapointRemoteObject* pRemoteObject, const std::string& protocol);
+	DatapointEventDispatcher(IDatapoint* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a DatapointEventDispatcher.
 
 	virtual ~DatapointEventDispatcher();
@@ -71,7 +71,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	DatapointRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IDatapoint* _pInterface;
 };
 
 

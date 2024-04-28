@@ -80,7 +80,7 @@ public:
 
 	virtual Poco::Optional<double> validValue() const = 0;
 		/// Returns the current value held by the datapoint if
-		/// it is value, otherwise an empty value.
+		/// it is valid, otherwise an empty value.
 
 	virtual void update(double value) = 0;
 		/// Updates the value of the datapoint and makes it valid.

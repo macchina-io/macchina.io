@@ -43,9 +43,9 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"data"s,"handle"s,""s};
-		TypeSerializer<std::vector < char > >::serialize(REMOTING__NAMES[0], value.data, ser);
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[1], value.handle, ser);
+		static const std::string REMOTING__NAMES[] = {"handle"s,"data"s,""s};
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[0], value.handle, ser);
+		TypeSerializer<std::vector<char>>::serialize(REMOTING__NAMES[1], value.data, ser);
 	}
 
 };

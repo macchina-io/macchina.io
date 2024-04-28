@@ -20,6 +20,7 @@
 
 #include "IoT/MQTT/MQTT.h"
 #include "Poco/Optional.h"
+#include "Poco/Timestamp.h"
 #include <vector>
 
 
@@ -393,9 +394,10 @@ struct TopicCount
 	{
 	}
 
-	TopicCount(const std::string& t, int c):
+	TopicCount(const std::string& t, int c, Poco::Timestamp ts):
 		topic(t),
-		messageCount(c)
+		messageCount(c),
+		lastMessage(ts)
 	{
 	}
 
@@ -404,6 +406,9 @@ struct TopicCount
 
 	int messageCount = 0;
 		/// The number of messages published or received on this topic.
+
+	Poco::Timestamp lastMessage = 0;
+		/// Time of last message published or received on this topic.
 };
 
 

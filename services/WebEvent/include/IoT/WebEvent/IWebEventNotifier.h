@@ -82,7 +82,7 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const IoT::WebEvent::EventNotification > event;
+	Poco::BasicEvent<const IoT::WebEvent::EventNotification> event;
 };
 
 

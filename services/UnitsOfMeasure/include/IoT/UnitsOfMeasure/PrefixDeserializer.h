@@ -48,11 +48,11 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"code"s,"icode"s,"name"s,"print"s,"value"s};
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.code);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.icode);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.name);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[3], true, deser, value.print);
-		TypeDeserializer<double >::deserialize(REMOTING__NAMES[4], true, deser, value.value);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], true, deser, value.code);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, deser, value.icode);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[2], true, deser, value.name);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[3], true, deser, value.print);
+		TypeDeserializer<double>::deserialize(REMOTING__NAMES[4], true, deser, value.value);
 	}
 
 };

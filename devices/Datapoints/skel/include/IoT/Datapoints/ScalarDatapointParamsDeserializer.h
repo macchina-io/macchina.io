@@ -51,18 +51,18 @@ public:
 		
 		// IoT::Datapoints::BasicDatapointParams
 		{
-		static const std::string REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[] = {"access"s,"composite"s,"customData"s,"name"s,"tags"s};
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[0], false, deser, value.access);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[1], false, deser, value.composite);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[2], false, deser, value.customData);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[3], true, deser, value.name);
-		TypeDeserializer<std::vector < IoT::Datapoints::Tag > >::deserialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[4], false, deser, value.tags);
+		static const std::string REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[] = {"name"s,"composite"s,"access"s,"tags"s,"customData"s};
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[0], true, deser, value.name);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[1], false, deser, value.composite);
+		TypeDeserializer<int>::deserialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[2], false, deser, value.access);
+		TypeDeserializer<std::vector<IoT::Datapoints::Tag>>::deserialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[3], false, deser, value.tags);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES__IOT__DATAPOINTS__BASICDATAPOINTPARAMS[4], false, deser, value.customData);
 		}
 		
-		static const std::string REMOTING__NAMES[] = {"initialValue"s,"physicalQuantity"s,"physicalUnit"s};
-		TypeDeserializer<Poco::Optional < double > >::deserialize(REMOTING__NAMES[0], false, deser, value.initialValue);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], false, deser, value.physicalQuantity);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], false, deser, value.physicalUnit);
+		static const std::string REMOTING__NAMES[] = {"physicalQuantity"s,"physicalUnit"s,"initialValue"s};
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], false, deser, value.physicalQuantity);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], false, deser, value.physicalUnit);
+		TypeDeserializer<Poco::Optional<double>>::deserialize(REMOTING__NAMES[2], false, deser, value.initialValue);
 	}
 
 };

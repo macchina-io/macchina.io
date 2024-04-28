@@ -43,11 +43,11 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"deliveryStatus"s,"discoveryStatus"s,"frameID"s,"networkAddress"s,""s};
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[0], value.deliveryStatus, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[1], value.discoveryStatus, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[2], value.frameID, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[3], value.networkAddress, ser);
+		static const std::string REMOTING__NAMES[] = {"frameID"s,"networkAddress"s,"deliveryStatus"s,"discoveryStatus"s,""s};
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[0], value.frameID, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.networkAddress, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[2], value.deliveryStatus, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[3], value.discoveryStatus, ser);
 	}
 
 };

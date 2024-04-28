@@ -61,7 +61,7 @@ std::string PeripheralBrowserRemoteObject::remoting__enableEvents(Poco::Remoting
 
 void PeripheralBrowserRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new PeripheralBrowserEventDispatcher(this, protocol);
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new PeripheralBrowserEventDispatcher(this, remoting__objectId(), protocol);
 	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 

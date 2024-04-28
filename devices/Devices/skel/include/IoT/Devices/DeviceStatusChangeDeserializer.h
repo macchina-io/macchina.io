@@ -47,14 +47,14 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"current"s,"previous"s};
+		static const std::string REMOTING__NAMES[] = {"previous"s,"current"s};
 		bool ret = false;
-		int gencurrent;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[0], true, deser, gencurrent);
-		if (ret) value.current = static_cast<IoT::Devices::DeviceStatus>(gencurrent);
 		int genprevious;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, deser, genprevious);
+		ret = TypeDeserializer<int>::deserialize(REMOTING__NAMES[0], true, deser, genprevious);
 		if (ret) value.previous = static_cast<IoT::Devices::DeviceStatus>(genprevious);
+		int gencurrent;
+		ret = TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, deser, gencurrent);
+		if (ret) value.current = static_cast<IoT::Devices::DeviceStatus>(gencurrent);
 	}
 
 };

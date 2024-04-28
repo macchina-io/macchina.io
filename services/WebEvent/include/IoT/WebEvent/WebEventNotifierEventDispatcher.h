@@ -19,7 +19,7 @@
 #define IoT_WebEvent_WebEventNotifierEventDispatcher_INCLUDED
 
 
-#include "IoT/WebEvent/WebEventNotifierRemoteObject.h"
+#include "IoT/WebEvent/IWebEventNotifier.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -33,7 +33,7 @@ class WebEventNotifierEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// usable from both C++ and JavaScript.
 {
 public:
-	WebEventNotifierEventDispatcher(WebEventNotifierRemoteObject* pRemoteObject, const std::string& protocol);
+	WebEventNotifierEventDispatcher(IWebEventNotifier* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a WebEventNotifierEventDispatcher.
 
 	virtual ~WebEventNotifierEventDispatcher();
@@ -47,7 +47,8 @@ private:
 	void event__eventImpl(const std::string& subscriberURI, const IoT::WebEvent::EventNotification& data);
 
 	static const std::string DEFAULT_NS;
-	WebEventNotifierRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IWebEventNotifier* _pInterface;
 };
 
 

@@ -45,7 +45,7 @@ public:
 		/// Returns the local address the socket of the endpoint has
 		/// been bound to.
 
-	Poco::Nullable < IoT::UDP::EndpointAddress > remoteAddress() const;
+	Poco::Nullable<IoT::UDP::EndpointAddress> remoteAddress() const;
 		/// Returns the remote address the socket of the endpoint
 		/// is "connected" to, or null if the socket is not connected.
 		///
@@ -65,7 +65,7 @@ public:
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
-	virtual void sendPacket(const std::vector < char >& payload, const IoT::UDP::EndpointAddress& destination = IoT::UDP::EndpointAddress());
+	virtual void sendPacket(const std::vector<char>& payload, const IoT::UDP::EndpointAddress& destination = IoT::UDP::EndpointAddress());
 		/// Sends the given payload to the given destination address,
 		/// or to the remote address, if one has been configured.
 		///
@@ -86,7 +86,7 @@ inline IoT::UDP::EndpointAddress UDPEndpointRemoteObject::address() const
 }
 
 
-inline Poco::Nullable < IoT::UDP::EndpointAddress > UDPEndpointRemoteObject::remoteAddress() const
+inline Poco::Nullable<IoT::UDP::EndpointAddress> UDPEndpointRemoteObject::remoteAddress() const
 {
 	return _pServiceObject->remoteAddress();
 }
@@ -98,7 +98,7 @@ inline const Poco::RemotingNG::Identifiable::TypeId& UDPEndpointRemoteObject::re
 }
 
 
-inline void UDPEndpointRemoteObject::sendPacket(const std::vector < char >& payload, const IoT::UDP::EndpointAddress& destination)
+inline void UDPEndpointRemoteObject::sendPacket(const std::vector<char>& payload, const IoT::UDP::EndpointAddress& destination)
 {
 	_pServiceObject->sendPacket(payload, destination);
 }

@@ -49,12 +49,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"access"s,"composite"s,"customData"s,"name"s,"tags"s};
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[0], false, deser, value.access);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], false, deser, value.composite);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], false, deser, value.customData);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[3], true, deser, value.name);
-		TypeDeserializer<std::vector < IoT::Datapoints::Tag > >::deserialize(REMOTING__NAMES[4], false, deser, value.tags);
+		static const std::string REMOTING__NAMES[] = {"name"s,"composite"s,"access"s,"tags"s,"customData"s};
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], true, deser, value.name);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], false, deser, value.composite);
+		TypeDeserializer<int>::deserialize(REMOTING__NAMES[2], false, deser, value.access);
+		TypeDeserializer<std::vector<IoT::Datapoints::Tag>>::deserialize(REMOTING__NAMES[3], false, deser, value.tags);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[4], false, deser, value.customData);
 	}
 
 };

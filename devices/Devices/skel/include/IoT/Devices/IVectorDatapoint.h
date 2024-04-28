@@ -64,25 +64,25 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	virtual void update(const std::vector < double >& value) = 0;
+	virtual void update(const std::vector<double>& value) = 0;
 		/// Updates the value of the datapoint and makes it valid.
 		///
 		/// Not all Datapoint implementations may support
 		/// this method.
 
-	virtual Poco::Optional < std::vector < double > > validValue() const = 0;
+	virtual Poco::Optional<std::vector<double>> validValue() const = 0;
 		/// Returns the current value of the datapoint if
 		/// it is valid, otherwise an empty value.
 
-	virtual std::vector < double > value() const = 0;
+	virtual std::vector<double> value() const = 0;
 		/// Returns the current value of the datapoint,
 		/// even if it has been invalidated.
 		///
 		/// Use validValue() to get a valid value only.
 
-	Poco::BasicEvent < const std::vector < double > > validated;
-	Poco::BasicEvent < const std::vector < double > > valueChanged;
-	Poco::BasicEvent < const std::vector < double > > valueUpdated;
+	Poco::BasicEvent<const std::vector<double>> validated;
+	Poco::BasicEvent<const std::vector<double>> valueChanged;
+	Poco::BasicEvent<const std::vector<double>> valueUpdated;
 };
 
 

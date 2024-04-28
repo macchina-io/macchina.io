@@ -19,7 +19,7 @@
 #define IoT_WebTunnel_WebTunnelServiceEventDispatcher_INCLUDED
 
 
-#include "IoT/WebTunnel/WebTunnelServiceRemoteObject.h"
+#include "IoT/WebTunnel/IWebTunnelService.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -31,7 +31,7 @@ class WebTunnelServiceEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// The interface for WebTunnel clients.
 {
 public:
-	WebTunnelServiceEventDispatcher(WebTunnelServiceRemoteObject* pRemoteObject, const std::string& protocol);
+	WebTunnelServiceEventDispatcher(IWebTunnelService* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a WebTunnelServiceEventDispatcher.
 
 	virtual ~WebTunnelServiceEventDispatcher();
@@ -49,7 +49,8 @@ private:
 	void event__disconnectedImpl(const std::string& subscriberURI);
 
 	static const std::string DEFAULT_NS;
-	WebTunnelServiceRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IWebTunnelService* _pInterface;
 };
 
 

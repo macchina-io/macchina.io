@@ -19,7 +19,7 @@
 #define IoT_DeviceStatus_DeviceStatusServiceEventDispatcher_INCLUDED
 
 
-#include "IoT/DeviceStatus/DeviceStatusServiceRemoteObject.h"
+#include "IoT/DeviceStatus/IDeviceStatusService.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -32,7 +32,7 @@ class DeviceStatusServiceEventDispatcher: public Poco::RemotingNG::EventDispatch
 	/// status of a device.
 {
 public:
-	DeviceStatusServiceEventDispatcher(DeviceStatusServiceRemoteObject* pRemoteObject, const std::string& protocol);
+	DeviceStatusServiceEventDispatcher(IDeviceStatusService* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a DeviceStatusServiceEventDispatcher.
 
 	virtual ~DeviceStatusServiceEventDispatcher();
@@ -50,7 +50,8 @@ private:
 	void event__statusUpdatedImpl(const std::string& subscriberURI, const IoT::DeviceStatus::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	DeviceStatusServiceRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IDeviceStatusService* _pInterface;
 };
 
 

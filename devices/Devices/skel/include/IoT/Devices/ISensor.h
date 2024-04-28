@@ -112,7 +112,7 @@ public:
 		/// a valid value. Therefore, before calling value() the first time, ready()
 		/// should be called to check if a valid value is available.
 
-	Poco::BasicEvent < const double > valueChanged;
+	Poco::BasicEvent<const double> valueChanged;
 };
 
 

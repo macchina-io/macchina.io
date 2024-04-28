@@ -44,9 +44,9 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"noLocal"s,"retainAsPublished"s,"retainHandling"s,""s};
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[0], value.noLocal, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[1], value.retainAsPublished, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[2], value.retainHandling, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[0], value.noLocal, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[1], value.retainAsPublished, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[2], value.retainHandling, ser);
 	}
 
 };

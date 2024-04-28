@@ -110,7 +110,14 @@ void Sensor::setValueChangedMinimumIntervalAndDeltaFilter(const std::string& sub
 
 void Sensor::setValueChangedHysteresisFilter(const std::string& subscriberURI, double lowerThreshold, double upperThreshold)
 {
-	setValueChangedFilter(subscriberURI, new Poco::RemotingNG::HysteresisFilter<double>(lowerThreshold, upperThreshold));
+	if (ready())
+	{
+		setValueChangedFilter(subscriberURI, new Poco::RemotingNG::HysteresisFilter<double>(lowerThreshold, upperThreshold, value()));
+	}
+	else
+	{
+		setValueChangedFilter(subscriberURI, new Poco::RemotingNG::HysteresisFilter<double>(lowerThreshold, upperThreshold));
+	}
 }
 
 

@@ -43,7 +43,7 @@ public:
 	virtual ~INetworkEnvironmentService();
 		/// Destroys the INetworkEnvironmentService.
 
-	virtual std::vector < IoT::NetworkEnvironment::NetworkInterface > enumerateInterfaces(int options = int(0)) = 0;
+	virtual std::vector<IoT::NetworkEnvironment::NetworkInterface> enumerateInterfaces(int options = int(0)) = 0;
 		/// Returns a vector containing available network interfaces.
 		/// The options parameter can be used to include non-IP interfaces or
 		/// interfaces that are down.
@@ -72,7 +72,7 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const IoT::NetworkEnvironment::ChangeType > networkEnvironmentChanged;
+	Poco::BasicEvent<const IoT::NetworkEnvironment::ChangeType> networkEnvironmentChanged;
 };
 
 

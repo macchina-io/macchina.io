@@ -31,12 +31,13 @@ namespace IoT {
 namespace DeviceStatus {
 
 
-DeviceStatusServiceEventDispatcher::DeviceStatusServiceEventDispatcher(DeviceStatusServiceRemoteObject* pRemoteObject, const std::string& protocol):
+DeviceStatusServiceEventDispatcher::DeviceStatusServiceEventDispatcher(IDeviceStatusService* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol):
 	Poco::RemotingNG::EventDispatcher(protocol),
-	_pRemoteObject(pRemoteObject)
+	_objectId(objectId),
+	_pInterface(pInterface)
 {
-	_pRemoteObject->statusChanged += Poco::delegate(this, &DeviceStatusServiceEventDispatcher::event__statusChanged);
-	_pRemoteObject->statusUpdated += Poco::delegate(this, &DeviceStatusServiceEventDispatcher::event__statusUpdated);
+	_pInterface->statusChanged += Poco::delegate(this, &DeviceStatusServiceEventDispatcher::event__statusChanged);
+	_pInterface->statusUpdated += Poco::delegate(this, &DeviceStatusServiceEventDispatcher::event__statusUpdated);
 }
 
 
@@ -44,8 +45,8 @@ DeviceStatusServiceEventDispatcher::~DeviceStatusServiceEventDispatcher()
 {
 	try
 	{
-		_pRemoteObject->statusChanged -= Poco::delegate(this, &DeviceStatusServiceEventDispatcher::event__statusChanged);
-		_pRemoteObject->statusUpdated -= Poco::delegate(this, &DeviceStatusServiceEventDispatcher::event__statusUpdated);
+		_pInterface->statusChanged -= Poco::delegate(this, &DeviceStatusServiceEventDispatcher::event__statusChanged);
+		_pInterface->statusUpdated -= Poco::delegate(this, &DeviceStatusServiceEventDispatcher::event__statusUpdated);
 	}
 	catch (...)
 	{
@@ -129,11 +130,11 @@ void DeviceStatusServiceEventDispatcher::event__statusChangedImpl(const std::str
 	static const std::string REMOTING__NAMES[] = {"statusChanged"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::DeviceStatus::DeviceStatusChange >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::DeviceStatus::DeviceStatusChange>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -144,11 +145,11 @@ void DeviceStatusServiceEventDispatcher::event__statusUpdatedImpl(const std::str
 	static const std::string REMOTING__NAMES[] = {"statusUpdated"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::DeviceStatus::DeviceStatusChange >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::DeviceStatus::DeviceStatusChange>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 

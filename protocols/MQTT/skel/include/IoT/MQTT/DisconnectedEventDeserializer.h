@@ -51,9 +51,9 @@ public:
 		
 		static const std::string REMOTING__NAMES[] = {"properties"s,"reasonCode"s};
 		bool ret = false;
-		TypeDeserializer<std::vector < IoT::MQTT::Property > >::deserialize(REMOTING__NAMES[0], true, deser, value.properties);
+		TypeDeserializer<std::vector<IoT::MQTT::Property>>::deserialize(REMOTING__NAMES[0], true, deser, value.properties);
 		int genreasonCode;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, deser, genreasonCode);
+		ret = TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, deser, genreasonCode);
 		if (ret) value.reasonCode = static_cast<IoT::MQTT::ReasonCode>(genreasonCode);
 	}
 

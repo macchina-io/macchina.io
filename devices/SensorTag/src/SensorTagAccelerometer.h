@@ -30,11 +30,11 @@ public:
 
 	struct Params
 	{
-		std::string serviceUUID;
-		std::string controlUUID;
-		std::string periodUUID;
-		std::string notifUUID;
-		std::string dataUUID;
+		Poco::UUID serviceUUID;
+		Poco::UUID controlUUID;
+		Poco::UUID periodUUID;
+		Poco::UUID notifUUID;
+		Poco::UUID dataUUID;
 	};
 
 	SensorTagAccelerometer(BtLE::Peripheral::Ptr pPeripheral, const Params& params);
@@ -82,21 +82,20 @@ protected:
 	BtLE::Characteristic _periodChar;
 	Poco::UInt16 _notifHandle;
 	bool _ready;
-	bool _enabled;
 	IoT::Devices::Acceleration _acceleration;
 	Poco::Any _deviceIdentifier;
 	Poco::Logger& _logger;
 };
 
 
-class SensorTag1Accelerometer: public SensorTagAccelerometer
+class SensorTagCC2541Accelerometer: public SensorTagAccelerometer
 {
 public:
-	SensorTag1Accelerometer(BtLE::Peripheral::Ptr pPeripheral, const Params& params);
-		/// Creates a SensorTag2Accelerometer.
+	SensorTagCC2541Accelerometer(BtLE::Peripheral::Ptr pPeripheral, const Params& params);
+		/// Creates a SensorTagCC2541Accelerometer.
 
-	~SensorTag1Accelerometer();
-		/// Destroys the SensorTag2Accelerometer.
+	~SensorTagCC2541Accelerometer();
+		/// Destroys the SensorTagCC2541Accelerometer.
 
 protected:
 	void update(const std::vector<char>& data);
@@ -112,14 +111,14 @@ protected:
 };
 
 
-class SensorTag2Accelerometer: public SensorTagAccelerometer
+class SensorTagCC2650Accelerometer: public SensorTagAccelerometer
 {
 public:
-	SensorTag2Accelerometer(BtLE::Peripheral::Ptr pPeripheral, const Params& params);
-		/// Creates a SensorTag2Accelerometer.
+	SensorTagCC2650Accelerometer(BtLE::Peripheral::Ptr pPeripheral, const Params& params);
+		/// Creates a SensorTagCC2650Accelerometer.
 
-	~SensorTag2Accelerometer();
-		/// Destroys the SensorTag2Accelerometer.
+	~SensorTagCC2650Accelerometer();
+		/// Destroys the SensorTagCC2650Accelerometer.
 
 protected:
 	void configure(Poco::UInt16 bits, Poco::UInt16 mask);

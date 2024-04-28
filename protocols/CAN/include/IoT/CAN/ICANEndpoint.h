@@ -66,7 +66,7 @@ public:
 	virtual bool fdSupported() const = 0;
 		/// Returns true if the implementation supports CAN-FD, otherwise false.
 
-	virtual std::vector < IoT::CAN::Filter > getFilter() const = 0;
+	virtual std::vector<IoT::CAN::Filter> getFilter() const = 0;
 		/// Returns the current filter.
 
 	virtual IoT::CAN::FilterMode getFilterMode() const = 0;
@@ -103,7 +103,7 @@ public:
 		/// Transmit the given frame as CAN or CAN-FD frame, depending
 		/// on type.
 
-	virtual void setFilter(const std::vector < IoT::CAN::Filter >& filter) = 0;
+	virtual void setFilter(const std::vector<IoT::CAN::Filter>& filter) = 0;
 		/// Sets a frame filter for CAN messages.
 
 	virtual void setFilterMode(IoT::CAN::FilterMode mode) = 0;
@@ -112,7 +112,7 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const IoT::CAN::CANFDFrame > frameReceived;
+	Poco::BasicEvent<const IoT::CAN::CANFDFrame> frameReceived;
 };
 
 

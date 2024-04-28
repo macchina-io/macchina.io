@@ -70,7 +70,7 @@ public:
 		/// Not all Datapoint implementations may support
 		/// this method.
 
-	virtual Poco::Optional < std::string > validValue() const = 0;
+	virtual Poco::Optional<std::string> validValue() const = 0;
 		/// Returns the current value of the datapoint if
 		/// it is valid, otherwise an empty value.
 
@@ -80,9 +80,9 @@ public:
 		///
 		/// Use validValue() to get a valid value only.
 
-	Poco::BasicEvent < const std::string > validated;
-	Poco::BasicEvent < const std::string > valueChanged;
-	Poco::BasicEvent < const std::string > valueUpdated;
+	Poco::BasicEvent<const std::string> validated;
+	Poco::BasicEvent<const std::string> valueChanged;
+	Poco::BasicEvent<const std::string> valueUpdated;
 };
 
 

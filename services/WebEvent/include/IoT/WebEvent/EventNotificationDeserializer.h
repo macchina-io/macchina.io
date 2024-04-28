@@ -47,9 +47,9 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"data"s,"subjectName"s};
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.data);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.subjectName);
+		static const std::string REMOTING__NAMES[] = {"subjectName"s,"data"s};
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], true, deser, value.subjectName);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, deser, value.data);
 	}
 
 };

@@ -64,12 +64,12 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	virtual void updateProperties(const std::vector < IoT::WebTunnel::Property >& properties) = 0;
+	virtual void updateProperties(const std::vector<IoT::WebTunnel::Property>& properties) = 0;
 		/// Sends a device properties update to the server over the
 		/// WebTunnel connection.
 
-	Poco::BasicEvent < void > connected;
-	Poco::BasicEvent < void > disconnected;
+	Poco::BasicEvent<void> connected;
+	Poco::BasicEvent<void> disconnected;
 };
 
 

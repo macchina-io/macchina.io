@@ -43,7 +43,7 @@ public:
 		{
 			bool activeScan(false);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<bool >::deserialize(REMOTING__NAMES[1], false, remoting__deser, activeScan);
+			Poco::RemotingNG::TypeDeserializer<bool>::deserialize(REMOTING__NAMES[1], false, remoting__deser, activeScan);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::BtLE::PeripheralBrowserRemoteObject* remoting__pCastedRO = static_cast<IoT::BtLE::PeripheralBrowserRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->browse(activeScan);
@@ -106,7 +106,7 @@ public:
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			static const std::string REMOTING__REPLY_NAME("browseInProgressReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<bool >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<bool>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 		}
 		catch (const Poco::Exception& e)

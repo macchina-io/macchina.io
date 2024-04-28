@@ -85,10 +85,10 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < void > browseComplete;
-	Poco::BasicEvent < const std::string > browseError;
-	Poco::BasicEvent < void > browseStarted;
-	Poco::BasicEvent < const IoT::BtLE::PeripheralInfo > peripheralFound;
+	Poco::BasicEvent<void> browseComplete;
+	Poco::BasicEvent<const std::string> browseError;
+	Poco::BasicEvent<void> browseStarted;
+	Poco::BasicEvent<const IoT::BtLE::PeripheralInfo> peripheralFound;
 };
 
 

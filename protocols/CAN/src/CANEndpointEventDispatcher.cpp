@@ -31,11 +31,12 @@ namespace IoT {
 namespace CAN {
 
 
-CANEndpointEventDispatcher::CANEndpointEventDispatcher(CANEndpointRemoteObject* pRemoteObject, const std::string& protocol):
+CANEndpointEventDispatcher::CANEndpointEventDispatcher(ICANEndpoint* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol):
 	Poco::RemotingNG::EventDispatcher(protocol),
-	_pRemoteObject(pRemoteObject)
+	_objectId(objectId),
+	_pInterface(pInterface)
 {
-	_pRemoteObject->frameReceived += Poco::delegate(this, &CANEndpointEventDispatcher::event__frameReceived);
+	_pInterface->frameReceived += Poco::delegate(this, &CANEndpointEventDispatcher::event__frameReceived);
 }
 
 
@@ -43,7 +44,7 @@ CANEndpointEventDispatcher::~CANEndpointEventDispatcher()
 {
 	try
 	{
-		_pRemoteObject->frameReceived -= Poco::delegate(this, &CANEndpointEventDispatcher::event__frameReceived);
+		_pInterface->frameReceived -= Poco::delegate(this, &CANEndpointEventDispatcher::event__frameReceived);
 	}
 	catch (...)
 	{
@@ -93,11 +94,11 @@ void CANEndpointEventDispatcher::event__frameReceivedImpl(const std::string& sub
 	static const std::string REMOTING__NAMES[] = {"frameReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::CAN::CANFDFrame >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::CAN::CANFDFrame>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 

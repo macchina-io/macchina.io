@@ -45,11 +45,11 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"mqttVersion"s,"properties"s,"serverURI"s,"sessionPresent"s,""s};
-		TypeSerializer<int >::serialize(REMOTING__NAMES[0], value.mqttVersion, ser);
-		TypeSerializer<std::vector < IoT::MQTT::Property > >::serialize(REMOTING__NAMES[1], value.properties, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.serverURI, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[3], value.sessionPresent, ser);
+		static const std::string REMOTING__NAMES[] = {"mqttVersion"s,"serverURI"s,"sessionPresent"s,"properties"s,""s};
+		TypeSerializer<int>::serialize(REMOTING__NAMES[0], value.mqttVersion, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.serverURI, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[2], value.sessionPresent, ser);
+		TypeSerializer<std::vector<IoT::MQTT::Property>>::serialize(REMOTING__NAMES[3], value.properties, ser);
 	}
 
 };

@@ -19,7 +19,7 @@
 #define IoT_Modbus_ModbusMasterEventDispatcher_INCLUDED
 
 
-#include "IoT/Modbus/ModbusMasterRemoteObject.h"
+#include "IoT/Modbus/IModbusMaster.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -59,7 +59,7 @@ class ModbusMasterEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// allow multiple simultaneous requests, the transaction ID will always be zero.
 {
 public:
-	ModbusMasterEventDispatcher(ModbusMasterRemoteObject* pRemoteObject, const std::string& protocol);
+	ModbusMasterEventDispatcher(IModbusMaster* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a ModbusMasterEventDispatcher.
 
 	virtual ~ModbusMasterEventDispatcher();
@@ -145,7 +145,8 @@ private:
 	void event__writeSingleRegisterResponseReceivedImpl(const std::string& subscriberURI, const IoT::Modbus::WriteSingleRegisterResponse& data);
 
 	static const std::string DEFAULT_NS;
-	ModbusMasterRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IModbusMaster* _pInterface;
 };
 
 

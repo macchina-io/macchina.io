@@ -63,7 +63,7 @@ std::string VectorDatapointRemoteObject::remoting__enableEvents(Poco::RemotingNG
 
 void VectorDatapointRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new VectorDatapointEventDispatcher(this, protocol);
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new VectorDatapointEventDispatcher(this, remoting__objectId(), protocol);
 	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 
@@ -86,19 +86,19 @@ void VectorDatapointRemoteObject::event__statusChanged(const IoT::Devices::Devic
 }
 
 
-void VectorDatapointRemoteObject::event__validated(const std::vector < double >& data)
+void VectorDatapointRemoteObject::event__validated(const std::vector<double>& data)
 {
 	validated(this, data);
 }
 
 
-void VectorDatapointRemoteObject::event__valueChanged(const std::vector < double >& data)
+void VectorDatapointRemoteObject::event__valueChanged(const std::vector<double>& data)
 {
 	valueChanged(this, data);
 }
 
 
-void VectorDatapointRemoteObject::event__valueUpdated(const std::vector < double >& data)
+void VectorDatapointRemoteObject::event__valueUpdated(const std::vector<double>& data)
 {
 	valueUpdated(this, data);
 }

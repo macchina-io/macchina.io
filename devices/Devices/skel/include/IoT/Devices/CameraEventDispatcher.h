@@ -19,7 +19,7 @@
 #define IoT_Devices_CameraEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/CameraRemoteObject.h"
+#include "IoT/Devices/ICamera.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -31,25 +31,26 @@ class CameraEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// The base class for image sensors, also known as cameras.
 {
 public:
-	CameraEventDispatcher(CameraRemoteObject* pRemoteObject, const std::string& protocol);
+	CameraEventDispatcher(ICamera* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a CameraEventDispatcher.
 
 	virtual ~CameraEventDispatcher();
 		/// Destroys the CameraEventDispatcher.
 
-	void event__imageCaptured(const void* pSender, const Poco::SharedPtr < IoT::Devices::Image >& data);
+	void event__imageCaptured(const void* pSender, const Poco::SharedPtr<IoT::Devices::Image>& data);
 
 	void event__statusChanged(const void* pSender, const IoT::Devices::DeviceStatusChange& data);
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
 private:
-	void event__imageCapturedImpl(const std::string& subscriberURI, const Poco::SharedPtr < IoT::Devices::Image >& data);
+	void event__imageCapturedImpl(const std::string& subscriberURI, const Poco::SharedPtr<IoT::Devices::Image>& data);
 
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	CameraRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	ICamera* _pInterface;
 };
 
 

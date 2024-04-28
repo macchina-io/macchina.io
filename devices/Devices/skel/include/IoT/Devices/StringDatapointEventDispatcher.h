@@ -19,7 +19,7 @@
 #define IoT_Devices_StringDatapointEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/StringDatapointRemoteObject.h"
+#include "IoT/Devices/IStringDatapoint.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -37,7 +37,7 @@ class StringDatapointEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	///     formatted as string for display purposes.
 {
 public:
-	StringDatapointEventDispatcher(StringDatapointRemoteObject* pRemoteObject, const std::string& protocol);
+	StringDatapointEventDispatcher(IStringDatapoint* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a StringDatapointEventDispatcher.
 
 	virtual ~StringDatapointEventDispatcher();
@@ -67,7 +67,8 @@ private:
 	void event__valueUpdatedImpl(const std::string& subscriberURI, const std::string& data);
 
 	static const std::string DEFAULT_NS;
-	StringDatapointRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IStringDatapoint* _pInterface;
 };
 
 

@@ -43,12 +43,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"composite"s,"fragments"s,"id"s,"name"s,"type"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.composite, ser);
-		TypeSerializer<Poco::Optional < std::vector < std::string > > >::serialize(REMOTING__NAMES[1], value.fragments, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.id, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[3], value.name, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[4], value.type, ser);
+		static const std::string REMOTING__NAMES[] = {"id"s,"name"s,"type"s,"composite"s,"fragments"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.id, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.name, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], value.type, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[3], value.composite, ser);
+		TypeSerializer<Poco::Optional<std::vector<std::string>>>::serialize(REMOTING__NAMES[4], value.fragments, ser);
 	}
 
 };

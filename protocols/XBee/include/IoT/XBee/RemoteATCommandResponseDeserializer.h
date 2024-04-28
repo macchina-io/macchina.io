@@ -47,13 +47,13 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"command"s,"data"s,"deviceAddress"s,"frameID"s,"networkAddress"s,"status"s};
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.command);
-		TypeDeserializer<std::vector < Poco::UInt8 > >::deserialize(REMOTING__NAMES[1], true, deser, value.data);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.deviceAddress);
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[3], true, deser, value.frameID);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[4], true, deser, value.networkAddress);
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[5], true, deser, value.status);
+		static const std::string REMOTING__NAMES[] = {"frameID"s,"deviceAddress"s,"networkAddress"s,"command"s,"status"s,"data"s};
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES[0], true, deser, value.frameID);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, deser, value.deviceAddress);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[2], true, deser, value.networkAddress);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[3], true, deser, value.command);
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES[4], true, deser, value.status);
+		TypeDeserializer<std::vector<Poco::UInt8>>::deserialize(REMOTING__NAMES[5], true, deser, value.data);
 	}
 
 };

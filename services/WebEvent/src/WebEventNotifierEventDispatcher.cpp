@@ -31,11 +31,12 @@ namespace IoT {
 namespace WebEvent {
 
 
-WebEventNotifierEventDispatcher::WebEventNotifierEventDispatcher(WebEventNotifierRemoteObject* pRemoteObject, const std::string& protocol):
+WebEventNotifierEventDispatcher::WebEventNotifierEventDispatcher(IWebEventNotifier* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol):
 	Poco::RemotingNG::EventDispatcher(protocol),
-	_pRemoteObject(pRemoteObject)
+	_objectId(objectId),
+	_pInterface(pInterface)
 {
-	_pRemoteObject->event += Poco::delegate(this, &WebEventNotifierEventDispatcher::event__event);
+	_pInterface->event += Poco::delegate(this, &WebEventNotifierEventDispatcher::event__event);
 }
 
 
@@ -43,7 +44,7 @@ WebEventNotifierEventDispatcher::~WebEventNotifierEventDispatcher()
 {
 	try
 	{
-		_pRemoteObject->event -= Poco::delegate(this, &WebEventNotifierEventDispatcher::event__event);
+		_pInterface->event -= Poco::delegate(this, &WebEventNotifierEventDispatcher::event__event);
 	}
 	catch (...)
 	{
@@ -97,11 +98,11 @@ void WebEventNotifierEventDispatcher::event__eventImpl(const std::string& subscr
 	static const std::string REMOTING__NAMES[] = {"event"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::WebEvent::EventNotification >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::WebEvent::EventNotification>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 

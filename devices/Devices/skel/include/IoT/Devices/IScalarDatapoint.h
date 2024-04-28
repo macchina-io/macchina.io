@@ -107,9 +107,9 @@ public:
 		/// Not all Datapoint implementations may support
 		/// this method.
 
-	virtual Poco::Optional < double > validValue() const = 0;
+	virtual Poco::Optional<double> validValue() const = 0;
 		/// Returns the current value held by the datapoint if
-		/// it is value, otherwise an empty value.
+		/// it is valid, otherwise an empty value.
 
 	virtual double value() const = 0;
 		/// Returns the current value held by the datapoint,
@@ -117,9 +117,9 @@ public:
 		///
 		/// Use validValue() to get a valid value only.
 
-	Poco::BasicEvent < const double > validated;
-	Poco::BasicEvent < const double > valueChanged;
-	Poco::BasicEvent < const double > valueUpdated;
+	Poco::BasicEvent<const double> validated;
+	Poco::BasicEvent<const double> valueChanged;
+	Poco::BasicEvent<const double> valueUpdated;
 };
 
 

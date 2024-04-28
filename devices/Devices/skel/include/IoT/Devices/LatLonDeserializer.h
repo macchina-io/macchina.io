@@ -48,8 +48,8 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"latitude"s,"longitude"s};
-		TypeDeserializer<double >::deserialize(REMOTING__NAMES[0], true, deser, value.latitude);
-		TypeDeserializer<double >::deserialize(REMOTING__NAMES[1], true, deser, value.longitude);
+		TypeDeserializer<double>::deserialize(REMOTING__NAMES[0], true, deser, value.latitude);
+		TypeDeserializer<double>::deserialize(REMOTING__NAMES[1], true, deser, value.longitude);
 	}
 
 };

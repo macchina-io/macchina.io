@@ -45,12 +45,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"binaryPayload"s,"payload"s,"properties"s,"qos"s,"retained"s,""s};
-		TypeSerializer<std::vector < char > >::serialize(REMOTING__NAMES[0], value.binaryPayload, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.payload, ser);
-		TypeSerializer<std::vector < IoT::MQTT::Property > >::serialize(REMOTING__NAMES[2], value.properties, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[3], value.qos, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[4], value.retained, ser);
+		static const std::string REMOTING__NAMES[] = {"payload"s,"binaryPayload"s,"qos"s,"retained"s,"properties"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.payload, ser);
+		TypeSerializer<std::vector<char>>::serialize(REMOTING__NAMES[1], value.binaryPayload, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[2], value.qos, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[3], value.retained, ser);
+		TypeSerializer<std::vector<IoT::MQTT::Property>>::serialize(REMOTING__NAMES[4], value.properties, ser);
 	}
 
 };

@@ -19,6 +19,7 @@
 
 
 #include "IoT/BtLE/BtLE.h"
+#include "Poco/UUID.h"
 #include "Poco/BasicEvent.h"
 #include "Poco/SharedPtr.h"
 #include <vector>
@@ -35,6 +36,7 @@ class IoTBtLE_API GATTClient
 {
 public:
 	using Ptr = Poco::SharedPtr<GATTClient>;
+	using Handle = Poco::UInt16;
 
 	enum ConnectMode
 		/// Connect mode - synchronous or asynchronous.
@@ -82,9 +84,9 @@ public:
 		{
 		}
 
-		std::string uuid;
-		Poco::UInt16 firstHandle;
-		Poco::UInt16 lastHandle;
+		Poco::UUID uuid;
+		Handle firstHandle;
+		Handle lastHandle;
 	};
 
 	struct Descriptor
@@ -95,8 +97,8 @@ public:
 		{
 		}
 
-		Poco::UInt16 handle;
-		std::string uuid;
+		Handle handle;
+		Poco::UUID uuid;
 	};
 
 	struct Characteristic
@@ -105,14 +107,16 @@ public:
 		Characteristic():
 			handle(0),
 			properties(0),
-			valueHandle(0)
+			valueHandle(0),
+			lastHandle(0)
 		{
 		}
 
-		std::string uuid;
-		Poco::UInt16 handle;
+		Poco::UUID uuid;
+		Handle handle;
 		Poco::UInt16 properties;
-		Poco::UInt16 valueHandle;
+		Handle valueHandle;
+		Handle lastHandle;
 	};
 
 	struct Indication
@@ -122,7 +126,7 @@ public:
 		{
 		}
 
-		Poco::UInt16 handle;
+		Handle handle;
 		std::vector<char> data;
 	};
 
@@ -133,7 +137,7 @@ public:
 		{
 		}
 
-		Poco::UInt16 handle;
+		Handle handle;
 		std::vector<char> data;
 	};
 
@@ -177,20 +181,24 @@ public:
 	virtual std::vector<Service> services() = 0;
 		/// Returns a list of all services supported by the peripheral.
 
-	virtual std::vector<Service> includedServices(const std::string& serviceUUID) = 0;
+	virtual std::vector<Service> includedServices(const Poco::UUID& serviceUUID) = 0;
 		/// Returns a list of all services included by the service identified by the given handles.
 
-	virtual std::vector<Characteristic> characteristics(const std::string& serviceUUID) = 0;
+	virtual std::vector<Characteristic> characteristics(const Poco::UUID& serviceUUID) = 0;
 		/// Returns a list of all characteristics of the service with the given UUID.
 
-	virtual std::vector<Descriptor> descriptors(const std::string& serviceUUID) = 0;
+	virtual std::vector<Descriptor> descriptors(const Poco::UUID& serviceUUID) = 0;
 		/// Returns a list of all handle descriptors for the service with the given UUID.
 
-	virtual std::string read(Poco::UInt16 handle) = 0;
+	virtual std::string read(Handle handle) = 0;
 		/// Reads the value of the characteristic's value with the given value handle.
 
-	virtual void write(Poco::UInt16 handle, const std::string& value, bool withResponse = true) = 0;
-		/// Writes the value of the characteristic's value with the given handle.
+	virtual void write(Handle handle, const std::string& value, bool withResponse = true) = 0;
+		/// Writes the value of the characteristic with the given handle.
+		/// If withResponse is true, expects a response from the peripheral device.
+
+	virtual void write(Handle handle, const char* value, std::size_t size, bool withResponse = true) = 0;
+		/// Writes the value of the characteristic with the given handle.
 		/// If withResponse is true, expects a response from the peripheral device.
 
 	virtual void setSecurityLevel(SecurityLevel level) = 0;

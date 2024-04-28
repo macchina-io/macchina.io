@@ -43,9 +43,10 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"messageCount"s,"topic"s,""s};
-		TypeSerializer<int >::serialize(REMOTING__NAMES[0], value.messageCount, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.topic, ser);
+		static const std::string REMOTING__NAMES[] = {"topic"s,"messageCount"s,"lastMessage"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.topic, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[1], value.messageCount, ser);
+		TypeSerializer<Poco::Timestamp>::serialize(REMOTING__NAMES[2], value.lastMessage, ser);
 	}
 
 };

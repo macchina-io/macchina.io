@@ -146,7 +146,7 @@ public:
 		/// Writes the given data to the port.
 		/// Returns the number of characters written.
 
-	Poco::BasicEvent < const std::string > lineReceived;
+	Poco::BasicEvent<const std::string> lineReceived;
 };
 
 

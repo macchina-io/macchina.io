@@ -19,7 +19,7 @@
 #define IoT_NetworkEnvironment_NetworkEnvironmentServiceEventDispatcher_INCLUDED
 
 
-#include "IoT/NetworkEnvironment/NetworkEnvironmentServiceRemoteObject.h"
+#include "IoT/NetworkEnvironment/INetworkEnvironmentService.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -32,7 +32,7 @@ class NetworkEnvironmentServiceEventDispatcher: public Poco::RemotingNG::EventDi
 	/// about network address and network interface changes.
 {
 public:
-	NetworkEnvironmentServiceEventDispatcher(NetworkEnvironmentServiceRemoteObject* pRemoteObject, const std::string& protocol);
+	NetworkEnvironmentServiceEventDispatcher(INetworkEnvironmentService* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a NetworkEnvironmentServiceEventDispatcher.
 
 	virtual ~NetworkEnvironmentServiceEventDispatcher();
@@ -46,7 +46,8 @@ private:
 	void event__networkEnvironmentChangedImpl(const std::string& subscriberURI, const IoT::NetworkEnvironment::ChangeType& data);
 
 	static const std::string DEFAULT_NS;
-	NetworkEnvironmentServiceRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	INetworkEnvironmentService* _pInterface;
 };
 
 

@@ -292,23 +292,47 @@ void SensorTagSensor::onDisconnected()
 
 
 //
-// SensorTag1IRAmbientTemperatureSensor
+// SensorTagCC1352Sensor
 //
 
 
-SensorTag1IRAmbientTemperatureSensor::SensorTag1IRAmbientTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+SensorTagCC1352Sensor::SensorTagCC1352Sensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
 }
 
 
-SensorTag1IRAmbientTemperatureSensor::~SensorTag1IRAmbientTemperatureSensor()
+SensorTagCC1352Sensor::~SensorTagCC1352Sensor()
 {
 }
 
 
-void SensorTag1IRAmbientTemperatureSensor::poll()
+void SensorTagCC1352Sensor::poll()
+{
+	double value = _pPeripheral->readFloat(_dataChar.valueHandle);
+	update(value);
+}
+
+
+//
+// SensorTagCC2541AmbientTemperatureSensor
+//
+
+
+SensorTagCC2541AmbientTemperatureSensor::SensorTagCC2541AmbientTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+	SensorTagSensor(pPeripheral, params, pTimer)
+{
+	init();
+}
+
+
+SensorTagCC2541AmbientTemperatureSensor::~SensorTagCC2541AmbientTemperatureSensor()
+{
+}
+
+
+void SensorTagCC2541AmbientTemperatureSensor::poll()
 {
 	std::string data = _pPeripheral->readString(_dataChar.valueHandle);
 	if (data.size() == 4)
@@ -325,23 +349,23 @@ void SensorTag1IRAmbientTemperatureSensor::poll()
 
 
 //
-// SensorTag1IRObjectTemperatureSensor
+// SensorTagCC2541IRObjectTemperatureSensor
 //
 
 
-SensorTag1IRObjectTemperatureSensor::SensorTag1IRObjectTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+SensorTagCC2541IRObjectTemperatureSensor::SensorTagCC2541IRObjectTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
 }
 
 
-SensorTag1IRObjectTemperatureSensor::~SensorTag1IRObjectTemperatureSensor()
+SensorTagCC2541IRObjectTemperatureSensor::~SensorTagCC2541IRObjectTemperatureSensor()
 {
 }
 
 
-void SensorTag1IRObjectTemperatureSensor::poll()
+void SensorTagCC2541IRObjectTemperatureSensor::poll()
 {
 	std::string data = _pPeripheral->readString(_dataChar.valueHandle);
 	if (data.size() == 4)
@@ -373,23 +397,23 @@ void SensorTag1IRObjectTemperatureSensor::poll()
 
 
 //
-// SensorTag2IRAmbientTemperatureSensor
+// SensorTagCC2650AmbientTemperatureSensor
 //
 
 
-SensorTag2IRAmbientTemperatureSensor::SensorTag2IRAmbientTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+SensorTagCC2650AmbientTemperatureSensor::SensorTagCC2650AmbientTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
 }
 
 
-SensorTag2IRAmbientTemperatureSensor::~SensorTag2IRAmbientTemperatureSensor()
+SensorTagCC2650AmbientTemperatureSensor::~SensorTagCC2650AmbientTemperatureSensor()
 {
 }
 
 
-void SensorTag2IRAmbientTemperatureSensor::poll()
+void SensorTagCC2650AmbientTemperatureSensor::poll()
 {
 	std::string data = _pPeripheral->readString(_dataChar.valueHandle);
 	if (data.size() == 4)
@@ -407,23 +431,23 @@ void SensorTag2IRAmbientTemperatureSensor::poll()
 
 
 //
-// SensorTag2IRObjectTemperatureSensor
+// SensorTagCC2650IRObjectTemperatureSensor
 //
 
 
-SensorTag2IRObjectTemperatureSensor::SensorTag2IRObjectTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+SensorTagCC2650IRObjectTemperatureSensor::SensorTagCC2650IRObjectTemperatureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
 }
 
 
-SensorTag2IRObjectTemperatureSensor::~SensorTag2IRObjectTemperatureSensor()
+SensorTagCC2650IRObjectTemperatureSensor::~SensorTagCC2650IRObjectTemperatureSensor()
 {
 }
 
 
-void SensorTag2IRObjectTemperatureSensor::poll()
+void SensorTagCC2650IRObjectTemperatureSensor::poll()
 {
 	std::string data = _pPeripheral->readString(_dataChar.valueHandle);
 	if (data.size() == 4)
@@ -471,23 +495,23 @@ void SensorTagHumiditySensor::poll()
 
 
 //
-// SensorTag2LightSensor
+// SensorTagCC2650LightSensor
 //
 
 
-SensorTag2LightSensor::SensorTag2LightSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+SensorTagCC2650LightSensor::SensorTagCC2650LightSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
 }
 
 
-SensorTag2LightSensor::~SensorTag2LightSensor()
+SensorTagCC2650LightSensor::~SensorTagCC2650LightSensor()
 {
 }
 
 
-void SensorTag2LightSensor::poll()
+void SensorTagCC2650LightSensor::poll()
 {
 	Poco::UInt16 raw = _pPeripheral->readUInt16(_dataChar.valueHandle);
 	Poco::UInt16 m = raw & 0x0FFF;
@@ -498,11 +522,11 @@ void SensorTag2LightSensor::poll()
 
 
 //
-// SensorTag1AirPressureSensor
+// SensorTagCC2541AirPressureSensor
 //
 
 
-SensorTag1AirPressureSensor::SensorTag1AirPressureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+SensorTagCC2541AirPressureSensor::SensorTagCC2541AirPressureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
@@ -517,12 +541,12 @@ SensorTag1AirPressureSensor::SensorTag1AirPressureSensor(BtLE::Peripheral::Ptr p
 }
 
 
-SensorTag1AirPressureSensor::~SensorTag1AirPressureSensor()
+SensorTagCC2541AirPressureSensor::~SensorTagCC2541AirPressureSensor()
 {
 }
 
 
-void SensorTag1AirPressureSensor::poll()
+void SensorTagCC2541AirPressureSensor::poll()
 {
 	std::string bytes = _pPeripheral->readString(_dataChar.valueHandle);
 	if (bytes.size() == 6)
@@ -537,23 +561,23 @@ void SensorTag1AirPressureSensor::poll()
 
 
 //
-// SensorTag2AirPressureSensor
+// SensorTagCC2650AirPressureSensor
 //
 
 
-SensorTag2AirPressureSensor::SensorTag2AirPressureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
+SensorTagCC2650AirPressureSensor::SensorTagCC2650AirPressureSensor(BtLE::Peripheral::Ptr pPeripheral, const Params& params, Poco::SharedPtr<Poco::Util::Timer> pTimer):
 	SensorTagSensor(pPeripheral, params, pTimer)
 {
 	init();
 }
 
 
-SensorTag2AirPressureSensor::~SensorTag2AirPressureSensor()
+SensorTagCC2650AirPressureSensor::~SensorTagCC2650AirPressureSensor()
 {
 }
 
 
-void SensorTag2AirPressureSensor::poll()
+void SensorTagCC2650AirPressureSensor::poll()
 {
 	std::string bytes = _pPeripheral->readString(_dataChar.valueHandle);
 	if (bytes.size() == 6)

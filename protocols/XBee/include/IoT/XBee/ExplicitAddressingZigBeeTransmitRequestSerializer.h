@@ -43,17 +43,17 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"broadcastRadius"s,"clusterID"s,"destinationEndpoint"s,"deviceAddress"s,"frameID"s,"networkAddress"s,"options"s,"payload"s,"profileID"s,"sourceEndpoint"s,""s};
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[0], value.broadcastRadius, ser);
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[1], value.clusterID, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[2], value.destinationEndpoint, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[3], value.deviceAddress, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[4], value.frameID, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[5], value.networkAddress, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[6], value.options, ser);
-		TypeSerializer<std::vector < Poco::UInt8 > >::serialize(REMOTING__NAMES[7], value.payload, ser);
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[8], value.profileID, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[9], value.sourceEndpoint, ser);
+		static const std::string REMOTING__NAMES[] = {"frameID"s,"deviceAddress"s,"networkAddress"s,"sourceEndpoint"s,"destinationEndpoint"s,"clusterID"s,"profileID"s,"broadcastRadius"s,"options"s,"payload"s,""s};
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[0], value.frameID, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.deviceAddress, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], value.networkAddress, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[3], value.sourceEndpoint, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[4], value.destinationEndpoint, ser);
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[5], value.clusterID, ser);
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[6], value.profileID, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[7], value.broadcastRadius, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[8], value.options, ser);
+		TypeSerializer<std::vector<Poco::UInt8>>::serialize(REMOTING__NAMES[9], value.payload, ser);
 	}
 
 };

@@ -43,12 +43,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"encoding"s,"height"s,"image"s,"step"s,"width"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.encoding, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[1], value.height, ser);
-		TypeSerializer<Poco::SharedPtr < std::vector < char > > >::serialize(REMOTING__NAMES[2], value.image, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[3], value.step, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[4], value.width, ser);
+		static const std::string REMOTING__NAMES[] = {"width"s,"height"s,"encoding"s,"image"s,"step"s,""s};
+		TypeSerializer<int>::serialize(REMOTING__NAMES[0], value.width, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[1], value.height, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], value.encoding, ser);
+		TypeSerializer<Poco::SharedPtr<std::vector<char>>>::serialize(REMOTING__NAMES[3], value.image, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[4], value.step, ser);
 	}
 
 };

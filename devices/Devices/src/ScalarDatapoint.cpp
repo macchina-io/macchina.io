@@ -110,7 +110,15 @@ void ScalarDatapoint::setValueChangedMinimumIntervalAndDeltaFilter(const std::st
 
 void ScalarDatapoint::setValueChangedHysteresisFilter(const std::string& subscriberURI, double lowerThreshold, double upperThreshold)
 {
-	setValueChangedFilter(subscriberURI, new Poco::RemotingNG::HysteresisFilter<double>(lowerThreshold, upperThreshold));
+	const auto v = validValue();
+	if (v.isSpecified())
+	{
+		setValueChangedFilter(subscriberURI, new Poco::RemotingNG::HysteresisFilter<double>(lowerThreshold, upperThreshold, v.value()));
+	}
+	else
+	{
+		setValueChangedFilter(subscriberURI, new Poco::RemotingNG::HysteresisFilter<double>(lowerThreshold, upperThreshold));
+	}
 }
 
 

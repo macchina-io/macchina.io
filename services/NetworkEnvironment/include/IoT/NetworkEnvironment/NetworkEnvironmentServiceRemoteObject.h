@@ -42,7 +42,7 @@ public:
 	virtual ~NetworkEnvironmentServiceRemoteObject();
 		/// Destroys the NetworkEnvironmentServiceRemoteObject.
 
-	std::vector < IoT::NetworkEnvironment::NetworkInterface > enumerateInterfaces(int options = int(0));
+	std::vector<IoT::NetworkEnvironment::NetworkInterface> enumerateInterfaces(int options = int(0));
 		/// Returns a vector containing available network interfaces.
 		/// The options parameter can be used to include non-IP interfaces or
 		/// interfaces that are down.
@@ -69,7 +69,7 @@ private:
 };
 
 
-inline std::vector < IoT::NetworkEnvironment::NetworkInterface > NetworkEnvironmentServiceRemoteObject::enumerateInterfaces(int options)
+inline std::vector<IoT::NetworkEnvironment::NetworkInterface> NetworkEnvironmentServiceRemoteObject::enumerateInterfaces(int options)
 {
 	return _pServiceObject->enumerateInterfaces(options);
 }

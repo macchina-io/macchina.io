@@ -49,11 +49,11 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"mqttVersion"s,"properties"s,"serverURI"s,"sessionPresent"s};
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[0], true, deser, value.mqttVersion);
-		TypeDeserializer<std::vector < IoT::MQTT::Property > >::deserialize(REMOTING__NAMES[1], true, deser, value.properties);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.serverURI);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[3], true, deser, value.sessionPresent);
+		static const std::string REMOTING__NAMES[] = {"mqttVersion"s,"serverURI"s,"sessionPresent"s,"properties"s};
+		TypeDeserializer<int>::deserialize(REMOTING__NAMES[0], true, deser, value.mqttVersion);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, deser, value.serverURI);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[2], true, deser, value.sessionPresent);
+		TypeDeserializer<std::vector<IoT::MQTT::Property>>::deserialize(REMOTING__NAMES[3], true, deser, value.properties);
 	}
 
 };

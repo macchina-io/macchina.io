@@ -43,12 +43,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"functionCode"s,"message"s,"reason"s,"slaveOrUnitAddress"s,"transactionID"s,""s};
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[0], value.functionCode, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.message, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[2], static_cast<int>(value.reason), ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[3], value.slaveOrUnitAddress, ser);
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[4], value.transactionID, ser);
+		static const std::string REMOTING__NAMES[] = {"slaveOrUnitAddress"s,"functionCode"s,"transactionID"s,"reason"s,"message"s,""s};
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[0], value.slaveOrUnitAddress, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[1], value.functionCode, ser);
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[2], value.transactionID, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[3], static_cast<int>(value.reason), ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[4], value.message, ser);
 	}
 
 };

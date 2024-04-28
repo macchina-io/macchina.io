@@ -105,7 +105,7 @@ public:
 		/// Returns true if the property with the given name
 		/// exists, or false otherwise.
 
-	Poco::SharedPtr < IoT::Devices::Image > image() const;
+	Poco::SharedPtr<IoT::Devices::Image> image() const;
 		/// Returns the most recently taken image, or a null pointer
 		/// if no image is available.
 
@@ -169,7 +169,7 @@ public:
 		/// actual device implementation.
 
 protected:
-	void event__imageCaptured(const Poco::SharedPtr < IoT::Devices::Image >& data);
+	void event__imageCaptured(const Poco::SharedPtr<IoT::Devices::Image>& data);
 
 	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
 
@@ -244,7 +244,7 @@ inline bool CameraRemoteObject::hasProperty(const std::string& name) const
 }
 
 
-inline Poco::SharedPtr < IoT::Devices::Image > CameraRemoteObject::image() const
+inline Poco::SharedPtr<IoT::Devices::Image> CameraRemoteObject::image() const
 {
 	return _pServiceObject->image();
 }

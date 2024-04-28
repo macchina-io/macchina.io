@@ -49,10 +49,10 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"properties"s,"reasonCode"s,"reasonCodes"s};
-		TypeDeserializer<std::vector < IoT::MQTT::Property > >::deserialize(REMOTING__NAMES[0], true, deser, value.properties);
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[1], true, deser, value.reasonCode);
-		TypeDeserializer<std::vector < Poco::UInt8 > >::deserialize(REMOTING__NAMES[2], true, deser, value.reasonCodes);
+		static const std::string REMOTING__NAMES[] = {"reasonCode"s,"reasonCodes"s,"properties"s};
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES[0], true, deser, value.reasonCode);
+		TypeDeserializer<std::vector<Poco::UInt8>>::deserialize(REMOTING__NAMES[1], true, deser, value.reasonCodes);
+		TypeDeserializer<std::vector<IoT::MQTT::Property>>::deserialize(REMOTING__NAMES[2], true, deser, value.properties);
 	}
 
 };

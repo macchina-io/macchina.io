@@ -19,7 +19,7 @@
 #define IoT_XBee_XBeeNodeEventDispatcher_INCLUDED
 
 
-#include "IoT/XBee/XBeeNodeRemoteObject.h"
+#include "IoT/XBee/IXBeeNode.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -38,7 +38,7 @@ class XBeeNodeEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// information about the API.
 {
 public:
-	XBeeNodeEventDispatcher(XBeeNodeRemoteObject* pRemoteObject, const std::string& protocol);
+	XBeeNodeEventDispatcher(IXBeeNode* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a XBeeNodeEventDispatcher.
 
 	virtual ~XBeeNodeEventDispatcher();
@@ -96,7 +96,8 @@ private:
 	void event__zigBeeTransmitStatusReceivedImpl(const std::string& subscriberURI, const IoT::XBee::ZigBeeTransmitStatus& data);
 
 	static const std::string DEFAULT_NS;
-	XBeeNodeRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IXBeeNode* _pInterface;
 };
 
 

@@ -43,12 +43,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"acknowledgeable"s,"messageClass"s,"source"s,"status"s,"text"s,""s};
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[0], value.acknowledgeable, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.messageClass, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.source, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[3], static_cast<int>(value.status), ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[4], value.text, ser);
+		static const std::string REMOTING__NAMES[] = {"messageClass"s,"source"s,"acknowledgeable"s,"status"s,"text"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.messageClass, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.source, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[2], value.acknowledgeable, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[3], static_cast<int>(value.status), ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[4], value.text, ser);
 	}
 
 };

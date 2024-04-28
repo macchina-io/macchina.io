@@ -47,9 +47,9 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"data"s,"handle"s};
-		TypeDeserializer<std::vector < char > >::deserialize(REMOTING__NAMES[0], true, deser, value.data);
-		TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[1], true, deser, value.handle);
+		static const std::string REMOTING__NAMES[] = {"handle"s,"data"s};
+		TypeDeserializer<Poco::UInt16>::deserialize(REMOTING__NAMES[0], true, deser, value.handle);
+		TypeDeserializer<std::vector<char>>::deserialize(REMOTING__NAMES[1], true, deser, value.data);
 	}
 
 };

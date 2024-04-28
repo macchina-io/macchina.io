@@ -33,15 +33,16 @@ namespace IoT {
 namespace BtLE {
 
 
-PeripheralEventDispatcher::PeripheralEventDispatcher(PeripheralRemoteObject* pRemoteObject, const std::string& protocol):
+PeripheralEventDispatcher::PeripheralEventDispatcher(IPeripheral* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol):
 	Poco::RemotingNG::EventDispatcher(protocol),
-	_pRemoteObject(pRemoteObject)
+	_objectId(objectId),
+	_pInterface(pInterface)
 {
-	_pRemoteObject->connected += Poco::delegate(this, &PeripheralEventDispatcher::event__connected);
-	_pRemoteObject->disconnected += Poco::delegate(this, &PeripheralEventDispatcher::event__disconnected);
-	_pRemoteObject->error += Poco::delegate(this, &PeripheralEventDispatcher::event__error);
-	_pRemoteObject->indicationReceived += Poco::delegate(this, &PeripheralEventDispatcher::event__indicationReceived);
-	_pRemoteObject->notificationReceived += Poco::delegate(this, &PeripheralEventDispatcher::event__notificationReceived);
+	_pInterface->connected += Poco::delegate(this, &PeripheralEventDispatcher::event__connected);
+	_pInterface->disconnected += Poco::delegate(this, &PeripheralEventDispatcher::event__disconnected);
+	_pInterface->error += Poco::delegate(this, &PeripheralEventDispatcher::event__error);
+	_pInterface->indicationReceived += Poco::delegate(this, &PeripheralEventDispatcher::event__indicationReceived);
+	_pInterface->notificationReceived += Poco::delegate(this, &PeripheralEventDispatcher::event__notificationReceived);
 }
 
 
@@ -49,11 +50,11 @@ PeripheralEventDispatcher::~PeripheralEventDispatcher()
 {
 	try
 	{
-		_pRemoteObject->connected -= Poco::delegate(this, &PeripheralEventDispatcher::event__connected);
-		_pRemoteObject->disconnected -= Poco::delegate(this, &PeripheralEventDispatcher::event__disconnected);
-		_pRemoteObject->error -= Poco::delegate(this, &PeripheralEventDispatcher::event__error);
-		_pRemoteObject->indicationReceived -= Poco::delegate(this, &PeripheralEventDispatcher::event__indicationReceived);
-		_pRemoteObject->notificationReceived -= Poco::delegate(this, &PeripheralEventDispatcher::event__notificationReceived);
+		_pInterface->connected -= Poco::delegate(this, &PeripheralEventDispatcher::event__connected);
+		_pInterface->disconnected -= Poco::delegate(this, &PeripheralEventDispatcher::event__disconnected);
+		_pInterface->error -= Poco::delegate(this, &PeripheralEventDispatcher::event__error);
+		_pInterface->indicationReceived -= Poco::delegate(this, &PeripheralEventDispatcher::event__indicationReceived);
+		_pInterface->notificationReceived -= Poco::delegate(this, &PeripheralEventDispatcher::event__notificationReceived);
 	}
 	catch (...)
 	{
@@ -239,10 +240,10 @@ void PeripheralEventDispatcher::event__connectedImpl(const std::string& subscrib
 	static const std::string REMOTING__NAMES[] = {"connected"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -253,10 +254,10 @@ void PeripheralEventDispatcher::event__disconnectedImpl(const std::string& subsc
 	static const std::string REMOTING__NAMES[] = {"disconnected"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -267,11 +268,11 @@ void PeripheralEventDispatcher::event__errorImpl(const std::string& subscriberUR
 	static const std::string REMOTING__NAMES[] = {"error"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -282,11 +283,11 @@ void PeripheralEventDispatcher::event__indicationReceivedImpl(const std::string&
 	static const std::string REMOTING__NAMES[] = {"indicationReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::BtLE::Indication >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::BtLE::Indication>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -297,11 +298,11 @@ void PeripheralEventDispatcher::event__notificationReceivedImpl(const std::strin
 	static const std::string REMOTING__NAMES[] = {"notificationReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::BtLE::Notification >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::BtLE::Notification>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 

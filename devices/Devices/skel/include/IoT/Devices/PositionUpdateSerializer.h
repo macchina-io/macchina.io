@@ -45,12 +45,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"course"s,"magneticVariation"s,"position"s,"speed"s,"timestamp"s,""s};
-		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.course, ser);
-		TypeSerializer<double >::serialize(REMOTING__NAMES[1], value.magneticVariation, ser);
-		TypeSerializer<IoT::Devices::LatLon >::serialize(REMOTING__NAMES[2], value.position, ser);
-		TypeSerializer<double >::serialize(REMOTING__NAMES[3], value.speed, ser);
-		TypeSerializer<Poco::Timestamp >::serialize(REMOTING__NAMES[4], value.timestamp, ser);
+		static const std::string REMOTING__NAMES[] = {"position"s,"course"s,"speed"s,"magneticVariation"s,"timestamp"s,""s};
+		TypeSerializer<IoT::Devices::LatLon>::serialize(REMOTING__NAMES[0], value.position, ser);
+		TypeSerializer<double>::serialize(REMOTING__NAMES[1], value.course, ser);
+		TypeSerializer<double>::serialize(REMOTING__NAMES[2], value.speed, ser);
+		TypeSerializer<double>::serialize(REMOTING__NAMES[3], value.magneticVariation, ser);
+		TypeSerializer<Poco::Timestamp>::serialize(REMOTING__NAMES[4], value.timestamp, ser);
 	}
 
 };

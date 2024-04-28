@@ -57,7 +57,7 @@ std::string MobileConnectionServiceRemoteObject::remoting__enableEvents(Poco::Re
 
 void MobileConnectionServiceRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new MobileConnectionServiceEventDispatcher(this, protocol);
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new MobileConnectionServiceEventDispatcher(this, remoting__objectId(), protocol);
 	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 

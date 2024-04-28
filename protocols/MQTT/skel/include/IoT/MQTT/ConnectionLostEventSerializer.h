@@ -44,7 +44,7 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"cause"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.cause, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.cause, ser);
 	}
 
 };

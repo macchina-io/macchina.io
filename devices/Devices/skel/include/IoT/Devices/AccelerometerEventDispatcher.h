@@ -19,7 +19,7 @@
 #define IoT_Devices_AccelerometerEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/AccelerometerRemoteObject.h"
+#include "IoT/Devices/IAccelerometer.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -31,7 +31,7 @@ class AccelerometerEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// The interface for three-axis Accelerometers.
 {
 public:
-	AccelerometerEventDispatcher(AccelerometerRemoteObject* pRemoteObject, const std::string& protocol);
+	AccelerometerEventDispatcher(IAccelerometer* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a AccelerometerEventDispatcher.
 
 	virtual ~AccelerometerEventDispatcher();
@@ -49,7 +49,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	AccelerometerRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IAccelerometer* _pInterface;
 };
 
 

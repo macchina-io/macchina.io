@@ -43,7 +43,7 @@ public:
 		{
 			std::string subscriberURI;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
+			Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::WebEvent::WebEventNotifierRemoteObject* remoting__pCastedRO = static_cast<IoT::WebEvent::WebEventNotifierRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->clearEventFilter(subscriberURI);
@@ -101,8 +101,8 @@ public:
 			std::string subjectName;
 			std::string data;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, subjectName);
-			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, remoting__deser, data);
+			Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, remoting__deser, subjectName);
+			Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[2], true, remoting__deser, data);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::WebEvent::WebEventNotifierRemoteObject* remoting__pCastedRO = static_cast<IoT::WebEvent::WebEventNotifierRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->notify(subjectName, data);
@@ -160,8 +160,8 @@ public:
 			std::string subscriberURI;
 			std::string subjectName;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
-			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, remoting__deser, subjectName);
+			Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
+			Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[2], true, remoting__deser, subjectName);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::WebEvent::WebEventNotifierRemoteObject* remoting__pCastedRO = static_cast<IoT::WebEvent::WebEventNotifierRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setEventSubjectNameFilter(subscriberURI, subjectName);
@@ -219,8 +219,8 @@ public:
 			std::string subscriberURI;
 			std::string regex;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
-			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, remoting__deser, regex);
+			Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, remoting__deser, subscriberURI);
+			Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[2], true, remoting__deser, regex);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			IoT::WebEvent::WebEventNotifierRemoteObject* remoting__pCastedRO = static_cast<IoT::WebEvent::WebEventNotifierRemoteObject*>(remoting__pRemoteObject.get());
 			remoting__pCastedRO->setEventSubjectRegexFilter(subscriberURI, regex);

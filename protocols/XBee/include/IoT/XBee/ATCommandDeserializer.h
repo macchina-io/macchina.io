@@ -47,10 +47,10 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"command"s,"frameID"s,"parameters"s};
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.command);
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[1], true, deser, value.frameID);
-		TypeDeserializer<std::vector < Poco::UInt8 > >::deserialize(REMOTING__NAMES[2], true, deser, value.parameters);
+		static const std::string REMOTING__NAMES[] = {"frameID"s,"command"s,"parameters"s};
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES[0], true, deser, value.frameID);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, deser, value.command);
+		TypeDeserializer<std::vector<Poco::UInt8>>::deserialize(REMOTING__NAMES[2], true, deser, value.parameters);
 	}
 
 };

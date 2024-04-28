@@ -195,7 +195,7 @@ public:
 		/// validity may change. Use validValue() or similar methods
 		/// of subclasses to atomically get validity and value.
 
-	virtual Poco::Optional < bool > validValue() const;
+	Poco::Optional<bool> validValue() const;
 		/// Returns the current value of the datapoint if
 		/// it is valid, otherwise an empty value.
 
@@ -359,7 +359,7 @@ inline bool BooleanDatapointRemoteObject::valid() const
 }
 
 
-inline Poco::Optional < bool > BooleanDatapointRemoteObject::validValue() const
+inline Poco::Optional<bool> BooleanDatapointRemoteObject::validValue() const
 {
 	return _pServiceObject->validValue();
 }

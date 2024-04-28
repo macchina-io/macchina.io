@@ -19,7 +19,7 @@
 #define IoT_Devices_TriggerEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/TriggerRemoteObject.h"
+#include "IoT/Devices/ITrigger.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -38,7 +38,7 @@ class TriggerEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	///     formatted as string for display purposes.
 {
 public:
-	TriggerEventDispatcher(TriggerRemoteObject* pRemoteObject, const std::string& protocol);
+	TriggerEventDispatcher(ITrigger* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a TriggerEventDispatcher.
 
 	virtual ~TriggerEventDispatcher();
@@ -56,7 +56,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	TriggerRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	ITrigger* _pInterface;
 };
 
 

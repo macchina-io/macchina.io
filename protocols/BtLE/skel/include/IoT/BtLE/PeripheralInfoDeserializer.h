@@ -49,16 +49,16 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"address"s,"addressType"s,"connectable"s,"data"s,"name"s,"rssi"s};
+		static const std::string REMOTING__NAMES[] = {"address"s,"addressType"s,"name"s,"rssi"s,"connectable"s,"data"s};
 		bool ret = false;
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.address);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], true, deser, value.address);
 		int genaddressType;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, deser, genaddressType);
+		ret = TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, deser, genaddressType);
 		if (ret) value.addressType = static_cast<IoT::BtLE::AddressType>(genaddressType);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[2], true, deser, value.connectable);
-		TypeDeserializer<std::vector < IoT::BtLE::AdvertisingData > >::deserialize(REMOTING__NAMES[3], true, deser, value.data);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[4], true, deser, value.name);
-		TypeDeserializer<short >::deserialize(REMOTING__NAMES[5], true, deser, value.rssi);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[2], true, deser, value.name);
+		TypeDeserializer<short>::deserialize(REMOTING__NAMES[3], true, deser, value.rssi);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[4], true, deser, value.connectable);
+		TypeDeserializer<std::vector<IoT::BtLE::AdvertisingData>>::deserialize(REMOTING__NAMES[5], true, deser, value.data);
 	}
 
 };

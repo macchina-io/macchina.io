@@ -49,12 +49,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"course"s,"magneticVariation"s,"position"s,"speed"s,"timestamp"s};
-		TypeDeserializer<double >::deserialize(REMOTING__NAMES[0], true, deser, value.course);
-		TypeDeserializer<double >::deserialize(REMOTING__NAMES[1], true, deser, value.magneticVariation);
-		TypeDeserializer<IoT::Devices::LatLon >::deserialize(REMOTING__NAMES[2], true, deser, value.position);
-		TypeDeserializer<double >::deserialize(REMOTING__NAMES[3], true, deser, value.speed);
-		TypeDeserializer<Poco::Timestamp >::deserialize(REMOTING__NAMES[4], true, deser, value.timestamp);
+		static const std::string REMOTING__NAMES[] = {"position"s,"course"s,"speed"s,"magneticVariation"s,"timestamp"s};
+		TypeDeserializer<IoT::Devices::LatLon>::deserialize(REMOTING__NAMES[0], true, deser, value.position);
+		TypeDeserializer<double>::deserialize(REMOTING__NAMES[1], true, deser, value.course);
+		TypeDeserializer<double>::deserialize(REMOTING__NAMES[2], true, deser, value.speed);
+		TypeDeserializer<double>::deserialize(REMOTING__NAMES[3], true, deser, value.magneticVariation);
+		TypeDeserializer<Poco::Timestamp>::deserialize(REMOTING__NAMES[4], true, deser, value.timestamp);
 	}
 
 };

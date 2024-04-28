@@ -48,8 +48,8 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"ipAddress"s,"port"s};
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.ipAddress);
-		TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[1], true, deser, value.port);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], true, deser, value.ipAddress);
+		TypeDeserializer<Poco::UInt16>::deserialize(REMOTING__NAMES[1], true, deser, value.port);
 	}
 
 };

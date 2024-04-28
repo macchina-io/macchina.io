@@ -51,7 +51,7 @@ public:
 	virtual ~EnumDatapointRemoteObject();
 		/// Destroys the EnumDatapointRemoteObject.
 
-	std::vector < IoT::Devices::EnumValue > definedValues() const;
+	std::vector<IoT::Devices::EnumValue> definedValues() const;
 		/// Returns a vector containing the possible values
 		/// and mappings to symbolic names.
 
@@ -205,11 +205,11 @@ public:
 		/// validity may change. Use validValue() or similar methods
 		/// of subclasses to atomically get validity and value.
 
-	virtual Poco::Optional < std::string > validStringValue() const;
+	Poco::Optional<std::string> validStringValue() const;
 		/// Returns the symbolic name corresponding to the datapoint's current value
 		/// if the datapoint is valid, otherwise an empty value.
 
-	virtual Poco::Optional < int > validValue() const;
+	Poco::Optional<int> validValue() const;
 		/// Returns the current integer value of the datapoint
 		/// if it is valid, otherwise an empty value.
 
@@ -235,7 +235,7 @@ private:
 };
 
 
-inline std::vector < IoT::Devices::EnumValue > EnumDatapointRemoteObject::definedValues() const
+inline std::vector<IoT::Devices::EnumValue> EnumDatapointRemoteObject::definedValues() const
 {
 	return _pServiceObject->definedValues();
 }
@@ -385,13 +385,13 @@ inline bool EnumDatapointRemoteObject::valid() const
 }
 
 
-inline Poco::Optional < std::string > EnumDatapointRemoteObject::validStringValue() const
+inline Poco::Optional<std::string> EnumDatapointRemoteObject::validStringValue() const
 {
 	return _pServiceObject->validStringValue();
 }
 
 
-inline Poco::Optional < int > EnumDatapointRemoteObject::validValue() const
+inline Poco::Optional<int> EnumDatapointRemoteObject::validValue() const
 {
 	return _pServiceObject->validValue();
 }

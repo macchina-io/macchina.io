@@ -59,29 +59,30 @@ namespace IoT {
 namespace Modbus {
 
 
-ModbusMasterEventDispatcher::ModbusMasterEventDispatcher(ModbusMasterRemoteObject* pRemoteObject, const std::string& protocol):
+ModbusMasterEventDispatcher::ModbusMasterEventDispatcher(IModbusMaster* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol):
 	Poco::RemotingNG::EventDispatcher(protocol),
-	_pRemoteObject(pRemoteObject)
+	_objectId(objectId),
+	_pInterface(pInterface)
 {
-	_pRemoteObject->badFrameReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__badFrameReceived);
-	_pRemoteObject->connectionStateChanged += Poco::delegate(this, &ModbusMasterEventDispatcher::event__connectionStateChanged);
-	_pRemoteObject->error += Poco::delegate(this, &ModbusMasterEventDispatcher::event__error);
-	_pRemoteObject->exceptionReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__exceptionReceived);
-	_pRemoteObject->maskWriteRegisterResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__maskWriteRegisterResponseReceived);
-	_pRemoteObject->readCoilsResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readCoilsResponseReceived);
-	_pRemoteObject->readDiscreteInputsResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readDiscreteInputsResponseReceived);
-	_pRemoteObject->readExceptionStatusResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readExceptionStatusResponseReceived);
-	_pRemoteObject->readFIFOQueueResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readFIFOQueueResponseReceived);
-	_pRemoteObject->readHoldingRegistersResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readHoldingRegistersResponseReceived);
-	_pRemoteObject->readInputRegistersResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readInputRegistersResponseReceived);
-	_pRemoteObject->readWriteMultipleRegistersResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readWriteMultipleRegistersResponseReceived);
-	_pRemoteObject->requestFailed += Poco::delegate(this, &ModbusMasterEventDispatcher::event__requestFailed);
-	_pRemoteObject->responseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__responseReceived);
-	_pRemoteObject->timeout += Poco::delegate(this, &ModbusMasterEventDispatcher::event__timeout);
-	_pRemoteObject->writeMultipleCoilsResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeMultipleCoilsResponseReceived);
-	_pRemoteObject->writeMultipleRegistersResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeMultipleRegistersResponseReceived);
-	_pRemoteObject->writeSingleCoilResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeSingleCoilResponseReceived);
-	_pRemoteObject->writeSingleRegisterResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeSingleRegisterResponseReceived);
+	_pInterface->badFrameReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__badFrameReceived);
+	_pInterface->connectionStateChanged += Poco::delegate(this, &ModbusMasterEventDispatcher::event__connectionStateChanged);
+	_pInterface->error += Poco::delegate(this, &ModbusMasterEventDispatcher::event__error);
+	_pInterface->exceptionReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__exceptionReceived);
+	_pInterface->maskWriteRegisterResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__maskWriteRegisterResponseReceived);
+	_pInterface->readCoilsResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readCoilsResponseReceived);
+	_pInterface->readDiscreteInputsResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readDiscreteInputsResponseReceived);
+	_pInterface->readExceptionStatusResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readExceptionStatusResponseReceived);
+	_pInterface->readFIFOQueueResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readFIFOQueueResponseReceived);
+	_pInterface->readHoldingRegistersResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readHoldingRegistersResponseReceived);
+	_pInterface->readInputRegistersResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readInputRegistersResponseReceived);
+	_pInterface->readWriteMultipleRegistersResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__readWriteMultipleRegistersResponseReceived);
+	_pInterface->requestFailed += Poco::delegate(this, &ModbusMasterEventDispatcher::event__requestFailed);
+	_pInterface->responseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__responseReceived);
+	_pInterface->timeout += Poco::delegate(this, &ModbusMasterEventDispatcher::event__timeout);
+	_pInterface->writeMultipleCoilsResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeMultipleCoilsResponseReceived);
+	_pInterface->writeMultipleRegistersResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeMultipleRegistersResponseReceived);
+	_pInterface->writeSingleCoilResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeSingleCoilResponseReceived);
+	_pInterface->writeSingleRegisterResponseReceived += Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeSingleRegisterResponseReceived);
 }
 
 
@@ -89,25 +90,25 @@ ModbusMasterEventDispatcher::~ModbusMasterEventDispatcher()
 {
 	try
 	{
-		_pRemoteObject->badFrameReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__badFrameReceived);
-		_pRemoteObject->connectionStateChanged -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__connectionStateChanged);
-		_pRemoteObject->error -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__error);
-		_pRemoteObject->exceptionReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__exceptionReceived);
-		_pRemoteObject->maskWriteRegisterResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__maskWriteRegisterResponseReceived);
-		_pRemoteObject->readCoilsResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readCoilsResponseReceived);
-		_pRemoteObject->readDiscreteInputsResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readDiscreteInputsResponseReceived);
-		_pRemoteObject->readExceptionStatusResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readExceptionStatusResponseReceived);
-		_pRemoteObject->readFIFOQueueResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readFIFOQueueResponseReceived);
-		_pRemoteObject->readHoldingRegistersResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readHoldingRegistersResponseReceived);
-		_pRemoteObject->readInputRegistersResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readInputRegistersResponseReceived);
-		_pRemoteObject->readWriteMultipleRegistersResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readWriteMultipleRegistersResponseReceived);
-		_pRemoteObject->requestFailed -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__requestFailed);
-		_pRemoteObject->responseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__responseReceived);
-		_pRemoteObject->timeout -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__timeout);
-		_pRemoteObject->writeMultipleCoilsResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeMultipleCoilsResponseReceived);
-		_pRemoteObject->writeMultipleRegistersResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeMultipleRegistersResponseReceived);
-		_pRemoteObject->writeSingleCoilResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeSingleCoilResponseReceived);
-		_pRemoteObject->writeSingleRegisterResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeSingleRegisterResponseReceived);
+		_pInterface->badFrameReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__badFrameReceived);
+		_pInterface->connectionStateChanged -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__connectionStateChanged);
+		_pInterface->error -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__error);
+		_pInterface->exceptionReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__exceptionReceived);
+		_pInterface->maskWriteRegisterResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__maskWriteRegisterResponseReceived);
+		_pInterface->readCoilsResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readCoilsResponseReceived);
+		_pInterface->readDiscreteInputsResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readDiscreteInputsResponseReceived);
+		_pInterface->readExceptionStatusResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readExceptionStatusResponseReceived);
+		_pInterface->readFIFOQueueResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readFIFOQueueResponseReceived);
+		_pInterface->readHoldingRegistersResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readHoldingRegistersResponseReceived);
+		_pInterface->readInputRegistersResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readInputRegistersResponseReceived);
+		_pInterface->readWriteMultipleRegistersResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__readWriteMultipleRegistersResponseReceived);
+		_pInterface->requestFailed -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__requestFailed);
+		_pInterface->responseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__responseReceived);
+		_pInterface->timeout -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__timeout);
+		_pInterface->writeMultipleCoilsResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeMultipleCoilsResponseReceived);
+		_pInterface->writeMultipleRegistersResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeMultipleRegistersResponseReceived);
+		_pInterface->writeSingleCoilResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeSingleCoilResponseReceived);
+		_pInterface->writeSingleRegisterResponseReceived -= Poco::delegate(this, &ModbusMasterEventDispatcher::event__writeSingleRegisterResponseReceived);
 	}
 	catch (...)
 	{
@@ -769,10 +770,10 @@ void ModbusMasterEventDispatcher::event__badFrameReceivedImpl(const std::string&
 	static const std::string REMOTING__NAMES[] = {"badFrameReceived"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -783,11 +784,11 @@ void ModbusMasterEventDispatcher::event__connectionStateChangedImpl(const std::s
 	static const std::string REMOTING__NAMES[] = {"connectionStateChanged"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<int >::serialize(REMOTING__NAMES[2], static_cast<int>(data), remoting__ser);
+	Poco::RemotingNG::TypeSerializer<int>::serialize(REMOTING__NAMES[2], static_cast<int>(data), remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -798,11 +799,11 @@ void ModbusMasterEventDispatcher::event__errorImpl(const std::string& subscriber
 	static const std::string REMOTING__NAMES[] = {"error"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -813,11 +814,11 @@ void ModbusMasterEventDispatcher::event__exceptionReceivedImpl(const std::string
 	static const std::string REMOTING__NAMES[] = {"exceptionReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ModbusExceptionMessage >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ModbusExceptionMessage>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -828,11 +829,11 @@ void ModbusMasterEventDispatcher::event__maskWriteRegisterResponseReceivedImpl(c
 	static const std::string REMOTING__NAMES[] = {"maskWriteRegisterResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::MaskWriteRegisterResponse >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::MaskWriteRegisterResponse>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -843,11 +844,11 @@ void ModbusMasterEventDispatcher::event__readCoilsResponseReceivedImpl(const std
 	static const std::string REMOTING__NAMES[] = {"readCoilsResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadCoilsResponse >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadCoilsResponse>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -858,11 +859,11 @@ void ModbusMasterEventDispatcher::event__readDiscreteInputsResponseReceivedImpl(
 	static const std::string REMOTING__NAMES[] = {"readDiscreteInputsResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadDiscreteInputsResponse >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadDiscreteInputsResponse>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -873,11 +874,11 @@ void ModbusMasterEventDispatcher::event__readExceptionStatusResponseReceivedImpl
 	static const std::string REMOTING__NAMES[] = {"readExceptionStatusResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadExceptionStatusResponse >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadExceptionStatusResponse>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -888,11 +889,11 @@ void ModbusMasterEventDispatcher::event__readFIFOQueueResponseReceivedImpl(const
 	static const std::string REMOTING__NAMES[] = {"readFIFOQueueResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadFIFOQueueResponse >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadFIFOQueueResponse>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -903,11 +904,11 @@ void ModbusMasterEventDispatcher::event__readHoldingRegistersResponseReceivedImp
 	static const std::string REMOTING__NAMES[] = {"readHoldingRegistersResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadHoldingRegistersResponse >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadHoldingRegistersResponse>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -918,11 +919,11 @@ void ModbusMasterEventDispatcher::event__readInputRegistersResponseReceivedImpl(
 	static const std::string REMOTING__NAMES[] = {"readInputRegistersResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadInputRegistersResponse >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadInputRegistersResponse>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -933,11 +934,11 @@ void ModbusMasterEventDispatcher::event__readWriteMultipleRegistersResponseRecei
 	static const std::string REMOTING__NAMES[] = {"readWriteMultipleRegistersResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadWriteMultipleRegistersResponse >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::ReadWriteMultipleRegistersResponse>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -948,11 +949,11 @@ void ModbusMasterEventDispatcher::event__requestFailedImpl(const std::string& su
 	static const std::string REMOTING__NAMES[] = {"requestFailed"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::RequestFailure >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::RequestFailure>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -963,11 +964,11 @@ void ModbusMasterEventDispatcher::event__responseReceivedImpl(const std::string&
 	static const std::string REMOTING__NAMES[] = {"responseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::GenericMessage >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::GenericMessage>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -978,11 +979,11 @@ void ModbusMasterEventDispatcher::event__timeoutImpl(const std::string& subscrib
 	static const std::string REMOTING__NAMES[] = {"timeout"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -993,11 +994,11 @@ void ModbusMasterEventDispatcher::event__writeMultipleCoilsResponseReceivedImpl(
 	static const std::string REMOTING__NAMES[] = {"writeMultipleCoilsResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::WriteMultipleCoilsResponse >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::WriteMultipleCoilsResponse>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -1008,11 +1009,11 @@ void ModbusMasterEventDispatcher::event__writeMultipleRegistersResponseReceivedI
 	static const std::string REMOTING__NAMES[] = {"writeMultipleRegistersResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::WriteMultipleRegistersResponse >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::WriteMultipleRegistersResponse>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -1023,11 +1024,11 @@ void ModbusMasterEventDispatcher::event__writeSingleCoilResponseReceivedImpl(con
 	static const std::string REMOTING__NAMES[] = {"writeSingleCoilResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::WriteSingleCoilResponse >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::WriteSingleCoilResponse>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -1038,11 +1039,11 @@ void ModbusMasterEventDispatcher::event__writeSingleRegisterResponseReceivedImpl
 	static const std::string REMOTING__NAMES[] = {"writeSingleRegisterResponseReceived"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<IoT::Modbus::WriteSingleRegisterResponse >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<IoT::Modbus::WriteSingleRegisterResponse>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 

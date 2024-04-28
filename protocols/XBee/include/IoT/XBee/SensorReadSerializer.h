@@ -43,13 +43,13 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"analogSamples"s,"deviceAddress"s,"networkAddress"s,"options"s,"sensor"s,"temperature"s,""s};
-		TypeSerializer<std::vector < Poco::Int16 > >::serialize(REMOTING__NAMES[0], value.analogSamples, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.deviceAddress, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.networkAddress, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[3], value.options, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES[4], value.sensor, ser);
-		TypeSerializer<Poco::Int16 >::serialize(REMOTING__NAMES[5], value.temperature, ser);
+		static const std::string REMOTING__NAMES[] = {"deviceAddress"s,"networkAddress"s,"options"s,"sensor"s,"analogSamples"s,"temperature"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.deviceAddress, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.networkAddress, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[2], value.options, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES[3], value.sensor, ser);
+		TypeSerializer<std::vector<Poco::Int16>>::serialize(REMOTING__NAMES[4], value.analogSamples, ser);
+		TypeSerializer<Poco::Int16>::serialize(REMOTING__NAMES[5], value.temperature, ser);
 	}
 
 };

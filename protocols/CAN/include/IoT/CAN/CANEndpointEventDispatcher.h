@@ -19,7 +19,7 @@
 #define IoT_CAN_CANEndpointEventDispatcher_INCLUDED
 
 
-#include "IoT/CAN/CANEndpointRemoteObject.h"
+#include "IoT/CAN/ICANEndpoint.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -31,7 +31,7 @@ class CANEndpointEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// The CANEndpoint is used to receive and send CAN and CAN-FD frames.
 {
 public:
-	CANEndpointEventDispatcher(CANEndpointRemoteObject* pRemoteObject, const std::string& protocol);
+	CANEndpointEventDispatcher(ICANEndpoint* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a CANEndpointEventDispatcher.
 
 	virtual ~CANEndpointEventDispatcher();
@@ -45,7 +45,8 @@ private:
 	void event__frameReceivedImpl(const std::string& subscriberURI, const IoT::CAN::CANFDFrame& data);
 
 	static const std::string DEFAULT_NS;
-	CANEndpointRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	ICANEndpoint* _pInterface;
 };
 
 

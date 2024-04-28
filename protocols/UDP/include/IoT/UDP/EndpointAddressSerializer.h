@@ -44,8 +44,8 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"ipAddress"s,"port"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.ipAddress, ser);
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[1], value.port, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.ipAddress, ser);
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[1], value.port, ser);
 	}
 
 };

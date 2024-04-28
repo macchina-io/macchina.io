@@ -45,9 +45,9 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"deliveryToken"s,"response"s,""s};
-		TypeSerializer<int >::serialize(REMOTING__NAMES[0], value.deliveryToken, ser);
-		TypeSerializer<IoT::MQTT::Response >::serialize(REMOTING__NAMES[1], value.response, ser);
+		static const std::string REMOTING__NAMES[] = {"response"s,"deliveryToken"s,""s};
+		TypeSerializer<IoT::MQTT::Response>::serialize(REMOTING__NAMES[0], value.response, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[1], value.deliveryToken, ser);
 	}
 
 };

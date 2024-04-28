@@ -29,12 +29,13 @@ namespace IoT {
 namespace MobileConnection {
 
 
-MobileConnectionServiceEventDispatcher::MobileConnectionServiceEventDispatcher(MobileConnectionServiceRemoteObject* pRemoteObject, const std::string& protocol):
+MobileConnectionServiceEventDispatcher::MobileConnectionServiceEventDispatcher(IMobileConnectionService* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol):
 	Poco::RemotingNG::EventDispatcher(protocol),
-	_pRemoteObject(pRemoteObject)
+	_objectId(objectId),
+	_pInterface(pInterface)
 {
-	_pRemoteObject->dataConnected += Poco::delegate(this, &MobileConnectionServiceEventDispatcher::event__dataConnected);
-	_pRemoteObject->dataDisconnected += Poco::delegate(this, &MobileConnectionServiceEventDispatcher::event__dataDisconnected);
+	_pInterface->dataConnected += Poco::delegate(this, &MobileConnectionServiceEventDispatcher::event__dataConnected);
+	_pInterface->dataDisconnected += Poco::delegate(this, &MobileConnectionServiceEventDispatcher::event__dataDisconnected);
 }
 
 
@@ -42,8 +43,8 @@ MobileConnectionServiceEventDispatcher::~MobileConnectionServiceEventDispatcher(
 {
 	try
 	{
-		_pRemoteObject->dataConnected -= Poco::delegate(this, &MobileConnectionServiceEventDispatcher::event__dataConnected);
-		_pRemoteObject->dataDisconnected -= Poco::delegate(this, &MobileConnectionServiceEventDispatcher::event__dataDisconnected);
+		_pInterface->dataConnected -= Poco::delegate(this, &MobileConnectionServiceEventDispatcher::event__dataConnected);
+		_pInterface->dataDisconnected -= Poco::delegate(this, &MobileConnectionServiceEventDispatcher::event__dataDisconnected);
 	}
 	catch (...)
 	{
@@ -127,10 +128,10 @@ void MobileConnectionServiceEventDispatcher::event__dataConnectedImpl(const std:
 	static const std::string REMOTING__NAMES[] = {"dataConnected"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -141,10 +142,10 @@ void MobileConnectionServiceEventDispatcher::event__dataDisconnectedImpl(const s
 	static const std::string REMOTING__NAMES[] = {"dataDisconnected"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 

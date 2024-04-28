@@ -47,11 +47,11 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"deviceOrNetworkAddress"s,"options"s,"payload"s,"rssi"s};
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.deviceOrNetworkAddress);
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[1], true, deser, value.options);
-		TypeDeserializer<std::vector < Poco::UInt8 > >::deserialize(REMOTING__NAMES[2], true, deser, value.payload);
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[3], true, deser, value.rssi);
+		static const std::string REMOTING__NAMES[] = {"deviceOrNetworkAddress"s,"rssi"s,"options"s,"payload"s};
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], true, deser, value.deviceOrNetworkAddress);
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES[1], true, deser, value.rssi);
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES[2], true, deser, value.options);
+		TypeDeserializer<std::vector<Poco::UInt8>>::deserialize(REMOTING__NAMES[3], true, deser, value.payload);
 	}
 
 };

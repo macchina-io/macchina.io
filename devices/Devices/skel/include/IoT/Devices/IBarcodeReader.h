@@ -62,7 +62,7 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const IoT::Devices::BarcodeReadEvent > barcodeRead;
+	Poco::BasicEvent<const IoT::Devices::BarcodeReadEvent> barcodeRead;
 };
 
 

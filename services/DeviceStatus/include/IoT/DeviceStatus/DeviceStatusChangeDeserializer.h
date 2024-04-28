@@ -49,14 +49,14 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"currentStatus"s,"message"s,"previousStatus"s};
+		static const std::string REMOTING__NAMES[] = {"message"s,"currentStatus"s,"previousStatus"s};
 		bool ret = false;
+		TypeDeserializer<Poco::Optional<IoT::DeviceStatus::StatusMessage>>::deserialize(REMOTING__NAMES[0], true, deser, value.message);
 		int gencurrentStatus;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[0], true, deser, gencurrentStatus);
+		ret = TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, deser, gencurrentStatus);
 		if (ret) value.currentStatus = static_cast<IoT::DeviceStatus::DeviceStatus>(gencurrentStatus);
-		TypeDeserializer<Poco::Optional < IoT::DeviceStatus::StatusMessage > >::deserialize(REMOTING__NAMES[1], true, deser, value.message);
 		int genpreviousStatus;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], true, deser, genpreviousStatus);
+		ret = TypeDeserializer<int>::deserialize(REMOTING__NAMES[2], true, deser, genpreviousStatus);
 		if (ret) value.previousStatus = static_cast<IoT::DeviceStatus::DeviceStatus>(genpreviousStatus);
 	}
 

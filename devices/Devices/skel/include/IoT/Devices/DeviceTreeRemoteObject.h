@@ -57,10 +57,10 @@ public:
 		///
 		/// Throws a Poco::NotFoundException if no DeviceNode is available for the given pathName.
 
-	Poco::Optional < IoT::Devices::DeviceNode > findDeviceById(const std::string& id) const;
+	Poco::Optional<IoT::Devices::DeviceNode> findDeviceById(const std::string& id) const;
 		/// Returns the DeviceNode of the device with the given device identifier, if it exists.
 
-	Poco::Optional < IoT::Devices::DeviceNode > findDeviceByPath(const std::string& path) const;
+	Poco::Optional<IoT::Devices::DeviceNode> findDeviceByPath(const std::string& path) const;
 		/// Returns the DeviceNode of the device with the given path, if it exists.
 		/// The path name is composed of the instance names of all parent composite devices,
 		/// as well as the device's instance name, separated by "/".
@@ -86,13 +86,13 @@ inline IoT::Devices::DeviceNode DeviceTreeRemoteObject::deviceByPath(const std::
 }
 
 
-inline Poco::Optional < IoT::Devices::DeviceNode > DeviceTreeRemoteObject::findDeviceById(const std::string& id) const
+inline Poco::Optional<IoT::Devices::DeviceNode> DeviceTreeRemoteObject::findDeviceById(const std::string& id) const
 {
 	return _pServiceObject->findDeviceById(id);
 }
 
 
-inline Poco::Optional < IoT::Devices::DeviceNode > DeviceTreeRemoteObject::findDeviceByPath(const std::string& path) const
+inline Poco::Optional<IoT::Devices::DeviceNode> DeviceTreeRemoteObject::findDeviceByPath(const std::string& path) const
 {
 	return _pServiceObject->findDeviceByPath(path);
 }

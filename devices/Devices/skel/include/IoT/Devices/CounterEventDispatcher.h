@@ -19,7 +19,7 @@
 #define IoT_Devices_CounterEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/CounterRemoteObject.h"
+#include "IoT/Devices/ICounter.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -31,7 +31,7 @@ class CounterEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// A counter counts events.
 {
 public:
-	CounterEventDispatcher(CounterRemoteObject* pRemoteObject, const std::string& protocol);
+	CounterEventDispatcher(ICounter* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a CounterEventDispatcher.
 
 	virtual ~CounterEventDispatcher();
@@ -49,7 +49,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	CounterRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	ICounter* _pInterface;
 };
 
 

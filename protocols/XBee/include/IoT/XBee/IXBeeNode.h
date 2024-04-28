@@ -100,18 +100,18 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const IoT::XBee::ATCommandResponse > commandResponseReceived;
-	Poco::BasicEvent < const IoT::XBee::ExplicitAddressingZigBeeReceivePacket > explicitAddressingZigBeePacketReceived;
-	Poco::BasicEvent < const IoT::XBee::APIFrame > frameReceived;
-	Poco::BasicEvent < const IoT::XBee::ReceivePacket > ioDataReceived;
-	Poco::BasicEvent < const IoT::XBee::IOSample > ioSampleReceived;
-	Poco::BasicEvent < const IoT::XBee::ModemStatus > modemStatusReceived;
-	Poco::BasicEvent < const IoT::XBee::ReceivePacket > packetReceived;
-	Poco::BasicEvent < const IoT::XBee::RemoteATCommandResponse > remoteCommandResponseReceived;
-	Poco::BasicEvent < const IoT::XBee::SensorRead > sensorReadReceived;
-	Poco::BasicEvent < const IoT::XBee::TransmitStatus > transmitStatusReceived;
-	Poco::BasicEvent < const IoT::XBee::ZigBeeReceivePacket > zigBeePacketReceived;
-	Poco::BasicEvent < const IoT::XBee::ZigBeeTransmitStatus > zigBeeTransmitStatusReceived;
+	Poco::BasicEvent<const IoT::XBee::ATCommandResponse> commandResponseReceived;
+	Poco::BasicEvent<const IoT::XBee::ExplicitAddressingZigBeeReceivePacket> explicitAddressingZigBeePacketReceived;
+	Poco::BasicEvent<const IoT::XBee::APIFrame> frameReceived;
+	Poco::BasicEvent<const IoT::XBee::ReceivePacket> ioDataReceived;
+	Poco::BasicEvent<const IoT::XBee::IOSample> ioSampleReceived;
+	Poco::BasicEvent<const IoT::XBee::ModemStatus> modemStatusReceived;
+	Poco::BasicEvent<const IoT::XBee::ReceivePacket> packetReceived;
+	Poco::BasicEvent<const IoT::XBee::RemoteATCommandResponse> remoteCommandResponseReceived;
+	Poco::BasicEvent<const IoT::XBee::SensorRead> sensorReadReceived;
+	Poco::BasicEvent<const IoT::XBee::TransmitStatus> transmitStatusReceived;
+	Poco::BasicEvent<const IoT::XBee::ZigBeeReceivePacket> zigBeePacketReceived;
+	Poco::BasicEvent<const IoT::XBee::ZigBeeTransmitStatus> zigBeeTransmitStatusReceived;
 };
 
 

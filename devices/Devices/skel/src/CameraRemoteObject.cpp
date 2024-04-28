@@ -57,7 +57,7 @@ std::string CameraRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listene
 
 void CameraRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new CameraEventDispatcher(this, protocol);
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new CameraEventDispatcher(this, remoting__objectId(), protocol);
 	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 
@@ -68,7 +68,7 @@ bool CameraRemoteObject::remoting__hasEvents() const
 }
 
 
-void CameraRemoteObject::event__imageCaptured(const Poco::SharedPtr < IoT::Devices::Image >& data)
+void CameraRemoteObject::event__imageCaptured(const Poco::SharedPtr<IoT::Devices::Image>& data)
 {
 	imageCaptured(this, data);
 }

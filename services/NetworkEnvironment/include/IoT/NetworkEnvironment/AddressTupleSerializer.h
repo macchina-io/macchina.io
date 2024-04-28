@@ -43,11 +43,11 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"address"s,"broadcastOrDestinationAddress"s,"subnetMask"s,"version"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.address, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.broadcastOrDestinationAddress, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.subnetMask, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[3], value.version, ser);
+		static const std::string REMOTING__NAMES[] = {"version"s,"address"s,"subnetMask"s,"broadcastOrDestinationAddress"s,""s};
+		TypeSerializer<int>::serialize(REMOTING__NAMES[0], value.version, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.address, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], value.subnetMask, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[3], value.broadcastOrDestinationAddress, ser);
 	}
 
 };

@@ -19,7 +19,7 @@
 #define IoT_Devices_RotaryEncoderEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/RotaryEncoderRemoteObject.h"
+#include "IoT/Devices/IRotaryEncoder.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -32,7 +32,7 @@ class RotaryEncoderEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// on the Counter interface.
 {
 public:
-	RotaryEncoderEventDispatcher(RotaryEncoderRemoteObject* pRemoteObject, const std::string& protocol);
+	RotaryEncoderEventDispatcher(IRotaryEncoder* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a RotaryEncoderEventDispatcher.
 
 	virtual ~RotaryEncoderEventDispatcher();
@@ -54,7 +54,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	RotaryEncoderRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IRotaryEncoder* _pInterface;
 };
 
 

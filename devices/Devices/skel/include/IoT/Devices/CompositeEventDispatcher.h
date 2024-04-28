@@ -19,7 +19,7 @@
 #define IoT_Devices_CompositeEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/CompositeRemoteObject.h"
+#include "IoT/Devices/IComposite.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -56,7 +56,7 @@ class CompositeEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// find a device in the tree.
 {
 public:
-	CompositeEventDispatcher(CompositeRemoteObject* pRemoteObject, const std::string& protocol);
+	CompositeEventDispatcher(IComposite* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a CompositeEventDispatcher.
 
 	virtual ~CompositeEventDispatcher();
@@ -70,7 +70,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	CompositeRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IComposite* _pInterface;
 };
 
 

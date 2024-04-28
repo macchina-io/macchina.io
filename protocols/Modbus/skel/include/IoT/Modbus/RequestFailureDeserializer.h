@@ -47,15 +47,15 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"functionCode"s,"message"s,"reason"s,"slaveOrUnitAddress"s,"transactionID"s};
+		static const std::string REMOTING__NAMES[] = {"slaveOrUnitAddress"s,"functionCode"s,"transactionID"s,"reason"s,"message"s};
 		bool ret = false;
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[0], true, deser, value.functionCode);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.message);
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES[0], true, deser, value.slaveOrUnitAddress);
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES[1], true, deser, value.functionCode);
+		TypeDeserializer<Poco::UInt16>::deserialize(REMOTING__NAMES[2], true, deser, value.transactionID);
 		int genreason;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], true, deser, genreason);
+		ret = TypeDeserializer<int>::deserialize(REMOTING__NAMES[3], true, deser, genreason);
 		if (ret) value.reason = static_cast<IoT::Modbus::RequestFailureReason>(genreason);
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[3], true, deser, value.slaveOrUnitAddress);
-		TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[4], true, deser, value.transactionID);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[4], true, deser, value.message);
 	}
 
 };

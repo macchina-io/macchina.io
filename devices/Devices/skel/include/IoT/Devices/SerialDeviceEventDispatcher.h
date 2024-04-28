@@ -19,7 +19,7 @@
 #define IoT_Devices_SerialDeviceEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/SerialDeviceRemoteObject.h"
+#include "IoT/Devices/ISerialDevice.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -53,7 +53,7 @@ class SerialDeviceEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	///     setFeature("events", true);
 {
 public:
-	SerialDeviceEventDispatcher(SerialDeviceRemoteObject* pRemoteObject, const std::string& protocol);
+	SerialDeviceEventDispatcher(ISerialDevice* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a SerialDeviceEventDispatcher.
 
 	virtual ~SerialDeviceEventDispatcher();
@@ -71,7 +71,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	SerialDeviceRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	ISerialDevice* _pInterface;
 };
 
 

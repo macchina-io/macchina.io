@@ -65,7 +65,7 @@ public:
 	virtual bool fdSupported() const;
 		/// Returns true if the implementation supports CAN-FD, otherwise false.
 
-	std::vector < IoT::CAN::Filter > getFilter() const;
+	std::vector<IoT::CAN::Filter> getFilter() const;
 		/// Returns the current filter.
 
 	IoT::CAN::FilterMode getFilterMode() const;
@@ -95,7 +95,7 @@ public:
 		/// Transmit the given frame as CAN or CAN-FD frame, depending
 		/// on type.
 
-	virtual void setFilter(const std::vector < IoT::CAN::Filter >& filter);
+	virtual void setFilter(const std::vector<IoT::CAN::Filter>& filter);
 		/// Sets a frame filter for CAN messages.
 
 	virtual void setFilterMode(IoT::CAN::FilterMode mode);
@@ -151,7 +151,7 @@ inline bool CANEndpointRemoteObject::fdSupported() const
 }
 
 
-inline std::vector < IoT::CAN::Filter > CANEndpointRemoteObject::getFilter() const
+inline std::vector<IoT::CAN::Filter> CANEndpointRemoteObject::getFilter() const
 {
 	return _pServiceObject->getFilter();
 }
@@ -193,7 +193,7 @@ inline void CANEndpointRemoteObject::sendFrame(const IoT::CAN::CANFDFrame& frame
 }
 
 
-inline void CANEndpointRemoteObject::setFilter(const std::vector < IoT::CAN::Filter >& filter)
+inline void CANEndpointRemoteObject::setFilter(const std::vector<IoT::CAN::Filter>& filter)
 {
 	_pServiceObject->setFilter(filter);
 }

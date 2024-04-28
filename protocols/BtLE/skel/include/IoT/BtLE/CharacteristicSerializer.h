@@ -44,8 +44,8 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"properties"s,"valueHandle"s,""s};
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[0], value.properties, ser);
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[1], value.valueHandle, ser);
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[0], value.properties, ser);
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[1], value.valueHandle, ser);
 	}
 
 };

@@ -53,7 +53,7 @@ public:
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
-	virtual void updateProperties(const std::vector < IoT::WebTunnel::Property >& properties);
+	virtual void updateProperties(const std::vector<IoT::WebTunnel::Property>& properties);
 		/// Sends a device properties update to the server over the
 		/// WebTunnel connection.
 
@@ -79,7 +79,7 @@ inline const Poco::RemotingNG::Identifiable::TypeId& WebTunnelServiceRemoteObjec
 }
 
 
-inline void WebTunnelServiceRemoteObject::updateProperties(const std::vector < IoT::WebTunnel::Property >& properties)
+inline void WebTunnelServiceRemoteObject::updateProperties(const std::vector<IoT::WebTunnel::Property>& properties)
 {
 	_pServiceObject->updateProperties(properties);
 }

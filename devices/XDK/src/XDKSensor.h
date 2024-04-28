@@ -32,8 +32,8 @@ public:
 
 	struct Params
 	{
-		std::string serviceUUID;
-		std::string dataUUID;
+		Poco::UUID serviceUUID;
+		Poco::UUID dataUUID;
 		std::string physicalQuantity;
 		std::string physicalUnit;
 		long pollInterval;

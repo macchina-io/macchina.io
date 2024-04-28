@@ -19,7 +19,7 @@
 #define IoT_Devices_IOEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/IORemoteObject.h"
+#include "IoT/Devices/IIO.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -41,7 +41,7 @@ class IOEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// values "in" and "out".
 {
 public:
-	IOEventDispatcher(IORemoteObject* pRemoteObject, const std::string& protocol);
+	IOEventDispatcher(IIO* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a IOEventDispatcher.
 
 	virtual ~IOEventDispatcher();
@@ -59,7 +59,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	IORemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IIO* _pInterface;
 };
 
 

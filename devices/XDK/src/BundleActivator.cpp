@@ -396,10 +396,10 @@ public:
 	{
 		pPeripheral->services();
 		// turn off built-in sensor fusion - send raw accelerometer data
-		BtLE::Characteristic fusionChar = pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d5-7ada-11e4-82f8-0800200c9a66");
+		BtLE::Characteristic fusionChar = pPeripheral->characteristic(Poco::UUID("55b741d0-7ada-11e4-82f8-0800200c9a66"), Poco::UUID("55b741d5-7ada-11e4-82f8-0800200c9a66"));
 		pPeripheral->writeUInt8(fusionChar.valueHandle, 0, true);
 		// turn on high-rate data
-		BtLE::Characteristic controlChar = pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
+		BtLE::Characteristic controlChar = pPeripheral->characteristic(Poco::UUID("55b741d0-7ada-11e4-82f8-0800200c9a66"), Poco::UUID("55b741d1-7ada-11e4-82f8-0800200c9a66"));
 		pPeripheral->writeUInt8(controlChar.valueHandle, 1, true);
 	}
 
@@ -408,8 +408,8 @@ public:
 		XDKSensor::Params params;
 
 		// humidity
-		params.serviceUUID = "92dab060-7634-11e4-82f8-0800200c9a66";
-		params.dataUUID    = "92dab063-7634-11e4-82f8-0800200c9a66";
+		params.serviceUUID = Poco::UUID("92dab060-7634-11e4-82f8-0800200c9a66");
+		params.dataUUID    = Poco::UUID("92dab063-7634-11e4-82f8-0800200c9a66");
 		params.physicalQuantity = "humidity";
 		params.physicalUnit = "%";
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".humidity.pollInterval", 10000);
@@ -424,8 +424,8 @@ public:
 		}
 
 		// temperature
-		params.serviceUUID = "92dab060-7634-11e4-82f8-0800200c9a66";
-		params.dataUUID    = "92dab062-7634-11e4-82f8-0800200c9a66";
+		params.serviceUUID = Poco::UUID("92dab060-7634-11e4-82f8-0800200c9a66");
+		params.dataUUID    = Poco::UUID("92dab062-7634-11e4-82f8-0800200c9a66");
 		params.physicalQuantity = "temperature";
 		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_DEGREES_CELSIUS;
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".ambientTemperature.pollInterval", 10000);
@@ -440,8 +440,8 @@ public:
 		}
 
 		// air pressure
-		params.serviceUUID = "92dab060-7634-11e4-82f8-0800200c9a66";
-		params.dataUUID    = "92dab061-7634-11e4-82f8-0800200c9a66";
+		params.serviceUUID = Poco::UUID("92dab060-7634-11e4-82f8-0800200c9a66");
+		params.dataUUID    = Poco::UUID("92dab061-7634-11e4-82f8-0800200c9a66");
 		params.physicalQuantity = "airPressure";
 		params.physicalUnit = "hPa";
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".airPressure.pollInterval", 10000);
@@ -456,8 +456,8 @@ public:
 		}
 
 		// illuminance
-		params.serviceUUID = "38eb02c0-7540-11e4-82f8-0800200c9a66";
-		params.dataUUID    = "38eb02c1-7540-11e4-82f8-0800200c9a66";
+		params.serviceUUID = Poco::UUID("38eb02c0-7540-11e4-82f8-0800200c9a66");
+		params.dataUUID    = Poco::UUID("38eb02c1-7540-11e4-82f8-0800200c9a66");
 		params.physicalQuantity = "illuminance";
 		params.physicalUnit = IoT::Devices::Sensor::PHYSICAL_UNIT_LUX;
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".illuminance.pollInterval", 10000);
@@ -472,8 +472,8 @@ public:
 		}
 
 		// noise
-		params.serviceUUID = "01033830-754c-11e4-82f8-0800200c9a66";
-		params.dataUUID    = "01033831-754c-11e4-82f8-0800200c9a66";
+		params.serviceUUID = Poco::UUID("01033830-754c-11e4-82f8-0800200c9a66");
+		params.dataUUID    = Poco::UUID("01033831-754c-11e4-82f8-0800200c9a66");
 		params.physicalQuantity = "soundLevel";
 		params.physicalUnit = "dB SPL";
 		params.pollInterval = _pPrefs->configuration()->getInt(baseKey + ".noise.pollInterval", 10000);
@@ -542,7 +542,7 @@ public:
 
 				if (it->pPeripheral->isConnected())
 				{
-					BtLE::Characteristic controlChar = it->pPeripheral->characteristic("55b741d0-7ada-11e4-82f8-0800200c9a66", "55b741d1-7ada-11e4-82f8-0800200c9a66");
+					BtLE::Characteristic controlChar = it->pPeripheral->characteristic(Poco::UUID("55b741d0-7ada-11e4-82f8-0800200c9a66"), Poco::UUID("55b741d1-7ada-11e4-82f8-0800200c9a66"));
 					it->pPeripheral->writeUInt8(controlChar.valueHandle, 0, true);
 				}
 			}

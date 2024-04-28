@@ -45,17 +45,17 @@ public:
 		
 		// IoT::Modbus::ModbusMessage
 		{
-		static const std::string REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[] = {"functionCode"s,"slaveOrUnitAddress"s,"transactionID"s,""s};
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[0], value.functionCode, ser);
-		TypeSerializer<Poco::UInt8 >::serialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[1], value.slaveOrUnitAddress, ser);
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[2], value.transactionID, ser);
+		static const std::string REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[] = {"transactionID"s,"slaveOrUnitAddress"s,"functionCode"s,""s};
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[0], value.transactionID, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[1], value.slaveOrUnitAddress, ser);
+		TypeSerializer<Poco::UInt8>::serialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[2], value.functionCode, ser);
 		}
 		
-		static const std::string REMOTING__NAMES[] = {"readCount"s,"readStartingAddress"s,"values"s,"writeStartingAddress"s,""s};
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[0], value.readCount, ser);
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[1], value.readStartingAddress, ser);
-		TypeSerializer<std::vector < Poco::UInt16 > >::serialize(REMOTING__NAMES[2], value.values, ser);
-		TypeSerializer<Poco::UInt16 >::serialize(REMOTING__NAMES[3], value.writeStartingAddress, ser);
+		static const std::string REMOTING__NAMES[] = {"readStartingAddress"s,"readCount"s,"writeStartingAddress"s,"values"s,""s};
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[0], value.readStartingAddress, ser);
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[1], value.readCount, ser);
+		TypeSerializer<Poco::UInt16>::serialize(REMOTING__NAMES[2], value.writeStartingAddress, ser);
+		TypeSerializer<std::vector<Poco::UInt16>>::serialize(REMOTING__NAMES[3], value.values, ser);
 	}
 
 };

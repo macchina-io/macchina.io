@@ -44,7 +44,7 @@ public:
 	virtual ~SettingsServiceRemoteObject();
 		/// Destroys the SettingsServiceRemoteObject.
 
-	virtual Poco::Optional < double > getBool(const std::string& key, const Poco::Optional < double >& deflt = Poco::Optional < double >()) const;
+	Poco::Optional<double> getBool(const std::string& key, const Poco::Optional<double>& deflt = Poco::Optional<double>()) const;
 		/// Returns the boolean value of the property with the given key,
 		/// or the given default value if the key does not exist. 
 		/// If the value contains references to other properties (${<property>}, or
@@ -58,7 +58,7 @@ public:
 		///   - strings: "true", "yes", "on" become true, "false", "no", "off" become false
 		/// Case does not matter.
 
-	virtual Poco::Optional < double > getDouble(const std::string& key, const Poco::Optional < double >& deflt = Poco::Optional < double >()) const;
+	Poco::Optional<double> getDouble(const std::string& key, const Poco::Optional<double>& deflt = Poco::Optional<double>()) const;
 		/// Returns the double value of the property with the given key,
 		/// or the given default value if the key does not exist. 
 		/// If the value contains references to other properties (${<property>}, or
@@ -67,7 +67,7 @@ public:
 		/// Throws a Poco::SyntaxException if the property value 
 		/// can not be converted to a double value.
 
-	virtual Poco::Optional < Poco::Int16 > getInt16(const std::string& key, const Poco::Optional < Poco::Int16 >& deflt = Poco::Optional < Poco::Int16 >()) const;
+	Poco::Optional<Poco::Int16> getInt16(const std::string& key, const Poco::Optional<Poco::Int16>& deflt = Poco::Optional<Poco::Int16>()) const;
 		/// Returns the 16-bit integer value of the property with the given key,
 		/// or the given default value if the key does not exist. 
 		/// If the value contains references to other properties (${<property>}, or
@@ -76,7 +76,7 @@ public:
 		/// Throws a Poco::SyntaxException or a Poco::RangeException if the property value 
 		/// can not be converted to an Int16 value.
 
-	virtual Poco::Optional < Poco::Int32 > getInt32(const std::string& key, const Poco::Optional < Poco::Int32 >& deflt = Poco::Optional < Poco::Int32 >()) const;
+	Poco::Optional<Poco::Int32> getInt32(const std::string& key, const Poco::Optional<Poco::Int32>& deflt = Poco::Optional<Poco::Int32>()) const;
 		/// Returns the 32-bit integer value of the property with the given key,
 		/// or the given default value if the key does not exist. 
 		/// If the value contains references to other properties (${<property>}, or
@@ -85,7 +85,7 @@ public:
 		/// Throws a Poco::SyntaxException or a Poco::RangeException if the property value 
 		/// can not be converted to an Int32 value.
 
-	virtual Poco::Optional < Poco::Int64 > getInt64(const std::string& key, const Poco::Optional < Poco::Int64 >& deflt = Poco::Optional < Poco::Int64 >()) const;
+	Poco::Optional<Poco::Int64> getInt64(const std::string& key, const Poco::Optional<Poco::Int64>& deflt = Poco::Optional<Poco::Int64>()) const;
 		/// Returns the 64-bit integer value of the property with the given key,
 		/// or the given default value if the key does not exist. 
 		/// If the value contains references to other properties (${<property>}, or
@@ -94,13 +94,13 @@ public:
 		/// Throws a Poco::SyntaxException if the property value 
 		/// can not be converted to an Int64 value.
 
-	virtual Poco::Optional < std::string > getString(const std::string& key, const Poco::Optional < std::string >& deflt = Poco::Optional < std::string >()) const;
+	Poco::Optional<std::string> getString(const std::string& key, const Poco::Optional<std::string>& deflt = Poco::Optional<std::string>()) const;
 		/// Returns the string value of the property with the given key,
 		/// or the given default value if the key does not exist. 
 		/// If the value contains references to other properties (${<property>}, or
 		/// ${<property>:-<default>}), these are expanded.
 
-	virtual Poco::Optional < Poco::UInt16 > getUInt16(const std::string& key, const Poco::Optional < Poco::UInt16 >& deflt = Poco::Optional < Poco::UInt16 >()) const;
+	Poco::Optional<Poco::UInt16> getUInt16(const std::string& key, const Poco::Optional<Poco::UInt16>& deflt = Poco::Optional<Poco::UInt16>()) const;
 		/// Returns the 16-bit unsigned integer value of the property with the given key,
 		/// or the given default value if the key does not exist. 
 		/// If the value contains references to other properties (${<property>}, or
@@ -109,7 +109,7 @@ public:
 		/// Throws a Poco::SyntaxException or a Poco::RangeException if the property value 
 		/// can not be converted to an UInt16 value.
 
-	virtual Poco::Optional < Poco::UInt32 > getUInt32(const std::string& key, const Poco::Optional < Poco::UInt32 >& deflt = Poco::Optional < Poco::UInt32 >()) const;
+	Poco::Optional<Poco::UInt32> getUInt32(const std::string& key, const Poco::Optional<Poco::UInt32>& deflt = Poco::Optional<Poco::UInt32>()) const;
 		/// Returns the 32-bit unsigned integer value of the property with the given key,
 		/// or the given default value if the key does not exist. 
 		/// If the value contains references to other properties (${<property>}, or
@@ -118,7 +118,7 @@ public:
 		/// Throws a Poco::SyntaxException or a Poco::RangeException if the property value 
 		/// can not be converted to an UInt32 value.
 
-	virtual Poco::Optional < Poco::UInt64 > getUInt64(const std::string& key, const Poco::Optional < Poco::UInt64 >& deflt = Poco::Optional < Poco::UInt64 >()) const;
+	Poco::Optional<Poco::UInt64> getUInt64(const std::string& key, const Poco::Optional<Poco::UInt64>& deflt = Poco::Optional<Poco::UInt64>()) const;
 		/// Returns the 64-bit unsigned integer value of the property with the given key,
 		/// or the given default value if the key does not exist. 
 		/// If the value contains references to other properties (${<property>}, or
@@ -135,7 +135,7 @@ public:
 		/// Returns true if the given key is defined in the settings configuration
 		/// object, otherwise false.
 
-	virtual std::vector < std::string > keys(const std::string& key = std::string()) const;
+	std::vector<std::string> keys(const std::string& key = std::string()) const;
 		/// Returns in range the names of all subkeys under the given key.
 		/// If an empty key is passed, all root level keys are returned.
 
@@ -201,7 +201,7 @@ public:
 		///
 		/// The new value is not persisted. Call save() to persist changes.
 
-	virtual std::vector < std::string > settingsKeys(const std::string& key = std::string()) const;
+	std::vector<std::string> settingsKeys(const std::string& key = std::string()) const;
 		/// Returns in range the names of all subkeys under the given key.
 		/// If an empty key is passed, all root level keys are returned.
 		///
@@ -213,55 +213,55 @@ private:
 };
 
 
-inline Poco::Optional < double > SettingsServiceRemoteObject::getBool(const std::string& key, const Poco::Optional < double >& deflt) const
+inline Poco::Optional<double> SettingsServiceRemoteObject::getBool(const std::string& key, const Poco::Optional<double>& deflt) const
 {
 	return _pServiceObject->getBool(key, deflt);
 }
 
 
-inline Poco::Optional < double > SettingsServiceRemoteObject::getDouble(const std::string& key, const Poco::Optional < double >& deflt) const
+inline Poco::Optional<double> SettingsServiceRemoteObject::getDouble(const std::string& key, const Poco::Optional<double>& deflt) const
 {
 	return _pServiceObject->getDouble(key, deflt);
 }
 
 
-inline Poco::Optional < Poco::Int16 > SettingsServiceRemoteObject::getInt16(const std::string& key, const Poco::Optional < Poco::Int16 >& deflt) const
+inline Poco::Optional<Poco::Int16> SettingsServiceRemoteObject::getInt16(const std::string& key, const Poco::Optional<Poco::Int16>& deflt) const
 {
 	return _pServiceObject->getInt16(key, deflt);
 }
 
 
-inline Poco::Optional < Poco::Int32 > SettingsServiceRemoteObject::getInt32(const std::string& key, const Poco::Optional < Poco::Int32 >& deflt) const
+inline Poco::Optional<Poco::Int32> SettingsServiceRemoteObject::getInt32(const std::string& key, const Poco::Optional<Poco::Int32>& deflt) const
 {
 	return _pServiceObject->getInt32(key, deflt);
 }
 
 
-inline Poco::Optional < Poco::Int64 > SettingsServiceRemoteObject::getInt64(const std::string& key, const Poco::Optional < Poco::Int64 >& deflt) const
+inline Poco::Optional<Poco::Int64> SettingsServiceRemoteObject::getInt64(const std::string& key, const Poco::Optional<Poco::Int64>& deflt) const
 {
 	return _pServiceObject->getInt64(key, deflt);
 }
 
 
-inline Poco::Optional < std::string > SettingsServiceRemoteObject::getString(const std::string& key, const Poco::Optional < std::string >& deflt) const
+inline Poco::Optional<std::string> SettingsServiceRemoteObject::getString(const std::string& key, const Poco::Optional<std::string>& deflt) const
 {
 	return _pServiceObject->getString(key, deflt);
 }
 
 
-inline Poco::Optional < Poco::UInt16 > SettingsServiceRemoteObject::getUInt16(const std::string& key, const Poco::Optional < Poco::UInt16 >& deflt) const
+inline Poco::Optional<Poco::UInt16> SettingsServiceRemoteObject::getUInt16(const std::string& key, const Poco::Optional<Poco::UInt16>& deflt) const
 {
 	return _pServiceObject->getUInt16(key, deflt);
 }
 
 
-inline Poco::Optional < Poco::UInt32 > SettingsServiceRemoteObject::getUInt32(const std::string& key, const Poco::Optional < Poco::UInt32 >& deflt) const
+inline Poco::Optional<Poco::UInt32> SettingsServiceRemoteObject::getUInt32(const std::string& key, const Poco::Optional<Poco::UInt32>& deflt) const
 {
 	return _pServiceObject->getUInt32(key, deflt);
 }
 
 
-inline Poco::Optional < Poco::UInt64 > SettingsServiceRemoteObject::getUInt64(const std::string& key, const Poco::Optional < Poco::UInt64 >& deflt) const
+inline Poco::Optional<Poco::UInt64> SettingsServiceRemoteObject::getUInt64(const std::string& key, const Poco::Optional<Poco::UInt64>& deflt) const
 {
 	return _pServiceObject->getUInt64(key, deflt);
 }
@@ -279,7 +279,7 @@ inline bool SettingsServiceRemoteObject::haveSettingsKey(const std::string& key)
 }
 
 
-inline std::vector < std::string > SettingsServiceRemoteObject::keys(const std::string& key) const
+inline std::vector<std::string> SettingsServiceRemoteObject::keys(const std::string& key) const
 {
 	return _pServiceObject->keys(key);
 }
@@ -357,7 +357,7 @@ inline void SettingsServiceRemoteObject::setUInt64(const std::string& key, Poco:
 }
 
 
-inline std::vector < std::string > SettingsServiceRemoteObject::settingsKeys(const std::string& key) const
+inline std::vector<std::string> SettingsServiceRemoteObject::settingsKeys(const std::string& key) const
 {
 	return _pServiceObject->settingsKeys(key);
 }

@@ -19,7 +19,7 @@
 #define IoT_Devices_BooleanDatapointEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/BooleanDatapointRemoteObject.h"
+#include "IoT/Devices/IBooleanDatapoint.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -37,7 +37,7 @@ class BooleanDatapointEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	///     formatted as string for display purposes.
 {
 public:
-	BooleanDatapointEventDispatcher(BooleanDatapointRemoteObject* pRemoteObject, const std::string& protocol);
+	BooleanDatapointEventDispatcher(IBooleanDatapoint* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a BooleanDatapointEventDispatcher.
 
 	virtual ~BooleanDatapointEventDispatcher();
@@ -67,7 +67,8 @@ private:
 	void event__valueUpdatedImpl(const std::string& subscriberURI, const bool& data);
 
 	static const std::string DEFAULT_NS;
-	BooleanDatapointRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IBooleanDatapoint* _pInterface;
 };
 
 

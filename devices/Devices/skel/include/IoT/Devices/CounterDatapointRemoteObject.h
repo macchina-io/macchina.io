@@ -193,7 +193,7 @@ public:
 		/// validity may change. Use validValue() or similar methods
 		/// of subclasses to atomically get validity and value.
 
-	Poco::Optional < Poco::Int64 > validValue() const;
+	Poco::Optional<Poco::Int64> validValue() const;
 		/// Returns the current value of the datapoint if it
 		/// is valid, otherwise an empty value.
 
@@ -355,7 +355,7 @@ inline bool CounterDatapointRemoteObject::valid() const
 }
 
 
-inline Poco::Optional < Poco::Int64 > CounterDatapointRemoteObject::validValue() const
+inline Poco::Optional<Poco::Int64> CounterDatapointRemoteObject::validValue() const
 {
 	return _pServiceObject->validValue();
 }

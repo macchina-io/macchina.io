@@ -184,7 +184,7 @@ public:
 		/// validity may change. Use validValue() or similar methods
 		/// of subclasses to atomically get validity and value.
 
-	virtual Poco::Optional < std::string > validValue() const;
+	Poco::Optional<std::string> validValue() const;
 		/// Returns the current value of the datapoint if
 		/// it is valid, otherwise an empty value.
 
@@ -342,7 +342,7 @@ inline bool StringDatapointRemoteObject::valid() const
 }
 
 
-inline Poco::Optional < std::string > StringDatapointRemoteObject::validValue() const
+inline Poco::Optional<std::string> StringDatapointRemoteObject::validValue() const
 {
 	return _pServiceObject->validValue();
 }

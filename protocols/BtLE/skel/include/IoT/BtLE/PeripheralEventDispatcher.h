@@ -19,7 +19,7 @@
 #define IoT_BtLE_PeripheralEventDispatcher_INCLUDED
 
 
-#include "IoT/BtLE/PeripheralRemoteObject.h"
+#include "IoT/BtLE/IPeripheral.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -32,7 +32,7 @@ class PeripheralEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// device using the Bt Generic Attribute Profile (GATT).
 {
 public:
-	PeripheralEventDispatcher(PeripheralRemoteObject* pRemoteObject, const std::string& protocol);
+	PeripheralEventDispatcher(IPeripheral* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a PeripheralEventDispatcher.
 
 	virtual ~PeripheralEventDispatcher();
@@ -62,7 +62,8 @@ private:
 	void event__notificationReceivedImpl(const std::string& subscriberURI, const IoT::BtLE::Notification& data);
 
 	static const std::string DEFAULT_NS;
-	PeripheralRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IPeripheral* _pInterface;
 };
 
 

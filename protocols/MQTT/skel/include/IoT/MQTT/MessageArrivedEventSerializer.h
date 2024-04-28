@@ -45,11 +45,11 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"dup"s,"handled"s,"message"s,"topic"s,""s};
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[0], value.dup, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[1], value.handled, ser);
-		TypeSerializer<IoT::MQTT::Message >::serialize(REMOTING__NAMES[2], value.message, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[3], value.topic, ser);
+		static const std::string REMOTING__NAMES[] = {"topic"s,"message"s,"dup"s,"handled"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.topic, ser);
+		TypeSerializer<IoT::MQTT::Message>::serialize(REMOTING__NAMES[1], value.message, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[2], value.dup, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[3], value.handled, ser);
 	}
 
 };

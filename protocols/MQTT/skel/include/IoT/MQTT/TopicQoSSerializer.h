@@ -43,9 +43,9 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"qos"s,"topic"s,""s};
-		TypeSerializer<int >::serialize(REMOTING__NAMES[0], value.qos, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.topic, ser);
+		static const std::string REMOTING__NAMES[] = {"topic"s,"qos"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.topic, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[1], value.qos, ser);
 	}
 
 };

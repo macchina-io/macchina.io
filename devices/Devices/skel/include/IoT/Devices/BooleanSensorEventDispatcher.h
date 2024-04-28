@@ -19,7 +19,7 @@
 #define IoT_Devices_BooleanSensorEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/BooleanSensorRemoteObject.h"
+#include "IoT/Devices/IBooleanSensor.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -38,7 +38,7 @@ class BooleanSensorEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	///     formatted as string for display purposes.
 {
 public:
-	BooleanSensorEventDispatcher(BooleanSensorRemoteObject* pRemoteObject, const std::string& protocol);
+	BooleanSensorEventDispatcher(IBooleanSensor* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a BooleanSensorEventDispatcher.
 
 	virtual ~BooleanSensorEventDispatcher();
@@ -56,7 +56,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	BooleanSensorRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IBooleanSensor* _pInterface;
 };
 
 

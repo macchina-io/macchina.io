@@ -52,11 +52,11 @@ public:
 	virtual ~FlagsDatapointRemoteObject();
 		/// Destroys the FlagsDatapointRemoteObject.
 
-	std::vector < IoT::Devices::FlagValue > definedFlags() const;
+	std::vector<IoT::Devices::FlagValue> definedFlags() const;
 		/// Returns a vector containing the possible flags
 		/// and mappings to symbolic names.
 
-	virtual std::vector < std::string > flags() const;
+	std::vector<std::string> flags() const;
 		/// Returns a vector containing the symbolic names
 		/// of all flags currently set, even if the datapoint
 		/// has been invalidated.
@@ -138,17 +138,17 @@ public:
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
-	std::vector < bool > reset(std::vector < bool > value = std::vector < bool >());
+	std::vector<bool> reset(std::vector<bool> value = std::vector<bool>());
 		/// Resets all flags to zero or the given value.
 		/// Also makes the datapoint valid.
 		///
 		/// Returns the previously set flags.
 
-	virtual void resetFlags(const std::vector < std::string >& flags = std::vector < std::string >());
+	virtual void resetFlags(const std::vector<std::string>& flags = std::vector<std::string>());
 		/// Resets all flags to the given set of flags and
 		/// makes the datapoint valid.
 
-	std::vector < bool > set(std::vector < bool > flags);
+	std::vector<bool> set(std::vector<bool> flags);
 		/// Sets flags by logically OR-ing the currently set flags with the given ones.
 		///
 		/// Returns the previously set flags.
@@ -159,7 +159,7 @@ public:
 		/// Which features are supported is defined by the
 		/// actual device implementation.
 
-	virtual void setFlags(const std::vector < std::string >& flags);
+	virtual void setFlags(const std::vector<std::string>& flags);
 		/// Sets flags by logically OR-ing the currently set flags with the given ones.
 
 	virtual void setPropertyBool(const std::string& name, bool value);
@@ -204,23 +204,23 @@ public:
 		/// Which properties are supported is defined by the
 		/// actual device implementation.
 
-	std::vector < bool > toggle(std::vector < bool > flags);
+	std::vector<bool> toggle(std::vector<bool> flags);
 		/// Sets flags by logically XOR-ing the currently set flags with
 		/// the given ones.
 		///
 		/// Returns the previously set flags.
 
-	virtual void toggleFlags(const std::vector < std::string >& flags);
+	virtual void toggleFlags(const std::vector<std::string>& flags);
 		/// Sets flags by logically XOR-ing the currently set flags with
 		/// the given ones.
 
-	std::vector < bool > unset(std::vector < bool > flags);
+	std::vector<bool> unset(std::vector<bool> flags);
 		/// Unsets flags by logically AND-ing the currently set flags with
 		/// the inverted given ones.
 		///
 		/// Returns the previously set flags.
 
-	virtual void unsetFlags(const std::vector < std::string >& flags);
+	virtual void unsetFlags(const std::vector<std::string>& flags);
 		/// Unsets flags by logically AND-ing the currently set flags with
 		/// the inverted given ones.
 
@@ -232,16 +232,16 @@ public:
 		/// validity may change. Use validValue() or similar methods
 		/// of subclasses to atomically get validity and value.
 
-	Poco::Optional < std::vector < std::string > > validFlags() const;
+	Poco::Optional<std::vector<std::string>> validFlags() const;
 		/// Returns a vector containing the symbolic names
 		/// of all flags currently set if the datapoint is valid,
 		/// otherwise an empty value.
 
-	Poco::Optional < std::vector < bool > > validValue() const;
+	Poco::Optional<std::vector<bool>> validValue() const;
 		/// Returns the bit vector value of the datapoint if
 		/// it is valid, otherwise an empty value.
 
-	std::vector < bool > value() const;
+	std::vector<bool> value() const;
 		/// Returns the bit vector value of the datapoint,
 		/// even if the datapoint has been invalidated.
 		///
@@ -252,24 +252,24 @@ protected:
 
 	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
 
-	void event__validated(const std::vector < bool >& data);
+	void event__validated(const std::vector<bool>& data);
 
-	void event__valueChanged(const std::vector < bool >& data);
+	void event__valueChanged(const std::vector<bool>& data);
 
-	void event__valueUpdated(const std::vector < bool >& data);
+	void event__valueUpdated(const std::vector<bool>& data);
 
 private:
 	Poco::SharedPtr<IoT::Devices::FlagsDatapoint> _pServiceObject;
 };
 
 
-inline std::vector < IoT::Devices::FlagValue > FlagsDatapointRemoteObject::definedFlags() const
+inline std::vector<IoT::Devices::FlagValue> FlagsDatapointRemoteObject::definedFlags() const
 {
 	return _pServiceObject->definedFlags();
 }
 
 
-inline std::vector < std::string > FlagsDatapointRemoteObject::flags() const
+inline std::vector<std::string> FlagsDatapointRemoteObject::flags() const
 {
 	return _pServiceObject->flags();
 }
@@ -347,19 +347,19 @@ inline const Poco::RemotingNG::Identifiable::TypeId& FlagsDatapointRemoteObject:
 }
 
 
-inline std::vector < bool > FlagsDatapointRemoteObject::reset(std::vector < bool > value)
+inline std::vector<bool> FlagsDatapointRemoteObject::reset(std::vector<bool> value)
 {
 	return _pServiceObject->reset(value);
 }
 
 
-inline void FlagsDatapointRemoteObject::resetFlags(const std::vector < std::string >& flags)
+inline void FlagsDatapointRemoteObject::resetFlags(const std::vector<std::string>& flags)
 {
 	_pServiceObject->resetFlags(flags);
 }
 
 
-inline std::vector < bool > FlagsDatapointRemoteObject::set(std::vector < bool > flags)
+inline std::vector<bool> FlagsDatapointRemoteObject::set(std::vector<bool> flags)
 {
 	return _pServiceObject->set(flags);
 }
@@ -371,7 +371,7 @@ inline void FlagsDatapointRemoteObject::setFeature(const std::string& name, bool
 }
 
 
-inline void FlagsDatapointRemoteObject::setFlags(const std::vector < std::string >& flags)
+inline void FlagsDatapointRemoteObject::setFlags(const std::vector<std::string>& flags)
 {
 	_pServiceObject->setFlags(flags);
 }
@@ -419,25 +419,25 @@ inline void FlagsDatapointRemoteObject::setPropertyTimestamp(const std::string& 
 }
 
 
-inline std::vector < bool > FlagsDatapointRemoteObject::toggle(std::vector < bool > flags)
+inline std::vector<bool> FlagsDatapointRemoteObject::toggle(std::vector<bool> flags)
 {
 	return _pServiceObject->toggle(flags);
 }
 
 
-inline void FlagsDatapointRemoteObject::toggleFlags(const std::vector < std::string >& flags)
+inline void FlagsDatapointRemoteObject::toggleFlags(const std::vector<std::string>& flags)
 {
 	_pServiceObject->toggleFlags(flags);
 }
 
 
-inline std::vector < bool > FlagsDatapointRemoteObject::unset(std::vector < bool > flags)
+inline std::vector<bool> FlagsDatapointRemoteObject::unset(std::vector<bool> flags)
 {
 	return _pServiceObject->unset(flags);
 }
 
 
-inline void FlagsDatapointRemoteObject::unsetFlags(const std::vector < std::string >& flags)
+inline void FlagsDatapointRemoteObject::unsetFlags(const std::vector<std::string>& flags)
 {
 	_pServiceObject->unsetFlags(flags);
 }
@@ -449,19 +449,19 @@ inline bool FlagsDatapointRemoteObject::valid() const
 }
 
 
-inline Poco::Optional < std::vector < std::string > > FlagsDatapointRemoteObject::validFlags() const
+inline Poco::Optional<std::vector<std::string>> FlagsDatapointRemoteObject::validFlags() const
 {
 	return _pServiceObject->validFlags();
 }
 
 
-inline Poco::Optional < std::vector < bool > > FlagsDatapointRemoteObject::validValue() const
+inline Poco::Optional<std::vector<bool>> FlagsDatapointRemoteObject::validValue() const
 {
 	return _pServiceObject->validValue();
 }
 
 
-inline std::vector < bool > FlagsDatapointRemoteObject::value() const
+inline std::vector<bool> FlagsDatapointRemoteObject::value() const
 {
 	return _pServiceObject->value();
 }

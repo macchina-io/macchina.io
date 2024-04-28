@@ -49,9 +49,9 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"publishedMessages"s,"receivedMessages"s};
-		TypeDeserializer<std::vector < IoT::MQTT::TopicCount > >::deserialize(REMOTING__NAMES[0], true, deser, value.publishedMessages);
-		TypeDeserializer<std::vector < IoT::MQTT::TopicCount > >::deserialize(REMOTING__NAMES[1], true, deser, value.receivedMessages);
+		static const std::string REMOTING__NAMES[] = {"receivedMessages"s,"publishedMessages"s};
+		TypeDeserializer<std::vector<IoT::MQTT::TopicCount>>::deserialize(REMOTING__NAMES[0], true, deser, value.receivedMessages);
+		TypeDeserializer<std::vector<IoT::MQTT::TopicCount>>::deserialize(REMOTING__NAMES[1], true, deser, value.publishedMessages);
 	}
 
 };

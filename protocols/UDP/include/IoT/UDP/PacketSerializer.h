@@ -45,10 +45,10 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"destination"s,"payload"s,"source"s,""s};
-		TypeSerializer<IoT::UDP::EndpointAddress >::serialize(REMOTING__NAMES[0], value.destination, ser);
-		TypeSerializer<std::vector < char > >::serialize(REMOTING__NAMES[1], value.payload, ser);
-		TypeSerializer<IoT::UDP::EndpointAddress >::serialize(REMOTING__NAMES[2], value.source, ser);
+		static const std::string REMOTING__NAMES[] = {"source"s,"destination"s,"payload"s,""s};
+		TypeSerializer<IoT::UDP::EndpointAddress>::serialize(REMOTING__NAMES[0], value.source, ser);
+		TypeSerializer<IoT::UDP::EndpointAddress>::serialize(REMOTING__NAMES[1], value.destination, ser);
+		TypeSerializer<std::vector<char>>::serialize(REMOTING__NAMES[2], value.payload, ser);
 	}
 
 };

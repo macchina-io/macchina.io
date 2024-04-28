@@ -19,7 +19,7 @@
 #define IoT_Devices_GNSSSensorEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/GNSSSensorRemoteObject.h"
+#include "IoT/Devices/IGNSSSensor.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -43,7 +43,7 @@ class GNSSSensorEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	///     received from the GNSS receiver.
 {
 public:
-	GNSSSensorEventDispatcher(GNSSSensorRemoteObject* pRemoteObject, const std::string& protocol);
+	GNSSSensorEventDispatcher(IGNSSSensor* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a GNSSSensorEventDispatcher.
 
 	virtual ~GNSSSensorEventDispatcher();
@@ -65,7 +65,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	GNSSSensorRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IGNSSSensor* _pInterface;
 };
 
 

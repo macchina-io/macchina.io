@@ -48,7 +48,7 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"token"s};
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[0], true, deser, value.token);
+		TypeDeserializer<int>::deserialize(REMOTING__NAMES[0], true, deser, value.token);
 	}
 
 };

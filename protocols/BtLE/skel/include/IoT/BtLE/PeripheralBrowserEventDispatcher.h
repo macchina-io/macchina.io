@@ -19,7 +19,7 @@
 #define IoT_BtLE_PeripheralBrowserEventDispatcher_INCLUDED
 
 
-#include "IoT/BtLE/PeripheralBrowserRemoteObject.h"
+#include "IoT/BtLE/IPeripheralBrowser.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -31,7 +31,7 @@ class PeripheralBrowserEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// This class provides browsing (scanning) for available Bt LE devices.
 {
 public:
-	PeripheralBrowserEventDispatcher(PeripheralBrowserRemoteObject* pRemoteObject, const std::string& protocol);
+	PeripheralBrowserEventDispatcher(IPeripheralBrowser* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a PeripheralBrowserEventDispatcher.
 
 	virtual ~PeripheralBrowserEventDispatcher();
@@ -57,7 +57,8 @@ private:
 	void event__peripheralFoundImpl(const std::string& subscriberURI, const IoT::BtLE::PeripheralInfo& data);
 
 	static const std::string DEFAULT_NS;
-	PeripheralBrowserRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IPeripheralBrowser* _pInterface;
 };
 
 

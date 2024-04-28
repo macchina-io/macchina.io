@@ -49,12 +49,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"binaryPayload"s,"payload"s,"properties"s,"qos"s,"retained"s};
-		TypeDeserializer<std::vector < char > >::deserialize(REMOTING__NAMES[0], false, deser, value.binaryPayload);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], false, deser, value.payload);
-		TypeDeserializer<std::vector < IoT::MQTT::Property > >::deserialize(REMOTING__NAMES[2], false, deser, value.properties);
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[3], false, deser, value.qos);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[4], false, deser, value.retained);
+		static const std::string REMOTING__NAMES[] = {"payload"s,"binaryPayload"s,"qos"s,"retained"s,"properties"s};
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], false, deser, value.payload);
+		TypeDeserializer<std::vector<char>>::deserialize(REMOTING__NAMES[1], false, deser, value.binaryPayload);
+		TypeDeserializer<int>::deserialize(REMOTING__NAMES[2], false, deser, value.qos);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[3], false, deser, value.retained);
+		TypeDeserializer<std::vector<IoT::MQTT::Property>>::deserialize(REMOTING__NAMES[4], false, deser, value.properties);
 	}
 
 };

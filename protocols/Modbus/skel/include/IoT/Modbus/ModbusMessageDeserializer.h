@@ -47,10 +47,10 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"functionCode"s,"slaveOrUnitAddress"s,"transactionID"s};
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[0], true, deser, value.functionCode);
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES[1], true, deser, value.slaveOrUnitAddress);
-		TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[2], true, deser, value.transactionID);
+		static const std::string REMOTING__NAMES[] = {"transactionID"s,"slaveOrUnitAddress"s,"functionCode"s};
+		TypeDeserializer<Poco::UInt16>::deserialize(REMOTING__NAMES[0], true, deser, value.transactionID);
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES[1], true, deser, value.slaveOrUnitAddress);
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES[2], true, deser, value.functionCode);
 	}
 
 };

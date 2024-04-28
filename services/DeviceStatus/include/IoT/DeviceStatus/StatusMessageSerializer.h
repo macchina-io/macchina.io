@@ -43,15 +43,15 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"acknowledgeable"s,"acknowledged"s,"id"s,"messageClass"s,"source"s,"status"s,"text"s,"timestamp"s,""s};
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[0], value.acknowledgeable, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[1], value.acknowledged, ser);
-		TypeSerializer<Poco::Int64 >::serialize(REMOTING__NAMES[2], value.id, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[3], value.messageClass, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[4], value.source, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[5], static_cast<int>(value.status), ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[6], value.text, ser);
-		TypeSerializer<Poco::DateTime >::serialize(REMOTING__NAMES[7], value.timestamp, ser);
+		static const std::string REMOTING__NAMES[] = {"id"s,"messageClass"s,"source"s,"status"s,"text"s,"timestamp"s,"acknowledgeable"s,"acknowledged"s,""s};
+		TypeSerializer<Poco::Int64>::serialize(REMOTING__NAMES[0], value.id, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.messageClass, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], value.source, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[3], static_cast<int>(value.status), ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[4], value.text, ser);
+		TypeSerializer<Poco::DateTime>::serialize(REMOTING__NAMES[5], value.timestamp, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[6], value.acknowledgeable, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[7], value.acknowledged, ser);
 	}
 
 };

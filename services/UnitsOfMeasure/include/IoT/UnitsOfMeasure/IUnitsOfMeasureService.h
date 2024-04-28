@@ -60,12 +60,12 @@ public:
 		///
 		/// Throws a Poco::InvalidArgumentException if the conversion cannot be performed.
 
-	virtual Poco::SharedPtr < IoT::UnitsOfMeasure::Prefix > findPrefix(const std::string& code) const = 0;
+	virtual Poco::SharedPtr<IoT::UnitsOfMeasure::Prefix> findPrefix(const std::string& code) const = 0;
 		/// Looks up the prefix with the given code.
 		///
 		/// Returns the Prefix, or a null pointer if not found.
 
-	virtual Poco::SharedPtr < IoT::UnitsOfMeasure::Unit > findUnit(const std::string& code) const = 0;
+	virtual Poco::SharedPtr<IoT::UnitsOfMeasure::Unit> findUnit(const std::string& code) const = 0;
 		/// Looks up the unit with the given (non-prefixed) code.
 		///
 		/// Returns the Unit, or a null pointer if not found.

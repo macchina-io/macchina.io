@@ -43,7 +43,7 @@ public:
 	virtual void capture() = 0;
 		/// Capture an image.
 
-	virtual Poco::SharedPtr < IoT::Devices::Image > image() const = 0;
+	virtual Poco::SharedPtr<IoT::Devices::Image> image() const = 0;
 		/// Returns the most recently taken image, or a null pointer
 		/// if no image is available.
 
@@ -68,7 +68,7 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const Poco::SharedPtr < IoT::Devices::Image > > imageCaptured;
+	Poco::BasicEvent<const Poco::SharedPtr<IoT::Devices::Image>> imageCaptured;
 };
 
 

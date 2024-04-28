@@ -170,7 +170,7 @@ public:
 		/// Which properties are supported is defined by the
 		/// actual device implementation.
 
-	virtual void update(const std::vector < double >& value);
+	virtual void update(const std::vector<double>& value);
 		/// Updates the value of the datapoint and makes it valid.
 		///
 		/// Not all Datapoint implementations may support
@@ -184,11 +184,11 @@ public:
 		/// validity may change. Use validValue() or similar methods
 		/// of subclasses to atomically get validity and value.
 
-	Poco::Optional < std::vector < double > > validValue() const;
+	Poco::Optional<std::vector<double>> validValue() const;
 		/// Returns the current value of the datapoint if
 		/// it is valid, otherwise an empty value.
 
-	std::vector < double > value() const;
+	std::vector<double> value() const;
 		/// Returns the current value of the datapoint,
 		/// even if it has been invalidated.
 		///
@@ -199,11 +199,11 @@ protected:
 
 	void event__statusChanged(const IoT::Devices::DeviceStatusChange& data);
 
-	void event__validated(const std::vector < double >& data);
+	void event__validated(const std::vector<double>& data);
 
-	void event__valueChanged(const std::vector < double >& data);
+	void event__valueChanged(const std::vector<double>& data);
 
-	void event__valueUpdated(const std::vector < double >& data);
+	void event__valueUpdated(const std::vector<double>& data);
 
 private:
 	Poco::SharedPtr<IoT::Devices::VectorDatapoint> _pServiceObject;
@@ -330,7 +330,7 @@ inline void VectorDatapointRemoteObject::setPropertyTimestamp(const std::string&
 }
 
 
-inline void VectorDatapointRemoteObject::update(const std::vector < double >& value)
+inline void VectorDatapointRemoteObject::update(const std::vector<double>& value)
 {
 	_pServiceObject->update(value);
 }
@@ -342,13 +342,13 @@ inline bool VectorDatapointRemoteObject::valid() const
 }
 
 
-inline Poco::Optional < std::vector < double > > VectorDatapointRemoteObject::validValue() const
+inline Poco::Optional<std::vector<double>> VectorDatapointRemoteObject::validValue() const
 {
 	return _pServiceObject->validValue();
 }
 
 
-inline std::vector < double > VectorDatapointRemoteObject::value() const
+inline std::vector<double> VectorDatapointRemoteObject::value() const
 {
 	return _pServiceObject->value();
 }

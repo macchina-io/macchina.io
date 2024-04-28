@@ -49,15 +49,15 @@ public:
 		
 		// IoT::Modbus::ModbusMessage
 		{
-		static const std::string REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[] = {"functionCode"s,"slaveOrUnitAddress"s,"transactionID"s};
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[0], true, deser, value.functionCode);
-		TypeDeserializer<Poco::UInt8 >::deserialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[1], true, deser, value.slaveOrUnitAddress);
-		TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[2], true, deser, value.transactionID);
+		static const std::string REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[] = {"transactionID"s,"slaveOrUnitAddress"s,"functionCode"s};
+		TypeDeserializer<Poco::UInt16>::deserialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[0], true, deser, value.transactionID);
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[1], true, deser, value.slaveOrUnitAddress);
+		TypeDeserializer<Poco::UInt8>::deserialize(REMOTING__NAMES__IOT__MODBUS__MODBUSMESSAGE[2], true, deser, value.functionCode);
 		}
 		
 		static const std::string REMOTING__NAMES[] = {"startingAddress"s,"values"s};
-		TypeDeserializer<Poco::UInt16 >::deserialize(REMOTING__NAMES[0], true, deser, value.startingAddress);
-		TypeDeserializer<std::vector < Poco::UInt16 > >::deserialize(REMOTING__NAMES[1], true, deser, value.values);
+		TypeDeserializer<Poco::UInt16>::deserialize(REMOTING__NAMES[0], true, deser, value.startingAddress);
+		TypeDeserializer<std::vector<Poco::UInt16>>::deserialize(REMOTING__NAMES[1], true, deser, value.values);
 	}
 
 };

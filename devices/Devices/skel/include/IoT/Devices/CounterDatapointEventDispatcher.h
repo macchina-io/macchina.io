@@ -19,7 +19,7 @@
 #define IoT_Devices_CounterDatapointEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/CounterDatapointRemoteObject.h"
+#include "IoT/Devices/ICounterDatapoint.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -38,7 +38,7 @@ class CounterDatapointEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	///     formatted as string for display purposes.
 {
 public:
-	CounterDatapointEventDispatcher(CounterDatapointRemoteObject* pRemoteObject, const std::string& protocol);
+	CounterDatapointEventDispatcher(ICounterDatapoint* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a CounterDatapointEventDispatcher.
 
 	virtual ~CounterDatapointEventDispatcher();
@@ -64,7 +64,8 @@ private:
 	void event__valueChangedImpl(const std::string& subscriberURI, const Poco::Int64& data);
 
 	static const std::string DEFAULT_NS;
-	CounterDatapointRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	ICounterDatapoint* _pInterface;
 };
 
 

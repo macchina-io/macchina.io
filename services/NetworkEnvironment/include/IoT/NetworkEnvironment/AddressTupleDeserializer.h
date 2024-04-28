@@ -47,11 +47,11 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"address"s,"broadcastOrDestinationAddress"s,"subnetMask"s,"version"s};
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, value.address);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.broadcastOrDestinationAddress);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, deser, value.subnetMask);
-		TypeDeserializer<int >::deserialize(REMOTING__NAMES[3], true, deser, value.version);
+		static const std::string REMOTING__NAMES[] = {"version"s,"address"s,"subnetMask"s,"broadcastOrDestinationAddress"s};
+		TypeDeserializer<int>::deserialize(REMOTING__NAMES[0], true, deser, value.version);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, deser, value.address);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[2], true, deser, value.subnetMask);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[3], true, deser, value.broadcastOrDestinationAddress);
 	}
 
 };

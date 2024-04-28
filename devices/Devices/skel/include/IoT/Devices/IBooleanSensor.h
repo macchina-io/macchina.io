@@ -68,7 +68,7 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	Poco::BasicEvent < const bool > stateChanged;
+	Poco::BasicEvent<const bool> stateChanged;
 };
 
 

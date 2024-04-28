@@ -19,7 +19,7 @@
 #define IoT_MobileConnection_MobileConnectionServiceEventDispatcher_INCLUDED
 
 
-#include "IoT/MobileConnection/MobileConnectionServiceRemoteObject.h"
+#include "IoT/MobileConnection/IMobileConnectionService.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -32,7 +32,7 @@ class MobileConnectionServiceEventDispatcher: public Poco::RemotingNG::EventDisp
 	/// and establish a mobile data connection.
 {
 public:
-	MobileConnectionServiceEventDispatcher(MobileConnectionServiceRemoteObject* pRemoteObject, const std::string& protocol);
+	MobileConnectionServiceEventDispatcher(IMobileConnectionService* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a MobileConnectionServiceEventDispatcher.
 
 	virtual ~MobileConnectionServiceEventDispatcher();
@@ -50,7 +50,8 @@ private:
 	void event__dataDisconnectedImpl(const std::string& subscriberURI);
 
 	static const std::string DEFAULT_NS;
-	MobileConnectionServiceRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IMobileConnectionService* _pInterface;
 };
 
 

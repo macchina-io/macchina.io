@@ -49,11 +49,11 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"dup"s,"handled"s,"message"s,"topic"s};
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[0], true, deser, value.dup);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[1], true, deser, value.handled);
-		TypeDeserializer<IoT::MQTT::Message >::deserialize(REMOTING__NAMES[2], true, deser, value.message);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[3], true, deser, value.topic);
+		static const std::string REMOTING__NAMES[] = {"topic"s,"message"s,"dup"s,"handled"s};
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], true, deser, value.topic);
+		TypeDeserializer<IoT::MQTT::Message>::deserialize(REMOTING__NAMES[1], true, deser, value.message);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[2], true, deser, value.dup);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[3], true, deser, value.handled);
 	}
 
 };

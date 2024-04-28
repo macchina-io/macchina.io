@@ -528,12 +528,12 @@ Statistics MQTTClientImpl::statistics() const
 
 	for (const auto& p: _receivedMessages)
 	{
-		stats.receivedMessages.push_back(TopicCount(p.first, p.second));
+		stats.receivedMessages.push_back(TopicCount(p.first, p.second.second, p.second.first));
 	}
 
 	for (const auto& p: _publishedMessages)
 	{
-		stats.publishedMessages.push_back(TopicCount(p.first, p.second));
+		stats.publishedMessages.push_back(TopicCount(p.first, p.second.second, p.second.first));
 	}
 
 	return stats;
@@ -1076,7 +1076,9 @@ int MQTTClientImpl::publish(const std::string& topic, const std::string& payload
 
 	{
 		Poco::Mutex::ScopedLock lock(_statsMutex);
-		_publishedMessages[topic]++;
+		auto& p = _publishedMessages[topic];
+		p.first.update();
+		p.second++;
 	}
 
 	return token;
@@ -1104,7 +1106,9 @@ PublishResult MQTTClientImpl::publish5(const std::string& topic, const std::stri
 
 	{
 		Poco::Mutex::ScopedLock lock(_statsMutex);
-		_publishedMessages[topic]++;
+		auto& p = _publishedMessages[topic];
+		p.first.update();
+		p.second++;
 	}
 
 	return result;
@@ -1136,7 +1140,9 @@ int MQTTClientImpl::publishMessage(const std::string& topic, const Message& mess
 
 	{
 		Poco::Mutex::ScopedLock lock(_statsMutex);
-		_publishedMessages[topic]++;
+		auto& p = _publishedMessages[topic];
+		p.first.update();
+		p.second++;
 	}
 
 	return token;
@@ -1170,7 +1176,9 @@ PublishResult MQTTClientImpl::publishMessage5(const std::string& topic, const Me
 
 	{
 		Poco::Mutex::ScopedLock lock(_statsMutex);
-		_publishedMessages[topic]++;
+		auto& p = _publishedMessages[topic];
+		p.first.update();
+		p.second++;
 	}
 
 	return result;
@@ -1523,7 +1531,9 @@ int MQTTClientImpl::onMessageArrived(void* context, char* topicName, int topicLe
 
 	{
 		Poco::Mutex::ScopedLock lock(pThis->_statsMutex);
-		pThis->_receivedMessages[event.topic]++;
+		auto& p = pThis->_receivedMessages[event.topic];
+		p.first.update();
+		p.second++;
 	}
 
 	try

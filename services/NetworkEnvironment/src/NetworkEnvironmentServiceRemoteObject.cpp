@@ -55,7 +55,7 @@ std::string NetworkEnvironmentServiceRemoteObject::remoting__enableEvents(Poco::
 
 void NetworkEnvironmentServiceRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new NetworkEnvironmentServiceEventDispatcher(this, protocol);
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new NetworkEnvironmentServiceEventDispatcher(this, remoting__objectId(), protocol);
 	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 

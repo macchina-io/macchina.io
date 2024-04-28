@@ -19,7 +19,7 @@
 #define IoT_Devices_SensorEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/SensorRemoteObject.h"
+#include "IoT/Devices/ISensor.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -45,7 +45,7 @@ class SensorEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	///     formatted as string for display purposes.
 {
 public:
-	SensorEventDispatcher(SensorRemoteObject* pRemoteObject, const std::string& protocol);
+	SensorEventDispatcher(ISensor* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a SensorEventDispatcher.
 
 	virtual ~SensorEventDispatcher();
@@ -63,7 +63,8 @@ private:
 	void event__valueChangedImpl(const std::string& subscriberURI, const double& data);
 
 	static const std::string DEFAULT_NS;
-	SensorRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	ISensor* _pInterface;
 };
 
 

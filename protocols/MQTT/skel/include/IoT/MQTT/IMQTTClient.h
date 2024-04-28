@@ -70,7 +70,7 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual IoT::MQTT::ConnectionInfo connect5(const std::vector < IoT::MQTT::Property >& connectProperties = std::vector < IoT::MQTT::Property >(), const std::vector < IoT::MQTT::Property >& willProperties = std::vector < IoT::MQTT::Property >()) = 0;
+	virtual IoT::MQTT::ConnectionInfo connect5(const std::vector<IoT::MQTT::Property>& connectProperties = std::vector<IoT::MQTT::Property>(), const std::vector<IoT::MQTT::Property>& willProperties = std::vector<IoT::MQTT::Property>()) = 0;
 		/// MQTT V5 version of connect().
 		///
 		/// Connects to the server if not already connected.
@@ -98,7 +98,7 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual void connectAsync5(const std::vector < IoT::MQTT::Property >& connectProperties = std::vector < IoT::MQTT::Property >(), const std::vector < IoT::MQTT::Property >& willProperties = std::vector < IoT::MQTT::Property >()) = 0;
+	virtual void connectAsync5(const std::vector<IoT::MQTT::Property>& connectProperties = std::vector<IoT::MQTT::Property>(), const std::vector<IoT::MQTT::Property>& willProperties = std::vector<IoT::MQTT::Property>()) = 0;
 		/// MQTT V5 version of connectAsync().
 		///
 		/// Connects to the server if not already connected.
@@ -135,7 +135,7 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual void disconnect5(int timeout, IoT::MQTT::ReasonCode reason = IoT::MQTT::ReasonCode(IoT::MQTT::REASON_NORMAL_DISCONNECTION), const std::vector < IoT::MQTT::Property >& properties = std::vector < IoT::MQTT::Property >()) = 0;
+	virtual void disconnect5(int timeout, IoT::MQTT::ReasonCode reason = IoT::MQTT::ReasonCode(IoT::MQTT::REASON_NORMAL_DISCONNECTION), const std::vector<IoT::MQTT::Property>& properties = std::vector<IoT::MQTT::Property>()) = 0;
 		/// MQTT V5 version of disconnect().
 		///
 		/// Disconnects from the server.
@@ -169,7 +169,7 @@ public:
 		///   - 4: client supports only version 3.1.1
 		///   - 5: client supports only version 5
 
-	virtual std::vector < int > pendingDeliveryTokens() = 0;
+	virtual std::vector<int> pendingDeliveryTokens() = 0;
 		/// Returns a vector containing the delivery tokens for all messages
 		/// still pending delivery.
 		///
@@ -185,7 +185,7 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual IoT::MQTT::PublishResult publish5(const std::string& topic, const std::string& payload, int qos = int(0), bool retained = bool(false), const std::vector < IoT::MQTT::Property >& properties = std::vector < IoT::MQTT::Property >()) = 0;
+	virtual IoT::MQTT::PublishResult publish5(const std::string& topic, const std::string& payload, int qos = int(0), bool retained = bool(false), const std::vector<IoT::MQTT::Property>& properties = std::vector<IoT::MQTT::Property>()) = 0;
 		/// MQTT V5 version of publish().
 		///
 		/// Publishes the given message on the given topic, using the given QoS.
@@ -253,7 +253,7 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual IoT::MQTT::Response subscribe5(const std::string& topic, int qos = int(0), const IoT::MQTT::SubscribeOptions& options = IoT::MQTT::SubscribeOptions(), const std::vector < IoT::MQTT::Property >& properties = std::vector < IoT::MQTT::Property >()) = 0;
+	virtual IoT::MQTT::Response subscribe5(const std::string& topic, int qos = int(0), const IoT::MQTT::SubscribeOptions& options = IoT::MQTT::SubscribeOptions(), const std::vector<IoT::MQTT::Property>& properties = std::vector<IoT::MQTT::Property>()) = 0;
 		/// MQTT V5 version of subscribe(), which allows to specify options and properties.
 		///
 		/// This function attempts to subscribe the client to a single topic,
@@ -265,7 +265,7 @@ public:
 		///
 		/// This method is only supported for MQTT 5.
 
-	virtual void subscribeMany(const std::vector < IoT::MQTT::TopicQoS >& topicsAndQoS) = 0;
+	virtual void subscribeMany(const std::vector<IoT::MQTT::TopicQoS>& topicsAndQoS) = 0;
 		/// This function attempts to subscribe the client to a list of topics (with
 		/// associated QoS levels), which may contain wildcards.
 		///
@@ -274,7 +274,7 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual IoT::MQTT::Response subscribeMany5(const std::vector < IoT::MQTT::TopicQoS >& topicsAndQoS, const IoT::MQTT::SubscribeOptions& options = IoT::MQTT::SubscribeOptions(), const std::vector < IoT::MQTT::Property >& properties = std::vector < IoT::MQTT::Property >()) = 0;
+	virtual IoT::MQTT::Response subscribeMany5(const std::vector<IoT::MQTT::TopicQoS>& topicsAndQoS, const IoT::MQTT::SubscribeOptions& options = IoT::MQTT::SubscribeOptions(), const std::vector<IoT::MQTT::Property>& properties = std::vector<IoT::MQTT::Property>()) = 0;
 		/// MQTT V5 version of subscribeMany(), which allows to specify options and properties.
 		///
 		/// This function attempts to subscribe the client to a list of topics (with
@@ -285,7 +285,7 @@ public:
 		///
 		/// This method is only supported for MQTT 5.
 
-	virtual std::vector < IoT::MQTT::TopicQoS > subscribedTopics() const = 0;
+	virtual std::vector<IoT::MQTT::TopicQoS> subscribedTopics() const = 0;
 		/// Returns a vector containing all currently subscribed
 		/// topics with their QoS level.
 		///
@@ -302,7 +302,7 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual IoT::MQTT::Response unsubscribe5(const std::string& topic, const std::vector < IoT::MQTT::Property >& properties = std::vector < IoT::MQTT::Property >()) = 0;
+	virtual IoT::MQTT::Response unsubscribe5(const std::string& topic, const std::vector<IoT::MQTT::Property>& properties = std::vector<IoT::MQTT::Property>()) = 0;
 		/// MQTT V5 version of unsubscribe(), which allows to specify properties.
 		///
 		/// This function attempts to remove an existing subscription made by the client.
@@ -312,7 +312,7 @@ public:
 		///
 		/// This method is only supported for MQTT 5.
 
-	virtual void unsubscribeMany(const std::vector < std::string >& topics) = 0;
+	virtual void unsubscribeMany(const std::vector<std::string>& topics) = 0;
 		/// This function attempts to remove existing subscriptions to a list of
 		/// topics made by the specified client.
 		///
@@ -321,7 +321,7 @@ public:
 		///
 		/// This method is only supported for MQTT 3.1 and 3.1.1.
 
-	virtual IoT::MQTT::Response unsubscribeMany5(const std::vector < std::string >& topics, const std::vector < IoT::MQTT::Property >& properties = std::vector < IoT::MQTT::Property >()) = 0;
+	virtual IoT::MQTT::Response unsubscribeMany5(const std::vector<std::string>& topics, const std::vector<IoT::MQTT::Property>& properties = std::vector<IoT::MQTT::Property>()) = 0;
 		/// MQTT V5 version of unsubscribeMany(), which allows to specify properties.
 		///
 		/// This function attempts to remove existing subscriptions to a list of
@@ -341,13 +341,13 @@ public:
 		///
 		/// This method is only supported for all MQTT versions.
 
-	Poco::BasicEvent < void > connectionClosed;
-	Poco::BasicEvent < const IoT::MQTT::ConnectionEstablishedEvent > connectionEstablished;
-	Poco::BasicEvent < const IoT::MQTT::ConnectionLostEvent > connectionLost;
-	Poco::BasicEvent < const IoT::MQTT::DisconnectedEvent > disconnected;
-	Poco::BasicEvent < const IoT::MQTT::MessageArrivedEvent > messageArrived;
-	Poco::BasicEvent < const IoT::MQTT::MessageDeliveredEvent > messageDelivered;
-	Poco::BasicEvent < const IoT::MQTT::MessagePublishedEvent > messagePublished;
+	Poco::BasicEvent<void> connectionClosed;
+	Poco::BasicEvent<const IoT::MQTT::ConnectionEstablishedEvent> connectionEstablished;
+	Poco::BasicEvent<const IoT::MQTT::ConnectionLostEvent> connectionLost;
+	Poco::BasicEvent<const IoT::MQTT::DisconnectedEvent> disconnected;
+	Poco::BasicEvent<const IoT::MQTT::MessageArrivedEvent> messageArrived;
+	Poco::BasicEvent<const IoT::MQTT::MessageDeliveredEvent> messageDelivered;
+	Poco::BasicEvent<const IoT::MQTT::MessagePublishedEvent> messagePublished;
 };
 
 

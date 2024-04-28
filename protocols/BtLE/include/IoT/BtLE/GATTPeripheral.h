@@ -46,35 +46,45 @@ public:
 	void disconnect();
 	bool isConnected() const;
 	std::string address() const;
-	std::vector<std::string> services();
-	std::string serviceUUIDForAssignedNumber(Poco::UInt32 assignedNumber);
-	std::vector<std::string> characteristics(const std::string& serviceUUID);
-	Characteristic characteristic(const std::string& serviceUUID, const std::string& characteristicUUID);
-	Characteristic characteristicForAssignedNumber(const std::string& serviceUUID, Poco::UInt32 assignedNumber);
-	Poco::UInt16 handleForDescriptor(const std::string& serviceUUID, const std::string& descriptorUUID);
-	Poco::UInt8 readUInt8(Poco::UInt16 valueHandle);
-	Poco::Int8 readInt8(Poco::UInt16 valueHandle);
-	Poco::UInt16 readUInt16(Poco::UInt16 valueHandle);
-	Poco::Int16 readInt16(Poco::UInt16 valueHandle);
-	Poco::UInt32 readUInt32(Poco::UInt16 valueHandle);
-	Poco::Int32 readInt32(Poco::UInt16 valueHandle);
-	std::string readString(Poco::UInt16 valueHandle);
-	std::string readString0(Poco::UInt16 valueHandle);
-	std::vector<char> readBytes(Poco::UInt16 valueHandle);
-	void writeUInt8(Poco::UInt16 valueHandle, Poco::UInt8 value, bool withResponse);
-	void writeInt8(Poco::UInt16 valueHandle, Poco::Int8 value, bool withResponse);
-	void writeUInt16(Poco::UInt16 valueHandle, Poco::UInt16 value, bool withResponse);
-	void writeInt16(Poco::UInt16 valueHandle, Poco::Int16 value, bool withResponse);
-	void writeUInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse);
-	void writeInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse);
-	void writeString(Poco::UInt16 valueHandle, const std::string& value, bool withResponse);
-	void writeBytes(Poco::UInt16 valueHandle, const std::vector<char>& value, bool withResponse);
+	std::vector<Poco::UUID> services();
+	Poco::UUID serviceUUIDForAssignedNumber(Poco::UInt32 assignedNumber);
+	std::vector<Poco::UUID> characteristics(const Poco::UUID& serviceUUID);
+	Characteristic characteristic(const Poco::UUID& serviceUUID, const Poco::UUID& characteristicUUID);
+	Characteristic characteristicForAssignedNumber(const Poco::UUID& serviceUUID, Poco::UInt32 assignedNumber);
+	Handle handleForDescriptor(const Poco::UUID& serviceUUID, const Poco::UUID& characteristicUUID, const Poco::UUID& descriptorUUID);
+	Poco::UInt8 readUInt8(Handle valueHandle);
+	Poco::Int8 readInt8(Handle valueHandle);
+	Poco::UInt16 readUInt16(Handle valueHandle);
+	Poco::Int16 readInt16(Handle valueHandle);
+	Poco::UInt32 readUInt32(Handle valueHandle);
+	Poco::Int32 readInt32(Handle valueHandle);
+	Poco::UInt64 readUInt64(Handle valueHandle);
+	Poco::Int64 readInt64(Handle valueHandle);
+	float readFloat(Handle valueHandle);
+	double readDouble(Handle valueHandle);
+	std::string readString(Handle valueHandle);
+	std::string readString0(Handle valueHandle);
+	std::vector<char> readBytes(Handle valueHandle);
+	void writeUInt8(Handle valueHandle, Poco::UInt8 value, bool withResponse);
+	void writeInt8(Handle valueHandle, Poco::Int8 value, bool withResponse);
+	void writeUInt16(Handle valueHandle, Poco::UInt16 value, bool withResponse);
+	void writeInt16(Handle valueHandle, Poco::Int16 value, bool withResponse);
+	void writeUInt32(Handle valueHandle, Poco::UInt32 value, bool withResponse);
+	void writeInt32(Handle valueHandle, Poco::Int32 value, bool withResponse);
+	void writeUInt64(Handle valueHandle, Poco::UInt64 value, bool withResponse);
+	void writeInt64(Handle valueHandle, Poco::Int64 value, bool withResponse);
+	void writeFloat(Handle valueHandle, float value, bool withResponse);
+	void writeDouble(Handle valueHandle, double value, bool withResponse);
+	void writeString(Handle valueHandle, const std::string& value, bool withResponse);
+	void writeBytes(Handle valueHandle, const std::vector<char>& value, bool withResponse);
+	std::string deviceName();
 	std::string manufacturerName();
 	std::string modelNumber();
 	std::string serialNumber();
 	std::string hardwareRevision();
 	std::string firmwareRevision();
 	std::string softwareRevision();
+	Poco::UUID expandUUID(Poco::UInt32 uuid);
 
 protected:
 	void onConnected();
@@ -83,10 +93,17 @@ protected:
 	void onIndication(const GATTClient::Indication& ind);
 	void onNotification(const GATTClient::Notification& nf);
 	std::string readDeviceInformation(Poco::UInt32 assignedNumber);
+	
+	template <typename T>
+	T readValue(Handle valueHandle);
+
+	template <typename T>
+	void writeValue(Handle valueHandle, T value, bool withResponse);
 
 private:
 	std::string _address;
 	GATTClient::Ptr _pGATTClient;
+	std::string _deviceName;
 	std::string _manufacturerName;
 	std::string _modelNumber;
 	std::string _serialNumber;

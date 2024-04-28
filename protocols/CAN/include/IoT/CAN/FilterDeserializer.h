@@ -47,10 +47,10 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"id"s,"invert"s,"mask"s};
-		TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES[0], true, deser, value.id);
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[1], false, deser, value.invert);
-		TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES[2], true, deser, value.mask);
+		static const std::string REMOTING__NAMES[] = {"id"s,"mask"s,"invert"s};
+		TypeDeserializer<Poco::UInt32>::deserialize(REMOTING__NAMES[0], true, deser, value.id);
+		TypeDeserializer<Poco::UInt32>::deserialize(REMOTING__NAMES[1], true, deser, value.mask);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[2], false, deser, value.invert);
 	}
 
 };

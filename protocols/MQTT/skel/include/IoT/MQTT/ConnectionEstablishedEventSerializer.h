@@ -46,7 +46,7 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"connectionInfo"s,""s};
-		TypeSerializer<IoT::MQTT::ConnectionInfo >::serialize(REMOTING__NAMES[0], value.connectionInfo, ser);
+		TypeSerializer<IoT::MQTT::ConnectionInfo>::serialize(REMOTING__NAMES[0], value.connectionInfo, ser);
 	}
 
 };

@@ -221,9 +221,9 @@ public:
 		/// validity may change. Use validValue() or similar methods
 		/// of subclasses to atomically get validity and value.
 
-	virtual Poco::Optional < double > validValue() const;
+	Poco::Optional<double> validValue() const;
 		/// Returns the current value held by the datapoint if
-		/// it is value, otherwise an empty value.
+		/// it is valid, otherwise an empty value.
 
 	virtual double value() const;
 		/// Returns the current value held by the datapoint,
@@ -439,7 +439,7 @@ inline bool ScalarDatapointRemoteObject::valid() const
 }
 
 
-inline Poco::Optional < double > ScalarDatapointRemoteObject::validValue() const
+inline Poco::Optional<double> ScalarDatapointRemoteObject::validValue() const
 {
 	return _pServiceObject->validValue();
 }

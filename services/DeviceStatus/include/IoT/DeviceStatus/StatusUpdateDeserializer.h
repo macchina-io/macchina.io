@@ -47,15 +47,15 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"acknowledgeable"s,"messageClass"s,"source"s,"status"s,"text"s};
+		static const std::string REMOTING__NAMES[] = {"messageClass"s,"source"s,"acknowledgeable"s,"status"s,"text"s};
 		bool ret = false;
-		TypeDeserializer<bool >::deserialize(REMOTING__NAMES[0], false, deser, value.acknowledgeable);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], false, deser, value.messageClass);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], false, deser, value.source);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], false, deser, value.messageClass);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], false, deser, value.source);
+		TypeDeserializer<bool>::deserialize(REMOTING__NAMES[2], false, deser, value.acknowledgeable);
 		int genstatus;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[3], true, deser, genstatus);
+		ret = TypeDeserializer<int>::deserialize(REMOTING__NAMES[3], true, deser, genstatus);
 		if (ret) value.status = static_cast<IoT::DeviceStatus::DeviceStatus>(genstatus);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[4], true, deser, value.text);
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[4], true, deser, value.text);
 	}
 
 };

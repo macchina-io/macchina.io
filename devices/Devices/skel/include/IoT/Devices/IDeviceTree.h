@@ -57,10 +57,10 @@ public:
 		///
 		/// Throws a Poco::NotFoundException if no DeviceNode is available for the given pathName.
 
-	virtual Poco::Optional < IoT::Devices::DeviceNode > findDeviceById(const std::string& id) const = 0;
+	virtual Poco::Optional<IoT::Devices::DeviceNode> findDeviceById(const std::string& id) const = 0;
 		/// Returns the DeviceNode of the device with the given device identifier, if it exists.
 
-	virtual Poco::Optional < IoT::Devices::DeviceNode > findDeviceByPath(const std::string& path) const = 0;
+	virtual Poco::Optional<IoT::Devices::DeviceNode> findDeviceByPath(const std::string& path) const = 0;
 		/// Returns the DeviceNode of the device with the given path, if it exists.
 		/// The path name is composed of the instance names of all parent composite devices,
 		/// as well as the device's instance name, separated by "/".

@@ -49,11 +49,12 @@ public:
 	State state() const;
 	std::string address() const;
 	std::vector<Service> services();
-	std::vector<Service> includedServices(const std::string& serviceUUID);
-	std::vector<Characteristic> characteristics(const std::string& serviceUUID);
-	std::vector<Descriptor> descriptors(const std::string& serviceUUID);
-	std::string read(Poco::UInt16 handle);
-	void write(Poco::UInt16 handle, const std::string& value, bool withResponse);
+	std::vector<Service> includedServices(const Poco::UUID& serviceUUID);
+	std::vector<Characteristic> characteristics(const Poco::UUID& serviceUUID);
+	std::vector<Descriptor> descriptors(const Poco::UUID& serviceUUID);
+	std::string read(Handle handle);
+	void write(Handle handle, const std::string& value, bool withResponse);
+	void write(Handle handle, const char* value, std::size_t size, bool withResponse);
 	void setSecurityLevel(SecurityLevel level);
 	SecurityLevel getSecurityLevel() const;
 	void setMTU(Poco::UInt8 mtu);
@@ -73,7 +74,7 @@ protected:
 		std::vector<Characteristic> characteristics;
 		std::vector<Descriptor> descriptors;
 	};
-	using ServiceMap = std::map<std::string, ServiceDesc::Ptr>;
+	using ServiceMap = std::map<Poco::UUID, ServiceDesc::Ptr>;
 
 private:
 	std::string _address;

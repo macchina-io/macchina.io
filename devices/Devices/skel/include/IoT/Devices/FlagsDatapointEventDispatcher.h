@@ -19,7 +19,7 @@
 #define IoT_Devices_FlagsDatapointEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/FlagsDatapointRemoteObject.h"
+#include "IoT/Devices/IFlagsDatapoint.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -42,7 +42,7 @@ class FlagsDatapointEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	///     formatted as string for display purposes.
 {
 public:
-	FlagsDatapointEventDispatcher(FlagsDatapointRemoteObject* pRemoteObject, const std::string& protocol);
+	FlagsDatapointEventDispatcher(IFlagsDatapoint* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a FlagsDatapointEventDispatcher.
 
 	virtual ~FlagsDatapointEventDispatcher();
@@ -52,11 +52,11 @@ public:
 
 	void event__statusChanged(const void* pSender, const IoT::Devices::DeviceStatusChange& data);
 
-	void event__validated(const void* pSender, const std::vector < bool >& data);
+	void event__validated(const void* pSender, const std::vector<bool>& data);
 
-	void event__valueChanged(const void* pSender, const std::vector < bool >& data);
+	void event__valueChanged(const void* pSender, const std::vector<bool>& data);
 
-	void event__valueUpdated(const void* pSender, const std::vector < bool >& data);
+	void event__valueUpdated(const void* pSender, const std::vector<bool>& data);
 
 	virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const;
 
@@ -65,14 +65,15 @@ private:
 
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
-	void event__validatedImpl(const std::string& subscriberURI, const std::vector < bool >& data);
+	void event__validatedImpl(const std::string& subscriberURI, const std::vector<bool>& data);
 
-	void event__valueChangedImpl(const std::string& subscriberURI, const std::vector < bool >& data);
+	void event__valueChangedImpl(const std::string& subscriberURI, const std::vector<bool>& data);
 
-	void event__valueUpdatedImpl(const std::string& subscriberURI, const std::vector < bool >& data);
+	void event__valueUpdatedImpl(const std::string& subscriberURI, const std::vector<bool>& data);
 
 	static const std::string DEFAULT_NS;
-	FlagsDatapointRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IFlagsDatapoint* _pInterface;
 };
 
 

@@ -19,7 +19,7 @@
 #define IoT_MQTT_MQTTClientEventDispatcher_INCLUDED
 
 
-#include "IoT/MQTT/MQTTClientRemoteObject.h"
+#include "IoT/MQTT/IMQTTClient.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -44,7 +44,7 @@ class MQTTClientEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// the client's configured MQTT version.
 {
 public:
-	MQTTClientEventDispatcher(MQTTClientRemoteObject* pRemoteObject, const std::string& protocol);
+	MQTTClientEventDispatcher(IMQTTClient* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a MQTTClientEventDispatcher.
 
 	virtual ~MQTTClientEventDispatcher();
@@ -82,7 +82,8 @@ private:
 	void event__messagePublishedImpl(const std::string& subscriberURI, const IoT::MQTT::MessagePublishedEvent& data);
 
 	static const std::string DEFAULT_NS;
-	MQTTClientRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	IMQTTClient* _pInterface;
 };
 
 

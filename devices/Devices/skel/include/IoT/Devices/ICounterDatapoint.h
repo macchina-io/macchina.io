@@ -79,7 +79,7 @@ public:
 	const std::type_info& type() const;
 		/// Returns the type information for the object's class.
 
-	virtual Poco::Optional < Poco::Int64 > validValue() const = 0;
+	virtual Poco::Optional<Poco::Int64> validValue() const = 0;
 		/// Returns the current value of the datapoint if it
 		/// is valid, otherwise an empty value.
 
@@ -89,8 +89,8 @@ public:
 		///
 		/// Use validValue() to get a valid value only.
 
-	Poco::BasicEvent < const Poco::Int64 > validated;
-	Poco::BasicEvent < const Poco::Int64 > valueChanged;
+	Poco::BasicEvent<const Poco::Int64> validated;
+	Poco::BasicEvent<const Poco::Int64> valueChanged;
 };
 
 

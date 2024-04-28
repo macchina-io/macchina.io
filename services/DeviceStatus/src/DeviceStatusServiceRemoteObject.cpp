@@ -57,7 +57,7 @@ std::string DeviceStatusServiceRemoteObject::remoting__enableEvents(Poco::Remoti
 
 void DeviceStatusServiceRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new DeviceStatusServiceEventDispatcher(this, protocol);
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new DeviceStatusServiceEventDispatcher(this, remoting__objectId(), protocol);
 	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 

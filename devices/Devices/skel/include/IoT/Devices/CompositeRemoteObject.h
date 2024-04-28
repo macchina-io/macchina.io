@@ -66,7 +66,7 @@ public:
 	virtual ~CompositeRemoteObject();
 		/// Destroys the CompositeRemoteObject.
 
-	virtual Poco::Optional < std::string > fragmentByName(const std::string& nodeName) const;
+	Poco::Optional<std::string> fragmentByName(const std::string& nodeName) const;
 		/// Returns the device identifier of the direct sub device 
 		/// with the given node name (property "io.macchina.nodeName"), 
 		/// or an empty optional if no such device node exists.
@@ -74,7 +74,7 @@ public:
 		/// Note: if multiple child nodes with the same node name exist,
 		/// which of these nodes is returned is undefined.
 
-	virtual std::vector < std::string > fragments() const;
+	std::vector<std::string> fragments() const;
 		/// Returns a vector containing the device identifiers
 		/// of all direct sub devices owned by this device.
 
@@ -203,13 +203,13 @@ private:
 };
 
 
-inline Poco::Optional < std::string > CompositeRemoteObject::fragmentByName(const std::string& nodeName) const
+inline Poco::Optional<std::string> CompositeRemoteObject::fragmentByName(const std::string& nodeName) const
 {
 	return _pServiceObject->fragmentByName(nodeName);
 }
 
 
-inline std::vector < std::string > CompositeRemoteObject::fragments() const
+inline std::vector<std::string> CompositeRemoteObject::fragments() const
 {
 	return _pServiceObject->fragments();
 }

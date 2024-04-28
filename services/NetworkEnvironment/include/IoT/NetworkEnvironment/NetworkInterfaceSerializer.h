@@ -45,24 +45,24 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"adapterName"s,"addresses"s,"displayName"s,"index"s,"isLoopback"s,"isPointToPoint"s,"isRunning"s,"isUp"s,"macAddress"s,"mtu"s,"name"s,"supportsBroadcast"s,"supportsIP"s,"supportsIPv4"s,"supportsIPv6"s,"supportsMulticast"s,"type"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.adapterName, ser);
-		TypeSerializer<std::vector < IoT::NetworkEnvironment::AddressTuple > >::serialize(REMOTING__NAMES[1], value.addresses, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.displayName, ser);
-		TypeSerializer<unsigned >::serialize(REMOTING__NAMES[3], value.index, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[4], value.isLoopback, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[5], value.isPointToPoint, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[6], value.isRunning, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[7], value.isUp, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[8], value.macAddress, ser);
-		TypeSerializer<unsigned >::serialize(REMOTING__NAMES[9], value.mtu, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[10], value.name, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[11], value.supportsBroadcast, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[12], value.supportsIP, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[13], value.supportsIPv4, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[14], value.supportsIPv6, ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[15], value.supportsMulticast, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[16], static_cast<int>(value.type), ser);
+		static const std::string REMOTING__NAMES[] = {"index"s,"name"s,"displayName"s,"adapterName"s,"macAddress"s,"addresses"s,"mtu"s,"type"s,"supportsIP"s,"supportsIPv4"s,"supportsIPv6"s,"supportsBroadcast"s,"supportsMulticast"s,"isLoopback"s,"isPointToPoint"s,"isRunning"s,"isUp"s,""s};
+		TypeSerializer<unsigned>::serialize(REMOTING__NAMES[0], value.index, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.name, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], value.displayName, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[3], value.adapterName, ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[4], value.macAddress, ser);
+		TypeSerializer<std::vector<IoT::NetworkEnvironment::AddressTuple>>::serialize(REMOTING__NAMES[5], value.addresses, ser);
+		TypeSerializer<unsigned>::serialize(REMOTING__NAMES[6], value.mtu, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[7], static_cast<int>(value.type), ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[8], value.supportsIP, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[9], value.supportsIPv4, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[10], value.supportsIPv6, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[11], value.supportsBroadcast, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[12], value.supportsMulticast, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[13], value.isLoopback, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[14], value.isPointToPoint, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[15], value.isRunning, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[16], value.isUp, ser);
 	}
 
 };

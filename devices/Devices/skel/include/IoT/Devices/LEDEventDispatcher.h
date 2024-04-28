@@ -19,7 +19,7 @@
 #define IoT_Devices_LEDEventDispatcher_INCLUDED
 
 
-#include "IoT/Devices/LEDRemoteObject.h"
+#include "IoT/Devices/ILED.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
 
 
@@ -47,7 +47,7 @@ class LEDEventDispatcher: public Poco::RemotingNG::EventDispatcher
 	/// be non-zero.
 {
 public:
-	LEDEventDispatcher(LEDRemoteObject* pRemoteObject, const std::string& protocol);
+	LEDEventDispatcher(ILED* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a LEDEventDispatcher.
 
 	virtual ~LEDEventDispatcher();
@@ -61,7 +61,8 @@ private:
 	void event__statusChangedImpl(const std::string& subscriberURI, const IoT::Devices::DeviceStatusChange& data);
 
 	static const std::string DEFAULT_NS;
-	LEDRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	ILED* _pInterface;
 };
 
 

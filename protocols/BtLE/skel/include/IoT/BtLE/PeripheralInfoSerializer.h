@@ -45,13 +45,13 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"address"s,"addressType"s,"connectable"s,"data"s,"name"s,"rssi"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.address, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[1], static_cast<int>(value.addressType), ser);
-		TypeSerializer<bool >::serialize(REMOTING__NAMES[2], value.connectable, ser);
-		TypeSerializer<std::vector < IoT::BtLE::AdvertisingData > >::serialize(REMOTING__NAMES[3], value.data, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[4], value.name, ser);
-		TypeSerializer<short >::serialize(REMOTING__NAMES[5], value.rssi, ser);
+		static const std::string REMOTING__NAMES[] = {"address"s,"addressType"s,"name"s,"rssi"s,"connectable"s,"data"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.address, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[1], static_cast<int>(value.addressType), ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], value.name, ser);
+		TypeSerializer<short>::serialize(REMOTING__NAMES[3], value.rssi, ser);
+		TypeSerializer<bool>::serialize(REMOTING__NAMES[4], value.connectable, ser);
+		TypeSerializer<std::vector<IoT::BtLE::AdvertisingData>>::serialize(REMOTING__NAMES[5], value.data, ser);
 	}
 
 };
