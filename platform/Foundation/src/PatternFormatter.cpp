@@ -26,6 +26,9 @@
 #include "Poco/Path.h"
 
 
+using namespace std::string_literals;
+
+
 namespace Poco {
 
 
@@ -33,6 +36,7 @@ const std::string PatternFormatter::PROP_PATTERN = "pattern";
 const std::string PatternFormatter::PROP_TIMES   = "times";
 const std::string PatternFormatter::PROP_PRIORITY_NAMES = "priorityNames";
 const std::string PatternFormatter::DEFAULT_PRIORITY_NAMES = "Fatal,Critical,Error,Warning,Notice,Information,Debug,Trace";
+
 
 PatternFormatter::PatternFormatter():
 	_localTime(false),
@@ -117,13 +121,7 @@ void PatternFormatter::format(const Message& msg, std::string& text)
 				text.append(msg.getSource());
 			break;
 		case 'x':
-			try
-			{
-				text.append(msg[pa.property]);
-			}
-			catch (...)
-			{
-			}
+			text.append(msg.get(pa.property, ""s));
 			break;
 		case 'L':
 			if (!localTime)
@@ -207,7 +205,7 @@ void PatternFormatter::setProperty(const std::string& name, const std::string& v
 	}
 	else if (name == PROP_TIMES)
 	{
-		_localTime = (value == "local");
+		_localTime = (value == "local"s);
 	}
 	else if (name == PROP_PRIORITY_NAMES)
 	{
@@ -226,7 +224,7 @@ std::string PatternFormatter::getProperty(const std::string& name) const
 	if (name == PROP_PATTERN)
 		return _pattern;
 	else if (name == PROP_TIMES)
-		return _localTime ? "local" : "UTC";
+		return _localTime ? "local"s : "UTC"s;
 	else if (name == PROP_PRIORITY_NAMES)
 		return _priorityNames;
 	else
@@ -236,7 +234,7 @@ std::string PatternFormatter::getProperty(const std::string& name) const
 
 void PatternFormatter::parsePriorityNames()
 {
-	StringTokenizer st(_priorityNames, ",;", StringTokenizer::TOK_TRIM);
+	StringTokenizer st(_priorityNames, ",;"s, StringTokenizer::TOK_TRIM);
 	if (st.count() == 8)
 	{
 		for (int i = 1; i <= 8; i++)

@@ -50,6 +50,7 @@ void NameSpace::addSymbol(Symbol* pSymbol)
 {
 	poco_check_ptr (pSymbol);
 	
+	pSymbol->setOrder(_symbols.size());
 	_symbols.insert(SymbolTable::value_type(pSymbol->name(), pSymbol));
 }
 

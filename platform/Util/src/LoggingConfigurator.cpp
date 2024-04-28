@@ -140,7 +140,15 @@ Channel::Ptr LoggingConfigurator::createChannel(AbstractConfiguration::Ptr pConf
 		if (p == "pattern")
 		{
 			AutoPtr<Formatter> pPatternFormatter(new PatternFormatter(pConfig->getString(p)));
-			pWrapper = new FormattingChannel(pPatternFormatter, pChannel);
+			Poco::AutoPtr<Poco::FormattingChannel> pFC = pChannel.cast<Poco::FormattingChannel>();
+			if (pFC)
+			{
+				pFC->setFormatter(pPatternFormatter);
+			}
+			else
+			{
+				pWrapper = new FormattingChannel(pPatternFormatter, pChannel);
+			}
 		}
 		else if (p == "formatter")
 		{

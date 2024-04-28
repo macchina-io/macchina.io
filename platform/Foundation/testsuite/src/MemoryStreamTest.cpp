@@ -345,6 +345,12 @@ void MemoryStreamTest::testOutputSeek()
 	assertTrue (ostr.good());
 	assertTrue (9 == ostr.tellp());
 
+
+	ostr.seekp(5);
+	assertTrue (ostr.good());
+	assertTrue (5 == ostr.tellp());
+
+
 	{
 		Poco::MemoryOutputStream ostr2(buffer.begin(), buffer.size());
 		ostr2.seekp(10, std::ios_base::beg);
