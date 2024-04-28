@@ -64,12 +64,21 @@ void writeBuffer(const v8::FunctionCallbackInfo<v8::Value>& args, T value, Poco:
 	{
 		offset = args[1]->Int32Value(context).FromMaybe(0);
 	}
-	if (offset >= 0 && offset <= pBuffer->size() - sizeof(T))
+	if (offset >= 0 && offset + sizeof(T) <= pBuffer->capacity())
 	{
+		if (offset + sizeof(T) > pBuffer->size()) 
+		{
+			pBuffer->resize(offset + sizeof(T));
+		}
+
 		Poco::MemoryOutputStream memoryOutputStream(pBuffer->begin() + offset, sizeof(T));
 		Poco::BinaryWriter binaryWriter(memoryOutputStream, byteOrder);
 		binaryWriter << value;
 		args.GetReturnValue().Set(static_cast<Poco::Int32>(offset + sizeof(T)));
+	}
+	else
+	{
+		Poco::JS::Core::Wrapper::returnException(args, Poco::format("Out of bounds write of length %z to offset %z of a buffer with capacity %z"s, sizeof(T), offset, pBuffer->capacity()));
 	}
 }
 
@@ -86,7 +95,7 @@ Poco::Optional<T> readBuffer(const v8::FunctionCallbackInfo<v8::Value>& args, Po
 	{
 		offset = args[0]->Int32Value(context).FromMaybe(0);
 	}
-	if (offset >= 0 && offset <= pBuffer->size() - sizeof(T))
+	if (offset >= 0 && offset + sizeof(T) <= pBuffer->size())
 	{
 		Poco::MemoryInputStream memoryInputStream(pBuffer->begin() + offset, sizeof(T));
 		Poco::BinaryReader binaryReader(memoryInputStream, byteOrder);

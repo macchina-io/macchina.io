@@ -1211,7 +1211,7 @@ void TimedJSExecutor::cancelTimer(const v8::FunctionCallbackInfo<v8::Value>& arg
 			CallFunctionTask* pTimerTask = Wrapper::unwrapNativeObject<CallFunctionTask>(args[0]);
 			pTimerTask->cancel();
 		}
-		else throw Poco::InvalidArgumentException("Invalid object passed to clearImmediate(), clearTimer() or clearTimeout()");
+		// Note: Don't report invalid argument for compatibility with JavaScript in browsers
 	}
 	catch (Poco::Exception& exc)
 	{

@@ -14,6 +14,7 @@
 
 #include "Poco/JS/Core/UUIDWrapper.h"
 #include "Poco/JS/Core/PooledIsolate.h"
+#include "Poco/JS/Core/BufferWrapper.h"
 #include "Poco/UUIDGenerator.h"
 #include "Poco/UUID.h"
 
@@ -62,6 +63,7 @@ v8::Handle<v8::ObjectTemplate> UUIDWrapper::objectTemplate(v8::Isolate* pIsolate
 		objectTemplate->SetAccessor(toV8Internalized(pIsolate, "variant"s), variant);
 
 		objectTemplate->Set(toV8Internalized(pIsolate, "toString"s), v8::FunctionTemplate::New(pIsolate, toString));
+		objectTemplate->Set(toV8Internalized(pIsolate, "toBuffer"s), v8::FunctionTemplate::New(pIsolate, toBuffer));
 		objectTemplate->Set(toV8Internalized(pIsolate, "toJSON"s), v8::FunctionTemplate::New(pIsolate, toString));
 		objectTemplate->Set(toV8Internalized(pIsolate, "equals"s), v8::FunctionTemplate::New(pIsolate, equals));
 		objectTemplate->Set(toV8Internalized(pIsolate, "isNull"s), v8::FunctionTemplate::New(pIsolate, isNull));
@@ -87,6 +89,16 @@ void UUIDWrapper::construct(const v8::FunctionCallbackInfo<v8::Value>& args)
 			if (args[0]->IsString())
 			{
 				pUUID = new Poco::UUID(Wrapper::toString(pIsolate, args[0]));
+			}
+			else if (args[0]->IsObject() && Wrapper::isWrapper<Poco::JS::Core::BufferWrapper::Buffer>(pIsolate, args[0]))
+			{
+				Poco::JS::Core::BufferWrapper::Buffer* pBuffer = Wrapper::unwrapNativeObject<Poco::JS::Core::BufferWrapper::Buffer>(args[0]);
+				if (pBuffer->size() >= 16)
+				{
+					pUUID = new Poco::UUID;
+					pUUID->copyFrom(pBuffer->begin());
+				}
+				else throw Poco::InvalidAccessException("Buffer used to construct UUID must have a size of at least 16 bytes");
 			}
 			else throw Poco::InvalidArgumentException("Invalid arguments to construct UUID");
 		}
@@ -199,6 +211,20 @@ void UUIDWrapper::toString(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		returnException(args, exc);
 	}
+}
+
+
+void UUIDWrapper::toBuffer(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::HandleScope scope(args.GetIsolate());
+	Poco::UUID* pUUID = Wrapper::unwrapNative<Poco::UUID>(args);
+
+	std::unique_ptr<Poco::JS::Core::BufferWrapper::Buffer> pBuffer = std::make_unique<Poco::JS::Core::BufferWrapper::Buffer>(16);
+	pUUID->copyTo(pBuffer->begin());
+
+	Poco::JS::Core::BufferWrapper wrapper;
+	v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(args.GetIsolate(), pBuffer.release()));
+	args.GetReturnValue().Set(v8::Local<v8::Object>::New(args.GetIsolate(), bufferObject));
 }
 
 
