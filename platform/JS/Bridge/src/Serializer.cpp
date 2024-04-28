@@ -14,6 +14,9 @@
 
 #include "Poco/JS/Bridge/Serializer.h"
 #include "Poco/JS/Core/BufferWrapper.h"
+#include "Poco/JS/Core/DateTimeWrapper.h"
+#include "Poco/JS/Core/LocalDateTimeWrapper.h"
+#include "Poco/JS/Core/UUIDWrapper.h"
 
 
 namespace Poco {
@@ -215,6 +218,46 @@ void Serializer::serialize(const std::string& name, const std::vector<char>& val
 	v8::Persistent<v8::Object>& bufferObject(wrapper.wrapNativePersistent(_pIsolate, pBuffer));
 	v8::Local<v8::Object> localBufferObject = v8::Local<v8::Object>::New(_pIsolate, bufferObject);
 	serializeValue(name, localBufferObject);
+}
+
+
+void Serializer::serialize(const std::string& name, const Poco::DateTime& value)
+{
+	Poco::DateTime* pDateTime = new Poco::DateTime(value);
+	Poco::JS::Core::DateTimeWrapper wrapper;
+	v8::Persistent<v8::Object>& dateTimeObject(wrapper.wrapNativePersistent(_pIsolate, pDateTime));
+	v8::Local<v8::Object> localDateTimeObject = v8::Local<v8::Object>::New(_pIsolate, dateTimeObject);
+	serializeValue(name, localDateTimeObject);
+}
+
+
+void Serializer::serialize(const std::string& name, const Poco::LocalDateTime& value)
+{
+	Poco::LocalDateTime* pDateTime = new Poco::LocalDateTime(value);
+	Poco::JS::Core::LocalDateTimeWrapper wrapper;
+	v8::Persistent<v8::Object>& dateTimeObject(wrapper.wrapNativePersistent(_pIsolate, pDateTime));
+	v8::Local<v8::Object> localDateTimeObject = v8::Local<v8::Object>::New(_pIsolate, dateTimeObject);
+	serializeValue(name, localDateTimeObject);
+}
+
+
+void Serializer::serialize(const std::string& name, const Poco::Timestamp& value)
+{
+	Poco::DateTime* pDateTime = new Poco::DateTime(value);
+	Poco::JS::Core::DateTimeWrapper wrapper;
+	v8::Persistent<v8::Object>& dateTimeObject(wrapper.wrapNativePersistent(_pIsolate, pDateTime));
+	v8::Local<v8::Object> localDateTimeObject = v8::Local<v8::Object>::New(_pIsolate, dateTimeObject);
+	serializeValue(name, localDateTimeObject);
+}
+
+
+void Serializer::serialize(const std::string& name, const Poco::UUID& value)
+{
+	Poco::UUID* pUUID = new Poco::UUID(value);
+	Poco::JS::Core::UUIDWrapper wrapper;
+	v8::Persistent<v8::Object>& uuidObject(wrapper.wrapNativePersistent(_pIsolate, pUUID));
+	v8::Local<v8::Object> localUUIDObject = v8::Local<v8::Object>::New(_pIsolate, uuidObject);
+	serializeValue(name, localUUIDObject);
 }
 
 

@@ -53,6 +53,7 @@ protected:
 	static void version(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void variant(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void toString(const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void toBuffer(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void equals(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void isNull(const v8::FunctionCallbackInfo<v8::Value>& args);
 };

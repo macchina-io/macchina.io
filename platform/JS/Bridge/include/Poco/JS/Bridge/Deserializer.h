@@ -68,6 +68,10 @@ public:
 	bool deserialize(const std::string& name, bool isMandatory, char& value);
 	bool deserialize(const std::string& name, bool isMandatory, std::string& value);
 	bool deserialize(const std::string& name, bool isMandatory, std::vector<char>& value);
+	bool deserialize(const std::string& name, bool isMandatory, Poco::DateTime& value);
+	bool deserialize(const std::string& name, bool isMandatory, Poco::LocalDateTime& value);
+	bool deserialize(const std::string& name, bool isMandatory, Poco::Timestamp& value);
+	bool deserialize(const std::string& name, bool isMandatory, Poco::UUID& value);
 	v8::MaybeLocal<v8::Value> deserializeValue(const std::string& name);
 	v8::MaybeLocal<v8::Value> peekValue(const std::string& name);
 

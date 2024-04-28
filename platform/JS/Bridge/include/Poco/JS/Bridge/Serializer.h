@@ -144,6 +144,10 @@ public:
 	void serialize(const std::string& name, char value);
 	void serialize(const std::string& name, const std::string& value);
 	void serialize(const std::string& name, const std::vector<char>& value);
+	void serialize(const std::string& name, const Poco::DateTime& value);
+	void serialize(const std::string& name, const Poco::LocalDateTime& value);
+	void serialize(const std::string& name, const Poco::Timestamp& value);
+	void serialize(const std::string& name, const Poco::UUID& value);
 	void serializeValue(const std::string& name, const v8::Local<v8::Value>& value);
 
 protected:

@@ -220,7 +220,60 @@ const v8::Global<v8::Object>& TaggedBinaryReader::read(std::istream& istream)
 
 		case TaggedBinarySerializer::TYPE_TAG_BUFFER:
 			{
-				read<std::vector<char> >(deserializer);
+				read<std::vector<char>>(deserializer);
+			}
+			break;
+
+		case TaggedBinarySerializer::TYPE_TAG_DATETIME:
+			{
+				std::string name = deserializeName(deserializer);
+
+				Poco::Timestamp::TimeVal epochMicroseconds;
+				check(deserializer.deserialize(name, true, epochMicroseconds));
+				Poco::Timestamp timestamp = Poco::Timestamp(epochMicroseconds);
+				Poco::DateTime dateTime(timestamp);
+				_serializer.serialize(name, dateTime); 
+			}
+			break;
+
+		case TaggedBinarySerializer::TYPE_TAG_LOCALDATETIME:
+			{
+				std::string name = deserializeName(deserializer);
+
+				Poco::Timestamp::TimeVal epochMicroseconds;
+				check(deserializer.deserialize(name, true, epochMicroseconds));
+				int tzd;
+				check(deserializer.deserialize(name, true, tzd));
+				Poco::Timestamp timestamp = Poco::Timestamp(epochMicroseconds);
+				Poco::DateTime dateTime(timestamp);
+				Poco::LocalDateTime localDateTime(tzd, dateTime);
+				_serializer.serialize(name, localDateTime); 
+			}
+			break;
+
+		case TaggedBinarySerializer::TYPE_TAG_TIMESTAMP:
+			{
+				std::string name = deserializeName(deserializer);
+
+				Poco::Timestamp::TimeVal epochMicroseconds;
+				check(deserializer.deserialize(name, true, epochMicroseconds));
+				Poco::Timestamp timestamp = Poco::Timestamp(epochMicroseconds);
+				_serializer.serialize(name, timestamp); 
+			}
+			break;
+
+		case TaggedBinarySerializer::TYPE_TAG_UUID:
+			{
+				std::string name = deserializeName(deserializer);
+
+				std::vector<char> bytes;
+				check(deserializer.deserialize(name, true, bytes));
+				Poco::UUID uuid;
+				if (bytes.size() == 16)
+				{
+					uuid.copyFrom(bytes.data());
+				}
+				_serializer.serialize(name, uuid);
 			}
 			break;
 

@@ -58,7 +58,11 @@ public:
 		TYPE_TAG_BOOL           = 0x50,
 		TYPE_TAG_CHAR           = 0x60,
 		TYPE_TAG_STRING         = 0x70,
-		TYPE_TAG_BUFFER         = 0x71
+		TYPE_TAG_BUFFER         = 0x71,
+		TYPE_TAG_UUID           = 0x72,
+		TYPE_TAG_DATETIME       = 0x80,
+		TYPE_TAG_LOCALDATETIME  = 0x81,
+		TYPE_TAG_TIMESTAMP      = 0x82
 	};
 
 	enum ContainerType
@@ -106,6 +110,10 @@ public:
 	void serialize(const std::string& name, char val);
 	void serialize(const std::string& name, const std::string& val);
 	void serialize(const std::string& name, const std::vector<char>& val);
+	void serialize(const std::string& name, const Poco::DateTime& value);
+	void serialize(const std::string& name, const Poco::LocalDateTime& value);
+	void serialize(const std::string& name, const Poco::Timestamp& value);
+	void serialize(const std::string& name, const Poco::UUID& value);
 
 protected:
 	void serializeTypeTag(TypeTag tag);

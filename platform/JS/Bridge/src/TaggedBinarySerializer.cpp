@@ -261,4 +261,39 @@ void TaggedBinarySerializer::serialize(const std::string& name, const std::vecto
 }
 
 
+void TaggedBinarySerializer::serialize(const std::string& name, const Poco::DateTime& value)
+{
+	serializeTypeTag(TYPE_TAG_DATETIME);
+	serializeName(name);
+	_serializer.serialize(name, value.timestamp().epochMicroseconds());
+}
+
+
+void TaggedBinarySerializer::serialize(const std::string& name, const Poco::LocalDateTime& value)
+{
+	serializeTypeTag(TYPE_TAG_LOCALDATETIME);
+	serializeName(name);
+	_serializer.serialize(name, value.timestamp().epochMicroseconds());
+	_serializer.serialize(name, value.tzd());
+}
+
+
+void TaggedBinarySerializer::serialize(const std::string& name, const Poco::Timestamp& value)
+{
+	serializeTypeTag(TYPE_TAG_TIMESTAMP);
+	serializeName(name);
+	_serializer.serialize(name, value.epochMicroseconds());
+}
+
+
+void TaggedBinarySerializer::serialize(const std::string& name, const Poco::UUID& value)
+{
+	serializeTypeTag(TYPE_TAG_UUID);
+	serializeName(name);
+	std::vector<char> data(16);
+	value.copyTo(data.data());
+	_serializer.serialize(name, data);
+}
+
+
 } } } // namespace Poco::JS::Bridge

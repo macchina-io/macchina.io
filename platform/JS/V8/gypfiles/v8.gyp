@@ -788,36 +788,36 @@
         }],
         ['v8_target_arch=="ia32"', {
           'sources': [  ### gcmole(arch:ia32) ###
-            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"x86.*?sources \+= ")',
+            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"x86.*?sources \\+= ")',
           ],
         }],
         ['v8_target_arch=="x64"', {
           'sources': [  ### gcmole(arch:x64) ###
-            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"x64.*?sources \+= ")',
+            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"x64.*?sources \\+= ")',
           ],
           'conditions': [
             # iOS Xcode simulator builds run on an x64 target. iOS and macOS are both
             # based on Darwin and thus POSIX-compliant to a similar degree.
             ['OS=="linux" or OS=="mac" or OS=="ios" or OS=="freebsd"', {
               'sources': [
-                '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?is_linux.*?sources \+= ")',
+                '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?is_linux.*?sources \\+= ")',
               ],
             }],
             ['OS=="win"', {
               'sources': [
-                '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?is_win.*?sources \+= ")',
+                '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?is_win.*?sources \\+= ")',
               ],
             }],
           ],
         }],
         ['v8_target_arch=="arm"', {
           'sources': [  ### gcmole(arch:arm) ###
-            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"arm\\".*?sources \+= ")',
+            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"arm\\".*?sources \\+= ")',
           ],
         }],
         ['v8_target_arch=="arm64"', {
           'sources': [  ### gcmole(arch:arm64) ###
-            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"arm64\\".*?sources \+= ")',
+            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"arm64\\".*?sources \\+= ")',
           ],
           'conditions': [
             ['OS=="win"', {
@@ -830,27 +830,27 @@
         }],
         ['v8_target_arch=="mips" or v8_target_arch=="mipsel"', {
           'sources': [  ### gcmole(arch:mipsel) ###
-            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"mips\\".*?sources \+= ")',
+            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"mips\\".*?sources \\+= ")',
           ],
         }],
         ['v8_target_arch=="mips64" or v8_target_arch=="mips64el"', {
           'sources': [  ### gcmole(arch:mips64el) ###
-            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"mips64\\".*?sources \+= ")',
+            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"mips64\\".*?sources \\+= ")',
           ],
         }],
         ['v8_target_arch=="ppc"', {
           'sources': [  ### gcmole(arch:ppc) ###
-            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"ppc\\".*?sources \+= ")',
+            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"ppc\\".*?sources \\+= ")',
           ],
         }],
         ['v8_target_arch=="ppc64"', {
           'sources': [  ### gcmole(arch:ppc64) ###
-            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"ppc64\\".*?sources \+= ")',
+            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"ppc64\\".*?sources \\+= ")',
           ],
         }],
         ['v8_target_arch=="s390x"', {
           'sources': [  ### gcmole(arch:s390) ###
-            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"s390\\".*?sources \+= ")',
+            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"s390\\".*?sources \\+= ")',
           ],
         }],
         ['OS=="win"', {

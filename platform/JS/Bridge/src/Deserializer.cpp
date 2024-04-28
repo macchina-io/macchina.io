@@ -14,6 +14,9 @@
 
 #include "Poco/JS/Bridge/Deserializer.h"
 #include "Poco/JS/Core/BufferWrapper.h"
+#include "Poco/JS/Core/DateTimeWrapper.h"
+#include "Poco/JS/Core/LocalDateTimeWrapper.h"
+#include "Poco/JS/Core/UUIDWrapper.h"
 #include "Poco/RemotingNG/RemotingException.h"
 
 
@@ -462,6 +465,100 @@ bool Deserializer::deserialize(const std::string& name, bool /*isMandatory*/, st
 			return true;
 		}
 		else throw Poco::RemotingNG::DeserializerException("value is not a buffer");
+	}
+	else return false;
+}
+
+
+bool Deserializer::deserialize(const std::string& name, bool isMandatory, Poco::DateTime& value)
+{
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
+	{
+		if (jsValue->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::DateTime>(_pIsolate, jsValue))
+		{
+			Poco::DateTime* pDateTime = Poco::JS::Core::Wrapper::unwrapNativeObject<Poco::DateTime>(jsValue);
+			value = *pDateTime;
+			return true;
+		}
+		else if (jsValue->IsDate())
+		{
+			v8::Local<v8::Date> jsDate = v8::Local<v8::Date>::Cast(jsValue);
+			double millis = jsDate->ValueOf();
+			Poco::Timestamp ts(static_cast<Poco::Timestamp::TimeVal>(millis*1000));
+			value = Poco::DateTime(ts);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a DateTime or Date");
+	}
+	else return false;
+}
+
+
+bool Deserializer::deserialize(const std::string& name, bool isMandatory, Poco::LocalDateTime& value)
+{
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
+	{
+		if (jsValue->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::LocalDateTime>(_pIsolate, jsValue))
+		{
+			Poco::LocalDateTime* pDateTime = Poco::JS::Core::Wrapper::unwrapNativeObject<Poco::LocalDateTime>(jsValue);
+			value = *pDateTime;
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a LocalDateTime");
+	}
+	else return false;
+}
+
+
+bool Deserializer::deserialize(const std::string& name, bool isMandatory, Poco::Timestamp& value)
+{
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
+	{
+		if (jsValue->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::DateTime>(_pIsolate, jsValue))
+		{
+			Poco::DateTime* pDateTime = Poco::JS::Core::Wrapper::unwrapNativeObject<Poco::DateTime>(jsValue);
+			value = pDateTime->timestamp();
+			return true;
+		}
+		else if (jsValue->IsDate())
+		{
+			v8::Local<v8::Date> jsDate = v8::Local<v8::Date>::Cast(jsValue);
+			double millis = jsDate->ValueOf();
+			Poco::Timestamp ts(static_cast<Poco::Timestamp::TimeVal>(millis*1000));
+			value = ts;
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a DateTime or Date");
+	}
+	else return false;
+}
+
+
+bool Deserializer::deserialize(const std::string& name, bool isMandatory, Poco::UUID& value)
+{
+	v8::MaybeLocal<v8::Value> maybeValue = deserializeValue(name);
+	v8::Local<v8::Value> jsValue;
+	if (maybeValue.ToLocal(&jsValue) && !jsValue->IsUndefined())
+	{
+		if (jsValue->IsObject() && Poco::JS::Core::Wrapper::isWrapper<Poco::UUID>(_pIsolate, jsValue))
+		{
+			UUID* pUUID = Poco::JS::Core::Wrapper::unwrapNativeObject<Poco::UUID>(jsValue);
+			value = *pUUID;
+			return true;
+		}
+		else if (jsValue->IsString())
+		{
+			std::string s = Core::Wrapper::toString(_pIsolate, jsValue);
+			value.parse(s);
+			return true;
+		}
+		else throw Poco::RemotingNG::DeserializerException("value is not a UUID");
 	}
 	else return false;
 }
