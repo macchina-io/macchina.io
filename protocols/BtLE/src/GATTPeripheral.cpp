@@ -20,8 +20,13 @@
 #include "Poco/Exception.h"
 #include "Poco/Delegate.h"
 #include "Poco/NumberFormatter.h"
+#include "Poco/Format.h"
 #include "Poco/String.h"
+#include "Poco/ByteOrder.h"
 #include <cstring>
+
+
+using namespace std::string_literals;
 
 
 namespace IoT {
@@ -31,7 +36,7 @@ namespace BtLE {
 GATTPeripheral::GATTPeripheral(const std::string& address, GATTClient::Ptr pGATTClient):
 	_address(Poco::toUpper(address)),
 	_pGATTClient(pGATTClient),
-	_logger(Poco::Logger::get("IoT.GATTPeripheral"))
+	_logger(Poco::Logger::get("IoT.GATTPeripheral"s))
 {
 	_pGATTClient->connected += Poco::delegate(this, &GATTPeripheral::onConnected);
 	_pGATTClient->disconnected += Poco::delegate(this, &GATTPeripheral::onDisconnected);
@@ -87,13 +92,13 @@ std::string GATTPeripheral::address() const
 }
 
 
-std::vector<std::string> GATTPeripheral::services()
+std::vector<Poco::UUID> GATTPeripheral::services()
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
 
-	std::vector<std::string> result;
+	std::vector<Poco::UUID> result;
 	std::vector<GATTClient::Service> services = _pGATTClient->services();
 	for (std::vector<GATTClient::Service>::const_iterator it = services.begin(); it != services.end(); ++it)
 	{
@@ -104,35 +109,33 @@ std::vector<std::string> GATTPeripheral::services()
 }
 
 
-std::string GATTPeripheral::serviceUUIDForAssignedNumber(Poco::UInt32 assignedNumber)
+Poco::UUID GATTPeripheral::serviceUUIDForAssignedNumber(Poco::UInt32 assignedNumber)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
 
-	std::string uuid;
-	std::string prefix = Poco::NumberFormatter::formatHex(assignedNumber, 8);
+	Poco::UUID uuid = expandUUID(assignedNumber);
 	std::vector<GATTClient::Service> services = _pGATTClient->services();
 	for (std::vector<GATTClient::Service>::const_iterator it = services.begin(); it != services.end(); ++it)
 	{
-		if (Poco::icompare(it->uuid, 8, prefix) == 0)
+		if (it->uuid == uuid)
 		{
-			uuid = it->uuid;
 			break;
 		}
 	}
 
-	return uuid;
+	return Poco::UUID::null();
 }
 
 
-std::vector<std::string> GATTPeripheral::characteristics(const std::string& serviceUUID)
+std::vector<Poco::UUID> GATTPeripheral::characteristics(const Poco::UUID& serviceUUID)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
 
-	std::vector<std::string> result;
+	std::vector<Poco::UUID> result;
 	std::vector<GATTClient::Characteristic> chars = _pGATTClient->characteristics(serviceUUID);
 	for (std::vector<GATTClient::Characteristic>::const_iterator it = chars.begin(); it != chars.end(); ++it)
 	{
@@ -143,11 +146,11 @@ std::vector<std::string> GATTPeripheral::characteristics(const std::string& serv
 }
 
 
-Characteristic GATTPeripheral::characteristic(const std::string& serviceUUID, const std::string& characteristicUUID)
+Characteristic GATTPeripheral::characteristic(const Poco::UUID& serviceUUID, const Poco::UUID& characteristicUUID)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
 
 	std::vector<GATTClient::Characteristic> chars = _pGATTClient->characteristics(serviceUUID);
 	for (std::vector<GATTClient::Characteristic>::const_iterator it = chars.begin(); it != chars.end(); ++it)
@@ -160,21 +163,21 @@ Characteristic GATTPeripheral::characteristic(const std::string& serviceUUID, co
 			return chara;
 		}
 	}
-	throw Poco::NotFoundException("characteristic", characteristicUUID);
+	throw Poco::NotFoundException("characteristic"s, characteristicUUID.toString());
 }
 
 
-Characteristic GATTPeripheral::characteristicForAssignedNumber(const std::string& serviceUUID, Poco::UInt32 assignedNumber)
+Characteristic GATTPeripheral::characteristicForAssignedNumber(const Poco::UUID& serviceUUID, Poco::UInt32 assignedNumber)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
 
-	std::string prefix = Poco::NumberFormatter::formatHex(assignedNumber, 8);
+	Poco::UUID charUUID = expandUUID(assignedNumber);
 	std::vector<GATTClient::Characteristic> chars = _pGATTClient->characteristics(serviceUUID);
 	for (std::vector<GATTClient::Characteristic>::const_iterator it = chars.begin(); it != chars.end(); ++it)
 	{
-		if (Poco::icompare(it->uuid, 8, prefix) == 0)
+		if (it->uuid == charUUID)
 		{
 			Characteristic chara;
 			chara.properties = it->properties;
@@ -182,33 +185,40 @@ Characteristic GATTPeripheral::characteristicForAssignedNumber(const std::string
 			return chara;
 		}
 	}
-	throw Poco::NotFoundException("characteristic", prefix);
+	throw Poco::NotFoundException("characteristic"s, charUUID.toString());
 }
 
 
-Poco::UInt16 GATTPeripheral::handleForDescriptor(const std::string& serviceUUID, const std::string& descriptorUUID)
+Handle GATTPeripheral::handleForDescriptor(const Poco::UUID& serviceUUID, const Poco::UUID& characteristicUUID, const Poco::UUID& descriptorUUID)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
 
 	std::vector<GATTClient::Descriptor> descs = _pGATTClient->descriptors(serviceUUID);
-	for (std::vector<GATTClient::Descriptor>::const_iterator it = descs.begin(); it != descs.end(); ++it)
+	std::vector<GATTClient::Characteristic> chars = _pGATTClient->characteristics(serviceUUID);
+	for (std::vector<GATTClient::Characteristic>::const_iterator itc = chars.begin(); itc != chars.end(); ++itc)
 	{
-		if (it->uuid == descriptorUUID)
+		if (itc->uuid == characteristicUUID)
 		{
-			return it->handle;
+			for (std::vector<GATTClient::Descriptor>::const_iterator itd = descs.begin(); itd != descs.end(); ++itd)
+			{
+				if (itd->handle >= itc->handle && itd->handle <= itc->lastHandle && itd->uuid == descriptorUUID)
+				{
+					return itd->handle;
+				}
+			}
 		}
 	}
-	throw Poco::NotFoundException("handle with descriptor", descriptorUUID);
+	throw Poco::NotFoundException("handle with descriptor"s, descriptorUUID.toString());
 }
 
 
-Poco::UInt8 GATTPeripheral::readUInt8(Poco::UInt16 valueHandle)
+Poco::UInt8 GATTPeripheral::readUInt8(Handle valueHandle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
 
 	std::string value = _pGATTClient->read(valueHandle);
 	if (value.size() == 1)
@@ -218,11 +228,11 @@ Poco::UInt8 GATTPeripheral::readUInt8(Poco::UInt16 valueHandle)
 }
 
 
-Poco::Int8 GATTPeripheral::readInt8(Poco::UInt16 valueHandle)
+Poco::Int8 GATTPeripheral::readInt8(Handle valueHandle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
 
 	std::string value = _pGATTClient->read(valueHandle);
 	if (value.size() == 1)
@@ -232,77 +242,65 @@ Poco::Int8 GATTPeripheral::readInt8(Poco::UInt16 valueHandle)
 }
 
 
-Poco::UInt16 GATTPeripheral::readUInt16(Poco::UInt16 valueHandle)
+Poco::UInt16 GATTPeripheral::readUInt16(Handle valueHandle)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
-
-	std::string value = _pGATTClient->read(valueHandle);
-	Poco::MemoryInputStream istr(value.data(), value.size());
-	Poco::BinaryReader reader(istr, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
-	Poco::UInt16 result;
-	reader >> result;
-	return result;
+	return readValue<Poco::UInt16>(valueHandle);
 }
 
 
-Poco::Int16 GATTPeripheral::readInt16(Poco::UInt16 valueHandle)
+Poco::Int16 GATTPeripheral::readInt16(Handle valueHandle)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
-
-	std::string value = _pGATTClient->read(valueHandle);
-	Poco::MemoryInputStream istr(value.data(), value.size());
-	Poco::BinaryReader reader(istr, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
-	Poco::Int16 result;
-	reader >> result;
-	return result;
+	return readValue<Poco::Int16>(valueHandle);
 }
 
 
-Poco::UInt32 GATTPeripheral::readUInt32(Poco::UInt16 valueHandle)
+Poco::UInt32 GATTPeripheral::readUInt32(Handle valueHandle)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
-
-	std::string value = _pGATTClient->read(valueHandle);
-	Poco::MemoryInputStream istr(value.data(), value.size());
-	Poco::BinaryReader reader(istr, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
-	Poco::UInt32 result;
-	reader >> result;
-	return result;
+	return readValue<Poco::UInt32>(valueHandle);
 }
 
 
-Poco::Int32 GATTPeripheral::readInt32(Poco::UInt16 valueHandle)
+Poco::Int32 GATTPeripheral::readInt32(Handle valueHandle)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
-
-	std::string value = _pGATTClient->read(valueHandle);
-	Poco::MemoryInputStream istr(value.data(), value.size());
-	Poco::BinaryReader reader(istr, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
-	Poco::Int32 result;
-	reader >> result;
-	return result;
+	return readValue<Poco::Int32>(valueHandle);
 }
 
 
-std::string GATTPeripheral::readString(Poco::UInt16 valueHandle)
+Poco::UInt64 GATTPeripheral::readUInt64(Handle valueHandle)
+{
+	return readValue<Poco::UInt64>(valueHandle);
+}
+
+
+Poco::Int64 GATTPeripheral::readInt64(Handle valueHandle)
+{
+	return readValue<Poco::Int64>(valueHandle);
+}
+
+
+float GATTPeripheral::readFloat(Handle valueHandle)
+{
+	return readValue<float>(valueHandle);
+}
+
+
+double GATTPeripheral::readDouble(Handle valueHandle)
+{
+	return readValue<double>(valueHandle);
+}
+
+
+std::string GATTPeripheral::readString(Handle valueHandle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
 
 	return _pGATTClient->read(valueHandle);
 }
 
 
-std::string GATTPeripheral::readString0(Poco::UInt16 valueHandle)
+std::string GATTPeripheral::readString0(Handle valueHandle)
 {
 	std::string value = readString(valueHandle);
 	value.resize(std::strlen(value.c_str()));
@@ -310,106 +308,114 @@ std::string GATTPeripheral::readString0(Poco::UInt16 valueHandle)
 }
 
 
-std::vector<char> GATTPeripheral::readBytes(Poco::UInt16 valueHandle)
+std::vector<char> GATTPeripheral::readBytes(Handle valueHandle)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
 
 	std::string str = _pGATTClient->read(valueHandle);
 	return std::vector<char>(str.begin(), str.end());
 }
 
 
-void GATTPeripheral::writeUInt8(Poco::UInt16 valueHandle, Poco::UInt8 value, bool withResponse)
+void GATTPeripheral::writeUInt8(Handle valueHandle, Poco::UInt8 value, bool withResponse)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
-
-	std::string d(1, static_cast<char>(value));
-	_pGATTClient->write(valueHandle, d, withResponse);
+	writeValue(valueHandle, value, withResponse);
 }
 
 
-void GATTPeripheral::writeInt8(Poco::UInt16 valueHandle, Poco::Int8 value, bool withResponse)
+void GATTPeripheral::writeInt8(Handle valueHandle, Poco::Int8 value, bool withResponse)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
-
-	std::string d(1, static_cast<char>(value));
-	_pGATTClient->write(valueHandle, d, withResponse);
+	writeValue(valueHandle, value, withResponse);
 }
 
 
-void GATTPeripheral::writeUInt16(Poco::UInt16 valueHandle, Poco::UInt16 value, bool withResponse)
+void GATTPeripheral::writeUInt16(Handle valueHandle, Poco::UInt16 value, bool withResponse)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
-
-	Poco::UInt16 lv = Poco::ByteOrder::toLittleEndian(value);
-	std::string d(reinterpret_cast<char*>(&lv), sizeof(lv));
-	_pGATTClient->write(valueHandle, d, withResponse);
+	writeValue(valueHandle, value, withResponse);
 }
 
 
-void GATTPeripheral::writeInt16(Poco::UInt16 valueHandle, Poco::Int16 value, bool withResponse)
+void GATTPeripheral::writeInt16(Handle valueHandle, Poco::Int16 value, bool withResponse)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
-
-	Poco::UInt16 lv = Poco::ByteOrder::toLittleEndian(value);
-	std::string d(reinterpret_cast<char*>(&lv), sizeof(lv));
-	_pGATTClient->write(valueHandle, d, withResponse);
+	writeValue(valueHandle, value, withResponse);
 }
 
 
-void GATTPeripheral::writeUInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse)
+void GATTPeripheral::writeUInt32(Handle valueHandle, Poco::UInt32 value, bool withResponse)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
-
-	Poco::UInt32 lv = Poco::ByteOrder::toLittleEndian(value);
-	std::string d(reinterpret_cast<char*>(&lv), sizeof(lv));
-	_pGATTClient->write(valueHandle, d, withResponse);
+	writeValue(valueHandle, value, withResponse);
 }
 
 
-void GATTPeripheral::writeInt32(Poco::UInt16 valueHandle, Poco::UInt32 value, bool withResponse)
+void GATTPeripheral::writeInt32(Handle valueHandle, Poco::Int32 value, bool withResponse)
 {
-	Poco::Mutex::ScopedLock lock(_mutex);
-
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
-
-	Poco::Int32 lv = Poco::ByteOrder::toLittleEndian(value);
-	std::string d(reinterpret_cast<char*>(&lv), sizeof(lv));
-	_pGATTClient->write(valueHandle, d, withResponse);
+	writeValue(valueHandle, value, withResponse);
 }
 
 
-void GATTPeripheral::writeString(Poco::UInt16 valueHandle, const std::string& value, bool withResponse)
+void GATTPeripheral::writeUInt64(Handle valueHandle, Poco::UInt64 value, bool withResponse)
+{
+	writeValue(valueHandle, value, withResponse);
+}
+
+
+void GATTPeripheral::writeInt64(Handle valueHandle, Poco::Int64 value, bool withResponse)
+{
+	writeValue(valueHandle, value, withResponse);
+}
+
+
+void GATTPeripheral::writeFloat(Handle valueHandle, float value, bool withResponse)
+{
+	writeValue(valueHandle, value, withResponse);
+}
+
+
+void GATTPeripheral::writeDouble(Handle valueHandle, double value, bool withResponse)
+{
+	writeValue(valueHandle, value, withResponse);
+}
+
+
+void GATTPeripheral::writeString(Handle valueHandle, const std::string& value, bool withResponse)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
 
 	_pGATTClient->write(valueHandle, value, withResponse);
 }
 
 
-void GATTPeripheral::writeBytes(Poco::UInt16 valueHandle, const std::vector<char>& value, bool withResponse)
+void GATTPeripheral::writeBytes(Handle valueHandle, const std::vector<char>& value, bool withResponse)
 {
 	Poco::Mutex::ScopedLock lock(_mutex);
 
-	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
-	if (value.empty()) throw Poco::InvalidArgumentException("empty value");
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
+	if (value.empty()) throw Poco::InvalidArgumentException("empty value"s);
 
 	std::string data(value.begin(), value.end());
 	_pGATTClient->write(valueHandle, data, withResponse);
+}
+
+
+std::string GATTPeripheral::deviceName()
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	if (_deviceName.empty())
+	{
+		Poco::UUID serviceUUID = serviceUUIDForAssignedNumber(0x1800);
+		std::string result;
+		if (!serviceUUID.isNull())
+		{
+			Characteristic chara = characteristicForAssignedNumber(serviceUUID, 0x2A00);
+			_deviceName = readString0(chara.valueHandle);
+		}
+	}
+	return _deviceName;
 }
 
 
@@ -485,6 +491,17 @@ std::string GATTPeripheral::softwareRevision()
 }
 
 
+Poco::UUID GATTPeripheral::expandUUID(Poco::UInt32 uuid)
+{
+	unsigned char buffer[16] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5f, 0x9b, 0x34, 0xfb};
+	Poco::UInt32 uuidBE = Poco::ByteOrder::toBigEndian(uuid);
+	std::memcpy(buffer, &uuidBE, 4);
+	Poco::UUID result;
+	result.copyFrom(reinterpret_cast<char*>(buffer));
+	return result;
+}
+
+
 void GATTPeripheral::onConnected()
 {
 	connected(this);
@@ -523,14 +540,47 @@ void GATTPeripheral::onNotification(const GATTClient::Notification& gattNf)
 
 std::string GATTPeripheral::readDeviceInformation(Poco::UInt32 assignedNumber)
 {
-	std::string serviceUUID = serviceUUIDForAssignedNumber(0x180a);
+	Poco::UUID serviceUUID = serviceUUIDForAssignedNumber(0x180a);
 	std::string result;
-	if (!serviceUUID.empty())
+	if (!serviceUUID.isNull())
 	{
 		Characteristic chara = characteristicForAssignedNumber(serviceUUID, assignedNumber);
 		result = readString0(chara.valueHandle);
 	}
 	return result;
+}
+
+
+template <typename T>
+T GATTPeripheral::readValue(Handle valueHandle)
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected", _address);
+
+	std::string value = _pGATTClient->read(valueHandle);
+	if (value.size() != sizeof(T)) throw Poco::DataFormatException(Poco::format("Characteristic value size mismatch: %z bytes required, %z bytes received"s, sizeof(T), value.size()));
+
+	Poco::MemoryInputStream istr(value.data(), value.size());
+	Poco::BinaryReader reader(istr, Poco::BinaryReader::LITTLE_ENDIAN_BYTE_ORDER);
+	T result;
+	reader >> result;
+	return result;
+}
+
+
+template <typename T>
+void GATTPeripheral::writeValue(Handle valueHandle, T value, bool withResponse)
+{
+	Poco::Mutex::ScopedLock lock(_mutex);
+
+	if (!isConnected()) throw Poco::IllegalStateException("disconnected"s, _address);
+
+	char buffer[sizeof(T)];
+	Poco::MemoryOutputStream ostr(buffer, sizeof(T));
+	Poco::BinaryWriter writer(ostr, Poco::BinaryWriter::LITTLE_ENDIAN_BYTE_ORDER);
+	writer << value;
+	_pGATTClient->write(valueHandle, buffer, sizeof(T), withResponse);
 }
 
 
