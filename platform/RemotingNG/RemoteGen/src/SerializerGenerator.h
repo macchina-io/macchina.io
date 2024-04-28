@@ -23,14 +23,23 @@ class SerializerGenerator: public AbstractGenerator
 	/// A SerializerGenerator only cares about member variables and generates a serializer class for them
 {
 public:
-	typedef std::map<std::string, std::pair<Poco::CppParser::Variable*, Poco::CppParser::Function*> > VarGet;
-	typedef std::multimap<Poco::UInt32, VarGet::const_iterator> OrderedVars;
+	using VarGet = std::map<std::string, std::pair<Poco::CppParser::Variable*, Poco::CppParser::Function*>>;
+	using OrderedVars = std::multimap<Poco::UInt32, VarGet::const_iterator>;
+
+	enum SerializationOrder
+	{
+		SERIALIZE_LEXICAL = 0,
+		SERIALIZE_AS_DECLARED = 1,
+	};
 
 	SerializerGenerator(Poco::CodeGeneration::CppGenerator& cppGen);
 		/// Creates the SerializerGenerator.
 
 	~SerializerGenerator();
 		/// Destroys the SerializerGenerator.
+
+	static void setSerializationOrder(SerializationOrder order);
+		/// Sets the serialization order for struct/class members.
 
 	static std::string generateClassName(const Poco::CppParser::Struct* pStruct);
 		/// Generates for a given class, its interface class name.
@@ -94,6 +103,8 @@ private:
 
 	void setDocumentation(const Poco::CppParser::Symbol* pSymOld,Poco::CppParser::Symbol* pNew);
 	static const std::string SERIALIZERIMPLDECL;
+
+	static SerializationOrder _serializationOrder;
 };
 
 

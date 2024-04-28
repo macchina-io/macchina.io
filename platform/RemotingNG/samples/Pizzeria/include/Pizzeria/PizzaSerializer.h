@@ -47,11 +47,11 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"basePrice"s,"details"s,"name"s,"toppings"s,""s};
-		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES[0], value.getBasePrice(), ser);
-		TypeSerializer<Pizzeria::Pizza::Details >::serialize(REMOTING__NAMES[1], value.getDetails(), ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], value.getName(), ser);
-		TypeSerializer<std::vector < Pizzeria::ExtTopping > >::serialize(REMOTING__NAMES[3], value.getToppings(), ser);
+		static const std::string REMOTING__NAMES[] = {"name"s,"toppings"s,"basePrice"s,"details"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.getName(), ser);
+		TypeSerializer<std::vector<Pizzeria::ExtTopping>>::serialize(REMOTING__NAMES[1], value.getToppings(), ser);
+		TypeSerializer<Poco::UInt32>::serialize(REMOTING__NAMES[2], value.getBasePrice(), ser);
+		TypeSerializer<Pizzeria::Pizza::Details>::serialize(REMOTING__NAMES[3], value.getDetails(), ser);
 	}
 
 };

@@ -10,6 +10,7 @@
 
 #include "EventDispatcherGenerator.h"
 #include "RemoteObjectGenerator.h"
+#include "RemoteBridgeGenerator.h"
 #include "InterfaceGenerator.h"
 #include "SerializerGenerator.h"
 #include "GenUtility.h"
@@ -84,18 +85,25 @@ std::string EventDispatcherGenerator::generateRetParamName(const Poco::CppParser
 void EventDispatcherGenerator::structStart(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
 {
 	AbstractGenerator::structStart(pStruct, properties);
+	
 	// add constructor/destructor
 	Poco::CppParser::Function* pConstr = new Poco::CppParser::Function(_pStruct->name(), _pStruct);
-	//takes asinput the concrete remoteobject pointer where we will register for the event
+	//takes asinput the concrete RemoteObject pointer where we will register for the event
 
-	Poco::CppParser::Parameter* pParam1 = new Poco::CppParser::Parameter(RemoteObjectGenerator::generateClassName(pStruct) + "* pRemoteObject", pConstr);
+	Poco::CppParser::Parameter* pParam1 = new Poco::CppParser::Parameter(InterfaceGenerator::generateClassName(pStruct) + "* pInterface", pConstr);
 	pConstr->addParameter(pParam1);
-	Poco::CppParser::Parameter* pParam2 = new Poco::CppParser::Parameter("const std::string& protocol", pConstr);
+	Poco::CppParser::Parameter* pParam2 = new Poco::CppParser::Parameter("const Poco::RemotingNG::Identifiable::ObjectId& objectId", pConstr);
 	pConstr->addParameter(pParam2);
+	Poco::CppParser::Parameter* pParam3 = new Poco::CppParser::Parameter("const std::string& protocol", pConstr);
+	pConstr->addParameter(pParam3);
 
-	Poco::CppParser::Variable* pVar = new Poco::CppParser::Variable(RemoteObjectGenerator::generateClassName(pStruct) + "* _pRemoteObject", _pStruct);
+	Poco::CppParser::Variable* pVar = new Poco::CppParser::Variable(InterfaceGenerator::generateClassName(pStruct) + "* _pInterface", _pStruct);
 	pVar->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
 	_cppGen.registerConstructorHint(pVar, pParam1);
+
+	Poco::CppParser::Variable* pVar2 = new Poco::CppParser::Variable("Poco::RemotingNG::Identifiable::ObjectId _objectId", _pStruct);
+	pVar2->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
+	_cppGen.registerConstructorHint(pVar2, pParam2);
 
 	pConstr->addDocumentation(	" Creates a " + _pStruct->name() + ".");
 
@@ -115,8 +123,8 @@ void EventDispatcherGenerator::structStart(const Poco::CppParser::Struct* pStruc
 	pTypeId->makeInline();
 
 	// add a member: static const std::string DEFAULT_NS;
-	Poco::CppParser::Variable* pVar2 = new Poco::CppParser::Variable("static const std::string DEFAULT_NS", _pStruct);
-	pVar2->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
+	Poco::CppParser::Variable* pVar3 = new Poco::CppParser::Variable("static const std::string DEFAULT_NS", _pStruct);
+	pVar3->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
 
 	// checks if the class or any parent contains public BasicEvents
 	checkForEventMembers(pStruct, properties);
@@ -205,7 +213,7 @@ void EventDispatcherGenerator::constructorCodeGen(const Poco::CppParser::Functio
 	std::vector<std::string>::const_iterator it = events.begin();
 	for (; it != events.end(); ++it)
 	{
-		std::string line("_pRemoteObject->" + *it);
+		std::string line("_pInterface->" + *it);
 		line.append(" += ");
 		line.append("Poco::delegate(this, &");
 		line.append(EventDispatcherGenerator::generateClassName(pDataType));
@@ -232,7 +240,7 @@ void EventDispatcherGenerator::destructorCodeGen(const Poco::CppParser::Function
 	std::vector<std::string>::const_iterator it = events.begin();
 	for (; it != events.end(); ++it)
 	{
-		std::string line("\t_pRemoteObject->" + *it);
+		std::string line("\t_pInterface->" + *it);
 		line.append(" -= ");
 		line.append("Poco::delegate(this, &");
 		line.append(EventDispatcherGenerator::generateClassName(pDataType));
@@ -338,11 +346,11 @@ void EventDispatcherGenerator::writeSerializingBlock(const Poco::CppParser::Func
 	if (isOneWay)
 	{
 		// invoke oneway
-		gen.writeMethodImplementation("Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);");
+		gen.writeMethodImplementation("Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);");
 	}
 	else
 	{
-		gen.writeMethodImplementation("Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);");
+		gen.writeMethodImplementation("Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);");
 	}
 
 	CodeGenerator::Properties structProps;
@@ -481,7 +489,7 @@ void EventDispatcherGenerator::writeTypeSerializer(const Poco::CppParser::Functi
 			serLine.append(type);
 			if (itOP->second.pParam->isPointer())
 				serLine.append("*");
-			serLine.append(" >::serialize(REMOTING__NAMES[");
+			serLine.append(">::serialize(REMOTING__NAMES[");
 
 			serLine.append(Poco::NumberFormatter::format(itOP->second.namePos));
 			serLine.append("], ");
@@ -512,11 +520,11 @@ void EventDispatcherGenerator::writeDeserializingBlock(const Poco::CppParser::Fu
 {
 	if (isOneWay)
 	{
-		gen.writeMethodImplementation("remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);");
+		gen.writeMethodImplementation("remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);");
 	}
 	else
 	{
-		gen.writeMethodImplementation("Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);");
+		gen.writeMethodImplementation("Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);");
 		std::map<std::string, const Poco::CppParser::Parameter*> outParams;
 		detectOutParams(pFunc, outParams);
 
@@ -623,7 +631,7 @@ void EventDispatcherGenerator::writeTypeDeserializers(const Poco::CppParser::Fun
 				codeLine += enumBaseType;
 			else
 				codeLine += retType;
-			codeLine.append(" >::deserialize(REMOTING__NAMES[");
+			codeLine.append(">::deserialize(REMOTING__NAMES[");
 			codeLine.append(cntStr);
 			codeLine.append("], ");
 			if (itOP->second.mandatory)
@@ -706,9 +714,9 @@ void EventDispatcherGenerator::writeDeserializeReturnParam(const Poco::CppParser
 			line.append("*");
 		bool doInline = GenUtility::getInlineReturnParam(pFunc);
 		if (doInline)
-			line.append(" >::deserializeImpl(");
+			line.append(">::deserializeImpl(");
 		else
-			line.append(" >::deserialize(");
+			line.append(">::deserialize(");
 		if (retName == Poco::RemotingNG::SerializerBase::RETURN_PARAM)
 			line.append("Poco::RemotingNG::SerializerBase::RETURN_PARAM");
 		else
@@ -976,7 +984,7 @@ void EventDispatcherGenerator::checkForEventMembersImpl(const Poco::CppParser::S
 	{
 		Poco::Path file (Utility::createInclude(_pStruct, true));
 
-		std::string newFileName = RemoteObjectGenerator::generateClassName(_pStructIn);
+		std::string newFileName = InterfaceGenerator::generateClassName(_pStructIn);
 		file.setBaseName(newFileName);
 		std::string inclFile = file.toString(Poco::Path::PATH_UNIX);
 		_cppGen.addIncludeFile(inclFile);

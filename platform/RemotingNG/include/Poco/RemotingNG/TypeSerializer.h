@@ -37,6 +37,9 @@
 #include <set>
 #include <unordered_set>
 #include <array>
+#if __cplusplus >= 201703L
+#include <optional>
+#endif
 #include <memory>
 
 
@@ -272,6 +275,28 @@ public:
 };
 
 
+#if __cplusplus >= 201703L
+
+
+template <typename T>
+class TypeSerializer<std::optional<T>>
+{
+public:
+	static void serialize(const std::string& name, const std::optional<T>& value, Serializer& ser)
+	{
+		ser.serializeOptionalBegin(name, value.has_value());
+		if (value.has_value())
+		{
+			TypeSerializer<T>::serialize(name, value.value(), ser);
+		}
+		ser.serializeOptionalEnd(name);
+	}
+};
+
+
+#endif // __cplusplus >= 201703L
+
+
 template <typename T>
 class TypeSerializer<Poco::AutoPtr<T>>
 {
@@ -362,8 +387,7 @@ class TypeSerializer<Poco::URI>
 public:
 	static void serialize(const std::string& name, const Poco::URI& value, Serializer& ser)
 	{
-		std::string tmp(value.toString());
-		ser.serialize(name, tmp);
+		ser.serialize(name, value);
 	}
 };
 
@@ -374,8 +398,7 @@ class TypeSerializer<Poco::UUID>
 public:
 	static void serialize(const std::string& name, const Poco::UUID& value, Serializer& ser)
 	{
-		std::string tmp(value.toString());
-		ser.serialize(name, tmp);
+		ser.serialize(name, value);
 	}
 };
 
@@ -397,8 +420,7 @@ class TypeSerializer<Poco::DateTime>
 public:
 	static void serialize(const std::string& name, const Poco::DateTime& value, Serializer& ser)
 	{
-		std::string dt(Poco::DateTimeFormatter::format(value, Poco::DateTimeFormat::ISO8601_FRAC_FORMAT));
-		TypeSerializer<std::string>::serialize(name, dt, ser);
+		ser.serialize(name, value);
 	}
 };
 
@@ -409,8 +431,7 @@ class TypeSerializer<Poco::LocalDateTime>
 public:
 	static void serialize(const std::string& name, const Poco::LocalDateTime& value, Serializer& ser)
 	{
-		std::string tmp (Poco::DateTimeFormatter::format(value, Poco::DateTimeFormat::ISO8601_FRAC_FORMAT));
-		TypeSerializer<std::string>::serialize(name, tmp, ser);
+		ser.serialize(name, value);
 	}
 };
 
@@ -421,8 +442,7 @@ class TypeSerializer<Poco::Timestamp>
 public:
 	static void serialize(const std::string& name, const Poco::Timestamp& value, Serializer& ser)
 	{
-		std::string tmp (Poco::DateTimeFormatter::format(value, Poco::DateTimeFormat::ISO8601_FRAC_FORMAT));
-		TypeSerializer<std::string>::serialize(name, tmp, ser);
+		ser.serialize(name, value);
 	}
 };
 
@@ -433,8 +453,7 @@ class TypeSerializer<Poco::Timespan>
 public:
 	static void serialize(const std::string& name, const Poco::Timespan& value, Serializer& ser)
 	{
-		Poco::Timespan::TimeDiff ms = value.totalMicroseconds();
-		TypeSerializer<Poco::Timespan::TimeDiff>::serialize(name, ms, ser);
+		ser.serialize(name, value);
 	}
 };
 

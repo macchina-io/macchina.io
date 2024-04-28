@@ -178,6 +178,26 @@ std::array<int, 4> Tester::testStdArray(const std::array<int, 4>& arr)
 }
 
 
+Poco::Optional<std::string> Tester::testPocoOptional(const Poco::Optional<std::string>& value)
+{
+	return value;
+}
+
+
+#if __cplusplus >= 201703L
+std::optional<std::string> Tester::testStdOptional(const std::optional<std::string>& value)
+{
+	return value;
+}
+#endif
+
+
+Struct8 Tester::testStruct8(const Struct8& value)
+{
+	return value;
+}
+
+
 Class1 Tester::testClass11(const Class1& c1)
 {
 	return c1;

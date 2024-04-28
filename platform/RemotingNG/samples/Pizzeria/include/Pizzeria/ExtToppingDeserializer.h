@@ -52,17 +52,17 @@ public:
 		static const std::string REMOTING__NAMES__PIZZERIA__TOPPING[] = {"name"s,"price"s};
 		bool ret = false;
 		std::string gen_name;
-		ret = TypeDeserializer<std::string >::deserialize(REMOTING__NAMES__PIZZERIA__TOPPING[0], true, deser, gen_name);
+		ret = TypeDeserializer<std::string>::deserialize(REMOTING__NAMES__PIZZERIA__TOPPING[0], true, deser, gen_name);
 		if (ret) value.setName(gen_name);
 		Poco::UInt32 gen_price;
-		ret = TypeDeserializer<Poco::UInt32 >::deserialize(REMOTING__NAMES__PIZZERIA__TOPPING[1], true, deser, gen_price);
+		ret = TypeDeserializer<Poco::UInt32>::deserialize(REMOTING__NAMES__PIZZERIA__TOPPING[1], true, deser, gen_price);
 		if (ret) value.setPrice(gen_price);
 		}
 		
 		static const std::string REMOTING__NAMES[] = {"addInfo"s};
 		bool ret = false;
 		std::string gen_addInfo;
-		ret = TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, gen_addInfo);
+		ret = TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], true, deser, gen_addInfo);
 		if (ret) value.setAddInfo(gen_addInfo);
 	}
 

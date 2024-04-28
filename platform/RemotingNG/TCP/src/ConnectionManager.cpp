@@ -77,14 +77,14 @@ void ConnectionManager::registerConnection(Connection::Ptr pConnection)
 	if (addr.family() != Poco::Net::AddressFamily::UNIX_LOCAL)
 #endif
 	{
-	Poco::FastMutex::ScopedLock lock(_mutex);
+		Poco::FastMutex::ScopedLock lock(_mutex);
 
-	ConnectionMap::iterator it = _connections.find(addr);
-	if (it != _connections.end())
-	{
-		it->second->abort();
-	}
-	_connections[addr] = pConnection;
+		ConnectionMap::iterator it = _connections.find(addr);
+		if (it != _connections.end())
+		{
+			it->second->abort();
+		}
+		_connections[addr] = pConnection;
 	}
 
 	pConnection->setIdleTimeout(_idleTimeout);

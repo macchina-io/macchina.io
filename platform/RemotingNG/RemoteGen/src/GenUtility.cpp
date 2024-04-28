@@ -349,6 +349,13 @@ bool GenUtility::isOptionalType(const Poco::CppParser::NameSpace* pNS, const Poc
 }
 
 
+bool GenUtility::isStdOptionalType(const Poco::CppParser::NameSpace* pNS, const Poco::CppParser::Parameter* pParam)
+{
+	std::string resolvedType = Poco::CodeGeneration::Utility::resolveType(pNS, pParam->declType());
+	return isStdOptionalType(resolvedType);
+}
+
+
 bool GenUtility::isTemplateType(const std::string& resolvedType)
 {
 	std::size_t posStart = resolvedType.find('<');
@@ -378,7 +385,14 @@ bool GenUtility::isNullableType(const std::string& type)
 bool GenUtility::isOptionalType(const std::string& type)
 {
 	return type.compare(0, 8, "Optional") == 0
-	    || type.compare(0, 14, "Poco::Optional") == 0;
+	    || type.compare(0, 14, "Poco::Optional") == 0
+		|| type.compare(0, 13, "std::optional") == 0;
+}
+
+
+bool GenUtility::isStdOptionalType(const std::string& type)
+{
+	return type.compare(0, 13, "std::optional") == 0;
 }
 
 

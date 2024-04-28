@@ -53,7 +53,7 @@ public:
 
 	virtual void testArgNamespace(const Struct3& s31, Struct3& s32) = 0;
 
-	virtual Poco::Array < int, 4 > testArray(const Poco::Array < int, 4 >& arr) = 0;
+	virtual Poco::Array<int, 4> testArray(const Poco::Array<int, 4>& arr) = 0;
 
 	virtual Class1 testClass11(const Class1& c1) = 0;
 
@@ -89,11 +89,13 @@ public:
 
 	virtual void testPermission2() = 0;
 
-	virtual Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1) = 0;
+	virtual Poco::Optional<std::string> testPocoOptional(const Poco::Optional<std::string>& value) = 0;
 
-	virtual std::array < int, 4 > testStdArray(const std::array < int, 4 >& arr) = 0;
+	virtual Poco::SharedPtr<Struct1> testPtr(Poco::SharedPtr<Struct1> p1) = 0;
 
-	virtual std::shared_ptr < Struct1 > testStdSharedPtr(const std::shared_ptr < Struct1 >& pStruct1) = 0;
+	virtual std::array<int, 4> testStdArray(const std::array<int, 4>& arr) = 0;
+
+	virtual std::shared_ptr<Struct1> testStdSharedPtr(const std::shared_ptr<Struct1>& pStruct1) = 0;
 
 	virtual Struct1 testStruct11(const Struct1& s1) = 0;
 
@@ -101,11 +103,11 @@ public:
 
 	virtual void testStruct13(const Struct1& s1, Struct1& s2) = 0;
 
-	virtual std::vector < Struct1 > testStruct1Vec1(const std::vector < Struct1 >& vec) = 0;
+	virtual std::vector<Struct1> testStruct1Vec1(const std::vector<Struct1>& vec) = 0;
 
-	virtual void testStruct1Vec2(std::vector < Struct1 >& vec) = 0;
+	virtual void testStruct1Vec2(std::vector<Struct1>& vec) = 0;
 
-	virtual void testStruct1Vec3(const std::vector < Struct1 >& vec1, std::vector < Struct1 >& vec2) = 0;
+	virtual void testStruct1Vec3(const std::vector<Struct1>& vec1, std::vector<Struct1>& vec2) = 0;
 
 	virtual Struct2 testStruct21(const Struct2& s1) = 0;
 
@@ -135,18 +137,20 @@ public:
 
 	virtual Struct7 testStruct7(const Struct7& s1) = 0;
 
+	virtual Struct8 testStruct8(const Struct8& value) = 0;
+
 	virtual void testSynchronized() = 0;
 
 	virtual void testSynchronizedProxy() = 0;
 
 	virtual void testSynchronizedRemote() = 0;
 
-	Poco::BasicEvent < Enum1 > testEnumEvent;
-	Poco::BasicEvent < std::string > testEvent;
-	Poco::BasicEvent < const int > testFilteredEvent;
-	Poco::BasicEvent < std::string > testOneWayEvent;
-	Poco::BasicEvent < ScopedEnum > testScopedEnumEvent;
-	Poco::BasicEvent < void > testVoidEvent;
+	Poco::BasicEvent<Enum1> testEnumEvent;
+	Poco::BasicEvent<std::string> testEvent;
+	Poco::BasicEvent<const int> testFilteredEvent;
+	Poco::BasicEvent<std::string> testOneWayEvent;
+	Poco::BasicEvent<ScopedEnum> testScopedEnumEvent;
+	Poco::BasicEvent<void> testVoidEvent;
 };
 
 

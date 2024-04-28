@@ -42,12 +42,12 @@ public:
 
 	virtual const Pizzeria::ExtTopping& getMostPopularTopping() const = 0;
 
-	virtual const std::set < std::string >& getPizzaNames() const = 0;
+	virtual const std::set<std::string>& getPizzaNames() const = 0;
 
-	virtual const std::vector < Pizzeria::Pizza >& getPizzas() const = 0;
+	virtual const std::vector<Pizzeria::Pizza>& getPizzas() const = 0;
 		/// Returns the different types of pizza which we offer.
 
-	virtual const std::vector < Pizzeria::ExtTopping >& getToppings() const = 0;
+	virtual const std::vector<Pizzeria::ExtTopping>& getToppings() const = 0;
 
 	virtual Poco::Timespan getWaitTime() const = 0;
 		/// Returns the approximate wait time.

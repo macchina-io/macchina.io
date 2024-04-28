@@ -570,6 +570,20 @@ void RemotingTest::testStdArray()
 }
 
 
+void RemotingTest::testOptional()
+{
+	ITester::Ptr pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
+	testOptional(pTester);
+}
+
+
+void RemotingTest::testStruct8()
+{
+	ITester::Ptr pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
+	testStruct8(pTester);
+}
+
+
 void RemotingTest::testClass1()
 {
 	ITester::Ptr pTester = TesterClientHelper::find("MOCK://localhost/MOCK/Tester/TheTester");
@@ -994,6 +1008,58 @@ void RemotingTest::testStdArray(ITester::Ptr pTester)
 }
 
 
+void RemotingTest::testOptional(ITester::Ptr pTester)
+{
+	{
+		Poco::Optional<std::string> value("test");
+		Poco::Optional<std::string> res = pTester->testPocoOptional(value);
+		assert (res.isSpecified());
+		assert (res.value() == value.value());
+
+		value.clear();
+		res.clear();
+
+		res = pTester->testPocoOptional(value);
+		assert (!res.isSpecified());
+	}
+
+#if __cplusplus >= 201703L && defined(TEST_STD_OPTIONAL)
+	{
+		std::optional<std::string> value("test");
+		std::optional<std::string> res = pTester->testStdOptional(value);
+		assert (res.has_value());
+		assert (res.value() == value.value());
+
+		value.reset();
+		res.reset();
+
+		res = pTester->testStdOptional(value);
+		assert (!res.has_value());
+	}
+#endif
+}
+
+
+void RemotingTest::testStruct8(ITester::Ptr pTester)
+{
+	Struct8 value;
+	value.pocoOptional = "test";
+
+#if __cplusplus >= 201703L && defined(TEST_STD_OPTIONAL)
+	value.stdOptional = "test2";
+#endif
+
+	Struct8 res = pTester->testStruct8(value);
+	assert (res.pocoOptional.isSpecified());
+	assert (res.pocoOptional.value() == value.pocoOptional.value());
+
+#if __cplusplus >= 201703L && defined(TEST_STD_OPTIONAL)
+	assert (res.stdOptional.has_value());
+	assert (res.stdOptional.value() == value.stdOptional.value());
+#endif
+}
+
+
 void RemotingTest::testClass1(ITester::Ptr pTester)
 {
 	Class1 c1;
@@ -1131,6 +1197,8 @@ CppUnit::Test* RemotingTest::suite()
 	CppUnit_addTest(pSuite, RemotingTest, testArray);
 	CppUnit_addTest(pSuite, RemotingTest, testStruct7);
 	CppUnit_addTest(pSuite, RemotingTest, testStdArray);
+	CppUnit_addTest(pSuite, RemotingTest, testOptional);
+	CppUnit_addTest(pSuite, RemotingTest, testStruct8);
 	CppUnit_addTest(pSuite, RemotingTest, testClass1);
 	CppUnit_addTest(pSuite, RemotingTest, testPtr);
 	CppUnit_addTest(pSuite, RemotingTest, testStruct1Vec);

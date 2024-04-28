@@ -60,7 +60,7 @@ public:
 		/// Fires the wakeUp event at the given time, passing
 		/// the given message as argument.
 
-	Poco::BasicEvent < const std::string > wakeUp;
+	Poco::BasicEvent<const std::string> wakeUp;
 };
 
 

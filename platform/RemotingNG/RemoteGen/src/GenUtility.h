@@ -100,10 +100,16 @@ public:
 		/// returns true if the type is Poco::Nullable
 
 	static bool isOptionalType(const Poco::CppParser::NameSpace* pNS, const Poco::CppParser::Parameter* pParam);
-		/// returns true if the type is Poco::Nullable
+		/// returns true if the type is Poco::Optional or std::optional
+
+	static bool isStdOptionalType(const Poco::CppParser::NameSpace* pNS, const Poco::CppParser::Parameter* pParam);
+		/// returns true if the type is std::optional
 
 	static bool isOptionalType(const std::string& type);
-		/// returns true if the type is Poco::Optional
+		/// returns true if the type is Poco::Optional or std::optional
+
+	static bool isStdOptionalType(const std::string& type);
+		/// returns true if the type is std::optional
 
 	static std::vector<std::string> getInnerTemplateTypes(const std::string& typeDecl);
 		/// Returns a vector containing the types used to instantiate the template

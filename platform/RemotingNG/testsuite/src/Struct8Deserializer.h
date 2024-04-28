@@ -1,5 +1,5 @@
 //
-// Struct5Deserializer.h
+// Struct8Deserializer.h
 //
 // Package: Generated
 // Module:  TypeDeserializer
@@ -9,8 +9,8 @@
 //
 
 
-#ifndef TypeDeserializer_Struct5_INCLUDED
-#define TypeDeserializer_Struct5_INCLUDED
+#ifndef TypeDeserializer_Struct8_INCLUDED
+#define TypeDeserializer_Struct8_INCLUDED
 
 
 #include "Poco/RemotingNG/TypeDeserializer.h"
@@ -22,10 +22,10 @@ namespace RemotingNG {
 
 
 template <>
-class TypeDeserializer<Struct5>
+class TypeDeserializer<Struct8>
 {
 public:
-	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Struct5& value)
+	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Struct8& value)
 	{
 		using namespace std::string_literals;
 		
@@ -38,12 +38,12 @@ public:
 		return ret;
 	}
 
-	static void deserializeImpl(Deserializer& deser, Struct5& value)
+	static void deserializeImpl(Deserializer& deser, Struct8& value)
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"tv"s};
-		TypeDeserializer<Poco::Int64>::deserialize(REMOTING__NAMES[0], true, deser, value.tv);
+		static const std::string REMOTING__NAMES[] = {"pocoOptional"s};
+		TypeDeserializer<Poco::Optional<std::string>>::deserialize(REMOTING__NAMES[0], true, deser, value.pocoOptional);
 	}
 
 };
@@ -53,5 +53,5 @@ public:
 } // namespace Poco
 
 
-#endif // TypeDeserializer_Struct5_INCLUDED
+#endif // TypeDeserializer_Struct8_INCLUDED
 

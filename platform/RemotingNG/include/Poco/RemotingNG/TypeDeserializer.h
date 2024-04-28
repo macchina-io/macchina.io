@@ -38,6 +38,9 @@
 #include <set>
 #include <unordered_set>
 #include <array>
+#if __cplusplus >= 201703L
+#include <optional>
+#endif
 #include <memory>
 
 
@@ -114,7 +117,7 @@ class TypeDeserializer<Poco::Array<T, N>>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::Array<T, N>& value)
 	{
-		Poco::UInt32 sizeHint = value.size();
+		Poco::UInt32 sizeHint = static_cast<Poco::UInt32>(value.size());
 		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
 		{
 			deserializeImpl(name, false, deser, value);
@@ -148,7 +151,7 @@ class TypeDeserializer<std::array<T, N>>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::array<T, N>& value)
 	{
-		Poco::UInt32 sizeHint = value.size();
+		Poco::UInt32 sizeHint = static_cast<Poco::UInt32>(value.size());
 		if (deser.deserializeSequenceBegin(name, isMandatory, sizeHint))
 		{
 			deserializeImpl(name, false, deser, value);
@@ -410,6 +413,44 @@ public:
 };
 
 
+#if __cplusplus >= 201703L
+
+
+template <typename T>
+class TypeDeserializer<std::optional<T>>
+{
+public:
+	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, std::optional<T>& value)
+	{
+		bool isSpecified;
+		if (deser.deserializeOptionalBegin(name, isMandatory, isSpecified))
+		{
+			if (isSpecified)
+			{
+				deserializeImpl(name, false, deser, value);
+				deser.deserializeOptionalEnd(name);
+			}
+			else value.reset();
+			return true;
+		}
+		value.reset();
+		return false;
+	}
+
+	static void deserializeImpl(const std::string& name, bool isMandatory, Deserializer& deser, std::optional<T>& value)
+	{
+		T temp;
+		if (TypeDeserializer<T>::deserialize(name, isMandatory, deser, temp))
+			value = std::move(temp);
+		else
+			value.reset();
+	}
+};
+
+
+#endif // __cplusplus >= 201703L
+
+
 template <typename T>
 class TypeDeserializer<Poco::AutoPtr<T>>
 {
@@ -516,13 +557,7 @@ class TypeDeserializer<Poco::URI>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::URI& value)
 	{
-		std::string uriStr;
-		bool found = deser.deserialize(name, isMandatory, uriStr);
-		if (found)
-			value = uriStr;
-		else
-			value.clear();
-		return found;
+		return deser.deserialize(name, isMandatory, value);
 	}
 };
 
@@ -533,13 +568,7 @@ class TypeDeserializer<Poco::UUID>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::UUID& value)
 	{
-		std::string uuidStr;
-		bool found = deser.deserialize(name, isMandatory, uuidStr);
-		if (found)
-			value.parse(uuidStr);
-		else
-			value = Poco::UUID();
-		return found;
+		return deser.deserialize(name, isMandatory, value);
 	}
 };
 
@@ -561,15 +590,7 @@ class TypeDeserializer<Poco::DateTime>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::DateTime& value)
 	{
-		std::string timeStr;
-		bool found = TypeDeserializer<std::string>::deserialize(name, isMandatory, deser, timeStr);
-		if (found)
-		{
-			int tzd = 0;
-			Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FRAC_FORMAT, timeStr, value, tzd);
-			value.makeUTC(tzd);
-		}
-		return found;
+		return deser.deserialize(name, isMandatory, value);
 	}
 };
 
@@ -580,16 +601,7 @@ class TypeDeserializer<Poco::LocalDateTime>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::LocalDateTime& value)
 	{
-		std::string timeStr;
-		bool found = TypeDeserializer<std::string>::deserialize(name, isMandatory, deser, timeStr);
-		if (found)
-		{
-			int tzd = 0;
-			Poco::DateTime dt;
-			Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FRAC_FORMAT, timeStr, dt, tzd);
-			value = Poco::LocalDateTime(tzd, dt, false);
-		}
-		return found;
+		return deser.deserialize(name, isMandatory, value);
 	}
 };
 
@@ -600,13 +612,7 @@ class TypeDeserializer<Poco::Timestamp>
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::Timestamp& value)
 	{
-		Poco::DateTime dt;
-		bool found = TypeDeserializer<Poco::DateTime>::deserialize(name, isMandatory, deser, dt);
-		if (found)
-		{
-			value = dt.timestamp();
-		}
-		return found;
+		return deser.deserialize(name, isMandatory, value);
 	}
 };
 
@@ -616,15 +622,8 @@ class TypeDeserializer<Poco::Timespan>
 {
 public:
 	static bool deserialize(const std::string& name, bool isMandatory, Deserializer& deser, Poco::Timespan& value)
-			/// Deserialize for complex data types.
 	{
-		Poco::Timespan::TimeDiff diff;
-		bool found = TypeDeserializer<Poco::Timespan::TimeDiff>::deserialize(name, isMandatory, deser, diff);
-		if (found)
-		{
-			value = Poco::Timespan(diff);
-		}
-		return found;
+		return deser.deserialize(name, isMandatory, value);
 	}
 };
 

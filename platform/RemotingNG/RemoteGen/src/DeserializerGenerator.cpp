@@ -119,9 +119,9 @@ void DeserializerGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 
 	Poco::Path aPath(pStruct->getFile());
 	Poco::Util::LayeredConfiguration& cfg = Poco::Util::Application::instance().config();
-	if (cfg.hasProperty("RemoteGen.output.include"))
+	std::string incFile = includePath(cfg, pStruct->nameSpace()->fullName());
+	if (!incFile.empty())
 	{
-		std::string incFile = cfg.getString("RemoteGen.output.include");
 		aPath = Poco::Path(incFile);
 		aPath.makeDirectory();
 	}
@@ -572,11 +572,7 @@ void DeserializerGenerator::matchVarsWithFunctions(const Poco::CppParser::Struct
 			    {
 					//public: use directly, set 0 as funct pointer to indicate direct usage
 					Poco::CppParser::Function* pNullFct = 0;
-					bool ok = matches.insert(std::make_pair(itO->first, std::make_pair(static_cast<Poco::CppParser::Variable*>(itO->second), pNullFct))).second;
-					if (!ok)
-					{
-						throw Poco::LogicException("Found two variables with the same name: " + itO->first);
-					}
+					matches.insert(std::make_pair(itO->first, std::make_pair(static_cast<Poco::CppParser::Variable*>(itO->second), pNullFct)));
 				}
 				varsCopy.erase(itO->first);
 				varsLower.erase(Poco::toLower(itO->first));
@@ -657,8 +653,7 @@ void DeserializerGenerator::matchVarsWithFunctions(const Poco::CppParser::Struct
 								SerializerGenerator::VarGet::iterator itM = matches.find(itVar->second->first);
 								if (itM != matches.end() && isSwap)
 									matches.erase(itM);
-								bool ok = matches.insert(std::make_pair(itVar->second->first, std::make_pair(pFoundVar, pFoundFct))).second;
-								if (!ok) throw Poco::LogicException("Found multiple setters for variable: " + *itNames);
+								matches.insert(std::make_pair(itVar->second->first, std::make_pair(pFoundVar, pFoundFct)));
 								varsCopy.erase(itVar->second->first);
 							}
 						}
@@ -735,6 +730,12 @@ void DeserializerGenerator::generateTypeDeserializerLines(const Poco::CppParser:
 	{
 		lines.push_back("deser.pushProperty(SerializerBase::PROP_LENGTH, \"" + length + "\"s);");
 	}
+	std::string xsdType;
+	bool haveXsdType = GeneratorEngine::getStringProperty(varProps, Utility::XSDTYPE, xsdType);
+	if (haveXsdType)
+	{
+		lines.push_back("deser.pushProperty(SerializerBase::PROP_XSDTYPE, \"" + xsdType + "\"s);");
+	}
 
 	std::string declType (Poco::CodeGeneration::Utility::resolveType(pDataType, pVar->declType()));
 	const std::string& origVarName = it->second.first->name();
@@ -774,7 +775,7 @@ void DeserializerGenerator::generateTypeDeserializerLines(const Poco::CppParser:
 		code.append(declType);
 	if (pVar->isPointer())
 		code.append("*");
-	code.append(Poco::format(" >::deserialize(REMOTING__NAMES%s[", suffix));
+	code.append(Poco::format(">::deserialize(REMOTING__NAMES%s[", suffix));
 	code.append(Poco::NumberFormatter::format(namePos));
 	code.append("], ");
 
@@ -828,5 +829,9 @@ void DeserializerGenerator::generateTypeDeserializerLines(const Poco::CppParser:
 	if (haveLength)
 	{
 		lines.push_back("deser.popProperty(SerializerBase::PROP_LENGTH);");
+	}
+	if (haveXsdType)
+	{
+		lines.push_back("deser.popProperty(SerializerBase::PROP_XSDTYPE);");
 	}
 }

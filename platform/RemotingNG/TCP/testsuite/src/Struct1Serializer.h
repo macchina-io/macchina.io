@@ -38,12 +38,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"aDouble"s,"aString"s,"anEnum"s,"anEnum2"s,"anInt"s,""s};
-		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.aDouble, ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.aString, ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[2], static_cast<int>(value.anEnum), ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[3], static_cast<int>(value.anEnum2), ser);
-		TypeSerializer<int >::serialize(REMOTING__NAMES[4], value.anInt, ser);
+		static const std::string REMOTING__NAMES[] = {"aString"s,"anInt"s,"aDouble"s,"anEnum"s,"anEnum2"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.aString, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[1], value.anInt, ser);
+		TypeSerializer<double>::serialize(REMOTING__NAMES[2], value.aDouble, ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[3], static_cast<int>(value.anEnum), ser);
+		TypeSerializer<int>::serialize(REMOTING__NAMES[4], static_cast<int>(value.anEnum2), ser);
 	}
 
 };

@@ -42,6 +42,8 @@ public:
 	void testArray();
 	void testStruct7();
 	void testStdArray();
+	void testOptional();
+	void testStruct8();
 	void testClass1();
 	void testPtr();
 	void testStruct1Vec();
@@ -71,6 +73,8 @@ protected:
 	void testArray(ITester::Ptr pTester);
 	void testStruct7(ITester::Ptr pTester);
 	void testStdArray(ITester::Ptr pTester);
+	void testOptional(ITester::Ptr pTester);
+	void testStruct8(ITester::Ptr pTester);
 	void testClass1(ITester::Ptr pTester);
 	void testPtr(ITester::Ptr pTester);
 	void testStruct1Vec(ITester::Ptr pTester);

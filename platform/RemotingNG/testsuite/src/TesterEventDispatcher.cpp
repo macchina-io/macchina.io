@@ -19,16 +19,17 @@
 #include "Poco/RemotingNG/URIUtility.h"
 
 
-TesterEventDispatcher::TesterEventDispatcher(TesterRemoteObject* pRemoteObject, const std::string& protocol):
+TesterEventDispatcher::TesterEventDispatcher(ITester* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol):
 	Poco::RemotingNG::EventDispatcher(protocol),
-	_pRemoteObject(pRemoteObject)
+	_objectId(objectId),
+	_pInterface(pInterface)
 {
-	_pRemoteObject->testEnumEvent += Poco::delegate(this, &TesterEventDispatcher::event__testEnumEvent);
-	_pRemoteObject->testEvent += Poco::delegate(this, &TesterEventDispatcher::event__testEvent);
-	_pRemoteObject->testFilteredEvent += Poco::delegate(this, &TesterEventDispatcher::event__testFilteredEvent);
-	_pRemoteObject->testOneWayEvent += Poco::delegate(this, &TesterEventDispatcher::event__testOneWayEvent);
-	_pRemoteObject->testScopedEnumEvent += Poco::delegate(this, &TesterEventDispatcher::event__testScopedEnumEvent);
-	_pRemoteObject->testVoidEvent += Poco::delegate(this, &TesterEventDispatcher::event__testVoidEvent);
+	_pInterface->testEnumEvent += Poco::delegate(this, &TesterEventDispatcher::event__testEnumEvent);
+	_pInterface->testEvent += Poco::delegate(this, &TesterEventDispatcher::event__testEvent);
+	_pInterface->testFilteredEvent += Poco::delegate(this, &TesterEventDispatcher::event__testFilteredEvent);
+	_pInterface->testOneWayEvent += Poco::delegate(this, &TesterEventDispatcher::event__testOneWayEvent);
+	_pInterface->testScopedEnumEvent += Poco::delegate(this, &TesterEventDispatcher::event__testScopedEnumEvent);
+	_pInterface->testVoidEvent += Poco::delegate(this, &TesterEventDispatcher::event__testVoidEvent);
 }
 
 
@@ -36,12 +37,12 @@ TesterEventDispatcher::~TesterEventDispatcher()
 {
 	try
 	{
-		_pRemoteObject->testEnumEvent -= Poco::delegate(this, &TesterEventDispatcher::event__testEnumEvent);
-		_pRemoteObject->testEvent -= Poco::delegate(this, &TesterEventDispatcher::event__testEvent);
-		_pRemoteObject->testFilteredEvent -= Poco::delegate(this, &TesterEventDispatcher::event__testFilteredEvent);
-		_pRemoteObject->testOneWayEvent -= Poco::delegate(this, &TesterEventDispatcher::event__testOneWayEvent);
-		_pRemoteObject->testScopedEnumEvent -= Poco::delegate(this, &TesterEventDispatcher::event__testScopedEnumEvent);
-		_pRemoteObject->testVoidEvent -= Poco::delegate(this, &TesterEventDispatcher::event__testVoidEvent);
+		_pInterface->testEnumEvent -= Poco::delegate(this, &TesterEventDispatcher::event__testEnumEvent);
+		_pInterface->testEvent -= Poco::delegate(this, &TesterEventDispatcher::event__testEvent);
+		_pInterface->testFilteredEvent -= Poco::delegate(this, &TesterEventDispatcher::event__testFilteredEvent);
+		_pInterface->testOneWayEvent -= Poco::delegate(this, &TesterEventDispatcher::event__testOneWayEvent);
+		_pInterface->testScopedEnumEvent -= Poco::delegate(this, &TesterEventDispatcher::event__testScopedEnumEvent);
+		_pInterface->testVoidEvent -= Poco::delegate(this, &TesterEventDispatcher::event__testVoidEvent);
 	}
 	catch (...)
 	{
@@ -261,17 +262,17 @@ void TesterEventDispatcher::event__testEnumEventImpl(const std::string& subscrib
 	static const std::string REMOTING__NAMES[] = {"testEnumEvent"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<int >::serialize(REMOTING__NAMES[2], static_cast<int>(data), remoting__ser);
+	Poco::RemotingNG::TypeSerializer<int>::serialize(REMOTING__NAMES[2], static_cast<int>(data), remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	static const std::string REMOTING__REPLY_NAME("testEnumEventReply");
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_EVENT_REPLY);
 	int remoting__dataTmp;
-	Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], true, remoting__deser, remoting__dataTmp);
+	Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[2], true, remoting__deser, remoting__dataTmp);
 	data = static_cast<Enum1>(remoting__dataTmp);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_EVENT_REPLY);
 	remoting__trans.endRequest();
@@ -285,16 +286,16 @@ void TesterEventDispatcher::event__testEventImpl(const std::string& subscriberUR
 	static const std::string REMOTING__NAMES[] = {"testEvent"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	static const std::string REMOTING__REPLY_NAME("testEventReply");
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_EVENT_REPLY);
-	Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[2], true, remoting__deser, data);
+	Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[2], true, remoting__deser, data);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_EVENT_REPLY);
 	remoting__trans.endRequest();
 }
@@ -307,13 +308,13 @@ void TesterEventDispatcher::event__testFilteredEventImpl(const std::string& subs
 	static const std::string REMOTING__NAMES[] = {"testFilteredEvent"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<int >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<int>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -324,13 +325,13 @@ void TesterEventDispatcher::event__testOneWayEventImpl(const std::string& subscr
 	static const std::string REMOTING__NAMES[] = {"testOneWayEvent"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<std::string >::serialize(REMOTING__NAMES[2], data, remoting__ser);
+	Poco::RemotingNG::TypeSerializer<std::string>::serialize(REMOTING__NAMES[2], data, remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 
@@ -341,17 +342,17 @@ void TesterEventDispatcher::event__testScopedEnumEventImpl(const std::string& su
 	static const std::string REMOTING__NAMES[] = {"testScopedEnumEvent"s,"subscriberURI"s,"data"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginRequest(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-	Poco::RemotingNG::TypeSerializer<unsigned short >::serialize(REMOTING__NAMES[2], static_cast<unsigned short>(data), remoting__ser);
+	Poco::RemotingNG::TypeSerializer<unsigned short>::serialize(REMOTING__NAMES[2], static_cast<unsigned short>(data), remoting__ser);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Deserializer& remoting__deser = remoting__trans.sendRequest(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	static const std::string REMOTING__REPLY_NAME("testScopedEnumEventReply");
 	remoting__deser.deserializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_EVENT_REPLY);
 	unsigned short remoting__dataTmp;
-	Poco::RemotingNG::TypeDeserializer<unsigned short >::deserialize(REMOTING__NAMES[2], true, remoting__deser, remoting__dataTmp);
+	Poco::RemotingNG::TypeDeserializer<unsigned short>::deserialize(REMOTING__NAMES[2], true, remoting__deser, remoting__dataTmp);
 	data = static_cast<ScopedEnum>(remoting__dataTmp);
 	remoting__deser.deserializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_EVENT_REPLY);
 	remoting__trans.endRequest();
@@ -365,12 +366,12 @@ void TesterEventDispatcher::event__testVoidEventImpl(const std::string& subscrib
 	static const std::string REMOTING__NAMES[] = {"testVoidEvent"s,"subscriberURI"s};
 	Poco::RemotingNG::Transport& remoting__trans = transportForSubscriber(subscriberURI);
 	Poco::ScopedLock<Poco::RemotingNG::Transport> remoting__lock(remoting__trans);
-	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.beginMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, DEFAULT_NS);
 	remoting__ser.serializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.serializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 	remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
-	remoting__trans.sendMessage(_pRemoteObject->remoting__objectId(), _pRemoteObject->remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
+	remoting__trans.sendMessage(_objectId, remoting__typeId(), REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 }
 
 

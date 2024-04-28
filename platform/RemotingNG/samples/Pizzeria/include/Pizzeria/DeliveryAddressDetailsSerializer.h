@@ -44,7 +44,7 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"milesAway"s,""s};
-		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.milesAway, ser);
+		TypeSerializer<double>::serialize(REMOTING__NAMES[0], value.milesAway, ser);
 	}
 
 };

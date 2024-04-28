@@ -80,7 +80,7 @@ public:
 
 	void testPermission();
 
-	Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1);
+	Poco::SharedPtr<Struct1> testPtr(Poco::SharedPtr<Struct1> p1);
 
 	Struct1 testStruct11(const Struct1& s1);
 
@@ -88,11 +88,11 @@ public:
 
 	void testStruct13(const Struct1& s1, Struct1& s2);
 
-	std::vector < Struct1 > testStruct1Vec1(const std::vector < Struct1 >& vec);
+	std::vector<Struct1> testStruct1Vec1(const std::vector<Struct1>& vec);
 
-	void testStruct1Vec2(std::vector < Struct1 >& vec);
+	void testStruct1Vec2(std::vector<Struct1>& vec);
 
-	void testStruct1Vec3(const std::vector < Struct1 >& vec1, std::vector < Struct1 >& vec2);
+	void testStruct1Vec3(const std::vector<Struct1>& vec1, std::vector<Struct1>& vec2);
 
 	Struct2 testStruct21(const Struct2& s1);
 
@@ -268,7 +268,7 @@ inline void TesterRemoteObject::testPermission()
 }
 
 
-inline Poco::SharedPtr < Struct1 > TesterRemoteObject::testPtr(Poco::SharedPtr < Struct1 > p1)
+inline Poco::SharedPtr<Struct1> TesterRemoteObject::testPtr(Poco::SharedPtr<Struct1> p1)
 {
 	return _pServiceObject->testPtr(p1);
 }
@@ -292,19 +292,19 @@ inline void TesterRemoteObject::testStruct13(const Struct1& s1, Struct1& s2)
 }
 
 
-inline std::vector < Struct1 > TesterRemoteObject::testStruct1Vec1(const std::vector < Struct1 >& vec)
+inline std::vector<Struct1> TesterRemoteObject::testStruct1Vec1(const std::vector<Struct1>& vec)
 {
 	return _pServiceObject->testStruct1Vec1(vec);
 }
 
 
-inline void TesterRemoteObject::testStruct1Vec2(std::vector < Struct1 >& vec)
+inline void TesterRemoteObject::testStruct1Vec2(std::vector<Struct1>& vec)
 {
 	_pServiceObject->testStruct1Vec2(vec);
 }
 
 
-inline void TesterRemoteObject::testStruct1Vec3(const std::vector < Struct1 >& vec1, std::vector < Struct1 >& vec2)
+inline void TesterRemoteObject::testStruct1Vec3(const std::vector<Struct1>& vec1, std::vector<Struct1>& vec2)
 {
 	_pServiceObject->testStruct1Vec3(vec1, vec2);
 }

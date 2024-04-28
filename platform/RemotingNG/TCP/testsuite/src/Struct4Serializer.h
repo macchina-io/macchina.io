@@ -40,12 +40,12 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"ptr"s,"value"s,"vec"s,""s,"http://www.appinf.com/types"s};
+		static const std::string REMOTING__NAMES[] = {"value"s,"vec"s,"ptr"s,""s,"http://www.appinf.com/types"s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.value, ser);
+		TypeSerializer<std::vector<Struct4>>::serialize(REMOTING__NAMES[1], value.vec, ser);
 		ser.pushProperty(SerializerBase::PROP_NAMESPACE, REMOTING__NAMES[4]);
-		TypeSerializer<Poco::SharedPtr < Struct4 > >::serialize(REMOTING__NAMES[0], value.ptr, ser);
+		TypeSerializer<Poco::SharedPtr<Struct4>>::serialize(REMOTING__NAMES[2], value.ptr, ser);
 		ser.popProperty(SerializerBase::PROP_NAMESPACE);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], value.value, ser);
-		TypeSerializer<std::vector < Struct4 > >::serialize(REMOTING__NAMES[2], value.vec, ser);
 	}
 
 };

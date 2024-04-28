@@ -45,15 +45,15 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"cityName"s,"details"s,"houseNo"s,"state"s,"streetName"s,"personName"s,"phoneNo"s,"zip"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.getCityName(), ser);
-		TypeSerializer<Pizzeria::DeliveryAddress::Details >::serialize(REMOTING__NAMES[1], value.getDetails(), ser);
-		TypeSerializer<Poco::Int16 >::serialize(REMOTING__NAMES[2], value.getHouseNumber(), ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[3], value.getState(), ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[4], value.getStreet(), ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[5], value.getPersonName(), ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[6], value.getPhoneNumber(), ser);
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[7], value.getZip(), ser);
+		static const std::string REMOTING__NAMES[] = {"personName"s,"streetName"s,"houseNo"s,"cityName"s,"zip"s,"state"s,"phoneNo"s,"details"s,""s};
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.getPersonName(), ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], value.getStreet(), ser);
+		TypeSerializer<Poco::Int16>::serialize(REMOTING__NAMES[2], value.getHouseNumber(), ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[3], value.getCityName(), ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[4], value.getZip(), ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[5], value.getState(), ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[6], value.getPhoneNumber(), ser);
+		TypeSerializer<Pizzeria::DeliveryAddress::Details>::serialize(REMOTING__NAMES[7], value.getDetails(), ser);
 	}
 
 };

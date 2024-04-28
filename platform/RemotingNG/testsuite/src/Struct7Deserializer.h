@@ -43,7 +43,7 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"arr"s};
-		TypeDeserializer<std::array < int, 4 > >::deserialize(REMOTING__NAMES[0], true, deser, value.arr);
+		TypeDeserializer<std::array<int, 4>>::deserialize(REMOTING__NAMES[0], true, deser, value.arr);
 	}
 
 };

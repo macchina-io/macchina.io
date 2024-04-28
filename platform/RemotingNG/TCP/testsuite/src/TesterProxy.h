@@ -76,7 +76,7 @@ public:
 
 	void testPermission();
 
-	Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1);
+	Poco::SharedPtr<Struct1> testPtr(Poco::SharedPtr<Struct1> p1);
 
 	Struct1 testStruct11(const Struct1& s1);
 
@@ -84,11 +84,11 @@ public:
 
 	void testStruct13(const Struct1& s1, Struct1& s2);
 
-	std::vector < Struct1 > testStruct1Vec1(const std::vector < Struct1 >& vec);
+	std::vector<Struct1> testStruct1Vec1(const std::vector<Struct1>& vec);
 
-	void testStruct1Vec2(std::vector < Struct1 >& vec);
+	void testStruct1Vec2(std::vector<Struct1>& vec);
 
-	void testStruct1Vec3(const std::vector < Struct1 >& vec1, std::vector < Struct1 >& vec2);
+	void testStruct1Vec3(const std::vector<Struct1>& vec1, std::vector<Struct1>& vec2);
 
 	Struct2 testStruct21(const Struct2& s1);
 
@@ -130,9 +130,9 @@ private:
 	mutable int _testInt1Ret;
 	mutable Poco::Int64 _testNestedTypeRet;
 	mutable std::string _testOneWayResultRet;
-	mutable Poco::SharedPtr < Struct1 > _testPtrRet;
+	mutable Poco::SharedPtr<Struct1> _testPtrRet;
 	mutable Struct1 _testStruct11Ret;
-	mutable std::vector < Struct1 > _testStruct1Vec1Ret;
+	mutable std::vector<Struct1> _testStruct1Vec1Ret;
 	mutable Struct2 _testStruct21Ret;
 	mutable Struct3 _testStruct31Ret;
 	mutable Struct4 _testStruct41Ret;

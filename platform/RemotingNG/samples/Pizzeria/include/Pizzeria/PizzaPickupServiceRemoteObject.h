@@ -43,12 +43,12 @@ public:
 
 	const Pizzeria::ExtTopping& getMostPopularTopping() const;
 
-	const std::set < std::string >& getPizzaNames() const;
+	const std::set<std::string>& getPizzaNames() const;
 
-	const std::vector < Pizzeria::Pizza >& getPizzas() const;
+	const std::vector<Pizzeria::Pizza>& getPizzas() const;
 		/// Returns the different types of pizza which we offer.
 
-	const std::vector < Pizzeria::ExtTopping >& getToppings() const;
+	const std::vector<Pizzeria::ExtTopping>& getToppings() const;
 
 	Poco::Timespan getWaitTime() const;
 		/// Returns the approximate wait time.
@@ -80,19 +80,19 @@ inline const Pizzeria::ExtTopping& PizzaPickupServiceRemoteObject::getMostPopula
 }
 
 
-inline const std::set < std::string >& PizzaPickupServiceRemoteObject::getPizzaNames() const
+inline const std::set<std::string>& PizzaPickupServiceRemoteObject::getPizzaNames() const
 {
 	return _pServiceObject->getPizzaNames();
 }
 
 
-inline const std::vector < Pizzeria::Pizza >& PizzaPickupServiceRemoteObject::getPizzas() const
+inline const std::vector<Pizzeria::Pizza>& PizzaPickupServiceRemoteObject::getPizzas() const
 {
 	return _pServiceObject->getPizzas();
 }
 
 
-inline const std::vector < Pizzeria::ExtTopping >& PizzaPickupServiceRemoteObject::getToppings() const
+inline const std::vector<Pizzeria::ExtTopping>& PizzaPickupServiceRemoteObject::getToppings() const
 {
 	return _pServiceObject->getToppings();
 }

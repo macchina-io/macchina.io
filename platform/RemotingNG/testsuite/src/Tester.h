@@ -27,10 +27,14 @@
 #include "Poco/Timestamp.h"
 #include "Poco/SharedPtr.h"
 #include "Poco/Array.h"
+#include "Poco/Optional.h"
 #include <vector>
 #include <list>
 #include <set>
 #include <array>
+#if __cplusplus >= 201703L
+#include <optional>
+#endif
 #include <memory>
 
 
@@ -129,6 +133,16 @@ struct Struct6
 struct Struct7
 {
 	std::array<int, 4> arr;
+};
+
+
+//@ serialize
+struct Struct8
+{
+	Poco::Optional<std::string> pocoOptional;
+#if __cplusplus >= 201703L
+	std::optional<std::string> stdOptional;
+#endif
 };
 
 
@@ -272,6 +286,14 @@ public:
 	Struct7 testStruct7(const Struct7& s1);
 
 	std::array<int, 4> testStdArray(const std::array<int, 4>& arr);
+
+	Poco::Optional<std::string> testPocoOptional(const Poco::Optional<std::string>& value);
+
+#if __cplusplus >= 201703L
+	std::optional<std::string> testStdOptional(const std::optional<std::string>& value);
+#endif
+
+	Struct8 testStruct8(const Struct8& value);
 
 	Class1 testClass11(const Class1& c1);
 

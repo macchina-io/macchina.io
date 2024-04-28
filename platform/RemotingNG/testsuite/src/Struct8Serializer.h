@@ -1,5 +1,5 @@
 //
-// Struct5Serializer.h
+// Struct8Serializer.h
 //
 // Package: Generated
 // Module:  TypeSerializer
@@ -9,8 +9,8 @@
 //
 
 
-#ifndef TypeSerializer_Struct5_INCLUDED
-#define TypeSerializer_Struct5_INCLUDED
+#ifndef TypeSerializer_Struct8_INCLUDED
+#define TypeSerializer_Struct8_INCLUDED
 
 
 #include "Poco/RemotingNG/TypeSerializer.h"
@@ -22,10 +22,10 @@ namespace RemotingNG {
 
 
 template <>
-class TypeSerializer<Struct5>
+class TypeSerializer<Struct8>
 {
 public:
-	static void serialize(const std::string& name, const Struct5& value, Serializer& ser)
+	static void serialize(const std::string& name, const Struct8& value, Serializer& ser)
 	{
 		using namespace std::string_literals;
 		
@@ -34,12 +34,12 @@ public:
 		ser.serializeStructEnd(name);
 	}
 
-	static void serializeImpl(const Struct5& value, Serializer& ser)
+	static void serializeImpl(const Struct8& value, Serializer& ser)
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"tv"s,""s};
-		TypeSerializer<Poco::Int64>::serialize(REMOTING__NAMES[0], value.tv, ser);
+		static const std::string REMOTING__NAMES[] = {"pocoOptional"s,""s};
+		TypeSerializer<Poco::Optional<std::string>>::serialize(REMOTING__NAMES[0], value.pocoOptional, ser);
 	}
 
 };
@@ -49,5 +49,5 @@ public:
 } // namespace Poco
 
 
-#endif // TypeSerializer_Struct5_INCLUDED
+#endif // TypeSerializer_Struct8_INCLUDED
 

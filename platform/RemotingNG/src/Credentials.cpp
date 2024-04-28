@@ -27,6 +27,7 @@ const std::string Credentials::ATTR_NONCE("r");
 const std::string Credentials::ATTR_SALT("s");
 const std::string Credentials::ATTR_ITERATIONS("i");
 const std::string Credentials::ATTR_SIGNATURE("v");
+const std::string Credentials::ATTR_CREATED("c");
 
 
 Credentials::Credentials()

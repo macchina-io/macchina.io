@@ -329,6 +329,15 @@ calls to the service object are serialized. This useful if the service
 object has not been implemented in a threadsafe manner.
 
 
+!ServiceRemoteBridge
+
+The remote bridge class can be optionally generated for a service. It is a 
+variant of the <[ServiceRemoteObject]> (and like it also a subclass of <[RemoteObject]>), 
+but instead of forwarding method calls directly to the service object, 
+it forwards method calls to an instance of the interface class, e.g. a <[ServiceProxy]>. 
+This can be used to forward method calls to a different server.
+
+
 !ServiceSkeleton
 
 The skeleton implements the server part of the remoting machinery. Its task

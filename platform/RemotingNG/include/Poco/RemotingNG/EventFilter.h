@@ -223,7 +223,13 @@ public:
 		_lastValue((std::numeric_limits<T>::max)())
 	{
 	}
-	
+
+	MinimumDeltaFilter(const T& delta, const T& currentValue):
+		_delta(delta),
+		_lastValue(currentValue)
+	{
+	}
+
 	// EventFilter
 	bool accept(const T& value)
 	{
@@ -283,7 +289,15 @@ public:
 		_lastValue((std::numeric_limits<T>::max)())
 	{
 	}
-	
+
+	MinimumIntervalOrDeltaFilter(Poco::Clock::ClockDiff interval, const T& delta, const T& currentValue):
+		_interval(interval),
+		_delta(delta),
+		_lastClock(0),
+		_lastValue(currentValue)
+	{
+	}
+
 	// EventFilter
 	bool accept(const T& value)
 	{
@@ -317,7 +331,15 @@ public:
 		_lastValue((std::numeric_limits<T>::max)())
 	{
 	}
-	
+
+	MinimumIntervalAndDeltaFilter(Poco::Clock::ClockDiff interval, const T& delta, const T& currentValue):
+		_interval(interval),
+		_delta(delta),
+		_lastClock(0),
+		_lastValue(currentValue)
+	{
+	}
+
 	// EventFilter
 	bool accept(const T& value)
 	{
@@ -343,13 +365,12 @@ class HysteresisFilter: public EventFilter<T>
 	/// This filter accepts the value if it falls below the lower threshold
 	/// or rises above the upper threshold. This can be used to implement
 	/// a "thermostat"-like behavior.
-	
 {
 	enum State
 	{
-		STATE_INITIAL,
-		STATE_ON,
-		STATE_OFF
+		STATE_INITIAL, /// initial state, before current value is known
+		STATE_ON,      /// i.e. temperature below lower threshold, turn heating on
+		STATE_OFF      /// i.e. temperature above upper threshold, turn heating off
 	};
 	
 public:
@@ -359,7 +380,15 @@ public:
 		_state(STATE_INITIAL)
 	{
 	}
-	
+
+	HysteresisFilter(const T& lowerThreshold, const T& upperThreshold, const T& currentValue):
+		_lowerThreshold(lowerThreshold),
+		_upperThreshold(upperThreshold),
+		_state(STATE_INITIAL)
+	{
+		accept(currentValue);
+	}
+
 	// EventFilter
 	bool accept(const T& value)
 	{
@@ -378,7 +407,7 @@ public:
 			}
 			else
 			{
-				_state = STATE_OFF;
+				_state = STATE_ON;
 				return false;
 			}
 		

@@ -38,6 +38,7 @@
 #include "Poco/CodeGeneration/MethodPropertyFilter.h"
 #include "InterfaceGenerator.h"
 #include "RemoteObjectGenerator.h"
+#include "RemoteBridgeGenerator.h"
 #include "ProxyGenerator.h"
 #include "BundleActivatorGenerator.h"
 #include "ProxyFactoryGenerator.h"
@@ -81,6 +82,7 @@ using Poco::CppParser::Struct;
 using Poco::CppParser::Symbol;
 using Poco::CodeGeneration::GeneratorEngine;
 using Poco::CodeGeneration::MethodPropertyFilter;
+using namespace std::string_literals;
 
 
 class RemoteGenApp: public Application
@@ -90,20 +92,22 @@ public:
 	  _helpRequested(false),
 	  _noGlobalConfig(false),
 	  _enableOSP(false),
+	  _enableBridge(false),
+	  _enableBridgeSync(true),
 	  _bundlePath("bundle"),
 	  _enableTimestamps(true)
 	{
 		Poco::CppParser::NameSpace* pNS = new Poco::CppParser::NameSpace("Poco", Poco::CppParser::NameSpace::root());
-		new Poco::CppParser::BuiltIn("Int8", pNS);
-		new Poco::CppParser::BuiltIn("UInt8", pNS);
-		new Poco::CppParser::BuiltIn("Int16", pNS);
-		new Poco::CppParser::BuiltIn("UInt16", pNS);
-		new Poco::CppParser::BuiltIn("Int32", pNS);
-		new Poco::CppParser::BuiltIn("UInt32", pNS);
-		new Poco::CppParser::BuiltIn("Int64", pNS);
-		new Poco::CppParser::BuiltIn("UInt64", pNS);
-		new Poco::CppParser::BuiltIn("IntPtr", pNS);
-		new Poco::CppParser::BuiltIn("UIntPtr", pNS);
+		new Poco::CppParser::BuiltIn("Int8"s, pNS);
+		new Poco::CppParser::BuiltIn("UInt8"s, pNS);
+		new Poco::CppParser::BuiltIn("Int16"s, pNS);
+		new Poco::CppParser::BuiltIn("UInt16"s, pNS);
+		new Poco::CppParser::BuiltIn("Int32"s, pNS);
+		new Poco::CppParser::BuiltIn("UInt32"s, pNS);
+		new Poco::CppParser::BuiltIn("Int64"s, pNS);
+		new Poco::CppParser::BuiltIn("UInt64"s, pNS);
+		new Poco::CppParser::BuiltIn("IntPtr"s, pNS);
+		new Poco::CppParser::BuiltIn("UIntPtr"s, pNS);
 	}
 
 	~RemoteGenApp()
@@ -138,56 +142,62 @@ protected:
 		Application::defineOptions(options);
 
 		options.addOption(
-			Option("help", "h", "Display help information on command line arguments.")
+			Option("help"s, "h"s, "Display help information on command line arguments."s)
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleHelp)));
 
 		options.addOption(
-			Option("define", "D",
+			Option("define"s, "D"s,
 				"Define a configuration property. A configuration property "
 				"defined with this option can be referenced in the configuration "
-				"file, using the following syntax: ${<name>}.")
+				"file, using the following syntax: ${<name>}."s)
 				.required(false)
 				.repeatable(true)
-				.argument("<name>=<value>")
+				.argument("<name>=<value>"s)
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleDefine)));
 
 		options.addOption(
-			Option("config", "c",
+			Option("config"s, "c"s,
 				"Load configuration from the given file specified by <file>. "
-				"This option is supported for backwards compatibility only.")
+				"This option is supported for backwards compatibility only."s)
 				.required(false)
 				.repeatable(false)
-				.argument("<file>")
+				.argument("<file>"s)
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleConfig)));
 
 		options.addOption(
-			Option("mode", "m",
+			Option("mode"s, "m"s,
 				"Override generation mode specified in configuration file. "
-				"Valid values for <mode> are \"client\", \"server\", \"both\", \"skeleton\" or \"interface\".")
+				"Valid values for <mode> are \"client\", \"server\", \"both\", \"skeleton\" or \"interface\"."s)
 				.required(false)
 				.repeatable(false)
-				.argument("<mode>")
+				.argument("<mode>"s)
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleMode)));
 
 		options.addOption(
-			Option("compiler", "C",
+			Option("compiler"s, "C"s,
 				"Specify the compiler to use. Compilers are defined in the (global) configuration file. "
-				"If not specified, the first compiler defined in the configuration file will be used.")
+				"If not specified, the first compiler defined in the configuration file will be used."s)
 				.required(false)
 				.repeatable(false)
-				.argument("<id>")
+				.argument("<id>"s)
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleCompiler)));
 
 		options.addOption(
-			Option("osp", "o", "Create services for Applied Informatics Open Service Platform (OSP).")
+			Option("osp"s, "o"s, "Create services for Applied Informatics Open Service Platform (OSP)."s)
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleOSP)));
 
 		options.addOption(
-			Option("noglobal", "n", "Do not load global configuration. If specified, compilers must be configured in the project configuration.")
+			Option("bridge"s, "b"s, "Create remote bridge classes."s)
+				.required(false)
+				.repeatable(false)
+				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleBridge)));
+
+		options.addOption(
+			Option("noglobal"s, "n"s, "Do not load global configuration. If specified, compilers must be configured in the project configuration."s)
 				.required(false)
 				.repeatable(false)
 				.callback(OptionCallback<RemoteGenApp>(this, &RemoteGenApp::handleNoGlobal)));
@@ -248,7 +258,7 @@ protected:
 	{
 		HelpFormatter helpFormatter(options());
 		helpFormatter.setCommand(commandName());
-		helpFormatter.setUsage("[<option> ...] <file> ...");
+		helpFormatter.setUsage("[<option> ...] <file> ..."s);
 		helpFormatter.setHeader(
 			"\n"
 			"The Applied Informatics Remoting NG Code Generator.\n"
@@ -257,11 +267,11 @@ protected:
 			"This program parses C++ header files annotated with "
 			"Remoting attributes and generates C++ code for "
 			"making C++ objects available remotely over a network.\n\n"
-			"The following command line options are supported:"
+			"The following command line options are supported:"s
 		);
 		helpFormatter.setFooter(
 			"For more information, please see the Remoting NG "
-			"documentation at <https://www.appinf.com/docs>."
+			"documentation at <https://www.appinf.com/docs>."s
 		);
 		helpFormatter.setIndent(8);
 		helpFormatter.format(std::cout);
@@ -270,6 +280,11 @@ protected:
 	void handleOSP(const std::string& name, const std::string& value)
 	{
 		_enableOSP = true;
+	}
+
+	void handleBridge(const std::string& name, const std::string& value)
+	{
+		_enableBridge = true;
 	}
 
 	void generateAll()
@@ -285,35 +300,45 @@ protected:
 			compilerKey += _compiler;
 		}
 		compilerKey += "]";
-		std::string compiler = config().getString(compilerKey + ".exec", "");
-		std::string path = config().getString(compilerKey + ".path", "");
-		std::string sysIncludes = config().getString("RemoteGen.system.include", "");
-		std::string includes = config().getString("RemoteGen.files.include");
-		std::string excludes = config().getString("RemoteGen.files.exclude", "");
-		std::string includePaths = config().getString("RemoteGen.files.include-paths", "");
-		_enableOSP = _enableOSP || config().getBool("RemoteGen.output.osp.enable", false);
-		_bundlePath = config().getString("RemoteGen.output.bundle", _bundlePath);
-		_bundleActivator = config().getString("RemoteGen.output.osp.bundleActivator", "");
-		_enableTimestamps = config().getBool("RemoteGen.output.timestamps", true);
+		std::string compiler = config().getString(compilerKey + ".exec", ""s);
+		std::string path = config().getString(compilerKey + ".path", ""s);
+		std::string sysIncludes = config().getString("RemoteGen.system.include"s, ""s);
+		std::string includes = config().getString("RemoteGen.files.include"s);
+		std::string excludes = config().getString("RemoteGen.files.exclude"s, ""s);
+		std::string includePaths = config().getString("RemoteGen.files.include-paths"s, ""s);
+		_enableOSP = _enableOSP || config().getBool("RemoteGen.output.osp.enable"s, false);
+		_enableBridge = _enableBridge || config().getBool("RemoteGen.output.bridge.enable"s, false);
+		_enableBridgeSync = config().getBool("RemoteGen.output.bridge.synchronized"s, _enableBridgeSync);
+		_bundlePath = config().getString("RemoteGen.output.bundle"s, _bundlePath);
+		_bundleActivator = config().getString("RemoteGen.output.osp.bundleActivator"s, ""s);
+		_enableTimestamps = config().getBool("RemoteGen.output.timestamps"s, true);
 
-		if (compiler.empty()) throw Poco::NotFoundException("No compiler definition found in configuration file", _compiler);
+		if (compiler.empty()) throw Poco::NotFoundException("No compiler definition found in configuration file"s, _compiler);
 
-		if (config().hasProperty("RemoteGen.output.namespace"))
-			checkNameSpaceExists(config().getString("RemoteGen.output.namespace"));
+		if (config().hasProperty("RemoteGen.output.namespace"s))
+			checkNameSpaceExists(config().getString("RemoteGen.output.namespace"s));
+
+		std::string serializationOrder = config().getString("RemoteGen.options.memberSerializationOrder"s, ""s);
+		if (serializationOrder == "lexical")
+			SerializerGenerator::setSerializationOrder(SerializerGenerator::SERIALIZE_LEXICAL);
+		else if (serializationOrder == "as-declared")
+			SerializerGenerator::setSerializationOrder(SerializerGenerator::SERIALIZE_AS_DECLARED);
+		else if (serializationOrder != "")
+			throw Poco::InvalidArgumentException("options.memberSerializationOrder must be \"lexical\" or \"as-declared\"");
 
 		std::vector<std::string> inc;
-		StringTokenizer sysIncludesTokenizer(sysIncludes, ",;\n", StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
+		StringTokenizer sysIncludesTokenizer(sysIncludes, ",;\n"s, StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
 		for (const auto& p: sysIncludesTokenizer)
 		{
 			inc.push_back(Poco::Path::expand(p));
 		}
-		StringTokenizer includesTokenizer(includes, ",;\n", StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
+		StringTokenizer includesTokenizer(includes, ",;\n"s, StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
 		for (const auto& p: includesTokenizer)
 		{
 			inc.push_back(Poco::Path::expand(p));
 		}
 		std::vector<std::string> exc;
-		StringTokenizer excludesTokenizer(excludes, ",;\n", StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
+		StringTokenizer excludesTokenizer(excludes, ",;\n"s, StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
 		for (const auto& p: excludesTokenizer)
 		{
 			exc.push_back(Poco::Path::expand(p));
@@ -321,7 +346,7 @@ protected:
 
 		std::string gccIncludes;
 		std::string msvcIncludes;
-		StringTokenizer includePathsTokenizer(includePaths, ",;\n", StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
+		StringTokenizer includePathsTokenizer(includePaths, ",;\n"s, StringTokenizer::TOK_IGNORE_EMPTY | StringTokenizer::TOK_TRIM);
 		for (const auto& p: includePathsTokenizer)
 		{
 			Poco::Path fullPath(Poco::Path::expand(p));
@@ -332,10 +357,10 @@ protected:
 			msvcIncludes += fullPath.toString();
 			msvcIncludes += ";";
 		}
-		config().setString("RemoteGen.internal.gcc.includes", gccIncludes);
-		config().setString("RemoteGen.internal.msvc.includes", msvcIncludes);
+		config().setString("RemoteGen.internal.gcc.includes"s, gccIncludes);
+		config().setString("RemoteGen.internal.msvc.includes"s, msvcIncludes);
 
-		std::string opts = config().getString(compilerKey + ".options", "");
+		std::string opts = config().getString(compilerKey + ".options", ""s);
 		Poco::CppParser::Utility::parseDir(inc, exc, _gst, compiler, opts, path);
 
 		// now generate the code
@@ -478,8 +503,8 @@ protected:
 		else
 			srcPath = incPath;
 
-		std::string incFileDir = config().getString("RemoteGen.output.include", incPath.toString());
-		std::string srcFileDir = config().getString("RemoteGen.output.src", srcPath.toString());
+		std::string incFileDir = AbstractGenerator::includePath(config(), pStruct);
+		std::string srcFileDir = config().getString("RemoteGen.output.src"s, srcPath.toString());
 		incPath = Poco::Path(incFileDir);
 		srcPath = Poco::Path(srcFileDir);
 		Poco::File aFile(incPath);
@@ -487,10 +512,10 @@ protected:
 		aFile = Poco::File(srcPath);
 		aFile.createDirectories();
 
-		std::string defaultNameSpace = config().getString("RemoteGen.output.namespace", pStruct->nameSpace()->fullName());
-		std::string libraryName = config().getString("RemoteGen.output.library", config().getString("RemoteGen.output.libraryname", ""));
-		std::string copyright = config().getString("RemoteGen.output.copyright", "");
-		std::string mode = config().getString("RemoteGen.output.mode", BOTH);
+		std::string defaultNameSpace = config().getString("RemoteGen.output.namespace"s, pStruct->nameSpace()->fullName());
+		std::string libraryName = config().getString("RemoteGen.output.library"s, config().getString("RemoteGen.output.libraryname"s, ""s));
+		std::string copyright = config().getString("RemoteGen.output.copyright"s, ""s);
+		std::string mode = config().getString("RemoteGen.output.mode"s, BOTH);
 
 		bool genBundle = !_bundleActivator.empty();
 
@@ -509,7 +534,7 @@ protected:
 			genBundle = false;
 		if (mode == SKELETON)
 			genInterface = false;
-		bool usePocoIncludeStyle = config().getBool("RemoteGen.output.pocostyleincludes", true);
+		bool usePocoIncludeStyle = config().getBool("RemoteGen.output.pocostyleincludes"s, true);
 		if (extension == H_EXT)
 		{
 			if (Poco::CodeGeneration::Utility::hasAnyRemoteProperty(pStruct))
@@ -539,8 +564,8 @@ protected:
 						std::string helpMsg(
 							"The configuration file element \"RemoteGen.files.include\" must contain the header file EventSubscriber.h if events are being used in a remote interface. "
 							"Check the configuration file for the header and verify its path.");
-						Poco::CppParser::Symbol* pS = Poco::CppParser::NameSpace::root()->lookup("Poco::RemotingNG::EventSubscriber");
-						if (!pS) throw Poco::NotFoundException("Poco::RemotingNG::EventSubscriber", helpMsg);
+						Poco::CppParser::Symbol* pS = Poco::CppParser::NameSpace::root()->lookup("Poco::RemotingNG::EventSubscriber"s);
+						if (!pS) throw Poco::NotFoundException("Poco::RemotingNG::EventSubscriber"s, helpMsg);
 						generateEventSubscriber(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
 					}
 				}
@@ -553,9 +578,13 @@ protected:
 						std::string helpMsg(
 							"The configuration file element \"RemoteGen.files.include\" must contain the header file EventDispatcher.h if events are being used in a remote interface. "
 							"Check the configuration file for the header and verify its path.");
-						Poco::CppParser::Symbol* pS = Poco::CppParser::NameSpace::root()->lookup("Poco::RemotingNG::EventDispatcher");
-						if (!pS) throw Poco::NotFoundException("Poco::RemotingNG::EventDispatcher", helpMsg);
+						Poco::CppParser::Symbol* pS = Poco::CppParser::NameSpace::root()->lookup("Poco::RemotingNG::EventDispatcher"s);
+						if (!pS) throw Poco::NotFoundException("Poco::RemotingNG::EventDispatcher"s, helpMsg);
 						generateEventDispatcher(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
+					}
+					if (_enableBridge)
+					{
+						generateRemoteBridge(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright, _enableBridgeSync);
 					}
 					generateSkeleton(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
 					generateServerHelper(pStruct, incPath, srcPath, defaultNameSpace, libraryName, usePocoIncludeStyle, copyright);
@@ -652,7 +681,7 @@ protected:
 
 			Poco::Path bundle(_bundlePath);
 			bundle.makeDirectory();
-			bundle.setFileName("extensions.xml");
+			bundle.setFileName("extensions.xml"s);
 			Poco::File fBundle(bundle);
 			if (!fBundle.exists())
 			{
@@ -696,6 +725,23 @@ protected:
 		hOut.close();
 		cppOut.close();
 		return pGen->eventsFound();
+	}
+
+	void generateRemoteBridge(const Poco::CppParser::Struct* pStruct, const Poco::Path& incPath, const Poco::Path& srcPath, const std::string& defaultNameSpace, const std::string& libraryName, bool usePocoIncludeStyle, const std::string& copyright, bool sync)
+	{
+		std::ofstream hOut;
+		std::ofstream cppOut;
+		openFiles(incPath, srcPath, RemoteBridgeGenerator::generateClassName(pStruct), hOut, cppOut);
+		Poco::CodeGeneration::CppGenerator cppGen(defaultNameSpace, libraryName, usePocoIncludeStyle, copyright, hOut, cppOut);
+		cppGen.enableTimestamps(_enableTimestamps);
+		RemoteBridgeGenerator* pGen = new RemoteBridgeGenerator(cppGen, sync);
+		Poco::CodeGeneration::MethodPropertyFilter mi(pGen, Poco::CodeGeneration::Utility::REMOTE);
+
+		GeneratorEngine e;
+		e.generate(pStruct, mi);
+
+		hOut.close();
+		cppOut.close();
 	}
 
 	void generateEventDispatcher(const Poco::CppParser::Struct* pStruct, const Poco::Path& incPath, const Poco::Path& srcPath, const std::string& defaultNameSpace, const std::string& libraryName, bool usePocoIncludeStyle, const std::string& copyright)
@@ -822,7 +868,7 @@ protected:
 		std::ofstream hOut;
 		Poco::NullOutputStream cppOut;
 		openTemplateFiles(incPath, SerializerGenerator::generateClassName(pStruct), hOut);
-		Poco::CodeGeneration::CppGenerator cppGen("Poco::RemotingNG", "RemotingNG", usePocoIncludeStyle, copyright, hOut, cppOut);
+		Poco::CodeGeneration::CppGenerator cppGen("Poco::RemotingNG"s, "RemotingNG"s, usePocoIncludeStyle, copyright, hOut, cppOut);
 		cppGen.enableTimestamps(_enableTimestamps);
 		SerializerGenerator gen(cppGen);
 
@@ -837,7 +883,7 @@ protected:
 		std::ofstream hOut;
 		Poco::NullOutputStream cppOut;
 		openTemplateFiles(incPath, DeserializerGenerator::generateClassName(pStruct), hOut);
-		Poco::CodeGeneration::CppGenerator cppGen("Poco::RemotingNG", "RemotingNG", usePocoIncludeStyle, copyright, hOut, cppOut);
+		Poco::CodeGeneration::CppGenerator cppGen("Poco::RemotingNG"s, "RemotingNG"s, usePocoIncludeStyle, copyright, hOut, cppOut);
 		cppGen.enableTimestamps(_enableTimestamps);
 		DeserializerGenerator gen(cppGen);
 
@@ -858,8 +904,8 @@ protected:
 			Poco::Path incPath(outFile);
 
 			while (incPath.depth() > 0 &&
-				Poco::toLower(incPath.directory(incPath.depth()-1)).find("include") == std::string::npos &&
-				Poco::toLower(incPath.directory(incPath.depth()-1)).find("src") == std::string::npos)
+				Poco::toLower(incPath.directory(incPath.depth()-1)).find("include"s) == std::string::npos &&
+				Poco::toLower(incPath.directory(incPath.depth()-1)).find("src"s) == std::string::npos)
 				incPath.popDirectory();
 			if (incPath.depth() > 0)
 			{
@@ -870,7 +916,7 @@ protected:
 
 			incPath.setFileName("");
 
-			std::string schemaPath = config().getString("RemoteGen.output.schema", "");
+			std::string schemaPath = config().getString("RemoteGen.output.schema"s, ""s);
 			if (!schemaPath.empty())
 			{
 				Poco::File schemaDir(schemaPath);
@@ -905,7 +951,7 @@ protected:
 			throw Poco::FileException("Failed to create file " + wsdlPath.toString());
 
 		Poco::XML::XMLWriter aWriter(wsdlOut, Poco::XML::XMLWriter::PRETTY_PRINT);
-		Poco::CodeGeneration::CppGenerator cppGen("Poco::RemotingNG", "RemotingNG", true, "", hOut, cppOut);
+		Poco::CodeGeneration::CppGenerator cppGen("Poco::RemotingNG"s, "RemotingNG"s, true, ""s, hOut, cppOut);
 		cppGen.enableTimestamps(_enableTimestamps);
 		WSDLGenerator gen(cppGen, targetNamespace, aWriter);
 
@@ -919,19 +965,19 @@ protected:
 	{
 		Poco::NullOutputStream hOut;
 		Poco::NullOutputStream cppOut;
-		Poco::CodeGeneration::CppGenerator cppGen("Poco::RemotingNG", "RemotingNG", true, "", hOut, cppOut);
+		Poco::CodeGeneration::CppGenerator cppGen("Poco::RemotingNG"s, "RemotingNG"s, true, ""s, hOut, cppOut);
 		cppGen.enableTimestamps(_enableTimestamps);
 
 		SwaggerGenerator::Info info;
-		info.title = config().getString("RemoteGen.output.openAPI.info.title");
-		info.description = config().getString("RemoteGen.output.openAPI.info.description", "");
-		info.version = config().getString("RemoteGen.output.openAPI.info.version", "1.0.0");
-		info.termsOfService = config().getString("RemoteGen.output.openAPI.info.termsOfService", "");
-		info.contactName = config().getString("RemoteGen.output.openAPI.info.contact.name", "");
-		info.contactUrl = config().getString("RemoteGen.output.openAPI.info.contact.url", "");
-		info.contactEmail = config().getString("RemoteGen.output.openAPI.info.contact.email", "");
-		info.licenseName = config().getString("RemoteGen.output.openAPI.info.license.name", "");
-		info.licenseUrl = config().getString("RemoteGen.output.openAPI.info.license.url", "");
+		info.title = config().getString("RemoteGen.output.openAPI.info.title"s);
+		info.description = config().getString("RemoteGen.output.openAPI.info.description"s, ""s);
+		info.version = config().getString("RemoteGen.output.openAPI.info.version"s, "1.0.0"s);
+		info.termsOfService = config().getString("RemoteGen.output.openAPI.info.termsOfService"s, ""s);
+		info.contactName = config().getString("RemoteGen.output.openAPI.info.contact.name"s, ""s);
+		info.contactUrl = config().getString("RemoteGen.output.openAPI.info.contact.url"s, ""s);
+		info.contactEmail = config().getString("RemoteGen.output.openAPI.info.contact.email"s, ""s);
+		info.licenseName = config().getString("RemoteGen.output.openAPI.info.license.name"s, ""s);
+		info.licenseUrl = config().getString("RemoteGen.output.openAPI.info.license.url"s, ""s);
 
 		std::vector<SwaggerGenerator::Server> servers;
 		int serverIndex = 0;
@@ -941,7 +987,7 @@ protected:
 		{
 			SwaggerGenerator::Server server;
 			server.url = config().getString(Poco::format(serverUrlFmt, serverIndex));
-			server.description = config().getString(Poco::format(serverDescriptionFmt, serverIndex), "");
+			server.description = config().getString(Poco::format(serverDescriptionFmt, serverIndex), ""s);
 			servers.push_back(server);
 			serverIndex++;
 		}
@@ -964,7 +1010,7 @@ protected:
 		}
 		Poco::FileOutputStream swaggerStream(swaggerPath);
 
-		int indent = config().getInt("RemoteGen.output.openAPI.json.indent", 2);
+		int indent = config().getInt("RemoteGen.output.openAPI.json.indent"s, 2);
 		swaggerGen.json()->stringify(swaggerStream, indent, indent);
 	}
 
@@ -1026,7 +1072,7 @@ protected:
 					loadConfiguration(*it);
 				}
 
-				if (config().hasProperty("RemoteGen.files.include"))
+				if (config().hasProperty("RemoteGen.files.include"s))
 				{
 					generateAll();
 				}
@@ -1054,6 +1100,8 @@ private:
 	bool _helpRequested;
 	bool _noGlobalConfig;
 	bool _enableOSP;
+	bool _enableBridge;
+	bool _enableBridgeSync;
 	std::string _compiler;
 	std::string _bundleActivator;
 	std::string _bundlePath;

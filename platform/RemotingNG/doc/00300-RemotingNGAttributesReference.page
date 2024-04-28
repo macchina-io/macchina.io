@@ -283,10 +283,13 @@ are permitted in the method signature if the <[inline]> attribute is specified.
 The `length` property is used by some transports in the serialization of sequences 
 (vectors, arrays, lists, etc.). It can be set to specify a fixed length for a
 sequence which allows an optimized serialization of the sequence, leaving out
-the length indication at the beginning.
+the length indication at the beginning. Alternatively, it can also specify the
+serialization format of the leading length indication for some custom transports.
   * level: parameter/variable
   * type: integer or string (depending on transport)
-  
+
+Note: The `length` attribute is currently not used by any of the included transports.
+
 
 !!mandatory
 Defines if a parameter or member variable is mandatory or optional. Valid on parameters and member variables.
@@ -511,10 +514,10 @@ If a class is serializable, all super classes must have the "serialize" attribut
 If specified, calls to the remote object and the proxy will be serialized. This is required if the
 service object is not thread-safe. It is also required if the same proxy object is used simultaneously
 by multiple threads, although this practice is not recommended. Can be applied to proxies, remote objects,
-or both (default).
+remote bridge objects, or all (default).
   * level: class/method
-  * type: boolean or ["proxy"|"remote"|"all"|"none"]
-  * default: true
+  * type: boolean or ["proxy"|"remote"|"bridge"|"all"|"none"]
+  * default: all
 
 
 !!type
@@ -527,3 +530,10 @@ restrictions require it.
   * type: ["attr"|"elem"]
   * default: elem
 
+
+!!xsdType
+Specifies the underlying XML Schema type for serialization of a variable or parameter (XML-based transports only).
+Currently used for serialization of Poco::DateTime only, depending on the underlying type (`date`, `time`,
+`dateTime`).
+  * level: parameter/variable
+  * type: string

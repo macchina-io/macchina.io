@@ -39,7 +39,7 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"tv"s,""s};
-		TypeSerializer<Poco::Int64 >::serialize(REMOTING__NAMES[0], value.tv, ser);
+		TypeSerializer<Poco::Int64>::serialize(REMOTING__NAMES[0], value.tv, ser);
 	}
 
 };

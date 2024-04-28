@@ -46,12 +46,12 @@ public:
 		// Pizzeria::Topping
 		{
 		static const std::string REMOTING__NAMES__PIZZERIA__TOPPING[] = {"name"s,"price"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES__PIZZERIA__TOPPING[0], value.getName(), ser);
-		TypeSerializer<Poco::UInt32 >::serialize(REMOTING__NAMES__PIZZERIA__TOPPING[1], value.getPrice(), ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES__PIZZERIA__TOPPING[0], value.getName(), ser);
+		TypeSerializer<Poco::UInt32>::serialize(REMOTING__NAMES__PIZZERIA__TOPPING[1], value.getPrice(), ser);
 		}
 		
 		static const std::string REMOTING__NAMES[] = {"addInfo"s,""s};
-		TypeSerializer<std::string >::serialize(REMOTING__NAMES[0], value.getAddInfo(), ser);
+		TypeSerializer<std::string>::serialize(REMOTING__NAMES[0], value.getAddInfo(), ser);
 	}
 
 };

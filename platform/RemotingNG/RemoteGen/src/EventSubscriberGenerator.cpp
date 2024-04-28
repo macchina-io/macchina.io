@@ -362,9 +362,9 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 	itEnd = pFunc->end();
 
 	if (it == itEnd) // voidEvent
-		invokeLine.append("(0");
+		invokeLine.append("(nullptr");
 	else
-		invokeLine.append("(0, "); // 0 because it came from the network
+		invokeLine.append("(nullptr, "); // nullptr because it came from the network
 
 	for (; it != itEnd; ++it)
 	{
@@ -479,9 +479,9 @@ void EventSubscriberGenerator::invokeCodeGen(const Poco::CppParser::Function* pF
 				retName = "Poco::RemotingNG::SerializerBase::RETURN_PARAM";
 			bool doInline = GenUtility::getInlineReturnParam(pFunc);
 			if (doInline)
-				gen.writeMethodImplementation(indentation+serLine + retType +" >::serializeImpl("+retName+", ret, remoting__ser);");
+				gen.writeMethodImplementation(indentation+serLine + retType +">::serializeImpl("+retName+", ret, remoting__ser);");
 			else
-				gen.writeMethodImplementation(indentation+serLine + retType +" >::serialize("+retName+", ret, remoting__ser);");
+				gen.writeMethodImplementation(indentation+serLine + retType +">::serialize("+retName+", ret, remoting__ser);");
 		}
 
 		writeTypeSerializer(pFunc, elems, outParams, indentation, false, funcNsIdx, gen);
@@ -639,7 +639,7 @@ void EventSubscriberGenerator::writeTypeDeserializers(const Poco::CppParser::Fun
 				codeLine += enumBaseType;
 			else
 				codeLine += retType;
-			codeLine.append(" >::deserialize(REMOTING__NAMES[");
+			codeLine.append(">::deserialize(REMOTING__NAMES[");
 			codeLine.append(cntStr);
 			codeLine.append("], ");
 			if (itOP->second.mandatory)
@@ -711,7 +711,7 @@ void EventSubscriberGenerator::writeTypeSerializer(const Poco::CppParser::Functi
 
 			if (itOP->second.pParam->isPointer())
 				serLine.append("*");
-			serLine.append(" >::serialize(REMOTING__NAMES[");
+			serLine.append(">::serialize(REMOTING__NAMES[");
 
 			serLine.append(Poco::NumberFormatter::format(itOP->second.namePos));
 			serLine.append("], ");

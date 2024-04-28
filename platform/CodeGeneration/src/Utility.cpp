@@ -76,6 +76,7 @@ const std::string Utility::CONTENT_TYPE("contentType");
 const std::string Utility::PERMISSION("permission");
 const std::string Utility::AUTHENTICATED("authenticated");
 const std::string Utility::LENGTH("length");
+const std::string Utility::XSDTYPE("xsdType");
 const std::string Utility::VAL_TRUE("true");
 const std::string Utility::VAL_FALSE("false");
 const std::string Utility::VAL_ASSIGNMENT("=");
@@ -475,9 +476,9 @@ std::string Utility::resolveTypeImpl(const Poco::CppParser::NameSpace* pParent, 
 		Poco::trimInPlace(pre);
 		Poco::trimInPlace(post);
 		std::string templateType(resolveTypeImpl(pParent, pre));
-		templateType.append(" < ");
+		templateType.append("<");
 		templateType.append(resolvedInnerType);
-		templateType.append(" >");
+		templateType.append(">");
 		templateType.append(post);
 		return templateType;
 	}

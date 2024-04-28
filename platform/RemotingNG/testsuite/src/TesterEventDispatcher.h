@@ -13,14 +13,14 @@
 #define TesterEventDispatcher_INCLUDED
 
 
+#include "ITester.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
-#include "TesterRemoteObject.h"
 
 
 class TesterEventDispatcher: public Poco::RemotingNG::EventDispatcher
 {
 public:
-	TesterEventDispatcher(TesterRemoteObject* pRemoteObject, const std::string& protocol);
+	TesterEventDispatcher(ITester* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a TesterEventDispatcher.
 
 	virtual ~TesterEventDispatcher();
@@ -54,7 +54,8 @@ private:
 	void event__testVoidEventImpl(const std::string& subscriberURI);
 
 	static const std::string DEFAULT_NS;
-	TesterRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	ITester* _pInterface;
 };
 
 

@@ -48,7 +48,7 @@ public:
 
 	void testArgNamespace(const Struct3& s31, Struct3& s32);
 
-	Poco::Array < int, 4 > testArray(const Poco::Array < int, 4 >& arr);
+	Poco::Array<int, 4> testArray(const Poco::Array<int, 4>& arr);
 
 	Class1 testClass11(const Class1& c1);
 
@@ -84,11 +84,13 @@ public:
 
 	void testPermission2();
 
-	Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1);
+	Poco::Optional<std::string> testPocoOptional(const Poco::Optional<std::string>& value);
 
-	std::array < int, 4 > testStdArray(const std::array < int, 4 >& arr);
+	Poco::SharedPtr<Struct1> testPtr(Poco::SharedPtr<Struct1> p1);
 
-	std::shared_ptr < Struct1 > testStdSharedPtr(const std::shared_ptr < Struct1 >& pStruct1);
+	std::array<int, 4> testStdArray(const std::array<int, 4>& arr);
+
+	std::shared_ptr<Struct1> testStdSharedPtr(const std::shared_ptr<Struct1>& pStruct1);
 
 	Struct1 testStruct11(const Struct1& s1);
 
@@ -96,11 +98,11 @@ public:
 
 	void testStruct13(const Struct1& s1, Struct1& s2);
 
-	std::vector < Struct1 > testStruct1Vec1(const std::vector < Struct1 >& vec);
+	std::vector<Struct1> testStruct1Vec1(const std::vector<Struct1>& vec);
 
-	void testStruct1Vec2(std::vector < Struct1 >& vec);
+	void testStruct1Vec2(std::vector<Struct1>& vec);
 
-	void testStruct1Vec3(const std::vector < Struct1 >& vec1, std::vector < Struct1 >& vec2);
+	void testStruct1Vec3(const std::vector<Struct1>& vec1, std::vector<Struct1>& vec2);
 
 	Struct2 testStruct21(const Struct2& s1);
 
@@ -129,6 +131,8 @@ public:
 	Struct6 testStruct6(const Struct6& s1);
 
 	Struct7 testStruct7(const Struct7& s1);
+
+	Struct8 testStruct8(const Struct8& value);
 
 	void testSynchronized();
 
@@ -190,7 +194,7 @@ inline void TesterRemoteObject::testArgNamespace(const Struct3& s31, Struct3& s3
 }
 
 
-inline Poco::Array < int, 4 > TesterRemoteObject::testArray(const Poco::Array < int, 4 >& arr)
+inline Poco::Array<int, 4> TesterRemoteObject::testArray(const Poco::Array<int, 4>& arr)
 {
 	return _pServiceObject->testArray(arr);
 }
@@ -298,19 +302,25 @@ inline void TesterRemoteObject::testPermission2()
 }
 
 
-inline Poco::SharedPtr < Struct1 > TesterRemoteObject::testPtr(Poco::SharedPtr < Struct1 > p1)
+inline Poco::Optional<std::string> TesterRemoteObject::testPocoOptional(const Poco::Optional<std::string>& value)
+{
+	return _pServiceObject->testPocoOptional(value);
+}
+
+
+inline Poco::SharedPtr<Struct1> TesterRemoteObject::testPtr(Poco::SharedPtr<Struct1> p1)
 {
 	return _pServiceObject->testPtr(p1);
 }
 
 
-inline std::array < int, 4 > TesterRemoteObject::testStdArray(const std::array < int, 4 >& arr)
+inline std::array<int, 4> TesterRemoteObject::testStdArray(const std::array<int, 4>& arr)
 {
 	return _pServiceObject->testStdArray(arr);
 }
 
 
-inline std::shared_ptr < Struct1 > TesterRemoteObject::testStdSharedPtr(const std::shared_ptr < Struct1 >& pStruct1)
+inline std::shared_ptr<Struct1> TesterRemoteObject::testStdSharedPtr(const std::shared_ptr<Struct1>& pStruct1)
 {
 	return _pServiceObject->testStdSharedPtr(pStruct1);
 }
@@ -334,19 +344,19 @@ inline void TesterRemoteObject::testStruct13(const Struct1& s1, Struct1& s2)
 }
 
 
-inline std::vector < Struct1 > TesterRemoteObject::testStruct1Vec1(const std::vector < Struct1 >& vec)
+inline std::vector<Struct1> TesterRemoteObject::testStruct1Vec1(const std::vector<Struct1>& vec)
 {
 	return _pServiceObject->testStruct1Vec1(vec);
 }
 
 
-inline void TesterRemoteObject::testStruct1Vec2(std::vector < Struct1 >& vec)
+inline void TesterRemoteObject::testStruct1Vec2(std::vector<Struct1>& vec)
 {
 	_pServiceObject->testStruct1Vec2(vec);
 }
 
 
-inline void TesterRemoteObject::testStruct1Vec3(const std::vector < Struct1 >& vec1, std::vector < Struct1 >& vec2)
+inline void TesterRemoteObject::testStruct1Vec3(const std::vector<Struct1>& vec1, std::vector<Struct1>& vec2)
 {
 	_pServiceObject->testStruct1Vec3(vec1, vec2);
 }
@@ -433,6 +443,12 @@ inline Struct6 TesterRemoteObject::testStruct6(const Struct6& s1)
 inline Struct7 TesterRemoteObject::testStruct7(const Struct7& s1)
 {
 	return _pServiceObject->testStruct7(s1);
+}
+
+
+inline Struct8 TesterRemoteObject::testStruct8(const Struct8& value)
+{
+	return _pServiceObject->testStruct8(value);
 }
 
 

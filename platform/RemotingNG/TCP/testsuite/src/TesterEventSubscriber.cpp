@@ -50,15 +50,15 @@ public:
 		{
 			std::string data;
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-			Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, data);
+			Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, remoting__deser, data);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-			_pProxy->testEvent(0, data);
+			_pProxy->testEvent(nullptr, data);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterEventSubscriber::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testEventReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_EVENT_REPLY);
-			Poco::RemotingNG::TypeSerializer<std::string >::serialize(REMOTING__NAMES[1], data, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<std::string>::serialize(REMOTING__NAMES[1], data, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_EVENT_REPLY);
 		}
 		catch (Poco::Exception& e)
@@ -109,11 +109,11 @@ public:
 		static const std::string REMOTING__NAMES[] = {"testOneWayEvent"s,"data"s};
 		std::string data;
 		remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
-		Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, data);
+		Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, remoting__deser, data);
 		remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 		try
 		{
-			_pProxy->testOneWayEvent(0, data);
+			_pProxy->testOneWayEvent(nullptr, data);
 		}
 		catch (...)
 		{
@@ -142,7 +142,7 @@ public:
 		remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_EVENT);
 		try
 		{
-			_pProxy->testVoidEvent(0);
+			_pProxy->testVoidEvent(nullptr);
 		}
 		catch (...)
 		{

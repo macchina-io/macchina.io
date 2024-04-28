@@ -49,7 +49,7 @@ std::string TesterRemoteObject::remoting__enableEvents(Poco::RemotingNG::Listene
 
 void TesterRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new TesterEventDispatcher(this, protocol);
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new TesterEventDispatcher(this, remoting__objectId(), protocol);
 	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 

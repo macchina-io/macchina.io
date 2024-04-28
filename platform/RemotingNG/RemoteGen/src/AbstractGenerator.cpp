@@ -222,9 +222,9 @@ Poco::CppParser::Struct* AbstractGenerator::structClone(const Poco::CppParser::S
 
 	Poco::Path aPath(aStruct->getFile());
 	Poco::Util::LayeredConfiguration& cfg = Poco::Util::Application::instance().config();
-	if (cfg.hasProperty("RemoteGen.output.include"))
+	std::string incFile = includePath(cfg, aStruct);
+	if (!incFile.empty())
 	{
-		std::string incFile = cfg.getString("RemoteGen.output.include");
 		aPath = Poco::Path(incFile);
 		aPath.makeDirectory();
 	}
@@ -438,7 +438,7 @@ void AbstractGenerator::handleIncludeTypeSerializers(const std::string& simpleTy
 			std::string includeBase = cfg.getString(Poco::format("RemoteGen.output.includePrefix[@namespace=%s]", nameSpace), "");
 			if (includeBase.empty())
 			{
-				Poco::Path incDir(cfg.getString("RemoteGen.output.include"));
+				Poco::Path incDir(includePath(cfg, nameSpace));
 				Poco::Path rootDir(cfg.getString("RemoteGen.output.includeRoot"));
 				incDir.makeDirectory();
 				rootDir.makeDirectory();
@@ -517,11 +517,12 @@ void AbstractGenerator::handleIncludeTypeSerializers(const std::string& simpleTy
 			Poco::StringTokenizer::Iterator itNS = itClass;
 			--itNS;
 			std::string tmp = *itNS;
+			std::string fullNS = Poco::cat(std::string("::"), tok.begin(),itNS);
 			if (*itClass != "AutoPtr" && *itClass != "SharedPtr" && *itNS != "Poco")
 			{
-				if (cfg.hasProperty("RemoteGen.output.include"))
+				std::string incDir = includePath(cfg, fullNS);
+				if (!incDir.empty())
 				{
-					std::string incDir = cfg.getString("RemoteGen.output.include");
 					Poco::Path aPath(incDir);
 					aPath.makeDirectory();
 					if (aPath.depth() > 0 && aPath.directory(aPath.depth() - 1).find("include") != std::string::npos)
@@ -664,6 +665,24 @@ std::string AbstractGenerator::resolveType(const std::string& in)
 		}
 	}
 	return Utility::resolveType(_pStructIn, decl);
+}
+
+
+std::string AbstractGenerator::includePath(const Poco::Util::AbstractConfiguration& config, const std::string& nameSpace)
+{
+	return config.getString(
+		Poco::format("RemoteGen.output.include[@namespace=%s]", nameSpace), 
+		config.getString("RemoteGen.output.include", "")
+	);
+}
+
+
+std::string AbstractGenerator::includePath(const Poco::Util::AbstractConfiguration& config, const Poco::CppParser::Struct* pStruct)
+{
+	if (pStruct && pStruct->nameSpace())
+		return includePath(config, pStruct->nameSpace()->fullName());
+	else
+		return includePath(config, std::string());
 }
 
 

@@ -18,8 +18,8 @@
 #define TimeServiceEventDispatcher_INCLUDED
 
 
+#include "ITimeService.h"
 #include "Poco/RemotingNG/EventDispatcher.h"
-#include "TimeServiceRemoteObject.h"
 
 
 namespace Services {
@@ -28,7 +28,7 @@ namespace Services {
 class TimeServiceEventDispatcher: public Poco::RemotingNG::EventDispatcher
 {
 public:
-	TimeServiceEventDispatcher(TimeServiceRemoteObject* pRemoteObject, const std::string& protocol);
+	TimeServiceEventDispatcher(ITimeService* pInterface, const Poco::RemotingNG::Identifiable::ObjectId& objectId, const std::string& protocol);
 		/// Creates a TimeServiceEventDispatcher.
 
 	virtual ~TimeServiceEventDispatcher();
@@ -42,7 +42,8 @@ private:
 	void event__wakeUpImpl(const std::string& subscriberURI, const std::string& data);
 
 	static const std::string DEFAULT_NS;
-	TimeServiceRemoteObject* _pRemoteObject;
+	Poco::RemotingNG::Identifiable::ObjectId _objectId;
+	ITimeService* _pInterface;
 };
 
 

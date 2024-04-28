@@ -42,17 +42,17 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"aString"s,"anEnum"s,"anInt"s};
+		static const std::string REMOTING__NAMES[] = {"anEnum"s,"anInt"s,"aString"s};
 		bool ret = false;
-		std::string gen_aString;
-		ret = TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[0], true, deser, gen_aString);
-		if (ret) value.setAString(gen_aString);
 		int gen_anEnum;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, deser, gen_anEnum);
+		ret = TypeDeserializer<int>::deserialize(REMOTING__NAMES[0], true, deser, gen_anEnum);
 		if (ret) value.setAnEnum(static_cast<Enum1>(gen_anEnum));
 		int gen_anInt;
-		ret = TypeDeserializer<int >::deserialize(REMOTING__NAMES[2], true, deser, gen_anInt);
+		ret = TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, deser, gen_anInt);
 		if (ret) value.setAnInt(gen_anInt);
+		std::string gen_aString;
+		ret = TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[2], true, deser, gen_aString);
+		if (ret) value.setAString(gen_aString);
 	}
 
 };

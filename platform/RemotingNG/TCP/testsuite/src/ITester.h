@@ -85,7 +85,7 @@ public:
 
 	virtual void testPermission() = 0;
 
-	virtual Poco::SharedPtr < Struct1 > testPtr(Poco::SharedPtr < Struct1 > p1) = 0;
+	virtual Poco::SharedPtr<Struct1> testPtr(Poco::SharedPtr<Struct1> p1) = 0;
 
 	virtual Struct1 testStruct11(const Struct1& s1) = 0;
 
@@ -93,11 +93,11 @@ public:
 
 	virtual void testStruct13(const Struct1& s1, Struct1& s2) = 0;
 
-	virtual std::vector < Struct1 > testStruct1Vec1(const std::vector < Struct1 >& vec) = 0;
+	virtual std::vector<Struct1> testStruct1Vec1(const std::vector<Struct1>& vec) = 0;
 
-	virtual void testStruct1Vec2(std::vector < Struct1 >& vec) = 0;
+	virtual void testStruct1Vec2(std::vector<Struct1>& vec) = 0;
 
-	virtual void testStruct1Vec3(const std::vector < Struct1 >& vec1, std::vector < Struct1 >& vec2) = 0;
+	virtual void testStruct1Vec3(const std::vector<Struct1>& vec1, std::vector<Struct1>& vec2) = 0;
 
 	virtual Struct2 testStruct21(const Struct2& s1) = 0;
 
@@ -129,9 +129,9 @@ public:
 
 	virtual void testSynchronizedRemote() = 0;
 
-	Poco::BasicEvent < std::string > testEvent;
-	Poco::BasicEvent < std::string > testOneWayEvent;
-	Poco::BasicEvent < void > testVoidEvent;
+	Poco::BasicEvent<std::string> testEvent;
+	Poco::BasicEvent<std::string> testOneWayEvent;
+	Poco::BasicEvent<void> testVoidEvent;
 };
 
 

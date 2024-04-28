@@ -34,6 +34,8 @@
 #include "Struct6Serializer.h"
 #include "Struct7Deserializer.h"
 #include "Struct7Serializer.h"
+#include "Struct8Deserializer.h"
+#include "Struct8Serializer.h"
 
 
 class TesterFireTestEventMethodHandler: public Poco::RemotingNG::MethodHandler
@@ -47,7 +49,7 @@ public:
 		std::string arg;
 		remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 		remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-		Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, arg);
+		Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, remoting__deser, arg);
 		remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 		remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -77,7 +79,7 @@ public:
 			int arg;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, arg);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, remoting__deser, arg);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -135,7 +137,7 @@ public:
 		std::string arg;
 		remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 		remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-		Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, arg);
+		Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, remoting__deser, arg);
 		remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 		remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -225,7 +227,7 @@ public:
 			Struct3 s32;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct3 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s31);
+			Poco::RemotingNG::TypeDeserializer<Struct3>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s31);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -235,7 +237,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testArgNamespaceReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct3 >::serialize(REMOTING__NAMES[2], s32, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct3>::serialize(REMOTING__NAMES[2], s32, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -284,20 +286,20 @@ public:
 		bool remoting__requestSucceeded = false;
 		try
 		{
-			Poco::Array < int, 4 > arr;
+			Poco::Array<int, 4> arr;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Poco::Array < int, 4 > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, arr);
+			Poco::RemotingNG::TypeDeserializer<Poco::Array<int, 4>>::deserialize(REMOTING__NAMES[1], true, remoting__deser, arr);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
-			Poco::Array < int, 4 > remoting__return = remoting__pCastedRO->testArray(arr);
+			Poco::Array<int, 4> remoting__return = remoting__pCastedRO->testArray(arr);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testArrayReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Poco::Array < int, 4 > >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Poco::Array<int, 4>>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -349,7 +351,7 @@ public:
 			Class1 c1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Class1 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, c1);
+			Poco::RemotingNG::TypeDeserializer<Class1>::deserialize(REMOTING__NAMES[1], true, remoting__deser, c1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -359,7 +361,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testClass11Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Class1 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Class1>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -411,7 +413,7 @@ public:
 			Class1 c1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Class1 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, c1);
+			Poco::RemotingNG::TypeDeserializer<Class1>::deserialize(REMOTING__NAMES[1], true, remoting__deser, c1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -421,7 +423,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testClass12Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Class1 >::serialize(REMOTING__NAMES[1], c1, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Class1>::serialize(REMOTING__NAMES[1], c1, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -474,7 +476,7 @@ public:
 			Class1 c2;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Class1 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, c1);
+			Poco::RemotingNG::TypeDeserializer<Class1>::deserialize(REMOTING__NAMES[1], true, remoting__deser, c1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -484,7 +486,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testClass13Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Class1 >::serialize(REMOTING__NAMES[2], c2, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Class1>::serialize(REMOTING__NAMES[2], c2, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -537,7 +539,7 @@ public:
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			int remoting__e1Tmp;
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__e1Tmp);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__e1Tmp);
 			e1 = static_cast<Enum1>(remoting__e1Tmp);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
@@ -548,7 +550,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testEnum11Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<int >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<int>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -601,7 +603,7 @@ public:
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			int remoting__e1Tmp;
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__e1Tmp);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__e1Tmp);
 			e1 = static_cast<Enum1>(remoting__e1Tmp);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
@@ -612,7 +614,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testEnum12Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<int >::serialize(REMOTING__NAMES[1], e1, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<int>::serialize(REMOTING__NAMES[1], e1, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -666,7 +668,7 @@ public:
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			int remoting__e1Tmp;
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__e1Tmp);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__e1Tmp);
 			e1 = static_cast<Enum1>(remoting__e1Tmp);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
@@ -677,7 +679,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testEnum13Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<int >::serialize(REMOTING__NAMES[2], e2, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<int>::serialize(REMOTING__NAMES[2], e2, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -730,7 +732,7 @@ public:
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			int remoting__e1Tmp;
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__e1Tmp);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__e1Tmp);
 			e1 = static_cast<Struct1::Enum2>(remoting__e1Tmp);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
@@ -741,7 +743,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testEnum21Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<int >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<int>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -794,7 +796,7 @@ public:
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			int remoting__e1Tmp;
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__e1Tmp);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__e1Tmp);
 			e1 = static_cast<Struct1::Enum2>(remoting__e1Tmp);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
@@ -805,7 +807,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testEnum22Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<int >::serialize(REMOTING__NAMES[1], e1, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<int>::serialize(REMOTING__NAMES[1], e1, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -859,7 +861,7 @@ public:
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			int remoting__e1Tmp;
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__e1Tmp);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, remoting__deser, remoting__e1Tmp);
 			e1 = static_cast<Struct1::Enum2>(remoting__e1Tmp);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
@@ -870,7 +872,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testEnum23Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<int >::serialize(REMOTING__NAMES[2], e2, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<int>::serialize(REMOTING__NAMES[2], e2, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -922,7 +924,7 @@ public:
 			int i;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, i);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, remoting__deser, i);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -932,7 +934,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testInt1Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<int >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<int>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -984,7 +986,7 @@ public:
 			int i;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, i);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, remoting__deser, i);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -994,7 +996,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testInt2Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<int >::serialize(REMOTING__NAMES[1], i, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<int>::serialize(REMOTING__NAMES[1], i, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1047,7 +1049,7 @@ public:
 			int i2;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<int >::deserialize(REMOTING__NAMES[1], true, remoting__deser, i1);
+			Poco::RemotingNG::TypeDeserializer<int>::deserialize(REMOTING__NAMES[1], true, remoting__deser, i1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -1057,7 +1059,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testInt3Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<int >::serialize(REMOTING__NAMES[2], i2, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<int>::serialize(REMOTING__NAMES[2], i2, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1109,7 +1111,7 @@ public:
 			Poco::Int64 arg;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Poco::Int64 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, arg);
+			Poco::RemotingNG::TypeDeserializer<Poco::Int64>::deserialize(REMOTING__NAMES[1], true, remoting__deser, arg);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -1119,7 +1121,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testNestedTypeReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Poco::Int64 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Poco::Int64>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1168,7 +1170,7 @@ public:
 		std::string arg;
 		remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 		remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-		Poco::RemotingNG::TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, remoting__deser, arg);
+		Poco::RemotingNG::TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[1], true, remoting__deser, arg);
 		remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 		remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -1206,7 +1208,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testOneWayResultReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<std::string >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<std::string>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1372,6 +1374,68 @@ public:
 };
 
 
+class TesterTestPocoOptionalMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"testPocoOptional"s,"value"s};
+		bool remoting__requestSucceeded = false;
+		try
+		{
+			Poco::Optional<std::string> value;
+			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
+			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			Poco::RemotingNG::TypeDeserializer<Poco::Optional<std::string>>::deserialize(REMOTING__NAMES[1], true, remoting__deser, value);
+			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
+			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
+			Poco::Optional<std::string> remoting__return = remoting__pCastedRO->testPocoOptional(value);
+			remoting__requestSucceeded = true;
+			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
+			static const std::string REMOTING__REPLY_NAME("testPocoOptionalReply");
+			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Poco::Optional<std::string>>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
+		}
+		catch (const Poco::Exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				remoting__trans.reportException("Tester::testPocoOptional"s, e);
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
+			}
+		}
+		catch (const std::exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("Tester::testPocoOptional"s, exc);
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+		catch (...)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("Tester::testPocoOptional"s, exc);
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+	}
+
+};
+
+
 class TesterTestPtrMethodHandler: public Poco::RemotingNG::MethodHandler
 {
 public:
@@ -1383,20 +1447,20 @@ public:
 		bool remoting__requestSucceeded = false;
 		try
 		{
-			Poco::SharedPtr < Struct1 > p1;
+			Poco::SharedPtr<Struct1> p1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Poco::SharedPtr < Struct1 > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, p1);
+			Poco::RemotingNG::TypeDeserializer<Poco::SharedPtr<Struct1>>::deserialize(REMOTING__NAMES[1], true, remoting__deser, p1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
-			Poco::SharedPtr < Struct1 > remoting__return = remoting__pCastedRO->testPtr(p1);
+			Poco::SharedPtr<Struct1> remoting__return = remoting__pCastedRO->testPtr(p1);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testPtrReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Poco::SharedPtr < Struct1 > >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Poco::SharedPtr<Struct1>>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1445,20 +1509,20 @@ public:
 		bool remoting__requestSucceeded = false;
 		try
 		{
-			std::array < int, 4 > arr;
+			std::array<int, 4> arr;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<std::array < int, 4 > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, arr);
+			Poco::RemotingNG::TypeDeserializer<std::array<int, 4>>::deserialize(REMOTING__NAMES[1], true, remoting__deser, arr);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
-			std::array < int, 4 > remoting__return = remoting__pCastedRO->testStdArray(arr);
+			std::array<int, 4> remoting__return = remoting__pCastedRO->testStdArray(arr);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStdArrayReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<std::array < int, 4 > >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<std::array<int, 4>>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1507,20 +1571,20 @@ public:
 		bool remoting__requestSucceeded = false;
 		try
 		{
-			std::shared_ptr < Struct1 > pStruct1;
+			std::shared_ptr<Struct1> pStruct1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<std::shared_ptr < Struct1 > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, pStruct1);
+			Poco::RemotingNG::TypeDeserializer<std::shared_ptr<Struct1>>::deserialize(REMOTING__NAMES[1], true, remoting__deser, pStruct1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
-			std::shared_ptr < Struct1 > remoting__return = remoting__pCastedRO->testStdSharedPtr(pStruct1);
+			std::shared_ptr<Struct1> remoting__return = remoting__pCastedRO->testStdSharedPtr(pStruct1);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStdSharedPtrReply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<std::shared_ptr < Struct1 > >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<std::shared_ptr<Struct1>>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1572,7 +1636,7 @@ public:
 			Struct1 s1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct1 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct1>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -1582,7 +1646,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct11Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct1 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct1>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1634,7 +1698,7 @@ public:
 			Struct1 s1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct1 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct1>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -1644,7 +1708,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct12Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct1 >::serialize(REMOTING__NAMES[1], s1, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct1>::serialize(REMOTING__NAMES[1], s1, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1697,7 +1761,7 @@ public:
 			Struct1 s2;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct1 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct1>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -1707,7 +1771,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct13Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct1 >::serialize(REMOTING__NAMES[2], s2, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct1>::serialize(REMOTING__NAMES[2], s2, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1756,20 +1820,20 @@ public:
 		bool remoting__requestSucceeded = false;
 		try
 		{
-			std::vector < Struct1 > vec;
+			std::vector<Struct1> vec;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<std::vector < Struct1 > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, vec);
+			Poco::RemotingNG::TypeDeserializer<std::vector<Struct1>>::deserialize(REMOTING__NAMES[1], true, remoting__deser, vec);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
-			std::vector < Struct1 > remoting__return = remoting__pCastedRO->testStruct1Vec1(vec);
+			std::vector<Struct1> remoting__return = remoting__pCastedRO->testStruct1Vec1(vec);
 			remoting__requestSucceeded = true;
 			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct1Vec1Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<std::vector < Struct1 > >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<std::vector<Struct1>>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1818,10 +1882,10 @@ public:
 		bool remoting__requestSucceeded = false;
 		try
 		{
-			std::vector < Struct1 > vec;
+			std::vector<Struct1> vec;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<std::vector < Struct1 > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, vec);
+			Poco::RemotingNG::TypeDeserializer<std::vector<Struct1>>::deserialize(REMOTING__NAMES[1], true, remoting__deser, vec);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -1831,7 +1895,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct1Vec2Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<std::vector < Struct1 > >::serialize(REMOTING__NAMES[1], vec, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<std::vector<Struct1>>::serialize(REMOTING__NAMES[1], vec, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1880,11 +1944,11 @@ public:
 		bool remoting__requestSucceeded = false;
 		try
 		{
-			std::vector < Struct1 > vec1;
-			std::vector < Struct1 > vec2;
+			std::vector<Struct1> vec1;
+			std::vector<Struct1> vec2;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<std::vector < Struct1 > >::deserialize(REMOTING__NAMES[1], true, remoting__deser, vec1);
+			Poco::RemotingNG::TypeDeserializer<std::vector<Struct1>>::deserialize(REMOTING__NAMES[1], true, remoting__deser, vec1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -1894,7 +1958,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct1Vec3Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<std::vector < Struct1 > >::serialize(REMOTING__NAMES[2], vec2, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<std::vector<Struct1>>::serialize(REMOTING__NAMES[2], vec2, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -1946,7 +2010,7 @@ public:
 			Struct2 s1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct2 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct2>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -1956,7 +2020,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct21Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct2 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct2>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2008,7 +2072,7 @@ public:
 			Struct2 s1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct2 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct2>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2018,7 +2082,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct22Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct2 >::serialize(REMOTING__NAMES[1], s1, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct2>::serialize(REMOTING__NAMES[1], s1, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2071,7 +2135,7 @@ public:
 			Struct2 s2;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct2 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct2>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2081,7 +2145,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct23Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct2 >::serialize(REMOTING__NAMES[2], s2, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct2>::serialize(REMOTING__NAMES[2], s2, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2133,7 +2197,7 @@ public:
 			Struct3 s1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct3 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct3>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2143,7 +2207,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct31Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct3 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct3>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2195,7 +2259,7 @@ public:
 			Struct3 s1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct3 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct3>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2205,7 +2269,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct32Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct3 >::serialize(REMOTING__NAMES[1], s1, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct3>::serialize(REMOTING__NAMES[1], s1, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2258,7 +2322,7 @@ public:
 			Struct3 s2;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct3 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct3>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2268,7 +2332,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct33Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct3 >::serialize(REMOTING__NAMES[2], s2, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct3>::serialize(REMOTING__NAMES[2], s2, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2320,7 +2384,7 @@ public:
 			Struct4 s1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct4 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct4>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2330,7 +2394,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct41Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct4 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct4>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2382,7 +2446,7 @@ public:
 			Struct4 s1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct4 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct4>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2392,7 +2456,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct42Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct4 >::serialize(REMOTING__NAMES[1], s1, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct4>::serialize(REMOTING__NAMES[1], s1, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2445,7 +2509,7 @@ public:
 			Struct4 s2;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct4 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct4>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2455,7 +2519,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct43Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct4 >::serialize(REMOTING__NAMES[2], s2, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct4>::serialize(REMOTING__NAMES[2], s2, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2507,7 +2571,7 @@ public:
 			Struct5 s1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct5 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct5>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2517,7 +2581,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct51Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct5 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct5>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2569,7 +2633,7 @@ public:
 			Struct5 s1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct5 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct5>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2579,7 +2643,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct52Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct5 >::serialize(REMOTING__NAMES[1], s1, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct5>::serialize(REMOTING__NAMES[1], s1, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2632,7 +2696,7 @@ public:
 			Struct5 s2;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct5 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct5>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2642,7 +2706,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct53Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct5 >::serialize(REMOTING__NAMES[2], s2, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct5>::serialize(REMOTING__NAMES[2], s2, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2694,7 +2758,7 @@ public:
 			Struct6 s1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct6 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct6>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2704,7 +2768,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct6Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct6 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct6>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2756,7 +2820,7 @@ public:
 			Struct7 s1;
 			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
-			Poco::RemotingNG::TypeDeserializer<Struct7 >::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
+			Poco::RemotingNG::TypeDeserializer<Struct7>::deserialize(REMOTING__NAMES[1], true, remoting__deser, s1);
 			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
 			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
@@ -2766,7 +2830,7 @@ public:
 			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
 			static const std::string REMOTING__REPLY_NAME("testStruct7Reply");
 			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
-			Poco::RemotingNG::TypeSerializer<Struct7 >::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			Poco::RemotingNG::TypeSerializer<Struct7>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
 			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
 			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
 		}
@@ -2795,6 +2859,68 @@ public:
 			{
 				const Poco::Exception exc("Unknown Exception"s);
 				remoting__trans.reportException("Tester::testStruct7"s, exc);
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+	}
+
+};
+
+
+class TesterTestStruct8MethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"testStruct8"s,"value"s};
+		bool remoting__requestSucceeded = false;
+		try
+		{
+			Struct8 value;
+			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
+			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			Poco::RemotingNG::TypeDeserializer<Struct8>::deserialize(REMOTING__NAMES[1], true, remoting__deser, value);
+			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
+			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
+			Struct8 remoting__return = remoting__pCastedRO->testStruct8(value);
+			remoting__requestSucceeded = true;
+			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
+			static const std::string REMOTING__REPLY_NAME("testStruct8Reply");
+			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			Poco::RemotingNG::TypeSerializer<Struct8>::serialize(Poco::RemotingNG::SerializerBase::RETURN_PARAM, remoting__return, remoting__ser);
+			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
+		}
+		catch (const Poco::Exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				remoting__trans.reportException("Tester::testStruct8"s, e);
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
+			}
+		}
+		catch (const std::exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("Tester::testStruct8"s, exc);
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+		catch (...)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("Tester::testStruct8"s, exc);
 				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
 				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
 			}
@@ -3010,6 +3136,7 @@ TesterSkeleton::TesterSkeleton():
 	addMethodHandler("testOneWayResult"s, new TesterTestOneWayResultMethodHandler);
 	addMethodHandler("testPermission1"s, new TesterTestPermission1MethodHandler);
 	addMethodHandler("testPermission2"s, new TesterTestPermission2MethodHandler);
+	addMethodHandler("testPocoOptional"s, new TesterTestPocoOptionalMethodHandler);
 	addMethodHandler("testPtr"s, new TesterTestPtrMethodHandler);
 	addMethodHandler("testStdArray"s, new TesterTestStdArrayMethodHandler);
 	addMethodHandler("testStdSharedPtr"s, new TesterTestStdSharedPtrMethodHandler);
@@ -3033,6 +3160,7 @@ TesterSkeleton::TesterSkeleton():
 	addMethodHandler("testStruct53"s, new TesterTestStruct53MethodHandler);
 	addMethodHandler("testStruct6"s, new TesterTestStruct6MethodHandler);
 	addMethodHandler("testStruct7"s, new TesterTestStruct7MethodHandler);
+	addMethodHandler("testStruct8"s, new TesterTestStruct8MethodHandler);
 	addMethodHandler("testSynchronized"s, new TesterTestSynchronizedMethodHandler);
 	addMethodHandler("testSynchronizedProxy"s, new TesterTestSynchronizedProxyMethodHandler);
 	addMethodHandler("testSynchronizedRemote"s, new TesterTestSynchronizedRemoteMethodHandler);

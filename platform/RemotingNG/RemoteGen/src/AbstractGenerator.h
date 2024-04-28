@@ -16,6 +16,7 @@
 
 #include "Poco/CodeGeneration/CodeGenerator.h"
 #include "Poco/CppParser/Parameter.h"
+#include "Poco/Util/AbstractConfiguration.h"
 #include "Poco/BasicEvent.h"
 #include <set>
 
@@ -108,6 +109,11 @@ public:
 
 	static void addParamDocu(Poco::CppParser::Parameter* pParam, const CodeGenerator::Properties& functionProperties);
 		/// Searches the docu for the parameter specific properties and sets them as docu at pParam
+
+	static std::string includePath(const Poco::Util::AbstractConfiguration& config, const std::string& nameSpace);
+		/// Returns the include file output path for the given namespace.
+
+	static std::string includePath(const Poco::Util::AbstractConfiguration& config, const Poco::CppParser::Struct* pStruct);
 
 protected:
 	void handleParentFunctions(const Poco::CppParser::Struct* pStruct);

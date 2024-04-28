@@ -43,10 +43,10 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"calories"s,"carboHydrates"s,"percentFat"s,""s};
-		TypeSerializer<double >::serialize(REMOTING__NAMES[0], value.calories, ser);
-		TypeSerializer<double >::serialize(REMOTING__NAMES[1], value.carboHydrates, ser);
-		TypeSerializer<double >::serialize(REMOTING__NAMES[2], value.percentFat, ser);
+		static const std::string REMOTING__NAMES[] = {"calories"s,"percentFat"s,"carboHydrates"s,""s};
+		TypeSerializer<double>::serialize(REMOTING__NAMES[0], value.calories, ser);
+		TypeSerializer<double>::serialize(REMOTING__NAMES[1], value.percentFat, ser);
+		TypeSerializer<double>::serialize(REMOTING__NAMES[2], value.carboHydrates, ser);
 	}
 
 };

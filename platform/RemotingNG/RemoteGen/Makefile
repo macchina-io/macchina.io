@@ -10,7 +10,7 @@ objects = AbstractGenerator ProxyFactoryGenerator SerializerGenerator XSDGenerat
 	ClientHelperGenerator ProxyGenerator ServerHelperGenerator \
 	BundleActivatorGenerator ExtensionsGenerator \
 	DeserializerGenerator RemoteGen SkeletonGenerator \
-	InterfaceGenerator RemoteObjectGenerator WSDLGenerator GenUtility \
+	InterfaceGenerator RemoteObjectGenerator RemoteBridgeGenerator WSDLGenerator GenUtility \
 	EventDispatcherGenerator EventSubscriberGenerator \
 	SwaggerGenerator
 

@@ -1,5 +1,5 @@
 //
-// RemoteObjectGenerator.cpp
+// RemoteBridgeGenerator.cpp
 //
 // Copyright (c) 2006-2014, Applied Informatics Software Engineering GmbH.
 // All rights reserved.
@@ -8,7 +8,7 @@
 //
 
 
-#include "RemoteObjectGenerator.h"
+#include "RemoteBridgeGenerator.h"
 #include "InterfaceGenerator.h"
 #include "EventDispatcherGenerator.h"
 #include "GenUtility.h"
@@ -26,35 +26,38 @@
 using Poco::CodeGeneration::Utility;
 
 
-RemoteObjectGenerator::RemoteObjectGenerator(Poco::CodeGeneration::CppGenerator& cppGen): AbstractGenerator(cppGen), _hasEvents(false)
+RemoteBridgeGenerator::RemoteBridgeGenerator(Poco::CodeGeneration::CppGenerator& cppGen, bool forceSynchronized): 
+	AbstractGenerator(cppGen), 
+	_forceSynchronized(forceSynchronized), 
+	_hasEvents(false)
 {
 }
 
 
-RemoteObjectGenerator::~RemoteObjectGenerator()
+RemoteBridgeGenerator::~RemoteBridgeGenerator()
 {
 }
 
 
-std::string RemoteObjectGenerator::generateClassName(const Poco::CppParser::Struct* pStruct)
+std::string RemoteBridgeGenerator::generateClassName(const Poco::CppParser::Struct* pStruct)
 {
 	poco_assert_dbg (pStruct);
 	std::string newClassName(pStruct->name());
-	newClassName.append("RemoteObject");
+	newClassName.append("RemoteBridge");
 	return newClassName;
 }
 
 
-std::string RemoteObjectGenerator::generateQualifiedClassName(const std::string& ns, const Poco::CppParser::Struct* pStruct)
+std::string RemoteBridgeGenerator::generateQualifiedClassName(const std::string& ns, const Poco::CppParser::Struct* pStruct)
 {
 	if (ns.empty())
-		return RemoteObjectGenerator::generateClassName(pStruct);
+		return RemoteBridgeGenerator::generateClassName(pStruct);
 
-	return ns + "::" + RemoteObjectGenerator::generateClassName(pStruct);
+	return ns + "::" + RemoteBridgeGenerator::generateClassName(pStruct);
 }
 
 
-void RemoteObjectGenerator::structStart(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
+void RemoteBridgeGenerator::structStart(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
 {
 	AbstractGenerator::structStart(pStruct, properties);
 	_codeInjectors.clear();
@@ -62,7 +65,7 @@ void RemoteObjectGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 	Poco::CppParser::Function* pConstr = new Poco::CppParser::Function(_pStruct->name(), _pStruct);
 	//const Identifiable::ObjectId& oid
 	Poco::CppParser::Parameter* pParam1 = new Poco::CppParser::Parameter("const Poco::RemotingNG::Identifiable::ObjectId& oid", pConstr);
-	Poco::CppParser::Parameter* pParam2 = new Poco::CppParser::Parameter("Poco::SharedPtr<" + pStruct->fullName() + "> pServiceObject", pConstr);
+	Poco::CppParser::Parameter* pParam2 = new Poco::CppParser::Parameter("Poco::AutoPtr<" + InterfaceGenerator::generateQualifiedClassName(nameSpace(), pStruct) + "> pInterface", pConstr);
 	pConstr->addParameter(pParam1);
 	pConstr->addParameter(pParam2);
 
@@ -75,10 +78,10 @@ void RemoteObjectGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 	poco_check_ptr (pTypeAlias); // just avoid unused variable warning
 
 	// adds the member var
-	_cppGen.addIncludeFile("Poco/SharedPtr.h");
+	_cppGen.addIncludeFile("Poco/AutoPtr.h");
 	_cppGen.addIncludeFile("Poco/RemotingNG/RemoteObject.h");
 	_cppGen.addIncludeFile("Poco/RemotingNG/Identifiable.h");
-	Poco::CppParser::Variable* pVar = new Poco::CppParser::Variable("Poco::SharedPtr<" + pStruct->fullName() + "> _pServiceObject", _pStruct);
+	Poco::CppParser::Variable* pVar = new Poco::CppParser::Variable("Poco::AutoPtr<" + InterfaceGenerator::generateQualifiedClassName(nameSpace(), pStruct) + "> _pInterface", _pStruct);
 	pVar->setAccess(Poco::CppParser::Symbol::ACC_PRIVATE);
 	// add a method virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId() const
 	Poco::CppParser::Function* pTypeId = new Poco::CppParser::Function("virtual const Poco::RemotingNG::Identifiable::TypeId& remoting__typeId", _pStruct);
@@ -101,7 +104,7 @@ void RemoteObjectGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 		pRemoteEvents->addParameter(pParam);
 
 		std::string inc = Utility::createInclude(_pStruct, _cppGen.usePocoIncludeStyle());
-		Poco::replaceInPlace(inc, "RemoteObject", "EventDispatcher");
+		Poco::replaceInPlace(inc, "RemoteBridge", "EventDispatcher");
 		_cppGen.addSrcIncludeFile(inc);
 	}
 
@@ -110,24 +113,24 @@ void RemoteObjectGenerator::structStart(const Poco::CppParser::Struct* pStruct, 
 }
 
 
-void RemoteObjectGenerator::registerCallbacks(Poco::CodeGeneration::GeneratorEngine& e)
+void RemoteBridgeGenerator::registerCallbacks(Poco::CodeGeneration::GeneratorEngine& e)
 {
 	// for all other methods we want the simple fwd implementation
-	e.registerDefaultCallback(&RemoteObjectGenerator::fwdCodeGen);
-	e.registerCallback(_pStruct->name(), &RemoteObjectGenerator::constructorCodeGen);
-	e.registerCallback("~"+_pStruct->name(), &RemoteObjectGenerator::destructorCodeGen);
+	e.registerDefaultCallback(&RemoteBridgeGenerator::fwdCodeGen);
+	e.registerCallback(_pStruct->name(), &RemoteBridgeGenerator::constructorCodeGen);
+	e.registerCallback("~"+_pStruct->name(), &RemoteBridgeGenerator::destructorCodeGen);
 	e.registerCallback("remoting__typeId", &AbstractGenerator::typeIdCodeGen);
 	if (eventsFound())
 	{
-		e.registerCallback("remoting__enableEvents", &RemoteObjectGenerator::enableEventsCodeGen);
-		e.registerCallback("remoting__hasEvents", &RemoteObjectGenerator::hasEventsCodeGen);
-		e.registerCallback("remoting__enableRemoteEvents", &RemoteObjectGenerator::enableRemoteEventsCodeGen);
+		e.registerCallback("remoting__enableEvents", &RemoteBridgeGenerator::enableEventsCodeGen);
+		e.registerCallback("remoting__hasEvents", &RemoteBridgeGenerator::hasEventsCodeGen);
+		e.registerCallback("remoting__enableRemoteEvents", &RemoteBridgeGenerator::enableRemoteEventsCodeGen);
 	}
 
 	std::vector<std::string>::const_iterator itE = _events.begin();
 	for (; itE != _events.end(); ++itE)
 	{
-		e.registerCallback(RemoteObjectGenerator::generateEventFunctionName(*itE), &RemoteObjectGenerator::eventCodeGen);
+		e.registerCallback(RemoteBridgeGenerator::generateEventFunctionName(*itE), &RemoteBridgeGenerator::eventCodeGen);
 	}
 
 	// now register others
@@ -142,7 +145,7 @@ void RemoteObjectGenerator::registerCallbacks(Poco::CodeGeneration::GeneratorEng
 }
 
 
-void RemoteObjectGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, const CodeGenerator::Properties& properties)
+void RemoteBridgeGenerator::methodStart(const Poco::CppParser::Function* pFuncOld, const CodeGenerator::Properties& properties)
 {
 	if (_functions.find(pFuncOld->name()) != _functions.end())
 		return;
@@ -153,19 +156,19 @@ void RemoteObjectGenerator::methodStart(const Poco::CppParser::Function* pFuncOl
 		Poco::CppParser::Function* pFunc = methodClone(pFuncOld, properties);
 		pFunc->makeInline(); // impl is just one single line
 		Poco::CodeGeneration::CodeGenerator::Properties::const_iterator itSync = properties.find(Poco::CodeGeneration::Utility::SYNCHRONIZED);
-		if (itSync != properties.end() && (itSync->second == Utility::VAL_TRUE || itSync->second.empty() || itSync->second == "all" || itSync->second == "remote"))
+		if (_forceSynchronized || (itSync != properties.end() && (itSync->second == Utility::VAL_TRUE || itSync->second.empty() || itSync->second == "all" || itSync->second == "remote" || itSync->second == "bridge")))
 		{
-			_codeInjectors.insert(std::make_pair(pFunc->name(), &RemoteObjectGenerator::syncFwdCodeGen));
+			_codeInjectors.insert(std::make_pair(pFunc->name(), &RemoteBridgeGenerator::syncFwdCodeGen));
 		}
 		else
 		{
-			_codeInjectors.insert(std::make_pair(pFunc->name(), &RemoteObjectGenerator::fwdCodeGen));
+			_codeInjectors.insert(std::make_pair(pFunc->name(), &RemoteBridgeGenerator::fwdCodeGen));
 		}
 	}
 }
 
 
-std::vector<std::string> RemoteObjectGenerator::newBaseClasses(const Poco::CppParser::Struct* pStruct)
+std::vector<std::string> RemoteBridgeGenerator::newBaseClasses(const Poco::CppParser::Struct* pStruct)
 {
 	std::vector<std::string> bases;
 	bases.push_back(InterfaceGenerator::generateQualifiedClassName(nameSpace(), pStruct));
@@ -174,16 +177,16 @@ std::vector<std::string> RemoteObjectGenerator::newBaseClasses(const Poco::CppPa
 }
 
 
-void RemoteObjectGenerator::fwdCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+void RemoteBridgeGenerator::fwdCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
 	// we only write one line
-	// either _pServiceObject->method (params) or return _pServiceObject->method (params)
+	// either _pInterface->method (params) or return _pInterface->method (params)
 	std::string codeLine;
 	if (pFunc->getReturnParameter() != Poco::CodeGeneration::Utility::TYPE_VOID)
 	{
 		codeLine.append(Poco::CodeGeneration::Utility::RETURN+" ");
 	}
-	codeLine.append("_pServiceObject->");
+	codeLine.append("_pInterface->");
 	codeLine.append(pFunc->name());
 	codeLine.append("(");
 	Poco::CppParser::Function::Iterator it = pFunc->begin();
@@ -203,14 +206,14 @@ void RemoteObjectGenerator::fwdCodeGen(const Poco::CppParser::Function* pFunc, c
 }
 
 
-void RemoteObjectGenerator::syncFwdCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+void RemoteBridgeGenerator::syncFwdCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
 	gen.writeMethodImplementation("Poco::FastMutex::ScopedLock lock(mutex());");
-	RemoteObjectGenerator::fwdCodeGen(pFunc, pStruct, gen, addParam);
+	RemoteBridgeGenerator::fwdCodeGen(pFunc, pStruct, gen, addParam);
 }
 
 
-void RemoteObjectGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
+void RemoteBridgeGenerator::checkForEventMembers(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
 {
 	checkForEventMembersImpl(pStruct, properties);
 
@@ -229,7 +232,7 @@ void RemoteObjectGenerator::checkForEventMembers(const Poco::CppParser::Struct* 
 }
 
 
-void RemoteObjectGenerator::checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
+void RemoteBridgeGenerator::checkForEventMembersImpl(const Poco::CppParser::Struct* pStruct, const CodeGenerator::Properties& properties)
 {
 	Poco::CppParser::NameSpace::SymbolTable tbl;
 	pStruct->variables(tbl);
@@ -272,18 +275,18 @@ void RemoteObjectGenerator::checkForEventMembersImpl(const Poco::CppParser::Stru
 }
 
 
-std::string RemoteObjectGenerator::generateEventFunctionName(const std::string& eventVarname)
+std::string RemoteBridgeGenerator::generateEventFunctionName(const std::string& eventVarname)
 {
 	return "event__" + Poco::trim(eventVarname);
 }
 
 
-void RemoteObjectGenerator::constructorCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+void RemoteBridgeGenerator::constructorCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
 	poco_check_ptr (addParam);
 
 	AbstractGenerator* pAGen = reinterpret_cast<AbstractGenerator*>(addParam);
-	RemoteObjectGenerator* pProxy = dynamic_cast<RemoteObjectGenerator*>(pAGen);
+	RemoteBridgeGenerator* pProxy = dynamic_cast<RemoteBridgeGenerator*>(pAGen);
 	poco_check_ptr (pProxy);
 
 	const Poco::CppParser::Struct* pDataType = pProxy->_pStructIn; // returns the data type for which pStruct was generated
@@ -291,25 +294,25 @@ void RemoteObjectGenerator::constructorCodeGen(const Poco::CppParser::Function* 
 	std::vector<std::string>::const_iterator it = events.begin();
 	for (; it != events.end(); ++it)
 	{
-		std::string line("_pServiceObject->");
+		std::string line("_pInterface->");
 		line.append(*it);
 		line.append(" += ");
 		line.append("Poco::delegate(this, &");
-		line.append(RemoteObjectGenerator::generateClassName(pDataType));
+		line.append(RemoteBridgeGenerator::generateClassName(pDataType));
 		line.append("::");
-		line.append(RemoteObjectGenerator::generateEventFunctionName(*it));
+		line.append(RemoteBridgeGenerator::generateEventFunctionName(*it));
 		line.append(");");
 		gen.writeMethodImplementation(line);
 	}
 }
 
 
-void RemoteObjectGenerator::destructorCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+void RemoteBridgeGenerator::destructorCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
 	poco_check_ptr (addParam);
 
 	AbstractGenerator* pAGen = reinterpret_cast<AbstractGenerator*>(addParam);
-	RemoteObjectGenerator* pProxy = dynamic_cast<RemoteObjectGenerator*>(pAGen);
+	RemoteBridgeGenerator* pProxy = dynamic_cast<RemoteBridgeGenerator*>(pAGen);
 	poco_check_ptr (pProxy);
 
 	gen.writeMethodImplementation("try");
@@ -319,13 +322,13 @@ void RemoteObjectGenerator::destructorCodeGen(const Poco::CppParser::Function* p
 	std::vector<std::string>::const_iterator it = events.begin();
 	for (; it != events.end(); ++it)
 	{
-		std::string line("\t_pServiceObject->");
+		std::string line("\t_pInterface->");
 		line.append(*it);
 		line.append(" -= ");
 		line.append("Poco::delegate(this, &");
-		line.append(RemoteObjectGenerator::generateClassName(pDataType));
+		line.append(RemoteBridgeGenerator::generateClassName(pDataType));
 		line.append("::");
-		line.append(RemoteObjectGenerator::generateEventFunctionName(*it));
+		line.append(RemoteBridgeGenerator::generateEventFunctionName(*it));
 		line.append(");");
 		gen.writeMethodImplementation(line);
 	}
@@ -337,12 +340,12 @@ void RemoteObjectGenerator::destructorCodeGen(const Poco::CppParser::Function* p
 }
 
 
-void RemoteObjectGenerator::eventCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+void RemoteBridgeGenerator::eventCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
 	poco_check_ptr (addParam);
 
 	AbstractGenerator* pAGen = reinterpret_cast<AbstractGenerator*>(addParam);
-	RemoteObjectGenerator* pProxy = dynamic_cast<RemoteObjectGenerator*>(pAGen);
+	RemoteBridgeGenerator* pProxy = dynamic_cast<RemoteBridgeGenerator*>(pAGen);
 	poco_check_ptr (pProxy);
 
 	const std::vector<std::string>& events = pProxy->_events;
@@ -350,7 +353,7 @@ void RemoteObjectGenerator::eventCodeGen(const Poco::CppParser::Function* pFunc,
 	std::vector<std::string>::const_iterator it = events.begin();
 	for (; it != events.end(); ++it)
 	{
-		std::string name = RemoteObjectGenerator::generateEventFunctionName(*it);
+		std::string name = RemoteBridgeGenerator::generateEventFunctionName(*it);
 		if (name == pFunc->name())
 		{
 			// jep, we found the value
@@ -364,23 +367,23 @@ void RemoteObjectGenerator::eventCodeGen(const Poco::CppParser::Function* pFunc,
 }
 
 
-void RemoteObjectGenerator::hasEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+void RemoteBridgeGenerator::hasEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
 	gen.writeMethodImplementation("return true;");
 }
 
 
-void RemoteObjectGenerator::enableEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+void RemoteBridgeGenerator::enableEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
 	gen.writeMethodImplementation("return std::string();");
 }
 
 
-void RemoteObjectGenerator::enableRemoteEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
+void RemoteBridgeGenerator::enableRemoteEventsCodeGen(const Poco::CppParser::Function* pFunc, const Poco::CppParser::Struct* pStruct, CodeGenerator& gen, void* addParam)
 {
 	poco_assert (addParam);
 	AbstractGenerator* pAGen = reinterpret_cast<AbstractGenerator*>(addParam);
-	RemoteObjectGenerator* pGen = dynamic_cast<RemoteObjectGenerator*>(pAGen);
+	RemoteBridgeGenerator* pGen = dynamic_cast<RemoteBridgeGenerator*>(pAGen);
 	poco_check_ptr (pGen);
 	const Poco::CppParser::Struct* pStructIn = pGen->_pStructIn;
 

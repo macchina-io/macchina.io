@@ -53,7 +53,7 @@ std::string TimeServiceRemoteObject::remoting__enableEvents(Poco::RemotingNG::Li
 
 void TimeServiceRemoteObject::remoting__enableRemoteEvents(const std::string& protocol)
 {
-	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new TimeServiceEventDispatcher(this, protocol);
+	Poco::RemotingNG::EventDispatcher::Ptr pEventDispatcher = new TimeServiceEventDispatcher(this, remoting__objectId(), protocol);
 	Poco::RemotingNG::ORB::instance().registerEventDispatcher(remoting__getURI().toString(), pEventDispatcher);
 }
 

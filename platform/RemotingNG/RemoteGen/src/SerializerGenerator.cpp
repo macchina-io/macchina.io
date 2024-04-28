@@ -31,6 +31,9 @@
 using namespace Poco::CodeGeneration;
 
 
+SerializerGenerator::SerializationOrder SerializerGenerator::_serializationOrder(SerializerGenerator::SERIALIZE_AS_DECLARED);
+
+
 SerializerGenerator::SerializerGenerator(Poco::CodeGeneration::CppGenerator& cppGen): AbstractGenerator(cppGen)
 {
 }
@@ -38,6 +41,12 @@ SerializerGenerator::SerializerGenerator(Poco::CodeGeneration::CppGenerator& cpp
 
 SerializerGenerator::~SerializerGenerator()
 {
+}
+
+
+void SerializerGenerator::setSerializationOrder(SerializationOrder order)
+{
+	_serializationOrder = order;
 }
 
 
@@ -125,9 +134,9 @@ void SerializerGenerator::structStart(const Poco::CppParser::Struct* pStruct, co
 
 	Poco::Path aPath(pStruct->getFile());
 	Poco::Util::LayeredConfiguration& cfg = Poco::Util::Application::instance().config();
-	if (cfg.hasProperty("RemoteGen.output.include"))
+	std::string incFile = includePath(cfg, pStruct->nameSpace()->fullName());
+	if (!incFile.empty())
 	{
-		std::string incFile = cfg.getString("RemoteGen.output.include");
 		aPath = Poco::Path(incFile);
 		aPath.makeDirectory();
 	}
@@ -346,10 +355,20 @@ void SerializerGenerator::serializeImplCodeGenImpl(const Poco::CppParser::Struct
 			{
 				elemCodeLines.push_back("ser.pushProperty(SerializerBase::PROP_LENGTH, \"" + length + "\"s);");
 			}
+			std::string xsdType;
+			bool haveXsdType = GeneratorEngine::getStringProperty(attrProps, Utility::XSDTYPE, xsdType);
+			if (haveXsdType)
+			{
+				elemCodeLines.push_back("ser.pushProperty(SerializerBase::PROP_XSDTYPE, \"" + xsdType + "\"s);");
+			}
 			elemCodeLines.push_back(generateTypeSerializerLine(pDataType, it, curNamesPos, suffix));
 			if (haveLength)
 			{
 				elemCodeLines.push_back("ser.popProperty(SerializerBase::PROP_LENGTH);");
+			}
+			if (haveXsdType)
+			{
+				elemCodeLines.push_back("ser.popProperty(SerializerBase::PROP_XSDTYPE);");
 			}
 		}
 		if (lastPushedNS != defaultNS)
@@ -693,11 +712,11 @@ void SerializerGenerator::matchVarsWithFunctionsRecursive(const Poco::CppParser:
 
 void SerializerGenerator::doElemAttrSplit(const VarGet& matches, OrderedVars& attrs, OrderedVars& elems)
 {
-	Poco::UInt32 varCnt = 0;
-	Poco::UInt32 unknownOrderOffset = 0xffff0000;
+	const Poco::UInt32 unknownOrderOffset = 0xffff0000;
+	Poco::UInt32 varCount = 0;
 	VarGet::const_iterator it = matches.begin();
 	VarGet::const_iterator itEnd = matches.end();
-	for (; it != itEnd; ++it, ++varCnt)
+	for (; it != itEnd; ++it, ++varCount)
 	{
 		Poco::CodeGeneration::CodeGenerator::Properties props; // we need type and order
 		Poco::CodeGeneration::GeneratorEngine::parseProperties(it->second.first, props);
@@ -706,7 +725,7 @@ void SerializerGenerator::doElemAttrSplit(const VarGet& matches, OrderedVars& at
 		bool isAttr = false; // the default is elem
 		if (hasType && type == Utility::VAL_ATTR)
 			isAttr = true;
-		Poco::UInt32 order = unknownOrderOffset + varCnt;
+		Poco::UInt32 order = _serializationOrder == SERIALIZE_AS_DECLARED ? static_cast<Poco::UInt32>(it->second.first->getOrder()) : unknownOrderOffset + varCount;
 		GeneratorEngine::getUInt32Property(props, Utility::ORDER, order);
 		if (isAttr)
 			attrs.insert(std::make_pair(order, it));
@@ -737,7 +756,7 @@ std::string SerializerGenerator::generateTypeSerializerLine(const Poco::CppParse
 	code.append(retType);
 	if (ret.isPointer())
 		code.append("*");
-	code.append(Poco::format(" >::serialize(REMOTING__NAMES%s[", suffix));
+	code.append(Poco::format(">::serialize(REMOTING__NAMES%s[", suffix));
 	code.append(Poco::NumberFormatter::format(namePos));
 	code.append("], ");
 	if (enumMode)

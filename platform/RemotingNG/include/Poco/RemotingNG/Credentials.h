@@ -73,6 +73,8 @@ public:
 		/// iterations for PBKDF2.
 	static const std::string ATTR_SIGNATURE;
 		/// Attribute named "v" containing a signature.
+	static const std::string ATTR_CREATED;
+		/// Attribute named "c" containing a credentials creation date.
 };
 
 

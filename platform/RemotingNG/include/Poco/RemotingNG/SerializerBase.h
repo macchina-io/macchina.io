@@ -67,6 +67,7 @@ public:
 	static const std::string PROP_CONSUMES;
 	static const std::string PROP_CONTENT_TYPE;
 	static const std::string PROP_LENGTH;
+	static const std::string PROP_XSDTYPE;
 
 	static const std::string RETURN_PARAM;
 		/// The element name used to serialize a function's return value.

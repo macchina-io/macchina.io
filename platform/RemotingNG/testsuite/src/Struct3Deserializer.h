@@ -48,14 +48,14 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"aCharVector"s,"aComplexVector"s,"aList"s,"aMultiSet"s,"aNullable"s,"aSet"s,"anotherComplexVector"s};
-		TypeDeserializer<std::vector < char > >::deserialize(REMOTING__NAMES[0], true, deser, value.aCharVector);
-		TypeDeserializer<std::vector < Struct2 > >::deserialize(REMOTING__NAMES[1], true, deser, value.aComplexVector);
-		TypeDeserializer<std::list < Struct2 > >::deserialize(REMOTING__NAMES[2], true, deser, value.aList);
-		TypeDeserializer<std::multiset < int > >::deserialize(REMOTING__NAMES[3], true, deser, value.aMultiSet);
-		TypeDeserializer<Poco::Nullable < std::string > >::deserialize(REMOTING__NAMES[4], true, deser, value.aNullable);
-		TypeDeserializer<std::set < int > >::deserialize(REMOTING__NAMES[5], true, deser, value.aSet);
-		TypeDeserializer<std::vector < std::shared_ptr < Struct2 > > >::deserialize(REMOTING__NAMES[6], true, deser, value.anotherComplexVector);
+		static const std::string REMOTING__NAMES[] = {"aCharVector"s,"aComplexVector"s,"aList"s,"aSet"s,"aMultiSet"s,"aNullable"s,"anotherComplexVector"s};
+		TypeDeserializer<std::vector<char>>::deserialize(REMOTING__NAMES[0], true, deser, value.aCharVector);
+		TypeDeserializer<std::vector<Struct2>>::deserialize(REMOTING__NAMES[1], true, deser, value.aComplexVector);
+		TypeDeserializer<std::list<Struct2>>::deserialize(REMOTING__NAMES[2], true, deser, value.aList);
+		TypeDeserializer<std::set<int>>::deserialize(REMOTING__NAMES[3], true, deser, value.aSet);
+		TypeDeserializer<std::multiset<int>>::deserialize(REMOTING__NAMES[4], true, deser, value.aMultiSet);
+		TypeDeserializer<Poco::Nullable<std::string>>::deserialize(REMOTING__NAMES[5], true, deser, value.aNullable);
+		TypeDeserializer<std::vector<std::shared_ptr<Struct2>>>::deserialize(REMOTING__NAMES[6], true, deser, value.anotherComplexVector);
 	}
 
 };

@@ -20,6 +20,12 @@
 
 #include "Poco/RemotingNG/RemotingNG.h"
 #include "Poco/RemotingNG/SerializerBase.h"
+#include "Poco/DateTime.h"
+#include "Poco/LocalDateTime.h"
+#include "Poco/Timestamp.h"
+#include "Poco/Timespan.h"
+#include "Poco/UUID.h"
+#include "Poco/URI.h"
 #include <vector>
 
 
@@ -181,6 +187,37 @@ public:
 
 	virtual bool deserialize(const std::string& name, bool isMandatory, std::vector<char>& value) = 0;
 		/// Deserializes raw binary data.
+
+	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::DateTime& value);
+		/// Deserializes a Poco::DateTime.
+		///
+		/// The default implementation expects an ISO8601-formatted string.
+
+	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::LocalDateTime& value);
+		/// Deserializes a Poco::LocalDateTime.
+		///
+		/// The default implementation expects an ISO8601-formatted string.
+
+	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::Timestamp& value);
+		/// Deserializes a Poco::Timestamp.
+		///
+		/// The default implementation expects an ISO8601-formatted string.
+
+	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::Timespan& value);
+		/// Deserializes a Poco::Timespan.
+		///
+		/// The default implementation expects a 64-bit integer containing the time
+		/// difference in microseconds.
+
+	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::URI& value);
+		/// Deserializes a Poco::URI.
+		///
+		/// The default implementation expects a string representation.
+
+	virtual bool deserialize(const std::string& name, bool isMandatory, Poco::UUID& value);
+		/// Deserializes a Poco::UUID.
+		///
+		/// The default implementation expects a string representation.
 
 	virtual void pushAttribute(const std::string& attrNamespace, const std::string& attrName, bool isMandatory);
 		/// For XML-based transports, this method allows for deserialization of data either as

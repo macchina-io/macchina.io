@@ -39,7 +39,7 @@ public:
 		using namespace std::string_literals;
 		
 		static const std::string REMOTING__NAMES[] = {"arr"s,""s};
-		TypeSerializer<std::array < int, 4 > >::serialize(REMOTING__NAMES[0], value.arr, ser);
+		TypeSerializer<std::array<int, 4>>::serialize(REMOTING__NAMES[0], value.arr, ser);
 	}
 
 };

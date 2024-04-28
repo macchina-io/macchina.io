@@ -88,6 +88,7 @@ public:
 	static const std::string PERMISSION;
 	static const std::string AUTHENTICATED;
 	static const std::string LENGTH;
+	static const std::string XSDTYPE;
 
 	static const std::string VAL_TRUE;
 	static const std::string VAL_FALSE;

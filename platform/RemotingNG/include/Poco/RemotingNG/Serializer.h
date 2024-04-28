@@ -20,6 +20,12 @@
 
 #include "Poco/RemotingNG/RemotingNG.h"
 #include "Poco/RemotingNG/SerializerBase.h"
+#include "Poco/DateTime.h"
+#include "Poco/LocalDateTime.h"
+#include "Poco/Timestamp.h"
+#include "Poco/Timespan.h"
+#include "Poco/UUID.h"
+#include "Poco/URI.h"
 #include "Poco/Exception.h"
 #include <vector>
 
@@ -143,6 +149,37 @@ public:
 
 	virtual void serialize(const std::string& name, const std::vector<char>& value) = 0;
 		/// Serialize binary data.
+
+	virtual void serialize(const std::string& name, const Poco::DateTime& value);
+		/// Serialize a Poco::DateTime.
+		///
+		/// The default implementation serializes to an ISO8601 string.
+
+	virtual void serialize(const std::string& name, const Poco::LocalDateTime& value);
+		/// Serialize a Poco::LocalDateTime.
+		///
+		/// The default implementation serializes to an ISO8601 string.
+
+	virtual void serialize(const std::string& name, const Poco::Timestamp& value);
+		/// Serialize a Poco::Timestamp.
+		///
+		/// The default implementation serializes to an ISO8601 string.
+
+	virtual void serialize(const std::string& name, const Poco::Timespan& value);
+		/// Serialize a Poco::Timespan.
+		///
+		/// The default implementation serializes to a 64-bit integer containing
+		/// the timespan in microseconds.
+
+	virtual void serialize(const std::string& name, const Poco::URI& value);
+		/// Serialize a Poco::URI.
+		///
+		/// The default implementation serializes to string.
+
+	virtual void serialize(const std::string& name, const Poco::UUID& value);
+		/// Serialize a Poco::URI.
+		///
+		/// The default implementation serializes to string.
 
 	virtual void pushAttribute(const std::string& attrNamespace, const std::string& attrName);
 		/// For XML-based transports, this method allows for serialization of data either as

@@ -227,7 +227,7 @@ std::string ORB::registerListener(Listener::Ptr pListener)
 		else
 			throw Poco::IllegalStateException("Listener already registered for that endpoint");
 
-		_logger.information("Listener registered for protocol: %s and endpoint: "s, pListener->protocol(), pListener->endPoint());
+		_logger.information("Listener registered for protocol: %s and endpoint: %s."s, pListener->protocol(), pListener->endPoint());
 
 		return listenerId;
 	}

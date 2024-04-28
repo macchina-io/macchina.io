@@ -44,13 +44,13 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"aCharVector"s,"aComplexVector"s,"aList"s,"aMultiSet"s,"aNullable"s,"aSet"s,""s};
-		TypeSerializer<std::vector < char > >::serialize(REMOTING__NAMES[0], value.aCharVector, ser);
-		TypeSerializer<std::vector < Struct2 > >::serialize(REMOTING__NAMES[1], value.aComplexVector, ser);
-		TypeSerializer<std::list < Struct2 > >::serialize(REMOTING__NAMES[2], value.aList, ser);
-		TypeSerializer<std::multiset < int > >::serialize(REMOTING__NAMES[3], value.aMultiSet, ser);
-		TypeSerializer<Poco::Nullable < std::string > >::serialize(REMOTING__NAMES[4], value.aNullable, ser);
-		TypeSerializer<std::set < int > >::serialize(REMOTING__NAMES[5], value.aSet, ser);
+		static const std::string REMOTING__NAMES[] = {"aCharVector"s,"aComplexVector"s,"aList"s,"aSet"s,"aMultiSet"s,"aNullable"s,""s};
+		TypeSerializer<std::vector<char>>::serialize(REMOTING__NAMES[0], value.aCharVector, ser);
+		TypeSerializer<std::vector<Struct2>>::serialize(REMOTING__NAMES[1], value.aComplexVector, ser);
+		TypeSerializer<std::list<Struct2>>::serialize(REMOTING__NAMES[2], value.aList, ser);
+		TypeSerializer<std::set<int>>::serialize(REMOTING__NAMES[3], value.aSet, ser);
+		TypeSerializer<std::multiset<int>>::serialize(REMOTING__NAMES[4], value.aMultiSet, ser);
+		TypeSerializer<Poco::Nullable<std::string>>::serialize(REMOTING__NAMES[5], value.aNullable, ser);
 	}
 
 };

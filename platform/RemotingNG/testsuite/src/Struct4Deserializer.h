@@ -44,10 +44,10 @@ public:
 	{
 		using namespace std::string_literals;
 		
-		static const std::string REMOTING__NAMES[] = {"ptr"s,"value"s,"vec"s};
-		TypeDeserializer<Poco::SharedPtr < Struct4 > >::deserialize(REMOTING__NAMES[0], true, deser, value.ptr);
-		TypeDeserializer<std::string >::deserialize(REMOTING__NAMES[1], true, deser, value.value);
-		TypeDeserializer<std::vector < Struct4 > >::deserialize(REMOTING__NAMES[2], true, deser, value.vec);
+		static const std::string REMOTING__NAMES[] = {"value"s,"vec"s,"ptr"s};
+		TypeDeserializer<std::string>::deserialize(REMOTING__NAMES[0], true, deser, value.value);
+		TypeDeserializer<std::vector<Struct4>>::deserialize(REMOTING__NAMES[1], true, deser, value.vec);
+		TypeDeserializer<Poco::SharedPtr<Struct4>>::deserialize(REMOTING__NAMES[2], true, deser, value.ptr);
 	}
 
 };
