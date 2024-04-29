@@ -7,7 +7,7 @@
 This is the GPL-licensed version of macchina.io EDGE.
 
 A [commercially-licensed version](https://macchina.io/edge) with an extended feature
-set and professional support is available.
+set, full source code and professional support is available.
 
 Note that this GPL-licensed version:
 
@@ -21,7 +21,7 @@ macchina.io EDGE provides a web-enabled, secure, modular and extensible C++ and 
 macchina.io EDGE provides ready-to-use and industry proven software building blocks that enable applications to collect, process, filter, analyze and visualize sensor, machine and process data locally, directly where it originates, and where the action happens.
 macchina.io EDGE enables IoT edge computing.
 
-macchina.io EDGE runs on Linux-based devices, including IoT gateways, industrial computing devices, and prototyping platforms like the Raspberry Pi, Beaglebone and MangOH.
+macchina.io EDGE runs on Linux-based devices, including IoT gateways, industrial computing devices, and prototyping platforms like the Raspberry Pi and Beaglebone.
 
 macchina.io EDGE is based on the [POCO C++ Libraries](https://pocoproject.org) and
 uses the [V8 JavaScript engine](https://v8.dev).
@@ -130,7 +130,7 @@ components are built.
 macchina.io EDGE is dual-licensed under a commercial license and the GPLv3.
 The commercial license gives you the full rights to create and distribute software and
 devices on your own terms without any GPL obligations. With the commercial license you
-also have access to professional support and maintenance, as well as additional features.
+also have access to professional support and maintenance, as well as many additional features.
 See [this table](https://macchina.io/edge_licensing.html#table) for a comparison between GPLv3-licensed and commercial-licensed macchina.io EDGE features.
 
 

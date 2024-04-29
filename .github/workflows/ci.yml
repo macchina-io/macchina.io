@@ -9,7 +9,6 @@ jobs:
       - run: make -s -j`nproc` TESTS=1 SAMPLES=1 ASAN=1 DEFAULT_TARGET=shared_release
       - run: >-
           cp platform/Foundation/testsuite/bin/Linux/x86_64/TestApp platform/Foundation/testsuite &&
-          cd platform &&
           CPPUNIT_IGNORE="
           CppUnit::TestCaller<RawSocketTest>.testEchoIPv4,
           CppUnit::TestCaller<RawSocketTest>.testSendToReceiveFromIPv4,
@@ -21,9 +20,11 @@ jobs:
           CppUnit::TestCaller<NTPClientTest>.testTimeSync,
           CppUnit::TestCaller<HTTPSClientSessionTest>.testProxy,
           CppUnit::TestCaller<HTTPSStreamFactoryTest>.testProxy"
-          EXCLUDE_TESTS="Data/MySQL Data/ODBC Data/PostgreSQL MongoDB"
+          EXCLUDE_TESTS="Data/MySQL Data/ODBC Data/PostgreSQL MongoDB Redis"
           PATH=$PATH:.
-          build/script/runtests.sh
+          POCO_BASE=`pwd`
+          LD_LIBRARY_PATH=$POCO_BASE/lib/Linux/x86_64
+          platform/build/script/runtests.sh
 
   macos-clang-make:
     runs-on: macos-12
