@@ -22,7 +22,7 @@ jobs:
           CppUnit::TestCaller<HTTPSStreamFactoryTest>.testProxy"
           EXCLUDE_TESTS="Data/MySQL Data/ODBC Data/PostgreSQL MongoDB Redis"
           PATH=$PATH:.
-          POCO_BASE=`pwd`
+          POCO_BASE=`pwd`/platform
           LD_LIBRARY_PATH=$POCO_BASE/lib/Linux/x86_64
           platform/build/script/runtests.sh
 
