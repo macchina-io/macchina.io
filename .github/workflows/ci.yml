@@ -5,12 +5,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: sudo apt update && sudo apt install libssl-dev python-is-python3
-      - name: Build
-        run: make -s -j`nproc` TESTS=1 SAMPLES=1 ASAN=1 DEFAULT_TARGET=shared_release
-      - name: Run tests
-        run: >-
+      - run: sudo apt update && sudo apt install libssl-dev python-is-python3
+      - run: make -s -j`nproc` TESTS=1 SAMPLES=1 ASAN=1 DEFAULT_TARGET=shared_release
+      - run: >-
           cp platform/Foundation/testsuite/bin/Linux/x86_64/TestApp platform/Foundation/testsuite &&
           cd platform &&
           CPPUNIT_IGNORE="
@@ -32,7 +29,5 @@ jobs:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: brew install openssl@3 python@3.9
-      - name: Build
+      - run: brew install openssl@3 python@3.9
       - run: PATH=/usr/local/opt/python@3.9/libexec/bin:$PATH make -s -j`sysctl -n hw.ncpu` DEFAULT_TARGET=shared_release
