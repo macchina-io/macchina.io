@@ -10,22 +10,23 @@ jobs:
       - name: Build
         run: make -s -j`nproc` TESTS=1 SAMPLES=1 ASAN=1 DEFAULT_TARGET=shared_release
       - name: Run tests
-        run: |
-        export CPPUNIT_IGNORE="\
-        CppUnit::TestCaller<RawSocketTest>.testEchoIPv4,\
-        CppUnit::TestCaller<RawSocketTest>.testSendToReceiveFromIPv4,\
-        CppUnit::TestCaller<ICMPClientTest>.testPing,\
-        CppUnit::TestCaller<ICMPClientTest>.testBigPing,\
-        CppUnit::TestCaller<ICMPSocketTest>.testSendToReceiveFrom,\
-        CppUnit::TestCaller<ICMPSocketTest>.testAssign,\
-        CppUnit::TestCaller<ICMPSocketTest>.testMTU,\
-        CppUnit::TestCaller<NTPClientTest>.testTimeSync,\
-        CppUnit::TestCaller<HTTPSClientSessionTest>.testProxy,\
-        CppUnit::TestCaller<HTTPSStreamFactoryTest>.testProxy"
-        export EXCLUDE_TESTS="Data/MySQL Data/ODBC Data/PostgreSQL MongoDB"
-        cp platform/Foundation/testsuite/bin/Linux/x86_64/TestApp platform/Foundation/testsuite
-        export PATH=$PATH:.
-        cd platform && build/script/runtests.sh
+        run: >-
+          cp platform/Foundation/testsuite/bin/Linux/x86_64/TestApp platform/Foundation/testsuite &&
+          cd platform &&
+          CPPUNIT_IGNORE="
+          CppUnit::TestCaller<RawSocketTest>.testEchoIPv4,
+          CppUnit::TestCaller<RawSocketTest>.testSendToReceiveFromIPv4,
+          CppUnit::TestCaller<ICMPClientTest>.testPing,
+          CppUnit::TestCaller<ICMPClientTest>.testBigPing,
+          CppUnit::TestCaller<ICMPSocketTest>.testSendToReceiveFrom,
+          CppUnit::TestCaller<ICMPSocketTest>.testAssign,
+          CppUnit::TestCaller<ICMPSocketTest>.testMTU,
+          CppUnit::TestCaller<NTPClientTest>.testTimeSync,
+          CppUnit::TestCaller<HTTPSClientSessionTest>.testProxy,
+          CppUnit::TestCaller<HTTPSStreamFactoryTest>.testProxy"
+          EXCLUDE_TESTS="Data/MySQL Data/ODBC Data/PostgreSQL MongoDB"
+          PATH=$PATH:.
+          build/script/runtests.sh
 
   macos-clang-make:
     runs-on: macos-12
