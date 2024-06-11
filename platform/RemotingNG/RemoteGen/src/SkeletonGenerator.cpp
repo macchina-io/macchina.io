@@ -514,7 +514,7 @@ void SkeletonGenerator::invokeCodeGen(const Poco::CppParser::Function* pFuncNew,
 		{
 			std::string line("remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PRODUCES, \"");
 			line.append(funcResponseContentType);
-			line.append("\");");
+			line.append("\"s);");
 			gen.writeMethodImplementation(indentation + line);
 		}
 

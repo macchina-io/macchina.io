@@ -848,7 +848,7 @@ void ProxyGenerator::writeDeserializingBlock(const Poco::CppParser::Function* pF
 		{
 			std::string line("remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_PRODUCES, \"");
 			line.append(funcContentType);
-			line.append("\");");
+			line.append("\"s);");
 			gen.writeMethodImplementation(line);
 		}
 
@@ -1138,23 +1138,23 @@ void ProxyGenerator::writeDeserializeReturnParam(const Poco::CppParser::Function
 		}
 		if (!location.empty())
 		{
-			gen.writeMethodImplementation("remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION, \"" + location + "\");");
+			gen.writeMethodImplementation("remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION, \"" + location + "\"s);");
 		}
 		if (!format.empty())
 		{
-			gen.writeMethodImplementation("remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_FORMAT, \"" + format + "\");");
+			gen.writeMethodImplementation("remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_FORMAT, \"" + format + "\"s);");
 		}
 		if (!contentType.empty())
 		{
-			gen.writeMethodImplementation("remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE, \"" + contentType + "\");");
+			gen.writeMethodImplementation("remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE, \"" + contentType + "\"s);");
 		}
 		if (!length.empty())
 		{
-			gen.writeMethodImplementation("remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_LENGTH, \"" + length + "\");");
+			gen.writeMethodImplementation("remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_LENGTH, \"" + length + "\"s);");
 		}
 		if (!xsdType.empty())
 		{
-			gen.writeMethodImplementation("remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_XSDTYPE, \"" + xsdType + "\");");
+			gen.writeMethodImplementation("remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_XSDTYPE, \"" + xsdType + "\"s);");
 		}
 
 		std::string retParamType(GenUtility::getResolvedReturnParameterType(pFunc->nameSpace(), pFunc));
@@ -1227,23 +1227,23 @@ void ProxyGenerator::writeDeserializeReturnParam(const Poco::CppParser::Function
 		}
 		if (!location.empty())
 		{
-			gen.writeMethodImplementation("remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION);");
+			gen.writeMethodImplementation("remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_LOCATION);");
 		}
 		if (!format.empty())
 		{
-			gen.writeMethodImplementation("remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_FORMAT);");
+			gen.writeMethodImplementation("remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_FORMAT);");
 		}
 		if (!contentType.empty())
 		{
-			gen.writeMethodImplementation("remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE);");
+			gen.writeMethodImplementation("remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_CONTENT_TYPE);");
 		}
 		if (!length.empty())
 		{
-			gen.writeMethodImplementation("remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_LENGTH);");
+			gen.writeMethodImplementation("remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_LENGTH);");
 		}
 		if (!xsdType.empty())
 		{
-			gen.writeMethodImplementation("remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_XSDTYPE);");
+			gen.writeMethodImplementation("remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_XSDTYPE);");
 		}
 	}
 }
