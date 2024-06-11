@@ -121,7 +121,7 @@ Poco::UUID GATTPeripheral::serviceUUIDForAssignedNumber(Poco::UInt32 assignedNum
 	{
 		if (it->uuid == uuid)
 		{
-			break;
+			return uuid;
 		}
 	}
 
