@@ -10,6 +10,9 @@ CC_HOST   ?= gcc
 CXX_HOST  ?= g++
 LINK_HOST ?= g++
 
+# Required for GCC 13
+CXXFLAGS += -fpermissive
+
 .PHONY: v8deps
 
 GYPFLAGS = -Dcomponent=shared_library -Dlinux_use_bundled_binutils=0 \
