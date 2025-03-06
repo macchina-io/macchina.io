@@ -10,6 +10,7 @@
 
 #include "Tester.h"
 #include "Poco/Exception.h"
+#include "Poco/Thread.h"
 
 
 const int Class1::A_CONSTANT(1);
@@ -240,6 +241,12 @@ void Tester::testAuthenticated()
 
 void Tester::testPermission()
 {
+}
+
+
+void Tester::testTimeout()
+{
+	Poco::Thread::sleep(2000);
 }
 
 

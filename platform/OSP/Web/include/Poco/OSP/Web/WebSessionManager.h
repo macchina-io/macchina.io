@@ -137,6 +137,10 @@ public:
 	std::size_t countSessions();
 		/// Returns the number of active sessions.
 
+	void updateSessionTimeout(const std::string& appName, WebSession::Ptr pSession, int timeout, const Poco::Net::HTTPServerRequest& request);
+		/// Updates the session timeout for the given session and updates the
+		/// Set-Cookie header in the response for the given request.
+
 	// WebSessionService
 	WebSession::Ptr find(const std::string& appName, const Poco::Net::HTTPServerRequest& request);
 	WebSession::Ptr get(const std::string& appName, const Poco::Net::HTTPServerRequest& request, int expireSeconds, BundleContext::Ptr pContext);
@@ -157,8 +161,10 @@ protected:
 	void removeImpl(WebSession::Ptr pSession);
 	void removeImpl(const std::string& id);
 	std::string getId(const std::string& appName, const Poco::Net::HTTPServerRequest& request);
-	void addSessionCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr ptrSes);
-	void addCSRFCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr ptrSes);
+	void addSessionCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr pSession);
+	void addCSRFCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr pSession);
+	Poco::Net::HTTPCookie createSessionCookie(const std::string& appName, WebSession::Ptr pSession);
+	Poco::Net::HTTPCookie createCSRFCookie(const std::string& appName, WebSession::Ptr pSession);
 	std::string createToken(const Poco::Net::HTTPServerRequest& request);
 	std::string cookieName(const std::string& appName);
 	std::string cookieDomain(const std::string& appName);

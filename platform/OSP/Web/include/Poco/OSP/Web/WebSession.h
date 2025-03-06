@@ -153,18 +153,21 @@ public:
 	int timeout() const;
 		/// Returns the timeout of the session in seconds.
 
+	void timeout(int seconds);
+		/// Sets a new timeout in seconds for the session. 
+
 	const Poco::Net::IPAddress& clientAddress() const;
 		/// Returns the IP address of the client holding the session.
-
-	// UniqueExpireCache support
-	const Poco::Timestamp& getExpiration() const;
-		/// Return the time when the session will expire.
 
 	void access();
 		/// Updates the expiration time.
 
 	std::string csrfToken() const;
 		/// Returns the CSRF synchronizer token for this session.
+
+	// UniqueExpireCache support
+	const Poco::Timestamp& getExpiration() const;
+		/// Return the time when the session will expire.
 
 	static const std::string CSRF_TOKEN;
 		/// The name of the attribute storing the CSRF synchronizer token.
@@ -199,6 +202,7 @@ private:
 	Poco::AutoPtr<WebSessionStore> _pStore;
 
 	mutable Poco::FastMutex _mutex;
+	mutable Poco::FastMutex _timeoutMutex;
 };
 
 
@@ -219,6 +223,8 @@ inline Poco::Int64 WebSession::version() const
 
 inline int WebSession::timeout() const
 {
+	Poco::FastMutex::ScopedLock lock(_timeoutMutex);
+
 	return _timeout.totalSeconds();
 }
 
@@ -237,6 +243,8 @@ inline const Poco::Net::IPAddress& WebSession::clientAddress() const
 
 inline const Poco::Timestamp& WebSession::getExpiration() const
 {
+	Poco::FastMutex::ScopedLock lock(_timeoutMutex);
+
 	return _expiration;
 }
 

@@ -91,14 +91,26 @@ public:
 		/// Returns an iterator pointing to the first name-value pair
 		/// with the given name.
 		
+	Iterator find(const std::string& name);
+		/// Returns an iterator pointing to the first name-value pair
+		/// with the given name.
+
 	ConstIterator begin() const;
 		/// Returns an iterator pointing to the begin of
 		/// the name-value pair collection.
 		
+	Iterator begin();
+		/// Returns an iterator pointing to the begin of
+		/// the name-value pair collection.
+
 	ConstIterator end() const;
 		/// Returns an iterator pointing to the end of 
 		/// the name-value pair collection.
 		
+	Iterator end();
+		/// Returns an iterator pointing to the end of 
+		/// the name-value pair collection.
+
 	bool empty() const;
 		/// Returns true iff the header does not have any content.
 
@@ -109,8 +121,25 @@ public:
 	void erase(const std::string& name);
 		/// Removes all name-value pairs with the given name.
 
+	void erase(Iterator it);
+		/// Removes the name-value pair referenced by the given iterator.
+
+	void secureErase(const std::string& name);
+		/// Securely erases all name-value pairs with the given name,
+		/// by first overwriting the value with zeroes before
+		/// removing the value.
+
+	void secureErase(Iterator it);
+		/// Securely erases the name-value pair referenced by the given iterator,
+		/// by first overwriting the value with zeroes before
+		/// removing the value.
+
 	void clear();
 		/// Removes all name-value pairs and their values.
+
+	void secureClear();
+		/// Removes all name-value pairs and their values. 
+		/// Additionally, all values are also overwritten with zeroes.
 
 private:
 	HeaderMap _map;
@@ -123,6 +152,54 @@ private:
 inline void swap(NameValueCollection& nvc1, NameValueCollection& nvc2)
 {
 	nvc1.swap(nvc2);
+}
+
+
+inline NameValueCollection::ConstIterator NameValueCollection::find(const std::string& name) const
+{
+	return _map.find(name);
+}
+
+
+inline NameValueCollection::Iterator NameValueCollection::find(const std::string& name)
+{
+	return _map.find(name);
+}
+
+	
+inline NameValueCollection::ConstIterator NameValueCollection::begin() const
+{
+	return _map.begin();
+}
+
+
+inline NameValueCollection::Iterator NameValueCollection::begin()
+{
+	return _map.begin();
+}
+
+	
+inline NameValueCollection::ConstIterator NameValueCollection::end() const
+{
+	return _map.end();
+}
+
+
+inline NameValueCollection::Iterator NameValueCollection::end()
+{
+	return _map.end();
+}
+
+	
+inline bool NameValueCollection::empty() const
+{
+	return _map.empty();
+}
+
+
+inline std::size_t NameValueCollection::size() const
+{
+	return _map.size();
 }
 
 

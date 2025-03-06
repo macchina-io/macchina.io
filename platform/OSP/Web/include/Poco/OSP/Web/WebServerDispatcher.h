@@ -422,6 +422,10 @@ protected:
 	void logRequest(const Poco::Net::HTTPServerRequest& request, const Poco::Net::HTTPServerResponse& response, const std::string& username, Poco::Clock::ClockDiff duration);
 		/// Logs the HTTP request.
 
+	Poco::Net::SocketAddress realClientAddress(const Poco::Net::HTTPServerRequest& request) const;
+		/// Returns the client address obtained from the X-Forwarded-For header, if it exists,
+		/// otherwise the client address from the request.
+
 	static const std::string BEARER;
 	static const std::string X_OSP_AUTHORIZED_USER;
 	static const std::string X_OSP_AUTHORIZED_SCOPE;

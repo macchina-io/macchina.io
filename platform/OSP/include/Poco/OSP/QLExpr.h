@@ -109,10 +109,6 @@ public:
 
 protected:
 	virtual bool evaluateImpl(const Properties& props) const = 0;
-
-private:
-	std::string _prop;
-	Poco::Any   _value;
 };
 
 

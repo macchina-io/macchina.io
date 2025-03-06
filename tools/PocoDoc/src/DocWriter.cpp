@@ -2249,6 +2249,12 @@ void DocWriter::writeFunction(std::ostream& ostr, const Function* pFunc)
 		writeIcon(ostr, "inline"s);
 	ostr << "</h3>\n";
 	ostr << "<p class=\"decl\">";
+
+	const std::string& attrs = pFunc->getAttributeList();
+	if (!attrs.empty())
+	{
+		ostr << "<i>" << htmlize(attrs) << "</i><br />";
+	}
 	const std::string& decl = pFunc->declaration();
 	writeDecl(ostr, decl);
 	if (!std::isalnum(decl[decl.length() - 1]))
@@ -2286,7 +2292,7 @@ void DocWriter::writeFunction(std::ostream& ostr, const Function* pFunc)
 		ostr << " = 0";
 	ostr << ";</p>\n";
 
-	if (pFunc->attrs().has("deprecated"s))
+	if (pFunc->attrs().has("deprecated") || pFunc->getAttributeList().compare(0, 12, "[[deprecated") == 0)
 	{
 		writeDeprecated(ostr, "function"s);
 	}

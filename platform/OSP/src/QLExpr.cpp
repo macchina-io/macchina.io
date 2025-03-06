@@ -21,6 +21,7 @@
 
 using Poco::NumberParser;
 using Poco::AnyCast;
+using namespace std::string_literals;
 
 
 namespace Poco {
@@ -176,7 +177,7 @@ bool QLEqExpr::evaluateImpl(const Properties& props) const
 	else if (_value.type() == typeid(bool))
 		return props.getBool(_prop, false) == AnyCast<bool>(_value);
 	else if (_value.type() == typeid(std::string))
-		return props.get(_prop, "") == AnyCast<std::string>(_value);
+		return props.get(_prop, ""s) == AnyCast<std::string>(_value);
 	else
 		return false;
 }
@@ -208,7 +209,7 @@ bool QLNeExpr::evaluateImpl(const Properties& props) const
 	else if (_value.type() == typeid(bool))
 		return props.getBool(_prop, false) != AnyCast<bool>(_value);
 	else if (_value.type() == typeid(std::string))
-		return props.get(_prop, "") != AnyCast<std::string>(_value);
+		return props.get(_prop, ""s) != AnyCast<std::string>(_value);
 	else
 		return false;
 }
@@ -240,7 +241,7 @@ bool QLLtExpr::evaluateImpl(const Properties& props) const
 	else if (_value.type() == typeid(bool))
 		return props.getBool(_prop, false) < AnyCast<bool>(_value);
 	else if (_value.type() == typeid(std::string))
-		return props.get(_prop, "") < AnyCast<std::string>(_value);
+		return props.get(_prop, ""s) < AnyCast<std::string>(_value);
 	else
 		return false;
 }
@@ -272,7 +273,7 @@ bool QLLeExpr::evaluateImpl(const Properties& props) const
 	else if (_value.type() == typeid(bool))
 		return props.getBool(_prop, false) <= AnyCast<bool>(_value);
 	else if (_value.type() == typeid(std::string))
-		return props.get(_prop, "") <= AnyCast<std::string>(_value);
+		return props.get(_prop, ""s) <= AnyCast<std::string>(_value);
 	else
 		return false;
 }
@@ -304,7 +305,7 @@ bool QLGtExpr::evaluateImpl(const Properties& props) const
 	else if (_value.type() == typeid(bool))
 		return props.getBool(_prop, false) > AnyCast<bool>(_value);
 	else if (_value.type() == typeid(std::string))
-		return props.get(_prop, "") > AnyCast<std::string>(_value);
+		return props.get(_prop, ""s) > AnyCast<std::string>(_value);
 	else
 		return false;
 }
@@ -336,7 +337,7 @@ bool QLGeExpr::evaluateImpl(const Properties& props) const
 	else if (_value.type() == typeid(bool))
 		return props.getBool(_prop, false) >= AnyCast<bool>(_value);
 	else if (_value.type() == typeid(std::string))
-		return props.get(_prop, "") >= AnyCast<std::string>(_value);
+		return props.get(_prop, ""s) >= AnyCast<std::string>(_value);
 	else
 		return false;
 }
@@ -361,7 +362,7 @@ QLMatchExpr::~QLMatchExpr()
 
 bool QLMatchExpr::evaluate(const Properties& props) const
 {
-	std::string prop(props.get(_prop, ""));
+	std::string prop(props.get(_prop, ""s));
 	return match(_expr.begin(), _expr.end(), prop.begin(), prop.end());
 }
 
@@ -474,7 +475,7 @@ QLMatchRegExpr::~QLMatchRegExpr()
 
 bool QLMatchRegExpr::evaluate(const Properties& props) const
 {
-	std::string prop(props.get(_prop, ""));
+	std::string prop(props.get(_prop, ""s));
 	return _expr.match(prop);
 }
 

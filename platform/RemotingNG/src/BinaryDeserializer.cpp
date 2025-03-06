@@ -320,6 +320,8 @@ void BinaryDeserializer::findMessageImpl()
 {
 	std::string startTag;
 	_pReader->readRaw(static_cast<std::streamsize>(BinarySerializer::MESSAGE_START_TAG.size()), startTag);
+	if (!_pReader->good())
+		throw ProtocolException("no message received");
 	if (startTag != BinarySerializer::MESSAGE_START_TAG)
 		throw DeserializerException("no valid message start tag found");
 	Poco::UInt8 code(0);

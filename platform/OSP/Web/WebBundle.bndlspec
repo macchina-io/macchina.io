@@ -3,9 +3,9 @@
   <manifest>
     <name>OSP Web Server Foundation</name>
     <symbolicName>osp.web</symbolicName>
-    <version>1.7.2</version>
+    <version>1.9.0</version>
     <vendor>Applied Informatics</vendor>
-    <copyright>(c) 2007-2024, Applied Informatics Software Engineering GmbH</copyright>
+    <copyright>(c) 2007-2025, Applied Informatics Software Engineering GmbH</copyright>
     <activator>
       <class>WebBundleActivator</class>
       <library>osp.web</library>

@@ -23,6 +23,7 @@
 #include "Poco/Net/HTTPResponse.h"
 #include "Poco/NumberFormatter.h"
 #include "Poco/StringTokenizer.h"
+#include "Poco/String.h"
 
 
 namespace
@@ -99,6 +100,7 @@ HTTPDigestCredentials::HTTPDigestCredentials(const std::string& username, const 
 
 HTTPDigestCredentials::~HTTPDigestCredentials()
 {
+	clear();
 }
 
 
@@ -123,8 +125,8 @@ void HTTPDigestCredentials::setPassword(const std::string& password)
 
 void HTTPDigestCredentials::clear()
 {
-	_username.clear();
-	_password.clear();
+	Poco::secureClear(_username);
+	Poco::secureClear(_password);
 }
 
 

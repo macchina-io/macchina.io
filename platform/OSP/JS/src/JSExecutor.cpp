@@ -75,11 +75,9 @@ void JSExecutor::setupGlobalObject(v8::Local<v8::Object>& global, v8::Isolate* p
 	v8::Local<v8::Object> bundleObject;
 	if (maybeBundleObject.ToLocal(&bundleObject))
 	{
-		V8_CHECK_SET_RESULT(bundleObject->Set(context, Wrapper::toV8Internalized(pIsolate, "temporaryDirectory"s), Wrapper::toV8String(pIsolate, _pContext->temporaryDirectory().toString())));
-		V8_CHECK_SET_RESULT(bundleObject->Set(context, Wrapper::toV8Internalized(pIsolate, "persistentDirectory"s), Wrapper::toV8String(pIsolate, _pContext->persistentDirectory().toString())));
+		V8_CHECK_SET_RESULT(bundleObject->Set(context, Wrapper::toV8Internalized(pIsolate, "temporaryDirectory"s), Wrapper::toV8String(pIsolate, _pContext->temporaryDirectory().toString()))); // deprecated
+		V8_CHECK_SET_RESULT(bundleObject->Set(context, Wrapper::toV8Internalized(pIsolate, "persistentDirectory"s), Wrapper::toV8String(pIsolate, _pContext->persistentDirectory().toString()))); // deprecated
 		V8_CHECK_SET_RESULT(global->Set(context, Wrapper::toV8Internalized(pIsolate, "bundle"s), bundleObject));
-
-		setWrapperProperty<Poco::JS::Core::ConfigurationWrapper>(bundleObject, pIsolate, "properties"s, const_cast<Poco::Util::AbstractConfiguration*>(&_pBundle->properties()));
 	}
 
 	BundleContextWrapper bundleContextWrapper;

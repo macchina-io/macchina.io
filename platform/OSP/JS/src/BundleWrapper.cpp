@@ -10,6 +10,7 @@
 
 #include "Poco/OSP/JS/BundleWrapper.h"
 #include "Poco/JS/Core/BufferWrapper.h"
+#include "Poco/JS/Core/ConfigurationWrapper.h"
 #include "Poco/JS/Core/PooledIsolate.h"
 #include "Poco/OSP/Bundle.h"
 #include "Poco/StreamCopier.h"
@@ -61,6 +62,7 @@ v8::Handle<v8::ObjectTemplate> BundleWrapper::objectTemplate(v8::Isolate* pIsola
 		objectTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "requiredBundles"s), requiredBundles);
 		objectTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "requiredModules"s), requiredModules);
 		objectTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "providedModules"s), providedModules);
+		objectTemplate->SetAccessor(Wrapper::toV8Internalized(pIsolate, "properties"s), properties);
 		objectTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getResourceString"s), v8::FunctionTemplate::New(pIsolate, getResourceString));
 		objectTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getResourceBuffer"s), v8::FunctionTemplate::New(pIsolate, getResourceBuffer));
 		objectTemplate->Set(Wrapper::toV8Internalized(pIsolate, "getLocalizedResourceString"s), v8::FunctionTemplate::New(pIsolate, getLocalizedResourceString));
@@ -180,6 +182,21 @@ void BundleWrapper::providedModules(v8::Local<v8::String> name, const v8::Proper
 {
 	Poco::OSP::Bundle* pBundle = Poco::JS::Core::Wrapper::unwrapNative<Poco::OSP::Bundle>(info);
 	info.GetReturnValue().Set(modules(info.GetIsolate(), pBundle->providedModules()));
+}
+
+
+void BundleWrapper::properties(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	v8::Isolate* pIsolate(info.GetIsolate());
+	v8::HandleScope scope(pIsolate);
+	Poco::OSP::Bundle* pBundle = Poco::JS::Core::Wrapper::unwrapNative<Poco::OSP::Bundle>(info);
+	Poco::JS::Core::ConfigurationWrapper wrapper;
+	v8::MaybeLocal<v8::Object> maybeConfigurationObject(wrapper.wrapNative(pIsolate, const_cast<Poco::Util::AbstractConfiguration*>(&pBundle->properties())));
+	v8::Local<v8::Object> configurationObject;
+	if (maybeConfigurationObject.ToLocal(&configurationObject))
+	{
+		info.GetReturnValue().Set(v8::Local<v8::Object>::New(pIsolate, configurationObject));
+	}
 }
 
 

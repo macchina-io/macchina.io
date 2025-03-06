@@ -56,6 +56,11 @@ public:
 		///
 		/// A zero timeout immediately removes the session.
 
+	virtual Poco::Int64 saveTimeout(const std::string& sessionId, Poco::Timespan timeout) = 0;
+		/// Updates the stored timeout of the session.
+		///
+		/// Returns the new version number of the session.
+
 	virtual Poco::Int64 saveValue(const std::string& sessionId, const std::string& key, const Poco::Any& value) = 0;
 		/// Saves the value of the given key for the given session.
 		///

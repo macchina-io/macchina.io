@@ -191,6 +191,17 @@ std::size_t WebSessionManager::countSessions()
 }
 
 
+void WebSessionManager::updateSessionTimeout(const std::string& appName, WebSession::Ptr pSession, int timeout, const Poco::Net::HTTPServerRequest& request)
+{
+	pSession->timeout(timeout);
+	request.response().replaceCookie(createSessionCookie(appName, pSession));
+	if (!_csrfCookie.empty())
+	{
+		request.response().replaceCookie(createCSRFCookie(appName, pSession));
+	}
+}
+
+
 WebSession::Ptr WebSessionManager::find(const std::string& appName, const Poco::Net::HTTPServerRequest& request)
 {
 	FastMutex::ScopedLock lock(_mutex);
@@ -398,6 +409,21 @@ std::string WebSessionManager::getId(const std::string& appName, const Poco::Net
 
 void WebSessionManager::addSessionCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr pSession)
 {
+	request.response().addCookie(createSessionCookie(appName, pSession));
+}
+
+
+void WebSessionManager::addCSRFCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr pSession)
+{
+	if (!_csrfCookie.empty())
+	{
+		request.response().addCookie(createCSRFCookie(appName, pSession));
+	}
+}
+
+
+Poco::Net::HTTPCookie WebSessionManager::createSessionCookie(const std::string& appName, WebSession::Ptr pSession)
+{
 	Poco::Net::HTTPCookie cookie(cookieName(appName), pSession->id());
 	if (_cookiePersistence == COOKIE_PERSISTENT)
 	{
@@ -408,24 +434,21 @@ void WebSessionManager::addSessionCookie(const std::string& appName, const Poco:
 	cookie.setHttpOnly();
 	cookie.setSecure(_cookieSecure);
 	cookie.setSameSite(_cookieSameSite);
-	request.response().addCookie(cookie);
+	return cookie;
 }
 
 
-void WebSessionManager::addCSRFCookie(const std::string& appName, const Poco::Net::HTTPServerRequest& request, WebSession::Ptr pSession)
+Poco::Net::HTTPCookie WebSessionManager::createCSRFCookie(const std::string& appName, WebSession::Ptr pSession)
 {
-	if (!_csrfCookie.empty())
+	Poco::Net::HTTPCookie csrfCookie(_csrfCookie, pSession->csrfToken());
+	if (_cookiePersistence == COOKIE_PERSISTENT)
 	{
-		Poco::Net::HTTPCookie csrfCookie(_csrfCookie, pSession->csrfToken());
-		if (_cookiePersistence == COOKIE_PERSISTENT)
-		{
-			csrfCookie.setMaxAge(pSession->timeout());
-		}
-		csrfCookie.setPath(cookiePath(appName));
-		csrfCookie.setSecure(_cookieSecure);
-		csrfCookie.setSameSite(Poco::Net::HTTPCookie::SAME_SITE_STRICT);
-		request.response().addCookie(csrfCookie);
+		csrfCookie.setMaxAge(pSession->timeout());
 	}
+	csrfCookie.setPath(cookiePath(appName));
+	csrfCookie.setSecure(_cookieSecure);
+	csrfCookie.setSameSite(Poco::Net::HTTPCookie::SAME_SITE_STRICT);
+	return csrfCookie;
 }
 
 

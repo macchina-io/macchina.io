@@ -2600,6 +2600,65 @@ public:
 };
 
 
+class TesterTestTimeoutMethodHandler: public Poco::RemotingNG::MethodHandler
+{
+public:
+	void invoke(Poco::RemotingNG::ServerTransport& remoting__trans, Poco::RemotingNG::Deserializer& remoting__deser, Poco::RemotingNG::RemoteObject::Ptr remoting__pRemoteObject)
+	{
+		using namespace std::string_literals;
+		
+		static const std::string REMOTING__NAMES[] = {"testTimeout"s};
+		bool remoting__requestSucceeded = false;
+		try
+		{
+			remoting__deser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
+			remoting__deser.deserializeMessageBegin(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			remoting__deser.deserializeMessageEnd(REMOTING__NAMES[0], Poco::RemotingNG::SerializerBase::MESSAGE_REQUEST);
+			remoting__deser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
+			TesterRemoteObject* remoting__pCastedRO = static_cast<TesterRemoteObject*>(remoting__pRemoteObject.get());
+			remoting__pCastedRO->testTimeout();
+			remoting__requestSucceeded = true;
+			Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.pushProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE, TesterSkeleton::DEFAULT_NS);
+			static const std::string REMOTING__REPLY_NAME("testTimeoutReply");
+			remoting__ser.serializeMessageBegin(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.serializeMessageEnd(REMOTING__REPLY_NAME, Poco::RemotingNG::SerializerBase::MESSAGE_REPLY);
+			remoting__ser.popProperty(Poco::RemotingNG::SerializerBase::PROP_NAMESPACE);
+		}
+		catch (const Poco::Exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				remoting__trans.reportException("Tester::testTimeout"s, e);
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], e);
+			}
+		}
+		catch (const std::exception& e)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				const Poco::Exception exc(e.what());
+				remoting__trans.reportException("Tester::testTimeout"s, exc);
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+		catch (...)
+		{
+			if (!remoting__requestSucceeded)
+			{
+				const Poco::Exception exc("Unknown Exception"s);
+				remoting__trans.reportException("Tester::testTimeout"s, exc);
+				Poco::RemotingNG::Serializer& remoting__ser = remoting__trans.sendReply(Poco::RemotingNG::SerializerBase::MESSAGE_FAULT);
+				remoting__ser.serializeFaultMessage(REMOTING__NAMES[0], exc);
+			}
+		}
+	}
+
+};
+
+
 TesterSkeleton::TesterSkeleton():
 	Poco::RemotingNG::Skeleton()
 
@@ -2649,6 +2708,7 @@ TesterSkeleton::TesterSkeleton():
 	addMethodHandler("testSynchronized"s, new TesterTestSynchronizedMethodHandler);
 	addMethodHandler("testSynchronizedProxy"s, new TesterTestSynchronizedProxyMethodHandler);
 	addMethodHandler("testSynchronizedRemote"s, new TesterTestSynchronizedRemoteMethodHandler);
+	addMethodHandler("testTimeout"s, new TesterTestTimeoutMethodHandler);
 }
 
 

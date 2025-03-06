@@ -52,6 +52,7 @@ protected:
 	static void requiredBundles(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void requiredModules(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void providedModules(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
+	static void properties(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info);
 	static void getResourceString(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getResourceBuffer(const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void getLocalizedResourceString(const v8::FunctionCallbackInfo<v8::Value>& args);

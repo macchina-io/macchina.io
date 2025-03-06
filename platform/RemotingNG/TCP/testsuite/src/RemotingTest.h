@@ -55,6 +55,7 @@ public:
 	void testAuthenticatedMultipleSCRAMCredentials();
 	void testPermission();
 	void testNoPermission();
+	void testTimeout();
 	void testEvent();
 	void testOneWayEvent();
 	void testVoidEvent();

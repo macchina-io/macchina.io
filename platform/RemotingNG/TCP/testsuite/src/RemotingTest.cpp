@@ -687,6 +687,26 @@ void RemotingTest::testNoPermission()
 }
 
 
+void RemotingTest::testTimeout()
+{
+	ITester::Ptr pTester = createProxy(_objectURI);
+
+	Poco::AutoPtr<TesterProxy> pProxy = pTester.cast<TesterProxy>();
+	Poco::RemotingNG::TCP::Transport& trans = static_cast<Poco::RemotingNG::TCP::Transport&>(pProxy->remoting__transport());
+
+	trans.setTimeout(Poco::Timespan(1, 0));
+
+	try
+	{
+		pTester->testTimeout();
+		fail("timeout - must throw");
+	}
+	catch (Poco::TimeoutException&)
+	{
+	}
+}
+
+
 void RemotingTest::testEvent()
 {
 	Poco::RemotingNG::TCP::Listener::Ptr pEventListener = new Poco::RemotingNG::TCP::Listener;
@@ -1111,6 +1131,7 @@ CppUnit::Test* RemotingTest::suite()
 	CppUnit_addTest(pSuite, RemotingTest, testAuthenticatedMultipleSCRAMCredentials);
 	CppUnit_addTest(pSuite, RemotingTest, testPermission);
 	CppUnit_addTest(pSuite, RemotingTest, testNoPermission);
+	CppUnit_addTest(pSuite, RemotingTest, testTimeout);
 	CppUnit_addTest(pSuite, RemotingTest, testEvent);
 	CppUnit_addTest(pSuite, RemotingTest, testOneWayEvent);
 
@@ -1168,6 +1189,7 @@ CppUnit::Test* RemotingTestCompressed::suite()
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testAuthenticatedMultipleSCRAMCredentials);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testPermission);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testNoPermission);
+	CppUnit_addTest(pSuite, RemotingTest, testTimeout);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testEvent);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testOneWayEvent);
 	CppUnit_addTest(pSuite, RemotingTestCompressed, testVoidEvent);

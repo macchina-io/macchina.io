@@ -124,6 +124,8 @@ public:
 
 	void testSynchronizedRemote();
 
+	void testTimeout();
+
 protected:
 	void event__testEvent(std::string& data);
 
@@ -399,6 +401,12 @@ inline void TesterRemoteObject::testSynchronizedRemote()
 {
 	Poco::FastMutex::ScopedLock lock(mutex());
 	_pServiceObject->testSynchronizedRemote();
+}
+
+
+inline void TesterRemoteObject::testTimeout()
+{
+	_pServiceObject->testTimeout();
 }
 
 

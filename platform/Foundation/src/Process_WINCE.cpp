@@ -118,6 +118,30 @@ void ProcessImpl::timesImpl(long& userTime, long& kernelTime)
 }
 
 
+void ProcessImpl::timesMicrosecondsImpl(Poco::Int64& userTime, Poco::Int64& kernelTime)
+{
+	FILETIME ftCreation;
+	FILETIME ftExit;
+	FILETIME ftKernel;
+	FILETIME ftUser;
+
+	if (GetThreadTimes(GetCurrentThread(), &ftCreation, &ftExit, &ftKernel, &ftUser) != 0)
+	{
+		ULARGE_INTEGER time;
+		time.LowPart  = ftKernel.dwLowDateTime;
+		time.HighPart = ftKernel.dwHighDateTime;
+		kernelTime    = Poco::Int64(time.QuadPart/10);
+		time.LowPart  = ftUser.dwLowDateTime;
+		time.HighPart = ftUser.dwHighDateTime;
+		userTime      = Poco::Int64(time.QuadPart/10);
+	}
+	else
+	{
+		userTime = kernelTime = -1;
+	}
+}
+
+
 ProcessHandleImpl* ProcessImpl::launchImpl(const std::string& command, const ArgsImpl& args, const std::string& initialDirectory, Pipe* inPipe, Pipe* outPipe, Pipe* errPipe, const EnvImpl& env)
 {
 	std::wstring ucommand;

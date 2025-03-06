@@ -290,6 +290,19 @@ Poco::RemotingNG::Deserializer& Transport::sendRequest(const Poco::RemotingNG::I
 	_pRequestStream->close();
 	_pRequestStream = 0;
 
+	Poco::Timestamp requestTime;
+	if (_pReplyStream->peek() < 0)
+	{
+		if (_timeout != 0 && requestTime.isElapsed(_timeout.totalMicroseconds()))
+		{
+			throw Poco::TimeoutException(Poco::format("request %s to object %s"s, messageName, _endPoint));
+		}
+		else
+		{
+			throw TransportException(Poco::format("no response received for request %s to object %s (server may be gone)"s, messageName, _endPoint));
+		}
+	}
+
 	if (_compression)
 	{
 		_pInflatingStream = new Poco::InflatingInputStream(*_pReplyStream);

@@ -153,15 +153,40 @@ void WebSession::clearImpl()
 }
 
 
-void WebSession::access()
+void WebSession::timeout(int seconds)
 {
+	Poco::Timespan tsTimeout;
+	{
+		Poco::FastMutex::ScopedLock lock(_timeoutMutex);
+
+		_timeout.assign(seconds, 0);
+		accessImpl();
+		tsTimeout = _timeout;
+	}
+
 	Poco::FastMutex::ScopedLock lock(_mutex);
-
-	accessImpl();
-
 	if (_pStore)
 	{
-		_pStore->expireSession(_id, _timeout);
+		updateVersion(_pStore->saveTimeout(_id, tsTimeout));
+		_pStore->expireSession(_id, tsTimeout);
+	}
+}
+
+
+void WebSession::access()
+{
+	Poco::Timespan tsTimeout;
+	{
+		Poco::FastMutex::ScopedLock lock(_timeoutMutex);
+
+		accessImpl();
+		tsTimeout = _timeout;
+	}
+
+	Poco::FastMutex::ScopedLock lock(_mutex);
+	if (_pStore)
+	{
+		_pStore->expireSession(_id, tsTimeout);
 	}
 }
 
@@ -186,7 +211,8 @@ void WebSession::onBundleStopping(const void* pSender, BundleEvent& ev)
 {
 	if (ev.bundle() == _pContext->thisBundle())
 	{
-		clearImpl();
+		// Only clear attributes in memory, do not clear attributes in session store.
+		_attrs.clear();
 	}
 }
 

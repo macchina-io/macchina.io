@@ -497,6 +497,7 @@ void WebServerDispatcher::logRequest(const Poco::Net::HTTPServerRequest& request
 
 	message["status"s] = Poco::NumberFormatter::format(static_cast<int>(response.getStatus()));
 	message["client"s] = request.clientAddress().host().toString();
+	message["ffclient"s] = realClientAddress(request).host().toString();
 
 	if (response.getContentLength64() != Poco::Net::HTTPMessage::UNKNOWN_CONTENT_LENGTH)
 		message["size"s] = Poco::NumberFormatter::format(response.getContentLength64());
@@ -933,6 +934,7 @@ bool WebServerDispatcher::authorize(Poco::Net::HTTPServerRequest& request, const
 				authorized = authorizeBasic(request, authInfo, vPath, username);
 			else if (scheme == BEARER && (authMethods & AUTH_BEARER) != 0)
 				authorized = authorizeBearer(request, authInfo, vPath, username, scope);
+			Poco::secureClear(authInfo);
 		}
 		else if (!vPath.security.session.empty() && (authMethods & AUTH_SESSION) != 0)
 		{
@@ -1398,6 +1400,28 @@ int WebServerDispatcher::parseAuthMethods(const std::string& methods)
 			throw Poco::InvalidArgumentException("authentication method", *it);
 	}
 	return result;
+}
+
+
+Poco::Net::SocketAddress WebServerDispatcher::realClientAddress(const Poco::Net::HTTPServerRequest& request) const
+{
+	Poco::Net::SocketAddress addr = request.clientAddress();
+	std::string xff = request.get("X-Forwarded-For"s, ""s);
+	if (!xff.empty())
+	{
+		try
+		{
+			std::string::size_type pos = xff.find(',');
+			if (pos != std::string::npos) xff.resize(pos);
+			Poco::trimInPlace(xff);
+			addr = Poco::Net::SocketAddress(xff, 0);
+		}
+		catch (Poco::Exception&)
+		{
+			_pContext->logger().warning("Cannot parse client address from X-Forwarded-For header: %s"s, request.get("X-Forwarded-For"s));
+		}
+	}
+	return addr;
 }
 
 

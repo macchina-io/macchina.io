@@ -278,6 +278,8 @@ public:
 	//@ permission="perm1"
 	void testPermission();
 
+	void testTimeout();
+
 	//@ oneway
 	void fireTestEvent(const std::string& arg);
 
